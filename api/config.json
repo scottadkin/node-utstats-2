@@ -1,0 +1,13 @@
+{
+    "ftp": {
+        "host": "localhost",
+        "port": 21,
+        "user": "scott",
+        "password": "password",
+        "logsFolder": "logs",
+        "logFilePrefix": "unreal.nglog."
+    }, 
+    "importedLogsFolder": "logs",
+    "test": "Dogs have wet noses"
+
+}
