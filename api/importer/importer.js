@@ -107,7 +107,22 @@ class Importer{
                 if(err) reject(err);
 
                 stream.once('close', () =>{
-                    resolve();
+
+                    if(config.ftp.bDeleteLogsFromServer){
+
+                        this.client.delete(target, (err) =>{
+
+                            if(err) reject(err);
+
+                            console.log(`Delete ${target} from ftp server.`);
+
+                            resolve();
+                        });
+
+                    }else{
+                        resolve();
+                    }
+
                 });
 
                 stream.pipe(fs.createWriteStream(destination));

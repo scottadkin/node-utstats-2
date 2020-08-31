@@ -5,7 +5,8 @@
         "user": "scott",
         "password": "password",
         "logsFolder": "logs",
-        "logFilePrefix": "unreal.nglog."
+        "logFilePrefix": "unreal.nglog.",
+        "bDeleteLogsFromServer": false
     }, 
     "importedLogsFolder": "logs",
     "test": "Dogs have wet noses"
