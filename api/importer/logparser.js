@@ -1,6 +1,7 @@
 const Promise = require('promise');
 const ServerInfo = require('./serverinfo');
 const MapInfo = require('./mapinfo');
+const GameInfo = require('./gameinfo');
 
 class LogParser{
 
@@ -14,6 +15,8 @@ class LogParser{
 
         this.serverInfo = new ServerInfo(this.serverLines);
         this.mapInfo = new MapInfo(this.mapLines);
+        this.gameInfo = new GameInfo(this.gameLines);
+
 
     }
 
@@ -27,6 +30,7 @@ class LogParser{
 
         this.serverLines = [];
         this.mapLines = [];
+        this.gameLines = [];
 
         let typeResult = 0;
         let currentType = 0;
@@ -43,12 +47,14 @@ class LogParser{
                     this.serverLines.push(this.lines[i]);
                 }else if(currentType == 'map'){
                     this.mapLines.push(this.lines[i]);
+                }else if(currentType == 'game' || currentType == "game_start" || currentType == "game_end"){
+                    this.gameLines.push(this.lines[i]);
                 }
             }
 
         }
 
-        console.log(this.mapLines);
+        console.log(this.gameLines);
 
 
 

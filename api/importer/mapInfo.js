@@ -1,16 +1,18 @@
+const Functions = require('../functions');
+
 class MapInfo{
 
     constructor(data){
 
         this.data = data;
 
-        this.types = [
+        /*this.types = [
             {"label": "name", "var": "name"},
             {"label": "title", "var": "title"},
             {"label": "author", "var": "author"},
             {"label": "idealplayercount", "var": "idealPlayerCount"},
             {"label": "levelentertext", "var": "levelEnterText"}
-        ];
+        ];*/
 
         this.parseData();
     }
@@ -41,12 +43,7 @@ class MapInfo{
             currentResult = reg.exec(this.data[i]);
 
             if(currentResult !== null){
-
-                currentType = this.getMatchingType(currentResult[1]);
-
-                if(currentType !== null){
-                    this[currentType] = currentResult[2]
-                }
+                this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2]      
             }
         }
     }
