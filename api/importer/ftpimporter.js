@@ -3,6 +3,7 @@ const Client = require('ftp');
 const fs = require('fs');
 const Promise = require('promise');
 const EventEmitter = require('events');
+const Message = require('../message');
 
 class MyEmitter extends EventEmitter {}
 
@@ -21,7 +22,7 @@ class FTPImporter{
 
         this.client.on('ready', () =>{
 
-            console.log(`Connected to ftp://${config.ftp.host}:${config.ftp.port}.`);
+            new Message(`Connected to ftp://${config.ftp.host}:${config.ftp.port}.`, 'pass');
 
             this.checkForFiles();
         });
@@ -31,7 +32,7 @@ class FTPImporter{
         });
 
         this.client.on('close', () =>{
-            console.log(`Connection to has closed ${config.ftp.host}:${config.ftp.port}.`);
+            new Message(`Connection to has closed ${config.ftp.host}:${config.ftp.port}.`, 'pass');
             this.events.emit('finished');
         });
 
@@ -80,12 +81,12 @@ class FTPImporter{
 
             if(extReg.test(f.name)){
 
-                if(f.name.toLowerCase().startsWith(config.ftp.logFilePrefix)){
+                if(f.name.toLowerCase().startsWith(config.logFilePrefix)){
 
                     this.logsFound.push(f);
 
                 }else{
-                    console.log(`${f.name} does not have the required prefix of ${config.ftp.logFilePrefix}`);
+                    new Message(`${f.name} does not have the required prefix of ${config.logFilePrefix}`, 'error');
                 }
             }
         }
@@ -107,7 +108,7 @@ class FTPImporter{
 
                             if(err) reject(err);
 
-                            console.log(`Deleted ${target} from ftp server.`);
+                            new Message(`Deleted ${target} from ftp server.`, 'pass');
 
                             resolve();
                         });
@@ -134,7 +135,7 @@ class FTPImporter{
                 await this.downloadFile(`${config.ftp.logsFolder}/${log.name}`, `${config.importedLogsFolder}/${log.name}`);
             }
 
-            console.log(`Downloaded ${this.logsFound.length} log files.`);
+            new Message(`Downloaded ${this.logsFound.length} log files.`, 'pass');
 
             this.client.end();
 
