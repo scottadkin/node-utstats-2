@@ -4,6 +4,8 @@ const Promise = require('promise');
 const FTPImporter = require('./ftpimporter');
 const fs = require('fs').promises;
 const Message = require('../message');
+const LogParser = require('./logparser');
+//const Server = require('./server');
 
 
 class Importer{
@@ -18,7 +20,10 @@ class Importer{
             try{
                 this.logsToImport = [];
                 await this.checkLogsFolder();
-                console.log(await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`));
+                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`)
+               // console.log(await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`));
+
+                const test = new LogParser(testData);
 
             }catch(err){
                 console.trace(err);
