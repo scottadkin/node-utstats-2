@@ -3,14 +3,13 @@ class ServerInfo{
     constructor(data){
            
         this.data = data;
-        this.defaultReg = /^(\d+\.\d+)\tinfo\t(.+)$/i;
 
         this.types = [
             {"label": "log_standard", "var": "logStandard"},
             {"label": "log_version", "var": "logVersion"},
             {"label": "game_name", "var": "gameName"},
             {"label": "game_version", "var": "gameVersion"},
-            {"label": "absolute_time", "var": "time"},
+            {"label": "absolute_time", "var": "date"},
             {"label": "utglenabled", "var": "utgl"},
             {"label": "true_server_ip", "var": "trueIp"},
             {"label": "server_ip", "var": "ip"},
@@ -25,6 +24,7 @@ class ServerInfo{
         ];
 
         this.parseData();
+        this.convertDate();
    
     }
 
@@ -67,6 +67,28 @@ class ServerInfo{
                 
             }
         }
+    }
+
+    convertDate(){
+
+        const reg = /^(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{3})\.(\d+)\.(\d+)$/i;
+
+        const result = reg.exec(this.date);
+
+        if(result !== null){
+
+            const year = parseInt(result[1]);
+            const month = parseInt(result[2]) - 1;
+            const day = parseInt(result[3]);
+            const hours = parseInt(result[4]);
+            const minutes = parseInt(result[5]);
+            const seconds = parseInt(result[6]);
+
+            const date = new Date(year, month, day, hours, minutes, seconds);
+
+            this.date = date.getTime();
+        }
+        
     }
 
 

@@ -1,5 +1,6 @@
 const Promise = require('promise');
-const ServerInfo = require('./serverInfo');
+const ServerInfo = require('./serverinfo');
+const MapInfo = require('./mapinfo');
 
 class LogParser{
 
@@ -11,30 +12,43 @@ class LogParser{
 
         this.convertFileToLines();
 
-        console.log(this.lines);
         this.serverInfo = new ServerInfo(this.serverLines);
+        this.mapInfo = new MapInfo(this.mapLines);
 
     }
 
 
     convertFileToLines(){
 
-
         const reg = /^(.+?)$/img;
-        const serverReg = /^\d+\.\d+?\tinfo\t.+$/i;
+        const typeReg = /^\d+\.\d+?\t(.+?)\t.+$/i;
 
         this.lines = this.data.match(reg);
 
         this.serverLines = [];
+        this.mapLines = [];
+
+        let typeResult = 0;
+        let currentType = 0;
 
         for(let i = 0; i < this.lines.length; i++){
 
-            if(serverReg.test(this.lines[i])){
-                this.serverLines.push(this.lines[i]);
+            typeResult = typeReg.exec(this.lines[i]);
+
+            if(typeResult !== null){
+
+                currentType = typeResult[1].toLowerCase();
+
+                if(currentType == 'info'){
+                    this.serverLines.push(this.lines[i]);
+                }else if(currentType == 'map'){
+                    this.mapLines.push(this.lines[i]);
+                }
             }
+
         }
 
-        console.log(this.serverLines);
+        console.log(this.mapLines);
 
 
 
