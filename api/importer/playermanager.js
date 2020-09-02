@@ -11,7 +11,8 @@ class PlayerManager{
         this.players = [];
 
 
-        this.handleConnections();
+        this.createPlayers();
+        //this.setTeams();
 
         console.log(this.players);
 
@@ -29,7 +30,7 @@ class PlayerManager{
         return null;
     }
 
-    handleConnections(){
+    createPlayers(){
 
         let d = 0;
 
@@ -56,6 +57,10 @@ class PlayerManager{
                     this.connectPlayer(timeStamp, subString);
                 }else if(type === 'disconnect'){
                      this.disconnectPlayer(subString, timeStamp);
+                }else if(type === 'team' || type == "teamchange"){
+                    this.setTeam(subString, timeStamp);
+                }else if(type === 'isabot'){
+                    this.setBotStatus(subString);
                 }
             }
         }
@@ -90,6 +95,55 @@ class PlayerManager{
 
         if(player !== null){
             player.disconnect(timeStamp);
+        }else{
+            new Message(`Player with the id of ${id} does not exist(disconnectPlayer).`,'warning');
+        }
+    }
+
+    setTeam(subString, timeStamp){
+
+        const reg = /^(.+?)\t(.+)$/i;
+
+        const result = reg.exec(subString);
+
+        if(result !== null){
+
+            const id = parseInt(result[1]);
+            const team = parseInt(result[2]);
+            const player = this.getPlayerById(id);
+
+            if(player !== null){
+                player.setTeam(timeStamp, team);      
+            }else{
+                new Message(`Player with the id of ${id} does not exist(setTeam).`,'warning');
+            }
+        }
+    }
+
+    setBotStatus(string){
+
+        const reg = /^(.+?)\t(.+)$/i;
+
+        const result = reg.exec(string);
+
+        if(result !== null){
+
+            let bBot = false;
+
+            if(result[2].toLowerCase() === 'true'){
+                bBot = true;
+            }
+
+            if(bBot){
+                const player = this.getPlayerById(parseInt(result[1]));
+
+                if(player !== null){
+                    player.setAsBot();
+                }else{
+
+                    new Message(`Player with the id of ${id} does not exist(setBotStatus).`,'warning');
+                }
+            }
         }
     }
 

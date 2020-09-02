@@ -6,6 +6,8 @@ class PlayerInfo{
         this.name = name;
         this.connects = [timeStamp];
         this.disconnects = [];
+        this.teams = [];
+        this.bBot = false;
 
         //console.log(this);
 
@@ -16,9 +18,19 @@ class PlayerInfo{
     }
 
     disconnect(timeStamp){
-
-        console.log(`${this.name} disconnected at ${timeStamp}`);
         this.disconnects.push(timeStamp);
+    }
+
+    setTeam(timeStamp, id){
+
+        this.teams.push({
+            "time": parseFloat(timeStamp),
+            "id": parseInt(id)
+        });
+    }
+
+    setAsBot(){
+        this.bBot = true;
     }
 
 }
