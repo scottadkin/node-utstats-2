@@ -2,6 +2,7 @@ const Promise = require('promise');
 const ServerInfo = require('./serverinfo');
 const MapInfo = require('./mapinfo');
 const GameInfo = require('./gameinfo');
+const PlayerManager = require('./playermanager');
 
 class LogParser{
 
@@ -16,6 +17,7 @@ class LogParser{
         this.serverInfo = new ServerInfo(this.serverLines);
         this.mapInfo = new MapInfo(this.mapLines);
         this.gameInfo = new GameInfo(this.gameLines);
+        this.playerManger = new PlayerManager(this.playerLines);
 
 
     }
@@ -31,9 +33,21 @@ class LogParser{
         this.serverLines = [];
         this.mapLines = [];
         this.gameLines = [];
+        this.playerLines = [];
 
         let typeResult = 0;
         let currentType = 0;
+
+        const gameTypes = [
+            "game",
+            "game_start",
+            "game_end"
+        ];
+
+        const playerTypes = [
+            "player"
+
+        ];
 
         for(let i = 0; i < this.lines.length; i++){
 
@@ -47,16 +61,15 @@ class LogParser{
                     this.serverLines.push(this.lines[i]);
                 }else if(currentType == 'map'){
                     this.mapLines.push(this.lines[i]);
-                }else if(currentType == 'game' || currentType == "game_start" || currentType == "game_end"){
+                }else if(gameTypes.indexOf(currentType) !== -1){
                     this.gameLines.push(this.lines[i]);
+                }else if(playerTypes.indexOf(currentType) !== -1){
+                    this.playerLines.push(this.lines[i]);
                 }
             }
-
         }
 
-        console.log(this.gameLines);
-
-
+        console.log(this.playerLines);
 
 
     }

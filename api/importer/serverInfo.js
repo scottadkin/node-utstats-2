@@ -8,6 +8,7 @@ class ServerInfo{
 
         this.parseData();
         this.convertDate();
+        this.data = null;
    
     }
 

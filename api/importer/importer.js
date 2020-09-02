@@ -20,7 +20,7 @@ class Importer{
             try{
                 this.logsToImport = [];
                 await this.checkLogsFolder();
-                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`)
+                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[2]}`)
                // console.log(await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`));
 
                 const test = new LogParser(testData);
