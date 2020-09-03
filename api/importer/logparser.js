@@ -27,6 +27,7 @@ class LogParser{
 
         const reg = /^(.+?)$/img;
         const typeReg = /^\d+\.\d+?\t(.+?)\t.+$/i;
+        const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
 
         this.lines = this.data.match(reg);
 
@@ -45,9 +46,14 @@ class LogParser{
         ];
 
         const playerTypes = [
-            "player"
+            "player",
+            "face",
+            "voice",
+            "netspeed"
 
         ];
+
+        //nstats tsusgdusghdushgidshg
 
         for(let i = 0; i < this.lines.length; i++){
 
@@ -58,16 +64,38 @@ class LogParser{
                 currentType = typeResult[1].toLowerCase();
 
                 if(currentType == 'info'){
+
                     this.serverLines.push(this.lines[i]);
+
                 }else if(currentType == 'map'){
+
                     this.mapLines.push(this.lines[i]);
+
                 }else if(gameTypes.indexOf(currentType) !== -1){
+
                     this.gameLines.push(this.lines[i]);
+
                 }else if(playerTypes.indexOf(currentType) !== -1){
+
                     this.playerLines.push(this.lines[i]);
+
+                }else if(currentType === 'nstats'){
+
+                    typeResult = nstatsReg.exec(this.lines[i]);
+                    
+                    if(typeResult !== null){
+
+                        currentType = typeResult[1].toLowerCase();
+
+                        if(playerTypes.indexOf(currentType) !== -1){
+
+                            this.playerLines.push(this.lines[i]);
+                        }
+                    }
                 }
             }
         }
+
 
         console.log(this.playerLines);
 

@@ -33,6 +33,19 @@ class PlayerInfo{
         this.bBot = true;
     }
 
+    setFace(face){
+        this.face = face;
+    }
+
+    setVoice(voice){
+        this.voice = voice;
+    }
+
+    setNetspeed(speed){
+
+        this.netSpeed = parseFloat(speed);
+    }
+
 }
 
 
