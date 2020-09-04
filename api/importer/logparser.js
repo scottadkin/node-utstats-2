@@ -3,6 +3,7 @@ const ServerInfo = require('./serverinfo');
 const MapInfo = require('./mapinfo');
 const GameInfo = require('./gameinfo');
 const PlayerManager = require('./playermanager');
+const KillManager = require('./killmanager');
 
 class LogParser{
 
@@ -18,6 +19,7 @@ class LogParser{
         this.mapInfo = new MapInfo(this.mapLines);
         this.gameInfo = new GameInfo(this.gameLines);
         this.playerManger = new PlayerManager(this.playerLines);
+        this.killManager = new KillManager(this.killLines);
 
 
     }
@@ -28,6 +30,7 @@ class LogParser{
         const reg = /^(.+?)$/img;
         const typeReg = /^\d+\.\d+?\t(.+?)\t.+$/i;
         const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
+       // const killReg = /^\d+\.\d+?\tkill.+$/i;
 
         this.lines = this.data.match(reg);
 
@@ -35,6 +38,7 @@ class LogParser{
         this.mapLines = [];
         this.gameLines = [];
         this.playerLines = [];
+        this.killLines = [];
 
         let typeResult = 0;
         let currentType = 0;
@@ -90,14 +94,21 @@ class LogParser{
                         if(playerTypes.indexOf(currentType) !== -1){
 
                             this.playerLines.push(this.lines[i]);
+
+                        }else if(currentType === 'kill_distance' || currentType == 'kill_location'){
+                            this.killLines.push(this.lines[i]);
                         }
                     }
+
+                }else if(currentType === 'kill' || currentType === 'teamkill'){
+
+                    this.killLines.push(this.lines[i]);
                 }
             }
         }
 
 
-        console.log(this.playerLines);
+        console.log(this.killLines);
 
 
     }

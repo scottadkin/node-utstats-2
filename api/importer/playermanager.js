@@ -15,7 +15,7 @@ class PlayerManager{
         this.setNStatsValues();
         //this.setTeams();
 
-        console.log(this.players);
+        //console.log(this.players);
 
     }
 
@@ -85,7 +85,7 @@ class PlayerManager{
 
             if(result !== null){
                 type = result[2].toLowerCase();
-                console.log(`type = ${type}`);
+                //console.log(`type = ${type}`);
 
                 if(type === 'face' || type === 'voice' || type === 'netspeed'){
                     this.setPlayerFeature(d);
