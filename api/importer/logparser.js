@@ -47,7 +47,8 @@ class LogParser{
         const gameTypes = [
             "game",
             "game_start",
-            "game_end"
+            "game_end",
+            "teamscore"
         ];
 
         const playerTypes = [

@@ -11,13 +11,13 @@ class PlayerManager{
         this.players = [];
 
 
-        console.log(this.data.reverse());
+        //console.log(this.data.reverse());
 
         this.createPlayers();
         this.setNStatsValues();
         this.parsePlayerStrings();
 
-        console.log(this.players);
+        console.table(this.players);
 
     }
 

@@ -5,24 +5,33 @@ class GameInfo{
     constructor(data){
 
         this.data = data;
+        this.teamScores = [0,0,0,0];
 
         this.parseData();
+
         this.data = null;
+
     }
 
     parseData(){
 
         const reg = /^\d+\.\d+\tgame\t(.+?)\t(.+)$/i;
+        const scoreReg = /^\d+\.\d+\tteamscore\t(\d+?)\t(.+)$/i;
 
-        let currentResult = 0;
+        let result = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
-            currentResult = reg.exec(this.data[i]);
+            result = reg.exec(this.data[i]);
 
-            if(currentResult !== null){
+            if(result !== null){
+                this[Functions.firstCharLowerCase(result[1])] = result[2];
+            }else{
 
-                this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2];
+                if(scoreReg.test(this.data[i])){
+                    result = scoreReg.exec(this.data[i]);
+                    this.teamScores[parseInt(result[1])] = parseFloat(result[2]);
+                }
             }
         }
     }
