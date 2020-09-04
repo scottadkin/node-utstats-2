@@ -9,7 +9,7 @@ class LogParser{
 
     constructor(data){
 
-        console.log(`new log parser`);
+        //console.log(`new log parser`);
 
         this.data = data;
 
@@ -18,9 +18,10 @@ class LogParser{
         this.serverInfo = new ServerInfo(this.serverLines);
         this.mapInfo = new MapInfo(this.mapLines);
         this.gameInfo = new GameInfo(this.gameLines);
-        this.playerManger = new PlayerManager(this.playerLines);
+        this.playerManager = new PlayerManager(this.playerLines);
         this.killManager = new KillManager(this.killLines);
 
+        //console.log(this.playerManager.players);
 
     }
 
@@ -53,7 +54,8 @@ class LogParser{
             "player",
             "face",
             "voice",
-            "netspeed"
+            "netspeed",
+            "stat_player"
 
         ];
 
@@ -79,7 +81,7 @@ class LogParser{
 
                     this.gameLines.push(this.lines[i]);
 
-                }else if(playerTypes.indexOf(currentType) !== -1){
+                }else if(playerTypes.indexOf(currentType) !== -1 || currentType.startsWith('weap_')){
 
                     this.playerLines.push(this.lines[i]);
 
@@ -108,7 +110,7 @@ class LogParser{
         }
 
 
-        console.log(this.killLines);
+       // console.log(this.playerLines);
 
 
     }

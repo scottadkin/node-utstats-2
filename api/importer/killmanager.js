@@ -9,7 +9,8 @@ class KillManager{
         this.kills = [];
         this.parseData();
 
-        console.log(this.kills);
+
+        //console.log(this.kills);
 
     }   
 

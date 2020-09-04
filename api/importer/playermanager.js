@@ -11,11 +11,13 @@ class PlayerManager{
         this.players = [];
 
 
+        console.log(this.data.reverse());
+
         this.createPlayers();
         this.setNStatsValues();
-        //this.setTeams();
+        this.parsePlayerStrings();
 
-        //console.log(this.players);
+        console.log(this.players);
 
     }
 
@@ -31,6 +33,55 @@ class PlayerManager{
         }
 
         return null;
+    }
+
+    parsePlayerStrings(){
+
+        let d = 0;
+        let result = 0;
+        let type = 0;
+        let player = 0;
+
+        const reg = /^(\d+\.\d+)\tplayer\t(.+?)\t(.+)$/i;
+        const statReg = /^\d+\.\d+\tstat_player\t(.+?)\t(.+?)\t(.+)$/i;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            d = this.data[i];
+
+            if(reg.test(d)){
+
+                result = reg.exec(d);
+                type = result[2].toLowerCase();
+
+                if(type === 'team' || type === 'teamchange'){
+                    this.setTeam(result[3]);
+                }
+
+            }else if(statReg.test(d)){
+
+                result = statReg.exec(d);
+                type = result[1].toLowerCase();
+
+                player = this.getPlayerById(result[2]);
+
+                if(player !== null){
+
+                    player.setStatsValue(result[1], result[3], true);
+
+                }else{
+                    new Message(`There is no player with the id ${result[2]}(parsePlayerStrings).`,'warning');
+                }
+
+                //console.log(result);
+
+            }
+
+            // console.log(result);
+           
+
+        }
+
     }
 
     createPlayers(){
@@ -60,11 +111,12 @@ class PlayerManager{
                     this.connectPlayer(timeStamp, subString);
                 }else if(type === 'disconnect'){
                      this.disconnectPlayer(subString, timeStamp);
-                }else if(type === 'team' || type == "teamchange"){
-                    this.setTeam(subString, timeStamp);
-                }else if(type === 'isabot'){
-                    this.setBotStatus(subString);
                 }
+                //}else if(type === 'team' || type == "teamchange"){
+                 //   this.setTeam(subString, timeStamp);
+               // }else if(type === 'isabot'){
+               //     this.setBotStatus(subString);
+               // }
             }
         }
     }
@@ -128,6 +180,26 @@ class PlayerManager{
         }
     }
 
+    /*setTeams(){
+        
+        const reg = /^(\d+\.\d+)\tplayer\t(team|teamchange)\t(\d+?)\t(\d+?)$/i;
+
+        let d = 0;
+        let result = 0;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            d = this.data[i];
+
+            result = reg.exec(d);
+
+            if(result !== null){
+                this.setTeam(result[1], result[3], result[4]);
+            }
+        }
+    }*/
+
+
     setTeam(subString, timeStamp){
 
         const reg = /^(.+?)\t(.+)$/i;
@@ -147,6 +219,7 @@ class PlayerManager{
             }
         }
     }
+        
 
     setBotStatus(string){
 
@@ -168,7 +241,7 @@ class PlayerManager{
                 if(player !== null){
                     player.setAsBot();
                 }else{
-                    new Message(`Player with the id of ${id} does not exist(setBotStatus).`,'warning');
+                    new Message(`Player with the id of ${result[1]} does not exist(setBotStatus).`,'warning');
                 }
             }
         }
@@ -191,15 +264,15 @@ class PlayerManager{
             if(player !== null){
 
                 if(type === 'face'){
-                    player.setFace(result[3].toLowerCase());
+                    player.setFace(value);
                 }else if(type === 'voice'){
-                    player.setVoice(result[3].toLowerCase());
+                    player.setVoice(value);
                 }else if(type === 'netspeed'){
-                    player.setNetspeed(result[3]);
+                    player.setNetspeed(value);
                 }
 
             }else{
-                new Message(`Player with the id of ${id} does not exist(setFace).`,'warning');
+                new Message(`Player with the id of ${result[2]} does not exist(setFace).`,'warning');
             }
         }
     }

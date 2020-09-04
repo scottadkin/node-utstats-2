@@ -8,6 +8,7 @@ class PlayerInfo{
         this.disconnects = [];
         this.teams = [];
         this.bBot = false;
+        this.stats = {};
 
         //console.log(this);
 
@@ -42,10 +43,18 @@ class PlayerInfo{
     }
 
     setNetspeed(speed){
-
         this.netSpeed = parseFloat(speed);
     }
 
+    setStatsValue(key, value, bInt){
+
+        if(bInt === undefined){
+            this.stats[key] = value;
+            return;
+        }
+
+        this.stats[key] = parseFloat(value);
+    }
 }
 
 
