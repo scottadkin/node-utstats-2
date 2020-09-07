@@ -73,7 +73,7 @@ class PlayerManager{
                 type = result[2].toLowerCase();
 
                 if(type === 'team' || type === 'teamchange'){
-                    this.setTeam(result[3]);
+                    this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
                     this.setBotStatus(result[3]);
                 }
@@ -270,12 +270,29 @@ class PlayerManager{
 
         let k = 0;
 
+        let killer = 0;
+        let victim = 0;
+
         for(let i = 0; i < kills.length; i++){
 
             k = kills[i];
 
+            if(k.type == 'kill'){
 
+                killer = this.getPlayerById(k.killerId);
+                victim = this.getPlayerById(k.victimId);
+
+                if(killer !== undefined){
+                    killer.killedPlayer(k.timeStamp);
+                }
+
+                if(victim !== undefined){
+                    victim.died(k.timeStamp);
+                }
+            }
         }
+
+        this.debugDisplayPlayerStats();
     }
 
 

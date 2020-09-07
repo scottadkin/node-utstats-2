@@ -1,3 +1,5 @@
+const config = require('../config.json');
+
 class PlayerInfo{
 
     constructor(id, name, timeStamp){
@@ -8,6 +10,7 @@ class PlayerInfo{
         this.disconnects = [];
         this.teams = [];
         this.bBot = false;
+
         this.stats = {
             "sprees": {
                 "spree": 0,
@@ -16,6 +19,7 @@ class PlayerInfo{
                 "unstoppable": 0,
                 "godlike": 0,
                 "massacre": 0,
+                "brutalizing": 0
             },
             "multis": {
                 "double": 0,
@@ -84,11 +88,95 @@ class PlayerInfo{
     died(timeStamp){
 
         this.lastDeath = parseFloat(timeStamp);
+
+        this.updateSprees();
+        this.updateMultis();
         this.currentSpree = 0;
         this.currentMulti = 0;
     }
 
+
+    updateMultis(){
+
+
+        if(this.currentMulti > this.stats.bestMulti){
+            this.stats.bestMulti = this.currentMulti;
+        }
+
+        const m = this.currentMulti;
+
+        if(m === 2){
+            this.stats.multis.double++;
+        }else if(m === 3){
+            this.stats.multis.multi++;
+        }else if(m === 4){
+            this.stats.multis.mega++;
+        }else if(m === 5){
+            this.stats.multis.ultra++;
+        }else if(m === 6){
+            this.stats.multis.monster++;
+        }else if(m === 7){
+            this.stats.multis.ludicrous++;
+        }else if(m >= 8){
+            this.stats.multis.holyshit++;
+        }
+
+        this.currentMulti = 0;
+
+    }
+
+    updateSprees(){
+
+        if(this.currentSpree > this.stats.bestSpree){
+            this.stats.bestSpree = this.currentSpree;
+        }
+
+        const k = this.currentSpree;
+
+        if(k >= 5 && k < 10){
+            this.stats.sprees.spree++;
+        }else if(k >= 10 && k < 15){
+            this.stats.sprees.rampage++;
+        }else if(k >= 15 && k < 20){
+            this.stats.sprees.dominating++;
+        }else if(k >= 20 && k < 25){
+            this.stats.sprees.unstoppable++;
+        }else if(k >= 25 && k < 30){
+            this.stats.sprees.godlike++;
+        }else if(k >= 30 && k < 35){
+            this.stats.sprees.massacre++;
+        }else if(k >= 35){
+            this.stats.spree.brutalizing++;
+        }
+
+        this.currentSpree = 0;
+    }
+
     killedPlayer(timeStamp){
+
+        timeStamp = parseFloat(timeStamp);
+
+        const timeDiff = timeStamp - this.lastKill;
+
+        console.log(`timeDiff = ${timeDiff}`);
+
+        this.currentSpree++;
+
+
+        if(timeDiff <= config.multiKillTimeLimit){
+
+            this.currentMulti++;
+
+        }else{
+
+            this.updateMultis();
+            this.currentMulti++;
+            
+        }
+
+        this.lastKill = timeStamp;
+
+
 
     }
 }
