@@ -18,8 +18,10 @@ class LogParser{
         this.serverInfo = new ServerInfo(this.serverLines);
         this.mapInfo = new MapInfo(this.mapLines);
         this.gameInfo = new GameInfo(this.gameLines);
-        this.playerManager = new PlayerManager(this.playerLines);
         this.killManager = new KillManager(this.killLines);
+        this.playerManager = new PlayerManager(this.playerLines);
+
+        this.playerManager.setKills(this.killManager.kills);
 
         //console.log(this.playerManager.players);
 

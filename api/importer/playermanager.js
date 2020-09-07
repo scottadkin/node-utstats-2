@@ -1,6 +1,7 @@
 const PlayerInfo = require('./playerinfo');
 const Message = require('../message');
 
+
 class PlayerManager{
 
 
@@ -8,22 +9,39 @@ class PlayerManager{
 
         this.data = data;
 
-        this.players = [];
+        this.players = new Map();
 
 
         //console.log(this.data.reverse());
+    
 
         this.createPlayers();
         this.setNStatsValues();
         this.parsePlayerStrings();
 
-        console.table(this.players);
+        //console.table(this.players);
 
+        this.debugDisplayPlayerStats();
+
+        //console.log(this.players);
+
+    }
+
+    debugDisplayPlayerStats(){
+
+        this.players.forEach((value, key, map) =>{
+
+            console.log(value);
+        });
     }
 
     getPlayerById(id){
 
         id = parseInt(id);
+
+        return this.players.get(id);
+
+        /*id = parseInt(id);
 
         for(let i = 0; i < this.players.length; i++){
 
@@ -32,7 +50,7 @@ class PlayerManager{
             }
         }
 
-        return null;
+        return null;*/
     }
 
     parsePlayerStrings(){
@@ -56,6 +74,8 @@ class PlayerManager{
 
                 if(type === 'team' || type === 'teamchange'){
                     this.setTeam(result[3]);
+                }else if(type == 'isabot'){
+                    this.setBotStatus(result[3]);
                 }
 
             }else if(statReg.test(d)){
@@ -65,23 +85,15 @@ class PlayerManager{
 
                 player = this.getPlayerById(result[2]);
 
-                if(player !== null){
+                if(player !== undefined){
 
                     player.setStatsValue(result[1], result[3], true);
 
                 }else{
                     new Message(`There is no player with the id ${result[2]}(parsePlayerStrings).`,'warning');
                 }
-
-                //console.log(result);
-
             }
-
-            // console.log(result);
-           
-
         }
-
     }
 
     createPlayers(){
@@ -112,11 +124,6 @@ class PlayerManager{
                 }else if(type === 'disconnect'){
                      this.disconnectPlayer(subString, timeStamp);
                 }
-                //}else if(type === 'team' || type == "teamchange"){
-                 //   this.setTeam(subString, timeStamp);
-               // }else if(type === 'isabot'){
-               //     this.setBotStatus(subString);
-               // }
             }
         }
     }
@@ -156,8 +163,9 @@ class PlayerManager{
 
             const player = this.getPlayerById(result[2]);
 
-            if(player === null){
-                this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
+            if(player === undefined){
+                //this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
+                this.players.set(parseInt(result[2]), new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
             }else{
                 player.connect(timeStamp);
             }
@@ -173,32 +181,12 @@ class PlayerManager{
 
         const player = this.getPlayerById(id);
 
-        if(player !== null){
+        if(player !== undefined){
             player.disconnect(timeStamp);
         }else{
             new Message(`Player with the id of ${id} does not exist(disconnectPlayer).`,'warning');
         }
     }
-
-    /*setTeams(){
-        
-        const reg = /^(\d+\.\d+)\tplayer\t(team|teamchange)\t(\d+?)\t(\d+?)$/i;
-
-        let d = 0;
-        let result = 0;
-
-        for(let i = 0; i < this.data.length; i++){
-
-            d = this.data[i];
-
-            result = reg.exec(d);
-
-            if(result !== null){
-                this.setTeam(result[1], result[3], result[4]);
-            }
-        }
-    }*/
-
 
     setTeam(subString, timeStamp){
 
@@ -212,7 +200,7 @@ class PlayerManager{
             const team = parseInt(result[2]);
             const player = this.getPlayerById(id);
 
-            if(player !== null){
+            if(player !== undefined){
                 player.setTeam(timeStamp, team);      
             }else{
                 new Message(`Player with the id of ${id} does not exist(setTeam).`,'warning');
@@ -238,7 +226,7 @@ class PlayerManager{
             if(bBot){
                 const player = this.getPlayerById(result[1]);
 
-                if(player !== null){
+                if(player !== undefined){
                     player.setAsBot();
                 }else{
                     new Message(`Player with the id of ${result[1]} does not exist(setBotStatus).`,'warning');
@@ -261,7 +249,7 @@ class PlayerManager{
 
             const value = result[3].toLowerCase();
 
-            if(player !== null){
+            if(player !== undefined){
 
                 if(type === 'face'){
                     player.setFace(value);
@@ -274,6 +262,19 @@ class PlayerManager{
             }else{
                 new Message(`Player with the id of ${result[2]} does not exist(setFace).`,'warning');
             }
+        }
+    }
+
+
+    setKills(kills){
+
+        let k = 0;
+
+        for(let i = 0; i < kills.length; i++){
+
+            k = kills[i];
+
+
         }
     }
 

@@ -1,5 +1,6 @@
 const Kill = require('./kill');
 const Message = require('../message');
+const config = require('../config.json');
 
 class KillManager{
 
@@ -9,15 +10,14 @@ class KillManager{
         this.kills = [];
         this.parseData();
 
-
-        //console.log(this.kills);
+        console.table(this.kills);
 
     }   
 
 
     parseData(){
         
-        const killReg = /^(\d+\.\d+)\t(kill|killteam)\t(\d+?)\t(.+?)\t(\d+?)\t(.+?)\t(.+)$/i;
+        const killReg = /^(\d+\.\d+)\t(kill|teamkill)\t(\d+?)\t(.+?)\t(\d+?)\t(.+?)\t(.+)$/i;
         const distanceReg = /^(\d+\.\d+)\tnstats\tkill_distance\t(.+?)\t(\d+?)\t(\d+)$/i;
         const locationReg = /^(\d+\.\d+)\tnstats\tkill_location\t(\d+?)\t(.+?),(.+?),(.+?)\t(\d+?)\t(.+?),(.+?),(.+)$/i;
 
@@ -57,8 +57,6 @@ class KillManager{
                         "z": result[9]
                     }
                 );
-
-                //console.log(result);
             }
         }
     }
