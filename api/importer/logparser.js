@@ -58,9 +58,16 @@ class LogParser{
             "face",
             "voice",
             "netspeed",
-            "stat_player"
-
+            "stat_player",
+            "bestspawnkillspree",
+            "spawnkills",
+            "bestspree",
+            "shortesttimebetweenkills",
+            "longesttimebetweenkills"
+            
         ];
+
+
 
         //nstats tsusgdusghdushgidshg
 
@@ -96,6 +103,7 @@ class LogParser{
 
                         currentType = typeResult[1].toLowerCase();
 
+                        //console.log(currentType);
                         if(playerTypes.indexOf(currentType) !== -1){
 
                             this.playerLines.push(this.lines[i]);

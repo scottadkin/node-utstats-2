@@ -20,9 +20,11 @@ class PlayerManager{
         this.setNStatsValues();
         this.parsePlayerStrings();
 
+        //console.table(this.data);
+
         //console.table(this.players);
 
-        //this.debugDisplayPlayerStats();
+        this.debugDisplayPlayerStats();
 
         //console.log(this.players);
 
@@ -42,16 +44,6 @@ class PlayerManager{
 
         return this.players.get(id);
 
-        /*id = parseInt(id);
-
-        for(let i = 0; i < this.players.length; i++){
-
-            if(this.players[i].id === id){
-                return this.players[i];
-            }
-        }
-
-        return null;*/
     }
 
     parsePlayerStrings(){
@@ -134,10 +126,12 @@ class PlayerManager{
     setNStatsValues(){
 
         const reg = /^(\d+\.\d+)\tnstats\t(.+?)\t(.+)$/i;
+        const secondReg = /^(.+?)\t(.+)$/i;
 
         let type = 0;
         let result = 0;
         let d = 0;
+        let player = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
@@ -145,15 +139,35 @@ class PlayerManager{
 
             result = reg.exec(d);
 
+          //  console.log(result);
+
             if(result !== null){
                 type = result[2].toLowerCase();
-                //console.log(`type = ${type}`);
+               // console.log(`type = ${type}`);
 
                 if(type === 'face' || type === 'voice' || type === 'netspeed'){
                     this.setPlayerFeature(d);
+                }else{
+
+                    result = secondReg.exec(result[3]);
+
+                    if(result !== null){
+
+                        player = this.getPlayerById(result[1]);
+
+                        if(player !== undefined){
+
+                            player.setStatsValue(type, result[2], true);
+                        }
+                       // console.log(result);
+                    }
                 }
+
             }
         }
+
+
+        //set bestspawnkillspree, spawnkills ect
     }
 
     connectPlayer(timeStamp, string){
@@ -261,6 +275,7 @@ class PlayerManager{
                 }else if(type === 'netspeed'){
                     player.setNetspeed(value);
                 }
+
 
             }else{
                 new Message(`Player with the id of ${result[2]} does not exist(setFace).`,'warning');
