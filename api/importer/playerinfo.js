@@ -75,6 +75,11 @@ class PlayerInfo{
         this.netSpeed = parseFloat(speed);
     }
 
+    setIp(ip, country){
+        this.ip = ip;
+        this.country = country;
+    }
+
     setStatsValue(key, value, bInt){
 
         if(bInt === undefined){
@@ -158,7 +163,7 @@ class PlayerInfo{
 
         const timeDiff = timeStamp - this.lastKill;
 
-        console.log(`timeDiff = ${timeDiff}`);
+       // console.log(`timeDiff = ${timeDiff}`);
 
         this.currentSpree++;
 

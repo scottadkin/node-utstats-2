@@ -18,11 +18,14 @@ class KillManager{
     parseData(){
         
         const killReg = /^(\d+\.\d+)\t(kill|teamkill)\t(\d+?)\t(.+?)\t(\d+?)\t(.+?)\t(.+)$/i;
+        const suicideReg = /^(\d+\.\d+)\tsuicide\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
         const distanceReg = /^(\d+\.\d+)\tnstats\tkill_distance\t(.+?)\t(\d+?)\t(\d+)$/i;
         const locationReg = /^(\d+\.\d+)\tnstats\tkill_location\t(\d+?)\t(.+?),(.+?),(.+?)\t(\d+?)\t(.+?),(.+?),(.+)$/i;
 
         let result = '';
         let d = 0;
+
+        //239.68	suicide	24	Shock Rifle	jolted	Self
 
         for(let i = 0; i < this.data.length; i++){
 
@@ -57,6 +60,13 @@ class KillManager{
                         "z": result[9]
                     }
                 );
+
+            }else if(suicideReg.test(d)){
+                result = suicideReg.exec(d);
+
+                //time, type, killerId, killerWeapon, victimId, victimWeapon, deathType
+
+                this.kills.push(new Kill(result[1], 'suicide', result[2], result[3], -1, null, result[4]));
             }
         }
     }

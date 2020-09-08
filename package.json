@@ -27,6 +27,7 @@
   "homepage": "https://github.com/scottadkin/Node-UTStats#readme",
   "dependencies": {
     "ftp": "^0.3.10",
+    "geoip-country": "^4.0.34",
     "mysql": "^2.18.1",
     "promise": "^8.1.0"
   }

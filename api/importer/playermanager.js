@@ -1,5 +1,6 @@
 const PlayerInfo = require('./playerinfo');
 const Message = require('../message');
+const geoip = require('geoip-country');
 
 
 class PlayerManager{
@@ -21,7 +22,7 @@ class PlayerManager{
 
         //console.table(this.players);
 
-        this.debugDisplayPlayerStats();
+        //this.debugDisplayPlayerStats();
 
         //console.log(this.players);
 
@@ -76,6 +77,8 @@ class PlayerManager{
                     this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
                     this.setBotStatus(result[3]);
+                }else if(type == 'ip'){
+                    this.setIp(result[3]);
                 }
 
             }else if(statReg.test(d)){
@@ -292,7 +295,34 @@ class PlayerManager{
             }
         }
 
-        this.debugDisplayPlayerStats();
+        //this.debugDisplayPlayerStats();
+    }
+
+
+    setIp(string){    
+
+        const reg = /^(.+?)\t(.+)$/i;
+
+        const result = reg.exec(string);
+
+        if(result !== null){
+            const player = this.getPlayerById(result[1]);
+
+            if(player !== undefined){
+
+                const geo = geoip.lookup(result[2]);
+
+                let country = 'xx';
+                if(geo !== null){
+                    country = geo.country.toLowerCase();
+                }
+
+                player.setIp(result[2], country);
+
+            }else{
+                new Message(`There is no player with id ${result[1]}(setIp).`,'warning');
+            }
+        }
     }
 
 

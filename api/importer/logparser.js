@@ -105,7 +105,7 @@ class LogParser{
                         }
                     }
 
-                }else if(currentType === 'kill' || currentType === 'teamkill'){
+                }else if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide'){
 
                     this.killLines.push(this.lines[i]);
                 }
