@@ -21,6 +21,7 @@ class LogParser{
         this.killManager = new KillManager(this.killLines);
         this.playerManager = new PlayerManager(this.playerLines);
 
+
         this.playerManager.setKills(this.killManager.kills);
 
         //console.log(this.playerManager.players);

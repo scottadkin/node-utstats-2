@@ -1,6 +1,6 @@
 const Kill = require('./kill');
 const Message = require('../message');
-const config = require('../config.json');
+const config = require('../../config.json');
 
 class KillManager{
 

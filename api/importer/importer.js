@@ -1,4 +1,4 @@
-const config = require('../config.json');
+const config = require('../../config.json');
 const Database = require('../database');
 const Promise = require('promise');
 const FTPImporter = require('./ftpimporter');

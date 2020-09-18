@@ -1,4 +1,4 @@
-const config = require('./api/config.json');
+const config = require('./config.json');
 const Importer = require('./api/importer/importer');
 const Message = require('./api/message');
 

@@ -1,4 +1,5 @@
 const Functions = require('../functions');
+const Servers = require('../servers');
 
 class ServerInfo{
 
@@ -8,8 +9,34 @@ class ServerInfo{
 
         this.parseData();
         this.convertDate();
-        this.data = null;
+
+        this.servers = new Servers();
+        console.log(this);
+
+        this.updateServer();
    
+    }
+
+    async updateServer(){
+
+        try{
+
+            if(await this.servers.bServerExists(this.true_server_ip, this.server_port)){
+
+                console.log(`Server akready in database`);
+
+                await this.servers.updateServer(this.true_server_ip, this.server_port, this.server_servername, this.date, 3.1);
+            }else{
+
+                //ip, port, name, date, playtime
+                await this.servers.insertServer(this.true_server_ip, this.server_port, this.server_servername, this.date, 0);
+                console.log(`Server not in database`);
+            }
+
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     getMatchingType(type){
@@ -42,7 +69,7 @@ class ServerInfo{
 
                 currentResult = reg.exec(d);
 
-                this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2];
+                this[currentResult[1].toLowerCase()] = currentResult[2];
                     
             }
         }
@@ -50,9 +77,9 @@ class ServerInfo{
 
     convertDate(){
 
-        const reg = /^(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{3})\.(\d+)\.(\d+)$/i;
+        const reg = /^(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{3})\.(\d+?)\.(\d+)$/i;
 
-        const result = reg.exec(this.date);
+        const result = reg.exec(this.absolute_time);
 
         if(result !== null){
 
@@ -65,10 +92,11 @@ class ServerInfo{
 
             const date = new Date(year, month, day, hours, minutes, seconds);
 
-            this.date = date.getTime();
-        }
-        
+            this.date = date.getTime() * 0.001;
+        }  
     }
+
+
 
 
 

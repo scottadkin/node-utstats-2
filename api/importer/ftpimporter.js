@@ -1,4 +1,4 @@
-const config = require('../config.json');
+const config = require('../../config.json');
 const Client = require('ftp');
 const fs = require('fs');
 const Promise = require('promise');

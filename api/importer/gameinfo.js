@@ -1,5 +1,6 @@
 const Functions = require('../functions');
 
+
 class GameInfo{
 
     constructor(data){
@@ -7,9 +8,10 @@ class GameInfo{
         this.data = data;
         this.teamScores = [0,0,0,0];
 
+
         this.parseData();
 
-        this.data = null;
+       
 
     }
 
@@ -34,6 +36,7 @@ class GameInfo{
                 }
             }
         }
+
     }
 }
 

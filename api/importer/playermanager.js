@@ -28,7 +28,7 @@ class PlayerManager{
 
         //console.log(this.players);
 
-        this.getOriginalConnection('ooper');
+        //this.getOriginalConnection('ooper');
 
     }
 
