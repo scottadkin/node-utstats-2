@@ -24,9 +24,11 @@ class PlayerManager{
 
         //console.table(this.players);
 
-        this.debugDisplayPlayerStats();
+        //this.debugDisplayPlayerStats();
 
         //console.log(this.players);
+
+        this.getOriginalConnection('ooper');
 
     }
 
@@ -340,6 +342,26 @@ class PlayerManager{
         }
     }
 
+
+    getOriginalConnection(name){
+
+        name = name.toLowerCase();
+
+        this.players.forEach((player, key) =>{
+
+            //console.log(player);
+            if(player.name.toLowerCase() === name){
+                console.log(player);
+            }
+        });
+
+        return null;
+    }
+
+    mergeDuplicates(){
+
+        //after settings names, weapon stats ect
+    }
 
 }
 

@@ -1,34 +1,19 @@
 {
-  "name": "nodeutstats",
-  "version": "1.0.0",
-  "description": "Stats system for Unreal Tournament built on top of the original system.",
-  "main": "index.js",
+  "name": "node-utstats",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/scottadkin/Node-UTStats.git"
-  },
-  "keywords": [
-    "ut",
-    "ut99",
-    "stats",
-    "utstats",
-    "node",
-    "unreal",
-    "tournament"
-  ],
-  "author": "Scott Adkin",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/scottadkin/Node-UTStats/issues"
-  },
-  "homepage": "https://github.com/scottadkin/Node-UTStats#readme",
   "dependencies": {
     "ftp": "^0.3.10",
-    "geoip-country": "^4.0.34",
+    "geoip-country": "^4.0.36",
     "mysql": "^2.18.1",
-    "promise": "^8.1.0"
+    "next": "9.5.3",
+    "promise": "^8.1.0",
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
   }
 }
