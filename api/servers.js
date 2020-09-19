@@ -1,5 +1,5 @@
-const mysql = require('./database');
-const Promise = require('promise');
+import mysql from './database.js';
+import Promise from 'promise';
 
 class Servers{
 
@@ -59,7 +59,10 @@ class Servers{
 
             if(port !== port) throw new Error(`Port must be a valid integer.`);
 
-            await this.updateBasicInfo(ip, port, name, playtime);
+            //If server doesn't exist create it
+            if(!await this.updateBasicInfo(ip, port, name, 1, playtime)){
+                await this.insertServer(ip, port, name, date, playtime);
+            }
 
             const dates = await this.getFirstLast(ip, port);
 
@@ -75,19 +78,24 @@ class Servers{
         }
     }
 
-    updateBasicInfo(ip, port, name, playtime){
+    updateBasicInfo(ip, port, name, matches, playtime){
 
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_servers SET
-            name=?, playtime=playtime+?
+            name=?, playtime=playtime+?, matches=matches+?
             WHERE ip=? AND port=?`;
 
-            mysql.query(query, [name, playtime, ip, port], (err) =>{
+            mysql.query(query, [name, playtime, matches, ip, port], (err, result) =>{
 
                 if(err) reject(err);
 
-                resolve();
+                if(result.changedRows > 0){
+                    resolve(true);
+                }
+                //console.log(result);
+
+                resolve(false);
             });
         });
     }
@@ -140,4 +148,4 @@ class Servers{
     }
 }
 
-module.exports = Servers;
+export default Servers;

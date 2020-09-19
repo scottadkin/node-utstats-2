@@ -1,5 +1,5 @@
-const Functions = require('../functions');
-const Servers = require('../servers');
+import Functions from '../functions.js';
+import Servers from '../servers.js';
 
 class ServerInfo{
 
@@ -21,19 +21,7 @@ class ServerInfo{
 
         try{
 
-            if(await this.servers.bServerExists(this.true_server_ip, this.server_port)){
-
-                console.log(`Server akready in database`);
-
-                await this.servers.updateServer(this.true_server_ip, this.server_port, this.server_servername, this.date, 3.1);
-                
-            }else{
-
-                //ip, port, name, date, playtime
-                await this.servers.insertServer(this.true_server_ip, this.server_port, this.server_servername, this.date, 0);
-                console.log(`Server not in database`);
-            }
-
+            await this.servers.updateServer(this.true_server_ip, this.server_port, this.server_servername, this.date, 3.1);
 
         }catch(err){
             console.trace(err);
@@ -103,4 +91,4 @@ class ServerInfo{
 
 }
 
-module.exports = ServerInfo;
+export default ServerInfo;

@@ -1,4 +1,5 @@
-const Functions = require('../functions');
+
+import Functions from '../functions.js';
 
 class MapInfo{
 
@@ -41,4 +42,4 @@ class MapInfo{
 
 }
 
-module.exports = MapInfo;
+export default MapInfo;

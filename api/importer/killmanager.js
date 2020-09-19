@@ -1,6 +1,5 @@
-const Kill = require('./kill');
-const Message = require('../message');
-const config = require('../../config.json');
+import Kill from './kill.js';
+import Message from '../message.js';
 
 class KillManager{
 
@@ -120,4 +119,4 @@ class KillManager{
 }
 
 
-module.exports = KillManager;
+export default KillManager;

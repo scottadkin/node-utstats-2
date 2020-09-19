@@ -1,4 +1,4 @@
-const config = require('../../config.json');
+import config from '../../config.js';
 
 class PlayerInfo{
 
@@ -187,4 +187,4 @@ class PlayerInfo{
 }
 
 
-module.exports = PlayerInfo;
+export default PlayerInfo;

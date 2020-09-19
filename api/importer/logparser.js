@@ -1,9 +1,9 @@
-const Promise = require('promise');
-const ServerInfo = require('./serverinfo');
-const MapInfo = require('./mapinfo');
-const GameInfo = require('./gameinfo');
-const PlayerManager = require('./playermanager');
-const KillManager = require('./killmanager');
+import Promise from 'promise';
+import ServerInfo from './serverInfo.js';
+import MapInfo from './mapInfo.js';
+import GameInfo from './gameinfo.js';
+import PlayerManager from './playermanager.js';
+import KillManager from './killmanager.js';
 
 class LogParser{
 
@@ -131,4 +131,4 @@ class LogParser{
 
 }
 
-module.exports = LogParser;
+export default LogParser;

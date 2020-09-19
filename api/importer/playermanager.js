@@ -1,7 +1,6 @@
-const PlayerInfo = require('./playerinfo');
-const Message = require('../message');
-const geoip = require('geoip-country');
-
+import PlayerInfo from './playerinfo.js';
+import Message from '../message.js';
+import geoip from 'geoip-country';
 
 class PlayerManager{
 
@@ -365,4 +364,4 @@ class PlayerManager{
 
 }
 
-module.exports = PlayerManager;
+export default PlayerManager;

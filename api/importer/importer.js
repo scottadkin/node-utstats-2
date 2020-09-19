@@ -1,11 +1,10 @@
-const config = require('../../config.json');
-const Database = require('../database');
-const Promise = require('promise');
-const FTPImporter = require('./ftpimporter');
-const fs = require('fs').promises;
-const Message = require('../message');
-const LogParser = require('./logparser');
-//const Server = require('./server');
+import config from '../../config.js';
+import Database from '../database.js';
+import Promise from 'promise';
+import FTPImporter from './ftpimporter.js';
+import fs from 'fs';
+import Message from '../message.js';
+import LogParser from './logparser.js';
 
 
 class Importer{
@@ -36,7 +35,7 @@ class Importer{
     async checkLogsFolder(){
 
         try{
-            const files = await fs.readdir(config.importedLogsFolder);
+            const files = await fs.readdirSync(config.importedLogsFolder);
 
             console.table(files);
 
@@ -71,7 +70,7 @@ class Importer{
     async openLog(file){
 
         try{
-            let data = await fs.readFile(file);
+            let data = fs.readFileSync(file);
             data = data.toString();
 
             data = data.replace(/\u0000/ig, '');
@@ -86,4 +85,4 @@ class Importer{
 
 }
 
-module.exports = Importer;
+export default Importer;

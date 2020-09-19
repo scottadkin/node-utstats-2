@@ -1,9 +1,9 @@
-const config = require('../../config.json');
-const Client = require('ftp');
-const fs = require('fs');
-const Promise = require('promise');
-const EventEmitter = require('events');
-const Message = require('../message');
+import config from '../../config.js'
+import Client from 'ftp';
+import fs from 'fs';
+import Promise from 'promise';
+import EventEmitter from 'events';
+import Message from '../message.js';
 
 class MyEmitter extends EventEmitter {}
 
@@ -145,5 +145,4 @@ class FTPImporter{
     }
 
 }
-
-module.exports = FTPImporter;
+export default FTPImporter;
