@@ -26,6 +26,7 @@ class ServerInfo{
                 console.log(`Server akready in database`);
 
                 await this.servers.updateServer(this.true_server_ip, this.server_port, this.server_servername, this.date, 3.1);
+                
             }else{
 
                 //ip, port, name, date, playtime
