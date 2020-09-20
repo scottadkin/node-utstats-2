@@ -4,6 +4,7 @@ import MapInfo from './mapInfo.js';
 import GameInfo from './gameinfo.js';
 import PlayerManager from './playermanager.js';
 import KillManager from './killmanager.js';
+import Matches from '../matches.js'
 
 class LogParser{
 
@@ -25,10 +26,47 @@ class LogParser{
 
         this.playerManager.setKills(this.killManager.kills);
 
+        this.match = new Matches();
+
+        this.insertMatch();
+
+
+        
+
         //console.log(this.playerManager.players);
 
     }
 
+
+    async insertMatch(){
+
+        try{
+
+
+            //date, server, version, admin, region, motd, playtime, endType, start, end
+            const serverId = await this.serverInfo.getServerId();
+
+            const motd = await this.serverInfo.getMotd();
+
+            
+
+            this.match.insertMatch(
+                this.serverInfo.date, 
+                serverId, 
+                this.serverInfo.game_version, 
+                this.serverInfo.server_adminname,
+                this.serverInfo.server_region,
+                motd,
+                this.gameInfo.length,
+                this.gameInfo.endReason,
+                this.gameInfo.start,
+                this.gameInfo.end
+            );
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 
     convertFileToLines(){
 
@@ -117,11 +155,6 @@ class LogParser{
                 }
             }
         }
-
-
-       // console.log(this.playerLines);
-
-
     }
 
 

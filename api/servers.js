@@ -186,9 +186,30 @@ class Servers{
 
                 (result.affectedRows > 0) ? resolve(true) : resolve(false);       
                 
-            });
+            });      
+        });
+    }
 
-            
+
+    getServerId(ip, port){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id FROM nstats_servers WHERE ip=? AND port=? LIMIT 1";
+
+            mysql.query(query, [ip, port], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0){
+                        resolve(result[0].id);
+                    }
+                }
+
+                resolve(null);
+            });
         });
     }
 }

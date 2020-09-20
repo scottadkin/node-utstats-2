@@ -88,6 +88,7 @@ class GameInfo{
             "length": (this.length !== null) ? this.length : 0,
         };
     }
+
 }
 
 export default GameInfo;

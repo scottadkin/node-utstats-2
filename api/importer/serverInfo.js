@@ -1,5 +1,7 @@
 import Functions from '../functions.js';
 import Servers from '../servers.js';
+import mysql from '../database.js';
+import Message from '../message.js';
 
 class ServerInfo{
 
@@ -87,8 +89,42 @@ class ServerInfo{
     }
 
 
+    async getServerId(){
 
+        try{
 
+            const id = await this.servers.getServerId(this.true_server_ip, this.server_port);
+      
+            if(id !== null){
+                return id;
+            }else{
+                new Message('Server with that ip port combo does not exist in the database. ','warning');
+            }
+
+            return null;
+
+        }catch(err){
+            console.trace(err);
+        }      
+    }
+
+    getMotd(){
+
+        let string = ``;
+
+        for(let i = 1; i <= 4; i++){
+
+            if(this[`server_motdline${i}`] !== undefined){
+
+                string += `${this[`server_motdline${i}`]}\n`;
+
+            }else{
+                break;
+            }
+        }
+
+        return string;
+    }
 
 }
 
