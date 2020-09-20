@@ -15,11 +15,12 @@ class LogParser{
 
         this.convertFileToLines();
 
-        this.serverInfo = new ServerInfo(this.serverLines);
+        
         this.mapInfo = new MapInfo(this.mapLines);
         this.gameInfo = new GameInfo(this.gameLines);
         this.killManager = new KillManager(this.killLines);
         this.playerManager = new PlayerManager(this.playerLines);
+        this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 
 
         this.playerManager.setKills(this.killManager.kills);
@@ -32,9 +33,8 @@ class LogParser{
     convertFileToLines(){
 
         const reg = /^(.+?)$/img;
-        const typeReg = /^\d+\.\d+?\t(.+?)\t.+$/i;
+        const typeReg = /^\d+\.\d+?\t(.+?)(\t.+|)$/i;
         const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
-       // const killReg = /^\d+\.\d+?\tkill.+$/i;
 
         this.lines = this.data.match(reg);
 
@@ -68,9 +68,6 @@ class LogParser{
             
         ];
 
-
-
-        //nstats tsusgdusghdushgidshg
 
         for(let i = 0; i < this.lines.length; i++){
 

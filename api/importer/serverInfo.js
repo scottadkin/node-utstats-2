@@ -3,8 +3,9 @@ import Servers from '../servers.js';
 
 class ServerInfo{
 
-    constructor(data){
+    constructor(data, matchTimings){
            
+        this.matchTimings = matchTimings;
         this.data = data;
 
         this.parseData();
@@ -21,7 +22,7 @@ class ServerInfo{
 
         try{
 
-            await this.servers.updateServer(this.true_server_ip, this.server_port, this.server_servername, this.date, 3.1);
+            await this.servers.updateServer(this.true_server_ip, this.server_port, this.server_servername, this.date, this.matchTimings.length);
 
         }catch(err){
             console.trace(err);
