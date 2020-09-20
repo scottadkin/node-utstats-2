@@ -5,6 +5,7 @@ class Servers{
 
     constructor(){
 
+        
     }
 
     bServerExists(ip, port){
@@ -144,6 +145,50 @@ class Servers{
 
                 resolve();
             });
+        });
+    }
+
+    deleteServer(ip, port){
+
+        return new Promise((resolve, reject) =>{
+
+            port = parseInt(port);
+
+            if(port !== port) reject(`Port must be a valid integer.`);
+
+            const query = "DELETE FROM nstats_servers WHERE ip=? AND port=?";
+
+            mysql.query(query, [ip, port], (err, result) =>{
+
+                if(err) reject(err);
+
+                (result.affectedRows > 0) ? resolve(true) : resolve(false);
+
+
+            });
+
+        });
+    }
+
+    deleteServerById(id){
+
+        return new Promise((resolve, reject) =>{
+
+            id = parseInt(id);
+
+            if(id !== id) reject(`Id must be a valid integer.`);
+
+            const query = "DELETE FROM nstats_servers WHERE id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                (result.affectedRows > 0) ? resolve(true) : resolve(false);       
+                
+            });
+
+            
         });
     }
 }
