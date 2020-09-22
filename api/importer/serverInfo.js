@@ -14,7 +14,6 @@ class ServerInfo{
         this.convertDate();
 
         this.servers = new Servers();
-        console.log(this);
 
         this.updateServer();
    

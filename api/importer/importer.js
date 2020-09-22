@@ -4,7 +4,7 @@ import Promise from 'promise';
 import FTPImporter from './ftpimporter.js';
 import fs from 'fs';
 import Message from '../message.js';
-import LogParser from './logparser.js';
+import MatchManager from './matchmanager.js';
 
 
 class Importer{
@@ -22,7 +22,7 @@ class Importer{
                 const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[4]}`)
                // console.log(await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`));
 
-                const test = new LogParser(testData);
+                const test = new MatchManager(testData, `${config.importedLogsFolder}/${this.logsToImport[4]}`);
 
             }catch(err){
                 console.trace(err);

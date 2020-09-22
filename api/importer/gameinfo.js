@@ -16,9 +16,6 @@ class GameInfo{
         this.parseData();
 
         this.setMatchLength();
-
-
-        console.log(this);
        
 
     }

@@ -1,5 +1,5 @@
-
 import Functions from '../functions.js';
+import Maps from '../maps.js';
 
 class MapInfo{
 
@@ -8,6 +8,9 @@ class MapInfo{
         this.data = data;
         this.parseData();
         this.data = null;
+        console.log(this);
+
+        this.maps = new Maps();
     }
 
     getMatchingType(type){
@@ -35,9 +38,22 @@ class MapInfo{
             currentResult = reg.exec(this.data[i]);
 
             if(currentResult !== null){
-                this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2]      
+                this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2];     
             }
         }
+    }
+
+
+    async updateStats(date, matchLength){
+
+
+        try{
+
+            await this.maps.updateStats(this.name, this.title, this.author, this.idealPlayerCount, this.levelEnterText, date, matchLength);
+
+        }catch(err){
+            console.trace(err);
+        }   
     }
 
 }
