@@ -1,10 +1,12 @@
-import mysql from './database.js';
-import Promise from 'promise';
-import Message from './message.js';
+const mysql = require('./database');
+const Promise = require('promise');
+const Message = require('./message');
 
 class Maps{
     
     constructor(){
+
+
 
     }
 
@@ -18,7 +20,6 @@ class Maps{
 
                 if(err) reject(err);
 
-                console.log(result);
                 if(result !== undefined){
 
                     if(result[0].total_maps > 0){
@@ -153,7 +154,28 @@ class Maps{
         }
     }
 
+
+
+    getId(name){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id FROM nstats_maps WHERE name=? LIMIT 1";
+
+            mysql.query(query, [name], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result !== []) resolve(result[0].id);
+                }
+
+                resolve(null);
+            });
+        });
+    }
+
 }
 
 
-export default Maps;
+module.exports = Maps;

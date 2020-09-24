@@ -1,4 +1,4 @@
-import Functions from '../functions.js';
+const Functions = require('../functions');
 
 class GameInfo{
 
@@ -88,4 +88,4 @@ class GameInfo{
 
 }
 
-export default GameInfo;
+module.exports = GameInfo;

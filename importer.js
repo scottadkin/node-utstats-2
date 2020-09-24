@@ -1,6 +1,5 @@
-import config from './config.js'
-import Importer from './api/importer/importer.js'
-import Message from './api/message.js'
+const Importer =  require('./api/importer/importer');
+const Message =  require('./api/message');
 
 new Message('Node UTStats 2 Importer module started.','note');
 

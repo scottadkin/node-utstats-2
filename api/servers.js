@@ -1,5 +1,5 @@
-import mysql from './database.js';
-import Promise from 'promise';
+const mysql = require('./database');
+const Promise = require('promise');
 
 class Servers{
 
@@ -214,4 +214,4 @@ class Servers{
     }
 }
 
-export default Servers;
+module.exports = Servers;

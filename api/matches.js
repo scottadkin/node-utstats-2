@@ -1,4 +1,4 @@
-import mysql from './database.js'
+const mysql = require('./database');
 
 class Matches{
 
@@ -23,5 +23,4 @@ class Matches{
         });
     }
 }
-
-export default Matches;
+module.exports = Matches;

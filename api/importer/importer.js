@@ -1,10 +1,10 @@
-import config from '../../config.js';
-import Database from '../database.js';
-import Promise from 'promise';
-import FTPImporter from './ftpimporter.js';
-import fs from 'fs';
-import Message from '../message.js';
-import MatchManager from './matchmanager.js';
+const config = require('../../config.json');
+const Database = require('../database');
+const Promise = require('promise');
+const FTPImporter =  require('./ftpimporter');
+const fs =  require('fs');
+const Message = require('../message');
+const MatchManager = require('./matchmanager');
 
 
 class Importer{
@@ -85,4 +85,4 @@ class Importer{
 
 }
 
-export default Importer;
+module.exports = Importer;

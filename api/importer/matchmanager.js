@@ -1,12 +1,12 @@
-import Promise from 'promise';
-import Message from '../message.js';
-import ServerInfo from './serverInfo.js';
-import MapInfo from './mapInfo.js';
-import GameInfo from './gameinfo.js';
-import PlayerManager from './playermanager.js';
-import KillManager from './killmanager.js';
-import Matches from '../matches.js'
-import Maps from '../maps.js';
+const Promise = require('promise');
+const Message = require('../message');
+const ServerInfo = require('./serverInfo');
+const MapInfo = require('./mapInfo');
+const GameInfo = require('./gameinfo');
+const PlayerManager = require('./playermanager');
+const KillManager = require('./killmanager');
+const Matches = require('../matches');
+const Maps = require('../maps');
 
 class MatchManger{
 
@@ -34,15 +34,7 @@ class MatchManger{
         this.match = new Matches();
         this.maps = new Maps();
 
-
         this.import();
-
-        //this.insertMatch();
-
-
-        
-
-        //console.log(this.playerManager.players);
 
     }
 
@@ -50,11 +42,17 @@ class MatchManger{
 
         try{
 
+            await this.serverInfo.updateServer();
+            new Message(`Inserted server info into database.`, 'pass');
+
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
-            const matchTimings = this.gameInfo.getMatchLength();
 
+            const matchTimings = this.gameInfo.getMatchLength();
             await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
+            new Message(`Inserted map info into database.`, 'pass');
+
+            new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){
             console.trace(err);
@@ -183,4 +181,4 @@ class MatchManger{
 
 }
 
-export default MatchManger;
+module.exports = MatchManger;

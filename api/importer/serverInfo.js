@@ -1,7 +1,6 @@
-import Functions from '../functions.js';
-import Servers from '../servers.js';
-import mysql from '../database.js';
-import Message from '../message.js';
+
+const Servers = require('../servers');
+const Message = require('../message');
 
 class ServerInfo{
 
@@ -14,8 +13,6 @@ class ServerInfo{
         this.convertDate();
 
         this.servers = new Servers();
-
-        this.updateServer();
    
     }
 
@@ -127,4 +124,4 @@ class ServerInfo{
 
 }
 
-export default ServerInfo;
+module.exports = ServerInfo;

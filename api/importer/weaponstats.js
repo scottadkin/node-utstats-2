@@ -7,4 +7,4 @@ class WeaponStats{
     }
 }
 
-export default WeaponStats;
+module.exports = WeaponStats;

@@ -1,5 +1,5 @@
-import mysql from 'mysql';
-import config from '../config.js';
+const mysql =  require('mysql');
+const config = require( '../config.json');
 
 
 const Database = mysql.createPool({
@@ -10,4 +10,4 @@ const Database = mysql.createPool({
 });
 
 
-export default Database;
+module.exports = Database;

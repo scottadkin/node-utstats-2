@@ -42,4 +42,4 @@ class Kill{
     }
 }
 
-export default Kill;
+module.exports = Kill;

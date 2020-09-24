@@ -9,4 +9,4 @@ class Functions{
 
 }
 
-export default Functions;
+module.exports = Functions;

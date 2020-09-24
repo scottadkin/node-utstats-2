@@ -1,5 +1,5 @@
-import Kill from './kill.js';
-import Message from '../message.js';
+const Kill =  require('./kill');
+const Message = require('../message');
 
 class KillManager{
 
@@ -101,7 +101,9 @@ class KillManager{
         if(kill !== null){
             kill.setDistance(distance);
         }else{
-            new Message(`There is no matching kill for ${killer} -> ${victim} @ ${timeStamp}(setDistance).`,'warning');
+            if(killer !== victim){
+                new Message(`There is no matching kill for ${killer} -> ${victim} @ ${timeStamp}(setDistance).`,'warning');
+            }
         }
     }
 
@@ -112,11 +114,13 @@ class KillManager{
         if(kill !== null){
             kill.setLocations(killerLocation, victimLocation);
         }else{
-            new Message(`There is no matching kill for ${killerId} -> ${victimId} @ ${timeStamp}(setLocations).`,'warning');
+            if(killerId !== victimId){
+                new Message(`There is no matching kill for ${killerId} -> ${victimId} @ ${timeStamp}(setLocations).`,'warning');
+            }
         }
     }
 
 }
 
 
-export default KillManager;
+module.exports = KillManager;

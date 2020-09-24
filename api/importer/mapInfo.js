@@ -1,5 +1,5 @@
-import Functions from '../functions.js';
-import Maps from '../maps.js';
+const Functions = require('../functions');
+const Maps = require('../maps');
 
 class MapInfo{
 
@@ -8,8 +8,6 @@ class MapInfo{
         this.data = data;
         this.parseData();
         this.data = null;
-        console.log(this);
-
         this.maps = new Maps();
     }
 
@@ -58,4 +56,4 @@ class MapInfo{
 
 }
 
-export default MapInfo;
+module.exports = MapInfo;

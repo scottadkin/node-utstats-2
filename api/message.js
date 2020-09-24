@@ -55,11 +55,11 @@ class Message{
             fontColor = '\u001b[36m';
         }
 
-        console.log(`${fontColor}${timeString}${type}: ${this.message}\u001b[0m`);
+        console.log(`${fontColor}${timeString} ${type}: ${this.message}\u001b[0m`);
     }
 
 
 }
 
 
-export default Message;
+module.exports = Message;
