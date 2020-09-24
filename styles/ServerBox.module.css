@@ -1,0 +1,34 @@
+.default{
+    background-color:rgb(12,12,12);
+    color:white;
+    display:inline-block;
+    width:300px;
+    border:1px solid rgba(255,255,255,0.1);
+  }
+  
+  .title{
+    text-align:center;
+    font-size:20px;
+    padding:5px;
+    font-weight:300;
+  }
+
+  .image{
+    text-align:center;
+    padding:5px;
+  }
+
+  .image img{
+    width:90%;
+    max-height:100px;
+  }
+
+  .address{
+      font-size:12px;
+      text-align:center;
+  }
+
+  .info{
+      text-align:center;
+      font-size:12px;
+  }

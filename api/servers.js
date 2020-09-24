@@ -212,6 +212,27 @@ class Servers{
             });
         });
     }
+
+    debugGetAllServers(){
+
+        return new Promise((resolve, reject) =>{
+
+            let servers = [];
+
+            const query = "SELECT * FROM nstats_servers";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    servers = result;
+                }
+                resolve(servers);
+
+            });
+        });
+    }
 }
 
 module.exports = Servers;
