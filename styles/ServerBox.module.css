@@ -1,3 +1,7 @@
+.wrapper{
+  text-align:center;
+}
+
 .default{
     background-color:rgb(12,12,12);
     color:white;
@@ -31,4 +35,5 @@
   .info{
       text-align:center;
       font-size:12px;
+      line-height:20px;
   }

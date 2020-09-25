@@ -54,3 +54,17 @@ footer{
   padding:20px 0px;
   font-size:14px;
 }
+
+.default{
+  margin-top:50px;
+  text-align:center;
+}
+
+
+.default-header{
+  text-align:center;
+  font-size:22px;
+  padding:10px;
+  color:white;
+  font-weight:100;
+}

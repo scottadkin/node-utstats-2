@@ -6,13 +6,13 @@ class Matches{
 
     }
 
-    insertMatch(date, server, version, admin, region, motd, playtime, endType, start, end){
+    insertMatch(date, server, map, version, admin, email, region, motd, playtime, endType, start, end, insta){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-            const vars = [date, server, version, admin, region, motd, playtime, endType, start, end];
+            const vars = [date, server, map, version, admin, email, region, motd, playtime, endType, start, end, insta];
 
             mysql.query(query, vars, (err) =>{
 

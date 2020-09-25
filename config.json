@@ -14,6 +14,7 @@
         "password": "",
         "database": "nutstats"
     },
+    "bIgnoreDuplicates": false,
     "logFilePrefix": "unreal.nglog.",
     "importedLogsFolder": "logs",
     "test": "Dogs have wet noses",

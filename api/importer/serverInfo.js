@@ -11,7 +11,7 @@ class ServerInfo{
 
         this.parseData();
         this.convertDate();
-
+        
         this.servers = new Servers();
    
     }
@@ -43,7 +43,7 @@ class ServerInfo{
 
     parseData(){
 
-        const reg = /^\d+\.\d+\tinfo\t(.+?)\t(.+?)$/i;
+        const reg = /^\d+\.\d+\tinfo\t(.+?)\t(.*?)$/i;
 
         let currentResult = 0;
         let d = 0;

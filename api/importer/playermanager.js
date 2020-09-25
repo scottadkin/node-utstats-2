@@ -10,24 +10,13 @@ class PlayerManager{
         this.data = data;
 
         this.players = new Map();
-
-
-        //console.log(this.data.reverse());
     
 
         this.createPlayers();
         this.setNStatsValues();
         this.parsePlayerStrings();
 
-        //console.table(this.data);
-
-        //console.table(this.players);
-
-        //this.debugDisplayPlayerStats();
-
         //console.log(this.players);
-
-        //this.getOriginalConnection('ooper');
 
     }
 

@@ -32,8 +32,12 @@ function Home({servers}) {
       <main>
         <Nav />
         <div id={styles.content}>
-          content
+          <div className="default">
+            <div className="default-header">
+              Servers
+            </div>
           {elems}
+          </div>
         </div>
         <Footer />
       </main>   

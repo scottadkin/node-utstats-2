@@ -6,6 +6,7 @@ class Functions{
 
         return `${input[0].toLowerCase()}${ending}`;
     }
+    
 
 }
 

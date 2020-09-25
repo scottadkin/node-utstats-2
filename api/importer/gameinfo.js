@@ -16,6 +16,14 @@ class GameInfo{
         this.parseData();
 
         this.setMatchLength();
+
+        this.insta = this.insta.toLowerCase();
+        
+        if(this.insta === 'false'){
+            this.insta = 0;
+        }else{
+            this.insta = 1;
+        }
        
 
     }

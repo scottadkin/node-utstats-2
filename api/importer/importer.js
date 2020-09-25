@@ -22,7 +22,7 @@ class Importer{
                 const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[4]}`)
                // console.log(await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`));
 
-                const test = new MatchManager(testData, `${config.importedLogsFolder}/${this.logsToImport[4]}`);
+                const test = new MatchManager(testData, `${this.logsToImport[4]}`);
 
             }catch(err){
                 console.trace(err);

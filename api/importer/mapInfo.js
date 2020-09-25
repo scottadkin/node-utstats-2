@@ -9,6 +9,7 @@ class MapInfo{
         this.parseData();
         this.data = null;
         this.maps = new Maps();
+        this.mapId = null;
     }
 
     getMatchingType(type){
@@ -48,6 +49,8 @@ class MapInfo{
         try{
 
             await this.maps.updateStats(this.name, this.title, this.author, this.idealPlayerCount, this.levelEnterText, date, matchLength);
+            
+            this.mapId = await this.maps.getId(this.name);
 
         }catch(err){
             console.trace(err);

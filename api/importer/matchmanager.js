@@ -1,5 +1,7 @@
 const Promise = require('promise');
+const config = require('../../config.json');
 const Message = require('../message');
+const Logs = require('../logs');
 const ServerInfo = require('./serverInfo');
 const MapInfo = require('./mapInfo');
 const GameInfo = require('./gameinfo');
@@ -14,6 +16,7 @@ class MatchManger{
 
         //console.log(`new log parser`);
 
+
         this.data = data;
         this.fileName = fileName;
 
@@ -22,17 +25,6 @@ class MatchManger{
         this.convertFileToLines();
 
         
-        this.mapInfo = new MapInfo(this.mapLines);
-        this.gameInfo = new GameInfo(this.gameLines);
-        this.killManager = new KillManager(this.killLines);
-        this.playerManager = new PlayerManager(this.playerLines);
-        this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
-
-
-        this.playerManager.setKills(this.killManager.kills);
-
-        this.match = new Matches();
-        this.maps = new Maps();
 
         this.import();
 
@@ -42,15 +34,39 @@ class MatchManger{
 
         try{
 
+            if(config.bIgnoreDuplicates){
+
+                if(await Logs.bExists(this.fileName)){
+                    new Message(`${this.fileName} has already been imported and will not be re-imported, to change this change bIgnoreDuplicates to false in config.js`,'warning');
+                    new Message(`Finished import of log file ${this.fileName}.`, 'note');
+                    return;
+                }
+            }
+
+            await Logs.insert(this.fileName);
+
+
+            this.mapInfo = new MapInfo(this.mapLines);
+            this.gameInfo = new GameInfo(this.gameLines);
+            this.killManager = new KillManager(this.killLines);
+            this.playerManager = new PlayerManager(this.playerLines);
+            this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
+
+
+            this.playerManager.setKills(this.killManager.kills);
+
+            this.match = new Matches();
+            this.maps = new Maps();
+
             await this.serverInfo.updateServer();
             new Message(`Inserted server info into database.`, 'pass');
-
-            await this.insertMatch();
-            new Message(`Inserted match info into database.`,'pass');
 
             const matchTimings = this.gameInfo.getMatchLength();
             await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
             new Message(`Inserted map info into database.`, 'pass');
+
+            await this.insertMatch();
+            new Message(`Inserted match info into database.`,'pass');
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
@@ -73,14 +89,17 @@ class MatchManger{
             this.match.insertMatch(
                 this.serverInfo.date, 
                 serverId, 
+                this.mapInfo.mapId,
                 this.serverInfo.game_version, 
                 this.serverInfo.server_adminname,
+                this.serverInfo.server_adminemail,
                 this.serverInfo.server_region,
                 motd,
                 this.gameInfo.length,
                 this.gameInfo.endReason,
                 this.gameInfo.start,
-                this.gameInfo.end
+                this.gameInfo.end,
+                this.gameInfo.insta
             );
 
         }catch(err){
