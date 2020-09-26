@@ -14,17 +14,12 @@ class MatchManger{
 
     constructor(data, fileName){
 
-        //console.log(`new log parser`);
-
-
         this.data = data;
         this.fileName = fileName;
 
         new Message(`Starting import of log file ${fileName}`,'note');
 
         this.convertFileToLines();
-
-        
 
         this.import();
 

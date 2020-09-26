@@ -15,8 +15,10 @@ class PlayerManager{
         this.createPlayers();
         this.setNStatsValues();
         this.parsePlayerStrings();
+        this.setWeaponStats();
 
-        //console.log(this.players);
+        this.displayDebugDuplicates();
+        
 
     }
 
@@ -285,13 +287,16 @@ class PlayerManager{
 
             k = kills[i];
 
+            //console.log(k);
+
             if(k.type == 'kill'){
 
                 killer = this.getPlayerById(k.killerId);
                 victim = this.getPlayerById(k.victimId);
 
                 if(killer !== undefined){
-                    killer.killedPlayer(k.timeStamp);
+                    killer.killedPlayer(k.timeStamp, k.killerWeapon);
+      
                 }
 
                 if(victim !== undefined){
@@ -346,9 +351,63 @@ class PlayerManager{
         return null;
     }
 
+    displayDebugDuplicates(){
+
+        const names = [];
+
+        this.players.forEach((player, key) =>{
+
+            //console.log(`${value} ${key} `);
+
+            if(names.indexOf(player.name) === -1){
+                names.push(player.name);
+            }else{
+                new Message(`Found duplicate for player ${player.name}`,'note');
+            }
+
+        });
+    }
+
     mergeDuplicates(){
 
         //after settings names, weapon stats ect
+    }
+
+
+    setWeaponStats(){
+
+        console.log(this.data);
+
+        const reg = /^(\d+\.\d+)\tweap_(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
+
+        let d = 0;
+
+        let result = 0;
+        let player = 0;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            d = this.data[i];
+
+            result = reg.exec(d);
+
+            if(result !== null){
+
+                player = this.getPlayerById(parseInt(result[4]));
+
+                if(player !== null){
+
+                    player.setWeaponStat(result[3], result[2], result[5]);
+
+                }else{
+                    new Message(`Player with id ${result[4]} does not exist.`,'warning');
+                }
+
+                //console.log(result);
+            }
+        }
+
+        this.debugDisplayPlayerStats();
     }
 
 }

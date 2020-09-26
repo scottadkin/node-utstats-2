@@ -1,4 +1,5 @@
 const config = require('../../config.json');
+const WeaponStats = require('./weaponstats');
 
 class PlayerInfo{
 
@@ -10,6 +11,8 @@ class PlayerInfo{
         this.disconnects = [];
         this.teams = [];
         this.bBot = false;
+
+        this.weaponStats = new Map();
 
         this.stats = {
             "sprees": {
@@ -157,16 +160,15 @@ class PlayerInfo{
         this.currentSpree = 0;
     }
 
-    killedPlayer(timeStamp){
+    killedPlayer(timeStamp, weapon){
 
         timeStamp = parseFloat(timeStamp);
 
         const timeDiff = timeStamp - this.lastKill;
 
-       // console.log(`timeDiff = ${timeDiff}`);
+        this.updateWeaponStats('kill', weapon);
 
         this.currentSpree++;
-
 
         if(timeDiff <= config.multiKillTimeLimit){
 
@@ -180,8 +182,51 @@ class PlayerInfo{
         }
 
         this.lastKill = timeStamp;
+    }
+
+    updateWeaponStats(type, weapon){
+
+        if(this.weaponStats.has(weapon)){
+
+            const stats = this.weaponStats.get(weapon);
+
+            if(type === 'kill'){
+                stats.killedPlayer();
+            }else if(type === 'death'){
+                stats.died();
+            }
+
+        }else{
+
+            this.weaponStats.set(weapon, new WeaponStats(weapon));
+            const stats = this.weaponStats.get(weapon);
+
+            if(type === 'kill'){
+                stats.killedPlayer();
+            }else if(type === 'death'){
+                stats.died();
+            }
+
+            //console.log(this.weaponStats);
+        }
+    }
+
+    setWeaponStat(weapon, type, value){
 
 
+        if(this.weaponStats.has(weapon)){
+
+            const stats = this.weaponStats.get(weapon);
+
+            stats.setValue(type, value);
+
+        }else{
+
+            this.weaponStats.set(weapon, new WeaponStats(weapon));
+            const stats = this.weaponStats.get(weapon);
+
+            stats.setValue(type, value);
+        }
 
     }
 }
