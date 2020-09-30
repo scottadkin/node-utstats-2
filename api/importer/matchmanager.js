@@ -9,6 +9,7 @@ const PlayerManager = require('./playermanager');
 const KillManager = require('./killmanager');
 const Matches = require('../matches');
 const Maps = require('../maps');
+const Gametypes = require('../gametypes');
 
 class MatchManger{
 
@@ -65,6 +66,8 @@ class MatchManger{
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
+            console.log(this.gameInfo);
+
         }catch(err){
             console.trace(err);
         }
@@ -75,7 +78,6 @@ class MatchManger{
 
         try{
 
-
             //date, server, version, admin, region, motd, playtime, endType, start, end
             const serverId = await this.serverInfo.getServerId();
 
@@ -85,7 +87,8 @@ class MatchManger{
                 this.serverInfo.date, 
                 serverId, 
                 this.mapInfo.mapId,
-                this.serverInfo.game_version, 
+                this.gameInfo.gameversion, 
+                this.gameInfo.minnetversion, 
                 this.serverInfo.server_adminname,
                 this.serverInfo.server_adminemail,
                 this.serverInfo.server_region,
@@ -94,7 +97,26 @@ class MatchManger{
                 this.gameInfo.endReason,
                 this.gameInfo.start,
                 this.gameInfo.end,
-                this.gameInfo.insta
+                this.gameInfo.insta, 
+                this.gameInfo.teamgame,
+                this.gameInfo.gamespeed,
+                this.gameInfo.hardcore,
+                this.gameInfo.tournamentmode,
+                this.gameInfo.aircontrol,
+                this.gameInfo.usetranslocator,
+                this.gameInfo.friendlyfirescale,
+                this.gameInfo.netmode,
+                this.gameInfo.maxspectators,
+                this.gameInfo.maxplayers,
+                this.playerManager.uniqueNames.length,
+                this.gameInfo.timelimit,
+                this.gameInfo.targetScore,
+                this.gameInfo.dmWinner,
+                this.gameInfo.dmWinnerScore,
+                this.gameInfo.teamScores[0],
+                this.gameInfo.teamScores[1],
+                this.gameInfo.teamScores[2],
+                this.gameInfo.teamScores[3]
             );
 
         }catch(err){

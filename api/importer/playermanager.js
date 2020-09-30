@@ -10,6 +10,8 @@ class PlayerManager{
         this.data = data;
 
         this.players = new Map();
+
+        this.uniqueNames = [];
     
 
         this.createPlayers();
@@ -17,7 +19,7 @@ class PlayerManager{
         this.parsePlayerStrings();
         this.setWeaponStats();
 
-        this.displayDebugDuplicates();
+        //this.displayDebugDuplicates();
         
 
     }
@@ -171,6 +173,10 @@ class PlayerManager{
         if(result !== null){
 
             const player = this.getPlayerById(result[2]);
+
+            if(this.uniqueNames.indexOf(result[1]) === -1){
+                this.uniqueNames.push(result[1]);
+            }
 
             if(player === undefined){
                 //this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
@@ -407,7 +413,7 @@ class PlayerManager{
             }
         }
 
-        this.debugDisplayPlayerStats();
+       // this.debugDisplayPlayerStats();
     }
 
 }

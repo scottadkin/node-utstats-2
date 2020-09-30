@@ -6,13 +6,56 @@ class Matches{
 
     }
 
-    insertMatch(date, server, map, version, admin, email, region, motd, playtime, endType, start, end, insta){
+    insertMatch(date, server, map, version, minVersion, admin, email, region, motd, playtime, endType, start, end, insta,
+        teamGame, gameSpeed, hardcore, tournament, airControl, useTranslocator, friendlyFireScale, netMode, maxSpectators, 
+        maxPlayers, totalPlayers, timeLimit, targetScore, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore){
+
+
+        /*aircontrol,
+                this.gameInfo.usetranslocator,
+                this.gameInfo.friendlyfirescale,
+                this.gameInfo.netmode*/
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-            const vars = [date, server, map, version, admin, email, region, motd, playtime, endType, start, end, insta];
+            const vars = [
+                date, 
+                server, 
+                map, 
+                version, 
+                minVersion, 
+                admin, 
+                email, 
+                region, 
+                motd, 
+                playtime, 
+                endType, 
+                start, 
+                end, 
+                insta, 
+                teamGame, 
+                gameSpeed, 
+                hardcore, 
+                tournament,
+                airControl, 
+                useTranslocator, 
+                friendlyFireScale, 
+                netMode,
+                maxSpectators,
+                maxPlayers,
+                totalPlayers,
+                timeLimit,
+                targetScore,
+                dmWinner, 
+                dmScore, 
+                redScore,
+                blueScore, 
+                greenScore, 
+                yellowScore
+
+            ];
 
             mysql.query(query, vars, (err) =>{
 

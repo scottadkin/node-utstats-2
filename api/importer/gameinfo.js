@@ -12,18 +12,17 @@ class GameInfo{
         this.length = null;
         this.endReason = null;
 
+        this.targetScore = 0;
+
+        this.dmWinner = '';
+        this.dmWinnerScore = 0;
+
 
         this.parseData();
 
         this.setMatchLength();
+        this.setGoalScore();
 
-        this.insta = this.insta.toLowerCase();
-        
-        if(this.insta === 'false'){
-            this.insta = 0;
-        }else{
-            this.insta = 1;
-        }
        
 
     }
@@ -35,11 +34,7 @@ class GameInfo{
         const startReg = /^(\d+\.\d+)\tgame_start/;
         const endReg = /^(\d+\.\d+)\tgame_end\t(.+)$/;
 
-        //360.83	game_end	timelimit
-
         let result = 0;
-
-
         let d = 0;
 
         for(let i = 0; i < this.data.length; i++){
@@ -49,7 +44,17 @@ class GameInfo{
             result = reg.exec(d);
 
             if(result !== null){
-                this[Functions.firstCharLowerCase(result[1])] = result[2];
+
+                result[1] = result[1].toLowerCase();
+                result[2] = result[2].toLowerCase();
+
+                if(result[2] === 'false'){
+                    result[2] = 0;
+                }else if(result[2] === 'true'){
+                    result[2] = 1;
+                }
+                
+                this[result[1]] = result[2];
             }else{
 
                 if(scoreReg.test(d)){
@@ -92,6 +97,18 @@ class GameInfo{
             "end": (this.end !== null) ? this.end : 0,
             "length": (this.length !== null) ? this.length : 0,
         };
+    }
+
+    setGoalScore(){
+
+        if(this.teamgame === 1){
+
+            this.targetScore = this.goalteamscore;
+
+        }else{
+
+            this.targetScore = this.fraglimit;
+        }
     }
 
 }
