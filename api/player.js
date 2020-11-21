@@ -33,7 +33,7 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,0,0,0,0,0,0,0)";
+            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,0,0,0,0,0,0,0,0)";
 
             mysql.query(query, [name], (err, result) =>{
 
@@ -79,11 +79,11 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_player_totals SET matches=matches+1, playtime=playtime+?, frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, team_kills=team_kills+? WHERE id=?`;
+            const query = `UPDATE nstats_player_totals SET matches=matches+1, playtime=playtime+?, 
+            frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, team_kills=team_kills+? WHERE id=?`;
 
             const vars = [playtime, frags, score, kills, deaths, suicides, teamKills, id];
 
-            console.log(vars);
 
             mysql.query(query, vars, async (err) =>{
 

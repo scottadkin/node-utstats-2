@@ -73,7 +73,7 @@ class MatchManger{
            
            this.playerManager.mergeDuplicates();
 
-           await this.playerManager.debugUpdateBasic();
+           await this.playerManager.updateFragPerformance();
 
         }catch(err){
             console.trace(err);

@@ -437,7 +437,7 @@ class PlayerManager{
         ];
 
         for(const c in master.stats){
-            console.log(c);
+           // console.log(c);
 
             if(c !== 'sprees' && c !== 'multis'){
 
@@ -485,13 +485,12 @@ class PlayerManager{
                             originalIndex = x;
                         }else{
                             this.mergePlayer(this.players[originalIndex], this.players[x]);
+                            this.players[x].bDuplicate = true;
                         }
-                        this.players[x] = null;
+                        
                     }
                 }
             }
-
-            console.log(this.players[0]);
 
         }else{
             new Message(`There are no duplicates to import`,'pass');
@@ -556,7 +555,7 @@ class PlayerManager{
 
     }
 
-    async debugUpdateBasic(){
+    async updateFragPerformance(){
 
         try{
 
@@ -567,7 +566,7 @@ class PlayerManager{
                 console.log(i);
 
                 p = this.players[i];
-                if(p !== null){
+                if(p.bDuplicate === undefined){
                     await Player.updateFrags(p.masterId, p.stats.time_on_server, p.stats.score, p.stats.frags, p.stats.kills, p.stats.deaths, p.stats.suicides, p.stats.teamkills);
                 }
             }
