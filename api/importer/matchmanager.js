@@ -68,10 +68,12 @@ class MatchManger{
 
            // console.log(this.gameInfo);
 
-           this.playerManager.setPlayerIds();
+           await this.playerManager.setPlayerIds();
 
            
            this.playerManager.mergeDuplicates();
+
+           await this.playerManager.debugUpdateBasic();
 
         }catch(err){
             console.trace(err);

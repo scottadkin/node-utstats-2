@@ -486,6 +486,7 @@ class PlayerManager{
                         }else{
                             this.mergePlayer(this.players[originalIndex], this.players[x]);
                         }
+                        this.players[x] = null;
                     }
                 }
             }
@@ -553,6 +554,27 @@ class PlayerManager{
             new Message(`Problem setting player id ${err}`,'warning');
         }
 
+    }
+
+    async debugUpdateBasic(){
+
+        try{
+
+            let p = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                console.log(i);
+
+                p = this.players[i];
+                if(p !== null){
+                    await Player.updateFrags(p.masterId, p.stats.time_on_server, p.stats.score, p.stats.frags, p.stats.kills, p.stats.deaths, p.stats.suicides, p.stats.teamkills);
+                }
+            }
+
+        }catch(err){
+            new Message(err, 'error');
+        }
     }
 
 }
