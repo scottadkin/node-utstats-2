@@ -66,7 +66,10 @@ class MatchManger{
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
-            console.log(this.gameInfo);
+           // console.log(this.gameInfo);
+
+           this.playerManager.setPlayerIds();
+           this.playerManager.mergeDuplicates();
 
         }catch(err){
             console.trace(err);

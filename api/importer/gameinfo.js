@@ -6,6 +6,9 @@ class GameInfo{
 
         this.data = data;
         this.teamScores = [0,0,0,0];
+        
+        //no camelcase for this variable as it's always needed and is not always in logs
+        this.friendlyfirescale = 0;
 
         this.start = null;
         this.end = null;
@@ -16,14 +19,13 @@ class GameInfo{
 
         this.dmWinner = '';
         this.dmWinnerScore = 0;
+        
 
 
         this.parseData();
 
         this.setMatchLength();
-        this.setGoalScore();
-
-       
+        this.setGoalScore();   
 
     }
 
@@ -55,6 +57,7 @@ class GameInfo{
                 }
                 
                 this[result[1]] = result[2];
+
             }else{
 
                 if(scoreReg.test(d)){
@@ -102,11 +105,8 @@ class GameInfo{
     setGoalScore(){
 
         if(this.teamgame === 1){
-
             this.targetScore = this.goalteamscore;
-
         }else{
-
             this.targetScore = this.fraglimit;
         }
     }

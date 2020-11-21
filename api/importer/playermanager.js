@@ -1,6 +1,8 @@
 const PlayerInfo = require('./playerinfo');
 const Message = require('../message');
 const geoip = require('geoip-country');
+const P = require('../player');
+const Player = new P();
 
 class PlayerManager{
 
@@ -9,9 +11,10 @@ class PlayerManager{
 
         this.data = data;
 
-        this.players = new Map();
-
+        this.players = [];
         this.uniqueNames = [];
+        this.duplicateNames = [];
+        this.orginalIds = new Map();
     
 
         this.createPlayers();
@@ -36,7 +39,15 @@ class PlayerManager{
 
         id = parseInt(id);
 
-        return this.players.get(id);
+
+        for(let i = 0; i < this.players.length; i++){
+
+            if(this.players[i].id === id){
+                return this.players[i];
+            }
+        }
+
+        return null;
 
     }
 
@@ -74,7 +85,7 @@ class PlayerManager{
 
                 player = this.getPlayerById(result[2]);
 
-                if(player !== undefined){
+                if(player !== null){
 
                     player.setStatsValue(result[1], result[3], true);
 
@@ -149,7 +160,7 @@ class PlayerManager{
 
                         player = this.getPlayerById(result[1]);
 
-                        if(player !== undefined){
+                        if(player !== null){
 
                             player.setStatsValue(type, result[2], true);
                         }
@@ -176,11 +187,21 @@ class PlayerManager{
 
             if(this.uniqueNames.indexOf(result[1]) === -1){
                 this.uniqueNames.push(result[1]);
+            }else{
+
+                if(this.duplicateNames.indexOf(result[1]) === -1){
+                    this.duplicateNames.push(result[1]);
+                }
             }
 
-            if(player === undefined){
+            if(player === null){
                 //this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
-                this.players.set(parseInt(result[2]), new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
+                this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
+
+               // if(!this.orginalIds.has(result[1])){
+               //     this.orginalIds.set(result[1], parseInt(result[2]));
+                //}
+
             }else{
                 player.connect(timeStamp);
             }
@@ -196,7 +217,7 @@ class PlayerManager{
 
         const player = this.getPlayerById(id);
 
-        if(player !== undefined){
+        if(player !== null){
             player.disconnect(timeStamp);
         }else{
             new Message(`Player with the id of ${id} does not exist(disconnectPlayer).`,'warning');
@@ -215,7 +236,7 @@ class PlayerManager{
             const team = parseInt(result[2]);
             const player = this.getPlayerById(id);
 
-            if(player !== undefined){
+            if(player !== null){
                 player.setTeam(timeStamp, team);      
             }else{
                 new Message(`Player with the id of ${id} does not exist(setTeam).`,'warning');
@@ -241,7 +262,7 @@ class PlayerManager{
             if(bBot){
                 const player = this.getPlayerById(result[1]);
 
-                if(player !== undefined){
+                if(player !== null){
                     player.setAsBot();
                 }else{
                     new Message(`Player with the id of ${result[1]} does not exist(setBotStatus).`,'warning');
@@ -264,7 +285,7 @@ class PlayerManager{
 
             const value = result[3].toLowerCase();
 
-            if(player !== undefined){
+            if(player !== null){
 
                 if(type === 'face'){
                     player.setFace(value);
@@ -300,12 +321,12 @@ class PlayerManager{
                 killer = this.getPlayerById(k.killerId);
                 victim = this.getPlayerById(k.victimId);
 
-                if(killer !== undefined){
+                if(killer !== null){
                     killer.killedPlayer(k.timeStamp, k.killerWeapon);
       
                 }
 
-                if(victim !== undefined){
+                if(victim !== null){
                     victim.died(k.timeStamp);
                 }
             }
@@ -324,7 +345,7 @@ class PlayerManager{
         if(result !== null){
             const player = this.getPlayerById(result[1]);
 
-            if(player !== undefined){
+            if(player !== null){
 
                 const geo = geoip.lookup(result[2]);
 
@@ -374,15 +395,34 @@ class PlayerManager{
         });
     }
 
-    mergeDuplicates(){
+    async mergeDuplicates(){
 
-        //after settings names, weapon stats ect
+        console.log('MERGE DUPLCIATES');
+
+
+        if(this.duplicateNames.length > 0){
+
+            new Message(`Found ${this.duplicateNames.length} duplicate players to merge`,'pass');
+
+            /*for(let i = 0; i < this.duplicateNames.length; i++){
+
+                for(let x = 0; x < this.players.length; x++){
+
+
+                }
+            }*/
+
+            console.log(this.players);
+
+        }else{
+            new Message(`There are no duplicates to import`,'pass');
+        }
     }
 
 
     setWeaponStats(){
 
-        console.log(this.data);
+        //console.log(this.data);
 
         const reg = /^(\d+\.\d+)\tweap_(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
 
@@ -414,6 +454,27 @@ class PlayerManager{
         }
 
        // this.debugDisplayPlayerStats();
+    }
+
+
+    async setPlayerIds(){
+
+        try{
+
+            let currentId = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                currentId = await Player.getNameId(this.players[i].name,true);
+                this.players[i].masterId = currentId;
+
+            }
+
+
+        }catch(err){
+            new Message(`Problem setting player id ${err}`,'warning');
+        }
+
     }
 
 }
