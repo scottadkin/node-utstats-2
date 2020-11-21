@@ -69,6 +69,8 @@ class MatchManger{
            // console.log(this.gameInfo);
 
            this.playerManager.setPlayerIds();
+
+           
            this.playerManager.mergeDuplicates();
 
         }catch(err){

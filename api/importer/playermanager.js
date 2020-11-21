@@ -70,7 +70,7 @@ class PlayerManager{
                 result = reg.exec(d);
                 type = result[2].toLowerCase();
 
-                if(type === 'team' || type === 'teamchange'){
+                if(type === 'team' /*|| type === 'teamchange'*/){
                     this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
                     this.setBotStatus(result[3]);
@@ -395,6 +395,73 @@ class PlayerManager{
         });
     }
 
+
+    mergePlayer(master, duplicate){
+
+       
+        master.connects.push(...duplicate.connects);
+        master.disconnects.push(...duplicate.disconnects);
+        master.teams.push(...duplicate.teams);
+        // master.weaponStats.push(...duplicate.weaponStats);
+
+        for(const c in master.stats.sprees){
+            master.stats.sprees[c] += duplicate.stats.sprees[c];
+        }
+
+
+        for(const c in master.stats.multis){
+            master.stats.multis[c] += duplicate.stats.multis[c];
+        }
+
+
+        const higherBetter = [
+            'bestSpree',
+            'bestMulti',
+            'bestspawnkillspree',
+            'longesttimebetweenkills',
+        ];
+
+        const lowerBetter = [
+            'shortesttimebetweenkills'
+        ];
+
+        const combine = [
+            'spawnkills',
+            'score',
+            'frags',
+            'kills',
+            'deaths',
+            'suicides',
+            'teamkills',
+            'time_on_server',
+        ];
+
+        for(const c in master.stats){
+            console.log(c);
+
+            if(c !== 'sprees' && c !== 'multis'){
+
+                if(higherBetter.indexOf(c) !== -1){
+
+                    if(duplicate.stats[c] > master.stats[c]){
+                        master.stats[c] = duplicate.stats[c];
+                    }
+
+                }else if(lowerBetter.indexOf(c) !== -1){
+
+                    if(duplicate.stats[c] < master.stats[c]){
+                        master.stats[c] = duplicate.stats[c];
+                    }
+
+                }else if(combine.indexOf(c) !== -1){
+
+                    master.stats[c] += duplicate.stats[c];
+                }
+            }
+        }
+
+    }
+
     async mergeDuplicates(){
 
         console.log('MERGE DUPLCIATES');
@@ -403,16 +470,27 @@ class PlayerManager{
         if(this.duplicateNames.length > 0){
 
             new Message(`Found ${this.duplicateNames.length} duplicate players to merge`,'pass');
+            
+            let originalIndex = 0;
 
-            /*for(let i = 0; i < this.duplicateNames.length; i++){
+            for(let i = 0; i < this.duplicateNames.length; i++){
+
+                originalIndex = -1;
 
                 for(let x = 0; x < this.players.length; x++){
 
+                    if(this.players[x].name === this.duplicateNames[i]){
 
+                        if(originalIndex === -1){
+                            originalIndex = x;
+                        }else{
+                            this.mergePlayer(this.players[originalIndex], this.players[x]);
+                        }
+                    }
                 }
-            }*/
+            }
 
-            console.log(this.players);
+            console.log(this.players[0]);
 
         }else{
             new Message(`There are no duplicates to import`,'pass');
