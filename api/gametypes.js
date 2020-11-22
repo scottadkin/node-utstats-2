@@ -53,14 +53,18 @@ class Gametypes{
             playtime=playtime+?,
             matches=matches+1
             WHERE id=?`;
-            
+
             const vars = [date,date,date,date,playtime,id];
 
-            mysql.query(query, vars, (err) =>{
+            mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
 
-                resolve();
+                if(result.changedRows > 0){
+                    resolve(true);
+                }
+
+                resolve(false);
 
             });
         });
@@ -73,7 +77,13 @@ class Gametypes{
 
             const id = await this.getGametypeId(name, true);
 
-            await this.updateQuery(id, date, playtime);
+            const bPassed = await this.updateQuery(id, date, playtime);
+
+            if(bPassed){
+                new Message(`Inserted gametype info into database.`,'pass');
+            }else{
+                new Message(`Failed to update gametype database.`,'warning');
+            }
 
 
         }catch(err){

@@ -6,7 +6,7 @@ class Matches{
 
     }
 
-    insertMatch(date, server, map, version, minVersion, admin, email, region, motd, playtime, endType, start, end, insta,
+    insertMatch(date, server, gametype, map, version, minVersion, admin, email, region, motd, playtime, endType, start, end, insta,
         teamGame, gameSpeed, hardcore, tournament, airControl, useTranslocator, friendlyFireScale, netMode, maxSpectators, 
         maxPlayers, totalPlayers, timeLimit, targetScore, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore){
 
@@ -18,11 +18,12 @@ class Matches{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             const vars = [
                 date, 
                 server, 
+                gametype,
                 map, 
                 version, 
                 minVersion, 
