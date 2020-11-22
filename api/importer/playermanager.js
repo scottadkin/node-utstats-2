@@ -563,11 +563,19 @@ class PlayerManager{
 
             for(let i = 0; i < this.players.length; i++){
 
-                console.log(i);
-
                 p = this.players[i];
+                
                 if(p.bDuplicate === undefined){
-                    await Player.updateFrags(p.masterId, p.stats.time_on_server, p.stats.score, p.stats.frags, p.stats.kills, p.stats.deaths, p.stats.suicides, p.stats.teamkills);
+                    await Player.updateFrags(
+                        p.masterId, 
+                        p.stats.time_on_server, 
+                        p.stats.score, 
+                        p.stats.frags, 
+                        p.stats.kills, 
+                        p.stats.deaths, 
+                        p.stats.suicides, 
+                        p.stats.teamkills
+                    );
                 }
             }
 

@@ -39,6 +39,9 @@ class GameInfo{
         let result = 0;
         let d = 0;
 
+        let result1OriginalCase = 0;
+        let result2OriginalCase = 0;
+
         for(let i = 0; i < this.data.length; i++){
 
             d = this.data[i];
@@ -47,16 +50,16 @@ class GameInfo{
 
             if(result !== null){
 
-                result[1] = result[1].toLowerCase();
-                result[2] = result[2].toLowerCase();
+                result1OriginalCase = result[1].toLowerCase();
+                result2OriginalCase = result[2].toLowerCase();
 
-                if(result[2] === 'false'){
+                if(result2OriginalCase === 'false'){
                     result[2] = 0;
-                }else if(result[2] === 'true'){
+                }else if(result2OriginalCase === 'true'){
                     result[2] = 1;
                 }
                 
-                this[result[1]] = result[2];
+                this[result1OriginalCase] = result[2];
 
             }else{
 

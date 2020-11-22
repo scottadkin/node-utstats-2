@@ -48,6 +48,11 @@ class MatchManger{
             this.playerManager = new PlayerManager(this.playerLines);
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 
+            this.gametype = new Gametypes();
+            
+            await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date ,this.gameInfo.getMatchLength().length);
+           
+           //this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
 
             this.playerManager.setKills(this.killManager.kills);
 
