@@ -3,6 +3,7 @@ const Message = require('../message');
 const geoip = require('geoip-country');
 const P = require('../player');
 const Player = new P();
+const Faces = require('../faces');
 
 class PlayerManager{
 
@@ -17,10 +18,13 @@ class PlayerManager{
         this.orginalIds = new Map();
     
 
+        this.faces = new Faces();
+
         this.createPlayers();
         this.setNStatsValues();
         this.parsePlayerStrings();
         this.setWeaponStats();
+
 
         //this.displayDebugDuplicates();
         
@@ -582,6 +586,42 @@ class PlayerManager{
         }catch(err){
             new Message(err, 'error');
         }
+    }
+
+    async updateFaceStats(date){
+
+        try{
+
+            new Message(`Starting face stats update`,'note');
+
+            const usageData = {};
+
+            let p = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+
+                if(p.bDuplicate === undefined){
+
+                    if(usageData[p.face] === undefined){
+                        usageData[p.face] = 1;
+                    }else{
+                        usageData[p.face]++;
+                    }
+                }
+              
+            }
+
+
+            for(const c in usageData){
+                await this.faces.update(c, usageData[c], date);
+            }
+
+        }catch(err){
+            new Message(`Failed to updateFaceStats ${err}`,'warning');
+        }
+
     }
 
 }
