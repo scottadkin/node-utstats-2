@@ -78,7 +78,7 @@ class MatchManger{
            
            this.playerManager.mergeDuplicates();
 
-           await this.playerManager.updateFaceStats(this.serverInfo.date);
+           await this.playerManager.updateFaces(this.serverInfo.date);
 
            await this.playerManager.updateFragPerformance();
 

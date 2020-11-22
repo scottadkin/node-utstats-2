@@ -14,7 +14,7 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id FROM nstats_player_totals WHERE name=? LIMIT 1";
+            const query = "SELECT id FROM nstats_player_totals WHERE name=? AND gametype=0 LIMIT 1";
 
             mysql.query(query, [name], (err, result) =>{
 

@@ -113,7 +113,96 @@ class Faces{
         }catch(err){
             new Message(`Failed to update face ${name} with ${uses} uses with date ${date}. ${err}`,'warning');
         }
+    }
 
+    async updateFaceStats(players, date){
+
+        try{
+
+            new Message(`Starting face stats update`,'note');
+
+            const usageData = {};
+
+            let p = 0;
+
+            for(let i = 0; i < players.length; i++){
+
+                p = players[i];
+
+                if(p.bDuplicate === undefined){
+
+                    if(usageData[p.face] === undefined){
+                        usageData[p.face] = 1;
+                    }else{
+                        usageData[p.face]++;
+                    }
+                }
+              
+            }
+
+            const usedFaces = [];
+
+            for(const c in usageData){
+                await this.update(c, usageData[c], date);
+                usedFaces.push(c);
+            }
+
+            await this.setUsedFaces(usedFaces);
+
+            new Message(`Updated face stats in database.`,'pass');
+
+        }catch(err){
+            new Message(`Failed to updateFaceStats ${err}`,'warning');
+        }
+    }
+
+    async setUsedFaces(faces){
+
+        try{
+
+            const results = [];
+
+            let currentId = 0;
+
+            for(let i = 0; i < faces.length; i++){
+
+                currentId = await this.getFaceId(faces[i]);
+
+                results[faces[i]] = currentId;
+            }
+
+            this.usedFaces = results;
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    setPlayerFaceIds(players){
+
+        let p = 0;
+
+        for(let i = 0; i < players.length; i++){
+
+            p = players[i];
+
+            p.faceId = this.usedFaces[p.face];
+        }
+    }
+    
+    updatePlayerFace(player, face){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_player_totals SET face=? WHERE id=?`
+
+            mysql.query(query, [face, player], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
     }
 }
 

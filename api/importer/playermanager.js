@@ -588,13 +588,14 @@ class PlayerManager{
         }
     }
 
-    async updateFaceStats(date){
+    
+
+    async updateFaces(date){
 
         try{
 
-            new Message(`Starting face stats update`,'note');
-
-            const usageData = {};
+            await this.faces.updateFaceStats(this.players, date);
+            this.faces.setPlayerFaceIds(this.players);
 
             let p = 0;
 
@@ -604,24 +605,13 @@ class PlayerManager{
 
                 if(p.bDuplicate === undefined){
 
-                    if(usageData[p.face] === undefined){
-                        usageData[p.face] = 1;
-                    }else{
-                        usageData[p.face]++;
-                    }
+                    await this.faces.updatePlayerFace(p.masterId, p.faceId);
                 }
-              
-            }
-
-
-            for(const c in usageData){
-                await this.faces.update(c, usageData[c], date);
             }
 
         }catch(err){
-            new Message(`Failed to updateFaceStats ${err}`,'warning');
+            console.trace(err);
         }
-
     }
 
 }
