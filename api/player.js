@@ -33,7 +33,7 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,0,0,0,0,0,0,0,0)";
+            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',0,0,0,0,0,0,0,0,0,0,0,0,0)";
 
             mysql.query(query, [name], (err, result) =>{
 
