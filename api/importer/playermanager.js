@@ -1,6 +1,8 @@
+const mysql = require('../database');
+const Promise = require('promise');
 const PlayerInfo = require('./playerinfo');
 const Message = require('../message');
-const geoip = require('geoip-country');
+const geoip = require('geoip-lite');
 const P = require('../player');
 const Player = new P();
 const Faces = require('../faces');
@@ -353,6 +355,7 @@ class PlayerManager{
 
                 const geo = geoip.lookup(result[2]);
 
+                console.log(geo);
                 let country = 'xx';
                 if(geo !== null){
                     country = geo.country.toLowerCase();
@@ -612,6 +615,40 @@ class PlayerManager{
         }catch(err){
             console.trace(err);
         }
+    }
+
+    updateIpCountry(id, ip, country){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_player_totals SET ip=?,country=? WHERE id=?";
+
+            mysql.query(query, [ip,country, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+
+        });
+    }
+
+    async setIpCountry(){
+
+        try{
+
+            let p = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+
+                await this.updateIpCountry(p.masterId, p.ip, p.country);
+            }
+
+        }catch(err){
+            console.log(err);
+        }   
     }
 
 }

@@ -79,6 +79,7 @@ class MatchManger{
            this.playerManager.mergeDuplicates();
 
            await this.playerManager.updateFaces(this.serverInfo.date);
+           await this.playerManager.setIpCountry();
 
            await this.playerManager.updateFragPerformance();
 
