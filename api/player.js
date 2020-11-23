@@ -45,7 +45,7 @@ class Player{
                 gametype = 0;
             }
 
-            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',?,0,0,0,0,0,0,0,0,0,0,0,0)";
+            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)";
 
             mysql.query(query, [name, gametype], (err, result) =>{
 
@@ -94,14 +94,53 @@ class Player{
         });
     }
 
-    updateFrags(id, playtime, frags, score, kills, deaths, suicides, teamKills, gametype){
+    updateFrags(id, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
+        multis, bestMulti, sprees, bestSpree,
+        gametype){
 
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_player_totals SET matches=matches+1, playtime=playtime+?, 
-            frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, team_kills=team_kills+? WHERE id=? AND gametype=?`;
+            frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
+            team_kills=team_kills+?, spawn_Kills=spawn_kills+?,
+            multi_1 = multi_1+?, multi_2 = multi_2+?, multi_3 = multi_3+?, multi_4 = multi_4+?,
+            multi_5 = multi_5+?, multi_6 = multi_6+?, multi_7 = multi_7+?,
+            multi_best = IF(multi_best < ?, ?, multi_best),
+            spree_1 = spree_1+?, spree_2 = spree_2+?, spree_3 = spree_3+?, spree_4 = spree_4+?,
+            spree_5 = spree_5+?, spree_6 = spree_6+?, spree_7 = spree_7+?,
+            spree_best = IF(spree_best < ?, ?, spree_best)
+            WHERE id=? AND gametype=?`;
 
-            const vars = [playtime, frags, score, kills, deaths, suicides, teamKills, id, gametype];
+            const vars = [
+                playtime, 
+                frags, 
+                score, 
+                kills, 
+                deaths, 
+                suicides, 
+                teamKills, 
+                spawnKills, 
+                multis.double,
+                multis.multi,
+                multis.mega,
+                multis.ultra,
+                multis.monster,
+                multis.ludicrous,
+                multis.holyshit,
+                bestMulti,
+                bestMulti,
+                sprees.spree,
+                sprees.rampage,
+                sprees.dominating,
+                sprees.unstoppable,
+                sprees.godlike,
+                sprees.massacre,
+                sprees.brutalizing,
+                bestSpree,
+                bestSpree,
+                id,
+                gametype
+            ];
 
 
             mysql.query(query, vars, async (err) =>{

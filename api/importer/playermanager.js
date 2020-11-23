@@ -551,7 +551,7 @@ class PlayerManager{
             for(let i = 0; i < this.players.length; i++){
 
                 currentId = await Player.getNameId(this.players[i].name, gametypeId, true);
-                console.log(currentId);
+               // console.log(currentId);
                 this.players[i].masterId = currentId.totalId;
                 this.players[i].gametypeId = currentId.gametypeId;
 
@@ -577,6 +577,8 @@ class PlayerManager{
             for(let i = 0; i < this.players.length; i++){
 
                 p = this.players[i];
+
+                console.log(p);
                 
                 if(p.bDuplicate === undefined){
 
@@ -590,7 +592,14 @@ class PlayerManager{
                         p.stats.deaths, 
                         p.stats.suicides, 
                         p.stats.teamkills,
+                        p.stats.spawnkills,
+                        p.stats.multis,
+                        p.stats.bestMulti,
+                        p.stats.sprees,
+                        p.stats.bestSpree,
                         0
+
+
                     );
 
                     //update gametype specific totals
@@ -603,6 +612,11 @@ class PlayerManager{
                         p.stats.deaths, 
                         p.stats.suicides, 
                         p.stats.teamkills,
+                        p.stats.spawnKills,
+                        p.stats.multis,
+                        p.stats.bestMulti,
+                        p.stats.sprees,
+                        p.stats.bestSpree,
                         gametypeId
                     );
                 }
