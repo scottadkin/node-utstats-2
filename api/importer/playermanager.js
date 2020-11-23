@@ -542,7 +542,7 @@ class PlayerManager{
     }
 
 
-    async setPlayerIds(){
+    async setPlayerIds(gametypeId){
 
         try{
 
@@ -550,8 +550,10 @@ class PlayerManager{
 
             for(let i = 0; i < this.players.length; i++){
 
-                currentId = await Player.getNameId(this.players[i].name,true);
-                this.players[i].masterId = currentId;
+                currentId = await Player.getNameId(this.players[i].name, gametypeId, true);
+                console.log(currentId);
+                this.players[i].masterId = currentId.totalId;
+                this.players[i].gametypeId = currentId.gametypeId;
 
             }
 
@@ -562,17 +564,23 @@ class PlayerManager{
 
     }
 
-    async updateFragPerformance(){
+    async updateFragPerformance(gametypeId){
 
         try{
 
             let p = 0;
+
+
+            //get current gametype id here
+            
 
             for(let i = 0; i < this.players.length; i++){
 
                 p = this.players[i];
                 
                 if(p.bDuplicate === undefined){
+
+                    //update combined gametypes totals
                     await Player.updateFrags(
                         p.masterId, 
                         p.stats.time_on_server, 
@@ -581,7 +589,21 @@ class PlayerManager{
                         p.stats.kills, 
                         p.stats.deaths, 
                         p.stats.suicides, 
-                        p.stats.teamkills
+                        p.stats.teamkills,
+                        0
+                    );
+
+                    //update gametype specific totals
+                    await Player.updateFrags(
+                        p.gametypeId, 
+                        p.stats.time_on_server, 
+                        p.stats.score, 
+                        p.stats.frags, 
+                        p.stats.kills, 
+                        p.stats.deaths, 
+                        p.stats.suicides, 
+                        p.stats.teamkills,
+                        gametypeId
                     );
                 }
             }

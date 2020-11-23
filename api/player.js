@@ -10,54 +10,73 @@ class Player{
 
 
 
-    getNameIdQuery(name){
+    getNameIdQuery(name, gametypeId){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id FROM nstats_player_totals WHERE name=? AND gametype=0 LIMIT 1";
+            const query = "SELECT id,gametype FROM nstats_player_totals WHERE name=? AND gametype=?";
 
-            mysql.query(query, [name], (err, result) =>{
+            if(gametypeId === undefined){
+                gametypeId = 0;
+            }
+            mysql.query(query, [name, gametypeId], (err, result) =>{
 
                 if(err) reject(err);
 
                 if(result[0] === undefined){
-                    resolve(-1);
+                    resolve(null);
                 }else{
-                    resolve(result[0].id);
+
+                   // console.log(`---------`);
+                   // console.log(result);
+                  //  console.log(`|||||||||`);
+                    resolve(result);
+
                 }
             });
         });
     }
 
-    createNameIdQuery(name){
+    createNameIdQuery(name, gametype){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',0,0,0,0,0,0,0,0,0,0,0,0,0)";
+            if(gametype === undefined){
+                gametype = 0;
+            }
 
-            mysql.query(query, [name], (err, result) =>{
+            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',?,0,0,0,0,0,0,0,0,0,0,0,0)";
+
+            mysql.query(query, [name, gametype], (err, result) =>{
 
                 if(err) reject(err);
 
-                resolve(result.insertId);
+                resolve([{"id": result.insertId, "gametype": gametype}]);
             });
         });
     }
 
-    /**
-     * 
-     * @param name 
-     * @param bCreate Create name id if it doesnt exist
-     */
-    async getNameId(name, bCreate){
+ 
+    async getNameId(name, gametype, bCreate){
 
-        const id = await this.getNameIdQuery(name);
+        let id = await this.getNameIdQuery(name, 0);
+        let idGametype = await this.getNameIdQuery(name, gametype);
 
-        if(bCreate === undefined || id !== -1){
-            return id;
+        if(bCreate === undefined){
+            return {"totalId": id[0].gametype, "gametypeId": idGametype[0].gametype};
         }
-        
-        return await this.createNameIdQuery(name);
+
+     
+        if(id === null){
+            id = await this.createNameIdQuery(name);
+        }
+
+        if(idGametype === null){
+            idGametype = await this.createNameIdQuery(name, gametype);
+        }
+
+
+        return {"totalId": id[0].id, "gametypeId": idGametype[0].id};
     }
 
     updateEfficiency(id){
@@ -75,14 +94,14 @@ class Player{
         });
     }
 
-    updateFrags(id, playtime, frags, score, kills, deaths, suicides, teamKills){
+    updateFrags(id, playtime, frags, score, kills, deaths, suicides, teamKills, gametype){
 
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_player_totals SET matches=matches+1, playtime=playtime+?, 
-            frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, team_kills=team_kills+? WHERE id=?`;
+            frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, team_kills=team_kills+? WHERE id=? AND gametype=?`;
 
-            const vars = [playtime, frags, score, kills, deaths, suicides, teamKills, id];
+            const vars = [playtime, frags, score, kills, deaths, suicides, teamKills, id, gametype];
 
 
             mysql.query(query, vars, async (err) =>{

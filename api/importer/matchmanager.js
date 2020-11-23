@@ -52,7 +52,7 @@ class MatchManger{
 
             await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date ,this.gameInfo.getMatchLength().length);
             
-           //this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
+           this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
 
             this.playerManager.setKills(this.killManager.kills);
 
@@ -73,7 +73,7 @@ class MatchManger{
 
            // console.log(this.gameInfo);
 
-           await this.playerManager.setPlayerIds();
+           await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
            
            this.playerManager.mergeDuplicates();
@@ -81,7 +81,7 @@ class MatchManger{
            await this.playerManager.updateFaces(this.serverInfo.date);
            await this.playerManager.setIpCountry();
 
-           await this.playerManager.updateFragPerformance();
+           await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
 
         }catch(err){
             console.trace(err);
@@ -101,7 +101,7 @@ class MatchManger{
             this.match.insertMatch(
                 this.serverInfo.date, 
                 serverId, 
-                await this.gametype.getGametypeId(this.gameInfo.gamename),
+                this.gametype.currentMatchGametype,
                 this.mapInfo.mapId,
                 this.gameInfo.gameversion, 
                 this.gameInfo.minnetversion, 
