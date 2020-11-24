@@ -158,6 +158,34 @@ class Player{
         });
     }
 
+
+    updateWinStats(id, win, drew, gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            if(gametype === undefined) gametype = 0;
+
+            let query = "UPDATE nstats_player_totals SET wins=wins+1 WHERE id=? AND gametype=?";
+
+            if(!win){
+                if(!drew){
+                    query = "UPDATE nstats_player_totals SET losses=losses+1 WHERE id=? AND gametype=?";
+                }else{
+                    query = "UPDATE nstats_player_totals SET draws=draws+1 WHERE id=? AND gametype=?";
+                }
+            }
+
+            console.log(`id=${id} gametype=${gametype}`);
+
+            mysql.query(query, [id, gametype], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
 }
 
 module.exports = Player;

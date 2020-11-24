@@ -84,6 +84,7 @@ class MatchManger{
            this.setMatchWinners();
 
            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
+           await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 
         }catch(err){
             console.trace(err);
@@ -234,12 +235,20 @@ class MatchManger{
 
     setMatchWinners(){
 
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            console.log(this.playerManager.players[i].getTeam());
+        }
+
         if(this.gameInfo.teamgame){
             new Message(`Match is a team game.`,'note');
         }else{
             new Message(`Match is not a team game,`,'note');
 
             this.playerManager.sortByScore();
+
+            this.playerManager.players[0].bWinner = true;
+
         }
     }
 

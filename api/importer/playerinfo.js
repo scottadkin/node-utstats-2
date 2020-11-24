@@ -12,6 +12,9 @@ class PlayerInfo{
         this.teams = [];
         this.bBot = false;
 
+        this.bWinner = false;
+        this.bDrew = false;
+
         this.weaponStats = new Map();
 
         this.stats = {
@@ -227,7 +230,11 @@ class PlayerInfo{
 
             stats.setValue(type, value);
         }
+    }
 
+    getTeam(){
+
+        return this.teams[this.teams.length - 1].id;
     }
 }
 

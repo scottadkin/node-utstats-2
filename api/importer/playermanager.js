@@ -705,7 +705,28 @@ class PlayerManager{
             }
             return 0;
         });
+    }
 
+    async updateWinStats(gametypeId){
+
+        try{
+
+            let p = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+
+                if(p.bDuplicate === undefined){
+
+                    await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
+                    await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
+                }
+            }
+
+        }catch(err){
+            console.log(err);
+        }
     }
 
 }
