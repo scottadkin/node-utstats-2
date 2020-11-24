@@ -355,7 +355,7 @@ class PlayerManager{
 
                 const geo = geoip.lookup(result[2]);
 
-                console.log(geo);
+                //console.log(geo);
                 let country = 'xx';
                 if(geo !== null){
                     country = geo.country.toLowerCase();
@@ -578,7 +578,6 @@ class PlayerManager{
 
                 p = this.players[i];
 
-                console.log(p);
                 
                 if(p.bDuplicate === undefined){
 
@@ -598,8 +597,6 @@ class PlayerManager{
                         p.stats.sprees,
                         p.stats.bestSpree,
                         0
-
-
                     );
 
                     //update gametype specific totals
@@ -685,6 +682,30 @@ class PlayerManager{
         }catch(err){
             console.log(err);
         }   
+    }
+
+    sortByScore(){
+
+        this.players.sort((a, b) =>{
+
+            a = a.stats;
+            b = b.stats;
+
+
+            if(a.score < b.score){
+                return 1;
+            }else if(a.score > b.score){
+                return -1;
+            }
+
+            if(a.deaths < b.deaths){
+                return -1;
+            }else if(a.deaths > b.deaths){
+                return 1;
+            }
+            return 0;
+        });
+
     }
 
 }

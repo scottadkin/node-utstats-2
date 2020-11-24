@@ -50,9 +50,9 @@ class MatchManger{
 
             this.gametype = new Gametypes();
 
-            await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date ,this.gameInfo.getMatchLength().length);
+            await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date, this.gameInfo.getMatchLength().length);
             
-           this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
+            this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
 
             this.playerManager.setKills(this.killManager.kills);
 
@@ -71,7 +71,7 @@ class MatchManger{
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
-           // console.log(this.gameInfo);
+            console.log(this.gameInfo);
 
            await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
@@ -80,6 +80,8 @@ class MatchManger{
 
            await this.playerManager.updateFaces(this.serverInfo.date);
            await this.playerManager.setIpCountry();
+
+           this.setMatchWinners();
 
            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
 
@@ -230,6 +232,16 @@ class MatchManger{
     }
 
 
+    setMatchWinners(){
+
+        if(this.gameInfo.teamgame){
+            new Message(`Match is a team game.`,'note');
+        }else{
+            new Message(`Match is not a team game,`,'note');
+
+            this.playerManager.sortByScore();
+        }
+    }
 
 }
 
