@@ -7,9 +7,9 @@ function Nav(){
         <header>
             <h1>Node UTStats</h1>
             <nav>
-                <NavLink url="#" text="Home" />
+                <NavLink url="/" text="Home" />
                 <NavLink url="matches" text="Recent Matches" />
-                <NavLink url="#" text="Players" />
+                <NavLink url="players" text="Players" />
                 <NavLink url="#" text="Servers" />
                 <NavLink url="#" text="Maps" />
             </nav>

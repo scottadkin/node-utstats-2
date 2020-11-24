@@ -19,8 +19,6 @@ function removeDateJunk(string){
 
 export default function ServerBox(props){
 
-    console.log(props);
-
     const d = props.data;
 
     let playtime = d.playtime;

@@ -10,6 +10,7 @@
   "dependencies": {
     "ftp": "^0.3.10",
     "geoip-country": "^4.0.36",
+    "geoip-lite": "^1.4.2",
     "mysql": "^2.18.1",
     "next": "9.5.3",
     "promise": "^8.1.0",
