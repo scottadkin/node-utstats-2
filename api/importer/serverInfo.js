@@ -19,7 +19,6 @@ class ServerInfo{
     async updateServer(){
 
         try{
-
             await this.servers.updateServer(this.true_server_ip, this.server_port, this.server_servername, this.date, this.matchTimings.length);
 
         }catch(err){
@@ -65,7 +64,7 @@ class ServerInfo{
 
     convertDate(){
 
-        const reg = /^(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{3})\.(\d+?)\.(\d+)$/i;
+        const reg = /^(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{3})\.(.+?)\.(.+)$/i;
 
         const result = reg.exec(this.absolute_time);
 

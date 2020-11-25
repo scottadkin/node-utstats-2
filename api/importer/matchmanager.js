@@ -73,18 +73,20 @@ class MatchManger{
 
             console.log(this.gameInfo);
 
-           await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
+            await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
            
-           this.playerManager.mergeDuplicates();
+            this.playerManager.mergeDuplicates();
 
-           await this.playerManager.updateFaces(this.serverInfo.date);
-           await this.playerManager.setIpCountry();
+            await this.playerManager.updateFaces(this.serverInfo.date);
+            await this.playerManager.setIpCountry();
 
-           this.setMatchWinners();
+            this.setMatchWinners();
 
-           await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
-           await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
+            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
+
+           // console.log(this);
 
         }catch(err){
             console.trace(err);
@@ -235,14 +237,33 @@ class MatchManger{
 
     setMatchWinners(){
 
-        for(let i = 0; i < this.playerManager.players.length; i++){
-
-            console.log(this.playerManager.players[i].getTeam());
-        }
-
         if(this.gameInfo.teamgame){
+
             new Message(`Match is a team game.`,'note');
+
+            for(let i = 0; i < this.playerManager.players.length; i++){
+
+                //console.log(this.playerManager.players[i].getTeam());
+            }
+
+            const winningTeams = this.gameInfo.getWinningTeam();
+
+            console.log(`winningTeam = ${winningTeams}`);
+
+
+            let p = 0;
+
+            for(let i = 0; i < this.playerManager.players.length; i++){
+
+                p = this.playerManager.players[i];
+
+                if(winningTeams.indexOf(p.getTeam()) !== -1){
+                    p.bWinner = true;
+                }
+            }
+
         }else{
+
             new Message(`Match is not a team game,`,'note');
 
             this.playerManager.sortByScore();

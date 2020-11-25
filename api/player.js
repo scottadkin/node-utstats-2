@@ -175,8 +175,6 @@ class Player{
                 }
             }
 
-            console.log(`id=${id} gametype=${gametype}`);
-
             mysql.query(query, [id, gametype], (err) =>{
 
                 if(err) reject(err);

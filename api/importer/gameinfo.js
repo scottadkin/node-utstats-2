@@ -27,6 +27,8 @@ class GameInfo{
         this.setMatchLength();
         this.setGoalScore();   
 
+        console.log(this.teamScores);
+
     }
 
     parseData(){
@@ -112,6 +114,32 @@ class GameInfo{
         }else{
             this.targetScore = this.fraglimit;
         }
+    }
+
+    getWinningTeam(){
+
+        let winner = [];
+        let winningScore = null;
+
+        for(let i = 0; i < this.teamScores.length; i++){
+
+            if(winner === null){
+
+                winner.push(i);
+                winningScore = this.teamScores[i];
+
+            }else{
+
+                if(this.teamScores[i] > winningScore){
+                    winner = [i];
+                    winningScore = this.teamScores[i];
+                }else if(this.teamScores[i] === winningScore){
+                    winner.push(i);
+                }
+            }
+        }
+
+        return winner;
     }
 
 }
