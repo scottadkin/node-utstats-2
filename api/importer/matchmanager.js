@@ -241,15 +241,7 @@ class MatchManger{
 
             new Message(`Match is a team game.`,'note');
 
-            for(let i = 0; i < this.playerManager.players.length; i++){
-
-                //console.log(this.playerManager.players[i].getTeam());
-            }
-
             const winningTeams = this.gameInfo.getWinningTeam();
-
-            console.log(`winningTeam = ${winningTeams}`);
-
 
             let p = 0;
 
@@ -258,7 +250,12 @@ class MatchManger{
                 p = this.playerManager.players[i];
 
                 if(winningTeams.indexOf(p.getTeam()) !== -1){
-                    p.bWinner = true;
+
+                    if(winningTeams.length === 1){
+                        p.bWinner = true;
+                    }else{
+                        p.bDrew = true;
+                    }
                 }
             }
 
@@ -268,7 +265,30 @@ class MatchManger{
 
             this.playerManager.sortByScore();
 
-            this.playerManager.players[0].bWinner = true;
+            const winnerScore =  this.playerManager.players[0].stats.score;
+            const winnerDeaths =  this.playerManager.players[0].stats.deaths;
+
+            let p = 0;
+
+            let totalWinningPlayers = 0;
+
+            for(let i = 0; i < this.playerManager.players.length; i++){
+
+                p = this.playerManager.players[i];
+
+                if(p.stats.score === winnerScore && p.stats.deaths === winnerDeaths){
+                    totalWinningPlayers++;
+                }
+            }
+
+            if(totalWinningPlayers === 1){
+                this.playerManager.players[0].bWinner = true;
+            }else{
+
+                for(let i = 0; i < totalWinningPlayers; i++){
+                    this.playerManager.players[i].bDrew = true;
+                }
+            }
 
         }
     }
