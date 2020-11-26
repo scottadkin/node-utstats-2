@@ -14,6 +14,7 @@ class PlayerManager{
 
         this.data = data;
 
+
         this.players = [];
         this.uniqueNames = [];
         this.duplicateNames = [];
@@ -27,6 +28,8 @@ class PlayerManager{
         this.parsePlayerStrings();
         this.setWeaponStats();
 
+
+        //console.log(this.players);
 
         //this.displayDebugDuplicates();
         
@@ -578,6 +581,12 @@ class PlayerManager{
 
                 p = this.players[i];
 
+                /**
+                 * id, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
+        multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
+        gametype
+                 */
+
                 
                 if(p.bDuplicate === undefined){
 
@@ -596,6 +605,9 @@ class PlayerManager{
                         p.stats.bestMulti,
                         p.stats.sprees,
                         p.stats.bestSpree,
+                        p.stats.fastestKill,
+                        p.stats.slowestKill,
+                        p.stats.bestspawnkillspree,
                         0
                     );
 
@@ -614,6 +626,9 @@ class PlayerManager{
                         p.stats.bestMulti,
                         p.stats.sprees,
                         p.stats.bestSpree,
+                        p.stats.fastestKill,
+                        p.stats.slowestKill,
+                        p.stats.bestspawnkillspree,
                         gametypeId
                     );
                 }

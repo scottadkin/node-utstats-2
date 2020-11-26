@@ -39,11 +39,16 @@ class PlayerInfo{
             "bestSpree": 0,
             "bestMulti": 0,
             "currentSpree": 0,
-            "currentMulti": 0
+            "currentMulti": 0,
+            "fastestKill": 0,
+            "slowestKill": 0,
+            "bestspawnkillspree":0,
+            "spawnKills": 0
         };
 
         this.lastDeath = -999;
-        this.lastKill = -999;
+        this.lastKill = timeStamp;
+
 
         //console.log(this);
 
@@ -172,6 +177,18 @@ class PlayerInfo{
         this.updateWeaponStats('kill', weapon);
 
         this.currentSpree++;
+
+        if(timeDiff !== 0){
+            if(timeDiff > this.stats.slowestKill || this.stats.slowestKill === 0){
+
+                this.stats.slowestKill = timeDiff;
+            }
+
+            if(timeDiff < this.stats.fastestKill || this.stats.fastestKill === 0){
+                this.stats.fastestKill = timeDiff;
+            }
+        }
+
 
         if(timeDiff <= config.multiKillTimeLimit){
 

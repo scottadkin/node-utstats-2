@@ -45,7 +45,7 @@ class Player{
                 gametype = 0;
             }
 
-            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)";
+            const query = "INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)";
 
             mysql.query(query, [name, gametype], (err, result) =>{
 
@@ -95,7 +95,7 @@ class Player{
     }
 
     updateFrags(id, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
-        multis, bestMulti, sprees, bestSpree,
+        multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
         gametype){
 
         return new Promise((resolve, reject) =>{
@@ -108,7 +108,10 @@ class Player{
             multi_best = IF(multi_best < ?, ?, multi_best),
             spree_1 = spree_1+?, spree_2 = spree_2+?, spree_3 = spree_3+?, spree_4 = spree_4+?,
             spree_5 = spree_5+?, spree_6 = spree_6+?, spree_7 = spree_7+?,
-            spree_best = IF(spree_best < ?, ?, spree_best)
+            spree_best = IF(spree_best < ?, ?, spree_best),
+            fastest_kill = IF(fastest_kill > ? OR fastest_kill = 0 AND ? != 0, ?, fastest_kill),
+            slowest_kill = IF(slowest_kill < ? OR slowest_kill = 0 AND ? != 0, ?, slowest_kill),
+            best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree)
             WHERE id=? AND gametype=?`;
 
             const vars = [
@@ -138,10 +141,19 @@ class Player{
                 sprees.brutalizing,
                 bestSpree,
                 bestSpree,
+                fastestKill,
+                fastestKill,
+                fastestKill,
+                slowestKill,
+                slowestKill,
+                slowestKill,
+                bestSpawnKillSpree,
+                bestSpawnKillSpree,
                 id,
                 gametype
             ];
 
+            console.log(vars);
 
             mysql.query(query, vars, async (err) =>{
 

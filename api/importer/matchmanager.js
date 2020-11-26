@@ -83,6 +83,8 @@ class MatchManger{
 
             this.setMatchWinners();
 
+            console.log(this.playerManager.players);
+
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 
