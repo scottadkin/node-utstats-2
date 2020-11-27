@@ -50,7 +50,7 @@ class PlayerInfo{
                 "taken": 0,
                 "dropped": 0,
                 "capture": 0,
-                "pickedup": 0,
+                "pickup": 0,
                 "cover": 0,
                 "kill": 0,
                 "save": 0

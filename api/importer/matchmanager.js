@@ -80,6 +80,7 @@ class MatchManager{
                // console.table(this.CTFManager.data);
                 this.CTFManager.parseData();
                 this.CTFManager.setPlayerStats(this.playerManager);
+                this.CTFManager.updatePlayerTotals(this.playerManager.players);
             }
 
            

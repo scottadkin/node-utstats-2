@@ -1,5 +1,6 @@
 const Promise = require('promise');
 const Message = require('../message');
+const CTF = require('../ctf');
 
 class CTFManager{
 
@@ -8,6 +9,8 @@ class CTFManager{
         this.data = [];
 
         this.events = [];
+
+        this.ctf = new CTF();
     }
 
     bHasData(){
@@ -98,7 +101,7 @@ class CTFManager{
 
             if(player !== null){
 
-                if(e.type !== 'captured' && e.type !== 'returned'){
+                if(e.type !== 'captured' && e.type !== 'returned' && e.type !== 'pickedup'){
                     player.stats.ctf[e.type]++;
                 }else{
 
@@ -106,12 +109,30 @@ class CTFManager{
                         player.stats.ctf.capture++
                     }else if(e.type === 'retuned'){
                         player.stats.ctf.return++;
+                    }else if(e.type === 'pickedup'){
+                        player.stats.ctf.pickup++;
                     }
                 }
 
             }else{
                 new Message(`Could not find a player with id ${e.player}`,'warning');
             }
+        }
+    }
+
+
+    async updatePlayerTotals(players){
+
+        try{
+
+            for(let i = 0; i < players.length; i++){
+
+                if(players[i].bDuplicate === undefined){
+                    await this.ctf.updatePlayerTotals(players[i].masterId,players[i].gametypeId,players[i].stats.ctf);
+                }
+            }
+        }catch(err){
+            console.trace(err);
         }
     }
 }
