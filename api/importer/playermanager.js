@@ -423,6 +423,10 @@ class PlayerManager{
             master.stats.multis[c] += duplicate.stats.multis[c];
         }
 
+        for(const c in master.stats.ctf){
+
+            master.stats.ctf[c] += duplicate.stats.ctf[c];
+        }
 
         const higherBetter = [
             'bestSpree',
@@ -443,7 +447,7 @@ class PlayerManager{
             'deaths',
             'suicides',
             'teamkills',
-            'time_on_server',
+            'time_on_server'
         ];
 
         for(const c in master.stats){

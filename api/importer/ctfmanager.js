@@ -79,24 +79,12 @@ class CTFManager{
 
         //console.log(this.events);
 
-        console.log(`${this.events.length} converted out of a possible ${this.data.length}`);
+        //console.log(`${this.events.length} converted out of a possible ${this.data.length}`);
         //console.log(ignored);
     }
 
 
     setPlayerStats(playerManager){
-
-        /**
-         * "assist": 0,
-                "return": 0,
-                "taken": 0,
-                "dropped": 0,
-                "capture": 0,
-                "pickedup": 0,
-                "cover": 0,
-                "kill": 0,
-                "saves": 0
-         */
 
         let e = 0;
         let player = 0;
@@ -124,10 +112,6 @@ class CTFManager{
             }else{
                 new Message(`Could not find a player with id ${e.player}`,'warning');
             }
-        }
-
-        for(let i = 0; i < playerManager.players.length; i++){
-            console.log(playerManager.players[i].stats.ctf);
         }
     }
 }

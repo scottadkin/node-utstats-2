@@ -75,8 +75,6 @@ class MatchManager{
 
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
-            console.log(this.CTFManager.bHasData());
-
             if(this.CTFManager.bHasData()){
                 new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
                // console.table(this.CTFManager.data);
