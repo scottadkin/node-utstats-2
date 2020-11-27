@@ -43,7 +43,19 @@ class PlayerInfo{
             "fastestKill": 0,
             "slowestKill": 0,
             "bestspawnkillspree":0,
-            "spawnKills": 0
+            "spawnKills": 0,
+            "ctf": {
+                "assist": 0,
+                "return": 0,
+                "taken": 0,
+                "dropped": 0,
+                "capture": 0,
+                "pickedup": 0,
+                "cover": 0,
+                "kill": 0,
+                "save": 0
+            }
+            //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };
 
         this.lastDeath = -999;

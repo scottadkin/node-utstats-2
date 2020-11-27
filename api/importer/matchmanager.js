@@ -10,8 +10,9 @@ const KillManager = require('./killmanager');
 const Matches = require('../matches');
 const Maps = require('../maps');
 const Gametypes = require('../gametypes');
+const CTFManager = require('./ctfmanager');
 
-class MatchManger{
+class MatchManager{
 
     constructor(data, fileName){
 
@@ -48,7 +49,7 @@ class MatchManger{
             this.playerManager = new PlayerManager(this.playerLines);
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 
-            this.gametype = new Gametypes();
+            this.gametype = new Gametypes(this.gameInfo.gamename);
 
             await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date, this.gameInfo.getMatchLength().length);
             
@@ -69,11 +70,19 @@ class MatchManger{
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
 
-            new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
-            console.log(this.gameInfo);
+            //console.log(this.gameInfo);
 
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
+
+            console.log(this.CTFManager.bHasData());
+
+            if(this.CTFManager.bHasData()){
+                new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
+               // console.table(this.CTFManager.data);
+                this.CTFManager.parseData();
+                this.CTFManager.setPlayerStats(this.playerManager);
+            }
 
            
             this.playerManager.mergeDuplicates();
@@ -83,12 +92,15 @@ class MatchManger{
 
             this.setMatchWinners();
 
-            console.log(this.playerManager.players);
+            //console.log(this.playerManager.players);
 
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 
+
            // console.log(this);
+
+           new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){
             console.trace(err);
@@ -188,11 +200,14 @@ class MatchManger{
 
         for(let i = 0; i < this.lines.length; i++){
 
+
             typeResult = typeReg.exec(this.lines[i]);
 
             if(typeResult !== null){
 
                 currentType = typeResult[1].toLowerCase();
+
+              //  console.log(currentType);
 
                 if(currentType == 'info'){
 
@@ -231,6 +246,18 @@ class MatchManger{
                 }else if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide'){
 
                     this.killLines.push(this.lines[i]);
+                }else{
+
+                    if(currentType.toLowerCase().startsWith("flag_")){
+                        //console.log(`WOFOWOFWOFOWOFW`);
+
+                        if(this.CTFManager === undefined){
+                            this.CTFManager = new CTFManager();
+                        }
+
+                        this.CTFManager.data.push(this.lines[i]);
+                       // this.ctfData.push(this.lines[i]);
+                    }
                 }
             }
         }
@@ -297,4 +324,4 @@ class MatchManger{
 
 }
 
-module.exports = MatchManger;
+module.exports = MatchManager;

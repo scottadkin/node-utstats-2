@@ -581,12 +581,6 @@ class PlayerManager{
 
                 p = this.players[i];
 
-                /**
-                 * id, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
-        multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
-        gametype
-                 */
-
                 
                 if(p.bDuplicate === undefined){
 

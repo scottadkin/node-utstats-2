@@ -153,8 +153,6 @@ class Player{
                 gametype
             ];
 
-            console.log(vars);
-
             mysql.query(query, vars, async (err) =>{
 
                 if(err) reject(err);
