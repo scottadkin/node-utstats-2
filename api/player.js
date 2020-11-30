@@ -45,7 +45,7 @@ class Player{
                 gametype = 0;
             }
 
-            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0)`;
 
             mysql.query(query, [name, gametype], (err, result) =>{
@@ -97,8 +97,9 @@ class Player{
 
     updateFrags(id, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
-        gametype){
+        firstBlood, gametype){
 
+            console.log(`firstBlood = ${firstBlood}`);
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_player_totals SET matches=matches+1, playtime=playtime+?, 
@@ -112,7 +113,8 @@ class Player{
             spree_best = IF(spree_best < ?, ?, spree_best),
             fastest_kill = IF(fastest_kill > ? OR fastest_kill = 0 AND ? != 0, ?, fastest_kill),
             slowest_kill = IF(slowest_kill < ? OR slowest_kill = 0 AND ? != 0, ?, slowest_kill),
-            best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree)
+            best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
+            first_bloods=first_bloods+?
             WHERE id=? AND gametype=?`;
 
             const vars = [
@@ -150,6 +152,7 @@ class Player{
                 slowestKill,
                 bestSpawnKillSpree,
                 bestSpawnKillSpree,
+                firstBlood,
                 id,
                 gametype
             ];

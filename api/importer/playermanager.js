@@ -14,7 +14,6 @@ class PlayerManager{
 
         this.data = data;
 
-
         this.players = [];
         this.uniqueNames = [];
         this.duplicateNames = [];
@@ -69,6 +68,7 @@ class PlayerManager{
 
         const reg = /^(\d+\.\d+)\tplayer\t(.+?)\t(.+)$/i;
         const statReg = /^\d+\.\d+\tstat_player\t(.+?)\t(.+?)\t(.+)$/i;
+        const firstBloodReg = /^\d+\.\d+\tfirst_blood\t(\d+)$/;
 
         for(let i = 0; i < this.data.length; i++){
 
@@ -100,6 +100,15 @@ class PlayerManager{
 
                 }else{
                     new Message(`There is no player with the id ${result[2]}(parsePlayerStrings).`,'warning');
+                }
+
+            }else if(firstBloodReg.test(d)){
+
+                result = firstBloodReg.exec(d);
+                player = this.getPlayerById(result[1]);
+
+                if(player !== null){
+                    player.stats.firstBlood = 1;
                 }
             }
         }
@@ -474,6 +483,10 @@ class PlayerManager{
             }
         }
 
+        if(master.stats.firstBlood === 1 || duplicate.stats.firstBlood === 1){
+            master.stats.firstBlood = 1;
+        }
+
     }
 
     async mergeDuplicates(){
@@ -606,6 +619,7 @@ class PlayerManager{
                         p.stats.fastestKill,
                         p.stats.slowestKill,
                         p.stats.bestspawnkillspree,
+                        p.stats.firstBlood,
                         0
                     );
 
@@ -627,6 +641,7 @@ class PlayerManager{
                         p.stats.fastestKill,
                         p.stats.slowestKill,
                         p.stats.bestspawnkillspree,
+                        p.stats.firstBlood,
                         gametypeId
                     );
                 }

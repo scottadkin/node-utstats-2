@@ -192,7 +192,8 @@ class MatchManager{
             "spawnkills",
             "bestspree",
             "shortesttimebetweenkills",
-            "longesttimebetweenkills"
+            "longesttimebetweenkills",
+            "first_blood"
             
         ];
 

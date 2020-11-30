@@ -18,6 +18,7 @@ class PlayerInfo{
         this.weaponStats = new Map();
 
         this.stats = {
+            "firstBlood": 0,
             "sprees": {
                 "spree": 0,
                 "rampage": 0,
