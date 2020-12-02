@@ -62,6 +62,8 @@ class PlayerInfo{
         this.lastDeath = -999;
         this.lastKill = timeStamp;
 
+        this.spawns = [];
+
 
         //console.log(this);
 

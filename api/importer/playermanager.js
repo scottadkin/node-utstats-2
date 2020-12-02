@@ -26,8 +26,11 @@ class PlayerManager{
 
         this.createPlayers();
         this.setNStatsValues();
+        this.setPlayerSpawns();
         this.parsePlayerStrings();
         this.setWeaponStats();
+
+        //console.log(this.spawnManager.getPlayerSpawns(0));
 
 
         //console.log(this.players);
@@ -157,14 +160,19 @@ class PlayerManager{
         let result = 0;
         let d = 0;
         let player = 0;
+        let timeStamp = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
             d = this.data[i];
 
             result = reg.exec(d);
+            
+            //console.log(result);
 
             if(result !== null){
+
+                timeStamp = parseFloat(result[1]);
                 type = result[2].toLowerCase();
                // console.log(`type = ${type}`);
 
@@ -188,15 +196,15 @@ class PlayerManager{
                             }
 
                         }else if(type === 'spawn_loc'){
-                           // console.log(result);
-                            this.spawnManager.playerSpawned(
+
+                            this.spawnManager.playerSpawnedLegacy(
+                                timeStamp,
                                 parseInt(result[1]),
                                 result[2].split(',')
                             );
 
                         }else if(type === 'spawn_point'){
-                            //console.log(type);
-                            //console.log(result);
+
                             this.spawnManager.addSpawnPoint(result[1], result[2]);
                         }
             
@@ -769,6 +777,17 @@ class PlayerManager{
 
         }catch(err){
             console.log(err);
+        }
+    }
+
+    setPlayerSpawns(){
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+            p.spawns = this.spawnManager.getPlayerSpawns(p.id);
         }
     }
 
