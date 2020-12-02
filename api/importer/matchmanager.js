@@ -11,6 +11,7 @@ const Matches = require('../matches');
 const Maps = require('../maps');
 const Gametypes = require('../gametypes');
 const CTFManager = require('./ctfmanager');
+const SpawnManager = require('./spawnmanager');
 
 class MatchManager{
 
@@ -47,7 +48,8 @@ class MatchManager{
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
             this.killManager = new KillManager(this.killLines);
-            this.playerManager = new PlayerManager(this.playerLines);
+            this.spawnManager = new SpawnManager();
+            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager);
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 
             this.gametype = new Gametypes(this.gameInfo.gamename);
@@ -66,6 +68,8 @@ class MatchManager{
 
             const matchTimings = this.gameInfo.getMatchLength();
             await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
+            this.spawnManager.setMapId(this.mapInfo.mapId);
+            await this.spawnManager.updateMapStats();
             new Message(`Inserted map info into database.`, 'pass');
 
             await this.insertMatch();
@@ -81,7 +85,7 @@ class MatchManager{
                // console.table(this.CTFManager.data);
                 this.CTFManager.parseData();
                 this.CTFManager.setPlayerStats(this.playerManager);
-                this.CTFManager.updatePlayerTotals(this.playerManager.players);
+                await this.CTFManager.updatePlayerTotals(this.playerManager.players);
             }
 
            
@@ -196,10 +200,7 @@ class MatchManager{
             "longesttimebetweenkills",
             "first_blood",
             "spawn_loc",
-            "spawn_point",
-            "kill_distance",
-            "kill_location"
-            
+            "spawn_point"
         ];
 
 

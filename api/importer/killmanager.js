@@ -24,8 +24,6 @@ class KillManager{
         let result = '';
         let d = 0;
 
-        //239.68	suicide	24	Shock Rifle	jolted	Self
-
         for(let i = 0; i < this.data.length; i++){
 
             d = this.data[i];
@@ -66,6 +64,8 @@ class KillManager{
                 //time, type, killerId, killerWeapon, victimId, victimWeapon, deathType
 
                 this.kills.push(new Kill(result[1], 'suicide', result[2], result[3], -1, null, result[4]));
+            }else{
+                console.log(d);
             }
         }
     }

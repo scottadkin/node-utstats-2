@@ -1,6 +1,7 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
+const Spawns = require('./spawns');
 
 class Maps{
     

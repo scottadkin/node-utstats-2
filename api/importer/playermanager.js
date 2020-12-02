@@ -6,12 +6,12 @@ const geoip = require('geoip-lite');
 const P = require('../player');
 const Player = new P();
 const Faces = require('../faces');
-const SpawnManager = require('./spawnmanager');
+//const SpawnManager = require('./spawnmanager');
 
 class PlayerManager{
 
 
-    constructor(data){
+    constructor(data, spawnManager){
 
         this.data = data;
 
@@ -22,7 +22,7 @@ class PlayerManager{
     
 
         this.faces = new Faces();
-        this.spawnManager = new SpawnManager();
+        this.spawnManager = spawnManager;
 
         this.createPlayers();
         this.setNStatsValues();

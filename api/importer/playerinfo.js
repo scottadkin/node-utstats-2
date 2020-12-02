@@ -61,6 +61,8 @@ class PlayerInfo{
 
         this.lastDeath = -999;
         this.lastKill = timeStamp;
+        this.lastSpawn = timeStamp;
+        this.timeAlive = 0;
 
         this.spawns = [];
 
@@ -116,14 +118,33 @@ class PlayerInfo{
         this.stats[key] = parseFloat(value);
     }
 
-    died(timeStamp){
+    //return true if player was spawnkilled, false if not
+    died(timestamp){
 
-        this.lastDeath = parseFloat(timeStamp);
+
+        this.lastSpawn = this.getPreviousSpawn(timestamp);
+
+        if(this.lastSpawn !== null){
+            this.timeAlive += timestamp - this.lastSpawn;
+        }
+
+
+        this.lastDeath = parseFloat(timestamp);
 
         this.updateSprees();
         this.updateMultis();
         this.currentSpree = 0;
         this.currentMulti = 0;
+
+        /*if(this.lastSpawn !== null){
+
+            if(timestamp - this.lastSpawn < config.spawnKillTimeLimit){
+                return true;
+            }
+        }
+
+
+        return false;*/
     }
 
 
@@ -183,11 +204,11 @@ class PlayerInfo{
         this.currentSpree = 0;
     }
 
-    killedPlayer(timeStamp, weapon){
+    killedPlayer(timestamp, weapon){
 
-        timeStamp = parseFloat(timeStamp);
+        timestamp = parseFloat(timestamp);
 
-        const timeDiff = timeStamp - this.lastKill;
+        const timeDiff = timestamp - this.lastKill;
 
         this.updateWeaponStats('kill', weapon);
 
@@ -216,7 +237,7 @@ class PlayerInfo{
             
         }
 
-        this.lastKill = timeStamp;
+        this.lastKill = timestamp;
     }
 
     updateWeaponStats(type, weapon){
@@ -267,6 +288,25 @@ class PlayerInfo{
     getTeam(){
 
         return this.teams[this.teams.length - 1].id;
+    }
+
+    getPreviousSpawn(timestamp){
+
+        let s = 0;
+
+        for(let i = this.spawns.length - 1; i >= 0; i--){
+
+            s = this.spawns[i];
+
+            if(s.timestamp < timestamp){
+                return s.timestamp;
+            }
+
+
+        }
+
+        return null;
+
     }
 }
 
