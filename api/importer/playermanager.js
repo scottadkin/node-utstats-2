@@ -6,6 +6,7 @@ const geoip = require('geoip-lite');
 const P = require('../player');
 const Player = new P();
 const Faces = require('../faces');
+const SpawnManager = require('./spawnmanager');
 
 class PlayerManager{
 
@@ -21,6 +22,7 @@ class PlayerManager{
     
 
         this.faces = new Faces();
+        this.spawnManager = new SpawnManager();
 
         this.createPlayers();
         this.setNStatsValues();
@@ -162,8 +164,6 @@ class PlayerManager{
 
             result = reg.exec(d);
 
-          //  console.log(result);
-
             if(result !== null){
                 type = result[2].toLowerCase();
                // console.log(`type = ${type}`);
@@ -174,21 +174,36 @@ class PlayerManager{
 
                     result = secondReg.exec(result[3]);
 
+                    //console.log(result);
+
                     if(result !== null){
 
-                        player = this.getPlayerById(result[1]);
+                        if(type !== 'spawn_loc' && type !== 'spawn_point'){
 
-                        if(player !== null){
+                            player = this.getPlayerById(result[1]);
 
-                            player.setStatsValue(type, result[2], true);
+                            if(player !== null){
+
+                                player.setStatsValue(type, result[2], true);
+                            }
+
+                        }else if(type === 'spawn_loc'){
+                           // console.log(result);
+                            this.spawnManager.playerSpawned(
+                                parseInt(result[1]),
+                                result[2].split(',')
+                            );
+
+                        }else if(type === 'spawn_point'){
+                            //console.log(type);
+                            //console.log(result);
+                            this.spawnManager.addSpawnPoint(result[1], result[2]);
                         }
-                       // console.log(result);
+            
                     }
                 }
-
             }
         }
-
 
         //set bestspawnkillspree, spawnkills ect
     }
@@ -491,7 +506,7 @@ class PlayerManager{
 
     async mergeDuplicates(){
 
-        console.log('MERGE DUPLCIATES');
+        //console.log('MERGE DUPLCIATES');
 
 
         if(this.duplicateNames.length > 0){

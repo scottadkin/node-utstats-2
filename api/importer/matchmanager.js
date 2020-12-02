@@ -16,6 +16,7 @@ class MatchManager{
 
     constructor(data, fileName){
 
+        //console.table(data);
         this.data = data;
         this.fileName = fileName;
 
@@ -193,7 +194,11 @@ class MatchManager{
             "bestspree",
             "shortesttimebetweenkills",
             "longesttimebetweenkills",
-            "first_blood"
+            "first_blood",
+            "spawn_loc",
+            "spawn_point",
+            "kill_distance",
+            "kill_location"
             
         ];
 
@@ -318,8 +323,9 @@ class MatchManager{
                     this.playerManager.players[i].bDrew = true;
                 }
             }
-
         }
+
+        new Message(`Set player match winners.`,'pass');
     }
 
 }

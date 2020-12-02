@@ -131,6 +131,8 @@ class CTFManager{
                     await this.ctf.updatePlayerTotals(players[i].masterId,players[i].gametypeId,players[i].stats.ctf);
                 }
             }
+
+            new Message(`Updated Player CTF totals.`,'pass');
         }catch(err){
             console.trace(err);
         }

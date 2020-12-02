@@ -98,8 +98,7 @@ class Player{
     updateFrags(id, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
         firstBlood, gametype){
-
-            console.log(`firstBlood = ${firstBlood}`);
+            
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_player_totals SET matches=matches+1, playtime=playtime+?, 

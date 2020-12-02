@@ -27,7 +27,7 @@ class GameInfo{
         this.setMatchLength();
         this.setGoalScore();   
 
-        console.log(this.teamScores);
+       // console.log(this.teamScores);
 
     }
 
