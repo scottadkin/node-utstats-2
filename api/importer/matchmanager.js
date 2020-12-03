@@ -80,12 +80,14 @@ class MatchManager{
 
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
-            if(this.CTFManager.bHasData()){
-                new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
-               // console.table(this.CTFManager.data);
-                this.CTFManager.parseData();
-                this.CTFManager.setPlayerStats(this.playerManager);
-                await this.CTFManager.updatePlayerTotals(this.playerManager.players);
+            if(this.CTFManager !== undefined){
+                if(this.CTFManager.bHasData()){
+                    new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
+                    // console.table(this.CTFManager.data);
+                    this.CTFManager.parseData();
+                    this.CTFManager.setPlayerStats(this.playerManager);
+                    await this.CTFManager.updatePlayerTotals(this.playerManager.players);
+                }
             }
 
            

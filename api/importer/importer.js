@@ -19,10 +19,11 @@ class Importer{
             try{
                 this.logsToImport = [];
                 await this.checkLogsFolder();
-                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[2]}`)
+                console.table(this.logsToImport);
+                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[15]}`)
                // console.log(await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`));
 
-                const test = new MatchManager(testData, `${this.logsToImport[2]}`);
+                const test = new MatchManager(testData, `${this.logsToImport[15]}`);
 
             }catch(err){
                 console.trace(err);

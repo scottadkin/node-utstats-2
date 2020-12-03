@@ -156,11 +156,15 @@ class PlayerManager{
         const reg = /^(\d+\.\d+)\tnstats\t(.+?)\t(.+)$/i;
         const secondReg = /^(.+?)\t(.+)$/i;
 
+        const legacySpawnReg = /,/;
+        const spawnLocationReg = /^(\d+?\t.+?,.+?,.+?)\t(\d+)$/;
+
         let type = 0;
         let result = 0;
+        let subResult = 0;
         let d = 0;
         let player = 0;
-        let timeStamp = 0;
+        let timestamp = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
@@ -172,7 +176,7 @@ class PlayerManager{
 
             if(result !== null){
 
-                timeStamp = parseFloat(result[1]);
+                timestamp = parseFloat(result[1]);
                 type = result[2].toLowerCase();
                // console.log(`type = ${type}`);
 
@@ -197,15 +201,33 @@ class PlayerManager{
 
                         }else if(type === 'spawn_loc'){
 
-                            this.spawnManager.playerSpawnedLegacy(
-                                timeStamp,
-                                parseInt(result[1]),
-                                result[2].split(',')
-                            );
+
+                            if(legacySpawnReg.test(result[2])){
+
+                                this.spawnManager.playerSpawnedLegacy(
+                                    timestamp,
+                                    parseInt(result[1]),
+                                    result[2].split(',')
+                                );
+
+                            }else{
+
+                                this.spawnManager.playerSpawned(timestamp, result[1], result[2]);
+                            }
 
                         }else if(type === 'spawn_point'){
 
-                            this.spawnManager.addSpawnPoint(result[1], result[2]);
+                            if(spawnLocationReg.test(result[2])){
+
+            
+                                subResult = spawnLocationReg.exec(result[2]);
+
+                                this.spawnManager.addSpawnPoint(result[1], subResult[1], subResult[2]);
+
+                            }else{
+              
+                                this.spawnManager.addSpawnPoint(result[1], result[2]);
+                            }
                         }
             
                     }

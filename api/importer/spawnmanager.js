@@ -17,7 +17,7 @@ class SpawnManager{
 
     }
 
-    addSpawnPoint(name, string){
+    addSpawnPoint(name, string, id){
 
         const reg = /^(\d+?)\t(.+?),(.+?),(.+?)$/i;
 
@@ -25,7 +25,7 @@ class SpawnManager{
 
         this.spawnPoints.push(
             {
-                "id": this.spawnPoints.length,
+                "id": (id === undefined) ? this.spawnPoints.length : parseInt(id),
                 "name": name,
                 "team": parseInt(result[1]),
                 "position": {
@@ -61,6 +61,41 @@ class SpawnManager{
                 "spawnId": spawnId
             }
         );
+    }
+
+    playerSpawned(timestamp, playerId, spawnId){
+
+        let s = 0;
+
+        timestamp = parseFloat(timestamp);
+        playerId = parseInt(playerId);
+        spawnId = parseInt(spawnId);
+
+        for(let i = 0; i < this.spawnPoints.length; i++){
+
+            s = this.spawnPoints[i];
+
+            if(s.id === spawnId){
+
+                this.data.push(
+                    {
+                        "timestamp": timestamp,
+                        "player": parseInt(playerId),
+                        "position": {
+                            "x": s.position.x,
+                            "y": s.position.y,
+                            "z": s.position.z
+                        },
+                        "spawnId": s.id
+                    }
+                );
+
+                this.updateSpawnCount(s.id);
+
+                return;
+
+            }
+        }
     }
 
     getMatchingSpawn(x,y,z){
