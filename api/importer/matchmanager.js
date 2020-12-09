@@ -8,6 +8,7 @@ const GameInfo = require('./gameinfo');
 const PlayerManager = require('./playermanager');
 const KillManager = require('./killmanager');
 const Matches = require('../matches');
+const Match = require('../match');
 const Maps = require('../maps');
 const Gametypes = require('../gametypes');
 const CTFManager = require('./ctfmanager');
@@ -123,7 +124,7 @@ class MatchManager{
 
             const motd = this.serverInfo.getMotd();
 
-            this.match.insertMatch(
+            this.matchId = await this.match.insertMatch(
                 this.serverInfo.date, 
                 serverId, 
                 this.gametype.currentMatchGametype,
@@ -152,8 +153,8 @@ class MatchManager{
                 this.playerManager.uniqueNames.length,
                 this.gameInfo.timelimit,
                 this.gameInfo.targetScore,
-                this.gameInfo.dmWinner,
-                this.gameInfo.dmWinnerScore,
+                '',
+                0,
                 this.gameInfo.teamScores[0],
                 this.gameInfo.teamScores[1],
                 this.gameInfo.teamScores[2],
@@ -326,9 +327,20 @@ class MatchManager{
                     this.playerManager.players[i].bDrew = true;
                 }
             }
+
+            this.setDmWinner(this.playerManager.players[0].name, this.playerManager.players[0].stats.score);
         }
 
         new Message(`Set player match winners.`,'pass');
+    }
+
+
+    async setDmWinner(name, score){
+
+        
+        const m = new Match();
+
+        await m.setDMWinner(this.matchId, name, score);
     }
 
 }

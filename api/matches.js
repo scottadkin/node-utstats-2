@@ -58,11 +58,11 @@ class Matches{
 
             ];
 
-            mysql.query(query, vars, (err) =>{
+            mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
 
-                resolve();
+                resolve(result.insertId);
             });
         });
     }
