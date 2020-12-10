@@ -525,9 +525,10 @@ class PlayerManager{
 
                     if(this.bLastManStanding && c === 'score'){                 
                         new Message(`Skipping score merge for LMS game for player ${master.name}.`, 'note');
-                        continue;
+                        //continue;
+                    }else{
+                        master.stats[c] += duplicate.stats[c];
                     }
-                    master.stats[c] += duplicate.stats[c];
 
                 }
             }
@@ -563,8 +564,11 @@ class PlayerManager{
                         if(originalIndex === -1){
                             originalIndex = x;
                         }else{
-                            this.mergePlayer(this.players[originalIndex], this.players[x]);
+                            console.log(`merge ${this.players[originalIndex].name} with ${this.players[x].name}`);
+                            
                             this.players[x].bDuplicate = true;
+                            this.mergePlayer(this.players[originalIndex], this.players[x]);
+                            
                         }
                         
                     }
@@ -796,6 +800,8 @@ class PlayerManager{
 
         try{
 
+            
+
             let p = 0;
 
             for(let i = 0; i < this.players.length; i++){
@@ -803,6 +809,8 @@ class PlayerManager{
                 p = this.players[i];
 
                 if(p.bDuplicate === undefined){
+
+                    console.log(`${p.name} bWinner =  ${p.bWinner} fdsf dsfdsf dsf dsf dsfdsfds GET PLAYER MASTER ID`);
 
                     await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
                     await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
@@ -834,14 +842,18 @@ class PlayerManager{
         const found = [];
 
         let connect = 0;
+        let disconnect = 0;
 
         for(let p = 0; p < this.players.length; p++){
 
             for(let i = 0; i < this.players[p].connects.length; i++){
 
                 connect = this.players[p].connects[i];
+                disconnect = (this.players[p].disconnects[i] !== undefined) ? this.players[p].disconnects[i] : 999999999999;
 
-                if(connect <= timestamp){
+                //console.log(`connect = ${connect}  disconnect = ${disconnect}`);
+
+                if(connect <= timestamp && timestamp < disconnect){
 
                     if(this.players[p].bDuplicate === undefined){
                         found.push(this.players[p]);

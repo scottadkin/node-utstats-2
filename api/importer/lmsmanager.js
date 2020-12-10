@@ -10,10 +10,10 @@ class LMSManager{
         this.fragLimit = fragLimit;
 
         this.cutOffPoint = null;
+        this.winner = null;
 
-        console.log(`new LMS manager`);
-
-       this.setCutOffTimestamp();
+        new Message(`LMSManager Created`,`note`);
+        this.setCutOffTimestamp();
     }
 
 
@@ -49,7 +49,7 @@ class LMSManager{
         
         let players = this.playerManager.getCurrentConnectedPlayers(this.matchLength.end);
 
-         players.sort((a, b) =>{
+        players.sort((a, b) =>{
 
             if(a.stats.score > b.stats.score){
                 return -1;
@@ -67,10 +67,7 @@ class LMSManager{
             return 0;
         });
 
-        for(let i = 0; i < players.length; i++){
-
-            console.log(`${players[i].name} \t\t ${players[i].stats.score} ${players[i].bDuplicate}`);
-        }
+        return {"name": players[0].name, "score": players[0].stats.score, "id": players[0].id};
     }
 }
 

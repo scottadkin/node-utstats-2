@@ -62,7 +62,8 @@ class MatchManager{
 
             this.playerManager.setKills(this.killManager.kills);
 
-            this.match = new Matches();
+            this.match = new Match();
+            this.matches = new Matches();
             this.maps = new Maps();
 
             await this.serverInfo.updateServer();
@@ -101,13 +102,28 @@ class MatchManager{
                 
                 this.LMSManager = new LMSManager(this.playerManager, this.killManager, this.gameInfo.getMatchLength(), this.gameInfo.fraglimit);
 
-                this.LMSManager.getWinner();
+                const LMSWinner = this.LMSManager.getWinner();
+
+                const winner = this.playerManager.getOriginalConnection(LMSWinner.name);
+
+               
+                if(winner !== null){
+                    winner.bWinner = true;
+                    await this.match.setDMWinner(this.matchId, LMSWinner.name, LMSWinner.score);
+                }else{
+                    new Message(`Winner for LMS is null`, 'warning');
+                }
+
+                console.log(winner);
+
             }
 
             await this.playerManager.updateFaces(this.serverInfo.date);
             await this.playerManager.setIpCountry();
 
-            this.setMatchWinners();
+            if(!bLMS){
+                this.setMatchWinners();
+            }
 
             //console.log(this.playerManager.players);
 
@@ -138,7 +154,7 @@ class MatchManager{
 
             const motd = this.serverInfo.getMotd();
 
-            this.matchId = await this.match.insertMatch(
+            this.matchId = await this.matches.insertMatch(
                 this.serverInfo.date, 
                 serverId, 
                 this.gametype.currentMatchGametype,
@@ -351,10 +367,7 @@ class MatchManager{
 
     async setDmWinner(name, score){
 
-        
-        const m = new Match();
-
-        await m.setDMWinner(this.matchId, name, score);
+        await this.match.setDMWinner(this.matchId, name, score);
     }
 
 
