@@ -1,3 +1,5 @@
+const Assault = require('../assault');
+
 class AssaultManager{
 
     constructor(){
@@ -8,6 +10,8 @@ class AssaultManager{
         this.takenObjectives = [];
         this.attackers = null;
         this.defenders = null;
+
+        this.assault = new Assault();
 
     }
 
@@ -62,6 +66,24 @@ class AssaultManager{
         }
 
         console.log(this);
+    }
+
+
+    async updateMapObjectives(){
+
+        try{
+
+            let o = 0;
+
+            for(let i = 0; i < this.objectives.length; i++){
+
+                o = this.objectives[i];
+
+                await this.assault.updateMapObjective(this.mapId, o.name, o.id);
+            }
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

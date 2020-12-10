@@ -101,7 +101,9 @@ class MatchManager{
 
             if(this.assaultManager !== undefined){
 
+                this.assaultManager.mapId = this.mapInfo.mapId;
                 this.assaultManager.parseData();
+                await this.assaultManager.updateMapObjectives();
             }
 
             this.playerManager.mergeDuplicates(bLMS);
