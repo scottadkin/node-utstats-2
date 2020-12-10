@@ -62,7 +62,21 @@ class Assault{
         }catch(err){
             new Message(`Failed to addMapObjective ${err}`,'error');
         }
+    }
 
+    insertObjectiveCapture(matchId, mapId, timestamp, objId, player, bFinal){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_assault_match_objectives VALUES(NULL,?,?,?,?,?,?)";
+
+            mysql.query(query, [matchId, mapId, timestamp, objId, player, bFinal], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
     }
 }
 

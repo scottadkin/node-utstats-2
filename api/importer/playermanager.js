@@ -64,6 +64,20 @@ class PlayerManager{
 
     }
 
+    getPlayerNameById(id){
+
+        id = parseInt(id);
+
+        for(let i = 0; i < this.players.length; i++){
+
+            if(this.players[i].id === id){
+                return this.players[i].name;
+            }
+        }
+
+        return null;
+    }
+
     parsePlayerStrings(){
 
         let d = 0;
@@ -431,13 +445,13 @@ class PlayerManager{
 
         name = name.toLowerCase();
 
-        this.players.forEach((player, key) =>{
+        for(let i = 0; i < this.players.length; i++){
 
-            //console.log(player);
-            if(player.name.toLowerCase() === name){
-                console.log(player);
+            if(this.players[i].name.toLowerCase() === name){
+                return this.players[i];
             }
-        });
+        }
+
 
         return null;
     }

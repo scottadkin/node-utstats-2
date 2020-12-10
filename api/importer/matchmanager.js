@@ -102,8 +102,11 @@ class MatchManager{
             if(this.assaultManager !== undefined){
 
                 this.assaultManager.mapId = this.mapInfo.mapId;
+                this.assaultManager.matchId = this.matchId;
                 this.assaultManager.parseData();
+                this.assaultManager.playerManager = this.playerManager;
                 await this.assaultManager.updateMapObjectives();
+                await this.assaultManager.insertCapturedMapObjectives(this.matchId);
             }
 
             this.playerManager.mergeDuplicates(bLMS);
@@ -152,6 +155,7 @@ class MatchManager{
             //date, server, version, admin, region, motd, playtime, endType, start, end
             const serverId = await this.serverInfo.getServerId();
 
+
             const motd = this.serverInfo.getMotd();
 
             this.matchId = await this.matches.insertMatch(
@@ -190,6 +194,7 @@ class MatchManager{
                 this.gameInfo.teamScores[2],
                 this.gameInfo.teamScores[3]
             );
+
 
         }catch(err){
             if(err) console.log(err);

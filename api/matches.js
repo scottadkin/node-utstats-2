@@ -59,7 +59,7 @@ class Matches{
 
             mysql.query(query, vars, (err, result) =>{
 
-                if(err) console.trace(err); reject(err);
+                if(err) reject(err);
                 
                 resolve(result.insertId);
             });

@@ -65,7 +65,7 @@ class AssaultManager{
             }
         }
 
-        console.log(this);
+        //console.log(this);
     }
 
 
@@ -81,6 +81,31 @@ class AssaultManager{
 
                 await this.assault.updateMapObjective(this.mapId, o.name, o.id);
             }
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async insertCapturedMapObjectives(p){
+
+        try{
+
+            let o = 0;
+
+            let currentPlayerName = 0;
+            let originalConnection = 0;
+
+
+            for(let i = 0; i < this.takenObjectives.length; i++){
+
+                o = this.takenObjectives[i];
+
+                currentPlayerName = this.playerManager.getPlayerNameById(o.player);
+                originalConnection = this.playerManager.getOriginalConnection(currentPlayerName);
+
+                await this.assault.insertObjectiveCapture(this.matchId, this.mapId, o.timestamp, o.objId, originalConnection.masterId, o.bFinal);
+            }
+
         }catch(err){
             console.trace(err);
         }
