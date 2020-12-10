@@ -12,6 +12,7 @@ const Match = require('../match');
 const Maps = require('../maps');
 const Gametypes = require('../gametypes');
 const CTFManager = require('./ctfmanager');
+const LMSManager = require('./lmsmanager');
 const SpawnManager = require('./spawnmanager');
 
 class MatchManager{
@@ -81,6 +82,9 @@ class MatchManager{
 
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
+            const bLMS = this.bLastManStanding();
+
+            
             if(this.CTFManager !== undefined){
                 if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
@@ -89,10 +93,16 @@ class MatchManager{
                     this.CTFManager.setPlayerStats(this.playerManager);
                     await this.CTFManager.updatePlayerTotals(this.playerManager.players);
                 }
-            }
+            }           
+            
+            this.playerManager.mergeDuplicates(bLMS);
 
-           
-            this.playerManager.mergeDuplicates();
+            if(bLMS){
+                
+                this.LMSManager = new LMSManager(this.playerManager, this.killManager, this.gameInfo.getMatchLength(), this.gameInfo.fraglimit);
+
+                this.LMSManager.getWinner();
+            }
 
             await this.playerManager.updateFaces(this.serverInfo.date);
             await this.playerManager.setIpCountry();
@@ -102,7 +112,11 @@ class MatchManager{
             //console.log(this.playerManager.players);
 
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
+         
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
+
+           // console.log(this.playerManager.getCurrentConnectedPlayers(90.22));
+
 
 
            // console.log(this);
@@ -343,6 +357,14 @@ class MatchManager{
         await m.setDMWinner(this.matchId, name, score);
     }
 
+
+    bLastManStanding(){
+
+        const reg = /last man standing/i;
+
+        return reg.test(this.gameInfo.gamename);
+
+    }
 }
 
 module.exports = MatchManager;

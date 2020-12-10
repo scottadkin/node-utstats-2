@@ -71,10 +71,10 @@ class KillManager{
     }
 
 
-    getMatchingKill(timeStamp, killer, victim){
+    getMatchingKill(timestamp, killer, victim){
 
 
-        timeStamp = parseFloat(timeStamp);
+        timestamp = parseFloat(timestamp);
         killer = parseInt(killer);
         victim = parseInt(victim);
 
@@ -84,7 +84,7 @@ class KillManager{
 
             k = this.kills[i];
 
-            if(k.timeStamp === timeStamp && k.killerId === killer && k.victimId === victim){
+            if(k.timestamp === timestamp && k.killerId === killer && k.victimId === victim){
 
                 return k;
             }
@@ -94,15 +94,15 @@ class KillManager{
     }
 
 
-    setDistance(timeStamp, distance, killer, victim){
+    setDistance(timestamp, distance, killer, victim){
 
-        const kill = this.getMatchingKill(timeStamp, killer, victim);
+        const kill = this.getMatchingKill(timestamp, killer, victim);
 
         if(kill !== null){
             kill.setDistance(distance);
         }else{
             if(killer !== victim){
-                new Message(`There is no matching kill for ${killer} -> ${victim} @ ${timeStamp}(setDistance).`,'warning');
+                new Message(`There is no matching kill for ${killer} -> ${victim} @ ${timestamp}(setDistance).`,'warning');
             }
         }
     }
@@ -120,6 +120,22 @@ class KillManager{
         }
     }
 
+
+    getCurrentKills(timestamp){
+
+        let found = 0;
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            if(this.kills[i].timestamp <= timestamp){
+                found++;
+            }else{
+                break;
+            }
+        }
+
+        return found;
+    }
 }
 
 

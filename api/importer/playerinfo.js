@@ -214,7 +214,9 @@ class PlayerInfo{
 
         this.currentSpree++;
 
+
         if(timeDiff !== 0){
+
             if(timeDiff > this.stats.slowestKill || this.stats.slowestKill === 0){
 
                 this.stats.slowestKill = timeDiff;

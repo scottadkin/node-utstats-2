@@ -385,12 +385,12 @@ class PlayerManager{
                 victim = this.getPlayerById(k.victimId);
 
                 if(killer !== null){
-                    killer.killedPlayer(k.timeStamp, k.killerWeapon);
+                    killer.killedPlayer(k.timestamp, k.killerWeapon);
       
                 }
 
                 if(victim !== null){
-                    victim.died(k.timeStamp);
+                    victim.died(k.timestamp);
                 }
             }
         }
@@ -523,7 +523,12 @@ class PlayerManager{
 
                 }else if(combine.indexOf(c) !== -1){
 
+                    if(this.bLastManStanding && c === 'score'){                 
+                        new Message(`Skipping score merge for LMS game for player ${master.name}.`, 'note');
+                        continue;
+                    }
                     master.stats[c] += duplicate.stats[c];
+
                 }
             }
         }
@@ -534,9 +539,11 @@ class PlayerManager{
 
     }
 
-    async mergeDuplicates(){
+    async mergeDuplicates(bLastManStanding){
 
         //console.log('MERGE DUPLCIATES');
+
+        this.bLastManStanding = bLastManStanding;
 
 
         if(this.duplicateNames.length > 0){
@@ -644,6 +651,8 @@ class PlayerManager{
                 p = this.players[i];
 
                 
+
+                
                 if(p.bDuplicate === undefined){
 
                     //update combined gametypes totals
@@ -693,6 +702,7 @@ class PlayerManager{
             }
 
         }catch(err){
+            console.trace(err);
             new Message(err, 'error');
         }
     }
@@ -778,6 +788,8 @@ class PlayerManager{
             }
             return 0;
         });
+
+       // console.table(this.players);
     }
 
     async updateWinStats(gametypeId){
@@ -811,6 +823,35 @@ class PlayerManager{
             p = this.players[i];
             p.spawns = this.spawnManager.getPlayerSpawns(p.id);
         }
+    }
+
+
+
+    getCurrentConnectedPlayers(timestamp){
+
+        timestamp = parseFloat(timestamp);
+
+        const found = [];
+
+        let connect = 0;
+
+        for(let p = 0; p < this.players.length; p++){
+
+            for(let i = 0; i < this.players[p].connects.length; i++){
+
+                connect = this.players[p].connects[i];
+
+                if(connect <= timestamp){
+
+                    if(this.players[p].bDuplicate === undefined){
+                        found.push(this.players[p]);
+                    }
+                }
+
+            }
+        }
+
+        return found;
     }
 
 }

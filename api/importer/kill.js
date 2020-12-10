@@ -3,7 +3,7 @@ class Kill{
     constructor(time, type, killerId, killerWeapon, victimId, victimWeapon, deathType){
 
         this.type = type;
-        this.timeStamp = parseFloat(time);
+        this.timestamp = parseFloat(time);
         this.killerId = parseInt(killerId);
         this.killerWeapon = killerWeapon;
         this.victimId = parseInt(victimId);
