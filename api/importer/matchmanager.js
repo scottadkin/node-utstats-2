@@ -107,6 +107,9 @@ class MatchManager{
                 this.assaultManager.playerManager = this.playerManager;
                 await this.assaultManager.updateMapObjectives();
                 await this.assaultManager.insertCapturedMapObjectives(this.matchId);
+                await this.assaultManager.updatePlayerCaptureTotals();
+                await this.assaultManager.updateMapCaptureTotals();
+                await this.assaultManager.setAttackingTeam();
             }
 
             this.playerManager.mergeDuplicates(bLMS);

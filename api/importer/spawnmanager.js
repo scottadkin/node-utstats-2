@@ -12,9 +12,6 @@ class SpawnManager{
 
         this.data = [];
 
-        new Message(`Change the mutator to log spawn points ids, instead of their x,y,z coordinates to save file space`,'error');
-        new Message(`Check for both old mutator spawn logging and the replacement for backward compatibility`,'error');
-
     }
 
     addSpawnPoint(name, string, id){

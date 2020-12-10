@@ -32,7 +32,7 @@ class Assault{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_assault_objects VALUES(NULL,?,?,?)";
+            const query = "INSERT INTO nstats_assault_objects VALUES(NULL,?,?,0,0)";
 
             mysql.query(query, [map, name, objId], (err) =>{
 
@@ -71,6 +71,54 @@ class Assault{
             const query = "INSERT INTO nstats_assault_match_objectives VALUES(NULL,?,?,?,?,?,?)";
 
             mysql.query(query, [matchId, mapId, timestamp, objId, player, bFinal], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    updateMapCaptureTotals(map, objId, taken){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_assault_objects SET matches=matches+1, taken=taken+? WHERE map=? AND obj_id=?";
+
+            mysql.query(query, [taken, map, objId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+
+            });
+        });
+
+    }
+
+    updatePlayerCaptureTotals(taken, masterId, gametypeId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_player_totals SET assault_objectives=assault_objectives+? WHERE id IN(?,?)";
+
+            mysql.query(query, [taken, masterId, gametypeId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+
+    setAttackingTeam(matchId, team){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_matches SET attacking_team=? WHERE id=?";
+
+            mysql.query(query, [team, matchId], (err) =>{
 
                 if(err) reject(err);
 

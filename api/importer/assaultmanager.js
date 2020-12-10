@@ -1,4 +1,5 @@
 const Assault = require('../assault');
+const Message = require('../message');
 
 class AssaultManager{
 
@@ -50,7 +51,10 @@ class AssaultManager{
                     "timestamp": parseFloat(result[1]),
                     "player": parseInt(result[2]),
                     "bFinal":  (result[3].toLowerCase() === 'true') ? 1 : 0,
-                    "objId": parseInt(result[4])
+                    "objId": parseInt(result[4]),
+                    "masterPlayerId": null,
+                    "gametypeId": null,
+                    "playerName": null
                 });
 
             }else if(attackerReg.test(d)){
@@ -75,6 +79,8 @@ class AssaultManager{
 
             let o = 0;
 
+            console.log(this.objectives);
+
             for(let i = 0; i < this.objectives.length; i++){
 
                 o = this.objectives[i];
@@ -86,7 +92,7 @@ class AssaultManager{
         }
     }
 
-    async insertCapturedMapObjectives(p){
+    async insertCapturedMapObjectives(){
 
         try{
 
@@ -95,6 +101,7 @@ class AssaultManager{
             let currentPlayerName = 0;
             let originalConnection = 0;
 
+            console.log(this.takenObjectives);
 
             for(let i = 0; i < this.takenObjectives.length; i++){
 
@@ -103,11 +110,79 @@ class AssaultManager{
                 currentPlayerName = this.playerManager.getPlayerNameById(o.player);
                 originalConnection = this.playerManager.getOriginalConnection(currentPlayerName);
 
+                o.masterPlayerId = originalConnection.masterId;
+                o.gametypePlayerId = originalConnection.gametypeId;
+                o.playerName = originalConnection.name;
+
                 await this.assault.insertObjectiveCapture(this.matchId, this.mapId, o.timestamp, o.objId, originalConnection.masterId, o.bFinal);
             }
 
         }catch(err){
             console.trace(err);
+        }
+    }
+
+    async updatePlayerCaptureTotals(){
+
+        try{
+            
+            const totals = {};
+
+            let o = 0;
+
+            for(let i = 0; i < this.takenObjectives.length; i++){
+
+                o = this.takenObjectives[i];
+
+                if(totals[o.playerName] !== undefined){
+                    totals[o.playerName].taken++;
+                }else{
+                    totals[o.playerName] = {
+                        "taken": 1,
+                        "name": o.playerName,
+                        "masterId": o.masterPlayerId,
+                        "gametypeId": o.gametypePlayerId
+                    };
+                }
+            }
+
+            for(const player in totals){
+                await this.assault.updatePlayerCaptureTotals(totals[player].taken, totals[player].masterId, totals[player].gametypeId);
+
+            }
+
+        }catch(err){
+            new Message(`updatePlayerCaptureTotals: ${err}`, 'error');
+        }
+    }
+
+    async updateMapCaptureTotals(){
+
+        try{
+
+            let o = 0;
+
+            for(let i = 0; i < this.takenObjectives.length; i++){
+
+                o = this.takenObjectives[i];
+
+                await this.assault.updateMapCaptureTotals(this.mapId, o.objId, 1);
+            }
+
+        }catch(err){
+            new Message(`updateMapCaptureTotals: ${err}`, 'error');
+        }
+    }
+
+
+    async setAttackingTeam(){
+
+        try{
+
+            await this.assault.setAttackingTeam(this.matchId, this.attackers);
+
+        }catch(err){
+            new Message(`setAttackingTeam: ${err}`, 'error');
         }
     }
 }
