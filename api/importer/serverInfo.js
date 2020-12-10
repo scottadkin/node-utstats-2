@@ -1,4 +1,5 @@
 
+
 const Servers = require('../servers');
 const Message = require('../message');
 
@@ -55,16 +56,14 @@ class ServerInfo{
             if(reg.test(d)){
 
                 currentResult = reg.exec(d);
-
-                this[currentResult[1].toLowerCase()] = currentResult[2];
-                    
+                this[currentResult[1].toLowerCase()] = currentResult[2];          
             }
         }
     }
 
     convertDate(){
 
-        const reg = /^(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{3})\.(.+?)\.(.+)$/i;
+        const reg = /^(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d+)\.(.+?)\.(.+)$/i;
 
         const result = reg.exec(this.absolute_time);
 
