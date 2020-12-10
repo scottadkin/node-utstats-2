@@ -111,7 +111,7 @@ class MatchManager{
 
                     winner.bWinner = true;
                     await this.match.setDMWinner(this.matchId, LMSWinner.name, LMSWinner.score);
-                    
+
                 }else{
                     new Message(`Winner for LMS is null`, 'warning');
                 }
@@ -124,19 +124,13 @@ class MatchManager{
                 this.setMatchWinners();
             }
 
-            //console.log(this.playerManager.players);
+
 
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
          
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 
-           // console.log(this.playerManager.getCurrentConnectedPlayers(90.22));
-
-
-
-           // console.log(this);
-
-           new Message(`Finished import of log file ${this.fileName}.`, 'note');
+            new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){
             console.trace(err);
@@ -191,7 +185,7 @@ class MatchManager{
             );
 
         }catch(err){
-            console.trace(err);
+            if(err) console.log(err);
         }
     }
 

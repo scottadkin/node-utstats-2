@@ -10,10 +10,10 @@ class GameInfo{
         //no camelcase for this variable as it's always needed and is not always in logs
         this.friendlyfirescale = 0;
 
-        this.start = null;
-        this.end = null;
-        this.length = null;
-        this.endReason = null;
+        this.start = 0;
+        this.end = 0;
+        this.length = 0;
+        this.endReason = 0;
 
         this.targetScore = 0;
 

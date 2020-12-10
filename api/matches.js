@@ -10,7 +10,6 @@ class Matches{
         teamGame, gameSpeed, hardcore, tournament, airControl, useTranslocator, friendlyFireScale, netMode, maxSpectators, 
         maxPlayers, totalPlayers, timeLimit, targetScore, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore){
 
-
         /*aircontrol,
                 this.gameInfo.usetranslocator,
                 this.gameInfo.friendlyfirescale,
@@ -60,8 +59,8 @@ class Matches{
 
             mysql.query(query, vars, (err, result) =>{
 
-                if(err) reject(err);
-
+                if(err) console.trace(err); reject(err);
+                
                 resolve(result.insertId);
             });
         });
