@@ -11,8 +11,6 @@ class LMSManager{
 
         this.cutOffPoint = null;
         this.winner = null;
-
-        new Message(`LMSManager Created`,`note`);
         this.setCutOffTimestamp();
     }
 
@@ -36,7 +34,7 @@ class LMSManager{
 
             if(currentKills >= 0.15 * (currentPlayers.length * this.fragLimit)){
 
-                new Message(`Match join cutoff point is ${kill.timestamp}`,'note');
+                new Message(`(LMS) Match join cutoff point is ${kill.timestamp}`,'note');
                 //console.log(`FOUND CUTOFFPOINT ${kill.timestamp}`);
                 this.cutOffPoint = kill.timestamp;
                 break;

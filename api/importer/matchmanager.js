@@ -104,18 +104,17 @@ class MatchManager{
 
                 const LMSWinner = this.LMSManager.getWinner();
 
-                const winner = this.playerManager.getOriginalConnection(LMSWinner.name);
+                const winner = this.playerManager.getPlayerById(LMSWinner.id);
 
                
                 if(winner !== null){
+
                     winner.bWinner = true;
                     await this.match.setDMWinner(this.matchId, LMSWinner.name, LMSWinner.score);
+                    
                 }else{
                     new Message(`Winner for LMS is null`, 'warning');
                 }
-
-                console.log(winner);
-
             }
 
             await this.playerManager.updateFaces(this.serverInfo.date);

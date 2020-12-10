@@ -564,7 +564,6 @@ class PlayerManager{
                         if(originalIndex === -1){
                             originalIndex = x;
                         }else{
-                            console.log(`merge ${this.players[originalIndex].name} with ${this.players[x].name}`);
                             
                             this.players[x].bDuplicate = true;
                             this.mergePlayer(this.players[originalIndex], this.players[x]);
@@ -798,9 +797,7 @@ class PlayerManager{
 
     async updateWinStats(gametypeId){
 
-        try{
-
-            
+        try{     
 
             let p = 0;
 
@@ -809,8 +806,6 @@ class PlayerManager{
                 p = this.players[i];
 
                 if(p.bDuplicate === undefined){
-
-                    console.log(`${p.name} bWinner =  ${p.bWinner} fdsf dsfdsf dsf dsf dsfdsfds GET PLAYER MASTER ID`);
 
                     await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
                     await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
