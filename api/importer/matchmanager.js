@@ -13,6 +13,7 @@ const Maps = require('../maps');
 const Gametypes = require('../gametypes');
 const CTFManager = require('./ctfmanager');
 const LMSManager = require('./lmsmanager');
+const AssaultManager = require('./assaultmanager');
 const SpawnManager = require('./spawnmanager');
 
 class MatchManager{
@@ -87,6 +88,7 @@ class MatchManager{
 
             
             if(this.CTFManager !== undefined){
+
                 if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
                     // console.table(this.CTFManager.data);
@@ -96,17 +98,20 @@ class MatchManager{
                 }
             }           
             
+
+            if(this.assaultManager !== undefined){
+
+                this.assaultManager.parseData();
+            }
+
             this.playerManager.mergeDuplicates(bLMS);
 
             if(bLMS){
                 
                 this.LMSManager = new LMSManager(this.playerManager, this.killManager, this.gameInfo.getMatchLength(), this.gameInfo.fraglimit);
-
                 const LMSWinner = this.LMSManager.getWinner();
-
                 const winner = this.playerManager.getPlayerById(LMSWinner.id);
-
-               
+      
                 if(winner !== null){
 
                     winner.bWinner = true;
@@ -194,7 +199,6 @@ class MatchManager{
         const reg = /^(.+?)$/img;
         const typeReg = /^\d+\.\d+?\t(.+?)(\t.+|)$/i;
         const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
-
         this.lines = this.data.match(reg);
 
         this.serverLines = [];
@@ -229,6 +233,15 @@ class MatchManager{
             "spawn_point"
         ];
 
+        const assaultTypes = [
+            "assault_timelimit",
+            "assault_gamename",
+            "assault_objname",
+            "assault_defender",
+            "assault_attacker",
+            "assault_obj",
+        ];
+
 
         for(let i = 0; i < this.lines.length; i++){
 
@@ -239,7 +252,7 @@ class MatchManager{
 
                 currentType = typeResult[1].toLowerCase();
 
-              //  console.log(currentType);
+                //console.log(currentType);
 
                 if(currentType == 'info'){
 
@@ -278,6 +291,16 @@ class MatchManager{
                 }else if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide'){
 
                     this.killLines.push(this.lines[i]);
+
+                }else if(assaultTypes.indexOf(currentType) !== -1){
+
+                    if(this.assaultManager === undefined){
+                        this.assaultManager = new AssaultManager();
+                    }
+
+                    this.assaultManager.data.push(this.lines[i]);
+
+                    
                 }else{
 
                     if(currentType.toLowerCase().startsWith("flag_")){
