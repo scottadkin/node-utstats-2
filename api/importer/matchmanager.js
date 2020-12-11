@@ -14,6 +14,7 @@ const Gametypes = require('../gametypes');
 const CTFManager = require('./ctfmanager');
 const LMSManager = require('./lmsmanager');
 const AssaultManager = require('./assaultmanager');
+const DOMManager = require('./dommanager');
 const SpawnManager = require('./spawnmanager');
 
 class MatchManager{
@@ -110,6 +111,13 @@ class MatchManager{
                 await this.assaultManager.updatePlayerCaptureTotals();
                 await this.assaultManager.updateMapCaptureTotals();
                 await this.assaultManager.setAttackingTeam();
+            }
+
+            if(this.domManager !== undefined){
+                this.domManager.mapId =this.mapInfo.mapId;
+                this.domManager.matchId = this.matchId;
+                this.domManager.parseData();
+                this.domManager.playerManager = this.playerManager;
             }
 
             this.playerManager.mergeDuplicates(bLMS);
@@ -252,6 +260,13 @@ class MatchManager{
             "assault_obj",
         ];
 
+        const domTypes = [
+            "dom_point",
+            "dom_playerscore_update",
+            "dom_score_update",
+            "controlpoint_capture"
+        ];
+
 
         for(let i = 0; i < this.lines.length; i++){
 
@@ -295,6 +310,13 @@ class MatchManager{
 
                         }else if(currentType === 'kill_distance' || currentType == 'kill_location'){
                             this.killLines.push(this.lines[i]);
+                        }else if(currentType === 'dom_point'){
+
+                            if(this.domManager === undefined){
+                                this.domManager = new DOMManager();
+                            }
+                            
+                            this.domManager.data.push(this.lines[i]);
                         }
                     }
 
@@ -311,6 +333,16 @@ class MatchManager{
                     this.assaultManager.data.push(this.lines[i]);
 
                     
+                }else if(domTypes.indexOf(currentType) !== -1){
+
+                    //console.log(currentType);
+
+                    if(this.domManager === undefined){
+                        this.domManager = new DOMManager();
+                    }
+
+                    this.domManager.data.push(this.lines[i]);
+
                 }else{
 
                     if(currentType.toLowerCase().startsWith("flag_")){
@@ -326,6 +358,7 @@ class MatchManager{
                 }
             }
         }
+
     }
 
 

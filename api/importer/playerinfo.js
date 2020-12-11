@@ -198,7 +198,7 @@ class PlayerInfo{
         }else if(k >= 30 && k < 35){
             this.stats.sprees.massacre++;
         }else if(k >= 35){
-            this.stats.spree.brutalizing++;
+            this.stats.sprees.brutalizing++;
         }
 
         this.currentSpree = 0;
