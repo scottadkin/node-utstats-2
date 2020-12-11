@@ -55,6 +55,9 @@ class PlayerInfo{
                 "cover": 0,
                 "kill": 0,
                 "save": 0
+            },
+            "dom": {
+                "caps": 0
             }
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };

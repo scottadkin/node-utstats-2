@@ -196,12 +196,24 @@ class DOMManager{
 
     async setPlayerDomCaps(){
 
-        let p = 0;
+        try{
+            let p = 0;
 
-        for(const player in this.playerCaps){
+            let currentPlayer = 0;
 
-            console.log(`${player} = ${this.playerCaps[player]} caps`);
+            for(const player in this.playerCaps){
 
+                currentPlayer = this.playerManager.getOriginalConnectionById(player);
+
+                if(currentPlayer !== null){
+
+                    await this.domination.updatePlayerCapTotals(currentPlayer.masterId, currentPlayer.gametypeId, this.playerCaps[player]);
+                }else{
+                    new Message(`setPlayerDomCaps currentPlayer is null`,'warning');
+                }
+            }
+        }catch(err){    
+            new Message(`setPlayerDomCaps ${err}`,'warning');
         }
         
     }

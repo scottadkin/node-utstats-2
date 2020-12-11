@@ -456,6 +456,19 @@ class PlayerManager{
         return null;
     }
 
+    getOriginalConnectionById(id){
+
+        const name = this.getPlayerNameById(id);
+
+        if(name !== null){
+
+            return this.getOriginalConnection(name);
+        }
+
+        return null;
+
+    }
+
     displayDebugDuplicates(){
 
         const names = [];
@@ -495,6 +508,10 @@ class PlayerManager{
 
             master.stats.ctf[c] += duplicate.stats.ctf[c];
         }
+
+        /*for(const c in master.stats.dom){
+            master.stats.dom[c] += duplicate.stats.dom[c];
+        }*/
 
         const higherBetter = [
             'bestSpree',
@@ -874,6 +891,7 @@ class PlayerManager{
 
         return found;
     }
+
 
 }
 
