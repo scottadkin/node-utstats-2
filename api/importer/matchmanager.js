@@ -118,6 +118,7 @@ class MatchManager{
                 this.domManager.matchId = this.matchId;
                 this.domManager.parseData();
                 this.domManager.playerManager = this.playerManager;
+                await this.domManager.updateTeamScores();
             }
 
             this.playerManager.mergeDuplicates(bLMS);
@@ -315,7 +316,7 @@ class MatchManager{
                             if(this.domManager === undefined){
                                 this.domManager = new DOMManager();
                             }
-                            
+
                             this.domManager.data.push(this.lines[i]);
                         }
                     }
