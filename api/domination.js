@@ -89,6 +89,37 @@ class Domination{
             new Message(`updateMapControlPoint ${err}`,'error');
         }   
     }
+
+
+    updateMatchControlPoint(matchId, mapId, name, points){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_dom_match_control_points VALUES(NULL,?,?,?,?)";
+            
+            mysql.query(query, [matchId, mapId, name, points], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    updateMatchDomCaps(matchId, total){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_matches SET dom_caps=? WHERE id=?";
+
+            mysql.query(query, [total, matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 

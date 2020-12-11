@@ -120,6 +120,9 @@ class MatchManager{
                 this.domManager.playerManager = this.playerManager;
                 await this.domManager.updateTeamScores();
                 await this.domManager.updateControlPointStats();
+                await this.domManager.insertMatchControlPointStats();
+                await this.domManager.updateMatchDomCaps();
+                this.domManager.setPlayerDomCaps();
             }
 
             this.playerManager.mergeDuplicates(bLMS);

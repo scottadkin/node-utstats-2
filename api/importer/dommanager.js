@@ -14,6 +14,7 @@ class DOMManager{
             "yellow": 0
         };
 
+        this.playerCaps = {};
 
         this.domination = new Domination();
     }
@@ -43,6 +44,8 @@ class DOMManager{
                 result = capReg.exec(d);
 
                 this.pointCaptured(result[2], result[3]);
+
+                
 
             }else if(teamScoreReg.test(d)){
 
@@ -96,6 +99,14 @@ class DOMManager{
             point = this.getPoint(name);
         }
 
+        //this.playerCaps.push(playerId);
+
+        if(this.playerCaps[playerId] === undefined){
+            this.playerCaps[playerId] = 0;
+        }
+
+        this.playerCaps[playerId]++;
+
         point.captured++;
 
     }
@@ -142,6 +153,57 @@ class DOMManager{
         }catch(err){
             new Message(`updateControlPointStats ${err}`, 'error');
         }
+    }
+
+    async insertMatchControlPointStats(){
+
+        try{
+
+            let d = 0;
+
+            for(let i = 0; i < this.domPoints.length; i++){
+
+                d = this.domPoints[i];
+
+                await this.domination.updateMatchControlPoint(this.matchId, this.mapId, d.name, d.captured);
+            }
+
+
+        }catch(err){    
+
+            new Message(`insertMatchControlPointStats ${err}`,'error');
+        }
+    }
+
+    async updateMatchDomCaps(){
+
+        try{
+
+            let total = 0;
+
+            for(let i = 0; i < this.domPoints.length; i++){
+
+                total += this.domPoints[i].captured;
+            }
+
+            await this.domination.updateMatchDomCaps(this.matchId, total);
+
+
+        }catch(err){
+            new Message(`updateMatchDomCaps ${err}`,'error');
+        }
+    }
+
+    async setPlayerDomCaps(){
+
+        let p = 0;
+
+        for(const player in this.playerCaps){
+
+            console.log(`${player} = ${this.playerCaps[player]} caps`);
+
+        }
+        
     }
 }
 

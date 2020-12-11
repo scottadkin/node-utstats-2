@@ -46,7 +46,7 @@ class Player{
             }
 
             const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0)`;
 
             mysql.query(query, [name, gametype], (err, result) =>{
 
