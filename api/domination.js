@@ -1,5 +1,6 @@
 const mysql = require('./database');
 const Promise = require('promise');
+const Message = require('./message');
 
 class Domination{
 
@@ -20,7 +21,73 @@ class Domination{
                 resolve();
             });
         });
+    }
 
+    controlPointExists(mapId, name){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_points FROM nstats_dom_control_points WHERE map=? AND name=?";
+
+            mysql.query(query, [mapId, name], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result[0].total_points > 0){
+                    resolve(true);
+                }
+
+                resolve(false);
+            });
+        });
+    }
+
+    createControlPoint(mapId, name, points){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_dom_control_points VALUES(NULL,?,?,?,1);";
+
+            mysql.query(query, [mapId, name, points], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    updateControlPointStats(mapId, name, points){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_dom_control_points SET matches=matches+1, captured=captured+? WHERE map=? AND name=?";
+
+            mysql.query(query, [points, mapId, name], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async updateMapControlPoint(mapId, name, points){
+
+        try{
+
+            if(await this.controlPointExists(mapId, name)){
+
+                await this.updateControlPointStats(mapId, name, points);
+   
+            }else{
+                new Message(`Control point "${name}" doesn't exist for map ${mapId}, creating now.`,'note');
+                await this.createControlPoint(mapId, name, points);
+            }
+
+        }catch(err){
+            new Message(`updateMapControlPoint ${err}`,'error');
+        }   
     }
 }
 

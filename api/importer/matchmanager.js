@@ -119,6 +119,7 @@ class MatchManager{
                 this.domManager.parseData();
                 this.domManager.playerManager = this.playerManager;
                 await this.domManager.updateTeamScores();
+                await this.domManager.updateControlPointStats();
             }
 
             this.playerManager.mergeDuplicates(bLMS);

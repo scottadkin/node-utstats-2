@@ -30,8 +30,6 @@ class DOMManager{
         for(let i = 0; i < this.data.length; i++){
 
             d = this.data[i];
-            console.log(d);
-
 
             if(domPointReg.test(d)){
 
@@ -126,6 +124,24 @@ class DOMManager{
         }catch(err){
             new Message(`updateTeamScores ${err}`,'error');
         }   
+    }
+
+    async updateControlPointStats(){
+
+        try{
+
+            let d = 0;
+
+            for(let i = 0; i < this.domPoints.length; i++){
+
+                d = this.domPoints[i];
+
+                await this.domination.updateMapControlPoint(this.mapId, d.name, d.captured);
+            }
+
+        }catch(err){
+            new Message(`updateControlPointStats ${err}`, 'error');
+        }
     }
 }
 
