@@ -6,6 +6,8 @@ class Voices{
 
     constructor(){
 
+        this.voices = [];
+
     }
 
     exists(name){
@@ -82,6 +84,92 @@ class Voices{
 
         }catch(err){
             new Message(`updateStats ${err}`,'error');
+        }
+    }
+
+
+    updatePlayerVoice(playerId, voiceId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_player_totals SET voice=? WHERE id=?";
+
+            mysql.query(query, [voiceId, playerId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    getAllIds(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_voices";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    const data = {};
+
+                    for(let i = 0; i < result.length; i++){
+                        data[result[i].name] = result[i].id;
+
+                    }
+
+                    this.voices = data;
+
+                    resolve();
+                }
+
+                resolve();
+            });
+        });
+    }
+
+
+    getIdFromVoices(name){
+
+
+        for(const voice in this.voices){
+
+            if(voice === name){
+                return this.voices[voice];
+            }
+        }
+
+        return null;
+    }
+
+
+    async setPlayerVoices(players){
+
+        try{
+
+            let currentId = 0;
+
+            let p = 0;
+
+            for(let i = 0; i < players.length; i++){
+
+                p = players[i];
+
+                currentId = this.getIdFromVoices(p.voice);
+
+                if(currentId !== null){
+                    await this.updatePlayerVoice(p.masterId, currentId);
+                }else{
+                    new Message(`Failed to update player voice`,'warning');
+                }
+
+            }
+        }catch(err){
+            new Message(`setPlayerVoices ${err}`,'error');
         }
     }
 }

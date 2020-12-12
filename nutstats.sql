@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 12, 2020 at 01:45 PM
+-- Generation Time: Dec 12, 2020 at 02:09 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -216,6 +216,7 @@ CREATE TABLE `nstats_player_totals` (
   `ip` varchar(50) NOT NULL,
   `country` varchar(2) NOT NULL,
   `face` int(100) NOT NULL,
+  `voice` int(11) NOT NULL,
   `gametype` int(11) NOT NULL,
   `matches` int(11) NOT NULL,
   `wins` int(11) NOT NULL,

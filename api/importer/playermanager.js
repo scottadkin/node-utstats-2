@@ -920,6 +920,11 @@ class PlayerManager{
 
             await this.voices.updateStatsBulk(data, date);
 
+            await this.voices.getAllIds();
+
+            //console.log(voices);
+
+            this.voices.setPlayerVoices(this.players);
         }catch(err){
             new Message(`updateVoices ${err}`,'error');
         }

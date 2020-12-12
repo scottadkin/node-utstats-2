@@ -153,7 +153,7 @@ class MatchManager{
             }
 
             await this.playerManager.updateFaces(this.serverInfo.date);
-            await this.playerManager.updateVoices(this.serverInfo.date);
+            await this.playerManager.updateVoices(this.matchId);
             await this.playerManager.setIpCountry();
 
             if(!bLMS){
