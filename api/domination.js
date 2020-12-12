@@ -78,6 +78,7 @@ class Domination{
 
             if(await this.controlPointExists(mapId, name)){
 
+                new Message(`Control point "${name}" exists for map ${mapId}.`,'pass');
                 await this.updateControlPointStats(mapId, name, points);
    
             }else{

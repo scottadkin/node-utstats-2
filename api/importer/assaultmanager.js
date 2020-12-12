@@ -79,7 +79,7 @@ class AssaultManager{
 
             let o = 0;
 
-            console.log(this.objectives);
+            //console.log(this.objectives);
 
             for(let i = 0; i < this.objectives.length; i++){
 
@@ -101,7 +101,7 @@ class AssaultManager{
             let currentPlayerName = 0;
             let originalConnection = 0;
 
-            console.log(this.takenObjectives);
+            //console.log(this.takenObjectives);
 
             for(let i = 0; i < this.takenObjectives.length; i++){
 
@@ -183,6 +183,17 @@ class AssaultManager{
 
         }catch(err){
             new Message(`setAttackingTeam: ${err}`, 'error');
+        }
+    }
+
+    async setMatchCaps(){
+
+        try{
+
+            await this.assault.setMatchAssaultCaps(this.matchId, this.takenObjectives.length);
+
+        }catch(err){
+            new Message(`setMatchCaps: ${err}`, 'error');
         }
     }
 }

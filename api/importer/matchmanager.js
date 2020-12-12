@@ -96,6 +96,8 @@ class MatchManager{
                     this.CTFManager.parseData();
                     this.CTFManager.setPlayerStats(this.playerManager);
                     await this.CTFManager.updatePlayerTotals(this.playerManager.players);
+
+                    new Message(`Capture The Flag stats update complete.`,'pass');
                 }
             }           
             
@@ -111,6 +113,9 @@ class MatchManager{
                 await this.assaultManager.updatePlayerCaptureTotals();
                 await this.assaultManager.updateMapCaptureTotals();
                 await this.assaultManager.setAttackingTeam();
+                await this.assaultManager.setMatchCaps();
+
+                new Message(`Assault stats update complete.`,'pass');
             }
 
             if(this.domManager !== undefined){
@@ -123,6 +128,8 @@ class MatchManager{
                 await this.domManager.insertMatchControlPointStats();
                 await this.domManager.updateMatchDomCaps();
                 this.domManager.setPlayerDomCaps();
+
+                new Message(`Domination stats update complete.`,'pass');
             }
 
             this.playerManager.mergeDuplicates(bLMS);
@@ -137,6 +144,8 @@ class MatchManager{
 
                     winner.bWinner = true;
                     await this.match.setDMWinner(this.matchId, LMSWinner.name, LMSWinner.score);
+
+                    new Message(`Last man standing stats update complete.`,'pass');
 
                 }else{
                     new Message(`Winner for LMS is null`, 'warning');

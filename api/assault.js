@@ -126,6 +126,21 @@ class Assault{
             });
         });
     }
+
+    setMatchAssaultCaps(matchId, caps){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_matches SET assault_caps=? WHERE id=?";
+
+            mysql.query(query, [caps, matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 module.exports = Assault;
