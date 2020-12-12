@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 11, 2020 at 03:52 PM
+-- Generation Time: Dec 12, 2020 at 01:45 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -200,6 +200,7 @@ CREATE TABLE `nstats_matches` (
   `team_score_2` float NOT NULL,
   `team_score_3` float NOT NULL,
   `attacking_team` int(11) NOT NULL,
+  `assault_caps` int(11) NOT NULL,
   `dom_caps` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -279,6 +280,20 @@ CREATE TABLE `nstats_servers` (
   `playtime` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_voices`
+--
+
+CREATE TABLE `nstats_voices` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `first` int(11) NOT NULL,
+  `last` int(11) NOT NULL,
+  `uses` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 --
 -- Indexes for dumped tables
 --
@@ -356,6 +371,12 @@ ALTER TABLE `nstats_servers`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_voices`
+--
+ALTER TABLE `nstats_voices`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -429,6 +450,12 @@ ALTER TABLE `nstats_player_totals`
 -- AUTO_INCREMENT for table `nstats_servers`
 --
 ALTER TABLE `nstats_servers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_voices`
+--
+ALTER TABLE `nstats_voices`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 

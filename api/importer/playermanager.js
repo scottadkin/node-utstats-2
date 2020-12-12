@@ -6,6 +6,7 @@ const geoip = require('geoip-lite');
 const P = require('../player');
 const Player = new P();
 const Faces = require('../faces');
+const Voices = require('../voices');
 //const SpawnManager = require('./spawnmanager');
 
 class PlayerManager{
@@ -22,6 +23,7 @@ class PlayerManager{
     
 
         this.faces = new Faces();
+        this.voices = new Voices();
         this.spawnManager = spawnManager;
 
         this.createPlayers();
@@ -892,6 +894,36 @@ class PlayerManager{
         return found;
     }
 
+    async updateVoices(date){
+
+        try{
+
+            let p = 0;
+
+            const data = {};
+
+            for(let i = 0; i < this.players.length; i++){
+                
+                p = this.players[i];
+
+               // await this.voices.updateStats(p.voice);
+
+               //data.push(p.voice);
+
+                if(data[p.voice] === undefined){
+                    data[p.voice] = 1;
+                }else{
+                    data[p.voice]++;
+                }
+
+            }
+
+            await this.voices.updateStatsBulk(data, date);
+
+        }catch(err){
+            new Message(`updateVoices ${err}`,'error');
+        }
+    }
 
 }
 
