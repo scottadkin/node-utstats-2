@@ -197,6 +197,40 @@ class Player{
         });
     }
 
+
+
+    insertMatchData(player, gametypeId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_player_matches VALUES(NULL,0,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0)";
+
+            console.log(player);
+
+            const vars = [
+                player.masterId,
+                player.ip,
+                player.country,
+                player.faceId,
+                player.voiceId,
+                gametypeId,
+                player.stats.time_on_server,
+                player.stats.firstBlood,
+                player.stats.frags,
+                player.stats.score,
+                player.stats.kills,
+                player.stats.deaths
+            ];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
 }
 
 module.exports = Player;

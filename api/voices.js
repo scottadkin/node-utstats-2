@@ -162,8 +162,11 @@ class Voices{
                 currentId = this.getIdFromVoices(p.voice);
 
                 if(currentId !== null){
+
                     await this.updatePlayerVoice(p.masterId, currentId);
+                    p.voiceId = currentId;
                 }else{
+                    p.voiceId = 0;
                     new Message(`Failed to update player voice`,'warning');
                 }
 

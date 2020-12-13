@@ -153,7 +153,7 @@ class MatchManager{
             }
 
             await this.playerManager.updateFaces(this.serverInfo.date);
-            await this.playerManager.updateVoices(this.matchId);
+            await this.playerManager.updateVoices(this.serverInfo.date);
             await this.playerManager.setIpCountry();
 
             if(!bLMS){
@@ -166,7 +166,12 @@ class MatchManager{
          
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 
+
+            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype);
+
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
+
+            console.log(this.serverInfo.date)
 
         }catch(err){
             console.trace(err);

@@ -917,6 +917,7 @@ class PlayerManager{
                 }
 
             }
+           // console.log(date);
 
             await this.voices.updateStatsBulk(data, date);
 
@@ -925,8 +926,36 @@ class PlayerManager{
             //console.log(voices);
 
             this.voices.setPlayerVoices(this.players);
+
         }catch(err){
             new Message(`updateVoices ${err}`,'error');
+        }
+    }
+
+
+    async insertMatchData(gametypeId){
+
+        try{
+
+            let p = 0;
+
+
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+
+                if(p.bDuplicate === undefined){
+                    console.log(`woof`);
+
+                    await Player.insertMatchData(p, gametypeId);
+                    
+                }else{
+                    new Message(`${p.name} is a duplicate not inserting match data.`,'note');
+                }
+            }
+
+        }catch(err){
+            new Message(`insertMatchData ${err}`,'error');
         }
     }
 
