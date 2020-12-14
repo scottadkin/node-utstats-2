@@ -136,6 +136,21 @@ class Domination{
             });
         });
     }
+
+    updatePlayerMatchStats(rowId, caps){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_player_matches SET dom_caps=? WHERE id=?";
+
+            mysql.query(query, [caps, rowId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 

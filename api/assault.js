@@ -141,6 +141,21 @@ class Assault{
             });
         });
     }
+
+    updatePlayerMatchCaps(rowId, caps){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_player_matches SET assault_objectives=? WHERE id=?";
+
+            mysql.query(query, [caps, rowId], (err) =>{
+                
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 module.exports = Assault;

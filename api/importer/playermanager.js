@@ -906,10 +906,6 @@ class PlayerManager{
                 
                 p = this.players[i];
 
-               // await this.voices.updateStats(p.voice);
-
-               //data.push(p.voice);
-
                 if(data[p.voice] === undefined){
                     data[p.voice] = 1;
                 }else{
@@ -917,13 +913,9 @@ class PlayerManager{
                 }
 
             }
-           // console.log(date);
-
             await this.voices.updateStatsBulk(data, date);
 
             await this.voices.getAllIds();
-
-            //console.log(voices);
 
             this.voices.setPlayerVoices(this.players);
 

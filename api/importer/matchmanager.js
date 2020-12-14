@@ -169,9 +169,15 @@ class MatchManager{
 
             await this.playerManager.insertMatchData(this.gametype.currentMatchGametype);
 
-            new Message(`Finished import of log file ${this.fileName}.`, 'note');
+            if(this.domManager !== undefined){
+                await this.domManager.updatePlayersMatchStats();
+            }
 
-            console.log(this.serverInfo.date)
+            if(this.assaultManager !== undefined){
+                await this.assaultManager.updatePlayersMatchStats();
+            }
+
+            new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){
             console.trace(err);

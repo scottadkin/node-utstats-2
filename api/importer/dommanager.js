@@ -208,14 +208,41 @@ class DOMManager{
                 if(currentPlayer !== null){
 
                     await this.domination.updatePlayerCapTotals(currentPlayer.masterId, currentPlayer.gametypeId, this.playerCaps[player]);
+                    currentPlayer.stats.dom.caps = this.playerCaps[player];
+
                 }else{
                     new Message(`setPlayerDomCaps currentPlayer is null`,'warning');
                 }
             }
         }catch(err){    
             new Message(`setPlayerDomCaps ${err}`,'warning');
+        }    
+    }
+
+    async updatePlayersMatchStats(matchId){
+
+        try{
+
+            if(matchId === undefined) matchId = this.matchId;
+            
+            let p = 0;
+
+            const players = this.playerManager.players;
+
+            for(let i = 0; i < players.length; i++){
+
+                p = players[i];
+
+                if(p.stats.dom.caps > 0){
+                    await this.domination.updatePlayerMatchStats(p.matchId, p.stats.dom.caps);
+                }else{
+                    new Message(`${p.name} did not have any control point caps, skipping stats update.`,'pass');
+                }
+            }
+
+        }catch(err){
+            new Message(`updatePlayersMatchStats ${err}`,'error');
         }
-        
     }
 }
 

@@ -58,6 +58,9 @@ class PlayerInfo{
             },
             "dom": {
                 "caps": 0
+            },
+            "assault": {
+                "caps": 0
             }
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };

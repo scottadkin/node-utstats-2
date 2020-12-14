@@ -146,8 +146,19 @@ class AssaultManager{
                 }
             }
 
+            let currentPlayer = 0;
+
             for(const player in totals){
+
                 await this.assault.updatePlayerCaptureTotals(totals[player].taken, totals[player].masterId, totals[player].gametypeId);
+
+                currentPlayer = this.playerManager.getOriginalConnection(totals[player].name);
+
+                if(currentPlayer !== null){
+                    currentPlayer.stats.assault.caps = totals[player].taken;   
+                }else{
+                    new Message(`updatePlayerCaptureTotals: currentPlayer is null`,'warning');
+                }
 
             }
 
@@ -194,6 +205,29 @@ class AssaultManager{
 
         }catch(err){
             new Message(`setMatchCaps: ${err}`, 'error');
+        }
+    }
+
+
+    async updatePlayersMatchStats(){
+
+        try{
+
+            const players = this.playerManager.players;
+
+            let p = 0;
+
+            for(let i = 0; i < players.length; i++){
+
+                p = players[i];
+
+                if(p.stats.assault.caps > 0){
+                    await this.assault.updatePlayerMatchCaps(p.matchId, p.stats.assault.caps);
+                }
+            }
+
+        }catch(err){
+            new Message(`updatePlayersMatchStats ${err}`,'error');
         }
     }
 }
