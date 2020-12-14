@@ -221,8 +221,10 @@ class AssaultManager{
 
                 p = players[i];
 
-                if(p.stats.assault.caps > 0){
-                    await this.assault.updatePlayerMatchCaps(p.matchId, p.stats.assault.caps);
+                if(p.bDuplicate === undefined){
+                    if(p.stats.assault.caps > 0){
+                        await this.assault.updatePlayerMatchCaps(p.matchId, p.stats.assault.caps);
+                    }
                 }
             }
 

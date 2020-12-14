@@ -233,10 +233,12 @@ class DOMManager{
 
                 p = players[i];
 
-                if(p.stats.dom.caps > 0){
-                    await this.domination.updatePlayerMatchStats(p.matchId, p.stats.dom.caps);
-                }else{
-                    new Message(`${p.name} did not have any control point caps, skipping stats update.`,'pass');
+                if(p.bDuplicate === undefined){
+                    if(p.stats.dom.caps > 0){
+                        await this.domination.updatePlayerMatchStats(p.matchId, p.stats.dom.caps);
+                    }else{
+                        new Message(`${p.name} did not have any control point caps, skipping stats update.`,'pass');
+                    }
                 }
             }
 

@@ -87,7 +87,7 @@ class CTFManager{
     }
 
 
-    setPlayerStats(playerManager){
+    setPlayerStats(){
 
         let e = 0;
         let player = 0;
@@ -97,7 +97,7 @@ class CTFManager{
 
             e = this.events[i];
 
-            player = playerManager.getPlayerById(e.player);
+            player = this.playerManager.getPlayerById(e.player);
 
             if(player !== null){
 
@@ -121,10 +121,11 @@ class CTFManager{
     }
 
 
-    async updatePlayerTotals(players){
+    async updatePlayerTotals(){
 
         try{
 
+            const players = this.playerManager.players;
             for(let i = 0; i < players.length; i++){
 
                 if(players[i].bDuplicate === undefined){
@@ -135,6 +136,23 @@ class CTFManager{
             new Message(`Updated Player CTF totals.`,'pass');
         }catch(err){
             console.trace(err);
+        }
+    }
+
+    async updatePlayersMatchStats(){
+
+        try{
+
+            const players = this.playerManager.players;
+
+            for(let i = 0; i < players.length; i++){
+
+                if(players[i].bDuplicate === undefined){
+                    await this.ctf.updatePlayerMatchStats(players[i].matchId, players[i].stats.ctf);
+                }
+            }
+        }catch(err){
+            new Message(`updatePlayersMatchStats`,'error');
         }
     }
 }

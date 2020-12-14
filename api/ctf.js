@@ -46,6 +46,45 @@ class CTF{
             });
         });
     }
+
+    updatePlayerMatchStats(rowId, stats){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_player_matches SET
+            flag_assist = ?,
+            flag_return = ?,
+            flag_taken = ?,
+            flag_dropped = ?,
+            flag_capture = ?,
+            flag_pickup = ?,
+            flag_cover = ?,
+            flag_kill = ?,
+            flag_save = ?
+            WHERE id=?`;
+
+            const vars = [
+                stats.assist,
+                stats.return,
+                stats.taken,
+                stats.dropped,
+                stats.capture,
+                stats.pickup,
+                stats.cover,
+                stats.kill,
+                stats.save,
+                rowId
+            ];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+
+    }
 }
 
 

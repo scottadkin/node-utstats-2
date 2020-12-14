@@ -93,9 +93,10 @@ class MatchManager{
                 if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
                     // console.table(this.CTFManager.data);
+                    this.CTFManager.playerManager = this.playerManager;
                     this.CTFManager.parseData();
-                    this.CTFManager.setPlayerStats(this.playerManager);
-                    await this.CTFManager.updatePlayerTotals(this.playerManager.players);
+                    this.CTFManager.setPlayerStats();
+                    await this.CTFManager.updatePlayerTotals();
 
                     new Message(`Capture The Flag stats update complete.`,'pass');
                 }
@@ -175,6 +176,10 @@ class MatchManager{
 
             if(this.assaultManager !== undefined){
                 await this.assaultManager.updatePlayersMatchStats();
+            }
+
+            if(this.CTFManager !== undefined){
+                await this.CTFManager.updatePlayersMatchStats();
             }
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
