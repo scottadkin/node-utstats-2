@@ -176,6 +176,31 @@ class Maps{
         });
     }
 
+
+    getAll(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_maps";
+
+            const data = [];
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                   
+                    for(let i = 0; i < result.length; i++){
+                        data.push(result[i]);
+                    }
+                }
+
+                resolve(data);
+            });
+        });
+    }
+
 }
 
 

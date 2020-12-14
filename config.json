@@ -18,6 +18,7 @@
     "logFilePrefix": "unreal.nglog.",
     "importedLogsFolder": "logs",
     "test": "Dogs have wet noses",
-    "multiKillTimeLimit": 3.0
+    "multiKillTimeLimit": 3,
+    "spawnKillTimeLimit": 1
 
 }

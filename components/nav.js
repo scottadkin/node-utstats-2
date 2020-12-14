@@ -11,7 +11,7 @@ function Nav(){
                 <NavLink url="matches" text="Recent Matches" />
                 <NavLink url="players" text="Players" />
                 <NavLink url="#" text="Servers" />
-                <NavLink url="#" text="Maps" />
+                <NavLink url="maps" text="Maps" />
             </nav>
             
         </header>
