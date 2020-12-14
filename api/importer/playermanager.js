@@ -945,14 +945,15 @@ class PlayerManager{
                 p = this.players[i];
 
                 if(p.bDuplicate === undefined){
-                    console.log(`woof`);
 
-                    await Player.insertMatchData(p, gametypeId);
+                    p.matchId = await Player.insertMatchData(p, gametypeId);
                     
                 }else{
                     new Message(`${p.name} is a duplicate not inserting match data.`,'note');
                 }
             }
+
+            //console.log(this.players);
 
         }catch(err){
             new Message(`insertMatchData ${err}`,'error');

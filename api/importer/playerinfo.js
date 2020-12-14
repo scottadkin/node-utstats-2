@@ -44,7 +44,7 @@ class PlayerInfo{
             "fastestKill": 0,
             "slowestKill": 0,
             "bestspawnkillspree":0,
-            "spawnKills": 0,
+            "spawnkills": 0,
             "ctf": {
                 "assist": 0,
                 "return": 0,

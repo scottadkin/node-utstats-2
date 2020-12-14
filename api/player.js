@@ -1,6 +1,7 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
+const Functions = require('./functions');
 
 class Player{
 
@@ -203,30 +204,55 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_player_matches VALUES(NULL,0,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0)";
-
-            console.log(player);
+            const query = `INSERT INTO nstats_player_matches VALUES(NULL,0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+                ?,
+                0,0,0,0,0,0,0,0,0,
+                0,0)`;
 
             const vars = [
                 player.masterId,
                 player.ip,
                 player.country,
-                player.faceId,
-                player.voiceId,
+                Functions.setValueIfUndefined(player.faceId),
+                Functions.setValueIfUndefined(player.voiceId),
                 gametypeId,
-                player.stats.time_on_server,
+                Functions.setValueIfUndefined(player.stats.time_on_server),
                 player.stats.firstBlood,
                 player.stats.frags,
                 player.stats.score,
                 player.stats.kills,
-                player.stats.deaths
+                player.stats.deaths,
+                player.stats.suicides,
+                player.stats.teamkills,
+                player.stats.spawnkills,
+                Functions.calculateKillEfficiency(player.stats.kills, player.stats.deaths),
+                player.stats.multis.double,
+                player.stats.multis.multi,
+                player.stats.multis.mega,
+                player.stats.multis.ultra,
+                player.stats.multis.monster,
+                player.stats.multis.ludicrous,
+                player.stats.multis.holyshit,
+                player.stats.bestMulti,
+                player.stats.sprees.spree,
+                player.stats.sprees.rampage,
+                player.stats.sprees.dominating,
+                player.stats.sprees.unstoppable,
+                player.stats.sprees.godlike,
+                player.stats.sprees.massacre,
+                player.stats.sprees.brutalizing,
+                player.stats.bestSpree,
+                player.stats.bestspawnkillspree
             ];
 
-            mysql.query(query, vars, (err) =>{
+            mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
 
-                resolve();
+               // console.log(result);
+
+                resolve(result.insertId);
             });
         });
     }
