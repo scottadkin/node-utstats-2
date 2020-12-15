@@ -1,4 +1,4 @@
-import styles from '../styles/MapBox.module.css'
+import styles from './MapBox.module.css'
 
 function MapBox(props){
 

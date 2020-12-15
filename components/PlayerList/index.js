@@ -1,5 +1,5 @@
-import PlayerListBox from './playerlistbox'
-import styles from '../styles/PlayerList.module.css'
+import PlayerListBox from '../PlayerListBox/'
+import styles from './PlayerList.module.css'
 
 function PlayersList(props){
 

@@ -1,6 +1,6 @@
 import Head from 'next/head'
 
-const TestHead = () =>{
+const DefaultHead = () =>{
 
     return (
         <Head>
@@ -12,4 +12,4 @@ const TestHead = () =>{
     );
 }
 
-export default TestHead;
+export default DefaultHead;

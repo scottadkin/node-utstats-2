@@ -1,4 +1,4 @@
-import MapBox from './mapbox'
+import MapBox from './MapBox'
 
 function MapList(props){
 
