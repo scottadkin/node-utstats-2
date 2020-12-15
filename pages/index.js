@@ -1,4 +1,4 @@
-import Head from 'next/head'
+import TestHead from '../components/defaulthead'
 import styles from '../styles/Home.module.css'
 import Nav from '../components/nav'
 import Footer from '../components/footer';
@@ -24,10 +24,7 @@ function Home({servers}) {
 
   return (
     <div>
-      <Head>
-        <title>Node UTStats</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <TestHead />
      
       <main>
         <Nav />

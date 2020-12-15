@@ -4,7 +4,7 @@ import Link from 'next/link';
 export default function NavLink(props){
 
     return (
-        <Link href={props.url} passHref>
+        <Link href={props.url}>
         <a className={styles.ni}>
             {props.text}
         </a>
