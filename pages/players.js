@@ -1,23 +1,19 @@
 import Link from 'next/link';
-import Head from 'next/head'
-import Nav from '../components/nav'
-import Footer from '../components/footer'
-import styles from '../styles/Home.module.css'
-import PlayersList from '../components/playerslist'
+import DefaultHead from '../components/defaulthead'
+import Nav from '../components/Nav/'
+import Footer from '../components/Footer/'
+import PlayersList from '../components/PlayerList/'
 import PlayerManager from '../api/players'
 
 function Players(props){
 
     return (
         <div>
-            <Head>
-            <title>Node UTStats</title>
-            <link rel="icon" href="/favicon.ico" />
-            </Head>
+            <DefaultHead />
             
             <main>
             <Nav />
-            <div id={styles.content}>
+            <div id="content">
                 <div className="default">
                 <div className="default-header">
                     Players
@@ -32,11 +28,11 @@ function Players(props){
 }
 
 
-export async function getStaticProps(){
+export async function getServerSideProps(){
 
-    const manager = new PlayerManager();
+    const Manager = new PlayerManager();
 
-    let players = await manager.debugGetAll();
+    let players = await Manager.debugGetAll();
 
     players = JSON.stringify(players);
 

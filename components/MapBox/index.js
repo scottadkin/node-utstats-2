@@ -4,14 +4,14 @@ function MapBox(props){
 
 
     return (
-        <div class={styles.outter}>
-            <div class={styles.name}>
+        <div className={styles.outter}>
+            <div className={styles.name}>
                 {props.data.name}
             </div>
-            <div class={styles.title}>
+            <div className={styles.title}>
                 {props.data.title}
             </div>
-            <div class={styles.image}>
+            <div className={styles.image}>
                 <img src="images/temp.jpg" alt="image"/>
             </div>
         </div>

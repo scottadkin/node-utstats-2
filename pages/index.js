@@ -1,14 +1,13 @@
-import TestHead from '../components/defaulthead'
-import styles from '../styles/Home.module.css'
-import Nav from '../components/nav'
-import Footer from '../components/footer';
+import DefaultHead from '../components/defaulthead'
+import Nav from '../components/Nav/'
+import Footer from '../components/Footer/';
 import Servers from '../api/servers';
-import ServerBox from '../components/serverbox'
+import ServerBox from '../components/ServerBox/'
 
 
 function Home({servers}) {
 
-  console.log(`servers`);
+  //console.log(`servers`);
   console.log(servers);
 
    servers = JSON.parse(servers);
@@ -24,11 +23,11 @@ function Home({servers}) {
 
   return (
     <div>
-      <TestHead />
+      <DefaultHead />
      
       <main>
         <Nav />
-        <div id={styles.content}>
+        <div id="content">
           <div className="default">
             <div className="default-header">
               Servers
@@ -43,7 +42,7 @@ function Home({servers}) {
 }
 
 // This gets called on every request
-export async function getStaticProps() {
+export async function getServerSideProps() {
   // Fetch data from external API
 
   const s = new Servers();

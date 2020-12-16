@@ -1,8 +1,7 @@
 import Link from 'next/link';
-import Head from 'next/head'
-import Nav from '../components/nav'
-import Footer from '../components/footer'
-import styles from '../styles/Home.module.css'
+import DefaultHead from '../components/defaulthead'
+import Nav from '../components/Nav/'
+import Footer from '../components/Footer/'
 import MapManager from '../api/maps'
 import MapList from '../components/maplist'
 
@@ -10,14 +9,12 @@ function Maps(props){
 
     return (
         <div>
-            <Head>
-            <title>Node UTStats</title>
-            <link rel="icon" href="/favicon.ico" />
-            </Head>
+            <DefaultHead />
+
             
             <main>
             <Nav />
-            <div id={styles.content}>
+            <div id="content">
                 <div className="default">
                 <div className="default-header">
                     Maps
@@ -32,7 +29,7 @@ function Maps(props){
 }
 
 
-export async function getStaticProps(){
+export async function getServerSideProps(){
 
     const Manager = new MapManager();
 

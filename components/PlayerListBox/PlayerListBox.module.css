@@ -1,0 +1,25 @@
+.outter{
+    background-color:black;
+    color:white;
+    text-align:left;
+    font-size:18px;
+    font-weight:300;
+    border:1px solid rgba(255,255,255,0.1);
+    margin-top:-1px;
+    padding:5px;
+    transform: background-color 0.5s;
+}
+
+.outter:hover{
+    background-color:rgb(12,12,12);
+}
+
+.inner{
+    display:grid;
+    grid-template-columns: 46px auto 30% 25% 50px;
+}
+
+.inner div:nth-child(5){
+    text-align:right;
+    padding-right:5px;
+}

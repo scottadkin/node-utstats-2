@@ -10,7 +10,7 @@ function MapList(props){
     for(let i = 0; i < maps.length; i++){
 
         elems.push(
-            <MapBox data={maps[i]}/>
+            <MapBox key={i} data={maps[i]}/>
         );
     }
 
