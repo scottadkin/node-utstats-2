@@ -107,3 +107,37 @@ footer{
 .kv div:nth-child(1){
   color:yellow;
 }
+
+
+table{
+  border-collapse: collapse;
+}
+
+.special-table{
+
+  color:white;
+  
+  margin-top:-1px;
+  padding:10px;
+}
+
+.special-table table{
+  text-align: center;
+  margin-left:auto;
+  margin-right:auto;
+  border:1px solid rgba(255,255,255,0.2);
+  background-color:black;
+}
+
+.special-table th{
+  font-weight:300;
+  padding:10px;
+  color:yellow;
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+.special-table td{
+  font-weight:100;
+  padding:10px;
+  border:1px solid rgba(255,255,255,0.1);
+}

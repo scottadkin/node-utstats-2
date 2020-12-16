@@ -257,6 +257,27 @@ class Player{
         });
     }
 
+    getPlayerById(id){
+
+        return new Promise((resolve, reject) =>{
+
+            id = parseInt(id);
+
+            const query = "SELECT * FROM nstats_player_totals WHERE id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result[0]);
+                }
+                
+                resolve(null);
+            });
+        });
+    }
+
 }
 
 module.exports = Player;

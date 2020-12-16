@@ -8,11 +8,11 @@ function Nav(){
             <h1 className="hidden">Node UTStats</h1>
             <nav>
                 <NavLink url="/" text="Home" />
-                <NavLink url="matches" text="Recent Matches" />
-                <NavLink url="players" text="Players" />
+                <NavLink url="/matches" text="Recent Matches" />
+                <NavLink url="/players" text="Players" />
                 <NavLink url="#" text="Servers" />
-                <NavLink url="maps" text="Maps" />
-                <NavLink url="credits" text="Credits" />
+                <NavLink url="/maps" text="Maps" />
+                <NavLink url="/credits" text="Credits" />
             </nav>
             
         </header>
