@@ -98,3 +98,12 @@ footer{
 #content{
   padding-bottom:100px;
 }
+
+.kv{
+  display:grid;
+  grid-template-columns: 50% 50%;
+}
+
+.kv div:nth-child(1){
+  color:yellow;
+}

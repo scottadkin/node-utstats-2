@@ -22,6 +22,9 @@ function PlayersList(props){
             playtime={players[i].playtime}
             wins={players[i].wins}
             matches={players[i].matches}
+            score={players[i].score}
+            kills={players[i].kills}
+            deaths={players[i].deaths}
          
 
         />);
@@ -29,6 +32,7 @@ function PlayersList(props){
 
     return (
         <div className={styles.box}>
+            <PlayerListBox playerId={-1 }/>
             {elems}
         </div>
     );

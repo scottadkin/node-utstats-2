@@ -8,6 +8,13 @@
     margin-top:-1px;
     padding:5px;
     transform: background-color 0.5s;
+    max-width:750px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.outter:nth-child(even){
+    background-color:rgb(6,6,6);
 }
 
 .outter:hover{
@@ -16,10 +23,40 @@
 
 .inner{
     display:grid;
-    grid-template-columns: 46px auto 30% 25% 50px;
+    grid-template-columns: 50px 30% 15% 15% 15% auto;
+    font-size:16px;
+    line-height:40px;
 }
 
-.inner div:nth-child(5){
-    text-align:right;
-    padding-right:5px;
+.inner div:nth-child(1){
+    line-height:0px;
 }
+
+.inner div:nth-child(6), .inneralt div:nth-child(6){
+    text-align:right;
+    padding-right:10px;
+}
+
+.face{
+    text-align:center;
+}
+
+.face img{
+    height:40px;
+    border:1px solid rgb(120,120,120);
+}
+
+.header{
+    line-height:24px;
+    color:yellow;
+}
+
+.inneralt{
+    display:grid;
+    grid-template-columns: 50px 30% 15% 15% 15% auto;
+    font-size:18px;
+    color:yellow;
+    line-height:26px;
+}
+
+

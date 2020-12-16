@@ -1,6 +1,7 @@
 import styles from './PlayerListBox.module.css'
 import Countires from '../../api/countries'
 import Link from 'next/link'
+import KeyValue from '../KeyValue/'
 
 export default function PlayerListBox({
     playerId,
@@ -8,10 +9,37 @@ export default function PlayerListBox({
     country,
     playtime,
     wins,
-    matches
+    matches,
+    score,
+    kills,
+    deaths,
+
 }){
 
+    if(playerId === -1){
+
+        return (
+            <div className={styles.outter}>
+                <div className={styles.inneralt}>
+                    <div>
+                        &nbsp;
+                    </div>
+                    <div>
+                        Name
+                    </div>
+                    <div>Score</div>
+                    <div>Kills</div>
+                    <div>Winrate</div>
+                    <div>Matches</div>     
+                </div>         
+            </div>
+        )
+    }
+
     let winRate = Math.floor((wins / (wins + matches)) * 100);
+    let efficiency = kills / (kills + deaths);
+
+    playtime = (playtime / (60 * 60)).toFixed(2);
 
     if(winRate !== winRate){
 
@@ -22,26 +50,34 @@ export default function PlayerListBox({
         }
     }
 
+    if(efficiency !== efficiency){
+
+        if(kills > 0){
+            efficiency = 100;
+        }else{
+            efficiency = 0;
+        }
+    }
+
+    efficiency = Math.floor(efficiency * 100);
+
     return (
         <div className={styles.outter}>
             <Link href={`players/${playerId}`}>
                 <a>
                     <div className={styles.inner}>
-                        <div className={styles.flag}>
-                            <img className="country-flag" src={`images/flags/${Countires(country).code}.svg`} alt="flag"></img>
+                        <div className={styles.face}>
+                            <img src="images/faces/commandoskins.goth5necrotic.png" alt="face"/>
                         </div>
-                        <div className={styles.name}>
-                           {name}
+                        <div>
+                            <img className="country-flag" src={`images/flags/${Countires(country).code}.svg`} alt="flag" /> {name}
                         </div>
-                        <div className={styles.playtime}>
-                           {(playtime / (60 * 60)).toFixed(2)} Hours
-                        </div>
-                        <div className={styles.playtime}>
-                           {winRate}%
-                        </div>
-                        <div className={styles.matches}>
-                           {matches}
-                        </div>
+                        <div>{score}</div>
+                        <div>{kills}</div>
+                        <div>{winRate}%</div>
+                        <div>{matches}</div>
+                        
+                      
                         
                     </div>
                 </a>
@@ -49,3 +85,20 @@ export default function PlayerListBox({
         </div>
     )
 }
+
+
+/**
+ *   /*<div>
+                            <KeyValue label="Score" value={score} />
+                            <KeyValue label="Kills" value={kills} />
+                            <KeyValue label="Deaths" value={deaths} />
+                            <KeyValue label="Efficiency" value={`${efficiency}%`} />
+                        </div>
+                        <div>
+                            <KeyValue label="Playitme" value={`${playtime} Hours`} />
+                            <KeyValue label="Matches" value={matches} />
+                            <KeyValue label="Wins" value={wins} />
+                            <KeyValue label="WinRate" value={`${winRate}%`} />
+
+                        </div>
+ */
