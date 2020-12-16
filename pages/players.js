@@ -4,6 +4,7 @@ import Nav from '../components/Nav/'
 import Footer from '../components/Footer/'
 import PlayersList from '../components/PlayerList/'
 import PlayerManager from '../api/players'
+import Faces from '../api/faces'
 
 function Players(props){
 
@@ -28,17 +29,38 @@ function Players(props){
 }
 
 
+
 export async function getServerSideProps(){
 
     const Manager = new PlayerManager();
+    const FaceManager = new Faces();
 
     let players = await Manager.debugGetAll();
 
+    const facesToGet = [];
+
+    for(let i = 0; i < players.length; i++){
+
+        if(facesToGet.indexOf(players[i].face) === -1){
+            facesToGet.push(players[i].face);
+        }
+    }
+
+    //console.log(facesToGet);
+
+    let faces = await FaceManager.getFacesWithFileStatuses(facesToGet);
+
+    //console.log(faces);
+
     players = JSON.stringify(players);
+    faces = JSON.stringify(faces);
+
+    console.log(faces);
 
     return {
         props: {
-            players
+            players,
+            faces
         }
     }
 }

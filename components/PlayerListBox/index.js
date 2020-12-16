@@ -1,7 +1,7 @@
 import styles from './PlayerListBox.module.css'
 import Countires from '../../api/countries'
 import Link from 'next/link'
-import KeyValue from '../KeyValue/'
+
 
 export default function PlayerListBox({
     playerId,
@@ -12,7 +12,7 @@ export default function PlayerListBox({
     matches,
     score,
     kills,
-    deaths,
+    deaths
 
 }){
 

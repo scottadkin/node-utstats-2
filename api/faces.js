@@ -1,6 +1,8 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
+const fs = require('fs');
+const { resolve } = require('promise');
 
 class Faces{
 
@@ -203,6 +205,67 @@ class Faces{
                 resolve();
             });
         });
+    }
+
+    static imageExists(name){
+
+        const dir = 'public/images/faces/';
+        const ext = '.png';
+
+        name = name.toLowerCase();
+
+        try{
+
+            fs.accessSync(`${dir}${name}${ext}`, fs.constants.R_OK);
+
+            return true;
+
+        }catch(err){
+           //console.log(err);
+        }
+
+        return false;
+    }
+
+
+    getFacesName(faces){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_faces WHERE id IN(?)";
+
+            mysql.query(query, [faces], (err, result) =>{
+
+                if(err) resolve([]);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+
+        });   
+    }
+
+    async getFacesWithFileStatuses(faceIds){
+
+        try{
+
+            const faces = await this.getFacesName(faceIds);
+
+            for(let i = 0; i < faces.length; i++){
+
+                faces[i].imageExists = Faces.imageExists(faces[i].name);
+
+            }
+            return faces;
+
+        }catch(err){
+            console.log(err);
+        }
+
+       
     }
 }
 

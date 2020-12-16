@@ -5,12 +5,17 @@ function PlayersList(props){
 
     const elems = [];
 
+    //const faces = new Faces();
+
+
     //console.log(props);
 
     const players = JSON.parse(props.players);
+    console.log(props);
+    const faces = JSON.parse(props.faces);
+    console.log(faces);
     //players = JSON.parse(players);
 
-    console.log(players);
 
     for(let i = 0; i < players.length; i++){
 
