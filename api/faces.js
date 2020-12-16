@@ -227,6 +227,28 @@ class Faces{
         return false;
     }
 
+    imageExistsTest(name){
+
+        return new Promise((resolve, reject) =>{
+
+            const dir = 'public/images/faces/';
+            const ext = '.png';
+
+            name = name.toLowerCase();
+
+            fs.access(`${dir}${name}${ext}`, fs.constants.R_OK, (err) =>{
+
+                if(err){
+
+                    resolve(false);
+                }
+
+                resolve(true);
+
+            }); 
+        });
+    }
+
 
     getFacesName(faces){
 
@@ -252,14 +274,25 @@ class Faces{
 
         try{
 
+
             const faces = await this.getFacesName(faceIds);
+
+            const newFaces = [];
 
             for(let i = 0; i < faces.length; i++){
 
-                faces[i].imageExists = Faces.imageExists(faces[i].name);
+                //console.log(`i = ${i}`);
+                
+                //faces[i].imageExists = Faces.imageExists(faces[i].name);
 
+                newFaces[faces[i].id] = {
+                    "imageExists": Faces.imageExists(faces[i].name),
+                    "name": faces[i].name
+                }
+  
             }
-            return faces;
+
+            return newFaces;
 
         }catch(err){
             console.log(err);

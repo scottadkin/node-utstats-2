@@ -1,23 +1,25 @@
 import PlayerListBox from '../PlayerListBox/'
 import styles from './PlayerList.module.css'
 
-function PlayersList(props){
+function PlayersList({players, faces}){
 
     const elems = [];
 
-    //const faces = new Faces();
+    players = JSON.parse(players);
+
+    faces = JSON.parse(faces);
 
 
-    //console.log(props);
-
-    const players = JSON.parse(props.players);
-    console.log(props);
-    const faces = JSON.parse(props.faces);
-    console.log(faces);
-    //players = JSON.parse(players);
-
+    let currentFace = 0;
 
     for(let i = 0; i < players.length; i++){
+
+
+        currentFace = faces[players[i].face];
+
+        if(currentFace === null){
+            currentFace = {"name": "faceless"};
+        }
 
         elems.push(<PlayerListBox key={i} 
 
@@ -30,6 +32,7 @@ function PlayersList(props){
             score={players[i].score}
             kills={players[i].kills}
             deaths={players[i].deaths}
+            face={currentFace}
          
 
         />);

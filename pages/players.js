@@ -19,7 +19,7 @@ function Players(props){
                 <div className="default-header">
                     Players
                 </div>
-                <PlayersList players={props.players}/>
+                <PlayersList players={props.players} faces={props.faces}/>
                 </div>
             </div>
             <Footer />
@@ -52,15 +52,18 @@ export async function getServerSideProps(){
 
     //console.log(faces);
 
+    //console.log(faces);
+
     players = JSON.stringify(players);
+   // console.log(players);
     faces = JSON.stringify(faces);
 
-    console.log(faces);
+    //console.log(faces);
 
     return {
         props: {
             players,
-            faces
+            faces,
         }
     }
 }

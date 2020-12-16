@@ -12,7 +12,8 @@ export default function PlayerListBox({
     matches,
     score,
     kills,
-    deaths
+    deaths,
+    face
 
 }){
 
@@ -63,11 +64,11 @@ export default function PlayerListBox({
 
     return (
         <div className={styles.outter}>
-            <Link href={`players/${playerId}`}>
+            <Link href={`player/${playerId}`}>
                 <a>
                     <div className={styles.inner}>
                         <div className={styles.face}>
-                            <img src="images/faces/commandoskins.goth5necrotic.png" alt="face"/>
+                            <img src={`images/faces/${face.name}.png`} alt="face"/>
                         </div>
                         <div>
                             <img className="country-flag" src={`images/flags/${Countires(country).code}.svg`} alt="flag" /> {name}
