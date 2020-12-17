@@ -20,6 +20,9 @@ function Home({summary}) {
     const name = summary.name;
     summary = JSON.stringify(summary);
 
+    const country = Countires(flag);
+
+
     return (
         <div>
             <DefaultHead />
@@ -29,10 +32,10 @@ function Home({summary}) {
                 <div id="content">
                 <div className="default">
                     <div className="default-header">
-                      <img className="title-flag" src={`../images/flags/${Countires(flag).code.toLowerCase()}.svg`} alt="flag"/> {name} Career Profile
+                      <img className="title-flag" src={`../images/flags/${country.code.toLowerCase()}.svg`} alt="flag"/> {name} Career Profile
                     </div>
 
-                    <PlayerSummary summary={summary}/>
+                    <PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country}/>
 
                 </div>
                 </div>

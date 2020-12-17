@@ -1,22 +1,23 @@
-const FragSummary = ({data}) =>{
+const CTFSummary = ({data}) =>{
 
     return (
         <div className="special-table">
                 <div className="default-header">
-                    Frag Performance
+                    Capture The Flag Performance
                 </div>       
                 <table>
                     <tbody>
                         <tr>
-                            <th>Score</th>
-                            <th>Frags</th>
-                            <th>Kills</th>
-                            <th>Deaths</th>
-                            <th>Suicides</th>
-                            <th>Team Kills</th>
-                            <th>Spawn Kills</th>
-                            <th>Efficiency</th>
-                            <th>First Bloods</th>
+                            <th>Flag Grab</th>
+                            <th>Flag Pickup</th>
+                            <th>Flag Dropped</th>
+                            <th>Flag Capture</th>
+                            <th>Flag Assist</th>
+                            <th>Flag Cover</th>
+                            <th>Flag Kill</th>
+                            <th>Flag Return</th>
+                            <th>Flag Close Save</th>
+           
                         </tr>
                         <tr>
                             <td>{data[0]}</td>
@@ -26,8 +27,9 @@ const FragSummary = ({data}) =>{
                             <td>{data[4]}</td>
                             <td>{data[5]}</td>
                             <td>{data[6]}</td>
-                            <td>{data[7].toFixed(2)}%</td>
+                            <td>{data[7]}</td>
                             <td>{data[8]}</td>
+                      
                         </tr>
                     </tbody>
                 </table>
@@ -36,4 +38,5 @@ const FragSummary = ({data}) =>{
     );
 }
 
-export default FragSummary;
+
+export default CTFSummary;

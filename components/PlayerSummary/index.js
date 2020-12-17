@@ -1,10 +1,12 @@
 import styles from './PlayerSummary.module.css';
 import KillingSprees from '../KillingSprees/'
 import MultiKills from '../MultiKills/'
-import FragSummary from '../FragSummary'
+import FragSummary from '../FragSummary/'
+import CTFSummary from '../CTFSummary/'
+import PlayerGeneral from '../PlayerGeneral/'
 
 
-const PlayerSummary = ({summary}) =>{
+const PlayerSummary = ({summary, flag, country}) =>{
 
     
 
@@ -17,6 +19,16 @@ const PlayerSummary = ({summary}) =>{
     return (
         <div>
 
+            <PlayerGeneral data={[
+                country,
+                flag,
+                summary.playtime,
+                summary.matches,
+                summary.wins,
+                summary.draws,
+                summary.losses
+            ]} />
+
             <FragSummary data={[
                 summary.score,
                 summary.frags,
@@ -25,7 +37,8 @@ const PlayerSummary = ({summary}) =>{
                 summary.suicides,
                 summary.team_kills,
                 summary.spawn_kills,
-                summary.efficiency
+                summary.efficiency,
+                summary.first_bloods
             ]}/>
 
             <MultiKills data={[
@@ -52,6 +65,17 @@ const PlayerSummary = ({summary}) =>{
             
             ]} />
 
+            <CTFSummary data={[
+                summary.flag_taken,
+                summary.flag_pickup,
+                summary.flag_dropped,
+                summary.flag_capture,
+                summary.flag_assist,
+                summary.flag_cover,
+                summary.flag_kill,
+                summary.flag_return,
+                summary.flag_save,
+            ]} />
             
         </div>
     );
