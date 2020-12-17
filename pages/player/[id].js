@@ -8,7 +8,7 @@ import Countires from '../../api/countries'
 
 
 
-function Home({summary}) {
+function Home({summary, gametypeStats}) {
 
   //console.log(`servers`);
 
@@ -22,7 +22,6 @@ function Home({summary}) {
 
     const country = Countires(flag);
 
-
     return (
         <div>
             <DefaultHead />
@@ -35,7 +34,7 @@ function Home({summary}) {
                       <img className="title-flag" src={`../images/flags/${country.code.toLowerCase()}.svg`} alt="flag"/> {name} Career Profile
                     </div>
 
-                    <PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country}/>
+                    <PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}/>
 
                 </div>
                 </div>
@@ -55,11 +54,16 @@ export async function getServerSideProps({query}) {
     const playerManager = new Player();
     
     let summary = await playerManager.getPlayerById(query.id);
+
+    let gametypeStats = await playerManager.getPlayerGametypeWinStats(summary.name);
+
     summary = JSON.stringify(summary);
+    gametypeStats = JSON.stringify(gametypeStats);
 
   // Pass data to the page via props
     return { props: {  
-        summary
+        summary,
+        gametypeStats
     } }
 }
 

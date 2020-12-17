@@ -278,6 +278,26 @@ class Player{
         });
     }
 
+
+    getPlayerGametypeWinStats(name){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT gametype,matches,wins,losses,draws,playtime FROM nstats_player_totals WHERE gametype!=0 AND name=?";
+
+            mysql.query(query, [name], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve(null);
+            });
+        });
+    }
+
 }
 
 module.exports = Player;

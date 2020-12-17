@@ -1,4 +1,4 @@
-const CTFSummary = ({data}) =>{
+const PlayerGeneral = ({data}) =>{
 
 
     let hours = data[2] / (60 * 60);
@@ -45,4 +45,4 @@ const CTFSummary = ({data}) =>{
 }
 
 
-export default CTFSummary;
+export default PlayerGeneral;

@@ -4,17 +4,19 @@ import MultiKills from '../MultiKills/'
 import FragSummary from '../FragSummary/'
 import CTFSummary from '../CTFSummary/'
 import PlayerGeneral from '../PlayerGeneral/'
+import GametypeStats from '../GametypeStats/'
 
 
-const PlayerSummary = ({summary, flag, country}) =>{
+const PlayerSummary = ({summary, flag, country, gametypeStats}) =>{
 
     
 
     summary = JSON.parse(summary);
 
-    console.log(summary);
+    //console.log(summary);
+   // gametypeStats = JSON.parse(gametypeStats);
 
-
+  //  console.log(gametypeStats);
     //const summary = p
     return (
         <div>
@@ -76,6 +78,8 @@ const PlayerSummary = ({summary, flag, country}) =>{
                 summary.flag_return,
                 summary.flag_save,
             ]} />
+
+            <GametypeStats data={gametypeStats}/>
             
         </div>
     );
