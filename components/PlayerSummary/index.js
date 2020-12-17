@@ -7,17 +7,13 @@ import PlayerGeneral from '../PlayerGeneral/'
 import GametypeStats from '../GametypeStats/'
 
 
-const PlayerSummary = ({summary, flag, country, gametypeStats}) =>{
+const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =>{
 
     
 
     summary = JSON.parse(summary);
+    
 
-    //console.log(summary);
-   // gametypeStats = JSON.parse(gametypeStats);
-
-  //  console.log(gametypeStats);
-    //const summary = p
     return (
         <div>
 
@@ -79,7 +75,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats}) =>{
                 summary.flag_save,
             ]} />
 
-            <GametypeStats data={gametypeStats}/>
+            <GametypeStats data={gametypeStats} names={gametypeNames}/>
             
         </div>
     );

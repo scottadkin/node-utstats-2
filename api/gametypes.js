@@ -128,6 +128,30 @@ class Gametypes{
             new Message(err,'warning');
         }
     }
+
+    getNames(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                const data = [];
+
+                if(result !== undefined){
+                    
+                    for(let i = 0; i < result.length; i++){
+                        data[result[i].id] = result[i].name;
+                    }
+                }
+
+                resolve(data);
+            });
+        });
+    }
 }
 
 module.exports = Gametypes;

@@ -71,7 +71,7 @@ export default function PlayerListBox({
                             <img src={`images/faces/${face.name}.png`} alt="face"/>
                         </div>
                         <div>
-                            <img className="country-flag" src={`images/flags/${Countires(country).code}.svg`} alt="flag" /> {name}
+                            <img className="country-flag" src={`images/flags/${Countires(country).code.toLowerCase()}.svg`} alt="flag" /> {name}
                         </div>
                         <div>{score}</div>
                         <div>{kills}</div>

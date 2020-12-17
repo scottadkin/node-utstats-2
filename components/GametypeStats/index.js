@@ -1,22 +1,31 @@
-const gametypeStats = ({data}) =>{
+const gametypeStats = ({data, names}) =>{
 
     data = JSON.parse(data);
+    names = JSON.parse(names);
 
-    console.log(data);
 
     const elems = [];
 
+    let currentPlaytime = 0;
+    let currentWinRate = 0;
+    let currentName = 0;
+    
     for(let i = 0; i < data.length; i++){
 
+        currentPlaytime = data[i].playtime / (60 * 60);
+        currentWinRate = (data[i].wins / data[i].matches) * 100;
+        currentName = names[data[i].gametype];
+        if(currentName === undefined) currentName = "Not Found";
+
         elems.push(
-            <tr>
-                <td>{data[i].gametype}</td>
-                <td>{data[i].playtime}</td>
+            <tr key={i}>
+                <td>{currentName}</td>
+                <td>{currentPlaytime.toFixed(2)} Hours</td>
                 <td>{data[i].matches}</td>
                 <td>{data[i].wins}</td>
                 <td>{data[i].draws}</td>
                 <td>{data[i].losses}</td>
-                <td>{}</td>
+                <td>{currentWinRate.toFixed(2)}%</td>
 
             </tr>
         );
