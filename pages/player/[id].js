@@ -4,6 +4,7 @@ import Footer from '../../components/Footer/';
 import PlayerSummary from '../../components/PlayerSummary/'
 import Player from '../../api/player'
 import Link from 'next/link'
+import Countires from '../../api/countries'
 
 
 
@@ -13,6 +14,9 @@ function Home({summary}) {
 
     //console.log(summary);
     summary = JSON.parse(summary);
+
+    const flag = summary.country;
+
     const name = summary.name;
     summary = JSON.stringify(summary);
 
@@ -25,7 +29,7 @@ function Home({summary}) {
                 <div id="content">
                 <div className="default">
                     <div className="default-header">
-                    {name} Career Profile
+                      <img className="title-flag" src={`../images/flags/${Countires(flag).code.toLowerCase()}.svg`} alt="flag"/> {name} Career Profile
                     </div>
 
                     <PlayerSummary summary={summary}/>
