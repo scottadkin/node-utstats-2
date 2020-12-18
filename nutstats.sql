@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 12, 2020 at 02:09 PM
+-- Generation Time: Dec 18, 2020 at 01:12 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -207,6 +207,63 @@ CREATE TABLE `nstats_matches` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nstats_player_matches`
+--
+
+CREATE TABLE `nstats_player_matches` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `map_id` int(11) NOT NULL,
+  `player_id` int(11) NOT NULL,
+  `ip` varchar(50) NOT NULL,
+  `country` varchar(5) NOT NULL,
+  `face` int(11) NOT NULL,
+  `voice` int(11) NOT NULL,
+  `gametype` int(11) NOT NULL,
+  `winner` int(11) NOT NULL,
+  `playtime` float NOT NULL,
+  `first_blood` int(1) NOT NULL,
+  `frags` int(11) NOT NULL,
+  `score` int(11) NOT NULL,
+  `kills` int(11) NOT NULL,
+  `deaths` int(11) NOT NULL,
+  `suicides` int(11) NOT NULL,
+  `team_kills` int(11) NOT NULL,
+  `spawn_kills` int(11) NOT NULL,
+  `efficiency` float NOT NULL,
+  `multi_1` int(11) NOT NULL,
+  `multi_2` int(11) NOT NULL,
+  `multi_3` int(11) NOT NULL,
+  `multi_4` int(11) NOT NULL,
+  `multi_5` int(11) NOT NULL,
+  `multi_6` int(11) NOT NULL,
+  `multi_7` int(11) NOT NULL,
+  `multi_best` int(11) NOT NULL,
+  `spree_1` int(11) NOT NULL,
+  `spree_2` int(11) NOT NULL,
+  `spree_3` int(11) NOT NULL,
+  `spree_4` int(11) NOT NULL,
+  `spree_5` int(11) NOT NULL,
+  `spree_6` int(11) NOT NULL,
+  `spree_7` int(11) NOT NULL,
+  `spree_best` int(11) NOT NULL,
+  `best_spawn_kill_spree` int(11) NOT NULL,
+  `flag_assist` int(11) NOT NULL,
+  `flag_return` int(11) NOT NULL,
+  `flag_taken` int(11) NOT NULL,
+  `flag_dropped` int(11) NOT NULL,
+  `flag_capture` int(11) NOT NULL,
+  `flag_pickup` int(11) NOT NULL,
+  `flag_cover` int(11) NOT NULL,
+  `flag_kill` int(11) NOT NULL,
+  `flag_save` int(11) NOT NULL,
+  `assault_objectives` int(11) NOT NULL,
+  `dom_caps` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nstats_player_totals`
 --
 
@@ -360,6 +417,12 @@ ALTER TABLE `nstats_matches`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_player_matches`
+--
+ALTER TABLE `nstats_player_matches`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_player_totals`
 --
 ALTER TABLE `nstats_player_totals`
@@ -439,6 +502,12 @@ ALTER TABLE `nstats_map_spawns`
 -- AUTO_INCREMENT for table `nstats_matches`
 --
 ALTER TABLE `nstats_matches`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_player_matches`
+--
+ALTER TABLE `nstats_player_matches`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

@@ -925,7 +925,7 @@ class PlayerManager{
     }
 
 
-    async insertMatchData(gametypeId){
+    async insertMatchData(gametypeId, matchId, mapId){
 
         try{
 
@@ -938,7 +938,7 @@ class PlayerManager{
 
                 if(p.bDuplicate === undefined){
 
-                    p.matchId = await Player.insertMatchData(p, gametypeId);
+                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId);
                     
                 }else{
                     new Message(`${p.name} is a duplicate not inserting match data.`,'note');

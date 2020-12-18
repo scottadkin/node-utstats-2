@@ -200,23 +200,26 @@ class Player{
 
 
 
-    insertMatchData(player, gametypeId){
+    insertMatchData(player, matchId, gametypeId, mapId){
 
         return new Promise((resolve, reject) =>{
 
-            const query = `INSERT INTO nstats_player_matches VALUES(NULL,0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,
                 0,0)`;
 
             const vars = [
+                matchId,
+                mapId,
                 player.masterId,
                 player.ip,
                 player.country,
                 Functions.setValueIfUndefined(player.faceId),
                 Functions.setValueIfUndefined(player.voiceId),
                 gametypeId,
+                player.bWinner,
                 Functions.setValueIfUndefined(player.stats.time_on_server),
                 player.stats.firstBlood,
                 player.stats.frags,
