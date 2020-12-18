@@ -142,6 +142,10 @@ table{
   border:1px solid rgba(255,255,255,0.1);
 }
 
+.special-table tr:nth-child(even){
+  background-color:rgb(12,12,12);
+}
+
 .title-flag{
   height:20px;
 }

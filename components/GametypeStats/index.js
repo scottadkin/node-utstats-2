@@ -9,6 +9,20 @@ const gametypeStats = ({data, names}) =>{
     let currentPlaytime = 0;
     let currentWinRate = 0;
     let currentName = 0;
+
+    data.sort((a, b) =>{
+
+        a = a.playtime;
+        b = b.playtime;
+
+        if(a < b){
+            return 1;
+        }else if(a > b){
+            return -1;
+        }
+
+        return 0;
+    });
     
     for(let i = 0; i < data.length; i++){
 

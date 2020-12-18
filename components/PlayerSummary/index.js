@@ -13,6 +13,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
 
     summary = JSON.parse(summary);
     
+    console.log(summary);
 
     return (
         <div>
@@ -26,6 +27,8 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                 summary.draws,
                 summary.losses
             ]} />
+
+            <GametypeStats data={gametypeStats} names={gametypeNames}/>
 
             <FragSummary data={[
                 summary.score,
@@ -75,7 +78,23 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                 summary.flag_save,
             ]} />
 
-            <GametypeStats data={gametypeStats} names={gametypeNames}/>
+            <div className="special-table">
+                <div className="default-header">Assault & Domination</div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>Assault Objectives Captured</th>
+                            <th>Domination Control Point Caps</th>
+                        </tr>
+                        <tr>
+                            <td>{summary.assault_objectives}</td>
+                            <td>{summary.dom_caps}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+    
             
         </div>
     );

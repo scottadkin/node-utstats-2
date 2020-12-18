@@ -13,9 +13,9 @@ function Nav(){
                 <NavLink url="#" text="Servers" />
                 <NavLink url="/maps" text="Maps" />
                 <NavLink url="/credits" text="Credits" />
-            </nav>
-            
+            </nav>         
         </header>
+        
     );
 }
 
