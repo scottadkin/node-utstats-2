@@ -21,10 +21,22 @@ class Importer{
                 this.logsToImport = [];
                 await this.checkLogsFolder();
                 console.table(this.logsToImport);
-                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[22]}`)
-               // console.log(await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[0]}`));
+               // const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[22]}`)
 
-                const test = new MatchManager(testData, `${this.logsToImport[22]}`);
+                //const test = new MatchManager(testData, `${this.logsToImport[22]}`);
+
+                let test = 0;
+                let testData = 0;
+
+                for(let i = 0; i < this.logsToImport.length; i++){
+
+                    testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
+                    
+                    test = new MatchManager(testData, this.logsToImport[i]);
+
+                    await test.import();
+
+                }
 
             }catch(err){
                 console.trace(err);

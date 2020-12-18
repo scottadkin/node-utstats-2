@@ -204,6 +204,8 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
+           // console.log(player);
+
             const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
@@ -214,8 +216,8 @@ class Player{
                 matchId,
                 mapId,
                 player.masterId,
-                player.ip,
-                player.country,
+                Functions.setValueIfUndefined(player.ip,''),
+                Functions.setValueIfUndefined(player.country,'xx'),
                 Functions.setValueIfUndefined(player.faceId),
                 Functions.setValueIfUndefined(player.voiceId),
                 gametypeId,
@@ -251,9 +253,9 @@ class Player{
 
             mysql.query(query, vars, (err, result) =>{
 
-                if(err) reject(err);
+                if(err) console.log(err);//reject(err);
 
-               // console.log(result);
+                //console.log(result);
 
                 resolve(result.insertId);
             });

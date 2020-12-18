@@ -18,6 +18,12 @@ class PlayerInfo{
         this.weaponStats = new Map();
 
         this.stats = {
+            "frags":0,
+            "score":0,
+            "kills":0,
+            "deaths":0,
+            "suicides":0,
+            "teamkills": 0,
             "firstBlood": 0,
             "sprees": {
                 "spree": 0,

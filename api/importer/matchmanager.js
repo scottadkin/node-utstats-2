@@ -29,7 +29,7 @@ class MatchManager{
 
         this.convertFileToLines();
 
-        this.import();
+        //this.import();
 
     }
 
