@@ -149,3 +149,24 @@ table{
 .title-flag{
   height:20px;
 }
+
+#mouse-over{
+  position:absolute;
+  background-color:black;
+  color:white;
+  text-align:center;
+  border:1px solid rgba(255,255,255,0.25);
+  box-shadow:2px 2px 2px 2px rgba(0,0,0,0.5);
+}
+
+#mouse-over-title{
+  color:yellow;
+  background-color:rgb(12,12,12);
+  font-size:18px;
+  padding:5px 40px;
+  border-bottom:1px solid rgba(255,255,255,0.125);
+}
+
+#mouse-over-content{
+  padding:10px;
+}
