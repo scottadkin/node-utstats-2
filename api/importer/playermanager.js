@@ -659,7 +659,7 @@ class PlayerManager{
             for(let i = 0; i < this.players.length; i++){
 
                 currentId = await Player.getNameId(this.players[i].name, gametypeId, true);
-               // console.log(currentId);
+
                 this.players[i].masterId = currentId.totalId;
                 this.players[i].gametypeId = currentId.gametypeId;
 
@@ -667,7 +667,7 @@ class PlayerManager{
 
 
         }catch(err){
-            new Message(`Problem setting player id ${err}`,'warning');
+            new Message(`Problem setting player id ${err}`,'error');
         }
 
     }
@@ -938,6 +938,7 @@ class PlayerManager{
 
                 if(p.bDuplicate === undefined){
 
+                    //console.log(p);
                     p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId);
                     
                 }else{
