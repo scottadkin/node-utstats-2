@@ -1,3 +1,5 @@
+import TipHeader from '../TipHeader'
+
 const CTFSummary = ({data}) =>{
 
     return (
@@ -8,16 +10,15 @@ const CTFSummary = ({data}) =>{
                 <table>
                     <tbody>
                         <tr>
-                            <th>Flag Grab</th>
-                            <th>Flag Pickup</th>
-                            <th>Flag Dropped</th>
-                            <th>Flag Capture</th>
-                            <th>Flag Assist</th>
-                            <th>Flag Cover</th>
-                            <th>Flag Kill</th>
-                            <th>Flag Return</th>
-                            <th>Flag Close Save</th>
-           
+                            <TipHeader title="Flag Grab" content="Player grabbed the enemy flag from the enemy base."/>
+                            <TipHeader title="Flag Pickup" content="Player picked up the enemy flag that was dropped by a team mate."/>
+                            <TipHeader title="Flag Dropped" content="Player dropped the enemy flag."/>
+                            <TipHeader title="Flag Capture" content="Player captured the enemy flag and scored a point for their team."/>
+                            <TipHeader title="Flag Assist" content="Player had contact with a flag that was later captured without being returned."/>
+                            <TipHeader title="Flag Cover" content="Player killed an enemy that was close to their team mate that had the enemy flag."/>
+                            <TipHeader title="Flag Kill" content="Player killed the enemy flag carrier."/>
+                            <TipHeader title="Flag Return" content="Player returned their flag that was dropped by an enemy."/>
+                            <TipHeader title="Flag Close Save" content="Player return their flag that was close to the enemy flag base."/>
                         </tr>
                         <tr>
                             <td>{data[0]}</td>

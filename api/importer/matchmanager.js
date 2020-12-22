@@ -168,7 +168,7 @@ class MatchManager{
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 
 
-            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId);
+            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
 
             if(this.domManager !== undefined){
                 await this.domManager.updatePlayersMatchStats();

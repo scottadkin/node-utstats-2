@@ -201,6 +201,47 @@ class Maps{
         });
     }
 
+
+     removeUnr(name){
+
+        const reg = /^(.+)\.unr$/i;
+    
+        const result = reg.exec(name);
+    
+        if(result !== null){
+            return result[1];
+        }
+        
+        return name;
+    }
+
+
+    getNamesByIds(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                const data = [];
+
+                if(result !== undefined){
+                    
+                    for(let i = 0; i < result.length; i++){
+
+                        
+                        data.push({"id": result[i].id, "name": this.removeUnr(result[i].name)});
+                    }
+                }
+
+                resolve(data);
+            });
+        });
+    }
+
 }
 
 

@@ -6,10 +6,12 @@ import Player from '../../api/player'
 import Link from 'next/link'
 import Countires from '../../api/countries'
 import Gametypes from '../../api/gametypes'
+import Maps from '../../api/maps'
+import PlayerRecentMatches from '../../components/PlayerRecentMatches/'
 
 
 
-function Home({summary, gametypeStats, gametypeNames}) {
+function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData}) {
 
   //console.log(`servers`);
 
@@ -39,6 +41,8 @@ function Home({summary, gametypeStats, gametypeNames}) {
                       gametypeNames={gametypeNames}
                     />
 
+                    <PlayerRecentMatches matches={recentMatches} maps={mapData}/>
+
                 </div>
                 </div>
                 <Footer />
@@ -56,6 +60,7 @@ export async function getServerSideProps({query}) {
     
     const playerManager = new Player();
     const gametypes = new Gametypes();
+    const maps = new Maps();
     
     let summary = await playerManager.getPlayerById(query.id);
 
@@ -76,12 +81,33 @@ export async function getServerSideProps({query}) {
     summary = JSON.stringify(summary);
     gametypeStats = JSON.stringify(gametypeStats);
 
+
+    let recentMatches = await playerManager.getRecentMatches(query.id, 5);
+
+    const uniqueMaps = [];
+
+    for(let i = 0; i < recentMatches.length; i++){
+
+      if(uniqueMaps.indexOf(recentMatches[i].map_id) == -1){
+        uniqueMaps.push(recentMatches[i].map_id);
+      }
+    }
+
+    let mapData = await maps.getNamesByIds(uniqueMaps);
+    mapData = JSON.stringify(mapData);
+    recentMatches = JSON.stringify(recentMatches);
+
+
   // Pass data to the page via props
-    return { props: {  
+    return { 
+      props: {  
         summary,
         gametypeStats,
-        gametypeNames
-    } }
+        gametypeNames, 
+        recentMatches,
+        mapData
+    } 
+  }
 }
 
 export default Home;

@@ -199,13 +199,13 @@ class Player{
 
 
 
-    insertMatchData(player, matchId, gametypeId, mapId){
+    insertMatchData(player, matchId, gametypeId, mapId, matchDate){
 
         return new Promise((resolve, reject) =>{
 
            // console.log(player);
 
-            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,
@@ -213,6 +213,7 @@ class Player{
 
             const vars = [
                 matchId,
+                matchDate,
                 mapId,
                 player.masterId,
                 Functions.setValueIfUndefined(player.ip,''),
@@ -299,6 +300,38 @@ class Player{
                 }
 
                 resolve(null);
+            });
+        });
+    }
+
+
+    getRecentMatches(id, amount, page){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? ORDER BY match_date DESC LIMIT ?,?";
+
+            if(page === undefined){
+                page = 1;
+            }
+
+            page--;
+
+            if(page < 0){
+                page = 0;
+            }
+
+            const start = amount * page;
+
+            mysql.query(query, [id, start, amount], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
             });
         });
     }

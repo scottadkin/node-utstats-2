@@ -13,7 +13,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
 
     summary = JSON.parse(summary);
     
-    console.log(summary);
+    //console.log(summary);
 
     return (
         <div>
@@ -93,6 +93,8 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                     </tbody>
                 </table>
             </div>
+
+            
 
     
             
