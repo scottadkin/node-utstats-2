@@ -1,6 +1,3 @@
-import TipHeader from '../TipHeader'
-
-
 const gametypeStats = ({data, names}) =>{
 
     data = JSON.parse(data);
@@ -58,13 +55,13 @@ const gametypeStats = ({data, names}) =>{
                 <table>
                     <tbody>
                         <tr>
-                            <TipHeader title={"Gametype"} content={"The name of the gametype."}/>
-                            <TipHeader title={"Playtime"} content={"How long the player has played."}/>
-                            <TipHeader title={"Matches"} content={"How many games the player has played."}/>
-                            <TipHeader title={"Wins"} content={"How many matches won."}/>
-                            <TipHeader title={"Draws"} content={"How many matches drawn."}/>
-                            <TipHeader title={"Losses"} content={"How many matches lost."}/>
-                            <TipHeader title={"WinRate"} content={"The player's winrate for the gametype."}/>
+                            <th>Gametype</th>
+                            <th>Playtime</th>
+                            <th>Matches</th>
+                            <th>Wins</th>
+                            <th>Draws</th>
+                            <th>Losses</th>
+                            <th>WinRate</th>
                         </tr>
                         {elems}
                     </tbody>

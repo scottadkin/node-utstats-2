@@ -205,7 +205,7 @@ class Player{
 
            // console.log(player);
 
-            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,
@@ -221,6 +221,7 @@ class Player{
                 Functions.setValueIfUndefined(player.voiceId),
                 gametypeId,
                 player.bWinner,
+                player.bDrew,
                 Functions.setValueIfUndefined(player.stats.time_on_server),
                 player.stats.firstBlood,
                 player.stats.frags,
