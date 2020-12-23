@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Timestamp from '../TimeStamp'
 
 const getMapName = (maps, id) =>{
 
@@ -17,7 +18,6 @@ const PlayerRecentMatches = ({matches, maps}) =>{
     matches = JSON.parse(matches);
     maps = JSON.parse(maps);
     //console.log(matches);
-    console.log(`mappppppppppps`);
     console.log(maps);
 
 
@@ -33,9 +33,8 @@ const PlayerRecentMatches = ({matches, maps}) =>{
             <Link key={m.id} href={`/match/${m.match_id}`}>
                 <a>
                     <div>
-                        <div>
-                            {m.match_date}
-                        </div>
+                        <Timestamp timestamp={m.match_date} />
+                       
                         <div>
                             {getMapName(maps, m.map_id)}
                         </div>
