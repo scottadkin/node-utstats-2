@@ -1,0 +1,19 @@
+.default{
+    background-color:rgb(12,12,12);
+    color:white;
+    display:grid;
+    grid-template-columns: 35% 25% 20% 20%;
+}
+
+.default div{
+    border:1px solid rgba(255,255,255,0.1);
+    margin-top:-1px;
+    padding:5px;
+}
+
+.header{
+    font-weight:100;
+    font-size:20px;
+    background-color:black;
+}
+

@@ -59,6 +59,11 @@ footer{
   display:none;
 }
 
+.default-color{
+  background-color:rgb(0,0,0);
+  color:white;
+}
+
 .default{
   padding-top:10px;
   margin-top:25px;
@@ -171,4 +176,8 @@ table{
 #mouse-over-content{
   padding:10px;
   max-width:200px;
+}
+
+.yellow{
+  color:yellow;
 }

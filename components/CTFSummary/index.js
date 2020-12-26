@@ -1,4 +1,4 @@
-import TipHeader from '../TipHeader'
+import TipHeader from '../TipHeader/'
 
 const CTFSummary = ({data}) =>{
 

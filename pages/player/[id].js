@@ -82,7 +82,7 @@ export async function getServerSideProps({query}) {
     gametypeStats = JSON.stringify(gametypeStats);
 
 
-    let recentMatches = await playerManager.getRecentMatches(query.id, 5);
+    let recentMatches = await playerManager.getRecentMatches(query.id, 50);
 
     const uniqueMaps = [];
 
