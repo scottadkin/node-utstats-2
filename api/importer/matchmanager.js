@@ -226,6 +226,7 @@ class MatchManager{
                 this.gameInfo.netmode,
                 this.gameInfo.maxspectators,
                 this.gameInfo.maxplayers,
+                this.gameInfo.totalTeams,
                 this.playerManager.uniqueNames.length,
                 this.gameInfo.timelimit,
                 this.gameInfo.targetScore,

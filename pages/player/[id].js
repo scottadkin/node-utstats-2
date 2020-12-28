@@ -8,10 +8,11 @@ import Countires from '../../api/countries'
 import Gametypes from '../../api/gametypes'
 import Maps from '../../api/maps'
 import PlayerRecentMatches from '../../components/PlayerRecentMatches/'
+import Matches from '../../api/matches'
 
 
 
-function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData}) {
+function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData, matchScores}) {
 
   //console.log(`servers`);
 
@@ -41,7 +42,7 @@ function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData}) {
                       gametypeNames={gametypeNames}
                     />
 
-                    <PlayerRecentMatches matches={recentMatches} maps={mapData}/>
+                    <PlayerRecentMatches matches={recentMatches} maps={mapData} scores={matchScores} gametypes={gametypeNames}/>
 
                 </div>
                 </div>
@@ -61,6 +62,7 @@ export async function getServerSideProps({query}) {
     const playerManager = new Player();
     const gametypes = new Gametypes();
     const maps = new Maps();
+    const MatchManager = new Matches();
     
     let summary = await playerManager.getPlayerById(query.id);
 
@@ -84,30 +86,38 @@ export async function getServerSideProps({query}) {
 
     let recentMatches = await playerManager.getRecentMatches(query.id, 50);
 
-    const uniqueMaps = [];
+	const uniqueMaps = [];
+	const matchIds = [];
 
     for(let i = 0; i < recentMatches.length; i++){
 
-      if(uniqueMaps.indexOf(recentMatches[i].map_id) == -1){
-        uniqueMaps.push(recentMatches[i].map_id);
-      }
+		matchIds.push(recentMatches[i].match_id)
+
+      	if(uniqueMaps.indexOf(recentMatches[i].map_id) == -1){
+        	uniqueMaps.push(recentMatches[i].map_id);
+      	}
     }
+
+	//console.log(matchIds);
 
     let mapData = await maps.getNamesByIds(uniqueMaps);
     mapData = JSON.stringify(mapData);
-    recentMatches = JSON.stringify(recentMatches);
-
+	recentMatches = JSON.stringify(recentMatches);
+	
+	let matchScores = await MatchManager.getWinners(matchIds);
+	matchScores = JSON.stringify(matchScores);
 
   // Pass data to the page via props
     return { 
-      props: {  
-        summary,
-        gametypeStats,
-        gametypeNames, 
-        recentMatches,
-        mapData
-    } 
-  }
+      	props: {  
+       	 	summary,
+        	gametypeStats,
+        	gametypeNames, 
+        	recentMatches,
+			mapData,
+			matchScores
+   		} 
+  	}
 }
 
 export default Home;

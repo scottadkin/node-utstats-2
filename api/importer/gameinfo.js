@@ -6,6 +6,8 @@ class GameInfo{
 
         this.data = data;
         this.teamScores = [0,0,0,0];
+
+        this.totalTeams = 0;
         
         //no camelcase for this variable as it's always needed and is not always in logs
         this.friendlyfirescale = 0;
@@ -69,6 +71,8 @@ class GameInfo{
 
                     result = scoreReg.exec(d);
                     this.teamScores[parseInt(result[1])] = parseFloat(result[2]);
+
+                    this.totalTeams++;
 
                 }else if(startReg.test(d)){
                     

@@ -230,9 +230,7 @@ class Maps{
 
                 if(result !== undefined){
                     
-                    for(let i = 0; i < result.length; i++){
-
-                        
+                    for(let i = 0; i < result.length; i++){             
                         data.push({"id": result[i].id, "name": this.removeUnr(result[i].name)});
                     }
                 }
@@ -240,6 +238,11 @@ class Maps{
                 resolve(data);
             });
         });
+    }
+
+    getMapImages(names){
+
+        
     }
 
 }
