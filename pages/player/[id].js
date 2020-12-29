@@ -12,12 +12,29 @@ import Matches from '../../api/matches'
 
 
 
-function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData, matchScores, totalMatches, matchPages, matchPage, matchesPerPage}) {
+function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, mapData, matchScores, totalMatches, matchPages, matchPage, matchesPerPage}) {
 
   //console.log(`servers`);
+	if(summary === undefined){
 
-    //console.log(summary);
-    summary = JSON.parse(summary);
+		return (<div>
+            <DefaultHead />
+        
+            <main>
+                <Nav />
+                <div id="content">
+                <div className="default">
+                    <div className="default-header">
+                      There is no player with that id.
+                    </div>
+                </div>
+                </div>
+                <Footer />
+            </main>   
+        </div>);
+	}
+	summary = JSON.parse(summary);
+	
 
     const flag = summary.country;
 
@@ -42,7 +59,7 @@ function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData, ma
                       gametypeNames={gametypeNames}
                     />
 
-                    <PlayerRecentMatches matches={recentMatches} maps={mapData} scores={matchScores} gametypes={gametypeNames} 
+                    <PlayerRecentMatches playerId={playerId} matches={recentMatches} maps={mapData} scores={matchScores} gametypes={gametypeNames} 
 					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage}/>
 
                 </div>
@@ -61,14 +78,26 @@ export async function getServerSideProps({query}) {
     const gametypes = new Gametypes();
     const maps = new Maps();
 	const MatchManager = new Matches();
+
+	if(query.id === undefined) query.id = 0;
+
+	const playerId = query.id;
 	
-	const totalMatches = await playerManager.getTotalMatches(query.id);
+
+    
+	let summary = await playerManager.getPlayerById(playerId);
+	
+	if(summary === undefined){
+		return {
+			props: {}
+		};
+	}
+
+	let gametypeStats = await playerManager.getPlayerGametypeWinStats(summary.name);
+	
+	const totalMatches = await playerManager.getTotalMatches(playerId);
 
 	console.log(`I have played ${totalMatches} matches`);
-    
-    let summary = await playerManager.getPlayerById(query.id);
-
-    let gametypeStats = await playerManager.getPlayerGametypeWinStats(summary.name);
 
     const gametypeIds = [];
 
@@ -114,6 +143,7 @@ export async function getServerSideProps({query}) {
   // Pass data to the page via props
     return { 
       	props: {  
+			playerId,
        	 	summary,
         	gametypeStats,
         	gametypeNames, 

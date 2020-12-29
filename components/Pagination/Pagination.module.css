@@ -1,18 +1,26 @@
 .wrapper{
     padding-bottom:10px;
+    color:white;
 }
 
 .button{
     display:inline-block;
     padding:5px;
     background-color:black;
-    color:white;
     border:1px solid rgba(255,255,255,0.1);
     margin-right:5px;
 }
 
+.abutton{
+    display:inline-block;
+    padding:5px;
+    background-color:rgb(32,32,32);
+    border:1px solid rgba(255,255,255,0.4);
+    color:yellow;
+    margin-right:5px;
+}
+
 .header{
-    color:white;
     font-weight:300;
     padding:5px;
     font-size:14px;

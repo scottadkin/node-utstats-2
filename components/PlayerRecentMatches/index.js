@@ -29,7 +29,7 @@ const getMatchScores = (scores, id) =>{
     return null;
 }
 
-const PlayerRecentMatches = ({matches, maps, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage}) =>{
+const PlayerRecentMatches = ({playerId, matches, maps, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage}) =>{
 
     matches = JSON.parse(matches);
     maps = JSON.parse(maps);
@@ -142,7 +142,7 @@ const PlayerRecentMatches = ({matches, maps, scores, gametypes, totalMatches, ma
                 results={totalMatches}
                 pages={matchPages}
                 perPage={matchesPerPage}
-                url={`/player/3068?matchpage=`}
+                url={`/player/${playerId}?matchpage=`}
                 anchor={'#recent-matches'}
                 
             />
