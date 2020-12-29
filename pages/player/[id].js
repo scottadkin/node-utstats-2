@@ -12,7 +12,7 @@ import Matches from '../../api/matches'
 
 
 
-function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData, matchScores}) {
+function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData, matchScores, totalMatches, matchPages, matchPage, matchesPerPage}) {
 
   //console.log(`servers`);
 
@@ -42,7 +42,8 @@ function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData, ma
                       gametypeNames={gametypeNames}
                     />
 
-                    <PlayerRecentMatches matches={recentMatches} maps={mapData} scores={matchScores} gametypes={gametypeNames}/>
+                    <PlayerRecentMatches matches={recentMatches} maps={mapData} scores={matchScores} gametypes={gametypeNames} 
+					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage}/>
 
                 </div>
                 </div>
@@ -52,17 +53,18 @@ function Home({summary, gametypeStats, gametypeNames, recentMatches, mapData, ma
   )
 }
 
-// This gets called on every request
 export async function getServerSideProps({query}) {
-  // Fetch data from external API
 
-   // console.log(query);
-   // const router = useRouter();
+	const matchesPerPage = 25;
     
     const playerManager = new Player();
     const gametypes = new Gametypes();
     const maps = new Maps();
-    const MatchManager = new Matches();
+	const MatchManager = new Matches();
+	
+	const totalMatches = await playerManager.getTotalMatches(query.id);
+
+	console.log(`I have played ${totalMatches} matches`);
     
     let summary = await playerManager.getPlayerById(query.id);
 
@@ -74,8 +76,6 @@ export async function getServerSideProps({query}) {
         gametypeIds.push(gametypeStats[i].gametype);
     }
 
-    //console.log(gametypeIds);
-
     let gametypeNames = await gametypes.getNames(gametypeIds);
 
     gametypeNames = JSON.stringify(gametypeNames);
@@ -84,7 +84,11 @@ export async function getServerSideProps({query}) {
     gametypeStats = JSON.stringify(gametypeStats);
 
 
-    let recentMatches = await playerManager.getRecentMatches(query.id, 50);
+    const matchPage = (query.matchpage !== undefined) ? (parseInt(query.matchpage) === parseInt(query.matchpage) ? query.matchpage : 1) : 1;
+	let recentMatches = await playerManager.getRecentMatches(query.id, matchesPerPage, matchPage);
+	
+	const matchPages = Math.ceil(totalMatches / matchesPerPage);
+
 
 	const uniqueMaps = [];
 	const matchIds = [];
@@ -115,7 +119,11 @@ export async function getServerSideProps({query}) {
         	gametypeNames, 
         	recentMatches,
 			mapData,
-			matchScores
+			matchScores, 
+			totalMatches,
+			matchPages,
+			matchPage,
+			matchesPerPage
    		} 
   	}
 }

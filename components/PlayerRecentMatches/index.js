@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Timestamp from '../TimeStamp/';
 import styles from './PlayerRecentMatches.module.css';
 import Playtime from '../Playtime/';
+import Pagination from '../Pagination/'
 //import RecentMatchResult from '../RecentMatchResult/'
 
 const getMapName = (maps, id) =>{
@@ -28,21 +29,14 @@ const getMatchScores = (scores, id) =>{
     return null;
 }
 
-const PlayerRecentMatches = ({matches, maps, scores, gametypes}) =>{
+const PlayerRecentMatches = ({matches, maps, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage}) =>{
 
     matches = JSON.parse(matches);
     maps = JSON.parse(maps);
     scores = JSON.parse(scores);
 
-    //console.log(matches);
-   // console.log(maps);
-    console.log(scores);
-
     gametypes = JSON.parse(gametypes);
-
-    console.log(gametypes);
-
-
+    
     const elems = [];
 
     let m = 0;
@@ -118,14 +112,14 @@ const PlayerRecentMatches = ({matches, maps, scores, gametypes}) =>{
                                 <div className={`${currentWinnerClass} ${styles.winner}`}>
                                     { (m.winner) ? "Winner" : (m.draw) ? "Draw" : "Lost"}
                                 </div>
-                                <Timestamp timestamp={m.match_date} />    
+                                <Timestamp key={i} timestamp={m.match_date} />    
                                 <div className="yellow">
                                     {currentGametype}
                                 </div>    
                                 <div className="yellow">
                                     {getMapName(maps, m.map_id)}
                                 </div>
-                                <div><Playtime seconds={m.playtime} /></div>
+                                <div>Played <Playtime key={i} seconds={m.playtime} /></div>
                                 
                                 <div className={currentClassName}>
                                     {scoreElems}
@@ -139,11 +133,21 @@ const PlayerRecentMatches = ({matches, maps, scores, gametypes}) =>{
     }
 
     return (
-        <div>
-        <div className="default-header">
+        <div  id="recent-matches">
+        <div className="default-header" >
             Recent Matches
         </div>
-            {elems}      
+        <Pagination 
+                currentPage={currentMatchPage}
+                results={totalMatches}
+                pages={matchPages}
+                perPage={matchesPerPage}
+                url={`/player/3068?matchpage=`}
+                anchor={'#recent-matches'}
+                
+            />
+        
+            {elems}    
         </div>
     );
 }

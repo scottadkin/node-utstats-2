@@ -71,6 +71,9 @@ class Matches{
 
         return new Promise((resolve, reject) =>{
 
+            if(matchIds === undefined) resolve([]);
+            if(matchIds.length === 0) resolve([]);
+
             const query = "SELECT id,team_game,dm_winner,dm_score,team_score_0,team_score_1,team_score_2,team_score_3,total_teams,gametype FROM nstats_matches WHERE id IN(?)";
 
             mysql.query(query, [matchIds], (err, result) =>{

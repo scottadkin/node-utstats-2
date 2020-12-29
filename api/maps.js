@@ -220,6 +220,9 @@ class Maps{
 
         return new Promise((resolve, reject) =>{
 
+            if(ids === undefined) resolve([]);
+            if(ids.length === 0) resolve([]);
+            
             const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
 
             mysql.query(query, [ids], (err, result) =>{

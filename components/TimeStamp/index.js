@@ -72,9 +72,9 @@ const convertTimestamp = ({timestamp}) =>{
 
 const TimeStamp = (timestamp) =>{
 
-    return (<div>
+    return (<span>
         {convertTimestamp(timestamp)}
-    </div>);
+    </span>);
 
 }
 

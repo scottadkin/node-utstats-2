@@ -336,6 +336,27 @@ class Player{
         });
     }
 
+
+    getTotalMatches(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE player_id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+                
+                if(result !== undefined){
+                    resolve(result[0].total_matches);
+                }
+
+                resolve(0);
+            });
+        });
+    }
+
+
 }
 
 module.exports = Player;
