@@ -953,6 +953,24 @@ class PlayerManager{
         }
     }
 
+
+    async updateWeaponStats(){
+
+        try{
+
+            let p = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+
+            }
+
+        }catch(err){
+            new Message(`updateWeaponStats ${err}`,'error');
+        }
+    }
+
 }
 
 module.exports = PlayerManager;

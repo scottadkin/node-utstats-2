@@ -16,6 +16,8 @@ const LMSManager = require('./lmsmanager');
 const AssaultManager = require('./assaultmanager');
 const DOMManager = require('./dommanager');
 const SpawnManager = require('./spawnmanager');
+const weaponsManager = require('./weaponsmanager');
+const WeaponsManager = require('./weaponsmanager');
 
 class MatchManager{
 
@@ -47,6 +49,11 @@ class MatchManager{
             }
 
             await Logs.insert(this.fileName);
+
+            console.log(this.weaponsManager);
+
+            
+
 
 
             this.mapInfo = new MapInfo(this.mapLines);
@@ -156,6 +163,7 @@ class MatchManager{
             await this.playerManager.updateFaces(this.serverInfo.date);
             await this.playerManager.updateVoices(this.serverInfo.date);
             await this.playerManager.setIpCountry();
+            
 
             if(!bLMS){
                 this.setMatchWinners();
@@ -181,6 +189,19 @@ class MatchManager{
             if(this.CTFManager !== undefined){
                 await this.CTFManager.updatePlayersMatchStats();
             }
+
+
+
+
+            if(this.weaponsManager !== undefined){
+                
+                this.weaponsManager.parseData();
+                await this.weaponsManager.update(this.playerManager);
+
+                //await this.playerManager.updateWeaponStats();
+            }
+
+
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
@@ -326,6 +347,13 @@ class MatchManager{
                 }else if(playerTypes.indexOf(currentType) !== -1 || currentType.startsWith('weap_')){
 
                     this.playerLines.push(this.lines[i]);
+
+                    if(currentType.startsWith('weap_')){
+
+                        if(this.weaponsManager === undefined) this.weaponsManager = new WeaponsManager();
+
+                        this.weaponsManager.data.push(this.lines[i]);
+                    }
 
                 }else if(currentType === 'nstats'){
 
