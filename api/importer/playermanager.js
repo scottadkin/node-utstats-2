@@ -7,6 +7,7 @@ const P = require('../player');
 const Player = new P();
 const Faces = require('../faces');
 const Voices = require('../voices');
+const WeaponStats = require('./weaponstats');
 //const SpawnManager = require('./spawnmanager');
 
 class PlayerManager{
@@ -507,7 +508,6 @@ class PlayerManager{
         }
 
         for(const c in master.stats.ctf){
-
             master.stats.ctf[c] += duplicate.stats.ctf[c];
         }
 
@@ -570,6 +570,63 @@ class PlayerManager{
         if(master.stats.firstBlood === 1 || duplicate.stats.firstBlood === 1){
             master.stats.firstBlood = 1;
         }
+
+
+        //weapon stats
+
+        //console.log(master);
+
+        let currentWeapon = 0;
+
+
+        let mergedStats = 0;
+
+        for(const [key, value] of duplicate.weaponStats){
+
+            //console.log(key,value);
+
+            if(master.weaponStats.has(key)){
+
+                currentWeapon = master.weaponStats.get(key);
+
+
+                mergedStats = new WeaponStats(key);
+
+                mergedStats.kills = currentWeapon.kills + value.kills;
+                mergedStats.deaths = currentWeapon.deaths + value.deaths;
+                mergedStats.shots = currentWeapon.shots + value.shots;
+                mergedStats.hits = currentWeapon.hits + value.hits;
+                mergedStats.damage = currentWeapon.damage + value.damage;
+
+                if(mergedStats.hits > 0 && mergedStats.shots > 0){
+                    mergedStats.accuracy = mergedStats.hits / (mergedStats.hits + mergedStats.shots);
+                }else{
+
+                    if(mergedStats.hits == 0){
+                        mergedStats.accuracy = 0;
+                    }else if(mergedStats.hits > 0){
+                        mergedStats.accuracy = 100;
+                    }
+                }
+
+                mergedStats.accuracy *= 100;
+
+                master.weaponStats.set(key, mergedStats);
+ 
+            }else{
+                currentWeapon = new WeaponStats(key);
+                currentWeapon.kills = value.kills;
+                currentWeapon.deaths = value.deaths;
+                currentWeapon.accuracy = value.accuracy;
+                currentWeapon.shots = value.shots;
+                currentWeapon.hits = value.hits;
+                currentWeapon.damage = value.damage;
+                master.weaponStats.set(key, currentWeapon)
+            }
+
+        }
+
+        //console.log(master.weaponStats);
 
     }
 

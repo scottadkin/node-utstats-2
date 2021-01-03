@@ -36,6 +36,15 @@ class WeaponsManager{
         }
     }
 
+    addKillNames(names){
+
+        for(let i = 0; i < names.length; i++){
+
+            if(this.names.indexOf(names[i]) === -1){
+                this.names.push(names[i]);
+            }
+        }
+    }
 
     async update(matchId, playerManager){
 
@@ -56,7 +65,11 @@ class WeaponsManager{
                     currentWeaponId = this.weapons.getSavedWeaponByName(key);
 
                     if(currentWeaponId !== null){
-                        await this.weapons.insertPlayerMatchStats(matchId, p.masterId, currentWeaponId, value);
+
+                        if(p.bDuplicate === undefined){
+                            await this.weapons.insertPlayerMatchStats(matchId, p.masterId, currentWeaponId, value);
+                        }
+
                     }else{
                         new Message(`currentWeaponId is null for ${key}`,'warning');
                     }

@@ -7,8 +7,9 @@ class KillManager{
 
         this.data = data;
         this.kills = [];
-        this.parseData();
 
+        this.killNames = [];
+        this.parseData();
        // console.table(this.kills);
 
     }   
@@ -31,6 +32,11 @@ class KillManager{
             if(killReg.test(d)){
 
                 result = killReg.exec(d);
+
+                if(this.killNames.indexOf(result[4]) === -1){
+                    this.killNames.push(result[4]);
+                }
+
                 this.kills.push(new Kill(result[1], result[2], result[3], result[4], result[5], result[6], result[7]));              
 
             }else if(distanceReg.test(d)){

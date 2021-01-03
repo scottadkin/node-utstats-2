@@ -16,7 +16,6 @@ const LMSManager = require('./lmsmanager');
 const AssaultManager = require('./assaultmanager');
 const DOMManager = require('./dommanager');
 const SpawnManager = require('./spawnmanager');
-const weaponsManager = require('./weaponsmanager');
 const WeaponsManager = require('./weaponsmanager');
 
 class MatchManager{
@@ -50,7 +49,7 @@ class MatchManager{
 
             await Logs.insert(this.fileName);
 
-            console.log(this.weaponsManager);
+           // console.log(this.weaponsManager);
 
             
 
@@ -196,6 +195,7 @@ class MatchManager{
             if(this.weaponsManager !== undefined){
                 
                 this.weaponsManager.parseData();
+                this.weaponsManager.addKillNames(this.killManager.killNames);
                 await this.weaponsManager.update(this.matchId, this.playerManager);
 
                 //await this.playerManager.updateWeaponStats();
