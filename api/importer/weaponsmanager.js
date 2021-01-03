@@ -13,7 +13,7 @@ class WeaponsManager{
 
     parseData(){
 
-        console.log(this.data);
+        //console.log(this.data);
 
         const nameReg = /^\d+\.\d+\tweap_.+?\t(.+?)\t.+$/i;
 
@@ -34,17 +34,34 @@ class WeaponsManager{
 
             }
         }
-        console.table(this.names);
     }
 
 
-    async update(playerManager){
+    async update(matchId, playerManager){
 
         try{
 
-            const ids = await this.weapons.getIdsByName(this.names);
+            await this.weapons.getIdsByName(this.names);
 
-            console.log(ids);
+            let p = 0;
+
+            let currentWeaponId = 0;
+
+            for(let i = 0; i < playerManager.players.length; i++){
+
+                p = playerManager.players[i];
+
+                for(const [key, value] of p.weaponStats.entries()){
+
+                    currentWeaponId = this.weapons.getSavedWeaponByName(key);
+
+                    if(currentWeaponId !== null){
+                        await this.weapons.insertPlayerMatchStats(matchId, p.masterId, currentWeaponId, value);
+                    }else{
+                        new Message(`currentWeaponId is null for ${key}`,'warning');
+                    }
+                }
+            }
 
         }catch(err){
             new Message(`weaponsmanager update ${err}`,'error');

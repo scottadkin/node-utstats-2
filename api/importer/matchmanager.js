@@ -196,7 +196,7 @@ class MatchManager{
             if(this.weaponsManager !== undefined){
                 
                 this.weaponsManager.parseData();
-                await this.weaponsManager.update(this.playerManager);
+                await this.weaponsManager.update(this.matchId, this.playerManager);
 
                 //await this.playerManager.updateWeaponStats();
             }
