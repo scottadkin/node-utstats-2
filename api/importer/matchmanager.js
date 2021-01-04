@@ -196,7 +196,7 @@ class MatchManager{
                 
                 this.weaponsManager.parseData();
                 this.weaponsManager.addKillNames(this.killManager.killNames);
-                await this.weaponsManager.update(this.matchId, this.playerManager);
+                await this.weaponsManager.update(this.matchId, this.gametype.currentMatchGametype, this.playerManager);
 
                 //await this.playerManager.updateWeaponStats();
             }

@@ -578,6 +578,7 @@ class PlayerManager{
 
         let currentWeapon = 0;
 
+        console.log(master.weaponStats);
 
         let mergedStats = 0;
 
@@ -599,7 +600,7 @@ class PlayerManager{
                 mergedStats.damage = currentWeapon.damage + value.damage;
 
                 if(mergedStats.hits > 0 && mergedStats.shots > 0){
-                    mergedStats.accuracy = mergedStats.hits / (mergedStats.hits + mergedStats.shots);
+                    mergedStats.accuracy = mergedStats.hits / mergedStats.shots;
                 }else{
 
                     if(mergedStats.hits == 0){
@@ -626,7 +627,10 @@ class PlayerManager{
 
         }
 
-        //console.log(master.weaponStats);
+        
+        console.log(duplicate.weaponStats);
+
+        console.log(master.weaponStats);
 
     }
 

@@ -46,7 +46,7 @@ class WeaponsManager{
         }
     }
 
-    async update(matchId, playerManager){
+    async update(matchId, gametypeId, playerManager){
 
         try{
 
@@ -55,6 +55,7 @@ class WeaponsManager{
             let p = 0;
 
             let currentWeaponId = 0;
+            
 
             for(let i = 0; i < playerManager.players.length; i++){
 
@@ -68,6 +69,7 @@ class WeaponsManager{
 
                         if(p.bDuplicate === undefined){
                             await this.weapons.insertPlayerMatchStats(matchId, p.masterId, currentWeaponId, value);
+                            await this.weapons.updatePlayerTotalStats(gametypeId, p.masterId, currentWeaponId, value);
                         }
 
                     }else{
