@@ -61,6 +61,8 @@ class WeaponsManager{
 
                 p = playerManager.players[i];
 
+                console.log(p.weaponStats);
+
                 for(const [key, value] of p.weaponStats.entries()){
 
                     currentWeaponId = this.weapons.getSavedWeaponByName(key);

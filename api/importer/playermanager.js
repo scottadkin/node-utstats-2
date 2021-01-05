@@ -390,11 +390,13 @@ class PlayerManager{
         let killer = 0;
         let victim = 0;
 
+        //console.log(kills);
+
         for(let i = 0; i < kills.length; i++){
 
             k = kills[i];
 
-            //console.log(k);
+            console.log(k);
 
             if(k.type == 'kill'){
 
@@ -406,8 +408,9 @@ class PlayerManager{
       
                 }
 
+              
                 if(victim !== null){
-                    victim.died(k.timestamp);
+                    victim.died(k.timestamp, k.killerWeapon);
                 }
             }
         }

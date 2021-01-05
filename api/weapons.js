@@ -163,7 +163,7 @@ class Weapons{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,0,?,?,?,?,0)";
 
             mysql.query(query, [playerId, gametypeId, weaponId, kills, deaths, accuracy, shots, hits, damage], (err) =>{
 
@@ -171,6 +171,25 @@ class Weapons{
 
                 resolve();
             });
+        });
+    }
+
+    updatePlayerTotals(gametypeId, playerId, weaponId, stats){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_player_weapon_totals SET kills=kills+?, deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
+             accuracy=(hits/shots)*100, 
+             efficiency=(kills/(kills + deaths)) * 100,
+             matches=matches+1 WHERE player_id=? AND weapon=? AND gametype=?`;
+
+             const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, stats.damage, playerId, weaponId, gametypeId];
+
+             mysql.query(query, vars, (err) =>{
+                if(err) reject(err);
+
+                resolve();
+             });
         });
     }
 
@@ -185,16 +204,16 @@ class Weapons{
                     stats.kills, stats.deaths, stats.accuracy, stats.shots, stats.hits, stats.damage);
 
             }else{
-               
+               await this.updatePlayerTotals(gametypeId, playerId, weaponId, stats);
             }
 
             //all totals
-            if(!await this.bPlayerTotalExists(gametypeId, playerId, weaponId)){
+            if(!await this.bPlayerTotalExists(0, playerId, weaponId)){
 
                 await this.createPlayerTotal(0, playerId, weaponId, 
                     stats.kills, stats.deaths, stats.accuracy, stats.shots, stats.hits, stats.damage);
             }else{
-               
+                await this.updatePlayerTotals(0, playerId, weaponId, stats);
             }
 
         }catch(err){
