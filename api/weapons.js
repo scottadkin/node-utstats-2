@@ -34,7 +34,7 @@ class Weapons{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_weapons VALUES(NULL,?)";
+            const query = "INSERT INTO nstats_weapons VALUES(NULL,?,0,0,0,0,0,0,0)";
 
             mysql.query(query, [name], (err, result) =>{
 
@@ -42,6 +42,25 @@ class Weapons{
 
                 resolve(result.insertId);
 
+            });
+        });
+    }
+
+    update(weapon, kills, deaths, shots, hits, damage){
+
+        damage = Math.abs(damage);
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_weapons SET matches=matches+1,kills=kills+?,deaths=deaths+?,shots=shots+?,hits=hits+?,damage=damage+?,
+            accuracy=hits/(shots + hits)*100
+            WHERE id=?`;
+
+            mysql.query(query, [kills,deaths,shots,hits,damage, weapon], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
             });
         });
     }
@@ -124,7 +143,7 @@ class Weapons{
 
             const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?)";
 
-            const vars = [matchId, playerId, weaponId, stats.kills, stats.deaths, stats.accuracy, stats.shots, stats.hits, stats.damage];
+            const vars = [matchId, playerId, weaponId, stats.kills, stats.deaths, stats.accuracy, stats.shots, stats.hits, Math.abs(stats.damage)];
 
             mysql.query(query, vars, (err) =>{
 
@@ -165,7 +184,7 @@ class Weapons{
 
             const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,0,?,?,?,?,0)";
 
-            mysql.query(query, [playerId, gametypeId, weaponId, kills, deaths, accuracy, shots, hits, damage], (err) =>{
+            mysql.query(query, [playerId, gametypeId, weaponId, kills, deaths, accuracy, shots, hits, Math.abs(damage)], (err) =>{
 
                 if(err) reject(err);
 
@@ -183,7 +202,7 @@ class Weapons{
              efficiency=(kills/(kills + deaths)) * 100,
              matches=matches+1 WHERE player_id=? AND weapon=? AND gametype=?`;
 
-             const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, stats.damage, playerId, weaponId, gametypeId];
+             const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, Math.abs(stats.damage), playerId, weaponId, gametypeId];
 
              mysql.query(query, vars, (err) =>{
                 if(err) reject(err);

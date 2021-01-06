@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 18, 2020 at 01:12 AM
+-- Generation Time: Jan 06, 2021 at 03:10 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -190,6 +190,7 @@ CREATE TABLE `nstats_matches` (
   `net_mode` varchar(100) NOT NULL,
   `max_spectators` int(11) NOT NULL,
   `max_players` int(11) NOT NULL,
+  `total_teams` int(11) NOT NULL,
   `players` int(11) NOT NULL,
   `time_limit` int(11) NOT NULL,
   `target_score` int(11) NOT NULL,
@@ -213,6 +214,7 @@ CREATE TABLE `nstats_matches` (
 CREATE TABLE `nstats_player_matches` (
   `id` int(11) NOT NULL,
   `match_id` int(11) NOT NULL,
+  `match_date` int(11) NOT NULL,
   `map_id` int(11) NOT NULL,
   `player_id` int(11) NOT NULL,
   `ip` varchar(50) NOT NULL,
@@ -221,6 +223,7 @@ CREATE TABLE `nstats_player_matches` (
   `voice` int(11) NOT NULL,
   `gametype` int(11) NOT NULL,
   `winner` int(11) NOT NULL,
+  `draw` int(11) NOT NULL,
   `playtime` float NOT NULL,
   `first_blood` int(1) NOT NULL,
   `frags` int(11) NOT NULL,
@@ -324,6 +327,46 @@ CREATE TABLE `nstats_player_totals` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nstats_player_weapon_match`
+--
+
+CREATE TABLE `nstats_player_weapon_match` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `player_id` int(11) NOT NULL,
+  `weapon_id` int(11) NOT NULL,
+  `kills` int(11) NOT NULL,
+  `deaths` int(11) NOT NULL,
+  `accuracy` float NOT NULL,
+  `shots` int(11) NOT NULL,
+  `hits` int(11) NOT NULL,
+  `damage` bigint(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_player_weapon_totals`
+--
+
+CREATE TABLE `nstats_player_weapon_totals` (
+  `id` int(11) NOT NULL,
+  `player_id` int(11) NOT NULL,
+  `gametype` int(11) NOT NULL,
+  `weapon` int(11) NOT NULL,
+  `kills` int(11) NOT NULL,
+  `deaths` int(11) NOT NULL,
+  `efficiency` int(11) NOT NULL,
+  `accuracy` float NOT NULL,
+  `shots` int(11) NOT NULL,
+  `hits` int(11) NOT NULL,
+  `damage` bigint(11) NOT NULL,
+  `matches` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nstats_servers`
 --
 
@@ -350,6 +393,24 @@ CREATE TABLE `nstats_voices` (
   `first` int(11) NOT NULL,
   `last` int(11) NOT NULL,
   `uses` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_weapons`
+--
+
+CREATE TABLE `nstats_weapons` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `matches` int(11) NOT NULL,
+  `kills` int(11) NOT NULL,
+  `deaths` int(11) NOT NULL,
+  `accuracy` float NOT NULL,
+  `shots` int(11) NOT NULL,
+  `hits` int(11) NOT NULL,
+  `damage` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -429,6 +490,18 @@ ALTER TABLE `nstats_player_totals`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_player_weapon_match`
+--
+ALTER TABLE `nstats_player_weapon_match`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `nstats_player_weapon_totals`
+--
+ALTER TABLE `nstats_player_weapon_totals`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_servers`
 --
 ALTER TABLE `nstats_servers`
@@ -438,6 +511,12 @@ ALTER TABLE `nstats_servers`
 -- Indexes for table `nstats_voices`
 --
 ALTER TABLE `nstats_voices`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `nstats_weapons`
+--
+ALTER TABLE `nstats_weapons`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -517,6 +596,18 @@ ALTER TABLE `nstats_player_totals`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `nstats_player_weapon_match`
+--
+ALTER TABLE `nstats_player_weapon_match`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_player_weapon_totals`
+--
+ALTER TABLE `nstats_player_weapon_totals`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `nstats_servers`
 --
 ALTER TABLE `nstats_servers`
@@ -526,6 +617,12 @@ ALTER TABLE `nstats_servers`
 -- AUTO_INCREMENT for table `nstats_voices`
 --
 ALTER TABLE `nstats_voices`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_weapons`
+--
+ALTER TABLE `nstats_weapons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
