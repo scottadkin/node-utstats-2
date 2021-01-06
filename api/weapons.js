@@ -237,8 +237,45 @@ class Weapons{
 
         }catch(err){
             console.trace(err);
-        }
-        
+        } 
+    }
+    
+
+    getPlayerTotals(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_player_weapon_totals WHERE player_id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    getAllNames(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_weapons";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+        });
     }
 
 }
