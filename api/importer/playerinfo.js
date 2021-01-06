@@ -140,9 +140,9 @@ class PlayerInfo{
             this.timeAlive += timestamp - this.lastSpawn;
         }
 
-        console.log(`I died to ${weapon}`);
+        //console.log(`I died to ${weapon}`);
         if(weapon !== undefined){
-            this.updateWeaponStats('deaths', weapon);
+            this.updateWeaponStats('death', weapon);
         }
 
         this.lastDeath = parseFloat(timestamp);

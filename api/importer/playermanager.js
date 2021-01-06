@@ -396,7 +396,7 @@ class PlayerManager{
 
             k = kills[i];
 
-            console.log(k);
+            //console.log(k);
 
             if(k.type == 'kill'){
 
@@ -581,7 +581,7 @@ class PlayerManager{
 
         let currentWeapon = 0;
 
-        console.log(master.weaponStats);
+        //console.log(master.weaponStats);
 
         let mergedStats = 0;
 
@@ -631,9 +631,9 @@ class PlayerManager{
         }
 
         
-        console.log(duplicate.weaponStats);
+       // console.log(duplicate.weaponStats);
 
-        console.log(master.weaponStats);
+       // console.log(master.weaponStats);
 
     }
 
