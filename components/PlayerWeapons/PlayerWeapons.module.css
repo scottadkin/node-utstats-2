@@ -32,7 +32,6 @@
 }
 
 .block div:nth-child(1){
-    padding-left:5px;
     font-size:14px;
 }
 
@@ -67,4 +66,8 @@
     margin-top:-16px;
     position:absolute;
     font-size:14px;
+}
+
+.label{
+    padding-left:5px;
 }

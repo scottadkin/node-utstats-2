@@ -47,7 +47,7 @@ const StatsBar = ({label, value, max, bPercent}) =>{
     return (
             <div>
                 <div className={styles.block}>
-                    <div>{label}</div>
+                    <div className={styles.label}>{label}</div>
                     <div className={styles.bar}>
                         <div className={styles.inner} style={{width: `${percent}%`}}>
                             
