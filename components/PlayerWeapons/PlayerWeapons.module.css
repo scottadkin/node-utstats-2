@@ -6,18 +6,21 @@
     display:inline-block;
     border:1px solid rgba(255,255,255,0.25);
     position:relative;
+    margin-top:-1px;
+    margin-left:-1px;
 
 }
 
 .image{
-    height:125px;
+    height:100px;
     padding-top:25px;
 }
 
 .image img{
 
     max-width:50%;
-    max-height:160px;
+    max-height:100px;
+      
 
 }
 
@@ -36,6 +39,7 @@
 .stats{
     background-color:rgb(12,12,12);
     border-top:1px solid rgba(255,255,255,0.1);
+    padding-bottom:10px;
 }
 
 .name{
@@ -43,16 +47,18 @@
 }
 
 .bar{
-    height:14px;
-    background-color:red;
+    height:12px;
+    background-color:black;
     margin-top:2px;
+    width:90%;
+    border:1px solid rgba(255,255,255,0.1);
+    overflow:hidden;
     
 }
 
 .inner{
-    background-color:pink;
-    width:20%;
-    height:14px;
+    background-color:rgb(44,120,44);
+    height:12px;
 }
 
 .value{

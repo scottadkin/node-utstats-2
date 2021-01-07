@@ -29,21 +29,33 @@ const tempGetWeaponImage = (files, name) =>{
 
 }
 
-const StatsBar = ({label, value}) =>{
+const StatsBar = ({label, value, max, bPercent}) =>{
+
+    console.log(label,value,max);
+    let percent = 0;
+
+    if(value > 0 && max > 0){
+        percent = (value / max) * 100;
+    }
+
+    if(value > max){
+        percent = 100;
+    }
+
+
 
     return (
-        
             <div>
                 <div className={styles.block}>
                     <div>{label}</div>
                     <div className={styles.bar}>
-                        <div className={styles.inner}>
+                        <div className={styles.inner} style={{width: `${percent}%`}}>
                             
                         </div>
                     </div>
                 </div>
                 <div className={styles.value}>
-                        {value}
+                    {value}{(bPercent !== undefined) ? '%' : ''}
                 </div>
              </div>
         
@@ -62,6 +74,24 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
 
     let w = 0;
 
+    let maxKills = 0;
+    let maxDeaths = 0;
+    let maxShots = 0;
+    let maxHits = 0;
+    let maxDamage = 0;
+
+    for(let i = 0; i < weaponStats.length; i++){
+
+        w = weaponStats[i];
+
+        if(w.kills > maxKills) maxKills = w.kills;
+        if(w.deaths > maxDeaths) maxDeaths = w.deaths;
+        if(w.shots > maxShots) maxShots = w.shots;
+        if(w.hits > maxHits) maxHits = w.hits;
+        if(w.damage > maxDamage) maxDamage = w.damage;
+    }
+
+
     for(let i = 0; i < weaponStats.length; i++){
 
         currentName = tempGetWeapon(weaponStats[i].weapon, weaponNames);
@@ -78,12 +108,13 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
                         {currentName}
                     </div>
      
-                    <StatsBar  label={"Kills"} value={w.kills}/>
-                    <StatsBar  label={"Deaths"} value={w.deaths}/>
-                    <StatsBar  label={"Efficiency"} value={`${w.efficiency.toFixed(2)}%`}/>
-                    <StatsBar  label={"Shots"} value={w.shots}/>
-                    <StatsBar  label={"Hits"} value={w.hits}/>
-                    <StatsBar label={"Accuracy"} value={`${w.accuracy.toFixed(2)}%`}/>
+                    <StatsBar label={"Kills"} value={w.kills} max={maxKills}/>
+                    <StatsBar label={"Deaths"} value={w.deaths} max={maxDeaths}/>
+                    <StatsBar label={"Efficiency"} value={`${w.efficiency.toFixed(2)}`} max={100} bPercent={1}/>
+                    <StatsBar label={"Shots"} value={w.shots} max={maxShots}/>
+                    <StatsBar label={"Hits"} value={w.hits} max={maxHits}/>
+                    <StatsBar label={"Accuracy"} value={`${w.accuracy.toFixed(2)}`} max={100} bPercent={1}/>
+                    <StatsBar label={"Damage"} value={w.damage} max={maxDamage}/>
                 </div>
             </div>
         );
@@ -127,6 +158,7 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
 
     return (
         <div>
+            <div className="default-header">Weapon Stats</div>
             {tempElems}
         </div>
     );
