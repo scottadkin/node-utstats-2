@@ -1,6 +1,7 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
+const fs = require('fs');
 
 class Weapons{
 
@@ -182,7 +183,7 @@ class Weapons{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,0,?,?,?,?,0)";
+            const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,0,?,?,?,?,1)";
 
             mysql.query(query, [playerId, gametypeId, weaponId, kills, deaths, accuracy, shots, hits, Math.abs(damage)], (err) =>{
 
@@ -245,7 +246,7 @@ class Weapons{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_player_weapon_totals WHERE player_id=?";
+            const query = "SELECT * FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=0";
 
             mysql.query(query, [id], (err, result) =>{
 
@@ -276,6 +277,22 @@ class Weapons{
                 resolve([]);
             });
         });
+    }
+
+
+    async getImageList(){
+
+        try{
+
+            const files = fs.readdirSync('public/images/weapons/');
+
+            //console.table(files);
+
+            return files;
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
 }

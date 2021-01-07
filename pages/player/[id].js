@@ -10,11 +10,12 @@ import Maps from '../../api/maps'
 import PlayerRecentMatches from '../../components/PlayerRecentMatches/'
 import Matches from '../../api/matches'
 import Weapons from '../../api/weapons'
+import PlayerWeapons from '../../components/PlayerWeapons/'
 
 
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, mapData, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames}) {
+	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages}) {
 
   //console.log(`servers`);
 	if(summary === undefined){
@@ -58,8 +59,10 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
                     </div>
 
                     <PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
-                      gametypeNames={gametypeNames} weaponStats={weaponStats} weaponNames={weaponNames}
+                      gametypeNames={gametypeNames}
                     />
+
+                    <PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
 
                     <PlayerRecentMatches playerId={playerId} matches={recentMatches} maps={mapData} scores={matchScores} gametypes={gametypeNames} 
 					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage}/>
@@ -138,35 +141,41 @@ export async function getServerSideProps({query}) {
 
     let mapData = await maps.getNamesByIds(uniqueMaps);
     mapData = JSON.stringify(mapData);
-	recentMatches = JSON.stringify(recentMatches);
-	
-	let matchScores = await matchManager.getWinners(matchIds);
-	matchScores = JSON.stringify(matchScores);
+    recentMatches = JSON.stringify(recentMatches);
+    
+    let matchScores = await matchManager.getWinners(matchIds);
+    matchScores = JSON.stringify(matchScores);
 
-	let weaponStats = await weaponsManager.getPlayerTotals(playerId);
-	weaponStats = JSON.stringify(weaponStats);
+    let weaponStats = await weaponsManager.getPlayerTotals(playerId);
+    weaponStats = JSON.stringify(weaponStats);
 
-	let weaponNames = await weaponsManager.getAllNames();
-	weaponNames = JSON.stringify(weaponNames);
-	//console.log(weaponStats);
+    let weaponNames = await weaponsManager.getAllNames();
+    weaponNames = JSON.stringify(weaponNames);
+    //console.log(weaponStats);
+    
+    let weaponImages = await weaponsManager.getImageList();
+    weaponImages = JSON.stringify(weaponImages);
+
+
 
   // Pass data to the page via props
     return { 
       	props: {  
-			playerId,
-       	 	summary,
-        	gametypeStats,
-        	gametypeNames, 
-        	recentMatches,
-			mapData,
-			matchScores, 
-			totalMatches,
-			matchPages,
-			matchPage,
-			matchesPerPage,
-			weaponStats,
-			weaponNames
-   		} 
+            playerId,
+            summary,
+            gametypeStats,
+            gametypeNames, 
+            recentMatches,
+            mapData,
+            matchScores, 
+            totalMatches,
+            matchPages,
+            matchPage,
+            matchesPerPage,
+            weaponStats,
+            weaponNames,
+            weaponImages
+   		  } 
   	}
 }
 

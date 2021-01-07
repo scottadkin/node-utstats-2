@@ -7,47 +7,15 @@ import PlayerGeneral from '../PlayerGeneral/'
 import GametypeStats from '../GametypeStats/'
 
 
-const tempGetWeapon = (id, weaponNames) =>{
 
-    for(let i = 0; i < weaponNames.length; i++){
 
-        if(weaponNames[i].id === id) return weaponNames[i].name;
-    }
-    return 'Not Found';
-}
-
-const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, weaponStats, weaponNames}) =>{
+const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =>{
 
     
 
     summary = JSON.parse(summary);
     
-    //console.log(summary);
-
-    weaponStats = JSON.parse(weaponStats);
-
-    weaponNames = JSON.parse(weaponNames);
-
-    console.log(weaponNames);
-
-    const tempElems = [];
-
-    for(let i = 0; i < weaponStats.length; i++){
-        tempElems.push(
-            <tr>
-                <td>{tempGetWeapon(weaponStats[i].weapon, weaponNames)}</td>
-                <td>{weaponStats[i].gametype}</td>
-                <td>{weaponStats[i].matches}</td>
-                <td>{weaponStats[i].kills}</td>
-                <td>{weaponStats[i].deaths}</td>
-                <td>{weaponStats[i].efficiency}%</td>
-                <td>{weaponStats[i].shots}</td>
-                <td>{weaponStats[i].hits}</td>
-                <td>{weaponStats[i].accuracy}%</td>
-                <td>{weaponStats[i].damage}</td>
-            </tr>
-        );
-    }
+    //console.log(summary)
 
     return (
         <div>
@@ -128,26 +96,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, we
                 </table>
             </div>
 
-            <div className="special-table">
-                <div className="default-header">Weapon Stats</div>
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>Weapon</th>
-                            <th>Gametype</th>
-                            <th>Matches</th>
-                            <th>Kills</th>
-                            <th>Deaths</th>
-                            <th>Efficiency</th>
-                            <th>Shots</th>
-                            <th>Hits</th>
-                            <th>Accuracy</th>
-                            <th>Damage</th>
-                        </tr>
-                        {tempElems}
-                    </tbody>
-                </table>
-            </div>
+
 
     
             

@@ -237,3 +237,7 @@ table{
   font-size:14px;
   border:1px solid rgba(0,0,0,0.5);
 }
+
+.weapon-image{
+  width:150px;
+}
