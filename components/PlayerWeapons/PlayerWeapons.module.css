@@ -57,6 +57,7 @@
 
 .inner{
     background-color:rgb(44,120,44);
+    background:linear-gradient(to bottom, rgb(12,12,12), rgb(12,120,12));
     height:12px;
 }
 
@@ -65,9 +66,13 @@
     margin-left:40%;
     margin-top:-16px;
     position:absolute;
-    font-size:14px;
+    font-size:12px;
 }
 
 .label{
     padding-left:5px;
+}
+
+.main{
+    padding-bottom:25px;
 }

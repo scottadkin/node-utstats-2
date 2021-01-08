@@ -17,6 +17,8 @@ const tempGetWeaponImage = (files, name) =>{
 
     if(name === 'doubleenforcers'){
         name = 'enforcer';
+    }else if(name === 'enhancedshockrifle'){
+        name = 'shockrifle';
     }
 
     console.log(`looking for ${name}`);
@@ -79,6 +81,7 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
     let maxShots = 0;
     let maxHits = 0;
     let maxDamage = 0;
+    let maxMatches = 0;
 
     for(let i = 0; i < weaponStats.length; i++){
 
@@ -89,6 +92,7 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
         if(w.shots > maxShots) maxShots = w.shots;
         if(w.hits > maxHits) maxHits = w.hits;
         if(w.damage > maxDamage) maxDamage = w.damage;
+        if(w.matches > maxMatches) maxMatches = w.matches;
     }
 
 
@@ -108,6 +112,7 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
                         {currentName}
                     </div>
      
+                    <StatsBar label={"Matches"} value={w.matches} max={maxMatches}/>
                     <StatsBar label={"Kills"} value={w.kills} max={maxKills}/>
                     <StatsBar label={"Deaths"} value={w.deaths} max={maxDeaths}/>
                     <StatsBar label={"Efficiency"} value={`${w.efficiency.toFixed(2)}`} max={100} bPercent={1}/>
@@ -157,7 +162,7 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
             </div>);*/
 
     return (
-        <div>
+        <div className={styles.main}>
             <div className="default-header">Weapon Stats</div>
             {tempElems}
         </div>

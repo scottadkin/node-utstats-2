@@ -68,7 +68,7 @@ export default function PlayerListBox({
                 <a>
                     <div className={styles.inner}>
                         <div className={styles.face}>
-                            <img src={`images/faces/${face.name}.png`} alt="face"/>
+                            <img src={`images/faces/${(face.imageExists) ? face.name: 'faceless'}.png`} alt="face"/>
                         </div>
                         <div>
                             <img className="country-flag" src={`images/flags/${Countires(country).code.toLowerCase()}.svg`} alt="flag" /> {name}
