@@ -21,6 +21,8 @@ class GameInfo{
 
         this.dmWinner = '';
         this.dmWinnerScore = 0;
+
+        this.mutators = [];
         
 
 
@@ -62,8 +64,13 @@ class GameInfo{
                 }else if(result2OriginalCase === 'true'){
                     result[2] = 1;
                 }
+
+                if(result1OriginalCase === 'goodmutator'){
+                    this.mutators.push(result[2]);
+                }else{
                 
-                this[result1OriginalCase] = result[2];
+                    this[result1OriginalCase] = result[2];
+                }
 
             }else{
 

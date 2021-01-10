@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 06, 2021 at 03:10 AM
+-- Generation Time: Jan 10, 2021 at 08:24 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -175,6 +175,7 @@ CREATE TABLE `nstats_matches` (
   `email` varchar(100) NOT NULL,
   `region` int(11) NOT NULL,
   `motd` text NOT NULL,
+  `mutators` text NOT NULL,
   `playtime` float NOT NULL,
   `end_type` varchar(50) NOT NULL,
   `start` float NOT NULL,

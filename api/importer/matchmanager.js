@@ -232,6 +232,7 @@ class MatchManager{
                 this.serverInfo.server_adminemail,
                 this.serverInfo.server_region,
                 motd,
+                this.gameInfo.mutators,
                 this.gameInfo.length,
                 this.gameInfo.endReason,
                 this.gameInfo.start,
