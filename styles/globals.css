@@ -241,3 +241,8 @@ table{
 .weapon-image{
   width:150px;
 }
+
+.center{
+  margin-left:auto;
+  margin-right:auto;
+}

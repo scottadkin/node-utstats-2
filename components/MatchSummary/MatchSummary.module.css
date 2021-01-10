@@ -6,15 +6,18 @@
 
 .map{
     display:grid;
-    grid-template-columns: auto 40%;
+    grid-template-columns: auto auto;
     padding:20px 0px;
 }
 
 .map div:nth-child(1) img{
-    max-width:600px;
     width:80%;
+    max-width:500px;
+    max-height:400px;
 }
+
 
 .map div:nth-child(2){
     line-height:28px;
+    padding-right:10px;
 }

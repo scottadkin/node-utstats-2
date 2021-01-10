@@ -233,6 +233,25 @@ class Servers{
             });
         });
     }
+
+    getName(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name FROM nstats_servers WHERE id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result[0].name);
+                }
+
+                resolve('Server Not Found');
+            });
+        });
+    }
 }
 
 module.exports = Servers;

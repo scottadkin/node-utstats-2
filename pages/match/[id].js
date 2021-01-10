@@ -2,12 +2,13 @@ import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/'
 import Footer from '../../components/Footer/';
 import MatchManager from '../../api/match';
+import Servers from '../../api/servers';
 import Maps from '../../api/maps';
 import Gametypes from '../../api/gametypes';
 import MatchSummary from '../../components/MatchSummary/'
 
 
-function Match({info, gametype, map}){
+function Match({info, server, gametype, map}){
 
     return <div>
         <DefaultHead />
@@ -20,7 +21,7 @@ function Match({info, gametype, map}){
                         Match Report
                     </div>
 
-                    <MatchSummary info={info} gametype={gametype} map={map}/>
+                    <MatchSummary info={info} server={server} gametype={gametype} map={map}/>
                 </div>
             </div>
             <Footer />
@@ -39,23 +40,23 @@ export async function getServerSideProps({query}){
 
     let matchInfo = await m.get(matchId);
 
-    console.log(matchInfo);
+    const s = new Servers();
+
+    const serverName = await s.getName(matchInfo.server);
+
+    console.log(`serverName = ${serverName}`);
 
     const g = new Gametypes();
-
     const gametypeName = await g.getName(matchInfo.gametype);
 
-    console.log(`gametypeName = ${gametypeName}`);
-
     const map = new Maps();
-
     const mapName = await map.getName(matchInfo.map);
 
-    console.log(`mapName = ${mapName}`);
 
     return {
         props: {
             info: JSON.stringify(matchInfo),
+            server: serverName,
             gametype: gametypeName,
             map: mapName
         }
