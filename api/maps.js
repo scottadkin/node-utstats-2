@@ -2,6 +2,7 @@ const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
 const Spawns = require('./spawns');
+const fs = require('fs');
 
 class Maps{
     
@@ -264,8 +265,35 @@ class Maps{
     }
 
     getMapImages(names){
+     
+    }
 
-        
+    removePrefix(name){
+
+        const reg = /^.+?-(.+)$/i;
+
+        const result = reg.exec(name);
+
+        if(result !== null){
+            return result[1];
+        }
+
+        return name;
+    }
+
+    async getImage(name){
+
+        name = this.removePrefix(name);
+        name = name.toLowerCase()+'.jpg';
+
+        const files = fs.readdirSync('public/images/maps/');
+
+        if(files.indexOf(name) !== -1){
+            return `/images/maps/${name}`;
+        }
+
+        return `/images/temp.jpg`;
+
     }
 
 }

@@ -8,7 +8,7 @@ import Gametypes from '../../api/gametypes';
 import MatchSummary from '../../components/MatchSummary/'
 
 
-function Match({info, server, gametype, map}){
+function Match({info, server, gametype, map, image}){
 
     return <div>
         <DefaultHead />
@@ -21,7 +21,7 @@ function Match({info, server, gametype, map}){
                         Match Report
                     </div>
 
-                    <MatchSummary info={info} server={server} gametype={gametype} map={map}/>
+                    <MatchSummary info={info} server={server} gametype={gametype} map={map} image={image}/>
                 </div>
             </div>
             <Footer />
@@ -52,13 +52,18 @@ export async function getServerSideProps({query}){
     const map = new Maps();
     const mapName = await map.getName(matchInfo.map);
 
+    const image = await map.getImage(mapName);
+
+    console.log(image);
+
 
     return {
         props: {
-            info: JSON.stringify(matchInfo),
-            server: serverName,
-            gametype: gametypeName,
-            map: mapName
+            "info": JSON.stringify(matchInfo),
+            "server": serverName,
+            "gametype": gametypeName,
+            "map": mapName,
+            "image": image
         }
     };
 }
