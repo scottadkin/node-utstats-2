@@ -1,0 +1,20 @@
+.wrapper{
+    background-color:rgb(0,0,0);
+    color:white;
+    font-weight:300;
+}
+
+.map{
+    display:grid;
+    grid-template-columns: auto 40%;
+    padding:20px 0px;
+}
+
+.map div:nth-child(1) img{
+    max-width:600px;
+    width:80%;
+}
+
+.map div:nth-child(2){
+    line-height:28px;
+}

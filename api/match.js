@@ -58,6 +58,29 @@ class Match{
             new Message(`There was a problem setting match winner.`,'error');
         }
     }
+
+    get(id){
+
+        id = parseInt(id);
+
+        return new Promise((resolve, reject) =>{
+
+            if(id !== id) reject('Match id must be a number');
+
+            const query = "SELECT * FROM nstats_matches WHERE id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result[0]);
+                }
+                resolve({});
+            });
+
+        });
+    }
 }
 
 module.exports = Match;

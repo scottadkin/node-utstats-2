@@ -129,6 +129,25 @@ class Gametypes{
         }
     }
 
+    getName(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name FROM nstats_gametypes WHERE id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result[0].name);
+                }
+
+                resolve('Not Found');
+            });
+        });
+    }
+
     getNames(ids){
 
         return new Promise((resolve, reject) =>{

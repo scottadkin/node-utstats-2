@@ -176,6 +176,26 @@ class Maps{
         });
     }
 
+    getName(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name FROM nstats_maps WHERE id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(this.removeUnr(result[0].name));
+                }
+
+                resolve('Not Found');
+            });
+        });
+
+    }
+
 
     getAll(){
 

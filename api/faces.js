@@ -281,10 +281,6 @@ class Faces{
 
             for(let i = 0; i < faces.length; i++){
 
-                //console.log(`i = ${i}`);
-                
-                //faces[i].imageExists = Faces.imageExists(faces[i].name);
-
                 newFaces[faces[i].id] = {
                     "imageExists": Faces.imageExists(faces[i].name),
                     "name": faces[i].name

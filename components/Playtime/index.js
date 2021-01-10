@@ -10,7 +10,15 @@ const Playtime = ({seconds}) =>{
     let secondString = (currentSeconds > 1) ? "Seconds" : "Second";
     let minuteString = (currentMinutes > 1) ? "Minutes" : "Minute";
 
+ 
     let string = `${currentMinutes} ${minuteString}, ${currentSeconds} ${secondString}`;
+
+    if(currentMinutes >= 1){
+
+        if(currentSeconds === 0){
+            string = `${currentMinutes} ${minuteString}`;
+        }
+    }
 
     if(currentMinutes === 0){
         string = `${currentSeconds} ${secondString}`;
