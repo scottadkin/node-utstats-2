@@ -246,6 +246,7 @@ class Servers{
 
                 if(result !== undefined){
                     resolve(result[0].name);
+                    
                 }
 
                 resolve('Server Not Found');

@@ -205,7 +205,7 @@ class Player{
 
            // console.log(player);
 
-            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,
@@ -224,6 +224,7 @@ class Player{
                 player.bWinner,
                 player.bDrew,
                 Functions.setValueIfUndefined(player.stats.time_on_server),
+                player.teams[player.teams.length - 1].id,
                 player.stats.firstBlood,
                 player.stats.frags,
                 player.stats.score,
@@ -352,6 +353,50 @@ class Player{
                 }
 
                 resolve(0);
+            });
+        });
+    }
+
+
+    getAllInMatch(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+        });
+    }
+
+
+    getNames(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_player_totals WHERE id IN(?)";
+
+            const data = new Map();
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                   // resolve(result);
+
+                    for(let i = 0; i < result.length; i++){
+                        data.set(result[i].id, result[i].name)
+                    }
+                }
+                resolve(data);
             });
         });
     }

@@ -40,6 +40,41 @@ class LMSManager{
                 break;
             }
         }
+
+        this.deletePlayerScores();
+    }
+
+
+    //deletes player scores if they left or joined after the cutoffpoint
+    deletePlayerScores(){
+
+        let p = 0;
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            p = this.playerManager.players[i];
+
+            //check connections
+            for(let c = 0; c < p.connects.length; c++){
+
+                if(p.connects[c] > this.cutOffPoint){
+                    p.stats.score = 0;
+                    p.stats.frags = 0;
+                    break;
+                }
+            }
+
+            //check disconnections
+
+            for(let d = 0; d < p.disconnects.length; d++){
+
+                if(p.disconnects[d] <= this.matchLength.end){
+                    p.stats.score = 0;
+                    p.stats.frags = 0;
+                    break;
+                }
+            }
+        }
     }
 
 

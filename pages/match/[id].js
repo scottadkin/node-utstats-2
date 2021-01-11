@@ -6,9 +6,13 @@ import Servers from '../../api/servers';
 import Maps from '../../api/maps';
 import Gametypes from '../../api/gametypes';
 import MatchSummary from '../../components/MatchSummary/'
+import Player from '../../api/player';
+import MatchFragSummary from '../../components/MatchFragSummary/';
 
 
-function Match({info, server, gametype, map, image}){
+function Match({info, server, gametype, map, image, playerData}){
+
+    const parsedInfo = JSON.parse(info);
 
     return <div>
         <DefaultHead />
@@ -22,6 +26,8 @@ function Match({info, server, gametype, map, image}){
                     </div>
 
                     <MatchSummary info={info} server={server} gametype={gametype} map={map} image={image}/>
+
+                    <MatchFragSummary bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
                 </div>
             </div>
             <Footer />
@@ -32,19 +38,32 @@ function Match({info, server, gametype, map, image}){
 
 export async function getServerSideProps({query}){
 
+    let matchId = (query.id !== undefined) ? parseInt(query.id) : parseInt(null);
+
     const m = new MatchManager();
 
-    let matchId = (query.id !== undefined) ? parseInt(query.id) : 1;
+    if(matchId !== matchId){
+        return {
+            props: {
 
-    if(matchId !== matchId) matchId = 1;
+            }
+        };
+    }
+
+    if(!await m.exists(matchId)){
+
+        return {
+            props: {
+
+            }
+        };
+    }
 
     let matchInfo = await m.get(matchId);
 
     const s = new Servers();
 
     const serverName = await s.getName(matchInfo.server);
-
-    console.log(`serverName = ${serverName}`);
 
     const g = new Gametypes();
     const gametypeName = await g.getName(matchInfo.gametype);
@@ -54,8 +73,38 @@ export async function getServerSideProps({query}){
 
     const image = await map.getImage(mapName);
 
-    console.log(image);
+    const playerManager = new Player();
 
+    let playerData = await playerManager.getAllInMatch(matchId);
+
+    const playerIds = [];
+
+    for(let i = 0; i < playerData.length; i++){
+
+        playerIds.push(playerData[i].player_id);
+    }
+
+    let playerNames = await playerManager.getNames(playerIds);
+
+    let currentName = 0;
+
+    console.log(playerNames);
+
+    for(let i = 0; i < playerData.length; i++){
+
+        //playerData[i].name = 'Not Found';
+        currentName = playerNames.get(playerData[i].player_id);
+
+        console.log(`currentName = ${currentName} ()`);
+        if(currentName === undefined){
+            currentName = 'Not Found';
+        }
+        playerData[i].name = currentName;
+    }
+
+   // console.log(playerData);
+
+    playerData = JSON.stringify(playerData);
 
     return {
         props: {
@@ -63,9 +112,11 @@ export async function getServerSideProps({query}){
             "server": serverName,
             "gametype": gametypeName,
             "map": mapName,
-            "image": image
+            "image": image,
+            "playerData": playerData
         }
     };
+
 }
 
 export default Match;

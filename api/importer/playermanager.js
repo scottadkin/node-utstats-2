@@ -559,7 +559,10 @@ class PlayerManager{
 
                 }else if(combine.indexOf(c) !== -1){
 
-                    if(this.bLastManStanding && c === 'score'){                 
+                    if(this.bLastManStanding && c === 'score'){      
+                        //dont want players that left the match or started late to win
+                       // master.stats[c].score = 0;
+                        //master.stats[c].frags = 0;           
                         new Message(`Skipping score merge for LMS game for player ${master.name}.`, 'note');
                         //continue;
                     }else{

@@ -4,9 +4,8 @@ import Playtime from '../Playtime/';
 import MatchResult from '../MatchResult/';
 
 
-const ServerSetting = ({label, value, bEnd}) =>{
 
-    
+const ServerSetting = ({label, value, bEnd}) =>{
 
     return (<div className={styles.setting}>
         <span className="yellow">{label} </span>
@@ -16,9 +15,17 @@ const ServerSetting = ({label, value, bEnd}) =>{
 
 const MatchSummary = ({info, server, gametype, map, image}) =>{
 
+    if(info === undefined){
+
+        return (<div className="default-header">
+            Match doesn't exist.
+        </div>);
+    }
+
     info = JSON.parse(info);
 
     console.log(info);
+
 
     if(info.email === '') info.email = 'Not specified';
 
@@ -41,26 +48,22 @@ const MatchSummary = ({info, server, gametype, map, image}) =>{
 
                     <span className="yellow">Server Settings</span><br/>
 
-                    <ServerSetting label="Admin" value={`${info.admin}`}/>
-                    <ServerSetting label="Email" value={info.email}/>
-                    <ServerSetting label="Server Version" value={info.version}/>
-                    <ServerSetting label="Min Client Version" value={info.min_version}/>
-                    <ServerSetting label="Max Players" value={info.max_players}/>
-                    <ServerSetting label="Max Spectators" value={info.max_spectators}/>
-                    <ServerSetting label="Target Score" value={info.target_score}/>
-                    <ServerSetting label="Time Limit" value={info.time_limit}/>
-                    <ServerSetting label="Tournament" value={(info.tournament) ? 'True' : 'False'}/>
-                    <ServerSetting label="Game Speed" value={`${info.game_speed}%`}/>
-                    <ServerSetting label="Air Control" value={`${info.air_control * 100}%`}/>
-                    <ServerSetting label="Use Translocator" value={(info.use_translocator) ? 'True' : 'False'}/>
-                    <ServerSetting label="Friendly Fire Scale" value={`${info.friendly_fire_scale * 100}%`}/>
-                    <ServerSetting label="Match End Reason" value={info.end_type}/>
-                    <ServerSetting label="MOTD" value={info.motd} bEnd={1}/>
+                    <ServerSetting key={1} label="Admin" value={`${info.admin}`}/>
+                    <ServerSetting key={2} label="Email" value={info.email}/>
+                    <ServerSetting key={3} label="Server Version" value={info.version}/>
+                    <ServerSetting key={4} label="Min Client Version" value={info.min_version}/>
+                    <ServerSetting key={5} label="Max Players" value={info.max_players}/>
+                    <ServerSetting key={6} label="Max Spectators" value={info.max_spectators}/>
+                    <ServerSetting key={7} label="Target Score" value={info.target_score}/>
+                    <ServerSetting key={8} label="Time Limit" value={info.time_limit}/>
+                    <ServerSetting key={9} label="Tournament" value={(info.tournament) ? 'True' : 'False'}/>
+                    <ServerSetting key={10} label="Game Speed" value={`${info.game_speed}%`}/>
+                    <ServerSetting key={11} label="Air Control" value={`${info.air_control * 100}%`}/>
+                    <ServerSetting key={12} label="Use Translocator" value={(info.use_translocator) ? 'True' : 'False'}/>
+                    <ServerSetting key={13} label="Friendly Fire Scale" value={`${info.friendly_fire_scale * 100}%`}/>
+                    <ServerSetting key={14} label="Match End Reason" value={info.end_type}/>
+                    <ServerSetting key={15} label="MOTD" value={info.motd} bEnd={1}/>
 
-
-                    
-                    
-    
             </div>
         </div>
     );

@@ -1,0 +1,101 @@
+import styles from './MatchFragTable.module.css';
+import Playtime from '../Playtime/';
+import CountryFlag from '../CountryFlag/'
+
+const MatchFragTable = ({players, team}) =>{
+
+    players = JSON.parse(players);
+
+    //console.log(players);
+
+    let bgColor = "";
+
+    switch(team){
+        case 0: {  bgColor = "team-red"; } break;
+        case 1: {  bgColor = "team-blue"; } break;
+        case 2: {  bgColor = "team-green"; } break;
+        case 3: {  bgColor = "team-yellow"; } break;
+    }
+
+
+    const elems = [];
+    
+    let totalPlaytime = 0;
+    let totalSuicides = 0;
+    let totalTeamKills = 0;
+    let totalSpawnKills = 0;
+    let totalDeaths = 0;
+    let totalKills = 0;
+    let totalFrags = 0;
+    let totalScore = 0;
+    let totalEff = 0;
+
+    let p = 0;
+
+    for(let i = 0; i < players.length; i++){
+
+        p = players[i];
+
+        totalPlaytime += p.playtime;
+        totalSuicides += p.suicides;
+        totalTeamKills += p.team_kills;
+        totalSpawnKills += p.spawn_kills;
+        totalDeaths += p.deaths;
+        totalKills += p.kills;
+        totalFrags += p.frags;
+        totalScore += p.score;
+
+        elems.push(<tr>
+            <td><CountryFlag country={p.country} />{p.name}</td>
+            <td><Playtime seconds={p.playtime} /></td>
+            <td>{(p.suicides > 0) ? p.suicides : ''}</td>
+            <td>{(p.team_kills > 0) ? p.team_kills : ''}</td>
+            <td>{(p.spawn_kills > 0) ? p.spawn_kills : ''}</td>
+            <td>{(p.deaths > 0) ? p.deaths : ''}</td>
+            <td>{(p.kills > 0) ? p.kills : ''}</td>
+            <td>{p.efficiency.toFixed(2)}%</td>
+            <td>{p.frags}</td>
+            <td>{p.score}</td>
+        </tr>);
+    }
+
+    if(totalKills && totalDeaths > 0){
+        totalEff = totalKills / (totalDeaths + totalKills);
+        totalEff *= 100;
+    }else if(totalKills > 0){
+        totalEff = 100;
+    }
+
+    elems.push(<tr className={styles.totals}>
+        <td>Totals</td>
+        <td><Playtime seconds={totalPlaytime} /></td>
+        <td>{(totalSuicides > 0) ? totalSuicides : ''}</td>
+        <td>{(totalTeamKills > 0) ? totalTeamKills : ''}</td>
+        <td>{(totalSpawnKills > 0) ? totalSpawnKills : ''}</td>
+        <td>{(totalDeaths > 0) ? totalDeaths : ''}</td>
+        <td>{(totalKills > 0) ? totalKills : ''}</td>
+        <td>{totalEff.toFixed(2)}%</td>
+        <td>{totalFrags}</td>
+        <td>{totalScore}</td>
+    </tr>);
+
+    return (<table className={`${styles.dtable} center ${bgColor}`}>
+        <tbody>
+            <tr>
+                <th>Player</th>
+                <th>Playtime</th>
+                <th>Suicides</th>
+                <th>Team Kills</th>
+                <th>Spawn Kills</th>
+                <th>Deaths</th>
+                <th>Kills</th>
+                <th>Efficiency</th>
+                <th>Frags</th>
+                <th>Score</th>
+            </tr>
+            {elems}
+        </tbody>
+    </table>);
+}
+
+export default MatchFragTable;

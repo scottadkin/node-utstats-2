@@ -238,6 +238,7 @@ const Countires = (code) =>{
         "TZ": "Tanzania, United Republic of",
         "UA": "Ukraine",
         "UG": "Uganda",
+        "UK": "United Kingdom",
         "UM": "US Minor Outlying Islands",
         "US": "United States",
         "UY": "Uruguay",
@@ -262,7 +263,7 @@ const Countires = (code) =>{
     code = code.toUpperCase();
 
     if(flags[code] === undefined){
-        return {"code": "GB", "country": flags["GB"]};
+        return {"code": "XX", "country": 'Unknown'};
     }
 
     return {"code": code, "country": flags[code]};
