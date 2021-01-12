@@ -2,7 +2,7 @@ import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/'
 
 
-const MatchSpecialEvents = ({players}) =>{
+const MatchSpecialEvents = ({bTeamGame, players}) =>{
 
     players = JSON.parse(players);
     const spreeElems = [];
@@ -25,18 +25,20 @@ const MatchSpecialEvents = ({players}) =>{
 
     let p = 0;
 
-    let bgColor = ';'
+    let bgColor = '';
 
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
 
-        switch(p.team){
-            case 0: {  bgColor = "team-red"; } break;
-            case 1: {  bgColor = "team-blue"; } break;
-            case 2: {  bgColor = "team-green"; } break;
-            case 3: {  bgColor = "team-yellow"; } break;
-            default: { bgColor = "";} break;
+        if(bTeamGame){
+            switch(p.team){
+                case 0: {  bgColor = "team-red"; } break;
+                case 1: {  bgColor = "team-blue"; } break;
+                case 2: {  bgColor = "team-green"; } break;
+                case 3: {  bgColor = "team-yellow"; } break;
+                default: { bgColor = "";} break;
+            }
         }
 
         spreeElems.push(

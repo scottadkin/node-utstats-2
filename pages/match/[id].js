@@ -30,7 +30,7 @@ function Match({info, server, gametype, map, image, playerData}){
 
                     <MatchFragSummary bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
 
-                    <MatchSpecialEvents players={playerData}/>
+                    <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={playerData}/>
                 </div>
             </div>
             <Footer />

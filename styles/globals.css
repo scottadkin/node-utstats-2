@@ -141,6 +141,7 @@ table{
   padding:10px;
   color:yellow;
   border:1px solid rgba(255,255,255,0.1);
+  background-color:black;
 }
 
 .special-table td{
