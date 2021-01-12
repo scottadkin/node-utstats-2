@@ -17,11 +17,6 @@ const getPlayersInTeam = (players, team) =>{
 
 const MatchFragSummary = ({bTeamGame, totalTeams, playerData}) =>{
 
-    //playerData = JSON.parse(playerData);
-    //console.log(`bTeamGame = ${bTeamGame}`);
-   // console.log(totalTeams);
-    //console.log(playerData);
-
     playerData = JSON.parse(playerData);
 
     playerData.sort((a, b) =>{

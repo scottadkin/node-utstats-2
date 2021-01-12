@@ -1,10 +1,10 @@
 .dtable{
-    background-color:black;
     color:white;
     font-weight:300;
     width:80%;
     max-width:1000px;
     margin-top:10px;
+    background-color:black;
 }
 
 .dtable th{
@@ -15,10 +15,10 @@
     border:1px solid rgb(32,32,32);
 }
 
+
 .dtable td{
     border:1px solid rgba(255,255,255,0.1);
     padding:5px;
-    background-color:rgba(0,0,0,0.25);
 }
 
 .dtable td:nth-child(1){

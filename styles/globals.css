@@ -98,7 +98,7 @@ footer{
 
 .country-flag{
   width:32px;
-  height:24px;
+  height:20px;
   margin-right:5px;
 }
 
@@ -145,13 +145,10 @@ table{
 
 .special-table td{
   font-weight:100;
-  padding:10px;
+  padding:5px;
   border:1px solid rgba(255,255,255,0.1);
 }
 
-.special-table tr:nth-child(even){
-  background-color:rgb(12,12,12);
-}
 
 .title-flag{
   height:20px;
@@ -194,7 +191,7 @@ table{
 
 .solo{
   background-color:rgb(32,32,32);
-  background:linear-gradient(to bottom right, rgb(12,12,12), rgb(32,32,32));
+ 
   
 }
 
@@ -205,23 +202,24 @@ table{
 }
 
 .duo div:nth-child(1), .trio div:nth-child(1), .quad div:nth-child(1), .team-red{
-  background-color:rgb(109,0,0);
-  background:linear-gradient(to bottom right, rgb(79,0,0), rgb(129,0,0));
+  background-color:rgb(89,0,0);
+  /*background:linear-gradient(to bottom right, rgb(79,0,0), rgb(129,0,0));*/
 }
 
+
 .duo div:nth-child(2), .trio div:nth-child(2), .quad div:nth-child(2), .team-blue{
-  background-color:rgb(13,94,229);
-  background:linear-gradient(to bottom right, rgb(13,74,209), rgb(33,94,249));
+  background-color:rgb(13,84,179);
+  /*background:linear-gradient(to bottom right, rgb(13,74,209), rgb(33,94,249));*/
 }
 
 .duo div:nth-child(3), .trio div:nth-child(3), .quad div:nth-child(3), .team-green{
-  background-color:rgb(48,118,48);
-  background:linear-gradient(to bottom right, rgb(28,98,28), rgb(68,138,68));
+  background-color:rgb(28,98,28);
+  /*background:linear-gradient(to bottom right, rgb(28,98,28), rgb(68,138,68));*/
 }
 
 .duo div:nth-child(4), .trio div:nth-child(4), .quad div:nth-child(4), .team-yellow{
-  background-color:rgb(124,124,36);
-  background:linear-gradient(to bottom right, rgb(104,104,16), rgb(144,144,56));
+  background-color:rgb(104,104,16);
+  /*background:linear-gradient(to bottom right, rgb(104,104,16), rgb(144,144,56));*/
 }
 
 .trio{
@@ -247,4 +245,8 @@ table{
 .center{
   margin-left:auto;
   margin-right:auto;
+}
+
+.text-left{
+  text-align:left;
 }

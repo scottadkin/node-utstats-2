@@ -30,8 +30,7 @@ const FragSummary = ({data}) =>{
                             <td>{data[8]}</td>
                         </tr>
                     </tbody>
-                </table>
-                
+                </table>      
             </div>
     );
 }

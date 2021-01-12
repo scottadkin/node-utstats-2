@@ -4,7 +4,7 @@ const CountryFlag = ({country}) =>{
 
     let flag = Countires(country);
 
-    return (<img className="country-flag" src={`/images/flags/${country}.svg`} alt="flag"/>);
+    return (<img className="country-flag" src={`/images/flags/${flag.code}.svg`} alt="flag"/>);
 }
 
 

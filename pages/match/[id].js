@@ -8,6 +8,7 @@ import Gametypes from '../../api/gametypes';
 import MatchSummary from '../../components/MatchSummary/'
 import Player from '../../api/player';
 import MatchFragSummary from '../../components/MatchFragSummary/';
+import MatchSpecialEvents from '../../components/MatchSpecialEvents'
 
 
 function Match({info, server, gametype, map, image, playerData}){
@@ -28,6 +29,8 @@ function Match({info, server, gametype, map, image, playerData}){
                     <MatchSummary info={info} server={server} gametype={gametype} map={map} image={image}/>
 
                     <MatchFragSummary bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
+
+                    <MatchSpecialEvents players={playerData}/>
                 </div>
             </div>
             <Footer />
@@ -87,8 +90,6 @@ export async function getServerSideProps({query}){
     let playerNames = await playerManager.getNames(playerIds);
 
     let currentName = 0;
-
-    console.log(playerNames);
 
     for(let i = 0; i < playerData.length; i++){
 
