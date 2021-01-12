@@ -279,6 +279,24 @@ class Weapons{
         });
     }
 
+    getNamesByIds(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_weapons WHERE id IN(?)";
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+        });
+    }
+
 
     async getImageList(){
 
@@ -286,9 +304,54 @@ class Weapons{
 
             const files = fs.readdirSync('public/images/weapons/');
 
-            //console.table(files);
-
             return files;
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    getMatchPlayerData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_player_weapon_match WHERE match_id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    async getMatchData(id){
+
+        try{
+
+            const playerData = await this.getMatchPlayerData(id);
+
+            const weaponIds = [];
+
+            for(let i = 0; i < playerData.length; i++){
+
+                if(weaponIds.indexOf(playerData[i].weapon_id) === -1){
+                    weaponIds.push(playerData[i].weapon_id);
+                }
+            }
+
+            const weaponNames = await this.getNamesByIds(weaponIds);
+
+            return {
+                "names": weaponNames,
+                "playerData": playerData
+            };
 
         }catch(err){
             console.trace(err);

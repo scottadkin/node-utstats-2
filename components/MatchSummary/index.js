@@ -24,8 +24,6 @@ const MatchSummary = ({info, server, gametype, map, image}) =>{
 
     info = JSON.parse(info);
 
-    console.log(info);
-
 
     if(info.email === '') info.email = 'Not specified';
 

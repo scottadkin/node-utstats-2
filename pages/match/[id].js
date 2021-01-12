@@ -8,10 +8,13 @@ import Gametypes from '../../api/gametypes';
 import MatchSummary from '../../components/MatchSummary/'
 import Player from '../../api/player';
 import MatchFragSummary from '../../components/MatchFragSummary/';
-import MatchSpecialEvents from '../../components/MatchSpecialEvents'
+import MatchSpecialEvents from '../../components/MatchSpecialEvents/';
+import Weapons from '../../api/weapons';
+import MatchWeaponSummary from '../../components/MatchWeaponSummary/'
 
 
-function Match({info, server, gametype, map, image, playerData}){
+
+function Match({info, server, gametype, map, image, playerData, weaponData}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -31,6 +34,8 @@ function Match({info, server, gametype, map, image, playerData}){
                     <MatchFragSummary bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
 
                     <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={playerData}/>
+
+                    <MatchWeaponSummary data={weaponData}/>
                 </div>
             </div>
             <Footer />
@@ -96,16 +101,20 @@ export async function getServerSideProps({query}){
         //playerData[i].name = 'Not Found';
         currentName = playerNames.get(playerData[i].player_id);
 
-        console.log(`currentName = ${currentName} ()`);
         if(currentName === undefined){
             currentName = 'Not Found';
         }
         playerData[i].name = currentName;
     }
 
-   // console.log(playerData);
-
     playerData = JSON.stringify(playerData);
+
+
+    const weaponManager = new Weapons();
+
+    let weaponData = await weaponManager.getMatchData(matchId);
+
+    weaponData = JSON.stringify(weaponData);
 
     return {
         props: {
@@ -114,7 +123,8 @@ export async function getServerSideProps({query}){
             "gametype": gametypeName,
             "map": mapName,
             "image": image,
-            "playerData": playerData
+            "playerData": playerData,
+            "weaponData": weaponData
         }
     };
 
