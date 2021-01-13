@@ -16,6 +16,8 @@ class DOMManager{
 
         this.playerCaps = {};
 
+        this.capData = [];
+
         this.domination = new Domination();
     }
 
@@ -27,6 +29,7 @@ class DOMManager{
 
         let d = 0;
         let result = 0;
+        let currentPlayer = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
@@ -45,7 +48,18 @@ class DOMManager{
 
                 this.pointCaptured(result[2], result[3]);
 
-                
+                currentPlayer = this.playerManager.getOriginalConnectionById(result[3]);
+
+                if(currentPlayer === null){
+                    currentPlayer = -1;
+                }
+
+                this.capData.push({
+                    "timestamp": parseFloat(result[1]),
+                    "point": result[2],
+                    "player": currentPlayer.masterId,
+
+                });
 
             }else if(teamScoreReg.test(d)){
 
@@ -54,6 +68,7 @@ class DOMManager{
                 this.setTeamScore(result[1], result[2]);
             }
         }
+
     }
 
 
@@ -245,6 +260,37 @@ class DOMManager{
         }catch(err){
             new Message(`updatePlayersMatchStats ${err}`,'error');
         }
+    }
+
+
+
+    async insertMatchControlPointCaptures(matchId, mapId){
+
+        try{
+
+
+            const pointIds = await this.domination.getMapControlPoints(mapId);
+
+            let d = 0;
+
+            let pointId = 0;
+
+            for(let i = 0; i < this.capData.length; i++){
+
+                d = this.capData[i];
+
+                pointId = pointIds.get(d.point);
+
+                if(pointId === undefined){
+                    pointId = -1;
+                }
+
+                await this.domination.insertPointCap(matchId, d.timestamp, d.player, pointId);
+            }
+
+        }catch(err){
+            new Message(err,'error');
+        }   
     }
 }
 

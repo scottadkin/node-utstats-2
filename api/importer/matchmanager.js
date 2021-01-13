@@ -128,13 +128,14 @@ class MatchManager{
             if(this.domManager !== undefined){
                 this.domManager.mapId =this.mapInfo.mapId;
                 this.domManager.matchId = this.matchId;
-                this.domManager.parseData();
                 this.domManager.playerManager = this.playerManager;
+                this.domManager.parseData();
                 await this.domManager.updateTeamScores();
                 await this.domManager.updateControlPointStats();
                 await this.domManager.insertMatchControlPointStats();
                 await this.domManager.updateMatchDomCaps();
                 this.domManager.setPlayerDomCaps();
+                await this.domManager.insertMatchControlPointCaptures(this.matchId, this.mapInfo.mapId);
 
                 new Message(`Domination stats update complete.`,'pass');
             }

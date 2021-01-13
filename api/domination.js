@@ -190,6 +190,46 @@ class Domination{
             });
         });
     }
+
+    getMapControlPoints(map){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
+
+            mysql.query(query, [map], (err, result) =>{
+
+                if(err) reject(err);
+
+                const data = new Map();
+
+                if(result !== undefined){
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data.set(result[i].name, result[i].id);
+                    }
+                }
+
+                resolve(data);
+            });
+        });
+    }
+
+    insertPointCap(match, time, player, point){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_dom_match_caps VALUES(NULL,?,?,?,?)";
+
+            mysql.query(query, [match, time, player, point], (err) =>{
+                
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 

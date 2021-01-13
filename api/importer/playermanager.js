@@ -471,6 +471,8 @@ class PlayerManager{
 
     getOriginalConnectionById(id){
 
+        id = parseInt(id);
+        
         const name = this.getPlayerNameById(id);
 
         if(name !== null){
