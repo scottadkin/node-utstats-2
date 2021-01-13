@@ -3,6 +3,37 @@ import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
 
+const bAllEmpty = (data, bSpree) =>{
+
+    if(bSpree){
+
+        for(let i = 0; i < 7; i++){
+
+            if(data[`spree_${i+1}`] > 0){
+                return false;
+            }
+        }
+
+        if(data['spree_best'] > 0){
+            return false;
+        }
+    }else{
+
+        for(let i = 0; i < 7; i++){
+
+            if(data[`multi${i+1}`] > 0){
+                return false;
+            }
+        }
+
+        if(data['multi_best'] > 1){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 const MatchSpecialEvents = ({bTeamGame, players}) =>{
 
     players = JSON.parse(players);
@@ -44,33 +75,37 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
             bgColor = "team-none";
         }
 
-        spreeElems.push(
-            <tr className={bgColor}>
-                <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
-                <td>{(p.spree_1 > 0) ? p.spree_1 : ''}</td>
-                <td>{(p.spree_2 > 0) ? p.spree_2 : ''}</td>
-                <td>{(p.spree_3 > 0) ? p.spree_3 : ''}</td>
-                <td>{(p.spree_4 > 0) ? p.spree_4 : ''}</td>
-                <td>{(p.spree_5 > 0) ? p.spree_5 : ''}</td>
-                <td>{(p.spree_6 > 0) ? p.spree_6 : ''}</td>
-                <td>{(p.spree_7 > 0) ? p.spree_7 : ''}</td>
-                <td>{p.spree_best}</td>
-            </tr>
-        );
+        if(!bAllEmpty(p, true)){
+            spreeElems.push(
+                <tr className={bgColor}>
+                    <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+                    <td>{(p.spree_1 > 0) ? p.spree_1 : ''}</td>
+                    <td>{(p.spree_2 > 0) ? p.spree_2 : ''}</td>
+                    <td>{(p.spree_3 > 0) ? p.spree_3 : ''}</td>
+                    <td>{(p.spree_4 > 0) ? p.spree_4 : ''}</td>
+                    <td>{(p.spree_5 > 0) ? p.spree_5 : ''}</td>
+                    <td>{(p.spree_6 > 0) ? p.spree_6 : ''}</td>
+                    <td>{(p.spree_7 > 0) ? p.spree_7 : ''}</td>
+                    <td>{(p.spree_best > 0) ? p.spree_best : ''}</td>
+                </tr>
+            );
+        }
 
-        multiElems.push(
-            <tr className={bgColor}>
-                <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
-                <td>{(p.multi_1 > 0) ? p.multi_1 : ''}</td>
-                <td>{(p.multi_2 > 0) ? p.multi_2 : ''}</td>
-                <td>{(p.multi_3 > 0) ? p.multi_3 : ''}</td>
-                <td>{(p.multi_4 > 0) ? p.multi_4 : ''}</td>
-                <td>{(p.multi_5 > 0) ? p.multi_5 : ''}</td>
-                <td>{(p.multi_6 > 0) ? p.multi_6 : ''}</td>
-                <td>{(p.multi_7 > 0) ? p.multi_7 : ''}</td>
-                <td>{(p.multi_best > 1) ? p.multi_best : ''}</td>
-            </tr>
-        );
+        if(!bAllEmpty(p, false)){
+            multiElems.push(
+                <tr className={bgColor}>
+                    <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+                    <td>{(p.multi_1 > 0) ? p.multi_1 : ''}</td>
+                    <td>{(p.multi_2 > 0) ? p.multi_2 : ''}</td>
+                    <td>{(p.multi_3 > 0) ? p.multi_3 : ''}</td>
+                    <td>{(p.multi_4 > 0) ? p.multi_4 : ''}</td>
+                    <td>{(p.multi_5 > 0) ? p.multi_5 : ''}</td>
+                    <td>{(p.multi_6 > 0) ? p.multi_6 : ''}</td>
+                    <td>{(p.multi_7 > 0) ? p.multi_7 : ''}</td>
+                    <td>{(p.multi_best > 1) ? p.multi_best : ''}</td>
+                </tr>
+            );
+        }
     }
 
     return (
