@@ -207,7 +207,8 @@ export async function getServerSideProps({query}){
         const dom = new Domination();
 
         domControlPointNames = await dom.getControlPointNames(matchInfo.map);
-        domCapData = await dom.getMatchDomPoints(matchId);  
+        //domCapData = await dom.getMatchDomPoints(matchId); 
+        domCapData = await dom.getMatchCaps(matchId); 
     }
 
     domControlPointNames = JSON.stringify(domControlPointNames);

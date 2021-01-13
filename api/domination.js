@@ -230,6 +230,25 @@ class Domination{
             });
         });
     }
+
+    getMatchCaps(match){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT time,player,point FROM nstats_dom_match_caps WHERE match_id=?";
+
+            mysql.query(query, [match], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

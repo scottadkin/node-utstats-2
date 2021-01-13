@@ -31,8 +31,6 @@ const setPlayersDetails = (weaponData, players) =>{
 
     const mapData = createPlayerMap(players);
 
-    console.log(mapData);
-
     let currentPlayer = 0;
 
     for(let i = 0; i < weaponData.length; i++){
