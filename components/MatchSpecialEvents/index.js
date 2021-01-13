@@ -41,21 +41,6 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
     const spreeElems = [];
     const multiElems = [];
 
-
-    players.sort((a, b) =>{
-
-        a = a.team;
-        b = b.team;
-
-        if(a > b){
-            return 1;
-        }else if(a < b){
-            return -1;
-        }
-
-        return 0;
-    });
-
     let p = 0;
 
     let bgColor = '';

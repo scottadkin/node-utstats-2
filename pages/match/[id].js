@@ -155,6 +155,25 @@ export async function getServerSideProps({query}){
         playerData[i].name = currentName;
     }
 
+    //if it's a team game sort by teams here isntead of in the components
+
+    if(matchInfo.team_game){
+
+        playerData.sort((a, b) =>{
+
+            a = a.team;
+            b = b.team;
+
+            if(a < b){
+                return 1;
+            }else if(a > b){
+                return -1;
+            }
+
+            return 0;
+        });
+    }
+
     playerData = JSON.stringify(playerData);
 
 

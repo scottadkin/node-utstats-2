@@ -18,22 +18,7 @@ const getPlayersInTeam = (players, team) =>{
 const MatchFragSummary = ({bTeamGame, totalTeams, playerData}) =>{
 
     playerData = JSON.parse(playerData);
-
-    playerData.sort((a, b) =>{
-
-        a = a.score;
-        b = b.score;
-
-        if(a > b){
-            return -1;
-        }else if(a < b){
-            return 1;
-        }
-
-        return 0;
-    });
-
-
+    
     const teams = [];
 
     if(!bTeamGame){
