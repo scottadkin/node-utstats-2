@@ -58,10 +58,6 @@ const MatchWeaponSummary = ({data, players, bTeamGame}) =>{
     data = JSON.parse(data);
     players = JSON.parse(players);
 
-    console.log(`weapon Data`);
-
-    console.log(data);
-
     setPlayersDetails(data.playerData, players);
 
     const elems = [];
@@ -71,9 +67,12 @@ const MatchWeaponSummary = ({data, players, bTeamGame}) =>{
     for(let i = 0; i < data.names.length; i++){
 
         currentId = data.names[i].id;
-        elems.push(
-            <MatchWeapon name={data.names[i].name} data={getWeaponData(currentId, data.playerData)} bTeamGame={bTeamGame}/>
-        );
+        if(data.names[i].name.toLowerCase() !== 'none'){
+            elems.push(
+                <MatchWeapon name={data.names[i].name} data={getWeaponData(currentId, data.playerData)} bTeamGame={bTeamGame}/>
+            );
+        }
+        
     }
 
     return (

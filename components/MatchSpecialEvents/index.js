@@ -1,6 +1,7 @@
 import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import styles from './MatchSpecialEvents.module.css';
 
 
 const bAllEmpty = (data, bSpree) =>{
@@ -110,11 +111,11 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
 
     return (
         <div>
-        <div className="special-table">      
+        <div className={`special-table center ${styles.table}`}>      
             <div className="default-header">
                 Killing Sprees
             </div>
-            <table>
+            <table >
                 <tbody>
                     <tr>
                         <th>Player</th>
@@ -132,7 +133,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
             </table>
         </div>
 
-        <div className="special-table">
+        <div className={`special-table center ${styles.table}`}>
             <div className="default-header">
                 Multi Kills
             </div>

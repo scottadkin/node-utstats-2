@@ -10,13 +10,64 @@ import Player from '../../api/player';
 import MatchFragSummary from '../../components/MatchFragSummary/';
 import MatchSpecialEvents from '../../components/MatchSpecialEvents/';
 import Weapons from '../../api/weapons';
-import MatchWeaponSummary from '../../components/MatchWeaponSummary/'
+import MatchWeaponSummary from '../../components/MatchWeaponSummary/';
+import MatchCTFSummary from '../../components/MatchCTFSummary/'
 
+
+function bCTF(players){
+  
+    let p = 0;
+
+    const vars = ['assist', 'return', 'taken', 'dropped', 'capture', 'pickup', 'cover', 'kill', 'save'];
+
+    for(let i = 0; i < players.length; i++){
+
+        p = players[i];
+
+        for(let v = 0; v < vars.length; v++){
+
+            if(p[`flag_${vars[v]}`] > 0){
+                return true;
+            }
+        }  
+    }
+
+    return false;
+}
 
 
 function Match({info, server, gametype, map, image, playerData, weaponData}){
 
     const parsedInfo = JSON.parse(info);
+
+    const parsedPlayerData = JSON.parse(playerData);
+
+
+    const elems = [];
+
+    elems.push(
+        <MatchSummary info={info} server={server} gametype={gametype} map={map} image={image}/>
+    );
+
+
+    if(bCTF(parsedPlayerData)){
+
+        elems.push(
+            <MatchCTFSummary players={playerData} totalTeams={parsedInfo.total_teams}/>
+        );
+    }
+
+    elems.push(
+        <MatchFragSummary bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
+    );
+
+    elems.push(
+        <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={playerData}/>
+    );
+
+    elems.push(
+        <MatchWeaponSummary data={weaponData} players={playerData} bTeamGame={parsedInfo.team_game}/>
+    );
 
     return <div>
         <DefaultHead />
@@ -28,20 +79,17 @@ function Match({info, server, gametype, map, image, playerData, weaponData}){
                     <div className="default-header">
                         Match Report
                     </div>
-
-                    <MatchSummary info={info} server={server} gametype={gametype} map={map} image={image}/>
-
-                    <MatchFragSummary bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
-
-                    <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={playerData}/>
-
-                    <MatchWeaponSummary data={weaponData} players={playerData} bTeamGame={parsedInfo.team_game}/>
+   
+                        {elems}
+    
                 </div>
             </div>
             <Footer />
         </main>
     </div>
 }
+
+
 
 
 export async function getServerSideProps({query}){

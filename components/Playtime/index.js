@@ -7,8 +7,8 @@ const Playtime = ({seconds}) =>{
 
 
 
-    let secondString = (currentSeconds > 1) ? "Seconds" : "Second";
-    let minuteString = (currentMinutes > 1) ? "Minutes" : "Minute";
+    let secondString = (currentSeconds > 1) ? "Secs" : "Sec";
+    let minuteString = (currentMinutes > 1) ? "Mins" : "Min";
 
  
     let string = `${currentMinutes} ${minuteString}, ${currentSeconds} ${secondString}`;

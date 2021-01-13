@@ -77,7 +77,7 @@ footer{
 
 .default-header{
   text-align:center;
-  font-size:22px;
+  font-size:18px;
   color:white;
   font-weight:100;
   padding-bottom:10px;
@@ -97,9 +97,9 @@ footer{
 }
 
 .country-flag{
-  width:32px;
-  height:20px;
-  margin-right:5px;
+  width:26px;
+  height:14px;
+  margin-right:2px;
 }
 
 #content{
@@ -134,11 +134,14 @@ table{
   margin-right:auto;
   border:1px solid rgba(255,255,255,0.2);
   background-color:black;
+  font-size:14px;
+  width:80%;
+  max-width:1000px;
 }
 
 .special-table th{
   font-weight:300;
-  padding:10px;
+  padding:5px;
   color:yellow;
   border:1px solid rgba(255,255,255,0.1);
   background-color:black;
@@ -146,8 +149,21 @@ table{
 
 .special-table td{
   font-weight:100;
-  padding:5px;
+  padding:3px;
   border:1px solid rgba(255,255,255,0.1);
+}
+
+.special-table td:nth-child(1){
+  min-width:125px;
+}
+
+.special-table tr{
+  transition:background-color 0.25s;
+}
+
+.special-table tr:hover{
+  background-color:black;
+  background:linear-gradient(to bottom, rgb(0,0,0), rgb(6,6,6));
 }
 
 
@@ -163,19 +179,20 @@ table{
   border:1px solid rgba(255,255,255,0.25);
   box-shadow:2px 2px 2px 2px rgba(0,0,0,0.5);
   display:none;
+  font-weight:300;
 }
 
 #mouse-over-title{
   color:yellow;
-  background-color:rgb(12,12,12);
-  font-size:18px;
+  font-size:16px;
   padding:5px 40px;
   border-bottom:1px solid rgba(255,255,255,0.125);
 }
 
 #mouse-over-content{
-  padding:10px;
+  padding:5px;
   max-width:200px;
+  font-size:14px;
 }
 
 .yellow{
@@ -200,6 +217,11 @@ table{
   background-color:green;
   display:grid;
   grid-template-columns: 50% 50%;
+}
+
+.team-none{
+  background-color:rgb(32,32,32);
+  background:linear-gradient(to bottom, rgb(16,16,16), rgb(24,24,24));
 }
 
 .duo div:nth-child(1), .trio div:nth-child(1), .quad div:nth-child(1), .team-red{
@@ -250,4 +272,8 @@ table{
 
 .text-left{
   text-align:left;
+}
+
+.m-bottom-25{
+  margin-bottom:25px;
 }
