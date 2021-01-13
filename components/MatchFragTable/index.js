@@ -8,7 +8,7 @@ const MatchFragTable = ({players, team}) =>{
 
     //console.log(players);
 
-    let bgColor = "";
+    let bgColor = "team-none";
 
     switch(team){
         case 0: {  bgColor = "team-red"; } break;
@@ -46,7 +46,7 @@ const MatchFragTable = ({players, team}) =>{
         totalScore += p.score;
 
         elems.push(<tr className={bgColor}>
-            <td><CountryFlag country={p.country} />{p.name}</td>
+            <td className="text-left"><CountryFlag country={p.country} />{p.name}</td>
             <td><Playtime seconds={p.playtime} /></td>
             <td>{(p.suicides > 0) ? p.suicides : ''}</td>
             <td>{(p.team_kills > 0) ? p.team_kills : ''}</td>
@@ -66,8 +66,8 @@ const MatchFragTable = ({players, team}) =>{
         totalEff = 100;
     }
 
-    elems.push(<tr className={`${styles.totals} ${bgColor}`}>
-        <td>Totals</td>
+    elems.push(<tr className={`${styles.totals}`}>
+        <td className="text-left">Totals</td>
         <td><Playtime seconds={totalPlaytime} /></td>
         <td>{(totalSuicides > 0) ? totalSuicides : ''}</td>
         <td>{(totalTeamKills > 0) ? totalTeamKills : ''}</td>
@@ -79,7 +79,7 @@ const MatchFragTable = ({players, team}) =>{
         <td>{totalScore}</td>
     </tr>);
 
-    return (<table className={`${styles.dtable} center`}>
+    return (<table className={`center m-bottom-25`}>
         <tbody>
             <tr className={bgColor}>
                 <th>Player</th>

@@ -37,8 +37,10 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
                 case 1: {  bgColor = "team-blue"; } break;
                 case 2: {  bgColor = "team-green"; } break;
                 case 3: {  bgColor = "team-yellow"; } break;
-                default: { bgColor = "";} break;
+                default: { bgColor = "team-none";} break;
             }
+        }else{
+            bgColor = "team-none";
         }
 
         spreeElems.push(

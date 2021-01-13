@@ -49,7 +49,9 @@ const MatchFragSummary = ({bTeamGame, totalTeams, playerData}) =>{
     return (
         <div>
             <div className="default-header">Frag Summary</div>
+            <div className="special-table">
             {teams}
+            </div>
         </div>
     );
 }

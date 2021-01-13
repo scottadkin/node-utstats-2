@@ -6,9 +6,9 @@ import CountryFlag from '../CountryFlag/';
 
 const getBGColor = (bTeamGame, team) =>{
 
-    if(!bTeamGame) return '';
+    if(!bTeamGame) return 'team-none';
 
-    let color = '';
+    let color = 'team-none';
 
     switch(team){
         case 0: { color = 'team-red'; } break;
@@ -80,7 +80,7 @@ const MatchWeapon = ({name, data, bTeamGame}) =>{
                 <tr>
                     <th>Player</th>
                     <TipHeader key={`${name}-0`} title="Damage" content="How much damage the player caused with the weapon. K = Thousand, M = Million, B = Billion, T = Trillion."/>
-                    <TipHeader key={`${name}-1`} title="deaths" content="How many times the played died to this weapon." />
+                    <TipHeader key={`${name}-1`} title="Deaths" content="How many times the played died to this weapon." />
                     <TipHeader key={`${name}-2`} title="Kills" content="How many times the played killed with this weapon." />
                     <TipHeader key={`${name}-3`} title="Efficiency" content="(Kills / (kills + deaths)) * 100"/>
                     <TipHeader key={`${name}-4`} title="Shots" content="How many times the player shot the weapon."/>
