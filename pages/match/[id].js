@@ -35,7 +35,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData}){
 
                     <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={playerData}/>
 
-                    <MatchWeaponSummary data={weaponData}/>
+                    <MatchWeaponSummary data={weaponData} players={playerData} bTeamGame={parsedInfo.team_game}/>
                 </div>
             </div>
             <Footer />

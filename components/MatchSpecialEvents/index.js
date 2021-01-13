@@ -65,7 +65,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
                 <td>{(p.multi_5 > 0) ? p.multi_5 : ''}</td>
                 <td>{(p.multi_6 > 0) ? p.multi_6 : ''}</td>
                 <td>{(p.multi_7 > 0) ? p.multi_7 : ''}</td>
-                <td>{p.multi_best}</td>
+                <td>{(p.multi_best > 1) ? p.multi_best : ''}</td>
             </tr>
         );
     }

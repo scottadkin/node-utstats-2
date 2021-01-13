@@ -5,6 +5,7 @@
     max-width:1000px;
     margin-top:10px;
     background-color:black;
+    font-size:14px;
 }
 
 .dtable th{
@@ -18,7 +19,7 @@
 
 .dtable td{
     border:1px solid rgba(255,255,255,0.1);
-    padding:5px;
+    padding:3px;
 }
 
 .dtable td:nth-child(1){
