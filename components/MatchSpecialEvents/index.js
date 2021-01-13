@@ -41,6 +41,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
     const spreeElems = [];
     const multiElems = [];
 
+    players = players.reverse();
     let p = 0;
 
     let bgColor = '';

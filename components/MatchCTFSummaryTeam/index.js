@@ -1,8 +1,23 @@
 import TipHeader from '../TipHeader/';
+import Link from 'next/link';
+import CountryFlag from '../CountryFlag/';
+
+const bAllEmpty = (data) =>{
+
+    const vars = ['taken','pickup','dropped','assist','capture','cover','kill','return','save'];
+
+    for(let v = 0; v < vars.length; v++){
+
+        if(data[`flag_${vars[v]}`] > 0){
+            return false;
+        }
+    }
+   
+    return true;
+}
 
 const MatchCTFSummaryTeam = ({players, team}) =>{
 
-    console.log(team);
     players = JSON.parse(players);
     const elems = [];
 
@@ -34,30 +49,32 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
 
         p = players[i];
 
-        elems.push(
-            <tr className={bgColor}>
-                <td className="text-left">NAME</td>
-                <td>{(p.flag_taken > 0) ? p.flag_taken : ''}</td>
-                <td>{(p.flag_pickup > 0) ? p.flag_pickup : ''}</td>
-                <td>{(p.flag_dropped > 0) ? p.flag_dropped : ''}</td>
-                <td>{(p.flag_assist > 0) ? p.flag_assist : ''}</td>
-                <td>{(p.flag_capture > 0) ? p.flag_capture : ''}</td>
-                <td>{(p.flag_cover > 0) ? p.flag_cover : ''}</td>
-                <td>{(p.flag_kill > 0) ? p.flag_kill : ''}</td>
-                <td>{(p.flag_return > 0) ? p.flag_return : ''}</td>
-                <td>{(p.flag_save > 0) ? p.flag_save : ''}</td>
-            </tr>
-        );
+        if(!bAllEmpty(p)){
+            elems.push(
+                <tr className={bgColor}>
+                    <td className="text-left"><CountryFlag country={p.country}/><Link href={`/player/${p.player_id}`}>{p.name}</Link></td>
+                    <td>{(p.flag_taken > 0) ? p.flag_taken : ''}</td>
+                    <td>{(p.flag_pickup > 0) ? p.flag_pickup : ''}</td>
+                    <td>{(p.flag_dropped > 0) ? p.flag_dropped : ''}</td>
+                    <td>{(p.flag_assist > 0) ? p.flag_assist : ''}</td>
+                    <td>{(p.flag_capture > 0) ? p.flag_capture : ''}</td>
+                    <td>{(p.flag_cover > 0) ? p.flag_cover : ''}</td>
+                    <td>{(p.flag_kill > 0) ? p.flag_kill : ''}</td>
+                    <td>{(p.flag_return > 0) ? p.flag_return : ''}</td>
+                    <td>{(p.flag_save > 0) ? p.flag_save : ''}</td>
+                </tr>
+            );
 
-        takenTotal += p.flag_taken;
-        pickupTotal  += p.flag_pickup;
-        droppedTotal += p.flag_dropped;
-        assistTotal += p.flag_assist;
-        captureTotal += p.flag_capture;
-        coverTotal += p.flag_cover;
-        killTotal += p.flag_kill;
-        returnTotal += p.flag_return;
-        saveTotal += p.flag_save;
+            takenTotal += p.flag_taken;
+            pickupTotal  += p.flag_pickup;
+            droppedTotal += p.flag_dropped;
+            assistTotal += p.flag_assist;
+            captureTotal += p.flag_capture;
+            coverTotal += p.flag_cover;
+            killTotal += p.flag_kill;
+            returnTotal += p.flag_return;
+            saveTotal += p.flag_save;
+        }
     }
 
     elems.push(

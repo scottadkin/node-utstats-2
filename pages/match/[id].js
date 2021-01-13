@@ -161,13 +161,17 @@ export async function getServerSideProps({query}){
 
         playerData.sort((a, b) =>{
 
-            a = a.team;
-            b = b.team;
 
-            if(a < b){
+            if(a.team < b.team){
                 return 1;
-            }else if(a > b){
+            }else if(a.team > b.team){
                 return -1;
+            }else{
+                if(a.score > b.score){
+                    return -1;
+                }else if(a.score < b.score){
+                    return 1;
+                }
             }
 
             return 0;
