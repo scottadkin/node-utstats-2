@@ -1,6 +1,7 @@
 import styles from './MatchFragTable.module.css';
 import Playtime from '../Playtime/';
-import CountryFlag from '../CountryFlag/'
+import CountryFlag from '../CountryFlag/';
+import Link from 'next/link';
 
 const MatchFragTable = ({players, team}) =>{
 
@@ -46,7 +47,7 @@ const MatchFragTable = ({players, team}) =>{
         totalScore += p.score;
 
         elems.push(<tr className={bgColor}>
-            <td className="text-left"><CountryFlag country={p.country} />{p.name}</td>
+            <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
             <td><Playtime seconds={p.playtime} /></td>
             <td>{(p.suicides > 0) ? p.suicides : ''}</td>
             <td>{(p.team_kills > 0) ? p.team_kills : ''}</td>

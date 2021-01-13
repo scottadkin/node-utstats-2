@@ -1,5 +1,6 @@
 import TipHeader from '../TipHeader/';
-import CountryFlag from '../CountryFlag/'
+import CountryFlag from '../CountryFlag/';
+import Link from 'next/link';
 
 
 const MatchSpecialEvents = ({bTeamGame, players}) =>{
@@ -45,7 +46,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
 
         spreeElems.push(
             <tr className={bgColor}>
-                <td className="text-left"><CountryFlag country={p.country} />{p.name}</td>
+                <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
                 <td>{(p.spree_1 > 0) ? p.spree_1 : ''}</td>
                 <td>{(p.spree_2 > 0) ? p.spree_2 : ''}</td>
                 <td>{(p.spree_3 > 0) ? p.spree_3 : ''}</td>
@@ -59,7 +60,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
 
         multiElems.push(
             <tr className={bgColor}>
-                <td className="text-left"><CountryFlag country={p.country} />{p.name}</td>
+                <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
                 <td>{(p.multi_1 > 0) ? p.multi_1 : ''}</td>
                 <td>{(p.multi_2 > 0) ? p.multi_2 : ''}</td>
                 <td>{(p.multi_3 > 0) ? p.multi_3 : ''}</td>
