@@ -11,7 +11,9 @@ import MatchFragSummary from '../../components/MatchFragSummary/';
 import MatchSpecialEvents from '../../components/MatchSpecialEvents/';
 import Weapons from '../../api/weapons';
 import MatchWeaponSummary from '../../components/MatchWeaponSummary/';
-import MatchCTFSummary from '../../components/MatchCTFSummary/'
+import MatchCTFSummary from '../../components/MatchCTFSummary/';
+import Domination from '../../api/domination';
+import MatchDominationSummary from '../../components/MatchDominationSummary/';
 
 
 function bCTF(players){
@@ -36,7 +38,19 @@ function bCTF(players){
 }
 
 
-function Match({info, server, gametype, map, image, playerData, weaponData}){
+function bDomination(players){
+
+    for(let i = 0; i < players.length; i++){
+
+        if(players[i].dom_caps > 0){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -54,6 +68,13 @@ function Match({info, server, gametype, map, image, playerData, weaponData}){
 
         elems.push(
             <MatchCTFSummary players={playerData} totalTeams={parsedInfo.total_teams}/>
+        );
+    }
+
+    if(bDomination(parsedPlayerData)){
+
+        elems.push(
+            <MatchDominationSummary players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
         );
     }
 
@@ -178,6 +199,20 @@ export async function getServerSideProps({query}){
         });
     }
 
+    let domControlPointNames = [];
+    let domCapData = [];
+
+    if(bDomination(playerData)){
+
+        const dom = new Domination();
+
+        domControlPointNames = await dom.getControlPointNames(matchInfo.map);
+        domCapData = await dom.getMatchDomPoints(matchId);  
+    }
+
+    domControlPointNames = JSON.stringify(domControlPointNames);
+    domCapData = JSON.stringify(domCapData);
+
     playerData = JSON.stringify(playerData);
 
 
@@ -195,7 +230,9 @@ export async function getServerSideProps({query}){
             "map": mapName,
             "image": image,
             "playerData": playerData,
-            "weaponData": weaponData
+            "weaponData": weaponData,
+            "domControlPointNames": domControlPointNames,
+            "domCapData": domCapData
         }
     };
 

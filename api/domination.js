@@ -151,6 +151,45 @@ class Domination{
             });
         });
     }
+
+
+    getMatchDomPoints(matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_dom_match_control_points WHERE match_id=?";
+
+            mysql.query(query, [matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    getControlPointNames(mapId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
+
+            mysql.query(query, [mapId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                
+                resolve([]);
+            });
+        });
+    }
 }
 
 
