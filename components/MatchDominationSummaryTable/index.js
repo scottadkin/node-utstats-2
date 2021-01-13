@@ -73,9 +73,13 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
 
     let currentPointCaps = 0;
 
+    const totals = [];
+    let allTotals = 0;
+
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
+        currentTotal = 0;
      
         playerElems = [];
 
@@ -92,7 +96,17 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
             </td>);
 
             if(currentPointCaps[`p_${controlPointNames[c].id}`] !== undefined){
+
+                if(totals[c] === undefined){
+                    totals[c] = 0;
+                }
+
+                totals[c]+= currentPointCaps[`p_${controlPointNames[c].id}`];
                 currentTotal += currentPointCaps[`p_${controlPointNames[c].id}`];
+
+                allTotals += currentPointCaps[`p_${controlPointNames[c].id}`];
+                console.log(allTotals,p.id);
+
             }
         }
 
@@ -104,6 +118,19 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
        
     }
 
+    playerElems = [];
+
+    for(let i = 0; i < controlPointNames.length; i++){
+        playerElems.push(<td>
+            {totals[i]}
+        </td>);
+    }
+    
+    elems.push(<tr>
+        <td>Team Totals</td>
+        {playerElems}
+        <td>{allTotals}</td>
+    </tr>);
     
 
     return (<div className="m-bottom-25">
