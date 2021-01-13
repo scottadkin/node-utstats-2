@@ -398,7 +398,8 @@ class PlayerManager{
 
             //console.log(k);
 
-            if(k.type == 'kill'){
+
+            if(k.type === 'kill'){
 
                 killer = this.getPlayerById(k.killerId);
                 victim = this.getPlayerById(k.victimId);
@@ -409,6 +410,12 @@ class PlayerManager{
                 }
 
               
+                if(victim !== null){
+                    victim.died(k.timestamp, k.killerWeapon);
+                }
+
+            }else if(k.type === 'suicide'){
+                victim = this.getPlayerById(k.killerId);
                 if(victim !== null){
                     victim.died(k.timestamp, k.killerWeapon);
                 }
