@@ -9,6 +9,7 @@ class CTFManager{
         this.data = [];
 
         this.events = [];
+        this.capData = [];
 
         this.ctf = new CTF();
     }
@@ -30,8 +31,6 @@ class CTFManager{
         for(let i = 0; i < this.data.length; i++){
 
             d = this.data[i];
-
-            console.log(d);
 
             result = reg.exec(d);
 
@@ -161,13 +160,13 @@ class CTFManager{
                 current.capTime = e.timestamp;
                 current.travelTime = (current.capTime - current.grabTime).toFixed(2);
 
-                caps.push(current);
+                this.capData.push(current);
                 
             }
 
         }
 
-        console.table(caps);
+        //console.table(caps);
     }
 
 
@@ -253,10 +252,13 @@ class CTFManager{
 
             let c = 0;
 
-            for(let i = 0; i < this.caps.length; i++){
+            for(let i = 0; i < this.capData.length; i++){
 
-                c = this.caps[i];
+                c = this.capData[i];
                 currentGrab = this.playerManager.getOriginalConnectionById(c.grab);
+                
+                currentCovers = [];
+                currentAssists = [];
 
                 for(let x = 0; x < c.covers.length; x++){
                     currentCover = this.playerManager.getOriginalConnectionById(c.covers[x]);
@@ -270,10 +272,11 @@ class CTFManager{
 
                 currentCap = this.playerManager.getOriginalConnectionById(c.cap);
 
-                this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentCovers, currentAssists, currentCap.masterId, c.capTime, c.travelTime);
+                await this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentCovers, currentAssists, currentCap.masterId, c.capTime, c.travelTime);
             }
 
         }catch(err){
+            console.trace(err);
             new Message(`inserCaps ${err}`,'error');
         }
     }

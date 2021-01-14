@@ -83,6 +83,23 @@ class CTF{
                 resolve();
             });
         });
+    }
+
+    insertCap(matchId, mapId, team, grabTime, grab, covers, assists, cap, capTime, travelTime){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
+
+            const vars = [matchId, mapId, team, grabTime, grab, covers.toString(), assists.toString(), cap, capTime, travelTime];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
 
     }
 }

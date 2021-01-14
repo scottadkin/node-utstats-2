@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 11, 2021 at 01:48 AM
+-- Generation Time: Jan 14, 2021 at 02:20 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -56,6 +56,26 @@ CREATE TABLE `nstats_assault_objects` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nstats_ctf_caps`
+--
+
+CREATE TABLE `nstats_ctf_caps` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `map` int(11) NOT NULL,
+  `team` int(11) NOT NULL,
+  `grab_time` float NOT NULL,
+  `grab` int(11) NOT NULL,
+  `covers` varchar(1000) NOT NULL,
+  `assists` varchar(1000) NOT NULL,
+  `cap` int(11) NOT NULL,
+  `cap_time` float NOT NULL,
+  `travel_time` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nstats_dom_control_points`
 --
 
@@ -65,6 +85,20 @@ CREATE TABLE `nstats_dom_control_points` (
   `name` varchar(100) NOT NULL,
   `captured` int(11) NOT NULL,
   `matches` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_dom_match_caps`
+--
+
+CREATE TABLE `nstats_dom_match_caps` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `time` float NOT NULL,
+  `player` int(11) NOT NULL,
+  `point` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -432,9 +466,21 @@ ALTER TABLE `nstats_assault_objects`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_ctf_caps`
+--
+ALTER TABLE `nstats_ctf_caps`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_dom_control_points`
 --
 ALTER TABLE `nstats_dom_control_points`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `nstats_dom_match_caps`
+--
+ALTER TABLE `nstats_dom_match_caps`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -538,9 +584,21 @@ ALTER TABLE `nstats_assault_objects`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `nstats_ctf_caps`
+--
+ALTER TABLE `nstats_ctf_caps`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `nstats_dom_control_points`
 --
 ALTER TABLE `nstats_dom_control_points`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_dom_match_caps`
+--
+ALTER TABLE `nstats_dom_match_caps`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

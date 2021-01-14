@@ -103,6 +103,7 @@ class MatchManager{
                     this.CTFManager.parseData();
                     this.CTFManager.setPlayerStats();
                     await this.CTFManager.updatePlayerTotals();
+                    await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId);
 
                     new Message(`Capture The Flag stats update complete.`,'pass');
                 }
