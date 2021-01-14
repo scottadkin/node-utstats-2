@@ -67,7 +67,7 @@ const PlayerRecentMatches = ({playerId, matches, maps, scores, gametypes, totalM
             for(let i = 0; i < currentScore.total_teams; i++){
 
                 scoreElems.push(
-                    <div>
+                    <div key={`score_elems_${i}`}>
                         {currentScore[`team_score_${i}`]}
                     </div>
                 );
@@ -75,7 +75,7 @@ const PlayerRecentMatches = ({playerId, matches, maps, scores, gametypes, totalM
 
             if(currentScore.total_teams === 0){
                 scoreElems.push(
-                    <div>
+                    <div key={`score_elems_none`}>
                         Not Found
                     </div>
                 );
@@ -86,7 +86,7 @@ const PlayerRecentMatches = ({playerId, matches, maps, scores, gametypes, totalM
             currentClassName = "solo";
             
             scoreElems.push(
-                <div>
+                <div key={`score_elems_solo`}>
                     {(currentScore.dm_winner !== '') ? currentScore.dm_winner : 'Not Found' } ({currentScore.dm_score})
                 </div>
             );

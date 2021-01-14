@@ -32,42 +32,42 @@ const Pagination = ({currentPage, results, pages, perPage, url, anchor}) =>{
     
     if(currentPage !== 1){
         elems.push(
-            <PageButton url={url} page={1} anchor={anchor}/>
+            <PageButton key={`pagination_1`} url={url} page={1} anchor={anchor}/>
         );
     }else{
         elems.push(
-            <PageButton url={url} page={1} current={1} anchor={anchor}/>
+            <PageButton key={`pagination_1`} url={url} page={1} current={1} anchor={anchor}/>
         );
     }
 
 
     if(currentPage - 1 > 1){
         elems.push(
-            <PageButton url={url} page={currentPage - 1} anchor={anchor}/>
+            <PageButton key={`pagination_${currentPage - 1}`} url={url} page={currentPage - 1} anchor={anchor}/>
         );
     }
 
 
     if(currentPage > 1 && currentPage !== pages){
         elems.push(
-            <PageButton url={url} page={currentPage} current={1} anchor={anchor}/>
+            <PageButton key={`pagination_${currentPage}`} url={url} page={currentPage} current={1} anchor={anchor}/>
         );
     }
 
     if(currentPage + 1 < pages){
         elems.push(
-            <PageButton url={url} page={currentPage + 1} anchor={anchor}/>
+            <PageButton url={url} key={`pagination_${currentPage + 1}`} page={currentPage + 1} anchor={anchor}/>
         );
     }
 
     if(pages > 1){
         if(currentPage !== pages){
             elems.push(
-                <PageButton url={url} page={pages} anchor={anchor}/>
+                <PageButton url={url} key={`pagination_${pages}`} page={pages} anchor={anchor}/>
             );
         }else{
             elems.push(
-                <PageButton url={url} page={pages} current={1} anchor={anchor}/>
+                <PageButton url={url} key={`pagination_${pages}`} page={pages} current={1} anchor={anchor}/>
             );
         }
     }

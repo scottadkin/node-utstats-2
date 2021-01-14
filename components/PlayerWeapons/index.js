@@ -21,8 +21,6 @@ const tempGetWeaponImage = (files, name) =>{
         name = 'shockrifle';
     }
 
-    console.log(`looking for ${name}`);
-
     if(files.indexOf(`${name}.png`) !== -1){
         return `/images/weapons/${name}.png`;
     }
@@ -33,7 +31,6 @@ const tempGetWeaponImage = (files, name) =>{
 
 const StatsBar = ({label, value, max, bPercent}) =>{
 
-    console.log(label,value,max);
     let percent = 0;
 
     if(value > 0 && max > 0){
@@ -103,7 +100,7 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
         w = weaponStats[i];
 
         tempElems.push(
-            <div className={styles.wrapper}>
+            <div key={`temp_elems_${i}`} className={styles.wrapper}>
                 <div className={styles.image}>
                     <img src={tempGetWeaponImage(weaponImages, currentName)} alt="image"/> 
                 </div>
