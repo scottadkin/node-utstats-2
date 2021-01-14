@@ -14,6 +14,8 @@ import MatchWeaponSummary from '../../components/MatchWeaponSummary/';
 import MatchCTFSummary from '../../components/MatchCTFSummary/';
 import Domination from '../../api/domination';
 import MatchDominationSummary from '../../components/MatchDominationSummary/';
+import CTF from '../../api/ctf';
+import MatchCTFCaps from '../../components/MatchCTFCaps/';
 
 
 function bCTF(players){
@@ -50,7 +52,7 @@ function bDomination(players){
 }
 
 
-function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData}){
+function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -68,6 +70,10 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
+        );
+
+        elems.push(
+            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start}/>
         );
     }
 
@@ -207,8 +213,17 @@ export async function getServerSideProps({query}){
         const dom = new Domination();
 
         domControlPointNames = await dom.getControlPointNames(matchInfo.map);
-        //domCapData = await dom.getMatchDomPoints(matchId); 
         domCapData = await dom.getMatchCaps(matchId); 
+    }
+
+    let ctfCaps = [];
+
+    if(bCTF(playerData)){
+        console.log(`is CTF game`);
+        const CTFManager = new CTF();
+        ctfCaps = await CTFManager.getMatchCaps(matchId);
+    }else{
+        console.log(`not ctf game`);
     }
 
     domControlPointNames = JSON.stringify(domControlPointNames);
@@ -233,7 +248,8 @@ export async function getServerSideProps({query}){
             "playerData": playerData,
             "weaponData": weaponData,
             "domControlPointNames": domControlPointNames,
-            "domCapData": domCapData
+            "domCapData": domCapData,
+            "ctfCaps": JSON.stringify(ctfCaps)
         }
     };
 

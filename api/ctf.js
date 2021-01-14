@@ -100,7 +100,25 @@ class CTF{
                 resolve();
             });
         });
+    }
 
+    getMatchCaps(matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_ctf_caps WHERE match_id=?";
+
+            mysql.query(query, [matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
     }
 }
 
