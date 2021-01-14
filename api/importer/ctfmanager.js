@@ -31,6 +31,8 @@ class CTFManager{
 
             d = this.data[i];
 
+            console.log(d);
+
             result = reg.exec(d);
 
            // console.log(result);
@@ -84,6 +86,88 @@ class CTFManager{
 
         //console.log(`${this.events.length} converted out of a possible ${this.data.length}`);
         //console.log(ignored);
+
+        this.createCapData();
+    }
+
+
+
+
+    createCapData(){
+
+        const caps = [];
+
+        let current = [];
+        let currentRed = [];
+        let currentBlue = [];
+        let currentGreen = [];
+        let currentYellow = [];
+        
+        let e = 0;
+
+        for(let i = 0; i < this.events.length; i++){
+
+            e = this.events[i];
+
+            if(e.type === 'taken'){
+
+                current = {
+                    "team": e.team,
+                    "grabTime": e.timestamp,
+                    "grab": e.player,
+                    "covers": [],
+                    "assists": []
+                };
+
+                switch(e.team){
+                    case 0: {   currentRed = current; } break;
+                    case 1: {   currentBlue = current; } break;
+                    case 2: {   currentGreen = current; } break;
+                    case 3: {   currentYellow = current; } break;
+                }
+
+            }else if(e.type === 'cover'){
+
+                switch(e.team){
+                    case 0: {   current = currentRed; } break;
+                    case 1: {   current = currentBlue; } break;
+                    case 2: {   current = currentGreen; } break;
+                    case 3: {   current = currentYellow; } break;
+                }
+    
+                current.covers.push(e.player);
+                
+            }else if(e.type === 'assist'){
+
+                switch(e.team){
+                    case 0: {   current = currentRed; } break;
+                    case 1: {   current = currentBlue; } break;
+                    case 2: {   current = currentGreen; } break;
+                    case 3: {   current = currentYellow; } break;
+                }
+
+                current.assists.push(e.player);
+
+            }else if(e.type === 'captured'){
+
+                switch(e.team){
+                    case 0: {   current = currentRed; } break;
+                    case 1: {   current = currentBlue; } break;
+                    case 2: {   current = currentGreen; } break;
+                    case 3: {   current = currentYellow; } break;
+                }
+
+                current.cap = e.player;
+                current.capTime = e.timestamp;
+                current.travelTime = (current.capTime - current.grabTime).toFixed(2);
+
+                caps.push(current);
+                
+            }
+
+        }
+
+        console.table(caps);
     }
 
 
@@ -152,7 +236,45 @@ class CTFManager{
                 }
             }
         }catch(err){
-            new Message(`updatePlayersMatchStats`,'error');
+            new Message(`updatePlayersMatchStats ${err}`,'error');
+        }
+    }
+
+    async insertCaps(matchId, mapId){
+
+        try{
+
+            let currentCover = 0;
+            let currentCovers = [];
+            let currentAssist = [];
+            let currentAssists = [];
+            let currentGrab = 0;
+            let currentCap = 0;
+
+            let c = 0;
+
+            for(let i = 0; i < this.caps.length; i++){
+
+                c = this.caps[i];
+                currentGrab = this.playerManager.getOriginalConnectionById(c.grab);
+
+                for(let x = 0; x < c.covers.length; x++){
+                    currentCover = this.playerManager.getOriginalConnectionById(c.covers[x]);
+                    currentCovers.push(currentCover.masterId);
+                }
+
+                for(let x = 0; x < c.assists.length; x++){
+                    currentAssist = this.playerManager.getOriginalConnectionById(c.assists[x]);
+                    currentAssists.push(currentCover.masterId);
+                }
+
+                currentCap = this.playerManager.getOriginalConnectionById(c.cap);
+
+                this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentCovers, currentAssists, currentCap.masterId, c.capTime, c.travelTime);
+            }
+
+        }catch(err){
+            new Message(`inserCaps ${err}`,'error');
         }
     }
 }

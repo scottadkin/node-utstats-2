@@ -42,7 +42,7 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
     for(let i = 0; i < controlPointNames.length; i++){
 
         pointNames.push(
-            <th>
+            <th key={`point_name_${team}_${i}`}>
                 {controlPointNames[i].name}
             </th>
         );
@@ -83,36 +83,38 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
      
         playerElems = [];
 
-        playerElems.push(<td className="text-left"><CountryFlag key={p.id} country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>);
+        playerElems.push(<td key={`players_name_${team}_${i}`} className="text-left"><CountryFlag key={p.id} country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>);
 
         for(let c = 0; c < controlPointNames.length; c++){
 
             currentPointCaps = playerPointData.get(p.player_id)
 
-            playerElems.push(<td>
-                {
-                    (currentPointCaps[`p_${controlPointNames[c].id}`] !== undefined) ? currentPointCaps[`p_${controlPointNames[c].id}`] : ''
+            if(currentPointCaps !== undefined){
+                playerElems.push(<td key={`player_elems_${team}_${i}_${c}`}>
+                    {
+                        (currentPointCaps[`p_${controlPointNames[c].id}`] !== undefined) ? currentPointCaps[`p_${controlPointNames[c].id}`] : ''
+                    }
+                </td>);
+
+                if(currentPointCaps[`p_${controlPointNames[c].id}`] !== undefined){
+
+                    if(totals[c] === undefined){
+                        totals[c] = 0;
+                    }
+
+                    totals[c]+= currentPointCaps[`p_${controlPointNames[c].id}`];
+                    currentTotal += currentPointCaps[`p_${controlPointNames[c].id}`];
+
+                    allTotals += currentPointCaps[`p_${controlPointNames[c].id}`];
+                    console.log(allTotals,p.id);
+
                 }
-            </td>);
-
-            if(currentPointCaps[`p_${controlPointNames[c].id}`] !== undefined){
-
-                if(totals[c] === undefined){
-                    totals[c] = 0;
-                }
-
-                totals[c]+= currentPointCaps[`p_${controlPointNames[c].id}`];
-                currentTotal += currentPointCaps[`p_${controlPointNames[c].id}`];
-
-                allTotals += currentPointCaps[`p_${controlPointNames[c].id}`];
-                console.log(allTotals,p.id);
-
             }
         }
 
-        playerElems.push(<td>{currentTotal}</td>);
+        playerElems.push(<td key={`player_elems_${team}_totals`}>{currentTotal}</td>);
 
-        elems.push(<tr className={bgColor}>
+        elems.push(<tr key={`player_elems_${team}_${i}`} className={bgColor}>
             {playerElems}
         </tr>);
        
@@ -121,12 +123,12 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
     playerElems = [];
 
     for(let i = 0; i < controlPointNames.length; i++){
-        playerElems.push(<td>
+        playerElems.push(<td key={`control_point_names_${team}_${i}`}>
             {totals[i]}
         </td>);
     }
     
-    elems.push(<tr>
+    elems.push(<tr key={`control_point_names_${team}_totals`}>
         <td>Team Totals</td>
         {playerElems}
         <td>{allTotals}</td>
