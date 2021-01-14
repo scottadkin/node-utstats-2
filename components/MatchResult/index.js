@@ -17,7 +17,7 @@ const MatchResult = ({teamGame, dmWinner, dmScore, totalTeams, redScore, blueSco
 
     if(totalTeams < 2){
         elems.push(
-            <div>
+            <div key={`match_result_solo`}>
                 <span className="yellow">{dmWinner}</span> wins with <span className="yellow">{dmScore}</span>
             </div>
         );
@@ -27,7 +27,7 @@ const MatchResult = ({teamGame, dmWinner, dmScore, totalTeams, redScore, blueSco
         for(let i = 0; i < totalTeams; i++){
 
             elems.push(
-                <div>
+                <div key={`match_result_${i}`}>
                     {teamScores[i]}
                 </div>
             );

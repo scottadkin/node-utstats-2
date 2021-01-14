@@ -23,7 +23,7 @@ const MatchCTFSummary = ({players, totalTeams}) =>{
 
     for(let i = 0; i < totalTeams; i++){
 
-        teams.push(<MatchCTFSummaryTeam players={getPlayersInTeam(players, i)} team={i}/>);
+        teams.push(<MatchCTFSummaryTeam key={i} players={getPlayersInTeam(players, i)} team={i}/>);
     }
 
     return (

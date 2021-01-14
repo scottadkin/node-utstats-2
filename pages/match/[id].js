@@ -60,34 +60,34 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     const elems = [];
 
     elems.push(
-        <MatchSummary info={info} server={server} gametype={gametype} map={map} image={image}/>
+        <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
     );
 
 
     if(bCTF(parsedPlayerData)){
 
         elems.push(
-            <MatchCTFSummary players={playerData} totalTeams={parsedInfo.total_teams}/>
+            <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
     }
 
     if(bDomination(parsedPlayerData)){
 
         elems.push(
-            <MatchDominationSummary players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
+            <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
         );
     }
 
     elems.push(
-        <MatchFragSummary bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
+        <MatchFragSummary key={`match_3`} bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
     );
 
     elems.push(
-        <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={playerData}/>
+        <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={playerData}/>
     );
 
     elems.push(
-        <MatchWeaponSummary data={weaponData} players={playerData} bTeamGame={parsedInfo.team_game}/>
+        <MatchWeaponSummary key={`match_5`} data={weaponData} players={playerData} bTeamGame={parsedInfo.team_game}/>
     );
 
     return <div>

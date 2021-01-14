@@ -64,8 +64,8 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
 
         if(!bAllEmpty(p, true)){
             spreeElems.push(
-                <tr className={bgColor}>
-                    <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+                <tr key={`spree_tr_${i}`} className={bgColor}>
+                    <td className="text-left"><CountryFlag key={`spree_flag_${p.player_id}`} country={p.country} /><Link key={`spree_link_${p.player_id}`} href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
                     <td>{(p.spree_1 > 0) ? p.spree_1 : ''}</td>
                     <td>{(p.spree_2 > 0) ? p.spree_2 : ''}</td>
                     <td>{(p.spree_3 > 0) ? p.spree_3 : ''}</td>
@@ -80,8 +80,8 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
 
         if(!bAllEmpty(p, false)){
             multiElems.push(
-                <tr className={bgColor}>
-                    <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+                <tr key={`multi_tr_${i}`} className={bgColor}>
+                    <td className="text-left"><CountryFlag  key={`multi_flag_${p.player_id}`} country={p.country} /><Link key={`multi_link_${p.player_id}`} href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
                     <td>{(p.multi_1 > 0) ? p.multi_1 : ''}</td>
                     <td>{(p.multi_2 > 0) ? p.multi_2 : ''}</td>
                     <td>{(p.multi_3 > 0) ? p.multi_3 : ''}</td>
@@ -105,14 +105,14 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
                 <tbody>
                     <tr>
                         <th>Player</th>
-                        <TipHeader title={'Killing Spree'} content={'Player Killed 5 to 9 players in one life.'}/>
-                        <TipHeader title={'Rampage'} content={'Player Killed 10 to 14 players in one life.'}/>
-                        <TipHeader title={'Dominating'} content={'Player Killed 15 to 19 players in one life.'}/>
-                        <TipHeader title={'Unstoppable'} content={'Player Killed 20 to 24 players in one life.'}/>
-                        <TipHeader title={'Godlike'} content={'Player Killed 25 to 29 players in one life.'}/>
-                        <TipHeader title={'Massacre'} content={'Player Killed 30 to 34 players in one life.'}/>
-                        <TipHeader title={'Brutalizing'} content={'Player Killed 35 players or more in one life.'}/>
-                        <TipHeader title={'Best Spree'} content={'The most players the player killed in one life.'}/>
+                        <TipHeader key={`t_spree_1`} title={'Killing Spree'} content={'Player Killed 5 to 9 players in one life.'}/>
+                        <TipHeader key={`t_spree_2`} title={'Rampage'} content={'Player Killed 10 to 14 players in one life.'}/>
+                        <TipHeader key={`t_spree_3`} title={'Dominating'} content={'Player Killed 15 to 19 players in one life.'}/>
+                        <TipHeader key={`t_spree_4`} title={'Unstoppable'} content={'Player Killed 20 to 24 players in one life.'}/>
+                        <TipHeader key={`t_spree_5`} title={'Godlike'} content={'Player Killed 25 to 29 players in one life.'}/>
+                        <TipHeader key={`t_spree_6`} title={'Massacre'} content={'Player Killed 30 to 34 players in one life.'}/>
+                        <TipHeader key={`t_spree_7`} title={'Brutalizing'} content={'Player Killed 35 players or more in one life.'}/>
+                        <TipHeader key={`t_spree_8`} title={'Best Spree'} content={'The most players the player killed in one life.'}/>
                     </tr>
                     {spreeElems}
                 </tbody>
@@ -127,14 +127,14 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
                 <tbody>
                     <tr>
                         <th>Player</th>
-                        <TipHeader title={'Double Kill'} content={'Player Killed 2 players in a short space of time without dying.'}/>
-                        <TipHeader title={'Multi Kill'} content={'Player Killed 3 players in a short space of time without dying.'}/>
-                        <TipHeader title={'Mega Kill'} content={'Player Killed 4 players in a short space of time without dying.'}/>
-                        <TipHeader title={'Ultra Kill'} content={'Player Killed 5 players in a short space of time without dying.'}/>
-                        <TipHeader title={'Monster Kill'} content={'Player Killed 6 players in a short space of time without dying.'}/>
-                        <TipHeader title={'Ludicirous Kill'} content={'Player Killed 7 players in a short space of time without dying.'}/>
-                        <TipHeader title={'Holy Shit'} content={'Player Killed 8 players in a short space of time without dying.'}/>
-                        <TipHeader title={'Best Multi'} content={'The most players the player killed in a short space of time without dying.'}/>
+                        <TipHeader key={`t_multi_1`} title={'Double Kill'} content={'Player Killed 2 players in a short space of time without dying.'}/>
+                        <TipHeader key={`t_multi_2`} title={'Multi Kill'} content={'Player Killed 3 players in a short space of time without dying.'}/>
+                        <TipHeader key={`t_multi_3`} title={'Mega Kill'} content={'Player Killed 4 players in a short space of time without dying.'}/>
+                        <TipHeader key={`t_multi_4`} title={'Ultra Kill'} content={'Player Killed 5 players in a short space of time without dying.'}/>
+                        <TipHeader key={`t_multi_5`} title={'Monster Kill'} content={'Player Killed 6 players in a short space of time without dying.'}/>
+                        <TipHeader key={`t_multi_6`} title={'Ludicirous Kill'} content={'Player Killed 7 players in a short space of time without dying.'}/>
+                        <TipHeader key={`t_multi_7`} title={'Holy Shit'} content={'Player Killed 8 players in a short space of time without dying.'}/>
+                        <TipHeader key={`t_multi_8`} title={'Best Multi'} content={'The most players the player killed in a short space of time without dying.'}/>
                     </tr>
                     {multiElems}
                 </tbody>

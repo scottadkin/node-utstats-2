@@ -67,7 +67,7 @@ const MatchWeaponSummary = ({data, players, bTeamGame}) =>{
         currentId = data.names[i].id;
         if(data.names[i].name.toLowerCase() !== 'none'){
             elems.push(
-                <MatchWeapon name={data.names[i].name} data={getWeaponData(currentId, data.playerData)} bTeamGame={bTeamGame}/>
+                <MatchWeapon key={`match_weapon_${data.names[i].name}`} name={data.names[i].name} data={getWeaponData(currentId, data.playerData)} bTeamGame={bTeamGame}/>
             );
         }
         
