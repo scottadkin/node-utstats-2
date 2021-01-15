@@ -19,18 +19,18 @@ const createPlayerMap = (players) =>{
     return data;
 }
 
-const MatchCTFCaps = ({players, caps, matchStart}) =>{
+const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
     players = JSON.parse(players);
     caps = JSON.parse(caps);
     matchStart = parseFloat(matchStart);
 
     const elems = [];
-    console.log(caps);
+    //console.log(caps);
 
 
     const playerNames = createPlayerMap(players);
-    console.log(playerNames);
+    //console.log(playerNames);
 
     let c = 0;
 
@@ -43,8 +43,12 @@ const MatchCTFCaps = ({players, caps, matchStart}) =>{
     let assistElems = [];
 
     let bgColor = '';
+    let currentCoverNames = 0;
+    let ccName = 0;
 
 
+    const teamScores = [0,0,0,0];
+    let teamScoreString = '';
 
     for(let i = 0; i < caps.length; i++){
 
@@ -53,6 +57,7 @@ const MatchCTFCaps = ({players, caps, matchStart}) =>{
         assistElems = [];
         covers = [];
         assists = [];
+        currentCoverNames = new Map();
 
         c.covers = c.covers.split(',');
         c.assists = c.assists.split(',');
@@ -65,9 +70,6 @@ const MatchCTFCaps = ({players, caps, matchStart}) =>{
             default: { bgColor = "team-none";} break;
         }
         
-
-        console.log(c.covers);
-
         grab = playerNames.get(c.grab);
 
         if(grab === undefined){
@@ -80,30 +82,31 @@ const MatchCTFCaps = ({players, caps, matchStart}) =>{
             cap = {"name": "Not found", "country": "xx"};
         }
 
+
+        teamScores[c.team]++;
+
         for(let x = 0; x < c.covers.length; x++){
 
             currentName = playerNames.get(parseInt(c.covers[x]));
 
             if(currentName !== undefined){
 
-                coverElems.push(
-                    <span>
-                        <CountryFlag country={currentName.country}/>
-                        <Link href={`/player/${c.covers[x]}`} ><a>{currentName.name}</a></Link>
-                        {(x < c.covers.length - 1) ? ',' : ''}
-                    </span>
-                );
-            }else{
-                if(c.covers[x] !== ''){
-                    coverElems.push(
-                        <span>
-                            <CountryFlag country="xx"/>
-                            Not Found
-                            {(x < c.covers.length - 1) ? ',' : ''}
-                        </span>
-                    );
+                ccName = currentCoverNames.get(currentName.name);
+
+                if(ccName === undefined){
+                    currentCoverNames.set(currentName.name, {"covers": 1, "country": currentName.country})
+                }else{
+                    currentCoverNames.set(currentName.name, {"covers": ccName + 1, "country": currentName.country});
                 }
             }
+        }
+
+        for(const [key, value] of currentCoverNames){
+
+           // console.log({key, value});
+            coverElems.push(<span key={`cover_team_${c.team}_${key}`}>
+                <CountryFlag country={value.country}/>{key} <i className="yellow">({value.covers})</i>&nbsp;
+            </span>);
         }
 
         for(let x = 0; x < c.assists.length; x++){
@@ -112,14 +115,14 @@ const MatchCTFCaps = ({players, caps, matchStart}) =>{
 
             if(currentName !== undefined){
                 assistElems.push(
-                    <span>
+                    <span key={`assists_team_${c.team}_${currentName.name}_${x}`}>
                         <CountryFlag country={currentName.country}/>
                         <Link href={`/player/${c.assists[x]}`} ><a>{currentName.name}</a></Link>
                         {(x < c.assists.length - 1) ? ',' : ''}
                     </span>
                 );
             }else{
-                if(c.assists[x] !== ''){
+                /*if(c.assists[x] !== ''){
                     assistElems.push(
                         <span>
                             <CountryFlag country="xx"/>
@@ -127,11 +130,20 @@ const MatchCTFCaps = ({players, caps, matchStart}) =>{
                             {(x < c.assists.length - 1) ? ',' : ''}
                         </span>
                     );
-                }
+                }*/
             }
         }
 
-        elems.push(<tr className={bgColor}>
+        teamScoreString = '';
+        for(let t = 0; t < totalTeams; t++){
+
+            if(t > 0){
+                teamScoreString += ` - ${teamScores[t]}`
+            }else{
+                teamScoreString += `${teamScores[t]}`;
+            }
+        }
+        elems.push(<tr key={`tr_${c.team}_${i}`} className={bgColor}>
             <td className="text-left"><CountryFlag country={grab.country}/><Link href={`/player/${c.grab}`} ><a>{grab.name}</a></Link></td>
             <td><MMSS timestamp={c.grab_time - matchStart}/> </td>
             <td>{coverElems}</td>
@@ -139,6 +151,7 @@ const MatchCTFCaps = ({players, caps, matchStart}) =>{
             <td className="text-left"><CountryFlag country={cap.country} /><Link href={`/player/${c.cap}`} ><a>{cap.name}</a></Link></td>
             <td><MMSS timestamp={c.cap_time - matchStart}/></td>
             <td>{c.travel_time} Seconds</td>
+            <td>{teamScoreString}</td>
         </tr>);
     }
 
@@ -156,6 +169,7 @@ const MatchCTFCaps = ({players, caps, matchStart}) =>{
                     <TipHeader title="Capture" content=""/>
                     <TipHeader title="Capture Time" content=""/>
                     <TipHeader title="Travel Time" content=""/>
+                    <TipHeader title="Scores at Cap" content=""/>
                 </tr>
                 {elems}
             </tbody>

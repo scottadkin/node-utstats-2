@@ -73,7 +73,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         );
 
         elems.push(
-            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start}/>
+            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} totalTeams={parsedInfo.total_teams}/>
         );
     }
 
