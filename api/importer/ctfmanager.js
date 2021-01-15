@@ -50,7 +50,6 @@ class CTFManager{
                     
                 }else if(type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'){
 
-                    
                     this.events.push({
                         "timestamp": parseFloat(result[1]),
                         "type": type,
@@ -149,6 +148,7 @@ class CTFManager{
                 
             }else if(e.type === 'assist'){
 
+               // console.log(e);
                 switch(e.team){
                     case 0: {   current = currentRed; } break;
                     case 1: {   current = currentBlue; } break;
@@ -165,6 +165,8 @@ class CTFManager{
                     }
                     current.assists.push(e.player);
                 }
+
+                //(current.assists);
 
             }else if(e.type === 'captured'){
 
@@ -286,7 +288,7 @@ class CTFManager{
 
                 for(let x = 0; x < c.assists.length; x++){
                     currentAssist = this.playerManager.getOriginalConnectionById(c.assists[x]);
-                    currentAssists.push(currentCover.masterId);
+                    currentAssists.push(currentAssist.masterId);
                 }
 
                 currentCap = this.playerManager.getOriginalConnectionById(c.cap);
