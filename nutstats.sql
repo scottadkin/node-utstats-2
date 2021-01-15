@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 14, 2021 at 02:20 PM
+-- Generation Time: Jan 15, 2021 at 07:55 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -142,6 +142,34 @@ CREATE TABLE `nstats_gametypes` (
   `last` int(11) NOT NULL,
   `matches` int(11) NOT NULL,
   `playtime` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_items`
+--
+
+CREATE TABLE `nstats_items` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `first` int(11) NOT NULL,
+  `last` int(11) NOT NULL,
+  `uses` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_items_match`
+--
+
+CREATE TABLE `nstats_items_match` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `player_id` int(11) NOT NULL,
+  `item` varchar(100) NOT NULL,
+  `uses` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -502,6 +530,18 @@ ALTER TABLE `nstats_gametypes`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_items`
+--
+ALTER TABLE `nstats_items`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `nstats_items_match`
+--
+ALTER TABLE `nstats_items_match`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_logs`
 --
 ALTER TABLE `nstats_logs`
@@ -617,6 +657,18 @@ ALTER TABLE `nstats_faces`
 -- AUTO_INCREMENT for table `nstats_gametypes`
 --
 ALTER TABLE `nstats_gametypes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_items`
+--
+ALTER TABLE `nstats_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_items_match`
+--
+ALTER TABLE `nstats_items_match`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
