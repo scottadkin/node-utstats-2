@@ -10,7 +10,7 @@ function Nav(){
                 <NavLink url="/" text="Home" />
                 <NavLink url="/matches" text="Recent Matches" />
                 <NavLink url="/players" text="Players" />
-                <NavLink url="/#" text="Servers" />
+                <NavLink url="/servers" text="Servers" />
                 <NavLink url="/maps" text="Maps" />
             </nav>
             

@@ -19,7 +19,7 @@ class CTFManager{
     }
 
     parseData(){
-
+        
         const reg = /^(\d+?\.\d+?)\tflag_(.+?)\t(\d+?)(|\t(\d+?)|\t(\d+?)\t(\d+?))$/i;
 
         let d = 0;
@@ -50,6 +50,7 @@ class CTFManager{
                     
                 }else if(type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'){
 
+                    
                     this.events.push({
                         "timestamp": parseFloat(result[1]),
                         "type": type,
@@ -62,7 +63,7 @@ class CTFManager{
                     this.events.push({
                         "timestamp": parseFloat(result[1]),
                         "type": type,
-                        "player": parseInt(result[6]),
+                        "player": parseInt(result[3]),
                         "team": parseInt(result[7])
                     });
 
@@ -134,7 +135,17 @@ class CTFManager{
                     case 3: {   current = currentYellow; } break;
                 }
     
-                current.covers.push(e.player);
+                //work around for players that have changed teams
+                if(current.covers !== undefined){
+                    current.covers.push(e.player);
+                }else{
+                    switch(e.team){
+                        case 1: {   current = currentRed; } break;
+                        case 0: {   current = currentBlue; } break;
+                    }
+
+                    current.covers.push(e.player);
+                }
                 
             }else if(e.type === 'assist'){
 
@@ -144,8 +155,16 @@ class CTFManager{
                     case 2: {   current = currentGreen; } break;
                     case 3: {   current = currentYellow; } break;
                 }
-
-                current.assists.push(e.player);
+                //work around for players that have changed teams
+                if(current.assists !== undefined){
+                    current.assists.push(e.player);
+                }else{
+                    switch(e.team){
+                        case 1: {   current = currentRed; } break;
+                        case 0: {   current = currentBlue; } break;
+                    }
+                    current.assists.push(e.player);
+                }
 
             }else if(e.type === 'captured'){
 

@@ -96,16 +96,15 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
                 if(ccName === undefined){
                     currentCoverNames.set(currentName.name, {"covers": 1, "country": currentName.country})
                 }else{
-                    currentCoverNames.set(currentName.name, {"covers": ccName + 1, "country": currentName.country});
+                    currentCoverNames.set(currentName.name, {"covers": ccName.covers + 1, "country": currentName.country});
                 }
             }
         }
 
         for(const [key, value] of currentCoverNames){
 
-           // console.log({key, value});
             coverElems.push(<span key={`cover_team_${c.team}_${key}`}>
-                <CountryFlag country={value.country}/>{key} <i className="yellow">({value.covers})</i>&nbsp;
+                {key}<i className="yellow">({value.covers})&nbsp;</i>
             </span>);
         }
 
