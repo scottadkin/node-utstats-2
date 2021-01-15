@@ -17,6 +17,7 @@ const AssaultManager = require('./assaultmanager');
 const DOMManager = require('./dommanager');
 const SpawnManager = require('./spawnmanager');
 const WeaponsManager = require('./weaponsmanager');
+const ItemsManager = require('./itemsmanager');
 
 class MatchManager{
 
@@ -203,6 +204,8 @@ class MatchManager{
                 //await this.playerManager.updateWeaponStats();
             }
 
+            this.itemsManager = new ItemsManager(this.itemLines);
+            this.itemsManager.playerManager = this.playerManager;
 
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
@@ -280,6 +283,7 @@ class MatchManager{
         this.gameLines = [];
         this.playerLines = [];
         this.killLines = [];
+        this.itemLines = [];
 
         let typeResult = 0;
         let currentType = 0;
@@ -322,6 +326,8 @@ class MatchManager{
             "dom_score_update",
             "controlpoint_capture"
         ];
+
+
 
 
         for(let i = 0; i < this.lines.length; i++){
@@ -405,6 +411,10 @@ class MatchManager{
                     }
 
                     this.domManager.data.push(this.lines[i]);
+
+                }else if(currentType === 'item_get'){
+
+                    this.itemLines.push(this.lines[i]);
 
                 }else{
 
