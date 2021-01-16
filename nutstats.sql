@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 15, 2021 at 07:55 PM
+-- Generation Time: Jan 16, 2021 at 02:04 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -168,7 +168,7 @@ CREATE TABLE `nstats_items_match` (
   `id` int(11) NOT NULL,
   `match_id` int(11) NOT NULL,
   `player_id` int(11) NOT NULL,
-  `item` varchar(100) NOT NULL,
+  `item` int(100) NOT NULL,
   `uses` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

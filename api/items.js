@@ -73,6 +73,41 @@ class Items{
             new Message(`Items.updateTotals ${err}`,'error');
         }
     }
+
+
+    getIdsByNames(names){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_items WHERE name IN(?)";
+
+            mysql.query(query, [names], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    insertPlayerMatchItem(matchId, playerId, item, uses){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_items_match VALUES(NULL,?,?,?,?)";
+
+            mysql.query(query, [matchId, playerId, item, uses], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 module.exports = Items;
