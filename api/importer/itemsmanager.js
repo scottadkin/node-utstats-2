@@ -119,19 +119,35 @@ class ItemsManager{
             this.itemIds = await this.items.getIdsByNames(this.itemNames);
 
             let currentId = 0;
+            let currentPlayer = 0;
 
             for(const [key, value] of this.matchData){
 
-                for(const [subKey, subValue] of Object.entries(value.items)){
+                currentPlayer = this.playerManager.getOriginalConnectionById(key);
 
-                    currentId = this.getSavedItemId(subKey);
+                if(currentPlayer !== null){
+                    
 
-                    if(currentId !== null){
-                        await this.items.insertPlayerMatchItem(matchId, key, currentId, subValue);
-                    }else{
-                        new Message(`Failed to insert player item pickup, ${subKey} does not have an id.`,'warning');
+                    for(const [subKey, subValue] of Object.entries(value.items)){
+
+                        currentId = this.getSavedItemId(subKey);
+
+                        if(currentId !== null){
+
+                        
+                            await this.items.insertPlayerMatchItem(matchId, currentPlayer.masterId, currentId, subValue);
+                                
+
+                        }else{
+
+                            new Message(`Failed to insert player item pickup, ${subKey} does not have an id.`,'warning');
+                        }
                     }
+
+                }else{
+                    new Message(`Failed to insert player item pickup, player with id ${currentPlayer.masterId} does not exist.`,'warning');
                 }
+        
             }
 
         }catch(err){
