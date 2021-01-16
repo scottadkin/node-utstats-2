@@ -207,7 +207,7 @@ class MatchManager{
             this.itemsManager = new ItemsManager(this.itemLines);
             this.itemsManager.playerManager = this.playerManager;
             await this.itemsManager.updateTotals(this.serverInfo.date);
-            await this.itemsManager.insertMatchData(this.matchId);
+            await this.itemsManager.insertMatchData(this.matchId, this.serverInfo.date);
 
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');

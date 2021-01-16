@@ -112,7 +112,7 @@ class ItemsManager{
         return null;
     }
 
-    async insertMatchData(matchId){
+    async insertMatchData(matchId, date){
 
         try{
 
@@ -127,16 +127,14 @@ class ItemsManager{
 
                 if(currentPlayer !== null){
                     
-
                     for(const [subKey, subValue] of Object.entries(value.items)){
 
                         currentId = this.getSavedItemId(subKey);
 
                         if(currentId !== null){
-
-                        
-                            await this.items.insertPlayerMatchItem(matchId, currentPlayer.masterId, currentId, subValue);
-                                
+      
+                            await this.items.insertPlayerMatchItem(matchId, currentPlayer.masterId, currentId, subValue);         
+                            await this.items.updatePlayerTotal(currentPlayer.masterId, currentId, subValue, date);                     
 
                         }else{
 
@@ -154,6 +152,7 @@ class ItemsManager{
             new Message(`ItemManager.insertMatchData ${err}`,'error');
         }
     }
+    
 }
 
 module.exports = ItemsManager;

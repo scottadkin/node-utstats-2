@@ -30,7 +30,7 @@ class Items{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?)";
+            const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?,1)";
 
             mysql.query(query, [name, date, date, uses], (err) =>{
 
@@ -47,7 +47,8 @@ class Items{
 
             const query = `UPDATE nstats_items SET uses=uses+?,
             first = IF(? < first, ?, first),
-            last = IF(? > last, ?, last)
+            last = IF(? > last, ?, last),
+            matches=matches+1
             WHERE name=?`;
 
             mysql.query(query, [uses, date, date, date, date, name], (err) =>{
@@ -107,6 +108,75 @@ class Items{
                 resolve();
             });
         });
+    }
+
+    playerTotalExists(playerId, item){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_items FROM nstats_items_player WHERE player=? AND item=?";
+
+            mysql.query(query, [playerId, item], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result[0].total_items > 0){
+                        resolve(true);
+                    }
+                }
+                resolve(false);
+            });
+        });
+    }
+
+    insertPlayerTotal(playerId, item, uses, date){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,1)";
+
+            mysql.query(query, [playerId, item, date, date, uses], (err) =>{
+                if(err) reject(err);
+
+                resolve();
+            }); 
+        });
+    }
+
+    updatePlayerTotalQuery(playerId, item, uses, date){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_items_player SET uses=uses+?,matches=matches+1,
+            first = IF(? < first, ?, first),
+            last = IF(? > last, ?, last)
+            WHERE player=? AND item=?`;
+
+            mysql.query(query, [uses, date, date, date, date, playerId, item], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async updatePlayerTotal(playerId, item, uses, date){
+
+        try{
+
+            if(await this.playerTotalExists(playerId, item)){
+
+                await this.updatePlayerTotalQuery(playerId, item, uses, date);
+            }else{
+
+                await this.insertPlayerTotal(playerId, item, uses, date);
+            }
+
+        }catch(err){
+            new Message(`items.updatePlayerTotals ${err}`,'error');
+        }
     }
 }
 
