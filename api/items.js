@@ -95,6 +95,25 @@ class Items{
         });
     }
 
+    getNamesByIds(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name FROM nstats_items WHERE id IN(?)";
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+
+        });
+    }
+
     insertPlayerMatchItem(matchId, playerId, item, uses){
 
         return new Promise((resolve, reject) =>{
@@ -177,6 +196,25 @@ class Items{
         }catch(err){
             new Message(`items.updatePlayerTotals ${err}`,'error');
         }
+    }
+
+    getMatchData(matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_items_match WHERE match_id =?";
+
+            mysql.query(query, [matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
     }
 }
 

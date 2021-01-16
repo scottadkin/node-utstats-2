@@ -16,6 +16,8 @@ import Domination from '../../api/domination';
 import MatchDominationSummary from '../../components/MatchDominationSummary/';
 import CTF from '../../api/ctf';
 import MatchCTFCaps from '../../components/MatchCTFCaps/';
+import Items from '../../api/items';
+import ItemsPickups from '../../components/ItemsPickups/';
 
 
 function bCTF(players){
@@ -52,7 +54,23 @@ function bDomination(players){
 }
 
 
-function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps}){
+function getItemsIds(items){
+
+    const ids = [];
+
+    for(let i = 0; i < items.length; i++){
+
+        if(ids.indexOf(items[i].item) === -1){
+            ids.push(items[i].item);
+        }
+    }
+
+    return ids;
+}
+
+
+function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
+    itemData, itemNames}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -94,6 +112,10 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     elems.push(
         <MatchWeaponSummary key={`match_5`} data={weaponData} players={playerData} bTeamGame={parsedInfo.team_game}/>
+    );
+
+    elems.push(
+        <ItemsPickups data={itemData} names={itemNames}/>
     );
 
     return <div>
@@ -238,6 +260,21 @@ export async function getServerSideProps({query}){
 
     weaponData = JSON.stringify(weaponData);
 
+    const itemsManager = new Items();
+
+    let itemData = await itemsManager.getMatchData(matchId);
+    console.log(itemData);
+
+    let itemNames = [];
+
+    const itemIds = getItemsIds(itemData);
+
+    if(itemIds.length > 0){
+
+        itemNames = await itemsManager.getNamesByIds(itemIds);
+    }
+
+
     return {
         props: {
             "info": JSON.stringify(matchInfo),
@@ -249,7 +286,9 @@ export async function getServerSideProps({query}){
             "weaponData": weaponData,
             "domControlPointNames": domControlPointNames,
             "domCapData": domCapData,
-            "ctfCaps": JSON.stringify(ctfCaps)
+            "ctfCaps": JSON.stringify(ctfCaps),
+            "itemData": JSON.stringify(itemData),
+            "itemNames": JSON.stringify(itemNames)
         }
     };
 
