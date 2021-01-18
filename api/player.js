@@ -310,7 +310,7 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? ORDER BY match_date DESC LIMIT ?,?";
+            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? ORDER BY match_date DESC, id DESC LIMIT ?,?";
 
             if(page === undefined){
                 page = 1;

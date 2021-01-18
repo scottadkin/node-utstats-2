@@ -76,6 +76,14 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const parsedPlayerData = JSON.parse(playerData);
 
+    let playerNames = [];
+
+    for(let i = 0; i < parsedPlayerData.length; i++){
+
+        playerNames.push({"id": parsedPlayerData[i].player_id, "name": parsedPlayerData[i].name, "country": parsedPlayerData[i].country});
+    }
+
+    playerNames = JSON.stringify(playerNames);
 
     const elems = [];
 
@@ -115,7 +123,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     );
 
     elems.push(
-        <ItemsPickups data={itemData} names={itemNames}/>
+        <ItemsPickups data={itemData} names={itemNames} playerNames={playerNames}/>
     );
 
     return <div>

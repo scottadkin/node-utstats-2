@@ -1,3 +1,6 @@
+import styles from './ItemsPickup.module.css';
+import CountryFlag from '../CountryFlag/'
+
 function getData(data, item){
 
     let d = 0;
@@ -16,13 +19,30 @@ function getData(data, item){
     return found;
 }
 
-const ItemsPickup = ({data, names}) =>{
+function getPlayer(players, id){
+
+    let p = 0;
+
+    for(let i = 0; i < players.length; i++){
+
+        p = players[i];
+
+        if(p.id === id){
+            return p;
+        }
+
+    }
+
+    return {"name": 'Not Found', "country": 'xx'};
+}
+
+const ItemsPickup = ({data, names, playerNames}) =>{
 
     data = JSON.parse(data);
     names = JSON.parse(names);
+    playerNames = JSON.parse(playerNames);
 
-    //console.log(names);
-    console.log(data);
+    //console.log(playerNames);
 
     const elems = [];
 
@@ -30,31 +50,58 @@ const ItemsPickup = ({data, names}) =>{
 
     let current = [];
 
+    data.sort((a, b) =>{
+
+        a = a.uses;
+        b = b.uses;
+
+        if(a < b){
+            return 1;
+        }else if(a > b){
+            return -1;
+        }
+
+        return 0;
+
+    });
+
+    let currentPlayer = 0;
+
     for(let i = 0; i < names.length; i++){
 
         subElems = [];
 
         current = getData(data, names[i].id);
-        console.log(current);
+ 
+        for(let x = 0; x < playerNames.length; x++){
 
-        for(let x = 0; x < current.length; x++){
+            if(x < current.length){
+                console.log(current);
+                currentPlayer = getPlayer(playerNames, current[x].player);
 
-           /* subElems.push(<tr>
-                <td>{current[x].player}</td>
-                <td>{current[x].uses}</td>
-            </tr>);*/
+                subElems.push(<tr>
+                    <td><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</td>
+                    <td>{current[x].uses}</td>
+                </tr>);
+            }else{
+                subElems.push(<tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>);
+            }
         }
 
         elems.push(
-            <div className="special-table">
-                <div className="default-header">
+            <div className={`${styles.wrapper}`}>
+                <div className={styles.header}>
                     {names[i].name}
                 </div>
+                <img className={styles.image} src="/images/temp.jpg" alt="image" />
             <table>
                 <tbody>
                     <tr>
                         <th>Player</th>
-                        <th>Picked Up</th>
+                        <th>Uses</th>
                     </tr>
                     {subElems}
                 </tbody>
