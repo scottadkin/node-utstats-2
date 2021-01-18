@@ -72,6 +72,11 @@ const ItemsPickup = ({data, names, playerNames}) =>{
     names = JSON.parse(names);
     playerNames = JSON.parse(playerNames);
 
+
+    if(data.length === 0){
+        return (<span></span>);
+    }
+
     const elems = [];
 
     let subElems = [];

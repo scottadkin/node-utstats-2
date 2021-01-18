@@ -95,6 +95,18 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
         }
     }
 
+    if(multiElems.length === 0){
+        multiElems.push(<tr key="multis-none">
+            <td colspan="9">There where no multi kills in the match</td>
+        </tr>);
+    }
+
+    if(spreeElems.length === 0){
+        spreeElems.push(<tr key="sprees-none">
+            <td colspan="9">There where no sprees in the match</td>
+        </tr>);
+    }
+
     return (
         <div>
         <div className={`special-table center ${styles.table}`}>      
@@ -119,7 +131,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
             </table>
         </div>
 
-        <div className={`special-table center ${styles.table}`}>
+        <div className={`special-table center ${styles.table} m-bottom-25`}>
             <div className="default-header">
                 Multi Kills
             </div>
