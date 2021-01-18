@@ -69,7 +69,7 @@ footer{
   margin-top:25px;
   text-align:center;
   padding-bottom:25px;
-  width:75%;
+  width:95%;
   margin-left:auto;
   margin-right:auto;
 }
@@ -130,7 +130,7 @@ table{
 
 th{
   font-weight:300;
-  padding:5px;
+  padding:2px;
   color:yellow;
   border:1px solid rgba(255,255,255,0.1);
   background-color:black;
@@ -141,7 +141,7 @@ th{
 
 td{
   font-weight:100;
-  padding:3px;
+  padding:2px;
   border:1px solid rgba(255,255,255,0.1);
   white-space:nowrap;
   overflow:hidden;

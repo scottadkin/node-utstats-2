@@ -80,7 +80,12 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     for(let i = 0; i < parsedPlayerData.length; i++){
 
-        playerNames.push({"id": parsedPlayerData[i].player_id, "name": parsedPlayerData[i].name, "country": parsedPlayerData[i].country});
+        playerNames.push({
+            "id": parsedPlayerData[i].player_id, 
+            "name": parsedPlayerData[i].name, 
+            "country": parsedPlayerData[i].country,
+            "team": parsedPlayerData[i].team
+        });
     }
 
     playerNames = JSON.stringify(playerNames);

@@ -137,6 +137,21 @@ function getUses(player, data, item){
 
 }*/
 
+
+function getTeamColor(team){
+
+    let bgColor = "team-none";
+
+    switch(team){
+        case 0: {  bgColor = "team-red"; } break;
+        case 1: {  bgColor = "team-blue"; } break;
+        case 2: {  bgColor = "team-green"; } break;
+        case 3: {  bgColor = "team-yellow"; } break;
+    }
+    
+    return bgColor;
+}
+
 const ItemsPickup = ({data, names, playerNames}) =>{
 
     data = JSON.parse(data);
@@ -154,7 +169,7 @@ const ItemsPickup = ({data, names, playerNames}) =>{
     subElems.push(<th>Item</th>);
 
     for(let i = 0; i < playerNames.length; i++){
-        subElems.push(<th><CountryFlag country={playerNames[i].country}/>{playerNames[i].name}</th>);
+        subElems.push(<th >{playerNames[i].name}</th>);
     }
 
     elems.push(<tr>
@@ -167,11 +182,11 @@ const ItemsPickup = ({data, names, playerNames}) =>{
 
         current = getData(data, names[i].id);
 
-        subElems.push(<td>{names[i].name}</td>);
+        subElems.push(<td className="yellow">{names[i].name}</td>);
 
         for(let x = 0; x < playerNames.length; x++){
 
-            subElems.push(<td>{getUses(playerNames[x].id, data, names[i].id)}</td>);
+            subElems.push(<td className={getTeamColor(playerNames[x].team)}>{getUses(playerNames[x].id, data, names[i].id)}</td>);
         }
 
         elems.push(<tr>{subElems}</tr>);
