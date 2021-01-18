@@ -118,7 +118,36 @@ footer{
 
 table{
   border-collapse: collapse;
+  text-align: center;
+  margin-left:auto;
+  margin-right:auto;
+  border:1px solid rgba(255,255,255,0.2);
+  background-color:black;
+  font-size:14px;
+  width:80%;
+
 }
+
+th{
+  font-weight:300;
+  padding:5px;
+  color:yellow;
+  border:1px solid rgba(255,255,255,0.1);
+  background-color:black;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+td{
+  font-weight:100;
+  padding:3px;
+  border:1px solid rgba(255,255,255,0.1);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
 
 .special-table{
 
@@ -139,19 +168,6 @@ table{
   max-width:1000px;
 }
 
-.special-table th{
-  font-weight:300;
-  padding:5px;
-  color:yellow;
-  border:1px solid rgba(255,255,255,0.1);
-  background-color:black;
-}
-
-.special-table td{
-  font-weight:100;
-  padding:3px;
-  border:1px solid rgba(255,255,255,0.1);
-}
 
 .special-table td:nth-child(1){
   min-width:125px;

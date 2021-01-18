@@ -36,7 +36,25 @@ function getPlayer(players, id){
     return {"name": 'Not Found', "country": 'xx'};
 }
 
-const ItemsPickup = ({data, names, playerNames}) =>{
+
+
+
+function getUses(player, data, item){
+
+    for(let i = 0; i < data.length; i++){
+
+        if(data[i].item === item){
+            if(data[i].player_id === player){
+                return data[i].uses;
+            }
+        }
+        
+    }
+
+    return '';
+}
+
+/*const ItemsPickup = ({data, names, playerNames}) =>{
 
     data = JSON.parse(data);
     names = JSON.parse(names);
@@ -117,6 +135,60 @@ const ItemsPickup = ({data, names, playerNames}) =>{
         </div>
     );
 
+}*/
+
+const ItemsPickup = ({data, names, playerNames}) =>{
+
+    data = JSON.parse(data);
+    names = JSON.parse(names);
+    playerNames = JSON.parse(playerNames);
+
+    console.log(data);
+
+    const elems = [];
+
+    let subElems = [];
+    let current = 0;
+    let currentPlayer = 0;
+
+    subElems.push(<th>Item</th>);
+
+    for(let i = 0; i < playerNames.length; i++){
+        subElems.push(<th><CountryFlag country={playerNames[i].country}/>{playerNames[i].name}</th>);
+    }
+
+    elems.push(<tr>
+        {subElems}
+    </tr>);
+
+    for(let i = 0; i < names.length; i++){
+
+        subElems = [];
+
+        current = getData(data, names[i].id);
+
+        subElems.push(<td>{names[i].name}</td>);
+
+        for(let x = 0; x < playerNames.length; x++){
+
+            subElems.push(<td>{getUses(playerNames[x].id, data, names[i].id)}</td>);
+        }
+
+        elems.push(<tr>{subElems}</tr>);
+
+    }
+
+    return (<div className={styles.wrapper}>
+
+        <div className="default-header">
+            Item Pickups
+        </div>
+        <table className="center">
+            <tbody>
+            {elems}
+            </tbody>
+        </table>
+    </div>);
 }
 
 export default ItemsPickup;

@@ -1,44 +1,29 @@
 .wrapper{
-    background-color:black;
-    max-width:400px;
-    display:inline-block;
     position:relative;
     color:white;
-    border:1px solid rgba(255,255,255,0.25);
-    margin-top:-1px;
-    margin-left:-1px;
+
 }
 
 .header{
     font-weight:100;
     color:yellow;
     font-size:14px;
-    padding:5px;
 }
 
-.image{
-    max-width:150px;
-}
+
 
 .wrapper table th{
     font-weight:300;
-    padding:5px;
+
 }
 
 .wrapper table{
-    font-size:12px;
-    width:90%;
-    text-align:left;
-    position:relative;
-    line-height:20px;
-}
 
-
-.wrapper table td:nth-child(2){
-    width:50px;
-    text-align: center;
-}
-
-.uses{
     font-size:12px;
 }
+
+
+.wrapper table tr:nth-child(even){
+    background-color:rgb(12,12,12);
+}
+
