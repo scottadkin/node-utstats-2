@@ -18,6 +18,8 @@ import CTF from '../../api/ctf';
 import MatchCTFCaps from '../../components/MatchCTFCaps/';
 import Items from '../../api/items';
 import ItemsPickups from '../../components/ItemsPickups/';
+import Assault from '../../api/assault';
+import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
 
 
 function bCTF(players){
@@ -53,6 +55,15 @@ function bDomination(players){
     return false;
 }
 
+function bAssault(gametype){
+
+    const reg = /assault/i;
+
+    if(reg.test(gametype)){
+        return true;
+    }
+
+}
 
 function getItemsIds(items){
 
@@ -70,7 +81,7 @@ function getItemsIds(items){
 
 
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
-    itemData, itemNames}){
+    assaultData, itemData, itemNames}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -113,6 +124,16 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         elems.push(
             <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
         );
+    }
+
+    if(bAssault(gametype)){
+
+        elems.push(
+            <MatchAssaultSummary players={playerData} data={assaultData} matchStart={parsedInfo.start} attackingTeam={parsedInfo.attacking_team}
+                redScore={parsedInfo.team_score_0} blueScore={parsedInfo.team_score_1}
+            />
+        );
+
     }
 
     elems.push(
@@ -254,12 +275,18 @@ export async function getServerSideProps({query}){
     let ctfCaps = [];
 
     if(bCTF(playerData)){
-        console.log(`is CTF game`);
+        //console.log(`is CTF game`);
         const CTFManager = new CTF();
         ctfCaps = await CTFManager.getMatchCaps(matchId);
     }else{
-        console.log(`not ctf game`);
+       // console.log(`not ctf game`);
     }
+
+    let assaultData = [];
+
+    const assaultManager = new Assault();
+
+    assaultData = await assaultManager.getMatchData(matchId, matchInfo.map);
 
     domControlPointNames = JSON.stringify(domControlPointNames);
     domCapData = JSON.stringify(domCapData);
@@ -276,7 +303,7 @@ export async function getServerSideProps({query}){
     const itemsManager = new Items();
 
     let itemData = await itemsManager.getMatchData(matchId);
-    console.log(itemData);
+    //console.log(itemData);
 
     let itemNames = [];
 
@@ -300,6 +327,7 @@ export async function getServerSideProps({query}){
             "domControlPointNames": domControlPointNames,
             "domCapData": domCapData,
             "ctfCaps": JSON.stringify(ctfCaps),
+            "assaultData": JSON.stringify(assaultData),
             "itemData": JSON.stringify(itemData),
             "itemNames": JSON.stringify(itemNames)
         }

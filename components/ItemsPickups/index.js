@@ -1,5 +1,4 @@
 import styles from './ItemsPickup.module.css';
-import CountryFlag from '../CountryFlag/'
 
 function getData(data, item){
 
@@ -37,8 +36,6 @@ function getPlayer(players, id){
 }
 
 
-
-
 function getUses(player, data, item){
 
     for(let i = 0; i < data.length; i++){
@@ -53,89 +50,6 @@ function getUses(player, data, item){
 
     return '';
 }
-
-/*const ItemsPickup = ({data, names, playerNames}) =>{
-
-    data = JSON.parse(data);
-    names = JSON.parse(names);
-    playerNames = JSON.parse(playerNames);
-
-    //console.log(playerNames);
-
-    const elems = [];
-
-    let subElems = [];
-
-    let current = [];
-
-    data.sort((a, b) =>{
-
-        a = a.uses;
-        b = b.uses;
-
-        if(a < b){
-            return 1;
-        }else if(a > b){
-            return -1;
-        }
-
-        return 0;
-
-    });
-
-    let currentPlayer = 0;
-
-    for(let i = 0; i < names.length; i++){
-
-        subElems = [];
-
-        current = getData(data, names[i].id);
- 
-        for(let x = 0; x < playerNames.length; x++){
-
-            if(x < current.length){
-                console.log(current);
-                currentPlayer = getPlayer(playerNames, current[x].player);
-
-                subElems.push(<tr>
-                    <td><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</td>
-                    <td>{current[x].uses}</td>
-                </tr>);
-            }else{
-                subElems.push(<tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                </tr>);
-            }
-        }
-
-        elems.push(
-            <div className={`${styles.wrapper}`}>
-                <div className={styles.header}>
-                    {names[i].name}
-                </div>
-                <img className={styles.image} src="/images/temp.jpg" alt="image" />
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Player</th>
-                        <th>Uses</th>
-                    </tr>
-                    {subElems}
-                </tbody>
-            </table>
-            </div>
-        );
-    }
-
-    return (
-        <div>
-            <div className="default-header">Item Pickups</div>
-            {elems}
-        </div>
-    );
-
-}*/
 
 
 function getTeamColor(team){
@@ -158,18 +72,16 @@ const ItemsPickup = ({data, names, playerNames}) =>{
     names = JSON.parse(names);
     playerNames = JSON.parse(playerNames);
 
-    console.log(data);
-
     const elems = [];
 
     let subElems = [];
     let current = 0;
     let currentPlayer = 0;
 
-    subElems.push(<th>Item</th>);
+    subElems.push(<th key={`th-player-name--1`}>Item</th>);
 
     for(let i = 0; i < playerNames.length; i++){
-        subElems.push(<th >{playerNames[i].name}</th>);
+        subElems.push(<th key={`th-player-name-${i}`}>{playerNames[i].name}</th>);
     }
 
     elems.push(<tr>
@@ -182,14 +94,14 @@ const ItemsPickup = ({data, names, playerNames}) =>{
 
         current = getData(data, names[i].id);
 
-        subElems.push(<td className="yellow">{names[i].name}</td>);
+        subElems.push(<td key={`player-item-name-${i}`}>{names[i].name}</td>);
 
         for(let x = 0; x < playerNames.length; x++){
 
-            subElems.push(<td className={getTeamColor(playerNames[x].team)}>{getUses(playerNames[x].id, data, names[i].id)}</td>);
+            subElems.push(<td key={`player-item-${playerNames[x].team}-${x}`} className={getTeamColor(playerNames[x].team)}>{getUses(playerNames[x].id, data, names[i].id)}</td>);
         }
 
-        elems.push(<tr>{subElems}</tr>);
+        elems.push(<tr key={`items-tr-${i}`}>{subElems}</tr>);
 
     }
 

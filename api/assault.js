@@ -32,7 +32,7 @@ class Assault{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_assault_objects VALUES(NULL,?,?,0,0)";
+            const query = "INSERT INTO nstats_assault_objects VALUES(NULL,?,?,?,0,0)";
 
             mysql.query(query, [map, name, objId], (err) =>{
 
@@ -155,6 +155,60 @@ class Assault{
                 resolve();
             });
         });
+    }
+
+    getMatchCaps(matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_assault_match_objectives WHERE match_id=?";
+
+            mysql.query(query, [matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    getMapObjectives(mapId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_assault_objects WHERE map=?";
+
+            mysql.query(query, [mapId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+
+    async getMatchData(matchId, mapId){
+
+        try{
+
+            const mapObjectives = await this.getMapObjectives(mapId);
+            const caps = await this.getMatchCaps(matchId);
+
+
+            return {"objectives": mapObjectives, "caps": caps};
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

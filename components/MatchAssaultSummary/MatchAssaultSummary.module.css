@@ -1,0 +1,22 @@
+.attacking{
+    max-width:1000px;
+    display:grid;
+    grid-template-columns: 50% 50%;
+    font-weight:100;
+    font-size:20px;
+}
+
+.attacking div{
+    border:1px solid rgba(255,255,255,0.25);
+    margin-left:-1px;
+    padding:10px;
+}
+
+.result{
+    max-width:1000px;
+    font-weight:100;
+    font-size:20px;
+    padding:10px 0px;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-top:-1px;
+}
