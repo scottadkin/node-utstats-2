@@ -20,6 +20,7 @@ import Items from '../../api/items';
 import ItemsPickups from '../../components/ItemsPickups/';
 import Assault from '../../api/assault';
 import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
+import Screenshot from '../../components/Screenshot/'
 
 
 function bCTF(players){
@@ -99,9 +100,13 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         });
     }
 
+    console.log(map);
+
     playerNames = JSON.stringify(playerNames);
 
     const elems = [];
+
+    elems.push(<Screenshot map={map} totalTeams={parsedInfo.total_teams} players={playerData}/>);
 
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>

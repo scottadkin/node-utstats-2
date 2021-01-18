@@ -41,6 +41,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
     const spreeElems = [];
     const multiElems = [];
 
+
     players = players.reverse();
     let p = 0;
 
@@ -135,6 +136,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
             <div className="default-header">
                 Multi Kills
             </div>
+ 
             <table>
                 <tbody>
                     <tr>
