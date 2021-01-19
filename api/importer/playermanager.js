@@ -8,7 +8,7 @@ const Player = new P();
 const Faces = require('../faces');
 const Voices = require('../voices');
 const WeaponStats = require('./weaponstats');
-//const SpawnManager = require('./spawnmanager');
+const ConnectionsManager = require('./connectionsmanager');
 
 class PlayerManager{
 
@@ -26,6 +26,7 @@ class PlayerManager{
         this.faces = new Faces();
         this.voices = new Voices();
         this.spawnManager = spawnManager;
+        this.connectionsManager = new ConnectionsManager();
 
         this.createPlayers();
         this.setNStatsValues();
@@ -101,12 +102,18 @@ class PlayerManager{
                 result = reg.exec(d);
                 type = result[2].toLowerCase();
 
+                //console.log(type);
+
                 if(type === 'team' /*|| type === 'teamchange'*/){
                     this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
                     this.setBotStatus(result[3]);
                 }else if(type == 'ip'){
                     this.setIp(result[3]);
+                }else if(type == 'connect'){
+                    this.connectionsManager.lines.push(d);
+                }else if(type == 'disconnect'){
+                    this.connectionsManager.lines.push(d);
                 }
 
             }else if(statReg.test(d)){
@@ -1044,6 +1051,20 @@ class PlayerManager{
 
         }catch(err){
             new Message(`updateWeaponStats ${err}`,'error');
+        }
+    }
+
+
+    async insertConnectionData(matchId){
+
+        try{
+
+            this.connectionsManager.parseData(this);
+
+            await this.connectionsManager.insertData(matchId);
+
+        }catch(err){
+            new Message(`PlayerManager.inserConnectionData ${err}`,'error');
         }
     }
 

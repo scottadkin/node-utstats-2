@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 16, 2021 at 02:30 PM
+-- Generation Time: Jan 19, 2021 at 02:24 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -283,6 +283,20 @@ CREATE TABLE `nstats_matches` (
   `attacking_team` int(11) NOT NULL,
   `assault_caps` int(11) NOT NULL,
   `dom_caps` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_match_connections`
+--
+
+CREATE TABLE `nstats_match_connections` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `timestamp` float NOT NULL,
+  `player` int(11) NOT NULL,
+  `event` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -589,6 +603,12 @@ ALTER TABLE `nstats_matches`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_match_connections`
+--
+ALTER TABLE `nstats_match_connections`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_player_matches`
 --
 ALTER TABLE `nstats_player_matches`
@@ -722,6 +742,12 @@ ALTER TABLE `nstats_map_spawns`
 -- AUTO_INCREMENT for table `nstats_matches`
 --
 ALTER TABLE `nstats_matches`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_match_connections`
+--
+ALTER TABLE `nstats_match_connections`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

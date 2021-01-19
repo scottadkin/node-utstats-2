@@ -106,8 +106,6 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const elems = [];
 
-    elems.push(<Screenshot map={map} totalTeams={parsedInfo.total_teams} players={playerData}/>);
-
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
     );

@@ -18,6 +18,7 @@ const DOMManager = require('./dommanager');
 const SpawnManager = require('./spawnmanager');
 const WeaponsManager = require('./weaponsmanager');
 const ItemsManager = require('./itemsmanager');
+const ConnectionsManager = require('./connectionsmanager');
 
 class MatchManager{
 
@@ -210,6 +211,10 @@ class MatchManager{
             await this.itemsManager.insertMatchData(this.matchId, this.serverInfo.date);
 
 
+            
+            await this.playerManager.insertConnectionData(this.matchId);
+
+
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){
@@ -341,7 +346,6 @@ class MatchManager{
 
                 currentType = typeResult[1].toLowerCase();
 
-                //console.log(currentType);
 
                 if(currentType == 'info'){
 
