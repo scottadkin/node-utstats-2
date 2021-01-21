@@ -48,7 +48,6 @@ class ConnectionsManager{
         }
     }
 
-
     async insertData(matchId){
 
         try{

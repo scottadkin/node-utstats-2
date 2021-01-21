@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 19, 2021 at 02:24 PM
+-- Generation Time: Jan 21, 2021 at 01:58 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -297,6 +297,20 @@ CREATE TABLE `nstats_match_connections` (
   `timestamp` float NOT NULL,
   `player` int(11) NOT NULL,
   `event` tinyint(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_match_team_changes`
+--
+
+CREATE TABLE `nstats_match_team_changes` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `timestamp` float NOT NULL,
+  `player` int(11) NOT NULL,
+  `team` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -609,6 +623,12 @@ ALTER TABLE `nstats_match_connections`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_match_team_changes`
+--
+ALTER TABLE `nstats_match_team_changes`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_player_matches`
 --
 ALTER TABLE `nstats_player_matches`
@@ -748,6 +768,12 @@ ALTER TABLE `nstats_matches`
 -- AUTO_INCREMENT for table `nstats_match_connections`
 --
 ALTER TABLE `nstats_match_connections`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_match_team_changes`
+--
+ALTER TABLE `nstats_match_team_changes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

@@ -28,19 +28,13 @@ class PlayerManager{
         this.spawnManager = spawnManager;
         this.connectionsManager = new ConnectionsManager();
 
+        this.teamChanges = [];
+
         this.createPlayers();
         this.setNStatsValues();
         this.setPlayerSpawns();
         this.parsePlayerStrings();
         this.setWeaponStats();
-
-        //console.log(this.spawnManager.getPlayerSpawns(0));
-
-
-        //console.log(this.players);
-
-        //this.displayDebugDuplicates();
-        
 
     }
 
@@ -102,8 +96,6 @@ class PlayerManager{
                 result = reg.exec(d);
                 type = result[2].toLowerCase();
 
-                //console.log(type);
-
                 if(type === 'team' /*|| type === 'teamchange'*/){
                     this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
@@ -114,6 +106,8 @@ class PlayerManager{
                     this.connectionsManager.lines.push(d);
                 }else if(type == 'disconnect'){
                     this.connectionsManager.lines.push(d);
+                }else if(type === 'teamchange'){
+                    this.teamChanges.push(d);
                 }
 
             }else if(statReg.test(d)){
@@ -1068,6 +1062,73 @@ class PlayerManager{
         }
     }
 
+    parseTeamChanges(){
+
+        const data = [];
+
+        const reg = /^(\d+?\.\d+?)\tplayer\tteamchange\t(.+?)\t(.+)$/i;
+
+        let d = 0;
+        let result = 0;
+        let currentPlayer = 0;
+
+        for(let i = 0; i < this.teamChanges.length; i++){
+
+            d = this.teamChanges[i];
+
+            result = reg.exec(d);
+
+            if(result !== null){
+
+                currentPlayer = this.getOriginalConnectionById(parseInt(result[2]));
+
+                if(currentPlayer !== null){
+                    data.push({
+                        "timestamp": parseFloat(result[1]),
+                        "player": currentPlayer.masterId,
+                        "team": parseInt(result[3])
+                    });
+                }else{
+                    new Message(`PlayerManager.parseTeamChanges Can't find original connection for player with id ${result[2]}`,'warning');
+                }
+            }
+        }
+
+        this.teamChanges = data;
+    }
+
+    insertTeamChange(match, time, player, team){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_match_team_changes VALUES(NULL,?,?,?,?)";
+
+            mysql.query(query, [match, time, player, team], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async insertTeamChanges(matchId){
+
+        try{
+
+            let t = 0;
+
+            for(let i = 0; i < this.teamChanges.length; i++){
+
+                t = this.teamChanges[i];
+
+                await this.insertTeamChange(matchId, t.timestamp, t.player, t.team);
+            }
+
+        }catch(err){
+            new Message(`PlayerManager.insertTeamChanges() ${err}`,'error');
+        }
+    }
 }
 
 module.exports = PlayerManager;

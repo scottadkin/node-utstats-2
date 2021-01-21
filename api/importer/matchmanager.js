@@ -213,6 +213,8 @@ class MatchManager{
 
             
             await this.playerManager.insertConnectionData(this.matchId);
+            this.playerManager.parseTeamChanges();
+            await this.playerManager.insertTeamChanges(this.matchId);
 
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
