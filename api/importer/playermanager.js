@@ -9,8 +9,8 @@ const Faces = require('../faces');
 const Voices = require('../voices');
 const WeaponStats = require('./weaponstats');
 const ConnectionsManager = require('./connectionsmanager');
-const Teams = require('../teams');
 const PingManager = require('./pingmanager');
+const TeamsManager = require('./teamsmanager');
 
 class PlayerManager{
 
@@ -29,7 +29,7 @@ class PlayerManager{
         this.voices = new Voices();
         this.spawnManager = spawnManager;
         this.connectionsManager = new ConnectionsManager();
-        this.teams = new Teams();
+        this.teamsManager = new TeamsManager();
 
         this.teamChanges = [];
 
@@ -112,7 +112,7 @@ class PlayerManager{
                 }else if(type == 'disconnect'){
                     this.connectionsManager.lines.push(d);
                 }else if(type === 'teamchange'){
-                    this.teamChanges.push(d);
+                    this.teamsManager.lines.push(d);
                 }else if(type === 'ping'){
                     this.pingManager.lines.push(d);
                 }
@@ -1069,75 +1069,7 @@ class PlayerManager{
         }
     }
 
-    parseTeamChanges(){
 
-        const data = [];
-
-        const reg = /^(\d+?\.\d+?)\tplayer\tteamchange\t(.+?)\t(.+)$/i;
-
-        let d = 0;
-        let result = 0;
-        let currentPlayer = 0;
-
-        for(let i = 0; i < this.teamChanges.length; i++){
-
-            d = this.teamChanges[i];
-
-            result = reg.exec(d);
-
-            if(result !== null){
-
-                currentPlayer = this.getOriginalConnectionById(parseInt(result[2]));
-
-                if(currentPlayer !== null){
-                    data.push({
-                        "timestamp": parseFloat(result[1]),
-                        "player": currentPlayer.masterId,
-                        "team": parseInt(result[3])
-                    });
-                }else{
-                    new Message(`PlayerManager.parseTeamChanges Can't find original connection for player with id ${result[2]}`,'warning');
-                }
-            }
-        }
-
-        this.teamChanges = data;
-    }
-
-    
-
-    async insertTeamChanges(matchId){
-
-        try{
-
-            let t = 0;
-
-            new Message(`Starting to insert player team changes.`,'note');
-
-            for(let i = 0; i < this.teamChanges.length; i++){
-
-                t = this.teamChanges[i];
-
-                await this.teams.insertTeamChange(matchId, t.timestamp, t.player, t.team);
-            }
-
-            new Message(`Inserted all player team changes.`,'pass');
-
-        }catch(err){
-            new Message(`PlayerManager.insertTeamChanges() ${err}`,'error');
-        }
-    }
-
-
-
-    async insertPingData(matchId){
-
-        try{
-
-        }catch(err){    
-            new Message(`PlayerManager.insertPingData() ${err}`,'error');
-        }
-    }
 }
 
 module.exports = PlayerManager;

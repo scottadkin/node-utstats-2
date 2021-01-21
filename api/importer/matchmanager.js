@@ -210,8 +210,8 @@ class MatchManager{
 
             await this.playerManager.insertConnectionData(this.matchId);
 
-            this.playerManager.parseTeamChanges();
-            await this.playerManager.insertTeamChanges(this.matchId);
+            this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
+            await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
 
             this.playerManager.pingManager.parsePings(this.playerManager);
             await this.playerManager.pingManager.insertPingData(this.matchId);
