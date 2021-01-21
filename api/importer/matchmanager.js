@@ -194,8 +194,6 @@ class MatchManager{
             }
 
 
-
-
             if(this.weaponsManager !== undefined){
                 
                 this.weaponsManager.parseData();
@@ -210,13 +208,14 @@ class MatchManager{
             await this.itemsManager.updateTotals(this.serverInfo.date);
             await this.itemsManager.insertMatchData(this.matchId, this.serverInfo.date);
 
-
-            
             await this.playerManager.insertConnectionData(this.matchId);
+
             this.playerManager.parseTeamChanges();
             await this.playerManager.insertTeamChanges(this.matchId);
 
-
+            this.playerManager.pingManager.parsePings(this.playerManager);
+            await this.playerManager.pingManager.insertPingData(this.matchId);
+            
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){

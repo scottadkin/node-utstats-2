@@ -9,6 +9,8 @@ const Faces = require('../faces');
 const Voices = require('../voices');
 const WeaponStats = require('./weaponstats');
 const ConnectionsManager = require('./connectionsmanager');
+const Teams = require('../teams');
+const PingManager = require('./pingmanager');
 
 class PlayerManager{
 
@@ -27,8 +29,11 @@ class PlayerManager{
         this.voices = new Voices();
         this.spawnManager = spawnManager;
         this.connectionsManager = new ConnectionsManager();
+        this.teams = new Teams();
 
         this.teamChanges = [];
+
+        this.pingManager = new PingManager();
 
         this.createPlayers();
         this.setNStatsValues();
@@ -108,6 +113,8 @@ class PlayerManager{
                     this.connectionsManager.lines.push(d);
                 }else if(type === 'teamchange'){
                     this.teamChanges.push(d);
+                }else if(type === 'ping'){
+                    this.pingManager.lines.push(d);
                 }
 
             }else if(statReg.test(d)){
@@ -1097,20 +1104,7 @@ class PlayerManager{
         this.teamChanges = data;
     }
 
-    insertTeamChange(match, time, player, team){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "INSERT INTO nstats_match_team_changes VALUES(NULL,?,?,?,?)";
-
-            mysql.query(query, [match, time, player, team], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
-    }
+    
 
     async insertTeamChanges(matchId){
 
@@ -1118,15 +1112,30 @@ class PlayerManager{
 
             let t = 0;
 
+            new Message(`Starting to insert player team changes.`,'note');
+
             for(let i = 0; i < this.teamChanges.length; i++){
 
                 t = this.teamChanges[i];
 
-                await this.insertTeamChange(matchId, t.timestamp, t.player, t.team);
+                await this.teams.insertTeamChange(matchId, t.timestamp, t.player, t.team);
             }
+
+            new Message(`Inserted all player team changes.`,'pass');
 
         }catch(err){
             new Message(`PlayerManager.insertTeamChanges() ${err}`,'error');
+        }
+    }
+
+
+
+    async insertPingData(matchId){
+
+        try{
+
+        }catch(err){    
+            new Message(`PlayerManager.insertPingData() ${err}`,'error');
         }
     }
 }
