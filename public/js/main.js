@@ -1,6 +1,6 @@
 class MatchScreenshot{
 
-    constructor(canvas, image, map, players, teams){
+    constructor(canvas, image, map, players, teams, matchData){
 
         console.log(`new match screenshot`);
         
@@ -10,6 +10,10 @@ class MatchScreenshot{
         this.map = map;
         this.players = JSON.parse(players);
         this.teams = parseInt(teams);
+
+        this.matchData = JSON.parse(matchData);
+
+        console.log(this.matchData);
 
         this.image = new Image();
         this.image.src = image;
@@ -21,12 +25,15 @@ class MatchScreenshot{
             "yellow": "rgb(255,255,0)"
         };
 
+        this.teamPlayerCount = [0,0,0,0];
+
         //this.scaleImage();
 
        // this.image.onload = () =>{
          //   console.log(`image loaded`);
             this.render();
         //}   
+
 
     }
 
@@ -49,16 +56,77 @@ class MatchScreenshot{
         }
     }
 
-    renderStandardTeamGamePlayer(c, offsetX, offsetY, team, name, score){
+    renderStandardTeamGamePlayer(c, team, name, score, bFinal){
 
         const scoreOffset = this.x(30);
+        const rowHeight = this.y(3.2);
+        const index = this.teamPlayerCount[team];
+        const scoreFontSize = this.y(2.5);
+        const teamHeaderFontSize = this.y(2.9);
+        let maxPlayersPerTeam = 0;
+        
+        if(this.teams < 3){
+            maxPlayersPerTeam = 18;
+        }else{
+            maxPlayersPerTeam = 9;
+        }
 
-        console.log("test");
+        
+
+        let startY = 0;
+        let startX = 0;
+        
+        switch(team){
+            case 0: {   startY = 20; startX = 10;} break;
+            case 1: {   startY = 20; startX = 55;} break;
+            case 2: {   startY = 60; startX = 10;} break;
+            case 3: {   startY = 60; startX = 55;} break;
+        }
+
+        const x = this.x(startX);
+        const y = this.y(startY) + (rowHeight * index);
 
         c.fillStyle = this.getTeamColor(team);
-        c.font = "40px Arial";
-        c.fillText(name, this.x(offsetX), this.y(offsetY));
-        c.fillText(score, this.x(offsetX) + scoreOffset, this.y(offsetY));
+
+        if(bFinal !== undefined){
+
+            if(index <= maxPlayersPerTeam){
+                return;
+            }
+            c.font = this.y(1.8)+"px Arial";
+            c.fillText(`${index - maxPlayersPerTeam} Player[s] not shown`,x , this.y(startY) + (rowHeight * maxPlayersPerTeam));
+            return;
+        }
+
+        if(index >= maxPlayersPerTeam){
+            this.teamPlayerCount[team]++;
+            return;
+        }
+
+        //draw team headers
+        if(index === 0){
+
+            let teamTitle = "";
+
+            switch(team){
+                case 0: {  teamTitle = `Red Team`; } break;
+                case 1: {  teamTitle = `Blue Team`; } break;
+                case 2: {  teamTitle = `Green Team`; } break;
+                case 3: {  teamTitle = `Yellow Team`; } break;
+            }
+
+            c.font = teamHeaderFontSize+"px Arial";
+            c.fillText(teamTitle, x, y - this.y(3.5));
+            c.fillText(this.matchData[`team_score_${team}`], x + scoreOffset, y - this.y(3.5));
+
+        }
+
+
+        c.font = scoreFontSize+"px Arial";
+        c.fillText(name, x, y);
+        c.fillText(score,x + scoreOffset, y);
+
+        this.teamPlayerCount[team]++;
     }
 
     render(){
@@ -68,13 +136,20 @@ class MatchScreenshot{
         console.log("render");
 
         c.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
+        c.fillStyle = "rgba(0,0,0,0.45)";
+        c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        let p = 0;
 
+        for(let i = 0; i < this.players.length; i++){
 
-        this.renderStandardTeamGamePlayer(c, 10,10, 0, "Player", 100);
-        this.renderStandardTeamGamePlayer(c, 10,10, 1, "Player", 100);
-        this.renderStandardTeamGamePlayer(c, 10,10, 2, "Player", 100);
-        this.renderStandardTeamGamePlayer(c, 10,10, 3, "Player", 100);
-       // c.drawImage(this.image, this.x(20), this.y(20), this.x(20), this.x(20));
+            p = this.players[i];
+            //console.log(p);
+            this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score);
+        }
+
+        for(let i = 0; i < this.teams; i++){
+            this.renderStandardTeamGamePlayer(c,i,'','',true);
+        }
     }
 }
 
@@ -88,7 +163,7 @@ window.onload = () =>{
 
         console.log(sshots[i].dataset);
 
-        new MatchScreenshot(sshots[i], sshots[i].dataset.image, sshots[i].dataset.map, sshots[i].dataset.players, sshots[i].dataset.teams);
+        new MatchScreenshot(sshots[i], sshots[i].dataset.image, sshots[i].dataset.map, sshots[i].dataset.players, sshots[i].dataset.teams, sshots[i].dataset.matchData);
     }
 }
 
