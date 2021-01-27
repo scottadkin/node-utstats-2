@@ -2,7 +2,6 @@ import styles from './ConnectionSummary.module.css';
 import MMSS from '../MMSS/';
 import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
-import Link from 'next/link'
 
 const ConnectionSummary = ({data, playerNames}) =>{
 
@@ -11,7 +10,7 @@ const ConnectionSummary = ({data, playerNames}) =>{
 
     //console.log(data);
 
-    console.log(playerNames);
+    //console.log(playerNames);
 
     const elems = [];
     let currentPlayer = 0;
@@ -24,7 +23,7 @@ const ConnectionSummary = ({data, playerNames}) =>{
 
         elems.push(<tr key={`connection-${i}`} className={bgColor}>
             <td><MMSS timestamp={data[i].timestamp}/></td>
-            <td><Link href={`/player/${data[i].player}`}><a><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a></Link></td>
+            <td><a href={`/player/${data[i].player}`}><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a></td>
             <td>{(!data[i].event) ? "Connected" : "Disconnected"}</td>
         </tr>);
     }

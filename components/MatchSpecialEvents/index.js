@@ -1,6 +1,5 @@
 import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/';
-import Link from 'next/link';
 import styles from './MatchSpecialEvents.module.css';
 
 
@@ -66,7 +65,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
         if(!bAllEmpty(p, true)){
             spreeElems.push(
                 <tr key={`spree_tr_${i}`} className={bgColor}>
-                    <td className="text-left"><CountryFlag key={`spree_flag_${p.player_id}`} country={p.country} /><Link key={`spree_link_${p.player_id}`} href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+                    <td className="text-left"><CountryFlag key={`spree_flag_${p.player_id}`} country={p.country} /><a href={`/player/${p.player_id}`}>{p.name}</a></td>
                     <td>{(p.spree_1 > 0) ? p.spree_1 : ''}</td>
                     <td>{(p.spree_2 > 0) ? p.spree_2 : ''}</td>
                     <td>{(p.spree_3 > 0) ? p.spree_3 : ''}</td>
@@ -82,7 +81,7 @@ const MatchSpecialEvents = ({bTeamGame, players}) =>{
         if(!bAllEmpty(p, false)){
             multiElems.push(
                 <tr key={`multi_tr_${i}`} className={bgColor}>
-                    <td className="text-left"><CountryFlag  key={`multi_flag_${p.player_id}`} country={p.country} /><Link key={`multi_link_${p.player_id}`} href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+                    <td className="text-left"><CountryFlag  key={`multi_flag_${p.player_id}`} country={p.country} /><a href={`/player/${p.player_id}`}>{p.name}</a></td>
                     <td>{(p.multi_1 > 0) ? p.multi_1 : ''}</td>
                     <td>{(p.multi_2 > 0) ? p.multi_2 : ''}</td>
                     <td>{(p.multi_3 > 0) ? p.multi_3 : ''}</td>

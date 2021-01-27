@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import CountryFlag from '../CountryFlag/'
 
 const setPlayerPointCaps = (data) =>{
@@ -83,7 +82,7 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
      
         playerElems = [];
 
-        playerElems.push(<td key={`players_name_${team}_${i}`} className="text-left"><CountryFlag key={p.id} country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>);
+        playerElems.push(<td key={`players_name_${team}_${i}`} className="text-left"><CountryFlag key={p.id} country={p.country}/><a href={`/player/${p.player_id}`}>{p.name}</a></td>);
 
         for(let c = 0; c < controlPointNames.length; c++){
 
@@ -106,7 +105,7 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
                     currentTotal += currentPointCaps[`p_${controlPointNames[c].id}`];
 
                     allTotals += currentPointCaps[`p_${controlPointNames[c].id}`];
-                    console.log(allTotals,p.id);
+                   // console.log(allTotals,p.id);
 
                 }
             }

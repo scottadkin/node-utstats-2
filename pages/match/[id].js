@@ -104,8 +104,6 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         });
     }
 
-    console.log(map);
-
     playerNames = JSON.stringify(playerNames);
 
     const elems = [];
@@ -142,7 +140,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         elems.push(
             <MatchAssaultSummary key={`assault_data`} players={playerData} data={assaultData} matchStart={parsedInfo.start} attackingTeam={parsedInfo.attacking_team}
-                redScore={parsedInfo.team_score_0} blueScore={parsedInfo.team_score_1}
+                redScore={parsedInfo.team_score_0} blueScore={parsedInfo.team_score_1} playerNames={playerNames}
             />
         );
 

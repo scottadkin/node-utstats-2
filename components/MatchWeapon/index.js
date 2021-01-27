@@ -2,8 +2,6 @@ import styles from './MatchWeapon.module.css';
 import CleanDamage from '../CleanDamage/';
 import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/';
-import Link from 'next/link';
-
 
 const getBGColor = (bTeamGame, team) =>{
 
@@ -60,7 +58,7 @@ const MatchWeapon = ({name, data, bTeamGame}) =>{
         currentEff *= 100;
         elems.push(
             <tr key={`tr_${data[i].playerTeam}_${i}`} className={getBGColor(bTeamGame, data[i].playerTeam)}>
-                <td><CountryFlag key={`weapon_flag_${data[i].playerTeam}_${i}`} country={data[i].playerCountry} /><Link key={`weapon_link_${data[i].playerTeam}_${i}`} href={`/player/${data[i].player_id}`}><a>{data[i].playerName}</a></Link></td>
+                <td><CountryFlag key={`weapon_flag_${data[i].playerTeam}_${i}`} country={data[i].playerCountry} /><a href={`/player/${data[i].player_id}`}>{data[i].playerName}</a></td>
                 <td><CleanDamage key={`weapon_damage_${data[i].playerTeam}_${i}`} damage={data[i].damage} /></td>
                 <td>{(data[i].deaths > 0) ? data[i].deaths : ''}</td>
                 <td>{(data[i].kills > 0) ? data[i].kills : ''}</td>

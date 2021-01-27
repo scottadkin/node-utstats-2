@@ -1,5 +1,4 @@
 import TipHeader from '../TipHeader/';
-import Link from 'next/link';
 import CountryFlag from '../CountryFlag/';
 
 const bAllEmpty = (data) =>{
@@ -52,7 +51,7 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
         if(!bAllEmpty(p)){
             elems.push(
                 <tr key={`ctf_tr_${team}_${i}`} className={bgColor}>
-                    <td className="text-left"><CountryFlag key={`ctf_flag_${team}_${i}`} country={p.country}/><Link key={`ctf_link_${team}_${i}`} href={`/player/${p.player_id}`}>{p.name}</Link></td>
+                    <td className="text-left"><CountryFlag key={`ctf_flag_${team}_${i}`} country={p.country}/><a href={`/player/${p.player_id}`}>{p.name}</a></td>
                     <td>{(p.flag_taken > 0) ? p.flag_taken : ''}</td>
                     <td>{(p.flag_pickup > 0) ? p.flag_pickup : ''}</td>
                     <td>{(p.flag_dropped > 0) ? p.flag_dropped : ''}</td>

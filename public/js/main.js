@@ -4,7 +4,7 @@ class MatchScreenshot{
 
         console.log(`new match screenshot`);
         
-        this.canvas = canvas;
+        this.canvas = document.getElementById(canvas);
         this.context = this.canvas.getContext("2d");
 
         this.map = map;
@@ -29,10 +29,10 @@ class MatchScreenshot{
 
         //this.scaleImage();
 
-       // this.image.onload = () =>{
+        this.image.onload = () =>{
          //   console.log(`image loaded`);
             this.render();
-        //}   
+        }   
 
 
     }
@@ -152,7 +152,7 @@ class MatchScreenshot{
         }
     }
 }
-
+/*
 window.onload = () =>{
 
     const sshots = document.getElementsByClassName("match-screenshot");
@@ -165,5 +165,5 @@ window.onload = () =>{
 
         new MatchScreenshot(sshots[i], sshots[i].dataset.image, sshots[i].dataset.map, sshots[i].dataset.players, sshots[i].dataset.teams, sshots[i].dataset.matchData);
     }
-}
+}*/
 

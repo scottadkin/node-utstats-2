@@ -17,11 +17,12 @@ function getName(objectives, id){
 
 
 
-const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore, blueScore}) =>{
+const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore, blueScore, playerNames}) =>{
 
     players = JSON.parse(players);
     data = JSON.parse(data);
     matchStart = JSON.parse(matchStart);
+    playerNames = JSON.parse(playerNames);
 
     const elems = [];
 
@@ -31,11 +32,13 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
 
     const cappedIds = [];
 
+
     for(let i = 0; i < data.caps.length; i++){
 
         d = data.caps[i];
 
-        currentPlayer = Functions.getPlayer(players, d.player);
+        
+        currentPlayer = Functions.getPlayer(playerNames, d.player);
 
         cappedIds.push(d.obj_id);
 

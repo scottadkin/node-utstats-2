@@ -1,6 +1,5 @@
 import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/';
-import Link from 'next/link';
 import MMSS from '../MMSS/';
 
 const createPlayerMap = (players) =>{
@@ -116,7 +115,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
                 assistElems.push(
                     <span key={`assists_team_${c.team}_${currentName.name}_${x}`}>
                         <CountryFlag country={currentName.country}/>
-                        <Link href={`/player/${c.assists[x]}`} ><a>{currentName.name}</a></Link>
+                        <a href={`/player/${c.assists[x]}`} >{currentName.name}</a>
                         {(x < c.assists.length - 1) ? ',' : ''}
                     </span>
                 );
@@ -143,11 +142,11 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             }
         }
         elems.push(<tr key={`tr_${c.team}_${i}`} className={bgColor}>
-            <td className="text-left"><CountryFlag country={grab.country}/><Link href={`/player/${c.grab}`} ><a>{grab.name}</a></Link></td>
+            <td className="text-left"><CountryFlag country={grab.country}/><a href={`/player/${c.grab}`} >{grab.name}</a></td>
             <td><MMSS timestamp={c.grab_time - matchStart}/> </td>
             <td>{coverElems}</td>
             <td>{assistElems}</td>
-            <td className="text-left"><CountryFlag country={cap.country} /><Link href={`/player/${c.cap}`} ><a>{cap.name}</a></Link></td>
+            <td className="text-left"><CountryFlag country={cap.country} /><a href={`/player/${c.cap}`} >{cap.name}</a></td>
             <td><MMSS timestamp={c.cap_time - matchStart}/></td>
             <td>{c.travel_time} Seconds</td>
             <td>{teamScoreString}</td>
