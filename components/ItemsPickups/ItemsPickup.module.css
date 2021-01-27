@@ -11,14 +11,14 @@
 }
 
 
-
-.wrapper table th, .wrapper table td{
+.wrapper table td{
     font-weight:300;
     padding:2px 0px;
 }
 
 .wrapper table{
     font-size:12px;
+    max-width:1000px;
 }
 
 .wrapper table td:nth-child(1){
@@ -26,7 +26,19 @@
     padding-left:5px;
 }
 
-.wrapper table tr:nth-child(even){
-    background-color:rgb(12,12,12);
+.wrapper table tr:nth-child(1){
+    height:150px;
 }
 
+
+.wrapper table th{
+    width:20px;
+    margin-top:-40px;
+    transform:rotate(90deg);
+    background-color:transparent;
+    text-align:left;
+}
+
+.wrapper table th:nth-child(1){
+    text-align:center;
+}

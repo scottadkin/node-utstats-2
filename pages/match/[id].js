@@ -24,6 +24,7 @@ import Connections from '../../api/connections';
 import ConnectionSummary from '../../components/ConnectionSummary/';
 import Teams from '../../api/teams';
 import TeamsSummary from '../../components/TeamsSummary/';
+import Screenshot from '../../components/Screenshot/'
 
 
 function bCTF(players){
@@ -112,6 +113,11 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
     );
+
+
+    elems.push(<Screenshot 
+        key={"match-sshot"} map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image}
+    />);
 
 
     if(bCTF(parsedPlayerData)){

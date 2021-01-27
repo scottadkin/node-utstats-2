@@ -104,8 +104,8 @@ const PlayerRecentMatches = ({playerId, matches, maps, scores, gametypes, totalM
         }
 
         elems.push(
-            <Link key={m.id} href={`/match/${m.match_id}`}>
-                <a>
+            <a key={m.id} href={`/match/${m.match_id}`}>
+             
                     <div className={styles.default} style={{"backgroundImage": `url('../images/maps/stalwartxl.jpg')`, "backgroundSize": "100% 100%"}}>
                         <div className={styles.inner}>
                             <div className={styles.info}>
@@ -128,7 +128,7 @@ const PlayerRecentMatches = ({playerId, matches, maps, scores, gametypes, totalM
                         </div>
                     </div>
                 </a>
-            </Link>
+            
         );
     }
 

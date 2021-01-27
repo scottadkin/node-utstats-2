@@ -1,3 +1,9 @@
 .content{
-    background-color:green;
+   max-width:80%;
+   position:relative;
 }
+
+.content canvas{
+    max-width:100%;
+}
+
