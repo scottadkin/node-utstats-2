@@ -164,13 +164,7 @@ td{
   border:1px solid rgba(255,255,255,0.2);
   background-color:black;
   font-size:14px;
-  width:80%;
   max-width:1000px;
-}
-
-
-.special-table td:nth-child(1){
-  min-width:125px;
 }
 
 .special-table tr{

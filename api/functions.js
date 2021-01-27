@@ -26,6 +26,31 @@ class Functions{
     }
     
 
+    static getPlayer = (players, id) =>{
+
+        for(let i = 0; i < players.length; i++){
+    
+            if(players[i].id === id){
+                return players[i];
+            }
+        }
+    
+        return {"name": "not found", "country": "xx", "team": 0}
+    }
+
+
+    static getTeamColor(team){
+
+        switch(team){
+            case 0: {  return "team-red"; } ;
+            case 1: {  return "team-blue"; } ;
+            case 2: {  return "team-green"; } ;
+            case 3: {  return "team-yellow"; };
+            default: { return "team-none";} ;
+        }
+      
+    }
+
 }
 
 module.exports = Functions;

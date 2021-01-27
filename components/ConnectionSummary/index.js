@@ -1,17 +1,8 @@
+import styles from './ConnectionSummary.module.css';
 import MMSS from '../MMSS/';
 import CountryFlag from '../CountryFlag/';
-
-const getPlayer = (players, id) =>{
-
-    for(let i = 0; i < players.length; i++){
-
-        if(players[i].id === id){
-            return players[i];
-        }
-    }
-
-    return {"name": "not found", "country": "xx"}
-}
+import Functions from '../../api/functions';
+import Link from 'next/link'
 
 const ConnectionSummary = ({data, playerNames}) =>{
 
@@ -24,20 +15,22 @@ const ConnectionSummary = ({data, playerNames}) =>{
 
     const elems = [];
     let currentPlayer = 0;
+    let bgColor = '';
 
     for(let i = 0; i < data.length; i++){
 
-        currentPlayer = getPlayer(playerNames, data[i].player);
+        currentPlayer = Functions.getPlayer(playerNames, data[i].player);
+        bgColor = Functions.getTeamColor(currentPlayer.team);
 
-        elems.push(<tr>
+        elems.push(<tr className={bgColor}>
             <td><MMSS timestamp={data[i].timestamp}/></td>
-            <td><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</td>
+            <td><Link href={`/player/${data[i].player}`}><a><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a></Link></td>
             <td>{(!data[i].event) ? "Connected" : "Disconnected"}</td>
         </tr>);
     }
 
     return (
-        <div className="special-table">
+        <div className={`special-table ${styles.wrapper} center`}>
             <div className="default-header">
                 Player Connections
             </div>
