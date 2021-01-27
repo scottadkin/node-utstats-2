@@ -4,6 +4,7 @@
     grid-template-columns: 50% 50%;
     font-weight:100;
     font-size:20px;
+    width:80%;
 }
 
 .attacking div{
@@ -19,4 +20,5 @@
     padding:10px 0px;
     border:1px solid rgba(255,255,255,0.25);
     margin-top:-1px;
+    width:80%;
 }
