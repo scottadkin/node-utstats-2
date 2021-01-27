@@ -22,7 +22,7 @@ const ConnectionSummary = ({data, playerNames}) =>{
         currentPlayer = Functions.getPlayer(playerNames, data[i].player);
         bgColor = Functions.getTeamColor(currentPlayer.team);
 
-        elems.push(<tr className={bgColor}>
+        elems.push(<tr key={`connection-${i}`} className={bgColor}>
             <td><MMSS timestamp={data[i].timestamp}/></td>
             <td><Link href={`/player/${data[i].player}`}><a><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a></Link></td>
             <td>{(!data[i].event) ? "Connected" : "Disconnected"}</td>

@@ -1,6 +1,7 @@
 import styles from './MatchAssaultSummary.module.css';
 import MMSS from '../MMSS/';
 import CountryFlag from '../CountryFlag/';
+import Functions from '../../api/functions';
 
 function getName(objectives, id){
 
@@ -14,35 +15,7 @@ function getName(objectives, id){
     return 'Not Found';
 }
 
-function getPlayer(players, id){
 
-    let p = 0;
-
-    for(let i = 0; i < players.length; i++){
-
-        p = players[i];
-
-        if(p.player_id == id){
-            return {"name": p.name, "country": p.country, "team": p.team}
-        }
-    }
-
-    return {"name":'Not Found', "country": 'xx', "team": 0};
-}
-
-function getTeamColor(team){
-
-    let bgColor = "team-none";
-
-    switch(team){
-        case 0: {  bgColor = "team-red"; } break;
-        case 1: {  bgColor = "team-blue"; } break;
-        case 2: {  bgColor = "team-green"; } break;
-        case 3: {  bgColor = "team-yellow"; } break;
-    }
-    
-    return bgColor;
-}
 
 const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore, blueScore}) =>{
 
@@ -62,11 +35,11 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
 
         d = data.caps[i];
 
-        currentPlayer = getPlayer(players, d.player);
+        currentPlayer = Functions.getPlayer(players, d.player);
 
         cappedIds.push(d.obj_id);
 
-        elems.push(<tr key={`attacked-obj-${i}`} className={getTeamColor(currentPlayer.team)}>
+        elems.push(<tr key={`attacked-obj-${i}`} className={Functions.getTeamColor(currentPlayer.team)}>
             <td className="text-left">{getName(data.objectives, d.obj_id)}</td>
             <td>{(d.bfinal) ? 'True' : ''}</td>
             <td><MMSS timestamp={d.timestamp - matchStart} /></td>
@@ -81,7 +54,7 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
 
         if(cappedIds.indexOf(d.obj_id) === -1){
             elems.push(
-                <tr key={`defended-obj-${i}`} className={getTeamColor((attackingTeam === 0) ? 1 : 0)}>
+                <tr key={`defended-obj-${i}`} className={Functions.getTeamColor((attackingTeam === 0) ? 1 : 0)}>
                     <td className="text-left">{d.name}</td>
                     <td></td>
                     <td></td>

@@ -48,7 +48,23 @@ class Functions{
             case 3: {  return "team-yellow"; };
             default: { return "team-none";} ;
         }
-      
+    }
+
+    static getTeamName(team){
+
+        let teamName = '';
+
+        switch(team){
+
+            case 0: { teamName = "Red Team"; } break;
+            case 1: { teamName = "Blue Team"; } break;
+            case 2: { teamName = "Green Team"; } break;
+            case 3: { teamName = "Yellow Team"; } break;
+            default: { teamName = "None Team"; } break;
+        }
+
+
+        return teamName;
     }
 
 }

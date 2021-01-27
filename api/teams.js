@@ -21,6 +21,25 @@ class Teams{
             });
         });
     }
+
+    getMatchData(matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT timestamp,player,team FROM nstats_match_team_changes WHERE match_id=?";
+
+            mysql.query(query, [matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                
+                resolve([]);
+            });
+        });
+    }
 }
 
 

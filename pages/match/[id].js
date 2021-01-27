@@ -21,7 +21,9 @@ import ItemsPickups from '../../components/ItemsPickups/';
 import Assault from '../../api/assault';
 import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
 import Connections from '../../api/connections';
-import ConnectionSummary from '../../components/ConnectionSummary'
+import ConnectionSummary from '../../components/ConnectionSummary/';
+import Teams from '../../api/teams';
+import TeamsSummary from '../../components/TeamsSummary/';
 
 
 function bCTF(players){
@@ -83,7 +85,7 @@ function getItemsIds(items){
 
 
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
-    assaultData, itemData, itemNames, connections}){
+    assaultData, itemData, itemNames, connections, teams}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -133,7 +135,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     if(bAssault(gametype)){
 
         elems.push(
-            <MatchAssaultSummary players={playerData} data={assaultData} matchStart={parsedInfo.start} attackingTeam={parsedInfo.attacking_team}
+            <MatchAssaultSummary key={`assault_data`} players={playerData} data={assaultData} matchStart={parsedInfo.start} attackingTeam={parsedInfo.attacking_team}
                 redScore={parsedInfo.team_score_0} blueScore={parsedInfo.team_score_1}
             />
         );
@@ -153,11 +155,15 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     );
 
     elems.push(
-        <ItemsPickups data={itemData} names={itemNames} playerNames={playerNames}/>
+        <ItemsPickups key={`item-data`} data={itemData} names={itemNames} playerNames={playerNames}/>
     );
 
     elems.push(
-        <ConnectionSummary data={connections} playerNames={playerNames}/>
+        <ConnectionSummary key={`connection-data`} data={connections} playerNames={playerNames}/>
+    );
+
+    elems.push(
+        <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames}/>
     );
 
     return <div>
@@ -322,9 +328,13 @@ export async function getServerSideProps({query}){
         itemNames = await itemsManager.getNamesByIds(itemIds);
     }
 
-    const ConnectionsManager = new Connections();
-    let connectionsData = await ConnectionsManager.getMatchData(matchId);
+    const connectionsManager = new Connections();
+    let connectionsData = await connectionsManager.getMatchData(matchId);
     
+
+    const teamsManager = new Teams();
+
+    let teamsData = await teamsManager.getMatchData(matchId);
 
     return {
         props: {
@@ -341,7 +351,8 @@ export async function getServerSideProps({query}){
             "assaultData": JSON.stringify(assaultData),
             "itemData": JSON.stringify(itemData),
             "itemNames": JSON.stringify(itemNames),
-            "connections": JSON.stringify(connectionsData)
+            "connections": JSON.stringify(connectionsData),
+            "teams": JSON.stringify(teamsData)
         }
     };
 

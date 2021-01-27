@@ -89,7 +89,7 @@ const ItemsPickup = ({data, names, playerNames}) =>{
         subElems.push(<th key={`th-player-name-${i}`}>{playerNames[i].name}</th>);
     }
 
-    elems.push(<tr>
+    elems.push(<tr key={`tr-items-th`}>
         {subElems}
     </tr>);
 
