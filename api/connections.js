@@ -21,6 +21,26 @@ class Connections{
             });
         });
     }
+
+    getMatchData(matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT timestamp,player,event FROM nstats_match_connections WHERE match_id=?";
+
+            mysql.query(query, [matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                
+                resolve([]);
+            });
+
+        });
+    }
 }
 
 

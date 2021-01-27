@@ -110,7 +110,7 @@ const ItemsPickup = ({data, names, playerNames}) =>{
 
     }
 
-    return (<div className={styles.wrapper}>
+    return (<div className={`${styles.wrapper} m-top-25 m-bottom-25`}>
 
         <div className="default-header">
             Item Pickups

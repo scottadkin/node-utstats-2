@@ -20,7 +20,8 @@ import Items from '../../api/items';
 import ItemsPickups from '../../components/ItemsPickups/';
 import Assault from '../../api/assault';
 import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
-import Screenshot from '../../components/Screenshot/'
+import Connections from '../../api/connections';
+import ConnectionSummary from '../../components/ConnectionSummary'
 
 
 function bCTF(players){
@@ -82,7 +83,7 @@ function getItemsIds(items){
 
 
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
-    assaultData, itemData, itemNames}){
+    assaultData, itemData, itemNames, connections}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -153,6 +154,10 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     elems.push(
         <ItemsPickups data={itemData} names={itemNames} playerNames={playerNames}/>
+    );
+
+    elems.push(
+        <ConnectionSummary data={connections} playerNames={playerNames}/>
     );
 
     return <div>
@@ -317,6 +322,9 @@ export async function getServerSideProps({query}){
         itemNames = await itemsManager.getNamesByIds(itemIds);
     }
 
+    const ConnectionsManager = new Connections();
+    let connectionsData = await ConnectionsManager.getMatchData(matchId);
+    
 
     return {
         props: {
@@ -332,7 +340,8 @@ export async function getServerSideProps({query}){
             "ctfCaps": JSON.stringify(ctfCaps),
             "assaultData": JSON.stringify(assaultData),
             "itemData": JSON.stringify(itemData),
-            "itemNames": JSON.stringify(itemNames)
+            "itemNames": JSON.stringify(itemNames),
+            "connections": JSON.stringify(connectionsData)
         }
     };
 
