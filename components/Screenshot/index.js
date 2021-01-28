@@ -211,13 +211,49 @@ class MatchScreenshot{
         return `${scores[0].name} Wins the match!`
     }
 
-    renderStandardTeamGame(c){
+    getSoloWinner(){
+
+        return `${this.matchData.dm_winner} Wins the match!`
+    }
+
+    renderHeader(c){
 
         const headerFontSize = this.y(2.3);
         c.font = headerFontSize+"px Arial";
 
         c.textAlign = "center";
 
+        
+        c.fillStyle = "white";
+        c.fillText(this.gametype, this.x(50), this.y(2));
+        c.fillText(`Time Limit: ${this.matchData.time_limit}`, this.x(50), this.y(4.4));
+        c.fillText(`Target Score: ${this.matchData.target_score}`, this.x(50), this.y(6.8));
+
+        c.fillStyle = "yellow";
+        c.fillText((this.matchData.team_game) ? this.getTeamWinner() : this.getSoloWinner(), this.x(50), this.y(10));
+
+        c.textAlign = "left";
+    }
+
+    renderFooter(c){
+
+        const footerFontSize = this.y(1.15);
+        c.textAlign = "center";
+        c.font = footerFontSize+"px Arial";
+        c.fillStyle = this.colors.greenFooter;
+        c.fillText("The match has ended.", this.x(50), this.y(92));
+        c.fillStyle = "white";
+
+        c.fillText(`Playing ${this.gametype} on ${this.map}`, this.x(50), this.y(95));
+        c.fillText(`${this.getDate()} Elapsed Time: ${this.MMSS(this.matchData.playtime)}`, this.x(50), this.y(96.75));
+        c.fillText(`Server: ${this.serverName}`, this.x(50), this.y(98.50));
+
+        c.textAlign = "left";
+    }
+
+    renderStandardTeamGame(c){
+
+        this.renderHeader(c);
         
         c.fillStyle = "white";
         c.fillText(this.gametype, this.x(50), this.y(2));
@@ -241,18 +277,18 @@ class MatchScreenshot{
             this.renderStandardTeamGamePlayer(c,i,'','',true);
         }
 
-        const footerFontSize = this.y(1.15);
-        c.textAlign = "center";
-        c.font = footerFontSize+"px Arial";
-        c.fillStyle = this.colors.greenFooter;
-        c.fillText("The match has ended.", this.x(50), this.y(92));
-        c.fillStyle = "white";
+        this.renderFooter(c);
+    }
 
-        c.fillText(`Playing ${this.gametype} on ${this.map}`, this.x(50), this.y(95));
-        c.fillText(`${this.getDate()} Elapsed Time: ${this.MMSS(this.matchData.playtime)}`, this.x(50), this.y(96.75));
-        c.fillText(`Server: ${this.serverName}`, this.x(50), this.y(98.50));
 
-        c.textAlign = "left";
+    renderStandardPlayer(c, index, name, score){
+
+    }
+    
+    renderStandard(c){
+
+        this.renderHeader(c);
+        this.renderFooter(c);
     }
 
     render(){
@@ -267,8 +303,11 @@ class MatchScreenshot{
         c.fillStyle = "rgba(0,0,0,0.45)";
         c.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-
-        this.renderStandardTeamGame(c);
+        if(this.matchData.team_game){
+            this.renderStandardTeamGame(c);
+        }else{
+            this.renderStandard(c);
+        }
     }
 
 }
