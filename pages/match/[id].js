@@ -90,6 +90,8 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const parsedInfo = JSON.parse(info);
 
+    console.log(server);
+
     const parsedPlayerData = JSON.parse(playerData);
 
     let playerNames = [];
@@ -115,6 +117,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     elems.push(<Screenshot 
         key={"match-sshot"} map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image} matchData={info}
+        serverName={server} gametype={gametype}
     />);
 
 
