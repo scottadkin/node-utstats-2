@@ -183,8 +183,51 @@ class MatchScreenshot{
 
     }
 
+    getTeamWinner(){
+
+        let d = this.matchData;
+
+        const scores = [
+            {"name": "Red Team", "score": d.team_score_0},
+            {"name": "Blue Team", "score": d.team_score_1},
+            {"name": "Green Team", "score": d.team_score_2},
+            {"name": "Yellow Team", "score": d.team_score_3}
+        ];
+
+        scores.sort((a, b) =>{
+
+            a = a.score;
+            b = b.score;
+
+            if(a < b){
+                return 1;
+            }else if(a > b){
+                return -1;
+            }
+
+            return 0;
+        });
+
+        return `${scores[0].name} Wins the match!`
+    }
+
     renderStandardTeamGame(c){
 
+        const headerFontSize = this.y(2.3);
+        c.font = headerFontSize+"px Arial";
+
+        c.textAlign = "center";
+
+        
+        c.fillStyle = "white";
+        c.fillText(this.gametype, this.x(50), this.y(2));
+        c.fillText(`Time Limit: ${this.matchData.time_limit}`, this.x(50), this.y(4.4));
+        c.fillText(`Target Score: ${this.matchData.target_score}`, this.x(50), this.y(6.8));
+
+        c.fillStyle = "yellow";
+        c.fillText(this.getTeamWinner(), this.x(50), this.y(10));
+
+        c.textAlign = "left";
         let p = 0;
 
         for(let i = 0; i < this.players.length; i++){
@@ -208,6 +251,8 @@ class MatchScreenshot{
         c.fillText(`Playing ${this.gametype} on ${this.map}`, this.x(50), this.y(95));
         c.fillText(`${this.getDate()} Elapsed Time: ${this.MMSS(this.matchData.playtime)}`, this.x(50), this.y(96.75));
         c.fillText(`Server: ${this.serverName}`, this.x(50), this.y(98.50));
+
+        c.textAlign = "left";
     }
 
     render(){
