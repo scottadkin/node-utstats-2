@@ -5,7 +5,7 @@ import {useEffect, useRef} from "react";
 
 class MatchScreenshot{
 
-    constructor(canvas, image, map, players, teams, matchData, serverName, gametype){
+    constructor(canvas, image, map, players, teams, matchData, serverName, gametype, faces){
 
         console.log(`new match screenshot`);
         
@@ -19,6 +19,7 @@ class MatchScreenshot{
         this.matchData = JSON.parse(matchData);
         this.serverName = serverName;
         this.gametype = gametype;
+        this.faces = JSON.parse(faces);
 
         console.log(this.matchData);
 
@@ -59,17 +60,31 @@ class MatchScreenshot{
         this.image.onload = () =>{
          //   console.log(`image loaded`);
             this.loadPlayerFlags();
-            this.loadIcons();
             //this.render();
         }   
     }
 
+    getPlayerIconName(id){
+
+
+        if(this.faces[id] !== undefined){
+            
+            if(this.faces[id] !== null){
+                if(this.faces[id].imageExists){
+                    return this.faces[id].name;
+                }     
+            }
+        }
+
+        return 'faceless';
+    }
+
     loadPlayerIcons(){
 
-        let iconsToLoad = 0;
-        let iconsLoaded = 0;
-
+        
         const uniqueIcons = [];
+
+        this.playerIcons = {};
 
         let p = 0;
 
@@ -81,6 +96,26 @@ class MatchScreenshot{
                 uniqueIcons.push(p.face);
             }
         }
+
+        this.playerIconsToLoad = uniqueIcons.length;
+        this.playerIconsLoaded = 0;
+
+        for(let i = 0; i < uniqueIcons.length; i++){
+
+            this.playerIcons[uniqueIcons[i]] = new Image();
+            this.playerIcons[uniqueIcons[i]].src = `/images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
+
+            this.playerIcons[uniqueIcons[i]].onload = () =>{
+
+                this.playerIconsLoaded++;
+
+                if(this.playerIconsLoaded >= this.playerIconsToLoad){
+                    this.render();
+                }
+            }
+        }
+
+        console.log(this.playerIcons);
 
     }
 
@@ -135,7 +170,7 @@ class MatchScreenshot{
             this.icons[files[i]].onload = () =>{
                 this.iconsLoaded++;
                 if(this.iconsLoaded >= this.iconsToLoad){
-                    this.render();
+                    this.loadPlayerIcons();
                 }
             }
         }
@@ -396,9 +431,9 @@ class MatchScreenshot{
     renderStandardTeamGame(c){
 
         this.renderHeader(c);
-    
 
         c.textAlign = "left";
+
         let p = 0;
 
         for(let i = 0; i < this.players.length; i++){
@@ -485,6 +520,7 @@ class MatchScreenshot{
     renderSmartCTFBar(c, x, y, type, value){
 
         const max = this.maxCTF[type];
+        const total = this.totalCTF[type];
         const maxWidth = this.x(13);
 
         let bit = 0;
@@ -492,8 +528,10 @@ class MatchScreenshot{
             bit = maxWidth / max;
         }
 
-        c.fillStyle = "green";
 
+        const color = Math.floor((255 / total) * value);
+
+        c.fillStyle = `rgb(${color},255,${color})`;
 
         c.fillRect(x + this.x(0.5),y + this.y(0.1),bit * value,5);
 
@@ -509,7 +547,7 @@ class MatchScreenshot{
 
         c.fillStyle = this.getTeamColor(team);
 
-        const pingSize = this.y(0.9);
+        const pingSize = this.y(1);
         const nameSize = this.y(2);
         const nameOffset = this.x(5);
         const scoreOffset = this.x(39);
@@ -518,7 +556,7 @@ class MatchScreenshot{
         c.textAlign = "left";
         c.fillText(player.name, x + nameOffset, y + this.y(0.75));
         c.textAlign = "right";
-        c.fillText(`${player.frags}/${player.score}`, x + scoreOffset, y + this.y(0.75));
+        c.fillText(`${player.kills} / ${player.score}`, x + scoreOffset, y + this.y(0.75));
 
         c.textAlign = "left";
 
@@ -532,6 +570,7 @@ class MatchScreenshot{
         c.strokeStyle = "rgb(100,100,100)";
         c.lineWidth = this.y(0.1);
         c.fillRect(x + this.y(1.25), y, this.x(2.5), this.x(2.5));
+        c.drawImage(this.playerIcons[player.face], x + this.y(1.25), y, this.x(2.5), this.x(2.5));
         c.strokeRect(x + this.y(1.25), y, this.x(2.5), this.x(2.5));
 
         c.fillStyle = "white";
@@ -640,8 +679,8 @@ class MatchScreenshot{
         c.fillStyle = this.getTeamColor(team);
         c.font = headerFont+"px Arial";
         c.fillText(this.matchData[`team_score_${team}`], startX + this.x(3), startY + this.y(0.6));
-        c.font = `bold ${this.y(2.5)}px Arial`;
-        c.fillText("Frags / PTS", startX + this.x(31.5), startY + this.y(1));
+        c.font = `bold ${this.y(2.1)}px Arial`;
+        c.fillText("Frags / PTS", startX + this.x(32.5), startY + this.y(1));
 
         const playerHeight = this.y(10);
 
@@ -662,6 +701,15 @@ class MatchScreenshot{
         let p = 0;
 
         this.maxCTF = {
+            "grabs": 0,
+            "caps": 0,
+            "assists": 0,
+            "covers": 0,
+            "deaths": 0,
+            "flagKills": 0
+        };
+
+        this.totalCTF = {
             "grabs": 0,
             "caps": 0,
             "assists": 0,
@@ -697,6 +745,13 @@ class MatchScreenshot{
             if(p.flag_kill > this.maxCTF.flagKills){
                 this.maxCTF.flagKills = p.flag_kill;
             }
+
+            this.totalCTF.grabs += p.flag_taken;
+            this.totalCTF.caps += p.flag_capture;
+            this.totalCTF.assists += p.flag_assist;
+            this.totalCTF.covers += p.flag_cover;
+            this.totalCTF.deaths += p.deaths;
+            this.totalCTF.flagKills += p.flag_kill;
         }
     }
 
@@ -737,12 +792,12 @@ class MatchScreenshot{
 
 
 
-const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype}) =>{
+const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype, faces}) =>{
 
     const test = useRef(null);
 
     useEffect(() =>{
-        new MatchScreenshot(test.current, image, map, players,totalTeams, matchData, serverName, gametype);
+        new MatchScreenshot(test.current, image, map, players,totalTeams, matchData, serverName, gametype, faces);
     });
 
 

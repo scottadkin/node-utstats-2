@@ -2,7 +2,6 @@ const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
 const fs = require('fs');
-const { resolve } = require('promise');
 
 class Faces{
 
@@ -274,7 +273,6 @@ class Faces{
 
         try{
 
-
             const faces = await this.getFacesName(faceIds);
 
             const newFaces = [];
@@ -285,7 +283,6 @@ class Faces{
                     "imageExists": Faces.imageExists(faces[i].name),
                     "name": faces[i].name
                 }
-  
             }
 
             return newFaces;
@@ -293,8 +290,6 @@ class Faces{
         }catch(err){
             console.log(err);
         }
-
-       
     }
 }
 
