@@ -66,11 +66,12 @@ function getTeamColor(team){
     return bgColor;
 }
 
-const ItemsPickup = ({data, names, playerNames}) =>{
+const ItemsPickup = ({data, names, playerNames, bTeamGame}) =>{
 
     data = JSON.parse(data);
     names = JSON.parse(names);
     playerNames = JSON.parse(playerNames);
+    bTeamGame = parseInt(bTeamGame);
 
 
     if(data.length === 0){
@@ -103,7 +104,7 @@ const ItemsPickup = ({data, names, playerNames}) =>{
 
         for(let x = 0; x < playerNames.length; x++){
 
-            subElems.push(<td key={`player-item-${playerNames[x].team}-${x}`} className={getTeamColor(playerNames[x].team)}>{getUses(playerNames[x].id, data, names[i].id)}</td>);
+            subElems.push(<td key={`player-item-${playerNames[x].team}-${x}`} className={(bTeamGame) ? getTeamColor(playerNames[x].team) : "team-none"}>{getUses(playerNames[x].id, data, names[i].id)}</td>);
         }
 
         elems.push(<tr key={`items-tr-${i}`}>{subElems}</tr>);

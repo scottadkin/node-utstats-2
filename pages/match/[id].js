@@ -162,16 +162,18 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     );
 
     elems.push(
-        <ItemsPickups key={`item-data`} data={itemData} names={itemNames} playerNames={playerNames}/>
+        <ItemsPickups key={`item-data`} data={itemData} names={itemNames} playerNames={playerNames} bTeamGame={parsedInfo.team_game}/>
     );
 
     elems.push(
-        <ConnectionSummary key={`connection-data`} data={connections} playerNames={playerNames}/>
+        <ConnectionSummary key={`connection-data`} data={connections} playerNames={playerNames} bTeamGame={parsedInfo.team_game}/>
     );
 
-    elems.push(
-        <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames}/>
-    );
+    if(parsedInfo.team_game){
+        elems.push(
+            <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames}/>
+        );
+    }
 
     return <div>
         <DefaultHead />
