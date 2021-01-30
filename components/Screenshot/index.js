@@ -22,6 +22,19 @@ class MatchScreenshot{
 
         console.log(this.matchData);
 
+        this.players.sort((a,b) =>{
+
+            a = a.score;
+            b = b.score;
+
+            if(a < b){
+                return 1;
+            }else if(a > b){
+                return -1;
+            }
+            return 0;
+        });
+
         this.image = new Image();
         this.image.src = image;
 
@@ -30,7 +43,9 @@ class MatchScreenshot{
             "blue": "rgb(62,144,194)",
             "green": "rgb(0,181,0)",
             "yellow": "rgb(255,255,0)",
-            "greenFooter": "rgb(0,255,0)"
+            "greenFooter": "rgb(0,255,0)",
+            "dmName": "rgb(45,174,241)",
+            "dmScore": "rgb(181,255,255)"
         };
 
         this.teamPlayerCount = [0,0,0,0];
@@ -67,6 +82,14 @@ class MatchScreenshot{
         }
 
         return `${minutes}:${seconds}`;
+    }
+
+    bLMS(){
+
+        const reg = /last man standing/i;
+
+
+        return reg.test(this.gametype);
     }
 
     getDate(){
@@ -223,14 +246,25 @@ class MatchScreenshot{
 
         c.textAlign = "center";
 
+        let offsetY = this.y(2)
         
         c.fillStyle = "white";
-        c.fillText(this.gametype, this.x(50), this.y(2));
-        c.fillText(`Time Limit: ${this.matchData.time_limit}`, this.x(50), this.y(4.4));
-        c.fillText(`Target Score: ${this.matchData.target_score}`, this.x(50), this.y(6.8));
+        c.fillText(this.gametype, this.x(50), offsetY);
+
+        if(this.matchData.time_limit > 0){
+            offsetY += this.y(2.4);
+            c.fillText(`Time Limit: ${this.matchData.time_limit}`, this.x(50), offsetY);
+        }
+       
+        if(this.matchData.target_score > 0){
+            offsetY += this.y(2.4);
+            c.fillText(`${(this.bLMS()) ? "Lives" : "Target Score"}: ${this.matchData.target_score}`, this.x(50), offsetY);
+        }
+
+        offsetY += this.y(2.4);
 
         c.fillStyle = "yellow";
-        c.fillText((this.matchData.team_game) ? this.getTeamWinner() : this.getSoloWinner(), this.x(50), this.y(10));
+        c.fillText((this.matchData.team_game) ? this.getTeamWinner() : this.getSoloWinner(), this.x(50), offsetY);
 
         c.textAlign = "left";
     }
@@ -281,13 +315,57 @@ class MatchScreenshot{
     }
 
 
-    renderStandardPlayer(c, index, name, score){
+    renderStandardPlayer(c, index, name, score, deaths){
+
+        const row1X = this.x(25);
+        const row2X = this.x(60) + c.measureText((this.bLMS() ? "Lives" : "Frags" )).width;
+        const row3X = this.x(75) + c.measureText("Deaths").width;;
+
+        const rowHeight = this.y(2);
+
+        c.font = this.y(1.8)+"px Arial";
+        c.fillStyle = this.colors.dmName;
+
+        c.textAlign = "left";
+        c.fillText(name, row1X, this.y(20) + (rowHeight * index));
+
+        c.textAlign = "right";
+        c.fillStyle = this.colors.dmScore;
+        c.fillText(score, row2X, this.y(20) + (rowHeight * index));
+        c.fillText(deaths, row3X, this.y(20) + (rowHeight * index));
+
 
     }
     
     renderStandard(c){
 
         this.renderHeader(c);
+
+        const row1X = this.x(25);
+        const row2X = this.x(60);
+        const row3X = this.x(75);
+
+        const titleY = this.y(16);
+
+        c.fillStyle = "white";
+
+        c.font = this.y(2)+"px Arial";
+
+
+
+        c.fillText("Player", row1X, titleY);
+        c.fillText((this.bLMS()) ? "Lives" : "Frags", row2X, titleY);
+        c.fillText("Deaths", row3X, titleY);
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+            c.font = this.y(2)+"px Arial";
+            this.renderStandardPlayer(c, i, p.name, p.score, p.deaths);
+        }
+
         this.renderFooter(c);
     }
 
