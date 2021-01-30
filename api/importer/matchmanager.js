@@ -178,6 +178,9 @@ class MatchManager{
          
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 
+            this.playerManager.pingManager.parsePings(this.playerManager);
+            await this.playerManager.pingManager.insertPingData(this.matchId);
+
 
             await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
 
@@ -213,8 +216,7 @@ class MatchManager{
             this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
             await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
 
-            this.playerManager.pingManager.parsePings(this.playerManager);
-            await this.playerManager.pingManager.insertPingData(this.matchId);
+            
             
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 

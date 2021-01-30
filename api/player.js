@@ -199,7 +199,7 @@ class Player{
 
 
 
-    insertMatchData(player, matchId, gametypeId, mapId, matchDate){
+    insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping){
 
         return new Promise((resolve, reject) =>{
 
@@ -209,7 +209,7 @@ class Player{
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,
-                0,0)`;
+                0,0,?,?,?)`;
 
             const vars = [
                 matchId,
@@ -250,12 +250,15 @@ class Player{
                 player.stats.sprees.massacre,
                 player.stats.sprees.brutalizing,
                 player.stats.bestSpree,
-                player.stats.bestspawnkillspree
+                player.stats.bestspawnkillspree,
+                ping.min,
+                parseInt(ping.average),
+                ping.max
             ];
 
             mysql.query(query, vars, (err, result) =>{
 
-                if(err) console.log(err);//reject(err);
+                if(err) reject(err);
 
                 //console.log(result);
 

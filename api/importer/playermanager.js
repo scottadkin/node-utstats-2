@@ -1015,6 +1015,7 @@ class PlayerManager{
 
             let p = 0;
 
+            let pingData = 0;
 
             for(let i = 0; i < this.players.length; i++){
 
@@ -1022,8 +1023,16 @@ class PlayerManager{
 
                 if(p.bDuplicate === undefined){
 
+                    pingData = this.pingManager.getPlayerValues(p.masterId);
+                    if(pingData === null){
+                        pingData = {
+                            "min": 0,
+                            "average": 0,
+                            "max": 0
+                        };
+                    }
                     //console.log(p);
-                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate);
+                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData);
                     
                 }else{
                     new Message(`${p.name} is a duplicate not inserting match data.`,'note');

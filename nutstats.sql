@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 21, 2021 at 02:40 AM
+-- Generation Time: Jan 30, 2021 at 09:26 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -384,7 +384,10 @@ CREATE TABLE `nstats_player_matches` (
   `flag_kill` int(11) NOT NULL,
   `flag_save` int(11) NOT NULL,
   `assault_objectives` int(11) NOT NULL,
-  `dom_caps` int(11) NOT NULL
+  `dom_caps` int(11) NOT NULL,
+  `ping_min` int(11) NOT NULL,
+  `ping_average` int(11) NOT NULL,
+  `ping_max` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
