@@ -208,7 +208,13 @@ class MatchScreenshot{
 
     bCTF(){
         const reg = /capture the flag/i;
-        return reg.test(this.gametype);
+        const reg2 = /ctf/i;
+
+         if(reg.test(this.gametype) || reg2.test(this.gametype)){
+             return true;
+         }
+
+         return false;
     }
 
     getDate(){
@@ -658,13 +664,13 @@ class MatchScreenshot{
             break;
             case 2: {   
                 startX = this.x(5);    
-                startY = this.y(50);    
+                startY = this.y(52);    
                 color = "rgba(0,200,0,0.3)";
                 image = this.icons.green;
             } break;
             case 3: {   
                 startX = this.x(55);    
-                startY = this.y(50);    
+                startY = this.y(52);    
                 color = "rgba(200,200,0,0.3)";
                 image = this.icons.yellow;
             } break;
@@ -682,14 +688,14 @@ class MatchScreenshot{
         c.font = `bold ${this.y(2.1)}px Arial`;
         c.fillText("Frags / PTS", startX + this.x(32.5), startY + this.y(1));
 
-        const playerHeight = this.y(10);
+        const playerHeight = this.y(9.25);
 
         let totalPlayers = 0;
 
         let maxPlayers = 6;
 
         if(this.teams > 2){
-            maxPlayers = 4;
+            maxPlayers = 3;
         }
 
         for(let i = 0; i < this.players.length; i++){
@@ -703,9 +709,11 @@ class MatchScreenshot{
             }
         }
 
-        c.font = this.y(1.25)+"px Arial";
-        c.fillStyle = this.getTeamColor(team);
-        c.fillText(`${totalPlayers - maxPlayers} Player[s] not shown.`, startX, startY + headerHeight + (playerHeight * maxPlayers) + this.y(0.5));
+        if(totalPlayers - maxPlayers > 0){
+            c.font = this.y(1.25)+"px Arial";
+            c.fillStyle = this.getTeamColor(team);
+            c.fillText(`${totalPlayers - maxPlayers} Player[s] not shown.`, startX, startY + headerHeight + (playerHeight * maxPlayers) + this.y(0.5));
+        }
         
 
     }
