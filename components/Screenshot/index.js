@@ -53,6 +53,8 @@ class MatchScreenshot{
         //this.scaleImage();
 
         this.flags = {};
+        this.flagWidth = this.x(1.8);
+        this.flagHeight = this.y(1.7);
 
         this.image.onload = () =>{
          //   console.log(`image loaded`);
@@ -179,8 +181,7 @@ class MatchScreenshot{
         }
     }
 
-    renderStandardTeamGamePlayer(c, team, name, score, bFinal){
-
+    renderStandardTeamGamePlayer(c, team, name, score, time, ping, country, bFinal){
 
         c.textAlign = "left";
 
@@ -189,6 +190,7 @@ class MatchScreenshot{
         const index = this.teamPlayerCount[team];
         const scoreFontSize = this.y(2.5);
         const teamHeaderFontSize = this.y(2.9);
+        const pingSize = this.y(0.8);
         
         let maxPlayersPerTeam = 0;
         
@@ -197,8 +199,6 @@ class MatchScreenshot{
         }else{
             maxPlayersPerTeam = 9;
         }
-
-        
 
         let startY = 0;
         let startX = 0;
@@ -218,8 +218,11 @@ class MatchScreenshot{
         if(bFinal !== undefined){
 
             if(index <= maxPlayersPerTeam){
-                return;
+                return;    
             }
+
+            c.fillStyle = "white";
+
             c.font = this.y(1.8)+"px Arial";
             c.fillText(`${index - maxPlayersPerTeam} Player[s] not shown`,x , this.y(startY) + (rowHeight * maxPlayersPerTeam));
             return;
@@ -248,6 +251,14 @@ class MatchScreenshot{
 
         }
 
+        c.drawImage(this.getFlag(country), x - this.flagWidth - this.x(0.25) , y, this.flagWidth, this.flagHeight);
+        c.fillStyle = "white";
+        c.font = pingSize+"px Arial";
+        c.fillText(`TIME: ${Math.floor(time / 60)}`, x - this.x(4), y);
+        c.fillText(`PING: ${ping}`, x - this.x(4), y + pingSize + this.y(0.2));
+
+
+        c.fillStyle = this.getTeamColor(team);
 
         c.font = scoreFontSize+"px Arial";
         c.fillText(name, x, y);
@@ -340,14 +351,7 @@ class MatchScreenshot{
     renderStandardTeamGame(c){
 
         this.renderHeader(c);
-        
-        c.fillStyle = "white";
-        c.fillText(this.gametype, this.x(50), this.y(2));
-        c.fillText(`Time Limit: ${this.matchData.time_limit}`, this.x(50), this.y(4.4));
-        c.fillText(`Target Score: ${this.matchData.target_score}`, this.x(50), this.y(6.8));
-
-        c.fillStyle = "yellow";
-        c.fillText(this.getTeamWinner(), this.x(50), this.y(10));
+    
 
         c.textAlign = "left";
         let p = 0;
@@ -356,11 +360,11 @@ class MatchScreenshot{
 
             p = this.players[i];
             //console.log(p);
-            this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score);
+            this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score, p.playtime, Math.floor(p.ping_average), p.country);
         }
 
         for(let i = 0; i < this.teams; i++){
-            this.renderStandardTeamGamePlayer(c,i,'','',true);
+            this.renderStandardTeamGamePlayer(c,i,'','','','','',true);
         }
 
         this.renderFooter(c);
@@ -378,21 +382,17 @@ class MatchScreenshot{
 
         const rowHeight = this.y(2.2);
 
-        const flagWidth = this.x(1.8);
-        const flagHeight = this.y(1.33);
-
         const y = this.y(20) + (rowHeight * index);
-        
 
         c.textAlign = "left";
 
         c.fillStyle = "white";
         c.font = pingSize+"px Arial";
 
-        c.fillText(`TIME: ${(Math.floor(time / 60))}`, row1X - this.x(2) - flagWidth, y);
-        c.fillText(`PING: ${ping}`, row1X - this.x(2) - flagWidth, y + this.y(0.9));
+        c.fillText(`TIME: ${(Math.floor(time / 60))}`, row1X - this.x(2) - this.flagWidth, y);
+        c.fillText(`PING: ${ping}`, row1X - this.x(2) - this.flagWidth, y + this.y(0.9));
 
-        c.drawImage(this.getFlag(country), row1X - this.x(2), y, flagWidth, flagHeight);
+        c.drawImage(this.getFlag(country), row1X - this.x(2), y, this.flagWidth, this.flagHeight);
 
         c.font = defaultSize+"px Arial";
         c.fillStyle = this.colors.dmName;
@@ -442,13 +442,9 @@ class MatchScreenshot{
 
         c.textBaseline = "top";
 
-        console.log("render");
-
         c.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
         c.fillStyle = "rgba(0,0,0,0.45)";
         c.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.getFlag("xx");
         
         if(this.matchData.team_game){
             this.renderStandardTeamGame(c);
