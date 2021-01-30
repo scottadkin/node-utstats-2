@@ -58,9 +58,30 @@ class MatchScreenshot{
 
         this.image.onload = () =>{
          //   console.log(`image loaded`);
-         this.loadPlayerFlags();
+            this.loadPlayerFlags();
+            this.loadIcons();
             //this.render();
         }   
+    }
+
+    loadPlayerIcons(){
+
+        let iconsToLoad = 0;
+        let iconsLoaded = 0;
+
+        const uniqueIcons = [];
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            if(uniqueIcons.indexOf(p.face) === -1){
+                uniqueIcons.push(p.face);
+            }
+        }
+
     }
 
     loadPlayerFlags(){
@@ -91,12 +112,33 @@ class MatchScreenshot{
                 this.loadedFlags++;
                 if(this.loadedFlags >= this.flagsToLoad){
                     console.log(`Loaded flag ${this.loadedFlags} out of ${this.flagsToLoad}`);
-                    this.render();
+                    this.loadIcons();
                     return;
                 }
             }
         }
+    }
 
+    loadIcons(){
+
+        const files = ["red", "blue", "green", "yellow", "smartctfbg"];
+
+        this.iconsToLoad = 4;
+        this.iconsLoaded = 0;
+
+        this.icons = {};
+
+        for(let i = 0; i < files.length; i++){
+
+            this.icons[files[i]] = new Image();
+            this.icons[files[i]].src = `/images/${files[i]}.png`;
+            this.icons[files[i]].onload = () =>{
+                this.iconsLoaded++;
+                if(this.iconsLoaded >= this.iconsToLoad){
+                    this.render();
+                }
+            }
+        }
     }
 
     x(input){
@@ -126,8 +168,11 @@ class MatchScreenshot{
     bLMS(){
 
         const reg = /last man standing/i;
+        return reg.test(this.gametype);
+    }
 
-
+    bCTF(){
+        const reg = /capture the flag/i;
         return reg.test(this.gametype);
     }
 
@@ -315,16 +360,16 @@ class MatchScreenshot{
         c.fillText(this.gametype, this.x(50), offsetY);
 
         if(this.matchData.time_limit > 0){
-            offsetY += this.y(2.4);
+            offsetY += this.y(2.9);
             c.fillText(`Time Limit: ${this.matchData.time_limit}`, this.x(50), offsetY);
         }
        
         if(this.matchData.target_score > 0){
-            offsetY += this.y(2.4);
+            offsetY += this.y(2.9);
             c.fillText(`${(this.bLMS()) ? "Lives" : "Target Score"}: ${this.matchData.target_score}`, this.x(50), offsetY);
         }
 
-        offsetY += this.y(2.4);
+        offsetY += this.y(2.9);
 
         c.fillStyle = "yellow";
         c.fillText((this.matchData.team_game) ? this.getTeamWinner() : this.getSoloWinner(), this.x(50), offsetY);
@@ -403,7 +448,6 @@ class MatchScreenshot{
         c.fillText(score, row2X, y);
         c.fillText(deaths, row3X, y);
 
-
     }
     
     renderStandard(c){
@@ -436,6 +480,133 @@ class MatchScreenshot{
         this.renderFooter(c);
     }
 
+    renderSmartCTFPlayer(c, team, x, y, width, height, player){
+
+        //const height = this.y(6);
+        c.fillStyle = "rgba(0,0,0,0.5)";
+        c.fillRect(x, y, width, height);
+
+        c.fillStyle = this.getTeamColor(team);
+
+        const pingSize = this.y(0.9);
+        const nameSize = this.y(2);
+        const nameOffset = this.x(5);
+        const scoreOffset = this.x(39);
+
+        c.font = nameSize+"px Arial";
+        c.textAlign = "left";
+        c.fillText(player.name, x + nameOffset, y + this.y(0.75));
+        c.textAlign = "right";
+        c.fillText(`${player.frags}/${player.score}`, x + scoreOffset, y + this.y(0.75));
+
+        c.textAlign = "left";
+
+        const timeOffset = c.measureText(player.name).width + 5;
+
+        c.font = pingSize+"px Arial";
+        c.fillStyle = "rgb(150,150,150)";
+        c.fillText(`TM:${Math.floor(player.playtime / 60)} EFF:${Math.floor(player.efficiency)}%`, x + nameOffset + timeOffset, y + this.y(1.5));
+
+        c.fillStyle = "black";
+        c.strokeStyle = "rgb(100,100,100)";
+        c.lineWidth = this.y(0.1);
+        c.fillRect(x + this.y(1.25), y, this.x(2.5), this.x(2.5));
+        c.strokeRect(x + this.y(1.25), y, this.x(2.5), this.x(2.5));
+
+        c.fillStyle = "white";
+
+        
+        const pingOffsetX = this.x(1);
+        const pingOffsetY = this.y(5);
+        c.font = pingSize+"px Arial";
+
+        c.fillText(`PING:${player.ping_average}`, x + pingOffsetX, y + pingOffsetY);
+        c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.5));
+    }
+
+    renderSmartCTFTeam(c, team){
+
+        const teamWidth = this.x(40);
+
+        const headerHeight = this.y(5);
+
+        let startX = 0;
+        let startY = 0;
+
+        let color = 0;
+        let image = 0;
+
+        const iconWidth = this.y(4.5);
+        const iconHeight = this.y(4.5);
+        const headerFont = this.y(4);
+
+        switch(team){
+
+            case 0: {
+                startX = this.x(5);
+                startY = this.y(15);    
+                color = "rgba(200,0,0,0.3)";
+                image = this.icons.red;
+            }
+
+            break;
+            case 1: {   
+                startX = this.x(55);    
+                startY = this.y(15);    
+                color = "rgba(0,0,200,0.3)";
+                image = this.icons.blue;
+            } 
+            break;
+            case 2: {   
+                startX = this.x(5);    
+                startY = this.y(50);    
+                color = "rgba(0,200,0,0.3)";
+                image = this.icons.green;
+            } break;
+            case 3: {   
+                startX = this.x(55);    
+                startY = this.y(50);    
+                color = "rgba(200,200,0,0.3)";
+                image = this.icons.yellow;
+            } break;
+        }
+
+        c.fillStyle = color;
+
+        c.drawImage(this.icons.smartctfbg, startX, startY, teamWidth, headerHeight);
+        c.fillRect(startX, startY, teamWidth, headerHeight);
+        c.drawImage(image, startX + this.y(0.25), startY + this.y(0.25), iconWidth, iconHeight);
+
+        c.fillStyle = this.getTeamColor(team);
+        c.font = headerFont+"px Arial";
+        c.fillText(this.matchData[`team_score_${team}`], startX + this.x(3), startY + this.y(0.6));
+        c.font = `bold ${this.y(2.5)}px Arial`;
+        c.fillText("Frags / PTS", startX + this.x(31.5), startY + this.y(1));
+
+        const playerHeight = this.y(10);
+
+        let totalPlayers = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            if(this.players[i].team === team){
+                this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers) + this.y(0.4), teamWidth, playerHeight, this.players[i]);
+                totalPlayers++;
+            }
+        }
+
+    }
+
+    renderSmartCTF(c){
+
+        this.renderHeader(c);
+
+        for(let i = 0; i < this.teams; i++){
+
+            this.renderSmartCTFTeam(c, i);
+        }
+    }
+
     render(){
 
         const c = this.context;
@@ -447,7 +618,11 @@ class MatchScreenshot{
         c.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         if(this.matchData.team_game){
-            this.renderStandardTeamGame(c);
+            if(!this.bCTF()){
+                this.renderStandardTeamGame(c);
+            }else{
+                this.renderSmartCTF(c);
+            }
         }else{
             this.renderStandard(c);
         }
