@@ -686,13 +686,27 @@ class MatchScreenshot{
 
         let totalPlayers = 0;
 
+        let maxPlayers = 6;
+
+        if(this.teams > 2){
+            maxPlayers = 4;
+        }
+
         for(let i = 0; i < this.players.length; i++){
 
             if(this.players[i].team === team){
-                this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers), teamWidth, playerHeight, this.players[i]);
+
+                if(totalPlayers < maxPlayers){
+                    this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers), teamWidth, playerHeight, this.players[i]);
+                }
                 totalPlayers++;
             }
         }
+
+        c.font = this.y(1.25)+"px Arial";
+        c.fillStyle = this.getTeamColor(team);
+        c.fillText(`${totalPlayers - maxPlayers} Player[s] not shown.`, startX, startY + headerHeight + (playerHeight * maxPlayers) + this.y(0.5));
+        
 
     }
 
@@ -755,6 +769,23 @@ class MatchScreenshot{
         }
     }
 
+    renderSmartCTFFooter(c){
+
+        c.font = this.y(1.3)+"px Arial";
+
+        c.textAlign = "center";
+        c.fillStyle = "white";
+
+        c.fillText("There is currently no one spectating this match.", this.x(50), this.y(90));
+        c.fillStyle = "yellow";
+        c.fillText("[SmartCTF 4E {PiN}Kev | {DnF2}SiNiSTeR | [es]Rush | adminthis & The_Cowboy & Sp0ngeb0b]", this.x(50), this.y(94));
+        c.fillStyle = "white";
+        c.fillText(`${this.getDate()} | Elapsed Time: ${this.MMSS(this.matchData.playtime)}`, this.x(50), this.y(96));
+        c.fillText(`Playing ${this.map} on ${this.serverName}`, this.x(50), this.y(98));
+
+        c.textAlign = "left";
+    }
+
     renderSmartCTF(c){
 
         this.renderHeader(c);
@@ -765,6 +796,8 @@ class MatchScreenshot{
 
             this.renderSmartCTFTeam(c, i);
         }
+
+        this.renderSmartCTFFooter(c);
     }
 
     render(){
