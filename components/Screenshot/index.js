@@ -53,8 +53,8 @@ class MatchScreenshot{
         //this.scaleImage();
 
         this.flags = {};
-        this.flagWidth = this.x(1.8);
-        this.flagHeight = this.y(1.7);
+        this.flagWidth = this.x(1.6);
+        this.flagHeight = this.y(1.5);
 
         this.image.onload = () =>{
          //   console.log(`image loaded`);
@@ -480,6 +480,27 @@ class MatchScreenshot{
         this.renderFooter(c);
     }
 
+
+
+    renderSmartCTFBar(c, x, y, type, value){
+
+        const max = this.maxCTF[type];
+        const maxWidth = this.x(13);
+
+        let bit = 0;
+        if(max > 0){
+            bit = maxWidth / max;
+        }
+
+        c.fillStyle = "green";
+
+
+        c.fillRect(x + this.x(0.5),y + this.y(0.1),bit * value,5);
+
+        c.fillStyle = "white";
+    }
+
+
     renderSmartCTFPlayer(c, team, x, y, width, height, player){
 
         //const height = this.y(6);
@@ -515,13 +536,52 @@ class MatchScreenshot{
 
         c.fillStyle = "white";
 
-        
-        const pingOffsetX = this.x(1);
+        const pingOffsetX = this.x(0.7);
         const pingOffsetY = this.y(5);
         c.font = pingSize+"px Arial";
 
-        c.fillText(`PING:${player.ping_average}`, x + pingOffsetX, y + pingOffsetY);
-        c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.5));
+        c.drawImage(this.getFlag(player.country), x + pingOffsetX , y + pingOffsetY, this.flagWidth, this.flagHeight);
+
+        c.fillText(`PING:${player.ping_average}`, x + pingOffsetX , y + pingOffsetY + this.flagHeight + this.y(0.5));
+        c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.3) + this.flagHeight + this.y(0.5));
+
+        const row1Offset = this.y(3.2);
+        const row2Offset = this.y(4.8);
+        const row3Offset = this.y(6.4);
+        const valueOffset = this.x(3);
+        const col1Offset = this.x(5);
+        const col2Offset = this.x(22.5);
+
+        c.fillText(`Caps:`, x + col1Offset, y + row1Offset);
+        c.fillText(`Grabs:`, x + col1Offset, y + row2Offset);
+        c.fillText(`Assists:`, x + col1Offset, y + row3Offset);
+
+        c.textAlign = "right";
+
+        c.fillText(player.flag_capture, x + valueOffset + col1Offset, y + row1Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row1Offset, "caps", player.flag_capture);
+        c.fillText(player.flag_taken, x + valueOffset + col1Offset, y + row2Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row2Offset, "grabs", player.flag_taken);
+        c.fillText(player.flag_assist, x + valueOffset + col1Offset, y + row3Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row3Offset, "assists", player.flag_assist);
+
+
+        c.textAlign = "left";
+
+        c.fillText(`Covers:`, x + col2Offset, y + row1Offset);
+        c.fillText(`Deaths:`, x + col2Offset, y + row2Offset);
+        c.fillText(`FlagKills:`, x + col2Offset, y + row3Offset);
+
+        c.textAlign = "right";
+
+        c.fillText(player.flag_cover, x + valueOffset + col2Offset, y + row1Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row1Offset, "covers", player.flag_cover);
+        c.fillText(player.deaths, x + valueOffset + col2Offset, y + row2Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "deaths", player.deaths);
+        c.fillText(player.flag_kill, x + valueOffset + col2Offset, y + row3Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.flag_kill);
+
+        c.textAlign = "left";
     }
 
     renderSmartCTFTeam(c, team){
@@ -590,16 +650,61 @@ class MatchScreenshot{
         for(let i = 0; i < this.players.length; i++){
 
             if(this.players[i].team === team){
-                this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers) + this.y(0.4), teamWidth, playerHeight, this.players[i]);
+                this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers), teamWidth, playerHeight, this.players[i]);
                 totalPlayers++;
             }
         }
 
     }
 
+    setMaxCTFValues(){
+
+        let p = 0;
+
+        this.maxCTF = {
+            "grabs": 0,
+            "caps": 0,
+            "assists": 0,
+            "covers": 0,
+            "deaths": 0,
+            "flagKills": 0
+        };
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            if(p.flag_taken > this.maxCTF.grabs){
+                this.maxCTF.grabs = p.flag_taken;
+            }
+
+            if(p.flag_capture > this.maxCTF.caps){
+                this.maxCTF.caps = p.flag_capture;
+            }
+
+            if(p.flag_assist > this.maxCTF.assists){
+                this.maxCTF.assists = p.flag_assist;
+            }
+
+            if(p.flag_covers > this.maxCTF.covers){
+                this.maxCTF.covers = p.flag_covers;
+            }
+
+            if(p.deaths > this.maxCTF.deaths){
+                this.maxCTF.deaths = p.deaths;
+            }
+
+            if(p.flag_kill > this.maxCTF.flagKills){
+                this.maxCTF.flagKills = p.flag_kill;
+            }
+        }
+    }
+
     renderSmartCTF(c){
 
         this.renderHeader(c);
+
+        this.setMaxCTFValues();
 
         for(let i = 0; i < this.teams; i++){
 
