@@ -52,11 +52,48 @@ class MatchScreenshot{
 
         //this.scaleImage();
 
+        this.flags = {};
+
         this.image.onload = () =>{
          //   console.log(`image loaded`);
-            this.render();
+         this.loadPlayerFlags();
+            //this.render();
         }   
+    }
 
+    loadPlayerFlags(){
+
+        let p = 0;
+
+        let uniqueFlags = ["XX"];
+
+        this.loadedFlags = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            if(uniqueFlags.indexOf(p.country.toUpperCase()) === -1){
+                uniqueFlags.push(p.country.toUpperCase());
+            }
+        }
+
+        this.flagsToLoad = uniqueFlags.length;
+
+        for(let i = 0; i < this.flagsToLoad; i++){
+
+            this.flags[uniqueFlags[i]] = new Image();
+            this.flags[uniqueFlags[i]].src = `/images/flags/${uniqueFlags[i]}.svg`;
+
+            this.flags[uniqueFlags[i]].onload = () =>{
+                this.loadedFlags++;
+                if(this.loadedFlags >= this.flagsToLoad){
+                    console.log(`Loaded flag ${this.loadedFlags} out of ${this.flagsToLoad}`);
+                    this.render();
+                    return;
+                }
+            }
+        }
 
     }
 
@@ -115,6 +152,20 @@ class MatchScreenshot{
 
 
         return `Played ${days[dayIndex]} ${day} ${months[monthIndex]} ${year} ${hours}:${minutes}`;
+    }
+
+    getFlag(code){
+
+        code = code.toUpperCase();
+
+        for(const [key, value] of Object.entries(this.flags)){
+      
+            if(key === code){
+                return value;
+            }
+        }
+
+        return this.getFlag("XX");
     }
 
     getTeamColor(team){
@@ -239,6 +290,7 @@ class MatchScreenshot{
         return `${this.matchData.dm_winner} Wins the match!`
     }
 
+
     renderHeader(c){
 
         const headerFontSize = this.y(2.3);
@@ -315,24 +367,41 @@ class MatchScreenshot{
     }
 
 
-    renderStandardPlayer(c, index, name, score, deaths){
+    renderStandardPlayer(c, index, name, score, deaths, ping, time, country){
 
         const row1X = this.x(25);
         const row2X = this.x(60) + c.measureText((this.bLMS() ? "Lives" : "Frags" )).width;
         const row3X = this.x(75) + c.measureText("Deaths").width;;
 
-        const rowHeight = this.y(2);
+        const defaultSize = this.y(2);
+        const pingSize = this.y(0.8);
 
-        c.font = this.y(1.8)+"px Arial";
-        c.fillStyle = this.colors.dmName;
+        const rowHeight = this.y(2.2);
+
+        const flagWidth = this.x(1.8);
+        const flagHeight = this.y(1.33);
+
+        const y = this.y(20) + (rowHeight * index);
+        
 
         c.textAlign = "left";
-        c.fillText(name, row1X, this.y(20) + (rowHeight * index));
+
+        c.fillStyle = "white";
+        c.font = pingSize+"px Arial";
+
+        c.fillText(`TIME: ${(Math.floor(time / 60))}`, row1X - this.x(2) - flagWidth, y);
+        c.fillText(`PING: ${ping}`, row1X - this.x(2) - flagWidth, y + this.y(0.9));
+
+        c.drawImage(this.getFlag(country), row1X - this.x(2), y, flagWidth, flagHeight);
+
+        c.font = defaultSize+"px Arial";
+        c.fillStyle = this.colors.dmName;
+        c.fillText(name, row1X, y);
 
         c.textAlign = "right";
         c.fillStyle = this.colors.dmScore;
-        c.fillText(score, row2X, this.y(20) + (rowHeight * index));
-        c.fillText(deaths, row3X, this.y(20) + (rowHeight * index));
+        c.fillText(score, row2X, y);
+        c.fillText(deaths, row3X, y);
 
 
     }
@@ -351,8 +420,6 @@ class MatchScreenshot{
 
         c.font = this.y(2)+"px Arial";
 
-
-
         c.fillText("Player", row1X, titleY);
         c.fillText((this.bLMS()) ? "Lives" : "Frags", row2X, titleY);
         c.fillText("Deaths", row3X, titleY);
@@ -363,7 +430,7 @@ class MatchScreenshot{
 
             p = this.players[i];
             c.font = this.y(2)+"px Arial";
-            this.renderStandardPlayer(c, i, p.name, p.score, p.deaths);
+            this.renderStandardPlayer(c, i, p.name, p.score, p.deaths, p.ping_average, p.playtime, p.country);
         }
 
         this.renderFooter(c);
@@ -380,6 +447,8 @@ class MatchScreenshot{
         c.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
         c.fillStyle = "rgba(0,0,0,0.45)";
         c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.getFlag("xx");
         
         if(this.matchData.team_game){
             this.renderStandardTeamGame(c);
