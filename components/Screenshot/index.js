@@ -5,13 +5,15 @@ import {useEffect, useRef} from "react";
 
 class MatchScreenshot{
 
-    constructor(canvas, download, image, map, players, teams, matchData, serverName, gametype, faces){
+    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces){
 
         console.log(`new match screenshot`);
         
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
         this.download = download;
+        this.downloadJPG = downloadJPG;
+        this.downloadBMP = downloadBMP;
 
         this.map = map;
         this.players = JSON.parse(players);
@@ -64,7 +66,30 @@ class MatchScreenshot{
             await this.loadPlayerIcons();
             await this.loadIcons();
             this.render();
+            this.setupDownload();
         }   
+    }
+
+
+    setupDownload(){
+
+        const imagePNG = this.canvas.toDataURL("image/png");
+        const imageJPG = this.canvas.toDataURL("image/jpeg");
+        const imageBMP = this.canvas.toDataURL("image/bmp");
+        //console.log(image);
+
+        const map = this.map.replace(/\W/i,'');
+        const gametype = this.gametype.replace(/\W/i,'');
+        const date = this.matchData.date;
+
+        const fileName = `sshot${map}-${gametype}-${date}.`;
+
+        this.download.href = imagePNG;
+        this.download.download = `${fileName}png`;
+        this.downloadJPG.href = imageJPG;
+        this.downloadJPG.download = `${fileName}jpeg`;
+        this.downloadBMP.href = imageBMP;
+        this.downloadBMP.download = `${fileName}bmp`;
     }
 
     getPlayerIconName(id){
@@ -851,9 +876,11 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
 
     const sshot = useRef(null);
     const sshotDownload = useRef(null);
+    const sshotDownload2 = useRef(null);
+    const sshotDownload3 = useRef(null);
 
     useEffect(() =>{
-        new MatchScreenshot(sshot.current, sshotDownload.current, image, map, players,totalTeams, matchData, serverName, gametype, faces);
+        new MatchScreenshot(sshot.current, sshotDownload.current, sshotDownload2.current, sshotDownload3.current, image, map, players,totalTeams, matchData, serverName, gametype, faces);
     });
 
 
@@ -862,7 +889,7 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
             Match Screenshot
         </div>
         <div className={`${styles.content} center`}>
-            <canvas ref={sshot} id="m-sshot" className="match-screenshot center" 
+            <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-25" 
                 data-match-data={matchData} 
                 data-map={map} 
                 data-image={image}
@@ -870,7 +897,11 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
                 data-players={players} 
                 width="1920" height="1080">
             </canvas>
-            <a id="sshot-downoad" reg={sshotDownload} download="testests.png"></a>
+            <div id={styles.downloads} className="m-bottom-25">
+                <a id="sshot-download" ref={sshotDownload} download="testests.png">Download as PNG</a>
+                <a id="sshot-download2" ref={sshotDownload2} download="testests.jpg">Download as JPG</a>
+                <a id="sshot-download3" ref={sshotDownload3} download="testests.bmp">Download as BMP</a>
+            </div>
         </div>
     </div>);
 }
