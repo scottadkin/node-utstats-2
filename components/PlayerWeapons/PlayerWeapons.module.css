@@ -1,7 +1,7 @@
 .wrapper{
     background-color:black;
     color:white;
-    width:300px;
+    width:200px;
     font-weight:300;
     display:inline-block;
     border:1px solid rgba(255,255,255,0.25);
@@ -32,7 +32,7 @@
 }
 
 .block div:nth-child(1){
-    font-size:14px;
+    font-size:12px;
 }
 
 .stats{
@@ -46,7 +46,7 @@
 }
 
 .bar{
-    height:12px;
+    height:10px;
     background-color:black;
     margin-top:2px;
     width:90%;
@@ -58,7 +58,7 @@
 .inner{
     background-color:rgb(44,120,44);
     background:linear-gradient(to bottom, rgb(12,12,12), rgb(12,120,12));
-    height:12px;
+    height:10px;
 }
 
 .value{
@@ -66,7 +66,7 @@
     margin-left:40%;
     margin-top:-16px;
     position:absolute;
-    font-size:12px;
+    font-size:10px;
 }
 
 .label{

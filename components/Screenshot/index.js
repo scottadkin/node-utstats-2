@@ -576,7 +576,7 @@ class MatchScreenshot{
 
         const color = Math.floor((255 / total) * value);
 
-        c.fillStyle = `rgb(${color},255,${color})`;
+        c.fillStyle = `rgb(${255 - color},255,${255 - color})`;
 
         c.fillRect(x + this.x(0.5),y + this.y(0.1),bit * value,5);
 
@@ -624,10 +624,10 @@ class MatchScreenshot{
         const pingOffsetY = this.y(5);
         c.font = pingSize+"px Arial";
 
-        c.drawImage(this.getFlag(player.country), x + pingOffsetX , y + pingOffsetY, this.flagWidth, this.flagHeight);
+        c.drawImage(this.getFlag(player.country), x + pingOffsetX + this.x(0.3), y + pingOffsetY, this.flagWidth, this.flagHeight);
 
         c.fillText(`PING:${player.ping_average}`, x + pingOffsetX , y + pingOffsetY + this.flagHeight + this.y(0.5));
-        c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.3) + this.flagHeight + this.y(0.5));
+        //c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.3) + this.flagHeight + this.y(0.5));
 
         const row1Offset = this.y(3.2);
         const row2Offset = this.y(4.8);
@@ -688,7 +688,7 @@ class MatchScreenshot{
 
             case 0: {
                 startX = this.x(5);
-                startY = this.y(15);    
+                startY = this.y(12);    
                 color = "rgba(200,0,0,0.3)";
                 image = this.icons.red;
             }
@@ -696,7 +696,7 @@ class MatchScreenshot{
             break;
             case 1: {   
                 startX = this.x(55);    
-                startY = this.y(15);    
+                startY = this.y(12);    
                 color = "rgba(0,0,200,0.3)";
                 image = this.icons.blue;
             } 
@@ -727,14 +727,14 @@ class MatchScreenshot{
         c.font = `bold ${this.y(2.1)}px Arial`;
         c.fillText("Frags / PTS", startX + this.x(32.5), startY + this.y(1));
 
-        const playerHeight = this.y(9.25);
+        const playerHeight = this.y(8);
 
         let totalPlayers = 0;
 
-        let maxPlayers = 7;
+        let maxPlayers = 8;
 
         if(this.teams > 2){
-            maxPlayers = 3;
+            maxPlayers = 4;
         }
 
         for(let i = 0; i < this.players.length; i++){
@@ -823,7 +823,7 @@ class MatchScreenshot{
         c.textAlign = "center";
         c.fillStyle = "white";
 
-        c.fillText("There is currently no one spectating this match.", this.x(50), this.y(90));
+        c.fillText("There is currently no one spectating this match.", this.x(50), this.y(91));
         c.fillStyle = "yellow";
         c.fillText("[SmartCTF 4E {PiN}Kev | {DnF2}SiNiSTeR | [es]Rush | adminthis & The_Cowboy & Sp0ngeb0b]", this.x(50), this.y(94));
         c.fillStyle = "white";
