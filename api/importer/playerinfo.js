@@ -91,12 +91,33 @@ class PlayerInfo{
         this.disconnects.push(timeStamp);
     }
 
-    setTeam(timeStamp, id){
+    bDuplicateTeamData(timestamp, id){
 
-        this.teams.push({
-            "time": parseFloat(timeStamp),
-            "id": parseInt(id)
-        });
+        let t = 0;
+
+        for(let i = 0; i < this.teams.length; i++){
+
+            t = this.teams[i];
+
+            if(t.time === timestamp && t.id === id){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    setTeam(timestamp, id){
+
+        timestamp = parseFloat(timestamp);
+        id = parseInt(id);
+
+        if(!this.bDuplicateTeamData(timestamp, id)){
+            this.teams.push({
+                "time": timestamp,
+                "id": id
+            });
+        }
     }
 
     setAsBot(){
@@ -319,8 +340,6 @@ class PlayerInfo{
             if(s.timestamp < timestamp){
                 return s.timestamp;
             }
-
-
         }
 
         return null;

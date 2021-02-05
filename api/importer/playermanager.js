@@ -101,7 +101,7 @@ class PlayerManager{
                 result = reg.exec(d);
                 type = result[2].toLowerCase();
 
-                if(type === 'team' /*|| type === 'teamchange'*/){
+                if(type === 'team' || type === 'teamchange'){
                     this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
                     this.setBotStatus(result[3]);
@@ -1031,7 +1031,6 @@ class PlayerManager{
                             "max": 0
                         };
                     }
-                    //console.log(p);
                     p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData);
                     
                 }else{
