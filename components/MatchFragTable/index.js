@@ -3,7 +3,7 @@ import Playtime from '../Playtime/';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
-const MatchFragTable = ({players, team}) =>{
+const MatchFragTable = ({players, team, matchStart}) =>{
 
     players = JSON.parse(players);
 
@@ -37,7 +37,7 @@ const MatchFragTable = ({players, team}) =>{
 
         p = players[i];
 
-        totalPlaytime += p.playtime;
+        totalPlaytime += p.playtime - matchStart;
         totalSuicides += p.suicides;
         totalTeamKills += p.team_kills;
         totalSpawnKills += p.spawn_kills;
@@ -48,7 +48,7 @@ const MatchFragTable = ({players, team}) =>{
 
         elems.push(<tr key={`frag_tr_${team}_${i}`} className={bgColor}>
             <td className="text-left"><CountryFlag key={`frag_country__${team}_${i}`} country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
-            <td><Playtime key={`frag_playtime__${team}_${i}`} seconds={p.playtime} /></td>
+            <td><Playtime key={`frag_playtime__${team}_${i}`} seconds={p.playtime - matchStart} /></td>
             <td>{(p.suicides > 0) ? p.suicides : ''}</td>
             <td>{(p.team_kills > 0) ? p.team_kills : ''}</td>
             <td>{(p.spawn_kills > 0) ? p.spawn_kills : ''}</td>

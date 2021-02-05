@@ -15,18 +15,20 @@ const getPlayersInTeam = (players, team) =>{
     return JSON.stringify(foundPlayers);
 }
 
-const MatchFragSummary = ({bTeamGame, totalTeams, playerData}) =>{
+const MatchFragSummary = ({bTeamGame, totalTeams, playerData, matchStart}) =>{
 
     playerData = JSON.parse(playerData);
     
     const teams = [];
 
+    console.log(matchStart);
+
     if(!bTeamGame){
-        teams.push(<MatchFragTable key={1} players={getPlayersInTeam(playerData, -1)} team={-1}/>);
+        teams.push(<MatchFragTable key={1} players={getPlayersInTeam(playerData, -1)} team={-1} matchStart={matchStart}/>);
     }else{
 
         for(let i = 0; i < totalTeams; i++){
-            teams.push(<MatchFragTable key={i} players={getPlayersInTeam(playerData, i)} team={i}/>);
+            teams.push(<MatchFragTable key={i} players={getPlayersInTeam(playerData, i)} team={i} matchStart={matchStart}/>);
         }
     }
 

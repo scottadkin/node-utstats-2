@@ -26,6 +26,7 @@ import Teams from '../../api/teams';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
+import Graph from '../../components/Graph/';
 
 
 function bCTF(players){
@@ -111,6 +112,8 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const elems = [];
 
+    elems.push(<Graph title={"test-graph"}/>);
+
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
     );
@@ -151,7 +154,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     }
 
     elems.push(
-        <MatchFragSummary key={`match_3`} bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData}/>
+        <MatchFragSummary key={`match_3`} bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData} matchStart={0}/>
     );
 
     elems.push(
