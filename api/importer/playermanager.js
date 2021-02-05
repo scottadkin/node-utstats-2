@@ -101,7 +101,7 @@ class PlayerManager{
                 result = reg.exec(d);
                 type = result[2].toLowerCase();
 
-                if(type === 'team' || type === 'teamchange'){
+                if(type === 'team'){
                     this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
                     this.setBotStatus(result[3]);
@@ -112,6 +112,7 @@ class PlayerManager{
                 }else if(type == 'disconnect'){
                     this.connectionsManager.lines.push(d);
                 }else if(type === 'teamchange'){
+                    this.setTeam(result[3], result[1]);
                     this.teamsManager.lines.push(d);
                 }else if(type === 'ping'){
                     this.pingManager.lines.push(d);
