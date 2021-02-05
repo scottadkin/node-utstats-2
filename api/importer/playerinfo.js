@@ -60,7 +60,9 @@ class PlayerInfo{
                 "pickup": 0,
                 "cover": 0,
                 "kill": 0,
-                "save": 0
+                "save": 0,
+                "carryTime": 0,
+                "pickupTime": 0
             },
             "dom": {
                 "caps": 0

@@ -75,16 +75,10 @@ class CTFManager{
                         "team": parseInt(result[5])
                     });
 
-                }else{
-                   // ignored.push(type);
                 }
             }
         }
 
-        //console.log(this.events);
-
-        //console.log(`${this.events.length} converted out of a possible ${this.data.length}`);
-        //console.log(ignored);
 
         this.createCapData();
     }
@@ -186,10 +180,14 @@ class CTFManager{
             }
 
         }
-
-        //console.table(caps);
     }
 
+
+    updateCarryTime(timestamp, player){
+
+        player.stats.ctf.carryTime += timestamp - player.stats.ctf.pickupTime;
+        player.stats.ctf.carryTime = parseFloat(parseFloat(player.stats.ctf.carryTime).toFixed(2));
+    }
 
     setPlayerStats(){
 
@@ -206,15 +204,24 @@ class CTFManager{
             if(player !== null){
 
                 if(e.type !== 'captured' && e.type !== 'returned' && e.type !== 'pickedup'){
+
+                    if(e.type === "taken"){
+                        player.stats.ctf.pickupTime = e.timestamp;
+                    }else if(e.type === 'dropped'){
+                        this.updateCarryTime(e.timestamp, player);
+                    }
+
                     player.stats.ctf[e.type]++;
                 }else{
 
                     if(e.type === 'captured'){
                         player.stats.ctf.capture++
+                        this.updateCarryTime(e.timestamp, player);
                     }else if(e.type === 'retuned'){
                         player.stats.ctf.return++;
                     }else if(e.type === 'pickedup'){
                         player.stats.ctf.pickup++;
+                        player.stats.ctf.pickupTime = e.timestamp;
                     }
                 }
 

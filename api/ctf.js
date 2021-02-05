@@ -22,7 +22,8 @@ class CTF{
             flag_pickup=flag_pickup+?,
             flag_cover=flag_cover+?,
             flag_kill=flag_kill+?,
-            flag_save=flag_save+?
+            flag_save=flag_save+?,
+            flag_carry_time=flag_carry_time+?
             WHERE id IN(?,?)`;
 
             const vars = [
@@ -35,6 +36,7 @@ class CTF{
                 data.cover,
                 data.kill,
                 data.save,
+                data.carryTime,
                 masterId, gametypeId
             ];
 
@@ -60,7 +62,8 @@ class CTF{
             flag_pickup = ?,
             flag_cover = ?,
             flag_kill = ?,
-            flag_save = ?
+            flag_save = ?,
+            flag_carry_time=?
             WHERE id=?`;
 
             const vars = [
@@ -73,6 +76,7 @@ class CTF{
                 stats.cover,
                 stats.kill,
                 stats.save,
+                stats.carryTime,
                 rowId
             ];
 
