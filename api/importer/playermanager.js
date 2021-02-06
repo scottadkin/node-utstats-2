@@ -1079,6 +1079,17 @@ class PlayerManager{
     }
 
 
+    getPlayerTeamAt(id, timestamp){
+
+        for(let i = 0; i < this.players.length; i++){
+
+            if(this.players[i].id === id){
+                return this.players[i].getTeamAt(timestamp);
+            }
+        }
+
+        return -1;
+    }
 }
 
 module.exports = PlayerManager;

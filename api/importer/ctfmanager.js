@@ -34,7 +34,7 @@ class CTFManager{
 
             result = reg.exec(d);
 
-           // console.log(result);
+            //console.log(result);
 
             if(result != null){
 
@@ -54,7 +54,7 @@ class CTFManager{
                         "timestamp": parseFloat(result[1]),
                         "type": type,
                         "player": parseInt(result[3]),
-                        "team": parseInt(result[5])
+                        "team": this.playerManager.getPlayerTeamAt(parseInt(result[3]), result[1])
                     });
 
                 }else if(type === 'cover'){
@@ -107,6 +107,8 @@ class CTFManager{
             if(e.type === 'taken'){
 
                 matchingPickup = 0;
+
+                //console.log(e);
 
                 current = {
                     "team": e.team,
@@ -370,6 +372,7 @@ class CTFManager{
             for(let i = 0; i < this.capData.length; i++){
 
                 c = this.capData[i];
+
                 currentGrab = this.playerManager.getOriginalConnectionById(c.grab);
                 
                 currentCovers = [];

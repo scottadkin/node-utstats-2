@@ -331,6 +331,28 @@ class PlayerInfo{
         return this.teams[this.teams.length - 1].id;
     }
 
+    getTeamAt(timestamp){
+
+        let t = 0;
+
+        timestamp = parseFloat(timestamp);
+
+        let currentTeam = -1;
+
+        for(let i = 0; i < this.teams.length; i++){
+
+            t = this.teams[i];
+
+            if(t.time <= timestamp){
+                currentTeam = t.id;
+            }else{
+                break;
+            }
+        }
+
+        return currentTeam;
+    }
+
     getPreviousSpawn(timestamp){
 
         let s = 0;
