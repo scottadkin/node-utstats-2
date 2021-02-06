@@ -98,6 +98,27 @@ class CTFManager{
         let matchingPickup = 0;
         let e = 0;
 
+
+        const getCurrent = (team) =>{
+
+            switch(team){
+                case 0: {   return currentRed; } 
+                case 1: {   return currentBlue; } 
+                case 2: {   return currentGreen; } 
+                case 3: {   return currentYellow; } 
+            }
+        }
+
+        const setCurrent = (team, data) =>{
+
+            switch(team){
+                case 0: {    currentRed = data; } break;
+                case 1: {    currentBlue = data; }  break;
+                case 2: {    currentGreen = data; } break;
+                case 3: {    currentYellow = data; } break;
+            }
+        }
+
         //console.log(this.events);
 
         for(let i = 0; i < this.events.length; i++){
@@ -122,43 +143,26 @@ class CTFManager{
                     "carryIds": []
                 };
 
-                switch(e.team){
-                    case 0: {   currentRed = current; } break;
-                    case 1: {   currentBlue = current; } break;
-                    case 2: {   currentGreen = current; } break;
-                    case 3: {   currentYellow = current; } break;
-                }
+    
+                setCurrent(e.team, current);
+                current = getCurrent(e.team);
+                
 
             }else if(e.type === 'pickedup'){
 
-                switch(e.team){
-                    case 0: {   current = currentRed; } break;
-                    case 1: {   current = currentBlue; } break;
-                    case 2: {   current = currentGreen; } break;
-                    case 3: {   current = currentYellow; } break;
-                }
+                current = getCurrent(e.team);
 
                 current.pickupTimes.push({"timestamp":e.timestamp,"player": e.player});
                 
             }else if(e.type === 'dropped'){
                 
-                switch(e.team){
-                    case 0: {   current = currentRed; } break;
-                    case 1: {   current = currentBlue; } break;
-                    case 2: {   current = currentGreen; } break;
-                    case 3: {   current = currentYellow; } break;
-                }
-
+                current = getCurrent(e.team);
+                console.log(current);
                 current.dropTimes.push({"timestamp":e.timestamp,"player": e.player});
                 
             }else if(e.type === 'cover'){
 
-                switch(e.team){
-                    case 0: {   current = currentRed; } break;
-                    case 1: {   current = currentBlue; } break;
-                    case 2: {   current = currentGreen; } break;
-                    case 3: {   current = currentYellow; } break;
-                }
+                current = getCurrent(e.team);
     
                 //work around for players that have changed teams
                 if(current.covers !== undefined){
@@ -175,12 +179,7 @@ class CTFManager{
             }else if(e.type === 'assist'){
 
                // console.log(e);
-                switch(e.team){
-                    case 0: {   current = currentRed; } break;
-                    case 1: {   current = currentBlue; } break;
-                    case 2: {   current = currentGreen; } break;
-                    case 3: {   current = currentYellow; } break;
-                }
+                current = getCurrent(e.team);
                 //work around for players that have changed teams
                 if(current.assists !== undefined){
                     current.assists.push(e.player);
@@ -196,12 +195,7 @@ class CTFManager{
 
             }else if(e.type === 'captured'){
 
-                switch(e.team){
-                    case 0: {   current = currentRed; } break;
-                    case 1: {   current = currentBlue; } break;
-                    case 2: {   current = currentGreen; } break;
-                    case 3: {   current = currentYellow; } break;
-                }
+                current = getCurrent(e.team);
 
                 current.cap = e.player;
                 current.capTime = e.timestamp;
