@@ -55,6 +55,9 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
     for(let i = 0; i < caps.length; i++){
 
         c = caps[i];
+
+        console.log(c);
+
         coverElems = [];
         assistElems = [];
         covers = [];
@@ -114,7 +117,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         for(const [key, value] of currentCoverNames){
 
             coverElems.push(<span key={`cover_team_${c.team}_${key}`}>
-                {key}<i className="yellow">({value.covers})&nbsp;</i>
+                {key}<i className="yellow"> ({value.covers})</i><br/>
             </span>);
         }
 
@@ -128,7 +131,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
                     <span key={`assists_team_${c.team}_${currentName.name}_${x}`}>
                         <CountryFlag country={currentName.country}/>
                         <a href={`/player/${c.assists[x]}`} >{currentName.name}</a>
-                        {(x < c.assists.length - 1) ? ',' : ''}
+                        <br/>
                     </span>
                 );
 
@@ -176,12 +179,12 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         elems.push(<tr key={`tr_${c.team}_${i}`} className={bgColor}>
             <td className="text-left"><CountryFlag country={grab.country}/><a href={`/player/${c.grab}`} >{grab.name}</a></td>
             <td><MMSS timestamp={c.grab_time - matchStart}/> </td>
-            <td>{coverElems}</td>
-            <td>{assistElems}</td>
+            <td className="text-left">{coverElems}</td>
+            <td className="text-left">{assistElems}</td>
             <td className="text-left"><CountryFlag country={cap.country} /><a href={`/player/${c.cap}`} >{cap.name}</a></td>
             <td><MMSS timestamp={c.cap_time - matchStart}/></td>
-            <td>{carryElems}</td>
-            <td>{totalDropTime.toFixed(2)} Seconds</td>
+            <td className="text-left">{carryElems}</td>
+            <td>{(totalDropTime == 0) ? '' : `${totalDropTime.toFixed(2)} Seconds`} </td>
             <td>{c.travel_time} Seconds</td>
             <td>{teamScoreString}</td>
         </tr>);
