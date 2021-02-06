@@ -141,6 +141,7 @@ class PlayerManager{
                 if(player !== null){
                     player.stats.firstBlood = 1;
                 }
+
             }
         }
     }
@@ -460,6 +461,14 @@ class PlayerManager{
                 new Message(`There is no player with id ${result[1]}(setIp).`,'warning');
             }
         }
+    }
+
+    setAccuracy(player, accuracy){
+
+        player = parseInt(player);
+        accuracy = parseFloat(accuracy);
+
+        console.log(`player = ${player} accuracy = ${accuracy}`);
     }
 
 
@@ -795,6 +804,7 @@ class PlayerManager{
                         p.stats.slowestKill,
                         p.stats.bestspawnkillspree,
                         p.stats.firstBlood,
+                        p.stats.accuracy,
                         0
                     );
 
@@ -817,6 +827,7 @@ class PlayerManager{
                         p.stats.slowestKill,
                         p.stats.bestspawnkillspree,
                         p.stats.firstBlood,
+                        p.stats.accuracy,
                         gametypeId
                     );
                 }

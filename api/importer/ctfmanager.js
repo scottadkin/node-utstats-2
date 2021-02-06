@@ -157,7 +157,7 @@ class CTFManager{
             }else if(e.type === 'dropped'){
                 
                 current = getCurrent(e.team);
-                console.log(current);
+                //console.log(current);
                 current.dropTimes.push({"timestamp":e.timestamp,"player": e.player});
                 
             }else if(e.type === 'cover'){

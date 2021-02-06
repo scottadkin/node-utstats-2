@@ -51,6 +51,7 @@ class PlayerInfo{
             "slowestKill": 0,
             "bestspawnkillspree":0,
             "spawnkills": 0,
+            "accuracy": 0,
             "ctf": {
                 "assist": 0,
                 "return": 0,
@@ -151,6 +152,7 @@ class PlayerInfo{
         }
 
         this.stats[key] = parseFloat(value);
+
     }
 
     //return true if player was spawnkilled, false if not

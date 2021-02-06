@@ -41,7 +41,8 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                 summary.team_kills,
                 summary.spawn_kills,
                 summary.efficiency,
-                summary.first_bloods
+                summary.first_bloods,
+                summary.accuracy
             ]}/>
 
             <MultiKills data={[

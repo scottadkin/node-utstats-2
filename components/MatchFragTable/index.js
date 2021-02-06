@@ -30,6 +30,7 @@ const MatchFragTable = ({players, team, matchStart}) =>{
     let totalFrags = 0;
     let totalScore = 0;
     let totalEff = 0;
+    let totalAccuracy = 0;
 
     let p = 0;
 
@@ -45,6 +46,7 @@ const MatchFragTable = ({players, team, matchStart}) =>{
         totalKills += p.kills;
         totalFrags += p.frags;
         totalScore += p.score;
+        totalAccuracy += p.accuracy;
 
         elems.push(<tr key={`frag_tr_${team}_${i}`} className={bgColor}>
             <td className="text-left"><CountryFlag key={`frag_country__${team}_${i}`} country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
@@ -55,6 +57,7 @@ const MatchFragTable = ({players, team, matchStart}) =>{
             <td>{(p.deaths > 0) ? p.deaths : ''}</td>
             <td>{(p.kills > 0) ? p.kills : ''}</td>
             <td>{p.efficiency.toFixed(2)}%</td>
+            <td>{p.accuracy.toFixed(2)}%</td>
             <td>{p.frags}</td>
             <td>{p.score}</td>
         </tr>);
@@ -67,6 +70,11 @@ const MatchFragTable = ({players, team, matchStart}) =>{
         totalEff = 100;
     }
 
+    if(players.length > 0){
+
+        totalAccuracy = (totalAccuracy / players.length).toFixed(2);
+    }
+
     elems.push(<tr key={`frag_tr_total__${team}`} className={`${styles.totals}`}>
         <td className="text-left">Totals</td>
         <td><Playtime key={`frag_country__${team}_total`} seconds={totalPlaytime} /></td>
@@ -76,6 +84,7 @@ const MatchFragTable = ({players, team, matchStart}) =>{
         <td>{(totalDeaths > 0) ? totalDeaths : ''}</td>
         <td>{(totalKills > 0) ? totalKills : ''}</td>
         <td>{totalEff.toFixed(2)}%</td>
+        <td>{totalAccuracy}%</td>
         <td>{totalFrags}</td>
         <td>{totalScore}</td>
     </tr>);
@@ -91,6 +100,7 @@ const MatchFragTable = ({players, team, matchStart}) =>{
                 <th>Deaths</th>
                 <th>Kills</th>
                 <th>Efficiency</th>
+                <th>Accuracy</th>
                 <th>Frags</th>
                 <th>Score</th>
             </tr>
