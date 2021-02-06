@@ -125,27 +125,24 @@ table{
   background-color:black;
   font-size:14px;
   width:80%;
+  max-width:1000px;
 
 }
 
 th{
   font-weight:300;
-  padding:10px;
+  padding:5px;
   color:yellow;
   border:1px solid rgba(255,255,255,0.1);
   background-color:black;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+
 }
 
 td{
   font-weight:100;
-  padding:4px;
+  padding:3px;
   border:1px solid rgba(255,255,255,0.1);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+
 }
 
 
@@ -163,8 +160,9 @@ td{
   margin-right:auto;
   border:1px solid rgba(255,255,255,0.2);
   background-color:rgb(12,12,12);
-  font-size:14px;
+  font-size:12px;
   max-width:1000px;
+  width:80%;
 }
 
 .special-table tr{
@@ -236,23 +234,23 @@ td{
 
 .duo div:nth-child(1), .trio div:nth-child(1), .quad div:nth-child(1), .team-red{
   background-color:rgb(89,0,0);
-  /*background:linear-gradient(to bottom right, rgb(79,0,0), rgb(129,0,0));*/
+  background:linear-gradient(to bottom right, rgb(79,0,0), rgb(129,0,0));
 }
 
 
 .duo div:nth-child(2), .trio div:nth-child(2), .quad div:nth-child(2), .team-blue{
   background-color:rgb(0,41,96);
-  /*background:linear-gradient(to bottom right, rgb(13,74,209), rgb(33,94,249));*/
+  background:linear-gradient(to bottom right, rgb(0,41,96), rgb(21,61,116));
 }
 
 .duo div:nth-child(3), .trio div:nth-child(3), .quad div:nth-child(3), .team-green{
   background-color:rgb(0,46,0);
-  /*background:linear-gradient(to bottom right, rgb(28,98,28), rgb(68,138,68));*/
+  background:linear-gradient(to bottom right, rgb(0,46,0), rgb(20,66,20));
 }
 
 .duo div:nth-child(4), .trio div:nth-child(4), .quad div:nth-child(4), .team-yellow{
   background-color:rgb(71,71,0);
-  /*background:linear-gradient(to bottom right, rgb(104,104,16), rgb(144,144,56));*/
+  background:linear-gradient(to bottom right, rgb(71,71,0), rgb(91,91,20));
 }
 
 .trio{

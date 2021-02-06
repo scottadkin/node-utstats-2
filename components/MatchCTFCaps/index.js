@@ -117,7 +117,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         for(const [key, value] of currentCoverNames){
 
             coverElems.push(<span key={`cover_team_${c.team}_${key}`}>
-                {key}<i className="yellow"> ({value.covers})</i><br/>
+               {key}<i className="yellow"> ({value.covers})</i><br/>
             </span>);
         }
 
@@ -129,7 +129,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
                 assistElems.push(
                     <span key={`assists_team_${c.team}_${currentName.name}_${x}`}>
-                        <CountryFlag country={currentName.country}/>
+                        
                         <a href={`/player/${c.assists[x]}`} >{currentName.name}</a>
                         <br/>
                     </span>
@@ -156,7 +156,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
                 currentName = playerNames.get(parseInt(c.assist_carry_ids[x]));
        
                 carryElems.push(<span>
-                    <CountryFlag country={currentName.country}/>{currentName.name} <i className="yellow">{(parseFloat(c.assist_carry_times[x])).toFixed(2)}</i><br/>
+                    {currentName.name} <i className="yellow">{(parseFloat(c.assist_carry_times[x])).toFixed(2)}</i><br/>
                 </span>);
             }
         }
@@ -177,11 +177,11 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         }
 
         elems.push(<tr key={`tr_${c.team}_${i}`} className={bgColor}>
-            <td className="text-left"><CountryFlag country={grab.country}/><a href={`/player/${c.grab}`} >{grab.name}</a></td>
+            <td className="text-left"><a href={`/player/${c.grab}`} >{grab.name}</a></td>
             <td><MMSS timestamp={c.grab_time - matchStart}/> </td>
             <td className="text-left">{coverElems}</td>
             <td className="text-left">{assistElems}</td>
-            <td className="text-left"><CountryFlag country={cap.country} /><a href={`/player/${c.cap}`} >{cap.name}</a></td>
+            <td className="text-left"><a href={`/player/${c.cap}`} >{cap.name}</a></td>
             <td><MMSS timestamp={c.cap_time - matchStart}/></td>
             <td className="text-left">{carryElems}</td>
             <td>{(totalDropTime == 0) ? '' : `${totalDropTime.toFixed(2)} Seconds`} </td>
