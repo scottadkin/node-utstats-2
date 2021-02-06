@@ -218,12 +218,12 @@ class CTFManager{
                          
                         matchingPickup = this.getMatchingPickupId(current.pickupTimes, current.dropTimes[x].player, current.dropTimes[x].timestamp);
 
-                       // console.log(`currenDrop = ${current.dropTimes[x].player}`);
+                        //console.log(`currenDrop = ${current.dropTimes[x].player}`);
 
                        // console.log(matchingPickup);
-                       // console.log(`carryTime = ${current.dropTimes[x].timestamp - matchingPickup.timestamp}`);
+                         //console.log(`carryTime = ${current.dropTimes[x].timestamp - matchingPickup.timestamp}`);
 
-                       // console.log(`Grabbed at ${matchingPickup.timestamp}`);
+                        //console.log(`Grabbed at ${matchingPickup.timestamp}`);
                         //console.log(`Dropped at ${current.dropTimes[x].timestamp}`);
 
                         current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
@@ -256,7 +256,7 @@ class CTFManager{
 
     getMatchingPickupId(pickups, player, timestamp){
 
-        for(let i = 0; i < pickups.length; i++){
+        for(let i = pickups.length -1; i >= 0; i--){
 
             if(pickups[i].player === player && pickups[i].timestamp <= timestamp){
                 return pickups[i];
