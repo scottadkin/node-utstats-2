@@ -177,13 +177,13 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         }
 
         elems.push(<tr key={`tr_${c.team}_${i}`} className={bgColor}>
-            <td className="text-left"><a href={`/player/${c.grab}`} >{grab.name}</a></td>
+            <td className="text-left p-left-5"><a href={`/player/${c.grab}`} >{grab.name}</a></td>
             <td><MMSS timestamp={c.grab_time - matchStart}/> </td>
-            <td className="text-left">{coverElems}</td>
-            <td className="text-left">{assistElems}</td>
-            <td className="text-left"><a href={`/player/${c.cap}`} >{cap.name}</a></td>
+            <td className="text-left p-left-5">{coverElems}</td>
+            <td className="text-left p-left-5">{assistElems}</td>
+            <td className="text-left p-left-5"><a href={`/player/${c.cap}`} >{cap.name}</a></td>
             <td><MMSS timestamp={c.cap_time - matchStart}/></td>
-            <td className="text-left">{carryElems}</td>
+            <td className="text-left p-left-5">{carryElems}</td>
             <td>{(totalDropTime == 0) ? '' : `${totalDropTime.toFixed(2)} Seconds`} </td>
             <td>{c.travel_time} Seconds</td>
             <td>{teamScoreString}</td>

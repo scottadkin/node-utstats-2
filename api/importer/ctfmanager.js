@@ -216,21 +216,11 @@ class CTFManager{
                         current.carryIds.push(current.dropTimes[x].player);
 
                     }else{
-
-                         
+   
                         matchingPickup = this.getMatchingPickupId(current.pickupTimes, current.dropTimes[x].player, current.dropTimes[x].timestamp);
-
-                        //console.log(`currenDrop = ${current.dropTimes[x].player}`);
-
-                       // console.log(matchingPickup);
-                         //console.log(`carryTime = ${current.dropTimes[x].timestamp - matchingPickup.timestamp}`);
-
-                        //console.log(`Grabbed at ${matchingPickup.timestamp}`);
-                        //console.log(`Dropped at ${current.dropTimes[x].timestamp}`);
 
                         current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
                         current.carryIds.push(current.dropTimes[x].player);
-
                       
                     }    
                 }
@@ -249,6 +239,14 @@ class CTFManager{
 
                 
                // console.log(current);
+
+                //check for solo caps
+                if(current.grab === current.cap){
+                    if(current.pickupTimes.length === 0){
+                        current.carryIds.push(current.cap);
+                        current.carryTimes.push(current.travelTime);
+                    }
+                }
 
                 this.capData.push(current);
                 

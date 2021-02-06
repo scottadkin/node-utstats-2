@@ -95,7 +95,6 @@ class CTF{
 
             const query = "INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-
             const vars = [matchId, mapId, team, grabTime, grab, covers.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime];
 
             mysql.query(query, vars, (err) =>{
