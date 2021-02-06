@@ -114,7 +114,6 @@ class CTFManager{
                     "grab": e.player,
                     "covers": [],
                     "assists": [],
-                    "assistTimes": [],
                     "pickupTimes": [],
                     "dropTimes": [],
                     "carryTimes": [],
@@ -208,38 +207,46 @@ class CTFManager{
 
                 for(let x = current.dropTimes.length - 1; x >= 0; x--){
 
-                    if(current.dropTimes[x].player === current.grab){
+                    //first drop will always be the grab player
+                    if(current.dropTimes[x].player === current.grab && x === 0){
 
                         current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - current.grabTime).toFixed(2)));
                         current.carryIds.push(current.dropTimes[x].player);
 
                     }else{
 
-                        console.log(`tematchingPickupmatchingPickupmatchingPickupmatchingPickupmatchingPickupmatchingPickupmatchingPickupmatchingPickupmatchingPickupmatchingPickupmatchingPickupmatchingPickupst`);
-                        
+                         
                         matchingPickup = this.getMatchingPickupId(current.pickupTimes, current.dropTimes[x].player, current.dropTimes[x].timestamp);
 
-                        console.log(`currenDrop = ${current.dropTimes[x].player}`);
+                       // console.log(`currenDrop = ${current.dropTimes[x].player}`);
 
-                        console.log(matchingPickup);
-                        console.log(`carryTime = ${current.dropTimes[x].timestamp - matchingPickup.timestamp}`);
+                       // console.log(matchingPickup);
+                       // console.log(`carryTime = ${current.dropTimes[x].timestamp - matchingPickup.timestamp}`);
 
-                        console.log(`Grabbed at ${matchingPickup.timestamp}`);
-                        console.log(`Dropped at ${current.dropTimes[x].timestamp}`);
+                       // console.log(`Grabbed at ${matchingPickup.timestamp}`);
+                        //console.log(`Dropped at ${current.dropTimes[x].timestamp}`);
 
                         current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
+                        current.carryIds.push(current.dropTimes[x].player);
 
-                        //need to add capture carry time
-                        //need to add capture carry time
-                        //need to add capture carry time
-                        //need to add capture carry time
-                        //need to add capture carry time
-                        //need to add capture carry time
-                    }
-                   
+                      
+                    }    
                 }
 
-                console.log(current);
+                current.carryTimes.reverse();
+                current.carryIds.reverse();
+
+                //dont forget cap carry time
+                if(current.pickupTimes.length > 0){
+                    if(current.pickupTimes[current.pickupTimes.length - 1].player === current.cap){
+
+                        current.carryIds.push(current.cap);
+                        current.carryTimes.push(parseFloat(parseFloat(current.capTime - current.pickupTimes[current.pickupTimes.length - 1].timestamp).toFixed(2)));
+                    }
+                }
+
+                
+               // console.log(current);
 
                 this.capData.push(current);
                 
@@ -344,19 +351,6 @@ class CTFManager{
         }
     }
 
-    calculateCarryTime(data, index, type){
-
-        console.log(data);
-
-        let endTime = 0;
-
-        if(type === 'assist'){
-            endTime = data.assists[index];
-        }
-
-        console.log(`endTime = ${endTime}`);
-    }
-
     async insertCaps(matchId, mapId){
 
         try{
@@ -367,7 +361,9 @@ class CTFManager{
             let currentAssists = [];
             let currentGrab = 0;
             let currentCap = 0;
-            let currentAssistsTimes = [];
+            let currentCarryTimes = [];
+            let currentCarryIds = [];
+            let currentCarry = 0;
 
             let c = 0;
 
@@ -378,7 +374,9 @@ class CTFManager{
                 
                 currentCovers = [];
                 currentAssists = [];
-                currentAssistsTimes = [];
+                currentCarryTimes = [];
+                currentCarryIds = [];
+                currentCarry = 0;
 
                 for(let x = 0; x < c.covers.length; x++){
                     currentCover = this.playerManager.getOriginalConnectionById(c.covers[x]);
@@ -389,15 +387,18 @@ class CTFManager{
 
                     currentAssist = this.playerManager.getOriginalConnectionById(c.assists[x]);
                     currentAssists.push(currentAssist.masterId);
-
-                    //this.calculateCarryTime(c, x, 'assist');
-
                 }
+
+                for(let x = 0; x < c.carryIds.length; x++){     
+                    currentCarry = this.playerManager.getOriginalConnectionById(c.carryIds[x]);
+                    currentCarryIds.push(currentCarry.masterId);
+                }
+
 
                 currentCap = this.playerManager.getOriginalConnectionById(c.cap);
 
                 await this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, 
-                    currentCovers, currentAssists, currentAssistsTimes, currentCap.masterId, c.capTime, c.travelTime);
+                    currentCovers, currentAssists, c.carryTimes, currentCarryIds, currentCap.masterId, c.capTime, c.travelTime);
             }
 
         }catch(err){
