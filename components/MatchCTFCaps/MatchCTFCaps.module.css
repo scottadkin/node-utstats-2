@@ -3,10 +3,15 @@
 }
 
 .wrapper{
+    max-width:1000px;
+    margin-left:auto;
+    margin-right:auto;
+}
+.boxes{
     display:grid;
     grid-template-columns:repeat(auto-fill, 225px);
-    justify-content: center;
-
+    justify-content: space-evenly;
+    
 }
 
 .box{
@@ -21,6 +26,8 @@
     margin-top:-1px;
     text-align:left;
     overflow-y:auto;
+
+    
     
 }
 

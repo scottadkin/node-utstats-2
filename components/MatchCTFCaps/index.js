@@ -236,7 +236,9 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         </div>
         
         <div className={styles.wrapper}>
-            {elems}
+            <div className={styles.boxes}>
+                {elems}
+            </div>
         </div>
     </div>);
 }
