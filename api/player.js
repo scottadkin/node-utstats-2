@@ -211,7 +211,7 @@ class Player{
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,0,
-                0,0,?,?,?,?)`;
+                0,0,?,?,?,?,?,?,?)`;
 
             const vars = [
                 matchId,
@@ -256,8 +256,12 @@ class Player{
                 ping.min,
                 parseInt(ping.average),
                 ping.max,
-                player.stats.accuracy.toFixed(2)
+                player.stats.accuracy.toFixed(2),
+                (isNaN(player.stats.killMinDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killMinDistance),
+                (isNaN(player.stats.killAverageDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killAverageDistance),
+                player.stats.killMaxDistance
             ];
+
 
             mysql.query(query, vars, (err, result) =>{
 

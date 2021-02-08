@@ -21,6 +21,10 @@ class PlayerInfo{
             "frags":0,
             "score":0,
             "kills":0,
+            "killTotalDistance": 0,
+            "killMinDistance": null,
+            "killAverageDistance": 0,
+            "killMaxDistance": 0,
             "deaths":0,
             "suicides":0,
             "teamkills": 0,
@@ -245,16 +249,39 @@ class PlayerInfo{
         this.currentSpree = 0;
     }
 
-    killedPlayer(timestamp, weapon){
+
+    updateKillDistances(distance){
+
+        distance = parseFloat(distance);
+
+        this.stats.killTotalDistance += distance;
+
+        if(this.stats.killTotalDistance !== 0 && this.stats.kills !== 0){
+            this.stats.killAverageDistance = this.stats.killTotalDistance / this.stats.kills;
+        }
+
+        if(distance > this.stats.killMaxDistance){
+            this.stats.killMaxDistance = distance;
+        }
+
+        if(distance < this.stats.killMinDistance || this.stats.killMinDistance === null){
+            this.stats.killMinDistance = distance;
+        }
+
+    }
+
+
+    killedPlayer(timestamp, weapon, distance){
 
         timestamp = parseFloat(timestamp);
 
         const timeDiff = timestamp - this.lastKill;
 
+        this.updateKillDistances(distance);
+
         this.updateWeaponStats('kill', weapon);
 
         this.currentSpree++;
-
 
         if(timeDiff !== 0){
 

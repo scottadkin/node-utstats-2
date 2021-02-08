@@ -116,7 +116,9 @@ class ItemsManager{
 
         try{
 
-            this.itemIds = await this.items.getIdsByNames(this.itemNames);
+            if(this.itemNames.length > 0){
+                this.itemIds = await this.items.getIdsByNames(this.itemNames);
+            }
 
             let currentId = 0;
             let currentPlayer = 0;
@@ -149,6 +151,7 @@ class ItemsManager{
             }
 
         }catch(err){
+            console.trace(err);
             new Message(`ItemManager.insertMatchData ${err}`,'error');
         }
     }

@@ -415,8 +415,7 @@ class PlayerManager{
                 victim = this.getPlayerById(k.victimId);
 
                 if(killer !== null){
-                    killer.killedPlayer(k.timestamp, k.killerWeapon);
-      
+                    killer.killedPlayer(k.timestamp, k.killerWeapon, k.killDistance);
                 }
 
               
@@ -772,17 +771,13 @@ class PlayerManager{
 
             let p = 0;
 
-
             //get current gametype id here
-            
 
             for(let i = 0; i < this.players.length; i++){
 
                 p = this.players[i];
 
-                
-
-                
+                 
                 if(p.bDuplicate === undefined){
 
                     //update combined gametypes totals

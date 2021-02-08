@@ -11,6 +11,7 @@
 
 .box{
     background-color:black;
+    background:linear-gradient(to bottom right, rgb(3,3,3), rgb(16,16,16));
     width:225px;
     font-weight:300;
     font-size:12px;
@@ -19,11 +20,12 @@
     margin-left:-1px;
     margin-top:-1px;
     text-align:left;
+    overflow-y:auto;
     
 }
 
 .score{
-    padding:2px;
+    padding:5px;
     font-size:14px;
     text-align:center;
     margin-bottom:5px;

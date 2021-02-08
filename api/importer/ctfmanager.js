@@ -216,8 +216,12 @@ class CTFManager{
    
                         matchingPickup = this.getMatchingPickupId(current.pickupTimes, current.dropTimes[x].player, current.dropTimes[x].timestamp);
 
-                        current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
-                        current.carryIds.push(current.dropTimes[x].player);
+                        if(matchingPickup !== null){
+                            current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
+                            current.carryIds.push(current.dropTimes[x].player);
+                        }else{
+                            new Message(`CTFManager.createCapData() matchingPickup is null`,'warning');
+                        }
                       
                     }    
                 }

@@ -11,6 +11,13 @@ class Functions{
     static setValueIfUndefined(input, defaultValue){
 
         if(defaultValue === undefined) defaultValue = 0;
+
+        if(input !== undefined){
+            if(input === null){
+                return defaultValue;
+            }
+        }
+        
         if(input === undefined) return defaultValue;
 
         return input;
