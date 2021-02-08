@@ -138,8 +138,12 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             events.push({
                 "timestamp": parseFloat(c.drop_times[x]) - matchStart, 
-                "elem": <div className={styles.dropped}>
-                    <span className={styles.time}><MMSS timestamp={c.drop_times[x] - matchStart}/></span> {currentName.name} Dropped the Flag
+                "elem": <div><div className={styles.dropped}>
+                    <span className={styles.time}><MMSS timestamp={c.drop_times[x] - matchStart}/></span> {currentName.name} Dropped the Flag 
+                </div>
+                    <div className={styles.assist}>
+                        Carry time {parseFloat(c.assist_carry_times[x]).toFixed(2)} Seconds
+                    </div>
                 </div>
             });
         }
@@ -217,7 +221,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         });
 
 
-        for(let x = 0; x < c.assist_carry_ids.length; x++){
+        /*for(let x = 0; x < c.assist_carry_ids.length; x++){
 
             if(c.assists[x] === ''){
                 continue;
@@ -228,7 +232,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             assistElems.push(<div className={styles.assist}>
                     {currentName.name} Carried Flag <span className={styles.time}>{c.assist_carry_times[x]} Seconds</span>
                 </div>);
-        }
+        }*/
   
 
         for(let x = 0; x < events.length; x++){
@@ -263,10 +267,11 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             <div className={styles.row}>
                 <span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span>
                 &nbsp;Capped By {cap.name}  
+                <div className={styles.assist}>
+                    Carry time {c.assist_carry_times[c.assist_carry_times.length - 1]} Seconds
+                </div>
             </div>
-            <div className={styles.row}>
-                {assistElems}
-            </div>
+ 
             <div className={styles.row}>
                 Total Travel Time <span className={styles.time}>{c.travel_time}</span> Seconds<br/>
                 Total Time Dropped <span className={styles.time}>{parseFloat(totalDropTime).toFixed(2)}</span> Seconds
