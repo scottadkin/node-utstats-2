@@ -74,7 +74,6 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         c = caps[i];
 
         //console.log(c);
-        console.log('------------------------------------------');
 
         coverElems = [];
         assistElems = [];
@@ -86,6 +85,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         totalDropTime = 0;
         events = [];
         eventElems = [];
+        assistElems = [];
 
         c.covers = c.covers.split(',');
         c.assists = c.assists.split(',');
@@ -94,6 +94,8 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         c.cover_times = c.cover_times.split(',');
         c.drops = c.drops.split(',');
         c.drop_times = c.drop_times.split(',');
+        c.pickups = c.pickups.split(',');
+        c.pickup_times = c.pickup_times.split(',');
 
        // console.log(c.assist_carry_times);
         //console.log(c.assist_carry_ids);
@@ -113,6 +115,9 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         for(let x = 0; x < c.covers.length; x++){
 
+            if(c.covers[x] === ''){
+                continue;
+            }
             currentName = getPlayer(playerNames, c.covers[x]);
 
             events.push({
@@ -139,19 +144,35 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             });
         }
 
+        for(let x = 0; x < c.pickups.length; x++){
+
+            if(c.pickups[x] === ''){
+                continue;
+            }
+
+            currentName = getPlayer(playerNames, c.pickups[x]);
+
+            events.push({
+                "timestamp": parseFloat(c.pickup_times[x]) - matchStart, 
+                "elem": <div className={styles.pickup}>
+                    <span className={styles.time}><MMSS timestamp={c.pickup_times[x] - matchStart}/></span> {currentName.name} Picked up the Flag
+                </div>
+            });
+        }
+
 
 
         for(let x = 0; x < c.assists.length; x++){
 
             currentName = getPlayer(playerNames,c.assists[x]);
     
-            assistElems.push(
+           /* assistElems.push(
                 <span key={`assists_team_${c.team}_${currentName.name}_${x}`}>
                     
                     <a href={`/player/${c.assists[x]}`} >{currentName.name}</a>
                     <br/>
                 </span>
-            );     
+            );     */
         }
 
         for(let x = 0; x < c.assist_carry_times.length; x++){
@@ -159,11 +180,11 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             if(c.assist_carry_ids[x] !== ''){
 
                 totalCarryTime += parseFloat(c.assist_carry_times[x]);
-                currentName = getPlayer(playerNames, c.assist_carry_ids[x]);
+                /*currentName = getPlayer(playerNames, c.assist_carry_ids[x]);
        
                 carryElems.push(<span>
                     {currentName.name} <i className="yellow">{(parseFloat(c.assist_carry_times[x])).toFixed(2)}</i><br/>
-                </span>);
+                </span>);*/
             }
         }
 
@@ -195,11 +216,23 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             return 0;
         });
 
+
+        for(let x = 0; x < c.assist_carry_ids.length; x++){
+
+            if(c.assists[x] === ''){
+                continue;
+            }
+
+            currentName = getPlayer(playerNames, c.assist_carry_ids[x]);
+
+            assistElems.push(<div className={styles.assist}>
+                    {currentName.name} Carried Flag <span className={styles.time}>{c.assist_carry_times[x]} Seconds</span>
+                </div>);
+        }
   
 
         for(let x = 0; x < events.length; x++){
 
-            console.log(events[x].timestamp);
             eventElems.push(events[x].elem);
         }
 
@@ -218,21 +251,25 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         </tr>);*/
 
 
-        elems.push(<div className={styles.wrapper}>
+        elems.push(<div className={styles.box}>
             <div className={`${styles.score} ${bgColor}`}>{teamScoreString}</div>
             <div className={styles.row}>
                 <span className={styles.time}><MMSS timestamp={c.grab_time - matchStart}/></span>
-                &nbsp;Grabbed By<CountryFlag country={grab.country}/><Link href={`/player/${c.grab}`}><a>{grab.name}</a></Link>    
+                &nbsp;Grabbed By {grab.name}  
             </div>
             <div className={styles.row}>
                 {eventElems}
             </div>
             <div className={styles.row}>
                 <span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span>
-                &nbsp;Captured By <CountryFlag country={cap.country}/><Link href={`/player/${c.cap}`}><a>{cap.name}</a></Link>   
+                &nbsp;Capped By {cap.name}  
             </div>
             <div className={styles.row}>
-                Total Travel Time <span className={styles.time}>{c.travel_time}</span> Seconds
+                {assistElems}
+            </div>
+            <div className={styles.row}>
+                Total Travel Time <span className={styles.time}>{c.travel_time}</span> Seconds<br/>
+                Total Time Dropped <span className={styles.time}>{parseFloat(totalDropTime).toFixed(2)}</span> Seconds
             </div>
         </div>);
     }
@@ -241,7 +278,15 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         <div className="default-header">
             Flag Captures
         </div>
-        <table className={styles.table}>
+        
+        <div className={styles.wrapper}>
+            {elems}
+        </div>
+    </div>);
+}
+
+/*
+<table className={styles.table}>
             <tbody>
                 <tr>
                     <TipHeader title="Grab" content="The player who took the flag from the enemy base."/>
@@ -259,9 +304,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             </tbody>
 
         </table>
-        {elems}
-    </div>);
-}
+*/
 
 
 export default MatchCTFCaps;

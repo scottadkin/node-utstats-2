@@ -3,9 +3,17 @@
 }
 
 .wrapper{
+    display:grid;
+    grid-template-columns: 225px 225px 225px;
+    width:675px;
+    margin-left:auto;
+    margin-right:auto;
+    background-color:red;
+}
+
+.box{
     background-color:black;
-    width:250px;
-    display:inline-block;
+    width:225px;
     font-weight:300;
     font-size:12px;
     line-height:20px;
@@ -36,4 +44,12 @@
 }
 .dropped{
     color:rgb(255,100,100);
+}
+
+.pickup{
+    color:rgb(150,150,255);
+}
+
+.assist{
+    color:orange;
 }
