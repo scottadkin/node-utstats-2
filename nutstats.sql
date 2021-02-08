@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 06, 2021 at 06:23 PM
+-- Generation Time: Feb 08, 2021 at 08:38 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -66,7 +66,10 @@ CREATE TABLE `nstats_ctf_caps` (
   `team` int(11) NOT NULL,
   `grab_time` float NOT NULL,
   `grab` int(11) NOT NULL,
+  `drops` text NOT NULL,
+  `drop_times` text NOT NULL,
   `covers` varchar(1000) NOT NULL,
+  `cover_times` text NOT NULL,
   `assists` varchar(1000) NOT NULL,
   `assist_carry_times` text NOT NULL,
   `assist_carry_ids` text NOT NULL,
