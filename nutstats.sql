@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 08, 2021 at 12:51 PM
+-- Generation Time: Feb 08, 2021 at 01:04 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -397,7 +397,7 @@ CREATE TABLE `nstats_player_matches` (
   `ping_average` int(11) NOT NULL,
   `ping_max` int(11) NOT NULL,
   `accuracy` float NOT NULL,
-  `smallest_kill_distance` float NOT NULL,
+  `shortest_kill_distance` float NOT NULL,
   `average_kill_distance` float NOT NULL,
   `longest_kill_distance` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

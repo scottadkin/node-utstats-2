@@ -122,7 +122,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             events.push({
                 "timestamp": parseFloat(c.cover_times[x]) - matchStart, 
-                "elem": <div className={styles.cover}>
+                "elem": <div key={`covers-${x}`} className={styles.cover}>
                     <span className={styles.time}><MMSS timestamp={c.cover_times[x] - matchStart}/></span> {currentName.name} Covered the Flag Carrier
                 </div>
             });
@@ -138,7 +138,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             events.push({
                 "timestamp": parseFloat(c.drop_times[x]) - matchStart, 
-                "elem": <div><div className={styles.dropped}>
+                "elem": <div key={`drops-${x}`}><div className={styles.dropped}>
                     <span className={styles.time}><MMSS timestamp={c.drop_times[x] - matchStart}/></span> {currentName.name} Dropped the Flag 
                 </div>
                     <div className={styles.assist}>
@@ -158,37 +158,17 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             events.push({
                 "timestamp": parseFloat(c.pickup_times[x]) - matchStart, 
-                "elem": <div className={styles.pickup}>
+                "elem": <div key={`pickups-${x}`} className={styles.pickup}>
                     <span className={styles.time}><MMSS timestamp={c.pickup_times[x] - matchStart}/></span> {currentName.name} Picked up the Flag
                 </div>
             });
         }
 
 
-
-        for(let x = 0; x < c.assists.length; x++){
-
-            currentName = getPlayer(playerNames,c.assists[x]);
-    
-           /* assistElems.push(
-                <span key={`assists_team_${c.team}_${currentName.name}_${x}`}>
-                    
-                    <a href={`/player/${c.assists[x]}`} >{currentName.name}</a>
-                    <br/>
-                </span>
-            );     */
-        }
-
         for(let x = 0; x < c.assist_carry_times.length; x++){
 
             if(c.assist_carry_ids[x] !== ''){
-
                 totalCarryTime += parseFloat(c.assist_carry_times[x]);
-                /*currentName = getPlayer(playerNames, c.assist_carry_ids[x]);
-       
-                carryElems.push(<span>
-                    {currentName.name} <i className="yellow">{(parseFloat(c.assist_carry_times[x])).toFixed(2)}</i><br/>
-                </span>);*/
             }
         }
 
@@ -221,39 +201,10 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         });
 
 
-        /*for(let x = 0; x < c.assist_carry_ids.length; x++){
-
-            if(c.assists[x] === ''){
-                continue;
-            }
-
-            currentName = getPlayer(playerNames, c.assist_carry_ids[x]);
-
-            assistElems.push(<div className={styles.assist}>
-                    {currentName.name} Carried Flag <span className={styles.time}>{c.assist_carry_times[x]} Seconds</span>
-                </div>);
-        }*/
-  
-
         for(let x = 0; x < events.length; x++){
 
             eventElems.push(events[x].elem);
         }
-
-
-        /*elems.push(<tr key={`tr_${c.team}_${i}`} className={bgColor}>
-            <td className="text-left p-left-5"><a href={`/player/${c.grab}`} >{grab.name}</a></td>
-            <td><MMSS timestamp={c.grab_time - matchStart}/> </td>
-            <td className="text-left p-left-5">{coverElems}</td>
-            <td className="text-left p-left-5">{assistElems}</td>
-            <td className="text-left p-left-5"><a href={`/player/${c.cap}`} >{cap.name}</a></td>
-            <td><MMSS timestamp={c.cap_time - matchStart}/></td>
-            <td className="text-left p-left-5">{carryElems}</td>
-            <td>{(totalDropTime == 0) ? '' : `${totalDropTime.toFixed(2)} Seconds`} </td>
-            <td>{c.travel_time} Seconds</td>
-            <td>{teamScoreString}</td>
-        </tr>);*/
-
 
         elems.push(<div className={styles.box}>
             <div className={`${styles.score} ${bgColor}`}>{teamScoreString}</div>

@@ -2,6 +2,7 @@ import styles from './MatchFragTable.module.css';
 import Playtime from '../Playtime/';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import TipHeader from '../TipHeader/';
 
 const MatchFragTable = ({players, team, matchStart}) =>{
 
@@ -51,6 +52,9 @@ const MatchFragTable = ({players, team, matchStart}) =>{
         elems.push(<tr key={`frag_tr_${team}_${i}`} className={bgColor}>
             <td className="text-left"><CountryFlag key={`frag_country__${team}_${i}`} country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
             <td><Playtime key={`frag_playtime__${team}_${i}`} seconds={p.playtime - matchStart} /></td>
+            <td>{p.shortest_kill_distance.toFixed(2)}</td>
+            <td>{p.average_kill_distance.toFixed(2)}</td>
+            <td>{p.longest_kill_distance.toFixed(2)}</td>
             <td>{(p.suicides > 0) ? p.suicides : ''}</td>
             <td>{(p.team_kills > 0) ? p.team_kills : ''}</td>
             <td>{(p.spawn_kills > 0) ? p.spawn_kills : ''}</td>
@@ -78,6 +82,9 @@ const MatchFragTable = ({players, team, matchStart}) =>{
     elems.push(<tr key={`frag_tr_total__${team}`} className={`${styles.totals}`}>
         <td className="text-left">Totals</td>
         <td><Playtime key={`frag_country__${team}_total`} seconds={totalPlaytime} /></td>
+        <td></td>
+        <td></td>
+        <td></td>
         <td>{(totalSuicides > 0) ? totalSuicides : ''}</td>
         <td>{(totalTeamKills > 0) ? totalTeamKills : ''}</td>
         <td>{(totalSpawnKills > 0) ? totalSpawnKills : ''}</td>
@@ -94,6 +101,9 @@ const MatchFragTable = ({players, team, matchStart}) =>{
             <tr className={bgColor}>
                 <th>Player</th>
                 <th>Playtime</th>
+                <TipHeader title="Shortest Kill" content="The shortest kill distance between the player and victim." />
+                <TipHeader title="Average Kill" content="The average kill distance between the player and victim." />
+                <TipHeader title="Longest Kill" content="The longest kill distance between the player and victim." />
                 <th>Suicides</th>
                 <th>Team Kills</th>
                 <th>Spawn Kills</th>
