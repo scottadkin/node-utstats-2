@@ -89,13 +89,14 @@ class CTF{
         });
     }
 
-    insertCap(matchId, mapId, team, grabTime, grab, drops, dropTimes, covers, coverTimes, assists, assistsTimes, carryIds, cap, capTime, travelTime){
+    insertCap(matchId, mapId, team, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, assistsTimes, carryIds, cap, capTime, travelTime){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-            const vars = [matchId, mapId, team, grabTime, grab, drops.toString(), dropTimes.toString(), covers.toString(), coverTimes.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime];
+            const vars = [matchId, mapId, team, grabTime, grab, drops.toString(), dropTimes.toString(), pickups.toString(), pickupTimes.toString(), 
+                covers.toString(), coverTimes.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime];
 
             mysql.query(query, vars, (err) =>{
 

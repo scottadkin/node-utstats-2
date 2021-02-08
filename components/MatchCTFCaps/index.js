@@ -73,7 +73,8 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         c = caps[i];
 
-        console.log(c);
+        //console.log(c);
+        console.log('------------------------------------------');
 
         coverElems = [];
         assistElems = [];
@@ -91,6 +92,8 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         c.assist_carry_times = c.assist_carry_times.split(',');
         c.assist_carry_ids = c.assist_carry_ids.split(',');
         c.cover_times = c.cover_times.split(',');
+        c.drops = c.drops.split(',');
+        c.drop_times = c.drop_times.split(',');
 
        // console.log(c.assist_carry_times);
         //console.log(c.assist_carry_ids);
@@ -113,14 +116,30 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             currentName = getPlayer(playerNames, c.covers[x]);
 
             events.push({
-                "timestamp": c.cover_times[x], 
+                "timestamp": parseFloat(c.cover_times[x]) - matchStart, 
                 "elem": <div className={styles.cover}>
                     <span className={styles.time}><MMSS timestamp={c.cover_times[x] - matchStart}/></span> {currentName.name} Covered the Flag Carrier
                 </div>
             });
         }
 
-        
+        for(let x = 0; x < c.drops.length; x++){
+
+            if(c.drops[x] === ''){
+                continue;
+            }
+
+            currentName = getPlayer(playerNames, c.drops[x]);
+
+            events.push({
+                "timestamp": parseFloat(c.drop_times[x]) - matchStart, 
+                "elem": <div className={styles.dropped}>
+                    <span className={styles.time}><MMSS timestamp={c.drop_times[x] - matchStart}/></span> {currentName.name} Dropped the Flag
+                </div>
+            });
+        }
+
+
 
         for(let x = 0; x < c.assists.length; x++){
 
@@ -170,13 +189,17 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             if(a > b){
                 return 1;
-            }else if(a > b){
+            }else if(a < b){
                 return -1;
             }
             return 0;
         });
 
+  
+
         for(let x = 0; x < events.length; x++){
+
+            console.log(events[x].timestamp);
             eventElems.push(events[x].elem);
         }
 

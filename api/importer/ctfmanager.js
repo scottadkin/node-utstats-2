@@ -365,6 +365,9 @@ class CTFManager{
             let currentDrop = 0;
             let currentDrops = [];
             let currentDropTimes = [];
+            let currentPickups = [];
+            let currentPickupTimes = [];
+            let currentPickup = 0;
 
             let c = 0;
 
@@ -382,6 +385,9 @@ class CTFManager{
                 currentDropTimes = [];
                 currentCarry = 0;
                 currentDrop = 0;
+                currentPickups = [];
+                currentPickupTimes = [];
+                currentPickup = 0;
 
                 for(let x = 0; x < c.dropTimes.length; x++){
 
@@ -390,7 +396,16 @@ class CTFManager{
                     currentDropTimes.push(c.dropTimes[x].timestamp);
                 }
 
+                for(let x = 0; x < c.pickupTimes.length; x++){
+
+                    currentPickup = this.playerManager.getOriginalConnectionById(c.pickupTimes[x].player);
+                    currentPickups.push(currentPickup.masterId);
+                    currentPickupTimes.push(c.pickupTimes[x].timestamp);
+                }
+
+
                 for(let x = 0; x < c.covers.length; x++){
+
                     currentCover = this.playerManager.getOriginalConnectionById(c.covers[x]);
                     currentCovers.push(currentCover.masterId);
                 }
@@ -402,6 +417,7 @@ class CTFManager{
                 }
 
                 for(let x = 0; x < c.carryIds.length; x++){     
+
                     currentCarry = this.playerManager.getOriginalConnectionById(c.carryIds[x]);
                     currentCarryIds.push(currentCarry.masterId);
                 }
@@ -410,7 +426,7 @@ class CTFManager{
                 currentCap = this.playerManager.getOriginalConnectionById(c.cap);
 
                 await this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
-                    currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, currentCap.masterId, c.capTime, c.travelTime);
+                    currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, currentCap.masterId, c.capTime, c.travelTime);
             }
 
         }catch(err){
