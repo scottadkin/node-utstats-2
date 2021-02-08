@@ -4,11 +4,9 @@
 
 .wrapper{
     display:grid;
-    grid-template-columns: 225px 225px 225px;
-    width:675px;
-    margin-left:auto;
-    margin-right:auto;
-    background-color:red;
+    grid-template-columns:repeat(auto-fill, 225px);
+    justify-content: center;
+
 }
 
 .box{
@@ -16,15 +14,16 @@
     width:225px;
     font-weight:300;
     font-size:12px;
-    line-height:20px;
+    line-height:18px;
     border:1px solid rgba(255,255,255,0.25);
     margin-left:-1px;
     margin-top:-1px;
     text-align:left;
+    
 }
 
 .score{
-    padding:5px;
+    padding:2px;
     font-size:14px;
     text-align:center;
     margin-bottom:5px;
