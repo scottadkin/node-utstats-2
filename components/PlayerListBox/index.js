@@ -3,6 +3,42 @@ import Countires from '../../api/countries'
 import Link from 'next/link'
 
 
+const TestBar = ({title, value, max, postFix}) =>{
+
+    value = parseFloat(value);
+    max = parseFloat(max);
+
+    console.log(value,max);
+
+    let bit = 0;
+
+    if(max !== 0){
+        bit = 100 / max;
+    }
+
+    if(postFix === undefined){
+        postFix = '';
+    }
+
+    let percent = bit * value;
+
+    if(percent > 100){
+        percent = 100;
+    }
+
+    return (<div className={styles.obar}>
+        <div className={styles.title}>
+            {title} 
+        </div>
+        <div className={styles.value}>
+            {value}{postFix}
+        </div>
+        <div className={styles.bar}>
+            <div className={styles.bar_inner} style={{"width": `${percent}%`}}></div>
+        </div>
+    </div>);
+}
+
 export default function PlayerListBox({
     playerId,
     name,
@@ -13,18 +49,18 @@ export default function PlayerListBox({
     score,
     kills,
     deaths,
-    face
+    face,
+    first,
+    last
 
 }){
 
     if(playerId === -1){
-
+        return (<div></div>);
         return (
             <div className={styles.outter}>
                 <div className={styles.inneralt}>
-                    <div>
-                        &nbsp;
-                    </div>
+
                     <div>
                         Name
                     </div>
@@ -67,39 +103,30 @@ export default function PlayerListBox({
             <Link href={`player/${playerId}`}>
                 <a>
                     <div className={styles.inner}>
-                        <div className={styles.face}>
-                            <img src={`images/faces/${(face.imageExists) ? face.name: 'faceless'}.png`} alt="face"/>
+                        <div className={styles.info}>
+                            <div>
+                                <img className="country-flag" src={`images/flags/${Countires(country).code.toLowerCase()}.svg`} alt="flag" /> {name}<br/>
+                                <img src={`/images/faces/faceless.png`} alt="image"/>
+                            </div>
+                            <div>
+                                From {Countires(country).country}<br/>
+                                First Seen {first}<br/>
+                                Last Seen {last}<br/>
+                            </div>
                         </div>
-                        <div>
-                            <img className="country-flag" src={`images/flags/${Countires(country).code.toLowerCase()}.svg`} alt="flag" /> {name}
-                        </div>
-                        <div>{score}</div>
-                        <div>{kills}</div>
-                        <div>{winRate}%</div>
-                        <div>{matches}</div>
-                        
-                      
-                        
+                     
+                        <div className={styles.bars}>
+                            <TestBar title={"Matches"} value={matches} max={500}/>
+                            <TestBar title={"WinRate"} value={winRate} max={100} postFix="%"/> 
+                            <TestBar title={"Efficiency"} value={efficiency} max={100} postFix="%"/> 
+                            <TestBar title={"Score"} value={score} max={20000}/>
+                            <TestBar title={"Kills"} value={kills} max={20000}/>
+                            <TestBar title={"Deaths"} value={deaths} max={20000}/>
+                             
+                        </div>             
                     </div>
                 </a>
             </Link>
         </div>
     )
 }
-
-
-/**
- *   /*<div>
-                            <KeyValue label="Score" value={score} />
-                            <KeyValue label="Kills" value={kills} />
-                            <KeyValue label="Deaths" value={deaths} />
-                            <KeyValue label="Efficiency" value={`${efficiency}%`} />
-                        </div>
-                        <div>
-                            <KeyValue label="Playitme" value={`${playtime} Hours`} />
-                            <KeyValue label="Matches" value={matches} />
-                            <KeyValue label="Wins" value={wins} />
-                            <KeyValue label="WinRate" value={`${winRate}%`} />
-
-                        </div>
- */

@@ -33,6 +33,8 @@ function PlayersList({players, faces}){
             kills={players[i].kills}
             deaths={players[i].deaths}
             face={currentFace}
+            first={players[i].first}
+            last={players[i].last}
          
 
         />);
