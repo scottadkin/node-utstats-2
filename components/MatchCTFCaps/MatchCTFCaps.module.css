@@ -1,4 +1,4 @@
-.table td{
+/*.table td{
     line-height:24px;
 }
 
@@ -61,4 +61,33 @@
 .assist{
     color:orange;
     font-style:italic;
+}*/
+.table table{
+    text-align:left;
+    max-width:80%;
+    font-size:12px;
+}
+.table table th{
+    text-align:center;
+}
+
+.table table td{
+    padding:5px 0px;
+    padding-left:4px;
+}
+
+.table table td:nth-child(5), .table table td:nth-child(6){
+    text-align:center;
+}   
+.cover{
+    padding-right:4px;
+}
+
+.cover i{
+    color:yellow;
+}
+
+.time{
+    color:yellow;
+    padding:2px 5px;
 }
