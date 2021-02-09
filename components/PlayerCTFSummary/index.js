@@ -1,9 +1,11 @@
-import TipHeader from '../TipHeader/'
+import TipHeader from '../TipHeader';
+import styles from '../PlayerSummary/PlayerSummary.module.css';
 
-const CTFSummary = ({data}) =>{
+
+const PlayerCTFSummary = ({data}) =>{
 
     return (
-        <div className="special-table">
+        <div className={`${styles.table} special-table`}>
                 <div className="default-header">
                     Capture The Flag Performance
                 </div>       
@@ -40,4 +42,4 @@ const CTFSummary = ({data}) =>{
 }
 
 
-export default CTFSummary;
+export default PlayerCTFSummary;

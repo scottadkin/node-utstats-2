@@ -1,3 +1,5 @@
+import styles from '../PlayerSummary/PlayerSummary.module.css'
+
 const PlayerGeneral = ({data}) =>{
 
 
@@ -13,7 +15,7 @@ const PlayerGeneral = ({data}) =>{
   //  }
 
     return (
-        <div className="special-table">
+        <div className={`${styles.table} special-table`}>
                 <div className="default-header">
                     General Stats
                 </div>       

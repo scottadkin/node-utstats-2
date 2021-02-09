@@ -1,4 +1,6 @@
-const gametypeStats = ({data, names}) =>{
+import styles from '../PlayerSummary/PlayerSummary.module.css'
+
+const PlayerGametypeStats = ({data, names}) =>{
 
     data = JSON.parse(data);
     names = JSON.parse(names);
@@ -48,7 +50,7 @@ const gametypeStats = ({data, names}) =>{
 
     return (
         
-        <div className="special-table">
+        <div className={`${styles.table} special-table`}>
                 <div className="default-header">
                     Gametype Stats
                 </div>
@@ -72,4 +74,4 @@ const gametypeStats = ({data, names}) =>{
 }
 
 
-export default gametypeStats;
+export default PlayerGametypeStats;

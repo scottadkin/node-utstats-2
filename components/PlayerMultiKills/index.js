@@ -1,10 +1,12 @@
 import TipHeader from '../TipHeader/';
+import styles from '../PlayerSummary/PlayerSummary.module.css';
 
-const KillingSprees = ({data}) =>{
+
+const PlayerMultiKills = ({data}) =>{
 
     return (
         
-        <div className="special-table">
+        <div className={`${styles.table} special-table`}>
                 <div className="default-header">
                     Multi Kills
                 </div>
@@ -39,4 +41,4 @@ const KillingSprees = ({data}) =>{
 }
 
 
-export default KillingSprees;
+export default PlayerMultiKills;

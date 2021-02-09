@@ -1,10 +1,10 @@
 import styles from './PlayerSummary.module.css';
-import KillingSprees from '../KillingSprees/'
-import MultiKills from '../MultiKills/'
-import FragSummary from '../FragSummary/'
-import CTFSummary from '../CTFSummary/'
+import PlayerKillingSprees from '../PlayerKillingSprees/'
+import PlayerMultiKills from '../PlayerMultiKills/'
+import PlayerFragSummary from '../PlayerFragSummary'
+import PlayerCTFSummary from '../PlayerCTFSummary/'
 import PlayerGeneral from '../PlayerGeneral/'
-import GametypeStats from '../GametypeStats/'
+import PlayerGametypeStats from '../PlayerGametypeStats'
 
 
 
@@ -30,9 +30,9 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                 summary.losses
             ]} />
 
-            <GametypeStats data={gametypeStats} names={gametypeNames}/>
+            <PlayerGametypeStats data={gametypeStats} names={gametypeNames}/>
 
-            <FragSummary data={[
+            <PlayerFragSummary data={[
                 summary.score,
                 summary.frags,
                 summary.kills,
@@ -45,7 +45,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                 summary.accuracy
             ]}/>
 
-            <MultiKills data={[
+            <PlayerMultiKills data={[
                 summary.multi_1,
                 summary.multi_2,
                 summary.multi_3,
@@ -57,7 +57,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                 ]
             } />
 
-            <KillingSprees data={[
+            <PlayerKillingSprees data={[
                 summary.spree_1,
                 summary.spree_2,
                 summary.spree_3,
@@ -69,7 +69,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
             
             ]} />
 
-            <CTFSummary data={[
+            <PlayerCTFSummary data={[
                 summary.flag_taken,
                 summary.flag_pickup,
                 summary.flag_dropped,
@@ -81,7 +81,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                 summary.flag_save,
             ]} />
 
-            <div className="special-table">
+            <div className={`${styles.table} special-table`}>
                 <div className="default-header">Assault & Domination</div>
                 <table>
                     <tbody>

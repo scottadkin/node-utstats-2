@@ -1,7 +1,9 @@
-const FragSummary = ({data}) =>{
+import styles from '../PlayerSummary/PlayerSummary.module.css';
+
+const PlayerFragSummary = ({data}) =>{
 
     return (
-        <div className="special-table">
+        <div className={`${styles.table} special-table`}>
             <div className="default-header">
                 Frag Performance
             </div>       
@@ -38,4 +40,4 @@ const FragSummary = ({data}) =>{
     );
 }
 
-export default FragSummary;
+export default PlayerFragSummary;

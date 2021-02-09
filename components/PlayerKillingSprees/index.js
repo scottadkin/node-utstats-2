@@ -1,10 +1,12 @@
-import TipHeader from '../TipHeader/'
+import TipHeader from '../TipHeader/';
+import styles from '../PlayerSummary/PlayerSummary.module.css';
 
-const KillingSprees = ({data}) =>{
+
+const PlayerKillingSprees = ({data}) =>{
 
     return (
         
-        <div className="special-table">
+        <div className={`${styles.table} special-table`}>
                 <div className="default-header">
                     Killing Sprees
                 </div>
@@ -30,7 +32,6 @@ const KillingSprees = ({data}) =>{
                             <td>{data[5]}</td>
                             <td>{data[6]}</td>
                             <td>{data[7]} Kills</td>
-           
                         </tr>
                     </tbody>
                 </table>
@@ -40,4 +41,4 @@ const KillingSprees = ({data}) =>{
 }
 
 
-export default KillingSprees;
+export default PlayerKillingSprees;
