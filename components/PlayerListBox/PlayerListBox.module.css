@@ -21,15 +21,17 @@
 }
 
 .inner{
-    border:1px solid rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.25);
     margin-top:-1px;
     padding:5px;
     width:80%;
     max-width:750px;
     background-color:black;
+    background:linear-gradient(to bottom right, rgb(0,0,0), rgb(12,12,12));
     margin-left:auto;
     margin-right:auto;
     line-height:14px;
+    margin-bottom:10px;
 }
 
 .inner div:nth-child(1){
@@ -37,24 +39,28 @@
 }
 
 .inner:hover{
-    background-color:rgb(32,32,32);
+    background:linear-gradient(to bottom right, rgb(12,12,12), rgb(24,24,24));
 }
 
 .bar{
     width:95%;
-    height:10px;
+    height:6px;
+    background-color:rgba(0,0,0,0.5);
+    border:1px solid rgba(255,255,255,0.1);
+    margin-top:4px;
 }
 
 .bar_inner{
     background-color:green;
     height:6px;
-    margin-top:5px;
+
 }
 
 .obar{
     display:grid;
-    grid-template-columns: 75px 75px auto;
+    grid-template-columns: 100px 100px auto;
     font-size:12px;
+    margin-bottom:5px;
 }
 
 .bars{
@@ -68,5 +74,20 @@
 
 .info{
     display:grid;
-    grid-template-columns: 30% 70%;
+    grid-template-columns: 200px auto;
+}
+
+.info div:nth-child(1){
+    font-size:22px;
+    padding:5px;
+
+}
+
+.info div:nth-child(2){
+    line-height:24px;
+    font-size:12px;
+}
+
+.face{
+    margin-top:5px;
 }

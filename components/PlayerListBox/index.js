@@ -1,14 +1,13 @@
-import styles from './PlayerListBox.module.css'
-import Countires from '../../api/countries'
-import Link from 'next/link'
+import styles from './PlayerListBox.module.css';
+import Countires from '../../api/countries';
+import Link from 'next/link';
+import TimeStamp from '../TimeStamp/';
 
 
 const TestBar = ({title, value, max, postFix}) =>{
 
     value = parseFloat(value);
     max = parseFloat(max);
-
-    console.log(value,max);
 
     let bit = 0;
 
@@ -26,6 +25,11 @@ const TestBar = ({title, value, max, postFix}) =>{
         percent = 100;
     }
 
+    let color = "green";
+
+
+    color = `rgb(${255 - (percent * 2.25)},255,${255 - (percent * 2.25)})`;
+
     return (<div className={styles.obar}>
         <div className={styles.title}>
             {title} 
@@ -34,7 +38,7 @@ const TestBar = ({title, value, max, postFix}) =>{
             {value}{postFix}
         </div>
         <div className={styles.bar}>
-            <div className={styles.bar_inner} style={{"width": `${percent}%`}}></div>
+            <div className={styles.bar_inner} style={{"width": `${percent}%`, "backgroundColor": color}}></div>
         </div>
     </div>);
 }
@@ -106,12 +110,13 @@ export default function PlayerListBox({
                         <div className={styles.info}>
                             <div>
                                 <img className="country-flag" src={`images/flags/${Countires(country).code.toLowerCase()}.svg`} alt="flag" /> {name}<br/>
-                                <img src={`/images/faces/faceless.png`} alt="image"/>
+                                <img className={styles.face} src={`/images/faces/faceless.png`} alt="image"/>
                             </div>
                             <div>
-                                Location {Countires(country).country}<br/>
-                                First Seen {first}<br/>
-                                Last Seen {last}<br/>
+                                <span className="yellow">Location</span> {Countires(country).country}<br/>
+                                <span className="yellow">Playtime</span> {(parseFloat(playtime) / (60 * 60)).toFixed(2)} Hours<br/>
+                                <span className="yellow">First Seen</span> <TimeStamp timestamp={first} /><br/>
+                                <span className="yellow">Last Seen</span> <TimeStamp timestamp={last} /><br/>
                             </div>
                         </div>
                      
