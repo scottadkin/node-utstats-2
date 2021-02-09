@@ -174,7 +174,7 @@ class MatchManager{
 
 
 
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype);
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
          
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 

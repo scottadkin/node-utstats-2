@@ -109,7 +109,7 @@ export default function PlayerListBox({
                                 <img src={`/images/faces/faceless.png`} alt="image"/>
                             </div>
                             <div>
-                                From {Countires(country).country}<br/>
+                                Location {Countires(country).country}<br/>
                                 First Seen {first}<br/>
                                 Last Seen {last}<br/>
                             </div>

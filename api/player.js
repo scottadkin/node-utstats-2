@@ -46,7 +46,7 @@ class Player{
             }
 
 
-            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,'','','',0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,'','','',0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0)`;
 
             mysql.query(query, [name, gametype], (err, result) =>{
@@ -95,13 +95,16 @@ class Player{
         });
     }
 
-    updateFrags(id, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
+    updateFrags(id, date, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
         firstBlood, accuracy, gametype){
             
         return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_player_totals SET matches=matches+1, playtime=playtime+?, 
+            const query = `UPDATE nstats_player_totals SET matches=matches+1, 
+            first = IF(first > ?,?,first), 
+            last = IF(last < ?,?,last), 
+            playtime=playtime+?, 
             frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
             team_kills=team_kills+?, spawn_Kills=spawn_kills+?,
             multi_1 = multi_1+?, multi_2 = multi_2+?, multi_3 = multi_3+?, multi_4 = multi_4+?,
@@ -118,6 +121,10 @@ class Player{
             WHERE id=? AND gametype=?`;
 
             const vars = [
+                date,
+                date,
+                date,
+                date,
                 playtime, 
                 frags, 
                 score, 

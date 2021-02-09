@@ -765,7 +765,7 @@ class PlayerManager{
 
     }
 
-    async updateFragPerformance(gametypeId){
+    async updateFragPerformance(gametypeId, date){
 
         try{
 
@@ -783,6 +783,7 @@ class PlayerManager{
                     //update combined gametypes totals
                     await Player.updateFrags(
                         p.masterId, 
+                        date,
                         p.stats.time_on_server, 
                         p.stats.score, 
                         p.stats.frags, 
@@ -806,6 +807,7 @@ class PlayerManager{
                     //update gametype specific totals
                     await Player.updateFrags(
                         p.gametypeId, 
+                        date,
                         p.stats.time_on_server, 
                         p.stats.score, 
                         p.stats.frags, 
