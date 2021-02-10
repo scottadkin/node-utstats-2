@@ -1,7 +1,7 @@
 import PlayerListBox from '../PlayerListBox/'
 import styles from './PlayerList.module.css'
 
-function PlayersList({players, faces}){
+function PlayersList({players, faces, records}){
 
     const elems = [];
 
@@ -16,7 +16,6 @@ function PlayersList({players, faces}){
 
         currentFace = faces[players[i].face];
 
-        console.log(currentFace);
 
         if(!currentFace.imageExists){
             currentFace = {"name": "faceless"};
@@ -36,6 +35,7 @@ function PlayersList({players, faces}){
             face={currentFace.name}
             first={players[i].first}
             last={players[i].last}
+            records={records}
          
 
         />);

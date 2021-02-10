@@ -3,10 +3,11 @@ import DefaultHead from '../components/defaulthead'
 import Nav from '../components/Nav/'
 import Footer from '../components/Footer/'
 import PlayersList from '../components/PlayerList/'
-import PlayerManager from '../api/players'
+import PlayerManager from '../api/players';
 import Faces from '../api/faces'
+import Player from '../api/player';
 
-function Players(props){
+function Players({players, faces, records}){
 
     return (
         <div>
@@ -19,7 +20,7 @@ function Players(props){
                 <div className="default-header">
                     Players
                 </div>
-                <PlayersList players={props.players} faces={props.faces}/>
+                <PlayersList players={players} faces={faces} records={records}/>
                 </div>
             </div>
             <Footer />
@@ -46,15 +47,17 @@ export async function getServerSideProps(){
         }
     }
 
-    //console.log(facesToGet);
-
     let faces = await FaceManager.getFacesWithFileStatuses(facesToGet);
 
-    //console.log(faces);
+
+    let records = await Manager.getMaxValues(['matches','efficiency','score','kills','deaths']);
 
     players = JSON.stringify(players);
    // console.log(players);
     faces = JSON.stringify(faces);
+
+    console.log(records);
+    records = JSON.stringify(records);
 
     //console.log(faces);
 
@@ -62,6 +65,7 @@ export async function getServerSideProps(){
         props: {
             players,
             faces,
+            records
         }
     }
 }

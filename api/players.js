@@ -1,11 +1,12 @@
 const Promise = require('promise');
 const Player = require('./player');
 const mysql = require('./database');
+const { resolve } = require('promise');
 
 class Players{
 
     constructor(){
-
+        this.player = new Player();
     }
 
     debugGetAll(){
@@ -23,6 +24,24 @@ class Players{
                 resolve(result);
             });
         });
+    }
+
+    async getMaxValues(types){
+
+        try{
+
+            const data = {};
+
+            for(let i = 0; i < types.length; i++){
+
+                data[types[i]] = await this.player.getMaxValue(types[i]);
+            }
+
+            return data;
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

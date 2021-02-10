@@ -46,7 +46,7 @@ class Player{
             }
 
 
-            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,'','','',0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,'','','',0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0)`;
 
             mysql.query(query, [name, gametype], (err, result) =>{
@@ -187,13 +187,13 @@ class Player{
 
             if(gametype === undefined) gametype = 0;
 
-            let query = "UPDATE nstats_player_totals SET wins=wins+1 WHERE id=? AND gametype=?";
+            let query = "UPDATE nstats_player_totals SET wins=wins+1, winrate=(wins/matches)*100 WHERE id=? AND gametype=?";
 
             if(!win){
                 if(!drew){
-                    query = "UPDATE nstats_player_totals SET losses=losses+1 WHERE id=? AND gametype=?";
+                    query = "UPDATE nstats_player_totals SET losses=losses+1, winrate=(wins/matches)*100 WHERE id=? AND gametype=?";
                 }else{
-                    query = "UPDATE nstats_player_totals SET draws=draws+1 WHERE id=? AND gametype=?";
+                    query = "UPDATE nstats_player_totals SET draws=draws+1, winrate=(wins/matches)*100 WHERE id=? AND gametype=?";
                 }
             }
 
@@ -416,6 +416,42 @@ class Player{
                 resolve(data);
             });
         });
+    }
+
+
+    getMaxValue(type){
+
+        return new Promise((resolve, reject) =>{
+
+            type = type.toLowerCase();
+
+            //add winrate
+            const validTypes = ["playtime","score","frags","deaths","kills","matches","efficiency","winrate"];
+            
+            let data = 0;
+
+            const index = validTypes.indexOf(type);
+
+            if(index === -1){
+                resolve(0);
+            }
+
+            const query = `SELECT ${validTypes[index]} as type_result FROM nstats_player_totals WHERE gametype=0 ORDER BY ${validTypes[index]} DESC LIMIT 1`;
+
+            mysql.query(query, (err, result) =>{
+
+                
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    data = result[0].type_result;
+                }
+
+                resolve(data);
+            });
+
+        });
+    
     }
 
 

@@ -55,7 +55,8 @@ export default function PlayerListBox({
     deaths,
     face,
     first,
-    last
+    last,
+    records
 
 }){
 
@@ -85,7 +86,7 @@ export default function PlayerListBox({
 
     efficiency = Math.floor(efficiency * 100);
 
-    console.log(face);
+    records = JSON.parse(records);
 
     return (
         <div className={styles.outter}>
@@ -106,12 +107,12 @@ export default function PlayerListBox({
                         </div>
                      
                         <div className={styles.bars}>
-                            <TestBar title={"Matches"} value={matches} max={500}/>
+                            <TestBar title={"Matches"} value={matches} max={records.matches}/>
                             <TestBar title={"WinRate"} value={winRate} max={100} postFix="%"/> 
-                            <TestBar title={"Efficiency"} value={efficiency} max={100} postFix="%"/> 
-                            <TestBar title={"Score"} value={score} max={20000}/>
-                            <TestBar title={"Kills"} value={kills} max={20000}/>
-                            <TestBar title={"Deaths"} value={deaths} max={20000}/>
+                            <TestBar title={"Efficiency"} value={efficiency} max={records.efficiency} postFix="%"/> 
+                            <TestBar title={"Score"} value={score} max={records.score}/>
+                            <TestBar title={"Kills"} value={kills} max={records.kills}/>
+                            <TestBar title={"Deaths"} value={deaths} max={records.deaths}/>
                              
                         </div>             
                     </div>
