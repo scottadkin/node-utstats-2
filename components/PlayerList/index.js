@@ -14,10 +14,11 @@ function PlayersList({players, faces}){
 
     for(let i = 0; i < players.length; i++){
 
-
         currentFace = faces[players[i].face];
 
-        if(currentFace === null){
+        console.log(currentFace);
+
+        if(!currentFace.imageExists){
             currentFace = {"name": "faceless"};
         }
 
@@ -32,7 +33,7 @@ function PlayersList({players, faces}){
             score={players[i].score}
             kills={players[i].kills}
             deaths={players[i].deaths}
-            face={currentFace}
+            face={currentFace.name}
             first={players[i].first}
             last={players[i].last}
          
@@ -42,7 +43,6 @@ function PlayersList({players, faces}){
 
     return (
         <div className={styles.box}>
-            <PlayerListBox playerId={-1 }/>
             {elems}
         </div>
     );

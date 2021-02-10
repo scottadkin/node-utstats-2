@@ -59,23 +59,6 @@ export default function PlayerListBox({
 
 }){
 
-    if(playerId === -1){
-        return (<div></div>);
-        return (
-            <div className={styles.outter}>
-                <div className={styles.inneralt}>
-
-                    <div>
-                        Name
-                    </div>
-                    <div>Score</div>
-                    <div>Kills</div>
-                    <div>Winrate</div>
-                    <div>Matches</div>     
-                </div>         
-            </div>
-        )
-    }
 
     let winRate = Math.floor((wins / (wins + matches)) * 100);
     let efficiency = kills / (kills + deaths);
@@ -102,6 +85,8 @@ export default function PlayerListBox({
 
     efficiency = Math.floor(efficiency * 100);
 
+    console.log(face);
+
     return (
         <div className={styles.outter}>
             <Link href={`player/${playerId}`}>
@@ -109,11 +94,11 @@ export default function PlayerListBox({
                     <div className={styles.inner}>
                         <div className={styles.info}>
                             <div>
-                                <img className="country-flag" src={`images/flags/${Countires(country).code.toLowerCase()}.svg`} alt="flag" /> {name}<br/>
-                                <img className={styles.face} src={`/images/faces/faceless.png`} alt="image"/>
+                                {name}<br/>
+                                <img className={styles.face} src={`/images/faces/${face}.png`} alt="image"/>
                             </div>
                             <div>
-                                <span className="yellow">Location</span> {Countires(country).country}<br/>
+                                <span className="yellow">Location</span> <img className="country-flag" src={`images/flags/${Countires(country).code.toLowerCase()}.svg`} alt="flag" />  {Countires(country).country}<br/>
                                 <span className="yellow">Playtime</span> {(parseFloat(playtime) / (60 * 60)).toFixed(2)} Hours<br/>
                                 <span className="yellow">First Seen</span> <TimeStamp timestamp={first} /><br/>
                                 <span className="yellow">Last Seen</span> <TimeStamp timestamp={last} /><br/>

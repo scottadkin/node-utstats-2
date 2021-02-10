@@ -50,8 +50,6 @@ export async function getServerSideProps(){
 
     let faces = await FaceManager.getFacesWithFileStatuses(facesToGet);
 
-    console.log(faces);
-
     //console.log(faces);
 
     players = JSON.stringify(players);

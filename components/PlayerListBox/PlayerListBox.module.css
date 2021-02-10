@@ -48,6 +48,7 @@
     background-color:rgba(0,0,0,0.5);
     border:1px solid rgba(255,255,255,0.1);
     margin-top:4px;
+    
 }
 
 .bar_inner{
@@ -63,13 +64,15 @@
     margin-bottom:5px;
 }
 
-.bars{
-    
+.title{
+    font-size:14px;
 }
 
 .value{
     text-align:right;
     padding-right:5px;
+    font-size:14px;
+    
 }
 
 .info{
@@ -90,4 +93,6 @@
 
 .face{
     margin-top:5px;
+    border:1px solid rgba(255,255,255,0.1);
 }
+
