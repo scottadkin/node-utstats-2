@@ -92,7 +92,11 @@
 }
 
 .face{
-    margin-top:5px;
     border:1px solid rgba(255,255,255,0.1);
 }
 
+.name{
+    display:block;
+    padding-top:5px;
+    color:yellow;
+}

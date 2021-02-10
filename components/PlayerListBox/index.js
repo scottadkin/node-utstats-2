@@ -56,7 +56,8 @@ export default function PlayerListBox({
     face,
     first,
     last,
-    records
+    records,
+    accuracy
 
 }){
 
@@ -95,7 +96,7 @@ export default function PlayerListBox({
                     <div className={styles.inner}>
                         <div className={styles.info}>
                             <div>
-                                {name}<br/>
+                                <span className={styles.name}>{name}</span><br/>
                                 <img className={styles.face} src={`/images/faces/${face}.png`} alt="image"/>
                             </div>
                             <div>
@@ -108,7 +109,8 @@ export default function PlayerListBox({
                      
                         <div className={styles.bars}>
                             <TestBar title={"Matches"} value={matches} max={records.matches}/>
-                            <TestBar title={"WinRate"} value={winRate} max={100} postFix="%"/> 
+                            <TestBar title={"WinRate"} value={winRate} max={records.winrate} postFix="%"/> 
+                            <TestBar title={"Accuracy"} value={accuracy} max={records.accuracy} postFix="%"/> 
                             <TestBar title={"Efficiency"} value={efficiency} max={records.efficiency} postFix="%"/> 
                             <TestBar title={"Score"} value={score} max={records.score}/>
                             <TestBar title={"Kills"} value={kills} max={records.kills}/>

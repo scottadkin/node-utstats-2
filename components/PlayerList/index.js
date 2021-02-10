@@ -36,6 +36,7 @@ function PlayersList({players, faces, records}){
             first={players[i].first}
             last={players[i].last}
             records={records}
+            accuracy={parseInt(players[i].accuracy)}
          
 
         />);
