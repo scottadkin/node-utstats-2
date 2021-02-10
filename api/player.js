@@ -424,9 +424,6 @@ class Player{
         return new Promise((resolve, reject) =>{
 
             type = type.toLowerCase();
-
-            console.log(type);
-
             //add winrate
             const validTypes = ["playtime","score","frags","deaths","kills","matches","efficiency","winrate","accuracy"];
             

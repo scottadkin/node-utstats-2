@@ -27,7 +27,6 @@ const TestBar = ({title, value, max, postFix}) =>{
 
     let color = "green";
 
-
     color = `rgb(${255 - (percent * 2.25)},255,${255 - (percent * 2.25)})`;
 
     return (<div className={styles.obar}>
