@@ -7,15 +7,18 @@ import PlayerManager from '../api/players';
 import Faces from '../api/faces'
 import Player from '../api/player';
 import Pagination from '../components/Pagination/';
-import {useEffect, useRef} from 'react'; 
+
 
 class Players extends React.Component{
 
     constructor(props){
+
         super(props);
-        this.state = {"value": this.props.sortType, "order": this.props.order}
+
+        this.state = {"value": this.props.sortType, "order": this.props.order, "name": this.props.name}
         this.handleSortChange = this.handleSortChange.bind(this);
         this.handleOrderChange = this.handleOrderChange.bind(this);
+        this.handleNameChange = this.handleNameChange.bind(this);
     }
 
     handleSortChange(event){
@@ -28,12 +31,17 @@ class Players extends React.Component{
         this.setState({"order": event.target.value});
     }
 
+    handleNameChange(event){
+
+        this.setState({"name": event.target.value});
+    }
+
     render(){
 
         const perPage = 5;
         const pages = Math.ceil(this.props.totalPlayers / perPage);
 
-        let url = `/players?sortType=${this.state.value}&order=${this.state.order}&page=`;
+        let url = `/players?sortType=${this.state.value}&order=${this.state.order}&name=${this.state.name}&page=`;
 
 
         return (
@@ -47,20 +55,27 @@ class Players extends React.Component{
                     <div className="default-header">
                         Players
                     </div>
-                    <label for="sort-type">Sort Type</label>
-                    <select id="sort-type" name="sort-type" value={this.state.value} onChange={this.handleSortChange}>
-                        <option value="name">Name</option>
-                        <option value="country">Country</option>
-                        <option value="matches">Matches</option>
-                        <option value="score">Score</option>
-                        <option value="kills">Kills</option>
-                        <option value="deaths">Deaths</option>
-                    </select>
-                    <label for="order-type">Order</label>
-                    <select id="order-type" value={this.state.order} name="order-type" onChange={this.handleOrderChange}>
-                        <option value="ASC">Ascending</option>
-                        <option value="DESC">Descending</option>
-                    </select>
+                    <input type="text" name="name" id="name" className="default-textbox" placeholder="Player Name..." value={this.state.name} 
+                    onChange={this.handleNameChange}/>
+                    <div className="select-row">
+                        <div className="select-label">Sort Type</div>
+                        <select id="sort-type" className="default-select" name="sort-type" value={this.state.value} onChange={this.handleSortChange}>
+                            <option value="name">Name</option>
+                            <option value="country">Country</option>
+                            <option value="matches">Matches</option>
+                            <option value="score">Score</option>
+                            <option value="kills">Kills</option>
+                            <option value="deaths">Deaths</option>
+                        </select>
+                    </div>
+                    <div className="select-row">
+                        <div className="select-label">Order</div>
+                        <select id="order-type" className="default-select"  value={this.state.order} name="order-type" onChange={this.handleOrderChange}>
+                            <option value="ASC">Ascending</option>
+                            <option value="DESC">Descending</option>
+                        </select>
+                    </div>
+                    <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                     <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={perPage} results={this.props.totalPlayers}/>
                     <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records}/>
                     </div>
@@ -71,48 +86,6 @@ class Players extends React.Component{
         );
     }
 }
-
-/*
-function Players({page, players, totalPlayers, faces, records}){
-
-    const perPage = 5;
-    const pages = Math.ceil(totalPlayers / perPage);
-
-    let url = "/players?sort=name&page=";
-
-    const options = JSON.stringify(['test','test2','fart']);
-    
-    const option = useRef(null);
-
-
-    return (
-        <div>
-            <DefaultHead />
-            
-            <main>
-            <Nav />
-            <div id="content">
-                <div className="default">
-                <div className="default-header">
-                    Players
-                </div>
-                <select id="sort-type" ref={option}>
-                    <option value="name">Name</option>
-                    <option value="country">Country</option>
-                    <option value="matches">Matches</option>
-                    <option value="score">Score</option>
-                    <option value="kills">Kills</option>
-                    <option value="deaths">Deaths</option>
-                </select>
-                <Pagination url={url} options={options} currentPage={page} pages={pages} perPage={perPage} results={totalPlayers}/>
-                <PlayersList players={players} faces={faces} records={records}/>
-                </div>
-            </div>
-            <Footer />
-            </main>   
-        </div>
-    );
-}*/
 
 export async function getServerSideProps({query}){
 
@@ -145,12 +118,16 @@ export async function getServerSideProps({query}){
         }
     }
 
-    
+    let name = '';
 
-    console.log(`sortType = ${sortType}`);
-    let players = await Manager.getPlayers(page, 5, sortType, order);
+    if(query.name !== undefined){
+        name = query.name;
+    }
+
+
+    let players = await Manager.getPlayers(page, 5, sortType, order, name);
     //let players = await Manager.debugGetAll();
-    let totalPlayers = await Manager.getTotalPlayers();
+    let totalPlayers = await Manager.getTotalPlayers(name);
 
     const facesToGet = [];
 
@@ -181,7 +158,8 @@ export async function getServerSideProps({query}){
             faces,
             records,
             sortType,
-            order
+            order, 
+            name
         }
     }
 }

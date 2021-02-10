@@ -25,18 +25,37 @@ class Players{
         });
     }
 
-    getTotalPlayers(){
+    getTotalPlayers(name){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0";
+            let query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0";
+            let vars = [];
 
-            mysql.query(query, (err, result) =>{
+            if(name !== undefined){
+                query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND name LIKE(?) ";
+                vars = [`%${name}%`]
+            }
 
-                if(err) reject(err);
+            if(name === undefined){
 
-                resolve(result[0].total_players);
-            });
+                mysql.query(query, (err, result) =>{
+
+                    if(err) reject(err);
+
+                    resolve(result[0].total_players);
+                });
+
+            }else{
+
+                mysql.query(query, vars, (err, result) =>{
+
+                    if(err) console.log(err);//reject(err);
+
+                    resolve(result[0].total_players);
+                });
+
+            }
         });
     }
 
@@ -59,7 +78,7 @@ class Players{
     }
 
 
-    getPlayers(page, perPage, sort, order){
+    getPlayers(page, perPage, sort, order, name){
 
         return new Promise((resolve, reject) =>{
 
@@ -95,10 +114,15 @@ class Players{
 
             console.log(`search type = ${validTypes[index]}`);
 
-            const query = `SELECT * FROM nstats_player_totals WHERE gametype=0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+            let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+            let vars = [start, perPage];
 
+            if(name !== ''){
+                query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND name LIKE(?) ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+                vars = [`%${name}%`, start, perPage];
+            }
 
-            mysql.query(query, [start, perPage], (err, result) =>{
+            mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
 
