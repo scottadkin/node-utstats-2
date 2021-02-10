@@ -6,8 +6,9 @@ import PlayersList from '../components/PlayerList/'
 import PlayerManager from '../api/players';
 import Faces from '../api/faces'
 import Player from '../api/player';
+import Pagination from '../components/Pagination/';
 
-function Players({players, faces, records}){
+function Players({page, players, faces, records}){
 
     return (
         <div>
@@ -20,6 +21,7 @@ function Players({players, faces, records}){
                 <div className="default-header">
                     Players
                 </div>
+                <Pagination url="/players?sort=name&page=" currentPage={page} pages="100" perPage="20" results="999999"/>
                 <PlayersList players={players} faces={faces} records={records}/>
                 </div>
             </div>
@@ -31,10 +33,20 @@ function Players({players, faces, records}){
 
 
 
-export async function getServerSideProps(){
+export async function getServerSideProps({query}){
 
     const Manager = new PlayerManager();
     const FaceManager = new Faces();
+
+    let page = 1;
+
+    if(query.page !== undefined){
+        page = parseInt(query.page);
+
+        if(page !== page){
+            page = 1;
+        }
+    }
 
     let players = await Manager.debugGetAll();
 
@@ -63,6 +75,7 @@ export async function getServerSideProps(){
 
     return {
         props: {
+            page,
             players,
             faces,
             records

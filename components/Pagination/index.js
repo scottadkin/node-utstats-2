@@ -6,6 +6,10 @@ const PageButton = ({url, page, anchor, current}) =>{
 
     let currentClass = styles.button;
 
+    if(anchor === undefined){
+        anchor = '';
+    }
+
     if(current !== undefined){
         currentClass = styles.abutton;
 

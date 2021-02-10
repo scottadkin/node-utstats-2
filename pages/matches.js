@@ -1,8 +1,8 @@
 
-import DefaultHead from '../../components/defaulthead';
-import Nav from '../../components/Nav/';
-import Footer from '../../components/Footer/';
-import Match from '../../api/match';
+import DefaultHead from '../components/defaulthead';
+import Nav from '../components/Nav';
+import Footer from '../components/Footer';
+import Match from '../api/match';
 import Link from 'next/link';
 
 const Matches = ({matches}) =>{
