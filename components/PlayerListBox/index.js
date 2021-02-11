@@ -56,10 +56,16 @@ export default function PlayerListBox({
     first,
     last,
     records,
-    accuracy
+    accuracy,
+    displayType
 
 }){
 
+    console.log(displayType);
+    if(displayType){
+
+        return;
+    }
 
     let winRate = Math.floor((wins / (wins + matches)) * 100);
     let efficiency = kills / (kills + deaths);

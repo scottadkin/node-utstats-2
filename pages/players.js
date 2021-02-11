@@ -14,8 +14,6 @@ class Players extends React.Component{
 
         super(props);
 
-        console.log(this.props.displayType);
-
         this.state = {
             "value": this.props.sortType, 
             "order": this.props.order, 
@@ -28,7 +26,7 @@ class Players extends React.Component{
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handlePerPageChange = this.handlePerPageChange.bind(this);
-        this.handleDisplayTypeChange = this.handleDisplayTypeChange(this);
+        this.handleDisplayTypeChange = this.handleDisplayTypeChange.bind(this);
     }
 
     handleSortChange(event){
@@ -51,8 +49,7 @@ class Players extends React.Component{
     }
 
     handleDisplayTypeChange(event){
-        //console.log(event);
-        //this.setState({"displayType": parseInt(event.target.value)});
+        this.setState({"displayType": parseInt(event.target.value)});
     }
 
     render(){
@@ -109,7 +106,8 @@ class Players extends React.Component{
                         <div className="select-label">Display</div>
                         <div className="default-radios" id="displayType">
                             
-                            <div onChange={this.handleDisplayTypeChange} value={this.state.displayType}>
+                            <div id="d-type" onChange={this.handleDisplayTypeChange}
+                            value={this.state.displayType}>
                                 Default
                                 <input type="radio" name="displayType" defaultChecked value="0"/>
                                 Table
