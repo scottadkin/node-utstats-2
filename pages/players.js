@@ -14,6 +14,8 @@ class Players extends React.Component{
 
         super(props);
 
+        console.log(this.props.displayType);
+
         this.state = {
             "value": this.props.sortType, 
             "order": this.props.order, 
@@ -49,7 +51,7 @@ class Players extends React.Component{
     }
 
     handleDisplayTypeChange(event){
-        console.log(event);
+        //console.log(event);
         //this.setState({"displayType": parseInt(event.target.value)});
     }
 
@@ -94,10 +96,10 @@ class Players extends React.Component{
                     </div>
                     <div className="select-row">
                         <div className="select-label">Display Per Page</div>
-                        <select id="perPage" name="perPage" className="default-select" onChange={this.handlePerPageChange}>
+                        <select id="perPage" value={this.state.perPage} name="perPage" className="default-select" onChange={this.handlePerPageChange}>
                             <option value="5">5</option>
                             <option value="10">10</option>
-                            <option value="25" selected>25</option>
+                            <option value="25">25</option>
                             <option value="50">50</option>
                             <option value="75">75</option>
                             <option value="100">100</option>
@@ -105,17 +107,20 @@ class Players extends React.Component{
                     </div>
                     <div className="select-row">
                         <div className="select-label">Display</div>
-                        <div className="default-radios">
-                            Default
-                            <input type="radio" name="displayType" id="displayType" value="0" checked onChange={this.handleDisplayTypeChange}/>
-                            Table
-                            <input type="radio" name="displayType" id="displayType" value="1" onChange={this.handleDisplayTypeChange}/>
+                        <div className="default-radios" id="displayType">
+                            
+                            <div onChange={this.handleDisplayTypeChange} value={this.state.displayType}>
+                                Default
+                                <input type="radio" name="displayType" defaultChecked value="0"/>
+                                Table
+                                <input type="radio" name="displayType" value="1"/>
+                            </div>
                         </div>
                     </div>
                     <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                     
                     <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>
-                    <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records}/>
+                    <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records} displayType={this.state.displayType}/>
                     </div>
                 </div>
                 <Footer />
