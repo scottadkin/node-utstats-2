@@ -82,6 +82,8 @@ class Players extends React.Component{
                             <option value="score">Score</option>
                             <option value="kills">Kills</option>
                             <option value="deaths">Deaths</option>
+                            <option value="first">First</option>
+                            <option value="last">Last</option>
                         </select>
                     </div>
                     <div className="select-row">
@@ -118,7 +120,9 @@ class Players extends React.Component{
                     <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                     
                     <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>
-                    <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records} displayType={this.state.displayType}/>
+                    <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records} displayType={this.state.displayType}
+                        searchTerms={JSON.stringify(this.state)}
+                    />
                     </div>
                 </div>
                 <Footer />
@@ -210,7 +214,7 @@ export async function getServerSideProps({query}){
 
     let faces = await FaceManager.getFacesWithFileStatuses(facesToGet);
 
-    let records = await Manager.getMaxValues(['matches','efficiency','score','kills','deaths','winrate','accuracy']);
+    let records = await Manager.getMaxValues(['matches','efficiency','score','kills','deaths','winrate','accuracy','first','last']);
 
     players = JSON.stringify(players);
    // console.log(players);

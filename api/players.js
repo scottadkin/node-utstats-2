@@ -80,6 +80,7 @@ class Players{
 
     getPlayers(page, perPage, sort, order, name){
 
+
         return new Promise((resolve, reject) =>{
 
             page = page - 1;
@@ -97,12 +98,17 @@ class Players{
                 'wins',
                 'loses',
                 'draws',
-                'matches'
+                'matches',
+                'first',
+                'last',
+                'deaths',
+                'efficiency',
+                'accuracy'
             ];
 
             sort = sort.toLowerCase();
 
-            const index = validTypes.indexOf(sort);
+            let index = validTypes.indexOf(sort);
 
             if(index === -1){
                 index = 0;
@@ -111,8 +117,6 @@ class Players{
             if(order !== 'ASC' && order !== 'DESC'){
                 order = 'ASC';
             }
-
-            console.log(`search type = ${validTypes[index]}`);
 
             let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
             let vars = [start, perPage];
