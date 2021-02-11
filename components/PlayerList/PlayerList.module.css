@@ -1,0 +1,7 @@
+.table td{
+    padding:5px 5px;
+}
+
+.table td:nth-child(1){
+    text-align:left;
+}

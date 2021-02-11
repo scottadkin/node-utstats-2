@@ -52,7 +52,7 @@ const getOrdinal = (number) =>{
     return 'th';
 }
 
-const convertTimestamp = ({timestamp}) =>{
+const convertTimestamp = ({timestamp, noDayName, noTime}) =>{
 
     const now = new Date();
     now.setTime(timestamp * 1000);
@@ -66,7 +66,19 @@ const convertTimestamp = ({timestamp}) =>{
     
     if(minute < 10) minute = `0${minute}`;
 
-    return `${getDayName(dayName)} ${day}${getOrdinal(day)} ${getMonthName(month)} ${year}  ${hour}:${minute}`;
+    let dayNameString = `${getDayName(dayName)} `;
+
+    if(noDayName !== undefined){
+        dayNameString = '';
+    }
+
+    let timeString = ` ${hour}:${minute}`;
+
+    if(noTime !== undefined){
+        timeString = '';
+    }
+
+    return `${dayNameString}${day}${getOrdinal(day)} ${getMonthName(month)} ${year}${timeString}`;
 
 }
 
