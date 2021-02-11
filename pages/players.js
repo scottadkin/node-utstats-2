@@ -59,6 +59,17 @@ class Players extends React.Component{
         let url = `/players?sortType=${this.state.value}&order=${this.state.order}&name=${this.state.name}&perPage=${this.state.perPage}&displayType=${this.state.displayType}&page=`;
 
 
+        let radio1 = <input type="radio" name="displayType" value="0"/>;
+
+        if(this.state.displayType === 0){
+            radio1 = <input type="radio" name="displayType" defaultChecked value="0"/>
+        }
+
+        let radio2 = <input type="radio" name="displayType" value="1"/>
+        if(this.state.displayType === 1){
+            radio2 = <input type="radio" name="displayType" defaultChecked value="0"/>
+        }
+
         return (
             <div>
                 <DefaultHead />
@@ -111,9 +122,9 @@ class Players extends React.Component{
                             <div id="d-type" onChange={this.handleDisplayTypeChange}
                             value={this.state.displayType}>
                                 Default
-                                <input type="radio" name="displayType" defaultChecked value="0"/>
+                                {radio1}
                                 Table
-                                <input type="radio" name="displayType" value="1"/>
+                                {radio2}
                             </div>
                         </div>
                     </div>
