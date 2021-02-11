@@ -4,8 +4,7 @@ import Nav from '../components/Nav/'
 import Footer from '../components/Footer/'
 import PlayersList from '../components/PlayerList/'
 import PlayerManager from '../api/players';
-import Faces from '../api/faces'
-import Player from '../api/player';
+import Faces from '../api/faces';
 import Pagination from '../components/Pagination/';
 
 
@@ -15,10 +14,19 @@ class Players extends React.Component{
 
         super(props);
 
-        this.state = {"value": this.props.sortType, "order": this.props.order, "name": this.props.name}
+        this.state = {
+            "value": this.props.sortType, 
+            "order": this.props.order, 
+            "name": this.props.name, 
+            "perPage": this.props.perPage,
+            "displayType": this.props.displayType
+        }
+
         this.handleSortChange = this.handleSortChange.bind(this);
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
+        this.handlePerPageChange = this.handlePerPageChange.bind(this);
+        this.handleDisplayTypeChange = this.handleDisplayTypeChange(this);
     }
 
     handleSortChange(event){
@@ -32,16 +40,24 @@ class Players extends React.Component{
     }
 
     handleNameChange(event){
+        this.setState({"name": event.target.value});    
+    }
 
-        this.setState({"name": event.target.value});
+    handlePerPageChange(event){
+        
+        this.setState({"perPage": parseInt(event.target.value)});
+    }
+
+    handleDisplayTypeChange(event){
+        console.log(event);
+        //this.setState({"displayType": parseInt(event.target.value)});
     }
 
     render(){
 
-        const perPage = 5;
-        const pages = Math.ceil(this.props.totalPlayers / perPage);
+        const pages = Math.ceil(this.props.totalPlayers / this.props.perPage);
 
-        let url = `/players?sortType=${this.state.value}&order=${this.state.order}&name=${this.state.name}&page=`;
+        let url = `/players?sortType=${this.state.value}&order=${this.state.order}&name=${this.state.name}&perPage=${this.state.perPage}&displayType=${this.state.displayType}&page=`;
 
 
         return (
@@ -55,11 +71,12 @@ class Players extends React.Component{
                     <div className="default-header">
                         Players
                     </div>
-                    <input type="text" name="name" id="name" className="default-textbox" placeholder="Player Name..." value={this.state.name} 
+                    
+                    <input type="text" name="name" id="name" autoComplete="off" className="default-textbox" placeholder="Player Name..." value={this.state.name} 
                     onChange={this.handleNameChange}/>
                     <div className="select-row">
                         <div className="select-label">Sort Type</div>
-                        <select id="sort-type" className="default-select" name="sort-type" value={this.state.value} onChange={this.handleSortChange}>
+                        <select id="sortType" className="default-select" name="sortType" value={this.state.value} onChange={this.handleSortChange}>
                             <option value="name">Name</option>
                             <option value="country">Country</option>
                             <option value="matches">Matches</option>
@@ -75,8 +92,29 @@ class Players extends React.Component{
                             <option value="DESC">Descending</option>
                         </select>
                     </div>
+                    <div className="select-row">
+                        <div className="select-label">Display Per Page</div>
+                        <select id="perPage" name="perPage" className="default-select" onChange={this.handlePerPageChange}>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="75">75</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <div className="select-row">
+                        <div className="select-label">Display</div>
+                        <div className="default-radios">
+                            Default
+                            <input type="radio" name="displayType" id="displayType" value="0" checked onChange={this.handleDisplayTypeChange}/>
+                            Table
+                            <input type="radio" name="displayType" id="displayType" value="1" onChange={this.handleDisplayTypeChange}/>
+                        </div>
+                    </div>
                     <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
-                    <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={perPage} results={this.props.totalPlayers}/>
+                    
+                    <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>
                     <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records}/>
                     </div>
                 </div>
@@ -99,6 +137,35 @@ export async function getServerSideProps({query}){
 
         if(page !== page){
             page = 1;
+        }
+    }
+
+    const defaultPerPage = 25;
+    let perPage = defaultPerPage;
+
+    if(query.perPage !== undefined){
+
+        perPage = parseInt(query.perPage);
+
+        if(perPage !== perPage){
+            perPage = defaultPerPage;
+        }
+
+        if(perPage > 100){
+            perPage = defaultPerPage25;
+        }else if(perPage < 1){
+            perPage = 1;
+        }
+    }
+
+    let displayType = 0;
+
+    if(query.displayType !== undefined){
+
+        displayType = parseInt(query.displayType);
+
+        if(displayType !== 0 && displayType !== 1){
+            displayType = 0;
         }
     }
 
@@ -125,7 +192,7 @@ export async function getServerSideProps({query}){
     }
 
 
-    let players = await Manager.getPlayers(page, 5, sortType, order, name);
+    let players = await Manager.getPlayers(page, perPage, sortType, order, name);
     //let players = await Manager.debugGetAll();
     let totalPlayers = await Manager.getTotalPlayers(name);
 
@@ -159,7 +226,9 @@ export async function getServerSideProps({query}){
             records,
             sortType,
             order, 
-            name
+            name,
+            perPage,
+            displayType
         }
     }
 }

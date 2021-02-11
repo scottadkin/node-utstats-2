@@ -61,18 +61,17 @@
     display:grid;
     grid-template-columns: 100px 100px auto;
     font-size:12px;
-    margin-bottom:5px;
+    margin-bottom:2px;
 }
 
 .title{
-    font-size:14px;
+    font-size:12px;
 }
 
 .value{
     text-align:right;
     padding-right:5px;
-    font-size:14px;
-    
+    font-size:12px; 
 }
 
 .info{
