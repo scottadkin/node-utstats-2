@@ -1,0 +1,39 @@
+.wrapper{
+    background-color:rgb(0,0,0);
+    width:150px;
+    border:1px solid rgba(255,255,255,0.25);
+    color:white;
+    border-radius: 16px;
+    position:relative;
+    height:25px;
+    font-size:12px;
+    overflow:hidden;
+    user-select:none;
+}
+
+.wrapper:hover{
+    cursor:pointer;
+}
+
+.option, .option2{
+    width:50px;
+    position:absolute;
+    height:18px;
+    padding:5px;
+    color:yellow;
+}
+
+.option2{
+    margin-left:100px;
+}
+
+.slider{
+    background-color:rgb(64,64,64);
+    border:1px solid rgba(255,255,255,0.5);
+    height:25px;
+    margin-top:-1px;
+    margin-left:-1px;
+    width:75px;
+    position:absolute;
+    transition:all 0.125s;
+}

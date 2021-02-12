@@ -76,6 +76,11 @@ const Pagination = ({currentPage, results, pages, perPage, url, anchor}) =>{
         }
     }
 
+    if(results === 0){
+        return (<div className={styles.wrapper}>
+        </div>);
+    }
+
     return (<div className={styles.wrapper}>
 
         <div className={styles.header}>

@@ -380,3 +380,8 @@ td{
   color:white;
   padding:10px;
 }
+
+input[type="range"]{
+  background-color:red;
+  color:green;
+}

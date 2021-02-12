@@ -6,6 +6,7 @@ import PlayersList from '../components/PlayerList/'
 import PlayerManager from '../api/players';
 import Faces from '../api/faces';
 import Pagination from '../components/Pagination/';
+import Option2 from '../components/Option2';
 
 
 class Players extends React.Component{
@@ -27,6 +28,8 @@ class Players extends React.Component{
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handlePerPageChange = this.handlePerPageChange.bind(this);
         this.handleDisplayTypeChange = this.handleDisplayTypeChange.bind(this);
+        this.selectDisplay1 = this.selectDisplay1.bind(this);
+        this.selectDisplay2 = this.selectDisplay2.bind(this);
     }
 
     handleSortChange(event){
@@ -50,6 +53,16 @@ class Players extends React.Component{
 
     handleDisplayTypeChange(event){
         this.setState({"displayType": parseInt(event.target.value)});
+    }
+
+    selectDisplay1(){
+
+        this.setState({"displayType": 0});
+    }
+
+    selectDisplay2(){
+
+        this.setState({"displayType": 1});
     }
 
     render(){
@@ -132,20 +145,14 @@ class Players extends React.Component{
                             <option value="100">100</option>
                         </select>
                     </div>
+
                     <div className="select-row">
                         <div className="select-label">Display</div>
-                        <div className="default-radios" id="displayType">
-                            
-                            <div id="d-type" onChange={this.handleDisplayTypeChange}
-                            value={this.state.displayType}>
-                                Default
-                                {radio1}
-                                Table
-                                {radio2}
-                            </div>
-                        </div>
+                        <Option2 title1="Default" title2="Table" value={this.state.displayType} leftEvent={this.selectDisplay1} rightEvent={this.selectDisplay2}/>
                     </div>
-                    <input type="range" min="1" max="2" value="1"/>
+
+                    
+                    
                     <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                     
                     {paginationElem}
