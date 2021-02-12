@@ -57,6 +57,7 @@ class PlayersList extends React.Component{
 
         let players = JSON.parse(this.props.players);
 
+
         let faces = JSON.parse(this.props.faces);
 
         let currentFace = 0;

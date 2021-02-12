@@ -70,6 +70,23 @@ class Players extends React.Component{
             radio2 = <input type="radio" name="displayType" defaultChecked value="0"/>
         }
 
+        let pList = '';
+        let paginationElem = '';
+
+        const parsedPlayers = JSON.parse(this.props.players);
+
+        if(parsedPlayers.length > 0){
+
+            pList = <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records} displayType={this.state.displayType}
+                        searchTerms={JSON.stringify(this.state)}/>
+            paginationElem = <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>;
+        }else{
+
+            pList = <div className="not-found">There are no matches for your search terms.</div>
+            paginationElem = '';
+        }
+
+
         return (
             <div>
                 <DefaultHead />
@@ -128,12 +145,11 @@ class Players extends React.Component{
                             </div>
                         </div>
                     </div>
+                    <input type="range" min="1" max="2" value="1"/>
                     <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                     
-                    <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>
-                    <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records} displayType={this.state.displayType}
-                        searchTerms={JSON.stringify(this.state)}
-                    />
+                    {paginationElem}
+                    {pList}
                     </div>
                 </div>
                 <Footer />
