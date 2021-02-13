@@ -6,7 +6,8 @@ import MatchesManager from '../api/matches';
 import MatchesTableView from '../components/MatchesTableView/';
 import Gametypes from '../api/gametypes';
 import Functions from '../api/functions';
-import Servers from '../api/servers'
+import Servers from '../api/servers';
+import Maps from '../api/maps';
 
 const Matches = ({matches}) =>{
 
@@ -40,10 +41,13 @@ export async function getServerSideProps({query}){
     const matchManager = new MatchesManager();
     const gametypeManager = new Gametypes();
     const serverManager = new Servers();
+    const mapManager = new Maps();
 
     const matches = await matchManager.debugGetAll();
     const uniqueGametypes = Functions.getUniqueValues(matches, 'gametype');
     const uniqueServers = Functions.getUniqueValues(matches, 'server');
+    const uniqueMaps = Functions.getUniqueValues(matches, 'map');
+
 
     let gametypeNames = {};
 
@@ -57,15 +61,17 @@ export async function getServerSideProps({query}){
         serverNames = await serverManager.getNames(uniqueServers);
     }
 
+    let mapNames = {};
+
+    if(uniqueMaps.length > 0){
+        mapNames = await mapManager.getNames(uniqueMaps);
+    }
+    
     console.log(matches[0]);
-
-    console.log(uniqueGametypes);
-    console.log(JSON.stringify(gametypeNames));
-
-    console.log(serverNames);
 
     Functions.setIdNames(matches, gametypeNames, 'gametype', 'gametypeName');
     Functions.setIdNames(matches, serverNames, 'server', 'serverName');
+    Functions.setIdNames(matches, mapNames, 'map', 'mapName');
 
     console.log(matches[0]);
     return {

@@ -112,8 +112,8 @@ class Functions{
     /**
      * Modify an array of objects by inserting a new key into each object with the ids matching value
      * @param {*} data Array of Objects to modify
-     * @param {*} names Names for ids e.g 1 => 'a name'
-     * @param {*} key What key to find the id we need e.g a[key]
+     * @param {*} names Object/Array of id -> name pairs, e.g {"1": 'a name'}
+     * @param {*} key What key holds the data for the id we need e.g a[key]
      * @param {*} newKey What key to create with the matching id's name e.g a[newKey]=value
      */
     static setIdNames(data, names, key, newKey){
@@ -131,7 +131,6 @@ class Functions{
             }else{
                 d[newKey] = 'Not Found';
             }
-
         }
     }
 

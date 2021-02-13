@@ -236,6 +236,10 @@ class Maps{
         return name;
     }
 
+    /**
+     *  old get names by id function, use getNames instead
+     * @param {*} ids 
+     */
 
     getNamesByIds(ids){
 
@@ -294,6 +298,31 @@ class Maps{
 
         return `/images/temp.jpg`;
 
+    }
+
+    getNames(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            const data = {};
+
+            const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data[result[i].id] = this.removeUnr(result[i].name);
+                    }
+                }
+
+                resolve(data);
+            });
+        });
     }
 
 }

@@ -97,7 +97,7 @@ class Matches{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_matches ORDER BY date DESC, id DESC LIMIT 100";
+            const query = "SELECT * FROM nstats_matches ORDER BY date DESC, id DESC LIMIT 25";
 
             mysql.query(query, (err, result) =>{
 
