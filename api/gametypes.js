@@ -158,13 +158,17 @@ class Gametypes{
 
                 if(err) reject(err);
 
-                const data = [];
+                //const data = [];
+
+                const data = {};
 
                 if(result !== undefined){
                     
                     for(let i = 0; i < result.length; i++){
-                        data[result[i].id] = result[i].name;
+                       // data[result[i].id] = result[i].name;
+                       data[result[i].id] = result[i].name;
                     }
+                    
                 }
 
                 resolve(data);

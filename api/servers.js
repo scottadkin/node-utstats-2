@@ -253,6 +253,31 @@ class Servers{
             });
         });
     }
+
+    getNames(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            if(ids.length === 0) resolve([]);
+
+            const query = "SELECT id,name FROM nstats_servers WHERE id IN(?)";
+
+            const data = {};
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    for(let i = 0; i < result.length; i++){
+                        data[result[i].id] = result[i].name;
+                    }
+                }
+                resolve(data);
+            });
+        });
+    }
 }
 
 module.exports = Servers;
