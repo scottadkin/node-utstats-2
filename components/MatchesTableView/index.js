@@ -11,11 +11,9 @@ class MatchesTableView extends React.Component{
     }
 
 
-    createRows(){
+    createRows(matches){
 
-        const rows = [];
-
-        const matches = JSON.parse(this.props.data);
+        const rows = [];    
 
         let m = 0;
 
@@ -53,8 +51,14 @@ class MatchesTableView extends React.Component{
 
     render(){
 
-        const rows = this.createRows();
+        const matches = JSON.parse(this.props.data);
 
+        const rows = this.createRows(matches);
+
+
+        if(matches.length === 0){
+            return (<div className="not-found">There are no matches meeting your search requirements.</div>);
+        }
 
 
         return (

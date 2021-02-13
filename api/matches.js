@@ -113,12 +113,17 @@ class Matches{
     }
 
 
-    getRecent(page, perPage){
+    getRecent(page, perPage, gametype){
 
         return new Promise((resolve, reject) =>{
 
             page = parseInt(page);
             perPage = parseInt(perPage);
+            gametype = parseInt(gametype);
+
+            if(gametype !== gametype){
+                gametype = 0;
+            }
 
             if(page !== page){
                 page = 0;
@@ -130,11 +135,15 @@ class Matches{
 
             const start = page * perPage;
 
-            let query = `SELECT * FROM nstats_matches ORDER BY date DESC, id DESC LIMIT ?, ?`;
+            let query = `SELECT * FROM nstats_matches WHERE gametype=? ORDER BY date DESC, id DESC LIMIT ?, ?`;
+            let vars = [gametype, start, perPage];
 
-            console.log(start, perPage);
+            if(gametype === 0){
+                query = `SELECT * FROM nstats_matches ORDER BY date DESC, id DESC LIMIT ?, ?`;
+                vars = [ start, perPage];
+            }
 
-            mysql.query(query, [start, perPage], (err, result) =>{
+            mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
 
@@ -148,13 +157,32 @@ class Matches{
     }
 
 
-    getTotal(){
+    getTotal(gametype){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT COUNT(*) as total_matches FROM nstats_matches";
+            if(gametype === undefined){
+                gametype = 0;
+            }else{
+                gametype = parseInt(gametype);
 
-            mysql.query(query, (err, result) =>{
+                if(gametype !== gametype){
+                    gametype = 0;
+                }
+
+            }
+
+           
+
+            let query = "SELECT COUNT(*) as total_matches FROM nstats_matches";
+            let vars = [];
+
+            if(gametype !== 0){
+                query = "SELECT COUNT(*) as total_matches FROM nstats_matches WHERE gametype=?";
+                vars = [gametype];
+            }
+
+            mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
 

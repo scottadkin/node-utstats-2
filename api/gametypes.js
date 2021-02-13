@@ -175,6 +175,30 @@ class Gametypes{
             });
         });
     }
+
+
+    getAllNames(){
+
+        return new Promise((resolve, reject) =>{
+
+            const data = {};
+
+            const query = "SELECT id,name FROM nstats_gametypes ORDER BY name ASC";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    for(let i = 0; i < result.length; i++){
+                        data[result[i].id] = result[i].name;
+                    }
+                }
+                resolve(data);
+            });
+        });
+    }
 }
 
 module.exports = Gametypes;
