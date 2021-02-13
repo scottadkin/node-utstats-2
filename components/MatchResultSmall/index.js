@@ -10,7 +10,6 @@ const MatchResultSmall = ({totalTeams, dmWinner, dmScore, redScore, blueScore, g
 
     let wrapperClass = "solo";
 
-    console.log(`totalTeams = ${totalTeams}`);
 
     switch(totalTeams){
         case 2: {   wrapperClass = "duo"; } break;

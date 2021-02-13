@@ -4,7 +4,7 @@ function Footer(){
         <div>
             <footer>
                 Node UTStats 2<br/>
-                &copy; Scott Adkin 2020
+                &copy; Scott Adkin 2021
             </footer>
         </div>
         

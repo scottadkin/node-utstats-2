@@ -112,6 +112,60 @@ class Matches{
         });
     }
 
+
+    getRecent(page, perPage){
+
+        return new Promise((resolve, reject) =>{
+
+            page = parseInt(page);
+            perPage = parseInt(perPage);
+
+            if(page !== page){
+                page = 0;
+            }
+
+            if(perPage !== perPage){
+                perPage = 10;
+            }
+
+            const start = page * perPage;
+
+            let query = `SELECT * FROM nstats_matches ORDER BY date DESC, id DESC LIMIT ?, ?`;
+
+            console.log(start, perPage);
+
+            mysql.query(query, [start, perPage], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+
+    getTotal(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_matches FROM nstats_matches";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result[0].total_matches);
+                }
+                resolve(0);
+            });
+        });
+    }
+
     
 }
 module.exports = Matches;
