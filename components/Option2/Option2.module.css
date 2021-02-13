@@ -1,6 +1,6 @@
 .wrapper{
     background-color:rgb(16,16,16);
-    width:150px;
+    width:200px;
     border:1px solid rgba(255,255,255,0.25);
     color:white;
     border-radius: 16px;
@@ -16,7 +16,7 @@
 }
 
 .option, .option2{
-    width:75px;
+    width:100px;
     position:absolute;
     height:18px;
     padding:5px;
@@ -24,7 +24,7 @@
 }
 
 .option2{
-    margin-left:75px;
+    margin-left:100px;
 }
 
 .slider{
@@ -33,7 +33,7 @@
     height:25px;
     margin-top:-1px;
     margin-left:-1px;
-    width:75px;
+    width:100px;
     position:absolute;
     transition:all 0.125s;
 }

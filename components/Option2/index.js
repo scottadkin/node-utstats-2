@@ -16,7 +16,7 @@ class Option2 extends React.Component{
         let margin = -1;
 
         if(this.props.value === 1){
-            margin = 75;
+            margin = 100;
         }
 
         return (<div className={styles.wrapper}>

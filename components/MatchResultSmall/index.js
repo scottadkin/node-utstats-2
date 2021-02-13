@@ -5,7 +5,7 @@ const MatchResultSmall = ({totalTeams, dmWinner, dmScore, redScore, blueScore, g
 
 
     if(dmWinner !== ''){
-        return (<div className={`${styles.wrapper} solo`}><div className="team-none">{dmWinner}({dmScore})</div></div>);
+        return (<div className={`${styles.wrapper} solo`}><div className="team-none">{dmWinner} <span className="yellow">({dmScore})</span></div></div>);
     }
 
     let wrapperClass = "solo";
