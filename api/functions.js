@@ -74,6 +74,25 @@ class Functions{
         return teamName;
     }
 
+
+    static removeIps(data){
+
+        if(data !== undefined){
+
+            if(data !== null){
+
+                for(let i = 0; i < data.length; i++){
+
+                    if(data[i].ip !== undefined){
+                        delete data[i].ip;
+                    }
+                }
+            }
+        }
+
+        return data;
+    }
+
 }
 
 module.exports = Functions;

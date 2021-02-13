@@ -294,6 +294,7 @@ class Player{
                 if(err) reject(err);
 
                 if(result !== undefined){
+                    Functions.removeIps(result);
                     resolve(result[0]);
                 }
                 
@@ -346,6 +347,7 @@ class Player{
                 if(err) reject(err);
 
                 if(result !== undefined){
+                    Functions.removeIps(result);
                     resolve(result);
                 }
 
@@ -386,6 +388,7 @@ class Player{
                 if(err) reject(err);
 
                 if(result !== undefined){
+                    Functions.removeIps(result);
                     resolve(result);
                 }
                 resolve([]);

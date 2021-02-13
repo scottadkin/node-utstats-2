@@ -92,6 +92,26 @@ class Matches{
         });
     }
 
+
+    debugGetAll(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_matches ORDER BY date DESC, id DESC LIMIT 100";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
     
 }
 module.exports = Matches;

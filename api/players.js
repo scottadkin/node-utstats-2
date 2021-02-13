@@ -1,6 +1,7 @@
 const Promise = require('promise');
 const Player = require('./player');
 const mysql = require('./database');
+const Functions = require('./functions');
 
 class Players{
 
@@ -20,6 +21,7 @@ class Players{
 
                 if(err) reject(err);
 
+                Functions.removeIps(result);
                 resolve(result);
             });
         });
@@ -132,14 +134,13 @@ class Players{
 
                 if(result !== undefined){
 
+                    Functions.removeIps(result);
                     resolve(result);
                 }
 
                 resolve([]);
             });
-
-        });
-        
+        });    
     }
 }
 

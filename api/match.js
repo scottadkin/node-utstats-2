@@ -83,24 +83,6 @@ class Match{
     }
 
 
-    debugGetAll(){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT * FROM nstats_matches ORDER BY date DESC LIMIT 500";
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-                
-                if(result !== undefined){
-                    resolve(result);
-                }
-                
-                resolve([]);
-            });
-        });
-    }
 
 }
 

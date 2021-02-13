@@ -1,5 +1,5 @@
 .wrapper{
-    background-color:rgb(0,0,0);
+    background-color:rgb(16,16,16);
     width:150px;
     border:1px solid rgba(255,255,255,0.25);
     color:white;
@@ -16,19 +16,19 @@
 }
 
 .option, .option2{
-    width:50px;
+    width:75px;
     position:absolute;
     height:18px;
     padding:5px;
-    color:yellow;
+    text-align:center;
 }
 
 .option2{
-    margin-left:100px;
+    margin-left:75px;
 }
 
 .slider{
-    background-color:rgb(64,64,64);
+    background-color:rgb(50,0,0);
     border:1px solid rgba(255,255,255,0.5);
     height:25px;
     margin-top:-1px;

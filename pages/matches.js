@@ -2,7 +2,7 @@
 import DefaultHead from '../components/defaulthead';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
-import Match from '../api/match';
+import MatchesManager from '../api/matches';
 import Link from 'next/link';
 
 const Matches = ({matches}) =>{
@@ -69,7 +69,7 @@ const Matches = ({matches}) =>{
 
 export async function getServerSideProps({query}){
 
-    const matchManager = new Match();
+    const matchManager = new MatchesManager();
 
     let matches = await matchManager.debugGetAll();
 
