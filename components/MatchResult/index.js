@@ -1,6 +1,6 @@
 import styles from './MatchResult.module.css';
 
-const MatchResult = ({teamGame, dmWinner, dmScore, totalTeams, redScore, blueScore, greenScore, yellowScore}) =>{
+const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenScore, yellowScore}) =>{
 
     const elems = [];
 
@@ -18,11 +18,10 @@ const MatchResult = ({teamGame, dmWinner, dmScore, totalTeams, redScore, blueSco
     if(totalTeams < 2){
         elems.push(
             <div key={`match_result_solo`}>
-                <span className="yellow">{dmWinner}</span> wins with <span className="yellow">{dmScore}</span>
+                <span className="yellow">{dmWinner}</span> won with <span className="yellow">{dmScore}</span>
             </div>
         );
     }else{
-
 
         for(let i = 0; i < totalTeams; i++){
 
@@ -32,7 +31,6 @@ const MatchResult = ({teamGame, dmWinner, dmScore, totalTeams, redScore, blueSco
                 </div>
             );
         }
-
     }
 
     

@@ -4,6 +4,7 @@ import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 import MatchesManager from '../api/matches';
 import MatchesTableView from '../components/MatchesTableView/';
+import MatchesDefaultView from '../components/MatchesDefaultView/';
 import Gametypes from '../api/gametypes';
 import Functions from '../api/functions';
 import Servers from '../api/servers';
@@ -50,12 +51,10 @@ class Matches extends React.Component{
     }
 
     changeDisplay(){
-        console.log("test");
         this.setState({"displayType": 0});
     }
 
     changeDisplay2(){
-        console.log("test");
         this.setState({"displayType": 1});
     }
 
@@ -69,6 +68,8 @@ class Matches extends React.Component{
 
         if(this.state.displayType){
             matchElems = <MatchesTableView data={this.props.matches}/>
+        }else{
+            matchElems = <MatchesDefaultView data={this.props.matches}/>
         }
 
         return (<div>
