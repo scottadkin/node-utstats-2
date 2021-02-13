@@ -1,4 +1,3 @@
-import Functions from '../../api/functions';
 import styles from './MatchResultSmall.module.css'
 
 const MatchResultSmall = ({totalTeams, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore}) =>{

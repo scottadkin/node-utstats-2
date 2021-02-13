@@ -9,7 +9,8 @@ import Functions from '../api/functions';
 import Servers from '../api/servers';
 import Maps from '../api/maps';
 import Pagination from '../components/Pagination';
-import Link from 'next/link'
+import Link from 'next/link';
+import Option2 from '../components/Option2';
 
 class Matches extends React.Component{
 
@@ -17,10 +18,12 @@ class Matches extends React.Component{
 
         super(props);
 
-        this.state = {"perPage": this.props.perPage, "gametype": this.props.gametype};
+        this.state = {"perPage": this.props.perPage, "gametype": this.props.gametype, "displayType": this.props.displayType};
 
         this.changePerPage = this.changePerPage.bind(this);
         this.changeGametype = this.changeGametype.bind(this);
+        this.changeDisplay = this.changeDisplay.bind(this);
+        this.changeDisplay2 = this.changeDisplay2.bind(this);
 
     }
 
@@ -46,11 +49,27 @@ class Matches extends React.Component{
         return elems;
     }
 
+    changeDisplay(){
+        console.log("test");
+        this.setState({"displayType": 0});
+    }
+
+    changeDisplay2(){
+        console.log("test");
+        this.setState({"displayType": 1});
+    }
+
     render(){
 
         const pages = Math.ceil(this.props.totalMatches / this.props.perPage);
 
         const url = `/matches?perPage=${this.state.perPage}&gametype=${this.state.gametype}&page=`;
+
+        let matchElems = [];
+
+        if(this.state.displayType){
+            matchElems = <MatchesTableView data={this.props.matches}/>
+        }
 
         return (<div>
             <DefaultHead />
@@ -81,14 +100,18 @@ class Matches extends React.Component{
                                 </select>
                     
                         </div>
-
+                        <div className="select-row">
+                            <div className="select-label">Display</div>
+                            <Option2 title1="Default" title2="Table" leftEvent={this.changeDisplay} rightEvent={this.changeDisplay2} value={this.state.displayType}/>
+                        </div>
+                        
                         <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                         <Pagination currentPage={this.props.page} 
                             perPage={this.props.perPage} 
                             pages={pages} 
                             results={this.props.totalMatches} 
                             url={url}/>
-                        <MatchesTableView data={this.props.matches}/>
+                            {matchElems}
                     </div>
                 </div>
                 <Footer />
@@ -104,11 +127,10 @@ export async function getServerSideProps({query}){
     const serverManager = new Servers();
     const mapManager = new Maps();
 
-    
-
     let perPage = 25;
     let page = 1;
     let gametype = 0;
+    let displayType = 0;
 
     if(query.perPage !== undefined){
 
@@ -142,6 +164,19 @@ export async function getServerSideProps({query}){
 
         if(gametype !== gametype){
             gametype = 0;
+        }
+    }
+
+    if(query.displayType !== undefined){
+
+        displayType = parseInt(query.displayType);
+
+        if(displayType !== displayType){
+            displayType = 0;
+        }else{
+            if(displayType !== 0 && displayType !== 1){
+                displayType = 0;
+            }
         }
     }
 
@@ -185,7 +220,8 @@ export async function getServerSideProps({query}){
             "perPage": perPage,
             "totalMatches": totalMatches,
             "gametypes": JSON.stringify(gametypeNames),
-            "gametype": gametype
+            "gametype": gametype,
+            "displayType": displayType
         }
     };
 }
