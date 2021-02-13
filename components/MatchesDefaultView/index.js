@@ -3,29 +3,45 @@ import MMSS from '../MMSS/';
 import TimeStamp from '../TimeStamp/';
 import MatchResult from '../MatchResult/';
 import Link from 'next/link';
+import Image from 'next/image';
+import Functions from '../../api/functions'
 
 class MatchesDefaultView extends React.Component{
 
     constructor(props){
         super(props);
+        this.state = {"images": JSON.parse(this.props.images)};
+    }
+
+
+    getImage(name){
+
+        name = Functions.removeMapGametypePrefix(name).toLowerCase();
+
+        const index = this.state.images.indexOf(name)
+        
+        if(index !== -1){
+            return `/images/maps/${this.state.images[index]}.jpg`;
+        }else{
+            return "/images/temp.jpg";
+        }
     }
 
     createBox(match){
 
-       console.log(match);
-       console.log(match.dm_score);
+        const imageURL = this.getImage(match.mapName);
 
-        return (<Link href={`/match/${match.id}`}>
+        return (<Link key={`match_${match.id}`} href={`/match/${match.id}`}>
             <a>
                 <div className={styles.wrapper}>
                     <div className={styles.content}>
                         <div className={styles.gametype}>{match.gametypeName} on {match.mapName}</div>
-                        <img src="/images/temp.jpg" alt="image"/>
+                        <Image src={imageURL} alt="map image" width={480} height={270}/>
                         <div className={styles.server}>{match.serverName}</div>
                         <div className={styles.info}>
                             <TimeStamp timestamp={match.date}/><br/>
-                            Players {match.players}<br/>
-                            Playtime <MMSS timestamp={match.playtime}/>
+                            Players <span className="yellow">{match.players}</span><br/>
+                            Playtime <span className="yellow"><MMSS timestamp={match.playtime}/></span>
                         </div>
                         <MatchResult 
                             dmWinner={match.dm_winner} 

@@ -10,11 +10,6 @@ class Matches{
         teamGame, gameSpeed, hardcore, tournament, airControl, useTranslocator, friendlyFireScale, netMode, maxSpectators, 
         maxPlayers, totalTeams, totalPlayers, timeLimit, targetScore, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore){
 
-        /*aircontrol,
-                this.gameInfo.usetranslocator,
-                this.gameInfo.friendlyfirescale,
-                this.gameInfo.netmode*/
-
         mutators = mutators.toString();
 
         return new Promise((resolve, reject) =>{
@@ -171,8 +166,6 @@ class Matches{
                 }
 
             }
-
-           
 
             let query = "SELECT COUNT(*) as total_matches FROM nstats_matches";
             let vars = [];

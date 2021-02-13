@@ -134,6 +134,21 @@ class Functions{
         }
     }
 
+
+    static removeMapGametypePrefix(name){
+
+        const reg = /^.+?-(.+)$/i;
+
+        const result = reg.exec(name);
+
+        if(result === null){
+            return name;
+        }else{
+
+            return result[1];
+        }
+    }
+
 }
 
 module.exports = Functions;

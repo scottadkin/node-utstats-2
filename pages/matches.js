@@ -69,7 +69,7 @@ class Matches extends React.Component{
         if(this.state.displayType){
             matchElems = <MatchesTableView data={this.props.matches}/>
         }else{
-            matchElems = <MatchesDefaultView data={this.props.matches}/>
+            matchElems = <MatchesDefaultView data={this.props.matches} images={this.props.images}/>
         }
 
         return (<div>
@@ -120,6 +120,7 @@ class Matches extends React.Component{
         </div>);
     }
 }
+
 
 export async function getServerSideProps({query}){
 
@@ -213,6 +214,14 @@ export async function getServerSideProps({query}){
     Functions.setIdNames(matches, serverNames, 'server', 'serverName');
     Functions.setIdNames(matches, mapNames, 'map', 'mapName');
 
+    let justMapNames = [];
+
+    for(const [key,value] of Object.entries(mapNames)){
+        justMapNames.push(value);
+    }   
+
+    const mapImages = await mapManager.getImages(justMapNames);
+
     //console.log(matches[0]);
     return {
         "props": {
@@ -222,7 +231,8 @@ export async function getServerSideProps({query}){
             "totalMatches": totalMatches,
             "gametypes": JSON.stringify(gametypeNames),
             "gametype": gametype,
-            "displayType": displayType
+            "displayType": displayType,
+            "images": JSON.stringify(mapImages)
         }
     };
 }

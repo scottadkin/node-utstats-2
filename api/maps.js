@@ -268,9 +268,7 @@ class Maps{
         });
     }
 
-    getMapImages(names){
-     
-    }
+    
 
     removePrefix(name){
 
@@ -297,7 +295,25 @@ class Maps{
         }
 
         return `/images/temp.jpg`;
+    }
 
+    async getImages(names){
+
+        const files = fs.readdirSync('public/images/maps/');
+        console.table(files);
+
+        console.log(names);
+
+        const exists = [];
+
+        for(let i = 0; i < names.length; i++){
+  
+            if(files.indexOf(`${this.removePrefix(names[i].toLowerCase())}.jpg`) !== -1){
+                exists.push(this.removePrefix(names[i].toLowerCase()));
+            }
+        }
+
+        return exists;
     }
 
     getNames(ids){
