@@ -1,20 +1,21 @@
-import DefaultHead from '../../components/defaulthead'
-import Nav from '../../components/Nav/'
-import Footer from '../../components/Footer/'
-import PlayerSummary from '../../components/PlayerSummary/'
-import Player from '../../api/player'
-import Link from 'next/link'
-import Countires from '../../api/countries'
-import Gametypes from '../../api/gametypes'
-import Maps from '../../api/maps'
-import PlayerRecentMatches from '../../components/PlayerRecentMatches/'
-import Matches from '../../api/matches'
-import Weapons from '../../api/weapons'
-import PlayerWeapons from '../../components/PlayerWeapons/'
+import DefaultHead from '../../components/defaulthead';
+import Nav from '../../components/Nav/';
+import Footer from '../../components/Footer/';
+import PlayerSummary from '../../components/PlayerSummary/';
+import Player from '../../api/player';
+import Link from 'next/link';
+import Countires from '../../api/countries';
+import Gametypes from '../../api/gametypes';
+import Maps from '../../api/maps';
+import PlayerRecentMatches from '../../components/PlayerRecentMatches/';
+import Matches from '../../api/matches';
+import Weapons from '../../api/weapons';
+import PlayerWeapons from '../../components/PlayerWeapons/';
+import Functions from '../../api/functions'
 
 
 
-function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, mapData, matchScores, totalMatches, 
+function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages}) {
 
   //console.log(`servers`);
@@ -36,9 +37,9 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
             </main>   
         </div>);
 	}
-	summary = JSON.parse(summary);
-	
 
+	  summary = JSON.parse(summary);
+	
     const flag = summary.country;
 
     const name = summary.name;
@@ -64,7 +65,7 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
                     <PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
 
-                    <PlayerRecentMatches playerId={playerId} matches={recentMatches} maps={mapData} scores={matchScores} gametypes={gametypeNames} 
+                    <PlayerRecentMatches playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
 					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage}/>
 
                 </div>
@@ -88,8 +89,6 @@ export async function getServerSideProps({query}) {
 	if(query.id === undefined) query.id = 0;
 
 	const playerId = query.id;
-	
-
     
 	let summary = await playerManager.getPlayerById(playerId);
 	
@@ -103,8 +102,6 @@ export async function getServerSideProps({query}) {
 	
 	const totalMatches = await playerManager.getTotalMatches(playerId);
 
-	console.log(`I have played ${totalMatches} matches`);
-
     const gametypeIds = [];
 
     for(let i = 0; i < gametypeStats.length; i++){
@@ -112,11 +109,6 @@ export async function getServerSideProps({query}) {
     }
 
     let gametypeNames = await gametypes.getNames(gametypeIds);
-
-    gametypeNames = JSON.stringify(gametypeNames);
-
-    summary = JSON.stringify(summary);
-    gametypeStats = JSON.stringify(gametypeStats);
 
 
     const matchPage = (query.matchpage !== undefined) ? (parseInt(query.matchpage) === parseInt(query.matchpage) ? query.matchpage : 1) : 1;
@@ -137,36 +129,44 @@ export async function getServerSideProps({query}) {
       	}
     }
 
-	//console.log(matchIds);
 
-    let mapData = await maps.getNamesByIds(uniqueMaps);
-    mapData = JSON.stringify(mapData);
-    recentMatches = JSON.stringify(recentMatches);
+    let mapData = await maps.getNames(uniqueMaps);
+   
     
     let matchScores = await matchManager.getWinners(matchIds);
-    matchScores = JSON.stringify(matchScores);
-
     let weaponStats = await weaponsManager.getPlayerTotals(playerId);
-    weaponStats = JSON.stringify(weaponStats);
-
     let weaponNames = await weaponsManager.getAllNames();
-    weaponNames = JSON.stringify(weaponNames);
-    //console.log(weaponStats);
-    
     let weaponImages = await weaponsManager.getImageList();
-    weaponImages = JSON.stringify(weaponImages);
+
+
+	Functions.setIdNames(recentMatches, mapData, 'map_id', 'mapName');
+
 
 
 
   // Pass data to the page via props
     return { 
-      	props: {  
+		props: {
+			"playerId": playerId,
+			"summary": JSON.stringify(summary),
+			"gametypeStats": JSON.stringify(gametypeStats),
+			"gametypeNames": JSON.stringify(gametypeNames),
+			"recentMatches": JSON.stringify(recentMatches),
+			"matchScores": JSON.stringify(matchScores),
+			"totalMatches": totalMatches,
+			"matchPages": matchPages,
+			"matchPage": matchPage,
+			"matchesPerPage": matchesPerPage,
+			"weaponStats": JSON.stringify(weaponStats),
+			"weaponNames": JSON.stringify(weaponNames),
+			"weaponImages": JSON.stringify(weaponImages)
+		}
+      	/*props: {  
             playerId,
             summary,
             gametypeStats,
             gametypeNames, 
             recentMatches,
-            mapData,
             matchScores, 
             totalMatches,
             matchPages,
@@ -175,7 +175,7 @@ export async function getServerSideProps({query}) {
             weaponStats,
             weaponNames,
             weaponImages
-   		  } 
+   		} */
   	}
 }
 

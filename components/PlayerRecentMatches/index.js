@@ -2,20 +2,7 @@ import Link from 'next/link';
 import Timestamp from '../TimeStamp/';
 import styles from './PlayerRecentMatches.module.css';
 import Playtime from '../Playtime/';
-import Pagination from '../Pagination/'
-//import RecentMatchResult from '../RecentMatchResult/'
-
-const getMapName = (maps, id) =>{
-
-    for(let i = 0; i < maps.length; i++){
-
-        if(maps[i].id === id){
-            return maps[i].name;
-        }
-    }
-
-    return 'Not Found';
-}
+import Pagination from '../Pagination/';
 
 const getMatchScores = (scores, id) =>{
 
@@ -29,10 +16,9 @@ const getMatchScores = (scores, id) =>{
     return null;
 }
 
-const PlayerRecentMatches = ({playerId, matches, maps, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage}) =>{
+const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage}) =>{
 
     matches = JSON.parse(matches);
-    maps = JSON.parse(maps);
     scores = JSON.parse(scores);
 
     gametypes = JSON.parse(gametypes);
@@ -117,7 +103,7 @@ const PlayerRecentMatches = ({playerId, matches, maps, scores, gametypes, totalM
                                     {currentGametype}
                                 </div>    
                                 <div className="yellow">
-                                    {getMapName(maps, m.map_id)}
+                                    {m.mapName}
                                 </div>
                                 <div>Played <Playtime key={i} seconds={m.playtime} /></div>
                                 
