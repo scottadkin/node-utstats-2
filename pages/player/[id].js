@@ -19,81 +19,80 @@ import Servers from '../../api/servers';
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames}) {
 
-  //console.log(`servers`);
+	//console.log(`servers`);
 	if(summary === undefined){
 
 		return (<div>
-            <DefaultHead />
-        
-            <main>
-                <Nav />
-                <div id="content">
-                <div className="default">
-                    <div className="default-header">
-                      There is no player with that id.
-                    </div>
-                </div>
-                </div>
-                <Footer />
-            </main>   
-        </div>);
+					<DefaultHead />
+			
+					<main>
+						<Nav />
+						<div id="content">
+						<div className="default">
+							<div className="default-header">
+								There is no player with that id.
+							</div>
+						</div>
+						</div>
+						<Footer />
+					</main>   
+			</div>);
 	}
 
 	summary = JSON.parse(summary);
 	
-    const flag = summary.country;
+		const flag = summary.country;
 
-    const name = summary.name;
-    summary = JSON.stringify(summary);
+		const name = summary.name;
+		summary = JSON.stringify(summary);
 
-    const country = Countires(flag);
+		const country = Countires(flag);
 
-    return (
-        <div>
-            <DefaultHead />
-        
-            <main>
-                <Nav />
-                <div id="content">
-                <div className="default">
-                    <div className="default-header">
-                      <img className="title-flag" src={`../images/flags/${country.code.toLowerCase()}.svg`} alt="flag"/> {name} Career Profile
-                    </div>
+		return (
+				<div>
+					<DefaultHead />
+					<main>
+						<Nav />
+						<div id="content">
+							<div className="default">
+								<div className="default-header">
+									<img className="title-flag" src={`../images/flags/${country.code.toLowerCase()}.svg`} alt="flag"/> {name} Career Profile
+								</div>
 
-                    <PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
-                      gametypeNames={gametypeNames}
-                    />
+								<PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
+									gametypeNames={gametypeNames}
+								/>
 
-                    <PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
+								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
 
-                    <PlayerRecentMatches playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
-					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
-					serverNames={serverNames}
-					/>
+								<PlayerRecentMatches playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
+								totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
+								serverNames={serverNames}
+								/>
 
-                </div>
-                </div>
-                <Footer />
-            </main>   
-        </div>
-  )
+							</div>
+						</div>
+						<Footer />
+					</main>   
+				</div>
+	)
 }
 
 export async function getServerSideProps({query}) {
 
 	const matchesPerPage = 25;
-    
-    const playerManager = new Player();
-    const gametypes = new Gametypes();
-    const maps = new Maps();
-    const matchManager = new Matches();
-    const weaponsManager = new Weapons();
+		
+	const playerManager = new Player();
+	const gametypes = new Gametypes();
+	const maps = new Maps();
+	const matchManager = new Matches();
+	const weaponsManager = new Weapons();
 	const serverManager = new Servers();
 
-    if(query.id === undefined) query.id = 0;
+	if(query.id === undefined) query.id = 0;
 
 	const playerId = query.id;
-    
+		
 	let summary = await playerManager.getPlayerById(playerId);
 	
 	if(summary === undefined){
@@ -106,41 +105,26 @@ export async function getServerSideProps({query}) {
 	
 	const totalMatches = await playerManager.getTotalMatches(playerId);
 
-    const gametypeIds = [];
+	const gametypeIds = Functions.getUniqueValues(gametypeStats, 'gametype');
 
-    for(let i = 0; i < gametypeStats.length; i++){
-        gametypeIds.push(gametypeStats[i].gametype);
-    }
-
-    let gametypeNames = await gametypes.getNames(gametypeIds);
+	let gametypeNames = await gametypes.getNames(gametypeIds);
 
 
-    const matchPage = (query.matchpage !== undefined) ? (parseInt(query.matchpage) === parseInt(query.matchpage) ? query.matchpage : 1) : 1;
+	const matchPage = (query.matchpage !== undefined) ? (parseInt(query.matchpage) === parseInt(query.matchpage) ? query.matchpage : 1) : 1;
 	let recentMatches = await playerManager.getRecentMatches(query.id, matchesPerPage, matchPage);
 	
 	const matchPages = Math.ceil(totalMatches / matchesPerPage);
 
+	const uniqueMaps = Functions.getUniqueValues(recentMatches, 'map_id');
+	const matchIds = Functions.getUniqueValues(recentMatches, 'match_id');
 
-	const uniqueMaps = [];
-	const matchIds = [];
+	let mapData = await maps.getNames(uniqueMaps);
+	let matchScores = await matchManager.getWinners(matchIds);
+	let matchPlayerCount = await matchManager.getPlayerCount(matchIds);
+	let weaponStats = await weaponsManager.getPlayerTotals(playerId);
+	let weaponNames = await weaponsManager.getAllNames();
+	let weaponImages = await weaponsManager.getImageList();
 
-    for(let i = 0; i < recentMatches.length; i++){
-
-		matchIds.push(recentMatches[i].match_id)
-
-      	if(uniqueMaps.indexOf(recentMatches[i].map_id) == -1){
-        	uniqueMaps.push(recentMatches[i].map_id);
-      	}
-    }
-
-
-    let mapData = await maps.getNames(uniqueMaps);
-   
-    
-    let matchScores = await matchManager.getWinners(matchIds);
-    let weaponStats = await weaponsManager.getPlayerTotals(playerId);
-    let weaponNames = await weaponsManager.getAllNames();
-    let weaponImages = await weaponsManager.getImageList();
 
 	const justMapNames = [];
 
@@ -152,13 +136,15 @@ export async function getServerSideProps({query}) {
 
 	Functions.setIdNames(recentMatches, mapData, 'map_id', 'mapName');
 
-
 	const serverNames = await serverManager.getAllNames();
 
+	const serverIds = await matchManager.getServerNames(matchIds);
+
+	Functions.setIdNames(recentMatches, serverIds, 'match_id', 'server');
+	Functions.setIdNames(recentMatches, matchPlayerCount, 'match_id', 'players');
 
 
-  // Pass data to the page via props
-    return { 
+	return { 
 		props: {
 			"playerId": playerId,
 			"summary": JSON.stringify(summary),
@@ -176,22 +162,7 @@ export async function getServerSideProps({query}) {
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames)
 		}
-      	/*props: {  
-            playerId,
-            summary,
-            gametypeStats,
-            gametypeNames, 
-            recentMatches,
-            matchScores, 
-            totalMatches,
-            matchPages,
-            matchPage,
-            matchesPerPage,
-            weaponStats,
-            weaponNames,
-            weaponImages
-   		} */
-  	}
+	}
 }
 
 export default Home;

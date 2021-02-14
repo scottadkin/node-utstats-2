@@ -187,7 +187,58 @@ class Matches{
         });
     }
 
+    getServerNames(ids){
 
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,server FROM nstats_matches WHERE id IN(?)";
+
+            const data = {};
+
+            if(ids.length === 0) return data;
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+                
+                if(result !== undefined){
+
+                    for(let i = 0; i < result.length; i++){
+                        data[result[i].id] = result[i].server; 
+                    }
+                }
+
+                resolve(data);
+            });
+        });
+    }
+
+
+    getPlayerCount(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,players FROM nstats_matches WHERE id IN(?)";
+
+            const data = {};
+
+            if(data.length === 0) return data;
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data[result[i].id] = result[i].players;
+                    }
+                }
+                resolve(data);
+            });
+        });
+    }
 
     
 }

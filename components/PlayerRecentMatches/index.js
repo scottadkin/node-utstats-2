@@ -32,6 +32,14 @@ function getMapImage(maps, name){
     return '/images/temp.jpg';
 }
 
+function getServerName(servers, id){
+
+    if(servers[id] !== undefined){
+        return servers[id];
+    }
+    return 'Not Found';
+}
+
 const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, mapImages, serverNames}) =>{
 
     matches = JSON.parse(matches);
@@ -42,8 +50,6 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
 
     serverNames = JSON.parse(serverNames);
 
-    console.log(serverNames);
-
     const elems = [];
 
     let m = 0;
@@ -52,6 +58,7 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
     let currentWinnerClass = "";
     let currentGametype = 0;
     let mapImage = 0;
+    let currentServerName = "";
 
     for(let i = 0; i < matches.length; i++){
 
@@ -82,9 +89,11 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
                     <Image width={480} height={270} src={mapImage} />
                 </div>
                 <div className={styles.info}>
-                    {currentGametype} on {m.mapName}<br/>
+                    <span className="yellow">{getServerName(serverNames, m.server)}</span><br/>
+                    <span className="yellow">{currentGametype}</span> on <span className="yellow">{m.mapName}</span><br/>
                     <TimeStamp timestamp={m.match_date} /><br/>
-                    Playtime <MMSS timestamp={m.playtime}/>
+                    Playtime <span className="yellow"><MMSS timestamp={m.playtime}/></span><br/>
+                    Players <span className="yellow">{m.players}</span>
                 </div>
                 <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
                 redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3} />

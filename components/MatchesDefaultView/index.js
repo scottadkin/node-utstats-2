@@ -35,7 +35,7 @@ class MatchesDefaultView extends React.Component{
             <a>
                 <div className={styles.wrapper}>
                     <div className={styles.content}>
-                        <div className={styles.gametype}>{match.gametypeName} on {match.mapName}</div>
+                        <div className={styles.gametype}><span className="yellow">{match.gametypeName}</span> on <span className="yellow">{match.mapName}</span></div>
                         <Image src={imageURL} alt="map image" width={480} height={270}/>
                         <div className={styles.server}>{match.serverName}</div>
                         <div className={styles.info}>
