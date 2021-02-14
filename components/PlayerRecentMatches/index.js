@@ -3,6 +3,7 @@ import Timestamp from '../TimeStamp/';
 import styles from './PlayerRecentMatches.module.css';
 import Playtime from '../Playtime/';
 import Pagination from '../Pagination/';
+import Functions from '../../api/functions'
 
 const getMatchScores = (scores, id) =>{
 
@@ -16,13 +17,27 @@ const getMatchScores = (scores, id) =>{
     return null;
 }
 
-const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage}) =>{
+function getMapImage(maps, name){
+
+    name = Functions.removeMapGametypePrefix(name.toLowerCase());
+
+    const index = maps.indexOf(name);
+
+    if(index !== -1){
+        return `../images/maps/${maps[index]}.jpg`;
+    }
+
+    return '../images/temp.jpg';
+}
+
+const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, mapImages}) =>{
 
     matches = JSON.parse(matches);
     scores = JSON.parse(scores);
 
     gametypes = JSON.parse(gametypes);
-    
+    mapImages = JSON.parse(mapImages);
+
     const elems = [];
 
     let m = 0;
@@ -32,6 +47,7 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
     let scoreElems = [];
     let currentWinnerClass = "";
     let currentGametype = 0;
+    let mapImage = 0;
 
     for(let i = 0; i < matches.length; i++){
 
@@ -47,7 +63,7 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
                 case 2: {   currentClassName = "duo";  } break;
                 case 3: {   currentClassName = "trio"; } break;
                 case 4: {   currentClassName = "quad"; } break;
-                default: { currentClassName = "solo";  } break;
+                default: {  currentClassName = "solo";  } break;
             }
 
             for(let i = 0; i < currentScore.total_teams; i++){
@@ -89,10 +105,12 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
             currentGametype = 'Not Found';
         }
 
+        mapImage = getMapImage(mapImages, m.mapName);
+
         elems.push(
             <Link key={m.id} href={`/match/${m.match_id}`}>
                 <a>
-                    <div className={styles.default} style={{"backgroundImage": `url('../images/maps/stalwartxl.jpg')`, "backgroundSize": "100% 100%"}}>
+                    <div className={styles.default} style={{"backgroundImage": `url('${mapImage}')`, "backgroundSize": "100% 100%"}}>
                         <div className={styles.inner}>
                             <div className={styles.info}>
                                 <div className={`${currentWinnerClass} ${styles.winner}`}>

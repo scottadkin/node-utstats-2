@@ -16,7 +16,7 @@ import Functions from '../../api/functions'
 
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages}) {
+	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages}) {
 
   //console.log(`servers`);
 	if(summary === undefined){
@@ -38,7 +38,7 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
         </div>);
 	}
 
-	  summary = JSON.parse(summary);
+	summary = JSON.parse(summary);
 	
     const flag = summary.country;
 
@@ -66,7 +66,7 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
                     <PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
 
                     <PlayerRecentMatches playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
-					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage}/>
+					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}/>
 
                 </div>
                 </div>
@@ -138,6 +138,13 @@ export async function getServerSideProps({query}) {
     let weaponNames = await weaponsManager.getAllNames();
     let weaponImages = await weaponsManager.getImageList();
 
+	const justMapNames = [];
+
+	for(const [key, value] of Object.entries(mapData)){
+		justMapNames.push(value);
+	}
+
+	let mapImages = await maps.getImages(justMapNames);
 
 	Functions.setIdNames(recentMatches, mapData, 'map_id', 'mapName');
 
@@ -159,7 +166,8 @@ export async function getServerSideProps({query}) {
 			"matchesPerPage": matchesPerPage,
 			"weaponStats": JSON.stringify(weaponStats),
 			"weaponNames": JSON.stringify(weaponNames),
-			"weaponImages": JSON.stringify(weaponImages)
+			"weaponImages": JSON.stringify(weaponImages),
+			"mapImages": JSON.stringify(mapImages)
 		}
       	/*props: {  
             playerId,
