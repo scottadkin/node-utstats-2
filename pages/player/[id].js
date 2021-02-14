@@ -11,12 +11,13 @@ import PlayerRecentMatches from '../../components/PlayerRecentMatches/';
 import Matches from '../../api/matches';
 import Weapons from '../../api/weapons';
 import PlayerWeapons from '../../components/PlayerWeapons/';
-import Functions from '../../api/functions'
+import Functions from '../../api/functions';
+import Servers from '../../api/servers';
 
 
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages}) {
+	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames}) {
 
   //console.log(`servers`);
 	if(summary === undefined){
@@ -66,7 +67,9 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
                     <PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
 
                     <PlayerRecentMatches playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
-					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}/>
+					totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
+					serverNames={serverNames}
+					/>
 
                 </div>
                 </div>
@@ -83,10 +86,11 @@ export async function getServerSideProps({query}) {
     const playerManager = new Player();
     const gametypes = new Gametypes();
     const maps = new Maps();
-	const matchManager = new Matches();
-	const weaponsManager = new Weapons();
+    const matchManager = new Matches();
+    const weaponsManager = new Weapons();
+	const serverManager = new Servers();
 
-	if(query.id === undefined) query.id = 0;
+    if(query.id === undefined) query.id = 0;
 
 	const playerId = query.id;
     
@@ -149,6 +153,8 @@ export async function getServerSideProps({query}) {
 	Functions.setIdNames(recentMatches, mapData, 'map_id', 'mapName');
 
 
+	const serverNames = await serverManager.getAllNames();
+
 
 
   // Pass data to the page via props
@@ -167,7 +173,8 @@ export async function getServerSideProps({query}) {
 			"weaponStats": JSON.stringify(weaponStats),
 			"weaponNames": JSON.stringify(weaponNames),
 			"weaponImages": JSON.stringify(weaponImages),
-			"mapImages": JSON.stringify(mapImages)
+			"mapImages": JSON.stringify(mapImages),
+			"serverNames": JSON.stringify(serverNames)
 		}
       	/*props: {  
             playerId,

@@ -1,9 +1,11 @@
 import Link from 'next/link';
-import Timestamp from '../TimeStamp/';
+import TimeStamp from '../TimeStamp/';
 import styles from './PlayerRecentMatches.module.css';
-import Playtime from '../Playtime/';
 import Pagination from '../Pagination/';
-import Functions from '../../api/functions'
+import Functions from '../../api/functions';
+import Image from 'next/image';
+import MMSS from '../MMSS/';
+import MatchResult from '../MatchResult/';
 
 const getMatchScores = (scores, id) =>{
 
@@ -24,13 +26,13 @@ function getMapImage(maps, name){
     const index = maps.indexOf(name);
 
     if(index !== -1){
-        return `../images/maps/${maps[index]}.jpg`;
+        return `/images/maps/${maps[index]}.jpg`;
     }
 
-    return '../images/temp.jpg';
+    return '/images/temp.jpg';
 }
 
-const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, mapImages}) =>{
+const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, mapImages, serverNames}) =>{
 
     matches = JSON.parse(matches);
     scores = JSON.parse(scores);
@@ -38,13 +40,15 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
     gametypes = JSON.parse(gametypes);
     mapImages = JSON.parse(mapImages);
 
+    serverNames = JSON.parse(serverNames);
+
+    console.log(serverNames);
+
     const elems = [];
 
     let m = 0;
 
-    let currentClassName = "";
     let currentScore = "";
-    let scoreElems = [];
     let currentWinnerClass = "";
     let currentGametype = 0;
     let mapImage = 0;
@@ -54,45 +58,6 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
         m = matches[i];
 
         currentScore = getMatchScores(scores, m.match_id);
-
-        scoreElems = [];
-
-        if(currentScore.team_game){
-
-            switch(currentScore.total_teams){
-                case 2: {   currentClassName = "duo";  } break;
-                case 3: {   currentClassName = "trio"; } break;
-                case 4: {   currentClassName = "quad"; } break;
-                default: {  currentClassName = "solo";  } break;
-            }
-
-            for(let i = 0; i < currentScore.total_teams; i++){
-
-                scoreElems.push(
-                    <div key={`score_elems_${i}`}>
-                        {currentScore[`team_score_${i}`]}
-                    </div>
-                );
-            }
-
-            if(currentScore.total_teams === 0){
-                scoreElems.push(
-                    <div key={`score_elems_none`}>
-                        Not Found
-                    </div>
-                );
-            }
-
-        }else{
-
-            currentClassName = "solo";
-            
-            scoreElems.push(
-                <div key={`score_elems_solo`}>
-                    {(currentScore.dm_winner !== '') ? currentScore.dm_winner : 'Not Found' } ({currentScore.dm_score})
-                </div>
-            );
-        }
 
 
         currentWinnerClass = (m.winner) ? "green" : (m.draw) ? "Draw" : "red";
@@ -107,34 +72,24 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
 
         mapImage = getMapImage(mapImages, m.mapName);
 
-        elems.push(
-            <Link key={m.id} href={`/match/${m.match_id}`}>
-                <a>
-                    <div className={styles.default} style={{"backgroundImage": `url('${mapImage}')`, "backgroundSize": "100% 100%"}}>
-                        <div className={styles.inner}>
-                            <div className={styles.info}>
-                                <div className={`${currentWinnerClass} ${styles.winner}`}>
-                                    { (m.winner) ? "Winner" : (m.draw) ? "Draw" : "Lost"}
-                                </div>
-                                <Timestamp key={i} timestamp={m.match_date} />    
-                                <div className="yellow">
-                                    {currentGametype}
-                                </div>    
-                                <div className="yellow">
-                                    {m.mapName}
-                                </div>
-                                <div>Played <Playtime key={i} seconds={m.playtime} /></div>
-                                
-                                <div className={currentClassName}>
-                                    {scoreElems}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </a>
-                </Link>
-            
-        );
+
+        elems.push(<Link href={`/match/${m.match_id}`} key={m.id}><a>
+            <div className={styles.wrapper}>
+                <div className={`${styles.title} ${currentWinnerClass}`}> 
+                    { (m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"}
+                </div>
+                <div className={styles.image}>
+                    <Image width={480} height={270} src={mapImage} />
+                </div>
+                <div className={styles.info}>
+                    {currentGametype} on {m.mapName}<br/>
+                    <TimeStamp timestamp={m.match_date} /><br/>
+                    Playtime <MMSS timestamp={m.playtime}/>
+                </div>
+                <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
+                redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3} />
+            </div>
+        </a></Link>);
     }
 
     return (
