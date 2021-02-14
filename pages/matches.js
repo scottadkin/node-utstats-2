@@ -62,7 +62,7 @@ class Matches extends React.Component{
 
         const pages = Math.ceil(this.props.totalMatches / this.props.perPage);
 
-        const url = `/matches?perPage=${this.state.perPage}&gametype=${this.state.gametype}&page=`;
+        const url = `/matches?perPage=${this.state.perPage}&gametype=${this.state.gametype}&displayType=${this.state.displayType}&page=`;
 
         let matchElems = [];
 
@@ -85,7 +85,7 @@ class Matches extends React.Component{
                         <div className="select-row">
                             <div className="select-label">Gametype</div>
                             <select className="default-select" value={this.state.gametype} onChange={this.changeGametype}>
-                                <option value="0">All</option>
+                                <option value="0" key={`gametype-default`}>All</option>
                                 {this.createGametypeOptions()}
                             </select>
                         </div>
@@ -184,16 +184,11 @@ export async function getServerSideProps({query}){
 
     const matches = await matchManager.getRecent(page - 1, perPage, gametype);
     const totalMatches = await matchManager.getTotal(gametype);
-    //const uniqueGametypes = Functions.getUniqueValues(matches, 'gametype');
     const uniqueServers = Functions.getUniqueValues(matches, 'server');
     const uniqueMaps = Functions.getUniqueValues(matches, 'map');
 
 
     let gametypeNames = {};
-
-    //if(uniqueGametypes.length > 0){
-    //    gametypeNames = await gametypeManager.getNames(uniqueGametypes);
-    //}
 
     gametypeNames = await gametypeManager.getAllNames();
 
@@ -222,7 +217,6 @@ export async function getServerSideProps({query}){
 
     const mapImages = await mapManager.getImages(justMapNames);
 
-    //console.log(matches[0]);
     return {
         "props": {
             "matches": JSON.stringify(matches),
