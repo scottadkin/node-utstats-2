@@ -3,7 +3,7 @@ import DefaultHead from '../components/defaulthead'
 import Nav from '../components/Nav/'
 import Footer from '../components/Footer/'
 import MapManager from '../api/maps'
-import MapList from '../components/maplist'
+import MapList from '../components/MapList/'
 
 function Maps(props){
 

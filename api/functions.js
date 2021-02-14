@@ -149,6 +149,20 @@ class Functions{
         }
     }
 
+
+    static removeUnr(name){
+
+        const reg = /^(.+?)\.unr$/i;
+
+        const result = reg.exec(name);
+
+        if(result !== null){
+            return result[1];
+        }
+
+        return name;
+    }
+
 }
 
 module.exports = Functions;
