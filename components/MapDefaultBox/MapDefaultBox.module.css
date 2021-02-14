@@ -4,6 +4,7 @@
     display:inline-block;
     margin-bottom:10px;
     margin-right:10px;
+    border:1px solid rgba(255,255,255,0.25);
 }
 
 .title{
@@ -24,10 +25,18 @@
 
 .info{
     font-size:14px;
-    line-height:22px;
+    line-height:20px;
+    padding-top:5px;
+    padding-bottom:5px;
 }
 
 .enter{
 
     font-size:12px;
+    line-height:18px;
+}
+
+.levelenter{
+    color:rgb(180,180,180);
+    font-style:italic;
 }

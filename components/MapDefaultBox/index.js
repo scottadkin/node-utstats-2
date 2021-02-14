@@ -9,7 +9,24 @@ class MapDefaultBox extends React.Component{
         super(props);
     }
 
+    getImage(){
+        
+
+        const fixedName = Functions.removeMapGametypePrefix(Functions.removeUnr(this.props.data.name)).toLowerCase();
+        const images = JSON.parse(this.props.images);
+
+        const index = images.indexOf(fixedName);
+        
+
+        if(index !== -1){
+            return `/images/maps/${images[index]}.jpg`;
+        }
+
+        return `/images/temp.jpg`;
+    }
+
     render(){
+
         return (<div className={styles.wrapper}>
             <div className={styles.title}>
                 {Functions.removeUnr(this.props.data.name)}
@@ -17,17 +34,19 @@ class MapDefaultBox extends React.Component{
                     {(this.props.data.author !== "") ? `By ${this.props.data.author}` : ""}           
                 </div>
                 <div className={styles.enter}>
-                    Ideal Player Count {this.props.data.ideal_player_count}<br/>
-                    {this.props.data.level_enter_text}
+                    {(this.props.data.ideal_player_count !== '') ? "Ideal Player Count " : ""}
+                    {(this.props.data.ideal_player_count !== '') ? <span className="yellow">{this.props.data.ideal_player_count}</span> : ""}<br/>
+
+                    <span className={styles.levelenter}>{(this.props.data.level_enter_text !== "") ? `"${this.props.data.level_enter_text}"` : ""}</span>
                 </div>
             </div>
-            <Image src={'/images/temp.jpg'} width={480} height={270} alt="image"/>
+            <Image src={this.getImage()} width={480} height={270} alt="image"/>
             <div className={styles.info}>
                 
-                Matches {this.props.data.matches}<br/>
-                Playtime {parseFloat(this.props.data.playtime / (60 * 60)).toFixed(2)} Hours<br/>
-                First <TimeStamp timestamp={this.props.data.first}/><br/>
-                Last <TimeStamp timestamp={this.props.data.last}/><br/>
+                <span className="yellow">Matches</span> {this.props.data.matches}<br/>
+                <span className="yellow">Playtime</span> {parseFloat(this.props.data.playtime / (60 * 60)).toFixed(2)} Hours<br/>
+                <span className="yellow">First</span> <TimeStamp timestamp={this.props.data.first}/><br/>
+                <span className="yellow">Last</span> <TimeStamp timestamp={this.props.data.last}/><br/>
             </div>
         </div>);
     }

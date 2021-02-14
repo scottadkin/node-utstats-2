@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import DefaultHead from '../components/defaulthead'
-import Nav from '../components/Nav/'
-import Footer from '../components/Footer/'
-import MapManager from '../api/maps'
-import MapList from '../components/MapList/'
+import DefaultHead from '../components/defaulthead';
+import Nav from '../components/Nav/';
+import Footer from '../components/Footer/';
+import MapManager from '../api/maps';
+import MapList from '../components/MapList/';
+import Functions from '../api/functions'
 
 function Maps(props){
 
@@ -19,7 +20,7 @@ function Maps(props){
                 <div className="default-header">
                     Maps
                 </div>
-                <MapList data={props.maps}/>
+                <MapList data={props.maps} images={props.images}/>
                 </div>
             </div>
             <Footer />
@@ -29,17 +30,20 @@ function Maps(props){
 }
 
 
-export async function getServerSideProps(){
+export async function getServerSideProps({query}){
 
-    const Manager = new MapManager();
+    const manager = new MapManager();
 
-    const maps = JSON.stringify(await Manager.getAll());
+    const maps = await manager.getAll();
 
-    //console.log(await Manager.getAll());
+    const names = Functions.getUniqueValues(maps, 'name');
+    const images = await manager.getImages(names);
+
 
     return {
         props: {
-            maps
+            "maps": JSON.stringify(maps),
+            "images": JSON.stringify(images)
         }
     };
 }

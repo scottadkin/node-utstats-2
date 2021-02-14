@@ -202,7 +202,7 @@ class Maps{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_maps";
+            const query = "SELECT * FROM nstats_maps ORDER BY name ASC";
 
             const data = [];
 
@@ -304,9 +304,9 @@ class Maps{
         const exists = [];
 
         for(let i = 0; i < names.length; i++){
-  
-            if(files.indexOf(`${this.removePrefix(names[i].toLowerCase())}.jpg`) !== -1){
-                exists.push(this.removePrefix(names[i].toLowerCase()));
+            
+            if(files.indexOf(`${this.removeUnr(this.removePrefix(names[i].toLowerCase()))}.jpg`) !== -1){
+                exists.push(this.removeUnr(this.removePrefix(names[i].toLowerCase())));
             }
         }
 
