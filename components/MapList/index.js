@@ -15,10 +15,14 @@ class MapList extends React.Component{
 
         const maps = JSON.parse(this.props.data);
 
+        if(maps.length === 0){
+            return (<div></div>);
+        }
+
         if(this.props.displayType === 1){
 
             for(let i = 0; i < maps.length; i++){
-                elems.push(<MapTableRow data={maps[i]}/>);
+                elems.push(<MapTableRow key={i} data={maps[i]}/>);
             }
 
             return (<div className="special-table">

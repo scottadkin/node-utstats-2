@@ -336,13 +336,21 @@ class Maps{
         });
     }
 
-    getTotalResults(){
+    getTotalResults(name){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT COUNT(*) as total_results FROM nstats_maps";
+            if(name === undefined) name = "";
 
-            mysql.query(query, (err, result) =>{
+            let query = "SELECT COUNT(*) as total_results FROM nstats_maps";
+            let vars = [];
+
+            if(name !== ""){
+                query = "SELECT COUNT(*) as total_results FROM nstats_maps WHERE name LIKE(?)";
+                vars = [`%${name}%`];
+            }
+
+            mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
 
@@ -355,7 +363,7 @@ class Maps{
     }
 
 
-    get(page, perPage){
+    get(page, perPage, name){
 
         return new Promise((resolve, reject) =>{
 
@@ -370,9 +378,16 @@ class Maps{
 
             const start = page * perPage;
 
-            const query = "SELECT * FROM nstats_maps ORDER BY name ASC, id DESC LIMIT ?, ?";
+            let query = "SELECT * FROM nstats_maps ORDER BY name ASC, id DESC LIMIT ?, ?";
+            let vars = [start, perPage];
+            
 
-            mysql.query(query, [start, perPage], (err, result) =>{
+            if(name !== ""){
+                query = "SELECT * FROM nstats_maps WHERE name LIKE(?) ORDER BY name ASC, id DESC LIMIT ?, ?";
+                vars = [`%${name}%`, start, perPage]
+            }
+
+            mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
 

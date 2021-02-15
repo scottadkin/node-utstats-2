@@ -2,6 +2,7 @@ import styles from './MapDefaultBox.module.css';
 import Image from 'next/image';
 import Functions from '../../api/functions';
 import TimeStamp from '../TimeStamp/';
+import Link from 'next/link';
 
 class MapDefaultBox extends React.Component{
 
@@ -27,7 +28,7 @@ class MapDefaultBox extends React.Component{
 
     render(){
 
-        return (<div className={styles.wrapper}>
+        return (<Link href={`/map/${this.props.data.id}`}><a><div className={styles.wrapper}>
             <div className={styles.title}>
                 {Functions.removeUnr(this.props.data.name)}
                 <div className={styles.author}>
@@ -48,7 +49,7 @@ class MapDefaultBox extends React.Component{
                 <span className="yellow">First</span> <TimeStamp timestamp={this.props.data.first}/><br/>
                 <span className="yellow">Last</span> <TimeStamp timestamp={this.props.data.last}/><br/>
             </div>
-        </div>);
+        </div></a></Link>);
     }
 }
 
