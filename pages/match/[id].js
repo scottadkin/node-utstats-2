@@ -332,6 +332,8 @@ export async function getServerSideProps({query}){
 
     let weaponData = await weaponManager.getMatchData(matchId);
 
+    if(weaponData === undefined) weaponData = [];
+
     weaponData = JSON.stringify(weaponData);
 
     const itemsManager = new Items();

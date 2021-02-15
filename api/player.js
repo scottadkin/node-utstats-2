@@ -401,6 +401,8 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
+            if(ids.length === 0){ resolve(new Map())}
+
             const query = "SELECT id,name FROM nstats_player_totals WHERE id IN(?)";
 
             const data = new Map();

@@ -33,6 +33,8 @@ const setPlayersDetails = (weaponData, players) =>{
 
     let currentPlayer = 0;
 
+    if(weaponData === undefined) return;
+
     for(let i = 0; i < weaponData.length; i++){
 
         currentPlayer = mapData.get(weaponData[i].player_id);
@@ -62,16 +64,20 @@ const MatchWeaponSummary = ({data, players, bTeamGame}) =>{
 
     let currentId = 0;
 
-    for(let i = 0; i < data.names.length; i++){
+    if(data.names !== undefined){
 
-        currentId = data.names[i].id;
-        if(data.names[i].name.toLowerCase() !== 'none'){
-            elems.push(
-                <MatchWeapon key={`match_weapon_${data.names[i].name}`} name={data.names[i].name} data={getWeaponData(currentId, data.playerData)} bTeamGame={bTeamGame}/>
-            );
+        for(let i = 0; i < data.names.length; i++){
+
+            currentId = data.names[i].id;
+            if(data.names[i].name.toLowerCase() !== 'none'){
+                elems.push(
+                    <MatchWeapon key={`match_weapon_${data.names[i].name}`} name={data.names[i].name} data={getWeaponData(currentId, data.playerData)} bTeamGame={bTeamGame}/>
+                );
+            }
+            
         }
-        
     }
+    
 
     return (
         <div>
