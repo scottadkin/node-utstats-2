@@ -1,67 +1,64 @@
 import DefaultHead from '../components/defaulthead'
 import Nav from '../components/Nav/'
 import Footer from '../components/Footer/';
-import Servers from '../api/servers';
-import ServerBox from '../components/ServerBox/'
+import Matches from '../api/matches';
+import MatchesDefaultView from '../components/MatchesDefaultView/';
+import Functions from '../api/functions';
+import Maps from '../api/maps';
 
 
-function Home({servers}) {
+
+function Home({matchesData}) {
 
   //console.log(`servers`);
-  console.log(servers);
+	const elems = [];
+	const matchElems = [];
 
-   servers = JSON.parse(servers);
-  const elems = [];
 
-  for(let i = 0; i < servers.length; i++){
-
-    elems.push(
-
-      <ServerBox key={servers[i].id} data={servers[i]} />
-    );
-  }
-
-  return (
-    <div>
-      <DefaultHead />
-     
-      <main>
-        <Nav />
-        <div id="content">
-          <div className="default">
-            <div className="default-header">
-              Servers
-            </div>
-          {elems}
-          </div>
-        </div>
-        <Footer />
-      </main>   
-    </div>
-  )
+	return (
+		<div>
+		<DefaultHead />
+		
+		<main>
+			<Nav />
+			<div id="content">
+				<div className="default">
+					<div className="default-header">
+						Welcome to Node UTStats 2
+					</div>
+				{elems}
+				</div>
+				<div className="default-header">Recent Matches</div>
+				<MatchesDefaultView images={"[]"} data={matchesData}/>
+			</div>
+			<Footer />
+		</main>   
+		</div>
+	)
 }
 
-// This gets called on every request
+
 export async function getServerSideProps() {
-  // Fetch data from external API
 
-  const s = new Servers();
+	const matchManager = new Matches();
+	const mapManager = new Maps();
 
-  let potatoes = await s.debugGetAllServers();
-  let servers = JSON.stringify(potatoes);
+	let matchesData = await matchManager.getRecent(1,5);
 
-  // Pass data to the page via props
-  return { props: { servers } }
+	const mapIds = Functions.getUniqueValues(matchesData, 'map');
+
+	const mapNames = await mapManager.getNames(mapIds);
+
+	Functions.setIdNames(matchesData, mapNames, 'map', 'mapName');
+
+	console.log(mapNames);
+	console.log(matchesData[0]);
+
+	return { props: { 
+			"matchesData": JSON.stringify(matchesData)
+	 	} 
+	}
 }
 
 export default Home;
 
-/**
- <main className={styles.main}>
-        <Nav />
-        <div id={styles.ff}>
-          FARTAT
-        </div>
-        
-      </main>
- */

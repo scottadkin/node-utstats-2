@@ -108,13 +108,13 @@ export async function getServerSideProps({query}){
 
 
     let page = 1;
-    let perPage = 5;
+    let perPage = 25;
     let displayType = 0;
     let name = "";
 
     page = Functions.setSafeInt(query.page, 1, 1);
-    perPage = Functions.setSafeInt(query.perPage, 5, 1, 100);
-    displayType = Functions.setSafeInt(query.displayType, 1);
+    perPage = Functions.setSafeInt(query.perPage, 25, 1, 100);
+    displayType = Functions.setSafeInt(query.displayType, 0);
 
     if(query.name !== undefined){
 
