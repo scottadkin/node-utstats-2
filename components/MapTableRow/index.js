@@ -1,4 +1,4 @@
-import TimeStamp from '../timestamp';
+import TimeStamp from '../TimeStamp';
 import Functions from '../../api/functions';
 
 class MapTableRow extends React.Component{
