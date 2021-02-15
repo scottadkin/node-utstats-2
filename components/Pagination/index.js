@@ -28,6 +28,7 @@ const PageButton = ({url, page, anchor, current}) =>{
 
 const Pagination = ({currentPage, results, pages, perPage, url, anchor}) =>{
 
+    console.log(currentPage, results, pages, perPage, url, anchor);
     currentPage = parseInt(currentPage);
     pages = parseInt(pages);
     //console.log(currentPage);

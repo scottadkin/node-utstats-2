@@ -29,7 +29,7 @@ function getMapImage(maps, name){
         return `/images/maps/${maps[index]}.jpg`;
     }
 
-    return '/images/temp.jpg';
+    return '/images/defaultmap.jpg';
 }
 
 function getServerName(servers, id){

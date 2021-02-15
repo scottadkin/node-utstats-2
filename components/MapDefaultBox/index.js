@@ -22,7 +22,7 @@ class MapDefaultBox extends React.Component{
             return `/images/maps/${images[index]}.jpg`;
         }
 
-        return `/images/temp.jpg`;
+        return `/images/defaultmap.jpg`;
     }
 
     render(){

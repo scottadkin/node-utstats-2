@@ -163,6 +163,34 @@ class Functions{
         return name;
     }
 
+    static setSafeInt(value, defaultValue, minValue, maxValue){
+
+        if(defaultValue === undefined) defaultValue = 1;
+
+        if(value === undefined) return defaultValue;
+
+        value = parseInt(value);
+
+        if(value !== value){
+            return defaultValue;
+        }
+
+        if(minValue !== undefined){
+
+            if(value < minValue){
+                return minValue;
+            }
+        }
+
+        if(maxValue !== undefined){
+
+            if(value > maxValue){
+                return maxValue;
+            }
+        }
+
+        return value;
+    }
 }
 
 module.exports = Functions;

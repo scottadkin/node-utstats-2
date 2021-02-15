@@ -212,9 +212,7 @@ class Maps{
 
                 if(result !== undefined){
                    
-                    for(let i = 0; i < result.length; i++){
-                        data.push(result[i]);
-                    }
+                    resolve(result);
                 }
 
                 resolve(data);
@@ -334,6 +332,55 @@ class Maps{
                 }
 
                 resolve(data);
+            });
+        });
+    }
+
+    getTotalResults(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_results FROM nstats_maps";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result[0].total_results);
+                }
+                resolve(0);
+            });
+        });
+    }
+
+
+    get(page, perPage){
+
+        return new Promise((resolve, reject) =>{
+
+            page = parseInt(page);
+            perPage = parseInt(perPage);
+
+            if(page !== page || perPage !== perPage){
+                return [];
+            }
+
+            page--;
+
+            const start = page * perPage;
+
+            const query = "SELECT * FROM nstats_maps ORDER BY name ASC, id DESC LIMIT ?, ?";
+
+            mysql.query(query, [start, perPage], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                   
+                    resolve(result);
+                }
+                resolve([]);
             });
         });
     }
