@@ -111,46 +111,47 @@ class Players extends React.Component{
                     <div className="default-header">
                         Players
                     </div>
-                    
-                    <input type="text" name="name" id="name" autoComplete="off" className="default-textbox" placeholder="Player Name..." value={this.state.name} 
-                    onChange={this.handleNameChange}/>
-                    <div className="select-row">
-                        <div className="select-label">Sort Type</div>
-                        <select id="sortType" className="default-select" name="sortType" value={this.state.value} onChange={this.handleSortChange}>
-                            <option value="name">Name</option>
-                            <option value="country">Country</option>
-                            <option value="matches">Matches</option>
-                            <option value="score">Score</option>
-                            <option value="kills">Kills</option>
-                            <option value="deaths">Deaths</option>
-                            <option value="first">First</option>
-                            <option value="last">Last</option>
-                        </select>
-                    </div>
-                    <div className="select-row">
-                        <div className="select-label">Order</div>
-                        <select id="order-type" className="default-select"  value={this.state.order} name="order-type" onChange={this.handleOrderChange}>
-                            <option value="ASC">Ascending</option>
-                            <option value="DESC">Descending</option>
-                        </select>
-                    </div>
-                    <div className="select-row">
-                        <div className="select-label">Display Per Page</div>
-                        <select id="perPage" value={this.state.perPage} name="perPage" className="default-select" onChange={this.handlePerPageChange}>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="75">75</option>
-                            <option value="100">100</option>
-                        </select>
-                    </div>
+                    <form>
+                        <input type="text" name="name" id="name" autoComplete="off" className="default-textbox" placeholder="Player Name..." value={this.state.name} 
+                        onChange={this.handleNameChange}/>
+                        <div className="select-row">
+                            <div className="select-label">Sort Type</div>
+                            <select id="sortType" className="default-select" name="sortType" value={this.state.value} onChange={this.handleSortChange}>
+                                <option value="name">Name</option>
+                                <option value="country">Country</option>
+                                <option value="matches">Matches</option>
+                                <option value="score">Score</option>
+                                <option value="kills">Kills</option>
+                                <option value="deaths">Deaths</option>
+                                <option value="first">First</option>
+                                <option value="last">Last</option>
+                            </select>
+                        </div>
+                        <div className="select-row">
+                            <div className="select-label">Order</div>
+                            <select id="order-type" className="default-select"  value={this.state.order} name="order-type" onChange={this.handleOrderChange}>
+                                <option value="ASC">Ascending</option>
+                                <option value="DESC">Descending</option>
+                            </select>
+                        </div>
+                        <div className="select-row">
+                            <div className="select-label">Display Per Page</div>
+                            <select id="perPage" value={this.state.perPage} name="perPage" className="default-select" onChange={this.handlePerPageChange}>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="75">75</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
 
-                    <div className="select-row">
-                        <div className="select-label">Display</div>
-                        <Option2 title1="Default" title2="Table" value={this.state.displayType} leftEvent={this.selectDisplay1} rightEvent={this.selectDisplay2}/>
-                    </div>
-
+                        <div className="select-row">
+                            <div className="select-label">Display</div>
+                            <Option2 title1="Default" title2="Table" value={this.state.displayType} leftEvent={this.selectDisplay1} rightEvent={this.selectDisplay2}/>
+                            <input type="hidden" name="displayType" value={this.state.displayType}/>
+                        </div>
+                    </form>
                     
                     
                     <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
