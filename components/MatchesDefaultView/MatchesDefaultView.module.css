@@ -15,22 +15,22 @@
 }
 
 .content img{
-    width:480px;
-    height:270px; 
+    width:384px;
+    height:216px; 
 }
 
 .server{
-    font-size:14px;
+    font-size:12px;
     color:yellow;
 }
 
 .gametype{
-    font-size:14px;
+    font-size:12px;
     padding:10px;
 }
 
 
 .info{
-    font-size:14px;
-    line-height:20px;
+    font-size:12px;
+    line-height:18px;
 }

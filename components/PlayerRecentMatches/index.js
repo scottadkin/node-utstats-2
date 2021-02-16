@@ -86,7 +86,7 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
                     { (m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"}
                 </div>
                 <div className={styles.image}>
-                    <Image width={480} height={270} src={mapImage} />
+                    <Image width={384} height={216} src={mapImage} />
                 </div>
                 <div className={styles.info}>
                     <span className="yellow">{getServerName(serverNames, m.server)}</span><br/>

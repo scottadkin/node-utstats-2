@@ -41,7 +41,7 @@ class MapDefaultBox extends React.Component{
                     <span className={styles.levelenter}>{(this.props.data.level_enter_text !== "") ? `"${this.props.data.level_enter_text}"` : ""}</span>
                 </div>
             </div>
-            <Image src={this.getImage()} width={480} height={270} alt="image"/>
+            <Image src={this.getImage()} width={384} height={216} alt="image"/>
             <div className={styles.info}>
                 
                 <span className="yellow">Matches</span> {this.props.data.matches}<br/>

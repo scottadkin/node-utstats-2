@@ -51,7 +51,7 @@ export async function getServerSideProps() {
 
 	//get gametype mapNames
 	//get server names
-	let matchesData = await matchManager.getRecent(0,5);
+	let matchesData = await matchManager.getRecent(0,4);
 
 	const mapIds = Functions.getUniqueValues(matchesData, 'map');
 	const gametypeIds = Functions.getUniqueValues(matchesData, 'gametype');
