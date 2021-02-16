@@ -9,6 +9,9 @@ import Gametypes from '../api/gametypes';
 import Servers from '../api/servers';
 
 
+//change match pickspus to show icons next to Then
+//spearate health&armor weapons, powerups
+
 
 function Home({matchesData}) {
 
@@ -28,11 +31,29 @@ function Home({matchesData}) {
 					<div className="default-header">
 						Welcome to Node UTStats 2
 					</div>
-				{elems}
+					Here you can look up information on UT matches and players.
+				</div>
+				<div className="default">
+					<div className="default-header">
+						General Statistics
+					</div>
+					total matches total players ect, alst 24 last week ,,,
 				</div>
 				<div className="default">
 					<div className="default-header">Recent Matches</div>
 					<MatchesDefaultView images={"[]"} data={matchesData}/>
+				</div>
+				<div className="default">
+					<div className="default-header">
+						Recent Players
+					</div>
+					fasoi hfoaishf ihasofi aoihf oaisfosha
+				</div>
+				<div className="default">
+					<div className="default-header">
+						Most Popular Countires
+					</div>
+					fasoi hfoaishf ihasofi aoihf oaisfosha
 				</div>
 			</div>
 			<Footer />
@@ -49,8 +70,6 @@ export async function getServerSideProps() {
 	const gametypeManager = new Gametypes();
 	const serverManager = new Servers();
 
-	//get gametype mapNames
-	//get server names
 	let matchesData = await matchManager.getRecent(0,4);
 
 	const mapIds = Functions.getUniqueValues(matchesData, 'map');

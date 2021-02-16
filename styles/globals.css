@@ -73,6 +73,7 @@ footer{
   width:95%;
   margin-left:auto;
   margin-right:auto;
+  color:white;
 }
 
 
@@ -133,10 +134,11 @@ table{
 
 th{
   font-weight:300;
-  padding:5px;
+  padding:10px 5px;
   color:yellow;
   border:1px solid rgba(255,255,255,0.1);
   background-color:black;
+  font-size:14px;
 
 }
 

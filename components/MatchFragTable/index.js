@@ -3,7 +3,7 @@ import Playtime from '../Playtime/';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import TipHeader from '../TipHeader/';
-
+import MMSS from '../MMSS/'
 const MatchFragTable = ({players, team, matchStart}) =>{
 
     players = JSON.parse(players);
@@ -51,7 +51,7 @@ const MatchFragTable = ({players, team, matchStart}) =>{
 
         elems.push(<tr key={`frag_tr_${team}_${i}`} className={bgColor}>
             <td className="text-left"><CountryFlag key={`frag_country__${team}_${i}`} country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
-            <td><Playtime key={`frag_playtime__${team}_${i}`} seconds={p.playtime - matchStart} /></td>
+            <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime - matchStart} /></td>
             <td>{p.shortest_kill_distance.toFixed(2)}</td>
             <td>{p.average_kill_distance.toFixed(2)}</td>
             <td>{p.longest_kill_distance.toFixed(2)}</td>
@@ -81,7 +81,7 @@ const MatchFragTable = ({players, team, matchStart}) =>{
 
     elems.push(<tr key={`frag_tr_total__${team}`} className={`${styles.totals}`}>
         <td className="text-left">Totals</td>
-        <td><Playtime key={`frag_country__${team}_total`} seconds={totalPlaytime} /></td>
+        <td><MMSS key={`frag_country__${team}_total`} timestamp={totalPlaytime} /></td>
         <td></td>
         <td></td>
         <td></td>

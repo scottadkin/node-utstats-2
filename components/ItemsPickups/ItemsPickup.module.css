@@ -13,29 +13,27 @@
 
 .wrapper table td{
     font-weight:300;
-    padding:2px 0px;
 }
 
 .wrapper table{
     font-size:12px;
-    max-width:1000px;
+    width:auto;
 }
 
 .wrapper table td:nth-child(1){
     text-align:left;
     padding-left:5px;
+    width:auto;
 }
-
-.wrapper table tr:nth-child(1){
-    height:150px;
-}
-
 
 .wrapper table th{
     width:20px;
-    margin-top:-40px;
-    transform:rotate(90deg);
+    max-width:20px;
+    transform:translate(0px, -60px) rotate(90deg);
     background-color:transparent;
+    line-height:14px;
+    font-size:14px;
+    height:150px;
 
 }
 
