@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap');
 
+
+
 * {
   padding: 0;
   margin: 0;
@@ -134,11 +136,10 @@ table{
 
 th{
   font-weight:300;
-  padding:10px 5px;
+  padding:5px;
   color:yellow;
   border:1px solid rgba(255,255,255,0.1);
   background-color:black;
-  font-size:14px;
 
 }
 

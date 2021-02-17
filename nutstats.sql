@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 10, 2021 at 09:11 AM
+-- Generation Time: Feb 17, 2021 at 01:14 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -51,6 +51,20 @@ CREATE TABLE `nstats_assault_objects` (
   `obj_id` int(11) NOT NULL,
   `matches` int(11) NOT NULL,
   `taken` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_countries`
+--
+
+CREATE TABLE `nstats_countries` (
+  `id` int(11) NOT NULL,
+  `code` varchar(2) NOT NULL,
+  `first` int(11) NOT NULL,
+  `last` int(11) NOT NULL,
+  `total` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -573,6 +587,12 @@ ALTER TABLE `nstats_assault_objects`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_countries`
+--
+ALTER TABLE `nstats_countries`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_ctf_caps`
 --
 ALTER TABLE `nstats_ctf_caps`
@@ -724,6 +744,12 @@ ALTER TABLE `nstats_assault_match_objectives`
 -- AUTO_INCREMENT for table `nstats_assault_objects`
 --
 ALTER TABLE `nstats_assault_objects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_countries`
+--
+ALTER TABLE `nstats_countries`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

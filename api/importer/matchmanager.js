@@ -19,20 +19,18 @@ const SpawnManager = require('./spawnmanager');
 const WeaponsManager = require('./weaponsmanager');
 const ItemsManager = require('./itemsmanager');
 const ConnectionsManager = require('./connectionsmanager');
+const CountriesManager = require('./countriesmanager');
 
 class MatchManager{
 
     constructor(data, fileName){
 
-        //console.table(data);
         this.data = data;
         this.fileName = fileName;
 
         new Message(`Starting import of log file ${fileName}`,'note');
 
         this.convertFileToLines();
-
-        //this.import();
 
     }
 
@@ -50,12 +48,6 @@ class MatchManager{
             }
 
             await Logs.insert(this.fileName);
-
-           // console.log(this.weaponsManager);
-
-            
-
-
 
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
@@ -88,13 +80,9 @@ class MatchManager{
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
 
-
-            //console.log(this.gameInfo);
-
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
             const bLMS = this.bLastManStanding();
-
             
             if(this.CTFManager !== undefined){
 
@@ -111,7 +99,6 @@ class MatchManager{
                 }
             }           
             
-
             if(this.assaultManager !== undefined){
 
                 this.assaultManager.mapId = this.mapInfo.mapId;
@@ -172,8 +159,6 @@ class MatchManager{
                 this.setMatchWinners();
             }
 
-
-
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
          
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
@@ -203,7 +188,6 @@ class MatchManager{
                 this.weaponsManager.addKillNames(this.killManager.killNames);
                 await this.weaponsManager.update(this.matchId, this.gametype.currentMatchGametype, this.playerManager);
 
-                //await this.playerManager.updateWeaponStats();
             }
 
             this.itemsManager = new ItemsManager(this.itemLines);
@@ -216,9 +200,14 @@ class MatchManager{
             this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
             await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
 
-            
-            
+        
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
+
+            console.log(this.playerManager.players);
+
+
+            this.countiresManager = new CountriesManager();
+            this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
 
         }catch(err){
             console.trace(err);

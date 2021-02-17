@@ -24,7 +24,6 @@ class PlayerManager{
         this.duplicateNames = [];
         this.orginalIds = new Map();
     
-
         this.faces = new Faces();
         this.voices = new Voices();
         this.spawnManager = spawnManager;
