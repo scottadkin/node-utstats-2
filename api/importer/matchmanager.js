@@ -203,8 +203,6 @@ class MatchManager{
         
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
-            console.log(this.playerManager.players);
-
 
             this.countiresManager = new CountriesManager();
             this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
@@ -461,34 +459,36 @@ class MatchManager{
 
             new Message(`Match is not a team game,`,'note');
 
-            this.playerManager.sortByScore();
+            
+            if(this.playerManager.players.length > 0){
+                this.playerManager.sortByScore();
+                const winnerScore =  this.playerManager.players[0].stats.score;
+                const winnerDeaths =  this.playerManager.players[0].stats.deaths;
 
-            const winnerScore =  this.playerManager.players[0].stats.score;
-            const winnerDeaths =  this.playerManager.players[0].stats.deaths;
+                let p = 0;
 
-            let p = 0;
+                let totalWinningPlayers = 0;
 
-            let totalWinningPlayers = 0;
+                for(let i = 0; i < this.playerManager.players.length; i++){
 
-            for(let i = 0; i < this.playerManager.players.length; i++){
+                    p = this.playerManager.players[i];
 
-                p = this.playerManager.players[i];
-
-                if(p.stats.score === winnerScore && p.stats.deaths === winnerDeaths){
-                    totalWinningPlayers++;
+                    if(p.stats.score === winnerScore && p.stats.deaths === winnerDeaths){
+                        totalWinningPlayers++;
+                    }
                 }
-            }
 
-            if(totalWinningPlayers === 1){
-                this.playerManager.players[0].bWinner = true;
-            }else{
+                if(totalWinningPlayers === 1){
+                    this.playerManager.players[0].bWinner = true;
+                }else{
 
-                for(let i = 0; i < totalWinningPlayers; i++){
-                    this.playerManager.players[i].bDrew = true;
+                    for(let i = 0; i < totalWinningPlayers; i++){
+                        this.playerManager.players[i].bDrew = true;
+                    }
                 }
-            }
 
-            this.setDmWinner(this.playerManager.players[0].name, this.playerManager.players[0].stats.score);
+                this.setDmWinner(this.playerManager.players[0].name, this.playerManager.players[0].stats.score);
+            }
         }
 
         new Message(`Set player match winners.`,'pass');

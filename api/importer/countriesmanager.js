@@ -30,11 +30,11 @@ class CountriesManager{
                 }
             }
 
-            console.log(uses);
-
             for(const [key, value] of Object.entries(uses)){
-
-                await this.update(key, value, date);
+                
+                if(key !== 'undefined'){
+                    await this.update(key, value, date);
+                }
             }
 
         }catch(err){
@@ -101,11 +101,11 @@ class CountriesManager{
 
         try{
 
+            if(code === undefined) return;
+
             if(await this.exists(code)){
-                console.log('ok');
                 await this.updateQuery(code, uses, date);
             }else{
-                console.log('desont ecistyssdg');
                 await this.insert(code, uses, date);
             }
 
