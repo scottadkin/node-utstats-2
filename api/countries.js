@@ -262,6 +262,10 @@ const Countires = (code) =>{
 
     code = code.toUpperCase();
 
+    if(code === 'ALL'){
+        return flags;
+    }
+
     if(flags[code] === undefined){
         return {"code": "XX", "country": 'Unknown'};
     }

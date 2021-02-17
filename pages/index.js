@@ -7,18 +7,18 @@ import Functions from '../api/functions';
 import Maps from '../api/maps';
 import Gametypes from '../api/gametypes';
 import Servers from '../api/servers';
+import PopularCountries from '../components/PopularCountries/';
+import CountryManager from '../api/countriesmanager';
+import Countries from '../api/countries';
 
-
-//change match pickspus to show icons next to Then
-//spearate health&armor weapons, powerups
-
-
-function Home({matchesData}) {
+function Home({matchesData, countriesData}) {
 
   //console.log(`servers`);
 	const elems = [];
 	const matchElems = [];
 
+
+	console.log(countriesData);
 
 	return (
 		<div>
@@ -53,7 +53,7 @@ function Home({matchesData}) {
 					<div className="default-header">
 						Most Popular Countires
 					</div>
-					fasoi hfoaishf ihasofi aoihf oaisfosha
+					<PopularCountries data={countriesData}/>
 				</div>
 			</div>
 			<Footer />
@@ -69,6 +69,7 @@ export async function getServerSideProps() {
 	const mapManager = new Maps();
 	const gametypeManager = new Gametypes();
 	const serverManager = new Servers();
+	const countriesM = new CountryManager();
 
 	let matchesData = await matchManager.getRecent(0,4);
 
@@ -80,6 +81,8 @@ export async function getServerSideProps() {
 	const gametypeNames = await gametypeManager.getNames(gametypeIds);
 	const serverNames = await serverManager.getNames(serverIds);
 
+	const countryData = await countriesM.getMostPopular();
+
 	Functions.setIdNames(matchesData, mapNames, 'map', 'mapName');
 	Functions.setIdNames(matchesData, gametypeNames, 'gametype', 'gametypeName');
 	Functions.setIdNames(matchesData, serverNames, 'server', 'serverName');
@@ -87,8 +90,15 @@ export async function getServerSideProps() {
 	console.log(mapNames);
 	console.log(matchesData[0]);
 
+	for(let i = 0; i < countryData.length; i++){
+
+		countryData[i]['name'] = Countries(countryData[i].code).country;
+	}
+
 	return { props: { 
-			"matchesData": JSON.stringify(matchesData)
+			"matchesData": JSON.stringify(matchesData),
+			"countriesData": JSON.stringify(countryData),
+			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}
 }
