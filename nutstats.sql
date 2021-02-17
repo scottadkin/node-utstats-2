@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 17, 2021 at 01:14 PM
+-- Generation Time: Feb 17, 2021 at 08:41 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -208,6 +208,25 @@ CREATE TABLE `nstats_items_player` (
   `last` int(11) NOT NULL,
   `uses` int(11) NOT NULL,
   `matches` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_kills`
+--
+
+CREATE TABLE `nstats_kills` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `timestamp` float NOT NULL,
+  `killer` int(11) NOT NULL,
+  `killer_team` int(11) NOT NULL,
+  `victim` int(11) NOT NULL,
+  `victim_team` int(11) NOT NULL,
+  `killer_weapon` int(11) NOT NULL,
+  `victim_weapon` int(11) NOT NULL,
+  `distance` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -647,6 +666,12 @@ ALTER TABLE `nstats_items_player`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_kills`
+--
+ALTER TABLE `nstats_kills`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_logs`
 --
 ALTER TABLE `nstats_logs`
@@ -804,6 +829,12 @@ ALTER TABLE `nstats_items_match`
 -- AUTO_INCREMENT for table `nstats_items_player`
 --
 ALTER TABLE `nstats_items_player`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_kills`
+--
+ALTER TABLE `nstats_kills`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

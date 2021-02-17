@@ -1,5 +1,6 @@
 const Kill =  require('./kill');
 const Message = require('../message');
+const KillsManager = require('../kills');
 
 class KillManager{
 
@@ -7,6 +8,8 @@ class KillManager{
 
         this.data = data;
         this.kills = [];
+
+        this.killsManager = new KillsManager();
 
         this.killNames = [];
         this.parseData();
@@ -65,11 +68,10 @@ class KillManager{
                 );
 
             }else if(suicideReg.test(d)){
+
                 result = suicideReg.exec(d);
-
-                //time, type, killerId, killerWeapon, victimId, victimWeapon, deathType
-
                 this.kills.push(new Kill(result[1], 'suicide', result[2], result[3], -1, null, result[4]));
+
             }else{
                 console.log(d);
             }
@@ -141,6 +143,55 @@ class KillManager{
         }
 
         return found;
+    }
+
+    async insertKills(matchId, playerManager){
+
+        try{
+
+            let k = 0;
+
+            let currentKiller = 0;
+            let currentVictim = 0;
+            let currentKillerTeam = 0;
+            let currentVictimTeam = 0;
+
+            for(let i = 0; i < this.kills.length; i++){
+
+                k = this.kills[i];
+                //make a cache of playerIds 
+                currentKiller = playerManager.getOriginalConnectionById(k.killerId);
+                currentVictim = playerManager.getOriginalConnectionById(k.victimId);
+
+                currentKillerTeam = playerManager.getPlayerTeamAt(k.killerId, k.timestamp);
+                currentVictimTeam = playerManager.getPlayerTeamAt(k.victimId, k.timestamp);
+
+                if(currentKiller === null){
+                    currentKiller = {"masterId": 0};
+                }
+
+                if(currentVictim === null){
+                    currentVictim = {"masterId": 0};
+                }
+
+                //console.log(currentKiller);
+                await this.killsManager.insert(
+                    matchId, 
+                    k.timestamp, 
+                    currentKiller.masterId, 
+                    currentKillerTeam, 
+                    currentVictim.masterId, 
+                    currentVictimTeam, 
+                    -1, 
+                    -1, 
+                    (k.killDistance != null) ? k.killDistance : 0
+                );
+
+            }
+
+        }catch(err){
+            new Message(`KillManager.insertKills() ${err}`,'error');
+        }
     }
 }
 

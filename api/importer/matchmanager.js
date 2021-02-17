@@ -205,7 +205,10 @@ class MatchManager{
 
 
             this.countiresManager = new CountriesManager();
-            this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
+            await this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
+
+
+            await this.killManager.insertKills(this.matchId, this.playerManager);
 
         }catch(err){
             console.trace(err);
