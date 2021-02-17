@@ -10,15 +10,15 @@ import Servers from '../api/servers';
 import PopularCountries from '../components/PopularCountries/';
 import CountryManager from '../api/countriesmanager';
 import Countries from '../api/countries';
+import GeneralStatistics from '../components/GeneralStatistics/';
+import Players from '../api/players';
+import Player from '../api/player';
 
-function Home({matchesData, countriesData}) {
+function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers}) {
 
   //console.log(`servers`);
 	const elems = [];
 	const matchElems = [];
-
-
-	console.log(countriesData);
 
 	return (
 		<div>
@@ -37,11 +37,11 @@ function Home({matchesData, countriesData}) {
 					<div className="default-header">
 						General Statistics
 					</div>
-					total matches total players ect, alst 24 last week ,,,
+					<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 				</div>
 				<div className="default">
 					<div className="default-header">Recent Matches</div>
-					<MatchesDefaultView images={"[]"} data={matchesData}/>
+					<MatchesDefaultView images={"[]"} data={matchesData} />
 				</div>
 				<div className="default">
 					<div className="default-header">
@@ -70,6 +70,7 @@ export async function getServerSideProps() {
 	const gametypeManager = new Gametypes();
 	const serverManager = new Servers();
 	const countriesM = new CountryManager();
+	const playerManager = new Players();
 
 	let matchesData = await matchManager.getRecent(0,4);
 
@@ -87,17 +88,23 @@ export async function getServerSideProps() {
 	Functions.setIdNames(matchesData, gametypeNames, 'gametype', 'gametypeName');
 	Functions.setIdNames(matchesData, serverNames, 'server', 'serverName');
 
-	console.log(mapNames);
-	console.log(matchesData[0]);
-
 	for(let i = 0; i < countryData.length; i++){
 
 		countryData[i]['name'] = Countries(countryData[i].code).country;
 	}
 
+	const totalMatches = await matchManager.getTotal();
+	const firstMatch = await matchManager.getFirst();
+	const lastMatch = await matchManager.getLast();
+	const totalPlayers = await playerManager.getTotalPlayers();
+
 	return { props: { 
 			"matchesData": JSON.stringify(matchesData),
 			"countriesData": JSON.stringify(countryData),
+			"totalMatches": totalMatches,
+			"firstMatch": firstMatch,
+			"lastMatch": lastMatch,
+			"totalPlayers": totalPlayers
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}

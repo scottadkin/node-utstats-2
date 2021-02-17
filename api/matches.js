@@ -240,6 +240,42 @@ class Matches{
         });
     }
 
+
+    getFirst(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT date FROM nstats_matches ORDER BY date ASC LIMIT 1";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result[0].date);
+                }   
+                resolve(0);
+            });
+        });
+    }
+
+    getLast(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT date FROM nstats_matches ORDER BY date DESC LIMIT 1";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result[0].date);
+                }   
+                resolve(0);
+            });
+        });
+    }
     
 }
 module.exports = Matches;
