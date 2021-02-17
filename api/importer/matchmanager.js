@@ -208,7 +208,7 @@ class MatchManager{
             await this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
 
 
-            await this.killManager.insertKills(this.matchId, this.playerManager);
+            await this.killManager.insertKills(this.matchId, this.playerManager, this.weaponsManager);
 
         }catch(err){
             console.trace(err);

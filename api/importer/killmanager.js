@@ -145,16 +145,19 @@ class KillManager{
         return found;
     }
 
-    async insertKills(matchId, playerManager){
+    async insertKills(matchId, playerManager, weaponsManager){
 
         try{
 
+            //console.log(weaponsManager.weapons);
             let k = 0;
 
             let currentKiller = 0;
             let currentVictim = 0;
             let currentKillerTeam = 0;
             let currentVictimTeam = 0;
+            let currentKillerWeapon = 0;
+            let currentVictimWeapon = 0;
 
             for(let i = 0; i < this.kills.length; i++){
 
@@ -165,6 +168,13 @@ class KillManager{
 
                 currentKillerTeam = playerManager.getPlayerTeamAt(k.killerId, k.timestamp);
                 currentVictimTeam = playerManager.getPlayerTeamAt(k.victimId, k.timestamp);
+
+                currentKillerWeapon = weaponsManager.weapons.getSavedWeaponByName(k.killerWeapon);
+                currentVictimWeapon = weaponsManager.weapons.getSavedWeaponByName(k.victimWeapon);
+
+
+                if(currentKillerWeapon === null) currentKillerWeapon = 0;
+                if(currentVictimWeapon === null) currentVictimWeapon = 0;
 
                 if(currentKiller === null){
                     currentKiller = {"masterId": 0};
@@ -182,8 +192,8 @@ class KillManager{
                     currentKillerTeam, 
                     currentVictim.masterId, 
                     currentVictimTeam, 
-                    -1, 
-                    -1, 
+                    currentKillerWeapon, 
+                    currentVictimWeapon, 
                     (k.killDistance != null) ? k.killDistance : 0
                 );
 
