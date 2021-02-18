@@ -125,12 +125,12 @@ class GraphCanvas{
 
         c.beginPath();
         c.moveTo(x, y);
+
         this.lineToAndBack(c, x, x - valueLineSize, y , y);
         this.lineToAndBack(c, x, x - valueLineSize, y + quaterHeight, y + quaterHeight);
         this.lineToAndBack(c, x, x - valueLineSize, y + (quaterHeight * 2), y + (quaterHeight * 2));
         this.lineToAndBack(c, x, x - valueLineSize, y + (quaterHeight * 3), y + (quaterHeight * 3));
         this.lineToAndBack(c, x, x - valueLineSize, y + (quaterHeight * 4), y + (quaterHeight * 4));
-
 
         c.lineTo(x, y + gHeight);
         c.lineTo(x + gWidth, y + gHeight);

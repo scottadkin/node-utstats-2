@@ -14,7 +14,7 @@ import GeneralStatistics from '../components/GeneralStatistics/';
 import Players from '../api/players';
 import Player from '../api/player';
 
-function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers}) {
+function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages}) {
 
   //console.log(`servers`);
 	const elems = [];
@@ -41,7 +41,7 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 				</div>
 				<div className="default">
 					<div className="default-header">Recent Matches</div>
-					<MatchesDefaultView images={"[]"} data={matchesData} />
+					<MatchesDefaultView images={mapImages} data={matchesData} />
 				</div>
 				<div className="default">
 					<div className="default-header">
@@ -98,13 +98,22 @@ export async function getServerSideProps() {
 	const lastMatch = await matchManager.getLast();
 	const totalPlayers = await playerManager.getTotalPlayers();
 
+	let justMapNames = [];
+
+	for(const [ket, value] of Object.entries(mapNames)){
+		justMapNames.push(Functions.removeUnr(Functions.removeMapGametypePrefix(value)));
+	}
+
+	const mapImages = await mapManager.getImages(justMapNames);
+
 	return { props: { 
 			"matchesData": JSON.stringify(matchesData),
 			"countriesData": JSON.stringify(countryData),
 			"totalMatches": totalMatches,
 			"firstMatch": firstMatch,
 			"lastMatch": lastMatch,
-			"totalPlayers": totalPlayers
+			"totalPlayers": totalPlayers,
+			"mapImages": JSON.stringify(mapImages)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}
