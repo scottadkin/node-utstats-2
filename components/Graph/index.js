@@ -74,6 +74,12 @@ class GraphCanvas{
         return (this.canvas.height / 100) * input;
     }
 
+    lineToAndBack(c, startX, endX, startY, endY){
+
+        c.lineTo(startX, startY);
+        c.lineTo(endX, endY);
+        c.lineTo(startX, startY);
+    }
 
     render(){
 
@@ -118,24 +124,13 @@ class GraphCanvas{
         const valueLineSize = this.scaleX(1);
 
         c.beginPath();
-        c.moveTo(x - valueLineSize, y);
-        c.lineTo(x, y);
-        c.lineTo(x, y + quaterHeight);
-        c.lineTo(x - valueLineSize, y + quaterHeight);
-        c.lineTo(x, y + quaterHeight);
+        c.moveTo(x, y);
+        this.lineToAndBack(c, x, x - valueLineSize, y , y);
+        this.lineToAndBack(c, x, x - valueLineSize, y + quaterHeight, y + quaterHeight);
+        this.lineToAndBack(c, x, x - valueLineSize, y + (quaterHeight * 2), y + (quaterHeight * 2));
+        this.lineToAndBack(c, x, x - valueLineSize, y + (quaterHeight * 3), y + (quaterHeight * 3));
+        this.lineToAndBack(c, x, x - valueLineSize, y + (quaterHeight * 4), y + (quaterHeight * 4));
 
-
-        c.lineTo(x, y + (quaterHeight * 2));
-        c.lineTo(x - valueLineSize, y + (quaterHeight * 2));
-        c.lineTo(x, y + (quaterHeight * 2));
-
-        c.lineTo(x, y + (quaterHeight * 3));
-        c.lineTo(x - valueLineSize, y + (quaterHeight * 3));
-        c.lineTo(x, y + (quaterHeight * 3));
-
-        c.lineTo(x, y + (quaterHeight * 4));
-        c.lineTo(x - valueLineSize, y + (quaterHeight * 4));
-        c.lineTo(x, y + (quaterHeight * 4));
 
         c.lineTo(x, y + gHeight);
         c.lineTo(x + gWidth, y + gHeight);
