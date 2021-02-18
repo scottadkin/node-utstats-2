@@ -43,8 +43,12 @@
     text-align:left;
 }
 
+.table tr:nth-child(odd){
+    background-color:rgb(16,16,16);
+}
+
 .suicides{
-    background-color:rgb(64,64,64);
+    background-color:rgb(32,32,32);
 }
 
 .key{
@@ -57,67 +61,18 @@
     max-height:20px;
     line-height:20px;
     padding-left:5px;
-    border:1px solid rgba(255,255,255,0.25);
 }
 
-
-/*
-.potato{
-    width:30px;
-    max-width:30px;
-    min-width:30px;
+.color{
+    width:8px;
+    height:8px;
+    margin-right:5px;
     display:inline-block;
+    border:1px solid rgba(0,0,0,0);
+    border-radius:50%;
 }
 
-.potato div{
-    margin-top:-1px;
-    width:30px;
-    min-width:30px;
-    max-width:30px;
-
+.table tr:hover{
+    background-color:rgb(32,32,32);
 }
 
-
-.first{
-    display:inline-block;
-    width:150px;
-}
-
-
-.first div div:nth-child(1){
-    background-color:black;
-    height:150px;
-    min-height:150px;
-    max-height:150px;
-}
-
-
-
-.tuna{
-    transform:translate(-65px, -35px) rotate(90deg);
-    height:150px;
-    max-height:150px;
-    min-height:150px;
-    width:30px;
-    min-width:30px;
-    max-width:30px;
-    text-align:left;
-}
-
-.data{
-    height:20px;
-    min-height:20px;
-    max-height:20px;
-    font-size:12px;
-    line-height:20px;
-}
-
-.values{
-    border:1px solid rgba(255,255,255,0.25);
-}
-
-
-.wrapper{
-    background-color:red;
-    overflow:hidden;
-}*/

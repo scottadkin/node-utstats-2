@@ -98,7 +98,7 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
 
     for(let i = 0; i < playerNames.length; i++){
 
-        headerElems.push(<th key={`kills-header-${i}`}><div className={`${styles.key} ${Functions.getTeamColor(playerNames[i].team)}`}>{playerNames[i].name}</div></th>);
+        headerElems.push(<th key={`kills-header-${i}`}><div className={`${styles.key}`}><div className={`${styles.color} ${Functions.getTeamColor(playerNames[i].team)}`}></div>{playerNames[i].name}</div></th>);
     }
 
     const rowElems = [];
@@ -127,9 +127,7 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
 
                 onMouseLeave={(() =>{
                     hide();
-                })}
-
-                className={Functions.getTeamColor(playerNames[i].team)} key={`kills-row-${i}-${x}`}>
+                })}>
 
                     {currentKills}
 
@@ -156,7 +154,7 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
         }
 
         rowElems.push(<tr key={`kills-row-${i}`}>
-            <td className={Functions.getTeamColor(playerNames[i].team)}>{playerNames[i].name}</td>
+            <td><div className={`${styles.color} ${Functions.getTeamColor(playerNames[i].team)}`}></div>{playerNames[i].name}</td>
             {columnElems}
         </tr>);
     }
