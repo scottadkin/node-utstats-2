@@ -16,7 +16,8 @@ function getKills(kills, killer, victim){
             total++;
         }
     }
-    if(total === 0) total = '';
+
+    if(total === 0) return '';
     return total;
 }
 
@@ -27,10 +28,58 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
     playerNames.reverse()
     console.log(data);
 
+
+    const elems = [];
+    let subElems = [];
+
+    /*
+
+    let styleClass = "";
+    let currentKills = 0;
+
+    for(let i = -1; i < playerNames.length; i++){
+
+        subElems = [];
+
+        if(i >= 0){
+
+            subElems.push(<div className={styles.tuna}>{playerNames[i].name}</div>);
+
+            for(let x = 0; x < playerNames.length; x++){
+
+                if(x !== i){
+                    styleClass = Functions.getTeamColor((playerNames[x] !== undefined) ? playerNames[x].team : -1);
+                }else{
+                    styleClass = "team-none";
+                }
+
+                currentKills = getKills(data, playerNames[i].id, playerNames[x].id);
+                subElems.push(<div className={`${styles.data} ${styleClass}`}>{(currentKills > 0) ? currentKills : '.'}</div>);
+            }
+        }else{
+            subElems.push(<div>&nbsp;</div>);
+            for(let x = 0; x < playerNames.length; x++){
+                subElems.push(<div className={Functions.getTeamColor((playerNames[x] !== undefined) ? playerNames[x].team : -1)}>{playerNames[x].name}</div>);
+            }
+        }
+
+        elems.push(<div className={`${(i >= 0) ? styles.potato : styles.first} `}>
+            <div className={`${styles.values} ${Functions.getTeamColor((playerNames[i] !== undefined) ? playerNames[i].team : -1)}`}>{subElems}</div>
+        </div>);
+    }
+
+
+
+    return (<div className={styles.wrapper}>
+        <div className="default-header">Kill Match Up</div>
+        {elems}
+    </div>);
+
+    */
     const headerElems = [];
 
 
-    headerElems.push(<th key={`kills-header--1`}>Killer</th>);
+    headerElems.push(<th key={`kills-header--1`}>&nbsp;</th>);
 
     for(let i = 0; i < playerNames.length; i++){
 
@@ -47,7 +96,7 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
         for(let x = 0; x < playerNames.length; x++){
 
             if(i !== x){
-                columnElems.push(<td key={`kills-row-${i}-${x}`}>{getKills(data, playerNames[i].id, playerNames[x].id)}</td>);
+                columnElems.push(<td className={Functions.getTeamColor(playerNames[i].team)} key={`kills-row-${i}-${x}`}>{getKills(data, playerNames[i].id, playerNames[x].id)}</td>);
             }else{
                 columnElems.push(<td className={styles.suicides} key={`kills-row-${i}-${x}`}>{getKills(data, playerNames[i].id, playerNames[x].id)}</td>);
             }
@@ -63,7 +112,7 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
         <div className="default-header">
             Kills Match Up
         </div>
-        <table >
+        <table>
             <tbody>
                 <tr>
                     {headerElems}

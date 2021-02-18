@@ -1,25 +1,38 @@
 .table{
-    max-width:99%;
+
     overflow:auto;
+    table-layout: fixed;
 }
+
+
 
 .table th{
     color:white;
-    transform: translate(0px, -30px) rotate(90deg);
+    transform: translate(0px, -45px) rotate(90deg);
     height:120px;
+    min-height:120px;
+    max-height:120px;
     background:transparent;
     text-align:left;
-    width:20px;
-    min-width:20px;
-    max-width:20px;
+    width:16px;
+    min-width:16px;
+    max-width:16px;
     padding:0px;
+    margin:0px;
+    position:relative;
+    font-size:12px;
 }
 
 .table td{
-    width:20px;
-    max-width:20px;
-    min-width:20px;
+    width:16px;
+    min-width:16px;
+    max-width:16px;
     overflow:hidden;
+    height:16px;
+    min-height:16px;
+    max-height:16px;
+    font-size:12px;
+    padding:2px;
 }
 
 .table td:nth-child(1){
@@ -30,15 +43,79 @@
     text-align:left;
 }
 
-.table th:nth-child(1){
-    text-align:center;
-}   
-
 .suicides{
     background-color:rgb(64,64,64);
 }
 
 .key{
-
+    margin-left:-6px;
+    width:115px;
+    min-width:115px;
+    max-width:115px;
+    height:21px;
+    min-height:20px;
+    max-height:20px;
+    line-height:20px;
+    padding-left:5px;
+    border:1px solid rgba(255,255,255,0.25);
+}
+/*
+.potato{
+    width:30px;
+    max-width:30px;
+    min-width:30px;
     display:inline-block;
 }
+
+.potato div{
+    margin-top:-1px;
+    width:30px;
+    min-width:30px;
+    max-width:30px;
+
+}
+
+
+.first{
+    display:inline-block;
+    width:150px;
+}
+
+
+.first div div:nth-child(1){
+    background-color:black;
+    height:150px;
+    min-height:150px;
+    max-height:150px;
+}
+
+
+
+.tuna{
+    transform:translate(-65px, -35px) rotate(90deg);
+    height:150px;
+    max-height:150px;
+    min-height:150px;
+    width:30px;
+    min-width:30px;
+    max-width:30px;
+    text-align:left;
+}
+
+.fart{
+    height:20px;
+    min-height:20px;
+    max-height:20px;
+    font-size:12px;
+    line-height:20px;
+}
+
+.values{
+    border:1px solid rgba(255,255,255,0.25);
+}
+
+
+.wrapper{
+    background-color:red;
+    overflow:hidden;
+}*/
