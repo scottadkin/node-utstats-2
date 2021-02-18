@@ -1,0 +1,44 @@
+.table{
+    max-width:99%;
+    overflow:auto;
+}
+
+.table th{
+    color:white;
+    transform: translate(0px, -30px) rotate(90deg);
+    height:120px;
+    background:transparent;
+    text-align:left;
+    width:20px;
+    min-width:20px;
+    max-width:20px;
+    padding:0px;
+}
+
+.table td{
+    width:20px;
+    max-width:20px;
+    min-width:20px;
+    overflow:hidden;
+}
+
+.table td:nth-child(1){
+    width:100px;
+    max-width:100px;
+    min-width:100px;
+    overflow:hidden;
+    text-align:left;
+}
+
+.table th:nth-child(1){
+    text-align:center;
+}   
+
+.suicides{
+    background-color:rgb(64,64,64);
+}
+
+.key{
+
+    display:inline-block;
+}

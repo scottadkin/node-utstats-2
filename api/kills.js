@@ -25,6 +25,25 @@ class Kills{
         });
     }
 
+    getMatchData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT timestamp,killer,killer_team,victim,victim_team FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+
+        });
+    }
+
 }
 
 module.exports = Kills;

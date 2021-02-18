@@ -27,6 +27,8 @@ import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
 import Graph from '../../components/Graph/';
+import Kills from '../../api/kills';
+import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 
 
 function bCTF(players){
@@ -88,11 +90,9 @@ function getItemsIds(items){
 
 
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
-    assaultData, itemData, itemNames, connections, teams, faces}){
+    assaultData, itemData, itemNames, connections, teams, faces, killsData}){
 
     const parsedInfo = JSON.parse(info);
-
-    console.log(server);
 
     const parsedPlayerData = JSON.parse(playerData);
 
@@ -162,6 +162,10 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     );
 
     elems.push(
+        <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
+    );
+
+    elems.push(
         <MatchWeaponSummary key={`match_5`} data={weaponData} players={playerData} bTeamGame={parsedInfo.team_game}/>
     );
 
@@ -228,18 +232,14 @@ export async function getServerSideProps({query}){
     let matchInfo = await m.get(matchId);
 
     const s = new Servers();
-
     const serverName = await s.getName(matchInfo.server);
-
     const g = new Gametypes();
     const gametypeName = await g.getName(matchInfo.gametype);
-
     const map = new Maps();
     const mapName = await map.getName(matchInfo.map);
-
     const image = await map.getImage(mapName);
-
     const playerManager = new Player();
+    const killManager = new Kills();
 
     let playerData = await playerManager.getAllInMatch(matchId);
 
@@ -363,6 +363,9 @@ export async function getServerSideProps({query}){
 
     let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
 
+    const killsData = await killManager.getMatchData(matchId);
+
+
     return {
         props: {
             "info": JSON.stringify(matchInfo),
@@ -380,7 +383,8 @@ export async function getServerSideProps({query}){
             "itemNames": JSON.stringify(itemNames),
             "connections": JSON.stringify(connectionsData),
             "teams": JSON.stringify(teamsData),
-            "faces": JSON.stringify(pFaces)
+            "faces": JSON.stringify(pFaces),
+            "killsData": JSON.stringify(killsData)
         }
     };
 
