@@ -174,7 +174,7 @@ class MatchScreenshot{
             for(let i = 0; i < this.flagsToLoad; i++){
 
                 this.flags[uniqueFlags[i]] = new Image();
-                this.flags[uniqueFlags[i]].src = `/images/flags/${uniqueFlags[i]}.svg`;
+                this.flags[uniqueFlags[i]].src = `/images/flags/${uniqueFlags[i].toLowerCase()}.svg`;
 
                 this.flags[uniqueFlags[i]].onload = () =>{
                     this.loadedFlags++;
