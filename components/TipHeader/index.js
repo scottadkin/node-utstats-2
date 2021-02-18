@@ -1,6 +1,6 @@
 const showTipBox = (title, content, event) =>{
 
-    console.log(event);
+    //console.log(event);
 
     const elem = document.getElementById("mouse-over");
     const titleElem = document.getElementById("mouse-over-title");

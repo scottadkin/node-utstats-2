@@ -21,61 +21,76 @@ function getKills(kills, killer, victim){
     return total;
 }
 
+
+function display(event, killer, victim, total, total2){
+
+    const box = document.getElementById("mouse-over");
+    const title = document.getElementById("mouse-over-title");
+    const content = document.getElementById("mouse-over-content");
+
+    box.style.cssText = `display:block;background-color:black;margin-left:${event.pageX + 25}px;margin-top:${event.pageY + 25}px`;
+
+    let titleString = "";
+    let contentString = "";
+
+    if(total === '') total = 0;
+    if(total2 === '') total2 = 0;
+
+    if(killer === victim){
+
+        titleString = `${killer} Suicides`;
+
+        if(total !== 0){
+            contentString = `${killer} suicided ${total} times.`;
+        }else{
+            contentString = `${killer} did not suicide.`;
+        }
+
+    }else{
+
+        titleString = `${killer} vs ${victim}`;
+
+        if(total !== 0){
+
+            let eff = 0;
+
+            if(total > 0 && total2 === 0){
+
+                eff = 100;
+
+            }else if(total !== 0 && total2 !== 0){
+
+                eff = (total / (total + total2)) * 100;
+            }
+
+            contentString = `${killer} killed ${victim} ${total} times.<br/>${victim} killed ${killer} ${total2} times. Efficiency ${eff.toFixed(2)}%`;
+
+        }else{
+            contentString = `None`;
+        }
+    }
+
+
+    title.innerHTML = titleString;
+    content.innerHTML = contentString;
+}
+
+function hide(){
+    const box = document.getElementById("mouse-over");
+    box.style.cssText = `display:none;`;
+}
+
 const MatchKillsMatchup = ({data, playerNames}) =>{
 
     data = JSON.parse(data);
     playerNames = JSON.parse(playerNames);
     playerNames.reverse()
-    console.log(data);
+
 
 
     const elems = [];
     let subElems = [];
 
-    /*
-
-    let styleClass = "";
-    let currentKills = 0;
-
-    for(let i = -1; i < playerNames.length; i++){
-
-        subElems = [];
-
-        if(i >= 0){
-
-            subElems.push(<div className={styles.tuna}>{playerNames[i].name}</div>);
-
-            for(let x = 0; x < playerNames.length; x++){
-
-                if(x !== i){
-                    styleClass = Functions.getTeamColor((playerNames[x] !== undefined) ? playerNames[x].team : -1);
-                }else{
-                    styleClass = "team-none";
-                }
-
-                currentKills = getKills(data, playerNames[i].id, playerNames[x].id);
-                subElems.push(<div className={`${styles.data} ${styleClass}`}>{(currentKills > 0) ? currentKills : '.'}</div>);
-            }
-        }else{
-            subElems.push(<div>&nbsp;</div>);
-            for(let x = 0; x < playerNames.length; x++){
-                subElems.push(<div className={Functions.getTeamColor((playerNames[x] !== undefined) ? playerNames[x].team : -1)}>{playerNames[x].name}</div>);
-            }
-        }
-
-        elems.push(<div className={`${(i >= 0) ? styles.potato : styles.first} `}>
-            <div className={`${styles.values} ${Functions.getTeamColor((playerNames[i] !== undefined) ? playerNames[i].team : -1)}`}>{subElems}</div>
-        </div>);
-    }
-
-
-
-    return (<div className={styles.wrapper}>
-        <div className="default-header">Kill Match Up</div>
-        {elems}
-    </div>);
-
-    */
     const headerElems = [];
 
 
@@ -89,16 +104,54 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
     const rowElems = [];
     let columnElems = [];
 
+    let currentKills = 0;
+
     for(let i = 0; i < playerNames.length; i++){
 
         columnElems = [];
 
         for(let x = 0; x < playerNames.length; x++){
 
+            currentKills = getKills(data, playerNames[i].id, playerNames[x].id);
+
+            console.log(currentKills);
+
             if(i !== x){
-                columnElems.push(<td className={Functions.getTeamColor(playerNames[i].team)} key={`kills-row-${i}-${x}`}>{getKills(data, playerNames[i].id, playerNames[x].id)}</td>);
+
+                columnElems.push(
+                <td key={`km-${i}-${x}`}
+                
+                onMouseEnter={((e) =>{
+                    display(e, playerNames[i].name, playerNames[x].name, getKills(data, playerNames[i].id, playerNames[x].id), getKills(data, playerNames[x].id, playerNames[i].id));
+                })}
+
+                onMouseLeave={(() =>{
+                    hide();
+                })}
+
+                className={Functions.getTeamColor(playerNames[i].team)} key={`kills-row-${i}-${x}`}>
+
+                    {currentKills}
+
+                </td>);
+
             }else{
-                columnElems.push(<td className={styles.suicides} key={`kills-row-${i}-${x}`}>{getKills(data, playerNames[i].id, playerNames[x].id)}</td>);
+                columnElems.push(
+                <td key={`km-${i}-${x}`} 
+                
+                    onMouseEnter={((e) =>{
+                        display(e, playerNames[i].name, playerNames[i].name, getKills(data, playerNames[i].id, playerNames[x].id));
+                    })}
+
+                    onMouseLeave={(() =>{
+                        hide();
+                    })}
+
+                className={styles.suicides} key={`kills-row-${i}-${x}`}>
+
+                    {currentKills}
+                </td>);
+
             }
         }
 
