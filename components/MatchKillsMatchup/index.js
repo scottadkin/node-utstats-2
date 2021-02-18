@@ -86,8 +86,6 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
     playerNames = JSON.parse(playerNames);
     playerNames.reverse()
 
-
-
     const elems = [];
     let subElems = [];
 
@@ -113,8 +111,6 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
         for(let x = 0; x < playerNames.length; x++){
 
             currentKills = getKills(data, playerNames[i].id, playerNames[x].id);
-
-            console.log(currentKills);
 
             if(i !== x){
 
@@ -159,7 +155,7 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
         </tr>);
     }
 
-    return (<div className={styles.table}>
+    return (<div className={`${styles.table} m-bottom-25`}>
         <div className="default-header">
             Kills Match Up
         </div>
