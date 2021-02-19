@@ -12,6 +12,8 @@ class GraphCanvas{
 
         this.data = JSON.parse(data);
 
+        this.mouse = {"x": 0, "y": 0};
+
         this.maxDataDisplay = 8;
         /*this.data = [
             {"name": "test 1", "data": [0,1,2,3,4,5,6]},
@@ -55,6 +57,27 @@ class GraphCanvas{
         this.canvas.onfullscreenerror = (e) =>{
             console.log(e);
         }
+
+        this.canvas.addEventListener("mousemove", (e) =>{
+
+            const toPercent = (input, bWidth) =>{
+            
+                let percent = 0;
+
+                if(bWidth){
+                    percent = (100 / this.canvas.width) * input;
+                }else{
+                    percent = (100 / this.canvas.height) * input;
+                }
+                return parseFloat(parseFloat(percent).toFixed(2));
+            }
+
+            this.mouse.x = toPercent(e.offsetX, true);
+            this.mouse.y = toPercent(e.offsetY, false);
+
+            console.log(this.mouse);
+            
+        });
 
         this.canvas.addEventListener("click", () =>{
 
@@ -141,6 +164,7 @@ class GraphCanvas{
         let currentX = 0;
         let currentY = 0;
 
+        this.createMouseOverData(this.graphWidth / this.mostData);
 
         let d = 0;
 
@@ -174,6 +198,8 @@ class GraphCanvas{
             c.stroke();
             c.closePath();
         }
+
+    
 
     }
     
@@ -214,6 +240,27 @@ class GraphCanvas{
             
 
         }
+    }
+
+
+    createMouseOverData(offsetXBit){
+
+        this.mouseOverData = [];
+
+        const startY = this.scaleY(5);
+        const startX = 1;
+
+        for(let i = 0; i < this.data[0].data.length; i++){
+
+            this.mouseOverData.push({
+                "coordinate": startX + (offsetXBit * i),
+                "title": "",
+                "text": ""
+            });
+        }
+
+        console.log(this.mouseOverData);
+
     }
 
     render(){
