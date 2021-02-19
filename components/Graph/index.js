@@ -3,26 +3,33 @@ import {useEffect, useRef} from 'react';
 
 class GraphCanvas{
 
-    constructor(canvas, title){
+    constructor(canvas, title, data){
 
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
         this.aspectRatio = 2;
         this.title = title;
 
-        this.data = [
+        this.data = JSON.parse(data);
+
+        this.maxDataDisplay = 8;
+        /*this.data = [
             {"name": "test 1", "data": [0,1,2,3,4,5,6]},
             {"name": "DogFood Test", "data": [5,1,2,6,4,15,6]},
             {"name": "test 3", "data": [2,1,2,0,0,0,6]},
             {"name": "test 7564754754", "data": [32,41,2,10,20,10,36]},
-        ];
+        ];*/
 
 
         this.colors = [
             "red",
-            "blue",
-            "green",
-            "yellow"
+            "rgb(60,101,156)",
+            "rgb(0,150,0)",
+            "yellow",
+            "grey",
+            "pink",
+            "orange",
+            "lightblue"
         ];
 
         this.calcMinMax();
@@ -104,7 +111,7 @@ class GraphCanvas{
         const graphHeight = this.scaleY(this.graphHeight);
 
         c.fillStyle = "red";
-        c.lineWidth = this.scaleY(1);
+        c.lineWidth = this.scaleY(0.5);
         const offsetXBit = graphWidth / this.mostData;
         const offsetYBit = graphHeight / this.max;
 
@@ -117,6 +124,8 @@ class GraphCanvas{
         let d = 0;
 
         for(let i = 0; i < this.data.length; i++){
+
+            if(i >= this.maxDataDisplay) return;
 
             if(i < this.colors.length){
 
@@ -137,7 +146,7 @@ class GraphCanvas{
                 currentX = startX + (offsetXBit * x) - (blockSize * 0.5)
                 currentY = startY - (offsetYBit * d.data[x]) - (blockSize * 0.5);
 
-                c.fillRect(currentX, currentY , blockSize, blockSize);
+                //c.fillRect(currentX, currentY , blockSize, blockSize);
                 c.lineTo(currentX + (blockSize * 0.5), currentY + (blockSize * 0.5));
             }
 
@@ -164,6 +173,8 @@ class GraphCanvas{
         let currentX = 0;
 
         for(let i = 0; i < this.data.length; i++){
+
+            if(i >= this.maxDataDisplay) return;
 
             if(i < this.colors.length){
                 c.fillStyle = this.colors[i];
@@ -261,12 +272,12 @@ class GraphCanvas{
     }
 }
 
-const Graph = ({title}) =>{
+const Graph = ({title, data}) =>{
 
     const canvas = useRef(null);
 
     useEffect(() =>{
-        const g1 = new GraphCanvas(canvas.current, "Test Graph");
+        const g1 = new GraphCanvas(canvas.current, "Player Kills", data);
     });
     
 

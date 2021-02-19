@@ -29,6 +29,7 @@ import Faces from '../../api/faces';
 import Graph from '../../components/Graph/';
 import Kills from '../../api/kills';
 import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
+import Functions from '../../api/functions';
 
 
 function bCTF(players){
@@ -89,6 +90,76 @@ function getItemsIds(items){
 }
 
 
+function createKillGraphData(kills, playerNames){
+
+    const data = [];
+
+    const uniquePlayers = Functions.getUniqueValues(kills,'killer');
+
+    //console.log(uniquePlayers);
+
+    for(let i = 0; i < uniquePlayers.length; i++){
+
+        data.push({"name": uniquePlayers[i], "data": [0], "maxValue": 0});
+    }
+
+    const updateOthers = (ignore) =>{
+
+        for(let i = 0; i < data.length; i++){
+
+            if(data[i].name !== ignore){
+                data[i].data.push(data[i].data[data[i].data.length - 1]);
+            }
+        }
+    }
+
+    //console.log(data);
+
+    let currentIndex = 0;
+    let k = 0;
+    let currentValue = 0;
+
+    for(let i = 0; i < kills.length; i++){
+
+        k = kills[i];
+
+        currentIndex = uniquePlayers.indexOf(k.killer);
+
+        if(currentIndex !== -1){
+
+            currentValue = data[currentIndex].data[data[currentIndex].data.length - 1];
+
+            data[currentIndex].data.push(currentValue + 1);
+            data[currentIndex].maxValue = currentValue + 1;
+
+            updateOthers(k.killer);
+        }
+    }
+
+   // console.log(data);
+
+
+    data.sort((a, b) =>{
+
+        a = a.maxValue;
+        b = b.maxValue;
+
+        if(a > b){
+            return -1;
+        }else if(a < b){
+            return 1;
+        }
+        return 0;
+    });
+
+    for(let i = 0; i < data.length; i++){
+
+        data[i].name = (playerNames[data[i].name] !== undefined) ? playerNames[data[i].name] : 'Not Found';
+    }
+
+    return data;
+}
+
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
     assaultData, itemData, itemNames, connections, teams, faces, killsData}){
 
@@ -97,6 +168,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     const parsedPlayerData = JSON.parse(playerData);
 
     let playerNames = [];
+    const justPlayerNames = {};
 
     for(let i = 0; i < parsedPlayerData.length; i++){
 
@@ -106,13 +178,17 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
             "country": parsedPlayerData[i].country,
             "team": parsedPlayerData[i].team
         });
+
+        justPlayerNames[parsedPlayerData[i].player_id] = parsedPlayerData[i].name;
     }
 
     playerNames = JSON.stringify(playerNames);
 
     const elems = [];
 
-    elems.push(<Graph title={"test-graph"}/>);
+    const testGraphData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
+
+    elems.push(<Graph title={"Player Kills"} data={JSON.stringify(testGraphData)}/>);
 
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
