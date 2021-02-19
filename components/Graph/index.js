@@ -39,11 +39,27 @@ class GraphCanvas{
         this.graphStartX = 15;
         this.graphStartY = 10;
 
-        this.resize();
+        this.resize(false);
         this.render();
 
+        this.canvas.onfullscreenchange = (e) =>{
+            console.log('ok');
+            console.log(e);
+
+            if(document.fullscreenElement !== this.canvas){
+                this.resize(false);
+                this.render();
+            }
+        }
+
+        this.canvas.onfullscreenerror = (e) =>{
+            console.log(e);
+        }
+
         this.canvas.addEventListener("click", () =>{
-           // this.context.fillStyle = `rgb(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)})`;
+
+            this.canvas.requestFullscreen();
+            this.resize(true); 
             this.render();
         });
     }
@@ -82,10 +98,15 @@ class GraphCanvas{
         
     }
 
-    resize(){
+    resize(bFullScreen){
 
-        this.canvas.height = 300;
-        this.canvas.width = this.canvas.height * this.aspectRatio;
+        if(!bFullScreen){
+            this.canvas.height = 300;
+            this.canvas.width = this.canvas.height * this.aspectRatio;
+        }else{
+            this.canvas.height = window.innerHeight;
+            this.canvas.width = this.canvas.height * this.aspectRatio;
+        }
     }
 
     scaleX(input){
