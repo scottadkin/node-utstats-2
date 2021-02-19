@@ -12,8 +12,17 @@ class GraphCanvas{
 
         this.data = [
             {"name": "test 1", "data": [0,1,2,3,4,5,6]},
-            {"name": "test 2", "data": [5,1,2,6,4,15,6]},
+            {"name": "DogFood Test", "data": [5,1,2,6,4,15,6]},
             {"name": "test 3", "data": [2,1,2,0,0,0,6]},
+            {"name": "test 7564754754", "data": [32,41,2,10,20,10,36]},
+        ];
+
+
+        this.colors = [
+            "red",
+            "blue",
+            "green",
+            "yellow"
         ];
 
         this.calcMinMax();
@@ -36,12 +45,17 @@ class GraphCanvas{
 
         this.min = null;
         this.max = null;
+        this.mostData = 0;
 
         let d = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
             d = this.data[i];
+
+            if(d.data.length > this.mostData){
+                this.mostData = d.data.length;
+            }
 
             for(let x = 0; x < d.data.length; x++){
 
@@ -55,6 +69,7 @@ class GraphCanvas{
             }
         }
 
+        this.mostData--;
 
         console.log(`Min = ${this.min} max = ${this.max}`);
         
@@ -79,6 +94,94 @@ class GraphCanvas{
         c.lineTo(startX, startY);
         c.lineTo(endX, endY);
         c.lineTo(startX, startY);
+    }
+
+    plotData(c){
+
+        let startX = this.scaleX(this.graphStartX);
+        let startY = this.scaleY(this.graphStartY + this.graphHeight);
+        const graphWidth = this.scaleX(this.graphWidth);
+        const graphHeight = this.scaleY(this.graphHeight);
+
+        c.fillStyle = "red";
+        c.lineWidth = this.scaleY(1);
+        const offsetXBit = graphWidth / this.mostData;
+        const offsetYBit = graphHeight / this.max;
+
+        const blockSize = this.scaleY(1);
+
+        let currentX = 0;
+        let currentY = 0;
+
+
+        let d = 0;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            if(i < this.colors.length){
+
+                c.fillStyle = this.colors[i];
+                c.strokeStyle = this.colors[i];
+            }else{
+                c.fillStyle = "pink";
+                c.strokeStyle = "pink";
+            }
+
+            d = this.data[i];
+
+            c.beginPath();
+            c.moveTo(startX,  startY - (offsetYBit * d.data[0]));
+
+            for(let x = 0; x < d.data.length; x++){
+
+                currentX = startX + (offsetXBit * x) - (blockSize * 0.5)
+                currentY = startY - (offsetYBit * d.data[x]) - (blockSize * 0.5);
+
+                c.fillRect(currentX, currentY , blockSize, blockSize);
+                c.lineTo(currentX + (blockSize * 0.5), currentY + (blockSize * 0.5));
+            }
+
+            c.stroke();
+            c.closePath();
+        }
+
+    }
+    
+    drawKeys(c){
+
+        const startY = this.scaleY(90);
+        const startX = this.scaleX(2);
+
+        const blockSize = this.scaleY(4);
+        const textOffsetX = this.scaleX(0.8);
+
+        let offsetX = 0;
+
+        c.font = `${this.scaleY(4)}px Arial`;
+
+        c.textAlign = "left";
+
+        let currentX = 0;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            if(i < this.colors.length){
+                c.fillStyle = this.colors[i];
+            }else{
+                c.fillStyle = "pink";
+            }
+
+            currentX = startX + offsetX + (blockSize * i);
+           
+            c.fillRect(currentX, startY, blockSize, blockSize);
+                
+            c.fillText(this.data[i].name, currentX + blockSize + textOffsetX, startY);
+            
+
+            offsetX += c.measureText(`${this.data[i].name}__`).width;
+            
+
+        }
     }
 
     render(){
@@ -144,7 +247,7 @@ class GraphCanvas{
 
         c.font = `${valueTextSize}px Arial`;
 
-        x -= valueOffsetX
+        x -= valueOffsetX;
 
         c.fillText(this.max, x, y - valueTextSize);
         c.fillText(this.max * 0.75, x, y + quaterHeight - valueTextSize);
@@ -152,6 +255,8 @@ class GraphCanvas{
         c.fillText(this.max * 0.25, x, y + (quaterHeight * 3) - valueTextSize);
         c.fillText(this.min, x, y + (quaterHeight * 4) - valueTextSize);
 
+        this.drawKeys(c);
+        this.plotData(c);
 
     }
 }
