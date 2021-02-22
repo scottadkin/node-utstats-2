@@ -308,27 +308,27 @@ class GraphCanvas{
 
         if(this.mouse.x < this.graphStartX || this.mouse.x > this.graphStartX + this.graphWidth) return;
 
-        c.fillStyle = "rgb(12,12,12)";
-        c.strokeStyle = "rgb(150,150,150)";
+        c.fillStyle = "rgba(12,12,12,0.9)";
+        c.strokeStyle = "rgba(255,255,255,0.9)";
         c.lineWidth = this.scaleY(0.125);
 
-
-        let x = this.scaleX(this.mouse.x);
-        let y = this.scaleY(this.mouse.y);
-
         const widthPercent = 30;
-        const heightPercent = 25;
+        const heightPercent = 50;
+
+        let x = this.scaleX(this.mouse.x - widthPercent);
+        let y = this.scaleY(this.mouse.y - heightPercent);
 
         const width = this.scaleX(widthPercent);
-        const height = this.scaleX(heightPercent);
+        const height = this.scaleY(heightPercent);
 
-        if(this.mouse.x + widthPercent > 100){
-            
-            //console.log((this.mouse.x + widthPercent) % 100);
-           
-            x = this.scaleX(this.mouse.x - ((this.mouse.x + widthPercent) % 100));
-            //console.log(this.mouse.x + widthPercent - ((this.mouse.x + widthPercent) % 100));
+        //change it to be above cursor instead of below
 
+        if(this.mouse.x - widthPercent < 0){
+            x = 0;
+        }
+
+        if(this.mouse.y - heightPercent < 0){
+            y = 0;
         }
 
 
@@ -385,8 +385,12 @@ class GraphCanvas{
             }
 
             c.fillStyle = color;
-            currentString = `${hoverData.data[i].label} ${hoverData.data[i].value}`;
-            c.fillText(currentString, x + (width * 0.5), y + offsetY);
+            //currentString = `${hoverData.data[i].label} ${hoverData.data[i].value}`;
+            //c.fillText(currentString, x + (width * 0.5), y + offsetY);
+            c.textAlign = "left";
+            c.fillText(hoverData.data[i].label, x + this.scaleX(2), y + offsetY);
+            c.textAlign = "right";
+            c.fillText(hoverData.data[i].value, x + this.scaleX(28), y + offsetY);
             offsetY += fontSize;
         }
 

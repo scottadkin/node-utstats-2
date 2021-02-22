@@ -126,6 +126,10 @@ class Weapons{
 
     getSavedWeaponByName(name){
 
+        if(name === null){
+            new Message(`getSavedWeaponByName name is null`,'warning');
+            return null;
+        }
         name = name.toLowerCase();
 
         for(let i = 0; i < this.weaponNames.length; i++){

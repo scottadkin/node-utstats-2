@@ -45,6 +45,7 @@ class KillManager{
             }else if(distanceReg.test(d)){
 
                 result = distanceReg.exec(d);
+
                 this.setDistance(result[1], result[2], result[3], result[4]);
 
             }else if(locationReg.test(d)){
@@ -200,6 +201,7 @@ class KillManager{
             }
 
         }catch(err){
+            console.trace(err);
             new Message(`KillManager.insertKills() ${err}`,'error');
         }
     }
