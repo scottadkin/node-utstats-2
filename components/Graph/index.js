@@ -309,29 +309,51 @@ class GraphCanvas{
         if(this.mouse.x < this.graphStartX || this.mouse.x > this.graphStartX + this.graphWidth) return;
 
         c.fillStyle = "rgb(12,12,12)";
+        c.strokeStyle = "rgb(150,150,150)";
+        c.lineWidth = this.scaleY(0.125);
 
-        const x = this.scaleX(this.mouse.x);
-        const y = this.scaleY(this.mouse.y);
 
+        let x = this.scaleX(this.mouse.x);
+        let y = this.scaleY(this.mouse.y);
 
-        const width = this.scaleX(40);
-        const height = this.scaleX(20);
+        const widthPercent = 30;
+        const heightPercent = 25;
+
+        const width = this.scaleX(widthPercent);
+        const height = this.scaleX(heightPercent);
+
+        if(this.mouse.x + widthPercent > 100){
+            
+            //console.log((this.mouse.x + widthPercent) % 100);
+           
+            x = this.scaleX(this.mouse.x - ((this.mouse.x + widthPercent) % 100));
+            //console.log(this.mouse.x + widthPercent - ((this.mouse.x + widthPercent) % 100));
+
+        }
+
 
         c.fillRect(x, y, width, height);
+        c.strokeRect(x, y, width, height);
 
-        c.fillStyle = "white";
-        const fontSize = this.scaleY(4);
+        
+        const fontSize = this.scaleY(5);
+        const headerFontSize = this.scaleY(3);
 
-        c.font = `${fontSize}px Arial`;
+        c.font = `${headerFontSize}px Arial`;
 
         const hoverData = this.getHoverData();
 
 
         c.textAlign = "center";
+        c.fillStyle = "rgb(150,150,150)";
 
-        c.fillText(`${hoverData.title}`, x + (width * 0.5), y);
+        c.fillText(`${hoverData.title}`, x + (width * 0.5), y + this.scaleY(2));
 
-        let offsetY = this.scaleY(4);
+        c.fillStyle = "white";
+
+        c.font = `${fontSize}px Arial`;
+
+        let offsetY = this.scaleY(6);
 
         let currentString = "";
 
@@ -348,7 +370,7 @@ class GraphCanvas{
             return 0;
         });
 
-        console.log(hoverData);
+       // console.log(hoverData);
 
         //sort by value keeping data colors
 
