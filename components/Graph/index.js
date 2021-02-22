@@ -45,8 +45,8 @@ class GraphCanvas{
         this.render();
 
         this.canvas.onfullscreenchange = (e) =>{
-            console.log('ok');
-            console.log(e);
+           // console.log('ok');
+           // console.log(e);
 
             if(document.fullscreenElement !== this.canvas){
                 this.resize(false);
@@ -75,15 +75,18 @@ class GraphCanvas{
             this.mouse.x = toPercent(e.offsetX, true);
             this.mouse.y = toPercent(e.offsetY, false);
 
-            console.log(this.mouse);
+            this.render();
             
         });
 
-        this.canvas.addEventListener("click", () =>{
+        this.canvas.addEventListener("click", (e) =>{
 
-            this.canvas.requestFullscreen();
+            this.canvas.requestFullscreen().catch((err) =>{
+                console.log(err);
+            });
             this.resize(true); 
             this.render();
+         
         });
     }
 
@@ -164,7 +167,10 @@ class GraphCanvas{
         let currentX = 0;
         let currentY = 0;
 
-        this.createMouseOverData(this.graphWidth / this.mostData);
+        if(this.mouseOverData === undefined){
+            this.createMouseOverData(this.graphWidth / this.mostData);
+            console.log(this.mouseOverData)
+        }
 
         let d = 0;
 
@@ -247,19 +253,122 @@ class GraphCanvas{
 
         this.mouseOverData = [];
 
-        const startY = this.scaleY(5);
-        const startX = 1;
+        const startX = this.graphStartX;
+
+        //let currentValues = [];
+        //let currentLabels = [];
+        let currentData = [];
+        const maxDataValues = (this.data[0].data.length <= this.maxDataDisplay) ? this.data[0].data.length : this.maxDataDisplay;
+
 
         for(let i = 0; i < this.data[0].data.length; i++){
 
+            currentData = [];
+
+            for(let x = 0; x < maxDataValues; x++){
+
+               // currentValues.push(this.data[x].data[i]);
+               // currentLabels.push(this.data[x].name);
+
+               currentData.push({"id": x, "label": this.data[x].name, "value": this.data[x].data[i]});
+            }
+
             this.mouseOverData.push({
-                "coordinate": startX + (offsetXBit * i),
-                "title": "",
-                "text": ""
+                "startX": startX + (offsetXBit * i),
+                "endX": startX + (offsetXBit * (i + 1)),
+                "title": `Data Point ${i}`,
+                "data": currentData
             });
         }
 
-        console.log(this.mouseOverData);
+       // console.log(this.mouseOverData);
+
+    }
+
+
+    getHoverData(){
+
+        const targetX = this.mouse.x;
+
+        let m = 0;
+
+        for(let i = 0; i < this.mouseOverData.length; i++){
+
+            m = this.mouseOverData[i];
+
+            if(targetX >= m.startX && targetX < m.endX){
+                return {"title": m.title, "data": m.data};
+            }
+        }
+
+        return {"title": "nooooooo", "data": []};
+    }
+
+    renderHover(c){
+
+        if(this.mouse.x < this.graphStartX || this.mouse.x > this.graphStartX + this.graphWidth) return;
+
+        c.fillStyle = "rgb(12,12,12)";
+
+        const x = this.scaleX(this.mouse.x);
+        const y = this.scaleY(this.mouse.y);
+
+
+        const width = this.scaleX(40);
+        const height = this.scaleX(20);
+
+        c.fillRect(x, y, width, height);
+
+        c.fillStyle = "white";
+        const fontSize = this.scaleY(4);
+
+        c.font = `${fontSize}px Arial`;
+
+        const hoverData = this.getHoverData();
+
+
+        c.textAlign = "center";
+
+        c.fillText(`${hoverData.title}`, x + (width * 0.5), y);
+
+        let offsetY = this.scaleY(4);
+
+        let currentString = "";
+
+        hoverData.data.sort((a,b) =>{
+
+            a = a.value;
+            b = b.value;
+
+            if(a < b){
+                return 1;
+            }else if(a > b){
+                return -1;
+            }
+            return 0;
+        });
+
+        console.log(hoverData);
+
+        //sort by value keeping data colors
+
+        let color = "red";
+
+        for(let i = 0; i < hoverData.data.length; i++){
+
+            if(this.colors[hoverData.data[i].id] !== undefined){
+                color = this.colors[hoverData.data[i].id];
+            }else{
+                color = "red";
+            }
+
+            c.fillStyle = color;
+            currentString = `${hoverData.data[i].label} ${hoverData.data[i].value}`;
+            c.fillText(currentString, x + (width * 0.5), y + offsetY);
+            offsetY += fontSize;
+        }
+
+        c.textAlign = "left";
 
     }
 
@@ -336,6 +445,13 @@ class GraphCanvas{
 
         this.drawKeys(c);
         this.plotData(c);
+
+        c.fillStyle = "white";
+
+        c.fillText(`${this.mouse.x} ${this.mouse.y}`, 10, 10);
+
+
+        this.renderHover(c);
 
     }
 }
