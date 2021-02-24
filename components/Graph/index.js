@@ -14,6 +14,8 @@ class GraphCanvas{
 
         this.data = JSON.parse(data);
 
+        this.setMaxStringLengths();
+
         this.mouse = {"x": 0, "y": 0};
 
         this.maxDataDisplay = 8;
@@ -65,40 +67,10 @@ class GraphCanvas{
         this.canvas.addEventListener("mousemove", (e) =>{
             
 
-            const toPercent = (input, bWidth) =>{
-            
-                let percent = 0;
+    
 
-                if(bWidth){
-
-                   // if(!this.bFullScreen){
-                        percent = (100 / this.canvas.width) * input;
-                   // }else{
-                    //    const widthOffset = window.innerWidth - this.canvas.width;
-                        
-                    //    percent = (100 / this.canvas.width) * input;
-                   // }
-
-                }else{
-
-                    if(!this.bFullScreen){
-
-                        percent = (100 / this.canvas.height) * input;
-
-                    }else{
-
-                        const heightOffset = window.innerHeight - this.canvas.height;
-                        input = input - (heightOffset * 0.5);
-
-                        percent = (100 / this.canvas.height) * input;
-                    }
-                }
-
-                return parseFloat(parseFloat(percent).toFixed(2));
-            }
-
-            this.mouse.x = toPercent(e.offsetX, true);
-            this.mouse.y = toPercent(e.offsetY, false);
+            this.mouse.x = this.toPercent(e.offsetX, true);
+            this.mouse.y = this.toPercent(e.offsetY, false);
 
             this.render();
             
@@ -113,6 +85,69 @@ class GraphCanvas{
             this.render();
          
         });
+    }
+
+    toPercent(input, bWidth){
+            
+        let percent = 0;
+
+        if(bWidth){
+
+            percent = (100 / this.canvas.width) * input;
+        }else{
+
+            if(!this.bFullScreen){
+
+                percent = (100 / this.canvas.height) * input;
+
+            }else{
+
+                const heightOffset = window.innerHeight - this.canvas.height;
+                input = input - (heightOffset * 0.5);
+
+                percent = (100 / this.canvas.height) * input;
+            }
+        }
+
+        return parseFloat(parseFloat(percent).toFixed(2));
+    }
+
+    setMaxStringLengths(){
+
+        this.longestLabelLength = 0;
+        this.longestValueLength = 0;
+
+        this.longestLabel = "";
+        this.longestValue = "";
+
+        let d = 0;
+
+        let currentValueLength = 0;
+
+        console.log(this.data);
+
+        for(let i = 0; i < this.data.length; i++){
+
+            d = this.data[i];
+
+            if(d.name.length > this.longestLabelLength){
+                this.longestLabelLength = d.name.length;
+                this.longestLabel = d.name;
+            }
+
+            for(let x = 0; x < d.data.length; x++){
+
+                currentValueLength = d.data[x].toString().length;
+
+                if(currentValueLength > this.longestValueLength){
+                    this.longestValueLength = currentValueLength;
+                    this.longestValue = d.data[x];
+                }
+            }
+        }
+
+
+        console.log(this.longestLabelLength, this.longestValueLength);
     }
 
     calcMinMax(){
@@ -194,7 +229,7 @@ class GraphCanvas{
 
         if(this.mouseOverData === undefined){
             this.createMouseOverData(this.graphWidth / this.mostData);
-            console.log(this.mouseOverData)
+            //console.log(this.mouseOverData)
         }
 
         let d = 0;
@@ -334,12 +369,26 @@ class GraphCanvas{
         if(this.mouse.x < this.graphStartX || this.mouse.x > this.graphStartX + this.graphWidth) return;
         if(this.mouse.y < this.graphStartY || this.mouse.y > this.graphStartY + this.graphHeight) return;
 
+
+        const hoverData = this.getHoverData();
+
         c.fillStyle = "rgba(12,12,12,0.9)";
         c.strokeStyle = "rgba(255,255,255,0.9)";
         c.lineWidth = this.scaleY(0.125);
 
-        const widthPercent = 30;
-        const heightPercent = 50;
+        const fontSizePercent = 4;
+        const headerFontSizePercent = 3;
+
+        const fontSize = this.scaleY(fontSizePercent);
+        const headerFontSize = this.scaleY(headerFontSizePercent);
+
+        c.font = `${fontSize}px Arial`;
+
+        const labelWidth = c.measureText(this.longestLabel).width;
+        const valueWidth = c.measureText(this.longestValue).width;
+
+        const widthPercent = this.toPercent(labelWidth + valueWidth, true) + 6;
+        const heightPercent = headerFontSizePercent + (fontSizePercent * (hoverData.data.length + 1));
 
         let x = this.scaleX(this.mouse.x - widthPercent);
         let y = this.scaleY(this.mouse.y - heightPercent);
@@ -357,18 +406,10 @@ class GraphCanvas{
             y = 0;
         }
 
-
         c.fillRect(x, y, width, height);
-        c.strokeRect(x, y, width, height);
-
-        
-        const fontSize = this.scaleY(5);
-        const headerFontSize = this.scaleY(3);
+        c.strokeRect(x, y, width, height);   
 
         c.font = `${headerFontSize}px Arial`;
-
-        const hoverData = this.getHoverData();
-
 
         c.textAlign = "center";
         c.fillStyle = "rgb(150,150,150)";
@@ -376,12 +417,9 @@ class GraphCanvas{
         c.fillText(`${hoverData.title}`, x + (width * 0.5), y + this.scaleY(2));
 
         c.fillStyle = "white";
-
         c.font = `${fontSize}px Arial`;
 
         let offsetY = this.scaleY(6);
-
-        let currentString = "";
 
         hoverData.data.sort((a,b) =>{
 
@@ -395,8 +433,6 @@ class GraphCanvas{
             }
             return 0;
         });
-
-       // console.log(hoverData);
 
         //sort by value keeping data colors
 
@@ -416,7 +452,7 @@ class GraphCanvas{
             c.textAlign = "left";
             c.fillText(hoverData.data[i].label, x + this.scaleX(2), y + offsetY);
             c.textAlign = "right";
-            c.fillText(hoverData.data[i].value, x + this.scaleX(28), y + offsetY);
+            c.fillText(hoverData.data[i].value, x + this.scaleX(4) + labelWidth + valueWidth, y + offsetY);
             offsetY += fontSize;
         }
 
@@ -515,7 +551,7 @@ const Graph = ({title, data}) =>{
     const canvas = useRef(null);
 
     useEffect(() =>{
-        const g1 = new GraphCanvas(canvas.current, "Player Kills", data);
+        const g1 = new GraphCanvas(canvas.current, title, data);
     });
     
 
