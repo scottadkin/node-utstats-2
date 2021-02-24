@@ -45,20 +45,17 @@ class GraphCanvas{
 
         this.bFullScreen = false;
 
-       // ..this.resize(false);
         this.render();
 
         this.canvas.onfullscreenchange = (e) =>{
-           // console.log('ok');
-           // console.log(e);
 
             if(document.fullscreenElement !== this.canvas){
                 this.bFullScreen = false;
-               // this.resize(false);
-                this.render();
             }else{
                 this.bFullScreen = true;
             }
+
+            this.render();
         }
 
         this.canvas.onfullscreenerror = (e) =>{
@@ -286,10 +283,10 @@ class GraphCanvas{
         //let currentValues = [];
         //let currentLabels = [];
         let currentData = [];
-        const maxDataValues = (this.data[0].data.length <= this.maxDataDisplay) ? this.data[0].data.length : this.maxDataDisplay;
-
+        const maxDataValues = (this.data.length < this.maxDataDisplay) ? this.data.length : this.maxDataDisplay;
 
         for(let i = 0; i < this.data[0].data.length; i++){
+
 
             currentData = [];
 

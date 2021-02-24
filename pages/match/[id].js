@@ -122,22 +122,22 @@ function createKillGraphData(kills, playerNames){
     for(let i = 0; i < kills.length; i++){
 
         k = kills[i];
+        
+        //victim_team === -1 means a suicide
+        if(k.killer_team !== k.victim_team && k.victim_team !== -1){
+            currentIndex = uniquePlayers.indexOf(k.killer);
 
-        currentIndex = uniquePlayers.indexOf(k.killer);
+            if(currentIndex !== -1){
 
-        if(currentIndex !== -1){
+                currentValue = data[currentIndex].data[data[currentIndex].data.length - 1];
 
-            currentValue = data[currentIndex].data[data[currentIndex].data.length - 1];
+                data[currentIndex].data.push(currentValue + 1);
+                data[currentIndex].maxValue = currentValue + 1;
 
-            data[currentIndex].data.push(currentValue + 1);
-            data[currentIndex].maxValue = currentValue + 1;
-
-            updateOthers(k.killer);
+                updateOthers(k.killer);
+            }
         }
     }
-
-   // console.log(data);
-
 
     data.sort((a, b) =>{
 
@@ -158,6 +158,67 @@ function createKillGraphData(kills, playerNames){
     }
 
     return data;
+}
+
+
+function createTeamKillData(kills){
+
+    const data = [
+        {"name": "Red Team", "data": [0]},
+        {"name": "Blue Team", "data": [0]},
+        {"name": "Green Team", "data": [0]},
+        {"name": "Yellow Team", "data": [0]}
+    ];
+
+    const updateOthers = (ignore) =>{
+
+        for(let i = 0; i < data.length; i++){
+
+            if(i !== ignore){
+                data[i].data.push(data[i].data[data[i].data.length - 1]);
+            }
+        }
+    }
+
+    let k = 0;
+
+    for(let i = 0; i < kills.length; i++){
+
+        k = kills[i];
+
+        //we dont want to count team kills
+        if(k.killer_team !== k.victim_team){
+
+            data[k.killer_team].data.push(
+                data[k.killer_team].data[data[k.killer_team].data.length - 1] + 1
+            );
+
+            updateOthers(k.killer_team);
+        }
+    }
+
+
+    for(let i = 0; i < data.length; i++){
+
+        data[i].maxValue = data[i].data[data[i].data.length - 1];
+    }
+
+    data.sort((a, b) =>{
+
+        a = a.maxValue;
+        b = b.maxValue;
+
+        if(a > b){
+            return -1;
+        }else if(a < b){
+            return 1;
+        }
+        return 0;
+    });
+
+
+    return data;
+
 }
 
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
@@ -189,6 +250,12 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     const testGraphData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
 
     elems.push(<Graph title={"Player Kills"} data={JSON.stringify(testGraphData)}/>);
+
+    //console.log(JSON.parse(killsData));
+
+    const teamTotalKillsData = createTeamKillData(JSON.parse(killsData));
+
+    elems.push(<Graph title={"Team Total Kills"} data={JSON.stringify(teamTotalKillsData)}/>);
 
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
