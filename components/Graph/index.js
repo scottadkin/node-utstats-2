@@ -7,8 +7,10 @@ class GraphCanvas{
 
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
-        this.aspectRatio = 2;
+        this.aspectRatio = 0.5;
         this.title = title;
+
+        this.defaultWidth = 600;
 
         this.data = JSON.parse(data);
 
@@ -41,7 +43,9 @@ class GraphCanvas{
         this.graphStartX = 15;
         this.graphStartY = 10;
 
-        this.resize(false);
+        this.bFullScreen = false;
+
+       // ..this.resize(false);
         this.render();
 
         this.canvas.onfullscreenchange = (e) =>{
@@ -49,8 +53,11 @@ class GraphCanvas{
            // console.log(e);
 
             if(document.fullscreenElement !== this.canvas){
-                this.resize(false);
+                this.bFullScreen = false;
+               // this.resize(false);
                 this.render();
+            }else{
+                this.bFullScreen = true;
             }
         }
 
@@ -59,16 +66,37 @@ class GraphCanvas{
         }
 
         this.canvas.addEventListener("mousemove", (e) =>{
+            
 
             const toPercent = (input, bWidth) =>{
             
                 let percent = 0;
 
                 if(bWidth){
-                    percent = (100 / this.canvas.width) * input;
+
+                   // if(!this.bFullScreen){
+                        percent = (100 / this.canvas.width) * input;
+                   // }else{
+                    //    const widthOffset = window.innerWidth - this.canvas.width;
+                        
+                    //    percent = (100 / this.canvas.width) * input;
+                   // }
+
                 }else{
-                    percent = (100 / this.canvas.height) * input;
+
+                    if(!this.bFullScreen){
+
+                        percent = (100 / this.canvas.height) * input;
+
+                    }else{
+
+                        const heightOffset = window.innerHeight - this.canvas.height;
+                        input = input - (heightOffset * 0.5);
+
+                        percent = (100 / this.canvas.height) * input;
+                    }
                 }
+
                 return parseFloat(parseFloat(percent).toFixed(2));
             }
 
@@ -84,7 +112,7 @@ class GraphCanvas{
             this.canvas.requestFullscreen().catch((err) =>{
                 console.log(err);
             });
-            this.resize(true); 
+
             this.render();
          
         });
@@ -124,14 +152,14 @@ class GraphCanvas{
         
     }
 
-    resize(bFullScreen){
+    resize(){
 
-        if(!bFullScreen){
-            this.canvas.height = 300;
-            this.canvas.width = this.canvas.height * this.aspectRatio;
+        if(!this.bFullScreen){
+            this.canvas.height = this.defaultWidth * this.aspectRatio;
+            this.canvas.width = this.defaultWidth;
         }else{
-            this.canvas.height = window.innerHeight;
-            this.canvas.width = this.canvas.height * this.aspectRatio;
+            this.canvas.height = window.innerWidth * this.aspectRatio;
+            this.canvas.width = window.innerWidth;
         }
     }
 
@@ -307,6 +335,7 @@ class GraphCanvas{
     renderHover(c){
 
         if(this.mouse.x < this.graphStartX || this.mouse.x > this.graphStartX + this.graphWidth) return;
+        if(this.mouse.y < this.graphStartY || this.mouse.y > this.graphStartY + this.graphHeight) return;
 
         c.fillStyle = "rgba(12,12,12,0.9)";
         c.strokeStyle = "rgba(255,255,255,0.9)";
@@ -400,6 +429,8 @@ class GraphCanvas{
 
     render(){
 
+        this.resize();
+
         const c = this.context;
 
         c.textAlign = "center";
@@ -474,7 +505,7 @@ class GraphCanvas{
 
         c.fillStyle = "white";
 
-        c.fillText(`${this.mouse.x} ${this.mouse.y}`, 10, 10);
+        c.fillText(`${this.mouse.x} ${this.mouse.y} ${this.bFullScreen} canvas = ${this.canvas.width} ${this.canvas.height} window = ${window.innerWidth} ${window.innerHeight}`, 10, 5);
 
 
         this.renderHover(c);
