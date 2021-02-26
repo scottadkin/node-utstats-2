@@ -10,7 +10,7 @@ class GraphCanvas{
         this.aspectRatio = 0.5;
         this.title = title;
 
-        this.defaultWidth = 600;
+        this.defaultWidth = 500;
 
         this.data = JSON.parse(data);
 
@@ -271,15 +271,15 @@ class GraphCanvas{
     
     drawKeys(c){
 
-        const startY = this.scaleY(90);
+        const startY = this.scaleY(92);
         const startX = this.scaleX(2);
 
         const blockSize = this.scaleY(4);
-        const textOffsetX = this.scaleX(0.8);
+        const textOffsetX = this.scaleX(0.3);
 
         let offsetX = 0;
 
-        c.font = `${this.scaleY(4)}px Arial`;
+        c.font = `${this.scaleY(4.8)}px Arial`;
 
         c.textAlign = "left";
 
@@ -302,7 +302,7 @@ class GraphCanvas{
             c.fillText(this.data[i].name, currentX + blockSize + textOffsetX, startY);
             
 
-            offsetX += c.measureText(`${this.data[i].name}__`).width;
+            offsetX += c.measureText(`${this.data[i].name}_`).width;
             
 
         }
@@ -369,15 +369,20 @@ class GraphCanvas{
         if(this.mouse.x < this.graphStartX || this.mouse.x > this.graphStartX + this.graphWidth) return;
         if(this.mouse.y < this.graphStartY || this.mouse.y > this.graphStartY + this.graphHeight) return;
 
-
         const hoverData = this.getHoverData();
 
         c.fillStyle = "rgba(12,12,12,0.9)";
         c.strokeStyle = "rgba(255,255,255,0.9)";
         c.lineWidth = this.scaleY(0.125);
 
-        const fontSizePercent = 4;
-        const headerFontSizePercent = 3;
+        let fontSizePercent = 5;
+        let headerFontSizePercent = 3;
+        let widthPadding = 6;
+
+        if(this.bFullScreen){
+            fontSizePercent = 2.25;
+            headerFontSizePercent = 1.7;
+        }
 
         const fontSize = this.scaleY(fontSizePercent);
         const headerFontSize = this.scaleY(headerFontSizePercent);
@@ -387,7 +392,7 @@ class GraphCanvas{
         const labelWidth = c.measureText(this.longestLabel).width;
         const valueWidth = c.measureText(this.longestValue).width;
 
-        const widthPercent = this.toPercent(labelWidth + valueWidth, true) + 6;
+        const widthPercent = this.toPercent(labelWidth + valueWidth, true) + widthPadding;
         const heightPercent = headerFontSizePercent + (fontSizePercent * (hoverData.data.length + 1));
 
         let x = this.scaleX(this.mouse.x - widthPercent);
@@ -414,12 +419,22 @@ class GraphCanvas{
         c.textAlign = "center";
         c.fillStyle = "rgb(150,150,150)";
 
-        c.fillText(`${hoverData.title}`, x + (width * 0.5), y + this.scaleY(2));
+        let titleHeaderOffsetY = 2;
+
+        if(this.bFullScreen){
+            titleHeaderOffsetY = 1;
+        }
+
+        c.fillText(`${hoverData.title}`, x + (width * 0.5), y + this.scaleY(titleHeaderOffsetY));
 
         c.fillStyle = "white";
         c.font = `${fontSize}px Arial`;
 
         let offsetY = this.scaleY(6);
+
+        if(this.bFullScreen){
+            offsetY = this.scaleY(3);
+        }
 
         hoverData.data.sort((a,b) =>{
 
@@ -438,6 +453,15 @@ class GraphCanvas{
 
         let color = "red";
 
+        let labelOffsetX = this.scaleX(2);
+        let valueOffsetX = this.scaleX(4);
+
+        if(this.bFullScreen){
+
+            labelOffsetX = this.scaleX(1);
+            valueOffsetX = this.scaleX(5);
+        }
+
         for(let i = 0; i < hoverData.data.length; i++){
 
             if(this.colors[hoverData.data[i].id] !== undefined){
@@ -447,12 +471,11 @@ class GraphCanvas{
             }
 
             c.fillStyle = color;
-            //currentString = `${hoverData.data[i].label} ${hoverData.data[i].value}`;
-            //c.fillText(currentString, x + (width * 0.5), y + offsetY);
+            
             c.textAlign = "left";
-            c.fillText(hoverData.data[i].label, x + this.scaleX(2), y + offsetY);
+            c.fillText(hoverData.data[i].label, x + labelOffsetX, y + offsetY);
             c.textAlign = "right";
-            c.fillText(hoverData.data[i].value, x + this.scaleX(4) + labelWidth + valueWidth, y + offsetY);
+            c.fillText(hoverData.data[i].value, x + valueOffsetX + labelWidth + valueWidth, y + offsetY);
             offsetY += fontSize;
         }
 
@@ -475,8 +498,8 @@ class GraphCanvas{
 
         c.fillStyle = "white";
 
-        c.font = `${this.scaleY(5)}px Arial`;
-        c.fillText(this.title, this.scaleX(50), this.scaleY(2));
+        c.font = `${this.scaleY(6)}px Arial`;
+        c.fillText(this.title, this.scaleX(50), this.scaleY(1));
 
         c.fillStyle = "rgb(12,12,12)";
         c.strokeStyle = "rgb(32,32,32)";
@@ -538,7 +561,7 @@ class GraphCanvas{
 
         c.fillStyle = "white";
 
-        c.fillText(`${this.mouse.x} ${this.mouse.y} ${this.bFullScreen} canvas = ${this.canvas.width} ${this.canvas.height} window = ${window.innerWidth} ${window.innerHeight}`, 10, 5);
+        //c.fillText(`${this.mouse.x} ${this.mouse.y} ${this.bFullScreen} canvas = ${this.canvas.width} ${this.canvas.height} window = ${window.innerWidth} ${window.innerHeight}`, 10, 5);
 
 
         this.renderHover(c);
@@ -555,12 +578,7 @@ const Graph = ({title, data}) =>{
     });
     
 
-    return (<div>
-        <div className="default-header">{title}</div>
-
-        <canvas className={styles.canvas} ref={canvas} width="400" height="400"></canvas>
-
-    </div>);
+    return (<canvas className={styles.canvas} ref={canvas} width="100" height="100"></canvas>);
 }
 
 

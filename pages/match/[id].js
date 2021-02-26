@@ -247,20 +247,10 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const elems = [];
 
-    const testGraphData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
-
-    elems.push(<Graph title={"Player Kills"} data={JSON.stringify(testGraphData)}/>);
-
-    //console.log(JSON.parse(killsData));
-
-    const teamTotalKillsData = createTeamKillData(JSON.parse(killsData));
-
-    elems.push(<Graph title={"Team Total Kills"} data={JSON.stringify(teamTotalKillsData)}/>);
 
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
     );
-
 
     elems.push(<Screenshot 
         key={"match-sshot"} map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image} matchData={info}
@@ -300,6 +290,15 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         <MatchFragSummary key={`match_3`} bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData} matchStart={0}/>
     );
 
+    const testGraphData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
+
+    elems.push(<Graph title={"Player Kills"} data={JSON.stringify(testGraphData)}/>);
+
+    const teamTotalKillsData = createTeamKillData(JSON.parse(killsData));
+
+    elems.push(<Graph title={"Team Total Kills"} data={JSON.stringify(teamTotalKillsData)}/>);
+
+
     elems.push(
         <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={playerData}/>
     );
@@ -307,6 +306,8 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     elems.push(
         <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
     );
+
+    
 
     elems.push(
         <MatchWeaponSummary key={`match_5`} data={weaponData} players={playerData} bTeamGame={parsedInfo.team_game}/>
