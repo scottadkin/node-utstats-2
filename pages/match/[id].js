@@ -274,8 +274,6 @@ function createCTFEventData(events, totalTeams){
         }
     }
 
-    console.log(events);
-
     let e = 0;
 
 
@@ -397,9 +395,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     if(bCTF(parsedPlayerData)){
 
         const ctfEventData = createCTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
-
-        console.log(ctfEventData.caps);
-
+        
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );

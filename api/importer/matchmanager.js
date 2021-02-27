@@ -173,6 +173,7 @@ class MatchManager{
 
             if(this.domManager !== undefined){
                 await this.domManager.updatePlayersMatchStats();
+                await this.domManager.insertMatchPlayerScores(this.matchId);
             }
 
             if(this.assaultManager !== undefined){

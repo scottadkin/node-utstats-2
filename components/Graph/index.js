@@ -505,7 +505,14 @@ class GraphCanvas{
         c.textBaseline = "top";
 
 
-        c.fillStyle = "black";
+        const pattern = c.createLinearGradient(0,0, this.scaleX(100), this.scaleY(100));
+
+        pattern.addColorStop(0,"rgb(3,3,3)");
+        pattern.addColorStop(0.35,"rgb(24,24,24)");
+        pattern.addColorStop(0.65,"rgb(24,24,24)");
+        pattern.addColorStop(1,"rgb(3,3,3)");
+
+        c.fillStyle = pattern;
         c.fillRect(0,0,this.canvas.width, this.canvas.height);
 
         c.fillStyle = "white";

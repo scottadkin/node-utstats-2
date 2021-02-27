@@ -16,6 +16,8 @@ class DOMManager{
 
         this.playerCaps = {};
 
+        this.playerScores = [];
+
         this.capData = [];
 
         this.domination = new Domination();
@@ -26,6 +28,7 @@ class DOMManager{
         const domPointReg = /^\d+\.\d+\tnstats\tdom_point\t(.+?)\t(.+?),(.+?),(.+)$/i;
         const capReg = /^(\d+\.\d+)\tcontrolpoint_capture\t(.+?)\t(.+)$/;
         const teamScoreReg = /^\d+\.\d+\tdom_score_update\t(.+?)\t(.+?)$/;
+        const playerScoreReg = /^(\d+\.\d+)\tdom_playerscore_update\t(.+?)\t(.+)$/i;
 
         let d = 0;
         let result = 0;
@@ -64,8 +67,25 @@ class DOMManager{
             }else if(teamScoreReg.test(d)){
 
                 result = teamScoreReg.exec(d);
-
                 this.setTeamScore(result[1], result[2]);
+
+            }else if(playerScoreReg.test(d)){
+
+                result = playerScoreReg.exec(d);
+
+                currentPlayer = this.playerManager.getOriginalConnectionById(result[2]);
+
+                if(currentPlayer !== null){
+
+                    this.playerScores.push({
+                        "timestamp": parseFloat(result[1]),
+                        "player": currentPlayer.masterId,
+                        "score": parseInt(result[3])
+                    });
+
+                }else{
+                    new Message(`DomManager.parseData() playerScoreReg currentPlayer is null`,'warning');
+                }
             }
         }
 
@@ -291,6 +311,24 @@ class DOMManager{
         }catch(err){
             new Message(err,'error');
         }   
+    }
+
+
+    async insertMatchPlayerScores(matchId){
+
+        try{
+
+            let p = 0;
+
+            for(let i = 0; i < this.playerScores.length; i++){
+
+                p = this.playerScores[i];
+                await this.domination.insertMatchPlayerScore(matchId, p.timestamp, p.player, p.score);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

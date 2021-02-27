@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 27, 2021 at 10:08 AM
+-- Generation Time: Feb 27, 2021 at 12:37 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -149,6 +149,20 @@ CREATE TABLE `nstats_dom_match_control_points` (
   `map` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `captured` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_dom_match_player_score`
+--
+
+CREATE TABLE `nstats_dom_match_player_score` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `timestamp` float NOT NULL,
+  `player` int(11) NOT NULL,
+  `score` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -657,6 +671,12 @@ ALTER TABLE `nstats_dom_match_control_points`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_dom_match_player_score`
+--
+ALTER TABLE `nstats_dom_match_player_score`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_faces`
 --
 ALTER TABLE `nstats_faces`
@@ -826,6 +846,12 @@ ALTER TABLE `nstats_dom_match_caps`
 -- AUTO_INCREMENT for table `nstats_dom_match_control_points`
 --
 ALTER TABLE `nstats_dom_match_control_points`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_dom_match_player_score`
+--
+ALTER TABLE `nstats_dom_match_player_score`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

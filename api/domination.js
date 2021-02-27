@@ -249,6 +249,22 @@ class Domination{
             });
         });
     }
+
+
+    insertMatchPlayerScore(match, timestamp, player, score){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_dom_match_player_score VALUES(NULL,?,?,?,?)";
+
+            mysql.query(query, [match, timestamp, player, score], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 
