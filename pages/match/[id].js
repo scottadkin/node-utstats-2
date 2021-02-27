@@ -30,6 +30,7 @@ import Graph from '../../components/Graph/';
 import Kills from '../../api/kills';
 import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import Functions from '../../api/functions';
+import { format } from '../../api/database';
 
 
 function bCTF(players){
@@ -361,73 +362,81 @@ function createPlayerDomScoreData(events, totalPlayers, playerNames){
 
     const data = new Map();
 
-    console.log(events);
-
-    let currentName = '';
 
     for(const [key, value] of Object.entries(playerNames)){
 
         data.set(key, [0]);
-        
     }
 
+    const timestamps = [];
+    const timestampsData = [];
+
     let e = 0;
-    let currentTimestamp = 0;
-
-    let current = 0;
-
-    let currentMaxDataLength = 0;
+    let currentIndex = 0;
 
     for(let i = 0; i < events.length; i++){
 
         e = events[i];
 
-        if(i === 0 || e.timestamp !== currentTimestamp){
+        currentIndex = timestamps.indexOf(e.timestamp);
 
-            currentTimestamp = e.time;
+        if(currentIndex === -1){
 
-            if(i !== 0){
-                //update others here
+            timestamps.push(e.timestamp);
 
-                for(const [key, value] of data){
-                    //console.log(key, value);
-                    if(value.length > currentMaxDataLength){
-                        currentMaxDataLength = value.length;
-                    }
-                }
+            timestampsData.push([{"player": e.player, "score": e.score}]);
+        }else{
+            timestampsData[currentIndex].push({"player": e.player, "score": e.score});
+        }
+    }
 
-                for(const [key, value] of data){
-                    //console.log(key, value);
-                    if(value.length < currentMaxDataLength){
-                               
-                        current = data.get(`${key}`);
+    const updateOthers = (ignore) =>{
 
-                        if(current !== undefined){
-                            current.push(current[current.length - 1]);
-                        }else{
-                            console.log(`ooooooooooooooooooooooops`);
-                        }
-                    }
-                }
-  
+        let currentData = [];
+
+        for(const [key, value] of data){
+
+            if(ignore.indexOf(parseInt(key)) === -1){
+
+                currentData = data.get(`${key}`);
+                currentData.push(currentData.length - 1);
+                data.set(`${key}`, currentData);
+            }
+        }
+    }
+
+
+    let ignore = [];
+    let current = 0;
+
+    for(let i = 0; i < timestamps.length; i++){
+
+        ignore = [];
+
+        for(let x = 0; x < timestampsData[i].length; x++){
+
+            ignore.push(timestampsData[i][x].player);
+
+            current = data.get(`${timestampsData[i][x].player}`);
+
+            if(current !== undefined){
+                current.push(timestampsData[i][x].score);
+                data.set(`${timestampsData[i][x].player}`, current);
             }
         }
 
-        current = data.get(`${e.player}`);
-
-
-        if(current !== undefined){
-
-            current.push(e.score);
-            data.set(e.player, current)
-        }
-        
-
-
-        //current
+        updateOthers(ignore);
+        //update others
     }
 
-    console.log(data);
+    let arrayData = [];
+
+    for(const [key, value] of data){
+
+        arrayData.push({"name": (playerNames[key] !== undefined) ? playerNames[key] :'Not Found', "data": value});
+    }
+
+    return arrayData;
     
 }
 
@@ -488,7 +497,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
             <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />
         );
 
-        console.log(ctfEventData);
+        //console.log(ctfEventData);
 
         
     }
@@ -499,7 +508,9 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
             <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
         );
 
-        const domPlayerScore = createPlayerDomScoreData(JSON.parse(domPlayerScoreData), parsedInfo.players, justPlayerNames);
+        const domPlayerScores = createPlayerDomScoreData(JSON.parse(domPlayerScoreData), parsedInfo.players, justPlayerNames);
+
+        elems.push(<Graph title={"Player Scores"} data={JSON.stringify(domPlayerScores)}/>);
     }
 
     if(bAssault(gametype)){
