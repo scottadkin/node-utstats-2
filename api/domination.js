@@ -265,6 +265,26 @@ class Domination{
             });
         });
     }
+
+
+    getMatchPlayerScoreData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT timestamp,player,score FROM nstats_dom_match_player_score WHERE match_id=? ORDER BY timestamp ASC";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

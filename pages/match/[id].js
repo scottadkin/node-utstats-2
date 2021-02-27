@@ -356,7 +356,82 @@ function createCTFEventData(events, totalTeams){
     };
 }
 
-function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps, ctfEvents,
+
+function createPlayerDomScoreData(events, totalPlayers, playerNames){
+
+    const data = new Map();
+
+    console.log(events);
+
+    let currentName = '';
+
+    for(const [key, value] of Object.entries(playerNames)){
+
+        data.set(key, [0]);
+        
+    }
+
+    let e = 0;
+    let currentTimestamp = 0;
+
+    let current = 0;
+
+    let currentMaxDataLength = 0;
+
+    for(let i = 0; i < events.length; i++){
+
+        e = events[i];
+
+        if(i === 0 || e.timestamp !== currentTimestamp){
+
+            currentTimestamp = e.time;
+
+            if(i !== 0){
+                //update others here
+
+                for(const [key, value] of data){
+                    //console.log(key, value);
+                    if(value.length > currentMaxDataLength){
+                        currentMaxDataLength = value.length;
+                    }
+                }
+
+                for(const [key, value] of data){
+                    //console.log(key, value);
+                    if(value.length < currentMaxDataLength){
+                               
+                        current = data.get(`${key}`);
+
+                        if(current !== undefined){
+                            current.push(current[current.length - 1]);
+                        }else{
+                            console.log(`ooooooooooooooooooooooops`);
+                        }
+                    }
+                }
+  
+            }
+        }
+
+        current = data.get(`${e.player}`);
+
+
+        if(current !== undefined){
+
+            current.push(e.score);
+            data.set(e.player, current)
+        }
+        
+
+
+        //current
+    }
+
+    console.log(data);
+    
+}
+
+function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData}){
 
     const parsedInfo = JSON.parse(info);
@@ -395,7 +470,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     if(bCTF(parsedPlayerData)){
 
         const ctfEventData = createCTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
-        
+
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
@@ -423,6 +498,8 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         elems.push(
             <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
         );
+
+        const domPlayerScore = createPlayerDomScoreData(JSON.parse(domPlayerScoreData), parsedInfo.players, justPlayerNames);
     }
 
     if(bAssault(gametype)){
@@ -590,6 +667,7 @@ export async function getServerSideProps({query}){
 
     let domControlPointNames = [];
     let domCapData = [];
+    let domPlayerScoreData = [];
 
     if(bDomination(playerData)){
 
@@ -597,7 +675,9 @@ export async function getServerSideProps({query}){
 
         domControlPointNames = await dom.getControlPointNames(matchInfo.map);
         domCapData = await dom.getMatchCaps(matchId); 
+        domPlayerScoreData = await dom.getMatchPlayerScoreData(matchId);
     }
+    
 
     let ctfCaps = [];
     let ctfEvents = [];
@@ -671,6 +751,7 @@ export async function getServerSideProps({query}){
             "weaponData": weaponData,
             "domControlPointNames": domControlPointNames,
             "domCapData": domCapData,
+            "domPlayerScoreData": JSON.stringify(domPlayerScoreData),
             "ctfCaps": JSON.stringify(ctfCaps),
             "ctfEvents": JSON.stringify(ctfEvents),
             "assaultData": JSON.stringify(assaultData),
