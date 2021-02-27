@@ -67,8 +67,9 @@ class WeaponsManager{
 
                 for(const [key, value] of p.weaponStats.entries()){
 
+                    
                     currentWeaponId = this.weapons.getSavedWeaponByName(key);
-
+                    
                     if(currentWeaponId !== null){
 
                         if(p.bDuplicate === undefined){

@@ -171,7 +171,11 @@ class KillManager{
                 currentVictimTeam = playerManager.getPlayerTeamAt(k.victimId, k.timestamp);
 
                 currentKillerWeapon = weaponsManager.weapons.getSavedWeaponByName(k.killerWeapon);
-                currentVictimWeapon = weaponsManager.weapons.getSavedWeaponByName(k.victimWeapon);
+                if(k.victimId !== -1){
+                    currentVictimWeapon = weaponsManager.weapons.getSavedWeaponByName(k.victimWeapon);
+                }else{
+                    currentVictimWeapon = null;
+                }
 
 
                 if(currentKillerWeapon === null) currentKillerWeapon = 0;
