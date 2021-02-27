@@ -155,6 +155,7 @@ class GraphCanvas{
         this.min = null;
         this.max = null;
         this.mostData = 0;
+        this.range = 0;
 
         let d = 0;
 
@@ -180,7 +181,9 @@ class GraphCanvas{
 
         this.mostData--;
 
-        console.log(`Min = ${this.min} max = ${this.max}`);
+        this.range = Math.abs(this.max) + Math.abs(this.min);
+
+        console.log(`Min = ${this.min} max = ${this.max} range = ${this.range}`);
         
     }
 
@@ -220,7 +223,7 @@ class GraphCanvas{
         c.fillStyle = "red";
         c.lineWidth = this.scaleY(0.5);
         const offsetXBit = graphWidth / this.mostData;
-        const offsetYBit = graphHeight / this.max;
+        const offsetYBit = graphHeight / this.range;
 
         const blockSize = this.scaleY(1);
 
@@ -255,7 +258,7 @@ class GraphCanvas{
             for(let x = 0; x < d.data.length; x++){
 
                 currentX = startX + (offsetXBit * x) - (blockSize * 0.5)
-                currentY = startY - (offsetYBit * d.data[x]) - (blockSize * 0.5);
+                currentY = startY - (offsetYBit * (d.data[x] - this.min)) - (blockSize * 0.5);
              
                 c.lineTo(currentX + (blockSize * 0.5), currentY + (blockSize * 0.5));
             }
@@ -268,7 +271,7 @@ class GraphCanvas{
                 for(let x = 0; x < d.data.length; x++){
 
                     currentX = startX + (offsetXBit * x)
-                    currentY = startY - (offsetYBit * d.data[x]);
+                    currentY = startY - (offsetYBit * (d.data[x] - this.min));
 
                     c.beginPath();
                     c.arc(currentX, currentY, blockSize, 0, Math.PI * 2);
@@ -570,9 +573,9 @@ class GraphCanvas{
         x -= valueOffsetX;
 
         c.fillText(this.max, x, y - valueTextSize);
-        c.fillText(this.max * 0.75, x, y + quaterHeight - valueTextSize);
-        c.fillText(this.max * 0.5, x, y + (quaterHeight * 2) - valueTextSize);
-        c.fillText(this.max * 0.25, x, y + (quaterHeight * 3) - valueTextSize);
+        c.fillText(this.min + (this.range * 0.75), x, y + quaterHeight - valueTextSize);
+        c.fillText(this.min + (this.range * 0.5), x, y + (quaterHeight * 2) - valueTextSize);
+        c.fillText(this.min + (this.range * 0.25), x, y + (quaterHeight * 3) - valueTextSize);
         c.fillText(this.min, x, y + (quaterHeight * 4) - valueTextSize);
 
         this.drawKeys(c);
