@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 17, 2021 at 08:41 PM
+-- Generation Time: Feb 27, 2021 at 10:08 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -92,6 +92,21 @@ CREATE TABLE `nstats_ctf_caps` (
   `cap` int(11) NOT NULL,
   `cap_time` float NOT NULL,
   `travel_time` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_ctf_events`
+--
+
+CREATE TABLE `nstats_ctf_events` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `timestamp` float NOT NULL,
+  `player` int(11) NOT NULL,
+  `event` varchar(30) NOT NULL,
+  `team` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -618,6 +633,12 @@ ALTER TABLE `nstats_ctf_caps`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_ctf_events`
+--
+ALTER TABLE `nstats_ctf_events`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_dom_control_points`
 --
 ALTER TABLE `nstats_dom_control_points`
@@ -781,6 +802,12 @@ ALTER TABLE `nstats_countries`
 -- AUTO_INCREMENT for table `nstats_ctf_caps`
 --
 ALTER TABLE `nstats_ctf_caps`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_ctf_events`
+--
+ALTER TABLE `nstats_ctf_events`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

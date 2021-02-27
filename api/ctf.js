@@ -125,6 +125,40 @@ class CTF{
             });
         });
     }
+
+
+    insertEvent(match, timestamp, player, event, team){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_ctf_events VALUES(NULL,?,?,?,?,?)";
+
+            mysql.query(query, [match, timestamp, player, event, team], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    /*async insertEvents(matchId, events){
+
+        try{
+
+            let e = 0;
+
+            for(let i = 0; i < events.length; i++){
+
+                e = events[i];
+
+                await this.insertEvent(matchId, e.timestamp, e.player, e.team);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }*/
 }
 
 

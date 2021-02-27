@@ -653,7 +653,7 @@ class PlayerManager{
                 currentWeapon.shots = value.shots;
                 currentWeapon.hits = value.hits;
                 currentWeapon.damage = value.damage;
-                master.weaponStats.set(key, currentWeapon)
+                master.weaponStats.set(key, currentWeapon);
             }
 
         }

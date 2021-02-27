@@ -83,6 +83,8 @@ class MatchManager{
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
             const bLMS = this.bLastManStanding();
+
+            //this.playerManager.mergeDuplicates(bLMS);
             
             if(this.CTFManager !== undefined){
 
@@ -179,6 +181,7 @@ class MatchManager{
 
             if(this.CTFManager !== undefined){
                 await this.CTFManager.updatePlayersMatchStats();
+                await this.CTFManager.insertEvents(this.matchId);
             }
 
 

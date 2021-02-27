@@ -45,7 +45,8 @@ class CTFManager{
                     this.events.push({
                         "timestamp": parseFloat(result[1]),
                         "type": type,
-                        "player": parseInt(result[3])
+                        "player": parseInt(result[3]),
+                        "team": this.playerManager.getPlayerTeamAt(parseInt(result[3]), result[1])
                     });
                     
                 }else if(type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'){
@@ -79,7 +80,7 @@ class CTFManager{
             }
         }
 
-
+        //console.log(this.events);
         this.createCapData();
     }
 
@@ -436,6 +437,34 @@ class CTFManager{
         }catch(err){
             console.trace(err);
             new Message(`inserCaps ${err}`,'error');
+        }
+    }
+
+
+    async insertEvents(matchId){
+
+        try{
+
+            let e = 0;
+            let currentPlayer = 0;
+
+            for(let i = 0; i < this.events.length; i++){
+
+                e = this.events[i];
+
+                currentPlayer = this.playerManager.getOriginalConnectionById(e.player);
+
+                if(currentPlayer !== null){
+
+                    await this.ctf.insertEvent(matchId, e.timestamp, currentPlayer.masterId, e.type, e.team);
+                   
+                }else{
+                    new Message(`CTFManager.insertEvent() currentPlayer is null`,'warning');
+                }
+            }
+
+        }catch(err){
+            console.trace(err);
         }
     }
 }
