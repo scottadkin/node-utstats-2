@@ -142,23 +142,24 @@ class CTF{
         });
     }
 
-    /*async insertEvents(matchId, events){
+    getMatchEvents(id){
 
-        try{
+        return new Promise((resolve, reject) =>{
 
-            let e = 0;
+            const query = "SELECT timestamp,player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
 
-            for(let i = 0; i < events.length; i++){
+            mysql.query(query, [id], (err, result) =>{
 
-                e = events[i];
+                if(err) reject(err);
 
-                await this.insertEvent(matchId, e.timestamp, e.player, e.team);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }*/
+                if(result !== undefined){
+                    resolve(result);
+                }
+                
+                resolve([]);
+            });
+        });
+    }
 }
 
 

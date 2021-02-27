@@ -163,14 +163,6 @@ function createKillGraphData(kills, playerNames){
 
 function createTeamKillData(kills, totalTeams){
 
-    /*const data = [
-        {"name": "Red Team", "data": [0]},
-        {"name": "Blue Team", "data": [0]},
-        {"name": "Green Team", "data": [0]},
-        {"name": "Yellow Team", "data": [0]}
-    ];*/
-
-
     const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
     const data = [];
 
@@ -231,19 +223,38 @@ function createTeamKillData(kills, totalTeams){
 
 }
 
-function createCTFCapData(caps, totalTeams){
 
-    const data = [];
+function createCTFEventData(events, totalTeams){
+
+    const grabs = [];
+    const kills = [];
+    const covers = [];
+    const caps = [];
 
     const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
 
     for(let i = 0; i < totalTeams; i++){
 
-        data.push({"name": teamNames[i], "data": [0]});
+        grabs.push({"name": teamNames[i], "data": [0]});
+        kills.push({"name": teamNames[i], "data": [0]});
+        covers.push({"name": teamNames[i], "data": [0]});
+        caps.push({"name": teamNames[i], "data": [0]});
     }
 
 
-    const updateOthers = (ignore) =>{
+    const updateOthers = (ignore, type) =>{
+
+        let data = [];
+
+        if(type === 'grabs'){
+            data = grabs;
+        }else if(type === "kills"){
+            data = kills;
+        }else if(type === 'covers'){
+            data = covers;
+        }else if(type === 'caps'){
+            data = caps;
+        }
 
         for(let i = 0; i < data.length; i++){
 
@@ -255,28 +266,69 @@ function createCTFCapData(caps, totalTeams){
         }
     }
 
-    let c = 0;
+    console.log(events);
 
-    for(let i = 0; i < caps.length; i++){
+    let e = 0;
 
-        c = caps[i];
 
-        data[c.team].data.push(
-            data[c.team].data[data[c.team].data.length - 1] + 1
-        );
+    for(let i = 0; i < events.length; i++){
 
-        updateOthers(c.team);
+        e = events[i];
 
-        
+        switch(e.event){
+
+            case 'taken': { 
+
+                grabs[e.team].data.push(
+                    grabs[e.team].data[grabs[e.team].data.length - 1] + 1
+                );
+
+                updateOthers(e.team, 'grabs');
+
+            } break;
+
+            case 'kill': {
+
+                kills[e.team].data.push(
+                    kills[e.team].data[kills[e.team].data.length - 1] + 1
+                );
+
+                updateOthers(e.team, 'kills');
+
+            } break;
+
+            case 'cover': {
+
+                covers[e.team].data.push(
+                    covers[e.team].data[covers[e.team].data.length - 1] + 1
+                );
+
+                updateOthers(e.team, 'covers');
+                
+            } break;
+
+            case 'captured': {
+
+                caps[e.team].data.push(
+                    caps[e.team].data[caps[e.team].data.length - 1] + 1
+                );
+
+                updateOthers(e.team, 'caps');
+                
+            } break;
+
+        }
     }
 
-    console.log(data);
-
-    return JSON.stringify(data);
-
+    return {
+        "grabs": grabs,
+        "kills": kills,
+        "covers": covers,
+        "caps": caps
+    };
 }
 
-function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
+function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData}){
 
     const parsedInfo = JSON.parse(info);
@@ -302,9 +354,6 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const elems = [];
 
-    
-
-
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
     );
@@ -317,16 +366,24 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     if(bCTF(parsedPlayerData)){
 
-        
+        const ctfEventData = createCTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
+
+        console.log(ctfEventData.caps);
+
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
 
-        elems.push(<Graph title="Flag Captures" data={createCTFCapData(JSON.parse(ctfCaps), parsedInfo.total_teams)}/>);
+        elems.push(<Graph title="Flag Captures" key="g-1" data={JSON.stringify(ctfEventData.caps)}/>);
+        elems.push(<Graph title="Flag Grabs" key="g-1-2" data={JSON.stringify(ctfEventData.grabs)}/>);
+        elems.push(<Graph title="Flag Kills" key="g-1-3" data={JSON.stringify(ctfEventData.kills)}/>);
+        elems.push(<Graph title="Flag Covers" key="g-1-4" data={JSON.stringify(ctfEventData.covers)}/>);
 
         elems.push(
-            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} totalTeams={parsedInfo.total_teams}/>
+            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />
         );
+
+        console.log(ctfEventData);
 
         
     }
@@ -354,11 +411,11 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const testGraphData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
 
-    elems.push(<Graph title={"Player Kills"} data={JSON.stringify(testGraphData)}/>);
+    elems.push(<Graph title={"Player Kills"} key="g-2" data={JSON.stringify(testGraphData)}/>);
 
     const teamTotalKillsData = createTeamKillData(JSON.parse(killsData), parsedInfo.total_teams);
 
-    elems.push(<Graph title={"Team Total Kills"} data={JSON.stringify(teamTotalKillsData)}/>);
+    elems.push(<Graph title={"Team Total Kills"} key="g-3" data={JSON.stringify(teamTotalKillsData)}/>);
 
 
     elems.push(
@@ -513,13 +570,14 @@ export async function getServerSideProps({query}){
     }
 
     let ctfCaps = [];
+    let ctfEvents = [];
 
     if(bCTF(playerData)){
-        //console.log(`is CTF game`);
+
         const CTFManager = new CTF();
         ctfCaps = await CTFManager.getMatchCaps(matchId);
-    }else{
-       // console.log(`not ctf game`);
+        ctfEvents = await CTFManager.getMatchEvents(matchId);
+        
     }
 
     let assaultData = [];
@@ -584,6 +642,7 @@ export async function getServerSideProps({query}){
             "domControlPointNames": domControlPointNames,
             "domCapData": domCapData,
             "ctfCaps": JSON.stringify(ctfCaps),
+            "ctfEvents": JSON.stringify(ctfEvents),
             "assaultData": JSON.stringify(assaultData),
             "itemData": JSON.stringify(itemData),
             "itemNames": JSON.stringify(itemNames),

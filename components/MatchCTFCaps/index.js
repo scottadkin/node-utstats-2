@@ -424,7 +424,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             <td>{coverElems}</td>
             <td>{assistElems}</td>
             <td><span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span><CountryFlag country={capPlayer.country}/><Link href={`/player/${c.cap}`}><a>{capPlayer.name}</a></Link></td>
-            <td><span class={styles.time}><MMSS timestamp={c.travel_time}/></span></td>
+            <td><span className={styles.time}><MMSS timestamp={c.travel_time}/></span></td>
             <td className={styles.time}>{(totalDropTime > 0) ? `${totalDropTime} Seconds` : ''}</td>
         </tr>);
     }
