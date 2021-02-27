@@ -256,13 +256,27 @@ class GraphCanvas{
 
                 currentX = startX + (offsetXBit * x) - (blockSize * 0.5)
                 currentY = startY - (offsetYBit * d.data[x]) - (blockSize * 0.5);
-
-                //c.fillRect(currentX, currentY , blockSize, blockSize);
+             
                 c.lineTo(currentX + (blockSize * 0.5), currentY + (blockSize * 0.5));
             }
 
             c.stroke();
             c.closePath();
+
+            if(d.data.length <= 20){
+
+                for(let x = 0; x < d.data.length; x++){
+
+                    currentX = startX + (offsetXBit * x)
+                    currentY = startY - (offsetYBit * d.data[x]);
+
+                    c.beginPath();
+                    c.arc(currentX, currentY, blockSize, 0, Math.PI * 2);
+                    c.fill();
+                    c.closePath();
+                }
+
+            }
         }
 
     
@@ -315,9 +329,8 @@ class GraphCanvas{
 
         const startX = this.graphStartX;
 
-        //let currentValues = [];
-        //let currentLabels = [];
         let currentData = [];
+
         const maxDataValues = (this.data.length < this.maxDataDisplay) ? this.data.length : this.maxDataDisplay;
 
         for(let i = 0; i < this.data[0].data.length; i++){
@@ -327,15 +340,12 @@ class GraphCanvas{
 
             for(let x = 0; x < maxDataValues; x++){
 
-               // currentValues.push(this.data[x].data[i]);
-               // currentLabels.push(this.data[x].name);
-
                currentData.push({"id": x, "label": this.data[x].name, "value": this.data[x].data[i]});
             }
 
             this.mouseOverData.push({
-                "startX": startX + (offsetXBit * i),
-                "endX": startX + (offsetXBit * (i + 1)),
+                "startX": startX + (offsetXBit * (i - 1)),
+                "endX": startX + (offsetXBit * i),
                 "title": `Data Point ${i}`,
                 "data": currentData
             });
@@ -361,7 +371,7 @@ class GraphCanvas{
             }
         }
 
-        return {"title": "nooooooo", "data": []};
+        return {"title": "", "data": []};
     }
 
     renderHover(c){

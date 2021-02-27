@@ -161,14 +161,24 @@ function createKillGraphData(kills, playerNames){
 }
 
 
-function createTeamKillData(kills){
+function createTeamKillData(kills, totalTeams){
 
-    const data = [
+    /*const data = [
         {"name": "Red Team", "data": [0]},
         {"name": "Blue Team", "data": [0]},
         {"name": "Green Team", "data": [0]},
         {"name": "Yellow Team", "data": [0]}
-    ];
+    ];*/
+
+
+    const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
+    const data = [];
+
+
+    for(let i = 0; i < totalTeams; i++){
+        
+        data.push({"name": teamNames[i], "data": [0]});
+    }
 
     const updateOthers = (ignore) =>{
 
@@ -221,6 +231,51 @@ function createTeamKillData(kills){
 
 }
 
+function createCTFCapData(caps, totalTeams){
+
+    const data = [];
+
+    const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
+
+    for(let i = 0; i < totalTeams; i++){
+
+        data.push({"name": teamNames[i], "data": [0]});
+    }
+
+
+    const updateOthers = (ignore) =>{
+
+        for(let i = 0; i < data.length; i++){
+
+            if(i !== ignore){
+                data[i].data.push(
+                    data[i].data[data[i].data.length - 1]
+                );
+            }
+        }
+    }
+
+    let c = 0;
+
+    for(let i = 0; i < caps.length; i++){
+
+        c = caps[i];
+
+        data[c.team].data.push(
+            data[c.team].data[data[c.team].data.length - 1] + 1
+        );
+
+        updateOthers(c.team);
+
+        
+    }
+
+    console.log(data);
+
+    return JSON.stringify(data);
+
+}
+
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, ctfCaps,
     assaultData, itemData, itemNames, connections, teams, faces, killsData}){
 
@@ -247,6 +302,8 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const elems = [];
 
+    
+
 
     elems.push(
         <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
@@ -260,13 +317,18 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     if(bCTF(parsedPlayerData)){
 
+        
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
 
+        elems.push(<Graph title="Flag Captures" data={createCTFCapData(JSON.parse(ctfCaps), parsedInfo.total_teams)}/>);
+
         elems.push(
             <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} totalTeams={parsedInfo.total_teams}/>
         );
+
+        
     }
 
     if(bDomination(parsedPlayerData)){
@@ -294,7 +356,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     elems.push(<Graph title={"Player Kills"} data={JSON.stringify(testGraphData)}/>);
 
-    const teamTotalKillsData = createTeamKillData(JSON.parse(killsData));
+    const teamTotalKillsData = createTeamKillData(JSON.parse(killsData), parsedInfo.total_teams);
 
     elems.push(<Graph title={"Team Total Kills"} data={JSON.stringify(teamTotalKillsData)}/>);
 
