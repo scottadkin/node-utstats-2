@@ -381,6 +381,8 @@ class GraphCanvas{
 
         const hoverData = this.getHoverData();
 
+        if(hoverData.data.length === 0) return;
+
         c.fillStyle = "rgba(12,12,12,0.9)";
         c.strokeStyle = "rgba(255,255,255,0.9)";
         c.lineWidth = this.scaleY(0.125);
@@ -509,7 +511,7 @@ class GraphCanvas{
         c.fillStyle = "white";
 
         c.font = `${this.scaleY(6)}px Arial`;
-        c.fillText(this.title, this.scaleX(50), this.scaleY(1));
+        c.fillText(this.title, this.scaleX(50), this.scaleY(1.75));
 
         c.fillStyle = "rgb(12,12,12)";
         c.strokeStyle = "rgb(32,32,32)";

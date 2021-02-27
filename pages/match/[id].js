@@ -189,7 +189,7 @@ function createTeamKillData(kills, totalTeams){
         k = kills[i];
 
         //we dont want to count team kills
-        if(k.killer_team !== k.victim_team){
+        if(k.killer_team !== k.victim_team && k.victim_team !== -1){
 
             data[k.killer_team].data.push(
                 data[k.killer_team].data[data[k.killer_team].data.length - 1] + 1
@@ -230,6 +230,8 @@ function createCTFEventData(events, totalTeams){
     const kills = [];
     const covers = [];
     const caps = [];
+    const returns = [];
+    const drops = [];
 
     const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
 
@@ -239,6 +241,8 @@ function createCTFEventData(events, totalTeams){
         kills.push({"name": teamNames[i], "data": [0]});
         covers.push({"name": teamNames[i], "data": [0]});
         caps.push({"name": teamNames[i], "data": [0]});
+        returns.push({"name": teamNames[i], "data": [0]});
+        drops.push({"name": teamNames[i], "data": [0]});
     }
 
 
@@ -254,6 +258,10 @@ function createCTFEventData(events, totalTeams){
             data = covers;
         }else if(type === 'caps'){
             data = caps;
+        }else if(type === 'returns'){
+            data = returns;
+        }else if(type === 'drops'){
+            data = drops;
         }
 
         for(let i = 0; i < data.length; i++){
@@ -317,6 +325,26 @@ function createCTFEventData(events, totalTeams){
                 
             } break;
 
+            case 'returned': {
+
+                returns[e.team].data.push(
+                    returns[e.team].data[returns[e.team].data.length - 1] + 1
+                );
+
+                updateOthers(e.team, 'returns');
+                
+            } break;
+
+            case 'dropped': {
+
+                drops[e.team].data.push(
+                    drops[e.team].data[drops[e.team].data.length - 1] + 1
+                );
+
+                updateOthers(e.team, 'drops');
+                
+            } break;
+
         }
     }
 
@@ -324,7 +352,9 @@ function createCTFEventData(events, totalTeams){
         "grabs": grabs,
         "kills": kills,
         "covers": covers,
-        "caps": caps
+        "caps": caps,
+        "returns": returns,
+        "drops": drops
     };
 }
 
@@ -374,10 +404,14 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
 
-        elems.push(<Graph title="Flag Captures" key="g-1" data={JSON.stringify(ctfEventData.caps)}/>);
         elems.push(<Graph title="Flag Grabs" key="g-1-2" data={JSON.stringify(ctfEventData.grabs)}/>);
+        elems.push(<Graph title="Flag Captures" key="g-1" data={JSON.stringify(ctfEventData.caps)}/>);
+        
         elems.push(<Graph title="Flag Kills" key="g-1-3" data={JSON.stringify(ctfEventData.kills)}/>);
-        elems.push(<Graph title="Flag Covers" key="g-1-4" data={JSON.stringify(ctfEventData.covers)}/>);
+        elems.push(<Graph title="Flag Returns" key="g-1-5" data={JSON.stringify(ctfEventData.returns)}/>);
+
+        elems.push(<Graph title="Flag Covers" key="g-1-4" data={JSON.stringify(ctfEventData.covers)}/>); 
+        elems.push(<Graph title="Flag Drops" key="g-1-6" data={JSON.stringify(ctfEventData.drops)}/>);
 
         elems.push(
             <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />
