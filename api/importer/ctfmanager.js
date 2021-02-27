@@ -49,7 +49,7 @@ class CTFManager{
                         "team": this.playerManager.getPlayerTeamAt(parseInt(result[3]), result[1])
                     });
                     
-                }else if(type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'){
+                }else if(type === 'assist' || type === 'returned'|| type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'){
 
                     this.events.push({
                         "timestamp": parseFloat(result[1]),
@@ -303,7 +303,7 @@ class CTFManager{
                     if(e.type === 'captured'){
                         player.stats.ctf.capture++
                         this.updateCarryTime(e.timestamp, player);
-                    }else if(e.type === 'retuned'){
+                    }else if(e.type === 'returned'){
                         player.stats.ctf.return++;
                     }else if(e.type === 'pickedup'){
                         player.stats.ctf.pickup++;
