@@ -216,13 +216,13 @@ class Domination{
         });
     }
 
-    insertPointCap(match, time, player, point){
+    insertPointCap(match, time, player, point, team){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_dom_match_caps VALUES(NULL,?,?,?,?)";
+            const query = "INSERT INTO nstats_dom_match_caps VALUES(NULL,?,?,?,?,?)";
 
-            mysql.query(query, [match, time, player, point], (err) =>{
+            mysql.query(query, [match, time, player, point, team], (err) =>{
                 
                 if(err) reject(err);
 

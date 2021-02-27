@@ -54,13 +54,14 @@ class DOMManager{
                 currentPlayer = this.playerManager.getOriginalConnectionById(result[3]);
 
                 if(currentPlayer === null){
-                    currentPlayer = -1;
+                    currentPlayer = {"masterId": -1};
                 }
 
                 this.capData.push({
                     "timestamp": parseFloat(result[1]),
                     "point": result[2],
                     "player": currentPlayer.masterId,
+                    "team": this.playerManager.getPlayerTeamAt(result[3], result[1])
 
                 });
 
@@ -200,7 +201,7 @@ class DOMManager{
 
                 d = this.domPoints[i];
 
-                await this.domination.updateMatchControlPoint(this.matchId, this.mapId, d.name, d.captured);
+                await this.domination.updateMatchControlPoint(this.matchId, this.mapId, d.name, d.captured, d.team);
             }
 
 
@@ -305,7 +306,7 @@ class DOMManager{
                     pointId = -1;
                 }
 
-                await this.domination.insertPointCap(matchId, d.timestamp, d.player, pointId);
+                await this.domination.insertPointCap(matchId, d.timestamp, d.player, pointId, d.team);
             }
 
         }catch(err){

@@ -206,20 +206,6 @@ function createTeamKillData(kills, totalTeams){
         data[i].maxValue = data[i].data[data[i].data.length - 1];
     }
 
-    data.sort((a, b) =>{
-
-        a = a.maxValue;
-        b = b.maxValue;
-
-        if(a > b){
-            return -1;
-        }else if(a < b){
-            return 1;
-        }
-        return 0;
-    });
-
-
     return data;
 
 }

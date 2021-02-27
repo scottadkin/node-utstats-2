@@ -338,8 +338,7 @@ class GraphCanvas{
 
         for(let i = 0; i < this.data[0].data.length; i++){
 
-
-            currentData = [];
+            currentData = [];      
 
             for(let x = 0; x < maxDataValues; x++){
 

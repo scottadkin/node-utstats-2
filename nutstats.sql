@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 27, 2021 at 12:37 PM
+-- Generation Time: Feb 27, 2021 at 05:45 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -134,7 +134,8 @@ CREATE TABLE `nstats_dom_match_caps` (
   `match_id` int(11) NOT NULL,
   `time` float NOT NULL,
   `player` int(11) NOT NULL,
-  `point` int(11) NOT NULL
+  `point` int(11) NOT NULL,
+  `team` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
