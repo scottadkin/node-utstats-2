@@ -10,9 +10,24 @@ class GraphCanvas{
         this.aspectRatio = 0.5;
         this.title = title;
 
-        this.defaultWidth = 500;
+        this.defaultWidth = 450;
+
+        this.currentTab = 0;
+        this.bMultiTab = false;
+        this.totalTabs = 0;
 
         this.data = JSON.parse(data);
+
+        
+        for(let i = 0; i < this.data.length; i++){
+
+            if(Array.isArray(this.data[i])){
+                this.bMultiTab = true;
+                this.totalTabs++;
+            }
+        }
+
+        console.log(`bMultiTab = ${this.bMultiTab} totalTabs = ${this.totalTabs}`);
 
         this.setMaxStringLengths();
 
@@ -126,22 +141,24 @@ class GraphCanvas{
 
         console.log(this.data);
 
-        for(let i = 0; i < this.data.length; i++){
+        if(!this.bMultiTab){
+            for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+                d = this.data[i];
 
-            if(d.name.length > this.longestLabelLength){
-                this.longestLabelLength = d.name.length;
-                this.longestLabel = d.name;
-            }
+                if(d.name.length > this.longestLabelLength){
+                    this.longestLabelLength = d.name.length;
+                    this.longestLabel = d.name;
+                }
 
-            for(let x = 0; x < d.data.length; x++){
+                for(let x = 0; x < d.data.length; x++){
 
-                currentValueLength = d.data[x].toString().length;
+                    currentValueLength = d.data[x].toString().length;
 
-                if(currentValueLength > this.longestValueLength){
-                    this.longestValueLength = currentValueLength;
-                    this.longestValue = d.data[x];
+                    if(currentValueLength > this.longestValueLength){
+                        this.longestValueLength = currentValueLength;
+                        this.longestValue = d.data[x];
+                    }
                 }
             }
         }
@@ -159,22 +176,25 @@ class GraphCanvas{
 
         let d = 0;
 
-        for(let i = 0; i < this.data.length; i++){
+        if(!this.bMultiTab){
 
-            d = this.data[i];
+            for(let i = 0; i < this.data.length; i++){
 
-            if(d.data.length > this.mostData){
-                this.mostData = d.data.length;
-            }
+                d = this.data[i];
 
-            for(let x = 0; x < d.data.length; x++){
-
-                if(d.data[x] > this.max || this.max === null){
-                    this.max = d.data[x];
+                if(d.data.length > this.mostData){
+                    this.mostData = d.data.length;
                 }
 
-                if(d.data[x] < this.min || this.min === null){
-                    this.min = d.data[x];
+                for(let x = 0; x < d.data.length; x++){
+
+                    if(d.data[x] > this.max || this.max === null){
+                        this.max = d.data[x];
+                    }
+
+                    if(d.data[x] < this.min || this.min === null){
+                        this.min = d.data[x];
+                    }
                 }
             }
         }
@@ -250,35 +270,38 @@ class GraphCanvas{
                 c.strokeStyle = "pink";
             }
 
-            d = this.data[i];
 
-            c.beginPath();
-            c.moveTo(startX,  startY - (offsetYBit * d.data[0]));
+            if(!this.bMultiTab){
+                d = this.data[i];
 
-            for(let x = 0; x < d.data.length; x++){
-
-                currentX = startX + (offsetXBit * x) - (blockSize * 0.5)
-                currentY = startY - (offsetYBit * (d.data[x] - this.min)) - (blockSize * 0.5);
-             
-                c.lineTo(currentX + (blockSize * 0.5), currentY + (blockSize * 0.5));
-            }
-
-            c.stroke();
-            c.closePath();
-
-            if(d.data.length <= 20){
+                c.beginPath();
+                c.moveTo(startX,  startY - (offsetYBit * d.data[0]));
 
                 for(let x = 0; x < d.data.length; x++){
 
-                    currentX = startX + (offsetXBit * x)
-                    currentY = startY - (offsetYBit * (d.data[x] - this.min));
-
-                    c.beginPath();
-                    c.arc(currentX, currentY, blockSize, 0, Math.PI * 2);
-                    c.fill();
-                    c.closePath();
+                    currentX = startX + (offsetXBit * x) - (blockSize * 0.5)
+                    currentY = startY - (offsetYBit * (d.data[x] - this.min)) - (blockSize * 0.5);
+                
+                    c.lineTo(currentX + (blockSize * 0.5), currentY + (blockSize * 0.5));
                 }
 
+                c.stroke();
+                c.closePath();
+
+                if(d.data.length <= 20){
+
+                    for(let x = 0; x < d.data.length; x++){
+
+                        currentX = startX + (offsetXBit * x)
+                        currentY = startY - (offsetYBit * (d.data[x] - this.min));
+
+                        c.beginPath();
+                        c.arc(currentX, currentY, blockSize, 0, Math.PI * 2);
+                        c.fill();
+                        c.closePath();
+                    }
+
+                }
             }
         }
 
@@ -336,21 +359,23 @@ class GraphCanvas{
 
         const maxDataValues = (this.data.length < this.maxDataDisplay) ? this.data.length : this.maxDataDisplay;
 
-        for(let i = 0; i < this.data[0].data.length; i++){
+        if(!this.bMultiTab){
+            for(let i = 0; i < this.data[0].data.length; i++){
 
-            currentData = [];      
+                currentData = [];      
 
-            for(let x = 0; x < maxDataValues; x++){
+                for(let x = 0; x < maxDataValues; x++){
 
-               currentData.push({"id": x, "label": this.data[x].name, "value": this.data[x].data[i]});
+                currentData.push({"id": x, "label": this.data[x].name, "value": this.data[x].data[i]});
+                }
+
+                this.mouseOverData.push({
+                    "startX": startX + (offsetXBit * (i - 1)),
+                    "endX": startX + (offsetXBit * i),
+                    "title": `Data Point ${i}`,
+                    "data": currentData
+                });
             }
-
-            this.mouseOverData.push({
-                "startX": startX + (offsetXBit * (i - 1)),
-                "endX": startX + (offsetXBit * i),
-                "title": `Data Point ${i}`,
-                "data": currentData
-            });
         }
 
        // console.log(this.mouseOverData);
@@ -497,6 +522,36 @@ class GraphCanvas{
 
     }
 
+    renderTabs(c){
+
+        const tabSize = this.scaleX(100 / this.totalTabs);
+
+        const height = this.scaleY(10);
+
+        c.fillStyle = "orange";
+        c.strokeStyle = "black";
+
+        c.textAlign = "center";
+
+        let x = 0;
+        let y = 0;
+
+        c.font = `${this.scaleY(6)}px Arial`;
+
+        for(let i = 0; i < this.totalTabs; i++){
+
+            x = tabSize * i;
+            y = 0;
+            c.fillStyle = "orange";
+            c.fillRect(x, y, tabSize, height);
+            c.strokeRect(x, y, tabSize, height);
+            c.fillStyle = "black";
+            c.fillText(this.title[i], x + (tabSize * 0.5), y + this.scaleY(2));
+        }
+
+        c.textAlign = "left";
+    }
+
     render(){
 
         this.resize();
@@ -520,7 +575,15 @@ class GraphCanvas{
         c.fillStyle = "white";
 
         c.font = `${this.scaleY(6)}px Arial`;
-        c.fillText(this.title, this.scaleX(50), this.scaleY(1.75));
+
+        if(!this.bMultiTab){
+            c.fillText(this.title, this.scaleX(50), this.scaleY(1.75));
+        }else{
+            c.fillText(this.title[this.currentTab], this.scaleX(50), this.scaleY(1.75));
+
+            this.renderTabs(c);
+
+        }
 
         c.fillStyle = "rgb(12,12,12)";
         c.strokeStyle = "rgb(32,32,32)";

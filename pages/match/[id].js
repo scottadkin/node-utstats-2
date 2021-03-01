@@ -593,9 +593,14 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         const domControlCaps = domControlPointCaptures(JSON.parse(domControlPointNames), JSON.parse(domCapData));
 
-        elems.push(<Graph title={"Domination Player Scores"} data={JSON.stringify(domPlayerScores)}/>);
-        elems.push(<Graph title={"Domination Team Captures"} data={JSON.stringify(domTeamCaps)}/>);
-        elems.push(<Graph title={"Domination Control Point Captures"} data={JSON.stringify(domControlCaps)}/>);
+        const test = [domPlayerScores, domTeamCaps, domControlCaps];
+
+        console.log(test);
+
+        //elems.push(<Graph title={"Domination Player Scores"} data={JSON.stringify(domPlayerScores)}/>);
+       // elems.push(<Graph title={"Domination Team Captures"} data={JSON.stringify(domTeamCaps)}/>);
+       // elems.push(<Graph title={"Domination Control Point Captures"} data={JSON.stringify(domControlCaps)}/>);
+        elems.push(<Graph title={["Domination Player Scores", "Domination Team Caps", "Domination Control Caps"]} data={JSON.stringify(test)}/>);
     }
 
     if(bAssault(gametype)){
