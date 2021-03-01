@@ -235,7 +235,7 @@ class Domination{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT time,player,point FROM nstats_dom_match_caps WHERE match_id=?";
+            const query = "SELECT time,player,point,team FROM nstats_dom_match_caps WHERE match_id=?";
 
             mysql.query(query, [match], (err, result) =>{
 

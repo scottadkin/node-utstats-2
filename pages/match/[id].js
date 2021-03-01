@@ -30,8 +30,9 @@ import Graph from '../../components/Graph/';
 import Kills from '../../api/kills';
 import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import Functions from '../../api/functions';
-import { format } from '../../api/database';
 
+
+const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
 
 function bCTF(players){
   
@@ -164,7 +165,6 @@ function createKillGraphData(kills, playerNames){
 
 function createTeamKillData(kills, totalTeams){
 
-    const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
     const data = [];
 
 
@@ -219,8 +219,6 @@ function createCTFEventData(events, totalTeams){
     const caps = [];
     const returns = [];
     const drops = [];
-
-    const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
 
     for(let i = 0; i < totalTeams; i++){
 
@@ -426,6 +424,100 @@ function createPlayerDomScoreData(events, totalPlayers, playerNames){
     
 }
 
+
+function createDomTeamCaps(caps, totalTeams){
+
+    const data = [];
+
+    for(let i = 0; i < totalTeams; i++){
+
+        data.push({
+            "name": teamNames[i],
+            "data": [0]
+        });
+    }
+
+    const updateOthers = (ignore) =>{
+
+        for(let i = 0; i < data.length; i++){
+
+            if(i !== ignore){
+                data[i].data.push(
+                    data[i].data[data[i].data.length - 1]
+                );
+            }
+        }
+    }
+
+
+    let c = 0;
+
+    for(let i = 0; i < caps.length; i++){
+
+        c = caps[i];
+
+        data[c.team].data.push(
+            data[c.team].data[data[c.team].data.length - 1] + 1
+        );
+
+        updateOthers(c.team);
+    }
+
+    return data;
+}
+
+
+function domControlPointCaptures(names, caps){
+
+    const data = [];
+    const ids = [];
+
+    for(let i = 0; i < names.length; i++){
+
+        ids.push(names[i].id);
+
+        data.push({
+            "name": names[i].name,
+            "data": [0]
+        });
+    }
+
+    const updateOthers = (ignore) =>{
+     
+        for(let i = 0; i < data.length; i++){
+
+            if(i !== ignore){
+
+                data[i].data.push(
+                    data[i].data[data[i].data.length - 1]
+                );
+            }
+        }
+    }
+
+
+    let c = 0;
+    let currentPointIndex = 0;
+
+    for(let i = 0; i < caps.length; i++){
+
+        c = caps[i];
+        currentPointIndex = ids.indexOf(c.point);
+
+        if(currentPointIndex !== -1){
+
+            data[currentPointIndex].data.push(
+                data[currentPointIndex].data[data[currentPointIndex].data.length - 1] + 1
+            );
+
+            updateOthers(currentPointIndex);
+        }
+    }
+
+    return data;
+}
+
+
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData}){
 
@@ -496,7 +588,14 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         const domPlayerScores = createPlayerDomScoreData(JSON.parse(domPlayerScoreData), parsedInfo.players, justPlayerNames);
 
-        elems.push(<Graph title={"Player Scores"} data={JSON.stringify(domPlayerScores)}/>);
+        const domTeamCaps = createDomTeamCaps(JSON.parse(domCapData), parsedInfo.total_teams);
+
+
+        const domControlCaps = domControlPointCaptures(JSON.parse(domControlPointNames), JSON.parse(domCapData));
+
+        elems.push(<Graph title={"Domination Player Scores"} data={JSON.stringify(domPlayerScores)}/>);
+        elems.push(<Graph title={"Domination Team Captures"} data={JSON.stringify(domTeamCaps)}/>);
+        elems.push(<Graph title={"Domination Control Point Captures"} data={JSON.stringify(domControlCaps)}/>);
     }
 
     if(bAssault(gametype)){
