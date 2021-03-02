@@ -4,6 +4,9 @@
     margin-left:-1px;
     max-width:95%;
     margin-right:5px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 .canvas:hover{

@@ -105,7 +105,7 @@ class GraphCanvas{
             this.mouse.x = this.toPercent(e.offsetX, true);
             this.mouse.y = this.toPercent(e.offsetY, false);
 
-            console.log(this.mouse);
+            //console.log(this.mouse);
 
             this.render();
             
@@ -113,32 +113,32 @@ class GraphCanvas{
 
         this.canvas.addEventListener("click", (e) =>{
 
-            console.log(this.keyCoordinates);
-            console.log(this.mouse);
-
-            let k = 0;
-
-            this.keyEvents();
+            if(!this.keyEvents()){
             
-            if(!this.bMultiTab){
-                this.canvas.requestFullscreen().catch((err) =>{
-                    console.log(err);
-                });
+                if(!this.bMultiTab){
+                    this.canvas.requestFullscreen().catch((err) =>{
+                        console.log(err);
+                    });
 
-                return;
-            }
+                    return;
+                }
 
 
-            if(this.mouse.y > this.tabHeight){
-                
-                this.canvas.requestFullscreen().catch((err) =>{
-                    console.log(err);
-                });
-                
+                if(this.mouse.y > this.tabHeight){
+                    
+                    this.canvas.requestFullscreen().catch((err) =>{
+                        console.log(err);
+                    });
+                    
+                }else{
+
+                    this.changeTab();
+                }
+
             }else{
-
-                this.changeTab();
-
+                this.setMaxStringLengths();
+                this.calcMinMax();
+                this.createMouseOverData(this.graphWidth / this.mostData);
             }
 
             this.render();
@@ -157,6 +157,9 @@ class GraphCanvas{
             this.mouse.y -= heightOffset;
         }
         
+
+        let bChangedValue = false;
+
         for(let i = 0; i < this.keyCoordinates.length; i++){
 
             k = this.keyCoordinates[i];
@@ -167,11 +170,13 @@ class GraphCanvas{
 
                     this.hideKeys[i] = !this.hideKeys[i];
                     //alert(`ok ${i} ${this.bFullScreen}`);
+                    bChangedValue = true;
                     break;
                 }
-
             }
         }
+
+        return bChangedValue;
     }
 
     changeTab(){
@@ -234,7 +239,6 @@ class GraphCanvas{
 
         let currentValueLength = 0;
 
-
         let data = [];
 
         if(!this.bMultiTab){
@@ -242,7 +246,10 @@ class GraphCanvas{
         }else{
             data = this.data[this.currentTab];
         }
+
         for(let i = 0; i < data.length; i++){
+
+            if(this.hideKeys[i]) continue;
 
             d = data[i];
 
@@ -286,6 +293,8 @@ class GraphCanvas{
 
         for(let i = 0; i < data.length; i++){
 
+            if(this.hideKeys[i]) continue;
+
             d = data[i];
 
             if(d.data.length > this.mostData){
@@ -304,12 +313,9 @@ class GraphCanvas{
             }
         }
         
-
         this.mostData--;
 
         this.range = Math.abs(this.max) + Math.abs(this.min);
-
-       // console.log(`Min = ${this.min} max = ${this.max} range = ${this.range}`);
         
     }
 
@@ -372,6 +378,8 @@ class GraphCanvas{
 
         for(let i = 0; i < data.length; i++){
 
+            if(this.hideKeys[i]) continue;
+
             if(i >= this.maxDataDisplay) return;
 
             if(i < this.colors.length){
@@ -421,7 +429,7 @@ class GraphCanvas{
         const startY = this.scaleY(this.keyStartY);
         const startX = this.scaleX(2);
 
-        const blockSize = this.scaleY(4);
+        const blockSize = this.scaleY(4.5);
         const textOffsetX = this.scaleX(0.3);
 
         let offsetX = 0;
@@ -465,8 +473,8 @@ class GraphCanvas{
             this.keyCoordinates.push({
                 "x": this.toPercent(currentX, true),
                 "y": this.toPercent(startY,false),
-                "width": 4,
-                "height": 4
+                "width": 4.5,
+                "height": 4.5
             });
       
             c.fillRect(currentX, startY, blockSize, blockSize);
@@ -476,8 +484,8 @@ class GraphCanvas{
             }
 
             if(this.hideKeys[i]){
-                c.fillStyle = "white";
-                c.fillRect(currentX + 5, startY + 5, blockSize, blockSize);
+                c.fillStyle = "black";
+                c.fillRect(currentX, startY, blockSize, blockSize);
             }
 
             c.fillText(data[i].name, currentX + blockSize + textOffsetX, startY);
@@ -513,15 +521,19 @@ class GraphCanvas{
         }else{
             data = this.data[this.currentTab];
         }
-    
+
+
         //all data must have same length
         for(let i = 0; i < data[0].data.length; i++){
             
+
             currentData = [];      
 
             for(let x = 0; x < maxDataValues; x++){
-
+                
+                if(this.hideKeys[x]) continue;
                 currentData.push({"id": x, "label": data[x].name, "value": data[x].data[i]});
+                
             }
 
             this.mouseOverData.push({
