@@ -15,6 +15,7 @@ class GraphCanvas{
         this.currentTab = 0;
         this.bMultiTab = false;
         this.totalTabs = 0;
+        this.tabHeight = 8;
 
         this.data = JSON.parse(data);
 
@@ -25,6 +26,21 @@ class GraphCanvas{
                 this.bMultiTab = true;
                 this.totalTabs++;
             }
+        }
+
+
+        if(this.bMultiTab){
+            this.graphWidth = 80;
+            this.graphHeight = 65;
+            this.graphStartX = 15;
+            this.graphStartY = 20;
+            this.titleStartY = 12;
+        }else{
+            this.graphWidth = 80;
+            this.graphHeight = 75;
+            this.graphStartX = 15;
+            this.graphStartY = 10;
+            this.titleStartY = 2;
         }
 
         console.log(`bMultiTab = ${this.bMultiTab} totalTabs = ${this.totalTabs}`);
@@ -55,10 +71,7 @@ class GraphCanvas{
 
         this.calcMinMax();
 
-        this.graphWidth = 80;
-        this.graphHeight = 70;
-        this.graphStartX = 15;
-        this.graphStartY = 10;
+        
 
         this.bFullScreen = false;
 
@@ -80,9 +93,6 @@ class GraphCanvas{
         }
 
         this.canvas.addEventListener("mousemove", (e) =>{
-            
-
-    
 
             this.mouse.x = this.toPercent(e.offsetX, true);
             this.mouse.y = this.toPercent(e.offsetY, false);
@@ -93,13 +103,46 @@ class GraphCanvas{
 
         this.canvas.addEventListener("click", (e) =>{
 
-            this.canvas.requestFullscreen().catch((err) =>{
-                console.log(err);
-            });
+            if(!this.bMultiTab){
+                this.canvas.requestFullscreen().catch((err) =>{
+                    console.log(err);
+                });
+            }
+
+            if(this.mouse.y > this.tabHeight){
+                
+                this.canvas.requestFullscreen().catch((err) =>{
+                    console.log(err);
+                });
+                
+            }else{
+
+                this.changeTab();
+
+            }
 
             this.render();
          
         });
+    }
+
+    changeTab(){
+
+
+        const tabWidth = 100 / this.totalTabs;
+
+
+        let currentTab = 0;
+
+        for(let i = 0; i < 100; i += tabWidth){
+
+            if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
+                this.currentTab = currentTab;
+                return;
+            }
+            
+            currentTab++;
+        }
     }
 
     toPercent(input, bWidth){
@@ -526,26 +569,32 @@ class GraphCanvas{
 
         const tabSize = this.scaleX(100 / this.totalTabs);
 
-        const height = this.scaleY(10);
+        const height = this.scaleY(this.tabHeight);
 
         c.fillStyle = "orange";
-        c.strokeStyle = "black";
+        c.strokeStyle = "white";
 
         c.textAlign = "center";
 
         let x = 0;
         let y = 0;
 
-        c.font = `${this.scaleY(6)}px Arial`;
+        c.font = `${this.scaleY(5)}px Arial`;
 
         for(let i = 0; i < this.totalTabs; i++){
 
             x = tabSize * i;
             y = 0;
-            c.fillStyle = "orange";
+
+            if(i !== this.currentTab){
+                c.fillStyle = "black";
+            }else{
+                c.fillStyle = "red";
+            }
+
             c.fillRect(x, y, tabSize, height);
             c.strokeRect(x, y, tabSize, height);
-            c.fillStyle = "black";
+            c.fillStyle = "white";
             c.fillText(this.title[i], x + (tabSize * 0.5), y + this.scaleY(2));
         }
 
@@ -576,10 +625,12 @@ class GraphCanvas{
 
         c.font = `${this.scaleY(6)}px Arial`;
 
+        const titleOffsetY = this.scaleY(this.titleStartY);
+
         if(!this.bMultiTab){
-            c.fillText(this.title, this.scaleX(50), this.scaleY(1.75));
+            c.fillText(this.title, this.scaleX(50), titleOffsetY);
         }else{
-            c.fillText(this.title[this.currentTab], this.scaleX(50), this.scaleY(1.75));
+            c.fillText(this.title[this.currentTab], this.scaleX(50), titleOffsetY);
 
             this.renderTabs(c);
 
