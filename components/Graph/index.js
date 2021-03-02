@@ -19,6 +19,9 @@ class GraphCanvas{
 
         this.data = JSON.parse(data);
 
+
+        this.hideKeys = [];
+
         
         for(let i = 0; i < this.data.length; i++){
 
@@ -32,6 +35,7 @@ class GraphCanvas{
         this.keyStartY = 92;
 
         this.keyCoordinates = [];
+        this.hideKeys = [];
 
         if(this.bMultiTab){
             this.graphWidth = 80;
@@ -114,10 +118,8 @@ class GraphCanvas{
 
             let k = 0;
 
-
             this.keyEvents();
             
-
             if(!this.bMultiTab){
                 this.canvas.requestFullscreen().catch((err) =>{
                     console.log(err);
@@ -162,7 +164,9 @@ class GraphCanvas{
             if(this.mouse.x >= k.x && this.mouse.x < k.x + k.width){
 
                 if(this.mouse.y >= k.y && this.mouse.y < k.y + k.height){
-                    alert(`ok ${i} ${this.bFullScreen}`);
+
+                    this.hideKeys[i] = !this.hideKeys[i];
+                    //alert(`ok ${i} ${this.bFullScreen}`);
                     break;
                 }
 
@@ -175,6 +179,7 @@ class GraphCanvas{
 
         const tabWidth = 100 / this.totalTabs;
 
+        this.hideKeys = [];
 
         let currentTab = 0;
 
@@ -431,11 +436,18 @@ class GraphCanvas{
         let data = [];
 
         this.keyCoordinates = [];
+        
 
         if(this.bMultiTab){
             data = this.data[this.currentTab];
         }else{
             data = this.data;
+        }
+
+        let bCreateNewHideKeys = false;
+
+        if(this.hideKeys.length === 0){
+            bCreateNewHideKeys = true;
         }
 
         for(let i = 0; i < data.length; i++){
@@ -458,7 +470,16 @@ class GraphCanvas{
             });
       
             c.fillRect(currentX, startY, blockSize, blockSize);
-                
+
+            if(bCreateNewHideKeys){
+                this.hideKeys.push(false);
+            }
+
+            if(this.hideKeys[i]){
+                c.fillStyle = "white";
+                c.fillRect(currentX + 5, startY + 5, blockSize, blockSize);
+            }
+
             c.fillText(data[i].name, currentX + blockSize + textOffsetX, startY);
             
             offsetX += c.measureText(`${data[i].name}_`).width;
