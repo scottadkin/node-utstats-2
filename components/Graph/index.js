@@ -10,7 +10,7 @@ class GraphCanvas{
         this.aspectRatio = 0.5;
         this.title = title;
 
-        this.defaultWidth = 450;
+        this.defaultWidth = 600;
 
         this.currentTab = 0;
         this.bMultiTab = false;
@@ -28,6 +28,10 @@ class GraphCanvas{
             }
         }
 
+
+        this.keyStartY = 92;
+
+        this.keyCoordinates = [];
 
         if(this.bMultiTab){
             this.graphWidth = 80;
@@ -97,17 +101,31 @@ class GraphCanvas{
             this.mouse.x = this.toPercent(e.offsetX, true);
             this.mouse.y = this.toPercent(e.offsetY, false);
 
+            console.log(this.mouse);
+
             this.render();
             
         });
 
         this.canvas.addEventListener("click", (e) =>{
 
+            console.log(this.keyCoordinates);
+            console.log(this.mouse);
+
+            let k = 0;
+
+
+            this.keyEvents();
+            
+
             if(!this.bMultiTab){
                 this.canvas.requestFullscreen().catch((err) =>{
                     console.log(err);
                 });
+
+                return;
             }
+
 
             if(this.mouse.y > this.tabHeight){
                 
@@ -126,6 +144,32 @@ class GraphCanvas{
         });
     }
 
+    keyEvents(){
+
+        let k = 0;
+
+        let heightOffset = 0;
+
+        if(this.bFullScreen){
+            heightOffset = this.toPercent(window.innerHeight - this.canvas.height, false);
+            this.mouse.y -= heightOffset;
+        }
+        
+        for(let i = 0; i < this.keyCoordinates.length; i++){
+
+            k = this.keyCoordinates[i];
+
+            if(this.mouse.x >= k.x && this.mouse.x < k.x + k.width){
+
+                if(this.mouse.y >= k.y && this.mouse.y < k.y + k.height){
+                    alert(`ok ${i} ${this.bFullScreen}`);
+                    break;
+                }
+
+            }
+        }
+    }
+
     changeTab(){
 
 
@@ -138,9 +182,12 @@ class GraphCanvas{
 
             if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
                 this.currentTab = currentTab;
+                this.setMaxStringLengths();
+                this.calcMinMax();
+                this.createMouseOverData(this.graphWidth / this.mostData);
                 return;
             }
-            
+
             currentTab++;
         }
     }
@@ -182,32 +229,37 @@ class GraphCanvas{
 
         let currentValueLength = 0;
 
-        console.log(this.data);
+
+        let data = [];
 
         if(!this.bMultiTab){
-            for(let i = 0; i < this.data.length; i++){
+            data = this.data;
+        }else{
+            data = this.data[this.currentTab];
+        }
+        for(let i = 0; i < data.length; i++){
 
-                d = this.data[i];
+            d = data[i];
 
-                if(d.name.length > this.longestLabelLength){
-                    this.longestLabelLength = d.name.length;
-                    this.longestLabel = d.name;
-                }
+            if(d.name.length > this.longestLabelLength){
+                this.longestLabelLength = d.name.length;
+                this.longestLabel = d.name;
+            }
 
-                for(let x = 0; x < d.data.length; x++){
+            for(let x = 0; x < d.data.length; x++){
 
-                    currentValueLength = d.data[x].toString().length;
+                currentValueLength = d.data[x].toString().length;
 
-                    if(currentValueLength > this.longestValueLength){
-                        this.longestValueLength = currentValueLength;
-                        this.longestValue = d.data[x];
-                    }
+                if(currentValueLength > this.longestValueLength){
+                    this.longestValueLength = currentValueLength;
+                    this.longestValue = d.data[x];
                 }
             }
         }
+        
 
 
-        console.log(this.longestLabelLength, this.longestValueLength);
+        //console.log(this.longestLabelLength, this.longestValueLength);
     }
 
     calcMinMax(){
@@ -219,34 +271,40 @@ class GraphCanvas{
 
         let d = 0;
 
+        let data = [];
+
         if(!this.bMultiTab){
+            data = this.data;
+        }else{
+            data = this.data[this.currentTab];
+        }
 
-            for(let i = 0; i < this.data.length; i++){
+        for(let i = 0; i < data.length; i++){
 
-                d = this.data[i];
+            d = data[i];
 
-                if(d.data.length > this.mostData){
-                    this.mostData = d.data.length;
+            if(d.data.length > this.mostData){
+                this.mostData = d.data.length;
+            }
+
+            for(let x = 0; x < d.data.length; x++){
+
+                if(d.data[x] > this.max || this.max === null){
+                    this.max = d.data[x];
                 }
 
-                for(let x = 0; x < d.data.length; x++){
-
-                    if(d.data[x] > this.max || this.max === null){
-                        this.max = d.data[x];
-                    }
-
-                    if(d.data[x] < this.min || this.min === null){
-                        this.min = d.data[x];
-                    }
+                if(d.data[x] < this.min || this.min === null){
+                    this.min = d.data[x];
                 }
             }
         }
+        
 
         this.mostData--;
 
         this.range = Math.abs(this.max) + Math.abs(this.min);
 
-        console.log(`Min = ${this.min} max = ${this.max} range = ${this.range}`);
+       // console.log(`Min = ${this.min} max = ${this.max} range = ${this.range}`);
         
     }
 
@@ -295,12 +353,19 @@ class GraphCanvas{
 
         if(this.mouseOverData === undefined){
             this.createMouseOverData(this.graphWidth / this.mostData);
-            //console.log(this.mouseOverData)
         }
 
         let d = 0;
 
-        for(let i = 0; i < this.data.length; i++){
+        let data = [];
+
+        if(!this.bMultiTab){
+            data = this.data;
+        }else{
+            data = this.data[this.currentTab];
+        }
+
+        for(let i = 0; i < data.length; i++){
 
             if(i >= this.maxDataDisplay) return;
 
@@ -313,48 +378,42 @@ class GraphCanvas{
                 c.strokeStyle = "pink";
             }
 
+            d = data[i];
 
-            if(!this.bMultiTab){
-                d = this.data[i];
+            c.beginPath();
+            c.moveTo(startX,  startY - (offsetYBit * d.data[0]));
 
-                c.beginPath();
-                c.moveTo(startX,  startY - (offsetYBit * d.data[0]));
+            for(let x = 0; x < d.data.length; x++){
+
+                currentX = startX + (offsetXBit * x) - (blockSize * 0.5)
+                currentY = startY - (offsetYBit * (d.data[x] - this.min)) - (blockSize * 0.5);
+            
+                c.lineTo(currentX + (blockSize * 0.5), currentY + (blockSize * 0.5));
+            }
+
+            c.stroke();
+            c.closePath();
+
+            if(d.data.length <= 20){
 
                 for(let x = 0; x < d.data.length; x++){
 
-                    currentX = startX + (offsetXBit * x) - (blockSize * 0.5)
-                    currentY = startY - (offsetYBit * (d.data[x] - this.min)) - (blockSize * 0.5);
-                
-                    c.lineTo(currentX + (blockSize * 0.5), currentY + (blockSize * 0.5));
-                }
+                    currentX = startX + (offsetXBit * x)
+                    currentY = startY - (offsetYBit * (d.data[x] - this.min));
 
-                c.stroke();
-                c.closePath();
+                    c.beginPath();
+                    c.arc(currentX, currentY, blockSize, 0, Math.PI * 2);
+                    c.fill();
+                    c.closePath();
+                 }
 
-                if(d.data.length <= 20){
-
-                    for(let x = 0; x < d.data.length; x++){
-
-                        currentX = startX + (offsetXBit * x)
-                        currentY = startY - (offsetYBit * (d.data[x] - this.min));
-
-                        c.beginPath();
-                        c.arc(currentX, currentY, blockSize, 0, Math.PI * 2);
-                        c.fill();
-                        c.closePath();
-                    }
-
-                }
-            }
+            }     
         }
-
-    
-
     }
     
     drawKeys(c){
 
-        const startY = this.scaleY(92);
+        const startY = this.scaleY(this.keyStartY);
         const startX = this.scaleX(2);
 
         const blockSize = this.scaleY(4);
@@ -368,7 +427,18 @@ class GraphCanvas{
 
         let currentX = 0;
 
-        for(let i = 0; i < this.data.length; i++){
+
+        let data = [];
+
+        this.keyCoordinates = [];
+
+        if(this.bMultiTab){
+            data = this.data[this.currentTab];
+        }else{
+            data = this.data;
+        }
+
+        for(let i = 0; i < data.length; i++){
 
             if(i >= this.maxDataDisplay) return;
 
@@ -379,15 +449,20 @@ class GraphCanvas{
             }
 
             currentX = startX + offsetX + (blockSize * i);
-           
+
+            this.keyCoordinates.push({
+                "x": this.toPercent(currentX, true),
+                "y": this.toPercent(startY,false),
+                "width": 4,
+                "height": 4
+            });
+      
             c.fillRect(currentX, startY, blockSize, blockSize);
                 
-            c.fillText(this.data[i].name, currentX + blockSize + textOffsetX, startY);
+            c.fillText(data[i].name, currentX + blockSize + textOffsetX, startY);
             
-
-            offsetX += c.measureText(`${this.data[i].name}_`).width;
+            offsetX += c.measureText(`${data[i].name}_`).width;
             
-
         }
     }
 
@@ -400,31 +475,43 @@ class GraphCanvas{
 
         let currentData = [];
 
-        const maxDataValues = (this.data.length < this.maxDataDisplay) ? this.data.length : this.maxDataDisplay;
-
+        let maxDataValues = 0;
+        
         if(!this.bMultiTab){
-            for(let i = 0; i < this.data[0].data.length; i++){
-
-                currentData = [];      
-
-                for(let x = 0; x < maxDataValues; x++){
-
-                currentData.push({"id": x, "label": this.data[x].name, "value": this.data[x].data[i]});
-                }
-
-                this.mouseOverData.push({
-                    "startX": startX + (offsetXBit * (i - 1)),
-                    "endX": startX + (offsetXBit * i),
-                    "title": `Data Point ${i}`,
-                    "data": currentData
-                });
-            }
+            maxDataValues = (this.data.length < this.maxDataDisplay) ? this.data.length : this.maxDataDisplay;
+        }else{
+            maxDataValues = (this.data[this.currentTab].length < this.maxDataDisplay) ? this.data[this.currentTab].length : this.maxDataDisplay;
         }
 
-       // console.log(this.mouseOverData);
+        let data = [];
 
+
+        if(!this.bMultiTab){
+            data = this.data;
+
+        }else{
+            data = this.data[this.currentTab];
+        }
+    
+        //all data must have same length
+        for(let i = 0; i < data[0].data.length; i++){
+            
+            currentData = [];      
+
+            for(let x = 0; x < maxDataValues; x++){
+
+                currentData.push({"id": x, "label": data[x].name, "value": data[x].data[i]});
+            }
+
+            this.mouseOverData.push({
+                "startX": startX + (offsetXBit * (i - 1)),
+                "endX": startX + (offsetXBit * i),
+                "title": `Data Point ${i}`,
+                "data": currentData
+            });
+        }
+        
     }
-
 
     getHoverData(){
 
