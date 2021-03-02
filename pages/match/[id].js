@@ -389,7 +389,6 @@ function createPlayerDomScoreData(events, totalPlayers, playerNames){
         }
     }
 
-
     let ignore = [];
     let current = 0;
 

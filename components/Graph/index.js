@@ -294,6 +294,7 @@ class GraphCanvas{
         for(let i = 0; i < data.length; i++){
 
             if(this.hideKeys[i]) continue;
+            if(i >= this.maxDataDisplay) break;
 
             d = data[i];
 
@@ -305,10 +306,12 @@ class GraphCanvas{
 
                 if(d.data[x] > this.max || this.max === null){
                     this.max = d.data[x];
+                    console.log(`this.max = ${this.max} (${d.name})`);
                 }
 
                 if(d.data[x] < this.min || this.min === null){
                     this.min = d.data[x];
+                    console.log(`this.min = ${this.min} (${d.name})`);
                 }
             }
         }
@@ -316,7 +319,9 @@ class GraphCanvas{
         this.mostData--;
 
         this.range = Math.abs(this.max) + Math.abs(this.min);
-        
+
+        console.log(data);
+        console.log(`${this.range} max=${this.max} min=${this.min}`);
     }
 
     resize(){
@@ -805,11 +810,13 @@ class GraphCanvas{
 
         x -= valueOffsetX;
 
-        c.fillText(this.max, x, y - valueTextSize);
-        c.fillText(this.min + (this.range * 0.75), x, y + quaterHeight - valueTextSize);
-        c.fillText(this.min + (this.range * 0.5), x, y + (quaterHeight * 2) - valueTextSize);
-        c.fillText(this.min + (this.range * 0.25), x, y + (quaterHeight * 3) - valueTextSize);
-        c.fillText(this.min, x, y + (quaterHeight * 4) - valueTextSize);
+        if(this.min !== null && this.max !== null){
+            c.fillText(this.max, x, y - valueTextSize);
+            c.fillText(this.min + (this.range * 0.75), x, y + quaterHeight - valueTextSize);
+            c.fillText(this.min + (this.range * 0.5), x, y + (quaterHeight * 2) - valueTextSize);
+            c.fillText(this.min + (this.range * 0.25), x, y + (quaterHeight * 3) - valueTextSize);
+            c.fillText(this.min, x, y + (quaterHeight * 4) - valueTextSize);
+        }
 
         this.drawKeys(c);
         this.plotData(c);
