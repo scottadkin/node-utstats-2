@@ -35,7 +35,6 @@ class GraphCanvas{
         this.keyStartY = 92;
 
         this.keyCoordinates = [];
-        this.hideKeys = [];
 
         if(this.bMultiTab){
             this.graphWidth = 80;
@@ -53,7 +52,7 @@ class GraphCanvas{
 
         console.log(`bMultiTab = ${this.bMultiTab} totalTabs = ${this.totalTabs}`);
 
-        this.setMaxStringLengths();
+        
 
         this.mouse = {"x": 0, "y": 0};
 
@@ -77,11 +76,12 @@ class GraphCanvas{
             "lightblue"
         ];
 
-        this.calcMinMax();
-
-        
-
         this.bFullScreen = false;
+
+        this.createHideKeys();
+        this.setMaxStringLengths();
+        this.calcMinMax();
+        
 
         this.render();
 
@@ -110,6 +110,7 @@ class GraphCanvas{
             this.render();
             
         });
+
 
         this.canvas.addEventListener("click", (e) =>{
 
@@ -146,6 +147,30 @@ class GraphCanvas{
         });
     }
 
+
+    createHideKeys(){
+
+        if(this.totalTabs === 0){
+
+            this.hideKeys.push([]);
+
+        }else{
+
+            for(let i = 0; i < this.totalTabs; i++){
+                this.hideKeys.push([]);
+            }
+        }
+
+        for(let i = 0; i < this.hideKeys.length; i++){
+
+            for(let x = 0; x < this.data[i].length; x++){
+
+                this.hideKeys[i].push(false);
+            }
+        }
+
+    }
+
     keyEvents(){
 
         let k = 0;
@@ -168,7 +193,7 @@ class GraphCanvas{
 
                 if(this.mouse.y >= k.y && this.mouse.y < k.y + k.height){
 
-                    this.hideKeys[i] = !this.hideKeys[i];
+                    this.hideKeys[this.currentTab][i] = !this.hideKeys[this.currentTab][i];
                     //alert(`ok ${i} ${this.bFullScreen}`);
                     bChangedValue = true;
                     break;
@@ -184,7 +209,14 @@ class GraphCanvas{
 
         const tabWidth = 100 / this.totalTabs;
 
-        this.hideKeys = [];
+        if(this.hideKeys.length === 0){
+
+            for(let i = 0; i < this.totalTabs; i++){
+                this.hideKeys.push([]);
+            }
+
+            if(this.totalTabs === 0) this.hideKeys.push([]);
+        }
 
         let currentTab = 0;
 
@@ -247,9 +279,11 @@ class GraphCanvas{
             data = this.data[this.currentTab];
         }
 
+        //console.log(this.hideKeys);
+
         for(let i = 0; i < data.length; i++){
 
-            if(this.hideKeys[i]) continue;
+            if(this.hideKeys[this.currentTab][i]) continue;
 
             d = data[i];
 
@@ -293,7 +327,7 @@ class GraphCanvas{
 
         for(let i = 0; i < data.length; i++){
 
-            if(this.hideKeys[i]) continue;
+            if(this.hideKeys[this.currentTab][i]) continue;
             if(i >= this.maxDataDisplay) break;
 
             d = data[i];
@@ -306,12 +340,10 @@ class GraphCanvas{
 
                 if(d.data[x] > this.max || this.max === null){
                     this.max = d.data[x];
-                    console.log(`this.max = ${this.max} (${d.name})`);
                 }
 
                 if(d.data[x] < this.min || this.min === null){
                     this.min = d.data[x];
-                    console.log(`this.min = ${this.min} (${d.name})`);
                 }
             }
         }
@@ -319,9 +351,8 @@ class GraphCanvas{
         this.mostData--;
 
         this.range = Math.abs(this.max) + Math.abs(this.min);
-
-        console.log(data);
-        console.log(`${this.range} max=${this.max} min=${this.min}`);
+        
+        //console.log(`${this.range} max=${this.max} min=${this.min}`);
     }
 
     resize(){
@@ -383,7 +414,7 @@ class GraphCanvas{
 
         for(let i = 0; i < data.length; i++){
 
-            if(this.hideKeys[i]) continue;
+            if(this.hideKeys[this.currentTab][i]) continue;
 
             if(i >= this.maxDataDisplay) return;
 
@@ -457,11 +488,11 @@ class GraphCanvas{
             data = this.data;
         }
 
-        let bCreateNewHideKeys = false;
+        //let bCreateNewHideKeys = false;
 
-        if(this.hideKeys.length === 0){
-            bCreateNewHideKeys = true;
-        }
+        //if(this.hideKeys[this.currentTab].length === 0){
+         //   bCreateNewHideKeys = true;
+       // }
 
         for(let i = 0; i < data.length; i++){
 
@@ -484,11 +515,11 @@ class GraphCanvas{
       
             c.fillRect(currentX, startY, blockSize, blockSize);
 
-            if(bCreateNewHideKeys){
-                this.hideKeys.push(false);
-            }
+           // if(bCreateNewHideKeys){
+            //    this.hideKeys[this.currentTab].push(false);
+           // }
 
-            if(this.hideKeys[i]){
+            if(this.hideKeys[this.currentTab][i]){
                 c.fillStyle = "black";
                 c.fillRect(currentX, startY, blockSize, blockSize);
             }
@@ -536,7 +567,7 @@ class GraphCanvas{
 
             for(let x = 0; x < maxDataValues; x++){
                 
-                if(this.hideKeys[x]) continue;
+                if(this.hideKeys[this.currentTab][x]) continue;
                 currentData.push({"id": x, "label": data[x].name, "value": data[x].data[i]});
                 
             }
