@@ -10,7 +10,7 @@ class GraphCanvas{
         this.aspectRatio = 0.5;
         this.title = title;
 
-        this.defaultWidth = 600;
+        this.defaultWidth = 650;
 
         this.currentTab = 0;
         this.bMultiTab = false;
@@ -351,7 +351,7 @@ class GraphCanvas{
         this.mostData--;
 
         this.range = Math.abs(this.max) + Math.abs(this.min);
-        
+
         //console.log(`${this.range} max=${this.max} min=${this.min}`);
     }
 
@@ -735,7 +735,12 @@ class GraphCanvas{
         let x = 0;
         let y = 0;
 
-        c.font = `${this.scaleY(5)}px Arial`;
+        c.font = `${this.scaleY(3.5)}px Arial`;
+
+        const selectedTabPattern = c.createLinearGradient(0, 0, 0, height);
+
+        selectedTabPattern.addColorStop(0, "rgb(3,3,3)");
+        selectedTabPattern.addColorStop(1, "rgb(64,64,64)");
 
         for(let i = 0; i < this.totalTabs; i++){
 
@@ -745,13 +750,19 @@ class GraphCanvas{
             if(i !== this.currentTab){
                 c.fillStyle = "black";
             }else{
-                c.fillStyle = "red";
+                c.fillStyle = selectedTabPattern;
             }
 
             c.fillRect(x, y, tabSize, height);
             c.strokeRect(x, y, tabSize, height);
-            c.fillStyle = "white";
-            c.fillText(this.title[i], x + (tabSize * 0.5), y + this.scaleY(2));
+            
+            if(i !== this.currentTab){
+                c.fillStyle = "white";
+            }else{
+                c.fillStyle = "yellow";
+            }
+
+            c.fillText(this.title[i], x + (tabSize * 0.5), y + this.scaleY(2.25));
         }
 
         c.textAlign = "left";

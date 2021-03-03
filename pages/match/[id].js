@@ -219,6 +219,8 @@ function createCTFEventData(events, totalTeams){
     const caps = [];
     const returns = [];
     const drops = [];
+    const saves = [];
+    const pickups = [];
 
     for(let i = 0; i < totalTeams; i++){
 
@@ -228,6 +230,8 @@ function createCTFEventData(events, totalTeams){
         caps.push({"name": teamNames[i], "data": [0]});
         returns.push({"name": teamNames[i], "data": [0]});
         drops.push({"name": teamNames[i], "data": [0]});
+        saves.push({"name": teamNames[i], "data": [0]});
+        pickups.push({"name": teamNames[i], "data": [0]});
     }
 
 
@@ -247,6 +251,10 @@ function createCTFEventData(events, totalTeams){
             data = returns;
         }else if(type === 'drops'){
             data = drops;
+        }else if(type === 'saves'){
+            data = saves;
+        }else if(type === 'pickups'){
+            data = pickups;
         }
 
         for(let i = 0; i < data.length; i++){
@@ -261,6 +269,7 @@ function createCTFEventData(events, totalTeams){
 
     let e = 0;
 
+    console.log(events);
 
     for(let i = 0; i < events.length; i++){
 
@@ -328,6 +337,26 @@ function createCTFEventData(events, totalTeams){
                 
             } break;
 
+            case 'save': {
+
+                saves[e.team].data.push(
+                    saves[e.team].data[saves[e.team].data.length - 1] + 1
+                );
+
+                updateOthers(e.team, 'saves');
+                
+            } break;
+
+            case 'pickedup': {
+
+                pickups[e.team].data.push(
+                    pickups[e.team].data[pickups[e.team].data.length - 1] + 1
+                );
+
+                updateOthers(e.team, 'pickups');
+                
+            } break;
+
         }
     }
 
@@ -337,7 +366,9 @@ function createCTFEventData(events, totalTeams){
         "covers": covers,
         "caps": caps,
         "returns": returns,
-        "drops": drops
+        "drops": drops,
+        "saves": saves,
+        "pickups": pickups
     };
 }
 
@@ -557,18 +588,24 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         const ctfEventData = createCTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
 
+
+        const ctfGraphData = [ctfEventData.grabs, ctfEventData.caps, ctfEventData.kills, 
+            ctfEventData.returns, ctfEventData.covers, ctfEventData.drops, ctfEventData.saves,
+            ctfEventData.pickups];
+
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
 
-        elems.push(<Graph title="Flag Grabs" key="g-1-2" data={JSON.stringify(ctfEventData.grabs)}/>);
+       /* elems.push(<Graph title="Flag Grabs" key="g-1-2" data={JSON.stringify(ctfEventData.grabs)}/>);
         elems.push(<Graph title="Flag Captures" key="g-1" data={JSON.stringify(ctfEventData.caps)}/>);
         
         elems.push(<Graph title="Flag Kills" key="g-1-3" data={JSON.stringify(ctfEventData.kills)}/>);
         elems.push(<Graph title="Flag Returns" key="g-1-5" data={JSON.stringify(ctfEventData.returns)}/>);
 
-        elems.push(<Graph title="Flag Covers" key="g-1-4" data={JSON.stringify(ctfEventData.covers)}/>); 
-        elems.push(<Graph title="Flag Drops" key="g-1-6" data={JSON.stringify(ctfEventData.drops)}/>);
+        elems.push(<Graph title="Flag Covers" key="g-1-4" data={JSON.stringify(ctfEventData.covers)}/>);*/
+
+        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-6" data={JSON.stringify(ctfGraphData)}/>);
 
         elems.push(
             <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />
@@ -592,14 +629,9 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         const domControlCaps = domControlPointCaptures(JSON.parse(domControlPointNames), JSON.parse(domCapData));
 
-        const test = [domPlayerScores, domTeamCaps, domControlCaps];
+        const domGraphData = [domPlayerScores, domTeamCaps, domControlCaps];
 
-        console.log(test);
-
-        //elems.push(<Graph title={"Domination Player Scores"} data={JSON.stringify(domPlayerScores)}/>);
-       // elems.push(<Graph title={"Domination Team Captures"} data={JSON.stringify(domTeamCaps)}/>);
-       // elems.push(<Graph title={"Domination Control Point Captures"} data={JSON.stringify(domControlCaps)}/>);
-        elems.push(<Graph title={["Domination Player Scores", "Domination Team Caps", "Domination Control Caps"]} data={JSON.stringify(test)}/>);
+        elems.push(<Graph title={["Domination Player Scores", "Domination Team Caps", "Domination Control Caps"]} data={JSON.stringify(domGraphData)}/>);
     }
 
     if(bAssault(gametype)){
@@ -616,13 +648,14 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         <MatchFragSummary key={`match_3`} bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData} matchStart={0}/>
     );
 
-    const testGraphData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
+    const playerKillData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
+    const teamTotalKillData = createTeamKillData(JSON.parse(killsData), parsedInfo.total_teams);
 
-    elems.push(<Graph title={"Player Kills"} key="g-2" data={JSON.stringify(testGraphData)}/>);
+    const killGraphData = [playerKillData, teamTotalKillData];
 
-    const teamTotalKillsData = createTeamKillData(JSON.parse(killsData), parsedInfo.total_teams);
+    elems.push(<Graph title={["Player Kills", "Team Total Kills"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
 
-    elems.push(<Graph title={"Team Total Kills"} key="g-3" data={JSON.stringify(teamTotalKillsData)}/>);
+    //elems.push(<Graph title={"Team Total Kills"} key="g-3" data={JSON.stringify(teamTotalKillsData)}/>);
 
 
     elems.push(
