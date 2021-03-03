@@ -306,14 +306,17 @@ function createTeamKillData(kills, totalTeams){
 
 class CTFEventData{
 
-    constructor(events, totalTeams){
+    constructor(events, totalTeams, playerNames){
 
         this.events = events;
         this.totalTeams = totalTeams;
+        this.playerNames = playerNames;
         this.data = [];
+        this.playerData = [];
 
         this.createDataObjects();
         this.setTeamData();
+        this.setPlayerData();
     }
 
     createDataObjects(){
@@ -329,6 +332,24 @@ class CTFEventData{
                 this.data[i][this.categories[x]] = [0];
             }
         }
+
+        this.playerPositions = [];
+
+        for(const [key, value] of Object.entries(this.playerNames)){
+
+            this.playerData.push({
+                "name": value,
+                "id": key
+            });
+
+            this.playerPositions.push(parseInt(key));
+
+            for(let i = 0; i < this.categories.length; i++){
+
+                this.playerData[this.playerData.length - 1][this.categories[i]] = [0];
+            }
+        }
+
     }
 
 
@@ -381,6 +402,80 @@ class CTFEventData{
 
         return data;
     }
+
+
+    updateOthersPlayer(ignore, type){
+
+        let currentValue = 0;
+
+        for(let i = 0; i < this.playerData.length; i++){
+
+            if(i !== ignore){
+
+                currentValue = this.playerData[i][type][this.playerData[i][type].length - 1];
+                this.playerData[i][type].push(currentValue);
+            }
+        }
+    }
+
+    setPlayerData(){
+
+        let e = 0;
+
+        let playerIndex = 0;
+
+        for(let i = 0; i < this.events.length; i++){
+
+            e = this.events[i];
+
+            playerIndex = this.playerPositions.indexOf(e.player);
+
+            if(playerIndex !== -1){
+
+                this.playerData[playerIndex][e.event].push(
+                    this.playerData[playerIndex][e.event][this.playerData[playerIndex][e.event].length - 1] + 1
+                );
+
+                this.updateOthersPlayer(playerIndex, e.event);
+            }
+
+            
+        }
+
+        //console.log(this.playerData);
+    }
+
+
+    getPlayerData(type){
+
+        const data = [];
+
+        let p = 0;
+
+        for(let i = 0; i < this.playerData.length; i++){
+
+            p = this.playerData[i];
+
+            data.push({"name": p.name, "data": p[type]});
+        }
+
+        data.sort((a, b) =>{
+
+            a = a.data[a.data.length - 1];
+            b = b.data[b.data.length - 1];
+
+            if(a > b){
+                return -1;
+            }else if(a < b){
+                return 1;
+            }
+            return 0;
+        });
+
+        return data;
+    }
+
+
 
 }
 
@@ -598,19 +693,27 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     if(bCTF(parsedPlayerData)){
 
 
-        const ctfEventData = new CTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
+        const ctfEventData = new CTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams, justPlayerNames);
 
         const ctfGraphData = [ctfEventData.get('taken'), ctfEventData.get('captured'), ctfEventData.get('kill'), 
             ctfEventData.get('returned'), ctfEventData.get('cover'), ctfEventData.get('dropped'), ctfEventData.get('save'),
             ctfEventData.get('pickedup')];
 
         
+        const ctfPlayerGraphData = [
+            ctfEventData.getPlayerData('taken'), ctfEventData.getPlayerData('captured'),  ctfEventData.getPlayerData('kill'),
+            ctfEventData.getPlayerData('returned'),  ctfEventData.getPlayerData('cover'),  ctfEventData.getPlayerData('dropped'),
+            ctfEventData.getPlayerData('save'),  ctfEventData.getPlayerData('pickedup'),
+        ];
+
+            
+
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
 
-
         elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-6" data={JSON.stringify(ctfGraphData)}/>);
+        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-7" data={JSON.stringify(ctfPlayerGraphData)}/>);
 
         elems.push(
             <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />
