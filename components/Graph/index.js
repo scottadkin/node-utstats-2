@@ -393,7 +393,7 @@ class GraphCanvas{
         const offsetXBit = graphWidth / this.mostData;
         const offsetYBit = graphHeight / this.range;
 
-        const blockSize = this.scaleY(1);
+        const blockSize = this.scaleY(0.75);
 
         let currentX = 0;
         let currentY = 0;

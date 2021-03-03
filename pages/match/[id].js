@@ -211,165 +211,84 @@ function createTeamKillData(kills, totalTeams){
 }
 
 
-function createCTFEventData(events, totalTeams){
+class CTFEventData{
 
-    const grabs = [];
-    const kills = [];
-    const covers = [];
-    const caps = [];
-    const returns = [];
-    const drops = [];
-    const saves = [];
-    const pickups = [];
+    constructor(events, totalTeams){
 
-    for(let i = 0; i < totalTeams; i++){
+        this.events = events;
+        this.totalTeams = totalTeams;
+        this.data = [];
 
-        grabs.push({"name": teamNames[i], "data": [0]});
-        kills.push({"name": teamNames[i], "data": [0]});
-        covers.push({"name": teamNames[i], "data": [0]});
-        caps.push({"name": teamNames[i], "data": [0]});
-        returns.push({"name": teamNames[i], "data": [0]});
-        drops.push({"name": teamNames[i], "data": [0]});
-        saves.push({"name": teamNames[i], "data": [0]});
-        pickups.push({"name": teamNames[i], "data": [0]});
+        this.createDataObjects();
+        this.setTeamData();
     }
 
+    createDataObjects(){
 
-    const updateOthers = (ignore, type) =>{
+        this.categories = ["taken", "kill", "cover", "captured", "returned", "dropped", "save", "pickedup", "assist"];
 
-        let data = [];
+        for(let i = 0; i < this.totalTeams; i++){
 
-        if(type === 'grabs'){
-            data = grabs;
-        }else if(type === "kills"){
-            data = kills;
-        }else if(type === 'covers'){
-            data = covers;
-        }else if(type === 'caps'){
-            data = caps;
-        }else if(type === 'returns'){
-            data = returns;
-        }else if(type === 'drops'){
-            data = drops;
-        }else if(type === 'saves'){
-            data = saves;
-        }else if(type === 'pickups'){
-            data = pickups;
-        }
+            this.data.push({"team": teamNames[i]});
 
-        for(let i = 0; i < data.length; i++){
+            for(let x = 0; x < this.categories.length; x++){
 
-            if(i !== ignore){
-                data[i].data.push(
-                    data[i].data[data[i].data.length - 1]
-                );
+                this.data[i][this.categories[x]] = [0];
             }
         }
     }
 
-    let e = 0;
 
-    console.log(events);
+    updateOthers(ignore, type){
 
-    for(let i = 0; i < events.length; i++){
+        for(let i = 0; i < this.data.length; i++){
 
-        e = events[i];
+            if(i !== ignore){
 
-        switch(e.event){
-
-            case 'taken': { 
-
-                grabs[e.team].data.push(
-                    grabs[e.team].data[grabs[e.team].data.length - 1] + 1
-                );
-
-                updateOthers(e.team, 'grabs');
-
-            } break;
-
-            case 'kill': {
-
-                kills[e.team].data.push(
-                    kills[e.team].data[kills[e.team].data.length - 1] + 1
-                );
-
-                updateOthers(e.team, 'kills');
-
-            } break;
-
-            case 'cover': {
-
-                covers[e.team].data.push(
-                    covers[e.team].data[covers[e.team].data.length - 1] + 1
-                );
-
-                updateOthers(e.team, 'covers');
-                
-            } break;
-
-            case 'captured': {
-
-                caps[e.team].data.push(
-                    caps[e.team].data[caps[e.team].data.length - 1] + 1
-                );
-
-                updateOthers(e.team, 'caps');
-                
-            } break;
-
-            case 'returned': {
-
-                returns[e.team].data.push(
-                    returns[e.team].data[returns[e.team].data.length - 1] + 1
-                );
-
-                updateOthers(e.team, 'returns');
-                
-            } break;
-
-            case 'dropped': {
-
-                drops[e.team].data.push(
-                    drops[e.team].data[drops[e.team].data.length - 1] + 1
-                );
-
-                updateOthers(e.team, 'drops');
-                
-            } break;
-
-            case 'save': {
-
-                saves[e.team].data.push(
-                    saves[e.team].data[saves[e.team].data.length - 1] + 1
-                );
-
-                updateOthers(e.team, 'saves');
-                
-            } break;
-
-            case 'pickedup': {
-
-                pickups[e.team].data.push(
-                    pickups[e.team].data[pickups[e.team].data.length - 1] + 1
-                );
-
-                updateOthers(e.team, 'pickups');
-                
-            } break;
-
+                this.data[i][type].push(this.data[i][type][this.data[i][type].length - 1]);
+            }
         }
     }
 
-    return {
-        "grabs": grabs,
-        "kills": kills,
-        "covers": covers,
-        "caps": caps,
-        "returns": returns,
-        "drops": drops,
-        "saves": saves,
-        "pickups": pickups
-    };
+    setTeamData(){
+
+        let e = 0;
+
+        let currentValue = 0;
+
+        for(let i = 0; i < this.events.length; i++){
+
+            e = this.events[i];
+            currentValue = this.data[e.team][e.event][this.data[e.team][e.event].length - 1];
+            this.data[e.team][e.event].push(++currentValue);
+
+            this.updateOthers(e.team, e.event);
+           
+        }
+    }
+
+
+    get(type){
+
+        const data = [];
+
+        let d = 0;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            d = this.data[i];
+
+            if(d[type] !== undefined){
+                data.push({
+                    "name": d.team,
+                    "data": d[type]
+                });
+            }
+        }
+
+        return data;
+    }
+
 }
 
 
@@ -586,24 +505,22 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     if(bCTF(parsedPlayerData)){
 
-        const ctfEventData = createCTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
+        //const ctfEventData = createCTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
+        
 
+        const ctfEventData = new CTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
+        //console.log(test.getData('taken'));
 
-        const ctfGraphData = [ctfEventData.grabs, ctfEventData.caps, ctfEventData.kills, 
-            ctfEventData.returns, ctfEventData.covers, ctfEventData.drops, ctfEventData.saves,
-            ctfEventData.pickups];
+        const ctfGraphData = [ctfEventData.get('taken'), ctfEventData.get('captured'), ctfEventData.get('kill'), 
+            ctfEventData.get('returned'), ctfEventData.get('cover'), ctfEventData.get('dropped'), ctfEventData.get('save'),
+            ctfEventData.get('pickedup')];
+
+        
 
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
 
-       /* elems.push(<Graph title="Flag Grabs" key="g-1-2" data={JSON.stringify(ctfEventData.grabs)}/>);
-        elems.push(<Graph title="Flag Captures" key="g-1" data={JSON.stringify(ctfEventData.caps)}/>);
-        
-        elems.push(<Graph title="Flag Kills" key="g-1-3" data={JSON.stringify(ctfEventData.kills)}/>);
-        elems.push(<Graph title="Flag Returns" key="g-1-5" data={JSON.stringify(ctfEventData.returns)}/>);
-
-        elems.push(<Graph title="Flag Covers" key="g-1-4" data={JSON.stringify(ctfEventData.covers)}/>);*/
 
         elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-6" data={JSON.stringify(ctfGraphData)}/>);
 
