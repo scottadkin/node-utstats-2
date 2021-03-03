@@ -92,74 +92,167 @@ function getItemsIds(items){
 }
 
 
-function createKillGraphData(kills, playerNames){
+class PlayerFragsGraphData{
 
-    const data = [];
+    constructor(kills, playerNames){
 
-    const uniquePlayers = Functions.getUniqueValues(kills,'killer');
+        this.kills = kills;
+        this.playerNames = playerNames;
 
-    //console.log(uniquePlayers);
-
-    for(let i = 0; i < uniquePlayers.length; i++){
-
-        data.push({"name": uniquePlayers[i], "data": [0], "maxValue": 0});
+        this.createData();
+        this.setData();
+        this.setNames();
     }
 
-    const updateOthers = (ignore) =>{
+    createData(){
 
-        for(let i = 0; i < data.length; i++){
+        this.data = new Map();
 
-            if(data[i].name !== ignore){
-                data[i].data.push(data[i].data[data[i].data.length - 1]);
+        let current = 0;
+
+        for(const [key, value] of Object.entries(this.playerNames)){
+
+            current = this.data.get(parseInt(key));
+
+            if(current === undefined){
+                this.data.set(parseInt(key), {"kills": [0], "deaths": [0], "suicides": [0], "teamKills": [0]})
             }
         }
     }
 
-    //console.log(data);
+    updateOthers(ignore, type){
 
-    let currentIndex = 0;
-    let k = 0;
-    let currentValue = 0;
 
-    for(let i = 0; i < kills.length; i++){
+        for(const [key, value] of this.data){
 
-        k = kills[i];
-        
-        //victim_team === -1 means a suicide
-        if(k.killer_team !== k.victim_team && k.victim_team !== -1){
-            currentIndex = uniquePlayers.indexOf(k.killer);
+            if(key !== ignore){
 
-            if(currentIndex !== -1){
-
-                currentValue = data[currentIndex].data[data[currentIndex].data.length - 1];
-
-                data[currentIndex].data.push(currentValue + 1);
-                data[currentIndex].maxValue = currentValue + 1;
-
-                updateOthers(k.killer);
+                value[type].push(value[type][value[type].length - 1]);
+                this.data.set(key, {"kills": value.kills, "deaths": value.deaths, "suicides": value.suicides, "teamKills": value.teamKills});
             }
         }
     }
 
-    data.sort((a, b) =>{
+    setData(){
 
-        a = a.maxValue;
-        b = b.maxValue;
+        let k = 0;
 
-        if(a > b){
-            return -1;
-        }else if(a < b){
-            return 1;
+        let currentKiller = 0;
+        let currentVictim = 0;
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            k = this.kills[i];
+
+            if(k.victim_team === -1){
+
+               // console.log("suicide");
+
+                currentKiller = this.data.get(k.killer);
+                currentKiller.suicides.push(currentKiller.suicides[currentKiller.suicides.length - 1] + 1);
+                currentKiller.deaths.push(currentKiller.deaths[currentKiller.deaths.length - 1] + 1);
+
+                this.data.set(k.killer,{
+                    "kills": currentKiller.kills,
+                    "deaths": currentKiller.deaths,
+                    "suicides": currentKiller.suicides,
+                    "teamKills": currentKiller.teamKills
+                });
+
+                this.updateOthers(k.killer, 'suicides');
+                this.updateOthers(k.killer, 'deaths');
+
+            }else if(k.killer_team === k.victim_team){
+
+                //console.log("team kill");
+
+                currentKiller = this.data.get(k.killer);
+                currentVictim = this.data.get(k.victim);
+
+                currentKiller.teamKills.push(currentKiller.teamKills[currentKiller.teamKills.length - 1] + 1);
+                currentVictim.deaths.push(currentVictim.deaths[currentVictim.deaths.length - 1] + 1);
+
+                this.updateOthers(k.killer, 'teamKills');
+                this.updateOthers(k.victim, 'deaths');
+
+            }else{
+
+                currentKiller = this.data.get(k.killer);
+                currentVictim = this.data.get(k.victim);
+
+                currentKiller.kills.push(
+                    currentKiller.kills[currentKiller.kills.length - 1] + 1
+                );
+
+                currentVictim.deaths.push(
+                    currentVictim.deaths[currentVictim.deaths.length - 1] + 1 
+                );
+
+                this.data.set(k.killer,{
+                    "kills": currentKiller.kills,
+                    "deaths": currentKiller.deaths,
+                    "suicides": currentKiller.suicides,
+                    "teamKills": currentKiller.teamKills
+                });
+
+                this.data.set(k.victim,{
+                    "kills": currentVictim.kills,
+                    "deaths": currentVictim.deaths,
+                    "suicides": currentVictim.suicides,
+                    "teamKills": currentVictim.teamKills
+                });
+
+                this.updateOthers(k.killer, 'kills');
+                this.updateOthers(k.victim, 'deaths');
+
+            }    
         }
-        return 0;
-    });
-
-    for(let i = 0; i < data.length; i++){
-
-        data[i].name = (playerNames[data[i].name] !== undefined) ? playerNames[data[i].name] : 'Not Found';
     }
 
-    return data;
+    setNames(){
+
+        const newData = new Map();
+
+        for(const [key, value] of this.data){
+
+            newData.set(this.playerNames[key], value);
+        }
+
+        this.data.clear();
+
+        this.data = newData;
+    }
+
+
+    get(type){
+
+        const data = [];
+
+        for(const [key, value] of this.data){
+
+            data.push({
+                "name": key,
+                "data": value[type]
+            });
+        }
+
+        data.sort((a, b) =>{
+
+            a = a.data[a.data.length - 1];
+            b = b.data[b.data.length - 1];
+
+            if(a > b){
+                return -1;
+            }else if(a < b){
+                return 1;
+            }
+
+            return 0;
+        });
+
+        return data;
+    }
+
 }
 
 
@@ -359,7 +452,6 @@ function createPlayerDomScoreData(events, totalPlayers, playerNames){
         }
 
         updateOthers(ignore);
-        //update others
     }
 
     let arrayData = [];
@@ -505,18 +597,14 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     if(bCTF(parsedPlayerData)){
 
-        //const ctfEventData = createCTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
-        
 
         const ctfEventData = new CTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams);
-        //console.log(test.getData('taken'));
 
         const ctfGraphData = [ctfEventData.get('taken'), ctfEventData.get('captured'), ctfEventData.get('kill'), 
             ctfEventData.get('returned'), ctfEventData.get('cover'), ctfEventData.get('dropped'), ctfEventData.get('save'),
             ctfEventData.get('pickedup')];
 
         
-
         elems.push(
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
@@ -565,12 +653,15 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         <MatchFragSummary key={`match_3`} bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData} matchStart={0}/>
     );
 
-    const playerKillData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
+    const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), justPlayerNames);
+   // const playerKillData = createKillGraphData(JSON.parse(killsData), justPlayerNames);
     const teamTotalKillData = createTeamKillData(JSON.parse(killsData), parsedInfo.total_teams);
 
-    const killGraphData = [playerKillData, teamTotalKillData];
+    //const killGraphData = [playerKillData, teamTotalKillData];
 
-    elems.push(<Graph title={["Player Kills", "Team Total Kills"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
+    const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills')];
+
+    elems.push(<Graph title={["Player Kills", "Player Deaths", "Player Suicides", "Player Team Kills"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
 
     //elems.push(<Graph title={"Team Total Kills"} key="g-3" data={JSON.stringify(teamTotalKillsData)}/>);
 
