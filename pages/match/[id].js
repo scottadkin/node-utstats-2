@@ -96,6 +96,8 @@ class PlayerFragsGraphData{
 
     constructor(kills, playerNames, totalTeams){
 
+
+
         this.kills = kills;
         this.playerNames = playerNames;
         this.totalTeams = totalTeams;
@@ -209,13 +211,15 @@ class PlayerFragsGraphData{
                 currentKiller.teamKills.push(currentKiller.teamKills[currentKiller.teamKills.length - 1] + 1);
                 currentVictim.deaths.push(currentVictim.deaths[currentVictim.deaths.length - 1] + 1);
 
-                this.teamData[k.killer_team].teamKills.push(
-                    this.teamData[k.killer_team].teamKills[this.teamData[k.killer_team].teamKills.length - 1] + 1
-                );
+                if(this.totalTeams > 0){
+                    this.teamData[k.killer_team].teamKills.push(
+                        this.teamData[k.killer_team].teamKills[this.teamData[k.killer_team].teamKills.length - 1] + 1
+                    );
 
-                this.teamData[k.killer_team].deaths.push(
-                    this.teamData[k.killer_team].deaths[this.teamData[k.killer_team].deaths.length - 1] + 1
-                );
+                    this.teamData[k.killer_team].deaths.push(
+                        this.teamData[k.killer_team].deaths[this.teamData[k.killer_team].deaths.length - 1] + 1
+                    );
+                }
 
                 this.updateOthers(k.killer, 'teamKills');
                 this.updateOthers(k.victim, 'deaths');
@@ -228,18 +232,22 @@ class PlayerFragsGraphData{
                 currentKiller = this.data.get(k.killer);
                 currentVictim = this.data.get(k.victim);
 
+
                 currentKiller.kills.push(
                     currentKiller.kills[currentKiller.kills.length - 1] + 1
                 );
 
-                this.teamData[k.killer_team].kills.push(
-                    this.teamData[k.killer_team].kills[this.teamData[k.killer_team].kills.length - 1] + 1
-                );
+                if(this.totalTeams > 0){
 
-                this.teamData[k.victim_team].deaths.push(
-                    this.teamData[k.victim_team].deaths[this.teamData[k.victim_team].deaths.length - 1] + 1
-                );
+                    this.teamData[k.killer_team].kills.push(
+                        this.teamData[k.killer_team].kills[this.teamData[k.killer_team].kills.length - 1] + 1
+                    );
 
+                    this.teamData[k.victim_team].deaths.push(
+                        this.teamData[k.victim_team].deaths[this.teamData[k.victim_team].deaths.length - 1] + 1
+                    );
+
+                }
                 currentVictim.deaths.push(
                     currentVictim.deaths[currentVictim.deaths.length - 1] + 1 
                 );
