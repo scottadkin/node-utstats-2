@@ -455,7 +455,21 @@ class Player{
             });
 
         });
-    
+    }
+
+    insertScoreHistory(matchId, timestamp, player, score){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_match_player_score VALUES(NULL,?,?,?,?)";
+
+            mysql.query(query, [matchId, timestamp, player, score], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
     }
 
 

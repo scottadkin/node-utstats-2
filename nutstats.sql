@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 27, 2021 at 05:45 PM
+-- Generation Time: Mar 05, 2021 at 03:52 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -386,6 +386,20 @@ CREATE TABLE `nstats_match_pings` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nstats_match_player_score`
+--
+
+CREATE TABLE `nstats_match_player_score` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `timestamp` float NOT NULL,
+  `player` int(11) NOT NULL,
+  `score` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nstats_match_team_changes`
 --
 
@@ -750,6 +764,12 @@ ALTER TABLE `nstats_match_pings`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_match_player_score`
+--
+ALTER TABLE `nstats_match_player_score`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_match_team_changes`
 --
 ALTER TABLE `nstats_match_team_changes`
@@ -925,6 +945,12 @@ ALTER TABLE `nstats_match_connections`
 -- AUTO_INCREMENT for table `nstats_match_pings`
 --
 ALTER TABLE `nstats_match_pings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_match_player_score`
+--
+ALTER TABLE `nstats_match_player_score`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

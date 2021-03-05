@@ -204,15 +204,18 @@ class MatchManager{
             this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
             await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
 
-        
-            new Message(`Finished import of log file ${this.fileName}.`, 'note');
-
 
             this.countiresManager = new CountriesManager();
             await this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
-
+            new Message(`Updated Country stats`,'pass');
 
             await this.killManager.insertKills(this.matchId, this.playerManager, this.weaponsManager);
+            new Message(`Inserted match kill data`,'pass');
+
+            await this.playerManager.insertScoreHistory(this.matchId);
+            new Message(`Inserted player score history`,'pass');
+
+            new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){
             console.trace(err);
@@ -312,7 +315,8 @@ class MatchManager{
             "longesttimebetweenkills",
             "first_blood",
             "spawn_loc",
-            "spawn_point"
+            "spawn_point",
+            "p_s"
         ];
 
         const assaultTypes = [

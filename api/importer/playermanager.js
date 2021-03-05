@@ -30,6 +30,8 @@ class PlayerManager{
         this.connectionsManager = new ConnectionsManager();
         this.teamsManager = new TeamsManager();
 
+        this.scoreHistory = [];
+
         this.teamChanges = [];
 
         this.pingManager = new PingManager();
@@ -204,7 +206,7 @@ class PlayerManager{
 
                 timestamp = parseFloat(result[1]);
                 type = result[2].toLowerCase();
-               // console.log(`type = ${type}`);
+                
 
                 if(type === 'face' || type === 'voice' || type === 'netspeed'){
                     this.setPlayerFeature(d);
@@ -216,7 +218,7 @@ class PlayerManager{
 
                     if(result !== null){
 
-                        if(type !== 'spawn_loc' && type !== 'spawn_point'){
+                        if(type !== 'spawn_loc' && type !== 'spawn_point' && type !== 'p_s'){
 
                             player = this.getPlayerById(result[1]);
 
@@ -225,6 +227,16 @@ class PlayerManager{
                                 player.setStatsValue(type, result[2], true);
                             }
 
+                        }else if(type === 'p_s'){
+
+                            this.scoreHistory.push(
+                                {
+                                    "timestamp": timestamp,
+                                    "player":   parseInt(result[1]),
+                                    "score": parseInt(result[2])
+                                }
+                            );
+                            
                         }else if(type === 'spawn_loc'){
 
 
@@ -255,7 +267,6 @@ class PlayerManager{
                                 this.spawnManager.addSpawnPoint(result[1], result[2]);
                             }
                         }
-            
                     }
                 }
             }
@@ -1099,6 +1110,32 @@ class PlayerManager{
         }
 
         return -1;
+    }
+
+
+    async insertScoreHistory(matchId){
+
+        try{
+
+            let currentPlayer = 0;
+            let s = 0;
+
+            for(let i = 0; i < this.scoreHistory.length; i++){
+
+                s = this.scoreHistory[i];
+
+                currentPlayer = this.getOriginalConnectionById(s.player);
+
+                if(currentPlayer !== null){
+                    await Player.insertScoreHistory(matchId, s.timestamp, currentPlayer.masterId, s.score);
+                }else{
+                    new Message(`PlayerManager.insertSCoreHistory() currentPlayer is null`,'warning');
+                }
+            }
+
+        }catch(err){
+            new Message(`PlayerManager.insertScoreHistory ${err}`,'error');
+        }
     }
 }
 
