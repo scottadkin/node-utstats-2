@@ -758,6 +758,8 @@ function createScoreHistoryGraph(score, playerNames){
 
     }
 
+    updateOthers(updated);
+
 
     const arrayData = [];
 
