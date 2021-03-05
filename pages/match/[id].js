@@ -704,12 +704,97 @@ function domControlPointCaptures(names, caps){
 }
 
 
+function createScoreHistoryGraph(score, playerNames){
+
+    const data = new Map();
+
+    for(const [key, value] of Object.entries(playerNames)){
+       
+        data.set(parseInt(key), {"name": value, "data": [0]});
+
+    }
+
+    const updateOthers = (ignore) =>{
+        
+        let current = 0;
+
+        for(const [key, value] of data){
+        
+            if(ignore.indexOf(key) === -1){
+
+                current = value.data;
+                current.push(value.data[value.data.length - 1]);
+
+                data.set(key, {"name": value.name, "data": current})
+            }
+        }
+    }
+
+
+    let previousTimestamp = null;
+
+    let current = 0;
+    let updated = [];
+    let s = 0;
+
+    for(let i = 0; i < score.length; i++){
+
+        s = score[i];
+
+        if(i === 0) previousTimestamp = s.timestamp;
+
+        if(s.timestamp !== previousTimestamp){
+            previousTimestamp = s.timestamp;
+            //update others
+            updateOthers(updated);
+            updated = [];
+        }
+
+        updated.push(s.player);
+        current = data.get(s.player);
+        current.data.push(s.score);
+        data.set(s.player, {"name": current.name, "data": current.data});
+        //console.log(current);
+
+    }
+
+
+    const arrayData = [];
+
+    for(const [key, value] of data){
+
+        arrayData.push({
+            "name": value.name,
+            "data": value.data
+        });
+    }
+
+
+    arrayData.sort((a, b) =>{
+
+        a = a.data[a.data.length - 1];
+        b = b.data[b.data.length - 1];
+
+        if(a > b){
+            return -1;
+        }else if(a < b){
+            return 1;
+        }
+
+        return 0;
+    });
+
+    return arrayData;
+}
+
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
-    assaultData, itemData, itemNames, connections, teams, faces, killsData}){
+    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory}){
 
     const parsedInfo = JSON.parse(info);
 
     const parsedPlayerData = JSON.parse(playerData);
+
+    scoreHistory = JSON.parse(scoreHistory);
 
     let playerNames = [];
     const justPlayerNames = {};
@@ -740,6 +825,9 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     />);
 
 
+    const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames);
+    elems.push(<Graph title={"Player Score History"} key={"scosococsocos-hihishis"} data={JSON.stringify(playerScoreHistoryGraph)} />);
+
     if(bCTF(parsedPlayerData)){
 
 
@@ -762,6 +850,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
             <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
         );
 
+        
         elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-6" data={JSON.stringify(ctfGraphData)}/>);
         elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-7" data={JSON.stringify(ctfPlayerGraphData)}/>);
 
@@ -1042,6 +1131,9 @@ export async function getServerSideProps({query}){
 
     const killsData = await killManager.getMatchData(matchId);
 
+    const scoreHistory = await playerManager.getScoreHistory(matchId);
+
+
 
     return {
         props: {
@@ -1063,7 +1155,8 @@ export async function getServerSideProps({query}){
             "connections": JSON.stringify(connectionsData),
             "teams": JSON.stringify(teamsData),
             "faces": JSON.stringify(pFaces),
-            "killsData": JSON.stringify(killsData)
+            "killsData": JSON.stringify(killsData),
+            "scoreHistory": JSON.stringify(scoreHistory)
         }
     };
 

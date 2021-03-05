@@ -82,7 +82,6 @@ class Players{
 
     getPlayers(page, perPage, sort, order, name){
 
-
         return new Promise((resolve, reject) =>{
 
             page = page - 1;
