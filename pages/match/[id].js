@@ -913,7 +913,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
         playerKillData.getTeamData('teamKills')];
        
-        elems.push(<Graph title={["Player Kills", "Player Deaths", "Player Suicides", "Player Team Kills"]} key="g-2" data={JSON.stringify(teamKillGraphData)}/>);
+        elems.push(<Graph title={["Player Kills", "Player Deaths", "Player Suicides", "Player Team Kills"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
     }
 
     //elems.push(<Graph title={"Team Total Kills"} key="g-3" data={JSON.stringify(teamTotalKillsData)}/>);

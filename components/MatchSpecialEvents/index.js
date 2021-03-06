@@ -15,7 +15,7 @@ class MatchSpecialEvents extends React.Component{
         this.players = JSON.parse(props.players);
         this.bTeamGame = props.bTeamGame;
 
-        this.state = {"mode": 2};
+        this.state = {"mode": 0};
 
         console.log(this.players);
 
@@ -29,13 +29,22 @@ class MatchSpecialEvents extends React.Component{
         this.setState({"mode": value});
     }
 
-    bAnyMultis(player){
+    bAnyData(player, type){
 
 
         for(let i = 1; i < 8; i++){
 
-            if(player[`multi_${i}`] > 0){
-                return true;
+            if(type === 'multi'){
+
+                if(player[`multi_${i}`] > 0){
+                    return true;
+                }
+
+            }else if(type === 'spree'){
+
+                if(player[`spree_${i}`] > 0){
+                    return true;
+                }
             }
         }
 
@@ -65,7 +74,7 @@ class MatchSpecialEvents extends React.Component{
 
             p = this.players[i];      
 
-            if(this.bAnyMultis(p)){
+            if(this.bAnyData(p, 'multi')){
 
                 countryFlag = <CountryFlag country={p.country}/>;
                 playerName = <Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link>
@@ -197,11 +206,169 @@ class MatchSpecialEvents extends React.Component{
         }
     }
 
+
+    createSpreeElems(){
+
+
+        const elems = [];
+
+        let p = 0;
+        let playerName = 0;
+        let flag = 0;
+        let color = "team-none";
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            
+            if(this.bAnyData(p, 'spree')){
+
+                playerName = <Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link>
+                flag = <CountryFlag country={p.country}/>
+
+                if(this.bTeamGame){
+                    color = Functions.getTeamColor(p.team);
+                }
+
+                if(this.state.mode === 0){
+
+                    elems.push(<tr key={`spree-0-${i}`} className={color}>
+                        <td>{flag}{playerName}</td>
+                        <td>{this.displayValue(p.spree_1)}</td>
+                        <td>{this.displayValue(p.spree_2)}</td>
+                        <td>{this.displayValue(p.spree_3)}</td>
+                        <td>{this.displayValue(p.spree_4)}</td>
+                        <td>{this.displayValue(p.spree_5 + p.spree_6 + p.spree_7)}</td>
+                        <td>{p.spree_best}</td>
+                    </tr>);    
+
+                }else if(this.state.mode === 1){
+
+                    elems.push(<tr  key={`spree-1-${i}`} className={color}>
+                        <td>{flag}{playerName}</td>
+                        <td>{this.displayValue(p.spree_1)}</td>
+                        <td>{this.displayValue(p.spree_2)}</td>
+                        <td>{this.displayValue(p.spree_3)}</td>
+                        <td>{this.displayValue(p.spree_4)}</td>
+                        <td>{this.displayValue(p.spree_5)}</td>
+                        <td>{this.displayValue(p.spree_6)}</td>
+                        <td>{this.displayValue(p.spree_7)}</td>
+                        <td>{p.spree_best}</td>
+                    </tr>);
+
+                }else if(this.state.mode === 2){
+
+                    elems.push(<tr  key={`spree-2-${i}`} className={color}>
+                        <td>{flag}{playerName}</td>
+                        <td>{this.displayValue(p.spree_1)}</td>
+                        <td>{this.displayValue(p.spree_2)}</td>
+                        <td>{this.displayValue(p.spree_3)}</td>
+                        <td>{this.displayValue(p.spree_4)}</td>
+                        <td>{this.displayValue(p.spree_5)}</td>
+                        <td>{this.displayValue(p.spree_6 + p.spree_7)}</td>
+                        <td>{p.spree_best}</td>
+                    </tr>);
+
+                }else if(this.state.mode === 3){
+
+                    elems.push(<tr  key={`spree-3-${i}`} className={color}>
+                        <td>{flag}{playerName}</td>
+                        <td>{this.displayValue(p.spree_1)}</td>
+                        <td>{this.displayValue(p.spree_2)}</td>
+                        <td>{this.displayValue(p.spree_3)}</td>
+                        <td>{this.displayValue(p.spree_4)}</td>
+                        <td>{this.displayValue(p.spree_5)}</td>
+                        <td>{this.displayValue(p.spree_6 + p.spree_7)}</td>
+                        <td>{p.spree_best}</td>
+                    </tr>);
+                }
+            }
+
+        }
+
+
+        if(elems.length > 0){
+
+            if(this.state.mode === 0){
+
+                elems.unshift(
+                    <tr key={`spree-0-h`}>
+                        <th>Player</th>
+                        <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
+                        <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
+                        <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
+                        <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
+                        <TipHeader title="Godlike" content="Player killed 25 or more players in a life."/>
+                        <TipHeader title="Best" content="Most kills player killed in a life."/>
+                    </tr>
+                );
+
+            }else if(this.state.mode === 1){
+
+                elems.unshift(
+                    <tr key={`spree-1-h`}>
+                        <th>Player</th>
+                        <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
+                        <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
+                        <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
+                        <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
+                        <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
+                        <TipHeader title="Too Easy" content="Player killed 30 to 34 players in a life."/>
+                        <TipHeader title="Brutalizing" content="Player killed 35 or more players in a life."/>
+                        <TipHeader title="Best" content="Most kills player killed in a life."/>
+                    </tr>
+                );
+
+            }else if(this.state.mode === 2){
+
+                elems.unshift(
+                    <tr key={`spree-2-h`}>
+                        <th>Player</th>
+                        <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
+                        <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
+                        <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
+                        <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
+                        <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
+                        <TipHeader title="Whicked Sick" content="Player killed 30 or more players in a life."/>
+                        <TipHeader title="Best" content="Most kills player killed in a life."/>
+                    </tr>
+                );
+
+            }else if(this.state.mode === 3){
+
+                elems.unshift(
+                    <tr key={`spree-3-h`}>
+                        <th>Player</th>
+                        <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
+                        <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
+                        <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
+                        <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
+                        <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
+                        <TipHeader title="Massacre" content="Player killed 30 or more players in a life."/>
+                        <TipHeader title="Best" content="Most kills player killed in a life."/>
+                    </tr>
+                );
+            }
+
+            return <div>
+            <div className="default-header">Killing Sprees</div>
+            <table>
+                <tbody>
+                    {elems}
+                </tbody>
+            </table>
+            </div>
+        }
+
+        return elems;
+    }
+
     render(){
 
 
         const multiElems = this.createMultiElems();
-        const spreeElems = [];
+        const spreeElems = this.createSpreeElems();
 
         return (<div className={styles.special}>
 

@@ -12,7 +12,11 @@
 }
 
 .active{
-    background-color:Red;
+    background-color:rgb(64,0,0);
+}
+
+.special table{
+    margin-bottom:10px;
 }
 
 .special table td:nth-child(1){
