@@ -14,3 +14,11 @@
 .active{
     background-color:Red;
 }
+
+.special table td:nth-child(1){
+    text-align:left;
+}
+
+.bwrapper{
+    margin-bottom:10px;
+}
