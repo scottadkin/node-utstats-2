@@ -2,8 +2,15 @@
     display:inline-block;
     background-color:black;
     padding:5px;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-left:-1px;
+    user-select: none;
 }
 
 .button:hover{
     cursor: pointer;
+}
+
+.active{
+    background-color:Red;
 }

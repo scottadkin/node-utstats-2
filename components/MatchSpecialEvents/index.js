@@ -334,18 +334,19 @@ class MatchSpecialEvents extends React.Component{
         const spreeElems = [];
 
         return (<div>
+
             <div className="default-header">Special Events</div>
 
-            <div className={styles.button} onClick={(() =>{
+            <div className={`${styles.button} ${(this.state.mode === 0) ? styles.active : '' }`} onClick={(() =>{
                 this.changeMode(0)
             })}>Classic</div>
-            <div className={styles.button} onClick={(() =>{
+            <div className={`${styles.button} ${(this.state.mode === 1) ? styles.active : '' }`} onClick={(() =>{
                 this.changeMode(1)
             })}>SmartCTF/DM</div>
-             <div className={styles.button} onClick={(() =>{
+             <div className={`${styles.button} ${(this.state.mode === 2) ? styles.active : '' }`} onClick={(() =>{
                 this.changeMode(2)
             })}>UT2K4</div>
-             <div className={styles.button} onClick={(() =>{
+             <div className={`${styles.button} ${(this.state.mode === 3) ? styles.active : '' }`} onClick={(() =>{
                 this.changeMode(3)
             })}>UT3</div>
 
