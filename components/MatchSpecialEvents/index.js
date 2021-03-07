@@ -17,8 +17,6 @@ class MatchSpecialEvents extends React.Component{
 
         this.state = {"mode": 0};
 
-        console.log(this.players);
-
         this.changeMode = this.changeMode.bind(this);
 
     }
@@ -300,7 +298,7 @@ class MatchSpecialEvents extends React.Component{
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
                         <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
                         <TipHeader title="Godlike" content="Player killed 25 or more players in a life."/>
-                        <TipHeader title="Best" content="Most kills player killed in a life."/>
+                        <TipHeader title="Best" content="Most kills player had in a life."/>
                     </tr>
                 );
 
@@ -316,7 +314,7 @@ class MatchSpecialEvents extends React.Component{
                         <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
                         <TipHeader title="Too Easy" content="Player killed 30 to 34 players in a life."/>
                         <TipHeader title="Brutalizing" content="Player killed 35 or more players in a life."/>
-                        <TipHeader title="Best" content="Most kills player killed in a life."/>
+                        <TipHeader title="Best" content="Most kills player had in a life."/>
                     </tr>
                 );
 
@@ -331,7 +329,7 @@ class MatchSpecialEvents extends React.Component{
                         <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
                         <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
                         <TipHeader title="Whicked Sick" content="Player killed 30 or more players in a life."/>
-                        <TipHeader title="Best" content="Most kills player killed in a life."/>
+                        <TipHeader title="Best" content="Most kills player had in a life."/>
                     </tr>
                 );
 
@@ -346,7 +344,7 @@ class MatchSpecialEvents extends React.Component{
                         <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
                         <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
                         <TipHeader title="Massacre" content="Player killed 30 or more players in a life."/>
-                        <TipHeader title="Best" content="Most kills player killed in a life."/>
+                        <TipHeader title="Best" content="Most kills player had in a life."/>
                     </tr>
                 );
             }

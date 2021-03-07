@@ -1,0 +1,19 @@
+.tab{
+    display:inline-block;
+    font-size:12px;
+    background-color:black;
+    padding:5px;
+}
+
+.tab:hover{
+    cursor:pointer;
+    background-color:rgb(12,12,12);
+}
+
+.selected{
+    background-color:rgb(64,0,0);
+}
+
+.selected:hover{
+    background-color:rgb(84,0,0);
+}

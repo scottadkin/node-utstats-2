@@ -1,92 +1,162 @@
+import React from 'react';
 import MatchWeapon from '../MatchWeapon/';
+import styles from './MatchWeaponSummary.module.css';
+import CleanDamage from '../CleanDamage';
 
-const getWeaponData = (id, data) =>{
 
-    const found = [];
 
-    for(let i = 0; i < data.length; i++){
+class MatchWeaponSummary extends React.Component{
 
-        if(data[i].weapon_id === id){
-            found.push(data[i]);
+    constructor(props){
+
+        super(props);
+
+        this.state = {"tabs": []};
+
+        this.changeTab = this.changeTab.bind(this);
+
+        
+    }
+
+    componentDidMount(){
+
+        this.createTabs();
+    }
+
+    createTabs(){
+
+        //console.table(this.props.data);
+
+        const tabs = [];
+        let weapon = 0;
+
+        for(let i = 0; i < this.props.data.names.length; i++){
+
+            weapon = this.props.data.names[i];
+            tabs.push({"name": weapon.name, "id": weapon.id});
+
         }
-    }
 
-    return JSON.stringify(found);
-}
-
-const createPlayerMap = (players) =>{
-
-    const playerMap = new Map();
-
-    for(let i = 0; i < players.length; i++){
-
-        playerMap.set(players[i].player_id, {"name": players[i].name, "country": players[i].country, "team": players[i].team});
-    }
-
-    return playerMap;
+        this.setState({"tabs": tabs, "selected": 0});
     
-}
-
-const setPlayersDetails = (weaponData, players) =>{
-
-    const mapData = createPlayerMap(players);
-
-    let currentPlayer = 0;
-
-    if(weaponData === undefined) return;
-
-    for(let i = 0; i < weaponData.length; i++){
-
-        currentPlayer = mapData.get(weaponData[i].player_id);
-
-        if(currentPlayer !== undefined){
-
-            weaponData[i].playerName = currentPlayer.name;
-            weaponData[i].playerCountry = currentPlayer.country;
-            weaponData[i].playerTeam = currentPlayer.team;
-
-        }else{
-            weaponData[i].playerName = "Not Found";
-            weaponData[i].playerCountry = "xx";
-            weaponData[i].playerTeam = 0;
-        }
     }
-}
 
-const MatchWeaponSummary = ({data, players, bTeamGame}) =>{
+    changeTab(id){
 
-    data = JSON.parse(data);
-    players = JSON.parse(players);
+        this.setState({"selected": id});
+    }
 
-    setPlayersDetails(data.playerData, players);
+    getTabs(){
 
-    const elems = [];
+        const elems = [];
 
-    let currentId = 0;
+        let t = 0;
+        let style = "";
 
-    if(data.names !== undefined){
+        for(let i = 0; i < this.state.tabs.length; i++){
 
-        for(let i = 0; i < data.names.length; i++){
+            t = this.state.tabs[i];
 
-            currentId = data.names[i].id;
-            if(data.names[i].name.toLowerCase() !== 'none'){
-                elems.push(
-                    <MatchWeapon key={`match_weapon_${data.names[i].name}`} name={data.names[i].name} data={getWeaponData(currentId, data.playerData)} bTeamGame={bTeamGame}/>
-                );
+            if(this.state.selected === i){
+                style = `${styles.tab} ${styles.selected}`;
+            }else{
+                style = styles.tab;
             }
-            
-        }
-    }
-    
 
-    return (
-        <div>
-        <div className="default-header">
-            Weapon Summary
+            elems.push(<div onClick={(() =>{
+                this.changeTab(i);
+            })} className={style}>{t.name}</div>);
+        }
+
+        return elems;
+    }
+
+    getPlayerName(){
+        console.log(this.props.players);
+    }
+
+
+    bAnyData(data){
+
+        const types = ["kills","deaths","accuracy","shots","hits","damage"];
+
+        for(let i = 0; i < types.length; i++){
+
+            if(data[types[i]] > 0)  return true;
+        }
+
+        return false;
+    }
+
+    getDataElems(){
+
+        const id = this.state.tabs[this.state.selected].id;
+
+        console.log(`id = ${id}`);
+
+
+        const elems = [];
+
+
+        let p = 0;
+        for(let i = 0; i < this.props.data.playerData.length; i++){
+
+            p = this.props.data.playerData[i];
+
+            if(p.weapon_id === id){
+                if(this.bAnyData(p)){
+                    elems.push(
+                        <tr>
+                            <td>Player</td>
+                            <td>{p.shots}</td>
+                            <td>{p.hits}</td>
+                            <td>{p.accuracy}%</td>
+                            <td>{p.deaths}</td>
+                            <td>{p.kills}</td>
+                            <td><CleanDamage damage={p.damage} /></td>
+                        </tr>
+                    );
+                }
+            }
+        }
+
+        if(elems.length > 0){
+
+            return <table>
+                <tbody>
+                    <tr>
+                        <th>Player</th>
+                        <th>Shots</th>
+                        <th>Hits</th>
+                        <th>Accuracy</th>
+                        <th>Deaths</th>
+                        <th>Kills</th>
+                        <th>Damage</th>
+                    </tr>
+                    {elems}
+                </tbody>
+            </table>
+        }
+
+        return elems;
+    }
+
+    render(){
+
+        const tabs = this.getTabs();
+
+        let dataElems = [];
+
+        if(this.state.selected !== undefined){
+            dataElems = this.getDataElems();
+        }
+
+        return <div>
+            <div className="default-header">Weapon Statistics</div>
+            {tabs}
+            {dataElems}
         </div>
-        {elems}
-        </div>
-    );
+    }
 }
 
 
