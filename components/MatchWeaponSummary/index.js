@@ -1,7 +1,10 @@
 import React from 'react';
 import MatchWeapon from '../MatchWeapon/';
 import styles from './MatchWeaponSummary.module.css';
-import CleanDamage from '../CleanDamage';
+import CleanDamage from '../CleanDamage/';
+import Functions from '../../api/functions';
+import CountryFlag from '../CountryFlag/';
+import Link from 'next/link';
 
 
 
@@ -71,10 +74,6 @@ class MatchWeaponSummary extends React.Component{
         return elems;
     }
 
-    getPlayerName(){
-        console.log(this.props.players);
-    }
-
 
     bAnyData(data){
 
@@ -88,31 +87,100 @@ class MatchWeaponSummary extends React.Component{
         return false;
     }
 
+
+    getPlayer(id){
+        
+        let p = 0;
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            p = this.props.players[i];
+
+            if(p.id === id){
+                return p;
+            }
+        }
+
+        return {"name": "Not Found", "country": "xx", "id": -1, "team": 255};
+    }
+
     getDataElems(){
 
         const id = this.state.tabs[this.state.selected].id;
 
-        console.log(`id = ${id}`);
-
-
         const elems = [];
 
-
         let p = 0;
-        for(let i = 0; i < this.props.data.playerData.length; i++){
 
-            p = this.props.data.playerData[i];
+        let accuracy = 0;
+        let efficiency = 0;
+        let player = 0;
+
+        const testProps = this.props.data.playerData;
+
+        testProps.sort((a, b) =>{
+
+
+            if(a.kills > b.kills){
+                return -1;
+            }else if(a.kills < b.kills){
+                return 1;
+            }else{
+
+                if(a.deaths < b.deaths){
+                    return -1;
+                }else if(a.deaths > b.deaths){
+                    return 1;
+                }
+            }
+
+            return 0;
+
+        });
+
+        let bgColor = "team-none";
+
+        for(let i = 0; i < testProps.length; i++){
+
+            p = testProps[i];
 
             if(p.weapon_id === id){
+
                 if(this.bAnyData(p)){
+
+                    accuracy = Functions.ignore0(p.accuracy);
+
+                    if(accuracy !== ''){
+                        accuracy = `${accuracy.toFixed(2)}%`;
+                    }
+
+                    efficiency = 0;
+
+                    if(p.kills > 0 && p.deaths === 0){
+                        efficiency = 100;
+                    }else if(p.kills > 0 && p.deaths > 0){
+                        efficiency = (p.kills / (p.kills + p.deaths)) * 100;
+                    }
+
+                    efficiency = Functions.ignore0(efficiency);
+
+                    if(efficiency !== '') efficiency = `${efficiency.toFixed(2)}%`;
+
+                    player = this.getPlayer(p.player_id);
+
+                    if(this.props.bTeamGame > 0){
+                        bgColor = Functions.getTeamColor(player.team);
+                    }
+
                     elems.push(
-                        <tr>
-                            <td>Player</td>
-                            <td>{p.shots}</td>
-                            <td>{p.hits}</td>
-                            <td>{p.accuracy}%</td>
-                            <td>{p.deaths}</td>
-                            <td>{p.kills}</td>
+                        <tr className={bgColor}>
+                            <td><CountryFlag country={player.country}/><Link href={`/player/${player.id}`}><a>{player.name}</a></Link></td>
+                            <td>{Functions.ignore0(p.shots)}</td>
+                            <td>{Functions.ignore0(p.hits)}</td>
+                            <td>{accuracy}</td>
+                            <td>{Functions.ignore0(p.deaths)}</td>
+                            <td>{Functions.ignore0(p.kills)}</td>
+                            <td>{efficiency}</td>
                             <td><CleanDamage damage={p.damage} /></td>
                         </tr>
                     );
@@ -131,6 +199,7 @@ class MatchWeaponSummary extends React.Component{
                         <th>Accuracy</th>
                         <th>Deaths</th>
                         <th>Kills</th>
+                        <th>Efficiency</th>
                         <th>Damage</th>
                     </tr>
                     {elems}
@@ -138,7 +207,7 @@ class MatchWeaponSummary extends React.Component{
             </table>
         }
 
-        return elems;
+        return <div>No Data</div>;
     }
 
     render(){
@@ -151,9 +220,11 @@ class MatchWeaponSummary extends React.Component{
             dataElems = this.getDataElems();
         }
 
-        return <div>
+        return <div className={styles.wrapper}>
             <div className="default-header">Weapon Statistics</div>
-            {tabs}
+            <div className={styles.tabs}>
+                {tabs}
+            </div>
             {dataElems}
         </div>
     }

@@ -1,8 +1,35 @@
+
+.wrapper{
+    background-color:rgba(0,0,0,0.75);
+    display:inline-block;
+    padding:10px;
+    border:1px solid rgba(255,255,255,0.25);
+}
+
+.wrapper table td:nth-child(1){
+    text-align:left;
+}
+
+.tabs{
+    padding-bottom:10px;
+}
+
 .tab{
     display:inline-block;
     font-size:12px;
     background-color:black;
     padding:5px;
+    user-select: none;
+    border-top:1px solid rgba(255,255,255,0.25);
+    border-bottom:1px solid rgba(255,255,255,0.25);
+}
+
+.tab:nth-child(1){
+    border-left:1px solid rgba(255,255,255,0.25);
+}
+
+.tab:last-child{
+    border-right:1px solid rgba(255,255,255,0.25);
 }
 
 .tab:hover{

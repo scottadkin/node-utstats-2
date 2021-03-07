@@ -191,6 +191,20 @@ class Functions{
 
         return value;
     }
+
+
+    /**
+     * Only display Values that are not zero
+     */
+
+    static ignore0(input){
+
+        if(input !== 0){
+            return input;
+        }
+
+        return '';
+    }
 }
 
 module.exports = Functions;
