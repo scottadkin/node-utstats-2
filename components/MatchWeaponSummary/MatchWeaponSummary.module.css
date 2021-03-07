@@ -20,17 +20,10 @@
     background-color:black;
     padding:5px;
     user-select: none;
-    border-top:1px solid rgba(255,255,255,0.25);
-    border-bottom:1px solid rgba(255,255,255,0.25);
+    border:1px solid rgba(255,255,255,0.25);
+    margin-left:-1px;
 }
 
-.tab:nth-child(1){
-    border-left:1px solid rgba(255,255,255,0.25);
-}
-
-.tab:last-child{
-    border-right:1px solid rgba(255,255,255,0.25);
-}
 
 .tab:hover{
     cursor:pointer;

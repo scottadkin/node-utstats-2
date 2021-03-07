@@ -12,7 +12,7 @@ class MatchSpecialEvents extends React.Component{
 
         super(props);
 
-        this.players = JSON.parse(props.players);
+        //this.players = JSON.parse(props.players);
         this.bTeamGame = props.bTeamGame;
 
         this.state = {"mode": 0};
@@ -68,9 +68,9 @@ class MatchSpecialEvents extends React.Component{
         let countryFlag = 0;
         let playerName = 0;
 
-        for(let i = 0; i < this.players.length; i++){
+        for(let i = 0; i < this.props.players.length; i++){
 
-            p = this.players[i];      
+            p = this.props.players[i];      
 
             if(this.bAnyData(p, 'multi')){
 
@@ -191,7 +191,7 @@ class MatchSpecialEvents extends React.Component{
 
         if(elems.length > 0){
             return <div>
-                <div className="default-header">Multi Kills</div>
+                
                 <table>
                     <tbody>
                         {elems}
@@ -215,9 +215,9 @@ class MatchSpecialEvents extends React.Component{
         let flag = 0;
         let color = "team-none";
 
-        for(let i = 0; i < this.players.length; i++){
+        for(let i = 0; i < this.props.players.length; i++){
 
-            p = this.players[i];
+            p = this.props.players[i];
 
             
             if(this.bAnyData(p, 'spree')){
@@ -350,7 +350,6 @@ class MatchSpecialEvents extends React.Component{
             }
 
             return <div>
-            <div className="default-header">Killing Sprees</div>
             <table>
                 <tbody>
                     {elems}
@@ -360,6 +359,21 @@ class MatchSpecialEvents extends React.Component{
         }
 
         return elems;
+    }
+
+
+    firetBloodElem(){
+
+        let p = 0;
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            p = this.props.players[i];
+
+            if(p.first_blood) return <div className={styles.first}>First Blood {p.name}</div>
+        }
+
+        return [];
     }
 
     render(){
@@ -389,8 +403,9 @@ class MatchSpecialEvents extends React.Component{
 
             {multiElems}
 
-
             {spreeElems}
+
+            {this.firetBloodElem()}
 
         </div></div>);
     }

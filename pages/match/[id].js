@@ -926,7 +926,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
 
     elems.push(
-        <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={playerData}/>
+        <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)}/>
     );
 
     elems.push(

@@ -12,17 +12,11 @@
     background-color:black;
     padding:5px;
     user-select: none;
-    border-top:1px solid rgba(255,255,255,0.25);
-    border-bottom:1px solid rgba(255,255,255,0.25);
+    border:1px solid rgba(255,255,255,0.25);
+    margin-left:-1px;
 }
 
-.button:nth-child(1){
-    border-left:1px solid rgba(255,255,255,0.25);
-}
 
-.button:last-child{
-    border-right:1px solid rgba(255,255,255,0.25);
-}
 
 .button:hover{
     cursor: pointer;
@@ -42,4 +36,12 @@
 
 .bwrapper{
     margin-bottom:10px;
+}
+
+.first{
+    background-color:rgb(64,0,0);
+    display:inline-block;
+    border:1px solid rgba(255,255,255,0.25);
+    font-size:12px;
+    padding:5px;
 }
