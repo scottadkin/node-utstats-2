@@ -368,7 +368,7 @@ class MatchSpecialEvents extends React.Component{
         const multiElems = this.createMultiElems();
         const spreeElems = this.createSpreeElems();
 
-        return (<div className={styles.special}>
+        return (<div><div className={styles.special}>
 
             <div className="default-header">Special Events</div>
 
@@ -392,7 +392,7 @@ class MatchSpecialEvents extends React.Component{
 
             {spreeElems}
 
-        </div>);
+        </div></div>);
     }
 }
 

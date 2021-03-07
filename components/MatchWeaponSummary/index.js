@@ -116,9 +116,9 @@ class MatchWeaponSummary extends React.Component{
         let efficiency = 0;
         let player = 0;
 
-        const testProps = this.props.data.playerData;
+        const sortedProps = this.props.data.playerData;
 
-        testProps.sort((a, b) =>{
+        sortedProps.sort((a, b) =>{
 
 
             if(a.kills > b.kills){
@@ -140,9 +140,9 @@ class MatchWeaponSummary extends React.Component{
 
         let bgColor = "team-none";
 
-        for(let i = 0; i < testProps.length; i++){
+        for(let i = 0; i < sortedProps.length; i++){
 
-            p = testProps[i];
+            p = sortedProps[i];
 
             if(p.weapon_id === id){
 

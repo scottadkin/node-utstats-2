@@ -933,8 +933,6 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
     );
 
-    
-    console.log(JSON.parse(playerNames));
 
     elems.push(
         <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game}/>
