@@ -148,6 +148,8 @@ class MatchItemPickups extends React.Component{
 
         let player = 0;
 
+        let bgColor = "team-none";
+
         for(let i = 0; i < data.length; i++){
 
             p = data[i];
@@ -156,7 +158,11 @@ class MatchItemPickups extends React.Component{
 
                 player = this.getPlayer(p.player_id);
 
-                elems.push(<tr>
+                if(this.props.bTeamGame){
+                    bgColor = Functions.getTeamColor(player.team)
+                }
+
+                elems.push(<tr className={bgColor}>
                     <td><CountryFlag country={player.country}/><Link href={`/player/${player.id}`}><a>{player.name}</a></Link></td>
                     <td>{p.uses}</td>
                 </tr>);

@@ -939,8 +939,6 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     );
 
 
-    console.log(JSON.parse(itemNames));
-
     elems.push(
         <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game}/>
     );
