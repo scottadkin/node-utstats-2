@@ -1,7 +1,5 @@
 .wrapper{
     padding:10px;
-    background-color:rgba(0,0,0,0.75);
-    border:1px solid rgba(255,255,255,0.25);
     margin-top:10px;
     display:inline-grid;
 }

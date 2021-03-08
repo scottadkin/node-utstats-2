@@ -366,11 +366,22 @@ class MatchSpecialEvents extends React.Component{
 
         let p = 0;
 
+        let bgColor = "team-none";
+
         for(let i = 0; i < this.props.players.length; i++){
 
             p = this.props.players[i];
 
-            if(p.first_blood) return <div className={styles.first}>First Blood {p.name}</div>
+            if(this.props.bTeamGame){
+                bgColor = Functions.getTeamColor(p.team);
+            }
+
+            if(p.first_blood){
+                return <div className={styles.first}>
+                    <div>First Blood</div>
+                    <div className={bgColor}><CountryFlag country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></div>
+                </div>
+            }
         }
 
         return [];

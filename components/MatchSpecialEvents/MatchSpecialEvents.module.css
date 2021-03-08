@@ -1,9 +1,7 @@
 .special{
 
-    background-color:rgba(0,0,0,0.75);
     display:inline-block;
     padding:10px;
-    border:1px solid rgba(255,255,255,0.25);
 }
 
 .button{
@@ -39,9 +37,17 @@
 }
 
 .first{
-    background-color:rgb(64,0,0);
+    background-color:rgb(0,0,0);
     display:inline-block;
     border:1px solid rgba(255,255,255,0.25);
-    font-size:12px;
+    font-size:14px;
+    display:grid;
+    width:200px;
+    grid-template-columns: 100px 100px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.first div{
     padding:5px;
 }

@@ -1,9 +1,7 @@
 
 .wrapper{
-    background-color:rgba(0,0,0,0.75);
     display:inline-block;
     padding:10px;
-    border:1px solid rgba(255,255,255,0.25);
 }
 
 .wrapper table td:nth-child(1){
