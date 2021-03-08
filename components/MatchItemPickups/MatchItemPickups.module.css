@@ -1,0 +1,50 @@
+.wrapper{
+    padding:10px;
+    background-color:rgba(0,0,0,0.75);
+    border:1px solid rgba(255,255,255,0.25);
+    margin-top:10px;
+    display:inline-grid;
+}
+
+.wrapper table{
+    margin-top:10px;
+}
+.wrapper table td:nth-child(1){
+    text-align:left;
+}   
+
+.tab{
+    display:inline-block;
+    padding:5px;
+    border:1px solid rgba(255,255,255,0.25);
+    background-color:black;
+    font-size:12px;
+    margin-left:-1px;
+    user-select:none;
+}
+
+.tab2{
+    display:inline-block;
+    padding:5px;
+    border:1px solid rgba(255,255,255,0.25);
+    background-color:black;
+    font-size:14px;
+    margin-left:-1px;
+    user-select:none;
+}
+
+.tabs{
+    max-width:1000px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+
+.tab:hover, .tab2:hover{
+    cursor:pointer;
+    
+}
+
+.selected{
+    background-color:rgb(64,0,0);
+}

@@ -17,7 +17,7 @@ import MatchDominationSummary from '../../components/MatchDominationSummary/';
 import CTF from '../../api/ctf';
 import MatchCTFCaps from '../../components/MatchCTFCaps/';
 import Items from '../../api/items';
-import ItemsPickups from '../../components/ItemsPickups/';
+import MatchItemPickups from '../../components/MatchItemPickups';
 import Assault from '../../api/assault';
 import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
 import Connections from '../../api/connections';
@@ -938,8 +938,11 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game}/>
     );
 
+
+    console.log(JSON.parse(itemNames));
+
     elems.push(
-        <ItemsPickups key={`item-data`} data={itemData} names={itemNames} playerNames={playerNames} bTeamGame={parsedInfo.team_game}/>
+        <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game}/>
     );
 
     elems.push(

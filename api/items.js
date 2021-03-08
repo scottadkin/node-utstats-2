@@ -80,7 +80,7 @@ class Items{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id,name FROM nstats_items WHERE name IN(?)";
+            const query = "SELECT id,name,type FROM nstats_items WHERE name IN(?)";
 
             mysql.query(query, [names], (err, result) =>{
 
@@ -99,7 +99,7 @@ class Items{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id,name FROM nstats_items WHERE id IN(?)";
+            const query = "SELECT id,name,type FROM nstats_items WHERE id IN(?) ORDER BY name ASC";
 
             mysql.query(query, [ids], (err, result) =>{
 
