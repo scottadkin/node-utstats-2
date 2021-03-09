@@ -325,8 +325,7 @@ class GraphCanvas{
         }
 
 
-        if(!this.bMultiTab){
-
+        
             for(let i = 0; i < text.length; i++){
 
                 if(text[i].length > this.longestTextLength){
@@ -334,11 +333,11 @@ class GraphCanvas{
                     this.longestText = text[i];
                 }
             }
-        }
+        
         
 
 
-        console.log(this.longestLabelLength, this.longestValueLength, this.longestTextLength);
+        //console.log(this.longestLabelLength, this.longestValueLength, this.longestTextLength);
     }
 
     calcMinMax(){
@@ -630,7 +629,11 @@ class GraphCanvas{
                 if(this.text === null){
                     return {"title": m.title, "data": m.data};
                 }else{
-                    return {"title": m.title, "data": m.data, "text": this.text[i]};
+                    if(!this.bMultiTab){
+                        return {"title": m.title, "data": m.data, "text": this.text[i]};
+                    }else{
+                        return {"title": m.title, "data": m.data, "text": this.text[this.currentTab][i]};
+                    }
                 }
             }
         }

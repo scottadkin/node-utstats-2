@@ -375,6 +375,7 @@ class CTFEventData{
         this.totalTeams = totalTeams;
         this.playerNames = playerNames;
         this.data = [];
+        this.text = [];
         this.playerData = [];
 
         this.createDataObjects();
@@ -502,6 +503,7 @@ class CTFEventData{
                 this.updateOthersPlayer(playerIndex, e.event);
             }
 
+
             
         }
 
@@ -512,6 +514,7 @@ class CTFEventData{
     getPlayerData(type){
 
         const data = [];
+        const text = [];
 
         let p = 0;
 
@@ -520,6 +523,7 @@ class CTFEventData{
             p = this.playerData[i];
 
             data.push({"name": p.name, "data": p[type]});
+            text.push(`${p.name} did event ${type}`);
         }
 
         data.sort((a, b) =>{
@@ -535,7 +539,7 @@ class CTFEventData{
             return 0;
         });
 
-        return data;
+        return {"data": data, "text": text};
     }
 
 
@@ -853,12 +857,27 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
             ctfEventData.get('pickedup')];
 
         
+
+        const flagGrabs = ctfEventData.getPlayerData('taken');
+        const flagCaps = ctfEventData.getPlayerData('captured');
+        const flagKills = ctfEventData.getPlayerData('kill')
+        const flagReturns = ctfEventData.getPlayerData('returned')
+        const flagCovers = ctfEventData.getPlayerData('cover');
+        const flagDrops = ctfEventData.getPlayerData('dropped');
+        const flagSaves = ctfEventData.getPlayerData('save');
+        const flagPickups = ctfEventData.getPlayerData('pickedup');
+
         const ctfPlayerGraphData = [
-            ctfEventData.getPlayerData('taken'), ctfEventData.getPlayerData('captured'),  ctfEventData.getPlayerData('kill'),
-            ctfEventData.getPlayerData('returned'),  ctfEventData.getPlayerData('cover'),  ctfEventData.getPlayerData('dropped'),
-            ctfEventData.getPlayerData('save'),  ctfEventData.getPlayerData('pickedup'),
+            flagGrabs.data, flagCaps.data,  flagKills.data,
+            flagReturns.data,  flagCovers.data,  flagDrops.data,
+            flagSaves.data, flagPickups.data,
         ];
 
+        const ctfPlayerGraphText = [
+            flagGrabs.text, flagCaps.text,  flagKills.text,
+            flagReturns.text,  flagCovers.text,  flagDrops.text,
+            flagSaves.text, flagPickups.text,
+        ]
             
 
         elems.push(
@@ -867,7 +886,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         
         elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-6" data={JSON.stringify(ctfGraphData)}/>);
-        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-7" data={JSON.stringify(ctfPlayerGraphData)}/>);
+        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-7" data={JSON.stringify(ctfPlayerGraphData)} text={JSON.stringify(ctfPlayerGraphText)}/>);
 
         elems.push(
             <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />

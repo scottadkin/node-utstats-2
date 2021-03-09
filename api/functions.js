@@ -57,21 +57,26 @@ class Functions{
         }
     }
 
-    static getTeamName(team){
+    static getTeamName(team, bIgnoreTeam){
 
         let teamName = '';
 
         switch(team){
 
-            case 0: { teamName = "Red Team"; } break;
-            case 1: { teamName = "Blue Team"; } break;
-            case 2: { teamName = "Green Team"; } break;
-            case 3: { teamName = "Yellow Team"; } break;
-            default: { teamName = "None Team"; } break;
+            case 0: { teamName = "Red"; } break;
+            case 1: { teamName = "Blue"; } break;
+            case 2: { teamName = "Green"; } break;
+            case 3: { teamName = "Yellow"; } break;
+            default: { teamName = "None"; } break;
         }
 
 
-        return teamName;
+        if(bIgnoreTeam === undefined){
+
+            return `${teamName} Team`;
+        }else{
+            return teamName;
+        }
     }
 
 

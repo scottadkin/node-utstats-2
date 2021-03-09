@@ -53,18 +53,18 @@ class ConnectionSummary extends React.Component{
     createGraphData(){
 
         let graphData = [];
-        let graphTextData = [];
+        let graphTextData = [""];
     
         if(this.props.totalTeams > 0){
     
             for(let i = 0; i < this.props.totalTeams; i++){
-                graphData.push({"name": `${Functions.getTeamName(i)} Players`, "data": [0], "text": [""]});
+                graphData.push({"name": `${Functions.getTeamName(i, true)} Players`, "data": [0]});
             }
     
-            graphData.push({"name": "Total Players", "data": [0], "text": [""]});
+            graphData.push({"name": "Total Players", "data": [0]});
     
         }else{
-            graphData = {"name": "Total Players", "data": [0], "text": [""]};
+            graphData = {"name": "Total Players", "data": [0]};
         }
 
 
@@ -147,49 +147,10 @@ class ConnectionSummary extends React.Component{
 
         const graphData = this.createGraphData(this.props.data, this.props.totalTeams);
 
-        const elems = [];
-        let currentPlayer = 0;
-        let bgColor = '';
-
-
-        let d = 0;
-
-        for(let i = 0; i < this.props.data.length; i++){
-
-            d = this.props.data[i];
-
-            currentPlayer = Functions.getPlayer(this.props.playerNames, d.player);
-            if(this.props.bTeamGame){
-                bgColor = Functions.getTeamColor(currentPlayer.team);
-            }else{
-                bgColor = "team-none";
-            }
-
-            elems.push(<tr key={`connection-${i}`} className={bgColor}>
-                <td><MMSS timestamp={d.timestamp}/></td>
-                <td><a href={`/player/${d.player}`}><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a></td>
-                <td>{(!d.event) ? "Connected" : "Disconnected"}</td>
-            </tr>);
-        }
-
         return (
-            <div className={`special-table ${styles.wrapper} center`}>
-                <div className="default-header">
-                    Player Connections
-                </div>
-
-                <Graph title="Players Connected to Server" data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>Time</th>
-                            <th>Player</th>
-                            <th>Event</th>
-                        </tr>
-                        {elems}
-                    </tbody>
-                </table>
-            </div>
+          
+            <Graph title="Players Connected to Server" data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
+                
         );
     }
 }
