@@ -378,6 +378,17 @@ class CTFEventData{
         this.text = [];
         this.playerData = [];
 
+        this.typeStrings = {
+            "taken": "Took the flag.",
+            "dropped": "Dropped the flag.",
+            "returned": "Returned the flag.",
+            "captured": "Captured the flag.",
+            "kill": "Killed the flag carrier.",
+            "cover": "Covered the flag carrier.",
+            "pickedup": "Picked up the flag.",
+            "save": "Saved the flag from being capped."
+        }
+
         this.createDataObjects();
         this.setTeamData();
         this.setPlayerData();
@@ -449,8 +460,10 @@ class CTFEventData{
     get(type){
 
         const data = [];
+        const text = [];
 
         let d = 0;
+
 
         for(let i = 0; i < this.data.length; i++){
 
@@ -464,7 +477,23 @@ class CTFEventData{
             }
         }
 
-        return data;
+        let currentName = "";
+        let currentString = "";
+
+        for(let i = 0; i < this.data[0][type].length; i++){
+
+            currentName = this.getPlayerChangedValue(i, type);
+
+            if(this.typeStrings[type] !== undefined){
+                currentString = `${currentName} ${this.typeStrings[type]}`;
+            }else{
+                currentString = `${currentName} type the flag`;
+            }
+
+            text.push(currentString);
+        }
+
+        return {"data": data, "text": text};
     }
 
 
@@ -545,6 +574,8 @@ class CTFEventData{
                 return this.playerData[i].name;
             }
         }
+
+        return null;
     }
 
     getPlayerData(type){
@@ -554,7 +585,6 @@ class CTFEventData{
 
         let p = 0;
 
-        console.log(type);
         for(let i = 0; i < this.playerData.length; i++){
 
             p = this.playerData[i];
@@ -562,16 +592,6 @@ class CTFEventData{
             data.push({"name": p.name, "data": p[type]});
         }
 
-        const typeStrings = {
-            "taken": "Took the flag.",
-            "dropped": "Dropped the flag.",
-            "returned": "Returned the flag.",
-            "captured": "Captured the flag.",
-            "kill": "Killed the flag carrier.",
-            "cover": "Covered the flag carrier.",
-            "pickedup": "Picked up the flag.",
-            "save": "Saved the flag from being capped."
-        }
 
         let currentString = 0;
         let currentName = 0;
@@ -580,11 +600,9 @@ class CTFEventData{
 
             currentName = this.getPlayerChangedValue(i, type)
 
-            if(typeStrings[type] !== undefined){
-                currentString = `${currentName} ${typeStrings[type]}`;
+            if(this.typeStrings[type] !== undefined){
+                currentString = `${currentName} ${this.typeStrings[type]}`;
             }else{
-                //console.log(this.getPlayerChangedValue(i, type));
-                //text.push(`${this.getPlayerChangedValue(i, type)} ${type} the flag`);
                 currentString = `${currentName} type the flag`;
             }
 
@@ -917,9 +935,23 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         const ctfEventData = new CTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams, justPlayerNames);
 
-        const ctfGraphData = [ctfEventData.get('taken'), ctfEventData.get('captured'), ctfEventData.get('kill'), 
-            ctfEventData.get('returned'), ctfEventData.get('cover'), ctfEventData.get('dropped'), ctfEventData.get('save'),
-            ctfEventData.get('pickedup')];
+        const teamFlagGrabs = ctfEventData.get('taken');
+        const teamFlagCaps = ctfEventData.get('captured');
+        const teamFlagKills = ctfEventData.get('kill')
+        const teamFlagReturns = ctfEventData.get('returned')
+        const teamFlagCovers = ctfEventData.get('cover');
+        const teamFlagDrops = ctfEventData.get('dropped');
+        const teamFlagSaves = ctfEventData.get('save');
+        const teamFlagPickups = ctfEventData.get('pickedup');
+
+        
+        const ctfGraphData = [teamFlagGrabs.data, teamFlagCaps.data, teamFlagKills.data, 
+            teamFlagReturns.data, teamFlagCovers.data, teamFlagDrops.data, teamFlagSaves.data,
+            teamFlagPickups.data];
+
+        const ctfGraphText = [teamFlagGrabs.text, teamFlagCaps.text, teamFlagKills.text, 
+            teamFlagReturns.text, teamFlagCovers.text, teamFlagDrops.text, teamFlagSaves.text,
+            teamFlagPickups.text];
 
         
 
@@ -950,8 +982,11 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         );
 
         
-        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-6" data={JSON.stringify(ctfGraphData)}/>);
-        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-7" data={JSON.stringify(ctfPlayerGraphData)} text={JSON.stringify(ctfPlayerGraphText)}/>);
+        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-6"
+         data={JSON.stringify(ctfGraphData)} text={JSON.stringify(ctfGraphText)}/>);
+
+        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-7" 
+        data={JSON.stringify(ctfPlayerGraphData)} text={JSON.stringify(ctfPlayerGraphText)}/>);
 
         elems.push(
             <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />
