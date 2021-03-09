@@ -721,101 +721,138 @@ function createPlayerDomScoreData(events, totalPlayers, playerNames, matchStart)
         arrayData.push({"name": (playerNames[key] !== undefined) ? playerNames[key] :'Not Found', "data": value});
     }
 
+    arrayData.sort((a, b) =>{
+
+        a = a.data[a.data.length - 1];
+        b = b.data[b.data.length - 1];
+
+        if(a > b){
+            return -1;
+        }else if(a < b){
+            return 1;
+        }
+
+        return 0;
+    });
+
     return {"data": arrayData, "text": text};
     
 }
 
 
-function createDomTeamCaps(caps, totalTeams){
+class DominationGraphData{
 
-    const data = [];
+    constructor(caps, totalTeams, matchStart, pointNames, playerNames){
 
-    for(let i = 0; i < totalTeams; i++){
+        this.caps = JSON.parse(caps);
+        this.totalTeams = totalTeams;
+        this.matchStart = matchStart;
+        this.pointNames = JSON.parse(pointNames);
+        this.playerNames = JSON.parse(playerNames);
 
-        data.push({
-            "name": teamNames[i],
-            "data": [0]
-        });
+        this.teams = [];
+
+        this.text = [];
+        this.teamCapData = [];
+        this.controlPointData = [];
+
+        this.createData();
     }
 
-    const updateOthers = (ignore) =>{
+    getPointName(id){
 
-        for(let i = 0; i < data.length; i++){
+        for(let i = 0; i < this.pointNames.length; i++){
+
+            if(this.pointNames[i].id === id) return this.pointNames[i].name;
+        }
+        return 'Not Found';
+
+    }
+
+    getPointIndex(id){
+
+
+        for(let i = 0; i < this.pointNames.length; i++){
+
+            if(this.pointNames[i].id === id) return i;
+        }
+
+        return -1;
+    }
+
+
+    updateOtherTeamData(ignore){
+
+        let t = 0;
+
+        for(let i = 0; i < this.teamCapData.length; i++){
 
             if(i !== ignore){
-                data[i].data.push(
-                    data[i].data[data[i].data.length - 1]
-                );
+
+                t = this.teamCapData[i];
+                t.data.push(t.data[t.data.length - 1]);
             }
         }
     }
 
 
-    let c = 0;
+    updateOtherPointData(ignore){
 
-    for(let i = 0; i < caps.length; i++){
+        let c = 0;
 
-        c = caps[i];
-
-        data[c.team].data.push(
-            data[c.team].data[data[c.team].data.length - 1] + 1
-        );
-
-        updateOthers(c.team);
-    }
-
-    return data;
-}
-
-
-function domControlPointCaptures(names, caps){
-
-    const data = [];
-    const ids = [];
-
-    for(let i = 0; i < names.length; i++){
-
-        ids.push(names[i].id);
-
-        data.push({
-            "name": names[i].name,
-            "data": [0]
-        });
-    }
-
-    const updateOthers = (ignore) =>{
-     
-        for(let i = 0; i < data.length; i++){
+        for(let i = 0; i < this.controlPointData.length; i++){
 
             if(i !== ignore){
 
-                data[i].data.push(
-                    data[i].data[data[i].data.length - 1]
+                c = this.controlPointData[i];
+                c.data.push(
+                    c.data[c.data.length - 1]
                 );
             }
         }
     }
 
+    createData(){
 
-    let c = 0;
-    let currentPointIndex = 0;
+        console.log(this.caps);
 
-    for(let i = 0; i < caps.length; i++){
+        for(let i = 0; i < this.totalTeams; i++){
+            this.teamCapData.push({"name": Functions.getTeamName(i), "data": [0]});
+        }
 
-        c = caps[i];
-        currentPointIndex = ids.indexOf(c.point);
+        for(let i = 0; i < this.pointNames.length; i++){
 
-        if(currentPointIndex !== -1){
+            this.controlPointData.push({"name": this.pointNames[i].name, "data": [0]});
+        }
 
-            data[currentPointIndex].data.push(
-                data[currentPointIndex].data[data[currentPointIndex].data.length - 1] + 1
+        let c = 0;
+        let currentPlayer = 0;
+        let currentPointIndex = 0;
+
+        for(let i = 0; i < this.caps.length; i++){
+
+            c = this.caps[i];
+
+            currentPlayer = Functions.getPlayer(this.playerNames, c.player);
+
+            this.text.push(`${Functions.MMSS(c.time - this.matchStart)}: ${currentPlayer.name} capped ${this.getPointName(c.point)} for ${Functions.getTeamName(c.team)}`);
+
+            this.teamCapData[c.team].data.push(
+                this.teamCapData[c.team].data[this.teamCapData[c.team].data.length - 1] + 1
             );
 
-            updateOthers(currentPointIndex);
+            currentPointIndex = this.getPointIndex(c.point);
+            this.controlPointData[currentPointIndex].data.push(
+                this.controlPointData[currentPointIndex].data[this.controlPointData[currentPointIndex].data.length - 1] + 1
+            );
+            
+            this.updateOtherTeamData(c.team);
+            this.updateOtherPointData(currentPointIndex);
         }
-    }
 
-    return data;
+
+        console.log(this.controlPointData);
+    }
 }
 
 
@@ -949,8 +986,12 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
 
     const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames, parsedInfo.start);
-    elems.push(<Graph title={"Player Score History"} key={"scosococsocos-hihishis"} data={JSON.stringify(playerScoreHistoryGraph.data)} 
-    text={JSON.stringify(playerScoreHistoryGraph.text)} />);
+
+
+    if(playerScoreHistoryGraph.data[0].data.length > 2){
+        elems.push(<Graph title={"Player Score History"} key={"scosococsocos-hihishis"} data={JSON.stringify(playerScoreHistoryGraph.data)} 
+        text={JSON.stringify(playerScoreHistoryGraph.text)} />);
+    }
 
     if(bCTF(parsedPlayerData)){
 
@@ -1025,15 +1066,12 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
         const domPlayerScores = createPlayerDomScoreData(JSON.parse(domPlayerScoreData), parsedInfo.players, justPlayerNames, parsedInfo.start);
 
-        const domTeamCaps = createDomTeamCaps(JSON.parse(domCapData), parsedInfo.total_teams);
 
-
-        const domControlCaps = domControlPointCaptures(JSON.parse(domControlPointNames), JSON.parse(domCapData));
-
-        const domGraphData = [domPlayerScores.data, domTeamCaps, domControlCaps];
+        const domData = new DominationGraphData(domCapData, parsedInfo.total_teams, parsedInfo.start, domControlPointNames, playerNames);
+        const domGraphData = [domPlayerScores.data, domData.teamCapData, domData.controlPointData];
 
         elems.push(<Graph title={["Domination Player Scores", "Domination Team Caps", "Domination Control Caps"]} 
-        text={JSON.stringify([domPlayerScores.text, null, null])} data={JSON.stringify(domGraphData)}/>);
+        text={JSON.stringify([domPlayerScores.text, domData.text, domData.text])} data={JSON.stringify(domGraphData)}/>);
     }
 
     if(bAssault(gametype)){
