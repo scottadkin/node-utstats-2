@@ -53,17 +53,18 @@ class ConnectionSummary extends React.Component{
     createGraphData(){
 
         let graphData = [];
+        let graphTextData = [];
     
         if(this.props.totalTeams > 0){
     
             for(let i = 0; i < this.props.totalTeams; i++){
-                graphData.push({"name": `${Functions.getTeamName(i)} Players`, "data": [0]});
+                graphData.push({"name": `${Functions.getTeamName(i)} Players`, "data": [0], "text": [""]});
             }
     
-            graphData.push({"name": "Total Players", "data": [0]});
+            graphData.push({"name": "Total Players", "data": [0], "text": [""]});
     
         }else{
-            graphData = {"name": "Total Players", "data": [0]};
+            graphData = {"name": "Total Players", "data": [0], "text": [""]};
         }
 
 
@@ -84,11 +85,14 @@ class ConnectionSummary extends React.Component{
         let totalPlayers = 0;
         let d = 0;
         let currentTeam = 0;
+        let currentPlayer = 0;
     
         for(let i = 0; i < this.props.data.length; i++){
     
             d = this.props.data[i];
     
+            currentPlayer = Functions.getPlayer(this.props.playerNames, d.player);
+
             if(this.props.totalTeams > 0){
 
                 //check for disconnects
@@ -97,11 +101,13 @@ class ConnectionSummary extends React.Component{
 
                 if(currentTeam !== null){
                     graphData[currentTeam].data.push(graphData[currentTeam].data[graphData[currentTeam].data.length - 1] + 1);
+                    graphTextData.push(`${Functions.MMSS(d.timestamp)}: ${currentPlayer.name} Joined the server`);
                 }else{
 
-                    console.log(`Team before leaving ${this.getTeamBeforeLeaving(d.timestamp, d.player)}`);
+                    //console.log(`Team before leaving ${this.getTeamBeforeLeaving(d.timestamp, d.player)}`);
                     currentTeam = this.getTeamBeforeLeaving(d.timestamp, d.player);
                     graphData[currentTeam].data.push(graphData[currentTeam].data[graphData[currentTeam].data.length - 1] - 1);
+                    graphTextData.push(`${Functions.MMSS(d.timestamp)}: ${currentPlayer.name} Left the server`);
 
                 }
 
@@ -119,17 +125,22 @@ class ConnectionSummary extends React.Component{
 
                 if(d.event === 0){
                     totalPlayers++;
+                    graphTextData.push(`${Functions.MMSS(d.timestamp)}: ${currentPlayer.name} Joined the server`);
                 }else{
                     totalPlayers--;
+                    graphTextData.push(`${Functions.MMSS(d.timestamp)}: ${currentPlayer.name} left the server`);
                 }
 
                 graphData.data.push(totalPlayers);
             }
         }
-    
-        console.log(graphData);
 
-        return [graphData];
+
+        if(graphData.length === undefined){
+            return {"data": [graphData], "text": graphTextData};
+        }else{
+            return {"data": graphData, "text": graphTextData};
+        }
     }
 
     render(){
@@ -167,7 +178,7 @@ class ConnectionSummary extends React.Component{
                     Player Connections
                 </div>
 
-                <Graph title="Players Connected to Server" data={JSON.stringify(graphData)}/>
+                <Graph title="Players Connected to Server" data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
                 <table>
                     <tbody>
                         <tr>

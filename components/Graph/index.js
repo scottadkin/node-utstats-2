@@ -3,7 +3,7 @@ import {useEffect, useRef} from 'react';
 
 class GraphCanvas{
 
-    constructor(canvas, title, data){
+    constructor(canvas, title, data, text){
 
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
@@ -19,6 +19,13 @@ class GraphCanvas{
 
         this.data = JSON.parse(data);
 
+        this.text = null;
+
+        if(text !== undefined){
+            this.text = JSON.parse(text);
+        }
+
+        console.log(this.text);
 
         this.hideKeys = [];
 
@@ -593,7 +600,12 @@ class GraphCanvas{
             m = this.mouseOverData[i];
 
             if(targetX >= m.startX && targetX < m.endX){
-                return {"title": m.title, "data": m.data};
+
+                if(this.text === null){
+                    return {"title": m.title, "data": m.data};
+                }else{
+                    return {"title": m.title, "data": m.data, "text": this.text[i]};
+                }
             }
         }
 
@@ -700,6 +712,8 @@ class GraphCanvas{
             valueOffsetX = this.scaleX(5);
         }
 
+        console.log(hoverData);
+
         for(let i = 0; i < hoverData.data.length; i++){
 
             if(this.colors[hoverData.data[i].id] !== undefined){
@@ -717,7 +731,16 @@ class GraphCanvas{
             offsetY += fontSize;
         }
 
+        c.textAlign = "center";
+        if(hoverData.text !== undefined){
+            c.fillStyle = "white";
+            const textWidth = c.measureText(hoverData.text).width;
+            c.fillText(hoverData.text, x + labelOffsetX + (textWidth * 0.5), y + offsetY);
+        }
+
         c.textAlign = "left";
+
+        
 
     }
 
@@ -873,12 +896,12 @@ class GraphCanvas{
     }
 }
 
-const Graph = ({title, data}) =>{
+const Graph = ({title, data, text}) =>{
 
     const canvas = useRef(null);
 
     useEffect(() =>{
-        const g1 = new GraphCanvas(canvas.current, title, data);
+        const g1 = new GraphCanvas(canvas.current, title, data, text);
     });
     
 
