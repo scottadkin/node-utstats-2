@@ -25,8 +25,6 @@ class GraphCanvas{
             this.text = JSON.parse(text);
         }
 
-        console.log(this.text);
-
         this.hideKeys = [];
 
         
@@ -43,7 +41,7 @@ class GraphCanvas{
 
         this.keyCoordinates = [];
 
-        if(this.bMultiTab){
+        if(this.totalTabs > 1){
             this.graphWidth = 80;
             this.graphHeight = 65;
             this.graphStartX = 15;
@@ -109,6 +107,10 @@ class GraphCanvas{
                 this.bFullScreen = true;
             }
 
+            this.setMaxStringLengths();
+            this.calcMinMax();
+             this.createMouseOverData(this.graphWidth / this.mostData);
+
             this.render();
         }
 
@@ -122,9 +124,7 @@ class GraphCanvas{
             this.mouse.y = this.toPercent(e.offsetY, false);
 
             //console.log(this.mouse);
-            this.setMaxStringLengths();
-                this.calcMinMax();
-                this.createMouseOverData(this.graphWidth / this.mostData);
+            
 
             this.render();
             
@@ -169,6 +169,8 @@ class GraphCanvas{
 
     createHideKeys(){
 
+        this.hideKeys = [];
+
         if(this.totalTabs === 0){
 
             this.hideKeys.push([]);
@@ -187,7 +189,6 @@ class GraphCanvas{
                 this.hideKeys[i].push((x < 8) ? false : true);
             }
         }
-
     }
 
     keyEvents(){
@@ -657,6 +658,7 @@ class GraphCanvas{
         const targetX = this.mouse.x;
 
         let m = 0;
+       // console.log(this.text);
 
         for(let i = 0; i < this.mouseOverData.length; i++){
 
@@ -667,8 +669,9 @@ class GraphCanvas{
                 if(this.text === null){
                     return {"title": m.title, "data": m.data};
                 }else{
+
                     if(!this.bMultiTab){
-                        return {"title": m.title, "data": m.data, "text": this.text[i]};
+                        return {"title": m.title, "data": m.data, "text": this.text[i - 1]};
                     }else{
                         return {"title": m.title, "data": m.data, "text": this.text[this.currentTab][i]};
                     }
@@ -811,7 +814,6 @@ class GraphCanvas{
         }
 
         c.textAlign = "center";
-
         if(hoverData.text !== undefined){
 
             c.font = `${fontSize * 0.9}px Arial`;
@@ -828,6 +830,7 @@ class GraphCanvas{
 
     renderTabs(c){
 
+        if(this.totalTabs <= 1) return;
         const tabSize = this.scaleX(100 / this.totalTabs);
 
         const height = this.scaleY(this.tabHeight);
@@ -899,14 +902,14 @@ class GraphCanvas{
 
         const titleOffsetY = this.scaleY(this.titleStartY);
 
-        if(!this.bMultiTab){
-            c.fillText(this.title, this.scaleX(50), titleOffsetY);
-        }else{
+        if(this.totalTabs > 1){
             c.fillText(this.title[this.currentTab], this.scaleX(50), titleOffsetY);
-
             this.renderTabs(c);
-
+        }else{
+            c.fillText(this.title, this.scaleX(50), titleOffsetY);
         }
+
+       
 
         c.fillStyle = "rgb(12,12,12)";
         c.strokeStyle = "rgb(32,32,32)";

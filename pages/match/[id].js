@@ -817,6 +817,7 @@ function domControlPointCaptures(names, caps){
 function createScoreHistoryGraph(score, playerNames){
 
     const data = new Map();
+    const text = [];
 
     for(const [key, value] of Object.entries(playerNames)){
        
@@ -858,17 +859,20 @@ function createScoreHistoryGraph(score, playerNames){
             //update others
             updateOthers(updated);
             updated = [];
+            text.push(`${Functions.MMSS(s.timestamp)}`);
         }
 
         updated.push(s.player);
         current = data.get(s.player);
         current.data.push(s.score);
         data.set(s.player, {"name": current.name, "data": current.data});
+        
         //console.log(current);
 
     }
 
     updateOthers(updated);
+    text.push(`${Functions.MMSS(score[score.length - 1].timestamp)}`);
 
 
     const arrayData = [];
@@ -896,7 +900,7 @@ function createScoreHistoryGraph(score, playerNames){
         return 0;
     });
 
-    return arrayData;
+    return {"data": arrayData, "text": text};
 }
 
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
@@ -938,7 +942,8 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
 
     const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames);
-    elems.push(<Graph title={"Player Score History"} key={"scosococsocos-hihishis"} data={JSON.stringify(playerScoreHistoryGraph)} />);
+    elems.push(<Graph title={"Player Score History"} key={"scosococsocos-hihishis"} data={JSON.stringify(playerScoreHistoryGraph.data)} 
+    text={JSON.stringify(playerScoreHistoryGraph.text)} />);
 
     if(bCTF(parsedPlayerData)){
 
