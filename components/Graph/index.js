@@ -1,6 +1,10 @@
 import styles from './Graph.module.css';
 import {useEffect, useRef} from 'react';
 
+/**
+ * @param data array of data objects {"name": "name1", "data": [....]}
+ * @param text optional array of strings that display at every data point the mouse hovers over
+ */
 class GraphCanvas{
 
     constructor(canvas, title, data, text){
@@ -337,8 +341,7 @@ class GraphCanvas{
             }
         }
 
-
-        
+        if(text !== null){
             for(let i = 0; i < text.length; i++){
 
                 if(text[i].length > this.longestTextLength){
@@ -346,11 +349,8 @@ class GraphCanvas{
                     this.longestText = text[i];
                 }
             }
-        
-        
-
-
-        //console.log(this.longestLabelLength, this.longestValueLength, this.longestTextLength);
+        }
+    
     }
 
     calcMinMax(){
@@ -673,7 +673,12 @@ class GraphCanvas{
                     if(!this.bMultiTab){
                         return {"title": m.title, "data": m.data, "text": this.text[i - 1]};
                     }else{
-                        return {"title": m.title, "data": m.data, "text": this.text[this.currentTab][i]};
+
+                        if(this.text[this.currentTab] !== null){
+                            return {"title": m.title, "data": m.data, "text": this.text[this.currentTab][i]};
+                        }else{
+                            return {"title": m.title, "data": m.data};
+                        }
                     }
                 }
             }
@@ -714,19 +719,23 @@ class GraphCanvas{
 
         let widthPercent = this.toPercent(labelWidth + valueWidth, true) + widthPadding;
 
-        if(this.text !== null){
+        let currentText = this.text;
 
-           // c.font = `${fontSize * 0.8}px Arial`;
+        if(this.bMultiTab && this.text !== null){
+            currentText = this.text[this.currentTab];
+        }
+
+        if(currentText !== null){
+
             const textWidth = c.measureText(this.longestText).width;
 
             if(labelWidth + valueWidth < textWidth){
                 widthPercent = this.toPercent(textWidth, true) + widthPadding;
             }
-      
-           // c.font = `${fontSize}px Arial`;
+
         }
 
-        const paddingBottomRows = (this.text === null) ? 1 : 2;
+        const paddingBottomRows = (currentText === null) ? 1 : 2;
         const heightPercent = headerFontSizePercent + (fontSizePercent * (hoverData.data.length + paddingBottomRows));
 
         let x = this.scaleX(this.mouse.x - widthPercent);

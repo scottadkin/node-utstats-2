@@ -101,13 +101,13 @@ class ConnectionSummary extends React.Component{
 
                 if(currentTeam !== null){
                     graphData[currentTeam].data.push(graphData[currentTeam].data[graphData[currentTeam].data.length - 1] + 1);
-                    graphTextData.push(`${Functions.MMSS(d.timestamp)}: ${currentPlayer.name} Joined the server`);
+                    graphTextData.push(`${Functions.MMSS(d.timestamp - this.props.matchStart)}: ${currentPlayer.name} Joined the server`);
                 }else{
 
                     //console.log(`Team before leaving ${this.getTeamBeforeLeaving(d.timestamp, d.player)}`);
                     currentTeam = this.getTeamBeforeLeaving(d.timestamp, d.player);
                     graphData[currentTeam].data.push(graphData[currentTeam].data[graphData[currentTeam].data.length - 1] - 1);
-                    graphTextData.push(`${Functions.MMSS(d.timestamp)}: ${currentPlayer.name} Left the server`);
+                    graphTextData.push(`${Functions.MMSS(d.timestamp - this.props.matchStart)}: ${currentPlayer.name} Left the server`);
 
                 }
 
@@ -125,10 +125,10 @@ class ConnectionSummary extends React.Component{
 
                 if(d.event === 0){
                     totalPlayers++;
-                    graphTextData.push(`${Functions.MMSS(d.timestamp)}: ${currentPlayer.name} Joined the server`);
+                    graphTextData.push(`${Functions.MMSS(d.timestamp - this.props.matchStart)}: ${currentPlayer.name} Joined the server`);
                 }else{
                     totalPlayers--;
-                    graphTextData.push(`${Functions.MMSS(d.timestamp)}: ${currentPlayer.name} left the server`);
+                    graphTextData.push(`${Functions.MMSS(d.timestamp - this.props.matchStart)}: ${currentPlayer.name} left the server`);
                 }
 
                 graphData.data.push(totalPlayers);
