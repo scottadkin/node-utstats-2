@@ -30,6 +30,26 @@ class ConnectionSummary extends React.Component{
         return null;
     }
 
+    getTeamBeforeLeaving(timestamp, player){
+
+        let t = 0;
+
+        let currentTeam = 0;
+
+        for(let i = this.props.teamsData.length - 1; i > 0; i--){
+
+            t = this.props.teamsData[i];
+
+            if(t.player === player && t.timestamp > timestamp){
+                currentTeam = t.team;
+            }else if(t.timestamp < timestamp){
+                break;
+            }
+        }
+
+        return currentTeam;
+    }
+
     createGraphData(){
 
         let graphData = [];
@@ -74,9 +94,16 @@ class ConnectionSummary extends React.Component{
                 //check for disconnects
             
                 currentTeam = this.getMatchingTeamData(d.timestamp, d.player);
-                console.log(currentTeam);
 
-                graphData[currentTeam].data.push(graphData[currentTeam].data[graphData[currentTeam].data.length - 1] + 1);
+                if(currentTeam !== null){
+                    graphData[currentTeam].data.push(graphData[currentTeam].data[graphData[currentTeam].data.length - 1] + 1);
+                }else{
+
+                    console.log(`Team before leaving ${this.getTeamBeforeLeaving(d.timestamp, d.player)}`);
+                    currentTeam = this.getTeamBeforeLeaving(d.timestamp, d.player);
+                    graphData[currentTeam].data.push(graphData[currentTeam].data[graphData[currentTeam].data.length - 1] - 1);
+
+                }
 
                 updateOthers(currentTeam);
 
@@ -88,12 +115,21 @@ class ConnectionSummary extends React.Component{
 
                 graphData[this.props.totalTeams].data.push(totalPlayers);
 
+            }else{
+
+                if(d.event === 0){
+                    totalPlayers++;
+                }else{
+                    totalPlayers--;
+                }
+
+                graphData.data.push(totalPlayers);
             }
         }
     
         console.log(graphData);
 
-        return graphData;
+        return [graphData];
     }
 
     render(){
