@@ -66,7 +66,7 @@ class MatchWeaponSummary extends React.Component{
                 style = styles.tab;
             }
 
-            elems.push(<div onClick={(() =>{
+            elems.push(<div key={i} onClick={(() =>{
                 this.changeTab(i);
             })} className={style}>{t.name}</div>);
         }
@@ -173,7 +173,7 @@ class MatchWeaponSummary extends React.Component{
                     }
 
                     elems.push(
-                        <tr className={bgColor}>
+                        <tr key={i} className={bgColor}>
                             <td><CountryFlag country={player.country}/><Link href={`/player/${player.id}`}><a>{player.name}</a></Link></td>
                             <td>{Functions.ignore0(p.shots)}</td>
                             <td>{Functions.ignore0(p.hits)}</td>

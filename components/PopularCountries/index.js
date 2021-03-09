@@ -10,8 +10,8 @@ const PopularCountries = ({data}) =>{
 
 
     for(let i = 0; i < data.length; i++){
-        elems.push(<div className={styles.country}>
-            <div><img src={`/images/flags/${data[i].code}.svg`} alt={data[i].country} /></div>
+        elems.push(<div key={i} className={styles.country}>
+            <div><img src={`/images/flags/${data[i].code}.svg`} alt={data[i].code} /></div>
             <div>{data[i].name}</div>
             <div>{data[i].total} Players</div>
         </div>);

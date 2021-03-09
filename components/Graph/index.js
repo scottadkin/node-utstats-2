@@ -86,7 +86,7 @@ class GraphCanvas{
             "rgb(135,243,34)",
             "rgb(43,80,44)",
             "rgb(45,220,197)",
-            "rgb(62,189,181)",
+            "rgb(62,19,181)",
             "rgb(126,189,26)",
             "rgb(164,55,56)",
             "rgb(130,23,223)",
@@ -184,7 +184,7 @@ class GraphCanvas{
 
             for(let x = 0; x < this.data[i].length; x++){
 
-                this.hideKeys[i].push(false);
+                this.hideKeys[i].push((x < 8) ? false : true);
             }
         }
 

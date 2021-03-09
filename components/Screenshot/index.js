@@ -898,9 +898,9 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
                 width="1920" height="1080">
             </canvas>
             <div id={styles.downloads} className="m-bottom-25">
-                <a id="sshot-download" ref={sshotDownload} download="testests.png">Download as PNG</a>
-                <a id="sshot-download2" ref={sshotDownload2} download="testests.jpg">Download as JPG</a>
-                <a id="sshot-download3" ref={sshotDownload3} download="testests.bmp">Download as BMP</a>
+                <a id="sshot-download" href="#" ref={sshotDownload} download="testests.png">Download as PNG</a>
+                <a id="sshot-download2" href="#" ref={sshotDownload2} download="testests.jpg">Download as JPG</a>
+                <a id="sshot-download3" href="#" ref={sshotDownload3} download="testests.bmp">Download as BMP</a>
             </div>
         </div>
     </div>);

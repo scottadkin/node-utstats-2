@@ -44,7 +44,7 @@ class Matches extends React.Component{
 
         for(const [key, value] of Object.entries(gametypes)){
             
-            elems.push(<option value={key}>{value}</option>);
+            elems.push(<option key={key} value={key}>{value}</option>);
         }
 
         return elems;

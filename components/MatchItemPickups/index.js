@@ -57,7 +57,7 @@ class MatchItemPickups extends React.Component{
                 style = `${styles.tab2} ${styles.selected}`;
             }
             
-            elems.push(<div onClick={(() =>{
+            elems.push(<div key={i} onClick={(() =>{
                 this.changeCatTab(i);
             })} className={style}>{types[i]}</div>);
         }
@@ -90,7 +90,7 @@ class MatchItemPickups extends React.Component{
 
                 index++;
 
-                elems.push(<div onClick={(() =>{
+                elems.push(<div key={i} onClick={(() =>{
                     this.changeTab(i);
                 })} className={style}>{p.name}</div>);
                 
@@ -162,7 +162,7 @@ class MatchItemPickups extends React.Component{
                     bgColor = Functions.getTeamColor(player.team)
                 }
 
-                elems.push(<tr className={bgColor}>
+                elems.push(<tr key={`ipu-${i}`} className={bgColor}>
                     <td><CountryFlag country={player.country}/><Link href={`/player/${player.id}`}><a>{player.name}</a></Link></td>
                     <td>{p.uses}</td>
                 </tr>);
