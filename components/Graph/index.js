@@ -155,14 +155,16 @@ class GraphCanvas{
                     });
                     
                 }else{
-
+                    
                     this.changeTab();
+                    //this.render();
                 }
 
             }else{
                 this.setMaxStringLengths();
                 this.calcMinMax();
                 this.createMouseOverData(this.graphWidth / this.mostData);
+                
             }
 
             this.render();
