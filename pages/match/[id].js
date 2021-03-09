@@ -376,6 +376,7 @@ class CTFEventData{
         this.playerNames = playerNames;
         this.data = [];
         this.text = [];
+        this.timestamps = {};
         this.playerData = [];
 
         this.typeStrings = {
@@ -397,6 +398,19 @@ class CTFEventData{
     createDataObjects(){
 
         this.categories = ["taken", "kill", "cover", "captured", "returned", "dropped", "save", "pickedup", "assist"];
+
+        for(let i = 0; i < this.categories.length; i++){
+            this.timestamps[this.categories[i]] = [];
+        }
+
+        let e = 0;
+
+        for(let i = 0; i < this.events.length; i++){
+
+            e = this.events[i];
+
+            this.timestamps[e.event].push(e.timestamp);
+        }
 
         for(let i = 0; i < this.totalTeams; i++){
 
@@ -479,15 +493,17 @@ class CTFEventData{
 
         let currentName = "";
         let currentString = "";
+        let currentTimestamp = 0;
 
         for(let i = 0; i < this.data[0][type].length; i++){
 
             currentName = this.getPlayerChangedValue(i, type);
+            currentTimestamp = Functions.MMSS(this.timestamps[type][i - 1]);
 
             if(this.typeStrings[type] !== undefined){
-                currentString = `${currentName} ${this.typeStrings[type]}`;
+                currentString = `${currentTimestamp} ${currentName} ${this.typeStrings[type]}`;
             }else{
-                currentString = `${currentName} type the flag`;
+                currentString = `${currentTimestamp} ${currentName} type the flag`;
             }
 
             text.push(currentString);
@@ -530,13 +546,9 @@ class CTFEventData{
                 );
 
                 this.updateOthersPlayer(playerIndex, e.event);
-            }
-
-
-            
+            }      
         }
 
-        //console.log(this.playerData);
     }
 
     getPlayerChangedValue(index, type){
@@ -562,11 +574,6 @@ class CTFEventData{
             }
 
         }
-
-        /*console.log(`previous`);
-        console.log(previous);
-        console.log(`current`);
-        console.log(current);*/
 
         for(let i = 0; i < previous.length; i++){
 
@@ -595,15 +602,18 @@ class CTFEventData{
 
         let currentString = 0;
         let currentName = 0;
+        let currentTimestamp = 0;
 
         for(let i = 0; i < this.playerData[0][type].length; i++){
 
             currentName = this.getPlayerChangedValue(i, type)
 
+            currentTimestamp = Functions.MMSS(this.timestamps[type][i - 1]);
+
             if(this.typeStrings[type] !== undefined){
-                currentString = `${currentName} ${this.typeStrings[type]}`;
+                currentString = `${currentTimestamp} ${currentName} ${this.typeStrings[type]}`;
             }else{
-                currentString = `${currentName} type the flag`;
+                currentString = `${currentTimestamp} ${currentName} type the flag`;
             }
 
             text.push(currentString);
