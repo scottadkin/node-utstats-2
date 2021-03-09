@@ -944,7 +944,10 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     );
 
     elems.push(
-        <ConnectionSummary key={`connection-data`} data={connections} playerNames={playerNames} bTeamGame={parsedInfo.team_game}/>
+        <ConnectionSummary key={`connection-data`} data={JSON.parse(connections)} playerNames={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game} 
+        totalTeams={parsedInfo.total_teams}
+            teamsData={JSON.parse(teams)}
+        />
     );
 
     if(parsedInfo.team_game){
