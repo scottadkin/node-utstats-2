@@ -510,6 +510,42 @@ class CTFEventData{
         //console.log(this.playerData);
     }
 
+    getPlayerChangedValue(index, type){
+
+        const previous = [];
+        const current = [];
+
+        let p = 0;
+
+
+        for(let i = 0; i < this.playerData.length; i++){
+
+            p = this.playerData[i];
+
+            if(index > 0){
+                previous.push(p[type][index - 1]);
+                current.push(p[type][index]);
+            }else{
+
+                if(p[type][0] !== 0){
+                    return p.name;
+                }
+            }
+
+        }
+
+        /*console.log(`previous`);
+        console.log(previous);
+        console.log(`current`);
+        console.log(current);*/
+
+        for(let i = 0; i < previous.length; i++){
+
+            if(previous[i] !== current[i]){
+                return this.playerData[i].name;
+            }
+        }
+    }
 
     getPlayerData(type){
 
@@ -518,12 +554,41 @@ class CTFEventData{
 
         let p = 0;
 
+        console.log(type);
         for(let i = 0; i < this.playerData.length; i++){
 
             p = this.playerData[i];
-
+           
             data.push({"name": p.name, "data": p[type]});
-            text.push(`${p.name} did event ${type}`);
+        }
+
+        const typeStrings = {
+            "taken": "Took the flag.",
+            "dropped": "Dropped the flag.",
+            "returned": "Returned the flag.",
+            "captured": "Captured the flag.",
+            "kill": "Killed the flag carrier.",
+            "cover": "Covered the flag carrier.",
+            "pickedup": "Picked up the flag.",
+            "save": "Saved the flag from being capped."
+        }
+
+        let currentString = 0;
+        let currentName = 0;
+
+        for(let i = 0; i < this.playerData[0][type].length; i++){
+
+            currentName = this.getPlayerChangedValue(i, type)
+
+            if(typeStrings[type] !== undefined){
+                currentString = `${currentName} ${typeStrings[type]}`;
+            }else{
+                //console.log(this.getPlayerChangedValue(i, type));
+                //text.push(`${this.getPlayerChangedValue(i, type)} ${type} the flag`);
+                currentString = `${currentName} type the flag`;
+            }
+
+            text.push(currentString);
         }
 
         data.sort((a, b) =>{
