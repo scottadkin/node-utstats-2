@@ -270,20 +270,34 @@ class GraphCanvas{
 
         this.longestLabelLength = 0;
         this.longestValueLength = 0;
+        this.longestTextLength = 0;
 
         this.longestLabel = "";
         this.longestValue = "";
+        this.longestText = "";
 
         let d = 0;
 
         let currentValueLength = 0;
 
         let data = [];
+        let text = [];
 
         if(!this.bMultiTab){
+
             data = this.data;
+
+            if(this.text !== null){
+                text = this.text;
+            }
+
         }else{
+
             data = this.data[this.currentTab];
+
+            if(this.text !== null){
+                text = this.text[this.currentTab];
+            }
         }
 
         //console.log(this.hideKeys);
@@ -309,10 +323,22 @@ class GraphCanvas{
                 }
             }
         }
+
+
+        if(!this.bMultiTab){
+
+            for(let i = 0; i < text.length; i++){
+
+                if(text[i].length > this.longestTextLength){
+                    this.longestTextLength = text[i].length;
+                    this.longestText = text[i];
+                }
+            }
+        }
         
 
 
-        //console.log(this.longestLabelLength, this.longestValueLength);
+        console.log(this.longestLabelLength, this.longestValueLength, this.longestTextLength);
     }
 
     calcMinMax(){
@@ -642,8 +668,22 @@ class GraphCanvas{
         const labelWidth = c.measureText(this.longestLabel).width;
         const valueWidth = c.measureText(this.longestValue).width;
 
-        const widthPercent = this.toPercent(labelWidth + valueWidth, true) + widthPadding;
-        const heightPercent = headerFontSizePercent + (fontSizePercent * (hoverData.data.length + 1));
+        let widthPercent = this.toPercent(labelWidth + valueWidth, true) + widthPadding;
+
+        if(this.text !== null){
+
+           // c.font = `${fontSize * 0.8}px Arial`;
+            const textWidth = c.measureText(this.longestText).width;
+
+            if(labelWidth + valueWidth < textWidth){
+                widthPercent = this.toPercent(textWidth, true) + widthPadding;
+            }
+      
+           // c.font = `${fontSize}px Arial`;
+        }
+
+        const paddingBottomRows = (this.text === null) ? 1 : 2;
+        const heightPercent = headerFontSizePercent + (fontSizePercent * (hoverData.data.length + paddingBottomRows));
 
         let x = this.scaleX(this.mouse.x - widthPercent);
         let y = this.scaleY(this.mouse.y - heightPercent);
@@ -712,8 +752,6 @@ class GraphCanvas{
             valueOffsetX = this.scaleX(5);
         }
 
-        console.log(hoverData);
-
         for(let i = 0; i < hoverData.data.length; i++){
 
             if(this.colors[hoverData.data[i].id] !== undefined){
@@ -727,15 +765,18 @@ class GraphCanvas{
             c.textAlign = "left";
             c.fillText(hoverData.data[i].label, x + labelOffsetX, y + offsetY);
             c.textAlign = "right";
-            c.fillText(hoverData.data[i].value, x + valueOffsetX + labelWidth + valueWidth, y + offsetY);
+            c.fillText(hoverData.data[i].value, x + this.scaleX(widthPercent - 1), y + offsetY);
             offsetY += fontSize;
         }
 
         c.textAlign = "center";
+
         if(hoverData.text !== undefined){
+
+            c.font = `${fontSize * 0.9}px Arial`;
             c.fillStyle = "white";
             const textWidth = c.measureText(hoverData.text).width;
-            c.fillText(hoverData.text, x + labelOffsetX + (textWidth * 0.5), y + offsetY);
+            c.fillText(hoverData.text, x + labelOffsetX + (textWidth * 0.5), y + offsetY + this.scaleY(0.4));
         }
 
         c.textAlign = "left";
