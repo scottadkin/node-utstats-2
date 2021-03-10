@@ -73,6 +73,7 @@ class Functions{
 
         if(bIgnoreTeam === undefined){
 
+            if(teamName === "None") return "None";
             return `${teamName} Team`;
         }else{
             return teamName;

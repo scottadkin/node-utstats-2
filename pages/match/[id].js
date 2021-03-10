@@ -1016,10 +1016,11 @@ class PlayerGraphPingData{
         this.playerNames = JSON.parse(playerNames);
         this.matchStart = matchStart;
 
+        this.maxPing = 999;
+
         this.createTimestamps();
         this.createData();
-        console.log(this.data);
-        console.log(this.timestamps);
+
     }
 
 
@@ -1058,7 +1059,7 @@ class PlayerGraphPingData{
             if(p.timestamp > timestamp) break;
 
             if(p.timestamp === timestamp){
-                found.push({"player": p.player, "ping": p.ping});
+                found.push({"player": p.player, "ping": (p.ping < this.maxPing) ? p.ping : this.maxPing});
             }
         }
 
@@ -1125,8 +1126,6 @@ class PlayerGraphPingData{
             ignored = [];
 
             currentData = this.getTimestampData(t);
-
-            console.log(currentData);
 
             for(let x = 0; x < currentData.length; x++){
 
@@ -1561,7 +1560,6 @@ export async function getServerSideProps({query}){
 
     const pingData = await pingManager.getMatchData(matchId);
 
-    console.log(pingData);
 
     return {
         props: {

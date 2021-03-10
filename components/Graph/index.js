@@ -522,18 +522,18 @@ class GraphCanvas{
         const keyRowHeight = this.scaleY(3.5);
         const startX = this.scaleX(2);
 
-        let blockSizePercent = 4.5;
+        let blockSizePercent = 3;
 
         let blockSize = this.scaleY(blockSizePercent);
-        let fontSize = this.scaleY(4.8);
+        let fontSize = this.scaleY(3.4);
 
         if(this.bFullScreen){
             blockSizePercent = 3;
             blockSize = this.scaleY(blockSizePercent);
-            fontSize = this.scaleY(3.2);
+            fontSize = this.scaleY(2.9);
         }
 
-        const textOffsetX = this.scaleX(0.3);
+        const textOffsetX = this.scaleX(0.1);
 
         let offsetX = 0;
 
@@ -572,6 +572,7 @@ class GraphCanvas{
             if(i % 8 === 0) offsetX = 0;
             if(i === 8) startY += keyRowHeight; 
             currentX = startX + offsetX + (blockSize * (i % 8));
+
 
             this.keyCoordinates.push({
                 "x": this.toPercent(currentX, true),
