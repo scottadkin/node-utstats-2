@@ -6,7 +6,6 @@
     margin-left:-1px;
     margin-bottom:10px;
     transition:background-color 0.5s;
-    padding-bottom:5px;
 }
 
 .outter:hover{
@@ -26,6 +25,7 @@
 .country img{
     height:26px;
     margin-top:5px;
+    margin-bottom:5px;
 }
 
 .face{
@@ -34,20 +34,34 @@
 
 .outter table{
     border:none;
-    background-color:transparent;
-    width:80%;
+    width:100%;
+    background-color:rgba(12,12,12,0.75);
+    border-top:1px solid rgba(255,255,255,0.1);
 }
+
+
 .outter td{
     font-size:12px;
     padding:0px;
-    padding-bottom:2px;
+    padding-top:5px;
     border:none;
-
 }
+
 
 .outter td:nth-child(1){
     text-align:left;
+    padding-left:10px;
 }
 .outter td:nth-child(2){
     text-align:right;
+    padding-right:10px;
+}
+
+
+.outter tr:last-child td{
+    padding-bottom: 5px;
+}
+
+.outter tr:hover{
+    background-color:rgb(3,3,3);
 }
