@@ -1,101 +1,53 @@
 .outter{
-
-    margin-left:auto;
-    margin-right:auto;
-    color:white;
-    font-weight:300;
-    text-align: center;
-    
-}
-
-.inner, .inneralt{
-
-    transition:background-color 0.5s;
-}
-
-.inneralt{
-    font-size:18px;
-    color:yellow;
-    text-align:center;
-    padding:5px;
-}
-
-.inner{
-    border:1px solid rgba(255,255,255,0.25);
-    margin-top:-1px;
-    padding:5px;
-    width:80%;
-    max-width:750px;
     background-color:black;
-    background:linear-gradient(to bottom right, rgb(0,0,0), rgb(12,12,12));
-    margin-left:auto;
-    margin-right:auto;
-    line-height:14px;
+    display:inline-block;
+    border:1px solid rgba(255,255,255,0.25);
+    width:275px;
+    margin-left:-1px;
     margin-bottom:10px;
+    transition:background-color 0.5s;
+    padding-bottom:5px;
 }
 
-.inner div:nth-child(1){
-    text-align:left;
-}
-
-.inner:hover{
-    background:linear-gradient(to bottom right, rgb(12,12,12), rgb(24,24,24));
-}
-
-.bar{
-    width:95%;
-    height:6px;
-    background-color:rgba(0,0,0,0.5);
-    border:1px solid rgba(255,255,255,0.1);
-    margin-top:4px;
-    
-}
-
-.bar_inner{
-    background-color:green;
-    height:6px;
-
-}
-
-.obar{
-    display:grid;
-    grid-template-columns: 100px 100px auto;
-    font-size:12px;
-    margin-bottom:2px;
-}
-
-.title{
-    font-size:12px;
-}
-
-.value{
-    text-align:right;
-    padding-right:5px;
-    font-size:12px; 
-}
-
-.info{
-    display:grid;
-    grid-template-columns: 200px auto;
-}
-
-.info div:nth-child(1){
-    font-size:22px;
-    padding:5px;
-
-}
-
-.info div:nth-child(2){
-    line-height:24px;
-    font-size:12px;
-}
-
-.face{
-    border:1px solid rgba(255,255,255,0.1);
+.outter:hover{
+    background-color:rgb(16,16,16);
 }
 
 .name{
-    display:block;
-    padding-top:5px;
+    padding:5px 20px;
     color:yellow;
+}
+
+.country{
+    font-size:10px;
+    color:yellow;
+}
+
+.country img{
+    height:26px;
+    margin-top:5px;
+}
+
+.face{
+    border:1px solid rgba(255,255,255,0.25);
+}
+
+.outter table{
+    border:none;
+    background-color:transparent;
+    width:80%;
+}
+.outter td{
+    font-size:12px;
+    padding:0px;
+    padding-bottom:2px;
+    border:none;
+
+}
+
+.outter td:nth-child(1){
+    text-align:left;
+}
+.outter td:nth-child(2){
+    text-align:right;
 }

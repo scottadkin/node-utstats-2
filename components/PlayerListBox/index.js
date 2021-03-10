@@ -1,46 +1,9 @@
 import styles from './PlayerListBox.module.css';
-import Countires from '../../api/countries';
+import Countries from '../../api/countries';
 import Link from 'next/link';
 import TimeStamp from '../TimeStamp/';
 
 
-const TestBar = ({title, value, max, postFix}) =>{
-
-    value = parseFloat(value);
-    max = parseFloat(max);
-
-    let bit = 0;
-
-    if(max !== 0){
-        bit = 100 / max;
-    }
-
-    if(postFix === undefined){
-        postFix = '';
-    }
-
-    let percent = bit * value;
-
-    if(percent > 100){
-        percent = 100;
-    }
-
-    let color = "green";
-
-    color = `rgb(${255 - (percent * 2.25)},255,${255 - (percent * 2.25)})`;
-
-    return (<div className={styles.obar}>
-        <div className={styles.title}>
-            {title} 
-        </div>
-        <div className={styles.value}>
-            {value}{postFix}
-        </div>
-        <div className={styles.bar}>
-            <div className={styles.bar_inner} style={{"width": `${percent}%`, "backgroundColor": color}}></div>
-        </div>
-    </div>);
-}
 
 export default function PlayerListBox({
     playerId,
@@ -61,64 +24,74 @@ export default function PlayerListBox({
 }){
 
 
-    let winRate = Math.floor((wins / (wins + matches)) * 100);
-    let efficiency = kills / (kills + deaths);
 
-   // playtime = (playtime / (60 * 60)).toFixed(2);
+    const countryData = Countries(country);
 
-    if(winRate !== winRate){
+    let efficiency = 0;
 
-        if(wins > 0){
-            winRate == 100;
-        }else{
-            winRate = 0;
-        }
+    if(kills > 0 && deaths === 0){
+        efficiency = 1;
+    }else if(deaths !== 0 && kills !== 0){
+        efficiency = kills / (kills + deaths);
     }
 
-    if(efficiency !== efficiency){
-
-        if(kills > 0){
-            efficiency = 100;
-        }else{
-            efficiency = 0;
-        }
-    }
-
-    efficiency = Math.floor(efficiency * 100);
-
-    records = JSON.parse(records);
-
+    efficiency = (efficiency * 100).toFixed(2);
+    
     return (
-        <div className={styles.outter}>
-            <Link href={`player/${playerId}`}>
-                <a>
-                    <div className={styles.inner}>
-                        <div className={styles.info}>
-                            <div>
-                                <span className={styles.name}>{name}</span><br/>
-                                <img className={styles.face} src={`/images/faces/${face}.png`} alt="image"/>
-                            </div>
-                            <div>
-                                <span className="yellow">Location</span> <img className="country-flag" src={`images/flags/${Countires(country).code.toLowerCase()}.svg`} alt="flag" />  {Countires(country).country}<br/>
-                                <span className="yellow">Playtime</span> {(parseFloat(playtime) / (60 * 60)).toFixed(2)} Hours<br/>
-                                <span className="yellow">First Seen</span> <TimeStamp timestamp={first} /><br/>
-                                <span className="yellow">Last Seen</span> <TimeStamp timestamp={last} /><br/>
-                            </div>
-                        </div>
-                     
-                        <div className={styles.bars}>
-                            <TestBar title={"Matches"} value={matches} max={records.matches}/>
-                            <TestBar title={"WinRate"} value={winRate} max={records.winrate} postFix="%"/> 
-                            <TestBar title={"Accuracy"} value={accuracy} max={records.accuracy} postFix="%"/> 
-                            <TestBar title={"Efficiency"} value={efficiency} max={records.efficiency} postFix="%"/> 
-                            <TestBar title={"Score"} value={score} max={records.score}/>
-                            <TestBar title={"Kills"} value={kills} max={records.kills}/>
-                            <TestBar title={"Deaths"} value={deaths} max={records.deaths}/>
-                             
-                        </div>             
-                    </div>
-                </a>
-            </Link>
-        </div>
+        <Link href={`player/${playerId}`}>
+            <a>
+                <div className={styles.outter}>
+                    
+                        
+                    <div className={styles.name}>{name}</div>
+                    <img className={styles.face} src={`/images/faces/${face}.png`} alt="face"/>
+                    <div className={styles.country}>{countryData.country}<br/><img src={`/images/flags/${country}.svg`} alt="flag"/></div>
+                    
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>First</td>
+                                <td><TimeStamp timestamp={first} noDayName={true} noTime={true}/></td>
+                            </tr>
+                            <tr>
+                                <td>Last</td>
+                                <td><TimeStamp timestamp={last} noDayName={true} noTime={true}/></td>
+                            </tr>
+                            <tr>
+                                <td>Matches</td>
+                                <td>{matches}</td>
+                            </tr>
+                            <tr>
+                                <td>Wins</td>
+                                <td>{wins}</td>
+                            </tr>
+                            <tr>
+                                <td>Score</td>
+                                <td>{score}</td>
+                            </tr>
+                            <tr>
+                                <td>Kills</td>
+                                <td>{kills}</td>
+                            </tr>
+                            <tr>
+                                <td>Deaths</td>
+                                <td>{deaths}</td>
+                            </tr>
+                            <tr>
+                                <td>Efficiency</td>
+                                <td>{efficiency}%</td>
+                            </tr>
+                            <tr>
+                                <td>Accuracy</td>
+                                <td>{accuracy}%</td>
+                            </tr>
+
+
+                        </tbody>
+                    </table>
+                
+                </div>
+            </a>
+        </Link>
     )
 }
