@@ -1073,7 +1073,7 @@ class PlayerGraphPingData{
 
             d = this.data[i];
 
-            if(i !== ignored){
+            if(ignored.indexOf(i) === -1){
 
                 if(d.data.length > 0){
 
@@ -1117,10 +1117,12 @@ class PlayerGraphPingData{
         let t = 0;
         let currentData = [];
         let currentPlayerIndex = 0;
+        let ignored = [];
 
         for(let i = 0; i < this.timestamps.length; i++){
 
             t = this.timestamps[i];
+            ignored = [];
 
             currentData = this.getTimestampData(t);
 
@@ -1136,11 +1138,12 @@ class PlayerGraphPingData{
 
                     if(this.data[currentPlayerIndex].max < currentData[x].ping){
                         this.data[currentPlayerIndex].max = currentData[x].ping;
-                    }
+                    } 
 
-                    this.updateOthers(currentPlayerIndex);
-                }  
-            }     
+                    ignored.push(currentPlayerIndex);
+                }       
+            }    
+            this.updateOthers(ignored); 
         }
 
         this.data.sort((a, b) =>{
