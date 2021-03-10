@@ -30,6 +30,7 @@ import Graph from '../../components/Graph/';
 import Kills from '../../api/kills';
 import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import Functions from '../../api/functions';
+import Pings from '../../api/pings';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1006,8 +1007,160 @@ function createScoreHistoryGraph(score, playerNames, matchStart){
     return {"data": arrayData, "text": text};
 }
 
+
+class PlayerGraphPingData{
+
+    constructor(pingEvents, playerNames, matchStart){
+
+        this.pingEvents = JSON.parse(pingEvents);
+        this.playerNames = JSON.parse(playerNames);
+        this.matchStart = matchStart;
+
+        this.createTimestamps();
+        this.createData();
+        console.log(this.data);
+        console.log(this.timestamps);
+    }
+
+
+    createTimestamps(){
+
+        this.timestamps = [];
+        this.text = [];
+
+        let previous = null;
+
+        let p = 0;
+
+        for(let i = 0; i < this.pingEvents.length; i++){
+
+            p = this.pingEvents[i];
+
+            if(i === 0 || p.timestamp !== previous){
+                this.timestamps.push(p.timestamp);
+                previous = p.timestamp;
+                this.text.push(Functions.MMSS(p.timestamp - this.matchStart));
+            }
+        }
+    }
+
+
+    getTimestampData(timestamp){
+
+        const found = [];
+
+        let p = 0;
+
+        for(let i = 0; i < this.pingEvents.length; i++){
+
+            p = this.pingEvents[i];
+
+            if(p.timestamp > timestamp) break;
+
+            if(p.timestamp === timestamp){
+                found.push({"player": p.player, "ping": p.ping});
+            }
+        }
+
+        return found;
+    }
+
+    updateOthers(ignored){
+
+        let d = 0;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            d = this.data[i];
+
+            if(i !== ignored){
+
+                if(d.data.length > 0){
+
+                    d.data.push(
+                        d.data[d.data.length - 1]
+                    );
+
+                }else{
+                    d.data.push(0);
+                }
+            }
+        }
+    }
+
+    getPlayerIndex(id){
+
+        let d = 0;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            d = this.data[i];
+
+            if(d.id === id) return i;
+        }
+
+        return -1;
+    }
+
+    createData(){
+
+        this.data = [];
+        let p = 0;
+
+        for(let i = 0; i < this.playerNames.length; i++){
+
+            p = this.playerNames[i];   
+
+            this.data.push({"name": p.name, "data": [], "id": p.id, "max": 0});
+        }
+
+        let t = 0;
+        let currentData = [];
+        let currentPlayerIndex = 0;
+
+        for(let i = 0; i < this.timestamps.length; i++){
+
+            t = this.timestamps[i];
+
+            currentData = this.getTimestampData(t);
+
+            console.log(currentData);
+
+            for(let x = 0; x < currentData.length; x++){
+
+                currentPlayerIndex = this.getPlayerIndex(currentData[x].player);
+
+                if(currentPlayerIndex !== -1){
+
+                    this.data[currentPlayerIndex].data.push(currentData[x].ping);
+
+                    if(this.data[currentPlayerIndex].max < currentData[x].ping){
+                        this.data[currentPlayerIndex].max = currentData[x].ping;
+                    }
+
+                    this.updateOthers(currentPlayerIndex);
+                }  
+            }     
+        }
+
+        this.data.sort((a, b) =>{
+
+            a = a.max;
+            b = b.max;
+
+            if(a > b){
+                return -1;
+            }else if(a < b){
+                return 1;
+            }
+            return 0;
+        });
+    }
+
+}
+
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
-    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory}){
+    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -1044,13 +1197,30 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     />);
 
 
+    const playerPingHistory = new PlayerGraphPingData(pingData, playerNames, parsedInfo.start);
+
     const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames, parsedInfo.start);
 
+    //if(playerScoreHistoryGraph.data[0].data.length > 2){
+        const playerHistoryData = [];
+        const playerHistoryDataText = [];
+        const playerhistoryDataTitles = [];
 
-    if(playerScoreHistoryGraph.data[0].data.length > 2){
-        elems.push(<Graph title={"Player Score History"} key={"scosococsocos-hihishis"} data={JSON.stringify(playerScoreHistoryGraph.data)} 
-        text={JSON.stringify(playerScoreHistoryGraph.text)} />);
-    }
+        if(playerScoreHistoryGraph.data[0].data.length > 2){
+            playerHistoryData.push(playerScoreHistoryGraph.data);
+            playerHistoryDataText.push(playerScoreHistoryGraph.text);
+            playerhistoryDataTitles.push("Player Score History");
+        }
+
+        if(playerPingHistory.data[0].data.length > 0){
+            playerHistoryData.push(playerPingHistory.data);
+            playerHistoryDataText.push(playerPingHistory.text);
+            playerhistoryDataTitles.push("Player Ping History");
+        }
+
+        elems.push(<Graph title={playerhistoryDataTitles} key={"scosococsocos-hihishis"} data={JSON.stringify(playerHistoryData)} 
+        text={JSON.stringify(playerHistoryDataText)} />);
+   // }
 
     if(bCTF(parsedPlayerData)){
 
@@ -1384,6 +1554,11 @@ export async function getServerSideProps({query}){
     const scoreHistory = await playerManager.getScoreHistory(matchId);
 
 
+    const pingManager = new Pings();
+
+    const pingData = await pingManager.getMatchData(matchId);
+
+    console.log(pingData);
 
     return {
         props: {
@@ -1406,7 +1581,8 @@ export async function getServerSideProps({query}){
             "teams": JSON.stringify(teamsData),
             "faces": JSON.stringify(pFaces),
             "killsData": JSON.stringify(killsData),
-            "scoreHistory": JSON.stringify(scoreHistory)
+            "scoreHistory": JSON.stringify(scoreHistory),
+            "pingData": JSON.stringify(pingData)
         }
     };
 

@@ -121,7 +121,7 @@ class MatchItemPickups extends React.Component{
         
 
         if(this.props.names[this.state.selected] === undefined){
-            return <div>No Data</div>;
+            return <div className={styles.nodata}>No Data</div>;
         }
 
         const elems = [];
@@ -187,11 +187,13 @@ class MatchItemPickups extends React.Component{
             </table>
         }
 
-        return <div>No Data</div>
+        return <div className={styles.nodata}>No Data</div>
     }
 
     render(){
 
+        if(this.props.data.length === 0) return <div></div>
+        
         const parentTabs = this.createCategoryTabs();
         const tabs = this.createTabs();
 

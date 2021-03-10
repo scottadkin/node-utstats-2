@@ -1,7 +1,7 @@
 .wrapper{
     padding:10px;
     margin-top:10px;
-    display:inline-grid;
+    display:inline-block;
 }
 
 .wrapper table{
@@ -45,4 +45,9 @@
 
 .selected{
     background-color:rgb(64,0,0);
+}
+
+.nodata{
+    background-color:rgb(0,0,0);
+    padding:5px;
 }
