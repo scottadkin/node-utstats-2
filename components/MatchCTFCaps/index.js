@@ -35,15 +35,17 @@ const getPlayer = (players, id) =>{
     return {"name": 'Not Found', "country": 'xx'};
 }
 
-function createCovers(covers){
+function createCovers(covers, coverTimes){
 
     const data = new Map();
 
     covers = covers.split(',');
+    coverTimes = coverTimes.split(',');
 
     let total = 0;
     let player = 0;
     let current = 0;
+    
 
     for(let i = 0; i < covers.length; i++){
 
@@ -56,17 +58,23 @@ function createCovers(covers){
         player = parseInt(covers[i]);
         current = data.get(player);
 
+
         if(current === undefined){
-            data.set(player, 1);
+            data.set(player, {"total": 71, "times": [coverTimes[i]]});
         }else{
-            data.set(player, ++current)
+
+            current.times.push(coverTimes[i]);
+
+            if(current.times !== undefined){
+                data.set(player, {"total": current.total + 1, "times": current.times})
+            }
         }
     }
 
     let ordered = [];
 
     for(const [key, value] of data){
-        ordered.push({"key": key, "value": value});
+        ordered.push({"key": key, "value": value.total, "times": value.times});
     }
 
     ordered.sort((a, b) =>{
@@ -161,10 +169,10 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         c = caps[i];
 
-        console.log(c);
+
 
         coverNames = "";
-        currentCovers = createCovers(c.covers);
+        currentCovers = createCovers(c.covers, c.cover_times);
         currentAssists = createAssists(c.assists);
         totalDropTime = calcDropTime(c);
 
