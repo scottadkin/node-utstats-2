@@ -60,13 +60,14 @@ function createCovers(covers, coverTimes){
 
 
         if(current === undefined){
-            data.set(player, {"total": 71, "times": [coverTimes[i]]});
+            data.set(player, {"total": 1, "times": [coverTimes[i]]});
         }else{
 
             current.times.push(coverTimes[i]);
+            current.total++;
 
             if(current.times !== undefined){
-                data.set(player, {"total": current.total + 1, "times": current.times})
+                data.set(player, {"total": current.total, "times": current.times})
             }
         }
     }
@@ -95,7 +96,7 @@ function createCovers(covers, coverTimes){
 
     for(let i = 0; i < ordered.length; i++){
 
-        data.set(ordered[i].key, ordered[i].value);
+        data.set(ordered[i].key, {"value": ordered[i].value, "times": ordered[i].times});
     }
 
     return {"data": data, "total": total};
@@ -169,8 +170,6 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         c = caps[i];
 
-
-
         coverNames = "";
         currentCovers = createCovers(c.covers, c.cover_times);
         currentAssists = createAssists(c.assists);
@@ -182,18 +181,16 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         coverElems = [];
         assistElems = [];
          
-        console.log(currentCovers);
         //<CountryFlag country={currentCoverPlayer.country}/><Link href={`/player/${key}`}><a>{currentCoverPlayer.name}</a></Link> 
         for(const [key, value] of currentCovers.data){
 
             currentCoverPlayer = getPlayer(playerNames, key);
 
-
             coverElems.push(<span key={`cap-${i}-cover-${key}`} className={styles.cover}>
                 <CountryFlag country={currentCoverPlayer.country}/>
                 <Link href={`/player/${key}`}><a>
                 <MouseHoverBox title={`${currentCoverPlayer.name} covered the flag carrier`} 
-                    content={`${currentCoverPlayer.name} covered the flag carrier ${currentCovers.total} ${(currentCovers.total === 1) ? "time" : "times"}.`} 
+                    content={`${currentCoverPlayer.name} covered the flag carrier ${value.value} ${(value.value === 1) ? "time" : "times"}.`} 
                     display={currentCoverPlayer.name}/>
                 </a></Link> 
             </span>);
