@@ -3,7 +3,7 @@
 }
 
 .box{
-    background-color:black;
+    background-color:rgb(16,16,16);
     border:1px solid rgba(255,255,255,0.25);
     position:absolute;
     padding:5px;
@@ -15,4 +15,8 @@
     text-align:center;
     font-size:14px;
     padding-bottom:5px;
+}
+
+.box td{
+    text-align:center;
 }

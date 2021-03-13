@@ -48,7 +48,12 @@ class MouseHoverBox extends React.Component{
 
         super(props);
 
-        this.state = {"bDisplay": 0, "mouse": {"x": 0, "y": 0}};
+        let bTable = false;
+
+        if(Array.isArray(this.props.content)) bTable = true;
+        
+
+        this.state = {"bDisplay": 0, "mouse": {"x": 0, "y": 0}, "bTable": bTable};
         this.showHover = this.showHover.bind(this);
         this.hideHover = this.hideHover.bind(this);
     }
@@ -62,19 +67,82 @@ class MouseHoverBox extends React.Component{
         this.setState({"bDisplay": 0});
     }
 
+    createTable(){
+
+        const elems = [];
+
+        if(this.state.bTable){
+
+            let currentColumns = [];
+
+            let p = 0;
+
+            for(let i = 0; i < this.props.content.length; i++){
+
+                p = this.props.content[i].content;
+
+                for(let x = 0; x < p.length; x++){
+                    currentColumns.push(<td>{p[x]}</td>);
+                }
+                elems.push(<tr>
+                    {currentColumns}
+                </tr>);
+            }
+        }
+
+        if(elems.length > 0){
+
+            const headers = [];
+            let p = 0;
+
+            for(let i = 0; i < this.props.content[0].headers.length; i++){
+
+                p = this.props.content[0].headers[i];
+
+                headers.push(<th>
+                    {p}
+                </th>);
+
+            }
+
+            if(headers.length > 0){
+                elems.unshift(<tr>{headers}</tr>);
+            }
+
+            return <table>
+                <tbody>
+                    {elems}
+                </tbody>
+            </table>
+
+        }
+        return [];
+    }
 
     render(){
 
         const boxClass = (this.state.bDisplay) ? '' : 'hidden';
         const boxStyle = {"marginLeft": 20, "marginTop": 20};
 
+        console.log(this.props.content);
         let content = [];
 
+        
         if(this.state.bDisplay){
-            content = <div style={boxStyle} className={`${styles.box} ${boxClass}`}>
-                <div className={styles.title}>{this.props.title}</div>
-                {this.props.content}
-            </div>
+
+            if(!this.state.bTable){
+                content = <div style={boxStyle} className={`${styles.box} ${boxClass}`}>
+                    <div className={styles.title}>{this.props.title}</div>
+                    {this.props.content}
+                </div>
+            }else{
+
+                content = <div style={boxStyle} className={`${styles.box} ${boxClass}`}>
+                    <div className={styles.title}>{this.props.title}</div>
+                    {this.createTable()}
+                </div>
+
+            }
         }
 
         return (<div className={styles.wrapper}>

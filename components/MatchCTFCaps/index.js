@@ -198,6 +198,8 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             </span>);
         }
 
+        let currentContent = [];
+
         for(let x = 0; x < currentAssists.length; x++){
 
             currentAssistPlayer = getPlayer(playerNames, currentAssists[x].player);
@@ -205,10 +207,15 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             console.log(`currentAssists[x]`);
             console.log(currentAssists[x]);
 
+            //`${currentAssistPlayer.name} carried the flag for ${currentAssists[x].time} seconds`
+            currentContent = [
+                {"title": "asssistists","headers": ["#", "Seconds", "Carry Percent"], "content": [`Assist ${x + 1}`, `${currentAssists[x].time}`, `99.545454%`]}
+            ];
+
             assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
                 <CountryFlag country={currentAssistPlayer.country}/>
                 <Link href={`/player/${currentAssists[x]}`}><a><MouseHoverBox title={"Assist time"} display={currentAssistPlayer.name} 
-                content={`${currentAssistPlayer.name} carried the flag for ${currentAssists[x].time} seconds`}/></a></Link>
+                content={currentContent}/></a></Link>
             </span>);
         }
 
