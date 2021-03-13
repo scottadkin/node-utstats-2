@@ -102,9 +102,14 @@ function createCovers(covers, coverTimes){
     return {"data": data, "total": total};
 }
 
-function createAssists(assists, assistTimes){
+//c.grab, c.grab_time, c.pickups, c.pickup_times, c.drops, c.drop_times
+function createAssists(carryTimes, carryIds){
 
-    assists = assists.split(',');
+    carryTimes = carryTimes.split(',');
+    carryIds = carryIds.split(',');
+
+
+    /*assists = assists.split(',');
     assistTimes = assistTimes.split(',');
 
     console.log(assistTimes);
@@ -121,6 +126,26 @@ function createAssists(assists, assistTimes){
         }
 
     }
+
+    return players;*/
+
+
+    const players = [];
+
+    if(carryTimes.length > 1){
+
+        for(let i = 0; i < carryTimes.length; i++){
+
+            if(i < carryTimes.length - 1){
+                players.push({
+                    "player": parseInt(carryIds[i]),
+                    "time": parseFloat(carryTimes[i])
+                });
+            }
+        }
+    }
+
+    console.log(players);
 
     return players;
 }
@@ -172,11 +197,11 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         c = caps[i];
 
-        console.log(c);
 
         coverNames = "";
         currentCovers = createCovers(c.covers, c.cover_times);
-        currentAssists = createAssists(c.assists, c.assist_carry_times);
+        //currentAssists = createAssists(c.assists, c.assist_carry_times);
+        currentAssists = createAssists(c.assist_carry_times, c.assist_carry_ids);
         totalDropTime = calcDropTime(c);
 
         grabPlayer = getPlayer(playerNames, c.grab);
@@ -225,12 +250,17 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         let dropTimestamp = 0;
         let currentDropTimes = [];
         let currentGrabTimes = [];
+        let currentCarryTime = [];
+        const reducer = (accumulator, currentValue) => accumulator + parseFloat(currentValue);
 
         for(let x = 0; x < currentAssists.length; x++){
 
             currentAssistPlayer = getPlayer(playerNames, currentAssists[x].player);
 
-            currentCarryPercent = (parseFloat(currentAssists[x].time) / c.travel_time) * 100;
+            //currentCarryTime = c.assist_carry_times.split(',')//.reduce(reducer,0);
+            //currentCarryTime = c.ca
+
+          
 
             currentGrabTimes = c.pickup_times.split(',');
 
@@ -246,8 +276,11 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             dropTimestamp = Functions.MMSS(parseFloat(currentDropTimes[x]) - matchStart);
 
             currentContent = [
-                {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time}`, `${currentCarryPercent.toFixed(2)}%`]}
+                {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time.toFixed(2)}`, `${currentCarryPercent.toFixed(2)}%`]}
             ];
+
+            console.log(`00000000000000000000000000000000`);
+            currentCarryTime = c.assist_carry_times.reduce(reducer, 0);
 
             assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
                 <CountryFlag country={currentAssistPlayer.country}/>
@@ -263,7 +296,8 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
             <td>{coverElems}</td>
             <td>{assistElems}</td>
             <td className={bgColor}><span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span><CountryFlag country={capPlayer.country}/><Link href={`/player/${c.cap}`}><a>{capPlayer.name}</a></Link></td>
-            <td><span className={styles.time}><MMSS timestamp={c.travel_time}/></span></td>
+            <td><span className={styles.time}><MMSS timestamp={currentCarryTime}/></span></td>
+            <td><span className={styles.time}><MMSS timestamp={c.travel_time}/></span></td>     
             <td className={styles.time}>{(totalDropTime > 0) ? `${totalDropTime} Seconds` : ''}</td>
         </tr>);
     }
@@ -277,7 +311,8 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
                     <th>Covers</th>
                     <th>Assists</th>
                     <th>Capped</th>
-                    <th>Travel Time</th>
+                    <th>Carry Time</th>
+                    <th>Travel Time</th>       
                     <th>Time Dropped</th>
                 </tr>
                 {elems}

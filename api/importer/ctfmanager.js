@@ -168,8 +168,10 @@ class CTFManager{
     
                 //work around for players that have changed teams
                 if(current.covers !== undefined){
+
                     current.covers.push(e.player);
                     current.coverTimes.push(e.timestamp);
+                    
                 }else{
                     switch(e.team){
                         case 1: {   current = currentRed; } break;
