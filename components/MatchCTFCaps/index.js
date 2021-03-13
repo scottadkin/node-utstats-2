@@ -257,11 +257,6 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             currentAssistPlayer = getPlayer(playerNames, currentAssists[x].player);
 
-            //currentCarryTime = c.assist_carry_times.split(',')//.reduce(reducer,0);
-            //currentCarryTime = c.ca
-
-          
-
             currentGrabTimes = c.pickup_times.split(',');
 
             if(x === 0){
@@ -275,28 +270,50 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             dropTimestamp = Functions.MMSS(parseFloat(currentDropTimes[x]) - matchStart);
 
+            currentCarryTime = c.assist_carry_times.reduce(reducer, 0);
+
             currentContent = [
-                {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time.toFixed(2)}`, `${currentCarryPercent.toFixed(2)}%`]}
+                {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], 
+                "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time.toFixed(2)}`, `${((currentAssists[x].time / currentCarryTime) * 100).toFixed(2)}%`]}
             ];
 
-            console.log(`00000000000000000000000000000000`);
-            currentCarryTime = c.assist_carry_times.reduce(reducer, 0);
+            
 
             assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
                 <CountryFlag country={currentAssistPlayer.country}/>
-                <Link href={`/player/${currentAssists[x]}`}><a><MouseHoverBox title={"Assist time"} display={currentAssistPlayer.name} 
+                <Link href={`/player/${currentAssists[x].player}`}><a><MouseHoverBox title={"Assist"} display={currentAssistPlayer.name} 
                 content={currentContent}/></a></Link>
             </span>);
         }
 
         bgColor = Functions.getTeamColor(c.team);
 
+       
+        currentCarryTime = parseInt(currentCarryTime);
+        if(currentCarryTime !== currentCarryTime) currentCarryTime = c.travel_time; 
+
         elems.push(<tr key={`cover-${i}`} className={"team-none"}>
-            <td className={bgColor}><span className={styles.time}><MMSS timestamp={c.grab_time - matchStart}/></span><CountryFlag country={grabPlayer.country}/><Link href={`/player/${c.grab}`}><a>{grabPlayer.name}</a></Link></td>
+            <td className={bgColor}>
+                    <span className={styles.time}><MMSS timestamp={c.grab_time - matchStart}/></span>
+                    <CountryFlag country={grabPlayer.country}/><Link href={`/player/${c.grab}`}><a>{grabPlayer.name}</a></Link>
+                </td>
             <td>{coverElems}</td>
             <td>{assistElems}</td>
-            <td className={bgColor}><span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span><CountryFlag country={capPlayer.country}/><Link href={`/player/${c.cap}`}><a>{capPlayer.name}</a></Link></td>
-            <td><span className={styles.time}><MMSS timestamp={currentCarryTime}/></span></td>
+            <td className={bgColor}>
+                <span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span>
+                <CountryFlag country={capPlayer.country}/><Link href={`/player/${c.cap}`}>
+                <a>
+                    <MouseHoverBox title={`${capPlayer.name} Captured the Flag`} display={capPlayer.name} content={
+                        [{
+                            "headers": ["Carry Time", "Carry Percent"],
+                            "content": [`${parseFloat(c.assist_carry_times[c.assist_carry_times.length - 1]).toFixed(2)}`,
+                             `${((c.assist_carry_times[c.assist_carry_times.length - 1] / currentCarryTime) * 100).toFixed(2)}%`]
+                        }]
+                    }/>
+                </a>
+                </Link>
+            </td>
+            <td><span className={styles.time}>{(currentCarryTime != 0) ? <MMSS timestamp={currentCarryTime}/> : ''}</span></td>
             <td><span className={styles.time}><MMSS timestamp={c.travel_time}/></span></td>     
             <td className={styles.time}>{(totalDropTime > 0) ? `${totalDropTime} Seconds` : ''}</td>
         </tr>);

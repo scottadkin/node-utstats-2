@@ -17,6 +17,12 @@
     padding-bottom:5px;
 }
 
+.box th{
+    padding:5px;
+}
+
 .box td{
     text-align:center;
+    font-size:12px;
+    padding:3px;
 }
