@@ -1,4 +1,18 @@
 .wrapper{
-    background-color:black;
     display:inline-block;
+}
+
+.box{
+    background-color:black;
+    border:1px solid rgba(255,255,255,0.25);
+    position:absolute;
+    padding:5px;
+    font-size:12px;
+}
+
+.title{
+    color:yellow;
+    text-align:center;
+    font-size:14px;
+    padding-bottom:5px;
 }

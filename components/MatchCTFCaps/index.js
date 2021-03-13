@@ -102,10 +102,12 @@ function createCovers(covers, coverTimes){
     return {"data": data, "total": total};
 }
 
-function createAssists(assists){
+function createAssists(assists, assistTimes){
 
     assists = assists.split(',');
+    assistTimes = assistTimes.split(',');
 
+    console.log(assistTimes);
     const players = [];
 
     for(let i = 0; i < assists.length; i++){
@@ -115,7 +117,7 @@ function createAssists(assists){
         }
 
         if(players.indexOf(parseInt(assists[i])) === -1){
-            players.push(parseInt(assists[i]));
+            players.push({"player": parseInt(assists[i]), "time": parseFloat(assistTimes[i])});
         }
 
     }
@@ -172,7 +174,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         coverNames = "";
         currentCovers = createCovers(c.covers, c.cover_times);
-        currentAssists = createAssists(c.assists);
+        currentAssists = createAssists(c.assists, c.assist_carry_times);
         totalDropTime = calcDropTime(c);
 
         grabPlayer = getPlayer(playerNames, c.grab);
@@ -198,10 +200,15 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         for(let x = 0; x < currentAssists.length; x++){
 
-            currentAssistPlayer = getPlayer(playerNames, currentAssists[x]);
+            currentAssistPlayer = getPlayer(playerNames, currentAssists[x].player);
+
+            console.log(`currentAssists[x]`);
+            console.log(currentAssists[x]);
 
             assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
-                <CountryFlag country={currentAssistPlayer.country}/><Link href={`/player/${currentAssists[x]}`}><a><MouseHoverBox title={"Assist time"} display={currentAssistPlayer.name} content="fart"/></a></Link>
+                <CountryFlag country={currentAssistPlayer.country}/>
+                <Link href={`/player/${currentAssists[x]}`}><a><MouseHoverBox title={"Assist time"} display={currentAssistPlayer.name} 
+                content={`${currentAssistPlayer.name} carried the flag for ${currentAssists[x].time} seconds`}/></a></Link>
             </span>);
         }
 
