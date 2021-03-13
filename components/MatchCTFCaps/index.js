@@ -172,6 +172,8 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         c = caps[i];
 
+        console.log(c);
+
         coverNames = "";
         currentCovers = createCovers(c.covers, c.cover_times);
         currentAssists = createAssists(c.assists, c.assist_carry_times);
@@ -182,34 +184,52 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
         coverElems = [];
         assistElems = [];
+        let currentContent = [];
+
          
         //<CountryFlag country={currentCoverPlayer.country}/><Link href={`/player/${key}`}><a>{currentCoverPlayer.name}</a></Link> 
+        let coverTimes = [];
         for(const [key, value] of currentCovers.data){
 
             currentCoverPlayer = getPlayer(playerNames, key);
 
+            //console.log(value);
+            coverTimes = [];
+
+            for(let x = 0; x < value.times.length; x++){
+
+                coverTimes.push([Functions.MMSS(value.times[x] - matchStart), x + 1]);
+            }
+
+            currentContent = [
+                {
+                
+                    "headers": ["Timestamp", "Cover"],
+                    "content": coverTimes }
+            ]
+
             coverElems.push(<span key={`cap-${i}-cover-${key}`} className={styles.cover}>
                 <CountryFlag country={currentCoverPlayer.country}/>
                 <Link href={`/player/${key}`}><a>
-                <MouseHoverBox title={`${currentCoverPlayer.name} covered the flag carrier`} 
-                    content={`${currentCoverPlayer.name} covered the flag carrier ${value.value} ${(value.value === 1) ? "time" : "times"}.`} 
+                <MouseHoverBox title={`${currentCoverPlayer.name} covered the flag carrier ${value.value} ${(value.value === 1) ? "time" : "times"}`} 
+                    content={currentContent} 
                     display={currentCoverPlayer.name}/>
                 </a></Link> 
             </span>);
         }
 
-        let currentContent = [];
+        
+
+        let currentCarryPercent = 0;
 
         for(let x = 0; x < currentAssists.length; x++){
 
             currentAssistPlayer = getPlayer(playerNames, currentAssists[x].player);
 
-            console.log(`currentAssists[x]`);
-            console.log(currentAssists[x]);
+            currentCarryPercent = (parseFloat(currentAssists[x].time) / c.travel_time) * 100;
 
-            //`${currentAssistPlayer.name} carried the flag for ${currentAssists[x].time} seconds`
             currentContent = [
-                {"title": "asssistists","headers": ["#", "Seconds", "Carry Percent"], "content": [`Assist ${x + 1}`, `${currentAssists[x].time}`, `99.545454%`]}
+                {"headers": ["#", "Seconds", "Carry Percent"], "content": [`Assist ${x + 1}`, `${currentAssists[x].time}`, `${currentCarryPercent.toFixed(2)}%`]}
             ];
 
             assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
