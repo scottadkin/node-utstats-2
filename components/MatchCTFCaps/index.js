@@ -221,6 +221,10 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         
 
         let currentCarryPercent = 0;
+        let grabTimestamp = 0;
+        let dropTimestamp = 0;
+        let currentDropTimes = [];
+        let currentGrabTimes = [];
 
         for(let x = 0; x < currentAssists.length; x++){
 
@@ -228,8 +232,21 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             currentCarryPercent = (parseFloat(currentAssists[x].time) / c.travel_time) * 100;
 
+            currentGrabTimes = c.pickup_times.split(',');
+
+            if(x === 0){
+                grabTimestamp = Functions.MMSS(c.grab_time - matchStart);
+            }else{
+                grabTimestamp = Functions.MMSS(parseFloat(currentGrabTimes[x - 1]) - matchStart);
+            }
+
+            currentDropTimes = c.drop_times.split(',');
+            
+
+            dropTimestamp = Functions.MMSS(parseFloat(currentDropTimes[x]) - matchStart);
+
             currentContent = [
-                {"headers": ["#", "Seconds", "Carry Percent"], "content": [`Assist ${x + 1}`, `${currentAssists[x].time}`, `${currentCarryPercent.toFixed(2)}%`]}
+                {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time}`, `${currentCarryPercent.toFixed(2)}%`]}
             ];
 
             assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
