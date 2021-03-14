@@ -21,6 +21,9 @@ class PlayerInfo{
             "frags":0,
             "score":0,
             "kills":0,
+            "killsNormalRange": 0,
+            "killsLongRange": 0,
+            "killsUberRange": 0,
             "killTotalDistance": 0,
             "killMinDistance": null,
             "killAverageDistance": 0,
@@ -305,6 +308,16 @@ class PlayerInfo{
             this.updateMultis();
             this.currentMulti++;
             
+        }
+
+        if(distance <= 1536){
+            this.stats.killsNormalRange++;
+
+        }else if(distance > 1536 && distance <= 3072 ){
+            this.stats.killsLongRange++;
+
+        }else if(distance > 3072){
+            this.stats.killsUberRange++;
         }
 
         this.lastKill = timestamp;

@@ -434,7 +434,9 @@ class PlayerManager{
                 }
 
             }else if(k.type === 'suicide'){
+
                 victim = this.getPlayerById(k.killerId);
+
                 if(victim !== null){
                     victim.died(k.timestamp, k.killerWeapon);
                 }
@@ -811,6 +813,9 @@ class PlayerManager{
                         p.stats.bestspawnkillspree,
                         p.stats.firstBlood,
                         p.stats.accuracy,
+                        p.stats.killsNormalRange,
+                        p.stats.killsLongRange,
+                        p.stats.killsUberRange,
                         0
                     );
 
@@ -834,7 +839,10 @@ class PlayerManager{
                         p.stats.slowestKill,
                         p.stats.bestspawnkillspree,
                         p.stats.firstBlood,
-                        p.stats.accuracy,
+                        p.stats.accuracy,         
+                        p.stats.killsNormalRange,
+                        p.stats.killsLongRange,
+                        p.stats.killsUberRange,
                         gametypeId
                     );
                 }

@@ -2,6 +2,8 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
+
+//parse kills here and the categorise the distancesesses
 const MatchFragDistances = ({players, team}) =>{
 
     const elems = [];

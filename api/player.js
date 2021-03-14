@@ -47,7 +47,7 @@ class Player{
 
 
             const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,'','','',0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
             mysql.query(query, [name, gametype], (err, result) =>{
 
@@ -97,7 +97,7 @@ class Player{
 
     updateFrags(id, date, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
-        firstBlood, accuracy, gametype){
+        firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, gametype){
             
         return new Promise((resolve, reject) =>{
 
@@ -117,7 +117,7 @@ class Player{
             slowest_kill = IF(slowest_kill < ? OR slowest_kill = 0 AND ? != 0, ?, slowest_kill),
             best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
             first_bloods=first_bloods+?,
-            accuracy=?
+            accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?
             WHERE id=? AND gametype=?`;
 
             const vars = [
@@ -161,6 +161,9 @@ class Player{
                 bestSpawnKillSpree,
                 firstBlood,
                 accuracy,
+                normalRangeKills,
+                longRangeKills,
+                uberRangeKills,
                 id,
                 gametype
             ];
@@ -218,7 +221,7 @@ class Player{
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,0,
-                0,0,?,?,?,?,?,?,?)`;
+                0,0,?,?,?,?,?,?,?,?,?,?)`;
 
             const vars = [
                 matchId,
@@ -266,7 +269,10 @@ class Player{
                 player.stats.accuracy.toFixed(2),
                 (isNaN(player.stats.killMinDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killMinDistance),
                 (isNaN(player.stats.killAverageDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killAverageDistance),
-                player.stats.killMaxDistance
+                player.stats.killMaxDistance,
+                player.stats.killsNormalRange,
+                player.stats.killsLongRange,
+                player.stats.killsUberRange
             ];
 
 
