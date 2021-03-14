@@ -1,5 +1,6 @@
 import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/';
+import styles from './MatchCTFSummaryTeam.module.css';
 
 const bAllEmpty = (data) =>{
 
@@ -94,19 +95,19 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
 
 
     return (
-        <table className="m-bottom-25">
+        <table className={`${styles.table} m-bottom-25`}>
             <tbody>
                 <tr>
                     <th className="text-left">Player</th>
-                    <TipHeader title="Flag Taken" content="Player took the enemy flag from the flag stand." />
-                    <TipHeader title="Flag Pickup" content="Player picked up a dropped enemy flag." />
-                    <TipHeader title="Flag Drop" content="Player dropped the enemy flag." />
-                    <TipHeader title="Flag Assist" content="Player carried the flag at some point before it was captured." />
-                    <TipHeader title="Flag Capture" content="Player captured the enemy flag and scored a point for their team." />
-                    <TipHeader title="Flag Cover" content="Player killed an enemy that was close to the flag carrier." />
-                    <TipHeader title="Flag Kill" content="Player killed an enemy that had their teams flag." />
-                    <TipHeader title="Flag Return" content="Player returned their teams flag that was dropped." />
-                    <TipHeader title="Flag Save" content="Played returned their teams flag that was close to the enemy flag stand." />
+                    <TipHeader title="Taken" content="Player took the enemy flag from the flag stand." />
+                    <TipHeader title="Pickup" content="Player picked up a dropped enemy flag." />
+                    <TipHeader title="Drop" content="Player dropped the enemy flag." />
+                    <TipHeader title="Assist" content="Player carried the flag at some point before it was captured." />
+                    <TipHeader title="Capture" content="Player captured the enemy flag and scored a point for their team." />
+                    <TipHeader title="Cover" content="Player killed an enemy that was close to the flag carrier." />
+                    <TipHeader title="Kill" content="Player killed an enemy that had their teams flag." />
+                    <TipHeader title="Return" content="Player returned their teams flag that was dropped." />
+                    <TipHeader title="Close Return" content="Played returned their teams flag that was close to the enemy flag stand." />
                 </tr>
                 {elems}
             </tbody>

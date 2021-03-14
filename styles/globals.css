@@ -16,6 +16,7 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
     height:100%;
     position: relative;
+    overflow-x:hidden;
 }
 
 a {
@@ -139,6 +140,7 @@ th{
   color:yellow;
   border:1px solid rgba(255,255,255,0.1);
   background-color:black;
+  font-size:12px;
 
 }
 
@@ -146,7 +148,7 @@ td{
   font-weight:100;
   padding:5px 3px;
   border:1px solid rgba(255,255,255,0.1);
-  font-size:14px;
+  font-size:12px;
 
 }
 
@@ -165,9 +167,7 @@ td{
   margin-right:auto;
   border:1px solid rgba(255,255,255,0.2);
   background-color:rgb(12,12,12);
-  font-size:12px;
-  max-width:1000px;
-  width:80%;
+
 }
 
 .special-table tr{
