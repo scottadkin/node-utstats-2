@@ -1,7 +1,10 @@
 import React from 'react';
 import MatchFragTable from '../MatchFragTable/';
+import MatchFragDistances from '../MatchFragDistances/';
 
-class MatchFragSummary2 extends React.Component{
+
+
+class MatchFragSummary extends React.Component{
 
     constructor(props){
 
@@ -58,6 +61,18 @@ class MatchFragSummary2 extends React.Component{
                    teamData.push(<MatchFragTable key={i} players={this.getPlayersInTeam(i)} team={i} matchStart={this.props.matchStart}/>);
                 }
             }
+
+        }else if(this.state.mode === 1){
+
+            if(this.props.totalTeams < 2){
+                teamData.push(<MatchFragDistances key={-1} players={this.getPlayersInTeam(-1)} team={-1} />);
+            }else{
+
+                for(let i = 0; i < this.props.totalTeams; i++){
+                   // teamData.push(this.getPlayersInTeam(i));
+                   teamData.push(<MatchFragDistances key={i} players={this.getPlayersInTeam(i)} team={i} />);
+                }
+            }
         }
 
         return <div>
@@ -72,4 +87,4 @@ class MatchFragSummary2 extends React.Component{
 }
 
 
-export default MatchFragSummary2;
+export default MatchFragSummary;
