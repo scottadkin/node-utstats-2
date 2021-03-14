@@ -1,47 +1,75 @@
+import React from 'react';
 import MatchFragTable from '../MatchFragTable/';
 
-const getPlayersInTeam = (players, team) =>{
+class MatchFragSummary2 extends React.Component{
 
-    const foundPlayers = [];
+    constructor(props){
 
-    for(let i = 0; i < players.length; i++){
+        super(props);
 
-        //console.log(players[i].team);
-        if(players[i].team === team || team === -1){
-            foundPlayers.push(players[i]);
-        }
+        this.state = {"mode": 0}; //0 normal, 1 kill distances
+
+        this.changeMode = this.changeMode.bind(this);
     }
 
-    return JSON.stringify(foundPlayers);
-}
+    changeMode(id){
 
-const MatchFragSummary = ({bTeamGame, totalTeams, playerData, matchStart}) =>{
+        this.setState({"mode": id});
+    }
 
-    playerData = JSON.parse(playerData);
+    displaySelected(id){
+
+        if(id === this.state.mode) return "tab-selected"
+        return '';
+    }
+
+    getPlayersInTeam = (team) =>{
+
+        const foundPlayers = [];
+   
+        let p = 0;
     
-    const teams = [];
+        for(let i = 0; i < this.props.playerData.length; i++){
 
-    console.log(matchStart);
-
-    if(!bTeamGame){
-        teams.push(<MatchFragTable key={1} players={getPlayersInTeam(playerData, -1)} team={-1} matchStart={matchStart}/>);
-    }else{
-
-        for(let i = 0; i < totalTeams; i++){
-            teams.push(<MatchFragTable key={i} players={getPlayersInTeam(playerData, i)} team={i} matchStart={matchStart}/>);
+            p = this.props.playerData[i];
+            
+            if(p.team === team || team === -1){
+                foundPlayers.push(p);
+            }
         }
+    
+        return foundPlayers;
     }
 
+    render(){
 
-    return (
-        <div>
+        let elems = [];
+
+        const teamData = [];
+
+        if(this.state.mode === 0){
+
+            if(this.props.totalTeams < 2){
+                teamData.push(<MatchFragTable key={-1} players={this.getPlayersInTeam(-1)} team={-1} matchStart={this.props.matchStart}/>);
+            }else{
+
+                for(let i = 0; i < this.props.totalTeams; i++){
+                   // teamData.push(this.getPlayersInTeam(i));
+                   teamData.push(<MatchFragTable key={i} players={this.getPlayersInTeam(i)} team={i} matchStart={this.props.matchStart}/>);
+                }
+            }
+        }
+
+        return <div>
             <div className="default-header">Frag Summary</div>
-            <div className="special-table">
-            {teams}
+            <div className="tabs">
+                <div onClick={() => this.changeMode(0)} className={`tab ${this.displaySelected(0)}`}>General Data</div>
+                <div onClick={() => this.changeMode(1)} className={`tab ${this.displaySelected(1)}`}>Kill Distances</div>
             </div>
+            {teamData}
         </div>
-    );
+    }
 }
 
 
-export default MatchFragSummary;
+export default MatchFragSummary2;

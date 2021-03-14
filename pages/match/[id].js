@@ -1316,7 +1316,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     }
 
     elems.push(
-        <MatchFragSummary key={`match_3`} bTeamGame={parsedInfo.team_game} totalTeams={parsedInfo.total_teams} playerData={playerData} matchStart={0}/>
+        <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}/>
     );
 
     const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), justPlayerNames, parsedInfo.total_teams);
