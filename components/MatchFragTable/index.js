@@ -62,8 +62,6 @@ const MatchFragTable = ({players, team, matchStart}) =>{
 
     const typeStats = bAnyData(players, ['suicides','team_kills','spawn_kills','headshots']);
 
-    console.log(typeStats);
-
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
