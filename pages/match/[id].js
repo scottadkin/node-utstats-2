@@ -128,7 +128,6 @@ class PlayerFragsGraphData{
 
         if(this.totalTeams > 0){
             
-
             for(let i = 0; i < this.totalTeams; i++){
 
                 this.teamData.push({
@@ -302,7 +301,6 @@ class PlayerFragsGraphData{
 
             h = this.headshots[i];
 
-
             currentKiller = this.data.get(h.killer);
 
             if(currentKiller !== undefined){
@@ -320,7 +318,17 @@ class PlayerFragsGraphData{
                 });
 
                 this.updateOthers(h.killer, 'headshots');
-            }
+
+                if(this.totalTeams > 0){
+
+                    this.teamData[h.killer_team].headshots.push(
+                        this.teamData[h.killer_team].headshots[this.teamData[h.killer_team].headshots.length - 1] + 1
+                    ); 
+
+                    this.teamUpdateOthers(h.killer_team, 'headshots');
+      
+                }
+            }        
         }
     }
 
@@ -382,7 +390,7 @@ class PlayerFragsGraphData{
             });
         }
 
-        data.sort((a, b) =>{
+        /*data.sort((a, b) =>{
 
             a = a.data[a.data.length - 1];
             b = b.data[b.data.length - 1];
@@ -394,7 +402,7 @@ class PlayerFragsGraphData{
             }
 
             return 0;
-        });
+        });*/
 
         return data;
     }
@@ -1357,14 +1365,14 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
     const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
 
-    elems.push(<Graph title={["Player Kills", "Player Deaths", "Player Suicides", "Player Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
+    elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
 
     if(parsedInfo.total_teams > 0){
 
         const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
-        playerKillData.getTeamData('teamKills')];
+        playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
        
-        elems.push(<Graph title={["Player Kills", "Player Deaths", "Player Suicides", "Player Team Kills"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
+        elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
     }
 
     //elems.push(<Graph title={"Team Total Kills"} key="g-3" data={JSON.stringify(teamTotalKillsData)}/>);

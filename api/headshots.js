@@ -27,7 +27,7 @@ class Headshots{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT timestamp,killer,victim,distance FROM nstats_headshots WHERE match_id=?";
+            const query = "SELECT timestamp,killer,victim,distance,killer_team,victim_team FROM nstats_headshots WHERE match_id=?";
 
             mysql.query(query, [match], (err, result) =>{
 
