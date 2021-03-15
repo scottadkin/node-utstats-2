@@ -1,15 +1,20 @@
 const Kill =  require('./kill');
 const Message = require('../message');
 const KillsManager = require('../kills');
+const Headshots = require('../headshots');
 
 class KillManager{
 
-    constructor(data){
+    constructor(data, playerManager){
 
         this.data = data;
         this.kills = [];
+        this.headshots = [];
+
+        this.playerManager = playerManager;
 
         this.killsManager = new KillsManager();
+        this.headshotsManager = new Headshots();
 
         this.killNames = [];
         this.parseData();
@@ -24,6 +29,7 @@ class KillManager{
         const suicideReg = /^(\d+\.\d+)\tsuicide\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
         const distanceReg = /^(\d+\.\d+)\tnstats\tkill_distance\t(.+?)\t(\d+?)\t(\d+)$/i;
         const locationReg = /^(\d+\.\d+)\tnstats\tkill_location\t(\d+?)\t(.+?),(.+?),(.+?)\t(\d+?)\t(.+?),(.+?),(.+)$/i;
+        const headshotReg = /^(\d+\.\d+)\theadshot\t(.+?)\t(.+)$/i;
 
         let result = '';
         let d = 0;
@@ -73,10 +79,21 @@ class KillManager{
                 result = suicideReg.exec(d);
                 this.kills.push(new Kill(result[1], 'suicide', result[2], result[3], -1, null, result[4]));
 
+            }else if(headshotReg.test(d)){
+                
+                result = headshotReg.exec(d);
+
+                this.headshots.push({
+                    "timestamp": parseFloat(result[1]),
+                    "killer": parseInt(result[2]),
+                    "victim": parseInt(result[3])
+                });
             }else{
                 console.log(d);
             }
         }
+
+        console.log(this.headshots);
     }
 
 
@@ -146,7 +163,7 @@ class KillManager{
         return found;
     }
 
-    async insertKills(matchId, playerManager, weaponsManager){
+    async insertKills(matchId, weaponsManager){
 
         try{
 
@@ -164,11 +181,11 @@ class KillManager{
 
                 k = this.kills[i];
                 //make a cache of playerIds 
-                currentKiller = playerManager.getOriginalConnectionById(k.killerId);
-                currentVictim = playerManager.getOriginalConnectionById(k.victimId);
+                currentKiller = this.playerManager.getOriginalConnectionById(k.killerId);
+                currentVictim = this.playerManager.getOriginalConnectionById(k.victimId);
 
-                currentKillerTeam = playerManager.getPlayerTeamAt(k.killerId, k.timestamp);
-                currentVictimTeam = playerManager.getPlayerTeamAt(k.victimId, k.timestamp);
+                currentKillerTeam = this.playerManager.getPlayerTeamAt(k.killerId, k.timestamp);
+                currentVictimTeam =  this.playerManager.getPlayerTeamAt(k.victimId, k.timestamp);
 
                 currentKillerWeapon = weaponsManager.weapons.getSavedWeaponByName(k.killerWeapon);
                 if(k.victimId !== -1){
@@ -207,6 +224,33 @@ class KillManager{
         }catch(err){
             console.trace(err);
             new Message(`KillManager.insertKills() ${err}`,'error');
+        }
+    }
+
+
+    async insertHeadshots(matchId){
+
+        try{
+
+            if(this.headshots.length > 0){
+
+                let h = 0;
+
+                for(let i = 0; i < this.headshots.length; i++){
+
+                    h = this.headshots[i];
+
+                    await this.headshotsManager.insert(matchId, h.timestamp, h.killer, h.victim);
+                }
+
+                new Message(`Imported ${this.headshots.length} headshot data.`, 'pass');
+
+            }else{
+                new Message(`Skipping headshots import, no data.`,'note');
+            }
+
+        }catch(err){
+            new Message(`killManager.insertHeadshots() ${err}`,'error');
         }
     }
 }

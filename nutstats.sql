@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 14, 2021 at 07:59 PM
+-- Generation Time: Mar 15, 2021 at 06:39 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -193,6 +193,20 @@ CREATE TABLE `nstats_gametypes` (
   `last` int(11) NOT NULL,
   `matches` int(11) NOT NULL,
   `playtime` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_headshots`
+--
+
+CREATE TABLE `nstats_headshots` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `timestamp` float NOT NULL,
+  `killer` int(11) NOT NULL,
+  `victim` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -711,6 +725,12 @@ ALTER TABLE `nstats_gametypes`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_headshots`
+--
+ALTER TABLE `nstats_headshots`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_items`
 --
 ALTER TABLE `nstats_items`
@@ -892,6 +912,12 @@ ALTER TABLE `nstats_faces`
 -- AUTO_INCREMENT for table `nstats_gametypes`
 --
 ALTER TABLE `nstats_gametypes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_headshots`
+--
+ALTER TABLE `nstats_headshots`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

@@ -51,9 +51,11 @@ class MatchManager{
 
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
-            this.killManager = new KillManager(this.killLines);
             this.spawnManager = new SpawnManager();
             this.playerManager = new PlayerManager(this.playerLines, this.spawnManager);
+            this.killManager = new KillManager(this.killLines, this.playerManager);
+            
+            
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 
             this.gametype = new Gametypes(this.gameInfo.gamename);
@@ -209,8 +211,10 @@ class MatchManager{
             await this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
             new Message(`Updated Country stats`,'pass');
 
-            await this.killManager.insertKills(this.matchId, this.playerManager, this.weaponsManager);
+            await this.killManager.insertKills(this.matchId, this.weaponsManager);
             new Message(`Inserted match kill data`,'pass');
+
+            await this.killManager.insertHeadshots(this.matchId);
 
             await this.playerManager.insertScoreHistory(this.matchId);
             new Message(`Inserted player score history`,'pass');
@@ -291,6 +295,7 @@ class MatchManager{
         this.playerLines = [];
         this.killLines = [];
         this.itemLines = [];
+        this.headshotLines = [];
 
         let typeResult = 0;
         let currentType = 0;
@@ -396,8 +401,8 @@ class MatchManager{
                         }
                     }
 
-                }else if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide'){
-
+                }else if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide' || currentType === 'headshot'){
+            
                     this.killLines.push(this.lines[i]);
 
                 }else if(assaultTypes.indexOf(currentType) !== -1){
