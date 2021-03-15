@@ -58,7 +58,7 @@ class PlayerInfo{
             "fastestKill": 0,
             "slowestKill": 0,
             "bestspawnkillspree":0,
-            "spawnkills": 0,
+            "spawnKills": 0,
             "accuracy": 0,
             "ctf": {
                 "assist": 0,
@@ -185,7 +185,7 @@ class PlayerInfo{
         this.currentSpree = 0;
         this.currentMulti = 0;
 
-        /*if(this.lastSpawn !== null){
+        if(this.lastSpawn !== null){
 
             if(timestamp - this.lastSpawn < config.spawnKillTimeLimit){
                 return true;
@@ -193,7 +193,7 @@ class PlayerInfo{
         }
 
 
-        return false;*/
+        return false;
     }
 
 

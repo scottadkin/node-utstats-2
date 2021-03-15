@@ -106,7 +106,7 @@ class Player{
             last = IF(last < ?,?,last), 
             playtime=playtime+?, 
             frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
-            team_kills=team_kills+?, spawn_Kills=spawn_kills+?,
+            team_kills=team_kills+?, spawn_kills=spawn_kills+?,
             multi_1 = multi_1+?, multi_2 = multi_2+?, multi_3 = multi_3+?, multi_4 = multi_4+?,
             multi_5 = multi_5+?, multi_6 = multi_6+?, multi_7 = multi_7+?,
             multi_best = IF(multi_best < ?, ?, multi_best),
@@ -225,6 +225,8 @@ class Player{
                 0,0,0,0,0,0,0,0,0,0,
                 0,0,?,?,?,?,?,?,?,?,?,?,?)`;
 
+                //48
+
             const vars = [
                 matchId,
                 matchDate,
@@ -246,7 +248,7 @@ class Player{
                 player.stats.deaths,
                 player.stats.suicides,
                 player.stats.teamkills,
-                player.stats.spawnkills,
+                player.stats.spawnKills,
                 Functions.calculateKillEfficiency(player.stats.kills, player.stats.deaths),
                 player.stats.multis.double,
                 player.stats.multis.multi,
@@ -281,7 +283,10 @@ class Player{
 
             mysql.query(query, vars, (err, result) =>{
 
-                if(err) reject(err);
+                if(err){
+                    console.trace(err);
+                    reject(err);
+                }
 
                 //console.log(result);
 

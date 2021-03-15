@@ -430,7 +430,9 @@ class PlayerManager{
 
               
                 if(victim !== null){
-                    victim.died(k.timestamp, k.killerWeapon);
+                   if(victim.died(k.timestamp, k.killerWeapon)){
+                       killer.stats.spawnKills++;
+                   }
                 }
 
             }else if(k.type === 'suicide'){
@@ -442,6 +444,8 @@ class PlayerManager{
                 }
             }
         }
+
+        //console.log(killer.stats.spawnKills);
 
         //this.debugDisplayPlayerStats();
     }
@@ -590,7 +594,7 @@ class PlayerManager{
         ];
 
         const combine = [
-            'spawnkills',
+            'spawnKills',
             'score',
             'frags',
             'kills',
@@ -826,7 +830,7 @@ class PlayerManager{
                         p.stats.deaths, 
                         p.stats.suicides, 
                         p.stats.teamkills,
-                        p.stats.spawnkills,
+                        p.stats.spawnKills,
                         p.stats.multis,
                         p.stats.bestMulti,
                         p.stats.sprees,
@@ -863,7 +867,7 @@ class PlayerManager{
                         p.stats.slowestKill,
                         p.stats.bestspawnkillspree,
                         p.stats.firstBlood,
-                        p.stats.accuracy,         
+                        p.stats.accuracy,
                         p.stats.killsNormalRange,
                         p.stats.killsLongRange,
                         p.stats.killsUberRange,
