@@ -44,21 +44,76 @@ class MatchFragSummary extends React.Component{
         return foundPlayers;
     }
 
+    typesToDisplay(){
+
+        const toDisplay = [];
+
+        const typesTeams = {
+            "suicides": [],
+            "team_kills": [],
+            "spawn_kills": [],
+            "headshots":  [],
+            "deaths":  [],
+            "kills": [],
+            "frags":  [],
+            "score":  [],
+        };
+
+        const types = [
+            "suicides",
+            "team_kills",
+            "spawn_kills",
+            "headshots",
+            "deaths",
+            "kills",
+            "frags",
+            "score"
+        ];
+
+
+        let p = 0;
+
+        for(let i = 0; i < this.props.playerData.length; i++){
+
+            p = this.props.playerData[i];
+
+            for(let x = 0; x < types.length; x++){
+
+                if(p[types[x]] !== 0){
+                    if(typesTeams[types[x]].indexOf(p.team) === -1) typesTeams[types[x]].push(p.team);
+                }
+            }
+        }
+
+        
+        for(const [key, value] of Object.entries(typesTeams)){
+
+            if(value.length > 0){
+                toDisplay.push(key);
+            }
+        }
+
+
+        return toDisplay;
+    }
+
     render(){
 
         let elems = [];
 
         const teamData = [];
 
+        const toDisplay = this.typesToDisplay();
+
         if(this.state.mode === 0){
 
             if(this.props.totalTeams < 2){
-                teamData.push(<MatchFragTable key={-1} players={this.getPlayersInTeam(-1)} team={-1} matchStart={this.props.matchStart}/>);
+                teamData.push(<MatchFragTable key={-1} players={this.getPlayersInTeam(-1)} toDisplay={toDisplay} team={-1} matchStart={this.props.matchStart}/>);
             }else{
 
                 for(let i = 0; i < this.props.totalTeams; i++){
                    // teamData.push(this.getPlayersInTeam(i));
-                   teamData.push(<MatchFragTable key={i} players={this.getPlayersInTeam(i)} team={i} matchStart={this.props.matchStart}/>);
+                   teamData.push(<MatchFragTable key={i} players={this.getPlayersInTeam(i)} toDisplay={toDisplay} team={i} matchStart={this.props.matchStart}/>);
                 }
             }
 

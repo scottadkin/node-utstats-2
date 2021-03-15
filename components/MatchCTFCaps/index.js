@@ -145,8 +145,6 @@ function createAssists(carryTimes, carryIds){
         }
     }
 
-    console.log(players);
-
     return players;
 }
 

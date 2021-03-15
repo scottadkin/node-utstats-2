@@ -8,37 +8,7 @@ import Functions from '../../api/functions';
 import React from 'react';
 
 
-//find what types of data have a value other than 0 (no point displaying headshots if there arent any same with anything else)
-const bAnyData = (players, types) =>{
-
-    const typeStats = {};
-
-    for(let i = 0; i < types.length; i++){
-
-        typeStats[types[i]] = false;
-    }
-
-    let p = 0;
-
-    for(let i = 0; i < players.length; i++){
-
-        p = players[i];
-
-        for(let x = 0; x < types.length; x++){
-
-            if(!typeStats[types[x]]){
-
-                if(p[types[x]] !== 0){
-                    typeStats[types[x]] = true;
-                }
-            }
-        }
-    }
-
-    return typeStats;
-}
-
-const MatchFragTable = ({players, team, matchStart}) =>{
+const MatchFragTable = ({players, team, matchStart, toDisplay}) =>{
 
 
     let bgColor = Functions.getTeamColor(team);
@@ -60,8 +30,6 @@ const MatchFragTable = ({players, team, matchStart}) =>{
     let p = 0;
 
 
-    const typeStats = bAnyData(players, ['suicides','team_kills','spawn_kills','headshots']);
-
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
@@ -80,11 +48,10 @@ const MatchFragTable = ({players, team, matchStart}) =>{
         elems.push(<tr key={`frag_tr_${team}_${i}`} className={bgColor}>
             <td className="text-left"><CountryFlag key={`frag_country__${team}_${i}`} country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
             <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime - matchStart} /></td>
-        
-            {(typeStats['suicides']) ? <td>{Functions.ignore0(p.suicides)}</td> : null}
-            {(typeStats['team_kills']) ? <td>{Functions.ignore0(p.team_kills)}</td> : null}
-            {(typeStats['spawn_kills']) ? <td>{Functions.ignore0(p.spawnKills)}</td> : null}
-            {(typeStats['headshots']) ? <td>{Functions.ignore0(p.headshots)}</td> : null}
+            {(toDisplay.indexOf('suicides') !== -1) ? <td>{Functions.ignore0(p.suicides)}</td> : null}
+            {(toDisplay.indexOf('team_kills') !== -1) ? <td>{Functions.ignore0(p.team_kills)}</td> : null}
+            {(toDisplay.indexOf('spawn_kills') !== -1) ? <td>{Functions.ignore0(p.spawn_kills)}</td> : null}
+            {(toDisplay.indexOf('headshots') !== -1) ? <td>{Functions.ignore0(p.headshots)}</td> : null}
             <td>{Functions.ignore0(p.deaths)}</td>
             <td>{Functions.ignore0(p.kills)}</td>
             <td>{p.efficiency.toFixed(2)}%</td>
@@ -111,10 +78,10 @@ const MatchFragTable = ({players, team, matchStart}) =>{
         <td className="text-left">Totals</td>
         <td><MMSS key={`frag_country__${team}_total`} timestamp={totalPlaytime} /></td>
   
-        {(typeStats['suicides']) ? <td>{Functions.ignore0(totalSuicides)}</td> : null}
-        {(typeStats['team_kills']) ? <td>{Functions.ignore0(totalTeamKills)}</td> : null}
-        {(typeStats['spawn_kills']) ? <td>{Functions.ignore0(totalSpawnKills)}</td> : null}
-        {(typeStats['headshots']) ? <td>{Functions.ignore0(totalHeadshots)}</td> : null}
+        {(toDisplay.indexOf('suicides') !== -1) ? <td>{Functions.ignore0(totalSuicides)}</td> : null}
+        {(toDisplay.indexOf('team_kills') !== -1) ? <td>{Functions.ignore0(totalTeamKills)}</td> : null}
+        {(toDisplay.indexOf('spawn_kills') !== -1) ? <td>{Functions.ignore0(totalSpawnKills)}</td> : null}
+        {(toDisplay.indexOf('headshots') !== -1) ? <td>{Functions.ignore0(totalHeadshots)}</td> : null}
         <td>{Functions.ignore0(totalDeaths)}</td>
         <td>{Functions.ignore0(totalKills)}</td>
         <td>{totalEff.toFixed(2)}%</td>
@@ -128,10 +95,10 @@ const MatchFragTable = ({players, team, matchStart}) =>{
             <tr className={bgColor}>
                 <th>Player</th>
                 <th>Playtime</th>
-                {(typeStats['suicides']) ? <th>Suicides</th> : null}
-                {(typeStats['team_kills']) ? <th>Team Kills</th> : null}
-                {(typeStats['spawn_kills']) ? <th>Spawn Kills</th> : null}
-                {(typeStats['headshots']) ? <th>Headshots</th> : null}
+                {(toDisplay.indexOf('suicides') !== -1) ? <th>Suicides</th> : null}
+                {(toDisplay.indexOf('team_kills') !== -1) ? <th>Team Kills</th> : null}
+                {(toDisplay.indexOf('spawn_kills') !== -1) ? <th>Spawn Kills</th> : null}
+                {(toDisplay.indexOf('headshots') !== -1) ? <th>Headshots</th> : null}
                 <th>Deaths</th>
                 <th>Kills</th>
                 <th>Efficiency</th>
