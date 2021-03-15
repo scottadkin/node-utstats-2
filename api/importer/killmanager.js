@@ -235,6 +235,8 @@ class KillManager{
 
                 let h = 0;
                 let currentKillInformation = 0;
+                let currentKiller = 0;
+                let currentVictim = 0;
 
 
                 for(let i = 0; i < this.headshots.length; i++){
@@ -242,7 +244,12 @@ class KillManager{
                     h = this.headshots[i];
 
                     currentKillInformation = this.getMatchingKill(h.timestamp, h.killer, h.victim);
-                    await this.headshotsManager.insert(matchId, h.timestamp, h.killer, h.victim, currentKillInformation.killDistance);
+
+                    currentKiller = this.playerManager.getOriginalConnectionById(h.killer);
+                    currentVictim = this.playerManager.getOriginalConnectionById(h.victim);
+
+
+                    await this.headshotsManager.insert(matchId, h.timestamp, currentKiller.masterId, currentVictim.masterId, currentKillInformation.killDistance);
                 }
 
                 new Message(`Imported ${this.headshots.length} headshot data.`, 'pass');

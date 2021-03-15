@@ -21,6 +21,26 @@ class Headshots{
             });
         });
     }
+
+
+    getMatchData(match){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT timestamp,killer,victim,distance FROM nstats_headshots WHERE match_id=?";
+
+            mysql.query(query, [match], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

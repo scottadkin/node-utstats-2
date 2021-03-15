@@ -31,6 +31,7 @@ import Kills from '../../api/kills';
 import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import Functions from '../../api/functions';
 import Pings from '../../api/pings';
+import Headshots from '../../api/headshots';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -95,9 +96,10 @@ function getItemsIds(items){
 
 class PlayerFragsGraphData{
 
-    constructor(kills, playerNames, totalTeams){
+    constructor(kills, headshots, playerNames, totalTeams){
 
         this.kills = kills;
+        this.headshots = headshots;
         this.playerNames = playerNames;
         this.totalTeams = totalTeams;
 
@@ -117,7 +119,7 @@ class PlayerFragsGraphData{
             current = this.data.get(parseInt(key));
 
             if(current === undefined){
-                this.data.set(parseInt(key), {"kills": [0], "deaths": [0], "suicides": [0], "teamKills": [0]})
+                this.data.set(parseInt(key), {"kills": [0], "deaths": [0], "suicides": [0], "teamKills": [0], "headshots": [0]})
             }
         }
 
@@ -134,7 +136,8 @@ class PlayerFragsGraphData{
                     "kills": [0], 
                     "deaths": [0], 
                     "suicides": [0], 
-                    "teamKills": [0]
+                    "teamKills": [0],
+                    "headshots": [0]
                 });
             }
         }
@@ -149,7 +152,7 @@ class PlayerFragsGraphData{
             if(key !== ignore){
 
                 value[type].push(value[type][value[type].length - 1]);
-                this.data.set(key, {"kills": value.kills, "deaths": value.deaths, "suicides": value.suicides, "teamKills": value.teamKills});
+                this.data.set(key, {"kills": value.kills, "deaths": value.deaths, "suicides": value.suicides, "teamKills": value.teamKills, "headshots": value.headshots});
             }
         }
     }
@@ -198,7 +201,8 @@ class PlayerFragsGraphData{
                     "kills": currentKiller.kills,
                     "deaths": currentKiller.deaths,
                     "suicides": currentKiller.suicides,
-                    "teamKills": currentKiller.teamKills
+                    "teamKills": currentKiller.teamKills,
+                    "headshots": currentKiller.headshots
                 });
 
                 this.updateOthers(k.killer, 'suicides');
@@ -267,14 +271,16 @@ class PlayerFragsGraphData{
                     "kills": currentKiller.kills,
                     "deaths": currentKiller.deaths,
                     "suicides": currentKiller.suicides,
-                    "teamKills": currentKiller.teamKills
+                    "teamKills": currentKiller.teamKills,
+                    "headshots": currentKiller.headshots
                 });
 
                 this.data.set(k.victim,{
                     "kills": currentVictim.kills,
                     "deaths": currentVictim.deaths,
                     "suicides": currentVictim.suicides,
-                    "teamKills": currentVictim.teamKills
+                    "teamKills": currentVictim.teamKills,
+                    "headshots": currentVictim.headshots
                 });
 
                 this.updateOthers(k.killer, 'kills');
@@ -287,6 +293,34 @@ class PlayerFragsGraphData{
                 }
 
             }    
+        }
+
+
+        let h = 0;
+
+        for(let i = 0; i < this.headshots.length; i++){
+
+            h = this.headshots[i];
+
+
+            currentKiller = this.data.get(h.killer);
+
+            if(currentKiller !== undefined){
+
+                currentKiller.headshots.push(
+                    currentKiller.headshots[currentKiller.headshots.length - 1] + 1
+                );
+
+                this.data.set(h.killer, {
+                    "kills": currentKiller.kills,
+                    "deaths": currentKiller.deaths,
+                    "suicides": currentKiller.suicides,
+                    "teamKills": currentKiller.teamKills,
+                    "headshots": currentKiller.headshots
+                });
+
+                this.updateOthers(h.killer, 'headshots');
+            }
         }
     }
 
@@ -1162,7 +1196,7 @@ class PlayerGraphPingData{
 }
 
 function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
-    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData}){
+    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData}){
 
     const parsedInfo = JSON.parse(info);
 
@@ -1319,11 +1353,11 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}/>
     );
 
-    const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), justPlayerNames, parsedInfo.total_teams);
+    const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
 
-    const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills')];
+    const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
 
-    elems.push(<Graph title={["Player Kills", "Player Deaths", "Player Suicides", "Player Team Kills"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
+    elems.push(<Graph title={["Player Kills", "Player Deaths", "Player Suicides", "Player Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
 
     if(parsedInfo.total_teams > 0){
 
@@ -1561,6 +1595,11 @@ export async function getServerSideProps({query}){
     const pingData = await pingManager.getMatchData(matchId);
 
 
+    const headshotsManager = new Headshots();
+
+    const headshotData = await headshotsManager.getMatchData(matchId);
+
+
     return {
         props: {
             "info": JSON.stringify(matchInfo),
@@ -1583,7 +1622,8 @@ export async function getServerSideProps({query}){
             "faces": JSON.stringify(pFaces),
             "killsData": JSON.stringify(killsData),
             "scoreHistory": JSON.stringify(scoreHistory),
-            "pingData": JSON.stringify(pingData)
+            "pingData": JSON.stringify(pingData),
+            "headshotData": JSON.stringify(headshotData)
         }
     };
 
