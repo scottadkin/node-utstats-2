@@ -93,7 +93,6 @@ class KillManager{
             }
         }
 
-        console.log(this.headshots);
     }
 
 

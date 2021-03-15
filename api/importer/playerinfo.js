@@ -32,6 +32,7 @@ class PlayerInfo{
             "suicides":0,
             "teamkills": 0,
             "firstBlood": 0,
+            "headshots": 0,
             "sprees": {
                 "spree": 0,
                 "rampage": 0,

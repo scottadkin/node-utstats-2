@@ -65,6 +65,7 @@ class MatchManager{
             this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
 
             this.playerManager.setKills(this.killManager.kills);
+            this.playerManager.setHeadshots(this.killManager.headshots);
 
             this.match = new Match();
             this.matches = new Matches();

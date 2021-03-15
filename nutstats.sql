@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 15, 2021 at 06:43 PM
+-- Generation Time: Mar 15, 2021 at 06:54 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -495,7 +495,8 @@ CREATE TABLE `nstats_player_matches` (
   `longest_kill_distance` float NOT NULL,
   `k_distance_normal` int(11) NOT NULL,
   `k_distance_long` int(11) NOT NULL,
-  `k_distance_uber` int(11) NOT NULL
+  `k_distance_uber` int(11) NOT NULL,
+  `headshots` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -563,7 +564,8 @@ CREATE TABLE `nstats_player_totals` (
   `accuracy` float NOT NULL,
   `k_distance_normal` int(11) NOT NULL,
   `k_distance_long` int(11) NOT NULL,
-  `k_distance_uber` int(11) NOT NULL
+  `k_distance_uber` int(11) NOT NULL,
+  `headshots` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

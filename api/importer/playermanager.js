@@ -446,6 +446,28 @@ class PlayerManager{
         //this.debugDisplayPlayerStats();
     }
 
+    setHeadshots(data){
+
+        let killer = 0;
+
+        let d = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            killer = this.getPlayerById(d.killer);
+
+            if(killer !== null){
+
+                killer.stats.headshots++;
+
+            }else{
+                new Message(`PlayerManager.setHeadshots() killer is null`,'warning');
+            }
+        }
+        
+    }
 
     setIp(string){    
 
@@ -575,7 +597,8 @@ class PlayerManager{
             'deaths',
             'suicides',
             'teamkills',
-            'time_on_server'
+            'time_on_server',
+            'headshots'
         ];
 
         for(const c in master.stats){
@@ -816,6 +839,7 @@ class PlayerManager{
                         p.stats.killsNormalRange,
                         p.stats.killsLongRange,
                         p.stats.killsUberRange,
+                        p.stats.headshots,
                         0
                     );
 
@@ -843,6 +867,7 @@ class PlayerManager{
                         p.stats.killsNormalRange,
                         p.stats.killsLongRange,
                         p.stats.killsUberRange,
+                        p.stats.headshots,
                         gametypeId
                     );
                 }
