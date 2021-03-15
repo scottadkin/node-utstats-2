@@ -7,13 +7,13 @@ class Headshots{
 
     }
 
-    insert(match, timestamp, killer, victim, distance){
+    insert(match, timestamp, killer, victim, distance, killerTeam, victimTeam){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_headshots VALUES(NULL,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_headshots VALUES(NULL,?,?,?,?,?,?,?)";
 
-            mysql.query(query, [match, timestamp, killer, victim, distance], (err) =>{
+            mysql.query(query, [match, timestamp, killer, victim, distance, killerTeam, victimTeam], (err) =>{
 
                 if(err) reject(err);
 
