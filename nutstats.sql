@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 15, 2021 at 06:39 PM
+-- Generation Time: Mar 15, 2021 at 06:43 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -206,7 +206,8 @@ CREATE TABLE `nstats_headshots` (
   `match_id` int(11) NOT NULL,
   `timestamp` float NOT NULL,
   `killer` int(11) NOT NULL,
-  `victim` int(11) NOT NULL
+  `victim` int(11) NOT NULL,
+  `distance` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

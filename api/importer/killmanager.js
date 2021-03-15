@@ -235,12 +235,15 @@ class KillManager{
             if(this.headshots.length > 0){
 
                 let h = 0;
+                let currentKillInformation = 0;
+
 
                 for(let i = 0; i < this.headshots.length; i++){
 
                     h = this.headshots[i];
 
-                    await this.headshotsManager.insert(matchId, h.timestamp, h.killer, h.victim);
+                    currentKillInformation = this.getMatchingKill(h.timestamp, h.killer, h.victim);
+                    await this.headshotsManager.insert(matchId, h.timestamp, h.killer, h.victim, currentKillInformation.killDistance);
                 }
 
                 new Message(`Imported ${this.headshots.length} headshot data.`, 'pass');
