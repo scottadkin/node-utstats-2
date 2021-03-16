@@ -30,12 +30,19 @@ class Players extends React.Component{
         this.handleDisplayTypeChange = this.handleDisplayTypeChange.bind(this);
         this.selectDisplay1 = this.selectDisplay1.bind(this);
         this.selectDisplay2 = this.selectDisplay2.bind(this);
+
+        this.changeSortAlt = this.changeSortAlt.bind(this);
     }
 
     handleSortChange(event){
 
         //event.preventDefault;
         this.setState({"value": event.target.value});
+    }
+
+    changeSortAlt(value){
+
+        this.setState({"value": value});
     }
 
     handleOrderChange(event){
@@ -91,7 +98,7 @@ class Players extends React.Component{
         if(parsedPlayers.length > 0){
 
             pList = <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records} displayType={this.state.displayType}
-                        searchTerms={JSON.stringify(this.state)}/>
+                        searchTerms={JSON.stringify(this.state)} changeSort={this.changeSortAlt}/>
             paginationElem = <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>;
         }else{
 

@@ -25,7 +25,6 @@ function createOrderLink(terms, type, value){
         currentNameString = `&name=${currentName}`;
     }
 
-
     return `${urlStart}sortType=${type}${currentNameString}&order=${currentOrderType}&displayType=${terms.displayType}&perPage=${terms.perPage}`;
 }
 
@@ -38,10 +37,12 @@ class PlayersList extends React.Component{
         this.state = {"order": "ASC"};
 
         this.changeOrder = this.changeOrder.bind(this);
+       // this.changeSort = this.props.changeSort.bind(this);
     }
 
-    changeOrder(){
+    changeOrder(type){
 
+        this.props.changeSort(type);
 
         if(this.state.order === "ASC"){
             this.setState({"order": "DESC"});
@@ -74,16 +75,36 @@ class PlayersList extends React.Component{
 
             if(displayType === 1 && i === 0){
                 elems.push(<tr key={-1}>
-                    <th><Link href={createOrderLink(searchTerms, "name", this.state.order)}><a onClick={this.changeOrder}>Name</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "first", this.state.order)}><a onClick={this.changeOrder}>First</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "last", this.state.order)}><a onClick={this.changeOrder}>Last</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "score", this.state.order)}><a onClick={this.changeOrder}>Score</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "kills", this.state.order)}><a onClick={this.changeOrder}>Kills</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "deaths", this.state.order)}><a onClick={this.changeOrder}>Deaths</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "efficiency", this.state.order)}><a onClick={this.changeOrder}>Efficiency</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "accuracy", this.state.order)}><a onClick={this.changeOrder}>Accuracy</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "playtime", this.state.order)}><a onClick={this.changeOrder}>Playtime (Hours)</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "matches", this.state.order)}><a onClick={this.changeOrder}>Matches</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "name", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("name");
+                    })}>Name</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "first", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("first");
+                    })}>First</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "last", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("last");
+                    })}>Last</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "score", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("score");
+                    })}>Score</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "kills", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("kills");
+                    })}>Kills</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "deaths", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("deaths");
+                    })}>Deaths</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "efficiency", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("efficiency");
+                    })}>Efficiency</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "accuracy", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("accuracy");
+                    })}>Accuracy</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "playtime", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("playtime");
+                    })}>Playtime (Hours)</a></Link></th>
+                    <th><Link href={createOrderLink(searchTerms, "matches", this.state.order)}><a onClick={(() =>{
+                        this.changeOrder("matches");
+                    })}>Matches</a></Link></th>
                 </tr>);
             }
 
