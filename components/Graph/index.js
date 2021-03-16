@@ -20,6 +20,7 @@ class GraphCanvas{
         this.bMultiTab = false;
         this.totalTabs = 0;
         this.tabHeight = 8;
+        this.heightOffset = 0;
 
         this.data = JSON.parse(data);
 
@@ -129,8 +130,33 @@ class GraphCanvas{
 
             //console.log(this.mouse);
 
-            
-            this.hoverTab();
+            if(this.mouse.y >= this.keyStartY){
+                //this.canvas.style.cssText = "cursor:default;";
+                this.hoverKeys();
+
+            }else if(this.mouse.y >= this.graphStartY && this.mouse.y < this.graphStartY + this.graphHeight
+                && this.mouse.x >= this.graphStartX && this.mouse.x < this.graphStartX + this.graphWidth
+                ){
+                
+               
+                this.canvas.style.cssText = "cursor:cell;";
+                
+                
+            }else{
+
+                if(this.bFullScreen){
+                    this.canvas.style.cssText = "cursor:default;";
+                }else{
+                    this.canvas.style.cssText = "cursor:zoom-in;";
+                }
+            }
+
+            if(this.bMultiTab && this.totalTabs > 1){
+
+                if(this.mouse.y <= this.tabHeight){
+                    this.hoverTab();
+                }
+            }
 
             this.render();
             
@@ -146,6 +172,7 @@ class GraphCanvas{
                         console.log(err);
                     });
 
+                    this.render();
                     return;
                 }
 
@@ -157,6 +184,7 @@ class GraphCanvas{
                     });
                     
                 }else{
+                    
                     
                     this.changeTab();
                     //this.render();
@@ -199,18 +227,53 @@ class GraphCanvas{
         }
     }
 
+    hoverKeys(){
+
+
+        let k = 0;
+        let heightOffset = 0;
+
+
+        let y = 0;
+
+        if(this.bFullScreen){
+            heightOffset = this.toPercent(window.innerHeight - this.canvas.height, false);
+            y = this.mouse.y - heightOffset;   
+        }else{
+            y = this.mouse.y;
+        }
+
+        for(let i = 0; i < this.keyCoordinates.length; i++){
+
+            k = this.keyCoordinates[i];
+
+            
+            if(this.mouse.x >= k.x && this.mouse.x < k.x + k.width){
+                if(y >= k.y && y < k.y + k.height){
+                    this.canvas.style.cssText = "cursor:pointer;";
+                    return;
+                }
+            }
+        }
+
+        this.canvas.style.cssText = "cursor:default;";
+
+    }
+
     keyEvents(){
 
         let k = 0;
 
         let heightOffset = 0;
+        let y = 0;
 
         if(this.bFullScreen){
             heightOffset = this.toPercent(window.innerHeight - this.canvas.height, false);
-            this.mouse.y -= heightOffset;
+            y = this.mouse.y - heightOffset;    
+        }else{
+            y = this.mouse.y;
         }
         
-
         let bChangedValue = false;
 
         for(let i = 0; i < this.keyCoordinates.length; i++){
@@ -219,7 +282,7 @@ class GraphCanvas{
 
             if(this.mouse.x >= k.x && this.mouse.x < k.x + k.width){
 
-                if(this.mouse.y >= k.y && this.mouse.y < k.y + k.height){
+                if(y >= k.y && y < k.y + k.height){
 
                     this.hideKeys[this.currentTab][i] = !this.hideKeys[this.currentTab][i];
                     //alert(`ok ${i} ${this.bFullScreen}`);
@@ -233,14 +296,8 @@ class GraphCanvas{
     }
 
     hoverTab(){
-
-        if(this.mouse.y > this.tabHeight){
-            this.canvas.style.cssText = `cursor:cusor;`;
-            return;
-        }
-  
+        
         const tabWidth = 100 / this.totalTabs;
-
 
         let currentTab = 0;
 
@@ -257,7 +314,7 @@ class GraphCanvas{
             currentTab++;
         }
 
-        this.canvas.style.cssText = `cursor:cusor;`;
+        this.canvas.style.cssText = `cursor:pointer;`;
     }
 
     changeTab(){
@@ -565,7 +622,7 @@ class GraphCanvas{
         let fontSize = this.scaleY(3.4);
 
         if(this.bFullScreen){
-            blockSizePercent = 3;
+            //blockSizePercent = 3;
             blockSize = this.scaleY(blockSizePercent);
             fontSize = this.scaleY(2.9);
         }
@@ -608,8 +665,8 @@ class GraphCanvas{
 
             if(i % 8 === 0) offsetX = 0;
             if(i === 8) startY += keyRowHeight; 
-            currentX = startX + offsetX + (blockSize * (i % 8));
 
+            currentX = startX + offsetX + (blockSize * (i % 8));
 
             this.keyCoordinates.push({
                 "x": this.toPercent(currentX, true),
@@ -617,6 +674,7 @@ class GraphCanvas{
                 "width": blockSizePercent,
                 "height": blockSizePercent
             });
+
       
             c.fillRect(currentX, startY, blockSize, blockSize);
             
