@@ -26,19 +26,65 @@ class MatchWeaponSummary extends React.Component{
         this.createTabs();
     }
 
-    createTabs(){
+    checkWeaponsData(){
 
-        //console.table(this.props.data);
+        const found = [];
+
+        let d = 0;
+        let p = 0;
+
+        for(let i = 0; i < this.props.data.names.length; i++){
+
+            d = this.props.data.names[i];
+
+            console.log(d);
+
+            for(let x = 0; x < this.props.data.playerData.length; x++){
+
+                p = this.props.data.playerData[x];
+
+                if(p.kills !== 0 || p.deaths !== 0 || p.accuracy != 0 || p.shots !== 0 || p.hits !== 0 || p.damage !== 0){
+
+                    if(found.indexOf(p.weapon_id) === -1){
+                        found.push(p.weapon_id);
+                    }
+                }
+            }
+        }
+
+        return found;
+
+    }
+
+    getWeaponName(id){
+
+
+        let d = 0;
+
+        for(let i = 0; i < this.props.data.names.length; i++){
+
+            d = this.props.data.names[i];
+
+            if(d.id === id){
+                return d.name;
+            }
+        }
+
+        return 'Not Found';
+    }
+
+    createTabs(){
 
         const tabs = [];
         let weapon = 0;
 
-        for(let i = 0; i < this.props.data.names.length; i++){
+        const found = this.checkWeaponsData();
 
-            weapon = this.props.data.names[i];
-            tabs.push({"name": weapon.name, "id": weapon.id});
+        for(let i = 0; i < found.length; i++){
 
+            tabs.push({"name": this.getWeaponName(found[i]), "id": found[i]});
         }
+        
 
         this.setState({"tabs": tabs, "selected": 0});
     
@@ -75,6 +121,7 @@ class MatchWeaponSummary extends React.Component{
     }
 
 
+    //any data for current player
     bAnyData(data){
 
         const types = ["kills","deaths","accuracy","shots","hits","damage"];

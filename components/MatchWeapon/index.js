@@ -2,22 +2,7 @@ import styles from './MatchWeapon.module.css';
 import CleanDamage from '../CleanDamage/';
 import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/';
-
-const getBGColor = (bTeamGame, team) =>{
-
-    if(!bTeamGame) return 'team-none';
-
-    let color = 'team-none';
-
-    switch(team){
-        case 0: { color = 'team-red'; } break;
-        case 1: { color = 'team-blue'; } break;
-        case 2: { color = 'team-green'; } break;
-        case 3: { color = 'team-yellow'; } break;
-    }
-
-    return color;
-}
+import Functions from '../../api/functions';
 
 const MatchWeapon = ({name, data, bTeamGame}) =>{
 
@@ -57,7 +42,7 @@ const MatchWeapon = ({name, data, bTeamGame}) =>{
 
         currentEff *= 100;
         elems.push(
-            <tr key={`tr_${data[i].playerTeam}_${i}`} className={getBGColor(bTeamGame, data[i].playerTeam)}>
+            <tr key={`tr_${data[i].playerTeam}_${i}`} className={Functions.getTeamColor(bTeamGame, data[i].playerTeam)}>
                 <td><CountryFlag key={`weapon_flag_${data[i].playerTeam}_${i}`} country={data[i].playerCountry} /><a href={`/player/${data[i].player_id}`}>{data[i].playerName}</a></td>
                 <td><CleanDamage key={`weapon_damage_${data[i].playerTeam}_${i}`} damage={data[i].damage} /></td>
                 <td>{(data[i].deaths > 0) ? data[i].deaths : ''}</td>
