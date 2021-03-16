@@ -128,7 +128,9 @@ class GraphCanvas{
             this.mouse.y = this.toPercent(e.offsetY, false);
 
             //console.log(this.mouse);
+
             
+            this.hoverTab();
 
             this.render();
             
@@ -230,6 +232,34 @@ class GraphCanvas{
         return bChangedValue;
     }
 
+    hoverTab(){
+
+        if(this.mouse.y > this.tabHeight){
+            this.canvas.style.cssText = `cursor:cusor;`;
+            return;
+        }
+  
+        const tabWidth = 100 / this.totalTabs;
+
+
+        let currentTab = 0;
+
+        for(let i = 0; i < 100; i += tabWidth){
+
+            if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
+        
+                if(this.data[currentTab][0].data.length < 2){
+                    this.canvas.style.cssText = `cursor:no-drop;`;
+                    return;
+                }       
+
+            }
+            currentTab++;
+        }
+
+        this.canvas.style.cssText = `cursor:cusor;`;
+    }
+
     changeTab(){
 
 
@@ -249,6 +279,13 @@ class GraphCanvas{
         for(let i = 0; i < 100; i += tabWidth){
 
             if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
+
+                
+                //we don't want to swap to tabs that have no data
+                if(this.data[currentTab][0].data.length < 2){
+                    return;
+                }
+                
                 this.currentTab = currentTab;
                 this.setMaxStringLengths();
                 this.calcMinMax();
@@ -883,6 +920,17 @@ class GraphCanvas{
             }
 
             c.fillText(this.title[i], x + (tabSize * 0.5), y + this.scaleY(2.25));
+            
+            
+            if(this.bMultiTab){
+
+                c.fillStyle = "rgba(100,0,0,0.45)";
+
+                if(this.data[i][0].data.length < 2){
+                    c.fillRect(x, y, tabSize, height);
+                }
+            }
+            
         }
 
         c.textAlign = "left";

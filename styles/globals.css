@@ -425,3 +425,7 @@ input[type="range"]{
 .tab-selected:hover{
 	background-color:rgb(128,0,0);
 }
+
+.no-drop{
+	cursor:no-drop;
+}
