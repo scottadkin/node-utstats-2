@@ -37,8 +37,6 @@ class MatchWeaponSummary extends React.Component{
 
             d = this.props.data.names[i];
 
-            console.log(d);
-
             for(let x = 0; x < this.props.data.playerData.length; x++){
 
                 p = this.props.data.playerData[x];
