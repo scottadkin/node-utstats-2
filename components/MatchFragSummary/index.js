@@ -116,6 +116,35 @@ class MatchFragSummary extends React.Component{
         return {"default": toDisplay, "distances": toDisplayDistances};
     }
 
+    bAnyDistanceData(){
+
+
+        const types = [
+            "shortest_kill_distance", 
+            "average_kill_distance", 
+            "longest_kill_distance",
+            "k_distance_normal",
+            "k_distance_long",
+            "k_distance_uber"
+        ];
+
+        let p = 0;
+
+        for(let i = 0; i < this.props.playerData.length; i++){
+
+            p = this.props.playerData[i];
+
+            for(let x = 0; x < types.length; x++){
+
+                if(p[types[x]] !== 0){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     render(){
 
         let elems = [];
@@ -151,10 +180,15 @@ class MatchFragSummary extends React.Component{
 
         return <div>
             <div className="default-header">Frag Summary</div>
-            <div className="tabs">
-                <div onClick={() => this.changeMode(0)} className={`tab ${this.displaySelected(0)}`}>General Data</div>
-                <div onClick={() => this.changeMode(1)} className={`tab ${this.displaySelected(1)}`}>Kill Distances</div>
-            </div>
+            {
+            (this.bAnyDistanceData()) ?
+                <div className="tabs">
+                    <div onClick={() => this.changeMode(0)} className={`tab ${this.displaySelected(0)}`}>General Data</div>
+                    <div onClick={() => this.changeMode(1)} className={`tab ${this.displaySelected(1)}`}>Kill Distances</div>
+                </div>
+                :
+                null
+            }
             {teamData}
         </div>
     }

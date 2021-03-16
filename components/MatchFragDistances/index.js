@@ -51,9 +51,9 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
 
         elems.push(<tr className={bgColor}>
             <td className="text-left"><Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
-            <td>{Functions.ignore0(p.shortest_kill_distance)}</td>
-            <td>{Functions.ignore0(p.average_kill_distance)}</td>
-            <td>{Functions.ignore0(p.longest_kill_distance)}</td>
+            <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
+            <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>
+            <td>{Functions.ignore0(p.longest_kill_distance.toFixed(2))}</td>
             {(toDisplay.indexOf("k_distance_normal") !== -1) ?  <td>{Functions.ignore0(p.k_distance_normal)}</td> : null }
             {(toDisplay.indexOf("k_distance_long") !== -1) ?  <td>{Functions.ignore0(p.k_distance_long)}</td> : null }
             {(toDisplay.indexOf("k_distance_uber") !== -1) ?  <td>{Functions.ignore0(p.k_distance_uber)}</td> : null }
@@ -70,9 +70,9 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
     if(elems.length > 0){
         elems.push(<tr>
             <td className="text-left"></td>
-            <td>{Functions.ignore0(shortestKillTotal)}</td>
-            <td>{Functions.ignore0(totalAverage)}</td>
-            <td>{Functions.ignore0(longestKillTotal)}</td>
+            <td>{parseFloat(Functions.ignore0(shortestKillTotal)).toFixed(2)}</td>
+            <td>{parseFloat(Functions.ignore0(totalAverage)).toFixed(2)}</td>
+            <td>{parseFloat(Functions.ignore0(longestKillTotal)).toFixed(2)}</td>
             {(toDisplay.indexOf("k_distance_normal") !== -1) ? <td>{Functions.ignore0(totalCloseRange)}</td> : null}
             {(toDisplay.indexOf("k_distance_long") !== -1) ?  <td>{Functions.ignore0(totalLongRange)}</td> : null}
             {(toDisplay.indexOf("k_distance_uber") !== -1) ? <td>{Functions.ignore0(totalUberRange)}</td> : null}

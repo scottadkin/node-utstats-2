@@ -205,7 +205,7 @@ class Functions{
 
     static ignore0(input){
 
-        if(input !== 0){
+        if(input != 0){
             return input;
         }
 
