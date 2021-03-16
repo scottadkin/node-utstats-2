@@ -205,8 +205,28 @@ class MatchSpecialEvents extends React.Component{
     }
 
 
-    createSpreeElems(){
+    bAnyTypeData(type){
 
+
+        let p = 0;
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            p = this.props.players[i];
+
+            for(let x = 1; x <= 7; x++){
+
+                if(p[`${type}_${x}`] !== 0){
+                    return true;
+                }
+            }
+
+        }
+
+        return false;
+    }
+
+    createSpreeElems(){
 
         const elems = [];
 
@@ -397,20 +417,25 @@ class MatchSpecialEvents extends React.Component{
 
             <div className="default-header">Special Events</div>
 
-            <div className={styles.bwrapper}>
-                <div className={`${styles.button} ${(this.state.mode === 0) ? styles.active : '' }`} onClick={(() =>{
-                    this.changeMode(0)
-                })}>Classic</div>
-                <div className={`${styles.button} ${(this.state.mode === 1) ? styles.active : '' }`} onClick={(() =>{
-                    this.changeMode(1)
-                })}>SmartCTF/DM</div>
-                <div className={`${styles.button} ${(this.state.mode === 2) ? styles.active : '' }`} onClick={(() =>{
-                    this.changeMode(2)
-                })}>UT2K4</div>
-                <div className={`${styles.button} ${(this.state.mode === 3) ? styles.active : '' }`} onClick={(() =>{
-                    this.changeMode(3)
-                })}>UT3</div>
-            </div>
+            {
+                (this.bAnyTypeData('spree') || this.bAnyTypeData('multi')) ?
+                <div className={styles.bwrapper}>
+                    <div className={`${styles.button} ${(this.state.mode === 0) ? styles.active : '' }`} onClick={(() =>{
+                        this.changeMode(0)
+                    })}>Classic</div>
+                    <div className={`${styles.button} ${(this.state.mode === 1) ? styles.active : '' }`} onClick={(() =>{
+                        this.changeMode(1)
+                    })}>SmartCTF/DM</div>
+                    <div className={`${styles.button} ${(this.state.mode === 2) ? styles.active : '' }`} onClick={(() =>{
+                        this.changeMode(2)
+                    })}>UT2K4</div>
+                    <div className={`${styles.button} ${(this.state.mode === 3) ? styles.active : '' }`} onClick={(() =>{
+                        this.changeMode(3)
+                    })}>UT3</div>
+                </div>
+                :
+                null
+            }
 
             {multiElems}
 
