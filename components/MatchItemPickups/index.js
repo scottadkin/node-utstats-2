@@ -9,7 +9,7 @@ class MatchItemPickups extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"catSelected": 1,"selected": this.getFirstTypeIndex(1)};
+        this.state = {"catSelected": 0,"selected": this.getFirstTypeIndex(0)};
 
         this.changeTab = this.changeTab.bind(this);
         this.changeCatTab = this.changeCatTab.bind(this);
@@ -41,6 +41,20 @@ class MatchItemPickups extends React.Component{
         return -1;
     }
 
+    bAnyCatData(id){
+
+        let n = 0;
+
+        for(let i = 0; i < this.props.names.length; i++){
+
+            n = this.props.names[i];
+
+            if(n.type === id) return true;
+        }
+
+        return false;
+    }
+
     createCategoryTabs(){
 
         const elems = [];
@@ -51,6 +65,7 @@ class MatchItemPickups extends React.Component{
 
         for(let i = 0; i < types.length; i++){
 
+            if(!this.bAnyCatData(i)) continue;
             style = styles.tab2;
 
             if(this.state.catSelected === i){
