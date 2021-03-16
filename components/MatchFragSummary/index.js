@@ -47,6 +47,8 @@ class MatchFragSummary extends React.Component{
     typesToDisplay(){
 
         const toDisplay = [];
+        const toDisplayDistances = [];
+        
 
         const typesTeams = {
             "suicides": [],
@@ -57,7 +59,11 @@ class MatchFragSummary extends React.Component{
             "kills": [],
             "frags":  [],
             "score":  [],
+            "k_distance_normal": [],
+            "k_distance_long": [],
+            "k_distance_uber": []
         };
+
 
         const types = [
             "suicides",
@@ -67,7 +73,10 @@ class MatchFragSummary extends React.Component{
             "deaths",
             "kills",
             "frags",
-            "score"
+            "score",
+            "k_distance_normal",
+            "k_distance_long",
+            "k_distance_uber"
         ];
 
 
@@ -86,15 +95,25 @@ class MatchFragSummary extends React.Component{
         }
 
         
+        let i = 0;
+
         for(const [key, value] of Object.entries(typesTeams)){
 
             if(value.length > 0){
-                toDisplay.push(key);
+
+                if(i < 7){
+                    toDisplay.push(key);
+                }else{
+                    toDisplayDistances.push(key);
+                }
+
+                i++;
             }
         }
 
 
-        return toDisplay;
+
+        return {"default": toDisplay, "distances": toDisplayDistances};
     }
 
     render(){
@@ -108,24 +127,24 @@ class MatchFragSummary extends React.Component{
         if(this.state.mode === 0){
 
             if(this.props.totalTeams < 2){
-                teamData.push(<MatchFragTable key={-1} players={this.getPlayersInTeam(-1)} toDisplay={toDisplay} team={-1} matchStart={this.props.matchStart}/>);
+                teamData.push(<MatchFragTable key={-1} players={this.getPlayersInTeam(-1)} toDisplay={toDisplay.default} team={-1} matchStart={this.props.matchStart}/>);
             }else{
 
                 for(let i = 0; i < this.props.totalTeams; i++){
                    // teamData.push(this.getPlayersInTeam(i));
-                   teamData.push(<MatchFragTable key={i} players={this.getPlayersInTeam(i)} toDisplay={toDisplay} team={i} matchStart={this.props.matchStart}/>);
+                   teamData.push(<MatchFragTable key={i} players={this.getPlayersInTeam(i)} toDisplay={toDisplay.default} team={i} matchStart={this.props.matchStart}/>);
                 }
             }
 
         }else if(this.state.mode === 1){
 
             if(this.props.totalTeams < 2){
-                teamData.push(<MatchFragDistances key={-1} players={this.getPlayersInTeam(-1)} team={-1} />);
+                teamData.push(<MatchFragDistances key={-1} toDisplay={toDisplay.distances} players={this.getPlayersInTeam(-1)} team={-1} />);
             }else{
 
                 for(let i = 0; i < this.props.totalTeams; i++){
                    // teamData.push(this.getPlayersInTeam(i));
-                   teamData.push(<MatchFragDistances key={i} players={this.getPlayersInTeam(i)} team={i} />);
+                   teamData.push(<MatchFragDistances key={i} toDisplay={toDisplay.distances} players={this.getPlayersInTeam(i)} team={i} />);
                 }
             }
         }

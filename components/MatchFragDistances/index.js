@@ -5,7 +5,7 @@ import TipHeader from '../TipHeader/';
 
 
 //parse kills here and the categorise the distancesesses
-const MatchFragDistances = ({players, team}) =>{
+const MatchFragDistances = ({players, team, toDisplay}) =>{
 
     const elems = [];
 
@@ -51,9 +51,9 @@ const MatchFragDistances = ({players, team}) =>{
             <td>{Functions.ignore0(p.shortest_kill_distance)}</td>
             <td>{Functions.ignore0(p.average_kill_distance)}</td>
             <td>{Functions.ignore0(p.longest_kill_distance)}</td>
-            <td>{Functions.ignore0(p.k_distance_normal)}</td>
-            <td>{Functions.ignore0(p.k_distance_long)}</td>
-            <td>{Functions.ignore0(p.k_distance_uber)}</td>
+            {(toDisplay.indexOf("k_distance_normal") !== -1) ?  <td>{Functions.ignore0(p.k_distance_normal)}</td> : null }
+            {(toDisplay.indexOf("k_distance_long") !== -1) ?  <td>{Functions.ignore0(p.k_distance_long)}</td> : null }
+            {(toDisplay.indexOf("k_distance_uber") !== -1) ?  <td>{Functions.ignore0(p.k_distance_uber)}</td> : null }
         </tr>);
 
         index++;
@@ -69,9 +69,9 @@ const MatchFragDistances = ({players, team}) =>{
         <td>{Functions.ignore0(shortestKillTotal).toFixed(2)}</td>
         <td>{Functions.ignore0(totalAverage).toFixed(2)}</td>
         <td>{Functions.ignore0(longestKillTotal).toFixed(2)}</td>
-        <td>{Functions.ignore0(totalCloseRange)}</td>
-        <td>{Functions.ignore0(totalLongRange)}</td>
-        <td>{Functions.ignore0(totalUberRange)}</td>
+        {(toDisplay.indexOf("k_distance_normal") !== -1) ? <td>{Functions.ignore0(totalCloseRange)}</td> : null}
+        {(toDisplay.indexOf("k_distance_long") !== -1) ?  <td>{Functions.ignore0(totalLongRange)}</td> : null}
+        {(toDisplay.indexOf("k_distance_uber") !== -1) ? <td>{Functions.ignore0(totalUberRange)}</td> : null}
     </tr>);
 
     if(elems.length > 0){
@@ -81,9 +81,9 @@ const MatchFragDistances = ({players, team}) =>{
             <th>Shortest Distance</th>
             <th>Average Distance</th>
             <th>Longest Distance</th>
-            <TipHeader title="Close Range Kills" content="Kills with a distance of less than 1536uu." />
-            <TipHeader title="Long Range Kills" content="Kills with a distance of 1536uu to 3071uu." />
-            <TipHeader title="Uber Long Range Kills" content="Kills with a distance of 3072 and greater." />
+            {(toDisplay.indexOf("k_distance_normal") !== -1) ? <TipHeader title="Close Range Kills" content="Kills with a distance of less than 1536uu." /> : null}
+            {(toDisplay.indexOf("k_distance_long") !== -1) ? <TipHeader title="Long Range Kills" content="Kills with a distance of 1536uu to 3071uu." /> : null}
+            {(toDisplay.indexOf("k_distance_uber") !== -1) ? <TipHeader title="Uber Long Range Kills" content="Kills with a distance of 3072 and greater." /> : null}
         </tr>);
 
         return <table className="m-bottom-25">
