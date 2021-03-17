@@ -1,15 +1,16 @@
 .outter{
     background-color:black;
     display:inline-block;
+    background:linear-gradient(to bottom right, rgb(0,0,0), rgb(12,12,12), rgb(0,0,0));
     border:1px solid rgba(255,255,255,0.25);
     width:275px;
     margin-left:-1px;
     margin-bottom:10px;
-    transition:background-color 0.5s;
 }
 
 .outter:hover{
     background-color:rgb(16,16,16);
+    background:linear-gradient(to bottom right, rgb(16,16,16), rgb(24,24,24), rgb(16,16,16));
 }
 
 .name{
@@ -73,11 +74,13 @@
     line-height:18px;
     font-size:12px;
     overflow:hidden;
+    background-color:rgba(12,12,12,0.75);
 }
 
 .bar{
     height:16px;
     border:1px solid rgba(255,255,255,0.1);
+    background-color:black;
 
     
 }
@@ -85,6 +88,7 @@
 .barinner{
     height:16px;
     background-color:rgb(100,0,0);
+    background:linear-gradient(to bottom, rgb(100,0,0), rgb(10,0,0));
 }
 
 .bname{
@@ -93,7 +97,7 @@
 
 .bvalue{
     position:absolute;
-    margin-top:-18px;
+    margin-top:-20px;
     width:70%;
     height:20px;
     margin-left:30%;
