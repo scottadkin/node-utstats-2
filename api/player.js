@@ -444,7 +444,7 @@ class Player{
 
             type = type.toLowerCase();
             //add winrate
-            const validTypes = ["playtime","score","frags","deaths","kills","matches","efficiency","winrate","accuracy"];
+            const validTypes = ["playtime","score","frags","deaths","kills","matches","efficiency","winrate","accuracy","wins"];
             
             let data = 0;
 

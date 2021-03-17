@@ -5,7 +5,21 @@ import TimeStamp from '../TimeStamp/';
 
 
 
-export default function PlayerListBox({
+const RecordBar = ({name, value, percent}) =>{
+
+    return <div className={styles.bwrapper}>
+        <div className={styles.lb}>
+            <div className={styles.bname}>{name}</div>
+            <div className={styles.bar}>
+                <div className={styles.barinner} style={{"width": `${percent}%`}}></div>
+            </div>
+        </div>
+        <div className={styles.bvalue}>{value}</div>
+    </div>
+}
+
+
+function PlayerListBox({
     playerId,
     name,
     country,
@@ -18,12 +32,10 @@ export default function PlayerListBox({
     face,
     first,
     last,
-    records,
-    accuracy
+    accuracy,
+    recordsPercent
 
 }){
-
-
 
     const countryData = Countries(country);
 
@@ -46,7 +58,7 @@ export default function PlayerListBox({
                     <div className={styles.name}>{name}</div>
                     <img className={styles.face} src={`/images/faces/${face}.png`} alt="face"/>
                     <div className={styles.country}>{countryData.country}<br/><img src={`/images/flags/${country}.svg`} alt="flag"/></div>
-                    
+                
                     <table>
                         <tbody>
                             <tr>
@@ -57,41 +69,21 @@ export default function PlayerListBox({
                                 <td>Last</td>
                                 <td><TimeStamp timestamp={last} noDayName={true} noTime={true}/></td>
                             </tr>
-                            <tr>
-                                <td>Matches</td>
-                                <td>{matches}</td>
-                            </tr>
-                            <tr>
-                                <td>Wins</td>
-                                <td>{wins}</td>
-                            </tr>
-                            <tr>
-                                <td>Score</td>
-                                <td>{score}</td>
-                            </tr>
-                            <tr>
-                                <td>Kills</td>
-                                <td>{kills}</td>
-                            </tr>
-                            <tr>
-                                <td>Deaths</td>
-                                <td>{deaths}</td>
-                            </tr>
-                            <tr>
-                                <td>Efficiency</td>
-                                <td>{efficiency}%</td>
-                            </tr>
-                            <tr>
-                                <td>Accuracy</td>
-                                <td>{accuracy}%</td>
-                            </tr>
-
-
                         </tbody>
                     </table>
+                    <RecordBar name={"Matches"} value={matches} percent={recordsPercent.matches}/>
+                    <RecordBar name={"Wins"} value={wins} percent={recordsPercent.wins}/>
+                    <RecordBar name={"Score"} value={score} percent={recordsPercent.score}/>
+                    <RecordBar name={"Kills"} value={kills} percent={recordsPercent.kills}/>
+                    <RecordBar name={"Deaths"} value={deaths} percent={recordsPercent.deaths}/>
+                    <RecordBar name={"Efficiency"} value={`${efficiency}%`} percent={recordsPercent.efficiency}/>
+                    <RecordBar name={"Accuracy"} value={`${accuracy}%`} percent={recordsPercent.accuracy}/>
                 
                 </div>
             </a>
         </Link>
     )
 }
+
+
+export default PlayerListBox;

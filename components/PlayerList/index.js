@@ -40,6 +40,29 @@ class PlayersList extends React.Component{
        // this.changeSort = this.props.changeSort.bind(this);
     }
 
+    getRecordPercent(type, value){
+
+        if(value === 0) return 0;
+
+        type = type.toLowerCase();
+
+        const records = JSON.parse(this.props.records);
+        
+
+        if(records[type] !== undefined){
+
+            if(records[type] === 0) return 100;
+       
+            let percent = 100 / records[type];
+      
+            if(type === 'accuracy') return (value !== 0) ? value : 1 / 100;
+
+            return percent * value;
+        }
+
+        return 0;
+    }
+
     changeOrder(type){
 
         this.props.changeSort(type);
@@ -69,9 +92,13 @@ class PlayersList extends React.Component{
 
         let p = 0;
 
+        let currentBarPercentages = {};
+
         for(let i = 0; i < players.length; i++){
 
             p = players[i];
+
+            currentBarPercentages = {};
 
             if(displayType === 1 && i === 0){
                 elems.push(<tr key={-1}>
@@ -116,6 +143,17 @@ class PlayersList extends React.Component{
             }
 
             if(displayType === 0){
+
+                currentBarPercentages["playtime"] = this.getRecordPercent("playtime", p.playtime);
+                currentBarPercentages["wins"] = this.getRecordPercent("wins", p.wins);
+                currentBarPercentages["matches"] = this.getRecordPercent("matches", p.matches);
+                currentBarPercentages["score"] = this.getRecordPercent("score", p.score);
+                currentBarPercentages["kills"] = this.getRecordPercent("kills", p.kills);
+                currentBarPercentages["deaths"] = this.getRecordPercent("deaths", p.deaths);
+                currentBarPercentages["accuracy"] = this.getRecordPercent("accuracy", p.accuracy);
+                currentBarPercentages["wins"] = this.getRecordPercent("wins", p.wins);
+                currentBarPercentages["efficiency"] = this.getRecordPercent("efficiency", p.efficiency);
+
                 elems.push(<PlayerListBox key={i} 
 
                     playerId={p.id} 
@@ -130,9 +168,9 @@ class PlayersList extends React.Component{
                     face={currentFace.name}
                     first={p.first}
                     last={p.last}
-                    records={this.props.records}
                     accuracy={parseInt(p.accuracy)}
                     displayType={displayType}
+                    recordsPercent={currentBarPercentages}
                 />);
 
             }else{

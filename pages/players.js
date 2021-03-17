@@ -256,7 +256,7 @@ export async function getServerSideProps({query}){
 
     let faces = await FaceManager.getFacesWithFileStatuses(facesToGet);
 
-    let records = await Manager.getMaxValues(['matches','efficiency','score','kills','deaths','winrate','accuracy','first','last']);
+    let records = await Manager.getMaxValues(['matches','efficiency','score','kills','deaths','accuracy','first','last','wins','playtime']);
 
     players = JSON.stringify(players);
    // console.log(players);

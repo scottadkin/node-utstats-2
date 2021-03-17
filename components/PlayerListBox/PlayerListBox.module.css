@@ -65,3 +65,41 @@
 .outter tr:hover{
     background-color:rgb(3,3,3);
 }
+
+
+.bwrapper{
+    position:relative;
+    height:18px;
+    line-height:18px;
+    font-size:12px;
+    overflow:hidden;
+}
+
+.bar{
+    height:16px;
+    border:1px solid rgba(255,255,255,0.1);
+
+    
+}
+
+.barinner{
+    height:16px;
+    background-color:rgb(100,0,0);
+}
+
+.bname{
+    height:20px;
+}
+
+.bvalue{
+    position:absolute;
+    margin-top:-18px;
+    width:70%;
+    height:20px;
+    margin-left:30%;
+}
+
+.lb{
+    display:grid;
+    grid-template-columns: 40% 60%;
+}
