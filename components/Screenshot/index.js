@@ -7,6 +7,7 @@ class MatchScreenshot{
 
     constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces){
 
+   
         console.log(`new match screenshot`);
         
         this.canvas = canvas;
@@ -17,6 +18,7 @@ class MatchScreenshot{
 
         this.map = map;
         this.players = JSON.parse(players);
+        console.log(this.players);
         this.teams = parseInt(teams);
 
         this.matchData = JSON.parse(matchData);
@@ -57,8 +59,10 @@ class MatchScreenshot{
         //this.scaleImage();
 
         this.flags = {};
-        this.flagWidth = this.x(1.6);
-        this.flagHeight = this.y(1.5);
+        this.flagWidth = this.x(1.4);
+        this.flagHeight = this.y(1.3);
+
+        this.createFullscreenEvents();
 
         this.image.onload = async () =>{
          //   console.log(`image loaded`);
@@ -70,6 +74,14 @@ class MatchScreenshot{
         }   
     }
 
+
+    createFullscreenEvents(){
+
+        this.canvas.addEventListener("click", () =>{
+
+            this.canvas.requestFullscreen();
+        });
+    }
 
     setupDownload(){
 
@@ -208,7 +220,7 @@ class MatchScreenshot{
                 this.icons[files[i]].onload = () =>{
 
                     this.iconsLoaded++;
-                    
+
                     if(this.iconsLoaded >= this.iconsToLoad){
         
                         resolve();
@@ -627,7 +639,7 @@ class MatchScreenshot{
         const pingOffsetY = this.y(5);
         c.font = pingSize+"px Arial";
 
-        c.drawImage(this.getFlag(player.country), x + pingOffsetX + this.x(0.3), y + pingOffsetY, this.flagWidth, this.flagHeight);
+        c.drawImage(this.getFlag(player.country), x + pingOffsetX + this.x(0.5), y + pingOffsetY, this.flagWidth, this.flagHeight);
 
         c.fillText(`PING:${player.ping_average}`, x + pingOffsetX , y + pingOffsetY + this.flagHeight + this.y(0.5));
         //c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.3) + this.flagHeight + this.y(0.5));
@@ -669,6 +681,30 @@ class MatchScreenshot{
         this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.flag_kill);
 
         c.textAlign = "left";
+    }
+
+
+    getTeamPingAverage(team){
+
+        let totalPlayers = 0;
+        let totalPing = 0;
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            if(p.team === team){
+                totalPlayers++;
+                totalPing += p.ping_average;
+            }
+        }
+
+        if(totalPlayers === 0) return 0;
+        if(totalPing === 0) return 0;
+
+        return Math.floor(totalPing / totalPlayers);
     }
 
     renderSmartCTFTeam(c, team){
@@ -727,8 +763,16 @@ class MatchScreenshot{
         c.fillStyle = this.getTeamColor(team);
         c.font = headerFont+"px Arial";
         c.fillText(this.matchData[`team_score_${team}`], startX + this.x(3), startY + this.y(0.6));
+        const pingOffsetX = c.measureText(`${this.matchData[`team_score_${team}`]}_`).width;
         c.font = `bold ${this.y(2.1)}px Arial`;
         c.fillText("Frags / PTS", startX + this.x(32.5), startY + this.y(1));
+
+        c.fillStyle = "rgb(150,150,150)";
+
+        c.font = `${this.y(1)}px Arial`;
+
+        c.fillText(`PING: ${this.getTeamPingAverage(team)} PL:0%`, startX + this.x(3) + pingOffsetX, startY + this.y(1.5));
+        c.fillText(`TM: ${Math.ceil((this.matchData.end - this.matchData.start) / 60)}`, startX + this.x(3) + pingOffsetX, startY + this.y(2.5));
 
         const playerHeight = this.y(8);
 
