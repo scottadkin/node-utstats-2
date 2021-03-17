@@ -325,10 +325,11 @@ class CTFManager{
         try{
 
             const players = this.playerManager.players;
+            
             for(let i = 0; i < players.length; i++){
 
                 if(players[i].bDuplicate === undefined){
-                    await this.ctf.updatePlayerTotals(players[i].masterId,players[i].gametypeId, players[i].stats.ctf);
+                    await this.ctf.updatePlayerTotals(players[i].masterId, players[i].gametypeId, players[i].stats.ctf);
                 }
             }
 
@@ -414,6 +415,7 @@ class CTFManager{
                 for(let x = 0; x < c.covers.length; x++){
 
                     currentCover = this.playerManager.getOriginalConnectionById(c.covers[x]);
+                    currentCover.stats.ctf.coverPass++;
                     currentCovers.push(currentCover.masterId);
                 }
 
@@ -434,6 +436,16 @@ class CTFManager{
 
                 await this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
                     currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, currentCap.masterId, c.capTime, c.travelTime);
+            }
+
+            let p =0;
+
+            for(let i = 0; i < this.playerManager.players.length; i++){
+
+                p = this.playerManager.players[i];
+
+                p.stats.ctf.coverFail = p.stats.ctf.cover - p.stats.ctf.coverPass;
+                
             }
 
         }catch(err){

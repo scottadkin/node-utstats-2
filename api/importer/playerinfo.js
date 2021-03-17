@@ -68,6 +68,8 @@ class PlayerInfo{
                 "capture": 0,
                 "pickup": 0,
                 "cover": 0,
+                "coverFail": 0, //covers where the flag was returned 
+                "coverPass": 0, //covers where the flag was capped
                 "kill": 0,
                 "save": 0,
                 "carryTime": 0,
