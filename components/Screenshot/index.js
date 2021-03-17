@@ -196,7 +196,7 @@ class MatchScreenshot{
 
             const files = ["red", "blue", "green", "yellow", "smartctfbg"];
 
-            this.iconsToLoad = 4;
+            this.iconsToLoad = files.length;
             this.iconsLoaded = 0;
 
             this.icons = {};
@@ -206,8 +206,11 @@ class MatchScreenshot{
                 this.icons[files[i]] = new Image();
                 this.icons[files[i]].src = `/images/${files[i]}.png`;
                 this.icons[files[i]].onload = () =>{
+
                     this.iconsLoaded++;
+                    
                     if(this.iconsLoaded >= this.iconsToLoad){
+        
                         resolve();
                     }
                 }
@@ -429,12 +432,12 @@ class MatchScreenshot{
 
     renderHeader(c){
 
-        const headerFontSize = this.y(2.3);
+        const headerFontSize = this.y(2.2);
         c.font = headerFontSize+"px Arial";
 
         c.textAlign = "center";
 
-        let offsetY = this.y(2)
+        let offsetY = this.y(0.75)
         
         c.fillStyle = "white";
         c.fillText(this.gametype, this.x(50), offsetY);
@@ -445,7 +448,7 @@ class MatchScreenshot{
         }
        
         if(this.matchData.target_score > 0){
-            offsetY += this.y(2.9);
+            offsetY += this.y(2.6);
             c.fillText(`${(this.bLMS()) ? "Lives" : "Target Score"}: ${this.matchData.target_score}`, this.x(50), offsetY);
         }
 
