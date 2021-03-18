@@ -79,7 +79,9 @@ class MatchScreenshot{
 
         this.canvas.addEventListener("click", () =>{
 
-            this.canvas.requestFullscreen();
+            this.canvas.requestFullscreen().catch((err) =>{
+                console.trace(err);
+            });
         });
     }
 
@@ -529,8 +531,8 @@ class MatchScreenshot{
         c.fillStyle = "white";
         c.font = pingSize+"px Arial";
 
-        c.fillText(`TIME: ${(Math.floor(time / 60))}`, row1X - this.x(2) - this.flagWidth, y);
-        c.fillText(`PING: ${ping}`, row1X - this.x(2) - this.flagWidth, y + this.y(0.9));
+        c.fillText(`TIME: ${(Math.floor(time / 60))}`, row1X - this.x(3) - this.flagWidth, y);
+        c.fillText(`PING: ${ping}`, row1X - this.x(3) - this.flagWidth, y + this.y(0.9));
 
         c.drawImage(this.getFlag(country), row1X - this.x(2), y, this.flagWidth, this.flagHeight);
 
