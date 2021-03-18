@@ -285,6 +285,8 @@ class Weapons{
 
     getNamesByIds(ids){
 
+        if(ids.length === 0) return [];
+
         return new Promise((resolve, reject) =>{
 
             const query = "SELECT id,name FROM nstats_weapons WHERE id IN(?)";
@@ -350,7 +352,12 @@ class Weapons{
                 }
             }
 
-            const weaponNames = await this.getNamesByIds(weaponIds);
+
+            let weaponNames = [];
+
+            if(weaponIds.length > 0){
+                weaponNames = await this.getNamesByIds(weaponIds);
+            }
 
             return {
                 "names": weaponNames,

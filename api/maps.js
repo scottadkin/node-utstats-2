@@ -400,6 +400,23 @@ class Maps{
         });
     }
 
+
+    getSingle(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_maps WHERE id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined) resolve(result);
+                resolve([]);
+            });
+        });
+    }
+
 }
 
 

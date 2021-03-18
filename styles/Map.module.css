@@ -1,0 +1,37 @@
+.top{
+    padding:5px;
+    background-color:black;
+    max-width:50%;
+    min-width:50%;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.ttop{
+
+}
+
+.ttop{
+    border:none;
+}
+
+.ttop td{
+    border:none;
+}
+
+.ttop td:nth-child(1){
+    text-align:right;
+    color:yellow;
+}
+
+.ttop td:nth-child(2){
+    text-align:left;
+
+}
+
+
+.mimage{
+
+    max-width:100%;
+    min-width:100%;
+}
