@@ -10,12 +10,22 @@ import MatchesDefaultView from '../../components/MatchesDefaultView/';
 import MatchesTableView from '../../components/MatchesTableView/';
 import Servers from '../../api/servers';
 import Gametypes from '../../api/gametypes';
+import React from 'react';
+import Pagination from '../../components/Pagination/';
 
-const Map = ({basic, image, matches}) =>{
+class Map extends React.Component{
 
-    basic = JSON.parse(basic);
+    constructor(props){
 
-    return <div>
+        super(props);
+    }
+
+    render(){
+
+        const basic = JSON.parse(this.props.basic);
+        const image = this.props.image;
+        const matches = this.props.matches;
+        return <div>
         <DefaultHead />
         <main>
             <Nav />
@@ -79,6 +89,7 @@ const Map = ({basic, image, matches}) =>{
                     </div>
 
                     <div className="default-header">Recent Matches</div>
+                    <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
                     <div className={styles.recent}>
                         <MatchesDefaultView data={matches} image={image}/>
                     </div>
@@ -88,7 +99,10 @@ const Map = ({basic, image, matches}) =>{
             <Footer />
         </main>
     </div>
+
+    }
 }
+
 
 
 
@@ -103,6 +117,33 @@ export async function getServerSideProps({query}){
 
         if(mapId !== mapId){
             mapid = 0;
+        }
+    }
+
+    let perPage = 25;
+
+    if(query.perPage !== undefined){
+
+        perPage = parseInt(query.perPage);
+
+        if(perPage !== perPage){
+            perPage = 25;
+        }
+
+        if(perPage < 1 || perPage > 100){
+
+            perPage = 25;
+        }
+    }
+
+    let page = 1;
+
+    if(query.page !== undefined){
+
+        page = parseInt(query.page);
+
+        if(page !== page){
+            page = 1;
         }
     }
 
@@ -146,12 +187,22 @@ export async function getServerSideProps({query}){
     Functions.setIdNames(matches, gametypeNames, "gametype", "gametypeName");
     //console.log(matches);
 
-    console.log(basicData);
+
+    let pages = 1;
+
+    if(perPage !== 0 && basicData[0].matches !== 0){
+
+        pages = Math.ceil(basicData[0].matches / perPage);
+    }
+
     return {
         props: {
             "basic": JSON.stringify(basicData[0]),
             "image": image,
-            "matches": JSON.stringify(matches)
+            "matches": JSON.stringify(matches),
+            "perPage": perPage,
+            "pages": pages,
+            "page": page
         }
     };
 }
