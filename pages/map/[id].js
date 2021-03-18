@@ -6,8 +6,12 @@ import Maps from '../../api/maps';
 import Functions from '../../api/functions';
 import Timestamp from '../../components/TimeStamp';
 import Link from 'next/link';
+import MatchesDefaultView from '../../components/MatchesDefaultView/';
+import MatchesTableView from '../../components/MatchesTableView/';
+import Servers from '../../api/servers';
+import Gametypes from '../../api/gametypes';
 
-const Map = ({basic, image}) =>{
+const Map = ({basic, image, matches}) =>{
 
     basic = JSON.parse(basic);
 
@@ -23,7 +27,7 @@ const Map = ({basic, image}) =>{
                     </div>
     
                     
-                    <div className={styles.top}>
+                    <div className={`${styles.top} m-bottom-25`}>
                         <img onClick={(() =>{
                             const elem = document.getElementById("main-image");
                             elem.requestFullscreen();
@@ -73,6 +77,11 @@ const Map = ({basic, image}) =>{
                             </tbody>
                         </table>
                     </div>
+
+                    <div className="default-header">Recent Matches</div>
+                    <div className={styles.recent}>
+                        <MatchesDefaultView data={matches} image={image}/>
+                    </div>
                     
                 </div>
             </div>
@@ -112,17 +121,37 @@ export async function getServerSideProps({query}){
 
     const longestMatch = await mapManager.getLongestMatch(mapId);
 
-    console.log(longestMatch);
 
     basicData[0].longest = longestMatch.playtime;
     basicData[0].longestId = longestMatch.match;
 
 
+    const matches = await mapManager.getRecent(mapId, 1, 50);
+    
+    for(let i = 0; i < matches.length; i++){
+
+        matches[i].mapName = Functions.removeUnr(basicData[0].name);
+    }
+
+    const serverIds = Functions.getUniqueValues(matches, "server");
+    const gametypeIds = Functions.getUniqueValues(matches, "gametype");
+
+    const serverManager = new Servers();
+
+    const serverNames = await serverManager.getNames(serverIds);
+    Functions.setIdNames(matches, serverNames, "server", "serverName");
+
+    const gametypeManager = new Gametypes();
+    const gametypeNames = await gametypeManager.getNames(gametypeIds);
+    Functions.setIdNames(matches, gametypeNames, "gametype", "gametypeName");
+    //console.log(matches);
+
     console.log(basicData);
     return {
         props: {
             "basic": JSON.stringify(basicData[0]),
-            "image": image
+            "image": image,
+            "matches": JSON.stringify(matches)
         }
     };
 }

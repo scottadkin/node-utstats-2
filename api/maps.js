@@ -437,6 +437,29 @@ class Maps{
         });
     }
 
+
+    getRecent(id, page, perPage){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_matches WHERE map=? ORDER BY date DESC LIMIT ?, ?";
+
+            page = page - 1;
+
+            let start = perPage * page;
+
+            mysql.query(query, [id, start, perPage], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+        });
+    }
+
 }
 
 

@@ -10,11 +10,22 @@ class MatchesDefaultView extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {"images": JSON.parse(this.props.images)};
+
+        let images = [];
+
+        if(this.props.image !== undefined){
+            this.state = {"image": this.props.image};
+        }else{
+            this.state = {"images": JSON.parse(this.props.images)};
+        }
+
+        
     }
 
 
     getImage(name){
+
+        if(this.state.image !== undefined) return this.state.image;
 
         name = Functions.removeMapGametypePrefix(name).toLowerCase();
 
