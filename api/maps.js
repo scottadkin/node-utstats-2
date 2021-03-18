@@ -417,6 +417,26 @@ class Maps{
         });
     }
 
+
+    getLongestMatch(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,playtime FROM nstats_matches WHERE map=? ORDER BY playtime DESC LIMIT 1";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve({"match": result[0].id, "playtime": result[0].playtime});
+                }
+
+                resolve({"match": -1, "playtime": -1});
+            });
+        });
+    }
+
 }
 
 

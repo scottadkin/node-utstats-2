@@ -4,6 +4,8 @@ import Nav from '../../components/Nav/';
 import Footer from '../../components/Footer/';
 import Maps from '../../api/maps';
 import Functions from '../../api/functions';
+import Timestamp from '../../components/TimeStamp';
+import Link from 'next/link';
 
 const Map = ({basic, image}) =>{
 
@@ -22,12 +24,15 @@ const Map = ({basic, image}) =>{
     
                     
                     <div className={styles.top}>
-                        <img className={styles.mimage} src={image} alt="image" />
+                        <img onClick={(() =>{
+                            const elem = document.getElementById("main-image");
+                            elem.requestFullscreen();
+                        })} className={styles.mimage} id="main-image" src={image} alt="image" />
                         <table className={styles.ttop}>
                             <tbody>
                                 <tr>
-                                    <td>File</td>
-                                    <td>{basic.name}</td>
+                                    <td>Name</td>
+                                    <td>{Functions.removeUnr(basic.name)}</td>
                                 </tr>
                                 <tr>
                                     <td>Title</td>
@@ -44,6 +49,26 @@ const Map = ({basic, image}) =>{
                                 <tr>
                                     <td>Level Enter Text</td>
                                     <td>{basic.level_enter_text}</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Matches</td>
+                                    <td>{basic.matches}</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Playtime</td>
+                                    <td>{parseFloat(basic.playtime / 60).toFixed(2)} Hours</td>
+                                </tr>
+                                <tr>
+                                    <td>Longest Match</td>
+                                    <td><Link href={`/match/${basic.longestId}`}><a>{Functions.MMSS(basic.longest)}</a></Link></td>
+                                </tr>
+                                <tr>
+                                    <td>First Match</td>
+                                    <td><Timestamp timestamp={basic.first} /></td>
+                                </tr>
+                                <tr>
+                                    <td>Last Match</td>
+                                    <td><Timestamp timestamp={basic.last} /></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -79,15 +104,21 @@ export async function getServerSideProps({query}){
     let image = null;
 
     if(basicData[0] !== undefined){
-        console.log(basicData);
-        image = await mapManager.getImage(mapManager.removeUnr(mapManager.removePrefix(basicData[0].name)));
+        image = await mapManager.getImage(mapManager.removeUnr(basicData[0].name));
     }else{
         basicData = [{"name": "Not Found"}];
         image = "/images/temp.jpg";
     }
 
+    const longestMatch = await mapManager.getLongestMatch(mapId);
+
+    console.log(longestMatch);
+
+    basicData[0].longest = longestMatch.playtime;
+    basicData[0].longestId = longestMatch.match;
 
 
+    console.log(basicData);
     return {
         props: {
             "basic": JSON.stringify(basicData[0]),
