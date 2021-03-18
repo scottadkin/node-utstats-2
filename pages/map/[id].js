@@ -167,7 +167,7 @@ export async function getServerSideProps({query}){
     basicData[0].longestId = longestMatch.match;
 
 
-    const matches = await mapManager.getRecent(mapId, 1, 50);
+    const matches = await mapManager.getRecent(mapId, page, perPage);
     
     for(let i = 0; i < matches.length; i++){
 

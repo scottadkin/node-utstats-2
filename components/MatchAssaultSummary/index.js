@@ -79,7 +79,9 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
             resultTitle = "Blue Defended the base.";
             resultColor = "team-blue";
         }
+
     }else{
+
         if(blueScore > redScore){
             resultTitle = "Blue Captured the base.";
             resultColor = "team-blue";
@@ -96,13 +98,13 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
             </div>
 
             <div className={`${styles.attacking} center`}>
-                <div className="team-red">{(attackingTeam) ? 'Attacking' : 'Defending'}</div>
-                <div className="team-blue">{(!attackingTeam) ? 'Attacking' : 'Defending'}</div>
+                <div className="team-red">{(attackingTeam === 0) ? 'Attacking' : 'Defending'}</div>
+                <div className="team-blue">{(attackingTeam === 1) ? 'Attacking' : 'Defending'}</div>
             </div>
             <div className={`${resultColor} ${styles.result} center`}>
                 {resultTitle}
             </div>
-            <table>
+            <table className={styles.table}>
                 <tbody>
                     <tr>
                         <th>Objective</th>
