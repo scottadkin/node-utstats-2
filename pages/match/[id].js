@@ -969,6 +969,57 @@ function createScoreHistoryGraph(score, playerNames, matchStart){
 
     }
 
+
+    //Fix for Assault duplicate PlayerReplicationInfo 
+    const removeDuplicates = () =>{
+
+
+        score.sort((a, b) =>{
+
+            if(a.timestamp < b.timestamp){
+                return -1;
+            }else if(a.timestamp > b.timestamp){
+                return 1;
+            }else{
+
+                if(a.score > b.score){
+                    return -1;
+                }else if(a.score < b.score){
+                    return 1;
+                }
+            }
+
+            return 0;
+        });
+
+        const fixedData = [];
+
+        let currentPlayerIds = [];
+        let currentTimestamp = 0;
+
+        for(let i = 0; i < score.length; i++){
+
+            if(i === 0 || score[i].timestamp !== currentTimestamp){
+
+                currentTimestamp = score[i].timestamp;
+                currentPlayerIds = [];
+            }
+
+            if(currentPlayerIds.indexOf(score[i].player) === -1){
+
+                currentPlayerIds.push(score[i].player);
+                fixedData.push(score[i]);
+            }
+
+        }
+        
+
+        return fixedData;
+
+    }
+
+    score = removeDuplicates();
+
     const updateOthers = (ignore) =>{
         
         let current = 0;
@@ -999,11 +1050,13 @@ function createScoreHistoryGraph(score, playerNames, matchStart){
         if(i === 0) previousTimestamp = s.timestamp;
 
         if(s.timestamp !== previousTimestamp){
+
             previousTimestamp = s.timestamp;
             //update others
             updateOthers(updated);
             updated = [];
-            text.push(`${Functions.MMSS(s.timestamp - matchStart)}`);
+            text.push(`${Functions.MMSS(s.timestamp - matchStart)}`);    
+            
         }
 
         updated.push(s.player);
@@ -1016,6 +1069,7 @@ function createScoreHistoryGraph(score, playerNames, matchStart){
     }
 
     updateOthers(updated);
+
     if(score.length > 0){
         text.push(`${Functions.MMSS(score[score.length - 1].timestamp)}`);
     }
