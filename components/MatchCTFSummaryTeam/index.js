@@ -22,16 +22,7 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
     players = JSON.parse(players);
     const elems = [];
 
-    let bgColor = '';
-
-
-    switch(team){
-        case 0: {  bgColor = "team-red"; } break;
-        case 1: {  bgColor = "team-blue"; } break;
-        case 2: {  bgColor = "team-green"; } break;
-        case 3: {  bgColor = "team-yellow"; } break;
-        default: { bgColor = "team-none";} break;
-    }
+    let bgColor = Functions.getTeamColor(team);
   
 
     let p = 0;
@@ -44,6 +35,9 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
     let coverTotal = 0;
     let coverPassTotal = 0;
     let coverFailTotal = 0;
+    let coverSelfTotal = 0;
+    let coverSelfPassTotal = 0;
+    let coverSelfFailTotal = 0;
     let killTotal = 0;
     let returnTotal = 0;
     let saveTotal = 0;
@@ -65,6 +59,9 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
                     <td>{Functions.ignore0(p.flag_cover)}</td>
                     <td>{Functions.ignore0(p.flag_cover_pass)}</td>
                     <td>{Functions.ignore0(p.flag_cover_fail)}</td>
+                    <td>{Functions.ignore0(p.flag_self_cover)}</td>
+                    <td>{Functions.ignore0(p.flag_self_cover_pass)}</td>
+                    <td>{Functions.ignore0(p.flag_self_cover_fail)}</td>
                     <td>{Functions.ignore0(p.flag_kill)}</td>
                     <td>{Functions.ignore0(p.flag_return)}</td>
                     <td>{Functions.ignore0(p.flag_save)}</td>
@@ -80,6 +77,9 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
             coverTotal += p.flag_cover;
             coverPassTotal += p.flag_cover_pass;
             coverFailTotal += p.flag_cover_fail;
+            coverSelfTotal += p.flag_self_cover;
+            coverSelfPassTotal += p.flag_self_cover_pass;
+            coverSelfFailTotal += p.flag_self_cover_fail;
             killTotal += p.flag_kill;
             returnTotal += p.flag_return;
             saveTotal += p.flag_save;
@@ -98,6 +98,9 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
             <td>{Functions.ignore0(coverTotal)}</td>
             <td>{Functions.ignore0(coverPassTotal)}</td>
             <td>{Functions.ignore0(coverFailTotal)}</td>
+            <td>{Functions.ignore0(coverSelfTotal)}</td>
+            <td>{Functions.ignore0(coverSelfPassTotal)}</td>
+            <td>{Functions.ignore0(coverSelfFailTotal)}</td>
             <td>{Functions.ignore0(killTotal)}</td>
             <td>{Functions.ignore0(returnTotal)}</td>
             <td>{Functions.ignore0(saveTotal)}</td>
@@ -119,6 +122,9 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
                     <TipHeader title="Cover" content="Player killed an enemy that was close to the flag carrier." />
                     <TipHeader title="Cover Pass" content="Player covered the flag carrier that was successfully capped." />
                     <TipHeader title="Cover Fail" content="Player covered the flag carrier but it was returned." /> 
+                    <TipHeader title="Self Cover" content="How many kills the player got while carrying the flag." /> 
+                    <TipHeader title="Self Cover Pass" content="How many kills the player got while carrying the flag, where the flag got capped." /> 
+                    <TipHeader title="Self Cover Fail" content="How many kills the player got while carrying the flag, where the flag got returned." /> 
                     <TipHeader title="Kill" content="Player killed an enemy that had their teams flag." />
                     <TipHeader title="Return" content="Player returned their teams flag that was dropped." />
                     <TipHeader title="Close Return" content="Played returned their teams flag that was close to the enemy flag stand." />
