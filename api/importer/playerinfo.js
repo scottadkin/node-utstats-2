@@ -73,6 +73,9 @@ class PlayerInfo{
                 "selfCover": 0, //kills while carrying the flag
                 "selfCoverPass": 0, //capped self covers
                 "selfCoverFail": 0, //returned self covers
+                "multiCover": 0, // player got 3 covers during one flag
+                "spreeCover": 0, // player got 4 or more covers during one flag
+                "bestCover": 0, //most covers during one flag
                 "kill": 0,
                 "save": 0,
                 "carryTime": 0,

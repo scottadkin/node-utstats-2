@@ -245,6 +245,8 @@ class CTFManager{
                 current.capTime = e.timestamp;
                 current.travelTime = (current.capTime - current.grabTime).toFixed(2);
 
+                this.setCoverSprees(current.covers);
+
                 for(let x = current.dropTimes.length - 1; x >= 0; x--){
 
                     //first drop will always be the grab player
@@ -292,6 +294,10 @@ class CTFManager{
 
                 this.capData.push(current);
                 
+            }else if(e.type === 'returned'){
+
+                current = getCurrent(e.team);
+                this.setCoverSprees(current.covers);
             }
         }
     }
@@ -523,7 +529,6 @@ class CTFManager{
 
     setSelfCovers(killManager){
 
-
         let c = 0;
 
         let currentKills = 0;
@@ -532,7 +537,6 @@ class CTFManager{
         for(let i = 0; i < this.carryTimeFrames.length; i++){
 
             c = this.carryTimeFrames[i];
-
 
             currentKills =  killManager.getKillsBetween(c.start, c.end, c.player, true);
 
@@ -549,7 +553,52 @@ class CTFManager{
                 }
             }
         }
+    }
 
+    setCoverSprees(covers){
+
+        const playerCovers = new Map();
+
+        let currentCovers = 0;
+        let c = 0;
+
+        for(let i = 0; i < covers.length; i++){
+
+            c = covers[i];
+
+            currentCovers = playerCovers.get(c);
+
+            if(currentCovers === undefined){
+                playerCovers.set(c, 1);
+            }else{
+                currentCovers++;
+                playerCovers.set(c, currentCovers);
+            }
+        }
+
+
+        let currentPlayer = 0;
+
+        for(const [key, value] of playerCovers){
+
+            currentPlayer = this.playerManager.getOriginalConnectionById(key);
+
+            if(currentPlayer !== undefined){
+                
+                if(value === 3){
+                    currentPlayer.stats.ctf.multiCover++;
+                }else if(value >= 4){
+                    currentPlayer.stats.ctf.spreeCover++;
+                }
+
+                if(value > currentPlayer.stats.ctf.bestCover){
+                    currentPlayer.stats.ctf.bestCover = value;
+                }
+            }
+
+        }
+
+        
     }
 }
 
