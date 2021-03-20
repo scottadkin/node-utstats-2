@@ -71,6 +71,8 @@ class PlayerInfo{
                 "coverFail": 0, //covers where the flag was returned 
                 "coverPass": 0, //covers where the flag was capped
                 "selfCover": 0, //kills while carrying the flag
+                "selfCoverPass": 0, //capped self covers
+                "selfCoverFail": 0, //returned self covers
                 "kill": 0,
                 "save": 0,
                 "carryTime": 0,

@@ -270,7 +270,7 @@ class KillManager{
     }
 
 
-    getKillsBetween(start, end, killer){
+    getKillsBetween(start, end, killer, bOnlyCount){
 
         const found = [];
 
@@ -281,14 +281,21 @@ class KillManager{
             k = this.kills[i];
 
             if(k.timestamp >= start && k.timestamp <= end){
-                found.push(k);
+
+                if(k.killerId === killer && k.victimId !== killer && k.victimId !== -1){
+                    found.push(k);
+                }
             }else if(k.timestamp > end){
 
                 break;
             }
         }
 
-        return found;
+        if(bOnlyCount !== undefined){
+            return found.length;
+        }else{
+            return found;
+        }
     }
 }
 

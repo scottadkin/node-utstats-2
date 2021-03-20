@@ -184,9 +184,10 @@ class MatchManager{
             }
 
             if(this.CTFManager !== undefined){
+                this.CTFManager.setSelfCovers(this.killManager);
                 await this.CTFManager.updatePlayersMatchStats();
                 await this.CTFManager.insertEvents(this.matchId);
-                this.CTFManager.setSelfCovers(this.killManager);
+                
             }
 
 

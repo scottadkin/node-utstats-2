@@ -526,11 +526,25 @@ class CTFManager{
 
         let c = 0;
 
+        let currentKills = 0;
+        let currentPlayer = 0;
+
         for(let i = 0; i < this.carryTimeFrames.length; i++){
 
             c = this.carryTimeFrames[i];
 
-            console.log(killManager.getKillsBetween(c.start, c.end, c.player));
+            currentKills =  killManager.getKillsBetween(c.start, c.end, c.player, true);
+            console.log(`${c.player} killed ${currentKills} while carrying the flag`);
+
+            currentPlayer = this.playerManager.getOriginalConnectionById(c.player);
+
+            if(currentPlayer !== null){
+                currentPlayer.stats.ctf.selfCover += currentKills;
+            }
+        }
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+            console.log(this.playerManager.players[i].stats.ctf);
         }
     }
 }
