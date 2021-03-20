@@ -1,4 +1,6 @@
 import MatchCTFSummaryTeam from '../MatchCTFSummaryTeam/';
+import MatchCTFSummaryDefault from '../MatchCTFSummaryDefault/';
+import React from 'react';
 
 const getPlayersInTeam = (players, team) =>{
 
@@ -14,7 +16,7 @@ const getPlayersInTeam = (players, team) =>{
     return JSON.stringify(found);
 }
 
-const MatchCTFSummary = ({players, totalTeams}) =>{
+/*const MatchCTFSummary = ({players, totalTeams}) =>{
 
 
     players = JSON.parse(players);
@@ -35,6 +37,61 @@ const MatchCTFSummary = ({players, totalTeams}) =>{
             {teams}
         </div>
     );
+}*/
+
+class MatchCTFSummary extends React.Component{
+
+    constructor(props){
+
+        super(props);
+
+        this.state = {"mode": 0};
+    }
+
+
+    getTeamPlayers(team){
+
+        const found = [];
+
+        let p = 0;
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            p = this.props.players[i];
+
+            if(p.team === team) found.push(p);
+        }
+
+        return found;
+
+    }
+
+
+    render(){
+
+
+        const teams = [];
+        let teamPlayers = [];
+
+        for(let i = 0; i < this.props.totalTeams; i++){
+
+            teamPlayers = this.getTeamPlayers(i);
+
+            teams.push(<MatchCTFSummaryDefault team={i} players={teamPlayers}/>);
+        }
+
+
+        return <div>
+            <div className="default-header">Capture The Flag Summary</div>
+            <div className="tabs">
+                <div className="tab tab-selected">General</div>
+                <div className="tab">Covers</div>
+            </div>
+
+            {teams}
+
+        </div>
+    }
 }
 
 export default MatchCTFSummary;

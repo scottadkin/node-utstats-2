@@ -1368,7 +1368,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
             
 
         elems.push(
-            <MatchCTFSummary key={`match_1`} players={playerData} totalTeams={parsedInfo.total_teams}/>
+            <MatchCTFSummary key={`match_1`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>
         );
 
         

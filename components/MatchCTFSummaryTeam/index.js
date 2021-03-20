@@ -2,7 +2,9 @@ import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/';
 import styles from './MatchCTFSummaryTeam.module.css';
 import Functions from '../../api/functions';
+import React from 'react';
 
+/*
 const bAllEmpty = (data) =>{
 
     const vars = ['taken','pickup','dropped','assist','capture','cover','kill','return','save'];
@@ -62,6 +64,9 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
                     <td>{Functions.ignore0(p.flag_self_cover)}</td>
                     <td>{Functions.ignore0(p.flag_self_cover_pass)}</td>
                     <td>{Functions.ignore0(p.flag_self_cover_fail)}</td>
+                    <td>{Functions.ignore0(p.flag_multi_cover)}</td>
+                    <td>{Functions.ignore0(p.flag_spree_cover)}</td>
+                    <td>{Functions.ignore0(p.flag_cover_best)}</td>
                     <td>{Functions.ignore0(p.flag_kill)}</td>
                     <td>{Functions.ignore0(p.flag_return)}</td>
                     <td>{Functions.ignore0(p.flag_save)}</td>
@@ -101,6 +106,9 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
             <td>{Functions.ignore0(coverSelfTotal)}</td>
             <td>{Functions.ignore0(coverSelfPassTotal)}</td>
             <td>{Functions.ignore0(coverSelfFailTotal)}</td>
+            <td></td>
+            <td></td>
+            <td></td>
             <td>{Functions.ignore0(killTotal)}</td>
             <td>{Functions.ignore0(returnTotal)}</td>
             <td>{Functions.ignore0(saveTotal)}</td>
@@ -125,6 +133,9 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
                     <TipHeader title="Self Cover" content="How many kills the player got while carrying the flag." /> 
                     <TipHeader title="Self Cover Pass" content="How many kills the player got while carrying the flag, where the flag got capped." /> 
                     <TipHeader title="Self Cover Fail" content="How many kills the player got while carrying the flag, where the flag got returned." /> 
+                    <TipHeader title="Multi Cover" content="Player got 3 covers while one flag was taken." /> 
+                    <TipHeader title="Cover Spree" content="Player got 4 or more covers while one flag was taken." /> 
+                    <TipHeader title="Best Covers" content="Most covers player got while one flag was taken." /> 
                     <TipHeader title="Kill" content="Player killed an enemy that had their teams flag." />
                     <TipHeader title="Return" content="Player returned their teams flag that was dropped." />
                     <TipHeader title="Close Return" content="Played returned their teams flag that was close to the enemy flag stand." />
@@ -134,6 +145,18 @@ const MatchCTFSummaryTeam = ({players, team}) =>{
         </table>
 
     );
+}*/
+
+
+class MatchCTFSummaryTeam extends React.Component{
+
+    constructor(props){
+        super(props);
+    }
+
+    render(){
+        return <div>fart</div>
+    }
 }
 
 export default MatchCTFSummaryTeam;
