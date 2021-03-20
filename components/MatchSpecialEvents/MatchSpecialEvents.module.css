@@ -1,6 +1,4 @@
 .special{
-
-    display:inline-block;
     padding:10px;
 }
 
@@ -26,10 +24,15 @@
 
 .special table{
     margin-bottom:10px;
+    width:80%;
+    max-width:80%;
+    max-width:750px;
 }
 
 .special table td:nth-child(1){
     text-align:left;
+    min-width:150px;
+    max-width:150px;
 }
 
 .bwrapper{

@@ -48,9 +48,9 @@ class MatchCTFSummary extends React.Component{
             teamPlayers = this.getTeamPlayers(i);
 
             if(this.state.mode === 0){
-                teams.push(<MatchCTFSummaryDefault team={i} players={teamPlayers}/>);
+                teams.push(<MatchCTFSummaryDefault team={i} key={i} players={teamPlayers}/>);
             }else if(this.state.mode === 1){
-                teams.push(<MatchCTFSummaryCovers team={i} players={teamPlayers}/>);
+                teams.push(<MatchCTFSummaryCovers team={i} key={i} players={teamPlayers}/>);
             }
         }
 

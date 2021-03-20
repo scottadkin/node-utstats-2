@@ -93,7 +93,7 @@ const MatchFragTable = ({players, team, matchStart, toDisplay}) =>{
     return (<table className={`center m-bottom-25`}>
         <tbody>
             <tr className={bgColor}>
-                <th>Player</th>
+                <th className="name-td">Player</th>
                 <th>Playtime</th>
                 {(toDisplay.indexOf('suicides') !== -1) ? <th>Suicides</th> : null}
                 {(toDisplay.indexOf('team_kills') !== -1) ? <th>Team Kills</th> : null}

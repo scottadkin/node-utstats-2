@@ -429,3 +429,8 @@ input[type="range"]{
 .no-drop{
 	cursor:no-drop;
 }
+
+.name-td{
+	min-width:150px;
+	max-width:150px;
+}
