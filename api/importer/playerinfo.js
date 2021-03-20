@@ -70,6 +70,7 @@ class PlayerInfo{
                 "cover": 0,
                 "coverFail": 0, //covers where the flag was returned 
                 "coverPass": 0, //covers where the flag was capped
+                "selfCover": 0, //kills while carrying the flag
                 "kill": 0,
                 "save": 0,
                 "carryTime": 0,
@@ -90,8 +91,6 @@ class PlayerInfo{
         this.timeAlive = 0;
 
         this.spawns = [];
-
-
         //console.log(this);
 
     }

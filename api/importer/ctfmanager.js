@@ -11,11 +11,31 @@ class CTFManager{
         this.events = [];
         this.capData = [];
 
+        this.carryTimeFrames = []; 
+
         this.ctf = new CTF();
     }
 
     bHasData(){
         return this.data.length !== 0;
+    }
+
+
+    getLatestTimeframe(player, timestamp){
+
+
+        let c = 0;
+
+        for(let i = this.carryTimeFrames.length - 1; i >= 0; i--){
+
+            c = this.carryTimeFrames[i];
+
+            if(c.start < timestamp && c.player === player && c.end === undefined){
+                return c;
+            }
+        }
+
+        return null;
     }
 
     parseData(){
@@ -27,6 +47,8 @@ class CTFManager{
         let type = 0;
 
         const ignored = [];
+
+        let currentTimeframe = [];
 
         for(let i = 0; i < this.data.length; i++){
 
@@ -50,6 +72,21 @@ class CTFManager{
                     });
                     
                 }else if(type === 'assist' || type === 'returned'|| type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'){
+
+                    if(type === 'taken' || type === 'pickedup'){
+
+                        this.carryTimeFrames.push({"start": parseFloat(result[1]), "player": parseInt(result[3])});
+
+                    }else if(type === 'dropped' || type === 'captured'){
+
+                        currentTimeframe = this.getLatestTimeframe(parseInt(result[3]), parseFloat(result[1]));
+      
+                        if(currentTimeframe !== null){
+                            currentTimeframe.end = parseFloat(result[1]);
+                        }else{
+                            new Message(`CTFManager.parseData() currentTimeframe is null`,'warning');
+                        }
+                    }
 
                     this.events.push({
                         "timestamp": parseFloat(result[1]),
@@ -80,6 +117,7 @@ class CTFManager{
             }
         }
 
+        console.log(this.carryTimeFrames);
         //console.log(this.events);
         this.createCapData();
     }
@@ -479,6 +517,20 @@ class CTFManager{
 
         }catch(err){
             console.trace(err);
+        }
+    }
+
+
+    setSelfCovers(killManager){
+
+
+        let c = 0;
+
+        for(let i = 0; i < this.carryTimeFrames.length; i++){
+
+            c = this.carryTimeFrames[i];
+
+            console.log(killManager.getKillsBetween(c.start, c.end, c.player));
         }
     }
 }

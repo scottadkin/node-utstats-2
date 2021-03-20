@@ -186,6 +186,7 @@ class MatchManager{
             if(this.CTFManager !== undefined){
                 await this.CTFManager.updatePlayersMatchStats();
                 await this.CTFManager.insertEvents(this.matchId);
+                this.CTFManager.setSelfCovers(this.killManager);
             }
 
 

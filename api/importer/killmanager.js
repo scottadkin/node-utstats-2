@@ -268,6 +268,28 @@ class KillManager{
             new Message(`killManager.insertHeadshots() ${err}`,'error');
         }
     }
+
+
+    getKillsBetween(start, end, killer){
+
+        const found = [];
+
+        let k = 0;
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            k = this.kills[i];
+
+            if(k.timestamp >= start && k.timestamp <= end){
+                found.push(k);
+            }else if(k.timestamp > end){
+
+                break;
+            }
+        }
+
+        return found;
+    }
 }
 
 
