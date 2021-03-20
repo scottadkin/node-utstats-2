@@ -98,7 +98,7 @@ class MatchManager{
                     this.CTFManager.parseData();
                     this.CTFManager.setPlayerStats();
                     await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId);
-                    await this.CTFManager.updatePlayerTotals();
+                   
 
                     new Message(`Capture The Flag stats update complete.`,'pass');
                 }
@@ -184,9 +184,12 @@ class MatchManager{
             }
 
             if(this.CTFManager !== undefined){
+                
                 this.CTFManager.setSelfCovers(this.killManager);
                 await this.CTFManager.updatePlayersMatchStats();
+                await this.CTFManager.updatePlayerTotals();
                 await this.CTFManager.insertEvents(this.matchId);
+                
                 
             }
 

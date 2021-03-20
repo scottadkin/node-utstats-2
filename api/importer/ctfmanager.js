@@ -75,7 +75,7 @@ class CTFManager{
 
                     if(type === 'taken' || type === 'pickedup'){
 
-                        this.carryTimeFrames.push({"start": parseFloat(result[1]), "player": parseInt(result[3])});
+                        this.carryTimeFrames.push({"start": parseFloat(result[1]), "player": parseInt(result[3]), "bFail": true});
 
                     }else if(type === 'dropped' || type === 'captured'){
 
@@ -83,6 +83,7 @@ class CTFManager{
       
                         if(currentTimeframe !== null){
                             currentTimeframe.end = parseFloat(result[1]);
+                            currentTimeframe.bFail = (type === 'dropped') ? true : false
                         }else{
                             new Message(`CTFManager.parseData() currentTimeframe is null`,'warning');
                         }
@@ -117,7 +118,6 @@ class CTFManager{
             }
         }
 
-        console.log(this.carryTimeFrames);
         //console.log(this.events);
         this.createCapData();
     }
@@ -533,19 +533,23 @@ class CTFManager{
 
             c = this.carryTimeFrames[i];
 
+
             currentKills =  killManager.getKillsBetween(c.start, c.end, c.player, true);
-            console.log(`${c.player} killed ${currentKills} while carrying the flag`);
 
             currentPlayer = this.playerManager.getOriginalConnectionById(c.player);
 
             if(currentPlayer !== null){
+
                 currentPlayer.stats.ctf.selfCover += currentKills;
+
+                if(c.bFail){
+                    currentPlayer.stats.ctf.selfCoverFail += currentKills;
+                }else{
+                    currentPlayer.stats.ctf.selfCoverPass += currentKills;
+                }
             }
         }
 
-        for(let i = 0; i < this.playerManager.players.length; i++){
-            console.log(this.playerManager.players[i].stats.ctf);
-        }
     }
 }
 
