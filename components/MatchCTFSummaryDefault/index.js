@@ -3,6 +3,29 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
+const bAnyData = (player) =>{
+
+    const types = [
+        "flag_taken",
+        "flag_pickup",
+        "flag_dropped",
+        "flag_assist",
+        "flag_capture",
+        "flag_cover",
+        "flag_kill",
+        "flag_return",
+        "flag_save"
+    ];
+
+
+    for(let i = 0; i < types.length; i++){
+
+        if(player[types[i]] !== 0) return true;
+    }
+
+    return false;
+}
+
 const MatchCTFSummaryDefault = ({players, team}) =>{
 
 
@@ -25,6 +48,8 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
+
+        if(!bAnyData(p)) continue;
 
         totals.taken += p.flag_taken;
         totals.pickup += p.flag_pickup;

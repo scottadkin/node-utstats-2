@@ -3,12 +3,32 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
+const bAnyData = (player) =>{
+
+    const types = [
+        "flag_cover",
+        "flag_cover_fail",
+        "flag_multi_cover",
+        "flag_spree_cover",
+        "flag_cover_best",
+        "flag_self_cover",
+        "flag_self_cover_pass",
+        "flag_self_cover_fail"
+    ];
+
+
+    for(let i = 0; i < types.length; i++){
+
+        if(player[types[i]] !== 0)  return true;
+    }
+
+    return false;
+}
+
 const MatchCTFSummaryCovers = ({players, team}) =>{
 
 
     const elems = [];
-
-
     let p = 0;
     let coverEff = 0;
 
@@ -27,6 +47,8 @@ const MatchCTFSummaryCovers = ({players, team}) =>{
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
+
+        if(!bAnyData(p)) continue;
 
         if(p.flag_cover_pass != 0){
 
@@ -51,7 +73,7 @@ const MatchCTFSummaryCovers = ({players, team}) =>{
 
         if(p.flag_cover_best > totals.coverBest) totals.coverBest = p.flag_cover_best
 
-        elems.push(<tr className={Functions.getTeamColor(team)}>
+        elems.push(<tr className={Functions.getTeamColor(team)} key={i}>
             <td className="text-left"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
             <td>{Functions.ignore0(p.flag_cover)}</td>
             <td>{Functions.ignore0(p.flag_cover_pass)}</td>
@@ -78,7 +100,7 @@ const MatchCTFSummaryCovers = ({players, team}) =>{
         }
     }
 
-    elems.push(<tr>
+    elems.push(<tr key="total">
             <td className="text-left">Totals</td>
             <td>{Functions.ignore0(totals.cover)}</td>
             <td>{Functions.ignore0(totals.coverPass)}</td>
