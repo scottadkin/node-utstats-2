@@ -1,10 +1,10 @@
 import TipHeader from '../TipHeader/';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
+import Link from 'next/link';
 
 const MatchCTFSummaryDefault = ({players, team}) =>{
 
-    console.log(players);
 
     const elems = [];
 
@@ -16,7 +16,6 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
         "dropped": 0,
         "assist": 0,
         "cover": 0,
-        "coverPass": 0,
         "capture": 0,
         "kill": 0,
         "return": 0,
@@ -33,19 +32,17 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
         totals.assist += p.flag_assist;
         totals.capture += p.flag_capture;
         totals.cover += p.flag_cover;
-        totals.coverPass += p.flag_cover_pass;
         totals.kill += p.flag_kill;
         totals.return += p.flag_return;
         totals.save += p.flag_save;
 
         elems.push(<tr className={Functions.getTeamColor(team)} key={i}>
-            <td className="text-left"><CountryFlag country={p.country}/>{p.name}</td>
+            <td className="text-left"><CountryFlag country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
             <td>{Functions.ignore0(p.flag_taken)}</td>
             <td>{Functions.ignore0(p.flag_pickup)}</td>
             <td>{Functions.ignore0(p.flag_dropped)}</td>
             <td>{Functions.ignore0(p.flag_assist)}</td>
             <td>{Functions.ignore0(p.flag_cover)}</td>
-            <td>{Functions.ignore0(p.flag_cover_pass)}</td>
             <td>{Functions.ignore0(p.flag_capture)}</td>
             <td>{Functions.ignore0(p.flag_kill)}</td>
             <td>{Functions.ignore0(p.flag_return)}</td>
@@ -61,7 +58,6 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
             <td>{totals.dropped}</td>
             <td>{totals.assist}</td>
             <td>{totals.cover}</td>
-            <td>{totals.coverPass}</td>
             <td>{totals.capture}</td>
             <td>{totals.kill}</td>
             <td>{totals.return}</td>
@@ -82,7 +78,6 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
                 <TipHeader title="Dropped" content="Player dropped the enemy flag." />
                 <TipHeader title="Assist" content="Player had carried the flag that was later capped." />
                 <TipHeader title="Cover" content="Player covered their team mate that had the enemy flag." />
-                <TipHeader title="Cover Pass" content="Player covered their team mate that had the enemy flag, where the flag was capped." />
                 <TipHeader title="Capture" content="Player capped the enemy flag scoring a point for their team." />
                 <TipHeader title="Kill" content="Player killed an enemy that was carrying their team's flag." />
                 <TipHeader title="Return" content="Player returned their flag that was dropped by an enemy." />

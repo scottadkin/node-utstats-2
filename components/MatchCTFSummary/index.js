@@ -1,43 +1,7 @@
-import MatchCTFSummaryTeam from '../MatchCTFSummaryTeam/';
 import MatchCTFSummaryDefault from '../MatchCTFSummaryDefault/';
+import MatchCTFSummaryCovers from '../MatchCTFSummaryCovers/';
 import React from 'react';
 
-const getPlayersInTeam = (players, team) =>{
-
-    const found = [];
-
-    for(let i = 0; i < players.length; i++){
-
-        if(players[i].team === team){
-            found.push(players[i]);
-        }
-    }
-
-    return JSON.stringify(found);
-}
-
-/*const MatchCTFSummary = ({players, totalTeams}) =>{
-
-
-    players = JSON.parse(players);
-
-    const teams = [];
-
-    for(let i = 0; i < totalTeams; i++){
-
-        teams.push(<MatchCTFSummaryTeam key={i} players={getPlayersInTeam(players, i)} team={i}/>);
-    }
-
-    return (
-        <div className="special-table">
-            <div className="default-header">
-                Capture The Flag Summary
-            </div>
-
-            {teams}
-        </div>
-    );
-}*/
 
 class MatchCTFSummary extends React.Component{
 
@@ -46,8 +10,14 @@ class MatchCTFSummary extends React.Component{
         super(props);
 
         this.state = {"mode": 0};
+
+        this.changeMode = this.changeMode.bind(this);
     }
 
+    changeMode(id){
+
+        this.setState({"mode": id});
+    }
 
     getTeamPlayers(team){
 
@@ -77,15 +47,19 @@ class MatchCTFSummary extends React.Component{
 
             teamPlayers = this.getTeamPlayers(i);
 
-            teams.push(<MatchCTFSummaryDefault team={i} players={teamPlayers}/>);
+            if(this.state.mode === 0){
+                teams.push(<MatchCTFSummaryDefault team={i} players={teamPlayers}/>);
+            }else if(this.state.mode === 1){
+                teams.push(<MatchCTFSummaryCovers team={i} players={teamPlayers}/>);
+            }
         }
 
 
         return <div>
             <div className="default-header">Capture The Flag Summary</div>
             <div className="tabs">
-                <div className="tab tab-selected">General</div>
-                <div className="tab">Covers</div>
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "" }`} onClick={(() =>{ this.changeMode(0)})}>General</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "" }`} onClick={(() =>{ this.changeMode(1)})}>Covers</div>
             </div>
 
             {teams}
