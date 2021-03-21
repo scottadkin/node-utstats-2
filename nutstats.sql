@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 20, 2021 at 12:29 PM
+-- Generation Time: Mar 21, 2021 at 08:29 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -321,7 +321,8 @@ CREATE TABLE `nstats_map_spawns` (
   `x` double NOT NULL,
   `y` double NOT NULL,
   `z` double NOT NULL,
-  `spawns` int(11) NOT NULL
+  `spawns` int(11) NOT NULL,
+  `team` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

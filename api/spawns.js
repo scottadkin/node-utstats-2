@@ -46,15 +46,15 @@ class Spawns{
         });
     }
 
-    insert(name, map, x, y, z, spawns){
+    insert(name, map, x, y, z, spawns, team){
 
         return new Promise((resolve, reject) =>{
 
             name = name.toLowerCase();
 
-            const query = "INSERT INTO nstats_map_spawns VALUES(NULL,?,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_map_spawns VALUES(NULL,?,?,?,?,?,?,?)";
 
-            mysql.query(query, [name, map, x, y, z, spawns], (err) =>{
+            mysql.query(query, [name, map, x, y, z, spawns, team], (err) =>{
 
                 if(err) reject(err);
 

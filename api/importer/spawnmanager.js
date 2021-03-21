@@ -165,7 +165,7 @@ class SpawnManager{
 
                         s = this.spawnPoints[i];
 
-                        await this.spawns.insert(s.name, this.mapId, s.position.x, s.position.y, s.position.z, s.totalSpawns);
+                        await this.spawns.insert(s.name, this.mapId, s.position.x, s.position.y, s.position.z, s.totalSpawns, s.team);
                     }
 
                 }else{
