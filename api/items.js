@@ -30,7 +30,7 @@ class Items{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?,1)";
+            const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?,1,0)";
 
             mysql.query(query, [name, date, date, uses], (err) =>{
 

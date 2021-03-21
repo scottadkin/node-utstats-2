@@ -562,6 +562,9 @@ class CTFManager{
         let currentCovers = 0;
         let c = 0;
 
+        if(covers === undefined) return;
+        if(covers.length === 0) return;
+
         for(let i = 0; i < covers.length; i++){
 
             c = covers[i];

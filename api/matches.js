@@ -10,11 +10,23 @@ class Matches{
         teamGame, gameSpeed, hardcore, tournament, airControl, useTranslocator, friendlyFireScale, netMode, maxSpectators, 
         maxPlayers, totalTeams, totalPlayers, timeLimit, targetScore, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore){
 
+        
+
         mutators = mutators.toString();
+
+        if(hardcore === undefined) hardcore = 0;
+        if(tournament === undefined) tournament = 0;
+        if(airControl === undefined) airControl = 0;
+        if(useTranslocator === undefined) useTranslocator = 0;
+        if(friendlyFireScale === undefined) friendlyFireScale = 0;
+        if(netMode === undefined) netMode = 0;
+        if(timeLimit === undefined) timeLimit = 0;
+        if(targetScore === undefined) targetScore = 0;
 
         return new Promise((resolve, reject) =>{
 
             const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0)";
+
 
             const vars = [
                 date, 
@@ -59,6 +71,7 @@ class Matches{
             mysql.query(query, vars, (err, result) =>{
 
                 if(err) reject(err);
+                
                 
                 resolve(result.insertId);
             });

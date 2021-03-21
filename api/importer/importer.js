@@ -15,30 +15,37 @@ class Importer{
 
         this.ftpImporter.events.on('finished', async () =>{
 
+
+            let imported = 0;
+            let failed = 0;
+            let passed = 0;
             
             try{
                 
                 this.logsToImport = [];
                 await this.checkLogsFolder();
                 console.table(this.logsToImport);
-                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[this.logsToImport.length - 1]}`)
+                //const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[this.logsToImport.length - 1]}`)
 
-                const test = new MatchManager(testData, `${this.logsToImport[this.logsToImport.length - 1]}`);
+               // const test = new MatchManager(testData, `${this.logsToImport[this.logsToImport.length - 1]}`);
 
-                test.import();
+               // test.import();
 
-                //let test = 0;
-                //let testData = 0;
+                let test = 0;
+                let testData = 0;
 
-                /*for(let i = 0; i < this.logsToImport.length; i++){
+                for(let i = 0; i < this.logsToImport.length; i++){
 
+                    new Message(`Starting import of log number ${imported + 1} of ${this.logsToImport.length}`,'note');
                     testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
                     
                     test = new MatchManager(testData, this.logsToImport[i]);
 
                     await test.import();
 
-                }*/
+                    imported++;
+
+                }
 
             }catch(err){
                 console.trace(err);

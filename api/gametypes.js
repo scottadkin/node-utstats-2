@@ -11,16 +11,25 @@ class Gametypes{
 
     create(name){
 
+        
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,0,0,0,0)";
+            if(name !== undefined){
+            
+                const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,0,0,0,0)";
 
-            mysql.query(query, [name], (err, result) =>{
+                mysql.query(query, [name], (err, result) =>{
 
-                if(err) reject(err);
+                    if(err){
+                        console.log(err);
+                        reject(err);
+                    }
 
-                resolve(result.insertId);
-            });
+                    resolve(result.insertId);
+                });
+            }else{
+                reject("gametype name is undefined");
+            }
         });
     }
 

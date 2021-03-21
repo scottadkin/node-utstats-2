@@ -64,6 +64,11 @@ class MatchManager{
             
             this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
 
+            if(this.gametype.currentMatchGametype === undefined){
+                new Message(`Incomplete log skipping...`,'error');
+                return;
+            }
+
             this.playerManager.setKills(this.killManager.kills);
             this.playerManager.setHeadshots(this.killManager.headshots);
 
@@ -228,6 +233,7 @@ class MatchManager{
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){
+
             console.trace(err);
         }
     }
