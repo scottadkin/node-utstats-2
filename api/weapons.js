@@ -91,7 +91,9 @@ class Weapons{
 
         try{
 
-            names.push('None');
+            if(names.indexOf("None") === -1){
+                names.push('None');
+            }
             const current = await this.getIdsByNamesQuery(names);
 
             const currentNames = [];

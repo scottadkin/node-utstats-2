@@ -1,6 +1,4 @@
 const config = require('../../config.json');
-const Database = require('../database');
-const Promise = require('promise');
 const FTPImporter =  require('./ftpimporter');
 const fs =  require('fs');
 const Message = require('../message');
@@ -25,13 +23,13 @@ class Importer{
                 this.logsToImport = [];
                 await this.checkLogsFolder();
                 console.table(this.logsToImport);
-                //const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[this.logsToImport.length - 1]}`)
+                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[this.logsToImport.length - 1]}`)
 
-               // const test = new MatchManager(testData, `${this.logsToImport[this.logsToImport.length - 1]}`);
+                const test = new MatchManager(testData, `${this.logsToImport[this.logsToImport.length - 1]}`);
 
-               // test.import();s
+                test.import();
 
-                let test = 0;
+                /*let test = 0;
                 let testData = 0;
 
                 for(let i = 0; i < this.logsToImport.length; i++){
@@ -45,7 +43,7 @@ class Importer{
 
                     imported++;
 
-                }
+                }*/
 
             }catch(err){
                 console.trace(err);
