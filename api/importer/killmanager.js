@@ -247,6 +247,11 @@ class KillManager{
 
                     currentKillInformation = this.getMatchingKill(h.timestamp, h.killer, h.victim);
 
+                    if(currentKillInformation === null){
+                        new Message(`KillManager.insertHeadshots() currentKillInformation is null`,"warning");
+                        currentKillInformation = {"killDistance": -1};
+                    }
+
                     currentKiller = this.playerManager.getOriginalConnectionById(h.killer);
                     currentVictim = this.playerManager.getOriginalConnectionById(h.victim);
 

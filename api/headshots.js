@@ -11,6 +11,10 @@ class Headshots{
 
         return new Promise((resolve, reject) =>{
 
+            if(distance === undefined) distance = -1;
+
+            if(distance === null) distance = -1;
+
             const query = "INSERT INTO nstats_headshots VALUES(NULL,?,?,?,?,?,?,?)";
 
             mysql.query(query, [match, timestamp, killer, victim, distance, killerTeam, victimTeam], (err) =>{
