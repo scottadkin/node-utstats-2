@@ -460,6 +460,34 @@ class Maps{
         });
     }
 
+    getMatchDates(map, limit){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT date FROM nstats_matches WHERE map=? ORDER BY date DESC";
+
+            mysql.query(query, [map], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    const data = [];
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data.push(result[i].date);
+                    }
+
+                    resolve(data);
+                }
+
+                resolve([]);
+            });
+
+        });
+    }
+
 }
 
 

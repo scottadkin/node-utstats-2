@@ -9,6 +9,7 @@ class GraphCanvas{
 
     constructor(canvas, title, data, text){
 
+        
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
         this.aspectRatio = 0.5;
@@ -23,6 +24,8 @@ class GraphCanvas{
         this.heightOffset = 0;
 
         this.data = JSON.parse(data);
+
+        console.log(this.data);
 
         this.text = null;
 

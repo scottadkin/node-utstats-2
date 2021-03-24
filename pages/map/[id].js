@@ -12,6 +12,7 @@ import Servers from '../../api/servers';
 import Gametypes from '../../api/gametypes';
 import React from 'react';
 import Pagination from '../../components/Pagination/';
+import Graph from '../../components/Graph/';
 
 class Map extends React.Component{
 
@@ -88,6 +89,10 @@ class Map extends React.Component{
                         </table>
                     </div>
 
+                    <Graph title="Matches" data={
+                        JSON.stringify([{"name": "Matches", "data": this.props.dates}])
+                        }/>
+
                     <div className="default-header">Recent Matches</div>
                     <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
                     <div className={styles.recent}>
@@ -103,6 +108,78 @@ class Map extends React.Component{
     }
 }
 
+
+function createDatesData(data){
+
+    const day = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+    const week = [];
+    const month = [];
+    const year = [];
+    const allTime = [];
+
+    let totalDay = 0;
+    let totalWeek = 0;
+    let totalMonth = 0;
+    let totalYear = 0;
+    let totalAllTime = 0;
+
+    const daySeconds = (60 * 60) * 24;
+    const hourSeconds = 60 * 60;
+    const weekSeconds = daySeconds * 7;
+    const monthSeconds = weekSeconds * 4;
+    const yearSeconds = daySeconds * 365;
+
+    console.log(`day = ${daySeconds}, week = ${weekSeconds}, month = ${monthSeconds}, year = ${yearSeconds}`);
+
+    const now = Math.floor(new Date() * 0.001);
+
+    console.log(`now = ${now}`);
+
+
+    let diff = 0;
+
+
+    for(let i = 0; i < data.length; i++){
+
+        diff = now - data[i];
+
+        if(diff <= daySeconds){
+
+            console.log(`day`);
+            totalDay++;
+
+            for(let x = 1; x <= 24; x++){
+
+                if(diff >= hourSeconds * (x - 1) && diff < hourSeconds * x ){
+                    day[x]++;
+                }
+            }
+
+        }
+        
+        if(diff <= weekSeconds){
+            console.log(`week`);
+            totalWeek++;
+        }
+
+        if(diff <= monthSeconds){
+            console.log(`month`);
+            totalMonth++;
+        }
+
+        if(diff <= monthSeconds){
+            console.log(`year`);
+            totalYear++;
+        }
+
+        totalAllTime++;
+    }
+
+    console.log(`TotalDay = ${totalDay}, totalWeek = ${totalWeek}, totalMonth = ${totalMonth}, totalYear = ${totalYear}, allTime = ${totalAllTime}`);
+
+    console.log(day);
+
+}
 
 
 
@@ -188,6 +265,12 @@ export async function getServerSideProps({query}){
     //console.log(matches);
 
 
+   // console.log(await mapManager.getMatchDates(mapId));
+
+    let matchDates = await mapManager.getMatchDates(mapId);
+
+    createDatesData(matchDates);
+
     let pages = 1;
 
     if(perPage !== 0 && basicData[0].matches !== 0){
@@ -202,7 +285,8 @@ export async function getServerSideProps({query}){
             "matches": JSON.stringify(matches),
             "perPage": perPage,
             "pages": pages,
-            "page": page
+            "page": page,
+            "dates": matchDates
         }
     };
 }
