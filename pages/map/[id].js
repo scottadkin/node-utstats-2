@@ -26,6 +26,7 @@ class Map extends React.Component{
         const basic = JSON.parse(this.props.basic);
         const image = this.props.image;
         const matches = this.props.matches;
+
         return <div>
         <DefaultHead />
         <main>
@@ -89,9 +90,23 @@ class Map extends React.Component{
                         </table>
                     </div>
 
-                    <Graph title="Matches" data={
-                        JSON.stringify([{"name": "Matches", "data": this.props.dates}])
-                        }/>
+                    <Graph title={["Last 24 Hours", "Last 7 Days", "Last 28 Days", "Last 365 Days"]} data={JSON.stringify(
+                        [
+                            [{"name": "Matches", "data": this.props.dates.day.data}],
+                            [{"name": "Matches", "data": this.props.dates.week.data}],
+                            [{"name": "Matches", "data": this.props.dates.month.data}],
+                            [{"name": "Matches", "data": this.props.dates.year.data}],
+                        ])}
+                        
+                        text={
+                            JSON.stringify([
+                                this.props.dates.day.text,
+                                this.props.dates.week.text,
+                                this.props.dates.month.text,
+                                this.props.dates.year.text,
+                            ])
+                        }
+                        />
 
                     <div className="default-header">Recent Matches</div>
                     <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
@@ -108,13 +123,15 @@ class Map extends React.Component{
     }
 }
 
-function setTimeFrameValues(data, timeFrame, arrayLength){
+function setTimeFrameValues(data, timeFrame, arrayLength, label){
 
     const values = [];
+    const text = [];
     let total = 0;
 
     for(let i = 0; i < arrayLength; i++){
         values.push(0);
+        text.push(`${i - 1} - ${i} ${label}${(i !== 1) ? "s" : ""} ago.`);
     }
 
     const now = Math.floor(new Date() * 0.001);
@@ -142,36 +159,25 @@ function setTimeFrameValues(data, timeFrame, arrayLength){
         }
     }
 
-    return {"data": values, "total": total}
+    return {"data": values, "total": total, "text": text}
 }
 
 function createDatesData(data){
-    
-    const allTime = [];
 
     const hourSeconds = 60 * 60;
-    const daySeconds = (60 * 60) * 24;  
-    const weekSeconds = daySeconds * 7;
-    const monthSeconds = weekSeconds * 4;
-    const yearSeconds = daySeconds * 365;
+    const daySeconds = (60 * 60) * 24; 
 
-    const day = setTimeFrameValues(data, hourSeconds, 24);
-    const week = setTimeFrameValues(data, daySeconds, 7);
-    const month = setTimeFrameValues(data, daySeconds, 28);
-    const year = setTimeFrameValues(data, daySeconds, 365);
+    const day = setTimeFrameValues(data, hourSeconds, 24, "Hour");
+    const week = setTimeFrameValues(data, daySeconds, 7, "Day");
+    const month = setTimeFrameValues(data, daySeconds, 28, "Day");
+    const year = setTimeFrameValues(data, daySeconds, 365, "Day");
 
-    console.log(`day = ${daySeconds}, week = ${weekSeconds}, month = ${monthSeconds}, year = ${yearSeconds}`);
-
-    const now = Math.floor(new Date() * 0.001);
-
-    console.log(`now = ${now}`);
-
-    console.log(`TotalDay = ${day.total}, totalWeek = ${week.total}, totalMonth = ${month.total}, totalYear = ${year.total}, allTime = $`);
-
-    console.log(day);
-    console.log(week);
-    console.log(month);
-    console.log(year);
+    return {
+        "day": day,
+        "week": week,
+        "month": month,
+        "year": year
+    };
 
 }
 
@@ -261,9 +267,9 @@ export async function getServerSideProps({query}){
 
    // console.log(await mapManager.getMatchDates(mapId));
 
-    let matchDates = await mapManager.getMatchDates(mapId);
+    const matchDates = await mapManager.getMatchDates(mapId);
 
-    createDatesData(matchDates);
+    const matchDatesData = createDatesData(matchDates);
 
     let pages = 1;
 
@@ -280,7 +286,7 @@ export async function getServerSideProps({query}){
             "perPage": perPage,
             "pages": pages,
             "page": page,
-            "dates": matchDates
+            "dates": matchDatesData
         }
     };
 }
