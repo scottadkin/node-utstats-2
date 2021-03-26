@@ -117,7 +117,7 @@ class GraphCanvas{
 
             this.setMaxStringLengths();
             this.calcMinMax();
-             this.createMouseOverData(this.graphWidth / this.mostData);
+            this.createMouseOverData(this.graphWidth / this.mostData);
 
             this.render();
         }
@@ -730,6 +730,9 @@ class GraphCanvas{
             data = this.data[this.currentTab];
         }
 
+        
+        currentData = [];      
+
 
         //all data must have same length
         for(let i = 0; i < data[0].data.length; i++){
@@ -745,13 +748,12 @@ class GraphCanvas{
             }
 
             this.mouseOverData.push({
-                "startX": startX + (offsetXBit * (i - 1)),
-                "endX": startX + (offsetXBit * i),
+                "startX": startX + (offsetXBit * (i)),
+                "endX": startX + (offsetXBit * (i + 1)),
                 "title": `Data Point ${i}`,
                 "data": currentData
             });
         }
-        
     }
 
     getHoverData(){
@@ -790,8 +792,8 @@ class GraphCanvas{
 
     renderHover(c){
 
-        if(this.mouse.x < this.graphStartX || this.mouse.x > this.graphStartX + this.graphWidth) return;
-        if(this.mouse.y < this.graphStartY || this.mouse.y > this.graphStartY + this.graphHeight) return;
+        if(this.mouse.x < this.graphStartX || this.mouse.x > this.graphStartX + this.graphWidth + 5) return;
+        if(this.mouse.y < this.graphStartY || this.mouse.y > this.graphStartY + this.graphHeight + 5) return;
 
         const hoverData = this.getHoverData();
 

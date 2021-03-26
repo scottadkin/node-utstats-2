@@ -131,7 +131,7 @@ function setTimeFrameValues(data, timeFrame, arrayLength, label){
 
     for(let i = 0; i < arrayLength; i++){
         values.push(0);
-        text.push(`${i - 1} - ${i} ${label}${(i !== 1) ? "s" : ""} ago.`);
+        text.push(`${i} - ${i + 1} ${label}${(i !== 1) ? "s" : ""} ago.`);
     }
 
     const now = Math.floor(new Date() * 0.001);
