@@ -108,26 +108,57 @@ class Map extends React.Component{
     }
 }
 
+function setTimeFrameValues(data, timeFrame, arrayLength){
+
+    const values = [];
+    let total = 0;
+
+    for(let i = 0; i < arrayLength; i++){
+        values.push(0);
+    }
+
+    const now = Math.floor(new Date() * 0.001);
+
+    let diff = 0;
+    let d = 0;
+
+    let index = 0;
+
+    for(let i = 0; i < data.length; i++){
+
+        d = data[i];
+
+        diff = now - d;
+
+        for(let x = 0; x < arrayLength; x++){
+
+            index = Math.floor(diff / timeFrame);
+
+            if(index === x){
+                values[index]++;
+                total++;
+                break;
+            }
+        }
+    }
+
+    return {"data": values, "total": total}
+}
 
 function createDatesData(data){
-
-    const day = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-    const week = [];
-    const month = [];
-    const year = [];
+    
     const allTime = [];
 
-    let totalDay = 0;
-    let totalWeek = 0;
-    let totalMonth = 0;
-    let totalYear = 0;
-    let totalAllTime = 0;
-
-    const daySeconds = (60 * 60) * 24;
     const hourSeconds = 60 * 60;
+    const daySeconds = (60 * 60) * 24;  
     const weekSeconds = daySeconds * 7;
     const monthSeconds = weekSeconds * 4;
     const yearSeconds = daySeconds * 365;
+
+    const day = setTimeFrameValues(data, hourSeconds, 24);
+    const week = setTimeFrameValues(data, daySeconds, 7);
+    const month = setTimeFrameValues(data, daySeconds, 28);
+    const year = setTimeFrameValues(data, daySeconds, 365);
 
     console.log(`day = ${daySeconds}, week = ${weekSeconds}, month = ${monthSeconds}, year = ${yearSeconds}`);
 
@@ -135,49 +166,12 @@ function createDatesData(data){
 
     console.log(`now = ${now}`);
 
-
-    let diff = 0;
-
-
-    for(let i = 0; i < data.length; i++){
-
-        diff = now - data[i];
-
-        if(diff <= daySeconds){
-
-            console.log(`day`);
-            totalDay++;
-
-            for(let x = 1; x <= 24; x++){
-
-                if(diff >= hourSeconds * (x - 1) && diff < hourSeconds * x ){
-                    day[x]++;
-                }
-            }
-
-        }
-        
-        if(diff <= weekSeconds){
-            console.log(`week`);
-            totalWeek++;
-        }
-
-        if(diff <= monthSeconds){
-            console.log(`month`);
-            totalMonth++;
-        }
-
-        if(diff <= monthSeconds){
-            console.log(`year`);
-            totalYear++;
-        }
-
-        totalAllTime++;
-    }
-
-    console.log(`TotalDay = ${totalDay}, totalWeek = ${totalWeek}, totalMonth = ${totalMonth}, totalYear = ${totalYear}, allTime = ${totalAllTime}`);
+    console.log(`TotalDay = ${day.total}, totalWeek = ${week.total}, totalMonth = ${month.total}, totalYear = ${year.total}, allTime = $`);
 
     console.log(day);
+    console.log(week);
+    console.log(month);
+    console.log(year);
 
 }
 
