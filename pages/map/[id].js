@@ -71,6 +71,22 @@ class Map extends React.Component{
                                     <td>{basic.matches}</td>
                                 </tr>
                                 <tr>
+                                    <td>Matches Last 24 Hours</td>
+                                    <td>{this.props.dates.day.total}</td>
+                                </tr>
+                                <tr>
+                                    <td>Matches Last 7 Days</td>
+                                    <td>{this.props.dates.week.total}</td>
+                                </tr>
+                                <tr>
+                                    <td>Matches Last 28 Days</td>
+                                    <td>{this.props.dates.month.total}</td>
+                                </tr>
+                                <tr>
+                                    <td>Matches Last 365 Days</td>
+                                    <td>{this.props.dates.year.total}</td>
+                                </tr>
+                                <tr>
                                     <td>Total Playtime</td>
                                     <td>{parseFloat(basic.playtime / 60).toFixed(2)} Hours</td>
                                 </tr>
@@ -90,6 +106,9 @@ class Map extends React.Component{
                         </table>
                     </div>
 
+                    <div className="default-header">
+                        Games Played
+                    </div>
                     <Graph title={["Last 24 Hours", "Last 7 Days", "Last 28 Days", "Last 365 Days"]} data={JSON.stringify(
                         [
                             [{"name": "Matches", "data": this.props.dates.day.data}],

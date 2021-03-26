@@ -488,6 +488,94 @@ class Maps{
         });
     }
 
+
+    bPlayerExist(player, map){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_players FROM nstats_player_maps WHERE map=? AND player=?";
+
+            mysql.query(query, [map, player], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result[0].total_players > 0){
+                        resolve(true);
+                    }
+                }
+                resolve(false);
+            });
+        });
+    }
+
+    insertNewPlayerHistory(player, map, matchId, date){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,1,?,?,?,?,?)";
+
+            const vars = [
+                map, 
+                player.masterId,
+                matchId,
+                date,
+                matchId,
+                date,
+                player.stats.time_on_server,
+                player.stats.time_on_server,
+                matchId,
+                player.stats.time_on_server,
+                matchId
+            ];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async updatePlayerHistory(player, map, matchId, date){
+
+        try{
+
+            const exists = await this.bPlayerExist(player.masterId, map);
+
+            console.log(`playerId = ${player.name}, exists = ${exists}`);
+
+            if(!exists){
+                await this.insertNewPlayerHistory(player, map, matchId, date);
+            }
+
+        }catch(err){
+            new Message(`Maps.updatePlayerHistory() ${err}`,'error');
+        }
+    }
+
+
+    async updateAllPlayersHistory(players, mapId, matchId, date){
+
+        try{
+
+            let p = 0;
+
+            for(let i = 0; i < players.length; i++){
+
+                p = players[i];
+
+                if(p.bDuplicate === undefined){
+                    await this.updatePlayerHistory(p, mapId, matchId, date);
+                }
+
+            }
+
+        }catch(err){
+            new Message(`Maps.updateAllPlayersHistory() ${err}`,'error');
+        }
+    }
 }
 
 

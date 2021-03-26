@@ -230,6 +230,13 @@ class MatchManager{
             await this.playerManager.insertScoreHistory(this.matchId);
             new Message(`Inserted player score history`,'pass');
 
+
+            new Message(`Updating Player Map History.`,'note');
+
+            await this.maps.updateAllPlayersHistory(this.playerManager.players, this.mapInfo.mapId, this.matchId, this.serverInfo.date);
+
+            //this.maps.updatePlayerHistory(this.playerManager.players[0].masterId, this.mapInfo.matchId);
+
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
         }catch(err){
