@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 26, 2021 at 08:58 PM
+-- Generation Time: Mar 27, 2021 at 01:36 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -446,8 +446,6 @@ CREATE TABLE `nstats_player_maps` (
   `last_id` int(11) NOT NULL,
   `matches` int(11) NOT NULL,
   `playtime` double NOT NULL,
-  `shortest` float NOT NULL,
-  `shortest_id` int(11) NOT NULL,
   `longest` float NOT NULL,
   `longest_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

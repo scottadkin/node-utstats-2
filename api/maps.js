@@ -513,19 +513,19 @@ class Maps{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,1,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,1,?,?,?)";
+
+            const playtime = player.stats.time_on_server.toFixed(4);
 
             const vars = [
                 map, 
                 player.masterId,
-                matchId,
                 date,
                 matchId,
                 date,
-                player.stats.time_on_server,
-                player.stats.time_on_server,
                 matchId,
-                player.stats.time_on_server,
+                playtime,
+                playtime,
                 matchId
             ];
 
@@ -538,16 +538,62 @@ class Maps{
         });
     }
 
+    updatePlayerHistoryQuery(player, map, matchId, date){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_player_maps SET
+            first = IF(first > ?, ?, first),
+            last = IF(last <= ?, ?, last),
+            last_id = IF(last <= ?, ?, last_id),
+            matches=matches+1,
+            playtime=playtime+?,
+            longest_id = IF(longest <= ?, ?, longest_id),
+            longest = IF(longest < ?, ?, longest)
+            WHERE player=? AND map=?
+            `;
+
+            const playtime = player.stats.time_on_server.toFixed(4);
+
+            const vars = [
+                date, 
+                date,
+                date,
+                date,
+                date, 
+                matchId,
+                playtime,
+                playtime,
+                matchId,
+                playtime,
+                playtime,
+                player.masterId,
+                map
+            ];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err){
+
+                    console.trace(err);
+                    reject(err);
+                }
+
+                resolve();
+            });
+        });
+    }
+
     async updatePlayerHistory(player, map, matchId, date){
 
         try{
 
             const exists = await this.bPlayerExist(player.masterId, map);
 
-            console.log(`playerId = ${player.name}, exists = ${exists}`);
-
             if(!exists){
                 await this.insertNewPlayerHistory(player, map, matchId, date);
+            }else{
+                await this.updatePlayerHistoryQuery(player, map, matchId, date);
             }
 
         }catch(err){
