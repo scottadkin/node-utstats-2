@@ -123,22 +123,6 @@ class Map extends React.Component{
                                     <td>{basic.matches}</td>
                                 </tr>
                                 <tr>
-                                    <td>Matches Last 24 Hours</td>
-                                    <td>{this.props.dates.day.total}</td>
-                                </tr>
-                                <tr>
-                                    <td>Matches Last 7 Days</td>
-                                    <td>{this.props.dates.week.total}</td>
-                                </tr>
-                                <tr>
-                                    <td>Matches Last 28 Days</td>
-                                    <td>{this.props.dates.month.total}</td>
-                                </tr>
-                                <tr>
-                                    <td>Matches Last 365 Days</td>
-                                    <td>{this.props.dates.year.total}</td>
-                                </tr>
-                                <tr>
                                     <td>Total Playtime</td>
                                     <td>{parseFloat(basic.playtime / 60).toFixed(2)} Hours</td>
                                 </tr>
@@ -185,6 +169,13 @@ class Map extends React.Component{
                     <div className="m-bottom-10">  
                         {this.createAddicedPlayers()} 
                     </div>
+
+                    <div className="default-header">
+                        Longest Matches
+                    </div>
+
+                        <MatchesDefaultView data={this.props.longestMatches} image={image}/>
+
 
                     <div className="default-header">Recent Matches</div>
                     <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
@@ -261,6 +252,7 @@ function createDatesData(data){
 
 
 
+
 export async function getServerSideProps({query}){
 
 
@@ -323,27 +315,42 @@ export async function getServerSideProps({query}){
 
 
     const matches = await mapManager.getRecent(mapId, page, perPage);
+    const longestMatches = await mapManager.getLongestMatches(mapId, 5);
     
     for(let i = 0; i < matches.length; i++){
-
         matches[i].mapName = Functions.removeUnr(basicData[0].name);
     }
 
+    for(let i = 0; i < longestMatches.length; i++){
+        longestMatches[i].mapName = Functions.removeUnr(basicData[0].name);
+    }
+
     const serverIds = Functions.getUniqueValues(matches, "server");
+    const longestServerIds = Functions.getUniqueValues(longestMatches, "server");
     const gametypeIds = Functions.getUniqueValues(matches, "gametype");
+    const longestGametypeIds = Functions.getUniqueValues(longestMatches, "gametype");
+
+
+    for(let i = 0; i < longestServerIds.length; i++){
+        Functions.insertIfNotExists(serverIds, longestServerIds[i]);
+    }
+
+    for(let i = 0; i < longestGametypeIds.length; i++){
+        Functions.insertIfNotExists(gametypeIds, longestGametypeIds[i]);
+    }
+
 
     const serverManager = new Servers();
 
     const serverNames = await serverManager.getNames(serverIds);
     Functions.setIdNames(matches, serverNames, "server", "serverName");
+    Functions.setIdNames(longestMatches, serverNames, "server", "serverName");
 
     const gametypeManager = new Gametypes();
     const gametypeNames = await gametypeManager.getNames(gametypeIds);
     Functions.setIdNames(matches, gametypeNames, "gametype", "gametypeName");
-    //console.log(matches);
+    Functions.setIdNames(longestMatches, gametypeNames, "gametype", "gametypeName");
 
-
-   // console.log(await mapManager.getMatchDates(mapId));
 
     const matchDates = await mapManager.getMatchDates(mapId);
     const matchDatesData = createDatesData(matchDates);
@@ -362,7 +369,8 @@ export async function getServerSideProps({query}){
 
     const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
-    console.log(faceFiles);
+    
+
 
     let pages = 1;
 
@@ -382,7 +390,8 @@ export async function getServerSideProps({query}){
             "dates": matchDatesData,
             "addictedPlayers": JSON.stringify(addictedPlayers),
             "playerNames": JSON.stringify(playerNames),
-            "faceFiles": JSON.stringify(faceFiles)
+            "faceFiles": JSON.stringify(faceFiles),
+            "longestMatches": JSON.stringify(longestMatches)
         }
     };
 }

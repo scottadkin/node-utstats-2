@@ -641,6 +641,29 @@ class Maps{
             });
         });
     }
+
+
+    getLongestMatches(mapId, limit){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `SELECT 
+            id,date,server,gametype,map,playtime,insta,total_teams,players,dm_winner,dm_score,team_score_0,team_score_1,team_score_2,team_score_3
+            FROM nstats_matches WHERE map=? ORDER BY playtime DESC LIMIT ?
+            `;
+
+            mysql.query(query, [mapId, limit], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

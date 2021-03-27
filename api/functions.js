@@ -231,6 +231,18 @@ class Functions{
 
         return `${minutes}:${seconds}`;
     }
+
+
+    static insertIfNotExists(array, value){
+
+
+        for(let i = 0; i < array.length; i++){
+
+            if(array[i] === value) return array;
+        }
+
+        array.push(value);
+    }
 }
 
 module.exports = Functions;
