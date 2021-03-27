@@ -25,12 +25,26 @@ class Map extends React.Component{
         
     }
 
+    getPlayerFace(faces, id){
+
+        for(const [key, value] of Object.entries(faces)){
+
+            if(parseInt(key) === id){
+                return value.name;
+            }
+        }
+
+        return 'faceless';
+
+    }
 
     createAddicedPlayers(){
 
         const elems = [];
 
         let p = 0;
+
+        const faceFiles = JSON.parse(this.props.faceFiles);
 
         const players = JSON.parse(this.props.addictedPlayers);
         const playerNames = JSON.parse(this.props.playerNames);
@@ -41,9 +55,11 @@ class Map extends React.Component{
             p = players[i];
 
             currentPlayer = Functions.getPlayer(playerNames, p.player);
+  
 
             elems.push(<MapAddictedPlayer key={i} name={currentPlayer.name} matches={p.matches} playtime={p.playtime}
-                playerId={p.player} country={currentPlayer.country} longest={p.longest} longestId={p.longest_id}
+                playerId={p.player} country={currentPlayer.country} longest={p.longest} longestId={p.longest_id} 
+                face={this.getPlayerFace(faceFiles, currentPlayer.face)}
             />);
         }
 
@@ -75,7 +91,7 @@ class Map extends React.Component{
                     </div>
     
                     
-                    <div className={`${styles.top} m-bottom-25`}>
+                    <div className={`${styles.top} m-bottom-10`}>
                         <img onClick={(() =>{
                             const elem = document.getElementById("main-image");
                             elem.requestFullscreen();
@@ -166,18 +182,9 @@ class Map extends React.Component{
                     <div className="default-header">
                         Addicted Players
                     </div>
-
-                    <table className="m-bottom-25">
-                    <tbody>
-                        <tr>
-                            <th>Player</th>
-                            <th>Matches</th>
-                            <th>Longest Match</th>
-                            <th>Playtime</th>
-                        </tr>
-                        {this.createAddicedPlayers()}
-                    </tbody>
-                    </table>
+                    <div className="m-bottom-10">  
+                        {this.createAddicedPlayers()} 
+                    </div>
 
                     <div className="default-header">Recent Matches</div>
                     <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
@@ -340,7 +347,7 @@ export async function getServerSideProps({query}){
 
     const matchDates = await mapManager.getMatchDates(mapId);
     const matchDatesData = createDatesData(matchDates);
-    const addictedPlayers = await mapManager.getTopPlayersPlaytime(mapId, 10);
+    const addictedPlayers = await mapManager.getTopPlayersPlaytime(mapId, 5);
 
     const playerManager = new Players();
 

@@ -1,0 +1,54 @@
+.wrapper{
+    background-color:black;
+    display:grid;
+    grid-template-columns: 98px auto;
+    max-width:350px;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:-1px;
+    height:80px;
+    transition:background-color 0.3s;
+}
+
+.wrapper:hover{
+    background-color:rgb(12,12,12);
+}
+
+.face{
+   height:80px;
+}
+
+.face img{
+    height:64px;
+    margin-top:7px;
+    margin-left:6px;
+    margin-right:6px;
+    border:1px solid rgba(255,255,255,0.25);
+}
+
+.kv{
+    display:grid;
+    grid-template-columns: 50% 50%;
+    font-size:12px;
+    line-height:16px;
+}
+
+.kv div:nth-child(1){
+    text-align:left;
+    padding-left:6px;
+}
+.kv div:nth-child(2){
+    text-align:left;
+}
+
+.name{
+    color:yellow;
+    padding:3px;
+    text-align:left;
+    padding-left:6px;
+}
+
+.name img{
+    padding-right:5px;
+}
