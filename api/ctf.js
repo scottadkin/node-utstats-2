@@ -1,5 +1,6 @@
 const Promise = require('promise');
 const mysql = require('./database');
+const Message = require('./message');
 
 class CTF{
 
@@ -192,6 +193,58 @@ class CTF{
                 resolve([]);
             });
         });
+    }
+
+    bFlagLocationExists(map, team){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_flags FROM nstats_maps_flags WHERE map=? AND team=?";
+
+            mysql.query(query, [map, team], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result[0].total_flags > 0){
+                        resolve(true);
+                    }
+                }
+
+                resolve(false);
+            });
+        });
+    }
+
+    insertFlagLocationQuery(map, team, position){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_maps_flags VALUES(NULL,?,?,?,?,?)";
+
+            mysql.query(query, [map, team, position.x, position.y, position.z], (err) =>{
+
+                if(err) reject(err);
+
+
+                resolve();
+            });
+        });
+    }
+
+    async insertFlagLocation(map, team, position){
+
+        try{
+
+            if(!await this.bFlagLocationExists(map, team)){
+                new Message(`Flag location doesn't exists(map = ${map}, team = ${team}), inserting now.`,"note");
+                await this.insertFlagLocationQuery(map, team, position);
+            }
+
+        }catch(err){
+            new Message(`CTF.InsertFlagLocation() ${err}`,"error");
+        }
     }
 }
 

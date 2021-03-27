@@ -10,6 +10,7 @@ class CTFManager{
 
         this.events = [];
         this.capData = [];
+        this.flagLines = [];
 
         this.carryTimeFrames = []; 
 
@@ -41,6 +42,7 @@ class CTFManager{
     parseData(){
         
         const reg = /^(\d+?\.\d+?)\tflag_(.+?)\t(\d+?)(|\t(\d+?)|\t(\d+?)\t(\d+?))$/i;
+        
 
         let d = 0;
         let result = 0;
@@ -118,8 +120,31 @@ class CTFManager{
             }
         }
 
+
+        const locationReg = /^\d+?\.\d+?\tnstats\tflag_location\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
+
+        this.flagLocations = [];
+
+        for(let i = 0; i < this.flagLines.length; i++){
+
+            result = locationReg.exec(this.flagLines[i]);
+
+            if(result !== null){
+
+                this.flagLocations.push({
+                    "team": parseInt(result[1]),
+                    "position": {
+                        "x": parseFloat(result[2]),
+                        "y": parseFloat(result[3]),
+                        "z": parseFloat(result[4]),
+                    }
+                });
+            }
+        }
+
         //console.log(this.events);
         this.createCapData();
+        
     }
 
 
@@ -599,9 +624,24 @@ class CTFManager{
                 }
             }
 
-        }
+        }    
+    }
 
-        
+    async insertFlagLocations(mapId){
+
+        try{
+            
+            let f = 0;
+
+            for(let i = 0; i < this.flagLocations.length; i++){
+
+                f = this.flagLocations[i];
+                await this.ctf.insertFlagLocation(mapId, f.team, f.position);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

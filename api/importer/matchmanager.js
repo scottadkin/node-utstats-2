@@ -103,6 +103,7 @@ class MatchManager{
                     this.CTFManager.parseData();
                     this.CTFManager.setPlayerStats();
                     await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId);
+                    await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
                    
 
                     new Message(`Capture The Flag stats update complete.`,'pass');
@@ -398,7 +399,7 @@ class MatchManager{
                 }else if(currentType === 'nstats'){
 
                     typeResult = nstatsReg.exec(this.lines[i]);
-                    
+
                     if(typeResult !== null){
 
                         currentType = typeResult[1].toLowerCase();
@@ -417,6 +418,12 @@ class MatchManager{
                             }
 
                             this.domManager.data.push(this.lines[i]);
+
+                        }else if(currentType === 'flag_location'){
+                            if(this.CTFManager === undefined){
+                                this.CTFManager = new CTFManager();
+                            }
+                            this.CTFManager.flagLines.push(this.lines[i]);
                         }
                     }
 

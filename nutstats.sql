@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 27, 2021 at 01:36 AM
+-- Generation Time: Mar 27, 2021 at 08:42 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -306,6 +306,21 @@ CREATE TABLE `nstats_maps` (
   `last` int(11) NOT NULL,
   `matches` int(11) NOT NULL,
   `playtime` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_maps_flags`
+--
+
+CREATE TABLE `nstats_maps_flags` (
+  `id` int(11) NOT NULL,
+  `map` int(11) NOT NULL,
+  `team` int(11) NOT NULL,
+  `x` float NOT NULL,
+  `y` float NOT NULL,
+  `z` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -809,6 +824,12 @@ ALTER TABLE `nstats_maps`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_maps_flags`
+--
+ALTER TABLE `nstats_maps_flags`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_map_spawns`
 --
 ALTER TABLE `nstats_map_spawns`
@@ -1002,6 +1023,12 @@ ALTER TABLE `nstats_logs`
 -- AUTO_INCREMENT for table `nstats_maps`
 --
 ALTER TABLE `nstats_maps`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_maps_flags`
+--
+ALTER TABLE `nstats_maps_flags`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
