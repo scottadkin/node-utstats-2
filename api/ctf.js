@@ -246,6 +246,15 @@ class CTF{
             new Message(`CTF.InsertFlagLocation() ${err}`,"error");
         }
     }
+
+
+    getFlagLocations(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT";
+        });
+    }
 }
 
 

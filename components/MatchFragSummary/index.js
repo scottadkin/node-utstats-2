@@ -106,9 +106,9 @@ class MatchFragSummary extends React.Component{
                 }else{
                     toDisplayDistances.push(key);
                 }
-
-                i++;
+                
             }
+            i++;
         }
 
 

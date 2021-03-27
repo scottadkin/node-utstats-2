@@ -4,7 +4,7 @@ import Link from 'next/link';
 import TipHeader from '../TipHeader/';
 
 const bAnyData = (data) =>{
-
+    
     const types = [
         "shortest_kill_distance",
         "average_kill_distance",
