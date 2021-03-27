@@ -100,6 +100,8 @@ const MatchCTFSummaryCovers = ({players, team}) =>{
         }
     }
 
+    if(elems.length === 0) return <div></div>
+
     elems.push(<tr key="total">
             <td className="text-left">Totals</td>
             <td>{Functions.ignore0(totals.cover)}</td>

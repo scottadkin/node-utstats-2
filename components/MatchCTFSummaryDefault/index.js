@@ -76,6 +76,10 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
         </tr>);
     }
 
+    if(elems.length === 0){
+        return <div></div>;
+    }
+
     elems.push(<tr key={`totals`}>
             <td className="text-left">Totals</td>
             <td>{totals.taken}</td>
