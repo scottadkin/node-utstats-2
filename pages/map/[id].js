@@ -15,12 +15,14 @@ import Pagination from '../../components/Pagination/';
 import Graph from '../../components/Graph/';
 import MapAddictedPlayer from '../../components/MapAddictedPlayer/';
 import Players from '../../api/players';
+import Faces from '../../api/faces';
 
 class Map extends React.Component{
 
     constructor(props){
 
         super(props);
+        
     }
 
 
@@ -38,10 +40,7 @@ class Map extends React.Component{
 
             p = players[i];
 
-            console.log(p);
-
             currentPlayer = Functions.getPlayer(playerNames, p.player);
-            console.log(currentPlayer);
 
             elems.push(<MapAddictedPlayer key={i} name={currentPlayer.name} matches={p.matches} playtime={p.playtime}
                 playerId={p.player} country={currentPlayer.country} longest={p.longest} longestId={p.longest_id}
@@ -346,8 +345,17 @@ export async function getServerSideProps({query}){
     const playerManager = new Players();
 
     const playerIds = Functions.getUniqueValues(addictedPlayers, "player");
+    
 
     const playerNames = await playerManager.getNamesByIds(playerIds);
+    const faceIds = Functions.getUniqueValues(playerNames, "face");
+
+    const faceManager = new Faces();
+
+
+    const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
+
+    console.log(faceFiles);
 
     let pages = 1;
 
@@ -366,7 +374,8 @@ export async function getServerSideProps({query}){
             "page": page,
             "dates": matchDatesData,
             "addictedPlayers": JSON.stringify(addictedPlayers),
-            "playerNames": JSON.stringify(playerNames)
+            "playerNames": JSON.stringify(playerNames),
+            "faceFiles": JSON.stringify(faceFiles)
         }
     };
 }

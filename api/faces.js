@@ -275,14 +275,25 @@ class Faces{
 
             const faces = await this.getFacesName(faceIds);
 
-            const newFaces = [];
+            const newFaces = {};
+
+            const files = fs.readdirSync('public/images/faces/');
 
             for(let i = 0; i < faces.length; i++){
-
+ 
                 newFaces[faces[i].id] = {
-                    "imageExists": Faces.imageExists(faces[i].name),
-                    "name": faces[i].name
+       
+                    "name": (files.indexOf(`${faces[i].name}.png`) !== -1) ? faces[i].name : "faceless"
+                };
+            }
+
+            //add missing ones as faceless
+            for(let i = 0; i < faceIds.length; i++){
+
+                if(newFaces[faceIds[i]] === undefined){
+                    newFaces[faceIds[i]] = {"name": "faceless"};
                 }
+
             }
 
             return newFaces;
