@@ -3,8 +3,25 @@ import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import TipHeader from '../TipHeader/';
 
+const bAnyData = (data) =>{
 
-//parse kills here and the categorise the distancesesses
+    const types = [
+        "shortest_kill_distance",
+        "average_kill_distance",
+        "longest_kill_distance",
+        "k_distance_normal",
+        "k_distance_long",
+        "k_distance_uber"
+    ];
+
+    for(let i = 0; i < types.length; i++){
+
+        if(data[types[i]] != 0) return true;
+    }
+
+    return false;
+}
+
 const MatchFragDistances = ({players, team, toDisplay}) =>{
 
     const elems = [];
@@ -46,18 +63,17 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
 
         totalAverage += p.average_kill_distance;
 
-        console.log(`p`);
-        console.log(p);
-
-        elems.push(<tr className={bgColor}>
-            <td className="text-left"><Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
-            <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
-            <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>
-            <td>{Functions.ignore0(p.longest_kill_distance.toFixed(2))}</td>
-            {(toDisplay.indexOf("k_distance_normal") !== -1) ?  <td>{Functions.ignore0(p.k_distance_normal)}</td> : null }
-            {(toDisplay.indexOf("k_distance_long") !== -1) ?  <td>{Functions.ignore0(p.k_distance_long)}</td> : null }
-            {(toDisplay.indexOf("k_distance_uber") !== -1) ?  <td>{Functions.ignore0(p.k_distance_uber)}</td> : null }
-        </tr>);
+        if(bAnyData(p)){
+            elems.push(<tr className={bgColor}>
+                <td className="text-left name-td"><Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
+                <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
+                <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>
+                <td>{Functions.ignore0(p.longest_kill_distance.toFixed(2))}</td>
+                {(toDisplay.indexOf("k_distance_normal") !== -1) ?  <td>{Functions.ignore0(p.k_distance_normal)}</td> : null }
+                {(toDisplay.indexOf("k_distance_long") !== -1) ?  <td>{Functions.ignore0(p.k_distance_long)}</td> : null }
+                {(toDisplay.indexOf("k_distance_uber") !== -1) ?  <td>{Functions.ignore0(p.k_distance_uber)}</td> : null }
+            </tr>);
+        }
 
         index++;
     }
