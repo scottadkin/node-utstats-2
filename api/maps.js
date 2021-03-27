@@ -664,6 +664,26 @@ class Maps{
             });
         });
     }
+
+
+    getSpawns(mapId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name,x,y,z,spawns,team FROM nstats_map_spawns WHERE map=?";
+
+            mysql.query(query, [mapId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

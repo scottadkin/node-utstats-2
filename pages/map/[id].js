@@ -38,6 +38,54 @@ class Map extends React.Component{
 
     }
 
+    createSpawns(){
+
+        const spawns = JSON.parse(this.props.spawns);
+        const elems = [];
+
+        let s = 0;
+
+        for(let i = 0; i < spawns.length; i++){
+
+            s = spawns[i];
+
+            elems.push(<tr key={i}>
+                <td>{s.name}</td>
+                <td>{s.team}</td>
+                <td>{s.x.toFixed(2)}</td>
+                <td>{s.y.toFixed(2)}</td>
+                <td>{s.z.toFixed(2)}</td>
+                <td>{s.spawns}</td>
+            </tr>);
+        }
+
+        if(elems.length > 0){
+
+            elems.unshift(<tr key={"end"}>
+                <th>Name</th>
+                <th>Assigned Team</th>
+                <th>X</th>
+                <th>Y</th>
+                <th>Z</th>
+                <th>Total Spawns</th>
+            </tr>);
+        }
+
+        if(elems.length !== 0){
+
+            return <div className="m-bottom-10">
+                <div className="default-header">Spawn Points</div>
+                <table>
+                    <tbody>
+                        {elems}
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        return elems;
+    }
+
     createAddicedPlayers(){
 
         const elems = [];
@@ -65,9 +113,9 @@ class Map extends React.Component{
 
         if(elems.length === 0){
 
-            elems.push(<tr key={"none"}>
-                <td colspan="20">No Data</td>
-            </tr>);
+            elems.push(
+                <div key={"none"} className="not-found">No Player Data</div>
+            );
         }
 
         return elems;
@@ -138,9 +186,15 @@ class Map extends React.Component{
                                     <td>Last Match</td>
                                     <td><Timestamp timestamp={basic.last} /></td>
                                 </tr>
+                                <tr>
+                                    <td>Spawn Points</td>
+                                    <td>{JSON.parse(this.props.spawns).length}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
+
+                    {this.createSpawns()}
 
                     <div className="default-header">
                         Games Played
@@ -366,8 +420,9 @@ export async function getServerSideProps({query}){
 
     const faceManager = new Faces();
 
-
     const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
+
+    const spawns = await mapManager.getSpawns(mapId);
 
     
 
@@ -391,7 +446,8 @@ export async function getServerSideProps({query}){
             "addictedPlayers": JSON.stringify(addictedPlayers),
             "playerNames": JSON.stringify(playerNames),
             "faceFiles": JSON.stringify(faceFiles),
-            "longestMatches": JSON.stringify(longestMatches)
+            "longestMatches": JSON.stringify(longestMatches),
+            "spawns": JSON.stringify(spawns)
         }
     };
 }
