@@ -615,12 +615,31 @@ class Maps{
                 if(p.bDuplicate === undefined){
                     await this.updatePlayerHistory(p, mapId, matchId, date);
                 }
-
             }
 
         }catch(err){
             new Message(`Maps.updateAllPlayersHistory() ${err}`,'error');
         }
+    }
+
+
+    getTopPlayersPlaytime(mapId, limit){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT player,playtime,matches,longest,longest_id FROM nstats_player_maps WHERE map=? ORDER BY playtime DESC LIMIT ?";
+
+            mysql.query(query, [mapId, limit], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
     }
 }
 

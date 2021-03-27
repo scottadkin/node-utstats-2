@@ -141,6 +141,29 @@ class Players{
             });
         });    
     }
+
+
+    async getNamesByIds(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            if(ids === undefined) resolve([]);
+            if(ids.length === 0) resolve([]);
+
+            const query = "SELECT id,name,country FROM nstats_player_totals WHERE id IN (?)";
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 
