@@ -57,7 +57,6 @@ class Map extends React.Component{
 
 
         let s = 0;
-        let distanceToFlag = 0;
 
         let dx = 0;
         let dy = 0;
@@ -83,7 +82,7 @@ class Map extends React.Component{
                 totalDistanceToFlag[s.team].found++;
             }
 
-            elems.push(<tr className="team-none" key={i}>
+            elems.push(<tr className={(flags.length > 0) ? Functions.getTeamColor(s.team) : "team-none"} key={i}>
                 <td>{s.name}</td>
                 <td>{s.team}</td>
                 <td>{s.x.toFixed(2)}</td>

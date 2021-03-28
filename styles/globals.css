@@ -246,9 +246,10 @@ td{
 	/*background:linear-gradient(to bottom right, rgb(79,0,0), rgb(129,0,0));*/
 }
 
+/*
 .team-red:nth-child(even){
 	background-color:rgb(119,0,0);
-}
+}*/
 
 
 .duo div:nth-child(2), .trio div:nth-child(2), .quad div:nth-child(2), .team-blue{
@@ -256,9 +257,10 @@ td{
 	/*background:linear-gradient(to bottom right, rgb(0,41,96), rgb(21,61,116));*/
 }
 
+/*
 .team-blue:nth-child(even){
 	background-color:rgb(0,41,96);
-}
+}*/
 
 
 .duo div:nth-child(3), .trio div:nth-child(3), .quad div:nth-child(3), .team-green{
@@ -266,18 +268,20 @@ td{
 	/*background:linear-gradient(to bottom right, rgb(0,46,0), rgb(20,66,20));*/
 }
 
+/*
 .team-green:nth-child(even){
 	background-color:rgb(0,46,0);
-}
+}*/
 
 .duo div:nth-child(4), .trio div:nth-child(4), .quad div:nth-child(4), .team-yellow{
 	background-color:rgb(91,91,0);
 	/*background:linear-gradient(to bottom right, rgb(71,71,0), rgb(91,91,20));*/
 }
 
+/*
 .team-yellow:nth-child(even){
 	background-color:rgb(71,71,0);
-}
+}*/
 
 
 .trio{
