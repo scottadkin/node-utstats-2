@@ -116,15 +116,15 @@ class Map extends React.Component{
             const averageDistanceElem = [];
             
             averageDistanceElem.push(<tr>
-                <td>
+                <th>
                     Total Spawns
-                </td>
-                <td>
+                </th>
+                <th>
                     Total Distance to Flag
-                </td>
-                <td>
+                </th>
+                <th>
                     Average Distance to Flag
-                </td>
+                </th>
             </tr>);
 
             for(let i = 0; i < totalDistanceToFlag.length; i++){

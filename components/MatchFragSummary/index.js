@@ -48,7 +48,6 @@ class MatchFragSummary extends React.Component{
 
         const toDisplay = [];
         const toDisplayDistances = [];
-        
 
         const typesTeams = {
             "suicides": [],
@@ -89,7 +88,12 @@ class MatchFragSummary extends React.Component{
             for(let x = 0; x < types.length; x++){
 
                 if(p[types[x]] !== 0){
-                    if(typesTeams[types[x]].indexOf(p.team) === -1) typesTeams[types[x]].push(p.team);
+
+                    if(this.props.totalTeams !== 0){
+                        if(typesTeams[types[x]].indexOf(p.team) === -1) typesTeams[types[x]].push(p.team);
+                    }else{
+                        if(typesTeams[types[x]].indexOf(0) === -1) typesTeams[types[x]].push(0);
+                    }
                 }
             }
         }
@@ -110,7 +114,6 @@ class MatchFragSummary extends React.Component{
             }
             i++;
         }
-
 
 
         return {"default": toDisplay, "distances": toDisplayDistances};
@@ -168,7 +171,9 @@ class MatchFragSummary extends React.Component{
         }else if(this.state.mode === 1){
 
             if(this.props.totalTeams < 2){
+        
                 teamData.push(<MatchFragDistances key={-1} toDisplay={toDisplay.distances} players={this.getPlayersInTeam(-1)} team={-1} />);
+
             }else{
 
                 for(let i = 0; i < this.props.totalTeams; i++){

@@ -40,11 +40,13 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
 
     let index = 0;
 
+    
+
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
 
-        if(p.team !== team) continue;
+        if(p.team !== team && team !== -1) continue;
         
         if(index === 0){
 
@@ -64,6 +66,7 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
         totalAverage += p.average_kill_distance;
 
         if(bAnyData(p)){
+
             elems.push(<tr className={bgColor}>
                 <td className="text-left name-td"><Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
                 <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
