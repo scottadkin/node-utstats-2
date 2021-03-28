@@ -16,6 +16,7 @@ import Graph from '../../components/Graph/';
 import MapAddictedPlayer from '../../components/MapAddictedPlayer/';
 import Players from '../../api/players';
 import Faces from '../../api/faces';
+import CTF from '../../api/ctf';
 
 class Map extends React.Component{
 
@@ -43,19 +44,53 @@ class Map extends React.Component{
         const spawns = JSON.parse(this.props.spawns);
         const elems = [];
 
+        const flags = JSON.parse(this.props.flagLocations);
+
+        console.log(flags);
+
+        const totalDistanceToFlag = [
+            {"total": 0, "found": 0},
+            {"total": 0, "found": 0},
+            {"total": 0, "found": 0},
+            {"total": 0, "found": 0}
+        ];
+
+
         let s = 0;
+        let distanceToFlag = 0;
+
+        let dx = 0;
+        let dy = 0;
+        let dz = 0;
+        let f = 0;
+        let distance = 0;
 
         for(let i = 0; i < spawns.length; i++){
 
             s = spawns[i];
 
-            elems.push(<tr key={i}>
+            if(flags.length > 0){
+
+                f = flags[s.team];
+
+                dx = f.x - s.x;
+                dy = f.y - s.y;
+                dz = f.z - s.z;
+
+                distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                totalDistanceToFlag[s.team].total += distance;
+                totalDistanceToFlag[s.team].found++;
+            }
+
+            elems.push(<tr className="team-none" key={i}>
                 <td>{s.name}</td>
                 <td>{s.team}</td>
                 <td>{s.x.toFixed(2)}</td>
                 <td>{s.y.toFixed(2)}</td>
                 <td>{s.z.toFixed(2)}</td>
                 <td>{s.spawns}</td>
+                {(flags.length > 0) ? <td>{distance.toFixed(2)}</td> : null}
             </tr>);
         }
 
@@ -68,7 +103,58 @@ class Map extends React.Component{
                 <th>Y</th>
                 <th>Z</th>
                 <th>Total Spawns</th>
+                {(flags.length > 0) ? <th>Distance to Team Flag</th> : null}
             </tr>);
+        }
+
+
+        let flagsTable = null;
+
+        if(flags.length > 0){
+
+            console.log(totalDistanceToFlag);
+
+            const averageDistanceElem = [];
+            
+            averageDistanceElem.push(<tr>
+                <td>
+                    Total Spawns
+                </td>
+                <td>
+                    Total Distance to Flag
+                </td>
+                <td>
+                    Average Distance to Flag
+                </td>
+            </tr>);
+
+            for(let i = 0; i < totalDistanceToFlag.length; i++){
+
+                if(totalDistanceToFlag[i].found > 0){
+
+                    averageDistanceElem.push(<tr className={Functions.getTeamColor(i)} key={i}>
+                        <td>
+                            {totalDistanceToFlag[i].found}
+                        </td>
+                        <td>
+                            {totalDistanceToFlag[i].total.toFixed(2)}
+                        </td>
+                        <td>
+                            {(totalDistanceToFlag[i].total / totalDistanceToFlag[i].found).toFixed(2)}
+                        </td>
+                    </tr>);
+                }
+            }
+
+            flagsTable = <div>    
+                <div className="default-header m-top-10">Spawn Distances to Flag</div>
+                <table>
+                    <tbody>
+                        {averageDistanceElem}
+                    </tbody>
+                </table>
+            </div>;
+
         }
 
         if(elems.length !== 0){
@@ -80,6 +166,9 @@ class Map extends React.Component{
                         {elems}
                     </tbody>
                 </table>
+
+                {flagsTable}
+
             </div>
         }
 
@@ -104,7 +193,6 @@ class Map extends React.Component{
 
             currentPlayer = Functions.getPlayer(playerNames, p.player);
   
-
             elems.push(<MapAddictedPlayer key={i} name={currentPlayer.name} matches={p.matches} playtime={p.playtime}
                 playerId={p.player} country={currentPlayer.country} longest={p.longest} longestId={p.longest_id} 
                 face={this.getPlayerFace(faceFiles, currentPlayer.face)}
@@ -304,6 +392,20 @@ function createDatesData(data){
 
 }
 
+function getNamePrefix(name){
+
+    name = name.toLowerCase();
+
+    const reg = /^(.+?)-.+$/i;
+
+    const result = reg.exec(name);
+
+    if(result !== null){
+        return result[1];
+    }
+
+    return 'dm';
+}
 
 
 
@@ -425,6 +527,19 @@ export async function getServerSideProps({query}){
     const spawns = await mapManager.getSpawns(mapId);
 
     
+    const mapPrefix = getNamePrefix(basicData[0].name);
+    
+
+    let flagLocations = [];
+
+    if(mapPrefix === 'ctf'){
+
+        const CTFManager = new CTF();
+
+        flagLocations = await CTFManager.getFlagLocations(mapId);
+    }
+
+    
 
 
     let pages = 1;
@@ -447,7 +562,8 @@ export async function getServerSideProps({query}){
             "playerNames": JSON.stringify(playerNames),
             "faceFiles": JSON.stringify(faceFiles),
             "longestMatches": JSON.stringify(longestMatches),
-            "spawns": JSON.stringify(spawns)
+            "spawns": JSON.stringify(spawns),
+            "flagLocations": JSON.stringify(flagLocations)
         }
     };
 }

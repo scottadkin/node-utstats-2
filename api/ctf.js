@@ -252,7 +252,18 @@ class CTF{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT";
+            const query = "SELECT team,x,y,z FROM nstats_maps_flags WHERE map=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
         });
     }
 }
