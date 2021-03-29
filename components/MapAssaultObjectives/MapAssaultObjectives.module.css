@@ -1,0 +1,30 @@
+.box{
+    background-color:black;
+    width:400px;
+    height:112px;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-top:-1px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.box div:nth-child(1){
+    width:200px;
+    height:112px;
+}
+
+.box div:nth-child(2){
+    width:200px;
+    margin-left:200px;
+    margin-top:-112px;
+    height:112px;
+    font-size:12px;
+}
+
+.name{
+    font-size:16px;
+    display:inline-block;
+    padding-top:10px;
+    padding-bottom:20px;
+    color:yellow;
+}

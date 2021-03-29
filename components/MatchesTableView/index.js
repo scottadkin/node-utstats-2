@@ -37,10 +37,10 @@ class MatchesTableView extends React.Component{
                     totalTeams={m.total_teams} 
                     dmWinner={m.dm_winner} 
                     dmScore={m.dm_score} 
-                    redScore={m.team_score_0}
-                    blueScore={m.team_score_1}
-                    greenScore={m.team_score_2}
-                    yellowScore={m.team_score_3}/>
+                    redScore={Math.floor(m.team_score_0)}
+                    blueScore={Math.floor(m.team_score_1)}
+                    greenScore={Math.floor(m.team_score_2)}
+                    yellowScore={Math.floor(m.team_score_3)}/>
                 </td>
             </tr>);
 

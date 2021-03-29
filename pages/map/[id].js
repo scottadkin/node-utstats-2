@@ -7,7 +7,6 @@ import Functions from '../../api/functions';
 import Timestamp from '../../components/TimeStamp';
 import Link from 'next/link';
 import MatchesDefaultView from '../../components/MatchesDefaultView/';
-import MatchesTableView from '../../components/MatchesTableView/';
 import Servers from '../../api/servers';
 import Gametypes from '../../api/gametypes';
 import React from 'react';
@@ -20,6 +19,8 @@ import CTF from '../../api/ctf';
 import Domination from '../../api/domination';
 import MapControlPoints from '../../components/MapControlPoints/';
 import MapSpawns from '../../components/MapSpawns/';
+import Assault from '../../api/assault';
+import MapAssaultObjectives from '../../components/MapAssaultObjectives/';
 
 class Map extends React.Component{
 
@@ -154,6 +155,8 @@ class Map extends React.Component{
 
                     <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
 
+                    <MapAssaultObjectives objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
+
                     <div className="default-header">
                         Games Played
                     </div>
@@ -186,8 +189,7 @@ class Map extends React.Component{
                         Longest Matches
                     </div>
 
-                        <MatchesDefaultView data={this.props.longestMatches} image={image}/>
-
+                    <MatchesDefaultView data={this.props.longestMatches} image={image}/>
 
                     <div className="default-header">Recent Matches</div>
                     <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
@@ -402,6 +404,7 @@ export async function getServerSideProps({query}){
 
     let flagLocations = [];
     let domControlPointLocations = [];
+    let assaultObjectives = [];
 
     if(mapPrefix === 'ctf'){
 
@@ -415,6 +418,11 @@ export async function getServerSideProps({query}){
 
         domControlPointLocations = await domManager.getMapFullControlPoints(mapId);
 
+    }else if(mapPrefix === 'as'){
+
+        const assaultManager = new Assault();
+
+        assaultObjectives = await assaultManager.getMapObjectives(mapId);
     }
 
 
@@ -441,7 +449,8 @@ export async function getServerSideProps({query}){
             "spawns": JSON.stringify(spawns),
             "flagLocations": JSON.stringify(flagLocations),
             "mapPrefix": mapPrefix,
-            "domControlPointLocations": JSON.stringify(domControlPointLocations)
+            "domControlPointLocations": JSON.stringify(domControlPointLocations),
+            "assaultObjectives": JSON.stringify(assaultObjectives)
         }
     };
 }

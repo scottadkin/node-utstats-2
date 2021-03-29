@@ -9,9 +9,8 @@ import Functions from '../../api/functions'
 class MatchesDefaultView extends React.Component{
 
     constructor(props){
-        super(props);
 
-        let images = [];
+        super(props);
 
         if(this.props.image !== undefined){
             this.state = {"image": this.props.image};
@@ -58,10 +57,10 @@ class MatchesDefaultView extends React.Component{
                             dmWinner={match.dm_winner} 
                             dmScore={match.dm_score} 
                             totalTeams={match.total_teams}
-                            redScore={match.team_score_0}
-                            blueScore={match.team_score_1}
-                            greenScore={match.team_score_2}
-                            yellowScore={match.team_score_3}
+                            redScore={Math.floor(match.team_score_0)}
+                            blueScore={Math.floor(match.team_score_1)}
+                            greenScore={Math.floor(match.team_score_2)}
+                            yellowScore={Math.floor(match.team_score_3)}
                             matchId={match.id}
                             />
                     </div>
