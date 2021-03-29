@@ -10,7 +10,7 @@ const MapAddictedPlayer = ({name, playerId, matches, playtime, country, longest,
         <div className={styles.face}>
             <img src={`/images/faces/${face}.png`} alt="image" />
         </div>
-        <div>
+        <div className={styles.right}>
             <div className={styles.name}>
                 <CountryFlag country={country} /><Link href={`/player/${playerId}`}><a>{name}</a></Link>
             </div>

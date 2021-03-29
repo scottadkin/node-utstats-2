@@ -81,7 +81,6 @@ class PlayersList extends React.Component{
 
         let players = JSON.parse(this.props.players);
 
-
         let faces = JSON.parse(this.props.faces);
 
         let currentFace = 0;
@@ -135,10 +134,9 @@ class PlayersList extends React.Component{
                 </tr>);
             }
 
-            currentFace = faces[p.face];
-
-
-            if(!currentFace.imageExists){
+            if(faces[p.face] != undefined){
+                currentFace = faces[p.face];
+            }else{
                 currentFace = {"name": "faceless"};
             }
 

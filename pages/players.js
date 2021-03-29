@@ -264,7 +264,6 @@ export async function getServerSideProps({query}){
 
     records = JSON.stringify(records);
 
-    //console.log(faces);
 
     return {
         props: {
