@@ -17,6 +17,8 @@ import MapAddictedPlayer from '../../components/MapAddictedPlayer/';
 import Players from '../../api/players';
 import Faces from '../../api/faces';
 import CTF from '../../api/ctf';
+import Domination from '../../api/domination';
+import MapControlPoints from '../../components/MapControlPoints/';
 
 class Map extends React.Component{
 
@@ -82,7 +84,7 @@ class Map extends React.Component{
 
             elems.push(<tr className={(flags.length > 0) ? Functions.getTeamColor(s.team) : "team-none"} key={i}>
                 <td>{s.name}</td>
-                <td>{s.team}</td>
+                {(this.props.mapPrefix !== "dm" && this.props.mapPrefix !== "dom") ? <td>{s.team}</td> : null}
                 <td>{s.x.toFixed(2)}</td>
                 <td>{s.y.toFixed(2)}</td>
                 <td>{s.z.toFixed(2)}</td>
@@ -95,7 +97,7 @@ class Map extends React.Component{
 
             elems.unshift(<tr key={"end"}>
                 <th>Name</th>
-                <th>Assigned Team</th>
+                {(this.props.mapPrefix !== "dm" && this.props.mapPrefix !== "dom") ? <th>Assigned Team</th> : null}
                 <th>X</th>
                 <th>Y</th>
                 <th>Z</th>
@@ -204,6 +206,7 @@ class Map extends React.Component{
         return elems;
     }
 
+
     render(){
 
         const basic = JSON.parse(this.props.basic);
@@ -278,6 +281,8 @@ class Map extends React.Component{
                     </div>
 
                     {this.createSpawns()}
+
+                    <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
 
                     <div className="default-header">
                         Games Played
@@ -526,15 +531,21 @@ export async function getServerSideProps({query}){
     
 
     let flagLocations = [];
+    let domControlPointLocations = [];
 
     if(mapPrefix === 'ctf'){
 
         const CTFManager = new CTF();
 
         flagLocations = await CTFManager.getFlagLocations(mapId);
-    }
 
-    
+    }else if(mapPrefix === 'dom'){
+
+        const domManager = new Domination();
+
+        domControlPointLocations = await domManager.getMapFullControlPoints(mapId);
+
+    }
 
 
     let pages = 1;
@@ -558,7 +569,9 @@ export async function getServerSideProps({query}){
             "faceFiles": JSON.stringify(faceFiles),
             "longestMatches": JSON.stringify(longestMatches),
             "spawns": JSON.stringify(spawns),
-            "flagLocations": JSON.stringify(flagLocations)
+            "flagLocations": JSON.stringify(flagLocations),
+            "mapPrefix": mapPrefix,
+            "domControlPointLocations": JSON.stringify(domControlPointLocations)
         }
     };
 }

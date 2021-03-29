@@ -285,6 +285,26 @@ class Domination{
             });
         });
     }
+
+    getMapFullControlPoints(map){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name,matches,captured,x,y,z FROM nstats_dom_control_points WHERE map=?";
+
+            mysql.query(query, [map], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+
+        });
+    }
 }
 
 

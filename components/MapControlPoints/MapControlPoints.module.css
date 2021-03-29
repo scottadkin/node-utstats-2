@@ -1,0 +1,33 @@
+.box{
+    background-color:black;
+    display:grid;
+    max-width:300px;
+    width:90%;
+    grid-template-columns: 84px auto;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-top:-1px;
+    margin-left:auto;
+    margin-right:auto;
+    height:84px;
+}
+
+.box div:nth-child(1){
+    padding:10px 5px;
+}
+
+.box div:nth-child(2){
+    line-height:18px;
+    font-size:12px;
+}
+
+.name{
+    display:inline-block;
+    font-size:20px;
+    padding-top:5px;
+    padding-bottom:5px;
+    color:yellow;
+}
+
+.position{
+    font-size:10px;
+}
