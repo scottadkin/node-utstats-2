@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 27, 2021 at 08:42 PM
+-- Generation Time: Mar 29, 2021 at 08:01 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -120,7 +120,10 @@ CREATE TABLE `nstats_dom_control_points` (
   `map` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `captured` int(11) NOT NULL,
-  `matches` int(11) NOT NULL
+  `matches` int(11) NOT NULL,
+  `x` float NOT NULL,
+  `y` float NOT NULL,
+  `z` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

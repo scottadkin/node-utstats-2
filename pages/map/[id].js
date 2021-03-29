@@ -46,8 +46,6 @@ class Map extends React.Component{
 
         const flags = JSON.parse(this.props.flagLocations);
 
-        console.log(flags);
-
         const totalDistanceToFlag = [
             {"total": 0, "found": 0},
             {"total": 0, "found": 0},
@@ -111,11 +109,9 @@ class Map extends React.Component{
 
         if(flags.length > 0){
 
-            console.log(totalDistanceToFlag);
-
             const averageDistanceElem = [];
             
-            averageDistanceElem.push(<tr>
+            averageDistanceElem.push(<tr key={"start"}>
                 <th>
                     Total Spawns
                 </th>

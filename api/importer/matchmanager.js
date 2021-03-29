@@ -404,7 +404,6 @@ class MatchManager{
 
                         currentType = typeResult[1].toLowerCase();
 
-                        //console.log(currentType);
                         if(playerTypes.indexOf(currentType) !== -1){
 
                             this.playerLines.push(this.lines[i]);

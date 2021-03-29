@@ -67,7 +67,7 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
 
         if(bAnyData(p)){
 
-            elems.push(<tr className={bgColor}>
+            elems.push(<tr key={i} className={bgColor}>
                 <td className="text-left name-td"><Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
                 <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
                 <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>
@@ -87,7 +87,7 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
     }
 
     if(elems.length > 0){
-        elems.push(<tr>
+        elems.push(<tr key={"end"}>
             <td className="text-left"></td>
             <td>{parseFloat(Functions.ignore0(shortestKillTotal)).toFixed(2)}</td>
             <td>{parseFloat(Functions.ignore0(totalAverage)).toFixed(2)}</td>
@@ -100,7 +100,7 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
 
     if(elems.length > 0){
 
-        elems.unshift(<tr>
+        elems.unshift(<tr key={"start"}>
             <th>Player</th>
             <th>Shortest Distance</th>
             <th>Average Distance</th>

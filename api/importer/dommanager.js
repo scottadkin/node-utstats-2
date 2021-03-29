@@ -183,7 +183,7 @@ class DOMManager{
 
                 d = this.domPoints[i];
 
-                await this.domination.updateMapControlPoint(this.mapId, d.name, d.captured);
+                await this.domination.updateMapControlPoint(this.mapId, d.name, d.captured, d.position);
             }
 
         }catch(err){

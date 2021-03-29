@@ -42,13 +42,13 @@ class Domination{
         });
     }
 
-    createControlPoint(mapId, name, points){
+    createControlPoint(mapId, name, points, position){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_dom_control_points VALUES(NULL,?,?,?,1);";
+            const query = "INSERT INTO nstats_dom_control_points VALUES(NULL,?,?,?,1,?,?,?);";
 
-            mysql.query(query, [mapId, name, points], (err) =>{
+            mysql.query(query, [mapId, name, points, position.x, position.y, position.z], (err) =>{
 
                 if(err) reject(err);
 
@@ -72,7 +72,7 @@ class Domination{
         });
     }
 
-    async updateMapControlPoint(mapId, name, points){
+    async updateMapControlPoint(mapId, name, points, position){
 
         try{
 
@@ -83,7 +83,7 @@ class Domination{
    
             }else{
                 new Message(`Control point "${name}" doesn't exist for map ${mapId}, creating now.`,'note');
-                await this.createControlPoint(mapId, name, points);
+                await this.createControlPoint(mapId, name, points, position);
             }
 
         }catch(err){
