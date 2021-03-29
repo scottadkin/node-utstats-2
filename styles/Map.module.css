@@ -5,7 +5,6 @@
     margin-right:auto;
     border:1px solid rgba(255,255,255,0.25);
     padding-top:10px;
-    padding-bottom:10px;
 }
 
 
@@ -14,6 +13,10 @@
     line-height:12px;
     font-size:12px;
     width:100%;
+}
+
+.ttop tr:nth-child(even){
+    background-color:rgb(12,12,12);
 }
 
 .ttop td{

@@ -1,5 +1,6 @@
 .wrapper{
     background-color:black;
+    background:linear-gradient(to bottom right, rgb(3,3,3), rgb(16,16,16));
     display:grid;
     grid-template-columns: 98px auto;
     max-width:350px;
