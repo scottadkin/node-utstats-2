@@ -1,4 +1,5 @@
 import Functions from '../../api/functions';
+import styles from './MapSpawns.module.css'
 
 const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
 
@@ -41,8 +42,21 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
             totalDistanceToFlag[s.team].total += distance;
             totalDistanceToFlag[s.team].found++;
         }
+        
 
-        elems.push(<tr className={(flags.length > 0) ? Functions.getTeamColor(s.team) : "team-none"} key={i}>
+        elems.push(<div className={(flags.length > 0) ? `${styles.box} ${Functions.getTeamColor(s.team)}` : `${styles.box} team-none`} key={i}>
+            <div>
+                <img src="/images/spawn.png" alt="image" />
+            </div>
+            <div>
+                {s.name}<br/>
+                Spawns: {s.spawns}<br/>      
+                Position: &#123; X: {s.x.toFixed(2)},Y: {s.y.toFixed(2)},Z: {s.z.toFixed(2)}&#125;<br/>
+                {(flags.length > 0) ? <span>Distance to Flag: {distance.toFixed(2)}</span> : null}
+            </div>
+        </div>);
+
+        /*elems.push(<tr className={(flags.length > 0) ? Functions.getTeamColor(s.team) : "team-none"} key={i}>
             <td>{s.name}</td>
             {(mapPrefix !== "dm" && mapPrefix !== "dom") ? <td>{s.team}</td> : null}
             <td>{s.x.toFixed(2)}</td>
@@ -50,12 +64,12 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
             <td>{s.z.toFixed(2)}</td>
             <td>{s.spawns}</td>
             {(flags.length > 0) ? <td>{distance.toFixed(2)}</td> : null}
-        </tr>);
+        </tr>);*/
     }
 
     if(elems.length > 0){
 
-        elems.unshift(<tr key={"end"}>
+        /*elems.unshift(<tr key={"end"}>
             <th>Name</th>
             {(mapPrefix !== "dm" && mapPrefix !== "dom") ? <th>Assigned Team</th> : null}
             <th>X</th>
@@ -63,7 +77,7 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
             <th>Z</th>
             <th>Total Spawns</th>
             {(flags.length > 0) ? <th>Distance to Team Flag</th> : null}
-        </tr>);
+        </tr>);*/
     }
 
 
@@ -73,7 +87,7 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
 
         const averageDistanceElem = [];
         
-        averageDistanceElem.push(<tr key={"start"}>
+        /*averageDistanceElem.push(<tr key={"start"}>
             <th>
                 Total Spawns
             </th>
@@ -83,13 +97,13 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
             <th>
                 Average Distance to Flag
             </th>
-        </tr>);
+        </tr>);*/
 
         for(let i = 0; i < totalDistanceToFlag.length; i++){
 
             if(totalDistanceToFlag[i].found > 0){
 
-                averageDistanceElem.push(<tr className={Functions.getTeamColor(i)} key={i}>
+                /*averageDistanceElem.push(<tr className={Functions.getTeamColor(i)} key={i}>
                     <td>
                         {totalDistanceToFlag[i].found}
                     </td>
@@ -99,7 +113,7 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
                     <td>
                         {(totalDistanceToFlag[i].total / totalDistanceToFlag[i].found).toFixed(2)}
                     </td>
-                </tr>);
+                </tr>);*/
             }
         }
 
@@ -118,12 +132,9 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
 
         return <div className="m-bottom-10">
             <div className="default-header">Spawn Points</div>
-            <table>
-                <tbody>
-                    {elems}
-                </tbody>
-            </table>
-
+                  
+               {elems}
+                
             {flagsTable}
 
         </div>

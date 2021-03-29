@@ -1,0 +1,17 @@
+.box{
+    display:grid;
+    grid-template-columns: 64px auto;
+    max-width:500px;
+    width:90%;
+    margin-left:auto;
+    margin-right:auto;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-top:-1px;
+    font-size:12px;
+    height:64px;
+    line-height:16px;
+}
+
+.box div:nth-child(1){
+    padding-top:16px;
+}
