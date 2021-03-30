@@ -155,7 +155,7 @@ class Map extends React.Component{
 
                     <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
 
-                    <MapAssaultObjectives objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
+                    <MapAssaultObjectives images={this.props.assaultImages} mapName={Functions.cleanMapName(basic.name)} objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
 
                     <div className="default-header">
                         Games Played
@@ -405,6 +405,7 @@ export async function getServerSideProps({query}){
     let flagLocations = [];
     let domControlPointLocations = [];
     let assaultObjectives = [];
+    let assaultImages = [];
 
     if(mapPrefix === 'ctf'){
 
@@ -423,8 +424,11 @@ export async function getServerSideProps({query}){
         const assaultManager = new Assault();
 
         assaultObjectives = await assaultManager.getMapObjectives(mapId);
+
+        assaultImages = await assaultManager.getMapImages(Functions.cleanMapName(basicData[0].name));
     }
 
+    console.log(assaultImages);
 
     let pages = 1;
 
@@ -450,7 +454,8 @@ export async function getServerSideProps({query}){
             "flagLocations": JSON.stringify(flagLocations),
             "mapPrefix": mapPrefix,
             "domControlPointLocations": JSON.stringify(domControlPointLocations),
-            "assaultObjectives": JSON.stringify(assaultObjectives)
+            "assaultObjectives": JSON.stringify(assaultObjectives),
+            "assaultImages": JSON.stringify(assaultImages)
         }
     };
 }

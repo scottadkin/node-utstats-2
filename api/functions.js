@@ -169,6 +169,13 @@ class Functions{
         return name;
     }
 
+    static cleanMapName(name){
+
+        name = this.removeUnr(name);
+        name = this.removeMapGametypePrefix(name);
+        return name;
+    }
+
     static setSafeInt(value, defaultValue, minValue, maxValue){
 
         if(defaultValue === undefined) defaultValue = 1;

@@ -1,6 +1,7 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
+const fs = require('fs');
 
 class Assault{
 
@@ -209,6 +210,49 @@ class Assault{
         }catch(err){
             console.trace(err);
         }
+    }
+
+
+
+
+    async getMapImages(mapName){
+
+        try{
+
+            mapName = mapName.toLowerCase();
+
+            mapName = mapName.replace(/\W\S\D/ig,'');
+            console.log(`mapName = ${mapName}`);
+            const dir = fs.readdirSync(`public/images/assault/`);
+
+            console.log(dir);
+
+            if(dir.indexOf(mapName) !== undefined){
+
+                const files = fs.readdirSync(`public/images/assault/${mapName}`);
+
+                for(let i = 0; i < files.length; i++){
+                    files[i] = `/images/assault/${mapName}/${files[i]}`;
+                }
+
+                console.table(files);
+
+                return files;
+
+            }else{
+                return [];
+            }
+
+        }catch(err){
+
+            if(err.code !== "ENOENT"){
+                console.trace(err);
+            }else{
+                console.log("Assault object folder does not exist");
+            }
+            return [];
+        }   
+
     }
 }
 

@@ -1,6 +1,6 @@
 .box{
     background-color:black;
-    width:400px;
+    width:500px;
     height:112px;
     border:1px solid rgba(255,255,255,0.25);
     margin-top:-1px;
@@ -14,7 +14,7 @@
 }
 
 .box div:nth-child(2){
-    width:200px;
+    width:300px;
     margin-left:200px;
     margin-top:-112px;
     height:112px;
