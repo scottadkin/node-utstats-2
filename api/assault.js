@@ -33,7 +33,7 @@ class Assault{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_assault_objects VALUES(NULL,?,?,?,0,0)";
+            const query = "INSERT INTO nstats_assault_objects VALUES(NULL,?,0,?,?,0,0)";
 
             mysql.query(query, [map, name, objId], (err) =>{
 
@@ -181,7 +181,7 @@ class Assault{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_assault_objects WHERE map=?";
+            const query = "SELECT * FROM nstats_assault_objects WHERE map=? ORDER BY obj_order ASC";
 
             mysql.query(query, [mapId], (err, result) =>{
 

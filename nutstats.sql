@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 29, 2021 at 08:01 AM
+-- Generation Time: Mar 30, 2021 at 09:08 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -47,6 +47,7 @@ CREATE TABLE `nstats_assault_match_objectives` (
 CREATE TABLE `nstats_assault_objects` (
   `id` int(11) NOT NULL,
   `map` int(11) NOT NULL,
+  `obj_order` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `obj_id` int(11) NOT NULL,
   `matches` int(11) NOT NULL,
