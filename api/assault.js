@@ -181,7 +181,7 @@ class Assault{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_assault_objects WHERE map=? ORDER BY obj_order ASC";
+            const query = "SELECT DISTINCT * FROM nstats_assault_objects WHERE map=? GROUP BY(obj_id) ORDER BY obj_order ASC";
 
             mysql.query(query, [mapId], (err, result) =>{
 
@@ -230,6 +230,8 @@ class Assault{
             if(dir.indexOf(mapName) !== undefined){
 
                 const files = fs.readdirSync(`public/images/assault/${mapName}`);
+
+                console.log(files);
 
                 for(let i = 0; i < files.length; i++){
                     files[i] = `/images/assault/${mapName}/${files[i]}`;

@@ -1,5 +1,6 @@
 .box{
     background-color:black;
+    background:linear-gradient(to bottom right, rgb(3,3,3), rgb(16,16,16));
     width:500px;
     height:112px;
     border:1px solid rgba(255,255,255,0.25);
@@ -18,11 +19,11 @@
     margin-left:200px;
     margin-top:-112px;
     height:112px;
-    font-size:12px;
+    font-size:14px;
 }
 
 .name{
-    font-size:16px;
+    font-size:14px;
     display:inline-block;
     padding-top:10px;
     padding-bottom:20px;
