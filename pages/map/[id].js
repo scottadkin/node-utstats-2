@@ -21,6 +21,7 @@ import MapControlPoints from '../../components/MapControlPoints/';
 import MapSpawns from '../../components/MapSpawns/';
 import Assault from '../../api/assault';
 import MapAssaultObjectives from '../../components/MapAssaultObjectives/';
+import React from 'react';
 
 class Map extends React.Component{
 

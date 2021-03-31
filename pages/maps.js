@@ -7,6 +7,7 @@ import MapList from '../components/MapList/';
 import Functions from '../api/functions';
 import Pagination from '../components/Pagination';
 import Option2 from '../components/Option2/';
+import React from 'react';
 
 
 

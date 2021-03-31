@@ -1,6 +1,7 @@
 import MapDefaultBox from '../MapDefaultBox/';
 import MapTableRow from '../MapTableRow/';
 import styles from './MapList.module.css';
+import React from 'react';
 
 class MapList extends React.Component{
 

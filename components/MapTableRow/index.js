@@ -1,6 +1,7 @@
 import TimeStamp from '../TimeStamp';
 import Functions from '../../api/functions';
 import Link from 'next/link';
+import React from 'react';
 
 class MapTableRow extends React.Component{
 
