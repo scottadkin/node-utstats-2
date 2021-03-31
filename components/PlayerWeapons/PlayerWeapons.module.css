@@ -8,19 +8,26 @@
     position:relative;
     margin-top:-1px;
     margin-left:-1px;
+    height:300px;
+    overflow:hidden;
 
 }
 
 .image{
-    height:100px;
     padding-top:25px;
     overflow:hidden;
+    height:100px;
+    position:relative;
+    width:180px;
 }
 
 .image img{
 
-
     max-height:100px;
+    width:100%;
+    position:absolute;
+    bottom:0;
+    margin-left:-90px;
       
 
 }
