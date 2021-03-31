@@ -7,6 +7,7 @@ import PlayerManager from '../api/players';
 import Faces from '../api/faces';
 import Pagination from '../components/Pagination/';
 import Option2 from '../components/Option2';
+import React from 'react';
 
 
 class Players extends React.Component{

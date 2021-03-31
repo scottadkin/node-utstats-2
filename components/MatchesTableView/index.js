@@ -3,6 +3,7 @@ import TimeStamp from '../TimeStamp/';
 import MMSS from '../MMSS/';
 import Functions from '../../api/functions';
 import MatchResultSmall from '../MatchResultSmall/';
+import React from 'react';
 
 class MatchesTableView extends React.Component{
 

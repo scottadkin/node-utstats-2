@@ -5,6 +5,7 @@ import MatchResult from '../MatchResult/';
 import Link from 'next/link';
 import Image from 'next/image';
 import Functions from '../../api/functions'
+import React from 'react';
 
 class MatchesDefaultView extends React.Component{
 

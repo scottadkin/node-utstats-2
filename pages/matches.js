@@ -12,6 +12,7 @@ import Maps from '../api/maps';
 import Pagination from '../components/Pagination';
 import Link from 'next/link';
 import Option2 from '../components/Option2';
+import React from 'react';
 
 class Matches extends React.Component{
 

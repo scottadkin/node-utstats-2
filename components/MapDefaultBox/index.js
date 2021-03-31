@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Functions from '../../api/functions';
 import TimeStamp from '../TimeStamp/';
 import Link from 'next/link';
+import React from 'react';
 
 class MapDefaultBox extends React.Component{
 

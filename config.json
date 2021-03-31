@@ -19,6 +19,6 @@
     "importedLogsFolder": "logs",
     "test": "Dogs have wet noses",
     "multiKillTimeLimit": 3,
-    "spawnKillTimeLimit": 1
+    "spawnKillTimeLimit": 2
 
 }

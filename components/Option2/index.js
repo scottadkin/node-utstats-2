@@ -1,4 +1,5 @@
 import styles from './Option2.module.css';
+import React from 'react';
 
 class Option2 extends React.Component{
 

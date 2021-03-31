@@ -3,6 +3,7 @@ import styles from './PlayerList.module.css';
 import CountryFlag from '../CountryFlag/';
 import TimeStamp from '../TimeStamp/';
 import Link from 'next/link';
+import React from 'react';
 
 function createOrderLink(terms, type, value){
 
