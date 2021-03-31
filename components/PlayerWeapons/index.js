@@ -15,11 +15,6 @@ const tempGetWeaponImage = (files, name) =>{
     name = name.toLowerCase();
     name = name.replace(/ /ig,'');
 
-    if(name === 'doubleenforcers'){
-        //name = 'enforcer';
-    }else if(name === 'enhancedshockrifle'){
-        name = 'shockrifle';
-    }
 
     if(files.indexOf(`${name}.png`) !== -1){
         return `/images/weapons/${name}.png`;
