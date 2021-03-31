@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import TimeStamp from '../TimeStamp/';
 import MMSS from '../MMSS/';
-import Functions from '../../api/functions';
 import MatchResultSmall from '../MatchResultSmall/';
 import React from 'react';
+import styles from './MatchesTableView.module.css';
 
 class MatchesTableView extends React.Component{
 
@@ -64,7 +64,7 @@ class MatchesTableView extends React.Component{
 
         return (
             <div className="special-table">
-                <table>
+                <table className={styles.table}>
                     <tbody>
                         <tr>
                             <th>Server</th>

@@ -14,11 +14,12 @@
 .image{
     height:100px;
     padding-top:25px;
+    overflow:hidden;
 }
 
 .image img{
 
-    max-width:50%;
+
     max-height:100px;
       
 

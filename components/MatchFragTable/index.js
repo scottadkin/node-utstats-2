@@ -32,6 +32,7 @@ const bAnyData = (data) =>{
 
 const MatchFragTable = ({players, team, matchStart, toDisplay}) =>{
 
+    if(players.length === 0) return null;
 
     let bgColor = Functions.getTeamColor(team);
 
