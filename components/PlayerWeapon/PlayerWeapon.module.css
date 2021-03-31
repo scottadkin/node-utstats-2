@@ -1,0 +1,40 @@
+.wrapper{
+    background-color:black;
+    display:inline-block;
+    height:332px;
+    width:250px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-left:-1px;
+    margin-top:-1px;
+}
+
+.name{
+    padding:5px;
+    background-color:rgb(16,16,16);
+    border-bottom:1px solid rgba(255,255,255,0.25);
+    font-size:14px;
+    line-height:20px;
+    height:20px;
+}
+
+.image{
+    height:150px;
+    position:relative;
+}
+
+.image img{
+    width:250px;
+    max-height:150px;
+    position:absolute;
+    margin-left:-125px;
+    bottom:0;
+    
+}
+
+.stats{
+    background-color:rgb(16,16,16);
+    border-top:1px solid rgba(255,255,255,0.25);
+    height:145px;
+    padding-top:5px;
+}

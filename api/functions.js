@@ -250,6 +250,24 @@ class Functions{
 
         array.push(value);
     }
+
+
+    static cleanDamage(damage){
+
+        if(damage < 1000) return damage;
+
+        if(damage >= 1000 && damage < 1000000){
+            return `${(damage / 1000).toFixed(2)}K`;
+        }else if(damage >= 1000000 && damage < 1000000000){
+            return `${(damage / 1000000).toFixed(2)}M`;
+        }else if(damage >= 1000000000 && damage < 1000000000000){
+            return `${(damage / 1000000000).toFixed(2)}B`;
+        }else{
+            return `${(damage / 1000000000000).toFixed(2)}T`;
+        }
+
+    }
+
 }
 
 module.exports = Functions;
