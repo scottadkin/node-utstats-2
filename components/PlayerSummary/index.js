@@ -35,6 +35,14 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
                 country={country}
                 flag={flag}
                 face={face}
+                first={summary.first}
+                last={summary.last}
+                matches={summary.matches}
+                playtime={summary.playtime}
+                winRate={summary.winrate}
+                wins={summary.wins}
+                losses={summary.losses}
+                draws={summary.draws}
             />
 
             <PlayerGametypeStats data={gametypeStats} names={gametypeNames}/>

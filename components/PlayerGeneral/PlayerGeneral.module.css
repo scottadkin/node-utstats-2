@@ -15,27 +15,25 @@
 }
 
 .country{
-    height:40px;
-    line-height:40px;
+    height:30px;
+    line-height:30px;
     padding-left:10px;
+    padding-right:10px;
     font-size:12px;
 }
 
 .flag{
     height:70px;
     margin-left:10px;
-    margin-top:5px;
 }
 
 .flag img{
-    height:70px;
-    width:120px;
+    width:64px;
 }
 
 .face{
-    width:64px;
+    width:140px;
     height:64px;
-    margin-left:33px;
     padding-top:5px;
 }
 
@@ -55,4 +53,25 @@
     margin-left:140px;
     position:absolute;
     margin-top:-180px;
+    font-size:14px;
+    padding-top:5px;
+    overflow:hidden;
+}
+
+.table{
+    border:none;
+    width:100%;
+    background-color:transparent;
+    margin-left:1px;
+}
+.table td{
+    border:none;
+}
+
+.table td:nth-child(1){
+    color:yellow;
+}
+
+.table tr:nth-child(even){
+    background-color:rgb(16,16,16);
 }
