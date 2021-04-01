@@ -223,9 +223,13 @@ class GraphCanvas{
 
         for(let i = 0; i < this.hideKeys.length; i++){
 
-            for(let x = 0; x < this.data[i].length; x++){
+            if(this.data[i] !== undefined){
+                for(let x = 0; x < this.data[i].length; x++){
 
-                this.hideKeys[i].push((x < 8) ? false : true);
+                    this.hideKeys[i].push((x < 8) ? false : true);
+                }
+            }else{
+                console.trace(`this.data[i] is undefined`);
             }
         }
     }
@@ -734,10 +738,14 @@ class GraphCanvas{
         currentData = [];      
 
 
+        
+        if(data[0] === undefined){
+            console.trace(`data[0] is undefined`);
+            return;
+        }
         //all data must have same length
         for(let i = 0; i < data[0].data.length; i++){
             
-
             currentData = [];      
 
             for(let x = 0; x < maxDataValues; x++){

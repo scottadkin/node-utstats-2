@@ -393,16 +393,23 @@ class CTFManager{
 
         try{
 
-            const players = this.playerManager.players;
-            
-            for(let i = 0; i < players.length; i++){
+            if(this.playerManger !== undefined){
 
-                if(players[i].bDuplicate === undefined){
-                    await this.ctf.updatePlayerTotals(players[i].masterId, players[i].gametypeId, players[i].stats.ctf);
+                const players = this.playerManager.players;
+                
+                for(let i = 0; i < players.length; i++){
+
+                    if(players[i].bDuplicate === undefined){
+                        await this.ctf.updatePlayerTotals(players[i].masterId, players[i].gametypeId, players[i].stats.ctf);
+                    }
                 }
+                new Message(`Updated Player CTF totals.`,'pass');
+            }else{
+
+                new Message(`ctfmanager.updatePlayerTotals() playermanager is undefined`,'error');
             }
 
-            new Message(`Updated Player CTF totals.`,'pass');
+            
 
         }catch(err){
             console.trace(err);

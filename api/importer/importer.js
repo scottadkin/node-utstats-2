@@ -23,13 +23,13 @@ class Importer{
                 this.logsToImport = [];
                 await this.checkLogsFolder();
                 console.table(this.logsToImport);
-                const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[this.logsToImport.length - 1]}`)
+                /*const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[this.logsToImport.length - 1]}`)
 
                 const test = new MatchManager(testData, `${this.logsToImport[this.logsToImport.length - 1]}`);
 
-                test.import();
+                test.import();*/
 
-                /*let test = 0;
+                let test = 0;
                 let testData = 0;
 
                 for(let i = 0; i < this.logsToImport.length; i++){
@@ -43,7 +43,7 @@ class Importer{
 
                     imported++;
 
-                }*/
+                }
 
 
             }catch(err){

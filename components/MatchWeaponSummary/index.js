@@ -151,6 +151,11 @@ class MatchWeaponSummary extends React.Component{
 
     getDataElems(){
 
+        if(this.state.tabs[this.state.selected] === undefined){
+            console.trace(`this.stats.tabs[this.state.selected] = undefined`);
+            return null;
+        }
+
         const id = this.state.tabs[this.state.selected].id;
 
         const elems = [];
