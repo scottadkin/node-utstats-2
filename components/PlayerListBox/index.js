@@ -48,11 +48,10 @@ function PlayerListBox({
     }
 
     efficiency = (efficiency * 100).toFixed(2);
-    
-    return (
-        <Link href={`player/${playerId}`}>
-            <a>
-                <div className={styles.outter}>
+
+    /**
+     * 
+     * <div className={styles.outter}>
                     
                         
                     <div className={styles.name}>{name}</div>
@@ -79,6 +78,26 @@ function PlayerListBox({
                     <RecordBar name={"Efficiency"} value={`${efficiency}%`} percent={recordsPercent.efficiency}/>
                     <RecordBar name={"Accuracy"} value={`${accuracy}%`} percent={recordsPercent.accuracy}/>
                 
+                </div>
+     */
+    
+    return (
+        <Link href={`player/${playerId}`}>
+            <a>
+                <div className={styles.wrapper}>
+                    <div className={styles.inner}>
+                        <div className={styles.left}>
+                            <img className={styles.face} src={`/images/faces/${face}.png`} alt="face"/>
+                            <div className={styles.country}>
+                                <img src={`/images/flags/${country}.svg`} alt="flag"/><br/>
+                                {countryData.country}
+                            </div>
+                        </div>
+                        <div className={styles.right}>
+                            <div className={styles.name}>{name}</div>
+                            <RecordBar name={"Matches"} value={matches} percent={recordsPercent.matches}/>
+                        </div>
+                    </div>
                 </div>
             </a>
         </Link>
