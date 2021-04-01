@@ -50,7 +50,7 @@ class FTPImporter{
 
         return new Promise((resolve, reject) =>{
 
-            this.client.list('Logs',async (err, files) =>{
+            this.client.list(config.ftp.logsFolder,async (err, files) =>{
 
                 try{
     

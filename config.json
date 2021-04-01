@@ -2,9 +2,9 @@
     "ftp": {
         "host": "localhost",
         "port": 21,
-        "user": "scott",
+        "user": "ooper",
         "password": "password",
-        "logsFolder": "logs",
+        "logsFolder": "/UnrealTournament469/Logs/",
         "bDeleteLogsFromServer": false
     }, 
     "mysql": {
