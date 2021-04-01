@@ -1,0 +1,58 @@
+.wrapper{
+    background-color:black;
+    border:1px solid rgba(255,255,255,0.25);
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    height:180px;
+
+
+}
+
+
+.flag, .country{
+    width:120px;
+}
+
+.country{
+    height:40px;
+    line-height:40px;
+    padding-left:10px;
+    font-size:12px;
+}
+
+.flag{
+    height:70px;
+    margin-left:10px;
+    margin-top:5px;
+}
+
+.flag img{
+    height:70px;
+    width:120px;
+}
+
+.face{
+    width:64px;
+    height:64px;
+    margin-left:33px;
+    padding-top:5px;
+}
+
+.face img{
+    border:1px solid rgba(255,255,255,0.25);
+}
+
+.left{
+    background-color:rgb(16,16,16);
+    width:140px;
+    height:180px;
+    border-right:1px solid rgba(255,255,255,0.25);
+}
+
+.right{
+    width:260px;
+    margin-left:140px;
+    position:absolute;
+    margin-top:-180px;
+}

@@ -1,20 +1,37 @@
-import styles from '../PlayerSummary/PlayerSummary.module.css'
+import styles from './PlayerGeneral.module.css';
 
-const PlayerGeneral = ({data}) =>{
+const PlayerGeneral = ({flag, country, face}) =>{
 
 
-    let hours = data[2] / (60 * 60);
+    /*let hours = data[2] / (60 * 60);
 
     if(hours !== hours) hours = 0;
 
     let winRate = data[4] / data[3];
 
-    if(winRate !== winRate) winRate = 0;
-    //if(){
+    if(winRate !== winRate) winRate = 0;*/
 
-  //  }
+    console.log(flag);
 
-    return (
+    return <div className={styles.wrapper}>
+        <div className={styles.left}>
+            <div className={styles.face}>
+                <img src={`/images/faces/${face}.png`} alt="image"/>
+            </div>
+            <div className={styles.flag}>
+                <img src={`/images/flags/${flag}.svg`} alt="image"/>
+            </div>
+            <div className={styles.country}>
+                {country}
+            </div>
+        </div>
+        <div className={styles.right}>
+             right
+        </div>
+        
+    </div>
+
+    /*return (
         <div className={`${styles.table} special-table`}>
                 <div className="default-header">
                     General Stats
@@ -43,7 +60,7 @@ const PlayerGeneral = ({data}) =>{
                 </table>
                 
             </div>
-    );
+    );*/
 }
 
 

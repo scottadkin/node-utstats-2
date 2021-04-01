@@ -13,11 +13,12 @@ import Weapons from '../../api/weapons';
 import PlayerWeapons from '../../components/PlayerWeapons/';
 import Functions from '../../api/functions';
 import Servers from '../../api/servers';
+import Faces from '../../api/faces';
 
 
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames}) {
+	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, face}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -48,6 +49,16 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 		const country = Countires(flag);
 
+		let titleName = name;
+
+		if(titleName[titleName.length - 1].toLowerCase() !== 's'){
+			titleName = `${name}'s`;
+		}else{
+			titleName = `${name}'`;
+		}
+
+		// /<img className="title-flag" src={`../images/flags/${country.code.toLowerCase()}.svg`} alt="flag"/>
+
 		return (
 				<div>
 					<DefaultHead />
@@ -56,11 +67,12 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 						<div id="content">
 							<div className="default">
 								<div className="default-header">
-									<img className="title-flag" src={`../images/flags/${country.code.toLowerCase()}.svg`} alt="flag"/> {name} Career Profile
+									 {titleName} Career Profile
 								</div>
 
+
 								<PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
-									gametypeNames={gametypeNames}
+									gametypeNames={gametypeNames} face={face}
 								/>
 
 								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
@@ -144,6 +156,16 @@ export async function getServerSideProps({query}) {
 	Functions.setIdNames(recentMatches, matchPlayerCount, 'match_id', 'players');
 
 
+	const faceManager = new Faces();
+
+	//console.log(await faceManager.getFacesWithFileStatuses([summary.face]));
+
+	let currentFace = await faceManager.getFacesWithFileStatuses([summary.face]);
+
+	//console.log(currentFace);
+
+	//console.log(currentFace);
+
 	return { 
 		props: {
 			"playerId": playerId,
@@ -160,7 +182,9 @@ export async function getServerSideProps({query}) {
 			"weaponNames": JSON.stringify(weaponNames),
 			"weaponImages": JSON.stringify(weaponImages),
 			"mapImages": JSON.stringify(mapImages),
-			"serverNames": JSON.stringify(serverNames)
+			"serverNames": JSON.stringify(serverNames),
+			"face": currentFace[summary.face].name
+			
 		}
 	}
 }

@@ -9,18 +9,15 @@ import PlayerGametypeStats from '../PlayerGametypeStats'
 
 
 
-const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =>{
+const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, face}) =>{
 
     
 
     summary = JSON.parse(summary);
     
-    //console.log(summary)
+    console.log(summary)
 
-    return (
-        <div>
-
-            <PlayerGeneral data={[
+    /*<PlayerGeneral data={[
                 country,
                 flag,
                 summary.playtime,
@@ -28,7 +25,17 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames}) =
                 summary.wins,
                 summary.draws,
                 summary.losses
-            ]} />
+            ]} />*/
+
+    return (
+        <div>
+
+            
+            <PlayerGeneral 
+                country={country}
+                flag={flag}
+                face={face}
+            />
 
             <PlayerGametypeStats data={gametypeStats} names={gametypeNames}/>
 

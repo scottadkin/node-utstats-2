@@ -17,11 +17,8 @@ function getWeaponName(names, id){
 
 function getWeaponImage(images, name){
 
-    console.log(`name was ${name}`);
     name = name.toLowerCase();
     name = name.replace(/\s/ig,'');
-
-    console.log(`name = ${name}`);
 
     if(name !== 'none' && name !== "notfound"){
         
@@ -77,13 +74,6 @@ const PlayerWeapons = ({weaponStats, weaponNames, weaponImages}) =>{
     weaponImages = JSON.parse(weaponImages);
 
     const maxValues = setMaxValues(weaponStats);
-
-
-    //console.log(weaponImages);
-
-   // console.log(weaponStats);
-
-
 
     const elems = [];
 

@@ -98,6 +98,7 @@ class Importer{
             data = data.replace(/\u0000/ig, '');
 
             return data;
+            
         }catch(err){
             console.trace(err);
         }

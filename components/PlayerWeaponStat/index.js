@@ -14,8 +14,7 @@ const PlayerWeaponStat = ({name, display, value, max}) =>{
             percent = bit * value; 
         }
     }
-
-    console.log(`percent = ${percent}, value=${value}, max=${max}`);
+    
     return <div className={styles.wrapper}>
 
         <div className={styles.name}>
