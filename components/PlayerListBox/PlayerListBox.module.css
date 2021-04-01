@@ -2,7 +2,7 @@
     background-color:black;
     display:inline-block;
     width:400px;
-    height:150px;
+    height:153px;
     margin-top:-1px;
     margin-left:-1px;
 }
@@ -42,16 +42,21 @@
 }
 
 .name{
-    font-size:16px;
+    font-size:14px;
     padding:5px 0px;
     color:yellow;
 }
 
-.bwrapper{
-    height:20px;
+.last{
     font-size:12px;
-    line-height:20px;
-    background-color:red;
+    padding-bottom:5px;
+}
+
+.bwrapper{
+    height:16px;
+    font-size:12px;
+    line-height:16px;
+    margin-top:-1px;
 }
 
 .lb{
@@ -60,10 +65,20 @@
 }
 
 .bar{
-    background-color:pink;
+    border-left:1px solid rgba(255,255,255,0.125);
+    border-top:1px solid rgba(255,255,255,0.125);
+    border-bottom:1px solid rgba(255,255,255,0.125);
+    height:14px;
 }
 
 .barinner{
     background-color:green;
-    height:12px;
+    background:linear-gradient(to bottom, rgb(0,70,0), rgb(0,20,0));
+    height:16px;
+}
+
+.bvalue{
+    margin-top:-16px;
+    width:70%;
+    margin-left:30%;
 }

@@ -95,7 +95,14 @@ function PlayerListBox({
                         </div>
                         <div className={styles.right}>
                             <div className={styles.name}>{name}</div>
+                            <div className={styles.last}>Last <TimeStamp timestamp={last} noDayName={true} noTime={true}/></div>
                             <RecordBar name={"Matches"} value={matches} percent={recordsPercent.matches}/>
+                            <RecordBar name={"Wins"} value={wins} percent={recordsPercent.wins}/>
+                            <RecordBar name={"Score"} value={score} percent={recordsPercent.score}/>
+                            <RecordBar name={"Kills"} value={kills} percent={recordsPercent.kills}/>
+                            <RecordBar name={"Deaths"} value={deaths} percent={recordsPercent.deaths}/>
+                            <RecordBar name={"Efficiency"} value={`${efficiency}%`} percent={recordsPercent.efficiency}/>
+                            <RecordBar name={"Accuracy"} value={`${accuracy}%`} percent={recordsPercent.accuracy}/>
                         </div>
                     </div>
                 </div>
