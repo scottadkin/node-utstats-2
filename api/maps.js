@@ -515,7 +515,13 @@ class Maps{
 
             const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,1,?,?,?)";
 
-            const playtime = player.stats.time_on_server.toFixed(4);
+            let playtime = 0;
+
+            if(player.stats.time_on_server !== undefined){
+                playtime = player.stats.time_on_server.toFixed(4);
+            }else{
+                new Message(`Maps.InsertNewPlayerHistory() playtime is undefined`,'warning');
+            }
 
             const vars = [
                 map, 
@@ -553,7 +559,13 @@ class Maps{
             WHERE player=? AND map=?
             `;
 
-            const playtime = player.stats.time_on_server.toFixed(4);
+            let playtime = 0;
+
+            if(player.stats.time_on_server !== undefined){
+                playtime = player.stats.time_on_server.toFixed(4);
+            }else{
+                new Message(`Maps.updatePlayerHistoryQuery() playtime is undefined`,'warning');
+            }
 
             const vars = [
                 date, 

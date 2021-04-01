@@ -4,17 +4,7 @@ import Timestamp from '../TimeStamp/';
 const PlayerGeneral = ({flag, country, face, first, last, matches, playtime, wins, losses, winRate}) =>{
 
 
-    /*let hours = data[2] / (60 * 60);
-
-    if(hours !== hours) hours = 0;
-
-    let winRate = data[4] / data[3];
-
-    if(winRate !== winRate) winRate = 0;*/
-
-    console.log(flag);
-
-    return <div className={styles.wrapper}>
+    return <div className={`${styles.wrapper} m-bottom-10`}>
         <div className={styles.left}>
             <div className={styles.face}>
                 <img src={`/images/faces/${face}.png`} alt="image"/>
@@ -65,37 +55,6 @@ const PlayerGeneral = ({flag, country, face, first, last, matches, playtime, win
         </div>
         
     </div>
-
-    /*return (
-        <div className={`${styles.table} special-table`}>
-                <div className="default-header">
-                    General Stats
-                </div>       
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>Country</th>   
-                            <th>Playtime</th>   
-                            <th>Matches</th>   
-                            <th>Wins</th>   
-                            <th>Draws</th>   
-                            <th>Losses</th>   
-                            <th>WinRate</th>   
-                        </tr>
-                        <tr>
-                            <td><img className="country-flag" src={`../images/flags/${data[1]}.svg`} alt="image"/> {data[0]}</td> 
-                            <td>{hours.toFixed(2)} Hours</td> 
-                            <td>{data[3]}</td> 
-                            <td>{data[4]}</td> 
-                            <td>{data[5]}</td> 
-                            <td>{data[6]}</td> 
-                            <td>{(winRate * 100).toFixed(2)}%</td> 
-                        </tr>
-                    </tbody>
-                </table>
-                
-            </div>
-    );*/
 }
 
 

@@ -9,23 +9,9 @@ import PlayerGametypeStats from '../PlayerGametypeStats'
 
 
 
-const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, face}) =>{
-
-    
+const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, face}) =>{   
 
     summary = JSON.parse(summary);
-    
-    console.log(summary)
-
-    /*<PlayerGeneral data={[
-                country,
-                flag,
-                summary.playtime,
-                summary.matches,
-                summary.wins,
-                summary.draws,
-                summary.losses
-            ]} />*/
 
     return (
         <div>
@@ -47,18 +33,18 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
 
             <PlayerGametypeStats data={gametypeStats} names={gametypeNames}/>
 
-            <PlayerFragSummary data={[
-                summary.score,
-                summary.frags,
-                summary.kills,
-                summary.deaths,
-                summary.suicides,
-                summary.team_kills,
-                summary.spawn_kills,
-                summary.efficiency,
-                summary.first_bloods,
-                summary.accuracy
-            ]}/>
+            <PlayerFragSummary 
+                score={summary.score}
+                frags={summary.frags}
+                kills={summary.kills}
+                deaths={summary.deaths}
+                suicides={summary.suicides}
+                teamKills={summary.team_kills}
+                spawnKills={summary.spawn_kills}
+                efficiency={summary.efficiency}
+                firstBlood={summary.first_bloods}
+                accuracy={summary.accuracy}
+            />
 
             <PlayerMultiKills data={[
                 summary.multi_1,

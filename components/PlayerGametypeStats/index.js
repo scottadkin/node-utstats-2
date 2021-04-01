@@ -1,16 +1,8 @@
-import styles from '../PlayerSummary/PlayerSummary.module.css'
 
 const PlayerGametypeStats = ({data, names}) =>{
 
     data = JSON.parse(data);
     names = JSON.parse(names);
-
-
-    const elems = [];
-
-    let currentPlaytime = 0;
-    let currentWinRate = 0;
-    let currentName = 0;
 
     data.sort((a, b) =>{
 
@@ -26,51 +18,59 @@ const PlayerGametypeStats = ({data, names}) =>{
         return 0;
     });
 
+    const elems = [];
+
+    let d = 0;
+
+    let winrate = 0;
 
     for(let i = 0; i < data.length; i++){
 
-        currentPlaytime = data[i].playtime / (60 * 60);
-        currentWinRate = (data[i].wins / data[i].matches) * 100;
-        currentName = names[data[i].gametype];
-        if(currentName === undefined) currentName = "Not Found";
+        d = data[i];
 
-        elems.push(
-            <tr key={i}>
-                <td>{currentName}</td>
-                <td>{currentPlaytime.toFixed(2)} Hours</td>
-                <td>{data[i].matches}</td>
-                <td>{data[i].wins}</td>
-                <td>{data[i].draws}</td>
-                <td>{data[i].losses}</td>
-                <td>{currentWinRate.toFixed(2)}%</td>
+        winrate = 0;
 
-            </tr>
-        );
+        if(d.matches > 0){
+
+            if(d.wins > 0){
+
+                if(d.losses + d.draws === 0){
+                    winrate = 1;
+                }else{
+
+                    winrate = ((d.wins / d.matches) * 100).toFixed(2);
+                }
+            }
+        }
+
+        elems.push(<tr key={i}>
+            <td>{(names[d.gametype] !== undefined) ? names[d.gametype] : "Not Found"}</td>
+            <td>{d.wins}</td>
+            <td>{d.losses}</td>
+            <td>{d.draws}</td>
+            <td>{winrate}%</td>
+            <td>{d.matches}</td>
+            <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
+        </tr>);
     }
 
-    return (
-        
-        <div className={`${styles.table} special-table`}>
-                <div className="default-header">
-                    Gametype Stats
-                </div>
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>Gametype</th>
-                            <th>Playtime</th>
-                            <th>Matches</th>
-                            <th>Wins</th>
-                            <th>Draws</th>
-                            <th>Losses</th>
-                            <th>WinRate</th>
-                        </tr>
-                        {elems}
-                    </tbody>
-                </table>
-            </div>
-    );
-
+    return <div className="special-table">
+        <div className="default-header">Gametype Stats</div>
+        <table className="t-width-1">
+            <tbody>
+                <tr>
+                    <th>Gametype</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Draws</th>
+                    <th>Win Rate</th>
+                    <th>Matches</th>
+                    <th>Playtime</th>
+                </tr>
+                {elems}
+            </tbody>
+        </table>
+    </div>
 }
 
 

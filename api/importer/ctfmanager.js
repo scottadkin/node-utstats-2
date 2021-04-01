@@ -420,14 +420,22 @@ class CTFManager{
 
         try{
 
-            const players = this.playerManager.players;
+            if(this.playerManager !== undefined){
+                const players = this.playerManager.players;
 
-            for(let i = 0; i < players.length; i++){
+            
 
-                if(players[i].bDuplicate === undefined){
-                    await this.ctf.updatePlayerMatchStats(players[i].matchId, players[i].stats.ctf);
+                for(let i = 0; i < players.length; i++){
+
+                    if(players[i].bDuplicate === undefined){
+                        await this.ctf.updatePlayerMatchStats(players[i].matchId, players[i].stats.ctf);
+                    }
                 }
+
+            }else{
+                new Message(`CTFManager.updatePlayerMatchStats() playerManager is undefined`,'warning');
             }
+
         }catch(err){
             new Message(`updatePlayersMatchStats ${err}`,'error');
         }

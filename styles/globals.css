@@ -341,6 +341,11 @@ td{
 	padding-left:5px;
 }
 
+.t-width-1{
+	width:90%;
+	max-width:750px;
+}
+
 .default-select{
 	background-color:rgb(12,12,12);
 	color:white;
