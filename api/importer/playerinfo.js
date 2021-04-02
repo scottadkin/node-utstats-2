@@ -85,7 +85,9 @@ class PlayerInfo{
             "dom": {
                 "caps": 0,
                 "mostCapsLife": 0,
-                "mostCapsSinglePoint": 0
+                "mostCapsSinglePoint": 0,
+                "lastCapTime": 0,
+                "currentCaps": 0
             },
             "assault": {
                 "caps": 0

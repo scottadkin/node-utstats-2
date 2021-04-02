@@ -183,8 +183,10 @@ class MatchManager{
             await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
 
             if(this.domManager !== undefined){
+                this.domManager.setLifeCaps(this.killManager);
                 await this.domManager.updatePlayersMatchStats();
                 await this.domManager.insertMatchPlayerScores(this.matchId);
+                await this.domManager.updatePlayerLifeCaps(this.matchId);
             }
 
             if(this.assaultManager !== undefined){

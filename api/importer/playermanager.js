@@ -68,6 +68,20 @@ class PlayerManager{
 
     }
 
+    getPlayerByMasterId(id){
+
+        id = parseInt(id);
+
+        for(let i = 0; i < this.players.length; i++){
+
+            if(this.players[i].masterId === id){
+                return this.players[i];
+            }
+        }
+
+        return null;
+    }
+
     getPlayerNameById(id){
 
         id = parseInt(id);
@@ -577,6 +591,11 @@ class PlayerManager{
         for(const c in master.stats.ctf){
             master.stats.ctf[c] += duplicate.stats.ctf[c];
         }
+
+        master.stats.dom.caps += duplicate.stats.dom.caps;
+        master.stats.dom.mostCapsLife = (master.stats.dom.mostCapsLife > duplicate.stats.dom.mostCapsLife) 
+        ? master.stats.dom.mostCapsLife 
+        : duplicate.stats.dom.mostCapsLife;
 
         /*for(const c in master.stats.dom){
             master.stats.dom[c] += duplicate.stats.dom[c];

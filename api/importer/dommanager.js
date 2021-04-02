@@ -243,7 +243,11 @@ class DOMManager{
 
                 if(currentPlayer !== null){
 
-                    await this.domination.updatePlayerCapTotals(currentPlayer.masterId, currentPlayer.gametypeId, this.playerCaps[player]);
+                    await this.domination.updatePlayerCapTotals(
+                        currentPlayer.masterId, 
+                        currentPlayer.gametypeId, 
+                        this.playerCaps[player]
+                    );
                     currentPlayer.stats.dom.caps = this.playerCaps[player];
 
                 }else{
@@ -327,6 +331,62 @@ class DOMManager{
                 await this.domination.insertMatchPlayerScore(matchId, p.timestamp, p.player, p.score);
             }
 
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    setLifeCaps(killManager){
+
+        let c = 0;
+
+        let currentPlayer = 0;
+        let currentDeaths = 0;
+
+        for(let i = 0; i < this.capData.length; i++){
+
+            c = this.capData[i];
+
+            currentPlayer = this.playerManager.getPlayerByMasterId(c.player);
+
+            if(currentPlayer !== null){
+
+                currentDeaths = killManager.getDeathsBetween(currentPlayer.stats.dom.lastCapTime, c.timestamp, c.player);
+
+                currentPlayer.stats.dom.lastCapTime = c.timestamp;
+
+                if(currentDeaths > 0){
+
+                    currentPlayer.stats.dom.currentCaps = 1;
+
+                }else{    
+                    currentPlayer.stats.dom.currentCaps++;
+
+                    if(currentPlayer.stats.dom.currentCaps > currentPlayer.stats.dom.mostCapsLife){
+                        currentPlayer.stats.dom.mostCapsLife = currentPlayer.stats.dom.currentCaps;
+                    }
+                }
+            }
+        }
+    }
+
+    async updatePlayerLifeCaps(matchId){
+
+        try{
+
+            let p = 0;
+
+            for(let i = 0; i < this.playerManager.players.length; i++){
+
+                p = this.playerManager.players[i];
+
+                if(p.bDuplicate === undefined){
+                    await this.domination.updatePlayerBestLifeCaps(p.gametypeId, p.masterId, p.stats.dom.mostCapsLife);
+                    await this.domination.updateMatchBestLifeCaps(p.masterId, matchId, p.stats.dom.mostCapsLife);
+                }
+            }
+            
         }catch(err){
             console.trace(err);
         }

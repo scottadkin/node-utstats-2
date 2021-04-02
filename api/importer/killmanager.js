@@ -302,6 +302,47 @@ class KillManager{
             return found;
         }
     }
+
+    /**
+     * 
+     * @param {*} start 
+     * @param {*} end 
+     * @param {*} victim masterId
+     * @returns total deaths in timeframe
+     */
+    getDeathsBetween(start, end, victim){
+
+        let found = 0;
+
+        let k = 0;
+        let currentVictim = 0;
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            k = this.kills[i];
+            
+            if(k.timestamp > end) break;
+
+            if(k.type === 'kill'){
+
+                if(k.timestamp >= start){
+
+                    currentVictim = this.playerManager.getOriginalConnectionById(k.victimId);
+
+                    if(currentVictim !== null){
+
+                        if(currentVictim.masterId === victim) found++;
+
+                    }else{
+                        new Message(`KillManager.getDeathsBetween() currentVictim is null`,'warning');
+                    }
+                }
+            }
+        }
+
+        return found;
+
+    }
 }
 
 

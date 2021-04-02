@@ -307,6 +307,40 @@ class Domination{
 
         });
     }
+
+    updatePlayerBestLifeCaps(gametypeId, masterId, caps){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_player_totals SET 
+            dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life)
+            WHERE id IN(?,?)`;
+
+            mysql.query(query, [caps, caps, gametypeId, masterId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    updateMatchBestLifeCaps(playerId, matchId, caps){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_player_matches SET 
+            dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life)
+            WHERE player_id=? AND match_id=?`;
+
+            mysql.query(query, [caps, caps, playerId, matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 
