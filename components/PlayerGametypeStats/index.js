@@ -30,10 +30,14 @@ const PlayerGametypeStats = ({data, names}) =>{
     let totalMatches = 0;
     let totalPlaytime = 0;
     let totalWinrate = 0;
+    let totalGametypes = 0;
+    let totalAccuracy = 0;
 
     for(let i = 0; i < data.length; i++){
 
         d = data[i];
+
+        totalGametypes++;
 
         winrate = 0;
 
@@ -55,10 +59,12 @@ const PlayerGametypeStats = ({data, names}) =>{
         totalDraws += d.draws;
         totalMatches += d.matches;
         totalPlaytime += d.playtime;
+        totalAccuracy += d.accuracy;
 
 
         elems.push(<tr key={i}>
             <td>{(names[d.gametype] !== undefined) ? names[d.gametype] : "Not Found"}</td>
+            <td>{d.accuracy.toFixed(2)}%</td>
             <td>{d.wins}</td>
             <td>{d.losses}</td>
             <td>{d.draws}</td>
@@ -80,6 +86,7 @@ const PlayerGametypeStats = ({data, names}) =>{
 
     elems.push(<tr key={"total"} className="black">
         <td>Totals</td>
+        <td>{(totalAccuracy / totalGametypes).toFixed(2)}%</td>
         <td>{totalWins}</td>
         <td>{totalLosses}</td>
         <td>{totalDraws}</td>
@@ -95,6 +102,7 @@ const PlayerGametypeStats = ({data, names}) =>{
             <tbody>
                 <tr>
                     <th>Gametype</th>
+                    <th>Last Accuracy</th>
                     <th>Wins</th>
                     <th>Losses</th>
                     <th>Draws</th>

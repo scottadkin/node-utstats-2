@@ -47,6 +47,8 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
                 close={summary.k_distance_normal}
                 long={summary.k_distance_long}
                 uber={summary.k_distance_uber}
+                headshots={summary.headshots}
+                spawnKillSpree={summary.best_spawn_kill_spree}
             />
 
             <PlayerMultiKills data={[

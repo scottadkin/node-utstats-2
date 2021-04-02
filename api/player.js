@@ -323,7 +323,7 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT gametype,matches,wins,losses,draws,playtime FROM nstats_player_totals WHERE gametype!=0 AND name=?";
+            const query = "SELECT gametype,matches,wins,losses,draws,playtime,accuracy FROM nstats_player_totals WHERE gametype!=0 AND name=?";
 
             mysql.query(query, [name], (err, result) =>{
 
