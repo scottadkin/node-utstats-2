@@ -34,6 +34,9 @@ class PlayerSpecialEvents extends React.Component{
         const cols = [];
         const headers = [];
 
+        let titles = [];
+        let data = [];
+
         headers.push(<th key={"fb"}>
             First Bloods
         </th>);
@@ -44,25 +47,24 @@ class PlayerSpecialEvents extends React.Component{
 
         if(this.state.mode === 0){
 
-            const titles = [
+            titles = [
                 "Double Kill",
                 "Multi Kill",
                 "Ultra Kill",
                 "Monster Kill"
             ];
 
-            const data = [
+            data = [
                 this.props.data.multi_1,
                 this.props.data.multi_2,
                 this.props.data.multi_3,
                 this.props.data.multi_4 + this.props.data.multi_5 + this.props.data.multi_6 + this.props.data.multi_7
             ];
 
-            this.createUTMultis(headers, cols, titles, data);
 
         }else if(this.state.mode === 1){
 
-            const titles = [
+            titles = [
                 "Double Kill",
                 "Tripple Kill",
                 "Multi Kill",
@@ -71,7 +73,7 @@ class PlayerSpecialEvents extends React.Component{
                 "Monster Kill"
             ];
 
-            const data = [
+            data = [
                 this.props.data.multi_1,
                 this.props.data.multi_2,
                 this.props.data.multi_3,
@@ -80,11 +82,9 @@ class PlayerSpecialEvents extends React.Component{
                 this.props.data.multi_6 + this.props.data.multi_7
             ];
 
-            this.createUTMultis(headers, cols, titles, data);
-
         }else if(this.state.mode === 2){
 
-            const titles = [
+            titles = [
                 "Double Kill",
                 "Multi Kill",
                 "Mega Kill",
@@ -94,18 +94,14 @@ class PlayerSpecialEvents extends React.Component{
                 "Holy Shit",
             ];
 
-            const data = [];
-
             for(let i = 0; i < 7; i++){
 
                 data.push(this.props.data[`multi_${i+1}`]);
             }
 
-            this.createUTMultis(headers, cols, titles, data);
-
         }else if(this.state.mode === 3){
 
-            const titles = [
+            titles = [
                 "Double Kill",
                 "Multi Kill",
                 "Mega Kill",
@@ -113,20 +109,23 @@ class PlayerSpecialEvents extends React.Component{
                 "Monster Kill"
             ];
 
-            const data = [
+            data = [
                 this.props.data.multi_1,
                 this.props.data.multi_2,
                 this.props.data.multi_3,
                 this.props.data.multi_4,
                 this.props.data.multi_5 +this.props.data.multi_6 +this.props.data.multi_7
             ];
-            
-
-            this.createUTMultis(headers, cols, titles, data);
-
+        
         }
 
-        return <table className="t-width-1">
+        this.createUTMultis(headers, cols, titles, data);
+
+
+        headers.push(<th>Best Multi</th>);
+        cols.push(<td>{this.props.data.multi_best} Kills</td>);
+
+        return <table className="t-width-1 m-bottom-10">
             <tbody>
                 <tr>
                     {headers}
@@ -135,6 +134,94 @@ class PlayerSpecialEvents extends React.Component{
                     {cols}
                 </tr>
             </tbody>
+        </table>
+    }
+
+
+    createUTSprees(headers, cols, titles, data){
+
+        for(let i = 0; i < titles.length; i++){
+
+            headers.push(<th key={i}>{titles[i]}</th>);
+            cols.push(<td key={i}>{data[i]}</td>);
+        }
+    }
+
+    createSprees(){
+
+        const headers = [];
+        const cols = [];
+
+        let titles = [];
+        let data = [];
+
+        if(this.state.mode === 0){
+
+            titles = ["Killing Spree", "Rampage", "Dominating", "Unstoppable", "Godlike"];
+
+            data = [
+                this.props.data.spree_1,
+                this.props.data.spree_2,
+                this.props.data.spree_3,
+                this.props.data.spree_4,
+                this.props.data.spree_5 + this.props.data.spree_6 + this.props.data.spree_7
+            ];
+
+            
+
+        }else if(this.state.mode === 1){
+
+            titles = ["Killing Spree", "Rampage", "Dominating", "Unstoppable", "Godlike", "Too Easy", "Brutalizing"];
+
+            data = [
+                this.props.data.spree_1,
+                this.props.data.spree_2,
+                this.props.data.spree_3,
+                this.props.data.spree_4,
+                this.props.data.spree_5,
+                this.props.data.spree_6,
+                this.props.data.spree_7
+            ];
+
+        }else if(this.state.mode === 2){
+
+            titles = ["Killing Spree", "Rampage", "Dominating", "Unstoppable", "Godlike", "Whicked Sick"];
+
+            data = [
+                this.props.data.spree_1,
+                this.props.data.spree_2,
+                this.props.data.spree_3,
+                this.props.data.spree_4,
+                this.props.data.spree_5,
+                this.props.data.spree_6 + this.props.data.spree_7
+            ];
+
+        }else if(this.state.mode === 3){
+
+            titles = ["Killing Spree", "Rampage", "Dominating", "Unstoppable", "Godlike", "Massacre"];
+
+            data = [
+                this.props.data.spree_1,
+                this.props.data.spree_2,
+                this.props.data.spree_3,
+                this.props.data.spree_4,
+                this.props.data.spree_5,
+                this.props.data.spree_6 + this.props.data.spree_7
+            ];
+        }
+
+        this.createUTSprees(headers, cols, titles, data);
+
+        headers.push(<th key="end">Best Spree</th>);
+        cols.push(<td key="end">{this.props.data.spree_best} Kills</td>);
+
+        return <table className="t-width-1">
+            <tr>
+                {headers}
+            </tr>
+            <tr>
+                {cols}
+            </tr>
         </table>
     }
 
@@ -157,6 +244,7 @@ class PlayerSpecialEvents extends React.Component{
                 })}>UT3</div>
             </div>
             {this.createMultis()}
+            {this.createSprees()}
         </div>
     }
 }
