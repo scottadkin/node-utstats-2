@@ -16,6 +16,19 @@ class PlayerSpecialEvents extends React.Component{
         this.setState({"mode": id});
     }
 
+
+    createUTMultis(headers, cols, titles, data){
+
+
+        for(let i = 0; i < titles.length; i++){
+
+            headers.push(<th>{titles[i]}</th>);
+            cols.push(<td>{data[i]}</td>);
+        }
+
+
+    }
+
     createMultis(){
 
         const cols = [];
@@ -29,8 +42,6 @@ class PlayerSpecialEvents extends React.Component{
             {this.props.data.first_bloods}
         </td>);
 
-        let mergedEvents = 0;
-
         if(this.state.mode === 0){
 
             const titles = [
@@ -40,24 +51,14 @@ class PlayerSpecialEvents extends React.Component{
                 "Monster Kill"
             ];
 
-            for(let i = 0; i < 4; i++){
+            const data = [
+                this.props.data.multi_1,
+                this.props.data.multi_2,
+                this.props.data.multi_3,
+                this.props.data.multi_4 + this.props.data.multi_5 + this.props.data.multi_6 + this.props.data.multi_7
+            ];
 
-                headers.push(<th key={i}>{titles[i]}</th>);
-
-                if(i < 3){
-                    cols.push(<td key={i}>
-                        {this.props.data[`multi_${i+1}`]}
-                    </td>);
-                }else{
-
-                    for(let x = 4; x <= 7; x++){
-                        mergedEvents += this.props.data[`multi_${x}`];
-                    }
-                    cols.push(<td key={i}>
-                        {mergedEvents}
-                    </td>);
-                }
-            }
+            this.createUTMultis(headers, cols, titles, data);
 
         }else if(this.state.mode === 1){
 
@@ -70,19 +71,16 @@ class PlayerSpecialEvents extends React.Component{
                 "Monster Kill"
             ];
 
-            for(let i = 0; i < titles.length; i++){
+            const data = [
+                this.props.data.multi_1,
+                this.props.data.multi_2,
+                this.props.data.multi_3,
+                this.props.data.multi_4,
+                this.props.data.multi_5,
+                this.props.data.multi_6 + this.props.data.multi_7
+            ];
 
-                headers.push(<th key={i}>
-                    {titles[i]}
-                </th>);
-            }
-
-            cols.push(<td key={1}>{this.props.data.multi_1}</td>);
-            cols.push(<td key={2}>{this.props.data.multi_2}</td>);
-            cols.push(<td key={3}>{this.props.data.multi_3}</td>);
-            cols.push(<td key={4}>{this.props.data.multi_4}</td>);
-            cols.push(<td key={5}>{this.props.data.multi_5}</td>);
-            cols.push(<td key={6}>{this.props.data.multi_6 + this.props.data.multi_7}</td>);
+            this.createUTMultis(headers, cols, titles, data);
 
         }else if(this.state.mode === 2){
 
@@ -96,11 +94,14 @@ class PlayerSpecialEvents extends React.Component{
                 "Holy Shit",
             ];
 
+            const data = [];
+
             for(let i = 0; i < 7; i++){
 
-                headers.push(<th key={i}>{titles[i]}</th>);
-                cols.push(<td key={i}>{this.props.data[`multi_${i+1}`]}</td>);
+                data.push(this.props.data[`multi_${i+1}`]);
             }
+
+            this.createUTMultis(headers, cols, titles, data);
 
         }else if(this.state.mode === 3){
 
@@ -112,21 +113,16 @@ class PlayerSpecialEvents extends React.Component{
                 "Monster Kill"
             ];
 
-            for(let i = 0; i < titles.length; i++){
+            const data = [
+                this.props.data.multi_1,
+                this.props.data.multi_2,
+                this.props.data.multi_3,
+                this.props.data.multi_4,
+                this.props.data.multi_5 +this.props.data.multi_6 +this.props.data.multi_7
+            ];
+            
 
-                headers.push(<th key={i}>{titles[i]}</th>);
-
-                if(i < 4){
-                    cols.push(<td key={i}>{this.props.data[`multi_${i+1}`]}</td>);
-                }else{
-
-                    for(let x = 5; x <= 7; x++){
-                        mergedEvents += this.props.data[`multi_${x}`];
-                    }
-
-                    cols.push(<td key={i}>{mergedEvents}</td>);
-                }
-            }
+            this.createUTMultis(headers, cols, titles, data);
 
         }
 
