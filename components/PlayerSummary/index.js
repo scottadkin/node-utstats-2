@@ -33,7 +33,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
 
             <PlayerCTFSummary data={summary} />
 
-            <PlayerADSummary dom={summary.dom_caps} domBest={summary.dom_caps_best} assault={summary.assault_objectives}/>
+            <PlayerADSummary dom={summary.dom_caps} domBest={summary.dom_caps_best} domBestLife={summary.dom_caps_best_life} assault={summary.assault_objectives}/>
 
 
             <PlayerFragSummary 
