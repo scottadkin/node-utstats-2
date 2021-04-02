@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2021 at 04:51 PM
+-- Generation Time: Apr 02, 2021 at 06:23 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -621,6 +621,7 @@ CREATE TABLE `nstats_player_totals` (
   `flag_carry_time` double NOT NULL,
   `assault_objectives` int(11) NOT NULL,
   `dom_caps` int(11) NOT NULL,
+  `dom_caps_best` int(11) NOT NULL,
   `accuracy` float NOT NULL,
   `k_distance_normal` int(11) NOT NULL,
   `k_distance_long` int(11) NOT NULL,

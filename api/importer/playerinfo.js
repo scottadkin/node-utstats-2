@@ -83,7 +83,9 @@ class PlayerInfo{
                 "pickupTime": 0
             },
             "dom": {
-                "caps": 0
+                "caps": 0,
+                "mostCapsLife": 0,
+                "mostCapsSinglePoint": 0
             },
             "assault": {
                 "caps": 0

@@ -126,9 +126,11 @@ class Domination{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "UPDATE nstats_player_totals SET dom_caps=dom_caps+? WHERE id IN(?,?)";
+            const query = `UPDATE nstats_player_totals SET dom_caps=dom_caps+?,
+            dom_caps_best = IF(dom_caps_best < ?, ?, dom_caps_best)
+            WHERE id IN(?,?)`;
 
-            mysql.query(query, [caps, masterId, gametypeId], (err) =>{
+            mysql.query(query, [caps, caps, caps, masterId, gametypeId], (err) =>{
                 
                 if(err) reject(err);
 

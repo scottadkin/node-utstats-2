@@ -1,4 +1,4 @@
-const PlayerADSummary = ({dom, assault}) =>{
+const PlayerADSummary = ({dom, domBest, assault}) =>{
 
     if(dom === 0 && assault === 0) return null;
 
@@ -9,10 +9,12 @@ const PlayerADSummary = ({dom, assault}) =>{
                     <tr>
                         <th>Assault Objectives Captured</th>
                         <th>Domination Control Point Caps</th>
+                        <th>Most Domination Control Point Caps</th>
                     </tr>
                     <tr>
                         <td>{assault}</td>
                         <td>{dom}</td>
+                        <td>{domBest}</td>
                     </tr>
                 </tbody>
             </table>
