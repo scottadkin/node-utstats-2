@@ -39,7 +39,7 @@ const PlayerFragSummary = ({
             <div className="default-header">
                 Extended Frag Performance
             </div>
-            <table className="t-width-1 m-bottom-10">
+            <table className="t-width-1">
                 <tbody>
                     <tr>
                         <th>Headshots</th>
@@ -62,25 +62,5 @@ const PlayerFragSummary = ({
         </div>
     );
 }
-
-/**
- * <div className="default-header">
-                Frag Distances
-            </div>
-            <table className="t-width-1 m-bottom-10">
-                <tbody>
-                    <tr>
-                        <th>Close Range</th>
-                        <th>Long Range</th>
-                        <th>Uber Long Range</th>
-                    </tr>
-                    <tr>
-                        <td>{close}</td>
-                        <td>{long}</td>
-                        <td>{uber}</td>
-                    </tr>
-                </tbody>
-            </table>
- */
 
 export default PlayerFragSummary;
