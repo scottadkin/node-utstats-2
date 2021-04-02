@@ -130,12 +130,7 @@ class PlayerCTFSummary extends React.Component{
             </tr>
         </table>
     }
-    /**
-     * 
-     * @returns <TipHeader title="Kills With Flag" content="How many kills the player got while carrying the enemy flag."/>
-                <TipHeader title="Successful Kills With Flag" content="How many kills the player got while carrying the enemy flag, that was capped."/>
-                <TipHeader title="Failed Kills With Flag" content="How many kills the player got while carrying the enemy flag, that was returned."/>
-     */
+
 
     render(){
 

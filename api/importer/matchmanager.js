@@ -96,10 +96,12 @@ class MatchManager{
             
             if(this.CTFManager !== undefined){
 
+                this.CTFManager.playerManager = this.playerManager;
+
                 if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
                     // console.table(this.CTFManager.data);
-                    this.CTFManager.playerManager = this.playerManager;
+                    
                     this.CTFManager.parseData();
                     this.CTFManager.setPlayerStats();
                     await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId);

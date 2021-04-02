@@ -393,20 +393,21 @@ class CTFManager{
 
         try{
 
-            if(this.playerManger !== undefined){
+            if(this.playerManager !== undefined){
 
                 const players = this.playerManager.players;
                 
                 for(let i = 0; i < players.length; i++){
 
                     if(players[i].bDuplicate === undefined){
+
                         await this.ctf.updatePlayerTotals(players[i].masterId, players[i].gametypeId, players[i].stats.ctf);
                     }
                 }
                 new Message(`Updated Player CTF totals.`,'pass');
             }else{
 
-                new Message(`ctfmanager.updatePlayerTotals() playermanager is undefined`,'error');
+                new Message(`ctfmanager.updatePlayerTotals() playermanager.players is undefined`,'error');
             }
 
             
@@ -421,9 +422,8 @@ class CTFManager{
         try{
 
             if(this.playerManager !== undefined){
-                const players = this.playerManager.players;
 
-            
+                const players = this.playerManager.players;
 
                 for(let i = 0; i < players.length; i++){
 
@@ -590,6 +590,12 @@ class CTFManager{
                     currentPlayer.stats.ctf.selfCoverFail += currentKills;
                 }else{
                     currentPlayer.stats.ctf.selfCoverPass += currentKills;
+                }
+
+                //self covers
+
+                if(currentKills > currentPlayer.stats.ctf.bestSelfCover){
+                    currentPlayer.stats.ctf.bestSelfCover = currentKills;
                 }
             }
         }

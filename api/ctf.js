@@ -32,7 +32,8 @@ class CTF{
             flag_cover_best= IF(? > flag_cover_best, ?, flag_cover_best),
             flag_kill=flag_kill+?,
             flag_save=flag_save+?,
-            flag_carry_time=flag_carry_time+?
+            flag_carry_time=flag_carry_time+?,
+            flag_self_cover_best = IF(? > flag_self_cover_best, ?, flag_self_cover_best)
             WHERE id IN(?,?)`;
 
             const vars = [
@@ -55,6 +56,8 @@ class CTF{
                 data.kill,
                 data.save,
                 data.carryTime,
+                data.bestSelfCover,
+                data.bestSelfCover,
                 masterId, gametypeId
             ];
 
@@ -89,7 +92,8 @@ class CTF{
             flag_cover_best=?,
             flag_kill = ?,
             flag_save = ?,
-            flag_carry_time=?
+            flag_carry_time=?,
+            flag_self_cover_best=?
             WHERE id=?`;
 
             const vars = [
@@ -111,6 +115,7 @@ class CTF{
                 stats.kill,
                 stats.save,
                 stats.carryTime,
+                stats.bestSelfCover,
                 rowId
             ];
 

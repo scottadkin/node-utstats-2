@@ -76,6 +76,7 @@ class PlayerInfo{
                 "multiCover": 0, // player got 3 covers during one flag
                 "spreeCover": 0, // player got 4 or more covers during one flag
                 "bestCover": 0, //most covers during one flag
+                "bestSelfCover": 0, //most self covers during one flag
                 "kill": 0,
                 "save": 0,
                 "carryTime": 0,
