@@ -31,17 +31,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
 
             <PlayerGametypeStats data={gametypeStats} names={gametypeNames}/>
 
-            <PlayerCTFSummary data={[
-                summary.flag_taken,
-                summary.flag_pickup,
-                summary.flag_dropped,
-                summary.flag_capture,
-                summary.flag_assist,
-                summary.flag_cover,
-                summary.flag_kill,
-                summary.flag_return,
-                summary.flag_save,
-            ]} />
+            <PlayerCTFSummary data={summary} />
 
             <div className={`${styles.table} special-table`}>
                 <div className="default-header">Assault & Domination</div>
