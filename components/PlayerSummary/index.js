@@ -1,9 +1,9 @@
-import styles from './PlayerSummary.module.css';
 import PlayerFragSummary from '../PlayerFragSummary';
 import PlayerCTFSummary from '../PlayerCTFSummary/';
 import PlayerGeneral from '../PlayerGeneral/';
 import PlayerGametypeStats from '../PlayerGametypeStats/';
 import PlayerSpecialEvents from '../PlayerSpecialEvents/';
+import PlayerADSummary from '../PlayerADSummary/';
 
 
 
@@ -33,21 +33,8 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
 
             <PlayerCTFSummary data={summary} />
 
-            <div className={`${styles.table} special-table`}>
-                <div className="default-header">Assault & Domination</div>
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>Assault Objectives Captured</th>
-                            <th>Domination Control Point Caps</th>
-                        </tr>
-                        <tr>
-                            <td>{summary.assault_objectives}</td>
-                            <td>{summary.dom_caps}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <PlayerADSummary dom={summary.dom_caps} assault={summary.assault_objectives}/>
+
 
             <PlayerFragSummary 
                 score={summary.score}
@@ -71,14 +58,6 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
                 data={summary}
             />
 
-            
-
-    
-
-
-
-    
-            
         </div>
     );
 

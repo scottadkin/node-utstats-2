@@ -22,8 +22,8 @@ class PlayerSpecialEvents extends React.Component{
 
         for(let i = 0; i < titles.length; i++){
 
-            headers.push(<th>{titles[i]}</th>);
-            cols.push(<td>{data[i]}</td>);
+            headers.push(<th key={i}>{titles[i]}</th>);
+            cols.push(<td key={i}>{data[i]}</td>);
         }
 
 
@@ -122,8 +122,8 @@ class PlayerSpecialEvents extends React.Component{
         this.createUTMultis(headers, cols, titles, data);
 
 
-        headers.push(<th>Best Multi</th>);
-        cols.push(<td>{this.props.data.multi_best} Kills</td>);
+        headers.push(<th key="b">Best Multi</th>);
+        cols.push(<td key="b">{this.props.data.multi_best} Kills</td>);
 
         return <table className="t-width-1 m-bottom-10">
             <tbody>
@@ -216,12 +216,14 @@ class PlayerSpecialEvents extends React.Component{
         cols.push(<td key="end">{this.props.data.spree_best} Kills</td>);
 
         return <table className="t-width-1">
-            <tr>
-                {headers}
-            </tr>
-            <tr>
-                {cols}
-            </tr>
+            <tbody>
+                <tr>
+                    {headers}
+                </tr>
+                <tr>
+                    {cols}
+                </tr>
+            </tbody>
         </table>
     }
 
