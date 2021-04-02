@@ -44,6 +44,9 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
                 efficiency={summary.efficiency}
                 firstBlood={summary.first_bloods}
                 accuracy={summary.accuracy}
+                close={summary.k_distance_normal}
+                long={summary.k_distance_long}
+                uber={summary.k_distance_uber}
             />
 
             <PlayerMultiKills data={[

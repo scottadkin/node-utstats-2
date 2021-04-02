@@ -24,6 +24,13 @@ const PlayerGametypeStats = ({data, names}) =>{
 
     let winrate = 0;
 
+    let totalWins = 0;
+    let totalLosses = 0;
+    let totalDraws = 0;
+    let totalMatches = 0;
+    let totalPlaytime = 0;
+    let totalWinrate = 0;
+
     for(let i = 0; i < data.length; i++){
 
         d = data[i];
@@ -43,6 +50,13 @@ const PlayerGametypeStats = ({data, names}) =>{
             }
         }
 
+        totalWins += d.wins;
+        totalLosses += d.losses;
+        totalDraws += d.draws;
+        totalMatches += d.matches;
+        totalPlaytime += d.playtime;
+
+
         elems.push(<tr key={i}>
             <td>{(names[d.gametype] !== undefined) ? names[d.gametype] : "Not Found"}</td>
             <td>{d.wins}</td>
@@ -53,6 +67,27 @@ const PlayerGametypeStats = ({data, names}) =>{
             <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
         </tr>);
     }
+
+    if(totalWins > 0){
+
+        if(totalLosses + totalDraws === 0){
+            totalWinrate = 1;
+        }else{
+            totalWinrate = ((totalWins / totalMatches) * 100).toFixed(2);
+        }
+    }
+
+
+    elems.push(<tr key={"total"} className="black">
+        <td>Totals</td>
+        <td>{totalWins}</td>
+        <td>{totalLosses}</td>
+        <td>{totalDraws}</td>
+        <td>{totalWinrate}%</td>
+        <td>{totalMatches}</td>
+        <td>{(totalPlaytime / (60 * 60)).toFixed(2)} Hours</td>
+
+    </tr>);
 
     return <div className="special-table">
         <div className="default-header">Gametype Stats</div>

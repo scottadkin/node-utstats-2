@@ -451,3 +451,7 @@ input[type="range"]{
 	min-width:150px;
 	max-width:150px;
 }
+
+.black{
+	background-color:black;
+}
