@@ -173,6 +173,7 @@ class Gametypes{
 
                 const data = {};
 
+                data['0'] = "All";
                 if(result !== undefined){
                     
                     for(let i = 0; i < result.length; i++){

@@ -117,11 +117,6 @@ class WinRate{
         });
     }
 
-
-    deletePreviousLatest(){
-
-    }
-
     updateLatest(matchId, date, data){
 
         return new Promise((resolve, reject) =>{
@@ -174,6 +169,25 @@ class WinRate{
         });
     }
 
+
+    getPlayerLatest(player){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_winrates_latest WHERE player=?";
+
+            mysql.query(query, [player], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
     
 
 }

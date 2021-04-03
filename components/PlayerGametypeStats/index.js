@@ -1,119 +1,235 @@
 
-const PlayerGametypeStats = ({data, names}) =>{
+import React from 'react';
+import Functions from '../../api/functions';
 
-    data = JSON.parse(data);
-    names = JSON.parse(names);
 
-    data.sort((a, b) =>{
+class PlayerGametypeStats extends React.Component{
 
-        a = a.playtime;
-        b = b.playtime;
+    constructor(props){
 
-        if(a < b){
-            return 1;
-        }else if(a > b){
-            return -1;
+        super(props);
+
+        this.state = {"mode": 0};
+
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+    changeMode(id){
+        this.setState({"mode": id});
+    }
+
+    renderGeneral(){
+
+        if(this.state.mode !== 0) return null;
+
+        const data = JSON.parse(this.props.data);
+        const names = JSON.parse(this.props.names);
+
+        data.sort((a, b) =>{
+
+            a = a.playtime;
+            b = b.playtime;
+
+            if(a < b){
+                return 1;
+            }else if(a > b){
+                return -1;
+            }
+
+            return 0;
+        });
+
+        const elems = [];
+
+        let d = 0;
+
+        let winrate = 0;
+
+        let totalWins = 0;
+        let totalLosses = 0;
+        let totalDraws = 0;
+        let totalMatches = 0;
+        let totalPlaytime = 0;
+        let totalWinrate = 0;
+        let totalGametypes = 0;
+        let totalAccuracy = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            totalGametypes++;
+
+            winrate = 0;
+
+            if(d.matches > 0){
+
+                if(d.wins > 0){
+
+                    if(d.losses + d.draws === 0){
+                        winrate = 1;
+                    }else{
+
+                        winrate = ((d.wins / d.matches) * 100).toFixed(2);
+                    }
+                }
+            }
+
+            totalWins += d.wins;
+            totalLosses += d.losses;
+            totalDraws += d.draws;
+            totalMatches += d.matches;
+            totalPlaytime += d.playtime;
+            totalAccuracy += d.accuracy;
+
+
+            elems.push(<tr key={i}>
+                <td>{(names[d.gametype] !== undefined) ? names[d.gametype] : "Not Found"}</td>
+                <td>{d.accuracy.toFixed(2)}%</td>
+                <td>{d.wins}</td>
+                <td>{d.losses}</td>
+                <td>{d.draws}</td>
+                <td>{winrate}%</td>
+                <td>{d.matches}</td>
+                <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
+            </tr>);
         }
 
-        return 0;
-    });
+        if(totalWins > 0){
 
-    const elems = [];
-
-    let d = 0;
-
-    let winrate = 0;
-
-    let totalWins = 0;
-    let totalLosses = 0;
-    let totalDraws = 0;
-    let totalMatches = 0;
-    let totalPlaytime = 0;
-    let totalWinrate = 0;
-    let totalGametypes = 0;
-    let totalAccuracy = 0;
-
-    for(let i = 0; i < data.length; i++){
-
-        d = data[i];
-
-        totalGametypes++;
-
-        winrate = 0;
-
-        if(d.matches > 0){
-
-            if(d.wins > 0){
-
-                if(d.losses + d.draws === 0){
-                    winrate = 1;
-                }else{
-
-                    winrate = ((d.wins / d.matches) * 100).toFixed(2);
-                }
+            if(totalLosses + totalDraws === 0){
+                totalWinrate = 1;
+            }else{
+                totalWinrate = ((totalWins / totalMatches) * 100).toFixed(2);
             }
         }
 
-        totalWins += d.wins;
-        totalLosses += d.losses;
-        totalDraws += d.draws;
-        totalMatches += d.matches;
-        totalPlaytime += d.playtime;
-        totalAccuracy += d.accuracy;
 
+        elems.push(<tr key={"total"} className="black">
+            <td>Totals</td>
+            <td>{(totalAccuracy / totalGametypes).toFixed(2)}%</td>
+            <td>{totalWins}</td>
+            <td>{totalLosses}</td>
+            <td>{totalDraws}</td>
+            <td>{totalWinrate}%</td>
+            <td>{totalMatches}</td>
+            <td>{(totalPlaytime / (60 * 60)).toFixed(2)} Hours</td>
 
-        elems.push(<tr key={i}>
-            <td>{(names[d.gametype] !== undefined) ? names[d.gametype] : "Not Found"}</td>
-            <td>{d.accuracy.toFixed(2)}%</td>
-            <td>{d.wins}</td>
-            <td>{d.losses}</td>
-            <td>{d.draws}</td>
-            <td>{winrate}%</td>
-            <td>{d.matches}</td>
-            <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
         </tr>);
+
+        return <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>Gametype</th>
+                        <th>Last Accuracy</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Draws</th>
+                        <th>Win Rate</th>
+                        <th>Matches</th>
+                        <th>Playtime</th>
+                    </tr>
+                    {elems}
+                </tbody>
+            </table>
+       
     }
 
-    if(totalWins > 0){
 
-        if(totalLosses + totalDraws === 0){
-            totalWinrate = 1;
-        }else{
-            totalWinrate = ((totalWins / totalMatches) * 100).toFixed(2);
+    renderWinRates(){
+
+        if(this.state.mode !== 1) return null;
+
+        const elems = [];
+
+        const winRateData = JSON.parse(this.props.latestWinRate);
+
+        let last = null;
+
+        let w = 0;
+        let currentStreak = 0;
+
+        for(let i = 0; i < winRateData.length; i++){
+
+            w = winRateData[i];
+
+            if(w.current_win_streak > 0){
+                currentStreak = `${w.current_win_streak} win${(w.current_win_streak !== 1) ? 's' : "" }`;
+            }else if(w.current_draw_streak > 0){
+                currentStreak = `${w.current_draw_streak} draws${(w.current_draw_streak !== 1) ? 's' : "" }`;
+            }else if(w.current_lose_streak > 0){
+                currentStreak = `${w.current_lose_streak} Loss${(w.current_lose_streak !== 1) ? 'es' : "" }`;
+            }
+
+            //dont display all until last
+            if(w.gametype === 0){
+
+               last = <tr key={i} className="black">
+                    <td>{w.gametypeName}</td>
+                    <td>{w.matches}</td>
+                    <td>{w.wins}</td>
+                    <td>{w.draws}</td>
+                    <td>{w.losses}</td>
+                    <td>{w.winrate.toFixed(2)}%</td>
+                    <td>{w.max_win_streak}</td>
+                    <td>{w.max_draw_streak}</td>
+                    <td>{w.max_lose_streak}</td>
+                    <td>{currentStreak}</td>
+                </tr>;
+                continue;
+            }
+
+            elems.push(<tr key={i}>
+                <td>{w.gametypeName}</td>
+                <td>{w.matches}</td>
+                <td>{Functions.ignore0(w.wins)}</td>
+                <td>{Functions.ignore0(w.draws)}</td>
+                <td>{Functions.ignore0(w.losses)}</td>
+                <td>{w.winrate.toFixed(2)}%</td>
+                <td>{Functions.ignore0(w.max_win_streak)}</td>
+                <td>{Functions.ignore0(w.max_draw_streak)}</td>
+                <td>{Functions.ignore0(w.max_lose_streak)}</td>
+                <td>{currentStreak}</td>
+            </tr>);
         }
-    }
 
-
-    elems.push(<tr key={"total"} className="black">
-        <td>Totals</td>
-        <td>{(totalAccuracy / totalGametypes).toFixed(2)}%</td>
-        <td>{totalWins}</td>
-        <td>{totalLosses}</td>
-        <td>{totalDraws}</td>
-        <td>{totalWinrate}%</td>
-        <td>{totalMatches}</td>
-        <td>{(totalPlaytime / (60 * 60)).toFixed(2)} Hours</td>
-
-    </tr>);
-
-    return <div className="special-table">
-        <div className="default-header">Gametype Stats</div>
-        <table className="t-width-1">
+        return <table className="t-width-1">
             <tbody>
                 <tr>
                     <th>Gametype</th>
-                    <th>Last Accuracy</th>
-                    <th>Wins</th>
-                    <th>Losses</th>
-                    <th>Draws</th>
-                    <th>Win Rate</th>
                     <th>Matches</th>
-                    <th>Playtime</th>
+                    <th>Wins</th>
+                    <th>Draws</th>
+                    <th>Losses</th>
+                    <th>Win Rate</th>
+                    <th>Longest Win Streak</th>
+                    <th>Longest Draw Streak</th>
+                    <th>Longest Losing Streak</th>
+                    <th>Current Streak</th>
                 </tr>
                 {elems}
+                {last}
             </tbody>
         </table>
-    </div>
+    }
+
+
+    render(){
+
+        return <div className="special-table">
+                <div className="default-header">Gametype Stats</div>
+                <div className="tabs">
+                    <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "" }`} onClick={(() =>{
+                        this.changeMode(0);
+                    })}>General</div>
+                    <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "" }`} onClick={(() =>{
+                        this.changeMode(1);
+                    })}>Win Rate Summary</div>
+                </div>
+                {this.renderGeneral()}
+                {this.renderWinRates()}
+        </div>
+    }
 }
 
 

@@ -70,6 +70,7 @@ class PlayerCTFSummary extends React.Component{
         }
 
         return <table className="t-width-1">
+            <tbody>
             <tr>
                 <TipHeader title="Covers" content="Player killed enemy close to their teams flag carrier."/>
                 <TipHeader title="Multi Covers" content="Player got 3 covers during the enemy flag was taken."/>
@@ -88,6 +89,7 @@ class PlayerCTFSummary extends React.Component{
                 <td>{this.props.data.flag_cover_fail}</td>
                 <td>{eff.toFixed(2)}%</td>
             </tr>
+            </tbody>
         </table>
     }
 
@@ -112,6 +114,7 @@ class PlayerCTFSummary extends React.Component{
         }
 
         return <table className="t-width-1">
+            <tbody>
             <tr>
                 <TipHeader title="Flag Carry Time" content="Total time the player has spent with the flag."/>
                 <TipHeader title="Kills With Flag" content="How many kills the player has gotten while carrying the flag."/>
@@ -128,6 +131,7 @@ class PlayerCTFSummary extends React.Component{
                 <td>{this.props.data.flag_self_cover_fail}</td>
                 <td>{eff.toFixed(2)}%</td>
             </tr>
+            </tbody>
         </table>
     }
 

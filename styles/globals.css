@@ -135,11 +135,12 @@ table{
 
 th{
 	font-weight:300;
-	padding:5px;
 	color:yellow;
 	border:1px solid rgba(255,255,255,0.1);
 	background-color:black;
-	font-size:12px;
+	font-size:13px;
+	padding:8px 5px;
+	
 
 }
 
@@ -343,8 +344,10 @@ td{
 
 .t-width-1{
 	width:90%;
-	max-width:750px;
+	max-width:1000px;
 }
+
+
 
 .default-select{
 	background-color:rgb(12,12,12);

@@ -7,7 +7,7 @@ import PlayerADSummary from '../PlayerADSummary/';
 
 
 
-const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, face}) =>{   
+const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, face, latestWinRate}) =>{   
 
     summary = JSON.parse(summary);
 
@@ -29,7 +29,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
                 draws={summary.draws}
             />
 
-            <PlayerGametypeStats data={gametypeStats} names={gametypeNames}/>
+            <PlayerGametypeStats data={gametypeStats} names={gametypeNames} latestWinRate={latestWinRate}/>
 
             <PlayerCTFSummary data={summary} />
 

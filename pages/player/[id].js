@@ -14,11 +14,13 @@ import PlayerWeapons from '../../components/PlayerWeapons/';
 import Functions from '../../api/functions';
 import Servers from '../../api/servers';
 import Faces from '../../api/faces';
+import WinRate from '../../api/winrate';
 
 
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, face}) {
+	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
+	face, latestWinRate}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -72,7 +74,7 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 
 								<PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
-									gametypeNames={gametypeNames} face={face}
+									gametypeNames={gametypeNames} face={face} latestWinRate={latestWinRate}
 								/>
 
 								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
@@ -166,6 +168,10 @@ export async function getServerSideProps({query}) {
 
 	//console.log(currentFace);
 
+	const winRateManager = new WinRate();
+	let latestWinRate = await winRateManager.getPlayerLatest(playerId);
+	Functions.setIdNames(latestWinRate, gametypeNames, 'gametype', 'gametypeName');
+
 	return { 
 		props: {
 			"playerId": playerId,
@@ -183,7 +189,8 @@ export async function getServerSideProps({query}) {
 			"weaponImages": JSON.stringify(weaponImages),
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames),
-			"face": currentFace[summary.face].name
+			"face": currentFace[summary.face].name,
+			"latestWinRate": JSON.stringify(latestWinRate)
 			
 		}
 	}
