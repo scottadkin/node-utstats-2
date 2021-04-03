@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2021 at 07:29 PM
+-- Generation Time: Apr 03, 2021 at 02:10 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -720,6 +720,29 @@ CREATE TABLE `nstats_weapons` (
   `damage` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_winrates`
+--
+
+CREATE TABLE `nstats_winrates` (
+  `id` int(11) NOT NULL,
+  `date` int(11) NOT NULL,
+  `player` int(11) NOT NULL,
+  `gametype` int(11) NOT NULL,
+  `wins` int(11) NOT NULL,
+  `draws` int(11) NOT NULL,
+  `losses` int(11) NOT NULL,
+  `winrate` float NOT NULL,
+  `current_win_streak` int(11) NOT NULL,
+  `current_draw_streak` int(11) NOT NULL,
+  `current_lose_streak` int(11) NOT NULL,
+  `max_win_streak` int(11) NOT NULL,
+  `max_draw_streak` int(11) NOT NULL,
+  `max_lose_streak` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 --
 -- Indexes for dumped tables
 --
@@ -923,6 +946,12 @@ ALTER TABLE `nstats_weapons`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_winrates`
+--
+ALTER TABLE `nstats_winrates`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -1122,6 +1151,12 @@ ALTER TABLE `nstats_voices`
 -- AUTO_INCREMENT for table `nstats_weapons`
 --
 ALTER TABLE `nstats_weapons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_winrates`
+--
+ALTER TABLE `nstats_winrates`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 

@@ -11,6 +11,7 @@ const WeaponStats = require('./weaponstats');
 const ConnectionsManager = require('./connectionsmanager');
 const PingManager = require('./pingmanager');
 const TeamsManager = require('./teamsmanager');
+const WinRateManager = require('../winrate');
 
 class PlayerManager{
 
@@ -35,6 +36,7 @@ class PlayerManager{
         this.teamChanges = [];
 
         this.pingManager = new PingManager();
+        this.winRateManager = new WinRateManager();
 
         this.createPlayers();
         this.setNStatsValues();
@@ -1191,6 +1193,55 @@ class PlayerManager{
 
         }catch(err){
             new Message(`PlayerManager.insertScoreHistory ${err}`,'error');
+        }
+    }
+
+    async getCurrentWinRates(gametypeId){
+
+        try{
+
+            const playerIds = [];
+
+            let p = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+
+                if(p.bDuplicate === undefined){
+                    playerIds.push(p.masterId);
+                    p.winRateData = null;
+                    p.gametypeWinRateData = null;
+                }
+            }
+
+            console.log(playerIds);
+
+            const data = await this.winRateManager.getCurrentPlayersData(playerIds, [0, gametypeId]);
+
+
+            console.log(data);
+
+        }catch(err){
+            new Message(`PlayerManager.setCurrentWinRates() ${err}`,'error');
+        }
+    }
+
+    async updateWinRates(matchId, gametypeId){
+
+        try{
+
+            await this.getCurrentWinRates(gametypeId);
+            let p = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+ 
+            }
+
+        }catch(err){
+            new Message(`PlayerManager.updateWinRates() ${err}`,'error');
         }
     }
 }

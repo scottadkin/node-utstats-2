@@ -235,6 +235,10 @@ class MatchManager{
             await this.playerManager.insertScoreHistory(this.matchId);
             new Message(`Inserted player score history`,'pass');
 
+            new Message(`Starting player winrate updates.`,'note');
+            await this.playerManager.updateWinRates(this.matchId, this.gametype.currentMatchGametype);
+
+
 
             new Message(`Updating Player Map History.`,'note');
 
