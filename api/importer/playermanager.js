@@ -1196,7 +1196,66 @@ class PlayerManager{
         }
     }
 
-    async getCurrentWinRates(gametypeId){
+
+    updateCurrentWinRates(data, matchResult){
+
+        let d = 0;
+
+        let current = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            current = matchResult[`${d.player}`];
+
+            if(current !== undefined){
+
+                d.matches++;
+                
+                if(current === 0){
+
+                    d.wins++;   
+                    d.current_win_streak++;
+                    d.current_draw_streak = 0;
+                    d.current_lose_streak = 0;
+
+                    if(d.current_win_streak > d.max_win_streak){
+                        d.max_win_streak = d.current_win_streak;
+                    }
+
+                }else if(current === 1){
+
+                    d.current_win_streak = 0;
+                    d.current_draw_streak = 0;
+                    d.current_lose_streak++;
+                    d.losses++;
+
+                    if(d.current_lose_streak > d.max_lose_streak){
+                        d.max_lose_streak = d.current_lose_streak;
+                    }
+
+                }else if(current === 2){
+                    
+                    d.current_win_streak = 0;
+                    d.current_lose_streak = 0;
+                    d.current_draw_streak++;
+                    d.draws++;
+
+                    if(d.current_draw_streak > d.max_draw_streak){
+                        d.max_draw_streak = d.current_draw_streak;
+                    }
+                };
+
+                
+
+            }else{
+                console.log(`NOT FOUND`);
+            }
+        }
+    }
+
+    async setCurrentWinRates(gametypeId){
 
         try{
 
@@ -1210,34 +1269,49 @@ class PlayerManager{
 
                 if(p.bDuplicate === undefined){
                     playerIds.push(p.masterId);
-                    p.winRateData = null;
-                    p.gametypeWinRateData = null;
                 }
             }
 
-            console.log(playerIds);
-
             const data = await this.winRateManager.getCurrentPlayersData(playerIds, [0, gametypeId]);
 
+            const currentResult = {};
 
-            console.log(data);
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+
+                if(p.bDuplicate === undefined){
+
+                    if(p.bWinner){
+                        currentResult[p.masterId] = 1;
+                    }else if(!p.bWinner && !p.bDrew){
+                        currentResult[p.masterId] = 0;
+                    }else if(p.bDrew){
+                        currentResult[p.masterId] = 2;
+                    }  
+                }
+            }
+
+            this.updateCurrentWinRates(data, currentResult);
+
+            return data;
+
 
         }catch(err){
             new Message(`PlayerManager.setCurrentWinRates() ${err}`,'error');
         }
     }
 
-    async updateWinRates(matchId, gametypeId){
+    async updateWinRates(matchId, date, gametypeId){
 
         try{
 
-            await this.getCurrentWinRates(gametypeId);
-            let p = 0;
+            const data = await this.setCurrentWinRates(gametypeId);
 
-            for(let i = 0; i < this.players.length; i++){
 
-                p = this.players[i];
- 
+            for(let i = 0; i < data.length; i++){
+
+                await this.winRateManager.insert(matchId, date, data[i]);
             }
 
         }catch(err){

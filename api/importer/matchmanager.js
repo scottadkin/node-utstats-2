@@ -236,8 +236,8 @@ class MatchManager{
             new Message(`Inserted player score history`,'pass');
 
             new Message(`Starting player winrate updates.`,'note');
-            await this.playerManager.updateWinRates(this.matchId, this.gametype.currentMatchGametype);
-
+            await this.playerManager.updateWinRates(this.matchId, this.serverInfo.date, this.gametype.currentMatchGametype);
+            new Message(`Finished player winrate updates.`,'pass');
 
 
             new Message(`Updating Player Map History.`,'note');
