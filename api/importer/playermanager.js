@@ -1247,6 +1247,20 @@ class PlayerManager{
                     }
                 };
 
+                if(d.wins > 0){
+
+                    if(d.wins === 0){
+                        d.winrate = 1;
+                    }else{
+                        d.winrate = d.wins / d.matches;
+                    }
+
+                    d.winrate *= 100;
+
+                }else{
+                    d.winrate = 0;
+                }
+
                 
 
             }else{
@@ -1308,10 +1322,9 @@ class PlayerManager{
 
             const data = await this.setCurrentWinRates(gametypeId);
 
-
             for(let i = 0; i < data.length; i++){
-
-                await this.winRateManager.insert(matchId, date, data[i]);
+                await this.winRateManager.insertHistory(matchId, date, data[i]);
+                await this.winRateManager.updateLatest(matchId, date, data[i]);
             }
 
         }catch(err){
