@@ -1331,9 +1331,9 @@ class PlayerManager{
                 await this.winRateManager.updateLatest(matchId, date, data[i]);
 
                 //check before if date is before latest
-                if(data[i].player === 3068 && data[i].gametype === 0){
-                    await this.winRateManager.recalculateWinRates(data[i].player, data[i].gametype);
-                }
+                //if(data[i].player === 3068 && data[i].gametype === 0){
+                   // await this.winRateManager.recalculateWinRates(data[i].player, data[i].gametype);
+               // }
 
             }
 

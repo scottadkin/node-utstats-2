@@ -279,9 +279,53 @@ class WinRate{
         });
     }
 
+    updateHistoryEntry(data){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_winrates SET 
+            matches=?,
+            wins=?,
+            draws=?,
+            losses=?,
+            winrate=?,
+            current_win_streak=?,
+            current_draw_streak=?,
+            current_lose_streak=?,
+            max_win_streak=?,
+            max_draw_streak=?,
+            max_lose_streak=?
+            WHERE id=?
+            `;
+
+            const vars = [
+
+                data.matches,
+                data.wins,
+                data.draws,
+                data.losses,
+                data.winrate,
+                data.current_win_streak,
+                data.current_draw_streak,
+                data.current_lose_streak,
+                data.max_win_streak,
+                data.max_draw_streak,
+                data.max_lose_streak,
+                data.id
+
+            ];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+   
+                resolve();
+            });
+        });
+    }
+
     //call when a match date is lower then the latest one
     async recalculateWinRates(player, gametype){
-
 
         try{
 
@@ -301,15 +345,11 @@ class WinRate{
             let currentDraws = 0;
             let currentLosses = 0;
 
-            let currentWinRate = 0;
-
             let h = 0;
 
             for(let i = 0; i < history.length; i++){
 
                 h = history[i];
-
-                console.log(history[i]);
 
                 if(h.match_result === 0){
 
@@ -370,7 +410,8 @@ class WinRate{
                     h.winrate = 0;
                 }
 
-                console.log(h);
+                await this.updateHistoryEntry(h);
+
             }
 
         }catch(err){
