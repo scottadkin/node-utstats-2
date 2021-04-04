@@ -197,7 +197,8 @@ class PlayerGametypeStats extends React.Component{
             </tr>);
         }
 
-        console.log(this.props);
+        //const winRateHistory = JSON.parse(this.props.winRateHistory);
+        
         return <div>
             <table className="t-width-1">
                 <tbody>

@@ -216,15 +216,14 @@ class WinRate{
             });
         });
     }
-    
 
-    getPlayerWinrateHistory(player, maxPerGametype){
+    getPlayerGametypeHistory(player, gametype, limit){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_winrates WHERE player=? AND gametype=0 ORDER BY date DESC LIMIT ?";
+            const query = "SELECT * FROM nstats_winrates WHERE player=? AND gametype=? ORDER BY date DESC LIMIT ?";
 
-            mysql.query(query, [player, maxPerGametype], (err, result) =>{
+            mysql.query(query, [player, gametype, limit], (err, result) =>{
 
                 if(err) reject(err);
 
@@ -234,6 +233,30 @@ class WinRate{
                 resolve([]);
             });
         });
+    }
+    
+
+    async getPlayerWinrateHistory(player, gametypes, maxPerGametype){
+
+        try{
+
+            if(gametypes.length === 0) return [];
+
+            const data = [];
+
+            for(let i = 0; i < gametypes.length; i++){
+
+                data.push(await this.getPlayerGametypeHistory(player, gametypes[i], maxPerGametype));
+            }
+
+            return data;
+            
+        }catch(err){
+            console.trace(err);
+        }
+
+    
+       
     }
 
 

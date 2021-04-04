@@ -95,8 +95,49 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 function createWinRateData(results){
 
+	const data = [];
+
+	let r = 0;
+
+	for(let i = 0; i < results.length; i++){
+
+		r = results[i];
+
+		if(r.length === 0) continue;
+
+		//if(r.gametypeName === "Not Found") continue;
+
+		data.push({
+			"name": r[0].gametype,
+			"data": []
+		});
+
+		for(let x = 0; x < r.length; x++){
+
+			data[data.length - 1].data.push(parseFloat(r[x].winrate.toFixed(2)));
+		}
+		
+	}
+
+	const test = [];
+
+	for(let i = 0; i < data.length; i++){
+
+		test.push([data[i]]);
+	}
+
+	//console.log(data);
+	
+
+
+	return test;
+	/*
 	const data = [
 		{"name": "All Gametypes", "data": []}
+	];
+
+	const text = [
+		[]
 	];
 
 	let r = 0;
@@ -106,10 +147,11 @@ function createWinRateData(results){
 		r = results[i];
 
 		data[0].data.push(parseFloat(r.winrate.toFixed(2)));
+		text[0].push(`Match #${r.matches}`);
 	}
 
 
-	return data;
+	return {"data": data, "text": text};*/
 
 }
 
@@ -193,10 +235,12 @@ export async function getServerSideProps({query}) {
 	let latestWinRate = await winRateManager.getPlayerLatest(playerId);
 	Functions.setIdNames(latestWinRate, gametypeNames, 'gametype', 'gametypeName');
 
-	let winRateHistory = await winRateManager.getPlayerWinrateHistory(playerId, 50);
+	let winRateHistory = await winRateManager.getPlayerWinrateHistory(playerId, gametypeIds, 50);
 	Functions.setIdNames(winRateHistory, gametypeNames, 'gametype', 'gametypeName');
 
 	winRateHistory = createWinRateData(winRateHistory);
+
+	console.log(winRateHistory);
 
 	return { 
 		props: {
