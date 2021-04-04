@@ -7,13 +7,16 @@ import {useEffect, useRef} from 'react';
  */
 class GraphCanvas{
 
-    constructor(canvas, title, data, text){
+    constructor(canvas, title, data, text, minValue, maxValue){
 
         
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
         this.aspectRatio = 0.5;
         this.title = title;
+
+        this.minValue = minValue;
+        this.maxValue = maxValue;
 
         this.defaultWidth = 650;
 
@@ -489,16 +492,26 @@ class GraphCanvas{
                 this.mostData = d.data.length;
             }
 
+            
+
             for(let x = 0; x < d.data.length; x++){
 
-                if(d.data[x] > this.max || this.max === null){
-                    this.max = d.data[x];
+                if(this.maxValue === null){
+
+                    if(d.data[x] > this.max || this.max === null){
+                        this.max = d.data[x];
+                    }
                 }
 
-                if(d.data[x] < this.min || this.min === null){
-                    this.min = d.data[x];
+                if(this.minValue === null){
+                    if(d.data[x] < this.min || this.min === null){
+                        this.min = d.data[x];
+                    }
                 }
             }
+
+            if(this.maxValue !== null) this.max = this.maxValue;
+            if(this.minValue !== null) this.min = this.minValue;
         }
         
         this.mostData--;
@@ -1112,12 +1125,16 @@ class GraphCanvas{
     }
 }
 
-const Graph = ({title, data, text}) =>{
+const Graph = ({title, data, text, minValue, maxValue}) =>{
+
+    if(minValue === undefined) minValue = null;
+    if(maxValue === undefined) maxValue = null;
 
     const canvas = useRef(null);
+    
 
     useEffect(() =>{
-        const g1 = new GraphCanvas(canvas.current, title, data, text);
+        const g1 = new GraphCanvas(canvas.current, title, data, text, minValue, maxValue);
     });
     
 

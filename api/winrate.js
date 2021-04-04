@@ -190,6 +190,43 @@ class WinRate{
     }
     
 
+    getPlayerWinrateHistory(player, maxPerGametype){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_winrates WHERE player=? AND gametype=0 ORDER BY date DESC LIMIT ?";
+
+            mysql.query(query, [player, maxPerGametype], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+        });
+    }
+
+
+    getPreviousMatchByDate(date, gametype, player){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_winrates WHERE date <= ? AND gametype = ? AND player = ? ORDER BY date DESC, id DESC LIMIT 1";
+
+            mysql.query(query, [date, gametype, player], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve();
+                }
+                resolve([]);
+            });
+        });
+    }
+
 }
 
 module.exports = WinRate;

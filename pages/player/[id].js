@@ -20,7 +20,7 @@ import WinRate from '../../api/winrate';
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	face, latestWinRate}) {
+	face, latestWinRate, winRateHistory}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -74,7 +74,7 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 
 								<PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
-									gametypeNames={gametypeNames} face={face} latestWinRate={latestWinRate}
+									gametypeNames={gametypeNames} face={face} latestWinRate={latestWinRate} winRateHistory={winRateHistory}
 								/>
 
 								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
@@ -90,6 +90,27 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 					</main>   
 				</div>
 	)
+}
+
+
+function createWinRateData(results){
+
+	const data = [
+		{"name": "All Gametypes", "data": []}
+	];
+
+	let r = 0;
+
+	for(let i = 0; i < results.length; i++){
+
+		r = results[i];
+
+		data[0].data.push(parseFloat(r.winrate.toFixed(2)));
+	}
+
+
+	return data;
+
 }
 
 export async function getServerSideProps({query}) {
@@ -172,6 +193,11 @@ export async function getServerSideProps({query}) {
 	let latestWinRate = await winRateManager.getPlayerLatest(playerId);
 	Functions.setIdNames(latestWinRate, gametypeNames, 'gametype', 'gametypeName');
 
+	let winRateHistory = await winRateManager.getPlayerWinrateHistory(playerId, 50);
+	Functions.setIdNames(winRateHistory, gametypeNames, 'gametype', 'gametypeName');
+
+	winRateHistory = createWinRateData(winRateHistory);
+
 	return { 
 		props: {
 			"playerId": playerId,
@@ -190,7 +216,8 @@ export async function getServerSideProps({query}) {
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames),
 			"face": currentFace[summary.face].name,
-			"latestWinRate": JSON.stringify(latestWinRate)
+			"latestWinRate": JSON.stringify(latestWinRate),
+			"winRateHistory": JSON.stringify(winRateHistory)
 			
 		}
 	}

@@ -2,11 +2,10 @@
     background-color:black;
     display:inline-block;
     height:332px;
-    width:250px;
+    width:200px;
     overflow:hidden;
     border:1px solid rgba(255,255,255,0.25);
     margin-left:-1px;
-    margin-top:-1px;
 }
 
 .name{
@@ -24,10 +23,10 @@
 }
 
 .image img{
-    width:250px;
+    width:200px;
     max-height:150px;
     position:absolute;
-    margin-left:-125px;
+    margin-left:-100px;
     bottom:0;
     
 }

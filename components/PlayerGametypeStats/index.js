@@ -1,6 +1,8 @@
 
 import React from 'react';
 import Functions from '../../api/functions';
+import TimeStamp from '../TimeStamp/';
+import Graph from '../Graph/';
 
 
 class PlayerGametypeStats extends React.Component{
@@ -53,6 +55,7 @@ class PlayerGametypeStats extends React.Component{
         let totalWinrate = 0;
         let totalGametypes = 0;
         let totalAccuracy = 0;
+        let lastMatch = 0;
 
         for(let i = 0; i < data.length; i++){
 
@@ -75,6 +78,10 @@ class PlayerGametypeStats extends React.Component{
                 }
             }
 
+            if(d.last > lastMatch){
+                lastMatch = d.last;
+            }
+
             totalWins += d.wins;
             totalLosses += d.losses;
             totalDraws += d.draws;
@@ -87,11 +94,10 @@ class PlayerGametypeStats extends React.Component{
                 <td>{(names[d.gametype] !== undefined) ? names[d.gametype] : "Not Found"}</td>
                 <td>{d.accuracy.toFixed(2)}%</td>
                 <td>{d.wins}</td>
-                <td>{d.losses}</td>
-                <td>{d.draws}</td>
                 <td>{winrate}%</td>
                 <td>{d.matches}</td>
                 <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
+                <td><TimeStamp timestamp={d.last}/></td>
             </tr>);
         }
 
@@ -109,11 +115,10 @@ class PlayerGametypeStats extends React.Component{
             <td>Totals</td>
             <td>{(totalAccuracy / totalGametypes).toFixed(2)}%</td>
             <td>{totalWins}</td>
-            <td>{totalLosses}</td>
-            <td>{totalDraws}</td>
             <td>{totalWinrate}%</td>
             <td>{totalMatches}</td>
             <td>{(totalPlaytime / (60 * 60)).toFixed(2)} Hours</td>
+            <td><TimeStamp timestamp={lastMatch}/></td>
 
         </tr>);
 
@@ -123,11 +128,10 @@ class PlayerGametypeStats extends React.Component{
                         <th>Gametype</th>
                         <th>Last Accuracy</th>
                         <th>Wins</th>
-                        <th>Losses</th>
-                        <th>Draws</th>
                         <th>Win Rate</th>
                         <th>Matches</th>
                         <th>Playtime</th>
+                        <th>Last</th>
                     </tr>
                     {elems}
                 </tbody>
@@ -193,24 +197,28 @@ class PlayerGametypeStats extends React.Component{
             </tr>);
         }
 
-        return <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Gametype</th>
-                    <th>Matches</th>
-                    <th>Wins</th>
-                    <th>Draws</th>
-                    <th>Losses</th>
-                    <th>Win Rate</th>
-                    <th>Longest Win Streak</th>
-                    <th>Longest Draw Streak</th>
-                    <th>Longest Losing Streak</th>
-                    <th>Current Streak</th>
-                </tr>
-                {elems}
-                {last}
-            </tbody>
-        </table>
+        console.log(this.props);
+        return <div>
+            <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>Gametype</th>
+                        <th>Matches</th>
+                        <th>Wins</th>
+                        <th>Draws</th>
+                        <th>Losses</th>
+                        <th>Win Rate</th>
+                        <th>Longest Win Streak</th>
+                        <th>Longest Draw Streak</th>
+                        <th>Longest Losing Streak</th>
+                        <th>Current Streak</th>
+                    </tr>
+                    {elems}
+                    {last}
+                </tbody>
+            </table>
+            <Graph title="Latest Win Rate History" data={this.props.winRateHistory} maxValue={100} minValue={0}/>
+        </div>
     }
 
 
