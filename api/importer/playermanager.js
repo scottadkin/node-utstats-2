@@ -1212,6 +1212,8 @@ class PlayerManager{
             if(current !== undefined){
 
                 d.matches++;
+
+                d.match_result = current;
                 
                 if(current === 0){
 
@@ -1323,8 +1325,16 @@ class PlayerManager{
             const data = await this.setCurrentWinRates(gametypeId);
 
             for(let i = 0; i < data.length; i++){
+
                 await this.winRateManager.insertHistory(matchId, date, data[i]);
+
                 await this.winRateManager.updateLatest(matchId, date, data[i]);
+
+                //check before if date is before latest
+                if(data[i].player === 3068 && data[i].gametype === 0){
+                    await this.winRateManager.recalculateWinRates(data[i].player, data[i].gametype);
+                }
+
             }
 
         }catch(err){

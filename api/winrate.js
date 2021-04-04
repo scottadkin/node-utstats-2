@@ -83,30 +83,58 @@ class WinRate{
 
         return new Promise((resolve, reject) =>{
 
-            let query = "INSERT INTO nstats_winrates VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+            let vars = [];
+
+            let query = "INSERT INTO nstats_winrates VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             if(bLatest !== undefined){
+
                 query = "INSERT INTO nstats_winrates_latest VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+                vars = [
+                    date, 
+                    matchId, 
+                    data.player, 
+                    data.gametype, 
+                    data.matches,
+                    data.wins, 
+                    data.draws, 
+                    data.losses,
+                    data.winrate,
+                    data.current_win_streak,
+                    data.current_draw_streak,
+                    data.current_lose_streak,
+                    data.max_win_streak,
+                    data.max_draw_streak,
+                    data.max_lose_streak
+    
+                ];
+
+            }else{
+
+                vars = [
+                    date, 
+                    matchId, 
+                    data.player, 
+                    data.gametype, 
+                    data.match_result,
+                    data.matches,
+                    data.wins, 
+                    data.draws, 
+                    data.losses,
+                    data.winrate,
+                    data.current_win_streak,
+                    data.current_draw_streak,
+                    data.current_lose_streak,
+                    data.max_win_streak,
+                    data.max_draw_streak,
+                    data.max_lose_streak
+    
+                ];
             }
 
-            const vars = [
-                date, 
-                matchId, 
-                data.player, 
-                data.gametype, 
-                data.matches,
-                data.wins, 
-                data.draws, 
-                data.losses,
-                data.winrate,
-                data.current_win_streak,
-                data.current_draw_streak,
-                data.current_lose_streak,
-                data.max_win_streak,
-                data.max_draw_streak,
-                data.max_lose_streak
-
-            ];
+            
 
             mysql.query(query, vars, (err) =>{
 
@@ -225,6 +253,131 @@ class WinRate{
                 resolve([]);
             });
         });
+    }
+
+
+    getAllPlayerGametypeHistory(player, gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `SELECT 
+            id,date,match_result
+
+            FROM nstats_winrates WHERE gametype=? AND player=? ORDER BY date ASC
+            `;
+
+            mysql.query(query, [gametype, player], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    //call when a match date is lower then the latest one
+    async recalculateWinRates(player, gametype){
+
+
+        try{
+
+            const history = await this.getAllPlayerGametypeHistory(player, gametype);
+
+            console.log(`player ${player} has ${history.length} data to calculate`);
+
+            let currentWinStreak = 0;
+            let currentDrawStreak = 0;
+            let currentLoseStreak = 0;
+
+            let maxWinStreak = 0;
+            let maxDrawStreak = 0;
+            let maxLoseStreak = 0;
+
+            let currentWins = 0;
+            let currentDraws = 0;
+            let currentLosses = 0;
+
+            let currentWinRate = 0;
+
+            let h = 0;
+
+            for(let i = 0; i < history.length; i++){
+
+                h = history[i];
+
+                console.log(history[i]);
+
+                if(h.match_result === 0){
+
+                    currentWinStreak++;
+                    currentDrawStreak = 0;
+                    currentLoseStreak = 0;
+
+                    if(currentWinStreak > maxWinStreak){
+                        maxWinStreak = currentWinStreak;
+                    }
+
+                    currentWins++;
+
+                }else if(h.match_result === 1){
+
+                    currentWinStreak = 0;
+                    currentDrawStreak = 0;
+                    currentLoseStreak++;
+
+                    if(currentLoseStreak > maxLoseStreak){
+                        maxLoseStreak = currentLoseStreak;
+                    }
+
+                    currentLosses++;
+
+                }else{
+
+                    currentWinStreak = 0;
+                    currentDrawStreak++;
+                    currentLoseStreak = 0;
+
+                    if(currentDrawSteak > maxDrawStreak){
+                        maxDrawStreak = currentDrawStreak;
+                    }
+
+                    currentDraws++;
+                }
+
+                h.wins = currentWins;
+                h.draws = currentDraws;
+                h.losses = currentLosses;
+                h.current_win_streak = currentWinStreak;
+                h.current_draw_streak = currentDrawStreak;
+                h.current_lose_streak = currentLoseStreak;
+                h.max_win_streak = maxWinStreak;
+                h.max_draw_streak = maxDrawStreak;
+                h.max_lose_streak = maxLoseStreak;
+                h.matches = i + 1;
+                
+                if(h.wins > 0){
+
+                    if(h.draws === 0 && h.losses === 0){
+                        h.winrate = 100;
+                    }else{
+                        h.winrate = (h.wins / h.matches) * 100;
+                    }
+                }else{
+                    h.winrate = 0;
+                }
+
+                console.log(h);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }   
+
+
     }
 
 }
