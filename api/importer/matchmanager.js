@@ -172,15 +172,17 @@ class MatchManager{
                 this.setMatchWinners();
             }
 
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
-         
-            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
 
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
+            new Message(`Updated player frag performance.`,'pass');
+            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
+            new Message(`Updated player winstats performance.`,'pass');
             this.playerManager.pingManager.parsePings(this.playerManager);
             await this.playerManager.pingManager.insertPingData(this.matchId);
 
 
             await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
+            new Message(`Updated player match data.`,'pass');
 
             if(this.domManager !== undefined){
                 this.domManager.setLifeCaps(this.killManager);
@@ -209,18 +211,23 @@ class MatchManager{
                 this.weaponsManager.parseData();
                 this.weaponsManager.addKillNames(this.killManager.killNames);
                 await this.weaponsManager.update(this.matchId, this.gametype.currentMatchGametype, this.playerManager);
+                new Message(`Updated player weapon stats.`,'pass');
 
             }
 
             this.itemsManager = new ItemsManager(this.itemLines);
             this.itemsManager.playerManager = this.playerManager;
             await this.itemsManager.updateTotals(this.serverInfo.date);
+            new Message(`Updated item totals.`,'pass');
             await this.itemsManager.insertMatchData(this.matchId, this.serverInfo.date);
+            new Message(`Updated item match data.`,'pass');
 
             await this.playerManager.insertConnectionData(this.matchId);
+            new Message(`Updated played connection data.`,'pass');
 
             this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
             await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
+            new Message(`Updated player team changes`,'pass');
 
 
             this.countiresManager = new CountriesManager();
@@ -231,6 +238,7 @@ class MatchManager{
             new Message(`Inserted match kill data`,'pass');
 
             await this.killManager.insertHeadshots(this.matchId);
+            new Message(`Updated player headshots`,'pass');
 
             await this.playerManager.insertScoreHistory(this.matchId);
             new Message(`Inserted player score history`,'pass');
@@ -243,7 +251,7 @@ class MatchManager{
             new Message(`Updating Player Map History.`,'note');
 
             await this.maps.updateAllPlayersHistory(this.playerManager.players, this.mapInfo.mapId, this.matchId, this.serverInfo.date);
-
+            new Message(`Updated player map history.`,'pass');
             //this.maps.updatePlayerHistory(this.playerManager.players[0].masterId, this.mapInfo.matchId);
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
