@@ -634,6 +634,19 @@ class GraphCanvas{
             data = this.data[this.currentTab + this.tabOffset];
         }
 
+        if(data[0].data.length < 2){
+
+            c.fillStyle = "rgb(0,0,0,0.9)";
+            c.fillRect(0, this.scaleY(this.tabHeight), this.canvas.width, this.scaleY(100 - this.tabHeight));
+
+            c.fillStyle = "red";
+            c.font = `${this.scaleY(10)}px Arial`;
+            c.textAlign = "center";
+            c.fillText("NO DATA TO DISPLAY", this.scaleX(50), this.scaleY(45));
+            c.textAlign = "left";
+            return;
+        }
+
         for(let i = 0; i < data.length; i++){
 
             if(this.hideKeys[this.currentTab + this.tabOffset][i]) continue;
@@ -1135,8 +1148,6 @@ class GraphCanvas{
         }else{
             c.fillText(this.title, this.scaleX(50), titleOffsetY);
         }
-
-       
 
         c.fillStyle = "rgb(12,12,12)";
         c.strokeStyle = "rgb(32,32,32)";
