@@ -224,6 +224,7 @@ function setTimeFrameValues(data, timeFrame, arrayLength, label){
 
     let index = 0;
 
+
     for(let i = 0; i < data.length; i++){
 
         d = data[i];
@@ -242,7 +243,7 @@ function setTimeFrameValues(data, timeFrame, arrayLength, label){
         }
     }
 
-    return {"data": values, "total": total, "text": text}
+    return {"data": (total === 0) ? [] : values, "total": total, "text": (total === 0) ? [] : text}
 }
 
 function createDatesData(data){
@@ -427,8 +428,6 @@ export async function getServerSideProps({query}){
 
         assaultImages = await assaultManager.getMapImages(Functions.cleanMapName(basicData[0].name));
     }
-
-    console.log(assaultImages);
 
     let pages = 1;
 
