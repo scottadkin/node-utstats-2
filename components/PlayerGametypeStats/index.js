@@ -197,10 +197,11 @@ class PlayerGametypeStats extends React.Component{
             </tr>);
         }
 
-        //const winRateHistory = JSON.parse(this.props.winRateHistory);
+        const winRateHistory = JSON.parse(this.props.winRateHistory);
+
         
         return <div>
-            <table className="t-width-1">
+            <table className="t-width-1 m-bottom-10">
                 <tbody>
                     <tr>
                         <th>Gametype</th>
@@ -218,7 +219,8 @@ class PlayerGametypeStats extends React.Component{
                     {last}
                 </tbody>
             </table>
-            <Graph title="Latest Win Rate History" data={this.props.winRateHistory} maxValue={100} minValue={0}/>
+            <div className="default-header">Winrate History</div>
+            <Graph title="Latest Win Rate History" data={JSON.stringify(winRateHistory.data)} text={JSON.stringify(winRateHistory.text)} title={winRateHistory.titles} maxValue={100} minValue={0}/>
         </div>
     }
 

@@ -12,8 +12,6 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
 
     summary = JSON.parse(summary);
 
-    console.log(winRateHistory);
-
     return (
         <div>
 

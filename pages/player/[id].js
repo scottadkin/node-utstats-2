@@ -93,11 +93,14 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 }
 
 
-function createWinRateData(results){
+function createWinRateData(results, gametypeNames){
 
 	const data = [];
+	const titles = [];
+	const text = [];
 
 	let r = 0;
+	let currentTitle = "";
 
 	for(let i = 0; i < results.length; i++){
 
@@ -107,51 +110,35 @@ function createWinRateData(results){
 
 		//if(r.gametypeName === "Not Found") continue;
 
+		currentTitle = (gametypeNames[r[0].gametype] !== undefined) ? gametypeNames[r[0].gametype] : "Not Found";
+
+		titles.push(currentTitle);
+
 		data.push({
-			"name": r[0].gametype,
+			"name": currentTitle,
 			"data": []
 		});
+
+		text.push([]);
 
 		for(let x = 0; x < r.length; x++){
 
 			data[data.length - 1].data.push(parseFloat(r[x].winrate.toFixed(2)));
+			text[text.length - 1].push(`Wins ${r[x].wins} Draws ${r[x].draws} Losses ${r[x].losses} `);
 		}
 		
 	}
 
-	const test = [];
+	const fixedData = [];
 
 	for(let i = 0; i < data.length; i++){
 
-		test.push([data[i]]);
-	}
-
-	//console.log(data);
-	
-
-
-	return test;
-	/*
-	const data = [
-		{"name": "All Gametypes", "data": []}
-	];
-
-	const text = [
-		[]
-	];
-
-	let r = 0;
-
-	for(let i = 0; i < results.length; i++){
-
-		r = results[i];
-
-		data[0].data.push(parseFloat(r.winrate.toFixed(2)));
-		text[0].push(`Match #${r.matches}`);
+		fixedData.push([data[i]]);
 	}
 
 
-	return {"data": data, "text": text};*/
+	return {"data": fixedData, "titles": titles, "text": text};
+
 
 }
 
@@ -235,12 +222,14 @@ export async function getServerSideProps({query}) {
 	let latestWinRate = await winRateManager.getPlayerLatest(playerId);
 	Functions.setIdNames(latestWinRate, gametypeNames, 'gametype', 'gametypeName');
 
+	gametypeIds.unshift(0);
 	let winRateHistory = await winRateManager.getPlayerWinrateHistory(playerId, gametypeIds, 50);
-	Functions.setIdNames(winRateHistory, gametypeNames, 'gametype', 'gametypeName');
+	//Functions.setIdNames(winRateHistory, gametypeNames, 'gametype', 'gametypeName');
 
-	winRateHistory = createWinRateData(winRateHistory);
+	
+	winRateHistory = createWinRateData(winRateHistory, gametypeNames);
 
-	console.log(winRateHistory);
+	//console.log(winRateHistory);
 
 	return { 
 		props: {

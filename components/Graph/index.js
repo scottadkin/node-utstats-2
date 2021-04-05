@@ -28,8 +28,6 @@ class GraphCanvas{
 
         this.data = JSON.parse(data);
 
-        console.log(this.data);
-
         this.text = null;
 
         if(text !== undefined){
@@ -66,7 +64,7 @@ class GraphCanvas{
             this.titleStartY = 2;
         }
 
-        console.log(`bMultiTab = ${this.bMultiTab} totalTabs = ${this.totalTabs}`);
+       // console.log(`bMultiTab = ${this.bMultiTab} totalTabs = ${this.totalTabs}`);
 
         
 
