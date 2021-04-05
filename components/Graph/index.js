@@ -830,7 +830,7 @@ class GraphCanvas{
         for(let i = 0; i < this.mouseOverData.length; i++){
 
             m = this.mouseOverData[i];
-
+            
             if(targetX >= m.startX && targetX < m.endX){
 
                 if(this.text === null){
@@ -1066,9 +1066,18 @@ class GraphCanvas{
         }
 
         if(width !== 100){
-            c.fillStyle = "orange";
+            c.fillStyle = "rgb(32,32,32)";
             c.fillRect(0, y, offsetX, height);
+            c.strokeRect(0, y, offsetX, height);
             c.fillRect(this.scaleX(width) + offsetX, y, offsetX, height);
+            c.strokeRect(this.scaleX(width) + offsetX, y, offsetX, height);
+
+            c.fillStyle = "white";
+            c.textAlign = "center";
+            c.font = `${this.scaleY(12)}px Arial`;
+            c.fillText("-", offsetX * 0.5, this.scaleY(-2));
+            c.font = `${this.scaleY(10)}px Arial`;
+            c.fillText("+", this.scaleX(width) + (offsetX * 1.5), this.scaleY(0));
         }
 
         c.textAlign = "left";
@@ -1171,8 +1180,8 @@ class GraphCanvas{
 
         c.fillStyle = "white";
 
-        c.fillText(`TABOFFSET = ${this.tabOffset}`, 200, 200);
-        c.fillText(`CURRENTAB = ${this.currentTab}`, 200, 250);
+       // c.fillText(`TABOFFSET = ${this.tabOffset}`, 200, 200);
+        //c.fillText(`CURRENTAB = ${this.currentTab}`, 200, 250);
 
         //c.fillText(`${this.mouse.x} ${this.mouse.y} ${this.bFullScreen} canvas = ${this.canvas.width} ${this.canvas.height} window = ${window.innerWidth} ${window.innerHeight}`, 10, 5);
 
