@@ -359,26 +359,46 @@ class GraphCanvas{
             if(this.mouse.x <= offsetX){
 
                 this.tabOffset--;
+                
+                if(this.tabOffset < 0){
 
-                if(this.tabOffset < 0) this.tabOffset = 0;
+                    this.tabOffset = 0;
+
+                    this.currentTab--;
+
+                    if(this.currentTab < 0){
+                        this.currentTab = 0;
+                    }
+                }
 
                 this.setMaxStringLengths();
                 this.calcMinMax();
                 this.createMouseOverData();
+                return;
                 
             }else if(this.mouse.x >= width + offsetX){
 
                 this.tabOffset++;
 
                 if(this.tabOffset > this.totalTabs - this.maxTabs){
+
                     this.tabOffset = this.totalTabs - this.maxTabs;
+                    this.currentTab++;
+
+                    if(this.currentTab + this.tabOffset >= this.totalTabs){
+                        this.currentTab = this.totalTabs - 1 - this.tabOffset;
+                    }
+                    
                 }    
 
                 this.setMaxStringLengths();
                 this.calcMinMax();
                 this.createMouseOverData();
+                return;
             }
         }
+
+
 
         for(let i = offsetX; i < width; i += tabWidth){
 
@@ -1180,8 +1200,8 @@ class GraphCanvas{
 
         c.fillStyle = "white";
 
-       // c.fillText(`TABOFFSET = ${this.tabOffset}`, 200, 200);
-        //c.fillText(`CURRENTAB = ${this.currentTab}`, 200, 250);
+        //c.fillText(`TABOFFSET = ${this.tabOffset}`, 200, 200);
+       // c.fillText(`CURRENTAB = ${this.currentTab}`, 200, 250);
 
         //c.fillText(`${this.mouse.x} ${this.mouse.y} ${this.bFullScreen} canvas = ${this.canvas.width} ${this.canvas.height} window = ${window.innerWidth} ${window.innerHeight}`, 10, 5);
 
