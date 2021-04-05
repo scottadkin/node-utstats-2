@@ -544,10 +544,20 @@ class CTFEventData{
             currentName = this.getPlayerChangedValue(i, type);
             currentTimestamp = Functions.MMSS(this.timestamps[type][i - 1]);
 
+            currentString = "";
+
             if(this.typeStrings[type] !== undefined){
-                currentString = `${currentTimestamp} ${currentName} ${this.typeStrings[type]}`;
+                if(currentName !== null){
+                    currentString = `${currentTimestamp} ${currentName} ${this.typeStrings[type]}`;
+                }else{
+                    currentString = "Match Start";
+                }
             }else{
-                currentString = `${currentTimestamp} ${currentName} type the flag`;
+                if(currentName !== null){
+                    currentString = `${currentTimestamp} ${currentName} type the flag`;
+                }else{
+                    currentString = "Match Start";
+                }
             }
 
             text.push(currentString);
@@ -655,9 +665,17 @@ class CTFEventData{
             currentTimestamp = Functions.MMSS(this.timestamps[type][i - 1]);
 
             if(this.typeStrings[type] !== undefined){
-                currentString = `${currentTimestamp} ${currentName} ${this.typeStrings[type]}`;
+                if(currentName !== null){
+                    currentString = `${currentTimestamp} ${currentName} ${this.typeStrings[type]}`;
+                }else{
+                    currentString = "Match Start";
+                }
             }else{
-                currentString = `${currentTimestamp} ${currentName} type the flag`;
+                if(currentName !== null){
+                    currentString = `${currentTimestamp} ${currentName} type the flag`;
+                }else{
+                    currentString = "Match Start";
+                }
             }
 
             text.push(currentString);
