@@ -1341,6 +1341,26 @@ class PlayerManager{
             new Message(`PlayerManager.updateWinRates() ${err}`,'error');
         }
     }
+
+
+
+    getAllNonDuplicateMasterIds(){
+
+        const found = [];
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            if(p.bDuplicate === undefined){
+                found.push(p.masterId);
+            }
+        }
+
+        return found;
+    }
 }
 
 module.exports = PlayerManager;

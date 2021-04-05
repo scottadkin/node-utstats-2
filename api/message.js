@@ -53,6 +53,9 @@ class Message{
         }else if(this.type == 'note'){
             type = 'Notice';
             fontColor = '\u001b[36m';
+        }else if(this.type == 'progress'){
+            type = 'Progress';
+            fontColor = '\u001b[35m';
         }
 
         console.log(`${fontColor}${timeString} ${type}: ${this.message}\u001b[0m`);
