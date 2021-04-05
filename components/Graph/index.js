@@ -31,6 +31,8 @@ class GraphCanvas{
 
         this.data = JSON.parse(data);
 
+        console.log(this.title);
+
         this.text = null;
 
         if(text !== undefined){
@@ -121,7 +123,7 @@ class GraphCanvas{
 
             this.setMaxStringLengths();
             this.calcMinMax();
-            this.createMouseOverData(this.graphWidth / this.mostData);
+            this.createMouseOverData();
 
             this.render();
         }
@@ -200,7 +202,7 @@ class GraphCanvas{
             }else{
                 this.setMaxStringLengths();
                 this.calcMinMax();
-                this.createMouseOverData(this.graphWidth / this.mostData);
+                this.createMouseOverData();
                 
             }
 
@@ -308,15 +310,18 @@ class GraphCanvas{
 
     hoverTab(){
         
-        const tabWidth = 100 / this.totalTabs;
+        const width = (this.totalTabs > this.maxTabs) ? 80 : 100 ;
+        const offsetX = (this.totalTabs > this.maxTabs) ? 10 : 0 ;
+        const tabsToRender = (this.totalTabs >= this.maxTabs) ? this.maxTabs : this.totalTabs ;
+        const tabWidth = width / tabsToRender;
 
         let currentTab = 0;
 
-        for(let i = 0; i < 100; i += tabWidth){
+        for(let i = offsetX; i < width; i += tabWidth){
 
             if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
         
-                if(this.data[currentTab][0].data.length < 2){
+                if(this.data[currentTab + this.tabOffset][0].data.length < 2){
                     this.canvas.style.cssText = `cursor:no-drop;`;
                     return;
                 }       
@@ -359,29 +364,23 @@ class GraphCanvas{
 
                 this.setMaxStringLengths();
                 this.calcMinMax();
-                this.createMouseOverData(this.graphWidth / this.mostData);
+                this.createMouseOverData();
                 
             }else if(this.mouse.x >= width + offsetX){
 
                 this.tabOffset++;
 
-                if(this.tabOffset >= this.totalTabs - this.maxTabs){
-                    this.tabOffset = this.totalTabs - this.maxTabs - 1;
+                if(this.tabOffset > this.totalTabs - this.maxTabs){
+                    this.tabOffset = this.totalTabs - this.maxTabs;
                 }    
 
                 this.setMaxStringLengths();
                 this.calcMinMax();
-                this.createMouseOverData(this.graphWidth / this.mostData);
+                this.createMouseOverData();
             }
         }
 
-        
-
-        
-
         for(let i = offsetX; i < width; i += tabWidth){
-
-            console.log(`maxoffsetX = ${width + offsetX}, current = ${i}`);
 
             if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
                 
@@ -393,7 +392,7 @@ class GraphCanvas{
                 this.currentTab = currentTab - this.tabOffset;
                 this.setMaxStringLengths();
                 this.calcMinMax();
-                this.createMouseOverData(this.graphWidth / this.mostData);
+                this.createMouseOverData();
                 return;
             }
 
@@ -602,7 +601,7 @@ class GraphCanvas{
         let currentY = 0;
 
         if(this.mouseOverData === undefined){
-            this.createMouseOverData(this.graphWidth / this.mostData);
+            this.createMouseOverData();
         }
 
         let d = 0;
@@ -755,6 +754,10 @@ class GraphCanvas{
 
         const startX = this.graphStartX;
 
+        const currentTab = this.currentTab + this.tabOffset;
+
+        console.log(`currentTab = ${currentTab}`);
+
         let currentData = [];
 
         let maxDataValues = 0;
@@ -769,9 +772,9 @@ class GraphCanvas{
 
         }else{
             if(!this.bFullScreen){
-                maxDataValues = (this.data[this.currentTab].length < this.maxDataDisplay) ? this.data[this.currentTab].length : this.maxDataDisplay;
+                maxDataValues = (this.data[currentTab].length < this.maxDataDisplay) ? this.data[currentTab].length : this.maxDataDisplay;
             }else{
-                maxDataValues = (this.data[this.currentTab].length < this.maxDataDisplayFullscreen) ? this.data[this.currentTab].length : this.maxDataDisplayFullscreen;
+                maxDataValues = (this.data[currentTab].length < this.maxDataDisplayFullscreen) ? this.data[currentTab].length : this.maxDataDisplayFullscreen;
             }
         }
 
@@ -782,7 +785,7 @@ class GraphCanvas{
             data = this.data;
 
         }else{
-            data = this.data[this.currentTab];
+            data = this.data[currentTab];
         }
 
         
@@ -801,7 +804,7 @@ class GraphCanvas{
 
             for(let x = 0; x < maxDataValues; x++){
                 
-                if(this.hideKeys[this.currentTab][x]) continue;
+                if(this.hideKeys[currentTab][x]) continue;
                 currentData.push({"id": x, "label": data[x].name, "value": data[x].data[i]});
                 
             }
@@ -822,6 +825,8 @@ class GraphCanvas{
         let m = 0;
        // console.log(this.text);
 
+        const currentTab = this.currentTab + this.tabOffset;
+
         for(let i = 0; i < this.mouseOverData.length; i++){
 
             m = this.mouseOverData[i];
@@ -836,8 +841,8 @@ class GraphCanvas{
                         return {"title": m.title, "data": m.data, "text": this.text[i - 1]};
                     }else{
 
-                        if(this.text[this.currentTab] !== null){
-                            return {"title": m.title, "data": m.data, "text": this.text[this.currentTab][i]};
+                        if(this.text[currentTab] !== null){
+                            return {"title": m.title, "data": m.data, "text": this.text[currentTab][i]};
                         }else{
                             return {"title": m.title, "data": m.data};
                         }
@@ -1054,8 +1059,8 @@ class GraphCanvas{
 
                 c.fillStyle = "rgba(100,0,0,0.45)";
 
-                if(this.data[i][0].data.length < 2){
-                    c.fillRect(x, y, tabSize, height);
+                if(this.data[i + this.tabOffset][0].data.length < 2){
+                    c.fillRect(x + offsetX, y, tabSize, height);
                 }
             } 
         }
