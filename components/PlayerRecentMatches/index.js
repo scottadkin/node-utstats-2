@@ -6,6 +6,7 @@ import Functions from '../../api/functions';
 import Image from 'next/image';
 import MMSS from '../MMSS/';
 import MatchResult from '../MatchResult/';
+import Graph from '../Graph/';
 
 const getMatchScores = (scores, id) =>{
 
@@ -40,7 +41,16 @@ function getServerName(servers, id){
     return 'Not Found';
 }
 
-const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, mapImages, serverNames}) =>{
+function createDatesData(dates){
+
+    for(let i = 0; i < dates.length ;i++){
+
+        console.log(dates[i]);
+    }
+}
+
+const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, 
+    mapImages, serverNames, matchDates}) =>{
 
     matches = JSON.parse(matches);
     scores = JSON.parse(scores);
@@ -49,6 +59,7 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
     mapImages = JSON.parse(mapImages);
 
     serverNames = JSON.parse(serverNames);
+    matchDates = JSON.parse(matchDates);
 
     const elems = [];
 
@@ -101,11 +112,16 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
         </a></Link>);
     }
 
+
+    createDatesData(matchDates);
+
     return (
         <div  id="recent-matches">
         <div className="default-header" >
             Recent Matches
         </div>
+
+    
         <Pagination 
                 currentPage={currentMatchPage}
                 results={totalMatches}

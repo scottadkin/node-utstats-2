@@ -20,7 +20,7 @@ import WinRate from '../../api/winrate';
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	face, latestWinRate, winRateHistory}) {
+	face, latestWinRate, winRateHistory, matchDates}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -74,14 +74,14 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 
 								<PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
-									gametypeNames={gametypeNames} face={face} latestWinRate={latestWinRate} winRateHistory={winRateHistory}
+									gametypeNames={gametypeNames} face={face} latestWinRate={latestWinRate} winRateHistory={winRateHistory} matchDates={matchDates}
 								/>
 
 								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
 
 								<PlayerRecentMatches playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
 								totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
-								serverNames={serverNames}
+								serverNames={serverNames} matchDates={matchDates}
 								/>
 
 							</div>
@@ -108,8 +108,6 @@ function createWinRateData(results, gametypeNames){
 	for(let i = 0; i < results.length; i++){
 
 		r = results[i];
-
-		
 
 		if(r.length === 0) continue;
 
@@ -141,7 +139,7 @@ function createWinRateData(results, gametypeNames){
 		});
 
 		for(let x = 0; x < r.length; x++){
-			
+
 			data[data.length - 1].data.push(parseFloat(r[x].winrate.toFixed(2)));
 			text[text.length - 1].push(`Wins ${r[x].wins} Draws ${r[x].draws} Losses ${r[x].losses} `);
 		}
@@ -250,6 +248,15 @@ export async function getServerSideProps({query}) {
 
 	//console.log(winRateHistory);
 
+	let now = new Date();
+	now = Math.floor(now * 0.001);
+
+	const month = ((60 * 60) * 24) * 28;
+
+	const matchDates = await playerManager.getMatchDatesAfter(now - month, playerId);
+
+	//console.log(playerManager.getMatchDatesAfter());
+
 	return { 
 		props: {
 			"playerId": playerId,
@@ -269,7 +276,8 @@ export async function getServerSideProps({query}) {
 			"serverNames": JSON.stringify(serverNames),
 			"face": currentFace[summary.face].name,
 			"latestWinRate": JSON.stringify(latestWinRate),
-			"winRateHistory": JSON.stringify(winRateHistory)
+			"winRateHistory": JSON.stringify(winRateHistory),
+			"matchDates": JSON.stringify(matchDates)
 			
 		}
 	}

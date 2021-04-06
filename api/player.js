@@ -505,6 +505,32 @@ class Player{
         });
     }
 
+    getMatchDatesAfter(timestamp, player){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT match_date,gametype FROM nstats_player_matches WHERE match_date>=? AND player_id=? ORDER BY match_date DESC";
+
+            mysql.query(query, [timestamp, player], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    const data = [];
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data.push({"date": result[i].match_date, "gametype": result[i].gametype});
+                    }
+
+                    resolve(data);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 
 }
 
