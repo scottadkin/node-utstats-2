@@ -15,12 +15,14 @@ import Functions from '../../api/functions';
 import Servers from '../../api/servers';
 import Faces from '../../api/faces';
 import WinRate from '../../api/winrate';
+import Pings from '../../api/pings';
+import Graph from '../../components/Graph/';
 
 
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	face, latestWinRate, winRateHistory, matchDates}) {
+	face, latestWinRate, winRateHistory, matchDates, pingGraphData}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -61,6 +63,8 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 		// /<img className="title-flag" src={`../images/flags/${country.code.toLowerCase()}.svg`} alt="flag"/>
 
+		pingGraphData = JSON.parse(pingGraphData);
+
 		return (
 				<div>
 					<DefaultHead />
@@ -78,6 +82,9 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 								/>
 
 								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
+
+								<div className="default-header">Ping History</div>
+								<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/>
 
 								<PlayerRecentMatches playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
 								totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
@@ -164,6 +171,38 @@ function createWinRateData(results, gametypeNames){
 	return {"data": fixedData, "titles": titles, "text": text};
 
 
+}
+
+function createPingGraphData(history){
+
+	const data = [
+		{"name": "Min", "data": [0]},
+		{"name": "Average", "data": [0]},
+		{"name": "Mac", "data": [0]}
+	];
+
+
+	const text = [];
+
+	let h = 0;
+
+	for(let i = 0; i < history.length; i++){
+
+		h = history[i];
+
+		data[0].data.push(h.min);
+		data[1].data.push(h.average);
+		data[2].data.push(h.max);
+
+		if(i !== 1){
+			text.push(`${i + 1} Matches ago`);
+		}else{
+			text.push(`${i + 1} Match ago`);
+		}
+
+	}
+
+	return {"data": data, "text": text};
 }
 
 export async function getServerSideProps({query}) {
@@ -264,6 +303,12 @@ export async function getServerSideProps({query}) {
 
 	//console.log(playerManager.getMatchDatesAfter());
 
+	const pingManager = new Pings();
+
+	const pingHistory = await pingManager.getPlayerHistoryAfter(playerId, 100);
+
+	const pingGraphData = createPingGraphData(pingHistory);
+
 	return { 
 		props: {
 			"playerId": playerId,
@@ -284,7 +329,8 @@ export async function getServerSideProps({query}) {
 			"face": currentFace[summary.face].name,
 			"latestWinRate": JSON.stringify(latestWinRate),
 			"winRateHistory": JSON.stringify(winRateHistory),
-			"matchDates": JSON.stringify(matchDates)
+			"matchDates": JSON.stringify(matchDates),
+			"pingGraphData": JSON.stringify(pingGraphData)
 			
 		}
 	}

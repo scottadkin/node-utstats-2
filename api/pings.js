@@ -44,6 +44,38 @@ class Pings{
         });
     }
 
+    getPlayerHistoryAfter(player, limit){
+
+        return new Promise((resolve, reject) =>{
+            const query = "SELECT ping_min,ping_average,ping_max FROM nstats_player_matches WHERE player_id=? ORDER by match_date DESC LIMIT ?";
+
+            mysql.query(query, [player, limit], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    const data = [];
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data.push({
+                            "min": result[i].ping_min,
+                            "average": result[i].ping_average,
+                            "max": result[i].ping_max
+                        });
+
+                    }
+
+                    resolve(data);
+                }
+
+                resolve([]);
+            });
+
+        });
+        
+    }
 }
 
 module.exports = Pings;
