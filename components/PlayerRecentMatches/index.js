@@ -53,6 +53,13 @@ function createFinalDatesData(data, gametypeNames, total){
         });
     }
 
+    if(finalData.length === 0){
+
+        finalData.push({
+            "name": "all",
+            "data": []
+        });
+    }
 
     return finalData;
 }

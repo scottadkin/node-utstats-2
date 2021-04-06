@@ -114,7 +114,7 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
 
     if(elems.length !== 0){
 
-        return <div className="m-bottom-10">
+        return <div className="m-bottom-10 t-width-1 center">
             <div className="default-header">Spawn Points</div>
                   
                {elems}
