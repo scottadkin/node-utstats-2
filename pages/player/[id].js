@@ -102,9 +102,14 @@ function createWinRateData(results, gametypeNames){
 	let r = 0;
 	let currentTitle = "";
 
+
+
+
 	for(let i = 0; i < results.length; i++){
 
 		r = results[i];
+
+		
 
 		if(r.length === 0) continue;
 
@@ -121,8 +126,22 @@ function createWinRateData(results, gametypeNames){
 
 		text.push([]);
 
-		for(let x = 0; x < r.length; x++){
+		r.sort((a, b) =>{
 
+			a = a.matches;
+			b = b.matches;
+
+			if(a < b){
+				return -1;
+			}else if(a > b){
+				return 1;
+			}
+
+			return 0;
+		});
+
+		for(let x = 0; x < r.length; x++){
+			
 			data[data.length - 1].data.push(parseFloat(r[x].winrate.toFixed(2)));
 			text[text.length - 1].push(`Wins ${r[x].wins} Draws ${r[x].draws} Losses ${r[x].losses} `);
 		}
