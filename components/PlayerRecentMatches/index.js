@@ -41,12 +41,114 @@ function getServerName(servers, id){
     return 'Not Found';
 }
 
-function createDatesData(dates){
+function createFinalDatesData(data, gametypeNames){
+
+    const finalData = [];
+
+    for(const [key, value] of Object.entries(data)){
+
+        finalData.push({
+            "name": gametypeNames[key],
+            "data": value
+        });
+    }
+
+    return finalData;
+}
+
+function createDatesData(dates, gametypeNames){
+
+    const uniqueGametypes = [];
+
+    let d = 0;
+
+    for(let i = 0; i < dates.length; i++){
+
+        d = dates[i];
+
+        if(uniqueGametypes.indexOf(d.gametype) === -1){
+            uniqueGametypes.push(d.gametype);
+        }
+    }
+
+    const now = Math.floor(new Date() * 0.001);
+
+    const hours = {};
+
+    for(let i = 0; i < uniqueGametypes.length; i++){
+
+        hours[uniqueGametypes[i]] = [];
+
+        for(let x = 0; x < 24; x++){
+           hours[uniqueGametypes[i]].push(0);
+        }
+    }
+
+
+    const days = {};
+
+    for(let i = 0; i < uniqueGametypes.length; i++){
+
+        days[uniqueGametypes[i]] = [];
+
+        for(let x = 0; x < 7; x++){
+            days[uniqueGametypes[i]].push(0);
+        }
+    }
+
+    const month = {};
+
+    for(let i = 0; i < uniqueGametypes.length; i++){
+
+        month[uniqueGametypes[i]] = [];
+
+        for(let x = 0; x < 28; x++){
+           month[uniqueGametypes[i]].push(0);
+        }
+    }
+
+
+    const hour = 60 * 60;
+    const day = ((60 * 60) * 24);
+
+    let diff = 0;
+    let currentHour = 0;
+    let currentDay = 0;
+
+    let currentGametype = 0;
 
     for(let i = 0; i < dates.length ;i++){
 
-        console.log(dates[i]);
+        d = dates[i];
+
+        currentGametype = d.gametype;
+
+        diff = now - d.date;
+        
+        currentHour = Math.floor(diff / hour);
+        currentDay = Math.floor(diff / day);
+
+        if(currentHour < 24){
+            hours[currentGametype][currentHour]++;
+        }
+        if(currentDay < 7){
+            days[currentGametype][currentDay]++;
+        }
+
+        month[currentGametype][currentDay]++;
+
     }
+
+
+    const finalHours = createFinalDatesData(hours, gametypeNames);
+    const finalDays = createFinalDatesData(days, gametypeNames);
+    const finalMonth = createFinalDatesData(month, gametypeNames);
+
+   return {
+       "hours": finalHours,
+       "days": finalDays,
+       "month": finalMonth
+   };
 }
 
 const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, 
@@ -113,7 +215,7 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
     }
 
 
-    createDatesData(matchDates);
+    console.log(createDatesData(matchDates, gametypes));
 
     return (
         <div  id="recent-matches">
