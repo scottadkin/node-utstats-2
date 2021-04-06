@@ -41,7 +41,7 @@ function getServerName(servers, id){
     return 'Not Found';
 }
 
-function createFinalDatesData(data, gametypeNames){
+function createFinalDatesData(data, gametypeNames, total){
 
     const finalData = [];
 
@@ -49,9 +49,10 @@ function createFinalDatesData(data, gametypeNames){
 
         finalData.push({
             "name": gametypeNames[key],
-            "data": value
+            "data": (total > 0) ? value : []
         });
     }
+
 
     return finalData;
 }
@@ -61,6 +62,10 @@ function createDatesData(dates, gametypeNames){
     const uniqueGametypes = [];
 
     let d = 0;
+
+    let totalHours = 0;
+    let totalDays = 0;
+    let totalMonth = 0;
 
     for(let i = 0; i < dates.length; i++){
 
@@ -130,19 +135,23 @@ function createDatesData(dates, gametypeNames){
 
         if(currentHour < 24){
             hours[currentGametype][currentHour]++;
+            totalHours++;
         }
+        
         if(currentDay < 7){
             days[currentGametype][currentDay]++;
+            totalDays++;
         }
 
         month[currentGametype][currentDay]++;
+        totalMonth++;
 
     }
 
 
-    const finalHours = createFinalDatesData(hours, gametypeNames);
-    const finalDays = createFinalDatesData(days, gametypeNames);
-    const finalMonth = createFinalDatesData(month, gametypeNames);
+    const finalHours = createFinalDatesData(hours, gametypeNames, totalHours);
+    const finalDays = createFinalDatesData(days, gametypeNames, totalDays);
+    const finalMonth = createFinalDatesData(month, gametypeNames, totalMonth);
 
    return {
        "hours": finalHours,
@@ -215,15 +224,29 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
     }
 
 
-    console.log(createDatesData(matchDates, gametypes));
+    const datesData = createDatesData(matchDates, gametypes);
 
     return (
         <div  id="recent-matches">
+        
+        <div className="default-header" >
+            Recent Activity
+        </div>
+
+        <Graph title={["Past 24 Hours", "Past 7 Days", "Past 28 Days"]} data={
+            JSON.stringify(
+                [
+                    datesData.hours,
+                    datesData.days,
+                    datesData.month,
+                ]
+            )
+        }/>
+
         <div className="default-header" >
             Recent Matches
         </div>
-
-    
+        
         <Pagination 
                 currentPage={currentMatchPage}
                 results={totalMatches}
