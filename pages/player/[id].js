@@ -153,6 +153,13 @@ function createWinRateData(results, gametypeNames){
 		fixedData.push([data[i]]);
 	}
 
+	if(fixedData.length === 0){
+		fixedData.push({
+			"name": "all",
+			"data": []
+		});
+	}
+
 
 	return {"data": fixedData, "titles": titles, "text": text};
 

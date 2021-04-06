@@ -148,6 +148,8 @@ class PlayerGametypeStats extends React.Component{
 
         const winRateData = JSON.parse(this.props.latestWinRate);
 
+        if(winRateData.length === 0) return <div className="not-found">No Data</div>
+
         let last = null;
 
         let w = 0;
