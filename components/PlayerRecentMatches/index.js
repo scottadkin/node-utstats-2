@@ -79,36 +79,54 @@ function createDatesData(dates, gametypeNames){
     const now = Math.floor(new Date() * 0.001);
 
     const hours = {};
+    const hoursText = [];
 
     for(let i = 0; i < uniqueGametypes.length; i++){
 
         hours[uniqueGametypes[i]] = [];
+       // hoursText[uniqueGametypes[i]] = [];
 
         for(let x = 0; x < 24; x++){
-           hours[uniqueGametypes[i]].push(0);
+
+            hours[uniqueGametypes[i]].push(0);
+
+            hoursText.push(
+                `Hour ${x} - ${x + 1}`
+            );
         }
     }
 
 
     const days = {};
+    const daysText = [];
 
     for(let i = 0; i < uniqueGametypes.length; i++){
 
         days[uniqueGametypes[i]] = [];
 
         for(let x = 0; x < 7; x++){
+
             days[uniqueGametypes[i]].push(0);
+
+            daysText.push(
+                `Day ${x} - ${x + 1}`
+            );
         }
     }
 
     const month = {};
+    const monthText = [];
 
     for(let i = 0; i < uniqueGametypes.length; i++){
 
         month[uniqueGametypes[i]] = [];
 
         for(let x = 0; x < 28; x++){
+
            month[uniqueGametypes[i]].push(0);
+           monthText.push(
+               `Day ${x} - ${x + 1}`
+           );
         }
     }
 
@@ -153,11 +171,20 @@ function createDatesData(dates, gametypeNames){
     const finalDays = createFinalDatesData(days, gametypeNames, totalDays);
     const finalMonth = createFinalDatesData(month, gametypeNames, totalMonth);
 
-   return {
-       "hours": finalHours,
-       "days": finalDays,
-       "month": finalMonth
-   };
+    return {
+        "data": {
+            "hours": finalHours,
+            "days": finalDays,
+            "month": finalMonth
+        },
+        "text": 
+            [
+                hoursText,
+                daysText,
+                monthText
+            ]
+        
+    };
 }
 
 const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, 
@@ -187,7 +214,6 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
         m = matches[i];
 
         currentScore = getMatchScores(scores, m.match_id);
-
 
         currentWinnerClass = (m.winner) ? "green" : (m.draw) ? "Draw" : "red";
 
@@ -225,7 +251,7 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
 
 
     const datesData = createDatesData(matchDates, gametypes);
-
+    
     return (
         <div  id="recent-matches">
         
@@ -236,12 +262,18 @@ const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches
         <Graph title={["Past 24 Hours", "Past 7 Days", "Past 28 Days"]} data={
             JSON.stringify(
                 [
-                    datesData.hours,
-                    datesData.days,
-                    datesData.month,
+                    datesData.data.hours,
+                    datesData.data.days,
+                    datesData.data.month,
                 ]
             )
-        }/>
+            }
+
+            text={JSON.stringify(datesData.text)}
+
+        />
+
+        
 
         <div className="default-header" >
             Recent Matches
