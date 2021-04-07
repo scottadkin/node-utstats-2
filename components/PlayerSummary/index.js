@@ -7,10 +7,14 @@ import PlayerADSummary from '../PlayerADSummary/';
 
 
 
-const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, face, latestWinRate,
-    winRateHistory}) =>{   
+const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
+    winRateHistory, faces}) =>{   
 
     summary = JSON.parse(summary);
+
+    faces = JSON.parse(faces);
+
+    let faceId = Object.keys(faces)[0];
 
     return (
         <div>
@@ -19,7 +23,7 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, fa
             <PlayerGeneral 
                 country={country}
                 flag={flag}
-                face={face}
+                face={faces[faceId].name}
                 first={summary.first}
                 last={summary.last}
                 matches={summary.matches}

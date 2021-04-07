@@ -532,6 +532,100 @@ class Player{
         });
     }
 
+    getAllIps(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT DISTINCT ip FROM nstats_player_matches WHERE player_id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    
+                    const data = [];
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data.push(result[i].ip);
+                    }
+
+                    resolve(data);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    getIdsWithThisIp(ips){
+
+        return new Promise((resolve, reject) =>{
+
+            if(ips.length === 0) resolve([]);
+
+            const query = "SELECT DISTINCT player_id FROM nstats_player_matches WHERE ip IN(?)";
+
+            mysql.query(query, [ips], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    const data = [];
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data.push(result[i].player_id);
+                    }
+                    resolve(data);
+                }
+
+                resolve([]);
+            });
+        
+
+        });
+    }
+    
+
+
+    getPlayerNames(ids){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name,country,face FROM nstats_player_totals WHERE id IN(?)";
+
+            mysql.query(query, [ids], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    async getPossibleAliases(id){
+
+        try{
+
+            const ips = await this.getAllIps(id);
+
+            const ids = await this.getIdsWithThisIp(ips);
+
+            return await this.getPlayerNames(ids);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
 }
 
 module.exports = Player;

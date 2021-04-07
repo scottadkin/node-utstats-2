@@ -1,0 +1,17 @@
+.wrapper{
+    max-width:1000px;
+    margin-left:auto;
+    margin-right:auto;
+    
+}
+
+.players{
+    
+}
+
+.player{
+    display:inline-block;
+    background-color:rgb(3,3,3);
+    padding:5px;
+
+}

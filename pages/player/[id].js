@@ -17,12 +17,13 @@ import Faces from '../../api/faces';
 import WinRate from '../../api/winrate';
 import Pings from '../../api/pings';
 import Graph from '../../components/Graph/';
+import PlayerAliases from '../../components/PlayerAliases/';
 
 
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	face, latestWinRate, winRateHistory, matchDates, pingGraphData}) {
+	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -78,10 +79,13 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 
 								<PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
-									gametypeNames={gametypeNames} face={face} latestWinRate={latestWinRate} winRateHistory={winRateHistory} matchDates={matchDates}
+									gametypeNames={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory} matchDates={matchDates}
+									faces={faces}
 								/>
 
 								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
+
+								<PlayerAliases data={aliases}/>
 
 								<div className="default-header">Ping History</div>
 								<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/>
@@ -275,7 +279,7 @@ export async function getServerSideProps({query}) {
 
 	//console.log(await faceManager.getFacesWithFileStatuses([summary.face]));
 
-	let currentFace = await faceManager.getFacesWithFileStatuses([summary.face]);
+	//let currentFace = await faceManager.getFacesWithFileStatuses([summary.face]);
 
 	//console.log(currentFace);
 
@@ -309,6 +313,18 @@ export async function getServerSideProps({query}) {
 
 	const pingGraphData = createPingGraphData(pingHistory);
 
+	const aliases = await playerManager.getPossibleAliases(playerId);
+	const usedFaces = [summary.face];
+
+	for(let i = 0; i < aliases.length; i++){
+
+		if(usedFaces.indexOf(aliases[i].face) === -1){
+			usedFaces.push(aliases[i].face);
+		}
+	}
+
+	const faceFiles = await faceManager.getFacesWithFileStatuses(usedFaces);
+
 	return { 
 		props: {
 			"playerId": playerId,
@@ -326,11 +342,13 @@ export async function getServerSideProps({query}) {
 			"weaponImages": JSON.stringify(weaponImages),
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames),
-			"face": currentFace[summary.face].name,
+			//"face": currentFace[summary.face].name,
 			"latestWinRate": JSON.stringify(latestWinRate),
 			"winRateHistory": JSON.stringify(winRateHistory),
 			"matchDates": JSON.stringify(matchDates),
-			"pingGraphData": JSON.stringify(pingGraphData)
+			"pingGraphData": JSON.stringify(pingGraphData),
+			"aliases": JSON.stringify(aliases),
+			"faces": JSON.stringify(faceFiles)
 			
 		}
 	}
