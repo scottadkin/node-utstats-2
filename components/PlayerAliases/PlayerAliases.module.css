@@ -13,5 +13,9 @@
     display:inline-block;
     background-color:rgb(3,3,3);
     padding:5px;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-left:-1px;
+    margin-top:-1px;
+    font-size:12px;
 
 }

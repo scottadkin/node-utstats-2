@@ -2,9 +2,11 @@ import styles from './PlayerAliases.module.css';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
-const PlayerAliases = ({data}) =>{
+
+const PlayerAliases = ({data, faces}) =>{
 
     data = JSON.parse(data);
+    faces = JSON.parse(faces);
 
     const elems = [];
 
@@ -14,12 +16,14 @@ const PlayerAliases = ({data}) =>{
 
         d = data[i];
 
-        elems.push(<div className={styles.player} key={i}>
-            <Link href={`/player/${d.id}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link>
-        </div>);
+        elems.push(<Link href={`/player/${d.id}`}><a><div className={styles.player} key={i}>
+            <img src={`/images/faces/${faces[d.face].name}.png`} alt="Image"/><br/>
+            <CountryFlag country={d.country}/>{d.name}
+        </div>
+        </a></Link>);
     }
 
-    return <div className={styles.wrapper}>
+    return <div className={`${styles.wrapper} m-bottom-10`}>
         <div className="default-header">
             Possible Aliases
         </div>

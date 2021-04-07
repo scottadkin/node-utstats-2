@@ -6,6 +6,7 @@
     overflow:hidden;
     border:1px solid rgba(255,255,255,0.25);
     margin-left:-1px;
+    margin-top:-5px;
 }
 
 .name{
