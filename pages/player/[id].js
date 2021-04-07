@@ -18,12 +18,14 @@ import WinRate from '../../api/winrate';
 import Pings from '../../api/pings';
 import Graph from '../../components/Graph/';
 import PlayerAliases from '../../components/PlayerAliases/';
+import Items from '../../api/items';
+import PlayerItemsSummary from '../../components/PlayerItemsSummary/';
 
 
 
 function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces}) {
+	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -85,6 +87,7 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
 
+								<PlayerItemsSummary data={itemData} names={itemNames}/>
 								<PlayerAliases data={aliases} faces={faces}/>
 
 								<div className="default-header">Ping History</div>
@@ -325,6 +328,14 @@ export async function getServerSideProps({query}) {
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(usedFaces);
 
+
+	const itemManager = new Items();
+
+	const playerItemData = await itemManager.getPlayerTotalData(playerId);
+	const uniqueItemIds = Functions.getUniqueValues(playerItemData, 'item');
+
+	const itemNames = await itemManager.getNamesByIds(uniqueItemIds);
+
 	return { 
 		props: {
 			"playerId": playerId,
@@ -348,7 +359,9 @@ export async function getServerSideProps({query}) {
 			"matchDates": JSON.stringify(matchDates),
 			"pingGraphData": JSON.stringify(pingGraphData),
 			"aliases": JSON.stringify(aliases),
-			"faces": JSON.stringify(faceFiles)
+			"faces": JSON.stringify(faceFiles),
+			"itemData": JSON.stringify(playerItemData),
+			"itemNames": JSON.stringify(itemNames)
 			
 		}
 	}

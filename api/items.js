@@ -216,6 +216,25 @@ class Items{
             });
         });
     }
+
+    getPlayerTotalData(player){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT item,first,last,uses,matches FROM nstats_items_player WHERE player=?";
+
+            mysql.query(query, [player], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 module.exports = Items;
