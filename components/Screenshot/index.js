@@ -18,7 +18,7 @@ class MatchScreenshot{
 
         this.map = map;
         this.players = JSON.parse(players);
-        console.log(this.players);
+        //console.log(this.players);
         this.teams = parseInt(teams);
 
         this.matchData = JSON.parse(matchData);
@@ -26,7 +26,9 @@ class MatchScreenshot{
         this.gametype = gametype;
         this.faces = JSON.parse(faces);
 
-        console.log(this.matchData);
+        //console.log(this.matchData);
+
+        console.log(this.players);
 
         this.players.sort((a,b) =>{
 
@@ -609,7 +611,7 @@ class MatchScreenshot{
 
         c.fillStyle = this.getTeamColor(team);
 
-        const pingSize = this.y(1);
+        const pingSize = this.y(0.9);
         const nameSize = this.y(2);
         const nameOffset = this.x(5);
         const scoreOffset = this.x(39);
@@ -626,7 +628,18 @@ class MatchScreenshot{
 
         c.font = pingSize+"px Arial";
         c.fillStyle = "rgb(150,150,150)";
-        c.fillText(`TM:${Math.floor(player.playtime / 60)} EFF:${Math.floor(player.efficiency)}%`, x + nameOffset + timeOffset, y + this.y(1.5));
+
+        let pickupString = "";
+
+        if(player.headshots > 0){
+
+            pickupString += `HS:${player.headshots}`;
+      
+        }
+
+        c.fillText(pickupString, x + nameOffset + timeOffset, y + this.y(0.9));
+        c.fillText(`TM:${Math.floor(player.playtime / 60)} EFF:${Math.floor(player.efficiency)}%`, x + nameOffset + timeOffset, y + this.y(1.8));
+        
 
         c.fillStyle = "black";
         c.strokeStyle = "rgb(100,100,100)";
@@ -643,7 +656,7 @@ class MatchScreenshot{
 
         c.drawImage(this.getFlag(player.country), x + pingOffsetX + this.x(0.5), y + pingOffsetY, this.flagWidth, this.flagHeight);
 
-        c.fillText(`PING:${player.ping_average}`, x + pingOffsetX , y + pingOffsetY + this.flagHeight + this.y(0.5));
+        c.fillText(`PING:${player.ping_average}`, x + pingOffsetX + this.x(0.25) , y + pingOffsetY + this.flagHeight + this.y(0.5));
         //c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.3) + this.flagHeight + this.y(0.5));
 
         const row1Offset = this.y(3.2);
