@@ -218,6 +218,14 @@ class MatchManager{
             this.itemsManager = new ItemsManager(this.itemLines);
             this.itemsManager.playerManager = this.playerManager;
             await this.itemsManager.updateTotals(this.serverInfo.date);
+
+            this.itemsManager.setPlayerPickupTimes(this.gameInfo.end);
+            this.itemsManager.setPlayerPickups();
+            
+
+            new Message(`Updating player match pickups.`,"pass");
+            await this.itemsManager.setPlayerMatchPickups(this.matchId);
+
             new Message(`Updated item totals.`,'pass');
             await this.itemsManager.insertMatchData(this.matchId, this.serverInfo.date);
             new Message(`Updated item match data.`,'pass');
@@ -470,7 +478,7 @@ class MatchManager{
 
                     this.domManager.data.push(this.lines[i]);
 
-                }else if(currentType === 'item_get'){
+                }else if(currentType === 'item_get' || currentType === "item_activate" || currentType === "item_deactivate"){
 
                     this.itemLines.push(this.lines[i]);
 

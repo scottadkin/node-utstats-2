@@ -101,7 +101,7 @@ class Player{
         firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype){
             
         return new Promise((resolve, reject) =>{
-            
+
             const query = `UPDATE nstats_player_totals SET matches=matches+1, 
             first = IF(first = 0 OR first > ?, ?, first), 
             last = IF(last < ?,?,last), 
@@ -224,9 +224,7 @@ class Player{
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0)`;
-
-                //48
+                0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0)`;
 
             const vars = [
                 matchId,

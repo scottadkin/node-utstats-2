@@ -11,6 +11,9 @@ class ItemsManager{
 
         this.data = [];
 
+        this.activeData = [];
+        this.deactiveData = [];
+
         this.pickupCount = new Map();
 
         this.matchData = new Map();
@@ -23,6 +26,10 @@ class ItemsManager{
     parseData(){
 
         const reg = /^(\d+?\.\d+?)\titem_get\t(.+?)\t(.+)$/i;
+
+        const activeReg = /^(\d+?\.\d+?)\titem_activate\t(.+?)\t(.+)$/i
+        const deactiveReg = /^(\d+?\.\d+?)\titem_deactivate\t(.+?)\t(.+)$/i
+
         let result = '';
 
         let currentPickup = 0;
@@ -77,6 +84,30 @@ class ItemsManager{
                     "item": result[2],
                     "player": parseInt(result[3])
                 });
+
+            }else if(activeReg.test(this.lines[i])){
+
+                result = activeReg.exec(this.lines[i]);
+
+                this.activeData.push(
+                    {
+                        "timestamp": parseFloat(result[1]),
+                        "item": result[2],
+                        "player": parseInt(result[3])
+                    }
+                );
+
+            }else if(deactiveReg.test(this.lines[i])){
+
+                result = deactiveReg.exec(this.lines[i]);
+
+                this.deactiveData.push(
+                    {
+                        "timestamp": parseFloat(result[1]),
+                        "item": result[2],
+                        "player": parseInt(result[3])
+                    }
+                );
             }
         }
 
@@ -153,6 +184,170 @@ class ItemsManager{
         }catch(err){
             console.trace(err);
             new Message(`ItemManager.insertMatchData ${err}`,'error');
+        }
+    }
+
+    updateUsedPickups(player, type){
+
+        if(this.playerPickups[player] === undefined){
+
+            this.playerPickups[player] = {};
+        }
+
+        if(this.playerPickups[player][type] === undefined){
+            this.playerPickups[player][type] = 1;
+        }else{
+            this.playerPickups[player][type]++;
+        }
+    }
+
+    setPlayerPickups(){
+
+        let d = 0;
+
+        let currentName = "";
+
+        this.playerPickups = {};
+
+        for(let i = 0; i < this.data.length; i++){
+
+            d = this.data[i];
+
+            currentName = d.item.replace(/\s/ig, "").toLowerCase();
+
+            if(currentName === "damageamplifier"){
+                console.log("DAMAGE AMP");
+
+                this.updateUsedPickups(d.player, "amp");
+
+            }else if(currentName === "shieldbelt"){
+                
+                this.updateUsedPickups(d.player, "belt");
+
+            }else if(currentName === "invisibility"){
+                console.log("WTF there is a ghost");
+                this.updateUsedPickups(d.player, "invis");
+            }
+        }
+    }
+
+
+    getDeactiveDataTimestamp(activeTimestamp, item, player){
+
+        let d = 0;
+
+        for(let i = 0; i < this.deactiveData.length; i++){
+
+            d = this.deactiveData[i];
+
+            if(d.timestamp >= activeTimestamp){
+
+                if(d.item === item && d.player === player){
+                    return d.timestamp;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    setPlayerPickupTimes(matchEnd){
+
+        //if there is no deactivate data use the match end time
+
+
+        let a = 0;
+
+        let endTimestamp = 0;
+        let currentDiff = 0;
+
+        for(let i = 0; i < this.activeData.length; i++){
+
+            a = this.activeData[i];
+
+            endTimestamp = this.getDeactiveDataTimestamp(a.timestamp, a.item, a.player);
+            //console.log(this.getDeactiveDataTimestamp(a.timestamp, a.item, a.player));
+
+            if(endTimestamp === null){
+                endTimestamp = matchEnd;
+            }
+
+            currentDiff = endTimestamp - a.timestamp;
+
+            a.carryTime = currentDiff;
+
+        }
+
+    }
+
+    getPlayerTotalItemCarryTime(player, item){
+
+        let total = 0;
+
+        let a = 0;
+
+        let fixedItemName = "";
+
+        
+
+        for(let i = 0; i < this.activeData.length; i++){
+
+            a = this.activeData[i];
+
+            fixedItemName = a.item.replace(/\s/ig,"").toLowerCase();
+
+            //console.log(fixedItemName);
+
+            if(a.player === player){
+
+                if(fixedItemName === "damageamplifier" && item === "amp"){
+                    total += a.carryTime;
+                }else if(fixedItemName === "invisibility" && item === "invis"){
+                    total += a.carryTime;
+                }
+            }
+        }
+
+        return total;
+    }
+
+    async setPlayerMatchPickups(matchId){
+
+        try{
+
+            let player = 0;
+
+            console.log(this.activeData);
+
+            console.log(this.playerPickups);
+            let currentAmpTime = 0;
+            let currentInvisTime = 0;
+
+
+            for(const [key, value] of Object.entries(this.playerPickups)){
+
+                //console.log(key, value);
+
+                currentAmpTime = this.getPlayerTotalItemCarryTime(parseInt(key), "amp");;
+                currentInvisTime = this.getPlayerTotalItemCarryTime(parseInt(key), "invis");;
+
+                console.log(`currentAmpTIme = ${currentAmpTime}`);
+                console.log(`currentInvisTIme = ${currentInvisTime}`);
+               
+                value.ampTime = currentAmpTime;
+                value.invisTime = currentInvisTime;
+
+                player = this.playerManager.getOriginalConnectionById(parseInt(key));
+
+                if(player !== null){
+                    await this.items.setPlayerMatchPickups(matchId, player.masterId, value);
+                }else{
+                    new Message("ItemsManager.setPlayerMatchPickups() player is null","warning");
+                }
+            }
+
+        }catch(err){
+            new Message(`ItemsManager.setPlayerMatchPickups() ${err}`,"error");
         }
     }
     
