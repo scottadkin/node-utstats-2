@@ -463,7 +463,9 @@ class Player{
                 if(err) reject(err);
 
                 if(result !== undefined){
-                    data = result[0].type_result;
+                    if(result.length > 0){
+                        data = result[0].type_result;
+                    }
                 }
 
                 resolve(data);
