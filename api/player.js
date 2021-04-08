@@ -101,9 +101,9 @@ class Player{
         firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype){
             
         return new Promise((resolve, reject) =>{
-
+            
             const query = `UPDATE nstats_player_totals SET matches=matches+1, 
-            first = IF(first > ?,?,first), 
+            first = IF(first = 0 OR first > ?, ?, first), 
             last = IF(last < ?,?,last), 
             playtime=playtime+?, 
             frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
