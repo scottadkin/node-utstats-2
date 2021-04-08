@@ -341,6 +341,7 @@ class ItemsManager{
 
                 if(player !== null){
                     await this.items.setPlayerMatchPickups(matchId, player.masterId, value);
+                    await this.items.updatePlayerBasicPickupData(player.masterId, value);
                 }else{
                     new Message("ItemsManager.setPlayerMatchPickups() player is null","warning");
                 }

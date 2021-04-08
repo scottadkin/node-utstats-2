@@ -261,6 +261,30 @@ class Items{
             });
         });
     }
+
+    updatePlayerBasicPickupData(player, data){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_player_totals SET shield_belt=?,amp=?,amp_time=?,invisibility=?,invisibility_time=? WHERE id=?";
+
+            const vars = [
+                (data.belt !== undefined) ? data.belt : 0,
+                (data.amp !== undefined) ? data.amp : 0,
+                (data.ampTime !== undefined) ? data.ampTime : 0,
+                (data.invis !== undefined) ? data.invis : 0,
+                (data.invisTime !== undefined) ? data.invisTime : 0,
+                player
+            ];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 module.exports = Items;

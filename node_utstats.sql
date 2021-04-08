@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.2
+-- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 07, 2021 at 05:39 PM
--- Server version: 10.4.10-MariaDB
--- PHP Version: 7.3.12
+-- Generation Time: Apr 08, 2021 at 07:48 PM
+-- Server version: 10.4.18-MariaDB
+-- PHP Version: 8.0.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -19,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `nutstats`
+-- Database: `node_utstats`
 --
 
 -- --------------------------------------------------------
@@ -551,7 +550,9 @@ CREATE TABLE `nstats_player_matches` (
   `headshots` int(11) NOT NULL,
   `shield_belt` int(11) NOT NULL,
   `amp` int(11) NOT NULL,
-  `amp_time` float NOT NULL
+  `amp_time` float NOT NULL,
+  `invisibility` int(11) NOT NULL,
+  `invisibility_time` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -631,7 +632,12 @@ CREATE TABLE `nstats_player_totals` (
   `k_distance_normal` int(11) NOT NULL,
   `k_distance_long` int(11) NOT NULL,
   `k_distance_uber` int(11) NOT NULL,
-  `headshots` int(11) NOT NULL
+  `headshots` int(11) NOT NULL,
+  `shield_belt` int(11) NOT NULL,
+  `amp` int(11) NOT NULL,
+  `amp_time` float NOT NULL,
+  `invisibility` int(11) NOT NULL,
+  `invisibility_time` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
