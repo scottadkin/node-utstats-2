@@ -56,6 +56,7 @@ class FTPImporter{
     
                     if(err){
                         console.log(err);
+                        reject(err);
                     }else{
                         this.sortFiles(files);
                         await this.downloadLogFiles();
@@ -118,7 +119,17 @@ class FTPImporter{
                     }
                 });
 
+
                 stream.pipe(fs.createWriteStream(destination));
+                // why did i not add this here before?
+                
+                stream.on('end', () =>{
+                    console.log("I finished");
+                    resolve();
+                });
+
+                
+                
             });
         });
     }
@@ -131,8 +142,11 @@ class FTPImporter{
 
             for(let i = 0; i < this.logsFound.length; i++){
 
+                console.log(`${config.ftp.logsFolder}/${log.name}`);
+
                 log = this.logsFound[i];
                 await this.downloadFile(`${config.ftp.logsFolder}/${log.name}`, `${config.importedLogsFolder}/${log.name}`);
+         
             }
 
             new Message(`Downloaded ${this.logsFound.length} log files.`, 'pass');

@@ -15,8 +15,6 @@ class Importer{
         this.updatedGametypes = [];
 
         this.ftpImporter.events.on('finished', async () =>{
-
-
            
 
             let imported = 0;
@@ -117,7 +115,7 @@ class Importer{
     async checkLogsFolder(){
 
         try{
-            const files = await fs.readdirSync(config.importedLogsFolder);
+            const files = fs.readdirSync(config.importedLogsFolder);
 
             console.table(files);
 
