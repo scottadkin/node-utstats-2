@@ -266,7 +266,8 @@ class Items{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "UPDATE nstats_player_totals SET shield_belt=?,amp=?,amp_time=?,invisibility=?,invisibility_time=? WHERE id=?";
+            const query = `UPDATE nstats_player_totals SET 
+            shield_belt=shield_belt+?,amp=amp+?,amp_time=amp_time+?,invisibility=invisibility+?,invisibility_time=invisibility_time+? WHERE id=?`;
 
             const vars = [
                 (data.belt !== undefined) ? data.belt : 0,
