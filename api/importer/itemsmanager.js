@@ -317,9 +317,6 @@ class ItemsManager{
 
             let player = 0;
 
-            console.log(this.activeData);
-
-            console.log(this.playerPickups);
             let currentAmpTime = 0;
             let currentInvisTime = 0;
 
@@ -331,8 +328,6 @@ class ItemsManager{
                 currentAmpTime = this.getPlayerTotalItemCarryTime(parseInt(key), "amp");;
                 currentInvisTime = this.getPlayerTotalItemCarryTime(parseInt(key), "invis");;
 
-                console.log(`currentAmpTIme = ${currentAmpTime}`);
-                console.log(`currentInvisTIme = ${currentInvisTime}`);
                
                 value.ampTime = currentAmpTime;
                 value.invisTime = currentInvisTime;

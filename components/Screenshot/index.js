@@ -28,7 +28,7 @@ class MatchScreenshot{
 
         //console.log(this.matchData);
 
-        console.log(this.players);
+        //console.log(this.players);
 
         this.players.sort((a,b) =>{
 
@@ -110,13 +110,12 @@ class MatchScreenshot{
 
     getPlayerIconName(id){
 
-
         if(this.faces[id] !== undefined){
             
             if(this.faces[id] !== null){
-                if(this.faces[id].imageExists){
-                    return this.faces[id].name;
-                }     
+               
+                return this.faces[id].name;
+                   
             }
         }
 
@@ -160,7 +159,7 @@ class MatchScreenshot{
                 }
             }
 
-            console.log(this.playerIcons);
+            //console.log(this.playerIcons);
 
         });     
 
@@ -631,16 +630,16 @@ class MatchScreenshot{
 
         let pickupString = "";
 
-        if(player.headshots > 0){
-
-            pickupString += `HS:${player.headshots}`;
+        if(player.headshots > 0) pickupString += `HS:${player.headshots} `;
+        if(player.shield_belt > 0) pickupString += `SB:${player.shield_belt} `;
+        if(player.amp > 0) pickupString += `AMP:${player.amp} (${this.MMSS(player.amp_time)}) `;
+        if(player.invisibility > 0) pickupString += `INVIS:${player.invisibility} (${this.MMSS(player.invisibility_time)})`;
       
-        }
+  
 
         c.fillText(pickupString, x + nameOffset + timeOffset, y + this.y(0.9));
         c.fillText(`TM:${Math.floor(player.playtime / 60)} EFF:${Math.floor(player.efficiency)}%`, x + nameOffset + timeOffset, y + this.y(1.8));
         
-
         c.fillStyle = "black";
         c.strokeStyle = "rgb(100,100,100)";
         c.lineWidth = this.y(0.1);
@@ -722,11 +721,45 @@ class MatchScreenshot{
         return Math.floor(totalPing / totalPlayers);
     }
 
+
+    getTeamSmartCTFItemPickupPercent(team, item){
+
+        let total = 0;
+        let used = 0;
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            total += p[item];
+
+            if(p.team === team){
+
+                used += p[item];
+            }
+        }
+
+        //console.log(`team = ${team} used ${used} out of ${total}`)
+
+        if(total === 0) return null;
+        if(used === 0) return 0;
+
+        return (used / total) * 100
+
+    }
+
     renderSmartCTFTeam(c, team){
 
         const teamWidth = this.x(40);
 
         const headerHeight = this.y(5);
+
+        const ampPercent = this.getTeamSmartCTFItemPickupPercent(team, "amp");
+        const beltPercent = this.getTeamSmartCTFItemPickupPercent(team, "shield_belt");
+        const invisPercent = this.getTeamSmartCTFItemPickupPercent(team, "invisibility");
+        const headshotPercent = this.getTeamSmartCTFItemPickupPercent(team, "headshots");
 
         let startX = 0;
         let startY = 0;
@@ -787,7 +820,26 @@ class MatchScreenshot{
         c.font = `${this.y(1)}px Arial`;
 
         c.fillText(`PING: ${this.getTeamPingAverage(team)} PL:0%`, startX + this.x(3) + pingOffsetX, startY + this.y(1.5));
-        c.fillText(`TM: ${Math.ceil((this.matchData.end - this.matchData.start) / 60)}`, startX + this.x(3) + pingOffsetX, startY + this.y(2.5));
+
+        let timePowerupString = `TM: ${Math.ceil((this.matchData.end - this.matchData.start) / 60)} `;
+
+        if(headshotPercent !== null){
+            timePowerupString += `HS: ${headshotPercent}% `;
+        }
+
+        if(ampPercent !== null){
+            timePowerupString += `AMP: ${ampPercent}% `;
+        }
+
+        if(beltPercent !== null){
+            timePowerupString += `SB: ${beltPercent}% `;
+        }
+
+        if(invisPercent !== null){
+            timePowerupString += `INVIS: ${invisPercent}% `;
+        }
+
+        c.fillText(timePowerupString, startX + this.x(3) + pingOffsetX, startY + this.y(2.5));
 
         const playerHeight = this.y(8);
 
