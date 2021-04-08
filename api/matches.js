@@ -265,7 +265,9 @@ class Matches{
                 if(err) reject(err);
 
                 if(result !== undefined){
-                    resolve(result[0].date);
+                    if(result.length > 0){
+                        resolve(result[0].date);
+                    }
                 }   
                 resolve(0);
             });
@@ -283,7 +285,9 @@ class Matches{
                 if(err) reject(err);
 
                 if(result !== undefined){
-                    resolve(result[0].date);
+                    if(result.length > 0){
+                        resolve(result[0].date);
+                    }
                 }   
                 resolve(0);
             });

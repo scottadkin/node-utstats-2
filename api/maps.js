@@ -315,6 +315,7 @@ class Maps{
 
         return new Promise((resolve, reject) =>{
 
+            if(ids.length === 0) resolve({});
             const data = {};
 
             const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
