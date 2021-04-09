@@ -9,217 +9,131 @@ class MatchItemPickups extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"catSelected": 0,"selected": this.getFirstTypeIndex(0)};
 
-        this.changeTab = this.changeTab.bind(this);
-        this.changeCatTab = this.changeCatTab.bind(this);
+        this.state = {"offset": 0, "maxDisplay": 6};
+        console.log(props);
+
+        this.changePage = this.changePage.bind(this);
     }
 
-    changeTab(id){
+    changePage(type){
 
-        this.setState({"selected": id});
-    }
+        if(type === 0){
 
-    changeCatTab(id){
-        this.setState({"catSelected": id});
-        this.setState({"selected": this.getFirstTypeIndex(id)});
-    }
+            if(this.state.offset > 0){
+                this.setState({"offset": this.state.offset - 1});
+            }
+        }else{
 
-    getFirstTypeIndex(type){
-
-        let p = 0;
-
-        for(let i = 0; i < this.props.names.length; i++){
-
-            p = this.props.names[i];
-
-            if(p.type === type){
-                return i;
+            if(this.state.offset < Math.ceil(this.props.players.length / this.state.maxDisplay) - 1){
+                this.setState({"offset": this.state.offset + 1});
             }
         }
 
-        return -1;
     }
 
-    bAnyCatData(id){
+    getPlayerItemUses(player, item){
+
+        console.log(`playerId = ${player} itemId = ${item}`);
+
+        let d = 0;
+
+        for(let i = 0; i < this.props.data.length; i++){
+
+            d = this.props.data[i];
+
+            if(d.player_id === player && d.item === item){
+                return d.uses;
+            }
+        }
+
+        return Functions.ignore0(0);
+    }
+
+    createElems(){
+
+        const elems = [];
 
         let n = 0;
-
-        for(let i = 0; i < this.props.names.length; i++){
-
-            n = this.props.names[i];
-
-            if(n.type === id) return true;
-        }
-
-        return false;
-    }
-
-    createCategoryTabs(){
-
-        const elems = [];
-
-        const types = ["Unsorted", "Weapons", "Ammo", "Health/Armour", "Powerups", "Special"];
-
-        let style = "";
-
-        for(let i = 0; i < types.length; i++){
-
-            if(!this.bAnyCatData(i)) continue;
-            style = styles.tab2;
-
-            if(this.state.catSelected === i){
-                style = `${styles.tab2} ${styles.selected}`;
-            }
-            
-            elems.push(<div key={i} onClick={(() =>{
-                this.changeCatTab(i);
-            })} className={style}>{types[i]}</div>);
-        }
-  
-
-
-        return elems;
-    }
-
-    createTabs(){
-
-        const elems = [];
-
         let p = 0;
 
-        let style = "";
-        let index = 0;
+        let subElems = [];
 
-        for(let i = 0; i < this.props.names.length; i++){
+        let max = this.state.maxDisplay * (this.state.offset + 1);
 
-            p = this.props.names[i];
+        if(max > this.props.players.length){
+            max = this.props.players.length;
+        }
 
-            if(p.type === this.state.catSelected){
+        for(let i = -1; i < this.props.names.length; i++){
 
-                style = styles.tab;
+            if(i !== -1){
+                n = this.props.names[i];
+            }else{
+                n = {"name": "Item"};
+            }
 
-                if(i === this.state.selected || (this.state.selected === 0 && index === 0)){
-                    style = `${styles.tab} ${styles.selected}`;
+            subElems = [];
+
+            for(let x = this.state.offset * this.state.maxDisplay; x < max; x++){
+
+                p = this.props.players[x];
+
+                if(i !== -1){
+                    subElems.push(<td key={x}>{this.getPlayerItemUses(p.id, n.id)}</td>);
+                }else{
+                    subElems.push(<th key={x} className={Functions.getTeamColor(p.team)}><CountryFlag country={p.country}/>{p.name}</th>);
                 }
-
-                index++;
-
-                elems.push(<div key={i} onClick={(() =>{
-                    this.changeTab(i);
-                })} className={style}>{p.name}</div>);
-                
-            }
-        }
-
-
-        return elems;
-    }
-
-
-    getPlayer(id){
-
-        let p = 0;
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            p = this.props.players[i];
-
-            if(id === p.id){
-                return p;
-            }
-        }
-        return {"name": "Not Found", "id": -1, "country": "xx"};
-    }
-
-    getCurrentData(){
-        
-
-        if(this.props.names[this.state.selected] === undefined){
-            return <div className={styles.nodata}>No Data</div>;
-        }
-
-        const elems = [];
-
-        const weaponId = this.props.names[this.state.selected].id;
-
-        let p = 0;
-
-        const data = this.props.data;
-
-        data.sort((a,b) =>{
-
-            a = a.uses;
-            b = b.uses;
-
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
             }
 
-            return 0;
-        });
-
-        let player = 0;
-
-        let bgColor = "team-none";
-
-        for(let i = 0; i < data.length; i++){
-
-            p = data[i];
-
-            if(p.item === weaponId){
-
-                player = this.getPlayer(p.player_id);
-
-                if(this.props.bTeamGame){
-                    bgColor = Functions.getTeamColor(player.team)
-                }
-
-                elems.push(<tr key={`ipu-${i}`} className={bgColor}>
-                    <td><CountryFlag country={player.country}/><Link href={`/player/${player.id}`}><a>{player.name}</a></Link></td>
-                    <td>{p.uses}</td>
+            if(i !== -1){
+                elems.push(<tr key={i}>
+                    <td key={i}>{n.name}</td>
+                    {subElems}
+                </tr>);
+            }else{
+                elems.push(<tr key={i}>
+                    <th key={i}>{n.name}</th>
+                    {subElems}
                 </tr>);
             }
         }
 
-
         if(elems.length > 0){
 
-            return <table>
+            return <table className={`t-width-1 ${styles.table}`}>
                 <tbody>
-                    <tr>
-                        <th>
-                            Player
-                        </th>
-                        <th>
-                            Uses
-                        </th>
-                    </tr>
+     
                     {elems}
                 </tbody>
             </table>
         }
 
-        return <div className={styles.nodata}>No Data</div>
+        return null;
+
     }
 
     render(){
 
-        if(this.props.data.length === 0) return <div></div>
-        
-        const parentTabs = this.createCategoryTabs();
-        const tabs = this.createTabs();
-
-        const currentData = this.getCurrentData();
-
-        return <div><div className={styles.wrapper}>
-            <div className="default-header">Pickup history</div>
-            <div className={`${styles.tabs} m-bottom-10`}>{parentTabs}</div>
-            <div className={styles.tabs}>{tabs}</div>
-            {currentData}
-        </div></div>
+        return <div className="special-table m-bottom-10">
+            <div className="default-header">Pickup Summary</div>
+            <div className={`${styles.buttons} center`}>
+                <div className={styles.previous} onClick={(() =>{
+                    this.changePage(0);
+                })}>
+                    Previous
+                </div>
+                <div className={styles.info}>
+                    Displaying {this.state.offset + 1} of {Math.ceil(this.props.players.length / this.state.maxDisplay)}
+                </div>
+                <div className={styles.next} onClick={(() =>{
+                    this.changePage(1);
+                })}>
+                    Next
+                </div>
+            </div>
+            {this.createElems()}
+        </div>
     }
 }
 

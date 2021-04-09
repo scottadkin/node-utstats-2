@@ -202,7 +202,7 @@ class Items{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_items_match WHERE match_id =?";
+            const query = "SELECT player_id,item,uses FROM nstats_items_match WHERE match_id =?";
 
             mysql.query(query, [matchId], (err, result) =>{
 
