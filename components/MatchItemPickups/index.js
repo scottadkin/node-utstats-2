@@ -79,7 +79,7 @@ class MatchItemPickups extends React.Component{
                 if(i !== -1){
                     subElems.push(<td key={x}>{this.getPlayerItemUses(p.id, n.id)}</td>);
                 }else{
-                    subElems.push(<th key={x} className={Functions.getTeamColor(p.team)}><CountryFlag country={p.country}/>{p.name}</th>);
+                    subElems.push(<th key={x} className={Functions.getTeamColor(p.team)}><Link href={`/player/${p.id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></th>);
                 }
             }
 
