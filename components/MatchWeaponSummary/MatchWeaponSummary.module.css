@@ -1,37 +1,51 @@
-
-.wrapper{
-    display:inline-block;
-    padding:10px;
-}
-
-.wrapper table td:nth-child(1){
-    text-align:left;
-}
-
 .tabs{
-    padding-bottom:10px;
+    width:90%;
+    max-width:1000px;
+    background-color:black;
+    height:40px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.25);
+    user-select: none;
 }
 
 .tab{
+    width:30%;
     display:inline-block;
-    font-size:12px;
-    background-color:black;
-    padding:5px;
-    user-select: none;
-    border:1px solid rgba(255,255,255,0.25);
-    margin-left:-1px;
+    line-height:40px;
 }
 
+.name{
+    font-size:16px;
+    line-height:25px;
+}
 
-.tab:hover{
+.info{
+    font-size:10px;
+    line-height:12px;
+    color:yellow;
+}
+
+.next{
+    float:right;
+    border-left:1px solid rgba(255,255,255,0.25);
+}
+
+.previous{
+    float:left;
+    border-right:1px solid rgba(255,255,255,0.25);
+}
+
+.next, .previous{
+    background-color:rgb(32,32,32); 
+    transition:0.5s all;
+}
+
+.next:hover, .previous:hover{
+    background-color:rgb(46,46,46); 
+    color:yellow;
     cursor:pointer;
-    background-color:rgb(12,12,12);
 }
 
-.selected{
-    background-color:rgb(64,0,0);
-}
-
-.selected:hover{
-    background-color:rgb(84,0,0);
+.table tr:nth-child(even){
+    background-color:rgb(16,16,16)
 }

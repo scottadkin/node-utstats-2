@@ -6,276 +6,150 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
-
-
 class MatchWeaponSummary extends React.Component{
 
     constructor(props){
 
         super(props);
 
-        this.state = {"tabs": []};
+        this.state = {"tab": 0};
 
         this.changeTab = this.changeTab.bind(this);
-
-        
     }
 
-    componentDidMount(){
+    changeTab(type){
 
-        this.createTabs();
-    }
 
-    checkWeaponsData(){
+        if(type === 0){
 
-        const found = [];
+            if(this.state.tab > 0){
+                this.setState({"tab": this.state.tab - 1});
+            }
+        }else{
 
-        let d = 0;
-        let p = 0;
-
-        for(let i = 0; i < this.props.data.names.length; i++){
-
-            d = this.props.data.names[i];
-
-            for(let x = 0; x < this.props.data.playerData.length; x++){
-
-                p = this.props.data.playerData[x];
-
-                if(p.kills !== 0 || p.deaths !== 0 || p.accuracy != 0 || p.shots !== 0 || p.hits !== 0 || p.damage !== 0){
-
-                    if(found.indexOf(p.weapon_id) === -1){
-                        found.push(p.weapon_id);
-                    }
-                }
+            if(this.state.tab < this.props.data.names.length - 1){
+                this.setState({"tab": this.state.tab + 1});
             }
         }
-
-        return found;
-
     }
-
-    getWeaponName(id){
-
-
-        let d = 0;
-
-        for(let i = 0; i < this.props.data.names.length; i++){
-
-            d = this.props.data.names[i];
-
-            if(d.id === id){
-                return d.name;
-            }
-        }
-
-        return 'Not Found';
-    }
-
-    createTabs(){
-
-        const tabs = [];
-        let weapon = 0;
-
-        const found = this.checkWeaponsData();
-
-        for(let i = 0; i < found.length; i++){
-
-            tabs.push({"name": this.getWeaponName(found[i]), "id": found[i]});
-        }
-        
-
-        this.setState({"tabs": tabs, "selected": 0});
-    
-    }
-
-    changeTab(id){
-
-        this.setState({"selected": id});
-    }
-
-    getTabs(){
-
-        const elems = [];
-
-        let t = 0;
-        let style = "";
-
-        for(let i = 0; i < this.state.tabs.length; i++){
-
-            t = this.state.tabs[i];
-
-            if(this.state.selected === i){
-                style = `${styles.tab} ${styles.selected}`;
-            }else{
-                style = styles.tab;
-            }
-
-            elems.push(<div key={i} onClick={(() =>{
-                this.changeTab(i);
-            })} className={style}>{t.name}</div>);
-        }
-
-        return elems;
-    }
-
-
-    //any data for current player
-    bAnyData(data){
-
-        const types = ["kills","deaths","accuracy","shots","hits","damage"];
-
-        for(let i = 0; i < types.length; i++){
-
-            if(data[types[i]] > 0)  return true;
-        }
-
-        return false;
-    }
-
 
     getPlayer(id){
-        
+
         let p = 0;
 
         for(let i = 0; i < this.props.players.length; i++){
 
             p = this.props.players[i];
 
-            if(p.id === id){
-                return p;
-            }
+            if(p.id === id) return p;
+            
         }
-
-        return {"name": "Not Found", "country": "xx", "id": -1, "team": 255};
+        return {"name": "Not Found", "country": "xx", "team": 255}
     }
 
-    getDataElems(){
+    displayData(){
 
-        if(this.state.tabs[this.state.selected] === undefined){
-            console.trace(`this.stats.tabs[this.state.selected] = undefined`);
-            return null;
-        }
+        const weapon = this.props.data.names[this.state.tab];
 
-        const id = this.state.tabs[this.state.selected].id;
 
         const elems = [];
 
+
         let p = 0;
 
-        let accuracy = 0;
         let efficiency = 0;
-        let player = 0;
 
-        const sortedProps = this.props.data.playerData;
+        let currentPlayer = 0;
 
-        sortedProps.sort((a, b) =>{
+        for(let i = 0; i < this.props.data.playerData.length; i++){
+
+            p = this.props.data.playerData[i];
+
+            if(p.weapon_id === weapon.id){
 
 
-            if(a.kills > b.kills){
-                return -1;
-            }else if(a.kills < b.kills){
-                return 1;
-            }else{
+                currentPlayer = this.getPlayer(p.player_id);
 
-                if(a.deaths < b.deaths){
-                    return -1;
-                }else if(a.deaths > b.deaths){
-                    return 1;
+                efficiency = 0;
+
+                if(p.kills > 0){
+
+                    if(p.deaths === 0){
+                        efficiency = 1;
+                    }else{
+                        efficiency = p.kills / (p.kills + p.deaths);
+                    }
+
+                    efficiency *= 100;
                 }
-            }
 
-            return 0;
-
-        });
-
-        let bgColor = "team-none";
-
-        for(let i = 0; i < sortedProps.length; i++){
-
-            p = sortedProps[i];
-
-            if(p.weapon_id === id){
-
-                if(this.bAnyData(p)){
-
-                    accuracy = Functions.ignore0(p.accuracy);
-
-                    if(accuracy !== ''){
-                        accuracy = `${accuracy.toFixed(2)}%`;
-                    }
-
-                    efficiency = 0;
-
-                    if(p.kills > 0 && p.deaths === 0){
-                        efficiency = 100;
-                    }else if(p.kills > 0 && p.deaths > 0){
-                        efficiency = (p.kills / (p.kills + p.deaths)) * 100;
-                    }
-
-                    efficiency = Functions.ignore0(efficiency);
-
-                    if(efficiency !== '') efficiency = `${efficiency.toFixed(2)}%`;
-
-                    player = this.getPlayer(p.player_id);
-
-                    if(this.props.bTeamGame > 0){
-                        bgColor = Functions.getTeamColor(player.team);
-                    }
-
-                    elems.push(
-                        <tr key={i} className={bgColor}>
-                            <td><CountryFlag country={player.country}/><Link href={`/player/${player.id}`}><a>{player.name}</a></Link></td>
-                            <td>{Functions.ignore0(p.shots)}</td>
-                            <td>{Functions.ignore0(p.hits)}</td>
-                            <td>{accuracy}</td>
-                            <td>{Functions.ignore0(p.deaths)}</td>
-                            <td>{Functions.ignore0(p.kills)}</td>
-                            <td>{efficiency}</td>
-                            <td><CleanDamage damage={p.damage} /></td>
-                        </tr>
-                    );
-                }
+                elems.push(<tr key={i}>
+                    <td className={Functions.getTeamColor(currentPlayer.team)}>
+                        <Link href={`/player/${p.player_id}`}>
+                            <a>
+                                <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
+                            </a>
+                        </Link>
+                    </td>
+                    <td>{Functions.ignore0(p.kills)}</td>
+                    <td>{Functions.ignore0(p.deaths)}</td>
+                    <td>{efficiency.toFixed(2)}%</td>
+                    <td>{Functions.ignore0(p.shots)}</td>
+                    <td>{Functions.ignore0(p.hits)}</td>
+                    <td>{p.accuracy.toFixed(2)}%</td>
+                    <td>{Functions.ignore0(p.damage)}</td>
+                </tr>);
             }
         }
 
-        if(elems.length > 0){
 
-            return <table>
-                <tbody>
-                    <tr>
-                        <th>Player</th>
-                        <th>Shots</th>
-                        <th>Hits</th>
-                        <th>Accuracy</th>
-                        <th>Deaths</th>
-                        <th>Kills</th>
-                        <th>Efficiency</th>
-                        <th>Damage</th>
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>
-        }
 
-        return <div>No Data</div>;
+        return <table className={`t-width-1 ${styles.table}`}>
+            <tbody>
+                <tr>
+                    <th>Player</th>
+                    <th>Kills</th>
+                    <th>Deaths</th>
+                    <th>Efficiency</th>
+                    <th>Shots</th>
+                    <th>Hits</th>
+                    <th>Accuracy</th>
+                    <th>Damage</th>
+                </tr>
+                {elems}
+            </tbody>
+        </table>;
     }
+
+    createTabs(){
+
+        return <div className={`${styles.tabs} center`}>
+            <div className={`${styles.tab} ${styles.previous}`} onClick={(() =>{
+                    this.changeTab(0);
+                })}>Previous</div>
+            <div className={styles.tab}>
+                <div className={styles.name}>
+                    {this.props.data.names[this.state.tab].name}
+                </div>
+                <div className={styles.info}>
+                    Displaying Weapon {this.state.tab + 1} of {this.props.data.names.length}
+                </div>
+            </div>
+            <div className={`${styles.tab} ${styles.next}`}  onClick={(() =>{
+                    this.changeTab(1);
+                })}>Next</div>
+        </div>;
+    }
+
 
     render(){
 
-        const tabs = this.getTabs();
-
-        let dataElems = [];
-
-        if(this.state.selected !== undefined){
-            dataElems = this.getDataElems();
-        }
-
-        return <div className={styles.wrapper}>
-            <div className="default-header">Weapon Statistics</div>
-            <div className={styles.tabs}>
-                {tabs}
+        return <div className="special-table">
+            <div className="default-header">
+                Weapon Statistics
             </div>
-            {dataElems}
+            {this.createTabs()}
+            {this.displayData()}
         </div>
     }
 }

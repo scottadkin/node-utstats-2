@@ -11,7 +11,6 @@ class MatchItemPickups extends React.Component{
         super(props);
 
         this.state = {"offset": 0, "maxDisplay": 6};
-        console.log(props);
 
         this.changePage = this.changePage.bind(this);
     }
@@ -33,8 +32,6 @@ class MatchItemPickups extends React.Component{
     }
 
     getPlayerItemUses(player, item){
-
-        console.log(`playerId = ${player} itemId = ${item}`);
 
         let d = 0;
 

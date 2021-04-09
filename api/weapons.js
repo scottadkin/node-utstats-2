@@ -324,7 +324,7 @@ class Weapons{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_player_weapon_match WHERE match_id=?";
+            const query = "SELECT player_id,weapon_id,kills,deaths,accuracy,shots,hits,damage FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC";
 
             mysql.query(query, [id], (err, result) =>{
 
