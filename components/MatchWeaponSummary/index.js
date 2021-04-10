@@ -423,6 +423,8 @@ class MatchWeaponSummary extends React.Component{
 
     render(){
 
+        if(this.props.data.names.length === 0) return null;
+        
         return <div className="special-table">
             <div className="default-header">
                 Weapon Statistics

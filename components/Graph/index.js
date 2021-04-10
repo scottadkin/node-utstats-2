@@ -1094,8 +1094,10 @@ class GraphCanvas{
 
                 c.fillStyle = "rgba(100,0,0,0.45)";
 
-                if(this.data[i + this.tabOffset][0].data.length < 2){
-                    c.fillRect(x + offsetX, y, tabSize, height);
+                if(this.data[i + this.tabOffset][0] !== undefined){
+                    if(this.data[i + this.tabOffset][0].data.length < 2){
+                        c.fillRect(x + offsetX, y, tabSize, height);
+                    }
                 }
             } 
         }

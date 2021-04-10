@@ -1322,16 +1322,21 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         const playerHistoryDataText = [];
         const playerhistoryDataTitles = [];
 
-        if(playerScoreHistoryGraph.data[0].data.length > 2){
-            playerHistoryData.push(playerScoreHistoryGraph.data);
-            playerHistoryDataText.push(playerScoreHistoryGraph.text);
-            playerhistoryDataTitles.push("Player Score History");
+        if(playerScoreHistoryGraph.data[0] !== undefined){
+
+            if(playerScoreHistoryGraph.data[0].data.length > 2){
+                playerHistoryData.push(playerScoreHistoryGraph.data);
+                playerHistoryDataText.push(playerScoreHistoryGraph.text);
+                playerhistoryDataTitles.push("Player Score History");
+            }
         }
 
-        if(playerPingHistory.data[0].data.length > 0){
-            playerHistoryData.push(playerPingHistory.data);
-            playerHistoryDataText.push(playerPingHistory.text);
-            playerhistoryDataTitles.push("Player Ping History");
+        if(playerPingHistory.data[0] !== undefined){
+            if(playerPingHistory.data[0].data.length > 0){
+                playerHistoryData.push(playerPingHistory.data);
+                playerHistoryDataText.push(playerPingHistory.text);
+                playerhistoryDataTitles.push("Player Ping History");
+            }
         }
 
         elems.push(<Graph title={playerhistoryDataTitles} key={"scosococsocos-hihishis"} data={JSON.stringify(playerHistoryData)} 
