@@ -12,9 +12,10 @@ class MatchWeaponSummary extends React.Component{
 
         super(props);
 
-        this.state = {"tab": 0};
+        this.state = {"tab": 0, "mode": 0};
 
         this.changeTab = this.changeTab.bind(this);
+        this.changeMode = this.changeMode.bind(this);
     }
 
     changeTab(type){
@@ -33,6 +34,11 @@ class MatchWeaponSummary extends React.Component{
         }
     }
 
+    changeMode(id){
+
+        this.setState({"mode": id});
+    }
+
     getPlayer(id){
 
         let p = 0;
@@ -49,11 +55,11 @@ class MatchWeaponSummary extends React.Component{
 
     displayData(){
 
+        if(this.state.mode !== 0) return null;
+
         const weapon = this.props.data.names[this.state.tab];
 
-
         const elems = [];
-
 
         let p = 0;
 
@@ -66,7 +72,6 @@ class MatchWeaponSummary extends React.Component{
             p = this.props.data.playerData[i];
 
             if(p.weapon_id === weapon.id){
-
 
                 currentPlayer = this.getPlayer(p.player_id);
 
@@ -121,7 +126,101 @@ class MatchWeaponSummary extends React.Component{
         </table>;
     }
 
+    displayAllData(){
+
+        if(this.state.mode !== 1) return null;
+
+        const tables = [];
+
+        let currentPlayers = [];
+        let currentWeapon = 0;
+        let currentPlayer = 0;
+        let currentEfficiency = 0;
+        let currentAccuracy = 0;
+
+        let p = 0;
+
+        for(let i = 0; i < this.props.data.names.length; i++){
+
+            currentPlayers = [];
+            currentWeapon = this.props.data.names[i];
+
+            for(let x = 0; x < this.props.data.playerData.length; x++){
+
+                p = this.props.data.playerData[x];
+
+                if(p.weapon_id !== currentWeapon.id) continue;
+
+                currentPlayer = this.getPlayer(p.player_id);
+
+                currentEfficiency = "";
+                currentAccuracy = "";
+
+                if(p.kills > 0){
+
+                    if(p.deaths === 0){
+                        currentEfficiency = 1;
+                    }else{
+                        currentEfficiency = p.kills / (p.deaths + p.kills);
+                    }
+
+                    currentEfficiency *= 100;
+
+                    currentEfficiency = `${currentEfficiency.toFixed(2)}%`;
+                }
+
+                if(p.accuracy > 0){
+
+                    currentAccuracy = `${p.accuracy.toFixed(2)}%`;
+                }
+
+                currentPlayers.push(
+                    <tr key={x}>
+                        <td className={Functions.getTeamColor(currentPlayer.team)}>
+                            <Link href={`/player/${currentPlayer.id}`}>
+                                <a><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a>
+                            </Link>
+                        </td>
+                        <td>{Functions.ignore0(p.kills)}</td>
+                        <td>{Functions.ignore0(p.deaths)}</td>
+                        <td>{Functions.ignore0(currentEfficiency)}</td>
+                        <td>{Functions.ignore0(p.shots)}</td>
+                        <td>{Functions.ignore0(p.hits)}</td>
+                        <td>{currentAccuracy}</td>
+                        <td>{Functions.ignore0(p.damage)}</td>
+     
+                    </tr>
+                );
+            }
+
+            tables.push(
+                <div key={i}>
+                    <div className="default-header">{currentWeapon.name}</div>
+                    <table className={`t-width-1 m-bottom-10 ${styles.table}`}>
+                        <tbody>
+                            <tr>
+                                <th>Player</th>
+                                <th>Kills</th>
+                                <th>Deaths</th>
+                                <th>Efficiency</th>
+                                <th>Shots</th>
+                                <th>Hits</th>
+                                <th>Accuracy</th>
+                                <th>Damage</th>
+                            </tr>
+                            {currentPlayers}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        return tables;
+    }
+
     createTabs(){
+
+        if(this.state.mode !== 0) return null;
 
         return <div className={`${styles.tabs} center`}>
             <div className={`${styles.tab} ${styles.previous}`} onClick={(() =>{
@@ -148,8 +247,17 @@ class MatchWeaponSummary extends React.Component{
             <div className="default-header">
                 Weapon Statistics
             </div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Single Display</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Display All</div>
+            </div>
             {this.createTabs()}
             {this.displayData()}
+            {this.displayAllData()}
         </div>
     }
 }
