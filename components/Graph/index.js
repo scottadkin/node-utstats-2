@@ -633,6 +633,8 @@ class GraphCanvas{
         }else{
             data = this.data[this.currentTab + this.tabOffset];
         }
+        
+        if(data[0] === undefined) return;
 
         if(data[0].data.length < 2){
 

@@ -227,8 +227,25 @@ class ItemsManager{
             }else if(currentName === "invisibility"){
                 console.log("WTF there is a ghost");
                 this.updateUsedPickups(d.player, "invis");
+
+            }else if(currentName === "bodyarmor"){
+
+                console.log("ARRRRMORRR");
+                this.updateUsedPickups(d.player, "armor");
+
+            }else if(currentName === "antigravboots"){
+
+                console.log("Booooooooots");
+                this.updateUsedPickups(d.player, "boots");
+
+            }else if(currentName === "thighpads"){
+                console.log("pads");
+                this.updateUsedPickups(d.player, "pads");
+
             }
         }
+
+        console.log(this.playerPickups);
     }
 
 

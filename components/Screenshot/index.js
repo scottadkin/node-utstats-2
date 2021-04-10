@@ -746,7 +746,7 @@ class MatchScreenshot{
         if(total === 0) return null;
         if(used === 0) return 0;
 
-        return (used / total) * 100
+        return ((used / total) * 100).toFixed(2);
 
     }
 

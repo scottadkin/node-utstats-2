@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 08, 2021 at 07:48 PM
+-- Generation Time: Apr 10, 2021 at 08:20 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -552,7 +552,10 @@ CREATE TABLE `nstats_player_matches` (
   `amp` int(11) NOT NULL,
   `amp_time` float NOT NULL,
   `invisibility` int(11) NOT NULL,
-  `invisibility_time` float NOT NULL
+  `invisibility_time` float NOT NULL,
+  `pads` int(11) NOT NULL,
+  `armor` int(11) NOT NULL,
+  `boots` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -637,7 +640,10 @@ CREATE TABLE `nstats_player_totals` (
   `amp` int(11) NOT NULL,
   `amp_time` float NOT NULL,
   `invisibility` int(11) NOT NULL,
-  `invisibility_time` float NOT NULL
+  `invisibility_time` float NOT NULL,
+  `pads` int(11) NOT NULL,
+  `armor` int(11) NOT NULL,
+  `boots` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
