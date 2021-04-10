@@ -165,46 +165,48 @@ class MatchWeaponSummary extends React.Component{
         }
 
 
-        for(let i = 0; i < teamTotals.length; i++){
+        if(this.props.players.length > teamTotals.length){
+            for(let i = 0; i < teamTotals.length; i++){
 
-            currentAccuracy = "";
-            currentEfficiency = "";
+                currentAccuracy = "";
+                currentEfficiency = "";
 
-            if(teamTotals[i].kills > 0){
+                if(teamTotals[i].kills > 0){
 
-                if(teamTotals[i].deaths === 0){
-                    currentEfficiency = 1;
-                }else{
-                    currentEfficiency = teamTotals[i].kills / (teamTotals[i].deaths + teamTotals[i].kills);
+                    if(teamTotals[i].deaths === 0){
+                        currentEfficiency = 1;
+                    }else{
+                        currentEfficiency = teamTotals[i].kills / (teamTotals[i].deaths + teamTotals[i].kills);
+                    }
+
+                    currentEfficiency *= 100;
+
+                    currentEfficiency = `${currentEfficiency.toFixed(2)}%`;
                 }
 
-                currentEfficiency *= 100;
+                if(teamTotals[i].hits > 0 && teamTotals[i].shots > 0){
 
-                currentEfficiency = `${currentEfficiency.toFixed(2)}%`;
+                    currentAccuracy = teamTotals[i].hits / teamTotals[i].shots;
+
+                    currentAccuracy *= 100;
+
+                    currentAccuracy = `${currentAccuracy.toFixed(2)}%`;
+                }
+
+                elems.push(<tr key={`team-totals-${i}`} className={`yellow`}>
+                    <td className={(this.props.totalTeams < 2) ? 255 : Functions.getTeamColor(i)}>
+                        {(this.props.totalTeams < 2) ? "Totals" : Functions.getTeamName(i)}
+                    </td>
+                    <td className="black">{Functions.ignore0(teamTotals[i].kills)}</td>
+                    <td className="black">{Functions.ignore0(teamTotals[i].deaths)}</td>
+                    <td className="black">{currentEfficiency}</td>
+                    <td className="black">{Functions.ignore0(teamTotals[i].shots)}</td>
+                    <td className="black">{Functions.ignore0(teamTotals[i].hits)}</td>
+                    <td className="black">{currentAccuracy}</td>
+                    <td className="black">{Functions.ignore0(teamTotals[i].damage)}</td>
+                </tr>);
+
             }
-
-            if(teamTotals[i].hits > 0 && teamTotals[i].shots > 0){
-
-                currentAccuracy = teamTotals[i].hits / teamTotals[i].shots;
-
-                currentAccuracy *= 100;
-
-                currentAccuracy = `${currentAccuracy.toFixed(2)}%`;
-            }
-
-            elems.push(<tr key={`team-totals-${i}`} className={`yellow`}>
-                <td className={(this.props.totalTeams < 2) ? 255 : Functions.getTeamColor(i)}>
-                    {(this.props.totalTeams < 2) ? "Totals" : Functions.getTeamName(i)}
-                </td>
-                <td className="black">{Functions.ignore0(teamTotals[i].kills)}</td>
-                <td className="black">{Functions.ignore0(teamTotals[i].deaths)}</td>
-                <td className="black">{currentEfficiency}</td>
-                <td className="black">{Functions.ignore0(teamTotals[i].shots)}</td>
-                <td className="black">{Functions.ignore0(teamTotals[i].hits)}</td>
-                <td className="black">{currentAccuracy}</td>
-                <td className="black">{Functions.ignore0(teamTotals[i].damage)}</td>
-            </tr>);
-
         }
 
 
@@ -328,49 +330,51 @@ class MatchWeaponSummary extends React.Component{
             }
 
 
-            for(let x = 0; x < currentTeamTotals.length; x++){
+            if(this.props.players.length > currentTeamTotals.length){
+                for(let x = 0; x < currentTeamTotals.length; x++){
 
-                currentEfficiency = "";
-                currentAccuracy = "";
+                    currentEfficiency = "";
+                    currentAccuracy = "";
 
-                if(currentTeamTotals[x].hits > 0 && currentTeamTotals[x].shots){
+                    if(currentTeamTotals[x].hits > 0 && currentTeamTotals[x].shots){
 
-                    currentAccuracy = currentTeamTotals[x].hits / currentTeamTotals[x].shots;
-                   
-                    currentAccuracy *= 100;
+                        currentAccuracy = currentTeamTotals[x].hits / currentTeamTotals[x].shots;
+                    
+                        currentAccuracy *= 100;
 
-                    currentAccuracy = `${currentAccuracy.toFixed(2)}%`;
-                }
-
-                if(currentTeamTotals[x].kills > 0){
-
-                    if(currentTeamTotals[x].deaths === 0){
-                        currentEfficiency = 1;
-                    }else{
-                        currentEfficiency = currentTeamTotals[x].kills / (currentTeamTotals[x].kills + currentTeamTotals[x].deaths);
+                        currentAccuracy = `${currentAccuracy.toFixed(2)}%`;
                     }
 
-                    currentEfficiency *= 100;
+                    if(currentTeamTotals[x].kills > 0){
 
-                    currentEfficiency = `${currentEfficiency.toFixed(2)}%`;
+                        if(currentTeamTotals[x].deaths === 0){
+                            currentEfficiency = 1;
+                        }else{
+                            currentEfficiency = currentTeamTotals[x].kills / (currentTeamTotals[x].kills + currentTeamTotals[x].deaths);
+                        }
+
+                        currentEfficiency *= 100;
+
+                        currentEfficiency = `${currentEfficiency.toFixed(2)}%`;
+                    }
+
+                    currentPlayers.push(
+                        <tr key={`team-totals ${x}`} className="yellow">
+                            <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : x)}>
+                                {(this.props.totalTeams < 2) ? "Totals" : Functions.getTeamName(x)}
+                            </td>
+                            <td className="black">{Functions.ignore0(currentTeamTotals[x].kills)}</td>
+                            <td className="black">{Functions.ignore0(currentTeamTotals[x].deaths)}</td>
+                            <td className="black">{currentEfficiency}</td>
+                            <td className="black">{Functions.ignore0(currentTeamTotals[x].shots)}</td>
+                            <td className="black">{Functions.ignore0(currentTeamTotals[x].hits)}</td>
+                            <td className="black">{currentAccuracy}</td>
+                            <td className="black">{Functions.ignore0(currentTeamTotals[x].damage)}</td>
+        
+                        </tr>
+                    );
+
                 }
-
-                currentPlayers.push(
-                    <tr key={`team-totals ${x}`} className="yellow">
-                        <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : x)}>
-                            {(this.props.totalTeams < 2) ? "Totals" : Functions.getTeamName(x)}
-                        </td>
-                        <td className="black">{Functions.ignore0(currentTeamTotals[x].kills)}</td>
-                        <td className="black">{Functions.ignore0(currentTeamTotals[x].deaths)}</td>
-                        <td className="black">{currentEfficiency}</td>
-                        <td className="black">{Functions.ignore0(currentTeamTotals[x].shots)}</td>
-                        <td className="black">{Functions.ignore0(currentTeamTotals[x].hits)}</td>
-                        <td className="black">{currentAccuracy}</td>
-                        <td className="black">{Functions.ignore0(currentTeamTotals[x].damage)}</td>
-     
-                    </tr>
-                );
-
             }
 
             tables.push(
@@ -424,7 +428,7 @@ class MatchWeaponSummary extends React.Component{
     render(){
 
         if(this.props.data.names.length === 0) return null;
-        
+
         return <div className="special-table">
             <div className="default-header">
                 Weapon Statistics

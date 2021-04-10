@@ -192,7 +192,7 @@ class MatchSpecialEvents extends React.Component{
         if(elems.length > 0){
             return <div>
                 
-                <table>
+                <table className="t-width-1">
                     <tbody>
                         {elems}
                     </tbody>
@@ -370,7 +370,7 @@ class MatchSpecialEvents extends React.Component{
             }
 
             return <div>
-            <table>
+            <table className="t-width-1">
                 <tbody>
                     {elems}
                 </tbody>
