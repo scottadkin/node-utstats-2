@@ -1460,7 +1460,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
 
     elems.push(
-        <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game}/>
+        <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
     );
 
 

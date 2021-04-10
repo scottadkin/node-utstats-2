@@ -67,6 +67,31 @@ class MatchWeaponSummary extends React.Component{
 
         let currentPlayer = 0;
 
+        const teamTotals = [];
+
+        let teamsToCreate = this.props.totalTeams;
+        if(teamsToCreate === 0){
+            teamsToCreate = 1;
+        }
+
+        for(let i = 0; i < teamsToCreate; i++){
+
+            teamTotals.push(
+                {
+                    "kills": 0,
+                    "deaths": 0,
+                    "shots": 0,
+                    "hits": 0,
+                    "damage": 0,
+                }
+            );
+        }
+        
+
+        let currentTeam = 0;
+        let currentAccuracy = 0;
+        let currentEfficiency = 0;
+
         for(let i = 0; i < this.props.data.playerData.length; i++){
 
             p = this.props.data.playerData[i];
@@ -74,6 +99,18 @@ class MatchWeaponSummary extends React.Component{
             if(p.weapon_id === weapon.id){
 
                 currentPlayer = this.getPlayer(p.player_id);
+
+                if(this.props.totalTeams < 2){
+                    currentTeam = 0;
+                }else{
+                    currentTeam = currentPlayer.team;
+                }
+
+                teamTotals[currentTeam].kills += p.kills;
+                teamTotals[currentTeam].deaths += p.deaths;
+                teamTotals[currentTeam].shots += p.shots;
+                teamTotals[currentTeam].hits += p.hits;
+                teamTotals[currentTeam].damage += p.damage;
 
                 efficiency = 0;
 
@@ -88,8 +125,28 @@ class MatchWeaponSummary extends React.Component{
                     efficiency *= 100;
                 }
 
+                currentAccuracy = "";
+                currentEfficiency = "";
+
+                if(p.accuracy > 0) currentAccuracy = `${p.accuracy.toFixed(2)}%`;
+
+                if(p.kills > 0){
+
+                    if(p.deaths === 0) {
+                        currentEfficiency = 1;
+                    }else{
+                        currentEfficiency = p.kills / (p.deaths + p.kills);
+                    }
+
+                    currentEfficiency *= 100;
+
+                    currentEfficiency = `${currentEfficiency.toFixed(2)}%`;
+
+                }
+               
+
                 elems.push(<tr key={i}>
-                    <td className={Functions.getTeamColor(currentPlayer.team)}>
+                    <td className={Functions.getTeamColor(currentTeam)}>
                         <Link href={`/player/${p.player_id}`}>
                             <a>
                                 <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
@@ -98,15 +155,57 @@ class MatchWeaponSummary extends React.Component{
                     </td>
                     <td>{Functions.ignore0(p.kills)}</td>
                     <td>{Functions.ignore0(p.deaths)}</td>
-                    <td>{efficiency.toFixed(2)}%</td>
+                    <td>{currentEfficiency}</td>
                     <td>{Functions.ignore0(p.shots)}</td>
                     <td>{Functions.ignore0(p.hits)}</td>
-                    <td>{p.accuracy.toFixed(2)}%</td>
+                    <td>{currentAccuracy}</td>
                     <td>{Functions.ignore0(p.damage)}</td>
                 </tr>);
             }
         }
 
+
+        for(let i = 0; i < teamTotals.length; i++){
+
+            currentAccuracy = "";
+            currentEfficiency = "";
+
+            if(teamTotals[i].kills > 0){
+
+                if(teamTotals[i].deaths === 0){
+                    currentEfficiency = 1;
+                }else{
+                    currentEfficiency = teamTotals[i].kills / (teamTotals[i].deaths + teamTotals[i].kills);
+                }
+
+                currentEfficiency *= 100;
+
+                currentEfficiency = `${currentEfficiency.toFixed(2)}%`;
+            }
+
+            if(teamTotals[i].hits > 0 && teamTotals[i].shots > 0){
+
+                currentAccuracy = teamTotals[i].hits / teamTotals[i].shots;
+
+                currentAccuracy *= 100;
+
+                currentAccuracy = `${currentAccuracy.toFixed(2)}%`;
+            }
+
+            elems.push(<tr key={`team-totals-${i}`} className={`yellow`}>
+                <td className={Functions.getTeamColor(i)}>
+                    {Functions.getTeamName(i)}
+                </td>
+                <td className="black">{Functions.ignore0(teamTotals[i].kills)}</td>
+                <td className="black">{Functions.ignore0(teamTotals[i].deaths)}</td>
+                <td className="black">{currentEfficiency}</td>
+                <td className="black">{Functions.ignore0(teamTotals[i].shots)}</td>
+                <td className="black">{Functions.ignore0(teamTotals[i].hits)}</td>
+                <td className="black">{currentAccuracy}</td>
+                <td className="black">{Functions.ignore0(teamTotals[i].damage)}</td>
+            </tr>);
+
+        }
 
 
         return <table className={`t-width-1 ${styles.table}`}>
@@ -137,6 +236,13 @@ class MatchWeaponSummary extends React.Component{
         let currentPlayer = 0;
         let currentEfficiency = 0;
         let currentAccuracy = 0;
+        let currentTeam = 0;
+
+        let currentTeamTotals = [];
+
+        let teamsToCreate = this.props.totalTeams;
+
+        if(teamsToCreate === 0) teamsToCreate = 1;
 
         let p = 0;
 
@@ -145,6 +251,22 @@ class MatchWeaponSummary extends React.Component{
             currentPlayers = [];
             currentWeapon = this.props.data.names[i];
 
+            currentTeamTotals = [];
+
+            for(let x = 0; x < teamsToCreate; x++){
+
+                currentTeamTotals.push(
+                    {
+                        "kills": 0,
+                        "deaths": 0,
+                        "shots": 0,
+                        "hits": 0,
+                        "damage": 0
+                    }
+                );
+            }
+            
+
             for(let x = 0; x < this.props.data.playerData.length; x++){
 
                 p = this.props.data.playerData[x];
@@ -152,6 +274,18 @@ class MatchWeaponSummary extends React.Component{
                 if(p.weapon_id !== currentWeapon.id) continue;
 
                 currentPlayer = this.getPlayer(p.player_id);
+
+                currentTeam = currentPlayer.team;
+
+                if(this.props.totalTeams < 2){
+                    currentTeam = 0;
+                }
+
+                currentTeamTotals[currentTeam].kills += p.kills;
+                currentTeamTotals[currentTeam].deaths += p.deaths;
+                currentTeamTotals[currentTeam].shots += p.shots;
+                currentTeamTotals[currentTeam].hits += p.hits;
+                currentTeamTotals[currentTeam].damage += p.damage;
 
                 currentEfficiency = "";
                 currentAccuracy = "";
@@ -176,7 +310,7 @@ class MatchWeaponSummary extends React.Component{
 
                 currentPlayers.push(
                     <tr key={x}>
-                        <td className={Functions.getTeamColor(currentPlayer.team)}>
+                        <td className={Functions.getTeamColor(currentTeam)}>
                             <Link href={`/player/${currentPlayer.id}`}>
                                 <a><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a>
                             </Link>
@@ -191,6 +325,52 @@ class MatchWeaponSummary extends React.Component{
      
                     </tr>
                 );
+            }
+
+
+            for(let x = 0; x < currentTeamTotals.length; x++){
+
+                currentEfficiency = "";
+                currentAccuracy = "";
+
+                if(currentTeamTotals[x].hits > 0 && currentTeamTotals[x].shots){
+
+                    currentAccuracy = currentTeamTotals[x].hits / currentTeamTotals[x].shots;
+                   
+                    currentAccuracy *= 100;
+
+                    currentAccuracy = `${currentAccuracy.toFixed(2)}%`;
+                }
+
+                if(currentTeamTotals[x].kills > 0){
+
+                    if(currentTeamTotals[x].deaths === 0){
+                        currentEfficiency = 1;
+                    }else{
+                        currentEfficiency = currentTeamTotals[x].kills / (currentTeamTotals[x].kills + currentTeamTotals[x].deaths);
+                    }
+
+                    currentEfficiency *= 100;
+
+                    currentEfficiency = `${currentEfficiency.toFixed(2)}%`;
+                }
+
+                currentPlayers.push(
+                    <tr key={`team-totals ${x}`} className="yellow">
+                        <td className={Functions.getTeamColor(x)}>
+                            {Functions.getTeamName(x)}
+                        </td>
+                        <td className="black">{Functions.ignore0(currentTeamTotals[x].kills)}</td>
+                        <td className="black">{Functions.ignore0(currentTeamTotals[x].deaths)}</td>
+                        <td className="black">{currentEfficiency}</td>
+                        <td className="black">{Functions.ignore0(currentTeamTotals[x].shots)}</td>
+                        <td className="black">{Functions.ignore0(currentTeamTotals[x].hits)}</td>
+                        <td className="black">{currentAccuracy}</td>
+                        <td className="black">{Functions.ignore0(currentTeamTotals[x].damage)}</td>
+     
+                    </tr>
+                );
+
             }
 
             tables.push(
