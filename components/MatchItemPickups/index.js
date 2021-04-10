@@ -62,6 +62,8 @@ class MatchItemPickups extends React.Component{
             max = this.props.players.length;
         }
 
+        let currentTeam = 0;
+
         for(let i = -1; i < this.props.names.length; i++){
 
             if(i !== -1){
@@ -76,10 +78,16 @@ class MatchItemPickups extends React.Component{
 
                 p = this.props.players[x];
 
+                if(this.props.totalTeams < 2){
+                    currentTeam = 255;
+                }else{
+                    currentTeam = p.team;
+                }
+
                 if(i !== -1){
                     subElems.push(<td key={x}>{this.getPlayerItemUses(p.id, n.id)}</td>);
                 }else{
-                    subElems.push(<th key={x} className={Functions.getTeamColor(p.team)}><Link href={`/player/${p.id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></th>);
+                    subElems.push(<th key={x} className={Functions.getTeamColor(currentTeam)}><Link href={`/player/${p.id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></th>);
                 }
             }
 

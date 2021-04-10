@@ -1465,7 +1465,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
 
     elems.push(
-        <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game}/>
+        <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
     );
 
     elems.push(
