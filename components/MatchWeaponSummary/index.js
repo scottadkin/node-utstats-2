@@ -146,7 +146,7 @@ class MatchWeaponSummary extends React.Component{
                
 
                 elems.push(<tr key={i}>
-                    <td className={Functions.getTeamColor(currentTeam)}>
+                    <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : currentTeam)}>
                         <Link href={`/player/${p.player_id}`}>
                             <a>
                                 <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
@@ -193,8 +193,8 @@ class MatchWeaponSummary extends React.Component{
             }
 
             elems.push(<tr key={`team-totals-${i}`} className={`yellow`}>
-                <td className={Functions.getTeamColor(i)}>
-                    {Functions.getTeamName(i)}
+                <td className={(this.props.totalTeams < 2) ? 255 : Functions.getTeamColor(i)}>
+                    {(this.props.totalTeams < 2) ? "Totals" : Functions.getTeamName(i)}
                 </td>
                 <td className="black">{Functions.ignore0(teamTotals[i].kills)}</td>
                 <td className="black">{Functions.ignore0(teamTotals[i].deaths)}</td>
@@ -310,7 +310,7 @@ class MatchWeaponSummary extends React.Component{
 
                 currentPlayers.push(
                     <tr key={x}>
-                        <td className={Functions.getTeamColor(currentTeam)}>
+                        <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : currentTeam)}>
                             <Link href={`/player/${currentPlayer.id}`}>
                                 <a><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a>
                             </Link>
@@ -357,8 +357,8 @@ class MatchWeaponSummary extends React.Component{
 
                 currentPlayers.push(
                     <tr key={`team-totals ${x}`} className="yellow">
-                        <td className={Functions.getTeamColor(x)}>
-                            {Functions.getTeamName(x)}
+                        <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : x)}>
+                            {(this.props.totalTeams < 2) ? "Totals" : Functions.getTeamName(x)}
                         </td>
                         <td className="black">{Functions.ignore0(currentTeamTotals[x].kills)}</td>
                         <td className="black">{Functions.ignore0(currentTeamTotals[x].deaths)}</td>
