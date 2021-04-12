@@ -1464,7 +1464,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
     );
 
-    elems.push(<MatchPowerUpControl key={`match-power-control`} players={JSON.parse(playerData)}/>);
+    elems.push(<MatchPowerUpControl key={`match-power-control`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>);
 
 
     elems.push(

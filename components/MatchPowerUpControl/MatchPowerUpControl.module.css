@@ -18,6 +18,8 @@
     display:grid;
     grid-template-columns: 50% 50%;
     font-size:12px;
+    line-height:25px;
+    color:yellow;
 }
 
 .pcontroltop div:nth-child(1){
@@ -51,7 +53,6 @@
 
 .bar{
     text-align:center;
-    background-color:green;
 }
 
 .player1, .player2{

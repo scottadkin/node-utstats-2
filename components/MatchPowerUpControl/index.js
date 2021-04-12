@@ -1,13 +1,12 @@
 import React from 'react';
 import styles from './MatchPowerUpControl.module.css';
 import CountryFlag from '../CountryFlag/';
+import Link from 'next/link';
 
 
 class MatchPowerUpControl extends React.Component{
 
     constructor(props){
-
-        console.log(props);
 
         super(props);
     }
@@ -35,21 +34,80 @@ class MatchPowerUpControl extends React.Component{
         return total;
     }
 
-    displayItem(item){
+    getTeamTopPlaytimePlayer(team){
+
+        let p = 0;
+
+        let players  = this.props.players;
+
+        players.sort((a, b) =>{
+
+            a = a.playtime;
+            b = b.playtime;
+
+            if(a > b){
+                return -1;
+            }else if(a < b){
+                return 1;
+            }
+
+            return 0;
+        });
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            p = this.props.players[i];
+
+            if(p.team === team) return {"name": p.name, "id": p.player_id, "country": p.country}
+        }
+
+        return {"name": "Not Found", "id": -1, "country": "xx"};
+    }
+
+    getName(team){
+
+        if(this.props.players.length === 2){
+            // /<CountryFlag country={"gb"}/>Ooper
+
+            let player = this.getTeamTopPlaytimePlayer(team);
+
+            return <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} />{player.name}</a></Link>
+
+        }else{
+
+            if(team === 0) return "Red Team";
+            if(team === 1) return "Blue Team";
+            if(team === 2) return "Green Team";
+            if(team === 3) return "Yellow Team";
+        }
+    }
+
+    displayItemDuel(item){
 
         let title = "Unknown";
 
         let timeElems = null;
-        let totalPickups = 0;
-        let redValue = 0;
-        let blueValue = 0;
-        let redPercent = 0;
-        let bluePercent = 0;
+        let totalPickups = 0;  
+   
+        let totalTeams = this.props.totalTeams;
+
+        const values = {
+            "red": 0,
+            "blue": 0
+        };
+
+        const percentValues = {
+            "red": 0,
+            "blue": 0
+        };
 
         totalPickups = this.getTotal(item)
 
-        redValue = this.getTotal(item, 0);
-        blueValue = this.getTotal(item, 1);
+        if(totalPickups === 0) return null;
+
+        values.red = this.getTotal(item, 0);
+        values.blue = this.getTotal(item, 1);
+        
 
         if(item === "amp"){
 
@@ -86,24 +144,25 @@ class MatchPowerUpControl extends React.Component{
             title = "Jump Boots";
         }
 
+        for(let [key, value] of Object.entries(percentValues)){
 
-        if(totalPickups > 0 && redValue > 0){
-            redPercent =  redValue / totalPickups;
-            redPercent *= 100;
+            if(totalPickups != 0 && values[key] != 0){
+                value = values[key] / totalPickups;
+            }
+
+            value *= 100;
+            percentValues[key] = value;
         }
 
-        if(totalPickups > 0 && blueValue > 0){
-            bluePercent = blueValue / totalPickups;
-            bluePercent *= 100;
+        if(totalPickups === 0){
+
+            for(let [key, value] of Object.entries(percentValues)){
+
+                value = 100 / totalTeams;
+                percentValues[key] = value;
+            }
         }
 
-        if(redPercent === 0 && bluePercent === 0){
-            redPercent = 50;
-            bluePercent = 50;
-        }
-
-
-        console.log(`item = ${item} redValue = ${redValue}  blueValue = ${blueValue}`);
 
         return <div className={styles.iwrapper}>
 
@@ -111,21 +170,36 @@ class MatchPowerUpControl extends React.Component{
             {timeElems}
             <div className={styles.pcontrol}>
                 <div className={styles.name1}>
-                    <CountryFlag country={"gb"}/>Ooper
+                    {this.getName(0)}
                 </div>
                 <div className={styles.bar}>
-                    <div style={{"width": `${redPercent}%`}} className={`${styles.player1} team-red`}>
-                       {redValue}
+                    <div style={{"width": `${percentValues.red}%`}} className={`${styles.player1} team-red`}>
+                       {values.red}
                     </div>
-                    <div style={{"width": `${bluePercent}%`}} className={`${styles.player2} team-blue`}>
-                        {blueValue}
+                    <div style={{"width": `${percentValues.blue}%`}} className={`${styles.player2} team-blue`}>
+                        {values.blue}
                     </div>
                 </div>
                 <div className={styles.name2}>
-                    <CountryFlag country={"us"}/>Pooper
+                    {this.getName(1)}
                 </div>
             </div>
         </div>
+    }
+
+    //for 1v1s or 2 team games
+    displayDuel(){
+
+        if(this.props.totalTeams !== 2) return null;
+
+        return <div>
+            {this.displayItemDuel("amp")}
+            {this.displayItemDuel("invisibility")}
+            {this.displayItemDuel("belt")}
+            {this.displayItemDuel("armor")}
+            {this.displayItemDuel("pads")}
+            {this.displayItemDuel("boots")}
+        </div>;
     }
 
     render(){
@@ -135,12 +209,7 @@ class MatchPowerUpControl extends React.Component{
                 Power Up Control
             </div>
 
-            {this.displayItem("amp")}
-            {this.displayItem("invisibility")}
-            {this.displayItem("belt")}
-            {this.displayItem("armor")}
-            {this.displayItem("pads")}
-            {this.displayItem("boots")}
+            {this.displayDuel()}
         </div>
     }
 }
