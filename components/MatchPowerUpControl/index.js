@@ -16,13 +16,13 @@ class MatchPowerUpControl extends React.Component{
             "armor": "Body Armor",
             "pads": "Thigh Pads",
             "boots": "Jump Boots",
-            "belt": "Shield Belt",
+            "shield_belt": "Shield Belt",
             "invisibility": "Invisibility"
         };
     }
 
 
-    getTotal(item, team){
+    getTotal(item, team, bPlayer){
 
         let total = 0;
 
@@ -33,10 +33,22 @@ class MatchPowerUpControl extends React.Component{
             p = this.props.players[i];
             
             if(team !== undefined){
-                if(p.team === team){
-                    if(p[item] !== undefined) total += p[item];
+
+                if(bPlayer === undefined){
+
+                    if(p.team === team){
+                        if(p[item] !== undefined) total += p[item];
+                    }
+
+                }else{
+
+                    if(p.player_id === team){
+                        if(p[item] !== undefined) return p[item]; 
+                    }
                 }
+
             }else{
+
                 if(p[item] !== undefined) total += p[item];
             }
         }
@@ -195,11 +207,53 @@ class MatchPowerUpControl extends React.Component{
         return <div>
             {this.displayItemDuel("amp")}
             {this.displayItemDuel("invisibility")}
-            {this.displayItemDuel("belt")}
+            {this.displayItemDuel("shield_belt")}
             {this.displayItemDuel("armor")}
             {this.displayItemDuel("pads")}
             {this.displayItemDuel("boots")}
         </div>;
+    }
+
+
+    getMostUsed(item){
+
+        const players = this.props.players;
+
+        players.sort((a, b) =>{
+
+            a = a[item];
+            b = b[item];
+
+            if(a > b){
+                return -1;
+            }else if(a < b){
+                return 1;
+            }
+
+            return 0;
+        });
+
+        const max = (players.length > 4) ? 4 : players.length;
+
+
+        const found = [];
+
+        let p = 0;
+
+        for(let i = 0; i < max; i++){
+
+            p = players[i];
+
+            found.push({
+                "name": p.name,
+                "id": p.player_id,
+                "uses": p[item],
+                "country": p.country
+            });
+        }
+
+        return found;
+
     }
 
     displayDefaultItem(item){
@@ -210,38 +264,71 @@ class MatchPowerUpControl extends React.Component{
 
         const totalElems = [];
         const timeElems = [];
-
-        for(let i = 0; i < this.props.totalTeams; i++){
-
-            totalElems.push(<div key={i} className={Functions.getTeamColor(i)}>
-                {this.getTotal(item, i)}
-            </div>);
-
-            if(item === "amp" || item === "invisibility"){
-                timeElems.push(<div key={i} className={styles.dtime}>{this.getTotal(`${item}_time`, i)} Seconds</div>);
-            }
-        }
+        const nameElems = [];
 
         let type = "solo";
 
-        switch(this.props.totalTeams){
-            case 2: { type = "duo"; } break;
-            case 3: { type = "trio"; } break;
-            case 4: { type = "quad"; } break;
-            default: { type = "solo"; } break;
+        if(this.props.totalTeams >= 2){
+
+            for(let i = 0; i < this.props.totalTeams; i++){
+
+                totalElems.push(<div key={i} className={Functions.getTeamColor(i)}>
+                    {this.getTotal(item, i)}
+                </div>);
+
+                if(item === "amp" || item === "invisibility"){
+                    timeElems.push(<div key={i} className={styles.dtime}>{this.getTotal(`${item}_time`, i)} Seconds</div>);
+                }
+            }
+
+            switch(this.props.totalTeams){
+                case 2: { type = "duo"; } break;
+                case 3: { type = "trio"; } break;
+                case 4: { type = "quad"; } break;
+                default: { type = "solo"; } break;
+            }
+
+        }else{
+
+            const mostUsed = this.getMostUsed(item);
+
+
+            for(let i = 0; i < mostUsed.length; i++){
+
+                nameElems.push(<div key={i} className={Functions.getTeamColor(i)}>
+                    <Link href={`/player/${mostUsed[i].id}`}><a><CountryFlag country={mostUsed[i].country}/>{mostUsed[i].name}</a></Link>
+                </div>);
+
+                totalElems.push(<div key={i}>
+                    {mostUsed[i].uses}
+                </div>);
+
+                if(item === "amp" || item === "invisibility"){
+                    timeElems.push(<div key={i} className={styles.dtime}>{this.getTotal(`${item}_time`, mostUsed[i].id, true)} Seconds</div>);
+                }
+            }
+
+            switch(mostUsed.length){
+                case 1: { type = "solo"; } break;
+                case 2: { type = "duo"; } break;
+                case 3: { type = "trio"; } break;
+                case 4: { type = "quad"; } break;
+                default: { type = "quad"; } break;
+            }
+        
         }
 
 
         return <div className={styles.default}>
             <div className={styles.defaulttitle}>{title}</div>
+            <div className={`${styles[type]} black`}>{nameElems}</div>
             <div className={styles[type]}>{timeElems}</div>
             <div className={`${styles.boxwrapper} ${type}`}>
                 {totalElems}
             </div>
         </div>
-
-
     }
+    
 
     displayDefault(){
 
@@ -250,7 +337,7 @@ class MatchPowerUpControl extends React.Component{
             return <div>
                 {this.displayDefaultItem("amp")}
                 {this.displayDefaultItem("invisibility")}
-                {this.displayDefaultItem("belt")}
+                {this.displayDefaultItem("shield_belt")}
                 {this.displayDefaultItem("armor")}
                 {this.displayDefaultItem("pads")}
                 {this.displayDefaultItem("boots")}

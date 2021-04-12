@@ -91,6 +91,8 @@
 
 .dtime{
     font-size:12px;
+    background-color:rgb(32,32,32);
+    color:yellow;
 }
 
 .duo{
@@ -109,9 +111,12 @@
 }
 
 .duo div, .trio div, .quad div{
-    background-color:rgb(32,32,32);
     border:1px solid rgba(255,255,255,0.125);
     padding:3px;
     margin-left:-1px;
-    color:yellow;
+
+}
+
+.dname{
+    font-size:16px;
 }
