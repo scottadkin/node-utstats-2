@@ -242,6 +242,9 @@ class ItemsManager{
                 console.log("pads");
                 this.updateUsedPickups(d.player, "pads");
 
+            }else if(currentName === "superhealthpack"){
+                console.log("SUPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPER");
+                this.updateUsedPickups(d.player, "super");
             }
         }
 

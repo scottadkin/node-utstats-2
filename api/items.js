@@ -242,7 +242,7 @@ class Items{
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_player_matches SET 
-            shield_belt=?,amp=?,amp_time=?,invisibility=?,invisibility_time=?,pads=?,armor=?,boots=?
+            shield_belt=?,amp=?,amp_time=?,invisibility=?,invisibility_time=?,pads=?,armor=?,boots=?,super_health=?
             WHERE match_id=? AND player_id=?`;
 
             const vars = [
@@ -254,6 +254,7 @@ class Items{
                 (data.pads !== undefined) ? data.pads : 0,
                 (data.armor !== undefined) ? data.armor : 0,
                 (data.boots !== undefined) ? data.boots : 0,
+                (data.super !== undefined) ? data.super : 0,
                 matchId,
                 player
             ];
@@ -273,7 +274,7 @@ class Items{
 
             const query = `UPDATE nstats_player_totals SET 
             shield_belt=shield_belt+?,amp=amp+?,amp_time=amp_time+?,invisibility=invisibility+?,invisibility_time=invisibility_time+?,
-            pads=pads+?,armor=armor+?,boots=boots+? WHERE id=?`;
+            pads=pads+?,armor=armor+?,boots=boots+?,super_health=super_health+? WHERE id=?`;
 
             const vars = [
                 (data.belt !== undefined) ? data.belt : 0,
@@ -284,6 +285,7 @@ class Items{
                 (data.pads !== undefined) ? data.pads : 0,
                 (data.armor !== undefined) ? data.armor : 0,
                 (data.boots !== undefined) ? data.boots : 0,
+                (data.super !== undefined) ? data.super : 0,
                 player
             ];
 
