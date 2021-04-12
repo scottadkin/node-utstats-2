@@ -20,11 +20,15 @@
     font-size:12px;
     line-height:25px;
     color:yellow;
+    background-color:rgb(16,16,16);
+    border-top:1px solid rgba(255,255,255,0.125);
+    border-bottom:1px solid rgba(255,255,255,0.125);
 }
 
 .pcontroltop div:nth-child(1){
     text-align: right;
     padding-right:10px;
+    border-right:1px solid rgba(255,255,255,0.125);
 }
 
 .pcontroltop div:nth-child(2){
@@ -60,4 +64,54 @@
     height:25px;
     overflow:hidden;
     font-size:14px;
+}
+
+
+.default{
+    background-color:black;
+    border:1px solid rgba(255,255,255,0.25);
+    width:90%;
+    max-width:750px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:-1px;
+}
+
+.defaulttitle{
+    padding:5px;
+}
+
+.boxwrapper{
+    position:relative;
+}
+
+.boxwrapper div{
+    display:inline-block;
+}
+
+.dtime{
+    font-size:12px;
+}
+
+.duo{
+    display:grid;
+    grid-template-columns: 50% 50%;
+}
+
+.trio{
+    display:grid;
+    grid-template-columns: 33.3% 33.4% 33.3%;
+}
+
+.quad{
+    display:grid;
+    grid-template-columns: 25% 25% 25% 25%;
+}
+
+.duo div, .trio div, .quad div{
+    background-color:rgb(32,32,32);
+    border:1px solid rgba(255,255,255,0.125);
+    padding:3px;
+    margin-left:-1px;
+    color:yellow;
 }

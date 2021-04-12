@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './MatchPowerUpControl.module.css';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import Functions from '../../api/functions';
 
 
 class MatchPowerUpControl extends React.Component{
@@ -9,6 +10,15 @@ class MatchPowerUpControl extends React.Component{
     constructor(props){
 
         super(props);
+
+        this.itemTitles = {
+            "amp": "UDamage",
+            "armor": "Body Armor",
+            "pads": "Thigh Pads",
+            "boots": "Jump Boots",
+            "belt": "Shield Belt",
+            "invisibility": "Invisibility"
+        };
     }
 
 
@@ -111,8 +121,6 @@ class MatchPowerUpControl extends React.Component{
 
         if(item === "amp"){
 
-            title = "UDamage";
-
             timeElems = <div className={styles.pcontroltop}>
                 <div>{this.getTotal("amp_time", 0)} seconds</div>
                 <div>{this.getTotal("amp_time", 1)} seconds</div>
@@ -120,29 +128,17 @@ class MatchPowerUpControl extends React.Component{
 
         }else if(item === "invisibility"){
 
-            title = "Invisibility";
-
             timeElems = <div className={styles.pcontroltop}>
                 <div>{this.getTotal("invisibility_time", 0)} seconds</div>
                 <div>{this.getTotal("invisibility_time", 1)} seconds</div>
             </div>
 
-        }else if(item === "belt"){
-
-            title = "Shield Belt";
-
-        }else if(item === "armor"){
-
-            title = "Body Armor";
-
-        }else if(item === "pads"){
-
-            title = "Thigh Pads";
-
-        }else if(item === "boots"){
-
-            title = "Jump Boots";
         }
+
+        title = this.itemTitles[item];
+
+        if(title === undefined) title = "Not Found";
+        
 
         for(let [key, value] of Object.entries(percentValues)){
 
@@ -190,7 +186,11 @@ class MatchPowerUpControl extends React.Component{
     //for 1v1s or 2 team games
     displayDuel(){
 
-        if(this.props.totalTeams !== 2) return null;
+        
+        if(this.props.totalTeams !== 2){
+            return null;
+        }
+        
 
         return <div>
             {this.displayItemDuel("amp")}
@@ -202,6 +202,62 @@ class MatchPowerUpControl extends React.Component{
         </div>;
     }
 
+    displayDefaultItem(item){
+
+        let title = this.itemTitles[item];
+
+        if(title === undefined) title = "Not Found";
+
+        const totalElems = [];
+        const timeElems = [];
+
+        for(let i = 0; i < this.props.totalTeams; i++){
+
+            totalElems.push(<div key={i} className={Functions.getTeamColor(i)}>
+                {this.getTotal(item, i)}
+            </div>);
+
+            if(item === "amp" || item === "invisibility"){
+                timeElems.push(<div key={i} className={styles.dtime}>{this.getTotal(`${item}_time`, i)} Seconds</div>);
+            }
+        }
+
+        let type = "solo";
+
+        switch(this.props.totalTeams){
+            case 2: { type = "duo"; } break;
+            case 3: { type = "trio"; } break;
+            case 4: { type = "quad"; } break;
+            default: { type = "solo"; } break;
+        }
+
+
+        return <div className={styles.default}>
+            <div className={styles.defaulttitle}>{title}</div>
+            <div className={styles[type]}>{timeElems}</div>
+            <div className={`${styles.boxwrapper} ${type}`}>
+                {totalElems}
+            </div>
+        </div>
+
+
+    }
+
+    displayDefault(){
+
+        if(this.props.players.length > 2 && this.props.totalTeams !== 2){
+
+            return <div>
+                {this.displayDefaultItem("amp")}
+                {this.displayDefaultItem("invisibility")}
+                {this.displayDefaultItem("belt")}
+                {this.displayDefaultItem("armor")}
+                {this.displayDefaultItem("pads")}
+                {this.displayDefaultItem("boots")}
+            </div>
+        }
+    }
+
     render(){
 
         return <div>
@@ -210,6 +266,7 @@ class MatchPowerUpControl extends React.Component{
             </div>
 
             {this.displayDuel()}
+            {this.displayDefault()}
         </div>
     }
 }
