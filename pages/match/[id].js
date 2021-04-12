@@ -32,6 +32,7 @@ import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import Functions from '../../api/functions';
 import Pings from '../../api/pings';
 import Headshots from '../../api/headshots';
+import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1462,6 +1463,8 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
     elems.push(
         <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
     );
+
+    elems.push(<MatchPowerUpControl key={`match-power-control`} players={JSON.parse(playerData)}/>);
 
 
     elems.push(
