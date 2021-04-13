@@ -17,7 +17,8 @@ class MatchPowerUpControl extends React.Component{
             "pads": "Thigh Pads",
             "boots": "Jump Boots",
             "shield_belt": "Shield Belt",
-            "invisibility": "Invisibility"
+            "invisibility": "Invisibility",
+            "super_health": "Super Health",
         };
     }
 
@@ -208,6 +209,7 @@ class MatchPowerUpControl extends React.Component{
             {this.displayItemDuel("amp")}
             {this.displayItemDuel("invisibility")}
             {this.displayItemDuel("shield_belt")}
+            {this.displayItemDuel("super_health")}
             {this.displayItemDuel("armor")}
             {this.displayItemDuel("pads")}
             {this.displayItemDuel("boots")}
@@ -338,6 +340,7 @@ class MatchPowerUpControl extends React.Component{
                 {this.displayDefaultItem("amp")}
                 {this.displayDefaultItem("invisibility")}
                 {this.displayDefaultItem("shield_belt")}
+                {this.displayDefaultItem("super_health")}
                 {this.displayDefaultItem("armor")}
                 {this.displayDefaultItem("pads")}
                 {this.displayDefaultItem("boots")}
