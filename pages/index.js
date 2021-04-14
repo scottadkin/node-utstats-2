@@ -12,8 +12,8 @@ import CountryManager from '../api/countriesmanager';
 import Countries from '../api/countries';
 import GeneralStatistics from '../components/GeneralStatistics/';
 import Players from '../api/players';
-import Player from '../api/player';
 import React from 'react';
+//import Graph from '../components/Graph/';
 
 function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages}) {
 
@@ -39,6 +39,8 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 						General Statistics
 					</div>
 					<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
+
+					
 				</div>
 				<div className="default">
 					<div className="default-header">Recent Matches</div>

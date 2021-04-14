@@ -13,7 +13,7 @@ const PopularCountries = ({data}) =>{
         elems.push(<div key={i} className={styles.country}>
             <div><img src={`/images/flags/${data[i].code}.svg`} alt={data[i].code} /></div>
             <div>{data[i].name}</div>
-            <div>{data[i].total} Players</div>
+            <div>{data[i].total} Uses</div>
         </div>);
     }
 
