@@ -268,6 +268,24 @@ class Functions{
 
     }
 
+
+    /**
+     * 
+     * @param {*} total how many arrays to create (Used for graphs)
+     * @returns 
+     */
+    static createDateRange(total){
+
+        const obj = {};
+
+        for(let i = 0; i < total; i++){
+
+            obj[i] = [];
+        }
+
+        return obj;
+    }
+
 }
 
 module.exports = Functions;

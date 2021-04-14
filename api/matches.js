@@ -293,6 +293,30 @@ class Matches{
             });
         });
     }
+
+
+    getDatesInTimeframe(timeframe){
+
+        return new Promise((resolve, reject) =>{
+
+            const now = Math.floor(Date.now() * 0.001);
+
+            const min = now - timeframe;
+
+
+            const query = "SELECT date,gametype,server FROM nstats_matches WHERE date>=? ORDER BY date DESC";
+
+            mysql.query(query, [min], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+        });
+    }
     
 }
 module.exports = Matches;

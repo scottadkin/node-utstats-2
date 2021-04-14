@@ -13,13 +13,59 @@ import Countries from '../api/countries';
 import GeneralStatistics from '../components/GeneralStatistics/';
 import Players from '../api/players';
 import React from 'react';
-//import Graph from '../components/Graph/';
+import Graph from '../components/Graph/';
 
-function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages}) {
+
+function createDatesGraphData(data){
+
+	console.log(data);
+
+	const hours = Functions.createDateRange(24);
+	const week = Functions.createDateRange(7);
+	const month = Functions.createDateRange(28);
+
+	console.log(hours);
+	console.log(week);
+	console.log(month);
+
+	const hourDiff = 60 * 60;
+	const dayDiff = hourDiff * 24;
+
+
+	let d = 0;
+	const now = Math.floor(Date.now() * 0.001);
+	let diff = 0;
+
+	let currentHourDiff = 0;
+	let currentDayDiff = 0;
+
+	for(let i = 0; i < data.length; i++){
+
+		d = data[i];
+
+		diff = now - d.date;
+
+		currentHourDiff = Math.floor(diff / hourDiff);
+		currentDayDiff = Math.floor(diff / dayDiff);
+
+		console.log(`current diff = ${diff}`);
+		console.log(`current Houriff = ${currentHourDiff}`);
+		console.log(`current Daydiff = ${currentDayDiff}`);
+	}
+
+}
+
+
+
+function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates}) {
 
   //console.log(`servers`);
 	const elems = [];
 	const matchElems = [];
+
+	matchDates = JSON.parse(matchDates);
+
+	const graphData = createDatesGraphData(matchDates);
 
 	return (
 		<div>
@@ -109,6 +155,9 @@ export async function getServerSideProps() {
 
 	const mapImages = await mapManager.getImages(justMapNames);
 
+
+	const matchDates = await matchManager.getDatesInTimeframe(((60 * 60) * 24) * 28);
+
 	return { props: { 
 			"matchesData": JSON.stringify(matchesData),
 			"countriesData": JSON.stringify(countryData),
@@ -116,7 +165,8 @@ export async function getServerSideProps() {
 			"firstMatch": firstMatch,
 			"lastMatch": lastMatch,
 			"totalPlayers": totalPlayers,
-			"mapImages": JSON.stringify(mapImages)
+			"mapImages": JSON.stringify(mapImages),
+			"matchDates": JSON.stringify(matchDates)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}
