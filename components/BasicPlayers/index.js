@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import CountryFlag from '../CountryFlag/';
+import CountryFlag from '../CountryFlag';
 import styles from './AddictedPlayers.module.css';
-import TimeStamp from '../TimeStamp/';
+import TimeStamp from '../TimeStamp';
 
-const AddictedPlayers = ({players, faceFiles}) =>{
+const BasicPlayers = ({title, players, faceFiles}) =>{
 
     players = JSON.parse(players);
     faceFiles = JSON.parse(faceFiles);
@@ -37,11 +37,11 @@ const AddictedPlayers = ({players, faceFiles}) =>{
         </Link>);
     }
 
-    return <div className={styles.wrapper}>
-        <div className="default-header">Addicted Players</div>
+    return <div className={`${styles.wrapper} m-bottom-10`}>
+        <div className="default-header">{title}</div>
 
         {elems}
     </div>
 }
 
-export default AddictedPlayers;
+export default BasicPlayers;

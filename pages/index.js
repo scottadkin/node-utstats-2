@@ -14,7 +14,7 @@ import GeneralStatistics from '../components/GeneralStatistics/';
 import Players from '../api/players';
 import React from 'react';
 import Graph from '../components/Graph/';
-import AddictedPlayers from '../components/AddictedPlayers/';
+import BasicPlayers from '../components/BasicPlayers/';
 import Faces from '../api/faces';
 
 
@@ -119,7 +119,7 @@ function createDatesGraphData(data){
 
 
 function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
-	addictedPlayersData, faceFiles}) {
+	addictedPlayersData, recentPlayersData, faceFiles}) {
 
   //console.log(`servers`);
 	const elems = [];
@@ -137,36 +137,34 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 			<Nav />
 			<div id="content">
 				<div className="default">
-					<div className="default-header">
-						Welcome to Node UTStats 2
-					</div>
-					Here you can look up information on UT matches and players.
+				<div className="default-header">
+					Welcome to Node UTStats 2
 				</div>
-				<div className="default">
-					<div className="default-header">
-						General Statistics
-					</div>
-					<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
+				Here you can look up information on UT matches and players.
+		
+				
+				<div className="default-header">
+					General Statistics
+				</div>
+				<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 
-					<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
+				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
+			
+				
+				<div className="default-header">Recent Matches</div>
+				<MatchesDefaultView images={mapImages} data={matchesData} />
+			
+				<BasicPlayers title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>
+
+				<BasicPlayers title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>
+
+				
+				<div className="default-header">
+					Most Popular Countires
 				</div>
-				<div className="default">
-					<div className="default-header">Recent Matches</div>
-					<MatchesDefaultView images={mapImages} data={matchesData} />
-				</div>
-				<div className="default">
-					<div className="default-header">
-						Recent Players
-					</div>
-					fasoi hfoaishf ihasofi aoihf oaisfosha
-				</div>
-				<AddictedPlayers players={addictedPlayersData} faceFiles={faceFiles}/>
-				<div className="default">
-					<div className="default-header">
-						Most Popular Countires
-					</div>
-					<PopularCountries data={countriesData}/>
-				</div>
+				<PopularCountries data={countriesData}/>
+				
+			</div>
 			</div>
 			<Footer />
 		</main>   
@@ -221,9 +219,11 @@ export async function getServerSideProps() {
 	const matchDates = await matchManager.getDatesPlayersInTimeframe(((60 * 60) * 24) * 28);
 
 	const addictedPlayersData = await playerManager.getAddictedPlayers(5);
+	const recentPlayersData = await playerManager.getRecentPlayers(5);
 
-	const faceIds = Functions.getUniqueValues(addictedPlayersData, 'face');
+	let faceIds = Functions.getUniqueValues(addictedPlayersData, 'face');
 
+	faceIds.concat(Functions.getUniqueValues(recentPlayersData, 'face'));
 
 	const faceManager = new Faces();
 
@@ -240,6 +240,7 @@ export async function getServerSideProps() {
 			"mapImages": JSON.stringify(mapImages),
 			"matchDates": JSON.stringify(matchDates),
 			"addictedPlayersData": JSON.stringify(addictedPlayersData),
+			"recentPlayersData": JSON.stringify(recentPlayersData),
 			"faceFiles": JSON.stringify(faceFiles)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 

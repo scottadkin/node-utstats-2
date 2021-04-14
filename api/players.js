@@ -186,6 +186,26 @@ class Players{
             });
         });
     }
+
+
+    getRecentPlayers(max){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=0 ORDER BY last ASC LIMIT ?";
+
+            mysql.query(query, [max], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 
