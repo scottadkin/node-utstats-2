@@ -18,15 +18,17 @@ import Graph from '../components/Graph/';
 
 function createDatesGraphData(data){
 
-	console.log(data);
+	let hours = Functions.createDateRange(24, 0);
+	let week = Functions.createDateRange(7, 0);
+	let month = Functions.createDateRange(28, 0);
 
-	const hours = Functions.createDateRange(24);
-	const week = Functions.createDateRange(7);
-	const month = Functions.createDateRange(28);
+	let totalDay = 0;
+	let totalWeek = 0;
+	let totalMonth = 0;
 
-	console.log(hours);
-	console.log(week);
-	console.log(month);
+	let dayText = [];
+	let weekText = [];
+	let monthText = [];
 
 	const hourDiff = 60 * 60;
 	const dayDiff = hourDiff * 24;
@@ -48,10 +50,51 @@ function createDatesGraphData(data){
 		currentHourDiff = Math.floor(diff / hourDiff);
 		currentDayDiff = Math.floor(diff / dayDiff);
 
-		console.log(`current diff = ${diff}`);
-		console.log(`current Houriff = ${currentHourDiff}`);
-		console.log(`current Daydiff = ${currentDayDiff}`);
+		if(currentHourDiff < 24){
+
+			hours[currentHourDiff]++;
+			totalDay++;
+			dayText.push(
+				`Hour ${i} to ${i + 1}`
+			);
+		}
+
+		if(currentDayDiff < 7){
+
+			week[currentDayDiff]++;
+			totalWeek++;
+			weekText.push(
+				`Day ${i} to ${i + 1}`
+			);
+		}
+
+		if(currentDayDiff < 28){
+
+			month[currentDayDiff]++;
+			totalMonth++;
+			monthText.push(
+				`Day ${i} to ${i + 1}`
+			);
+		}
 	}
+
+	if(totalDay === 0) hours = [];
+	if(totalWeek === 0) week = [];
+	if(totalMonth === 0) month = [];
+	
+	return {
+		"title": ["Matches Past 24 Hours", "Matches Past 7 Days", "Matches Past 28 Days"],
+		"data": [
+			[{"name": "Matches", "data": hours}],
+			[{"name": "Matches", "data": week}],
+			[{"name": "Matches", "data": month}],
+		],
+		"text": [
+			dayText,
+			weekText,
+			monthText
+		]
+	};
 
 }
 
@@ -86,7 +129,7 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 					</div>
 					<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 
-					
+					<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
 				</div>
 				<div className="default">
 					<div className="default-header">Recent Matches</div>

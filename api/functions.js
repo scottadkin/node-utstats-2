@@ -274,13 +274,13 @@ class Functions{
      * @param {*} total how many arrays to create (Used for graphs)
      * @returns 
      */
-    static createDateRange(total){
+    static createDateRange(total, defaultValue){
 
-        const obj = {};
+        const obj = [];
 
         for(let i = 0; i < total; i++){
 
-            obj[i] = [];
+            obj.push(defaultValue);
         }
 
         return obj;
