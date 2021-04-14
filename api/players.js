@@ -192,7 +192,7 @@ class Players{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=0 ORDER BY last ASC LIMIT ?";
+            const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=0 ORDER BY last DESC LIMIT ?";
 
             mysql.query(query, [max], (err, result) =>{
 

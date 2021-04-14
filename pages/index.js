@@ -223,12 +223,13 @@ export async function getServerSideProps() {
 
 	let faceIds = Functions.getUniqueValues(addictedPlayersData, 'face');
 
-	faceIds.concat(Functions.getUniqueValues(recentPlayersData, 'face'));
+	faceIds = faceIds.concat(Functions.getUniqueValues(recentPlayersData, 'face'));
 
 	const faceManager = new Faces();
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
+	console.log(faceFiles);
 
 	return { props: { 
 			"matchesData": JSON.stringify(matchesData),
