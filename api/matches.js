@@ -295,7 +295,7 @@ class Matches{
     }
 
 
-    getDatesInTimeframe(timeframe){
+    getDatesPlayersInTimeframe(timeframe){
 
         return new Promise((resolve, reject) =>{
 
@@ -304,7 +304,7 @@ class Matches{
             const min = now - timeframe;
 
 
-            const query = "SELECT date,gametype,server FROM nstats_matches WHERE date>=? ORDER BY date DESC";
+            const query = "SELECT date,players FROM nstats_matches WHERE date>=? ORDER BY date DESC";
 
             mysql.query(query, [min], (err, result) =>{
 

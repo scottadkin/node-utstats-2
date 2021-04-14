@@ -22,9 +22,16 @@ function createDatesGraphData(data){
 	let week = Functions.createDateRange(7, 0);
 	let month = Functions.createDateRange(28, 0);
 
+	let hoursPlayers = Functions.createDateRange(24, 0);
+	let weekPlayers = Functions.createDateRange(7, 0);
+	let monthPlayers = Functions.createDateRange(28, 0);
+
 	let totalDay = 0;
+	let totalDayPlayers = 0;
 	let totalWeek = 0;
+	let totalWeekPlayers = 0;
 	let totalMonth = 0;
+	let totalMonthPlayers = 0;
 
 	let dayText = [];
 	let weekText = [];
@@ -53,7 +60,9 @@ function createDatesGraphData(data){
 		if(currentHourDiff < 24){
 
 			hours[currentHourDiff]++;
+			hoursPlayers[currentHourDiff] += d.players;
 			totalDay++;
+			totalDayPlayers += d.players;
 			dayText.push(
 				`Hour ${i} to ${i + 1}`
 			);
@@ -62,7 +71,9 @@ function createDatesGraphData(data){
 		if(currentDayDiff < 7){
 
 			week[currentDayDiff]++;
+			weekPlayers[currentDayDiff] += d.players;
 			totalWeek++;
+			totalWeekPlayers += d.players;
 			weekText.push(
 				`Day ${i} to ${i + 1}`
 			);
@@ -71,7 +82,9 @@ function createDatesGraphData(data){
 		if(currentDayDiff < 28){
 
 			month[currentDayDiff]++;
+			monthPlayers[currentDayDiff] += d.players;
 			totalMonth++;
+			totalMonthPlayers += d.players;
 			monthText.push(
 				`Day ${i} to ${i + 1}`
 			);
@@ -79,15 +92,18 @@ function createDatesGraphData(data){
 	}
 
 	if(totalDay === 0) hours = [];
+	if(totalDayPlayers === 0) hoursPlayers = [];
 	if(totalWeek === 0) week = [];
+	if(totalWeekPlayers === 0) weekPlayers = [];
 	if(totalMonth === 0) month = [];
+	if(totalMonthPlayers === 0) monthPlayers = [];
 	
 	return {
 		"title": ["Matches Past 24 Hours", "Matches Past 7 Days", "Matches Past 28 Days"],
 		"data": [
-			[{"name": "Matches", "data": hours}],
-			[{"name": "Matches", "data": week}],
-			[{"name": "Matches", "data": month}],
+			[{"name": "Matches", "data": hours}, {"name": "Players", "data": hoursPlayers}],
+			[{"name": "Matches", "data": week}, {"name": "Players", "data": weekPlayers}],
+			[{"name": "Matches", "data": month}, {"name": "Players", "data": monthPlayers}],
 		],
 		"text": [
 			dayText,
@@ -199,7 +215,7 @@ export async function getServerSideProps() {
 	const mapImages = await mapManager.getImages(justMapNames);
 
 
-	const matchDates = await matchManager.getDatesInTimeframe(((60 * 60) * 24) * 28);
+	const matchDates = await matchManager.getDatesPlayersInTimeframe(((60 * 60) * 24) * 28);
 
 	return { props: { 
 			"matchesData": JSON.stringify(matchesData),
