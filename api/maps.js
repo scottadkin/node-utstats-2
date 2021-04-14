@@ -697,6 +697,25 @@ class Maps{
             });
         });
     }
+
+    getMostPlayed(limit){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name,first,last,matches,playtime FROM nstats_maps ORDER BY matches DESC LIMIT ?";
+
+            mysql.query(query, [limit], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

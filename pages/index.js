@@ -16,6 +16,7 @@ import React from 'react';
 import Graph from '../components/Graph/';
 import BasicPlayers from '../components/BasicPlayers/';
 import Faces from '../api/faces';
+import HomeTopMaps from '../components/HomeTopMaps/';
 
 
 function createDatesGraphData(data){
@@ -119,11 +120,7 @@ function createDatesGraphData(data){
 
 
 function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
-	addictedPlayersData, recentPlayersData, faceFiles}) {
-
-  //console.log(`servers`);
-	const elems = [];
-	const matchElems = [];
+	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps}) {
 
 	matchDates = JSON.parse(matchDates);
 
@@ -154,6 +151,8 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 				<div className="default-header">Recent Matches</div>
 				<MatchesDefaultView images={mapImages} data={matchesData} />
 			
+				<HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>
+
 				<BasicPlayers title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>
 
 				<BasicPlayers title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>
@@ -184,11 +183,23 @@ export async function getServerSideProps() {
 
 	let matchesData = await matchManager.getRecent(0,4);
 
-	const mapIds = Functions.getUniqueValues(matchesData, 'map');
+	let mostPlayedMaps = await mapManager.getMostPlayed(4);
+
+	console.log(mostPlayedMaps);
+
+	let mapIds = Functions.getUniqueValues(matchesData, 'map');
 	const gametypeIds = Functions.getUniqueValues(matchesData, 'gametype');
 	const serverIds = Functions.getUniqueValues(matchesData, 'server');
 
-	const mapNames = await mapManager.getNames(mapIds);
+	let mapNames = await mapManager.getNames(mapIds);
+	
+	for(let i = 0; i < mostPlayedMaps.length; i++){
+
+		if(mapNames[mostPlayedMaps[i].id] === undefined){
+			mapNames[mostPlayedMaps[i].id] = mostPlayedMaps[i].name;
+		}
+	}
+
 	const gametypeNames = await gametypeManager.getNames(gametypeIds);
 	const serverNames = await serverManager.getNames(serverIds);
 
@@ -229,8 +240,6 @@ export async function getServerSideProps() {
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
-	console.log(faceFiles);
-
 	return { props: { 
 			"matchesData": JSON.stringify(matchesData),
 			"countriesData": JSON.stringify(countryData),
@@ -242,7 +251,8 @@ export async function getServerSideProps() {
 			"matchDates": JSON.stringify(matchDates),
 			"addictedPlayersData": JSON.stringify(addictedPlayersData),
 			"recentPlayersData": JSON.stringify(recentPlayersData),
-			"faceFiles": JSON.stringify(faceFiles)
+			"faceFiles": JSON.stringify(faceFiles),
+			"mostPlayedMaps": JSON.stringify(mostPlayedMaps)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}

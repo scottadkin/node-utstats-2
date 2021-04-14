@@ -22,7 +22,7 @@ const BasicPlayers = ({title, players, faceFiles}) =>{
 
         if(currentFace === undefined) currentFace = {"name": "faceless" };
 
-        elems.push(<Link href={`/player/${p.id}`}><a>
+        elems.push(<Link key={i} href={`/player/${p.id}`}><a>
             <div className={`${styles.player} center`}>
                 <div className={styles.name}><CountryFlag country={p.country}/>{p.name}</div>
                 <img className={`${styles.face} center`} src={`/images/faces/${currentFace.name}.png`} alt="face"/>

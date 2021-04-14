@@ -1,0 +1,18 @@
+.wrapper{
+    background-color:black;
+    display:inline-block;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-top:-1px;
+    margin-left:-1px;
+}
+
+.name{
+    color:yellow;
+    font-size:14px;
+    padding:5px;
+}
+
+.info{
+    font-size:12px;
+    line-height:20px;
+}

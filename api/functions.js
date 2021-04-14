@@ -286,6 +286,13 @@ class Functions{
         return obj;
     }
 
+
+    static insertIfNotExists(data, value){
+
+        if(data.indexOf(value) === -1) data.push(value);
+
+    }
+
 }
 
 module.exports = Functions;
