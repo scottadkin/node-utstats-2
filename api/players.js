@@ -164,6 +164,28 @@ class Players{
             });
         });
     }
+
+
+    getAddictedPlayers(max, gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            if(gametype === undefined) gametype = 0;
+
+            const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=? ORDER BY playtime DESC LIMIT ?";
+
+            mysql.query(query, [gametype, max], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

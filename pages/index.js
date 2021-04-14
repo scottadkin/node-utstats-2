@@ -14,6 +14,8 @@ import GeneralStatistics from '../components/GeneralStatistics/';
 import Players from '../api/players';
 import React from 'react';
 import Graph from '../components/Graph/';
+import AddictedPlayers from '../components/AddictedPlayers/';
+import Faces from '../api/faces';
 
 
 function createDatesGraphData(data){
@@ -116,7 +118,8 @@ function createDatesGraphData(data){
 
 
 
-function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates}) {
+function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
+	addictedPlayersData, faceFiles}) {
 
   //console.log(`servers`);
 	const elems = [];
@@ -157,6 +160,7 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 					</div>
 					fasoi hfoaishf ihasofi aoihf oaisfosha
 				</div>
+				<AddictedPlayers players={addictedPlayersData} faceFiles={faceFiles}/>
 				<div className="default">
 					<div className="default-header">
 						Most Popular Countires
@@ -214,8 +218,17 @@ export async function getServerSideProps() {
 
 	const mapImages = await mapManager.getImages(justMapNames);
 
-
 	const matchDates = await matchManager.getDatesPlayersInTimeframe(((60 * 60) * 24) * 28);
+
+	const addictedPlayersData = await playerManager.getAddictedPlayers(5);
+
+	const faceIds = Functions.getUniqueValues(addictedPlayersData, 'face');
+
+
+	const faceManager = new Faces();
+
+	const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
+
 
 	return { props: { 
 			"matchesData": JSON.stringify(matchesData),
@@ -225,7 +238,9 @@ export async function getServerSideProps() {
 			"lastMatch": lastMatch,
 			"totalPlayers": totalPlayers,
 			"mapImages": JSON.stringify(mapImages),
-			"matchDates": JSON.stringify(matchDates)
+			"matchDates": JSON.stringify(matchDates),
+			"addictedPlayersData": JSON.stringify(addictedPlayersData),
+			"faceFiles": JSON.stringify(faceFiles)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}

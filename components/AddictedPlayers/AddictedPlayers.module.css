@@ -1,0 +1,38 @@
+.wrapper{
+    color:white;
+    text-align:center;
+}
+
+.player{
+    display:inline-block;
+    background-color:black;
+    width:225px;
+    border:1px solid rgba(255,255,255,0.25);
+    margin-top:-1px;
+    margin-left:-1px;
+    transition: background-color 0.5s;
+}
+
+.player:hover{
+    background-color:rgb(16,16,16);
+}
+
+.face{
+    display:block;
+    margin-bottom:5px;
+    border:1px solid rgba(255,255,255,0.25);
+}
+
+.name{
+    font-size:16px;
+    padding:5px;
+    color:yellow;
+}
+
+.info{
+    font-size:12px;
+    line-height:20px;
+    padding-bottom:5px;
+    background-color:rgb(32,32,32);
+    border-top:1px solid rgba(255,255,255,0.125);
+}
