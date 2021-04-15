@@ -28,7 +28,7 @@ const HomeTopMaps = ({maps, images}) =>{
         }
 
 
-        elems.push(<Link href={`/map/${m.id}`}><a>
+        elems.push(<Link key={i} href={`/map/${m.id}`}><a>
             <div className={styles.wrapper}>
                 <div className={styles.name}>{Functions.removeUnr(m.name)} </div> 
                 <Image src={`/images/maps/${currentImage}.jpg`} width="480" height="270"/>

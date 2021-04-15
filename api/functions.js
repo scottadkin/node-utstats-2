@@ -173,6 +173,9 @@ class Functions{
 
         name = this.removeUnr(name);
         name = this.removeMapGametypePrefix(name);
+
+        name = name.replace(/[\[\]\'\`]/ig,"");
+
         return name;
     }
 

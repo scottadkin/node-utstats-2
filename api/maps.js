@@ -1,8 +1,8 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
-const Spawns = require('./spawns');
 const fs = require('fs');
+const Functions = require('./functions');
 
 class Maps{
     
@@ -283,7 +283,8 @@ class Maps{
 
     async getImage(name){
 
-        name = this.removePrefix(name);
+        //name = this.removePrefix(name);
+        name = Functions.cleanMapName(name);
         name = name.toLowerCase()+'.jpg';
 
         const files = fs.readdirSync('public/images/maps/');
@@ -301,10 +302,14 @@ class Maps{
 
         const exists = [];
 
+        let currentName = "";
+
         for(let i = 0; i < names.length; i++){
             
-            if(files.indexOf(`${this.removeUnr(this.removePrefix(names[i].toLowerCase()))}.jpg`) !== -1){
-                exists.push(this.removeUnr(this.removePrefix(names[i].toLowerCase())));
+            currentName = Functions.cleanMapName(names[i]).toLowerCase();
+
+            if(files.indexOf(`${currentName}.jpg`) !== -1){
+                exists.push(currentName);
             }
         }
 

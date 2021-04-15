@@ -137,23 +137,15 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 			<Nav />
 			<div id="content">
 				<div className="default">
-				<div className="default-header">
-					Welcome to Node UTStats 2
-				</div>
-				Here you can look up information on UT matches and players.
-		
-				
-				<div className="default-header">
-					General Statistics
-				</div>
+			
 
+				<div className="default-header">Recent Matches</div>
+				<MatchesDefaultView images={mapImages} data={matchesData} />
+
+				<div className="default-header">Recent Matches &amp; Player Stats</div>
 				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
 
 				<HomeMostPlayedGametypes data={gametypeStats}/>
-			
-				
-				<div className="default-header">Recent Matches</div>
-				<MatchesDefaultView images={mapImages} data={matchesData} />
 			
 				<HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>
 
