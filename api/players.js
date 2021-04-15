@@ -206,6 +206,39 @@ class Players{
             });
         });
     }
+
+    getBestOfTypeTotal(validTypes, type, gametype, limit, page){
+
+        return new Promise((resolve, reject) =>{
+
+            if(gametype === undefined) gametype = 0;
+            if(limit === undefined) limit = 25;
+            if(page === undefined) page = 1;
+
+            page--;
+
+            const start = page * limit;
+
+            const typeIndex = validTypes.indexOf(type.toLowerCase());
+
+            if(typeIndex === -1) resolve([]);
+
+            const query = `SELECT id,name,country,face,matches,playtime,${validTypes[typeIndex]} as value 
+            FROM nstats_player_totals WHERE gametype=? ORDER BY ${validTypes[typeIndex]} DESC LIMIT ?, ?`;
+
+            
+            mysql.query(query, [gametype, start, limit], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 
