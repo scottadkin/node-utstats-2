@@ -18,6 +18,7 @@ import BasicPlayers from '../components/BasicPlayers/';
 import Faces from '../api/faces';
 import HomeTopMaps from '../components/HomeTopMaps/';
 import HomeMostPlayedGametypes from '../components/HomeMostPlayedGametypes/';
+import MostUsedFaces from '../components/MostUsedFaces/';
 
 
 function createDatesGraphData(data){
@@ -121,7 +122,7 @@ function createDatesGraphData(data){
 
 
 function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
-	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats}) {
+	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces}) {
 
 	matchDates = JSON.parse(matchDates);
 
@@ -160,6 +161,7 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 
 				<BasicPlayers title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>
 
+				<MostUsedFaces data={mostUsedFaces} images={faceFiles}/>
 				
 				<div className="default-header">
 					Most Popular Countires
@@ -239,6 +241,10 @@ export async function getServerSideProps() {
 
 	const faceManager = new Faces();
 
+	const mostUsedFaces = await faceManager.getMostUsed(5);
+
+	faceIds = faceIds.concat(Functions.getUniqueValues(mostUsedFaces, 'id'));
+
 	const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
 	const gametypeStats = await gametypeManager.getMostPlayed(5);
@@ -256,7 +262,8 @@ export async function getServerSideProps() {
 			"recentPlayersData": JSON.stringify(recentPlayersData),
 			"faceFiles": JSON.stringify(faceFiles),
 			"mostPlayedMaps": JSON.stringify(mostPlayedMaps),
-			"gametypeStats": JSON.stringify(gametypeStats)
+			"gametypeStats": JSON.stringify(gametypeStats),
+			"mostUsedFaces": JSON.stringify(mostUsedFaces)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}

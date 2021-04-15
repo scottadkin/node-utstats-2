@@ -12,7 +12,7 @@ class GraphCanvas{
         
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
-        this.aspectRatio = 0.5;
+        this.aspectRatio = 0.45;
         this.title = title;
 
         this.minValue = minValue;

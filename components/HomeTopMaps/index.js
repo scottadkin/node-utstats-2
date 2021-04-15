@@ -42,7 +42,7 @@ const HomeTopMaps = ({maps, images}) =>{
         </a></Link>);
     }
 
-    return <div>
+    return <div className="m-bottom-10">
         <div className="default-header">Most Played Maps</div>
 
         {elems}

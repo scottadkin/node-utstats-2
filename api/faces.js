@@ -302,6 +302,26 @@ class Faces{
             console.log(err);
         }
     }
+
+
+    getMostUsed(limit){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_faces ORDER BY uses DESC LIMIT ?";
+
+            mysql.query(query, [limit], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 module.exports = Faces;

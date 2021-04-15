@@ -1,0 +1,22 @@
+.wrapper{
+    display:inline-block;
+    height:64px;
+    background-color: black;
+    border:1px solid rgba(255,255,255,0.25);
+    max-width:300px; 
+    padding:5px;
+    margin-top:-1px;
+    margin-left:-1px;
+}
+
+.inner{
+    
+    display:grid;
+    grid-template-columns: 74px auto; 
+    font-size:12px;
+    line-height:21px;
+}
+
+.face img{
+    border:1px solid rgba(255,255,255,0.25);
+}
