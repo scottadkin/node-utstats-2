@@ -102,7 +102,7 @@ function createDatesGraphData(data){
 	if(totalMonthPlayers === 0) monthPlayers = [];
 	
 	return {
-		"title": ["Matches Past 24 Hours", "Matches Past 7 Days", "Matches Past 28 Days"],
+		"title": ["Stats Past 24 Hours", "Stats Past 7 Days", "Stats Past 28 Days"],
 		"data": [
 			[{"name": "Matches", "data": hours}, {"name": "Players", "data": hoursPlayers}],
 			[{"name": "Matches", "data": week}, {"name": "Players", "data": weekPlayers}],
@@ -184,8 +184,6 @@ export async function getServerSideProps() {
 	let matchesData = await matchManager.getRecent(0,4);
 
 	let mostPlayedMaps = await mapManager.getMostPlayed(4);
-
-	console.log(mostPlayedMaps);
 
 	let mapIds = Functions.getUniqueValues(matchesData, 'map');
 	const gametypeIds = Functions.getUniqueValues(matchesData, 'gametype');

@@ -15,8 +15,6 @@ const HomeTopMaps = ({maps, images}) =>{
     let currentImageIndex = 0;
     let m = 0;
 
-    console.log(images);
-
     for(let i = 0; i < maps.length; i++){
 
         m = maps[i];
@@ -35,10 +33,10 @@ const HomeTopMaps = ({maps, images}) =>{
                 <div className={styles.name}>{Functions.removeUnr(m.name)} </div> 
                 <Image src={`/images/maps/${currentImage}.jpg`} width="480" height="270"/>
                 <div className={styles.info}>
-                    Playtime {(m.playtime / (60 * 60)).toFixed(2)} Hours<br/>
-                    Matches {m.matches}<br/>
-                    First <TimeStamp timestamp={m.first}/><br/>
-                    Last <TimeStamp timestamp={m.last}/><br/>
+                    <span className="yellow">Playtime</span> {(m.playtime / (60 * 60)).toFixed(2)} Hours<br/>
+                    {m.matches} <span className="yellow">Matches</span><br/>
+                    <span className="yellow">First</span> <TimeStamp timestamp={m.first}/><br/>
+                    <span className="yellow">Last</span> <TimeStamp timestamp={m.last}/><br/>
                 </div>
             </div>    
         </a></Link>);
