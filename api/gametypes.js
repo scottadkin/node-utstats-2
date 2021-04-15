@@ -21,7 +21,6 @@ class Gametypes{
                 mysql.query(query, [name], (err, result) =>{
 
                     if(err){
-                        console.log(err);
                         reject(err);
                     }
 
@@ -169,15 +168,12 @@ class Gametypes{
 
                 if(err) reject(err);
 
-                //const data = [];
-
                 const data = {};
 
                 data['0'] = "All";
                 if(result !== undefined){
                     
                     for(let i = 0; i < result.length; i++){
-                       // data[result[i].id] = result[i].name;
                        data[result[i].id] = result[i].name;
                     }
                     
@@ -208,6 +204,26 @@ class Gametypes{
                     }
                 }
                 resolve(data);
+            });
+        });
+    }
+
+
+    getMostPlayed(limit){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_gametypes ORDER BY matches DESC LIMIT ?";
+
+            mysql.query(query, [limit], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
             });
         });
     }

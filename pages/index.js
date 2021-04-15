@@ -10,13 +10,14 @@ import Servers from '../api/servers';
 import PopularCountries from '../components/PopularCountries/';
 import CountryManager from '../api/countriesmanager';
 import Countries from '../api/countries';
-import GeneralStatistics from '../components/GeneralStatistics/';
+//import GeneralStatistics from '../components/GeneralStatistics/';
 import Players from '../api/players';
 import React from 'react';
 import Graph from '../components/Graph/';
 import BasicPlayers from '../components/BasicPlayers/';
 import Faces from '../api/faces';
 import HomeTopMaps from '../components/HomeTopMaps/';
+import HomeMostPlayedGametypes from '../components/HomeMostPlayedGametypes/';
 
 
 function createDatesGraphData(data){
@@ -120,12 +121,13 @@ function createDatesGraphData(data){
 
 
 function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
-	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps}) {
+	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats}) {
 
 	matchDates = JSON.parse(matchDates);
 
 	const graphData = createDatesGraphData(matchDates);
 
+	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
 		<div>
 		<DefaultHead />
@@ -143,9 +145,10 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 				<div className="default-header">
 					General Statistics
 				</div>
-				<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 
 				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
+
+				<HomeMostPlayedGametypes data={gametypeStats}/>
 			
 				
 				<div className="default-header">Recent Matches</div>
@@ -238,6 +241,8 @@ export async function getServerSideProps() {
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
+	const gametypeStats = await gametypeManager.getMostPlayed(5);
+
 	return { props: { 
 			"matchesData": JSON.stringify(matchesData),
 			"countriesData": JSON.stringify(countryData),
@@ -250,7 +255,8 @@ export async function getServerSideProps() {
 			"addictedPlayersData": JSON.stringify(addictedPlayersData),
 			"recentPlayersData": JSON.stringify(recentPlayersData),
 			"faceFiles": JSON.stringify(faceFiles),
-			"mostPlayedMaps": JSON.stringify(mostPlayedMaps)
+			"mostPlayedMaps": JSON.stringify(mostPlayedMaps),
+			"gametypeStats": JSON.stringify(gametypeStats)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}
