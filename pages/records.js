@@ -8,6 +8,7 @@ import Pagination from '../components/Pagination/';
 import React from 'react';
 import Link from 'next/link';
 import styles from '../styles/Records.module.css';
+import Maps from '../api/maps';
 
 const validTypes = [
     "matches",
@@ -262,7 +263,14 @@ export async function getServerSideProps({query}){
         const playerIds = Functions.getUniqueValues(currentRecords, 'player_id');
         const playerNames = await playerManager.getJustNamesByIds(playerIds);
 
+        const mapIds = Functions.getUniqueValues(currentRecords, 'map_id');
+
+        const mapManager = new Maps();
+
+        const mapNames = await mapManager.getNames(mapIds);
+
         Functions.setIdNames(currentRecords, playerNames, 'player_id', 'name');
+        Functions.setIdNames(currentRecords, mapNames, 'map_id', 'map');
 
 
     }

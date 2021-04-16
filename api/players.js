@@ -373,8 +373,6 @@ class Players{
 
                 if(err) reject(err);
 
-                console.log(result);
-
                 if(result !== undefined){
 
                     const data = {};
