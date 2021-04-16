@@ -5,6 +5,8 @@ import Players from '../api/players';
 import Functions from '../api/functions';
 import RecordsList from '../components/RecordsList/';
 import Pagination from '../components/Pagination/';
+import React from 'react';
+import Link from 'next/link';
 
 const validTypes = [
     "matches",
@@ -48,28 +50,90 @@ const typeTitles = [
     "Longest Spawn Killing Spree"
 ];
 
-const Records = ({type, results, perPage, title, page, pages, record, currentRecords}) =>{
 
-    return <div>
-        <DefaultHead />
-        <main>
-            <Nav />
-            <div id="content">
-                <div className="default">
-                    <div className="default-header">{title} Records</div>
+class SelectionBox extends React.Component{
+
+    constructor(props){
+
+        super(props);
+
+        this.changeEvent = this.changeEvent.bind(this);
+
+        
+    }
+
+    changeEvent(event){
+
+        this.props.changeEvent(event.target.value);
+    }
+
+    render(){
+        const options = [];
+
+        for(let i = 0; i < validTypes.length; i++){
+            options.push(<option key={i} value={validTypes[i]}>{typeTitles[i]}</option>);
+        }
+
+        return <div className="text-center m-bottom-10"><select id="type" onChange={this.changeEvent} className="default-select">
+            {options}
+        </select></div>
+    }
+}
+
+class Records extends React.Component{//= ({type, results, perPage, title, page, pages, record, currentRecords}) =>{
+
+
+    constructor(props){
+
+        super(props);
+
+        this.state = {"type": this.props.type};
+
+        this.changeSelectedType = this.changeSelectedType.bind(this);
+    }
+
+    changeSelectedType(type){
+
+        this.setState({"type": type});
+    }
+
+    render(){
+
+        const type = this.state.type;
+        const results = this.props.results;
+        const perPage = this.props.perPage;
+        const title = this.props.title;
+        const page = this.props.page;
+        const pages = this.props.pages;
+        const record = this.props.record;
+        const currentRecords = this.props.currentRecords;
+
+        const url = `/records?type=${type}&page=`;
+
+        return <div>
+            <DefaultHead />
+            <main>
+                <Nav />
+                <div id="content">
+                    <div className="default">
+                        <div className="default-header">{title} Records</div>
+                    </div>
+
+                    <SelectionBox changeEvent={this.changeSelectedType}/>
+                    <Link href={url}><a className="search-button text-center">Search</a></Link>
+                    <RecordsList data={currentRecords} page={page} perPage={perPage} record={record}/>
+                    <div className="text-center">
+                        <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>
+                    </div>
                 </div>
-                <RecordsList data={currentRecords} page={page} perPage={perPage} record={record}/>
-                <div className="text-center">
-                    <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={`/records?type=${type}&page=`}/>
-                </div>
-            </div>
-            <Footer />
-        </main>
-    </div>
+                <Footer />
+            </main>
+        </div>
+    }
 }
 
 export async function getServerSideProps({query}){
-    
+
     let type = "kills";
     let page = 1;
     let perPage = 50;
