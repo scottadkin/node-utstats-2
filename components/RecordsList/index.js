@@ -10,12 +10,8 @@ const RecordsList = ({data, page, perPage, record}) =>{
 
     const rows = [];
 
-    console.log(record);
-
     const recordValue = record[0].value;
     
-    console.log(recordValue);
-
     page--;
 
     let currentOffset = 0;

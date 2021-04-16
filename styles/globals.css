@@ -319,6 +319,10 @@ td{
 	text-align:left;
 }
 
+.text-center{
+	text-align:center;
+}
+
 .m-bottom-25{
 	margin-bottom:25px;
 }

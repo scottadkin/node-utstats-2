@@ -239,6 +239,30 @@ class Players{
             });
         });
     }
+
+
+    getTotalResults(gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `SELECT COUNT(*) as total_results FROM nstats_player_totals WHERE gametype=?`;
+
+            mysql.query(query, [gametype], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    
+                    if(result.length > 0){
+                        resolve(result[0].total_results);
+                    }
+                }
+
+                resolve(0);
+            });
+
+        });
+    }
 }
 
 
