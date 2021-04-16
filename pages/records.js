@@ -102,11 +102,14 @@ class SelectionBox extends React.Component{
     render(){
         const options = [];
 
-        for(let i = 0; i < validTypes.length; i++){
-            options.push(<option key={i} value={validTypes[i]}>{typeTitles[i]}</option>);
+        const types = (this.props.mode === 0) ? validTypes : validTypesMatch;
+        const titles = (this.props.mode === 0) ? typeTitles : typeTitlesMatch;
+
+        for(let i = 0; i < types.length; i++){
+            options.push(<option key={i} value={types[i]}>{titles[i]}</option>);
         }
 
-        return <div className="text-center m-bottom-10"><select id="type" onChange={this.changeEvent} className="default-select">
+        return <div className="text-center m-bottom-10"><select id="type" value={this.props.currentValue} onChange={this.changeEvent} className="default-select">
             {options}
         </select></div>
     }
@@ -137,7 +140,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
 
     render(){
 
-        const mode = this.state.mode;
+        const mode = this.props.mode;
         const type = this.state.type;
         const results = this.props.results;
         const perPage = this.props.perPage;
@@ -159,16 +162,17 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
                     
 
                         <div className="big-tabs">
-                            <div className={`big-tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                                this.changeMode(0);
-                            })}>Player Records</div>
-                            <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                                this.changeMode(1);
-                            })}>Match Records</div>
+                            <Link href={`/records?mode=0&type=${type}&page=`}><a><div className={`big-tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>
+                                Player Records
+                            </div></a></Link>
+
+                            <Link href={`/records?mode=1&type=${type}&page=`}><a><div className={`big-tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>
+                                Match Records
+                            </div></a></Link>
                         </div>
-                        <SelectionBox changeEvent={this.changeSelectedType}/>
+                        <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
                         <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
-                        <RecordsList data={currentRecords} page={page} perPage={perPage} record={record}/>
+                        <RecordsList mode={mode} data={currentRecords} page={page} perPage={perPage} record={record}/>
                         <div className="text-center">
                             <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>
                         </div>
@@ -182,7 +186,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
 
 export async function getServerSideProps({query}){
 
-    let type = "matches";
+    let type = "kills";
     let page = 1;
     let perPage = 50;
     let mode = 0;
@@ -191,12 +195,36 @@ export async function getServerSideProps({query}){
 
     let typeIndex = 0;
 
+    if(query.mode !== undefined){
+
+        mode = parseInt(query.mode);
+
+        if(page !== page){
+            mode = 0;
+        }else{
+
+            if(mode !== 0 && mode !== 1){
+                mode = 0;
+            }
+        }
+    }
+
     if(query.type !== undefined){
 
-        typeIndex = validTypes.indexOf(query.type.toLowerCase());
+        if(mode === 0){
+            typeIndex = validTypes.indexOf(query.type.toLowerCase());
+        }else{
+            typeIndex = validTypesMatch.indexOf(query.type.toLowerCase());
+        }
 
         if(typeIndex !== -1){
-            type = validTypes[typeIndex];
+
+            if(mode === 0){
+                type = validTypes[typeIndex];
+            }else{
+                type = validTypesMatch[typeIndex];
+            }
+            
         }else{
             typeIndex = 0;
         }
@@ -210,20 +238,6 @@ export async function getServerSideProps({query}){
             page = 1;
         }else{
             if(page < 1) page = 1;
-        }
-    }
-
-    if(query.mode !== undefined){
-
-        mode = parseInt(query.mode);
-
-        if(page !== page){
-            mode = 0;
-        }else{
-
-            if(mode !== 0 && mode !== 1){
-                mode = 0;
-            }
         }
     }
 
@@ -245,7 +259,12 @@ export async function getServerSideProps({query}){
         highestValue = await playerManager.getBestMatchRecord(validTypesMatch, type);
         totalResults = await playerManager.getTotalMatchResults();
 
-        console.log(currentRecords);
+        const playerIds = Functions.getUniqueValues(currentRecords, 'player_id');
+        const playerNames = await playerManager.getJustNamesByIds(playerIds);
+
+        Functions.setIdNames(currentRecords, playerNames, 'player_id', 'name');
+
+
     }
 
     let pages = Math.ceil(totalResults / perPage);
@@ -260,7 +279,6 @@ export async function getServerSideProps({query}){
             "page": page,
             "pages": pages,
             "perPage": perPage,
-            "title": typeTitles[typeIndex],
             "record": JSON.stringify(highestValue),
             "currentRecords": JSON.stringify(currentRecords)
         }

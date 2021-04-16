@@ -3,7 +3,7 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
-const RecordsList = ({data, page, perPage, record}) =>{
+const RecordsList = ({mode, data, page, perPage, record}) =>{
 
     data = JSON.parse(data);
     record = JSON.parse(record);
@@ -35,26 +35,65 @@ const RecordsList = ({data, page, perPage, record}) =>{
             offsetClassName = "team-red";
         }
 
-        rows.push(<tr key={i}>
-            <td>{place}{Functions.getOrdinal(place)}</td>
-            <td><Link href={`/player/${d.id}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
-            <td>{d.matches}</td>
-            <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
-            <td>{d.value}</td>
-            <td className={offsetClassName}>{currentOffset}</td>
-        </tr>);
+        if(mode === 0){
+
+            rows.push(<tr key={i}>
+                <td>{place}{Functions.getOrdinal(place)}</td>
+                <td><Link href={`/player/${d.id}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
+                <td>{d.matches}</td>
+                <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
+                <td>{d.value}</td>
+                <td className={offsetClassName}>{currentOffset}</td>
+            </tr>);
+
+        }else{
+
+            rows.push(<tr key={i}>
+                <td>{place}{Functions.getOrdinal(place)}</td>
+                <td><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
+                <td><Link href={`/match/${d.match_id}`}><a>Match Link</a></Link></td>
+                <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
+                <td>{d.value}</td>
+                <td className={offsetClassName}>{currentOffset}</td>
+            </tr>);
+        }
+    }
+
+    const headers = [];
+
+    const totalTitles = [
+        "Place",
+        "Player",
+        "Matches",
+        "Playtime",
+        "Value",
+        "Offset",
+    ];
+
+    const playerTitles = [
+        "Place",
+        "Player",
+        "Map",
+        "Playtime",
+        "Value",
+        "Offset"
+    ];
+
+    const titles = (mode === 0) ? totalTitles : playerTitles;
+
+
+    for(let i = 0; i < titles.length; i++){
+
+        headers.push(<th key={i}>
+            {titles[i]}
+        </th>);
     }
     
     return <div className="special-table">
         <table className={`${styles.table}`}>
             <tbody>
                 <tr>
-                    <th>Place</th>
-                    <th>Player</th>
-                    <th>Matches</th>
-                    <th>Playtime</th>
-                    <th>Value</th>
-                    <th>Offset</th>
+                    {headers}
                 </tr>
                 {rows}
             </tbody>
