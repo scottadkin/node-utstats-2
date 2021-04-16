@@ -173,6 +173,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
                         </div>
                         <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
                         <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
+                        <div className={styles.info}>Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
                         <RecordsList mode={mode} data={currentRecords} page={page} perPage={perPage} record={record}/>
                         <div className="text-center">
                             <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>
@@ -191,6 +192,7 @@ export async function getServerSideProps({query}){
     let page = 1;
     let perPage = 50;
     let mode = 0;
+    let title = "";
 
     console.log(query);
 
@@ -218,17 +220,18 @@ export async function getServerSideProps({query}){
             typeIndex = validTypesMatch.indexOf(query.type.toLowerCase());
         }
 
-        if(typeIndex !== -1){
 
-            if(mode === 0){
-                type = validTypes[typeIndex];
-            }else{
-                type = validTypesMatch[typeIndex];
-            }
-            
+        if(typeIndex === -1) typeIndex = 0;
+
+        if(mode === 0){
+            type = validTypes[typeIndex];
+            title = typeTitles[typeIndex];
         }else{
-            typeIndex = 0;
+            type = validTypesMatch[typeIndex];
+            title= typeTitlesMatch[typeIndex];
         }
+            
+      
     }
 
     if(query.page !== undefined){
@@ -288,7 +291,8 @@ export async function getServerSideProps({query}){
             "pages": pages,
             "perPage": perPage,
             "record": JSON.stringify(highestValue),
-            "currentRecords": JSON.stringify(currentRecords)
+            "currentRecords": JSON.stringify(currentRecords),
+            "title": title
         }
     }
 }
