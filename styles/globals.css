@@ -423,7 +423,7 @@ input[type="range"]{
 	color:green;
 }
 
-.tabs{
+.tabs, .big-tabs{
 	text-align:center;
 	margin-bottom:10px;
 }
@@ -438,7 +438,20 @@ input[type="range"]{
 	margin-left:-1px;
 }
 
-.tab:hover{
+.big-tab{
+	font-size:16px;
+	display:inline-block;
+	background-color:black;
+	color:white;
+	padding:5px;
+	border:1px solid rgba(255,255,255,0.25);
+	margin-left:-1px;
+	margin-top:-1px;
+	transition:background-color 0.5s;
+}
+
+
+.tab:hover, .big-tab:hover{
 	cursor: pointer;
 	user-select: none;
 	background-color:rgb(32,32,32);

@@ -263,6 +263,100 @@ class Players{
 
         });
     }
+
+
+    getBestMatchValues(valid, type, page, perPage){
+
+        return new Promise((resolve, reject) =>{
+
+            type = type.toLowerCase();
+
+            let index = valid.indexOf(type);
+
+            if(index === -1) index = 0;
+
+            page--;
+
+            perPage = parseInt(perPage);
+
+            if(perPage !== perPage) perPage = 50;
+
+            const start = perPage * page;
+
+            const query = `SELECT match_id,player_id,map_id,country,playtime,${valid[index]} as value 
+            FROM nstats_player_matches ORDER BY ${valid[index]} DESC LIMIT ?, ?`;
+
+            mysql.query(query, [start, perPage], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    getTotalMatchResults(gametype){
+
+
+        return new Promise((resolve, reject) =>{
+
+
+            let query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE gametype=?";
+            let vars = [gametype];
+
+            if(gametype === undefined){
+                query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches";
+                vars = [];
+            }
+
+            mysql.query(query, vars, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0){
+                        resolve(result[0].total_matches);
+                    }
+                }
+
+                resolve(0);
+            });
+        });
+    }
+
+
+    getBestMatchRecord(valid, type){
+        
+        return new Promise((resolve, reject) =>{
+
+            type = type.toLowerCase();
+
+            let index = valid.indexOf(type);
+
+            if(index === -1) index = 0;
+
+            const query = `SELECT ${valid[index]} as value FROM nstats_player_matches ORDER BY ${valid[index]} DESC`;
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0){
+                        resolve(result);
+                    }
+                }
+
+                resolve([{"value": 0}]);
+            });
+        });
+    }
 }
 
 
