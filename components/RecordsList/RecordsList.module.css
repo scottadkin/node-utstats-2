@@ -1,0 +1,21 @@
+.table{
+    width:90%;
+    max-width:750px;
+}
+
+.table td{
+    font-size:16px;
+    padding:5px;
+}
+
+.table tr:nth-child(even){
+    background-color:rgb(6,6,6);
+}
+
+.table td:nth-child(1){
+    color:yellow;
+}
+
+.table td:nth-child(2){
+    text-align:left;
+}

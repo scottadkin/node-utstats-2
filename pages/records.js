@@ -3,7 +3,8 @@ import Nav from '../components/Nav/';
 import Footer from '../components/Footer/';
 import Players from '../api/players';
 import CountryFlag from '../components/CountryFlag/';
-import PlayerRecordBox from '../components/PlayerRecordBox/';
+import Functions from '../api/functions';
+import RecordsList from '../components/RecordsList/';
 
 const validTypes = [
     "matches",
@@ -26,39 +27,7 @@ const validTypes = [
     "best_spawn_kill_spree"
 ];
 
-const Records = ({perPage, page, currentRecords}) =>{
-
-    currentRecords = JSON.parse(currentRecords);
-
-    const elems = [];
-
-    let c = 0;
-
-    for(let i = 0; i < currentRecords.length; i++){
-
-        c = currentRecords[i];
-
-        elems.push(<tr key={i}>
-            <td>{(perPage * (page - 1)) + i + 1}</td>
-            <td><CountryFlag country={c.country}/>{c.name}</td>
-            <td>{c.playtime}</td>
-            <td>{c.matches}</td>
-            <td>{c.value}</td>
-        </tr>);
-    }
-
-    const table = <table>
-        <tbody>
-            <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Playtime</th>
-                <th>Matches</th>
-                <th>Value</th>
-            </tr>
-            {elems}
-        </tbody>
-    </table>
+const Records = ({perPage, page, record, currentRecords}) =>{
 
     return <div>
         <DefaultHead />
@@ -68,9 +37,7 @@ const Records = ({perPage, page, currentRecords}) =>{
                 <div className="default">
                     <div className="default-header">Records</div>
                 </div>
-                <div className="special-table">
-                    {table}
-                </div>
+                <RecordsList data={currentRecords} page={page} perPage={perPage} record={record}/>
 
             </div>
             <Footer />
@@ -88,12 +55,14 @@ export async function getServerSideProps({query}){
     let perPage = 50;
 
 
-    const currentRecords = await playerManager.getBestOfTypeTotal(validTypes, "kills",0, perPage, page);
+    const currentRecords = await playerManager.getBestOfTypeTotal(validTypes, "kills", 0, perPage, page);
+    const highestValue = await playerManager.getBestOfTypeTotal(validTypes, "kills", 0, 1, 1);
 
     return {
         "props": {
             "page": page,
             "perPage": perPage,
+            "record": JSON.stringify(highestValue),
             "currentRecords": JSON.stringify(currentRecords)
         }
     }

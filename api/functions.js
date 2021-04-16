@@ -296,6 +296,29 @@ class Functions{
 
     }
 
+
+    static getOrdinal(value){
+
+        const first = value % 10;
+        const second = value % 100;
+
+        if(second >= 10 && second < 20){
+            return 'th';
+        }
+
+        if(first === 1){
+            return 'st';
+        }else if(first === 2){
+            return 'nd';
+        }else if(first === 3){
+            return 'rd';
+        }
+
+        return 'th';
+        
+
+    }
+
 }
 
 module.exports = Functions;
