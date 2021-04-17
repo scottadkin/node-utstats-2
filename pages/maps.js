@@ -63,7 +63,7 @@ class Maps extends React.Component{
 
         return (
             <div>
-                <DefaultHead />  
+                <DefaultHead host={this.props.host} title={"Maps"} description="Search for a map in the database." keywords="search,map,maps"/>
                 <main>
                 <Nav />
                 <div id="content">
@@ -105,7 +105,7 @@ class Maps extends React.Component{
 }
 
 
-export async function getServerSideProps({query}){
+export async function getServerSideProps({req, query}){
 
 
     let page = 1;
@@ -135,6 +135,7 @@ export async function getServerSideProps({query}){
 
     return {
         props: {
+            "host": req.headers.host,
             "maps": JSON.stringify(maps),
             "images": JSON.stringify(images),
             "results": totalResults,

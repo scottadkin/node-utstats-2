@@ -23,7 +23,7 @@ const DefaultHead = ({host, title, description, keywords}) =>{
             <meta property="og:title" content={`${title} - Node UTStats 2`}/>
             <meta property="og:description" content={`${description} Unreal Tournament stats powered by Next.js`}/>
             <meta property="og:type" content="website"/>
-            <meta property="og:url" content={`${host}${router.asPath}`}/>
+            <meta property="og:url" content={`https://${host}${router.asPath}`}/>
             <meta property="og:image" content={`http://${host}/images/defaultmap.jpg`}/>
             <meta property="og:image:secure_url" content={`https://${host}/images/defaultmap.jpg`}/>
             <script src="../js/main.js"></script>

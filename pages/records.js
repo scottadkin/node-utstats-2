@@ -263,7 +263,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
         const url = `/records?mode=${mode}&type=${type}&page=`;
 
         return <div>
-            <DefaultHead title={`${title} - ${(mode === 0) ? "Player" : "Match" } Records`} host={this.props.host}/>
+            <DefaultHead title={`${title} - ${(mode === 0) ? "Player" : "Match" } Records`} description={`View the top ${title} ${(mode === 0) ? "Player" : "Match" } Records.`} host={this.props.host}/>
             <main>
                 <Nav />
                 <div id="content">

@@ -121,7 +121,7 @@ function createDatesGraphData(data){
 
 
 
-function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
+function Home({host, matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
 	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces}) {
 
 	matchDates = JSON.parse(matchDates);
@@ -131,7 +131,7 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
 		<div>
-		<DefaultHead />
+		<DefaultHead host={host} title={"Home"} description="Welcome to Node UTStats 2, view various stats for players,matches,maps,records and more!" keywords="home,welcome"/>
 		
 		<main>
 			<Nav />
@@ -169,7 +169,7 @@ function Home({matchesData, countriesData, totalMatches, firstMatch, lastMatch, 
 }
 
 
-export async function getServerSideProps() {
+export async function getServerSideProps({req}) {
 
 	const matchManager = new Matches();
 	const mapManager = new Maps();
@@ -242,6 +242,7 @@ export async function getServerSideProps() {
 	const gametypeStats = await gametypeManager.getMostPlayed(5);
 
 	return { props: { 
+			"host": req.headers.host,
 			"matchesData": JSON.stringify(matchesData),
 			"countriesData": JSON.stringify(countryData),
 			"totalMatches": totalMatches,

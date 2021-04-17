@@ -74,7 +74,7 @@ class Matches extends React.Component{
         }
 
         return (<div>
-            <DefaultHead />
+            <DefaultHead host={this.props.host} title={"Recent Matches"} description="Search for a match in the database." keywords="search,match,matches"/>
             <main>
                 <Nav />
                 <div id="content">
@@ -123,7 +123,7 @@ class Matches extends React.Component{
 }
 
 
-export async function getServerSideProps({query}){
+export async function getServerSideProps({req, query}){
 
     const matchManager = new MatchesManager();
     const gametypeManager = new Gametypes();
@@ -220,6 +220,7 @@ export async function getServerSideProps({query}){
 
     return {
         "props": {
+            "host": req.headers.host,
             "matches": JSON.stringify(matches),
             "page": page,
             "perPage": perPage,

@@ -110,7 +110,7 @@ class Players extends React.Component{
 
         return (
             <div>
-                <DefaultHead />
+                <DefaultHead host={this.props.host} title={"Players"} description="Search for a player in the database." keywords="search,players,player"/>
                 
                 <main>
                 <Nav />
@@ -175,7 +175,7 @@ class Players extends React.Component{
     }
 }
 
-export async function getServerSideProps({query}){
+export async function getServerSideProps({req, query}){
 
     const Manager = new PlayerManager();
     const FaceManager = new Faces();
@@ -268,16 +268,17 @@ export async function getServerSideProps({query}){
 
     return {
         props: {
-            page,
-            players,
-            totalPlayers,
-            faces,
-            records,
-            sortType,
-            order, 
-            name,
-            perPage,
-            displayType
+            "host": req.headers.host,
+            "page": page,
+            "players": players,
+            "totalPlayers": totalPlayers,
+            "faces": faces,
+            "records": records,
+            "sortType": sortType,
+            "order": order, 
+            "name": name,
+            "perPage": perPage,
+            "displayType": displayType
         }
     }
 }
