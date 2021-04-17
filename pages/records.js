@@ -297,9 +297,6 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
 
 export async function getServerSideProps({req, query}){
 
-    console.log(req);
-    console.log(req.headers.host);
-
     let type = "kills";
     let page = 1;
     let perPage = 50;
