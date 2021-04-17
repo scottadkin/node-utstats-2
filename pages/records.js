@@ -37,7 +37,7 @@ const typeTitles = [
     "Losses",
     "Draws",
     "WinRate",
-    "Playtime(Hours)",
+    "Playtime",
     "First Bloods",
     "Frags",
     "Score",
@@ -69,7 +69,7 @@ const validTypesMatch = [
 ];
 
 const typeTitlesMatch = [
-    "Playtime(Hours)",
+    "Playtime",
     "Frags",
     "Score",
     "Kills",
@@ -174,7 +174,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
                         <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
                         <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
                         <div className={styles.info}>Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
-                        <RecordsList mode={mode} data={currentRecords} page={page} perPage={perPage} record={record}/>
+                        <RecordsList mode={mode} type={this.state.type} data={currentRecords} page={page} perPage={perPage} record={record}/>
                         <div className="text-center">
                             <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>
                         </div>

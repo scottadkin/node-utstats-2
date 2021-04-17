@@ -3,11 +3,15 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
-const RecordsList = ({mode, data, page, perPage, record}) =>{
+const RecordsList = ({mode, type, data, page, perPage, record}) =>{
 
+    console.log(type);
     data = JSON.parse(data);
     record = JSON.parse(record);
 
+    mode = parseInt(mode);
+
+    console.log(`mode = ${mode}`);
     const rows = [];
 
     const recordValue = record[0].value;
@@ -18,6 +22,7 @@ const RecordsList = ({mode, data, page, perPage, record}) =>{
     let offsetClassName = "";
     let d = 0;
     let place = 0;
+    let currentValue = 0;
 
     for(let i = 0; i < data.length; i++){
 
@@ -25,7 +30,27 @@ const RecordsList = ({mode, data, page, perPage, record}) =>{
 
         place = (perPage * page) + i + 1;
 
-        currentOffset = recordValue - d.value;
+        if(type !== "playtime"){
+            currentOffset = recordValue - d.value;
+        }else{
+            if(mode === 0){
+                currentOffset = (recordValue / (60 * 60)) - (d.value / (60 * 60));
+            }else{
+                currentOffset = (recordValue / 60 ) - (d.value / 60);
+            }
+        }
+
+        if(currentOffset % 1 !== 0){
+            currentOffset = currentOffset.toFixed(2);
+
+            if(type === "playtime"){
+                if(mode === 0){
+                    currentOffset = `${currentOffset} Hours`;
+                }else{
+                    currentOffset = `${currentOffset} Minutes`;
+                }
+            }
+        }
 
         if(currentOffset <= 0){
             currentOffset = "";
@@ -35,14 +60,31 @@ const RecordsList = ({mode, data, page, perPage, record}) =>{
             offsetClassName = "team-red";
         }
 
+        currentValue = d.value;
+
+        if(type === "playtime"){
+
+            if(mode === 0){
+                currentValue = `${(currentValue / (60 * 60)).toFixed(2)} Hours`;
+            }else{
+                currentValue = `${(currentValue / 60).toFixed(2)} Minutes`;
+            }
+
+        }else{
+
+            if(currentValue % 1 !== 0){
+                currentValue = currentValue.toFixed(2);
+            }
+        }
+
         if(mode === 0){
 
             rows.push(<tr key={i}>
                 <td>{place}{Functions.getOrdinal(place)}</td>
                 <td><Link href={`/player/${d.id}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
                 <td>{d.matches}</td>
-                <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
-                <td>{d.value}</td>
+                {(type !== "playtime") ? <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td> : null}
+                <td>{currentValue}</td>
                 <td className={offsetClassName}>{currentOffset}</td>
             </tr>);
 
@@ -52,8 +94,8 @@ const RecordsList = ({mode, data, page, perPage, record}) =>{
                 <td>{place}{Functions.getOrdinal(place)}</td>
                 <td><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
                 <td><Link href={`/match/${d.match_id}`}><a>{d.map}</a></Link></td>
-                <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
-                <td>{d.value}</td>
+                {(type !== "playtime") ? <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td> : null}
+                <td>{currentValue}</td>
                 <td className={offsetClassName}>{currentOffset}</td>
             </tr>);
         }
@@ -78,6 +120,11 @@ const RecordsList = ({mode, data, page, perPage, record}) =>{
         "Value",
         "Offset"
     ];
+
+    if(type === "playtime"){
+        totalTitles.splice(3,1);
+        playerTitles.splice(3,1);
+    }
 
     const titles = (mode === 0) ? totalTitles : playerTitles;
 
