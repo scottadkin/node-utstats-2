@@ -30,7 +30,7 @@ const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
 
         place = (perPage * page) + i + 1;
 
-        if(type !== "playtime"){
+        if(type !== "playtime" && type !== "flag_carry_time"){
             currentOffset = recordValue - d.value;
         }else{
             if(mode === 0){
@@ -43,7 +43,7 @@ const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
         if(currentOffset % 1 !== 0){
             currentOffset = currentOffset.toFixed(2);
 
-            if(type === "playtime"){
+            if(type === "playtime" || type === "flag_carry_time"){
                 if(mode === 0){
                     currentOffset = `${currentOffset} Hours`;
                 }else{
@@ -62,10 +62,16 @@ const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
 
         currentValue = d.value;
 
-        if(type === "playtime"){
+        if(type === "playtime" || type === "flag_carry_time"){
 
             if(mode === 0){
-                currentValue = `${(currentValue / (60 * 60)).toFixed(2)} Hours`;
+
+                if(currentValue / (60 * 60) >= 0.1){
+                    currentValue = `${(currentValue / (60 * 60)).toFixed(2)} Hours`;
+                }else{
+                    currentValue = `${(currentValue / 60).toFixed(2)} Minutes`;
+                }
+
             }else{
                 currentValue = `${(currentValue / 60).toFixed(2)} Minutes`;
             }
