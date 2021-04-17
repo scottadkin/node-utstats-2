@@ -3,7 +3,7 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
-const RecordsList = ({mode, type, data, page, perPage, record}) =>{
+const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
 
     console.log(type);
     data = JSON.parse(data);
@@ -75,7 +75,13 @@ const RecordsList = ({mode, type, data, page, perPage, record}) =>{
             if(currentValue % 1 !== 0){
                 currentValue = currentValue.toFixed(2);
             }
+
+            if(type === "winrate" || type === "efficiency" || type === "accuracy"){
+                currentValue = `${currentValue}%`;
+            }
         }
+
+
 
         if(mode === 0){
 
@@ -108,7 +114,7 @@ const RecordsList = ({mode, type, data, page, perPage, record}) =>{
         "Player",
         "Matches",
         "Playtime",
-        "Value",
+        title,
         "Offset",
     ];
 
@@ -117,7 +123,7 @@ const RecordsList = ({mode, type, data, page, perPage, record}) =>{
         "Player",
         "Map",
         "Playtime",
-        "Value",
+        title,
         "Offset"
     ];
 

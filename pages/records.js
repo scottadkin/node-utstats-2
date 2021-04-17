@@ -28,7 +28,34 @@ const validTypes = [
     "efficiency",
     "multi_best",
     "spree_best",
-    "best_spawn_kill_spree"
+    "best_spawn_kill_spree",
+    "accuracy",
+    "headshots",
+    "flag_assist",
+    "flag_return",
+    "flag_taken",
+    "flag_dropped",
+    "flag_capture",
+    "flag_pickup",
+    "flag_cover",
+    "flag_cover_pass",
+    "flag_cover_fail",
+    "flag_self_cover",
+    "flag_self_cover_pass",
+    "flag_self_cover_fail",
+    "flag_multi_cover",
+    "flag_spree_cover",
+    "flag_cover_best",
+    "flag_self_cover_best",
+    "flag_kill",
+    "flag_save",
+    "flag_carry_time",
+    "assault_objectives",
+    "dom_caps",
+    "dom_caps_best_life",
+    "k_distance_normal",
+    "k_distance_long",
+    "k_distance_uber",
 ];
 
 const typeTitles = [
@@ -49,7 +76,34 @@ const typeTitles = [
     "Efficiency",
     "Best Multi Kill",
     "Longest Killing Spree",
-    "Longest Spawn Killing Spree"
+    "Longest Spawn Killing Spree",
+    "Accuracy",
+    "Headshots",
+    "Flag Assists",
+    "Flag Returns",
+    "Flags Taken",
+    "Flag Dropped",
+    "Flag Capture",
+    "Flag Pickup",
+    "Flag Cover",
+    "Flag Successful Cover",
+    "Flag Failed Cover",
+    "Flag Self Cover",
+    "Flag Self Successful Cover",
+    "Flag Self Cover Fail",
+    "Flag Multi Cover",
+    "Flag Cover Spree",
+    "Flag Cover Best",
+    "Flag Self Cover Best",
+    "Flag Kill",
+    "Flag Close Return",
+    "Flag Carry Time",
+    "Assault Objectives",
+    "Domination Control Point Caps",
+    "Domination Control Point Caps (Single Life)", 
+    "Short Distance Kills",
+    "Long Distance Kills",
+    "Uber Long Distance Kills"
 ];
 
 
@@ -65,7 +119,34 @@ const validTypesMatch = [
     "efficiency",
     "multi_best",
     "spree_best",
-    "best_spawn_kill_spree"
+    "best_spawn_kill_spree",
+    "accuracy",
+    "headshots",
+    "flag_assist",
+    "flag_return",
+    "flag_taken",
+    "flag_dropped",
+    "flag_capture",
+    "flag_pickup",
+    "flag_cover",
+    "flag_cover_pass",
+    "flag_cover_fail",
+    "flag_self_cover",
+    "flag_self_cover_pass",
+    "flag_self_cover_fail",
+    "flag_multi_cover",
+    "flag_spree_cover",
+    "flag_cover_best",
+    "flag_self_cover_best",
+    "flag_kill",
+    "flag_save",
+    "flag_carry_time",
+    "assault_objectives",
+    "dom_caps",
+    "dom_caps_best_life",
+    "k_distance_normal",
+    "k_distance_long",
+    "k_distance_uber",
 ];
 
 const typeTitlesMatch = [
@@ -80,7 +161,34 @@ const typeTitlesMatch = [
     "Efficiency",
     "Best Multi Kill",
     "Longest Killing Spree",
-    "Longest Spawn Killing Spree"
+    "Longest Spawn Killing Spree",
+    "Accuracy",
+    "Headshots",
+    "Flag Assists",
+    "Flag Returns",
+    "Flags Taken",
+    "Flag Dropped",
+    "Flag Capture",
+    "Flag Pickup",
+    "Flag Cover",
+    "Flag Successful Cover",
+    "Flag Failed Cover",
+    "Flag Self Cover",
+    "Flag Self Successful Cover",
+    "Flag Self Cover Fail",
+    "Flag Multi Cover",
+    "Flag Cover Spree",
+    "Flag Cover Best",
+    "Flag Self Cover Best",
+    "Flag Kill",
+    "Flag Close Return",
+    "Flag Carry Time",
+    "Assault Objectives",
+    "Domination Control Point Caps",
+    "Domination Control Point Caps (Single Life)",
+    "Short Distance Kills",
+    "Long Distance Kills",
+    "Uber Long Distance Kills",
 ];
 
 
@@ -174,7 +282,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
                         <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
                         <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
                         <div className={styles.info}>Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
-                        <RecordsList mode={mode} type={this.state.type} data={currentRecords} page={page} perPage={perPage} record={record}/>
+                        <RecordsList mode={mode} type={this.state.type} title={title} data={currentRecords} page={page} perPage={perPage} record={record}/>
                         <div className="text-center">
                             <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>
                         </div>
@@ -192,7 +300,7 @@ export async function getServerSideProps({query}){
     let page = 1;
     let perPage = 50;
     let mode = 0;
-    let title = "";
+    let title = "Kills";
 
     console.log(query);
 
