@@ -229,6 +229,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
 
     constructor(props){
 
+        
         super(props);
 
         this.state = {"type": this.props.type, "mode": this.props.mode};
@@ -262,7 +263,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
         const url = `/records?mode=${mode}&type=${type}&page=`;
 
         return <div>
-            <DefaultHead />
+            <DefaultHead title={`${title} - ${(mode === 0) ? "Player" : "Match" } Records`} host={this.props.host}/>
             <main>
                 <Nav />
                 <div id="content">
@@ -294,7 +295,10 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
     }
 }
 
-export async function getServerSideProps({query}){
+export async function getServerSideProps({req, query}){
+
+    console.log(req);
+    console.log(req.headers.host);
 
     let type = "kills";
     let page = 1;
@@ -392,6 +396,7 @@ export async function getServerSideProps({query}){
 
     return {
         "props": {
+            "host": req.headers.host,
             "mode": mode,
             "type": type,
             "results": totalResults,
