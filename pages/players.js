@@ -108,9 +108,15 @@ class Players extends React.Component{
         }
 
 
+        const start = (this.props.page - 1 < 1) ? 1 : (this.props.page - 1) * this.props.perPage;
+        const end = (this.props.page * this.props.perPage <= this.props.totalPlayers) ? this.props.page * this.props.perPage : this.props.totalPlayers;
+
         return (
             <div>
-                <DefaultHead host={this.props.host} title={"Players"} description="Search for a player in the database." keywords="search,players,player"/>
+                <DefaultHead host={this.props.host} 
+                title={`Players Page ${this.props.page} of ${pages}`} 
+                description={`Viewing players page ${this.props.page} of ${pages}, players ${start} to ${end} out of a possible ${this.props.totalPlayers} players.`} 
+                keywords={`search,players,player,page ${this.props.page}`}/>
                 
                 <main>
                 <Nav />
