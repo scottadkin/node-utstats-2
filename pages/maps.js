@@ -45,7 +45,9 @@ class Maps extends React.Component{
 
     render(){
 
-        const pages = Math.ceil(this.props.results / this.props.perPage);
+        let pages = Math.ceil(this.props.results / this.props.perPage);
+
+        if(pages < 1) pages = 1;
 
         let url = '';
 
@@ -64,11 +66,13 @@ class Maps extends React.Component{
         const start = (this.props.page <= 1) ? 1 : this.props.perPage * (this.props.page - 1);
         const end = (this.props.page * this.props.perPage <= this.props.results) ? this.props.page * this.props.perPage : this.props.results;
         
+        const nameString = (this.props.name !== "") ? `search for name ${this.props.name}` : "";
+
         return (
             <div>
-                <DefaultHead host={this.props.host} title={`Maps - Page ${this.props.page} of ${pages}`}  
+                <DefaultHead host={this.props.host} title={`Maps ${nameString} - Page ${this.props.page} of ${pages}`}  
                 description={`Search for a map in the database. 
-                Currently viewing page ${this.props.page} of ${pages}, maps ${start} to ${end} out of ${this.props.results}`} 
+                Currently viewing ${nameString} page ${this.props.page} of ${pages}, maps ${start} to ${end} out of ${this.props.results}`} 
                 keywords={`search,map,maps,page ${this.props.page}`}/>
                 <main>
                 <Nav />

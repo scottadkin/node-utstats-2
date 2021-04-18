@@ -51,6 +51,17 @@ class Matches extends React.Component{
         return elems;
     }
 
+    getGametypeName(id){
+
+        const gametypes = JSON.parse(this.props.gametypes);
+
+        if(gametypes[id] !== undefined){
+            return gametypes[id];
+        }
+
+        return "";
+    }
+
     changeDisplay(){
         this.setState({"displayType": 0});
     }
@@ -76,11 +87,14 @@ class Matches extends React.Component{
         const start = (this.props.page <= 1) ? 1 : this.props.page * this.props.perPage;
         const end = (((this.props.page + 1) * this.props.perPage) <= this.props.totalMatches) ? (this.props.page + 1) * this.props.perPage : this.props.totalMatches;
 
+        const gametypeName = this.getGametypeName(this.props.gametype);
+        const nameString = (gametypeName !== "") ? `(${gametypeName})` : "";
+
         return (<div>
             <DefaultHead 
                 host={this.props.host} 
-                title={`Recent Matches Page ${this.props.page} of ${pages}`} 
-                description={`Viewing Recent Matches page ${this.props.page} of ${pages}, matches ${start} to ${end} out of a possible ${this.props.totalMatches} matches.`} 
+                title={`Recent Matches${nameString} Page ${this.props.page} of ${pages}`} 
+                description={`Viewing Recent Matches${nameString} page ${this.props.page} of ${pages}, matches ${start} to ${end} out of a possible ${this.props.totalMatches} matches.`} 
                 keywords={`search,match,matches,page ${this.props.page}`}
             />
             <main>

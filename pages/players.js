@@ -75,7 +75,8 @@ class Players extends React.Component{
 
     render(){
 
-        const pages = Math.ceil(this.props.totalPlayers / this.props.perPage);
+        let pages = Math.ceil(this.props.totalPlayers / this.props.perPage);
+        if(pages === 0) pages = 1;
 
         let url = `/players?sortType=${this.state.value}&order=${this.state.order}&name=${this.state.name}&perPage=${this.state.perPage}&displayType=${this.state.displayType}&page=`;
 
@@ -111,11 +112,13 @@ class Players extends React.Component{
         const start = (this.props.page - 1 < 1) ? 1 : (this.props.page - 1) * this.props.perPage;
         const end = (this.props.page * this.props.perPage <= this.props.totalPlayers) ? this.props.page * this.props.perPage : this.props.totalPlayers;
 
+        const nameString = (this.props.name !== "") ? `Search for ${this.props.name} ` : "";
+
         return (
             <div>
                 <DefaultHead host={this.props.host} 
-                title={`Players Page ${this.props.page} of ${pages}`} 
-                description={`Viewing players page ${this.props.page} of ${pages}, players ${start} to ${end} out of a possible ${this.props.totalPlayers} players.`} 
+                title={`Players ${nameString} Page ${this.props.page} of ${pages}`} 
+                description={`Viewing players ${nameString} page ${this.props.page} of ${pages}, players ${start} to ${end} out of a possible ${this.props.totalPlayers} players.`} 
                 keywords={`search,players,player,page ${this.props.page}`}/>
                 
                 <main>
