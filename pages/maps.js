@@ -61,9 +61,15 @@ class Maps extends React.Component{
             notFound = <div className="not-found">There are no matching results.</div>
         }
 
+        const start = (this.props.page <= 1) ? 1 : this.props.perPage * (this.props.page - 1);
+        const end = (this.props.page * this.props.perPage <= this.props.results) ? this.props.page * this.props.perPage : this.props.results;
+        
         return (
             <div>
-                <DefaultHead host={this.props.host} title={"Maps"} description="Search for a map in the database." keywords="search,map,maps"/>
+                <DefaultHead host={this.props.host} title={`Maps - Page ${this.props.page} of ${pages}`}  
+                description={`Search for a map in the database. 
+                Currently viewing page ${this.props.page} of ${pages}, maps ${start} to ${end} out of ${this.props.results}`} 
+                keywords={`search,map,maps,page ${this.props.page}`}/>
                 <main>
                 <Nav />
                 <div id="content">
