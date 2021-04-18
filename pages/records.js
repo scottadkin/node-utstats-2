@@ -262,8 +262,15 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
 
         const url = `/records?mode=${mode}&type=${type}&page=`;
 
+        const start = (page - 1 < 1) ? 1 : (page - 1) * perPage;
+        const end = (page * perPage < results) ? page * perPage : results;
+
         return <div>
-            <DefaultHead title={`${title} - ${(mode === 0) ? "Player" : "Match" } Records`} description={`View the top ${title} ${(mode === 0) ? "Player" : "Match" } Records.`} host={this.props.host}/>
+            <DefaultHead 
+            title={`${title} - ${(mode === 0) ? "Player" : "Match" } Records Page ${page} of ${pages}`} 
+            description={`View the top ${title} ${(mode === 0) ? "Player" : "Match" } Records, displaying page ${page} of ${pages} records ${start} to ${end}, out of a possible ${results} records.`} 
+            host={this.props.host}
+            keywords={`records,record,${title},${(mode === 0) ? "Player" : "Match" }`}/>
             <main>
                 <Nav />
                 <div id="content">
@@ -302,8 +309,6 @@ export async function getServerSideProps({req, query}){
     let perPage = 50;
     let mode = 0;
     let title = "Kills";
-
-    console.log(query);
 
     let typeIndex = 0;
 
