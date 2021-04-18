@@ -260,6 +260,10 @@ class MatchPowerUpControl extends React.Component{
 
     displayDefaultItem(item){
 
+        const totalUses = this.getTotal(item);
+
+        if(totalUses === 0) return null;
+        
         let title = this.itemTitles[item];
 
         if(title === undefined) title = "Not Found";
