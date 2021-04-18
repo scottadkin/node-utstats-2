@@ -63,7 +63,7 @@ class MatchesTableView extends React.Component{
 
 
         return (
-            <div className="special-table">
+            <div className="special-table t-width-1">
                 <table className={styles.table}>
                     <tbody>
                         <tr>

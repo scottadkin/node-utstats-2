@@ -1,7 +1,12 @@
 .table td{
     padding:5px 5px;
+    font-size:14px;
 }
 
 .table td:nth-child(1){
     text-align:left;
+}
+
+.table tr:nth-child(even){
+    background-color:rgb(6,6,6);
 }

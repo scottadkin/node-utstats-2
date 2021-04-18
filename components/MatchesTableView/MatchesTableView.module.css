@@ -12,5 +12,5 @@
 }
 
 .table tr:nth-child(even){
-    background-color:rgb(24,24,24);
+    background-color:rgb(6,6,6);
 }
