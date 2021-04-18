@@ -16,7 +16,7 @@ const PlayerAliases = ({data, faces}) =>{
 
         d = data[i];
 
-        elems.push(<Link href={`/player/${d.id}`}><a><div className={styles.player} key={i}>
+        elems.push(<Link key={i} href={`/player/${d.id}`}><a><div className={styles.player}>
             <img src={`/images/faces/${faces[d.face].name}.png`} alt="Image"/><br/>
             <CountryFlag country={d.country}/>{d.name}
         </div>

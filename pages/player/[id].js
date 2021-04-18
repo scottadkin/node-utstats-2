@@ -23,7 +23,7 @@ import PlayerItemsSummary from '../../components/PlayerItemsSummary/';
 
 
 
-function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
+function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames}) {
 
@@ -68,9 +68,16 @@ function Home({playerId, summary, gametypeStats, gametypeNames, recentMatches, m
 
 		pingGraphData = JSON.parse(pingGraphData);
 
+		const parsedInfo = JSON.parse(summary);
+
+
 		return (
 				<div>
-					<DefaultHead />
+					<DefaultHead host={host} title={`${titleName} Career Profile`} 
+						description={`View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedInfo.last)},
+						played ${parsedInfo.matches} matches with a winrate of ${parsedInfo.winrate.toFixed(2)}% and has played for a total of ${(parsedInfo.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedInfo.first)}.`} 
+						keywords={`career,profile,${name},${country.country}`}
+					/>
 					<main>
 						<Nav />
 						<div id="content">
@@ -212,7 +219,7 @@ function createPingGraphData(history){
 	return {"data": data, "text": text};
 }
 
-export async function getServerSideProps({query}) {
+export async function getServerSideProps({req, query}) {
 
 	const matchesPerPage = 25;
 		
@@ -338,6 +345,7 @@ export async function getServerSideProps({query}) {
 
 	return { 
 		props: {
+			"host": req.headers.host,
 			"playerId": playerId,
 			"summary": JSON.stringify(summary),
 			"gametypeStats": JSON.stringify(gametypeStats),
