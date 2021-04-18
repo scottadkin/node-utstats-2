@@ -73,8 +73,16 @@ class Matches extends React.Component{
             matchElems = <MatchesDefaultView data={this.props.matches} images={this.props.images}/>
         }
 
+        const start = (this.props.page <= 1) ? 1 : this.props.page * this.props.perPage;
+        const end = (((this.props.page + 1) * this.props.perPage) <= this.props.totalMatches) ? (this.props.page + 1) * this.props.perPage : this.props.totalMatches;
+
         return (<div>
-            <DefaultHead host={this.props.host} title={"Recent Matches"} description="Search for a match in the database." keywords="search,match,matches"/>
+            <DefaultHead 
+                host={this.props.host} 
+                title={`Recent Matches Page ${this.props.page} of ${pages}`} 
+                description={`Viewing Recent Matches page ${this.props.page} of ${pages}, matches ${start} to ${end} out of a possible ${this.props.totalMatches} matches.`} 
+                keywords={`search,match,matches,page ${this.props.page}`}
+            />
             <main>
                 <Nav />
                 <div id="content">
