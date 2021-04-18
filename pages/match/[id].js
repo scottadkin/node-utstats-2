@@ -1276,7 +1276,7 @@ class PlayerGraphPingData{
 
 }
 
-function Match({info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
+function Match({host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData}){
 
     const parsedInfo = JSON.parse(info);
@@ -1489,8 +1489,15 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
         );
     }
 
+    const dateString = Functions.convertTimestamp(parsedInfo.date, true);
+
     return <div>
-        <DefaultHead />
+        <DefaultHead host={host} 
+            title={`${map} (${dateString}) Match Report`} 
+            description={`Match report for ${map} (${gametype}${(parsedInfo.insta) ? " Instagib" : ""}) 
+            played on ${server} at ${dateString}, total players ${parsedInfo.players}, match length ${Functions.MMSS(parsedInfo.playtime)}.`} 
+            keywords={`match,report,${map},${gametype},${server}`}
+            />
         <main>
             <Nav />
             <div id="content">
@@ -1512,7 +1519,7 @@ function Match({info, server, gametype, map, image, playerData, weaponData, domC
 
 
 
-export async function getServerSideProps({query}){
+export async function getServerSideProps({req, query}){
 
     let matchId = (query.id !== undefined) ? parseInt(query.id) : parseInt(null);
 
@@ -1690,6 +1697,7 @@ export async function getServerSideProps({query}){
 
     return {
         props: {
+            "host": req.headers.host,
             "info": JSON.stringify(matchInfo),
             "server": serverName,
             "gametype": gametypeName,
