@@ -85,7 +85,12 @@ class Map extends React.Component{
         const matches = this.props.matches;
 
         return <div>
-        <DefaultHead />
+        <DefaultHead host={this.props.host} 
+            title={`View ${Functions.removeUnr(basic.name)} Map Statistics`} 
+            description={`${Functions.removeUnr(basic.name)} (${basic.title}) created by ${basic.author},
+            total matches played ${basic.matches} since ${Functions.convertTimestamp(basic.first)}, last played ${Functions.convertTimestamp(basic.last)}`} 
+            keywords={`map,statistics,${Functions.removeUnr(basic.name)}`}
+        />
         <main>
             <Nav />
             <div id="content">
@@ -129,7 +134,7 @@ class Map extends React.Component{
                                 </tr>
                                 <tr>
                                     <td>Total Playtime</td>
-                                    <td>{parseFloat(basic.playtime / 60).toFixed(2)} Hours</td>
+                                    <td>{parseFloat(basic.playtime / (60 * 60)).toFixed(2)} Hours</td>
                                 </tr>
                                 <tr>
                                     <td>Longest Match</td>
@@ -282,7 +287,7 @@ function getNamePrefix(name){
 
 
 
-export async function getServerSideProps({query}){
+export async function getServerSideProps({req, query}){
 
 
     let mapId = 0;
@@ -438,6 +443,7 @@ export async function getServerSideProps({query}){
 
     return {
         props: {
+            "host": req.headers.host,
             "basic": JSON.stringify(basicData[0]),
             "image": image,
             "matches": JSON.stringify(matches),
