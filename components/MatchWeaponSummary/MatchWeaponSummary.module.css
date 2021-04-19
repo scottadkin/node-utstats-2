@@ -52,3 +52,9 @@
     background-color:rgb(16,16,16)
 }
 
+
+
+.table td:nth-child(1){
+    width:150px;
+    text-align:left;
+}

@@ -1323,36 +1323,9 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
         serverName={server} gametype={gametype} faces={faces}
     />);
 
-
-    const playerPingHistory = new PlayerGraphPingData(pingData, playerNames, parsedInfo.start);
-
-    const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames, parsedInfo.start);
-
-    //if(playerScoreHistoryGraph.data[0].data.length > 2){
-        const playerHistoryData = [];
-        const playerHistoryDataText = [];
-        const playerhistoryDataTitles = [];
-
-        if(playerScoreHistoryGraph.data[0] !== undefined){
-
-            if(playerScoreHistoryGraph.data[0].data.length > 2){
-                playerHistoryData.push(playerScoreHistoryGraph.data);
-                playerHistoryDataText.push(playerScoreHistoryGraph.text);
-                playerhistoryDataTitles.push("Player Score History");
-            }
-        }
-
-        if(playerPingHistory.data[0] !== undefined){
-            if(playerPingHistory.data[0].data.length > 0){
-                playerHistoryData.push(playerPingHistory.data);
-                playerHistoryDataText.push(playerPingHistory.text);
-                playerhistoryDataTitles.push("Player Ping History");
-            }
-        }
-
-        elems.push(<Graph title={playerhistoryDataTitles} key={"scosococsocos-hihishis"} data={JSON.stringify(playerHistoryData)} 
-        text={JSON.stringify(playerHistoryDataText)} />);
-   // }
+    elems.push(
+        <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}/>
+    );
 
     if(bCTF(parsedPlayerData)){
 
@@ -1445,9 +1418,7 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
 
     }
 
-    elems.push(
-        <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}/>
-    );
+    
 
     const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
 
@@ -1485,6 +1456,36 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
     elems.push(
         <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
     );
+
+    const playerPingHistory = new PlayerGraphPingData(pingData, playerNames, parsedInfo.start);
+
+    const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames, parsedInfo.start);
+
+    //if(playerScoreHistoryGraph.data[0].data.length > 2){
+        const playerHistoryData = [];
+        const playerHistoryDataText = [];
+        const playerhistoryDataTitles = [];
+
+        if(playerScoreHistoryGraph.data[0] !== undefined){
+
+            if(playerScoreHistoryGraph.data[0].data.length > 2){
+                playerHistoryData.push(playerScoreHistoryGraph.data);
+                playerHistoryDataText.push(playerScoreHistoryGraph.text);
+                playerhistoryDataTitles.push("Player Score History");
+            }
+        }
+
+        if(playerPingHistory.data[0] !== undefined){
+            if(playerPingHistory.data[0].data.length > 0){
+                playerHistoryData.push(playerPingHistory.data);
+                playerHistoryDataText.push(playerPingHistory.text);
+                playerhistoryDataTitles.push("Player Ping History");
+            }
+        }
+
+        elems.push(<Graph title={playerhistoryDataTitles} key={"scosococsocos-hihishis"} data={JSON.stringify(playerHistoryData)} 
+        text={JSON.stringify(playerHistoryDataText)} />);
+   // }
 
     elems.push(
         <ConnectionSummary key={`connection-data`} data={JSON.parse(connections)} playerNames={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game} 

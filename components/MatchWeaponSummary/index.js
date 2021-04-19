@@ -166,6 +166,7 @@ class MatchWeaponSummary extends React.Component{
 
 
         if(this.props.players.length > teamTotals.length){
+            
             for(let i = 0; i < teamTotals.length; i++){
 
                 currentAccuracy = "";
@@ -208,7 +209,6 @@ class MatchWeaponSummary extends React.Component{
 
             }
         }
-
 
         return <table className={`t-width-1 ${styles.table}`}>
             <tbody>
