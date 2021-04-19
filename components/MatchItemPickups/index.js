@@ -24,7 +24,7 @@ class MatchItemPickups extends React.Component{
             }
         }else{
 
-            if(this.state.offset < Math.ceil(this.props.players.length / this.state.maxDisplay) - 1){
+            if(this.state.offset < Math.ceil(this.props.names.length / this.state.maxDisplay) - 1){
                 this.setState({"offset": this.state.offset + 1});
             }
         }
@@ -58,51 +58,43 @@ class MatchItemPickups extends React.Component{
 
         let max = this.state.maxDisplay * (this.state.offset + 1);
 
-        if(max > this.props.players.length){
-            max = this.props.players.length;
+        if(max > this.props.names.length){
+            max = this.props.names.length;
         }
+
+        const offset = this.state.offset * this.state.maxDisplay;
 
         let currentTeam = 0;
 
-        for(let i = -1; i < this.props.names.length; i++){
+        subElems.push(<th key={-1}>Player</th>);
 
-            if(i !== -1){
-                n = this.props.names[i];
-            }else{
-                n = {"name": "Item"};
-            }
+        for(let i = offset; i < max; i++){
+
+            subElems.push(<th key={i}>{this.props.names[i].name}</th>);
+        }
+
+        elems.push(<tr key={`top`}>{subElems}</tr>);
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            p = this.props.players[i];
 
             subElems = [];
 
-            for(let x = this.state.offset * this.state.maxDisplay; x < max; x++){
+            subElems.push(<td key={`player-${i}`} className={Functions.getTeamColor(p.team)}><Link href={`/player/${p.id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>);
 
-                p = this.props.players[x];
+            for(let x = offset; x < max; x++){
 
-                if(this.props.totalTeams < 2){
-                    currentTeam = 255;
-                }else{
-                    currentTeam = p.team;
-                }
-
-                if(i !== -1){
-                    subElems.push(<td key={x}>{this.getPlayerItemUses(p.id, n.id)}</td>);
-                }else{
-                    subElems.push(<th key={x} className={Functions.getTeamColor(currentTeam)}><Link href={`/player/${p.id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></th>);
-                }
+                subElems.push(<td key={x}>{this.getPlayerItemUses(p.id, this.props.names[x].id)}</td>);
             }
+    
+            
 
-            if(i !== -1){
-                elems.push(<tr key={i}>
-                    <td key={i}>{n.name}</td>
-                    {subElems}
-                </tr>);
-            }else{
-                elems.push(<tr key={i}>
-                    <th key={i}>{n.name}</th>
-                    {subElems}
-                </tr>);
-            }
+            elems.push(<tr key={i}>
+                {subElems}
+            </tr>);
         }
+
 
         if(elems.length > 0){
 
@@ -129,7 +121,7 @@ class MatchItemPickups extends React.Component{
                     Previous
                 </div>
                 <div className={styles.info}>
-                    Displaying {this.state.offset + 1} of {Math.ceil(this.props.players.length / this.state.maxDisplay)}
+                    Displaying {this.state.offset + 1} of {Math.ceil(this.props.names.length / this.state.maxDisplay)}
                 </div>
                 <div className={styles.next} onClick={(() =>{
                     this.changePage(1);
