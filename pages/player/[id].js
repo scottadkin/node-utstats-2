@@ -25,7 +25,7 @@ import PlayerItemsSummary from '../../components/PlayerItemsSummary/';
 
 function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames}) {
+	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -77,6 +77,7 @@ function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatc
 						description={`View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedInfo.last)},
 						played ${parsedInfo.matches} matches with a winrate of ${parsedInfo.winrate.toFixed(2)}% and has played for a total of ${(parsedInfo.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedInfo.first)}.`} 
 						keywords={`career,profile,${name},${country.country}`}
+						image={ogImage} imageType="png"
 					/>
 					<main>
 						<Nav />
@@ -335,6 +336,14 @@ export async function getServerSideProps({req, query}) {
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(usedFaces);
 
+	let ogImage = "faces/faceless";
+
+	for(const [key, value] of Object.entries(faceFiles)){
+
+		ogImage = `faces/${value.name}`;
+		break;
+	}
+
 
 	const itemManager = new Items();
 
@@ -369,7 +378,8 @@ export async function getServerSideProps({req, query}) {
 			"aliases": JSON.stringify(aliases),
 			"faces": JSON.stringify(faceFiles),
 			"itemData": JSON.stringify(playerItemData),
-			"itemNames": JSON.stringify(itemNames)
+			"itemNames": JSON.stringify(itemNames),
+			"ogImage": ogImage
 			
 		}
 	}

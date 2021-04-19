@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import {useRouter} from 'next/router';
 
-const DefaultHead = ({host, title, description, keywords, image}) =>{
+const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
 
     const router = useRouter();
 
@@ -14,6 +14,7 @@ const DefaultHead = ({host, title, description, keywords, image}) =>{
         keywords = `${keywords},`;
     }
     if(image === undefined) image = "defaultmap";
+    if(imageType === undefined) image = "jpg";
 
     // <meta property="og:image:secure_url" content={`https://${host}/images/${image}.jpg`} />
     return (
@@ -26,7 +27,7 @@ const DefaultHead = ({host, title, description, keywords, image}) =>{
             <meta property="og:description" content={`${description} Node UTStats 2 powered by Next.js.`} />
             <meta property="og:type" content="website" />
             <meta property="og:url" content={`https://${host}${router.asPath}`} />
-            <meta property="og:image" content={`http://${host}/images/${image}.jpg`} />
+            <meta property="og:image" content={`http://${host}/images/${image}.${imageType}`} />
            
             <script src="../js/main.js"></script>
         </Head>    
