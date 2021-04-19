@@ -1279,6 +1279,16 @@ class PlayerGraphPingData{
 function Match({host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData}){
 
+    //for default head open graph image
+    const imageReg = /^.+\/(.+)\.jpg$/i;
+    const imageRegResult = imageReg.exec(image);
+    let ogImage = "maps/default";
+
+    if(imageRegResult !== null){
+        ogImage = `maps/${imageRegResult[1]}`;
+    }
+    //
+
     const parsedInfo = JSON.parse(info);
 
     const parsedPlayerData = JSON.parse(playerData);
@@ -1497,6 +1507,7 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
             description={`Match report for ${map} (${gametype}${(parsedInfo.insta) ? " Instagib" : ""}) 
             played on ${server} at ${dateString}, total players ${parsedInfo.players}, match length ${Functions.MMSS(parsedInfo.playtime)}.`} 
             keywords={`match,report,${map},${gametype},${server}`}
+            image={ogImage}    
             />
         <main>
             <Nav />
@@ -1693,7 +1704,6 @@ export async function getServerSideProps({req, query}){
     const headshotsManager = new Headshots();
 
     const headshotData = await headshotsManager.getMatchData(matchId);
-
 
     return {
         props: {

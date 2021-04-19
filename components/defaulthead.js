@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import {useRouter} from 'next/router';
 
-const DefaultHead = ({host, title, description, keywords}) =>{
+const DefaultHead = ({host, title, description, keywords, image}) =>{
 
     const router = useRouter();
 
@@ -13,19 +13,21 @@ const DefaultHead = ({host, title, description, keywords}) =>{
     }else{
         keywords = `${keywords},`;
     }
+    if(image === undefined) image = "defaultmap";
 
+    // <meta property="og:image:secure_url" content={`https://${host}/images/${image}.jpg`} />
     return (
         <Head>
             <title>{title} - Node UTStats 2</title>
             <link rel="icon" href="/favicon.ico" />
             <meta name="description" content={`${description} Node UTStats 2 powered by Next.js.`} />
-            <meta name="keywords" content={`${keywords}ut,unreal,tournament,stats,node`}/>
-            <meta property="og:title" content={`${title} - Node UTStats 2`}/>
-            <meta property="og:description" content={`${description} Node UTStats 2 powered by Next.js.`}/>
-            <meta property="og:type" content="website"/>
-            <meta property="og:url" content={`https://${host}${router.asPath}`}/>
-            <meta property="og:image" content={`http://${host}/images/defaultmap.jpg`}/>
-            <meta property="og:image:secure_url" content={`https://${host}/images/defaultmap.jpg`}/>
+            <meta name="keywords" content={`${keywords}ut,unreal,tournament,stats,node`} />
+            <meta property="og:title" content={`${title} - Node UTStats 2`} />
+            <meta property="og:description" content={`${description} Node UTStats 2 powered by Next.js.`} />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content={`https://${host}${router.asPath}`} />
+            <meta property="og:image" content={`http://${host}/images/${image}.jpg`} />
+           
             <script src="../js/main.js"></script>
         </Head>    
     );
