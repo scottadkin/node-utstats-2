@@ -90,6 +90,7 @@ class Map extends React.Component{
             description={`${Functions.removeUnr(basic.name)} (${basic.title}) created by ${basic.author},
             total matches played ${basic.matches} since ${Functions.convertTimestamp(basic.first)}, last played ${Functions.convertTimestamp(basic.last)}`} 
             keywords={`map,statistics,${Functions.removeUnr(basic.name)}`}
+            image={this.props.ogImage}
         />
         <main>
             <Nav />
@@ -441,6 +442,15 @@ export async function getServerSideProps({req, query}){
         pages = Math.ceil(basicData[0].matches / perPage);
     }
 
+    const ogImageReg = /^.+\/(.+)\.jpg$/i;
+    const ogImageResult = ogImageReg.exec(image);
+
+    let ogImage = "maps/default";
+
+    if(ogImageResult !== null){
+        ogImage = `maps/${ogImageResult[1]}`;
+    }
+
     return {
         props: {
             "host": req.headers.host,
@@ -460,7 +470,8 @@ export async function getServerSideProps({req, query}){
             "mapPrefix": mapPrefix,
             "domControlPointLocations": JSON.stringify(domControlPointLocations),
             "assaultObjectives": JSON.stringify(assaultObjectives),
-            "assaultImages": JSON.stringify(assaultImages)
+            "assaultImages": JSON.stringify(assaultImages),
+            "ogImage": ogImage
         }
     };
 }
