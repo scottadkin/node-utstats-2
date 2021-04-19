@@ -48,6 +48,10 @@
     background-color:rgb(16,16,16);
 }
 
+.table{
+    font-size:9px;
+}
+
 .table td:nth-child(1){
     width:150px;
     text-align:left;
