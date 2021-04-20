@@ -29,8 +29,7 @@ class Players extends React.Component{
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handlePerPageChange = this.handlePerPageChange.bind(this);
         this.handleDisplayTypeChange = this.handleDisplayTypeChange.bind(this);
-        this.selectDisplay1 = this.selectDisplay1.bind(this);
-        this.selectDisplay2 = this.selectDisplay2.bind(this);
+        this.changeDisplay = this.changeDisplay.bind(this);
 
         this.changeSortAlt = this.changeSortAlt.bind(this);
     }
@@ -63,14 +62,9 @@ class Players extends React.Component{
         this.setState({"displayType": parseInt(event.target.value)});
     }
 
-    selectDisplay1(){
+    changeDisplay(id){
 
-        this.setState({"displayType": 0});
-    }
-
-    selectDisplay2(){
-
-        this.setState({"displayType": 1});
+        this.setState({"displayType": id});
     }
 
     render(){
@@ -165,7 +159,7 @@ class Players extends React.Component{
 
                         <div className="select-row">
                             <div className="select-label">Display</div>
-                            <Option2 title1="Default" title2="Table" value={this.state.displayType} leftEvent={this.selectDisplay1} rightEvent={this.selectDisplay2}/>
+                            <Option2 title1="Default" title2="Table" value={this.state.displayType} changeEvent={this.changeDisplay}/>
                             <input type="hidden" name="displayType" value={this.state.displayType}/>
                         </div>
                     </form>

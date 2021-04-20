@@ -1,28 +1,28 @@
 .wrapper{
-    background-color:black;
+    background-color:var(--color-1);
     display:inline-block;
     width:400px;
-    height:153px;
-    margin-top:-1px;
+    height:212px;
     margin-left:-1px;
 }
 
 .inner{
     display:grid;
     grid-template-columns: 120px 280px;
-    height:150px;
+    height:203px;
 }
 
 .left{
-    background-color:rgb(16,16,16);
-    border:1px solid rgba(255,255,255,0.25);
+    background-color:var(--color-2);
+    border:1px solid var(--border-color-1);
 }
 
 .face{
     width:64px;
     height:64px;
-    margin-top:5px;
-    margin-bottom:5px;
+    margin-top:25px;
+    margin-bottom:15px;
+    border:1px solid var(--border-color-1);
 }
 
 .country{
@@ -36,27 +36,26 @@
 }
 
 .right{
-    border:1px solid rgba(255,255,255,0.25);
-    background:linear-gradient(to bottom right, rgb(3,3,3), rgb(16,16,16));
+    border:1px solid var(--border-color-1);
+    background-color:var(--color-3);
     margin-left:-1px;
 }
 
 .name{
-    font-size:14px;
-    padding:5px 0px;
+    font-size:16px;
+    padding:8px 0px;
     color:yellow;
 }
 
 .last{
     font-size:12px;
-    padding-bottom:5px;
+    padding-bottom:8px;
 }
 
 .bwrapper{
-    height:16px;
+    height:22px;
     font-size:12px;
-    line-height:16px;
-    margin-top:-1px;
+    line-height:22px;
 }
 
 .lb{
@@ -65,21 +64,22 @@
 }
 
 .bar{
-    border-left:1px solid rgba(255,255,255,0.125);
-    border-top:1px solid rgba(255,255,255,0.125);
-    border-bottom:1px solid rgba(255,255,255,0.125);
-    height:14px;
+    border-left:1px solid var(--border-color-2);
+    border-top:1px solid  var(--border-color-2);
+    border-bottom:1px solid var(--border-color-2);
+    height:20px;
     overflow:hidden;
+    background-color:var(--color-1);
 }
 
 .barinner{
     background-color:green;
     background:linear-gradient(to bottom, rgb(0,70,0), rgb(0,20,0));
-    height:16px;
+    height:22px;
 }
 
 .bvalue{
-    margin-top:-16px;
+    margin-top:-22px;
     width:70%;
     margin-left:30%;
 }

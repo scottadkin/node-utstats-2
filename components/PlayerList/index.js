@@ -197,9 +197,9 @@ class PlayersList extends React.Component{
             );
         }else{
 
-            return (<div className={`special-table`}>
-            <table >
-                <tbody className={styles.table}>
+            return (<div>
+            <table className={styles.table}>
+                <tbody>
                     {elems}
                 </tbody>
             </table>

@@ -48,38 +48,6 @@ function PlayerListBox({
     }
 
     efficiency = (efficiency * 100).toFixed(2);
-
-    /**
-     * 
-     * <div className={styles.outter}>
-                    
-                        
-                    <div className={styles.name}>{name}</div>
-                    <img className={styles.face} src={`/images/faces/${face}.png`} alt="face"/>
-                    <div className={styles.country}>{countryData.country}<br/><img src={`/images/flags/${country}.svg`} alt="flag"/></div>
-                
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>First</td>
-                                <td><TimeStamp timestamp={first} noDayName={true} noTime={true}/></td>
-                            </tr>
-                            <tr>
-                                <td>Last</td>
-                                <td><TimeStamp timestamp={last} noDayName={true} noTime={true}/></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <RecordBar name={"Matches"} value={matches} percent={recordsPercent.matches}/>
-                    <RecordBar name={"Wins"} value={wins} percent={recordsPercent.wins}/>
-                    <RecordBar name={"Score"} value={score} percent={recordsPercent.score}/>
-                    <RecordBar name={"Kills"} value={kills} percent={recordsPercent.kills}/>
-                    <RecordBar name={"Deaths"} value={deaths} percent={recordsPercent.deaths}/>
-                    <RecordBar name={"Efficiency"} value={`${efficiency}%`} percent={recordsPercent.efficiency}/>
-                    <RecordBar name={"Accuracy"} value={`${accuracy}%`} percent={recordsPercent.accuracy}/>
-                
-                </div>
-     */
     
     return (
         <Link href={`player/${playerId}`}>

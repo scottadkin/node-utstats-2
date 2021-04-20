@@ -367,11 +367,11 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 
 .default-textbox{
 	width:290px;
-	background-color:rgb(16,16,16);
+	background-color:var(--color-1);
 	font-size:18px;
 	font-weight:300;
 	padding:5px;
-	border:1px solid rgba(255,255,255,0.25);
+	border:1px solid var(--border-color-1);
 	margin-bottom:10px;
 	color:white;
 	margin-left:10px;
@@ -380,9 +380,9 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .search-button{
 	display:block;
 	width:290px;
-	background-color:rgb(16,16,16);
+	background-color:var(--color-1);
 	color:white;
-	border:1px solid rgba(255,255,255,0.25);
+	border:1px solid var(--border-color-1);
 	padding:5px;
 	margin-left:auto;
 	margin-right:auto;

@@ -5,7 +5,7 @@
     color:white;
     position:relative;
     height:25px;
-    font-size:12px;
+    font-size:14px;
     overflow:hidden;
     user-select:none;
 }
@@ -17,7 +17,7 @@
 .option, .option2{
     width:50%;
     position:absolute;
-    height:18px;
+    height:20px;
     padding:5px;
     text-align:center;
 }
@@ -28,7 +28,7 @@
 
 .slider{
     background-color:rgb(50,0,0);
-    border:1px solid rgba(255,255,255,0.5);
+    border:1px solid var(--border-color-1);
     height:25px;
     margin-top:-1px;
     margin-left:-1px;
