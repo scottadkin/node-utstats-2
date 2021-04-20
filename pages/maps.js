@@ -19,21 +19,15 @@ class Maps extends React.Component{
 
         this.state = {"displayType": this.props.displayType, "perPage": this.props.perPage, "name": this.props.name};
 
-        this.defaultDisplay = this.defaultDisplay.bind(this);
-        this.tableDisplay = this.tableDisplay.bind(this);
+        this.changeDisplay = this.changeDisplay.bind(this);
         this.changePerPage = this.changePerPage.bind(this);
         this.updateName = this.updateName.bind(this);
     }
 
-    defaultDisplay(){
-
-        this.setState({"displayType": 0});
+    changeDisplay(id){
+        this.setState({"displayType": id});
     }
 
-    tableDisplay(){
-
-        this.setState({"displayType": 1});
-    }
 
     changePerPage(event){
         this.setState({"perPage": event.target.value});
@@ -95,7 +89,7 @@ class Maps extends React.Component{
                         </div>
                         <div className="select-row">
                             <div className="select-label">Display</div>
-                            <Option2 title1="Default" title2="Table"   leftEvent={this.defaultDisplay} rightEvent={this.tableDisplay} value={this.state.displayType}/>
+                            <Option2 title1="Default" title2="Table" changeEvent={this.changeDisplay} value={this.state.displayType}/>
                             <input type="hidden" name="displayType" value={this.state.displayType} />
                         </div>
                         <Link href={`${url}1`}>
