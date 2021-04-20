@@ -34,7 +34,7 @@ class MatchesDefaultView extends React.Component{
         if(index !== -1){
             return `/images/maps/${this.state.images[index]}.jpg`;
         }else{
-            return "/images/defaultmap.jpg";
+            return "/images/maps/default.jpg";
         }
     }
 
