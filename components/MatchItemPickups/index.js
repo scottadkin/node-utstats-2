@@ -98,7 +98,7 @@ class MatchItemPickups extends React.Component{
 
         if(elems.length > 0){
 
-            return <table className={`t-width-1 ${styles.table}`}>
+            return <table className={`t-width-1 ${styles.table} m-bottom-25`}>
                 <tbody>
      
                     {elems}

@@ -1,11 +1,11 @@
 .buttons{
 
     width:90%;
-    max-width:1000px;
+    max-width:1248px;
     overflow:hidden;
     height:40px;
-    background-color:black;
-    border:1px solid rgba(255,255,255,0.25);
+    background-color:var(--color-3);
+    border:1px solid var(--border-color-1);
     user-select: none;
 
 }
@@ -25,28 +25,25 @@
 }
 
 .previous{
-    background-color:rgb(32,32,32);
+    background-color:var(--color-2);
     font-size:16px;
     float:left;
-    border-right:1px solid rgba(255,255,255,0.25);
+    border-right:1px solid var(--border-color-1);
 }
 
 .next{
-    background-color:rgb(32,32,32);
+    background-color:var(--color-2);
     font-size:16px;
     float:right;
-    border-left:1px solid rgba(255,255,255,0.25);
+    border-right:1px solid var(--border-color-1);
 }
 
 .previous:hover, .next:hover{
     cursor:pointer;
     color:yellow;
-    background-color:rgb(46,46,46);
+    background-color:var(--color-4);
 }
 
-.table tr:nth-child(even){
-    background-color:rgb(16,16,16);
-}
 
 .table{
     font-size:9px;

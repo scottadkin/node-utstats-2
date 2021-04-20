@@ -5,42 +5,45 @@
 }
 
 
+.table td{
+    height:24px;
+}
+
 
 .table th{
     color:white;
-    transform: translate(0px, -45px) rotate(90deg);
-    height:120px;
-    min-height:120px;
-    max-height:120px;
+    transform: translate(0px, -90px) rotate(90deg);
+    height:220px;
+    min-height:220px;
+    max-height:220px;
     background:transparent;
     text-align:left;
-    width:16px;
-    min-width:16px;
-    max-width:16px;
+    width:24px;
+    min-width:24px;
+    max-width:24px;
     padding:0px;
     margin:0px;
     position:relative;
-    font-size:12px;
+    font-size:14px;
 }
 
 .table td{
-    width:16px;
-    min-width:16px;
-    max-width:16px;
-    overflow:hidden;
-    height:16px;
-    min-height:16px;
-    max-height:16px;
-    font-size:12px;
-    padding:2px;
+
+    height:24px;
+    min-height:24px;
+    max-height:24px;
+    font-size:14px;
+    padding:0px;
+    line-height:24px;
 }
 
 .table td:nth-child(1){
-    width:100px;
-    max-width:100px;
-    min-width:100px;
+    width:220px;
+    max-width:220px;
+    min-width:220px;
     overflow:hidden;
     text-align:left;
+    padding-left:20px;
 }
 
 .table tr:nth-child(odd){
@@ -52,24 +55,26 @@
 }
 
 .key{
-    margin-left:-6px;
-    width:115px;
-    min-width:115px;
-    max-width:115px;
-    height:21px;
-    min-height:20px;
-    max-height:20px;
-    line-height:20px;
-    padding-left:5px;
+    width:200px;
+    min-width:200px;
+    max-width:200px;
+    height:24px;
+    min-height:24px;
+    max-height:24px;
+    line-height:24px;
+    padding-left:18px;
+
 }
 
 .color{
-    width:8px;
-    height:8px;
-    margin-right:5px;
+    position:absolute;
+    width:16px;
+    height:16px;
     display:inline-block;
-    border:1px solid rgba(0,0,0,0);
-    border-radius:50%;
+    margin-top:4px;
+    margin-left:-18px;
+
+
 }
 
 .table tr:hover{

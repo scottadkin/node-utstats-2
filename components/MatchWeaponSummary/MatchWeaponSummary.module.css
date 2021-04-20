@@ -1,10 +1,10 @@
 .tabs{
     width:90%;
-    max-width:1000px;
-    background-color:black;
+    max-width:1248px;
+    background-color:var(--color-3);
     height:40px;
     overflow:hidden;
-    border:1px solid rgba(255,255,255,0.25);
+    border:1px solid var(--border-color-1);
     user-select: none;
 }
 
@@ -27,30 +27,25 @@
 
 .next{
     float:right;
-    border-left:1px solid rgba(255,255,255,0.25);
+    border-left:1px solid var(--border-color-1)
 }
 
 .previous{
     float:left;
-    border-right:1px solid rgba(255,255,255,0.25);
+    border-left:1px solid var(--border-color-1)
 }
 
 .next, .previous{
-    background-color:rgb(32,32,32); 
+    background-color:var(--color-2);
     transition:0.5s all;
 }
 
 .next:hover, .previous:hover{
-    background-color:rgb(46,46,46); 
+    background-color:var(--color-4);
     color:yellow;
     cursor:pointer;
 }
 
-
-
-.table tr:nth-child(even){
-    background-color:rgb(16,16,16)
-}
 
 
 
