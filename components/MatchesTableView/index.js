@@ -3,7 +3,6 @@ import TimeStamp from '../TimeStamp/';
 import MMSS from '../MMSS/';
 import MatchResultSmall from '../MatchResultSmall/';
 import React from 'react';
-import styles from './MatchesTableView.module.css';
 
 class MatchesTableView extends React.Component{
 
@@ -34,7 +33,7 @@ class MatchesTableView extends React.Component{
                 <td>{m.mapName}</td>
                 <td>{m.players}</td>
                 <td><MMSS timestamp={m.playtime} /></td>
-                <td><MatchResultSmall 
+                <td className="padding-0"><MatchResultSmall 
                     totalTeams={m.total_teams} 
                     dmWinner={m.dm_winner} 
                     dmScore={m.dm_score} 
@@ -63,8 +62,8 @@ class MatchesTableView extends React.Component{
 
 
         return (
-            <div className="special-table t-width-1 center">
-                <table className={styles.table}>
+            <div className="center t-width-1">
+                <table>
                     <tbody>
                         <tr>
                             <th>Server</th>
