@@ -1,8 +1,8 @@
 .iwrapper{
-    background-color:black;
-    border:1px solid rgba(255,255,255,0.25);
+    background-color:var(--color-1);
+    border:1px solid var(--border-color-1);
     width:90%;
-    max-width:750px;
+    max-width:1250px;
     margin-left:auto;
     margin-right:auto;
     margin-top:-1px;
@@ -10,7 +10,7 @@
 
 .iname{
     font-size:16px;
-    padding:5px;
+    padding:10px;
 }
 
 
@@ -20,7 +20,7 @@
     font-size:12px;
     line-height:25px;
     color:yellow;
-    background-color:rgb(16,16,16);
+    background-color:var(--color-2);
     border-top:1px solid rgba(255,255,255,0.125);
     border-bottom:1px solid rgba(255,255,255,0.125);
 }
@@ -36,22 +36,22 @@
     padding-left:10px;
 }
 
-.pcontrol{
-    
-    
-    height:25px;
+.pcontrol{ 
+    height:40px;
     overflow:hidden;
     position:relative;
-    line-height:25px;
+    line-height:40px;
     display:grid;
     grid-template-columns: 150px auto 150px;
 }
 
 .name1, .name2{
-    background-color:rgb(32,32,32);
+    background-color:var(--color-3);
     display:inline-block;
     height:100%;
     width:150px;
+    height:40px;
+    line-height:40px;
 }
 
 
@@ -61,28 +61,31 @@
 
 .player1, .player2{
     display:inline-block;
-    height:25px;
+    height:50px;
     overflow:hidden;
-    font-size:14px;
+    font-size:20px;
 }
 
 
 .default{
-    background-color:black;
-    border:1px solid rgba(255,255,255,0.25);
+    background-color:var(--color-1);
+    border:1px solid var(--border-color-1);
     width:90%;
-    max-width:750px;
+    max-width:1250px;
     margin-left:auto;
     margin-right:auto;
     margin-top:-1px;
 }
 
 .defaulttitle{
-    padding:5px;
+    padding:10px;
 }
 
 .boxwrapper{
     position:relative;
+    height:30px;
+    font-size:30px;
+    line-height:30px;
 }
 
 .boxwrapper div{
@@ -91,8 +94,10 @@
 
 .dtime{
     font-size:12px;
-    background-color:rgb(32,32,32);
+    background-color:var(--color-2);
     color:yellow;
+    height:20px;
+    line-height:20px;
 }
 
 .duo{
@@ -119,4 +124,5 @@
 
 .dname{
     font-size:16px;
+    padding:10px;
 }

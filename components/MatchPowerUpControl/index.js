@@ -135,15 +135,15 @@ class MatchPowerUpControl extends React.Component{
         if(item === "amp"){
 
             timeElems = <div className={styles.pcontroltop}>
-                <div>{this.getTotal("amp_time", 0)} seconds</div>
-                <div>{this.getTotal("amp_time", 1)} seconds</div>
+                <div>{this.getTotal("amp_time", 0).toFixed(2)} seconds</div>
+                <div>{this.getTotal("amp_time", 1).toFixed(2)} seconds</div>
             </div>
 
         }else if(item === "invisibility"){
 
             timeElems = <div className={styles.pcontroltop}>
-                <div>{this.getTotal("invisibility_time", 0)} seconds</div>
-                <div>{this.getTotal("invisibility_time", 1)} seconds</div>
+                <div>{this.getTotal("invisibility_time", 0).toFixed(2)} seconds</div>
+                <div>{this.getTotal("invisibility_time", 1).toFixed(2)} seconds</div>
             </div>
 
         }

@@ -25,6 +25,10 @@ const MatchSummary = ({info, server, gametype, map, image}) =>{
     info = JSON.parse(info);
 
 
+    const potato = info.motd.split('\n');
+
+    console.log(potato);
+
     if(info.email === '') info.email = 'Not specified';
 
     return (

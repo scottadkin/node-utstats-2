@@ -1,15 +1,16 @@
 .wrapper{
     color:white;
     font-weight:300;
-    background-color:black;
-    border:1px solid rgba(255,255,255,0.25);
+    background-color:var(--color-2);
+    border:1px solid var(--border-color-1);
     margin-bottom:20px;
 }
 
 .map{
     
-    line-height:24px;
+    line-height:28px;
     padding-bottom:20px;
+    font-size:14px;
 }
 
 .stable{

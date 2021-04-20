@@ -360,16 +360,16 @@ class MatchWeaponSummary extends React.Component{
 
                     currentPlayers.push(
                         <tr key={`team-totals ${x}`} className="yellow">
-                            <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : x)}>
+                            <td>
                                 {(this.props.totalTeams < 2) ? "Totals" : Functions.getTeamName(x)}
                             </td>
-                            <td className="black">{Functions.ignore0(currentTeamTotals[x].kills)}</td>
-                            <td className="black">{Functions.ignore0(currentTeamTotals[x].deaths)}</td>
-                            <td className="black">{currentEfficiency}</td>
-                            <td className="black">{Functions.ignore0(currentTeamTotals[x].shots)}</td>
-                            <td className="black">{Functions.ignore0(currentTeamTotals[x].hits)}</td>
-                            <td className="black">{currentAccuracy}</td>
-                            <td className="black">{Functions.ignore0(currentTeamTotals[x].damage)}</td>
+                            <td>{Functions.ignore0(currentTeamTotals[x].kills)}</td>
+                            <td>{Functions.ignore0(currentTeamTotals[x].deaths)}</td>
+                            <td>{currentEfficiency}</td>
+                            <td>{Functions.ignore0(currentTeamTotals[x].shots)}</td>
+                            <td>{Functions.ignore0(currentTeamTotals[x].hits)}</td>
+                            <td>{currentAccuracy}</td>
+                            <td>{Functions.ignore0(currentTeamTotals[x].damage)}</td>
         
                         </tr>
                     );
