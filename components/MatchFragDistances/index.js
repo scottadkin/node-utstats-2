@@ -2,6 +2,7 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import TipHeader from '../TipHeader/';
+import styles from '../MatchFragTable/MatchFragTable.module.css';
 
 const bAnyData = (data) =>{
     
@@ -67,8 +68,8 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
 
         if(bAnyData(p)){
 
-            elems.push(<tr key={i} className={bgColor}>
-                <td className="text-left name-td"><Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
+            elems.push(<tr key={i}>
+                <td className={`text-left name-td ${bgColor}`}><Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
                 <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
                 <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>
                 <td>{Functions.ignore0(p.longest_kill_distance.toFixed(2))}</td>
@@ -88,7 +89,7 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
 
     if(elems.length > 0){
         elems.push(<tr key={"end"}>
-            <td className="text-left"></td>
+            <td className="text-left">Best/Totals</td>
             <td>{parseFloat(Functions.ignore0(shortestKillTotal)).toFixed(2)}</td>
             <td>{parseFloat(Functions.ignore0(totalAverage)).toFixed(2)}</td>
             <td>{parseFloat(Functions.ignore0(longestKillTotal)).toFixed(2)}</td>
@@ -110,7 +111,7 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
             {(toDisplay.indexOf("k_distance_uber") !== -1) ? <TipHeader title="Uber Long Range Kills" content="Kills with a distance of 3072 and greater." /> : null}
         </tr>);
 
-        return <table className="m-bottom-25">
+        return <table className={`${styles.table} m-bottom-25 t-width-1`}>
             <tbody>
                 {elems}
             </tbody>

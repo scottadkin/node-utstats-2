@@ -67,8 +67,8 @@ const MatchFragTable = ({players, team, matchStart, toDisplay}) =>{
 
         if(bAnyData(p)){
 
-            elems.push(<tr key={`frag_tr_${team}_${i}`} className={bgColor}>
-                <td className="text-left"><CountryFlag key={`frag_country__${team}_${i}`} country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+            elems.push(<tr key={`frag_tr_${team}_${i}`} >
+                <td className={`text-left ${bgColor}`}><CountryFlag key={`frag_country__${team}_${i}`} country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
                 <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime - matchStart} /></td>
                 <td>{Functions.ignore0(p.score)}</td>
                 <td>{Functions.ignore0(p.frags)}</td>
@@ -108,7 +108,7 @@ const MatchFragTable = ({players, team, matchStart, toDisplay}) =>{
     
     </tr>);
 
-    return (<table className={`center m-bottom-25`}>
+    return (<table className={`${styles.table} center m-bottom-25 t-width-1`}>
         <tbody>
             <tr className={bgColor}>
                 <th className="name-td">Player</th>

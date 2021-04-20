@@ -83,8 +83,8 @@ class MatchSpecialEvents extends React.Component{
 
                 if(this.state.mode === 2){
 
-                    elems.push(<tr key={`multi-2-${i}`} className={bgColor}>
-                        <td>{countryFlag}{playerName}</td>
+                    elems.push(<tr key={`multi-2-${i}`}>
+                        <td className={bgColor}>{countryFlag}{playerName}</td>
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -97,8 +97,8 @@ class MatchSpecialEvents extends React.Component{
 
                 }else if(this.state.mode === 0){
 
-                    elems.push(<tr key={`multi-0-${i}`} className={bgColor}>
-                        <td>{countryFlag}{playerName}</td>
+                    elems.push(<tr key={`multi-0-${i}`}>
+                        <td className={bgColor}>{countryFlag}{playerName}</td>
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -108,8 +108,8 @@ class MatchSpecialEvents extends React.Component{
 
                 }else if(this.state.mode === 3){
 
-                    elems.push(<tr key={`multi-3-${i}`} className={bgColor}>
-                        <td>{countryFlag}{playerName}</td>
+                    elems.push(<tr key={`multi-3-${i}`} >
+                        <td className={bgColor}>{countryFlag}{playerName}</td>
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -121,7 +121,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 1){
 
                     elems.push(<tr key={`multi-1-${i}`} className={bgColor}>
-                        <td>{countryFlag}{playerName}</td>
+                        <td className={bgColor}>{countryFlag}{playerName}</td>
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -192,7 +192,7 @@ class MatchSpecialEvents extends React.Component{
         if(elems.length > 0){
             return <div>
                 
-                <table className="t-width-1">
+                <table className={`${styles.table} t-width-1`}>
                     <tbody>
                         {elems}
                     </tbody>
@@ -251,8 +251,8 @@ class MatchSpecialEvents extends React.Component{
 
                 if(this.state.mode === 0){
 
-                    elems.push(<tr key={`spree-0-${i}`} className={color}>
-                        <td>{flag}{playerName}</td>
+                    elems.push(<tr key={`spree-0-${i}`}>
+                        <td className={color}>{flag}{playerName}</td>
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -264,7 +264,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 1){
 
                     elems.push(<tr  key={`spree-1-${i}`} className={color}>
-                        <td>{flag}{playerName}</td>
+                        <td className={color}>{flag}{playerName}</td>
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -278,7 +278,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 2){
 
                     elems.push(<tr  key={`spree-2-${i}`} className={color}>
-                        <td>{flag}{playerName}</td>
+                        <td className={color}>{flag}{playerName}</td>
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -291,7 +291,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 3){
 
                     elems.push(<tr  key={`spree-3-${i}`} className={color}>
-                        <td>{flag}{playerName}</td>
+                        <td className={color}>{flag}{playerName}</td>
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -370,7 +370,7 @@ class MatchSpecialEvents extends React.Component{
             }
 
             return <div>
-            <table className="t-width-1">
+            <table className={`${styles.table} t-width-1`}>
                 <tbody>
                     {elems}
                 </tbody>
@@ -419,17 +419,17 @@ class MatchSpecialEvents extends React.Component{
 
             {
                 (this.bAnyTypeData('spree') || this.bAnyTypeData('multi')) ?
-                <div className={styles.bwrapper}>
-                    <div className={`${styles.button} ${(this.state.mode === 0) ? styles.active : '' }`} onClick={(() =>{
+                <div className="tabs">
+                    <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : '' }`} onClick={(() =>{
                         this.changeMode(0)
                     })}>Classic</div>
-                    <div className={`${styles.button} ${(this.state.mode === 1) ? styles.active : '' }`} onClick={(() =>{
+                    <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : '' }`} onClick={(() =>{
                         this.changeMode(1)
                     })}>SmartCTF/DM</div>
-                    <div className={`${styles.button} ${(this.state.mode === 2) ? styles.active : '' }`} onClick={(() =>{
+                    <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : '' }`} onClick={(() =>{
                         this.changeMode(2)
                     })}>UT2K4</div>
-                    <div className={`${styles.button} ${(this.state.mode === 3) ? styles.active : '' }`} onClick={(() =>{
+                    <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : '' }`} onClick={(() =>{
                         this.changeMode(3)
                     })}>UT3</div>
                 </div>

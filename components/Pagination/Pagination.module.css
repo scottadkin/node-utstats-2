@@ -6,16 +6,16 @@
 
 .button{
     display:inline-block;
-    padding:5px;
-    background-color:black;
-    border:1px solid rgba(255,255,255,0.1);
+    padding:7px;
+    background-color:var(--color-1);
+    border:1px solid var(--border-color-2);
     margin-right:5px;
 }
 
 .abutton{
     display:inline-block;
-    padding:5px;
-    background-color:rgb(3,3,3);
+    padding:7px;
+    background-color:var(--color-3);
     border:1px solid yellow;
     color:yellow;
     margin-right:5px;

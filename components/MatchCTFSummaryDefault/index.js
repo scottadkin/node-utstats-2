@@ -61,8 +61,8 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
         totals.return += p.flag_return;
         totals.save += p.flag_save;
 
-        elems.push(<tr className={Functions.getTeamColor(team)} key={i}>
-            <td className="text-left name-td"><CountryFlag country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+        elems.push(<tr  key={i}>
+            <td className={`text-left name-td ${Functions.getTeamColor(team)}`}><CountryFlag country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
             <td>{Functions.ignore0(p.flag_taken)}</td>
             <td>{Functions.ignore0(p.flag_pickup)}</td>
             <td>{Functions.ignore0(p.flag_dropped)}</td>
@@ -98,7 +98,7 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
     
     
 
-    return <table className={`m-bottom-25`}>
+    return <table className={`m-bottom-25 t-width-1 td-1-150`}>
         <tbody>
             <tr>
                 <th>Player</th>

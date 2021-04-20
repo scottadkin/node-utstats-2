@@ -73,8 +73,8 @@ const MatchCTFSummaryCovers = ({players, team}) =>{
 
         if(p.flag_cover_best > totals.coverBest) totals.coverBest = p.flag_cover_best
 
-        elems.push(<tr className={Functions.getTeamColor(team)} key={i}>
-            <td className="text-left name-td"><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+        elems.push(<tr key={i}>
+            <td className={`text-left name-td ${Functions.getTeamColor(team)}`}><CountryFlag country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
             <td>{Functions.ignore0(p.flag_cover)}</td>
             <td>{Functions.ignore0(p.flag_cover_pass)}</td>
             <td>{Functions.ignore0(p.flag_cover_fail)}</td>
@@ -117,7 +117,7 @@ const MatchCTFSummaryCovers = ({players, team}) =>{
         </tr>);
 
 
-    return <table className="m-bottom-25">
+    return <table className="m-bottom-25 t-width-1 td-1-150">
         <tbody>
             <tr>
                 <th>Player</th>

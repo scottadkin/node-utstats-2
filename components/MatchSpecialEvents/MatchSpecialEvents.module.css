@@ -2,45 +2,9 @@
     padding:10px;
 }
 
-.button{
-    display:inline-block;
-    font-size:12px;
-    background-color:black;
-    padding:5px;
-    user-select: none;
-    border:1px solid rgba(255,255,255,0.25);
-    margin-left:-1px;
-}
-
-
-
-.button:hover{
-    cursor: pointer;
-}
-
-.active{
-    background-color:rgb(64,0,0);
-}
-
-.special table{
-    margin-bottom:10px;
-    width:80%;
-    max-width:80%;
-    max-width:750px;
-}
-
-.special table td:nth-child(1){
-    text-align:left;
-    min-width:150px;
-    max-width:150px;
-}
-
-.bwrapper{
-    margin-bottom:10px;
-}
 
 .first{
-    background-color:rgb(0,0,0);
+    background-color:var(--color-1);
     display:inline-block;
     border:1px solid rgba(255,255,255,0.25);
     font-size:14px;
@@ -53,4 +17,12 @@
 
 .first div{
     padding:5px;
+}
+
+.table td:nth-child(1){
+    width:150px;
+}
+
+.table{
+    margin-bottom:20px;
 }
