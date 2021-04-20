@@ -331,32 +331,38 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 
-
-.default-select{
-	background-color:rgb(12,12,12);
-	color:white;
-	border:1px solid rgb(255,255,255,0.25);
-	font-size:14px;
-	font-weight:300;
-	width:200px;
-}
-
 .select-row{
 	display:grid;
-	grid-template-columns: 200px 200px;
+	grid-template-columns: 50% 50%;
 	text-align:left;
 	margin-left:auto;
 	margin-right:auto;
-	width:400px;
-	margin-bottom:5px;
+	width:50%;
+	margin-bottom:10px;
+	position:relative;
 }
+
+.default-select{
+	background-color:var(--color-2);
+	color:white;
+	border:1px solid rgb(255,255,255,0.25);
+	font-size:16px;
+	font-weight:300;
+	padding:5px;
+	width:95%;
+	height:30px;
+	line-height:30px;
+}
+
+
 
 .select-label{
 	color:white;
-	padding-right:10px;
-	display:inline-block;
-	width:200px;
-	font-size:14px;
+	width:95%;
+	font-size:16px;
+	text-align:right;
+	margin-right:5px;
+	line-height:30px;
 }
 
 .default-textbox{
@@ -368,6 +374,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	border:1px solid rgba(255,255,255,0.25);
 	margin-bottom:10px;
 	color:white;
+	margin-left:10px;
 }
 
 .search-button{

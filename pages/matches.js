@@ -25,7 +25,7 @@ class Matches extends React.Component{
         this.changePerPage = this.changePerPage.bind(this);
         this.changeGametype = this.changeGametype.bind(this);
         this.changeDisplay = this.changeDisplay.bind(this);
-        this.changeDisplay2 = this.changeDisplay2.bind(this);
+
 
     }
 
@@ -62,13 +62,11 @@ class Matches extends React.Component{
         return "";
     }
 
-    changeDisplay(){
-        this.setState({"displayType": 0});
+    changeDisplay(type){
+        console.log(`type = ${type}`);
+        this.setState({"displayType": type});
     }
 
-    changeDisplay2(){
-        this.setState({"displayType": 1});
-    }
 
     render(){
 
@@ -126,7 +124,7 @@ class Matches extends React.Component{
                         </div>
                         <div className="select-row">
                             <div className="select-label">Display</div>
-                            <Option2 title1="Default" title2="Table" leftEvent={this.changeDisplay} rightEvent={this.changeDisplay2} value={this.state.displayType}/>
+                            <Option2 title1="Default" title2="Table" changeEvent={this.changeDisplay} value={this.state.displayType}/>
                         </div>
                         
                         <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
