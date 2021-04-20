@@ -287,7 +287,15 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
                                 Match Records
                             </div></a></Link>
                         </div>
-                        <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
+                        <div className="select-row">
+                            <div className="select-label">
+                                Order By
+                            </div>
+                            <div>
+                                <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
+                            </div>
+                            
+                        </div>
                         <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
                         <div className={styles.info}>Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
                         <RecordsList mode={mode} type={this.state.type} title={title} data={currentRecords} page={page} perPage={perPage} record={record}/>
