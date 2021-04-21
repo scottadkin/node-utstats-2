@@ -1,11 +1,10 @@
 .wrapper{
-    background-color:black;
-    border:1px solid rgba(255,255,255,0.25);
-    width:400px;
+    background-color:var(--color-2);
+    border:1px solid var(--border-color-1);
+    width:500px;
     margin-left:auto;
     margin-right:auto;
-    height:180px;
-
+    height:236px;
 
 }
 
@@ -15,16 +14,17 @@
 }
 
 .country{
-    height:30px;
-    line-height:30px;
+    height:20px;
+    line-height:20px;
     padding-left:10px;
     padding-right:10px;
     font-size:12px;
 }
 
 .flag{
-    height:70px;
     margin-left:10px;
+    margin-top:25px;
+    margin-bottom:10px;
 }
 
 .flag img{
@@ -38,24 +38,25 @@
 }
 
 .face img{
-    border:1px solid rgba(255,255,255,0.25);
+    border:1px solid var(--border-color-1);
 }
 
 .left{
     background-color:rgb(16,16,16);
     width:140px;
-    height:180px;
+    height:235px;
     border-right:1px solid rgba(255,255,255,0.25);
 }
 
 .right{
-    width:260px;
+    width:360px;
     margin-left:140px;
     position:absolute;
-    margin-top:-180px;
+    margin-top:-235px;
     font-size:14px;
     padding-top:5px;
     overflow:hidden;
+    height:235px;
 }
 
 .table{

@@ -9,12 +9,13 @@ const PlayerGeneral = ({flag, country, face, first, last, matches, playtime, win
             <div className={styles.face}>
                 <img src={`/images/faces/${face}.png`} alt="image"/>
             </div>
-            <div className={styles.country}>
-                {country}
-            </div>
             <div className={styles.flag}>
                 <img src={`/images/flags/${flag}.svg`} alt="image"/>
             </div>
+            <div className={styles.country}>
+                {country}
+            </div>
+            
             
         </div>
         <div className={styles.right}>
