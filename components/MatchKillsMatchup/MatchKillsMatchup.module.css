@@ -46,12 +46,8 @@
     padding-left:20px;
 }
 
-.table tr:nth-child(odd){
-    background-color:rgb(16,16,16);
-}
-
 .suicides{
-    background-color:rgb(32,32,32);
+    background-color:var(--color-4);
 }
 
 .key{
@@ -78,6 +74,6 @@
 }
 
 .table tr:hover{
-    background-color:rgb(32,32,32);
+    background-color:var(--color-4);
 }
 

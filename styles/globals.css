@@ -153,10 +153,10 @@ th{
 }
 
 td{
-	font-weight:100;
+	font-weight:300;
 	padding:8px 10px;
 	border:1px solid var(--border-color-2);
-	font-size:12px;
+	font-size:14px;
 }
 
 tr{
@@ -182,10 +182,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 
 #mouse-over{
 	position:absolute;
-	background-color:black;
+	background-color:var(--color-1);
 	color:white;
 	text-align:center;
-	border:1px solid rgba(255,255,255,0.25);
+	border:1px solid var(--border-color-1);
 	box-shadow:2px 2px 2px 2px rgba(0,0,0,0.5);
 	display:none;
 	font-weight:300;
@@ -195,14 +195,15 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 #mouse-over-title{
 	color:yellow;
 	font-size:16px;
-	padding:5px 40px;
-	border-bottom:1px solid rgba(255,255,255,0.125);
+	padding:10px 40px;
+	border-bottom:1px solid var(--border-color-2);
+	background-color:var(--color-3);
 }
 
 #mouse-over-content{
-	padding:5px;
-	
+	padding:10px;	
 	font-size:14px;
+	line-height:22px;
 }
 
 .yellow{
@@ -353,8 +354,6 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	height:30px;
 	line-height:30px;
 }
-
-
 
 .select-label{
 	color:white;

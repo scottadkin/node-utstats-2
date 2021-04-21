@@ -28,7 +28,7 @@ function display(event, killer, victim, total, total2){
     const title = document.getElementById("mouse-over-title");
     const content = document.getElementById("mouse-over-content");
 
-    box.style.cssText = `display:block;position:fixed;background-color:black;margin-left:${event.pageX + 25}px;margin-top:${event.pageY + 25}px`;
+    box.style.cssText = `display:block;position:fixed;margin-left:${event.pageX + 25}px;margin-top:${event.pageY + 25}px`;
 
     let titleString = "";
     let contentString = "";

@@ -203,16 +203,46 @@ class MatchPowerUpControl extends React.Component{
         if(this.props.totalTeams !== 2){
             return null;
         }
+
+        const ampElems = this.displayDefaultItem("amp");
+        const invisElems = this.displayDefaultItem("invisibility");
+        const sbElems = this.displayDefaultItem("shield_belt");
+        const shElems = this.displayDefaultItem("super_health");
+        const armorElems = this.displayDefaultItem("armor");
+        const padElems = this.displayDefaultItem("pads");
+        const bootElems = this.displayDefaultItem("boots");
+
+        const results = [
+            ampElems,
+            invisElems,
+            sbElems,
+            shElems,
+            armorElems,
+            padElems,
+            bootElems,
+        ];
+
+        let bAnyData = false;
+
+        for(let i = 0; i < results.length; i++){
+
+            if(results[i] !== null){
+                bAnyData = true;
+                break;
+            }
+        }
+
+        if(!bAnyData) return null;
         
 
         return <div>
-            {this.displayItemDuel("amp")}
-            {this.displayItemDuel("invisibility")}
-            {this.displayItemDuel("shield_belt")}
-            {this.displayItemDuel("super_health")}
-            {this.displayItemDuel("armor")}
-            {this.displayItemDuel("pads")}
-            {this.displayItemDuel("boots")}
+            {ampElems}
+            {invisElems}
+            {sbElems}
+            {shElems}
+            {armorElems}
+            {padElems}
+            {bootElems}
         </div>;
     }
 

@@ -42,11 +42,11 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
 
         cappedIds.push(d.obj_id);
 
-        elems.push(<tr key={`attacked-obj-${i}`} className={Functions.getTeamColor(currentPlayer.team)}>
+        elems.push(<tr key={`attacked-obj-${i}`}>
             <td className="text-left">{getName(data.objectives, d.obj_id)}</td>
             <td>{(d.bfinal) ? 'True' : ''}</td>
             <td><MMSS timestamp={d.timestamp - matchStart} /></td>
-            <td><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</td>
+            <td className={Functions.getTeamColor(currentPlayer.team)}><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</td>
 
         </tr>);
     }
