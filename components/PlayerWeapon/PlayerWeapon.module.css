@@ -1,18 +1,18 @@
 .wrapper{
-    background-color:black;
+    background-color:var(--color-1);
     display:inline-block;
-    height:332px;
-    width:200px;
+    height:390px;
+    width:250px;
     overflow:hidden;
-    border:1px solid rgba(255,255,255,0.25);
+    border:1px solid var(--border-color-1);
     margin-left:-1px;
     margin-top:-5px;
 }
 
 .name{
     padding:5px;
-    background-color:rgb(16,16,16);
-    border-bottom:1px solid rgba(255,255,255,0.25);
+    background-color:var(--color-3);
+    border-bottom:1px solid var(--border-color-1);
     font-size:14px;
     line-height:20px;
     height:20px;
@@ -27,14 +27,13 @@
     width:200px;
     max-height:150px;
     position:absolute;
-    margin-left:-100px;
+    margin-left:-75px;
     bottom:0;
     
 }
 
 .stats{
-    background-color:rgb(16,16,16);
+    background-color:var(--color-2);
     border-top:1px solid rgba(255,255,255,0.25);
-    height:145px;
-    padding-top:5px;
+    height:210px;
 }
