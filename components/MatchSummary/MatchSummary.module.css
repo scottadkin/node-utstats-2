@@ -1,7 +1,7 @@
 .wrapper{
     color:white;
     font-weight:300;
-    background-color:var(--color-2);
+    background-color:var(--color-1);
     border:1px solid var(--border-color-1);
     margin-bottom:20px;
 }
@@ -13,16 +13,6 @@
     font-size:14px;
 }
 
-.stable{
-    font-size:12px;
-    line-height:14px;
-    margin-top:10px;
-}
-
-.stable td:nth-child(odd){
-    color:yellow;
-}
-
 .mutators{
     font-size:12px;
     line-height:14px;
@@ -30,10 +20,31 @@
 
 .mimage{
     max-width:50%;
+    border:1px solid var(--border-color-1);
 }
 
 .setting{
     display:inline-block;
     font-size:12px;
     padding-right:5px;
+    background-color:var(--color-2);
+    border: 1px solid var(--border-color-1);
+    margin-left:-1px;
+    margin-top:-1px;
+    padding:5px;
+}
+
+.motdw{
+    background-color:var(--color-2);
+    border: 1px solid var(--border-color-1);
+    display:inline-block;
+    margin-top:20px;
+    padding:0px 25px;
+}
+
+.motd{
+    font-size:12px;
+    font-style:italic;
+    line-height:22px;
+    
 }

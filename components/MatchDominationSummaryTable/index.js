@@ -84,7 +84,7 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
      
         playerElems = [];
 
-        playerElems.push(<td key={`players_name_${team}_${i}`} className="text-left"><CountryFlag key={p.id} country={p.country}/><a href={`/player/${p.player_id}`}>{p.name}</a></td>);
+        playerElems.push(<td key={`players_name_${team}_${i}`} className={`text-left ${bgColor}`}><CountryFlag key={p.id} country={p.country}/><a href={`/player/${p.player_id}`}>{p.name}</a></td>);
 
         for(let c = 0; c < controlPointNames.length; c++){
 
@@ -117,7 +117,7 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
         if(currentTotal > 0){
             playerElems.push(<td key={`player_elems_${team}_totals`}>{currentTotal}</td>);
 
-            elems.push(<tr key={`player_elems_${team}_${i}`} className={bgColor}>
+            elems.push(<tr key={`player_elems_${team}_${i}`}>
                 {playerElems}
             </tr>);
         }
@@ -140,8 +140,8 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
     </tr>);
     
 
-    return (<div className={`m-bottom-25 t-width-1000 center`}>
-        <table>
+    return (<div className={`m-bottom-25 center`}>
+        <table className="t-width-1 td-1-150">
             <tbody>
                 <tr>
                     <th>Player</th>
