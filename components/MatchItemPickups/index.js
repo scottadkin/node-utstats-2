@@ -62,6 +62,8 @@ class MatchItemPickups extends React.Component{
             max = this.props.names.length;
         }
 
+        let totalUses = 0;
+
         const offset = this.state.offset * this.state.maxDisplay;
 
         let currentTeam = 0;
@@ -78,9 +80,14 @@ class MatchItemPickups extends React.Component{
         let teamColor = "";
 
 
+        let currentPlayerUses = 0;
+
         for(let i = 0; i < this.props.players.length; i++){
 
             p = this.props.players[i];
+
+            
+            
 
             subElems = [];
 
@@ -92,9 +99,12 @@ class MatchItemPickups extends React.Component{
 
             subElems.push(<td key={`player-${i}`} className={teamColor}><Link href={`/player/${p.id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>);
 
+            
             for(let x = offset; x < max; x++){
+                currentPlayerUses = this.getPlayerItemUses(p.id, this.props.names[x].id);
+                totalUses += currentPlayerUses;
 
-                subElems.push(<td key={x}>{this.getPlayerItemUses(p.id, this.props.names[x].id)}</td>);
+                subElems.push(<td key={x}>{currentPlayerUses}</td>);
             }
     
             
@@ -105,7 +115,7 @@ class MatchItemPickups extends React.Component{
         }
 
 
-        if(elems.length > 0){
+        if(elems.length > 0 && totalUses > 0){
 
             return <table className={`t-width-1 ${styles.table} m-bottom-25`}>
                 <tbody>
@@ -120,6 +130,10 @@ class MatchItemPickups extends React.Component{
     }
 
     render(){
+
+        const tableElems = this.createElems();
+
+        if(tableElems === null) return null;
 
         return <div className="special-table m-bottom-10">
             <div className="default-header">Pickup Summary</div>
@@ -138,7 +152,7 @@ class MatchItemPickups extends React.Component{
                     Next
                 </div>
             </div>
-            {this.createElems()}
+            {tableElems}
         </div>
     }
 }

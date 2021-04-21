@@ -340,27 +340,67 @@ class MatchPowerUpControl extends React.Component{
 
         if(this.props.players.length > 2 && this.props.totalTeams !== 2){
 
+            const ampElems = this.displayDefaultItem("amp");
+            const invisElems = this.displayDefaultItem("invisibility");
+            const sbElems = this.displayDefaultItem("shield_belt");
+            const shElems = this.displayDefaultItem("super_health");
+            const armorElems = this.displayDefaultItem("armor");
+            const padElems = this.displayDefaultItem("pads");
+            const bootElems = this.displayDefaultItem("boots");
+
+            const results = [
+                ampElems,
+                invisElems,
+                sbElems,
+                shElems,
+                armorElems,
+                padElems,
+                bootElems,
+            ];
+
+            let bAnyData = false;
+
+            for(let i = 0; i < results.length; i++){
+
+                if(results[i] !== null){
+                    bAnyData = true;
+                    break;
+                }
+            }
+
+            if(!bAnyData) return null;
+
             return <div>
-                {this.displayDefaultItem("amp")}
-                {this.displayDefaultItem("invisibility")}
-                {this.displayDefaultItem("shield_belt")}
-                {this.displayDefaultItem("super_health")}
-                {this.displayDefaultItem("armor")}
-                {this.displayDefaultItem("pads")}
-                {this.displayDefaultItem("boots")}
+                {ampElems}
+                {invisElems}
+                {sbElems}
+                {shElems}
+                {armorElems}
+                {padElems}
+                {bootElems}
             </div>
         }
+
+        return null;
     }
 
     render(){
+
+        const duelElems = this.displayDuel();
+        const defaultElems = this.displayDefault();
+
+        console.log(duelElems);
+        console.log(defaultElems);
+
+        if(defaultElems === null && duelElems === null) return null;
 
         return <div>
             <div className="default-header">
                 Power Up Control
             </div>
 
-            {this.displayDuel()}
-            {this.displayDefault()}
+            {duelElems}
+            {defaultElems}
         </div>
     }
 }
