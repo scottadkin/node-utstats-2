@@ -7,6 +7,8 @@ import Image from 'next/image';
 import MMSS from '../MMSS/';
 import MatchResult from '../MatchResult/';
 import Graph from '../Graph/';
+import React from 'react';
+import MatchResultSmall from '../MatchResultSmall';
 
 const getMatchScores = (scores, id) =>{
 
@@ -194,111 +196,175 @@ function createDatesData(dates, gametypeNames){
     };
 }
 
-const PlayerRecentMatches = ({playerId, matches, scores, gametypes, totalMatches, matchPages, currentMatchPage, matchesPerPage, 
-    mapImages, serverNames, matchDates}) =>{
 
-    matches = JSON.parse(matches);
-    scores = JSON.parse(scores);
+class PlayerRecentMatches extends React.Component{
 
-    gametypes = JSON.parse(gametypes);
-    mapImages = JSON.parse(mapImages);
+    constructor(props){
 
-    serverNames = JSON.parse(serverNames);
-    matchDates = JSON.parse(matchDates);
+        super(props);
 
-    const elems = [];
+        this.state = {"mode": 0};
 
-    let m = 0;
-
-    let currentScore = "";
-    let currentWinnerClass = "";
-    let currentGametype = 0;
-    let mapImage = 0;
-    let currentServerName = "";
-
-    for(let i = 0; i < matches.length; i++){
-
-        m = matches[i];
-
-        currentScore = getMatchScores(scores, m.match_id);
-
-        currentWinnerClass = (m.winner) ? "green" : (m.draw) ? "Draw" : "red";
-
-        currentGametype = gametypes[currentScore.gametype];
-
-        if(currentGametype === undefined){
-            currentGametype = 'Not Found';
-        }else if(currentGametype === null){
-            currentGametype = 'Not Found';
-        }
-
-        mapImage = getMapImage(mapImages, m.mapName);
-
-
-        elems.push(<Link href={`/match/${m.match_id}`} key={m.id}><a>
-            <div className={styles.wrapper}>
-                <div className={`${styles.title} ${currentWinnerClass}`}> 
-                    { (m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"}
-                </div>
-                <div className={styles.image}>
-                    <Image width={384} height={216} src={mapImage} />
-                </div>
-                <div className={styles.info}>
-                    <span className="yellow">{getServerName(serverNames, m.server)}</span><br/>
-                    <span className="yellow">{currentGametype}</span> on <span className="yellow">{m.mapName}</span><br/>
-                    <TimeStamp timestamp={m.match_date} /><br/>
-                    Playtime <span className="yellow"><MMSS timestamp={m.playtime}/></span><br/>
-                    Players <span className="yellow">{m.players}</span>
-                </div>
-                <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
-                redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3} />
-            </div>
-        </a></Link>);
+        this.changeMode = this.changeMode.bind(this);
     }
 
+    changeMode(id){
+        this.setState({"mode": id});
+    }
 
-    const datesData = createDatesData(matchDates, gametypes);
-    
-    return (
-        <div  id="recent-matches">
-        
-        <div className="default-header" >
-            Recent Activity
-        </div>
+    render(){
 
-        <Graph title={["Past 24 Hours", "Past 7 Days", "Past 28 Days"]} data={
-            JSON.stringify(
-                [
-                    datesData.data.hours,
-                    datesData.data.days,
-                    datesData.data.month,
-                ]
-            )
+        const matches = JSON.parse(this.props.matches);
+        const scores = JSON.parse(this.props.scores);
+
+        const gametypes = JSON.parse(this.props.gametypes);
+        const mapImages = JSON.parse(this.props.mapImages);
+
+        const serverNames = JSON.parse(this.props.serverNames);
+        const matchDates = JSON.parse(this.props.matchDates);
+
+        let elems = [];
+
+        let m = 0;
+
+        let currentScore = "";
+        let currentWinnerClass = "";
+        let currentGametype = 0;
+        let mapImage = 0;
+        let currentServerName = "";
+
+        for(let i = 0; i < matches.length; i++){
+
+            m = matches[i];
+
+            currentScore = getMatchScores(scores, m.match_id);
+
+            currentWinnerClass = (m.winner) ? "green" : (m.draw) ? "Draw" : "red";
+
+            currentGametype = gametypes[currentScore.gametype];
+
+            if(currentGametype === undefined){
+                currentGametype = 'Not Found';
+            }else if(currentGametype === null){
+                currentGametype = 'Not Found';
             }
 
-            text={JSON.stringify(datesData.text)}
+            if(this.state.mode === 0){
 
-        />
+                mapImage = getMapImage(mapImages, m.mapName);
 
+
+                elems.push(<Link href={`/match/${m.match_id}`} key={m.id}><a>
+                    <div className={styles.wrapper}>
+                        <div className={`${styles.title} ${currentWinnerClass}`}> 
+                            { (m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"}
+                        </div>
+                        <div className={styles.image}>
+                            <Image width={384} height={216} src={mapImage} />
+                        </div>
+                        <div className={styles.info}>
+                            <span className="yellow">{getServerName(serverNames, m.server)}</span><br/>
+                            <span className="yellow">{currentGametype}</span> on <span className="yellow">{m.mapName}</span><br/>
+                            <TimeStamp timestamp={m.match_date} /><br/>
+                            Playtime <span className="yellow"><MMSS timestamp={m.playtime}/></span><br/>
+                            Players <span className="yellow">{m.players}</span>
+                        </div>
+                        <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
+                        redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3} />
+                    </div>
+                </a></Link>);
+
+            }else{
+
+                elems.push(<tr key={i}>
+                    <td><Link href={`/match/${m.match_id}`}><a><TimeStamp timestamp={m.match_date} /></a></Link></td>   
+                    <td><Link href={`/match/${m.match_id}`}><a>{getServerName(serverNames, m.server)}</a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}><a>{currentGametype}</a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}><a>{m.mapName}</a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}><a>{m.players}</a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}><a><MMSS timestamp={m.playtime}/></a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}><a><MatchResultSmall dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
+                        redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}/></a></Link></td>
+                    <td className={`${styles.title} ${currentWinnerClass}`}><Link href={`/match/${m.match_id}`}><a> { (m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"}</a></Link></td>
+                    
+                    
+                </tr>);
+            }
+        }
+
+        if(this.state.mode === 1){
+
+            elems = <table className="t-width-1">
+                <tbody>
+                <tr>
+                    <th>Date</th>
+                    <th>Server</th>
+                    <th>Gametype</th>
+                    <th>Map</th>
+                    <th>Players</th>
+                    <th>Playtime</th>
+                    <th>Match Result</th>
+                    <th>Result</th>
+                </tr>
+                {elems}
+                </tbody>
+            </table>
+        }
+
+
+        const datesData = createDatesData(matchDates, gametypes);
         
+        return (
+            <div  id="recent-matches">
+            
+            <div className="default-header" >
+                Recent Activity
+            </div>
 
-        <div className="default-header" >
-            Recent Matches
-        </div>
-        
-        <Pagination 
-                currentPage={currentMatchPage}
-                results={totalMatches}
-                pages={matchPages}
-                perPage={matchesPerPage}
-                url={`/player/${playerId}?matchpage=`}
-                anchor={'#recent-matches'}
-                
+            <Graph title={["Past 24 Hours", "Past 7 Days", "Past 28 Days"]} data={
+                JSON.stringify(
+                    [
+                        datesData.data.hours,
+                        datesData.data.days,
+                        datesData.data.month,
+                    ]
+                )
+                }
+
+                text={JSON.stringify(datesData.text)}
+
             />
-        
-            {elems}    
-        </div>
-    );
+
+            
+
+            <div className="default-header" >
+                Recent Matches
+            </div>
+            
+            <div className="big-tabs">
+                <div className={`big-tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Default View</div>
+                <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}
+                 onClick={(() =>{
+                    this.changeMode(1);
+                })}>Table View</div>
+            </div>
+            
+            <Pagination 
+                    currentPage={this.props.currentMatchPage}
+                    results={this.props.totalMatches}
+                    pages={this.props.matchPages}
+                    perPage={this.props.matchesPerPage}
+                    url={`/player/${this.props.playerId}?matchpage=`}
+                    anchor={'#recent-matches'}
+                    
+                />
+            
+                {elems}    
+            </div>
+        );
+    }
 }
 
 

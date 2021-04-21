@@ -1,10 +1,9 @@
-.content{
-   max-width:80%;
-   position:relative;
-}
+
 
 .content canvas{
-    max-width:100%;
+    width:90%;
+    max-width:1250px;
+
 }
 
 #downloads a{

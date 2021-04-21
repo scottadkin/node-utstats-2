@@ -75,7 +75,6 @@ const MatchSummary = ({info, server, gametype, map, image}) =>{
                     <span className="yellow">Match Length</span> <Playtime seconds={info.playtime} /><br/>
                     <span className="yellow">Players</span> {info.players}<br/>
 
-                    <img className={styles.mimage} src={`${image}`} alt="image"/><br/>
                     {mutatorsElem}
 
                     <span className="yellow">Server Settings</span><br/>

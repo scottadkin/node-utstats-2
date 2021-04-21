@@ -4,6 +4,7 @@
     background-color:var(--color-1);
     border:1px solid var(--border-color-1);
     margin-bottom:20px;
+    max-width:1250px;
 }
 
 .map{

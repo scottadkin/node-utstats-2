@@ -141,15 +141,15 @@ class PlayerWeapons extends React.Component{
                     elems.push(
                         <tr>
                             <td>{value.name}</td>
-                            <td>{currentWeaponStats.matches}</td>
-                            <td>{currentWeaponStats.shots}</td>
-                            <td>{currentWeaponStats.hits}</td>
-                            <td>{currentWeaponStats.accuracy.toFixed(2)}%</td>
                             <td>{currentWeaponStats.kills}</td>
                             <td>{currentWeaponStats.deaths}</td>
-                            <td>{currentWeaponStats.efficiency}%</td>
+                            <td>{currentWeaponStats.shots}</td>
+                            <td>{currentWeaponStats.hits}</td>
                             <td>{currentWeaponStats.damage}</td>
- 
+                            <td>{currentWeaponStats.accuracy.toFixed(2)}%</td>
+                            <td>{currentWeaponStats.efficiency}%</td>
+                            <td>{currentWeaponStats.matches}</td>
+
                         </tr>
                     );
                 }
@@ -161,14 +161,14 @@ class PlayerWeapons extends React.Component{
                     <tbody>
                         <tr>
                             <th>Weapon</th>
-                            <th>Matches</th>
-                            <th>Shots</th>
-                            <th>Hits</th>
-                            <th>Accuracy</th>
                             <th>Kills</th>
                             <th>Deaths</th>
-                            <th>Efficiency</th>
+                            <th>Shots</th>
+                            <th>Hits</th>
                             <th>Damage</th>
+                            <th>Accuracy</th>
+                            <th>Efficiency</th>
+                            <th>Matches</th>
                         </tr>
                         {elems}
                     </tbody>

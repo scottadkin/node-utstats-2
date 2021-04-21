@@ -63,11 +63,11 @@ const TeamsSummary = ({data, playerNames}) =>{
     }
 
 
-    return (<div className={`special-table ${styles.table}`}>
+    return (<div className={`center ${styles.table}`}>
         <div className="default-header">
             Team Changes Summary
         </div>
-        <table>
+        <table className="t-width-1">
             <tbody>
                 <tr>
                     <th>Timestamp</th>

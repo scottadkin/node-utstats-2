@@ -2,6 +2,10 @@ import styles from './MatchResultSmall.module.css'
 
 const MatchResultSmall = ({totalTeams, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore}) =>{
 
+    redScore = Math.floor(redScore);
+    blueScore = Math.floor(blueScore);
+    greenScore = Math.floor(greenScore);
+    yellowScore = Math.floor(yellowScore);
 
     if(dmWinner !== ''){
         return (<div className={`${styles.wrapper} solo`}><div className="team-none">{dmWinner} <span className="yellow">({dmScore})</span></div></div>);
