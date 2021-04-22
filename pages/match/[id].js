@@ -433,7 +433,8 @@ class CTFEventData{
             "kill": "Killed the flag carrier.",
             "cover": "Covered the flag carrier.",
             "pickedup": "Picked up the flag.",
-            "save": "Saved the flag from being capped."
+            "save": "Saved the flag from being capped.",
+            "seal": "Sealed of the base."
         }
 
         this.createDataObjects();
@@ -443,7 +444,7 @@ class CTFEventData{
 
     createDataObjects(){
 
-        this.categories = ["taken", "kill", "cover", "captured", "returned", "dropped", "save", "pickedup", "assist"];
+        this.categories = ["taken", "kill", "cover", "captured", "returned", "dropped", "save", "pickedup", "assist", "seal"];
 
         for(let i = 0; i < this.categories.length; i++){
             this.timestamps[this.categories[i]] = [];
@@ -1341,15 +1342,16 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
         const teamFlagDrops = ctfEventData.get('dropped');
         const teamFlagSaves = ctfEventData.get('save');
         const teamFlagPickups = ctfEventData.get('pickedup');
+        const teamFlagSeals = ctfEventData.get('seal');
 
         
         const ctfGraphData = [teamFlagGrabs.data, teamFlagCaps.data, teamFlagKills.data, 
             teamFlagReturns.data, teamFlagCovers.data, teamFlagDrops.data, teamFlagSaves.data,
-            teamFlagPickups.data];
+            teamFlagPickups.data, teamFlagSeals.data];
 
         const ctfGraphText = [teamFlagGrabs.text, teamFlagCaps.text, teamFlagKills.text, 
             teamFlagReturns.text, teamFlagCovers.text, teamFlagDrops.text, teamFlagSaves.text,
-            teamFlagPickups.text];
+            teamFlagPickups.text, teamFlagSeals.text];
 
         
 
@@ -1361,17 +1363,18 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
         const flagDrops = ctfEventData.getPlayerData('dropped');
         const flagSaves = ctfEventData.getPlayerData('save');
         const flagPickups = ctfEventData.getPlayerData('pickedup');
+        const flagSeals = ctfEventData.getPlayerData('seal');
 
         const ctfPlayerGraphData = [
             flagGrabs.data, flagCaps.data,  flagKills.data,
             flagReturns.data,  flagCovers.data,  flagDrops.data,
-            flagSaves.data, flagPickups.data,
+            flagSaves.data, flagPickups.data, flagSeals.data
         ];
 
         const ctfPlayerGraphText = [
             flagGrabs.text, flagCaps.text,  flagKills.text,
             flagReturns.text,  flagCovers.text,  flagDrops.text,
-            flagSaves.text, flagPickups.text,
+            flagSaves.text, flagPickups.text, flagSeals.text
         ]
             
 
@@ -1501,7 +1504,7 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
         );
     }
 
-    elems.push(<MatchServerSettings info={JSON.parse(info)}/>);
+    elems.push(<MatchServerSettings key={"server-settings"} info={JSON.parse(info)}/>);
     
 
     const dateString = Functions.convertTimestamp(parsedInfo.date, true);

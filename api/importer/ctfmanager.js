@@ -117,18 +117,18 @@ class CTFManager{
                     });
 
                 }else if(type === 'seal'){
-                    
+
                     // KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team
+              
                     this.events.push({
                         "timestamp": parseFloat(result[1]),
                         "type": "seal",
                         "player": parseInt(result[3]),
-                        "team": parseInt(result[6])
+                        "team": parseInt(result[7])
                     });
                 }
-            }
+            } 
         }
-
 
         const locationReg = /^\d+?\.\d+?\tnstats\tflag_location\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
 
