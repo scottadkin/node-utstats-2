@@ -591,6 +591,10 @@ class MatchScreenshot{
             bit = maxWidth / max;
         }
 
+        if(type === "covers"){
+            console.log(`max for covers is ${max}`);
+        }
+
 
         const color = Math.floor((255 / total) * value);
 
@@ -682,15 +686,15 @@ class MatchScreenshot{
         c.textAlign = "left";
 
         c.fillText(`Covers:`, x + col2Offset, y + row1Offset);
-        c.fillText(`Deaths:`, x + col2Offset, y + row2Offset);
+        c.fillText(`Seals:`, x + col2Offset, y + row2Offset);
         c.fillText(`FlagKills:`, x + col2Offset, y + row3Offset);
 
         c.textAlign = "right";
 
         c.fillText(player.flag_cover, x + valueOffset + col2Offset, y + row1Offset);
         this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row1Offset, "covers", player.flag_cover);
-        c.fillText(player.deaths, x + valueOffset + col2Offset, y + row2Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "deaths", player.deaths);
+        c.fillText(player.flag_seal, x + valueOffset + col2Offset, y + row2Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "seals", player.flag_seal);
         c.fillText(player.flag_kill, x + valueOffset + col2Offset, y + row3Offset);
         this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.flag_kill);
 
@@ -881,7 +885,8 @@ class MatchScreenshot{
             "assists": 0,
             "covers": 0,
             "deaths": 0,
-            "flagKills": 0
+            "flagKills": 0,
+            "seals": 0
         };
 
         this.totalCTF = {
@@ -890,7 +895,8 @@ class MatchScreenshot{
             "assists": 0,
             "covers": 0,
             "deaths": 0,
-            "flagKills": 0
+            "flagKills": 0,
+            "seals": 0
         };
 
         for(let i = 0; i < this.players.length; i++){
@@ -909,8 +915,8 @@ class MatchScreenshot{
                 this.maxCTF.assists = p.flag_assist;
             }
 
-            if(p.flag_covers > this.maxCTF.covers){
-                this.maxCTF.covers = p.flag_covers;
+            if(p.flag_cover > this.maxCTF.covers){
+                this.maxCTF.covers = p.flag_cover;
             }
 
             if(p.deaths > this.maxCTF.deaths){
@@ -921,12 +927,17 @@ class MatchScreenshot{
                 this.maxCTF.flagKills = p.flag_kill;
             }
 
+            if(p.flag_seal > this.maxCTF.seals){
+                this.maxCTF.seals = p.flag_seal;
+            }
+
             this.totalCTF.grabs += p.flag_taken;
             this.totalCTF.caps += p.flag_capture;
             this.totalCTF.assists += p.flag_assist;
             this.totalCTF.covers += p.flag_cover;
             this.totalCTF.deaths += p.deaths;
             this.totalCTF.flagKills += p.flag_kill;
+            this.totalCTF.seals += p.flag_seal;
         }
     }
 

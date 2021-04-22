@@ -434,7 +434,7 @@ class CTFEventData{
             "cover": "Covered the flag carrier.",
             "pickedup": "Picked up the flag.",
             "save": "Saved the flag from being capped.",
-            "seal": "Sealed of the base."
+            "seal": "Sealed off the base."
         }
 
         this.createDataObjects();
@@ -1383,10 +1383,10 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
         );
 
         
-        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-6"
+        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-6"
          data={JSON.stringify(ctfGraphData)} text={JSON.stringify(ctfGraphText)}/>);
 
-        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups"]} key="g-1-7" 
+        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-7" 
         data={JSON.stringify(ctfPlayerGraphData)} text={JSON.stringify(ctfPlayerGraphText)}/>);
 
         elems.push(
