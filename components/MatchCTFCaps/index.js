@@ -319,7 +319,7 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
     return (<div className="m-bottom-25">
         <div className="default-header">Flag Caps</div> 
-        <table className={styles.table}>
+        <table className={`${styles.table} t-width-1`}>
             <tbody>
                 <tr>
                     <th>Grabbed</th>

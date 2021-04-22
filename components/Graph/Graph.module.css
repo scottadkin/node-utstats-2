@@ -1,9 +1,10 @@
 .canvas{
-    display:inline-block;
+    display:block;
     border:1px solid rgba(255,255,255,0.25);
-    margin-left:-1px;
+    
     max-width:100%;
-    margin-right:5px;
+    margin-left:auto;
+    margin-right:auto;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;

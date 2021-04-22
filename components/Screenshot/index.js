@@ -1003,7 +1003,7 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
             Match Screenshot
         </div>
         <div className={`${styles.content} center`}>
-            <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-25" 
+            <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-10" 
                 data-match-data={matchData} 
                 data-map={map} 
                 data-image={image}
