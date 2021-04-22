@@ -43,6 +43,7 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
         "kill": 0,
         "return": 0,
         "save": 0,
+        "seal": 0
     };
 
     for(let i = 0; i < players.length; i++){
@@ -60,6 +61,7 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
         totals.kill += p.flag_kill;
         totals.return += p.flag_return;
         totals.save += p.flag_save;
+        totals.seal += p.flag_seal;
 
         elems.push(<tr  key={i}>
             <td className={`text-left name-td ${Functions.getTeamColor(team)}`}><CountryFlag country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
@@ -68,6 +70,7 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
             <td>{Functions.ignore0(p.flag_dropped)}</td>
             <td>{Functions.ignore0(p.flag_assist)}</td>
             <td>{Functions.ignore0(p.flag_cover)}</td>
+            <td>{Functions.ignore0(p.flag_seal)}</td>
             <td>{Functions.ignore0(p.flag_capture)}</td>
             <td>{Functions.ignore0(p.flag_kill)}</td>
             <td>{Functions.ignore0(p.flag_return)}</td>
@@ -87,6 +90,7 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
             <td>{totals.dropped}</td>
             <td>{totals.assist}</td>
             <td>{totals.cover}</td>
+            <td>{totals.seal}</td>
             <td>{totals.capture}</td>
             <td>{totals.kill}</td>
             <td>{totals.return}</td>
@@ -107,6 +111,7 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
                 <TipHeader title="Dropped" content="Player dropped the enemy flag." />
                 <TipHeader title="Assist" content="Player had carried the flag that was later capped." />
                 <TipHeader title="Cover" content="Player covered their team mate that had the enemy flag." />
+                <TipHeader title="Seal" content="Player sealed off the base while flag was taken." />
                 <TipHeader title="Capture" content="Player capped the enemy flag scoring a point for their team." />
                 <TipHeader title="Kill" content="Player killed an enemy that was carrying their team's flag." />
                 <TipHeader title="Return" content="Player returned their flag that was dropped by an enemy." />

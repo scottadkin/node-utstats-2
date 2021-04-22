@@ -30,6 +30,7 @@ class PlayerCTFSummary extends React.Component{
                     <TipHeader title="Flag Capture" content="Player captured the enemy flag and scored a point for their team."/>
                     <TipHeader title="Flag Assist" content="Player had contact with a flag that was later captured without being returned."/>
                     <TipHeader title="Flag Cover" content="Player killed an enemy that was close to their team mate that had the enemy flag."/>
+                    <TipHeader title="Flag Seal" content="Player sealed off the base while the flag was taken."/>
                     <TipHeader title="Flag Kill" content="Player killed the enemy flag carrier."/>
                     <TipHeader title="Flag Return" content="Player returned their flag that was dropped by an enemy."/>
                     <TipHeader title="Flag Close Save" content="Player return their flag that was close to the enemy flag base."/>
@@ -41,6 +42,7 @@ class PlayerCTFSummary extends React.Component{
                     <td>{this.props.data.flag_capture}</td>
                     <td>{this.props.data.flag_assist}</td>
                     <td>{this.props.data.flag_cover}</td>
+                    <td>{this.props.data.flag_seal}</td>
                     <td>{this.props.data.flag_kill}</td>
                     <td>{this.props.data.flag_return}</td>
                     <td>{this.props.data.flag_save}</td>

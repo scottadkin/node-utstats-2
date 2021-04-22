@@ -203,7 +203,7 @@ class PlayerRecentMatches extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0};
+        this.state = {"mode": 1};
 
         this.changeMode = this.changeMode.bind(this);
     }
