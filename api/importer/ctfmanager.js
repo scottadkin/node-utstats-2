@@ -116,6 +116,15 @@ class CTFManager{
                         "team": parseInt(result[5])
                     });
 
+                }else if(type === 'seal'){
+                    
+                    // KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team
+                    this.events.push({
+                        "timestamp": parseFloat(result[1]),
+                        "type": "seal",
+                        "player": parseInt(result[3]),
+                        "team": parseInt(result[6])
+                    });
                 }
             }
         }

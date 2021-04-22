@@ -68,6 +68,7 @@ class PlayerInfo{
                 "capture": 0,
                 "pickup": 0,
                 "cover": 0,
+                "seal": 0,
                 "coverFail": 0, //covers where the flag was returned 
                 "coverPass": 0, //covers where the flag was capped
                 "selfCover": 0, //kills while carrying the flag

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 12, 2021 at 09:56 PM
+-- Generation Time: Apr 22, 2021 at 05:46 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -521,6 +521,7 @@ CREATE TABLE `nstats_player_matches` (
   `flag_dropped` int(11) NOT NULL,
   `flag_capture` int(11) NOT NULL,
   `flag_pickup` int(11) NOT NULL,
+  `flag_seal` int(11) NOT NULL,
   `flag_cover` int(11) NOT NULL,
   `flag_cover_pass` int(11) NOT NULL,
   `flag_cover_fail` int(11) NOT NULL,
@@ -615,6 +616,7 @@ CREATE TABLE `nstats_player_totals` (
   `flag_dropped` int(11) NOT NULL,
   `flag_capture` int(11) NOT NULL,
   `flag_pickup` int(11) NOT NULL,
+  `flag_seal` int(11) NOT NULL,
   `flag_cover` int(11) NOT NULL,
   `flag_cover_pass` int(11) NOT NULL,
   `flag_cover_fail` int(11) NOT NULL,
