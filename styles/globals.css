@@ -308,6 +308,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	margin-top:10px;
 }
 
+.m-top-15{
+	margin-top:15px;
+}
+
 .m-top-25{
 	margin-top:25px;
 }

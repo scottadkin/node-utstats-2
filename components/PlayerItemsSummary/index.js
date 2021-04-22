@@ -8,9 +8,15 @@ class PlayerItemsSummary extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0};
+        this.state = {"mode": 0, "totalTypes": 6};
+        
 
         this.changeMode = this.changeMode.bind(this);
+
+    }
+
+    componentDidMount(){
+        this.setDefaultCategory();
     }
 
     changeMode(id){
@@ -30,13 +36,39 @@ class PlayerItemsSummary extends React.Component{
             }
         }
         
-
         return null;
     }
 
-    displayType(){
 
-        const targetType = this.state.mode;
+    setDefaultCategory(){
+
+        const data = JSON.parse(this.props.names);
+
+        let start = null;
+
+        for(let i = 0; i < this.state.totalTypes; i++){
+
+            if(this.bAnyCategoryData(data, i)){
+                start = i;
+                break;
+            }
+        }
+
+
+        this.setState({"mode": start});
+    }
+
+    bAnyCategoryData(data, category){
+
+        for(let i = 0; i < data.length; i++){
+
+            if(data[i].type === category) return true;
+        }
+
+        return false;
+    }
+
+    displayType(){
 
         const data = JSON.parse(this.props.data);
 
@@ -58,7 +90,6 @@ class PlayerItemsSummary extends React.Component{
             if(currentItem !== null){
 
                 if(d.uses > 0){
-
                     averageUsage = d.uses / d.matches;
                 }else{
                     averageUsage = 0;
@@ -113,15 +144,22 @@ class PlayerItemsSummary extends React.Component{
         ];
         const elems = [];
 
-        for(let i = 0; i < 6; i++){
+        const data = JSON.parse(this.props.names);
 
-            elems.push(
-                <div key={i} className={`tab ${(this.state.mode === i) ? "tab-selected" : "" }`} onClick={(() =>{
-                    this.changeMode(i);
-                })}>
-                    {titles[i]}
-                </div>
-            );
+        let bSetDefaultMode = false;
+
+        for(let i = 0; i < this.state.totalTypes; i++){
+
+            if(this.bAnyCategoryData(data, i)){
+
+                elems.push(
+                    <div key={i} className={`tab ${(this.state.mode === i) ? "tab-selected" : "" }`} onClick={(() =>{
+                        this.changeMode(i);
+                    })}>
+                        {titles[i]}
+                    </div>
+                );
+            }
         }
 
         if(elems.length > 0){
@@ -134,6 +172,9 @@ class PlayerItemsSummary extends React.Component{
     }
 
     render(){
+
+        if(this.state.mode === null) return null;
+        
         return <div className="special-table">
             <div className="default-header">Pickup History</div>
             {this.displayTabs()}

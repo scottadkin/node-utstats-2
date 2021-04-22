@@ -176,6 +176,13 @@ class PlayerWeapons extends React.Component{
             //}
         }
 
+        if(this.state.mode === 0){
+
+            elems = <div className="m-top-15">
+                {elems}
+            </div>
+        }
+
         return (
             <div className={`${styles.main} m-bottom-10 special-table`}>
                 <div className="default-header">Weapon Stats</div>
