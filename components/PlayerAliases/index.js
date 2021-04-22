@@ -3,10 +3,11 @@ import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 
 
-const PlayerAliases = ({data, faces}) =>{
+const PlayerAliases = ({data, faces, masterName}) =>{
 
     data = JSON.parse(data);
     faces = JSON.parse(faces);
+
 
     const elems = [];
 
@@ -16,12 +17,18 @@ const PlayerAliases = ({data, faces}) =>{
 
         d = data[i];
 
+        if(d.name.toLowerCase() === masterName.toLowerCase()){
+            continue;
+        }
+
         elems.push(<Link key={i} href={`/player/${d.id}`}><a><div className={styles.player}>
-            <img src={`/images/faces/${faces[d.face].name}.png`} alt="Image"/><br/>
-            <CountryFlag country={d.country}/>{d.name}
+            <img className={styles.face} src={`/images/faces/${faces[d.face].name}.png`} alt="Image"/><br/>
+            <div className={styles.name}><CountryFlag country={d.country}/>{d.name}</div>
         </div>
         </a></Link>);
     }
+
+    if(elems.length === 0) return null;
 
     return <div className={`${styles.wrapper} m-bottom-10`}>
         <div className="default-header">

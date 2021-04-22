@@ -1,21 +1,31 @@
 .wrapper{
-    max-width:1000px;
+    max-width:1250px;
     margin-left:auto;
     margin-right:auto;
     
 }
 
-.players{
-    
-}
+
 
 .player{
     display:inline-block;
-    background-color:rgb(3,3,3);
-    padding:5px;
-    border:1px solid rgba(255,255,255,0.25);
+    background-color:var(--color-2);
+    border:1px solid var(--border-color-1);
     margin-left:-1px;
     margin-top:-1px;
-    font-size:12px;
+    font-size:14px;
+    padding-top:5px;
 
+}
+
+.face{
+    border:1px solid var(--border-color-1);
+}
+
+
+.name{
+    padding:10px;
+    background-color:var(--color-1);
+    border-top:1px solid var(--border-color-1);
+    font-size:14px;
 }

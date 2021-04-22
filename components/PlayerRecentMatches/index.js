@@ -253,7 +253,6 @@ class PlayerRecentMatches extends React.Component{
 
                 mapImage = getMapImage(mapImages, m.mapName);
 
-
                 elems.push(<Link href={`/match/${m.match_id}`} key={m.id}><a>
                     <div className={styles.wrapper}>
                         <div className={`${styles.title} ${currentWinnerClass}`}> 
@@ -341,11 +340,11 @@ class PlayerRecentMatches extends React.Component{
                 Recent Matches
             </div>
             
-            <div className="big-tabs">
-                <div className={`big-tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(0);
                 })}>Default View</div>
-                <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}
                  onClick={(() =>{
                     this.changeMode(1);
                 })}>Table View</div>

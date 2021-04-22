@@ -96,7 +96,7 @@ function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatc
 								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
 
 								<PlayerItemsSummary data={itemData} names={itemNames}/>
-								<PlayerAliases data={aliases} faces={faces}/>
+								<PlayerAliases data={aliases} faces={faces} masterName={name}/>
 
 								<div className="default-header">Ping History</div>
 								<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/>
