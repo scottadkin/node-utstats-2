@@ -33,6 +33,7 @@ import Functions from '../../api/functions';
 import Pings from '../../api/pings';
 import Headshots from '../../api/headshots';
 import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
+import MatchServerSettings from '../../components/MatchServerSettings/';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1499,6 +1500,9 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
             <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames}/>
         );
     }
+
+    elems.push(<MatchServerSettings info={JSON.parse(info)}/>);
+    
 
     const dateString = Functions.convertTimestamp(parsedInfo.date, true);
 

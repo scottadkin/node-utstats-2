@@ -3,14 +3,12 @@
     font-weight:300;
     background-color:var(--color-1);
     border:1px solid var(--border-color-1);
-    margin-bottom:20px;
     max-width:1250px;
 }
 
 .map{
     
-    line-height:28px;
-    padding-bottom:20px;
+    line-height:26px;
     font-size:14px;
 }
 
@@ -36,11 +34,10 @@
 }
 
 .motdw{
-    background-color:var(--color-2);
-    border: 1px solid var(--border-color-1);
-    display:inline-block;
-    margin-top:20px;
     padding:0px 25px;
+    line-height:20px;
+    background-color:var(--color-2);
+    border-top:1px solid var(--border-color-1);
 }
 
 .motd{
@@ -48,4 +45,9 @@
     font-style:italic;
     line-height:22px;
     
+}
+
+.table td{
+    font-size:12px;
+    padding:0px 10px;
 }
