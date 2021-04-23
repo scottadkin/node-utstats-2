@@ -1,11 +1,56 @@
 import Functions from '../../api/functions';
 import styles from './MapSpawns.module.css'
 
-const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
+function setDistancesToFlag(spawns, flags, totalDistanceToFlag){
+
+    let dx = 0;
+    let dy = 0;
+    let dz = 0;
+    let f = 0;
+    let distance = 0;
+    let s = 0;
+
+
+    for(let i = 0; i < spawns.length; i++){
+
+        s = spawns[i];
+
+        f = flags[s.team];
+
+        dx = f.x - s.x;
+        dy = f.y - s.y;
+        dz = f.z - s.z;
+
+        distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+        totalDistanceToFlag[s.team].total += distance;
+        totalDistanceToFlag[s.team].found++;
+        spawns[i].distance = distance;
+
+    }
+
+    spawns.sort((a, b) =>{
+
+        a = a.distance;
+        b = b.distance;
+
+        if(a > b){
+            return 1;
+        }else if(a < b){
+            return -1;
+        }
+
+        return 0;
+    });
+
+}
+
+const MapSpawns = ({spawns, flagLocations}) =>{
 
 
     spawns = JSON.parse(spawns);
-    const elems = [];
+
+    let elems = [];
 
     const flags = JSON.parse(flagLocations);
 
@@ -19,48 +64,39 @@ const MapSpawns = ({spawns, flagLocations, mapPrefix}) =>{
 
     let s = 0;
 
-    let dx = 0;
-    let dy = 0;
-    let dz = 0;
-    let f = 0;
-    let distance = 0;
 
-    let boxClass = `${styles.box} ${styles.boxnoteam}`;
+    setDistancesToFlag(spawns, flags, totalDistanceToFlag);
+    
 
     for(let i = 0; i < spawns.length; i++){
 
         s = spawns[i];
 
-        if(flags.length > 0){
-
-            f = flags[s.team];
-
-            dx = f.x - s.x;
-            dy = f.y - s.y;
-            dz = f.z - s.z;
-
-            distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-            totalDistanceToFlag[s.team].total += distance;
-            totalDistanceToFlag[s.team].found++;
-
-            boxClass = styles.box;
-        }
-        
-
-        elems.push(<div className={(flags.length > 0) ? `${boxClass} ${Functions.getTeamColor(s.team)}` : `${boxClass} team-none`} key={i}>
-            <div>
-                <img src="/images/spawn.png" alt="image" />
-            </div>
-            <div>
-                {s.name}<br/>
-                Spawns: {s.spawns}<br/>      
-                Position: <span className="yellow">X</span> {s.x.toFixed(2)} <span className="yellow">Y</span>  {s.y.toFixed(2)} <span className="yellow">Z</span> {s.z.toFixed(2)}<br/>
-                {(flags.length > 0) ? <span>Distance to Flag: {distance.toFixed(2)}</span> : null}
-            </div>
-        </div>);
+        elems.push(<tr key={i}>
+            <td className={Functions.getTeamColor(s.team)}>{s.name}</td>
+            <td>{s.x.toFixed(2)}</td>
+            <td>{s.y.toFixed(2)}</td>
+            <td>{s.x.toFixed(2)}</td>
+            <td>{s.spawns}</td>
+            {(flags.length > 0) ? <td>{s.distance.toFixed(2)}</td> : null}
+        </tr>);
     }
 
+    if(elems.length > 0){
+        elems = <table className="t-width-1">
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <th>Position X</th>
+                    <th>Position Y</th>
+                    <th>Position Z</th>
+                    <th>Spawns</th>
+                    {(flags.length > 0) ? <th>Distance To Flag</th> : null}
+                </tr>
+                {elems}
+            </tbody>
+        </table>
+    }
 
 
     let flagsTable = null;

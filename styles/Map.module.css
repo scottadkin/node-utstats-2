@@ -1,10 +1,7 @@
 .top{
-    background-color:black;
     display:inline-block;
     margin-left:auto;
     margin-right:auto;
-    border:1px solid rgba(255,255,255,0.25);
-    padding-top:10px;
     max-width:600px;
 }
 
@@ -13,32 +10,14 @@
     border:none;
     line-height:12px;
     font-size:12px;
-    width:100%;
+    width:90%;
+    max-width:600px;
 }
 
-.ttop tr:nth-child(even){
-    background-color:rgb(12,12,12);
-}
-
-.ttop td{
-    border:none;
-}
-
-.ttop td:nth-child(1){
-    text-align:right;
-    color:yellow;
-    width:50%;
-}
-
-.ttop td:nth-child(2){
-    text-align:left;
-    width:50%;
-
-}
 
 .mimage{
+    max-width:600px;
     width:90%;
-    max-width:500px;
     border:1px solid rgba(255,255,255,0.5);
 }
 

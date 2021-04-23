@@ -1,19 +1,18 @@
 .wrapper{
-    background-color:black;
-    background:linear-gradient(to bottom right, rgb(3,3,3), rgb(16,16,16));
-    width:275px;
+    background-color:var(--color-1);
+    width:350px;
     display:inline-block;
-    border:1px solid rgba(255,255,255,0.25);
+    border:1px solid var(--border-color-1);
     margin-left:auto;
     margin-right:auto;
     margin-top:-1px;
     margin-left:-1px;
-    height:80px;
+    height:90px;
     transition:background-color 0.3s;
 }
 
 .wrapper:hover{
-    background-color:rgb(12,12,12);
+    background-color:var(--color-2);
 }
 
 .face{
@@ -32,8 +31,8 @@
 .kv{
     display:grid;
     grid-template-columns: 50% 50%;
-    font-size:12px;
-    line-height:16px;
+    font-size:14px;
+    line-height:20px;
 }
 
 .kv div:nth-child(1){
@@ -49,6 +48,7 @@
     padding:3px;
     text-align:left;
     padding-left:6px;
+    font-size:16px;
 }
 
 .name img{

@@ -6,7 +6,7 @@ import Maps from '../../api/maps';
 import Functions from '../../api/functions';
 import Timestamp from '../../components/TimeStamp';
 import Link from 'next/link';
-import MatchesDefaultView from '../../components/MatchesDefaultView/';
+import MatchesTableView from '../../components/MatchesTableView/';
 import Servers from '../../api/servers';
 import Gametypes from '../../api/gametypes';
 import React from 'react';
@@ -157,12 +157,6 @@ class Map extends React.Component{
                         </table>
                     </div>
 
-                    <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
-
-                    <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
-
-                    <MapAssaultObjectives images={this.props.assaultImages} mapName={Functions.cleanMapName(basic.name)} objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
-
                     <div className="default-header">
                         Games Played
                     </div>
@@ -195,13 +189,23 @@ class Map extends React.Component{
                         Longest Matches
                     </div>
 
-                    <MatchesDefaultView data={this.props.longestMatches} image={image}/>
+                    <MatchesTableView data={this.props.longestMatches} image={image}/>
 
                     <div className="default-header">Recent Matches</div>
                     <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
                     <div className={styles.recent}>
-                        <MatchesDefaultView data={matches} image={image}/>
+                        <MatchesTableView data={matches} image={image}/>
                     </div>
+
+                    <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
+
+                    <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
+
+                    <MapAssaultObjectives images={this.props.assaultImages} mapName={Functions.cleanMapName(basic.name)} objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
+
+                    
+
+                    
                     
                 </div>
             </div>
