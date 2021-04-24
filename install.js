@@ -55,6 +55,25 @@ const rankingRows = [
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_6',2400)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_7',3600)",
 
+
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_assist',3000)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_return',600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_taken',600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_dropped',-300)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_capture',6000)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_pickup',600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_seal',1200)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_cover',600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_cover_pass',1000)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_cover_fail',-600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_self_cover',600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_self_cover_pass',1000)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_self_cover_fail',-600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_multi_cover',3600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_spree_cover',4200)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_kill',1600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_save',4000)",
+
 ];
 
 
@@ -67,6 +86,8 @@ const rankingRows = [
             await runQuery(rankingRows[i]);
         
         }
+
+        process.exit();
 
     }catch(err){
         console.trace(err);

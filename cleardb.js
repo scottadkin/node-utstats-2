@@ -40,6 +40,7 @@ const tables = [
     "weapons",
     "winrates",
     "winrates_latest",
+    "ranking_values"
 ];
 
 function quickQuery(query){
@@ -53,8 +54,11 @@ function quickQuery(query){
             if(err) reject(err);
 
             new Message(`Query "${query}" completed.`, "pass");
-
-            resolve(result.affectedRows);
+            if(result !== undefined){
+                resolve(result.affectedRows);
+            }else{
+                resolve(0);
+            }
         });
     });
 }
