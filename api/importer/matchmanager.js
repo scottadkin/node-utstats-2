@@ -270,7 +270,7 @@ class MatchManager{
 
             console.log(this.rankingsManager.settings);
 
-            await this.rankingsManager.update(this.playerManager.players);
+            await this.rankingsManager.update(this.playerManager.players, this.gametype.currentMatchGametype);
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 

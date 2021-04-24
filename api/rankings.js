@@ -37,12 +37,49 @@ class Rankings{
         });
     }
 
-    async update(players){
+    insertPlayerCurrent(player, gametype, playtime, ranking){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,1,?,?,?)";
+
+            mysql.query(query, [player,gametype,playtime,ranking,ranking], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+
+    updatePlayerCurrent(player, gametype, playtime, newRanking){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_ranking_player_current SET
+            matches=matches+1, playtime=playtime+?,ranking_change=?-ranking,ranking=?
+            WHERE gametype=? AND player_id=?`;
+
+            mysql.query(query, [playtime, newRanking, newRanking, gametype, player], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    resolve(result.affectedRows);
+                }
+
+                resolve(0);
+            });
+        });
+    }
+
+    async update(players, gametype){
 
     
         try{
 
-            //console.log(players);
 
             if(this.settings === undefined){
                 new Message(`Rankings.update() Settings are not set, can't updated rankings!`,"error");
@@ -113,6 +150,10 @@ class Rankings{
                     currentScore += p.stats.assault.caps += s.assault_objectives;
 
                     console.log(`${p.name} ranking score is ${currentScore}`);
+
+                    if(await this.updatePlayerCurrent(p.masterId, gametype, p.stats.time_on_server, currentScore) === 0){
+                        await this.insertPlayerCurrent(p.masterId, gametype, p.stats.time_on_server, currentScore);
+                    }
                 }
             }
 

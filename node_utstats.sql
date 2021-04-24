@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 24, 2021 at 08:47 PM
+-- Generation Time: Apr 25, 2021 at 12:12 AM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -563,21 +563,6 @@ CREATE TABLE `nstats_player_matches` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `nstats_player_ranking_current`
---
-
-CREATE TABLE `nstats_player_ranking_current` (
-  `id` int(11) NOT NULL,
-  `player_id` int(11) NOT NULL,
-  `matches` int(11) NOT NULL,
-  `playtime` float NOT NULL,
-  `ranking` float NOT NULL,
-  `diff` float NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `nstats_player_totals`
 --
 
@@ -703,6 +688,22 @@ CREATE TABLE `nstats_player_weapon_totals` (
   `hits` int(11) NOT NULL,
   `damage` bigint(11) NOT NULL,
   `matches` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_ranking_player_current`
+--
+
+CREATE TABLE `nstats_ranking_player_current` (
+  `id` int(11) NOT NULL,
+  `player_id` int(11) NOT NULL,
+  `gametype` int(11) NOT NULL,
+  `matches` int(11) NOT NULL,
+  `playtime` float NOT NULL,
+  `ranking` float NOT NULL,
+  `ranking_change` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -984,12 +985,6 @@ ALTER TABLE `nstats_player_matches`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `nstats_player_ranking_current`
---
-ALTER TABLE `nstats_player_ranking_current`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `nstats_player_totals`
 --
 ALTER TABLE `nstats_player_totals`
@@ -1005,6 +1000,12 @@ ALTER TABLE `nstats_player_weapon_match`
 -- Indexes for table `nstats_player_weapon_totals`
 --
 ALTER TABLE `nstats_player_weapon_totals`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `nstats_ranking_player_current`
+--
+ALTER TABLE `nstats_ranking_player_current`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1210,12 +1211,6 @@ ALTER TABLE `nstats_player_matches`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `nstats_player_ranking_current`
---
-ALTER TABLE `nstats_player_ranking_current`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `nstats_player_totals`
 --
 ALTER TABLE `nstats_player_totals`
@@ -1231,6 +1226,12 @@ ALTER TABLE `nstats_player_weapon_match`
 -- AUTO_INCREMENT for table `nstats_player_weapon_totals`
 --
 ALTER TABLE `nstats_player_weapon_totals`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_ranking_player_current`
+--
+ALTER TABLE `nstats_ranking_player_current`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

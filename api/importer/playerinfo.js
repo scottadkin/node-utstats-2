@@ -92,7 +92,8 @@ class PlayerInfo{
             },
             "assault": {
                 "caps": 0
-            }
+            },
+            "time_on_server": 0
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };
 

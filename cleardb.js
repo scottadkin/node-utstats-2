@@ -40,7 +40,8 @@ const tables = [
     "weapons",
     "winrates",
     "winrates_latest",
-    "ranking_values"
+    "ranking_values",
+    "ranking_player_current"
 ];
 
 function quickQuery(query){
