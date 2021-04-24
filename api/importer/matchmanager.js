@@ -20,6 +20,7 @@ const WeaponsManager = require('./weaponsmanager');
 const ItemsManager = require('./itemsmanager');
 const ConnectionsManager = require('./connectionsmanager');
 const CountriesManager = require('./countriesmanager');
+const Rankings = require('../rankings');
 
 class MatchManager{
 
@@ -261,6 +262,15 @@ class MatchManager{
             await this.maps.updateAllPlayersHistory(this.playerManager.players, this.mapInfo.mapId, this.matchId, this.serverInfo.date);
             new Message(`Updated player map history.`,'pass');
             //this.maps.updatePlayerHistory(this.playerManager.players[0].masterId, this.mapInfo.matchId);
+
+
+            this.rankingsManager = new Rankings();
+
+            await this.rankingsManager.setRankingSettings();
+
+            console.log(this.rankingsManager.settings);
+
+            await this.rankingsManager.update(this.playerManager.players);
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
