@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2021 at 12:12 AM
+-- Generation Time: Apr 25, 2021 at 12:22 AM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -709,13 +709,26 @@ CREATE TABLE `nstats_ranking_player_current` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nstats_ranking_player_history`
+--
+
+CREATE TABLE `nstats_ranking_player_history` (
+  `id` int(11) NOT NULL,
+  `player_id` int(11) NOT NULL,
+  `gametype` int(11) NOT NULL,
+  `ranking` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nstats_ranking_values`
 --
 
 CREATE TABLE `nstats_ranking_values` (
   `id` int(11) NOT NULL,
-  `name` varchar(20) NOT NULL,
-  `value` int(11) NOT NULL
+  `name` varchar(30) NOT NULL,
+  `value` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -1009,6 +1022,12 @@ ALTER TABLE `nstats_ranking_player_current`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_ranking_player_history`
+--
+ALTER TABLE `nstats_ranking_player_history`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_ranking_values`
 --
 ALTER TABLE `nstats_ranking_values`
@@ -1232,6 +1251,12 @@ ALTER TABLE `nstats_player_weapon_totals`
 -- AUTO_INCREMENT for table `nstats_ranking_player_current`
 --
 ALTER TABLE `nstats_ranking_player_current`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_ranking_player_history`
+--
+ALTER TABLE `nstats_ranking_player_history`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

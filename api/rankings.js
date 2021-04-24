@@ -75,10 +75,30 @@ class Rankings{
         });
     }
 
+    insertPlayerHistory(player, gametype, ranking){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?)";
+
+            mysql.query(query, [player, gametype, ranking], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
     async update(players, gametype){
 
     
         try{
+
+            const halfHour = 60 * 30;
+            const hour = 60 * 60;
+            const hour2 = hour * 2;
+            const hour3 = hour * 3;
 
 
             if(this.settings === undefined){
@@ -149,11 +169,32 @@ class Rankings{
                     //assault
                     currentScore += p.stats.assault.caps += s.assault_objectives;
 
-                    console.log(`${p.name} ranking score is ${currentScore}`);
+                    currentScore = currentScore / (p.stats.time_on_server / 60);
+
+
+                    if(p.stats.time_on_server < halfHour){
+
+                        currentScore *= this.settings.sub_half_hour_multiplier;
+
+                    }else if(p.stats.time_on_server < hour){
+
+                        currentScore *= this.settings.sub_hour_multiplier;
+
+                    }else if(p.stats.time_on_server < hour2){
+
+                        currentScore *= this.settings.sub_2hour_multiplier;
+
+                    }else if(p.stats.time_on_server < hour3){
+                        
+                        currentScore *= this.settings.sub_3hour_multiplier;
+                    }
+
 
                     if(await this.updatePlayerCurrent(p.masterId, gametype, p.stats.time_on_server, currentScore) === 0){
                         await this.insertPlayerCurrent(p.masterId, gametype, p.stats.time_on_server, currentScore);
                     }
+
+                    await this.insertPlayerHistory(p.masterId, gametype, currentScore);
                 }
             }
 
