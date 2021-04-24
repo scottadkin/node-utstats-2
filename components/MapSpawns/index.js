@@ -125,7 +125,7 @@ const MapSpawns = ({spawns, flagLocations}) =>{
 
                 percentOfLowest = ((totalDistanceToFlag[i].total / lowestDistance) * 100).toFixed(2);
 
-                averageDistanceElem.push(<div className={`${styles.flag} ${Functions.getTeamColor(i)}`} key={i}>
+                /*averageDistanceElem.push(<div className={`${styles.flag} ${Functions.getTeamColor(i)}`} key={i}>
                     <div>
                         <img src="/images/spawn.png" alt="image" />
                     </div>
@@ -135,14 +135,36 @@ const MapSpawns = ({spawns, flagLocations}) =>{
                         Average Distance to Flag {(totalDistanceToFlag[i].total / totalDistanceToFlag[i].found).toFixed(2)}<br/>
                         <span className={(percentOfLowest > 100) ? "orange" : "green"}>{percentOfLowest}%</span>
                     </div>
-                </div>);
+                </div>);*/
+
+                averageDistanceElem.push(<tr key={i}>
+
+                        <td className={Functions.getTeamColor(i)}>{Functions.getTeamName(i)}</td>
+                        <td>{totalDistanceToFlag[i].found}</td>
+                        <td>{totalDistanceToFlag[i].total.toFixed(2)}</td>
+                        <td>{(totalDistanceToFlag[i].total / totalDistanceToFlag[i].found).toFixed(2)}</td>
+                        <td className={(percentOfLowest > 100) ? "red" : "green"}>{(percentOfLowest == 100) ? "" : `${Math.abs(100 -percentOfLowest).toFixed(2)}%`}</td>
+                </tr>);
+
             }
         }
 
         flagsTable = <div>    
             <div className="default-header m-top-10">Spawn Distances to Flag</div>
             
-                {averageDistanceElem}
+                <table className="t-width-1">
+                    <tbody>
+                        <tr>
+                            <th>Team</th>
+                            <th>Spawn Points</th>
+                            <th>Total Distance</th>
+                            <th>Average Distance</th>
+                            <th>Disadvantage</th>
+                        </tr>
+                        {averageDistanceElem}
+                    </tbody>
+                </table>
+                
                
         </div>;
 
@@ -150,7 +172,7 @@ const MapSpawns = ({spawns, flagLocations}) =>{
 
     if(elems.length !== 0){
 
-        return <div className="m-bottom-10 t-width-1 center">
+        return <div className="m-bottom-10 center">
             <div className="default-header">Spawn Points</div>
                   
                {elems}

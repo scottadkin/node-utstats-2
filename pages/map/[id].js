@@ -12,15 +12,14 @@ import Gametypes from '../../api/gametypes';
 import React from 'react';
 import Pagination from '../../components/Pagination/';
 import Graph from '../../components/Graph/';
-import MapAddictedPlayer from '../../components/MapAddictedPlayer/';
 import Players from '../../api/players';
-import Faces from '../../api/faces';
 import CTF from '../../api/ctf';
 import Domination from '../../api/domination';
 import MapControlPoints from '../../components/MapControlPoints/';
 import MapSpawns from '../../components/MapSpawns/';
 import Assault from '../../api/assault';
 import MapAssaultObjectives from '../../components/MapAssaultObjectives/';
+import MapAddictedPlayers from '../../components/MapAddictedPlayers/';
 
 class Map extends React.Component{
 
@@ -28,53 +27,6 @@ class Map extends React.Component{
 
         super(props);
         
-    }
-
-    getPlayerFace(faces, id){
-
-        for(const [key, value] of Object.entries(faces)){
-
-            if(parseInt(key) === id){
-                return value.name;
-            }
-        }
-
-        return 'faceless';
-
-    }
-
-    createAddicedPlayers(){
-
-        const elems = [];
-
-        let p = 0;
-
-        const faceFiles = JSON.parse(this.props.faceFiles);
-
-        const players = JSON.parse(this.props.addictedPlayers);
-        const playerNames = JSON.parse(this.props.playerNames);
-        let currentPlayer = 0;
-
-        for(let i = 0; i < players.length; i++){
-
-            p = players[i];
-
-            currentPlayer = Functions.getPlayer(playerNames, p.player);
-  
-            elems.push(<MapAddictedPlayer key={i} name={currentPlayer.name} matches={p.matches} playtime={p.playtime}
-                playerId={p.player} country={currentPlayer.country} longest={p.longest} longestId={p.longest_id} 
-                face={this.getPlayerFace(faceFiles, currentPlayer.face)}
-            />);
-        }
-
-        if(elems.length === 0){
-
-            elems.push(
-                <div key={"none"} className="not-found">No Player Data</div>
-            );
-        }
-
-        return elems;
     }
 
 
@@ -176,13 +128,20 @@ class Map extends React.Component{
                                 this.props.dates.year.text,
                             ])
                         }
-                        />
+                    />
+
+                    <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
+
+                    <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
+
+                    <MapAssaultObjectives images={this.props.assaultImages} mapName={Functions.cleanMapName(basic.name)} objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
+
 
                     <div className="default-header">
                         Addicted Players
                     </div>
-                    <div className="m-bottom-10">  
-                        {this.createAddicedPlayers()} 
+                    <div className="m-bottom-10 center">  
+                        <MapAddictedPlayers players={this.props.addictedPlayers} playerNames={this.props.playerNames}/>
                     </div>
 
                     <div className="default-header">
@@ -197,12 +156,7 @@ class Map extends React.Component{
                         <MatchesTableView data={matches} image={image}/>
                     </div>
 
-                    <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
-
-                    <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
-
-                    <MapAssaultObjectives images={this.props.assaultImages} mapName={Functions.cleanMapName(basic.name)} objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
-
+                    
                     
 
                     
@@ -401,11 +355,6 @@ export async function getServerSideProps({req, query}){
     
 
     const playerNames = await playerManager.getNamesByIds(playerIds);
-    const faceIds = Functions.getUniqueValues(playerNames, "face");
-
-    const faceManager = new Faces();
-
-    const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
     const spawns = await mapManager.getSpawns(mapId);
 
@@ -467,7 +416,6 @@ export async function getServerSideProps({req, query}){
             "dates": matchDatesData,
             "addictedPlayers": JSON.stringify(addictedPlayers),
             "playerNames": JSON.stringify(playerNames),
-            "faceFiles": JSON.stringify(faceFiles),
             "longestMatches": JSON.stringify(longestMatches),
             "spawns": JSON.stringify(spawns),
             "flagLocations": JSON.stringify(flagLocations),

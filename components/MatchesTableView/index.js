@@ -62,8 +62,8 @@ class MatchesTableView extends React.Component{
 
 
         return (
-            <div className="center t-width-1">
-                <table>
+            <div className="center">
+                <table className="t-width-1">
                     <tbody>
                         <tr>
                             <th>Server</th>

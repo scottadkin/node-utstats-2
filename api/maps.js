@@ -645,7 +645,7 @@ class Maps{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT player,playtime,matches,longest,longest_id FROM nstats_player_maps WHERE map=? ORDER BY playtime DESC LIMIT ?";
+            const query = "SELECT player,playtime,matches,longest,longest_id,first,last FROM nstats_player_maps WHERE map=? ORDER BY playtime DESC LIMIT ?";
 
             mysql.query(query, [mapId, limit], (err, result) =>{
 
