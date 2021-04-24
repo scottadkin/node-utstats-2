@@ -59,14 +59,15 @@ const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
         if(o.taken === 0) percent = 0;
 
         elems.push(<div key={i} className={styles.box}>
+            <div className={styles.name}>{o.name}</div>
             <div>
-                <Image src={getObjectImage(images, mapName, o.obj_id)} width="200" height="112" />
+                <Image src={getObjectImage(images, mapName, o.obj_id)} width="400" height="225" />
             </div>
-            <div>
-                <span className={styles.name}>{o.name}</span><br/>
-                Taken {o.taken} Times<br/><br/>
+            <div className={styles.info}>  
+                Taken {o.taken} Times<br/>
                 Taken in {percent}% of Matches
             </div>
+            
         </div>);
 
         
@@ -102,7 +103,7 @@ const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
         
     }
 
-    return <div className="m-bottom-10">
+    return <div className={`m-bottom-10 center ${styles.wrapper}`}>
         <div className="default-header">Map Objectives</div>
         {elems}
     </div>

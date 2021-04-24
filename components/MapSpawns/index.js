@@ -61,11 +61,11 @@ const MapSpawns = ({spawns, flagLocations}) =>{
         {"total": 0, "found": 0}
     ];
 
-
     let s = 0;
 
-
-    setDistancesToFlag(spawns, flags, totalDistanceToFlag);
+    if(flags.length > 0){
+        setDistancesToFlag(spawns, flags, totalDistanceToFlag);
+    }
     
 
     for(let i = 0; i < spawns.length; i++){
@@ -124,18 +124,6 @@ const MapSpawns = ({spawns, flagLocations}) =>{
             if(totalDistanceToFlag[i].found > 0){
 
                 percentOfLowest = ((totalDistanceToFlag[i].total / lowestDistance) * 100).toFixed(2);
-
-                /*averageDistanceElem.push(<div className={`${styles.flag} ${Functions.getTeamColor(i)}`} key={i}>
-                    <div>
-                        <img src="/images/spawn.png" alt="image" />
-                    </div>
-                    <div>
-                        {totalDistanceToFlag[i].found} Spawns<br/>
-                        Total Distance to Flag {totalDistanceToFlag[i].total.toFixed(2)}<br/>
-                        Average Distance to Flag {(totalDistanceToFlag[i].total / totalDistanceToFlag[i].found).toFixed(2)}<br/>
-                        <span className={(percentOfLowest > 100) ? "orange" : "green"}>{percentOfLowest}%</span>
-                    </div>
-                </div>);*/
 
                 averageDistanceElem.push(<tr key={i}>
 

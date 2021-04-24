@@ -1,31 +1,27 @@
 .box{
-    background-color:black;
-    background:linear-gradient(to bottom right, rgb(3,3,3), rgb(16,16,16));
-    width:500px;
-    height:112px;
-    border:1px solid rgba(255,255,255,0.25);
+    background-color:var(--color-2);
+   
+    border:1px solid var(--border-color-1);
     margin-top:-1px;
-    margin-left:auto;
-    margin-right:auto;
-}
-
-.box div:nth-child(1){
-    width:200px;
-    height:112px;
-}
-
-.box div:nth-child(2){
-    width:300px;
-    margin-left:200px;
-    margin-top:-112px;
-    height:112px;
-    font-size:14px;
+    display:inline-block;
+    margin-left:-1px;
+    margin-bottom:10px;
 }
 
 .name{
-    font-size:14px;
-    display:inline-block;
-    padding-top:10px;
-    padding-bottom:20px;
+    font-size:16px;
+    padding:10px;
+    background-color:var(--color-1);
     color:yellow;
+}
+
+.info{
+    padding:10px;
+    font-size:14px;
+    line-height:24px;
+}
+
+.wrapper{
+    max-width:1250px;
+    width:90%;
 }
