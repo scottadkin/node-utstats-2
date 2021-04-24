@@ -10,26 +10,33 @@ const MapControlPoints = ({points, mapPrefix}) =>{
 
         for(let i = 0; i < points.length; i++){
 
-            elems.push(<div className={styles.box} key={i}>
-
-                <div>
-                    <img src="/images/controlpoint.png" alt="icon" />
-                </div>
-                <div>
-                    <span className={styles.name}>{points[i].name}</span><br/>
-                    Captured: {points[i].captured}<br/>
-                    Avg Caps: {(points[i].captured / points[i].matches).toFixed(1)}<br/>
-                    <span className={styles.position}>
-                        Position: &#123;<span className="yellow">X</span>: {Math.floor(points[i].x)},<span className="yellow">Y</span> 
-                        : {Math.floor(points[i].y)}, <span className="yellow">Z</span>: {Math.floor(points[i].z)}&#125;
-                    </span>
-                </div>
-            </div>);
+            elems.push(<tr key={i}>
+                <td>{points[i].name}</td>
+                <td>{Math.floor(points[i].x)}</td>
+                <td>{Math.floor(points[i].y)}</td>
+                <td>{Math.floor(points[i].z)}</td>
+                <td>{points[i].captured}</td>
+                <td>{(points[i].captured / points[i].matches).toFixed(1)}</td>
+            </tr>);
+           
         }
 
         return <div className="m-bottom-10">
             <div className="default-header">Domination Control Points</div>
-            {elems}
+            <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position X</th>
+                        <th>Position Y</th>
+                        <th>Position Z</th>
+                        <th>Caps</th>
+                        <th>Average Caps</th>
+                    </tr>
+                    {elems}
+                </tbody>
+            </table>
+            
         </div>
     }
 
