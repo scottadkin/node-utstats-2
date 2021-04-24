@@ -11,6 +11,7 @@ function Nav(){
         {"url": `/`, "text": "Home"},
         {"url": `/matches`, "text": "Matches", "alt": "/match/[id]"},
         {"url": `/players`, "text": "Players", "alt": "/player/[id]"},
+        {"url": `/rankings/0`, "text": "Rankings", "alt": "/rankings/[id]"},
         {"url": `/records`, "text": "Records"},
         {"url": `/maps`, "text": "Maps", "alt": "/map/[id]"},
     ];
