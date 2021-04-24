@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 22, 2021 at 05:46 PM
+-- Generation Time: Apr 24, 2021 at 06:40 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -693,6 +693,18 @@ CREATE TABLE `nstats_player_weapon_totals` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nstats_ranking_values`
+--
+
+CREATE TABLE `nstats_ranking_values` (
+  `id` int(11) NOT NULL,
+  `name` varchar(20) NOT NULL,
+  `value` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nstats_servers`
 --
 
@@ -975,6 +987,12 @@ ALTER TABLE `nstats_player_weapon_totals`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_ranking_values`
+--
+ALTER TABLE `nstats_ranking_values`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_servers`
 --
 ALTER TABLE `nstats_servers`
@@ -1186,6 +1204,12 @@ ALTER TABLE `nstats_player_weapon_match`
 -- AUTO_INCREMENT for table `nstats_player_weapon_totals`
 --
 ALTER TABLE `nstats_player_weapon_totals`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_ranking_values`
+--
+ALTER TABLE `nstats_ranking_values`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
