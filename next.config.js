@@ -9,5 +9,31 @@ module.exports = {
         }
 
         return config;
+    },
+    redirects: async () =>{
+
+        return [
+            {
+                source: '/rankings',
+                destination: "/rankings/0",
+                permanent: true,
+            },
+            {
+                source: '/match',
+                destination: "/matches/",
+                permanent: true,
+            },
+            {
+                source: '/player',
+                destination: "/players/",
+                permanent: true,
+            },
+            {
+                source: '/map',
+                destination: "/maps/",
+                permanent: true,
+            }
+
+        ]
     }
 }
