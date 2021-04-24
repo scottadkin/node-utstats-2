@@ -74,6 +74,9 @@ const rankingRows = [
     "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_kill',1600)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'flag_save',4000)",
 
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'dom_caps',6000)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'assault_objectives',6000)",
+
 ];
 
 

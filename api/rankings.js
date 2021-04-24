@@ -107,7 +107,10 @@ class Rankings{
 
                     //dom
 
+                    currentScore += p.stats.dom.caps += s.dom_caps;
+
                     //assault
+                    currentScore += p.stats.assault.caps += s.assault_objectives;
 
                     console.log(`${p.name} ranking score is ${currentScore}`);
                 }
