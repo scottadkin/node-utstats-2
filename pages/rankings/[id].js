@@ -71,7 +71,8 @@ class Rankings extends React.Component{
 
             d = data[i];
 
-            elems.push(<RankingTable key={i} title={this.getGametypeName(gametypeNames, d.id)} data={d.data}/>);
+            elems.push(<RankingTable gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} key={i} 
+                title={this.getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results}/>);
         }
 
         return elems;
@@ -80,23 +81,23 @@ class Rankings extends React.Component{
     render(){
 
         return <div>
-					<DefaultHead host={this.props.host} title={`Rankings`} 
-						description={`View player rankings for their gametypes played.`} 
-						keywords={`ranking,gametype`}
-					/>
-					<main>
-						<Nav />
-						<div id="content">
-							<div className="default">
-								<div className="default-header">
-                                    Rankings
-								</div>
-                                {this.createElems()}
-							</div>
-						</div>
-						<Footer />
-					</main>   
-				</div>;
+            <DefaultHead host={this.props.host} title={`Rankings`} 
+                description={`View player rankings for their gametypes played.`} 
+                keywords={`ranking,gametype`}
+            />
+            <main>
+                <Nav />
+                <div id="content">
+                    <div className="default">
+                        <div className="default-header">
+                            Rankings
+                        </div>
+                        {this.createElems()}
+                    </div>
+                </div>
+                <Footer />
+            </main>   
+        </div>;
     }
 }
 
@@ -105,6 +106,27 @@ class Rankings extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
+    let page = 1;
+    let perPage = 25;
+
+    console.log(query);
+
+    let gametype = parseInt(query.id);
+
+    if(gametype !== 0){
+
+        if(query.page !== undefined){
+
+            page = parseInt(query.page);
+
+            if(page !== page){
+                page = 1;
+            }else{
+
+                if(page < 1) page = 1;
+            }
+        }
+    }
 
     const rankingManager = new RankingManager();
     const gametypeManager = new Gametypes();
@@ -121,8 +143,21 @@ export async function getServerSideProps({req, query}){
         gametypeIds.push(parseInt(key));
     }
 
-    const data = await rankingManager.getMultipleGametypesData(gametypeIds, 10);
+    let data = [];
 
+    if(gametype === 0){
+        data = await rankingManager.getMultipleGametypesData(gametypeIds, 10);
+    }else{
+        data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage)});
+    }
+
+
+    for(let i = 0; i < data.length; i++){
+
+        data[i].results = await rankingManager.getTotalPlayers(data[i].id);
+    }
+
+    console.log(data);
 
     const playerIds = [];
 
@@ -163,7 +198,9 @@ export async function getServerSideProps({req, query}){
             "host": req.headers.host,
             "settings": JSON.stringify(settings),
             "data": JSON.stringify(data),
-            "gametypeNames": JSON.stringify(gametypeNames)
+            "gametypeNames": JSON.stringify(gametypeNames),
+            "page": page,
+            "perPage": perPage
         }
     }
 }

@@ -271,8 +271,28 @@ class Rankings{
 
         }catch(err){
             console.trace(err);
-        }
-        
+        }  
+    }
+
+
+    getTotalPlayers(gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE gametype=?";
+
+            mysql.query(query, [gametype], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result.length > 0){
+                        resolve(result[0].total_players);
+                    }
+                }
+                resolve(0);
+            });
+        });
     }
 }
 
