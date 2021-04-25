@@ -129,95 +129,61 @@ class Rankings{
 
             const s = this.settings;
 
+            const ignore = [
+                "sub_half_hour_multiplier",
+                "sub_hour_multiplier",
+                "sub_2hour_multiplier",
+                "sub_3hour_multiplier"
+            ];
+
+           // const scores = {};
+
             let p = 0;
             let currentScore = 0;
             let currentPlaytime = 0;
 
-            for(let i = 0; i < players.length; i++){
+            for(const [key, value] of Object.entries(players)){
 
-                p = players[i];
                 currentScore = 0;
-                currentPlaytime = 0;
 
-                if(p.bDuplicate === undefined){
+                for(const [settingKey, settingValue] of Object.entries(s)){
 
-                    //general
-                    currentScore += p.stats.frags * s.frags;
-                    currentScore += p.stats.deaths * s.deaths;
-                    currentScore += p.stats.suicides * s.suicides;
-                    currentScore += p.stats.teamkills * s.team_kills;
-                    
-                    currentScore += p.stats.multis.double * s.multi_1;
-                    currentScore += p.stats.multis.multi * s.multi_2;
-                    currentScore += p.stats.multis.mega * s.multi_3;
-                    currentScore += p.stats.multis.ultra * s.multi_4;
-                    currentScore += p.stats.multis.monster * s.multi_5;
-                    currentScore += p.stats.multis.ludicrous * s.multi_6;
-                    currentScore += p.stats.multis.holyshit * s.multi_7;
+                    if(ignore.indexOf(settingKey) != -1) continue;
 
-                    currentScore += p.stats.sprees.spree * s.spree_1;
-                    currentScore += p.stats.sprees.rampage * s.spree_2;
-                    currentScore += p.stats.sprees.dominating * s.spree_3;
-                    currentScore += p.stats.sprees.unstoppable * s.spree_4;
-                    currentScore += p.stats.sprees.godlike * s.spree_5;
-                    currentScore += p.stats.sprees.massacre * s.spree_6;
-                    currentScore += p.stats.sprees.brutalizing * s.spree_7;
-
-                    //ctf
-
-                    currentScore += p.stats.ctf.assist * s.flag_assist;
-                    currentScore += p.stats.ctf.return * s.flag_return;
-                    currentScore += p.stats.ctf.taken * s.flag_taken;
-                    currentScore += p.stats.ctf.dropped * s.flag_dropped;
-                    currentScore += p.stats.ctf.capture * s.flag_capture;
-                    currentScore += p.stats.ctf.pickup * s.flag_pickup;
-                    currentScore += p.stats.ctf.cover * s.flag_cover;
-                    currentScore += p.stats.ctf.seal * s.flag_seal;
-                    currentScore += p.stats.ctf.coverFail * s.flag_cover_fail;
-                    currentScore += p.stats.ctf.coverPass * s.flag_cover_pass;
-                    currentScore += p.stats.ctf.selfCover * s.flag_self_cover;
-                    currentScore += p.stats.ctf.selfCoverPass * s.flag_self_cover_pass;
-                    currentScore += p.stats.ctf.selfCoverFail * s.flag_self_cover_fail;
-                    currentScore += p.stats.ctf.multiCover * s.flag_multi_cover;
-                    currentScore += p.stats.ctf.spreeCover * s.flag_spree_cover;
-                    currentScore += p.stats.ctf.kill * s.flag_kill;
-                    currentScore += p.stats.ctf.save * s.flag_save;
-
-                    //dom
-
-                    currentScore += p.stats.dom.caps += s.dom_caps;
-
-                    //assault
-                    currentScore += p.stats.assault.caps += s.assault_objectives;
-
-                    currentScore = currentScore / (p.stats.time_on_server / 60);
-
-
-                    if(p.stats.time_on_server < halfHour){
-
-                        currentScore *= this.settings.sub_half_hour_multiplier;
-
-                    }else if(p.stats.time_on_server < hour){
-
-                        currentScore *= this.settings.sub_hour_multiplier;
-
-                    }else if(p.stats.time_on_server < hour2){
-
-                        currentScore *= this.settings.sub_2hour_multiplier;
-
-                    }else if(p.stats.time_on_server < hour3){
-                        
-                        currentScore *= this.settings.sub_3hour_multiplier;
-                    }
-
-                    if(currentScore === Infinity) currentScore = 0;
-
-                    if(await this.updatePlayerCurrent(p.masterId, gametype, p.stats.time_on_server, currentScore) === 0){
-                        await this.insertPlayerCurrent(p.masterId, gametype, p.stats.time_on_server, currentScore);
-                    }
-
-                    await this.insertPlayerHistory(p.masterId, gametype, currentScore);
+                    currentScore += value[settingKey] * settingValue;
                 }
+
+                currentPlaytime = value.playtime;
+
+                currentScore = currentScore / (currentPlaytime / 60);
+                
+                    
+                if(currentPlaytime < halfHour){
+
+                    currentScore *= s.sub_half_hour_multiplier;
+
+                }else if(currentPlaytime < hour){
+
+                    currentScore *= s.sub_hour_multiplier;
+
+                }else if(currentPlaytime < hour2){
+
+                    currentScore *= s.sub_2hour_multiplier;
+
+                }else if(currentPlaytime < hour3){
+                    
+                    currentScore *= s.sub_3hour_multiplier;
+                }
+
+                if(currentScore === Infinity) currentScore = 0;
+
+                if(await this.updatePlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore) === 0){
+                    await this.insertPlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore);
+                }
+
+                await this.insertPlayerHistory(parseInt(key), gametype, currentScore);
+
+               // scores[key] = currentScore;
             }
 
         }catch(err){
@@ -250,9 +216,40 @@ class Rankings{
         });
     }
 
+    debugGetAllNames(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name FROM nstats_ranking_values WHERE id>222";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    let string = "";
+
+                    for(let i = 0; i < result.length; i++){
+
+                        string += `${result[i].name},`;
+                    }
+
+                    console.log(string);
+
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+
+        });
+    }
+
     async getMultipleGametypesData(ids, perPage){
 
         try{
+
 
             if(ids.length === 0) return [];
 

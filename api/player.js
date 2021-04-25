@@ -626,6 +626,35 @@ class Player{
         }
     }
 
+
+
+    getGametypeTotals(player, gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `SELECT frags,deaths,suicides,team_kills,flag_taken,flag_pickup,flag_return,flag_capture,
+            flag_cover,flag_seal,flag_assist,flag_kill,dom_caps,assault_objectives,multi_1,multi_2,multi_3,multi_4,
+            multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,flag_assist,flag_return,
+            flag_taken,flag_dropped,flag_capture,flag_pickup,flag_seal,flag_cover,flag_cover_pass,flag_cover_fail,
+            flag_self_cover,flag_self_cover_pass,flag_self_cover_fail,flag_multi_cover,flag_spree_cover,flag_kill,
+            flag_save,dom_caps,assault_objectives,playtime,matches
+            FROM nstats_player_totals WHERE gametype=? AND id=?
+            `;
+
+            mysql.query(query, [gametype, player], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result.length > 0) resolve(result[0]);
+                }
+
+                resolve(null);
+            });
+
+        });
+    }
+
 }
 
 module.exports = Player;

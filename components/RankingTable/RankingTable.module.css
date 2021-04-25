@@ -16,11 +16,6 @@
 
 .table td:nth-child(2){
     text-align:left;
-    min-width:200px;
-
-}
-
-.table td:nth-child(3){
-  
+    min-width:150px;
 
 }

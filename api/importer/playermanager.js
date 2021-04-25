@@ -1361,6 +1361,39 @@ class PlayerManager{
 
         return found;
     }
+
+
+    async getPlayerTotals(gametype){
+
+        try{
+
+            const data = {};
+
+            let p = 0;
+            let current = 0;
+
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+
+                if(p.bDuplicate === undefined){
+
+                    current = await Player.getGametypeTotals(p.gametypeId, gametype);
+
+                    if(current !== null){
+                        data[p.masterId] = current;
+                    }
+                }
+            }
+
+            return data;
+
+        }catch(err){
+            new Message(`PlayerManager.getPlayerTotals() ${err}`,"error");
+            console.trace(err);
+            return [];
+        }
+    }
 }
 
 module.exports = PlayerManager;

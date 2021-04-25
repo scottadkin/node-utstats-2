@@ -268,7 +268,9 @@ class MatchManager{
 
             await this.rankingsManager.setRankingSettings();
 
-            await this.rankingsManager.update(this.playerManager.players, this.gametype.currentMatchGametype);
+            const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);
+            //need to get player current totals then add them to the scores
+            await this.rankingsManager.update(playerRankingTotals, this.gametype.currentMatchGametype);
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
