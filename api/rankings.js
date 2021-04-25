@@ -76,6 +76,7 @@ class Rankings{
     updatePlayerCurrent(player, gametype, playtime, newRanking){
 
         return new Promise((resolve, reject) =>{
+            
 
             const query = `UPDATE nstats_ranking_player_current SET
             matches=matches+1, playtime=playtime+?,ranking_change=?-ranking,ranking=?
@@ -209,6 +210,7 @@ class Rankings{
                         currentScore *= this.settings.sub_3hour_multiplier;
                     }
 
+                    if(currentScore === Infinity) currentScore = 0;
 
                     if(await this.updatePlayerCurrent(p.masterId, gametype, p.stats.time_on_server, currentScore) === 0){
                         await this.insertPlayerCurrent(p.masterId, gametype, p.stats.time_on_server, currentScore);
@@ -218,12 +220,62 @@ class Rankings{
                 }
             }
 
-           
+        }catch(err){
+            console.trace(err);
+        }   
+    }
+
+
+    getData(gametype, page, perPage){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `SELECT player_id,gametype,matches,playtime,ranking,ranking_change 
+            FROM nstats_ranking_player_current WHERE gametype=? ORDER BY ranking DESC LIMIT ?, ?`;
+
+            page--;
+
+            const start = page * perPage;
+
+            mysql.query(query, [gametype, start, perPage], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    async getMultipleGametypesData(ids, perPage){
+
+        try{
+
+            if(ids.length === 0) return [];
+
+            const data = [];
+
+            let current = 0;
+
+            for(let i = 0; i < ids.length; i++){
+
+                current = await this.getData(ids[i], 1, perPage);
+
+                data.push({
+                    "id": ids[i],
+                    "data": current
+                });
+            }
+
+            return data;
 
         }catch(err){
             console.trace(err);
         }
-       
+        
     }
 }
 

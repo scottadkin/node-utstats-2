@@ -6,14 +6,15 @@
     background-color:var(--color-1);
     border:1px solid var(--border-color-1);
     position:absolute;
-    padding:5px;
-    font-size:10px;
+    padding:10px;
+    font-size:14px;
+    color:white;
 }
 
 .title{
     color:yellow;
     text-align:center;
-    font-size:12px;
+    font-size:16px;
     padding-bottom:5px;
 }
 
