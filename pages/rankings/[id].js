@@ -144,17 +144,19 @@ export async function getServerSideProps({req, query}){
     const playerNames = await playerManager.getNamesByIds(playerIds);
 
     const playerNamesIdNamePairs = {};
+    const playerNamesIdCountryPairs = {};
 
     for(let i = 0; i < playerNames.length; i++){
 
         playerNamesIdNamePairs[playerNames[i].id] = playerNames[i].name;
+        playerNamesIdCountryPairs[playerNames[i].id] = playerNames[i].country;
     }
 
     for(let i = 0; i < data.length; i++){
 
         Functions.setIdNames(data[i].data, playerNamesIdNamePairs, 'player_id', 'name');
+        Functions.setIdNames(data[i].data, playerNamesIdCountryPairs, 'player_id', 'country');
     }
-
 
     return {
         props:{

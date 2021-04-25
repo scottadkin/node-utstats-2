@@ -2,3 +2,25 @@
     height:14px;
     margin-right:5px;
 }
+
+.table{
+    width:50%;
+    max-width:750px;
+}
+
+.table td:nth-child(1), .table th:nth-child(1){
+    max-width:40px;
+    width:40px;
+
+}
+
+.table td:nth-child(2){
+    text-align:left;
+    min-width:200px;
+
+}
+
+.table td:nth-child(3){
+  
+
+}

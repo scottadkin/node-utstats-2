@@ -1,5 +1,8 @@
 import styles from './RankingTable.module.css';
 import MouseHoverBox from '../MouseHoverBox/';
+import Link from 'next/link';
+import CountryFlag from '../CountryFlag/';
+import Functions from '../../api/functions';
 
 const RankingTable = ({title, data}) =>{
 
@@ -31,19 +34,19 @@ const RankingTable = ({title, data}) =>{
         (d.ranking_change == 0) ? `No change` : `Player lost ${rChangeS} points`
 
         rows.push(<tr key={i}>
-            <td>{i+1}</td>
-            <td>{d.name}</td>
+            <td>{i+1}{Functions.getOrdinal(i + 1)}</td>
+            <td><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
             <td>{d.matches}</td>
             <td><img className={styles.icon} src={currentImage} alt="image"/><MouseHoverBox title={`Previous Match Ranking Change`} 
                     content={changeString} 
-                    display={d.ranking_change.toFixed(2)} />
+                    display={d.ranking.toFixed(2)} />
             </td>
         </tr>);
     }
 
     return <div>
         <div className="default-header">{title}</div>
-        <table className="t-width-1">
+        <table className={styles.table}>
             <tbody>
                 <tr>
                     <th>Place</th>
