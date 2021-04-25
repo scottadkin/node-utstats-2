@@ -5,7 +5,7 @@ import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
 import Pagination from '../../components/Pagination/';
 
-const RankingTable = ({gametypeId, title, data, page, perPage, results}) =>{
+const RankingTable = ({gametypeId, title, data, page, perPage, results, bDisplayPagination}) =>{
 
     const rows = [];
 
@@ -67,7 +67,11 @@ const RankingTable = ({gametypeId, title, data, page, perPage, results}) =>{
                 {rows}
             </tbody>
         </table>
-        <Pagination currentPage={page + 1} perPage={perPage} results={results} pages={pages} url={`/rankings/${gametypeId}?page=`}/>
+        {(bDisplayPagination) ? <Pagination currentPage={page + 1} perPage={perPage} results={results} pages={pages} url={`/rankings/${gametypeId}?page=`}/> : 
+        <Link href={`/rankings/${gametypeId}`}><a><div className={`${styles.viewall} center`}>
+            View all {results} players
+        </div></a></Link>
+        }
     </div>
 }
 
