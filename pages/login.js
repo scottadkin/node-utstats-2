@@ -26,14 +26,25 @@ class Login extends React.Component{
 
         const username = e.target.username.value;
         const password = e.target.password.value;
+        const mode = parseInt(e.target.mode.value);
+
+        let password2 = "";
+
+        if(mode === 1){
+            password2 = e.target.password2.value;
+        }
+
         console.log(e)
         
         console.log(username, password);
 
         const res = await fetch(`/api/login`, {
+
             body: JSON.stringify({
                 "username": username,
-                "password": password
+                "password": password,
+                "password2": password2,
+                "mode": mode
             }),
             headers: {
                 "Content-Type": "application/json"
@@ -43,10 +54,24 @@ class Login extends React.Component{
 
         const result = await res.json();
 
+        console.log(result);
+
         const errors = [];
 
-        if(!result.userExists){
-            errors.push(`There are no members with that username.`);
+        if(result.errors.length > 0){
+
+            for(let i = 0; i < result.errors.length; i++){
+
+                errors.push(result.errors[i]);
+            }
+        }
+
+       
+
+        if(mode === 0){
+            if(!result.userExists){
+                errors.push(`There are no members with that username.`);
+            }
         }
 
         this.setState({"errors": errors});
