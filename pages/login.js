@@ -62,6 +62,13 @@ class Login extends React.Component{
 
         if(mode === 0){
             
+            if(process.browser){
+
+                document.cookie=`test=potato`;
+
+                console.log(result);
+            }
+
         }else{
 
             if(result.userCreated){
@@ -181,6 +188,10 @@ class Login extends React.Component{
     }
 
     render(){
+
+        if(process.browser){
+            console.log(document.cookie);
+        }
 
         return <div>
             <DefaultHead title={"Login/Register"}/>

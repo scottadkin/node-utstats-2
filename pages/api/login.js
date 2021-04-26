@@ -21,6 +21,8 @@ export default async (req, res) =>{
             let result = "";
 
             let userCreated = false;
+            let loggedIn = false;
+            let hash = "";
 
             if(mode === 1){
 
@@ -33,14 +35,17 @@ export default async (req, res) =>{
             }else if(mode === 0){
 
                 result = await user.login(username, password);
+
+                if(result.hash !== ""){
+                    loggedIn = true;
+                    hash = result.hash;
+                }
             }
             
             const errors = (result.errors !== undefined) ? result.errors : [];
 
-            res.status(200).json({"userCreated":  userCreated, "errors": errors})
-        }
-
-        
+            res.status(200).json({"userCreated":  userCreated, "errors": errors, "loggedIn": loggedIn, "hash": hash})
+        }        
 
     }catch(err){
         console.trace(err);

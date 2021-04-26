@@ -74,15 +74,44 @@ class User{
 
                 if(result !== undefined){
 
-                    if(result.length > 1){
+                    console.log(result);
+
+                    if(result.length > 0){
 
                         if(result[0].total_results > 0){
 
                             resolve(true);
-
                         }
                     }
                 }   
+                resolve(false);
+            });
+        });
+    }
+
+
+    bCorrectPassword(username, password){
+
+        return new Promise((resolve, reject) =>{
+
+            password = shajs("sha256").update(password).digest("hex");
+
+            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE name=? AND password=?";
+
+            mysql.query(query, [username, password], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0){
+
+                        if(result[0].total_users > 0){
+                            resolve(true);
+                        }
+                    }
+                }
+
                 resolve(false);
             });
         });
@@ -155,6 +184,8 @@ class User{
 
             let bPassed = false;
 
+            let hash = "";
+
             if(!await this.bUserExists(username)){
 
                 errors.push(`There is no member with the username ${username}.`);
@@ -163,20 +194,76 @@ class User{
 
                 if(await this.bUserActivated(username)){
 
+                    bPassed = true;
+
+                    hash = this.createSessionHash(username);
+
+                    console.log(`hash = ${hash}`);
+
+                    const now = Math.floor(Date.now() * 0.001);
+                    const expires = (60 * 60) * 24;
+
+                    if(await this.bCorrectPassword(username, password)){
+
+                        await this.saveUserLogin(username, hash, now, now + expires);
+                    }else{
+                        errors.push(`Incorrect password.`);
+                    }
+
                 }else{
                     errors.push(`The account "${username}" has been created but needs to be activated by an admin.`);
                 }
 
             }
-            
 
-
-            return {"bPassed": bPassed, "errors": errors};
+            return {"bPassed": bPassed, "errors": errors, "hash": hash};
 
         }catch(err){
             console.trace(err);
             return {"bPassed": false, "errors": [`Fatal: ${err}`]};
         }
+    }
+
+
+    createSessionHash(){
+
+        let hash = "";
+
+        const now = Date.now();
+
+        let current = `${now * Math.random()}-${now}`;
+
+        let r = 0;
+
+        for(let i = 0; i < 100; i++){
+
+            r = Math.random();
+
+            current += `${r}`;
+
+        }
+
+        hash = shajs('sha256').update(current).digest("hex");
+
+        return hash;
+    }
+
+
+    saveUserLogin(name, hash, date, expires){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?)";
+
+            mysql.query(query, [date, name, hash, expires], (err, result) =>{
+
+                if(err) reject(err);
+
+                console.log(result);
+
+                resolve();
+            });
+        });
     }
 }
 
