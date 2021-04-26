@@ -80,10 +80,44 @@ class Rankings extends React.Component{
 
     render(){
 
+        let titleName = "Rankings";
+
+        const gametypeNames = JSON.parse(this.props.gametypeNames);
+
+        const totalGametypes = Object.keys(gametypeNames).length;
+
+        const data = JSON.parse(this.props.data);
+
+        let keywords = "gametype,rankings";
+
+        let description = "View player rankings for their gametypes played.";
+
+        if(this.props.gametypeId === 0){
+
+            titleName = "Top Rankings";
+
+            keywords += ",top,all";
+
+            description = `View all the top players of each gametype. There are a total of ${totalGametypes} gametypes to choose from, see who's the best of your favourite gametype.`;
+
+        }else{
+
+            const pages = Math.ceil(data[0].results / this.props.perPage);
+
+            titleName = `${gametypeNames[`${this.props.gametypeId}`]} Rankings - Page ${this.props.page} of ${pages}`;
+
+            keywords += `,${gametypeNames[`${this.props.gametypeId}`]}`
+
+            description = `View all the top players of the ${gametypeNames[`${this.props.gametypeId}`]} gametype, there are a total of ${data[0].results} players in the rankings.`;
+
+            
+                
+        }
+
         return <div>
-            <DefaultHead host={this.props.host} title={`Rankings`} 
-                description={`View player rankings for their gametypes played.`} 
-                keywords={`ranking,gametype`}
+            <DefaultHead host={this.props.host} title={titleName}
+                description={description} 
+                keywords={keywords}
             />
             <main>
                 <Nav />
@@ -109,7 +143,6 @@ export async function getServerSideProps({req, query}){
     let page = 1;
     let perPage = 25;
 
-    console.log(query);
 
     let gametype = parseInt(query.id);
 
@@ -198,7 +231,8 @@ export async function getServerSideProps({req, query}){
             "data": JSON.stringify(data),
             "gametypeNames": JSON.stringify(gametypeNames),
             "page": page,
-            "perPage": perPage
+            "perPage": perPage,
+            "gametypeId": gametype
         }
     }
 }

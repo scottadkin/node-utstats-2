@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2021 at 12:22 AM
+-- Generation Time: Apr 26, 2021 at 08:04 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -751,6 +751,21 @@ CREATE TABLE `nstats_servers` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nstats_users`
+--
+
+CREATE TABLE `nstats_users` (
+  `id` int(11) NOT NULL,
+  `name` varchar(20) NOT NULL,
+  `password` varchar(64) NOT NULL,
+  `joined` int(11) NOT NULL,
+  `activated` int(1) NOT NULL,
+  `logins` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nstats_voices`
 --
 
@@ -1040,6 +1055,12 @@ ALTER TABLE `nstats_servers`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_users`
+--
+ALTER TABLE `nstats_users`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_voices`
 --
 ALTER TABLE `nstats_voices`
@@ -1269,6 +1290,12 @@ ALTER TABLE `nstats_ranking_values`
 -- AUTO_INCREMENT for table `nstats_servers`
 --
 ALTER TABLE `nstats_servers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_users`
+--
+ALTER TABLE `nstats_users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
