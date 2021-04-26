@@ -10,7 +10,7 @@ class Login extends React.Component{
 
         super(props);
 
-        this.state = {"errors": [], "mode": 0};
+        this.state = {"errors": [], "mode": 0, "showCreated": false};
 
         this.login = this.login.bind(this);
         this.changeMode = this.changeMode.bind(this);
@@ -34,10 +34,6 @@ class Login extends React.Component{
             password2 = e.target.password2.value;
         }
 
-        console.log(e)
-        
-        console.log(username, password);
-
         const res = await fetch(`/api/login`, {
 
             body: JSON.stringify({
@@ -54,8 +50,6 @@ class Login extends React.Component{
 
         const result = await res.json();
 
-        console.log(result);
-
         const errors = [];
 
         if(result.errors.length > 0){
@@ -66,11 +60,14 @@ class Login extends React.Component{
             }
         }
 
-       
-
         if(mode === 0){
             if(!result.userExists){
                 errors.push(`There are no members with that username.`);
+            }
+        }else{
+
+            if(result.userCreated){
+                this.setState({"showCreated": true});
             }
         }
 
@@ -108,6 +105,23 @@ class Login extends React.Component{
         return null;
     }
 
+    renderPass(){
+
+        if(this.state.showCreated === false) return null;
+
+        let text = "";
+
+        if(this.state.mode === 0){
+            text = "You have successfully logged into your account.";
+        }else{
+            text = "Your account has been created but needs to be activated by an admin before you can use it.";
+        }
+
+        return <div className={styles.pass}>
+            <div className="default-header">{(this.state.mode === 0) ? "Logged in " : "Registered "} Successfully</div>
+            {text}
+        </div>
+    }
 
     renderLoginForm(){
 
@@ -182,6 +196,7 @@ class Login extends React.Component{
                 </div>
 
                 {this.renderErrors()}
+                {this.renderPass()}
 
                 {this.renderLoginForm()}
                 {this.renderRegisterForm()}
