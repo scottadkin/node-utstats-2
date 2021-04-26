@@ -11,6 +11,8 @@
 	--border-color-1:rgba(255,255,255,0.25);
 	--border-color-2:rgba(255,255,255,0.125);
 	--transition-1:all 0.5s;
+	--width-1:90%;
+	--max-width-1:1250px;
 }
 
 * {
@@ -385,6 +387,14 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	margin-left:auto;
 	margin-right:auto;
 	margin-bottom:10px;
+	font-size:14px;
+	line-height:24px;
+	transition:all 0.5s;
+}
+
+.search-button:hover{
+	background-color:var(--color-2);
+	cursor:pointer;
 }
 
 .default-radios{

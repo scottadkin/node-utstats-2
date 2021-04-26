@@ -1,0 +1,41 @@
+.errors{
+    background-color:rgb(200,50,50);
+    padding-bottom:25px;
+    margin-bottom:25px;
+    border: 1px solid var(--border-color-1);
+    max-width:1250px;
+    width:90%;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.errorlist{
+    max-width:500px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+
+.form{
+
+    width:var(--width-1);
+    max-width:var(--max-width-1);
+    margin-left:auto;
+    margin-right:auto;
+    padding:10px;
+
+}
+
+.not{
+    margin-top:25px;
+    background-color:var(--color-1);
+    display:inline-block;
+    padding:10px;
+    border:1px solid var(--border-color-1);
+    font-size:12px;
+}
+
+.not:hover{
+    cursor:pointer;
+    color:yellow;
+}
