@@ -157,8 +157,6 @@ export async function getServerSideProps({req, query}){
         data[i].results = await rankingManager.getTotalPlayers(data[i].id);
     }
 
-    console.log(data);
-
     const playerIds = [];
 
     let d = 0;

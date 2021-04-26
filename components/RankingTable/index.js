@@ -22,19 +22,18 @@ const RankingTable = ({gametypeId, title, data, page, perPage, results, bDisplay
 
         d = data[i];
 
-        if(d.ranking_change > 0){
+        rChangeS = parseFloat(d.ranking_change.toFixed(2));
+
+        changeString = (rChangeS > 0) ? `${d.name} gained ${rChangeS} points` : 
+        (rChangeS == 0) ? `No change` : `${d.name} lost ${rChangeS} points`
+
+        if(rChangeS > 0){
             currentImage = "/images/up.png";
-        }else if(d.ranking_change < 0){
+        }else if(rChangeS < 0){
             currentImage = "/images/down.png";
         }else{
             currentImage = "/images/nochange.png";
         }
-
-
-        rChangeS = d.ranking_change.toFixed(2);
-
-        changeString = (d.ranking_change > 0) ? `${d.name} gained ${rChangeS} points` : 
-        (d.ranking_change == 0) ? `No change` : `${d.name} lost ${rChangeS} points`
 
 
         position = (page * perPage) + i + 1;
@@ -69,7 +68,7 @@ const RankingTable = ({gametypeId, title, data, page, perPage, results, bDisplay
         </table>
         {(bDisplayPagination) ? <Pagination currentPage={page + 1} perPage={perPage} results={results} pages={pages} url={`/rankings/${gametypeId}?page=`}/> : 
         <Link href={`/rankings/${gametypeId}`}><a><div className={`${styles.viewall} center`}>
-            View all {results} players
+            <img className={styles.icon} src="/images/up.png" alt="image"/>View all {results} players<img src="/images/down.png" className={`${styles.icon} ${styles.mleft5}`} alt="image"/>
         </div></a></Link>
         }
     </div>

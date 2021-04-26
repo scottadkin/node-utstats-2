@@ -27,9 +27,15 @@
     padding:5px 10px;
     display:inline-block;
     transition:all 0.5s;
+    font-size:12px;
+    line-height:14px;
 }
 
 .viewall:hover{
     background-color:var(--color-2);
     color:yellow;
+}
+
+.mleft5{
+    margin-left:5px;
 }
