@@ -61,9 +61,7 @@ class Login extends React.Component{
         }
 
         if(mode === 0){
-            if(!result.userExists){
-                errors.push(`There are no members with that username.`);
-            }
+            
         }else{
 
             if(result.userCreated){

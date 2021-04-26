@@ -11,7 +11,6 @@ export default async (req, res) =>{
 
         if(req.method === "POST"){
 
-            console.log("method is post");
             console.log(req.body);
 
             const mode = parseInt(req.body.mode);
@@ -24,28 +23,21 @@ export default async (req, res) =>{
             let userCreated = false;
 
             if(mode === 1){
+
                 password2 = req.body.password2;
 
                 result = await user.register(username, password, password2);
 
                 userCreated = result.bPassed;
-                console.log(result);
+              
+            }else if(mode === 0){
+
+                result = await user.login(username, password);
             }
             
-            
-
-           
-
-           // console.log(shajs('sha256').update('yhg3894vgh934h834').digest('hex'))
-            // => 73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049
-
-            const userExists = await user.bUserExists(username);
-            const passwordsMatch = user.bPasswordsMatch(password, password2);
-
             const errors = (result.errors !== undefined) ? result.errors : [];
 
-
-            res.status(200).json({"userExists": userExists, "userCreated":  userCreated,"passwordsMatch": passwordsMatch, "errors": errors})
+            res.status(200).json({"userCreated":  userCreated, "errors": errors})
         }
 
         

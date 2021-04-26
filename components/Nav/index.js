@@ -14,6 +14,7 @@ function Nav(){
         {"url": `/rankings/0`, "text": "Rankings", "alt": "/rankings/[id]"},
         {"url": `/records`, "text": "Records"},
         {"url": `/maps`, "text": "Maps", "alt": "/map/[id]"},
+        {"url": `/login`, "text": "Login/Register",},
     ];
 
     let bCurrent = false;

@@ -142,8 +142,41 @@ class User{
             return {"bPassed": bPassed, "errors": errors};
         }catch(err){
             console.trace(err);
+            return {"bPassed": false, "errors": [`Fatal: ${err}`]};
         }
+    }
 
+
+    async login(username, password){
+
+        try{
+
+            const errors = [];
+
+            let bPassed = false;
+
+            if(!await this.bUserExists(username)){
+
+                errors.push(`There is no member with the username ${username}.`);
+
+            }else{
+
+                if(await this.bUserActivated(username)){
+
+                }else{
+                    errors.push(`The account "${username}" has been created but needs to be activated by an admin.`);
+                }
+
+            }
+            
+
+
+            return {"bPassed": bPassed, "errors": errors};
+
+        }catch(err){
+            console.trace(err);
+            return {"bPassed": false, "errors": [`Fatal: ${err}`]};
+        }
     }
 }
 
