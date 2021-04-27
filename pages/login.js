@@ -17,6 +17,48 @@ class Login extends React.Component{
         this.changeMode = this.changeMode.bind(this);
     }
 
+    async componentDidMount(){
+
+        try{
+            //logout user
+            if(this.props.bLoggedIn){
+
+                const res = await fetch("/api/logout", {
+                    body: JSON.stringify({}),
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    method: "POST"
+                });
+
+                const result = await res.json();
+
+                console.log(result);
+                const errors = [];
+
+                if(result.passed){
+
+                    //this.setState({"showCreated": true, "loggedOut": true})
+
+                    console.log("I PASSED");
+
+                    if(process.browser){
+                        window.location.replace("/?loggedout");
+                    }
+
+                }else{
+                    errors.push("There was a proble logging you out.");
+
+                    this.setState({"errors": errors});
+                }
+            }
+
+        }catch(err){
+            console.trace(err);
+            console.log("Can't logout when you are not logged in");
+        }
+    }
+
     changeMode(id){
         this.setState({"mode": id});
     }
@@ -64,28 +106,11 @@ class Login extends React.Component{
             }
         }
 
-        /*if(mode === 0){
-            
+        if(errors.length === 0){
             if(process.browser){
-
-                if(result.errors.length === 0){
-
-                    if(result.loggedIn){
-
-                        if(result.hash !== ""){
-                            document.cookie = `sid=${result.hash}`;
-                            this.setState({"showCreated": true});
-                        }
-                    }
-                }
+                window.location.replace("/?loggedin");
             }
-
-        }else{
-
-            if(result.userCreated){
-                this.setState({"showCreated": true});
-            }
-        }*/
+        }
 
         this.setState({"errors": errors});
     }
@@ -127,10 +152,14 @@ class Login extends React.Component{
 
         let text = "";
 
-        if(this.state.mode === 0){
-            text = "You have successfully logged into your account.";
+        if(this.state.loggedOut === undefined){
+            if(this.state.mode === 0){
+                text = "You have successfully logged into your account.";
+            }else{
+                text = "Your account has been created but needs to be activated by an admin before you can use it.";
+            }
         }else{
-            text = "Your account has been created but needs to be activated by an admin before you can use it.";
+            text = "You have been logged out successfully.";
         }
 
         return <div className={styles.pass}>
@@ -206,7 +235,7 @@ class Login extends React.Component{
         if(this.props.bLoggedIn){
 
             elems = <div>
-                <div className="default-header">You are already logged in!</div>
+                <div className="default-header">Logged out</div>
                 </div>
                 
         }else{
@@ -223,14 +252,13 @@ class Login extends React.Component{
         }
 
         return <div>
-            <DefaultHead title={"Login/Register"}/>
-            
+            <DefaultHead title={"Login/Register"}/>   
             <main>
             <Nav />
             <div id="content">
                 <div className="default">
                 <div className="default-header">
-                    {(this.state.mode === 0) ? "Login" : "Register"}
+                    {(this.props.bLoggedIn) ? "Logout" : (this.state.mode === 0) ? "Login" : "Register"}
                 </div>
 
                     {elems}
