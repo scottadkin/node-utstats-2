@@ -1,6 +1,7 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const shajs = require('sha.js');
+const cookie = require('cookie');
 
 class User{
 
@@ -9,6 +10,8 @@ class User{
         this.minPasswordLength = 6;
         this.minUsernameLength = 2;
         this.maxUsernameLength = 20;
+
+        this.maxLoginTime = (60 * 60) * 24;
     }
 
 
@@ -217,7 +220,7 @@ class User{
                     hash = this.createSessionHash(username);
 
                     const now = Math.floor(Date.now() * 0.001);
-                    const expires = (60 * 60) * 24;
+                    const expires = this.maxLoginTime;
 
                     if(await this.bCorrectPassword(username, password)){
 
@@ -284,6 +287,80 @@ class User{
                 resolve();
             });
         });
+    }
+
+    getSessionData(hash){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_sessions WHERE hash=?";
+
+            mysql.query(query, [hash], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0) resolve(result[0]);
+                }
+
+                resolve(null);
+            });
+        });
+    }
+
+    updateSessionExpire(hash){
+
+        return new Promise((resolve, reject) =>{
+
+            const expires = Math.floor(Date.now() * 0.001) + this.maxLoginTime;
+
+            const query = "UPDATE nstats_sessions SET expires=? WHERE hash=?";
+
+            mysql.query(query, [expires, hash], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async bLoggedIn(cookies){
+
+        try{
+
+            cookies = cookie.parse(cookies);
+
+            console.log(cookies);
+
+            if(cookies.sid !== undefined){
+
+                const session = await this.getSessionData(cookies.sid);
+
+                if(session !== null){
+
+                    console.log(session);
+                    //check if it has expired
+
+                    const now = Math.floor(Date.now() * 0.001);
+
+                    if(now > session.expires){
+                        console.log("session expired");
+                    }else{
+
+                        await this.updateSessionExpire(cookies.sid);
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

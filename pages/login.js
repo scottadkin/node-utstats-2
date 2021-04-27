@@ -3,6 +3,7 @@ import Nav from '../components/Nav/';
 import Footer from '../components/Footer/';
 import React from 'react';
 import styles from '../styles/Login.module.css';
+import User from '../api/user';
 
 class Login extends React.Component{
 
@@ -199,9 +200,6 @@ class Login extends React.Component{
 
     render(){
 
-        if(process.browser){
-            console.log(document.cookie);
-        }
 
         return <div>
             <DefaultHead title={"Login/Register"}/>
@@ -232,8 +230,18 @@ class Login extends React.Component{
 
 export async function getServerSideProps({query, req}){
 
+    const userManager = new User();
 
-    console.log(req.headers.cookie);
+    console.log("MMMMMMMMMMM cookies");
+    const cookies = req.headers.cookie;
+
+    console.log(cookies);
+
+    const loggedIn = await userManager.bLoggedIn(cookies);
+
+    console.log(`logged in = ${loggedIn}`);
+
+    
     return {
         props: {
             "method": req.method

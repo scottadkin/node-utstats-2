@@ -31,6 +31,8 @@ export default async (req, res) =>{
 
                 result = await user.register(username, password, password2);
                 errors = (result.errors !== undefined) ? result.errors : [];
+
+                //finish this
               
             }else if(mode === 0){
 
