@@ -1,5 +1,4 @@
-
-import shajs from 'sha.js';
+import cookie from 'cookie';
 import UserManager from '../../api/user';
 
 export default async (req, res) =>{
@@ -24,27 +23,49 @@ export default async (req, res) =>{
             let loggedIn = false;
             let hash = "";
 
+            let errors = [];
+
             if(mode === 1){
 
                 password2 = req.body.password2;
 
                 result = await user.register(username, password, password2);
-
-                userCreated = result.bPassed;
+                errors = (result.errors !== undefined) ? result.errors : [];
               
             }else if(mode === 0){
 
                 result = await user.login(username, password);
 
+                errors = (result.errors !== undefined) ? result.errors : [];
+
                 if(result.hash !== ""){
+
                     loggedIn = true;
                     hash = result.hash;
+
+                    res.setHeader("Set-Cookie", cookie.serialize("sid", hash, {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV !== "development",
+                        maxAge: 60 * 60,
+                        sameSite: "strict",
+                        path: "/"
+                    }));
+
+                    res.statusCode = 200;
+                    res.json({
+                        "sid": hash,
+                        "errors": errors
+                    });
                 }
             }
             
-            const errors = (result.errors !== undefined) ? result.errors : [];
+            
 
-            res.status(200).json({"userCreated":  userCreated, "errors": errors, "loggedIn": loggedIn, "hash": hash})
+            
+
+            if(errors.length > 0){
+                res.status(200).json({"errors": errors})
+            }
         }        
 
     }catch(err){

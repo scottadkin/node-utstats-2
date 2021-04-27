@@ -50,6 +50,9 @@ class Login extends React.Component{
 
         const result = await res.json();
 
+        console.log("result");
+        console.log(result);
+
         const errors = [];
 
         if(result.errors.length > 0){
@@ -60,13 +63,20 @@ class Login extends React.Component{
             }
         }
 
-        if(mode === 0){
+        /*if(mode === 0){
             
             if(process.browser){
 
-                document.cookie=`test=potato`;
+                if(result.errors.length === 0){
 
-                console.log(result);
+                    if(result.loggedIn){
+
+                        if(result.hash !== ""){
+                            document.cookie = `sid=${result.hash}`;
+                            this.setState({"showCreated": true});
+                        }
+                    }
+                }
             }
 
         }else{
@@ -74,7 +84,7 @@ class Login extends React.Component{
             if(result.userCreated){
                 this.setState({"showCreated": true});
             }
-        }
+        }*/
 
         this.setState({"errors": errors});
     }
@@ -223,6 +233,7 @@ class Login extends React.Component{
 export async function getServerSideProps({query, req}){
 
 
+    console.log(req.headers.cookie);
     return {
         props: {
             "method": req.method

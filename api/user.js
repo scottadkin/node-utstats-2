@@ -74,8 +74,6 @@ class User{
 
                 if(result !== undefined){
 
-                    console.log(result);
-
                     if(result.length > 0){
 
                         if(result[0].total_results > 0){
@@ -117,6 +115,26 @@ class User{
         });
     }
 
+    getUserId(name){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id FROM nstats_users WHERE name=? LIMIT 1";
+
+            mysql.query(query, [name], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result.length > 0){
+                        resolve(result[0].id);
+                    }
+                }
+
+                resolve(null)
+            });
+        });
+    }
 
     createUser(username, password){
 
@@ -154,7 +172,7 @@ class User{
             if(await this.bUserExists(username)){
                 
                 if(await this.bUserActivated(username)){
-                    errors.unshift(`The username ${username} is already taken.`);
+                    errors.unshift(`The username ${username} has already taken.`);
                 }else{
                     errors.unshift(`The account "${username}" has already been created but needs to be activated by an admin.`);
                 }
@@ -198,14 +216,17 @@ class User{
 
                     hash = this.createSessionHash(username);
 
-                    console.log(`hash = ${hash}`);
-
                     const now = Math.floor(Date.now() * 0.001);
                     const expires = (60 * 60) * 24;
 
                     if(await this.bCorrectPassword(username, password)){
 
-                        await this.saveUserLogin(username, hash, now, now + expires);
+                        const userId = await this.getUserId(username);
+
+                        if(userId !== null){
+                            await this.saveUserLogin(userId, hash, now, now + expires);
+                        }
+
                     }else{
                         errors.push(`Incorrect password.`);
                     }
@@ -259,7 +280,6 @@ class User{
 
                 if(err) reject(err);
 
-                console.log(result);
 
                 resolve();
             });
