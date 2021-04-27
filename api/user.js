@@ -326,6 +326,21 @@ class User{
         });
     }
 
+    deleteSession(hash){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_sessions WHERE hash=?";
+
+            mysql.query(query, [hash], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
     async bLoggedIn(cookies){
 
         try{
@@ -347,6 +362,7 @@ class User{
 
                     if(now > session.expires){
                         console.log("session expired");
+                        await this.deleteSession(cookies.sid);
                     }else{
 
                         await this.updateSessionExpire(cookies.sid);

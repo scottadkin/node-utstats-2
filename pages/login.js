@@ -201,6 +201,27 @@ class Login extends React.Component{
     render(){
 
 
+        let elems = [];
+
+        if(this.props.bLoggedIn){
+
+            elems = <div>
+                <div className="default-header">You are already logged in!</div>
+                </div>
+                
+        }else{
+
+            elems = <div>
+            {this.renderErrors()}
+                {this.renderPass()}
+
+                {this.renderLoginForm()}
+                {this.renderRegisterForm()}
+
+                {this.renderNotMember()}
+                </div>
+        }
+
         return <div>
             <DefaultHead title={"Login/Register"}/>
             
@@ -212,13 +233,7 @@ class Login extends React.Component{
                     {(this.state.mode === 0) ? "Login" : "Register"}
                 </div>
 
-                {this.renderErrors()}
-                {this.renderPass()}
-
-                {this.renderLoginForm()}
-                {this.renderRegisterForm()}
-
-                {this.renderNotMember()}
+                    {elems}
                 </div>
             </div>
             <Footer />
@@ -237,14 +252,14 @@ export async function getServerSideProps({query, req}){
 
     console.log(cookies);
 
-    const loggedIn = await userManager.bLoggedIn(cookies);
+    const bLoggedIn = await userManager.bLoggedIn(cookies);
 
-    console.log(`logged in = ${loggedIn}`);
+    console.log(`logged in = ${bLoggedIn}`);
 
     
     return {
         props: {
-            "method": req.method
+            "bLoggedIn": bLoggedIn
         }
     }
 }
