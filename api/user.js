@@ -345,6 +345,8 @@ class User{
 
         try{
 
+            if(cookies === undefined) return false;
+            
             cookies = cookie.parse(cookies);
 
             console.log(cookies);
@@ -355,6 +357,7 @@ class User{
 
                 if(session !== null){
 
+                    console.log("session");
                     console.log(session);
                     //check if it has expired
 
@@ -376,6 +379,7 @@ class User{
 
         }catch(err){
             console.trace(err);
+            return false;
         }
     }
 }

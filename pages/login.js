@@ -212,14 +212,14 @@ class Login extends React.Component{
         }else{
 
             elems = <div>
-            {this.renderErrors()}
+                {this.renderErrors()}
                 {this.renderPass()}
 
                 {this.renderLoginForm()}
                 {this.renderRegisterForm()}
 
                 {this.renderNotMember()}
-                </div>
+            </div>
         }
 
         return <div>

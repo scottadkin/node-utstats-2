@@ -53,6 +53,8 @@ export default async (req, res) =>{
                         path: "/"
                     }));
 
+                    console.log(errors);
+
                     res.statusCode = 200;
                     res.json({
                         "sid": hash,
@@ -61,10 +63,6 @@ export default async (req, res) =>{
                 }
             }
             
-            
-
-            
-
             if(errors.length > 0){
                 res.status(200).json({"errors": errors})
             }
