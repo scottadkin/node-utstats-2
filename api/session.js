@@ -11,10 +11,10 @@ class Session{
         this.rawCookies = cookies;
         this.cookies = cookie.parse(cookies);
 
+        this.settings = {};
+
         console.log("session.cookies");
         console.log(this.cookies);
-
-        this.settings = {};
 
         this.addCookies();
 
@@ -43,6 +43,54 @@ class Session{
             console.trace(err);
 
             this.settings.bLoggedIn = false;
+        }
+    }
+
+    getUserId(hash){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT user FROM nstats_sessions WHERE hash=?";
+
+            mysql.query(query, [hash], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result.length > 0){
+                        resolve(result[0].user);
+                    }
+                }
+
+                resolve(null);
+            });
+        });
+    }
+
+    async bUserAdmin(){
+
+        try{
+
+
+            console.log(this.settings);
+            //const result = await this.user.bUserAdmin();
+
+            if(this.settings.sid !== undefined){
+
+                if(this.settings.sid !== ""){
+
+                    const userId = await this.getUserId(this.settings.sid);
+                    console.log(`userId = ${userId}`);
+                    return await this.user.bAdmin(userId);
+                }
+            }
+
+            return false;
+
+        }catch(err){
+            console.trace(err);
+
+            return false;
         }
     }
 }

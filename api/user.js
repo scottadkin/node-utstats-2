@@ -147,7 +147,7 @@ class User{
 
             const passwordHash = shajs('sha256').update(password).digest('hex');
 
-            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0)";
+            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0)";
 
             mysql.query(query, [username, passwordHash, now], (err) =>{
 
@@ -384,6 +384,34 @@ class User{
             return false;
         }
     }
+
+    bAdmin(user){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND admin=1";
+
+            mysql.query(query, [user], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0){
+
+                        console.log(result);
+
+                        if(result[0].total_users > 0){
+                            resolve(true);
+                        }
+                    }
+                }
+
+                resolve(false);
+            });
+        });
+    }
+    
 }
 
 

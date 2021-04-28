@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 27, 2021 at 01:09 AM
+-- Generation Time: Apr 28, 2021 at 06:11 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -774,7 +774,8 @@ CREATE TABLE `nstats_users` (
   `password` varchar(64) NOT NULL,
   `joined` int(11) NOT NULL,
   `activated` int(1) NOT NULL,
-  `logins` int(11) NOT NULL
+  `logins` int(11) NOT NULL,
+  `admin` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
