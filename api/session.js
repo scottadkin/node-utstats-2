@@ -8,24 +8,41 @@ class Session{
     constructor(cookies){
 
         this.user = new User();
-        this.cookies = cookies;
+        this.rawCookies = cookies;
+        this.cookies = cookie.parse(cookies);
 
+        console.log("session.cookies");
+        console.log(this.cookies);
+
+        this.settings = {};
+
+        this.addCookies();
+
+    }
+
+    addCookies(){
+
+        for(const [key, value] of Object.entries(this.cookies)){
+            this.settings[key] = value;
+        }
     }
 
     async load(){
 
         try{
 
-            const bLoggedIn = await this.user.bLoggedIn(this.cookies);
+            const bLoggedIn = await this.user.bLoggedIn(this.rawCookies);
 
             console.log(`session.load bLoggedIn ${bLoggedIn}`);
 
-            return {"bLoggedIn": bLoggedIn};
+            this.settings.bLoggedIn = bLoggedIn;
+
+       
 
         }catch(err){
             console.trace(err);
 
-            return {"bLoggedIn": false};
+            this.settings.bLoggedIn = false;
         }
     }
 }

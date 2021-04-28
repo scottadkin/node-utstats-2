@@ -121,7 +121,7 @@ function createDatesGraphData(data){
 
 
 
-function Home({host, matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
+function Home({session, host, matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
 	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces}) {
 
 	matchDates = JSON.parse(matchDates);
@@ -162,7 +162,7 @@ function Home({host, matchesData, countriesData, totalMatches, firstMatch, lastM
 				
 			</div>
 			</div>
-			<Footer />
+			<Footer session={session}/>
 		</main>   
 		</div>
 	)
@@ -173,9 +173,9 @@ export async function getServerSideProps({req}) {
 
 	const session = new Session(req.headers.cookie);
 
-	const sessionData = await session.load();
+	await session.load();
 
-	console.log(sessionData);
+
 
 
 	const matchManager = new Matches();
@@ -249,6 +249,7 @@ export async function getServerSideProps({req}) {
 	const gametypeStats = await gametypeManager.getMostPlayed(5);
 
 	return { props: { 
+			"session": JSON.stringify(session.settings),
 			"host": req.headers.host,
 			"matchesData": JSON.stringify(matchesData),
 			"countriesData": JSON.stringify(countryData),
