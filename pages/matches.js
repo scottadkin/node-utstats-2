@@ -13,6 +13,7 @@ import Pagination from '../components/Pagination';
 import Link from 'next/link';
 import Option2 from '../components/Option2';
 import React from 'react';
+import Session from '../api/session';
 
 class Matches extends React.Component{
 
@@ -96,7 +97,7 @@ class Matches extends React.Component{
                 keywords={`search,match,matches,page ${this.props.page}`}
             />
             <main>
-                <Nav />
+                <Nav session={this.props.session}/>
                 <div id="content">
 
                     <div className="default">
@@ -136,7 +137,7 @@ class Matches extends React.Component{
                             {matchElems}
                     </div>
                 </div>
-                <Footer />
+                <Footer session={this.props.session}/>
             </main>
         </div>);
     }
@@ -238,6 +239,10 @@ export async function getServerSideProps({req, query}){
 
     const mapImages = await mapManager.getImages(justMapNames);
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
     return {
         "props": {
             "host": req.headers.host,
@@ -248,7 +253,8 @@ export async function getServerSideProps({req, query}){
             "gametypes": JSON.stringify(gametypeNames),
             "gametype": gametype,
             "displayType": displayType,
-            "images": JSON.stringify(mapImages)
+            "images": JSON.stringify(mapImages),
+            "session": JSON.stringify(session.settings)
         }
     };
 }

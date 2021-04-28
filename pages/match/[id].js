@@ -34,6 +34,7 @@ import Pings from '../../api/pings';
 import Headshots from '../../api/headshots';
 import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
 import MatchServerSettings from '../../components/MatchServerSettings/';
+import Session from '../../api/session';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1278,7 +1279,7 @@ class PlayerGraphPingData{
 
 }
 
-function Match({host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
+function Match({session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData}){
 
     //for default head open graph image
@@ -1518,7 +1519,7 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
             image={ogImage}    
             />
         <main>
-            <Nav />
+            <Nav session={session}/>
             <div id="content">
 
                 <div className="default">
@@ -1530,7 +1531,7 @@ function Match({host, info, server, gametype, map, image, playerData, weaponData
     
                 </div>
             </div>
-            <Footer />
+            <Footer session={session}/>
         </main>
     </div>
 }
@@ -1713,8 +1714,13 @@ export async function getServerSideProps({req, query}){
 
     const headshotData = await headshotsManager.getMatchData(matchId);
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
     return {
         props: {
+            "session": JSON.stringify(session.settings),
             "host": req.headers.host,
             "info": JSON.stringify(matchInfo),
             "server": serverName,

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 
-function Nav(){
+function Nav({session}){
 
     const router = useRouter();
 
@@ -13,9 +13,23 @@ function Nav(){
         {"url": `/players`, "text": "Players", "alt": "/player/[id]"},
         {"url": `/rankings/0`, "text": "Rankings", "alt": "/rankings/[id]"},
         {"url": `/records`, "text": "Records"},
-        {"url": `/maps`, "text": "Maps", "alt": "/map/[id]"},
-        {"url": `/login`, "text": "Login/Register",},
+        {"url": `/maps`, "text": "Maps", "alt": "/map/[id]"}
+        //{"url": `/login`, "text": "Login/Register",},
     ];
+
+    session = JSON.parse(session);
+
+    if(session.bLoggedIn === undefined){
+        links.push({"url": `/login`, "text": "Login/Register"});
+    }else{
+
+        if(session.bLoggedIn){
+            links.push({"url": `/login`, "text": "Logout"});
+        }else{
+            links.push({"url": `/login`, "text": "Login/Register"});
+        }
+    }
+    
 
     let bCurrent = false;
     const elems = [];

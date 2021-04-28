@@ -7,6 +7,7 @@ import Gametypes from '../../api/gametypes';
 import Functions from '../../api/functions';
 import RankingTable from '../../components/RankingTable/';
 import Players from '../../api/players';
+import Session from '../../api/session';
 
 
 class Rankings extends React.Component{
@@ -120,7 +121,7 @@ class Rankings extends React.Component{
                 keywords={keywords}
             />
             <main>
-                <Nav />
+                <Nav session={this.props.session}/>
                 <div id="content">
                     <div className="default">
                         <div className="default-header">
@@ -129,7 +130,7 @@ class Rankings extends React.Component{
                         {this.createElems()}
                     </div>
                 </div>
-                <Footer />
+                <Footer session={this.props.session}/>
             </main>   
         </div>;
     }
@@ -224,6 +225,10 @@ export async function getServerSideProps({req, query}){
         Functions.setIdNames(data[i].data, playerNamesIdCountryPairs, 'player_id', 'country');
     }
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
     return {
         props:{
             "host": req.headers.host,
@@ -232,7 +237,8 @@ export async function getServerSideProps({req, query}){
             "gametypeNames": JSON.stringify(gametypeNames),
             "page": page,
             "perPage": perPage,
-            "gametypeId": gametype
+            "gametypeId": gametype,
+            "session": JSON.stringify(session.settings)
         }
     }
 }

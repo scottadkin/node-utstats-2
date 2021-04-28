@@ -20,10 +20,10 @@ import Graph from '../../components/Graph/';
 import PlayerAliases from '../../components/PlayerAliases/';
 import Items from '../../api/items';
 import PlayerItemsSummary from '../../components/PlayerItemsSummary/';
+import Session from '../../api/session';
 
 
-
-function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
+function Home({session,host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage}) {
 
@@ -34,7 +34,7 @@ function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatc
 					<DefaultHead />
 			
 					<main>
-						<Nav />
+						<Nav session={session}/>
 						<div id="content">
 						<div className="default">
 							<div className="default-header">
@@ -42,7 +42,7 @@ function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatc
 							</div>
 						</div>
 						</div>
-						<Footer />
+						<Footer session={session}/>
 					</main>   
 			</div>);
 	}
@@ -80,7 +80,7 @@ function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatc
 						image={ogImage} imageType="png"
 					/>
 					<main>
-						<Nav />
+						<Nav session={session}/>
 						<div id="content">
 							<div className="default">
 								<div className="default-header">
@@ -108,7 +108,7 @@ function Home({host, playerId, summary, gametypeStats, gametypeNames, recentMatc
 
 							</div>
 						</div>
-						<Footer />
+						<Footer session={session}/>
 					</main>   
 				</div>
 	)
@@ -352,8 +352,13 @@ export async function getServerSideProps({req, query}) {
 
 	const itemNames = await itemManager.getNamesByIds(uniqueItemIds);
 
+	const session = new Session(req.headers.cookie);
+
+	await session.load();
+
 	return { 
 		props: {
+			"session": JSON.stringify(session.settings),
 			"host": req.headers.host,
 			"playerId": playerId,
 			"summary": JSON.stringify(summary),

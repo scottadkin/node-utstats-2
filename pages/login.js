@@ -4,6 +4,7 @@ import Footer from '../components/Footer/';
 import React from 'react';
 import styles from '../styles/Login.module.css';
 import User from '../api/user';
+import Session from '../api/session';
 
 class Login extends React.Component{
 
@@ -254,7 +255,7 @@ class Login extends React.Component{
         return <div>
             <DefaultHead title={"Login/Register"}/>   
             <main>
-            <Nav />
+            <Nav session={this.props.session}/>
             <div id="content">
                 <div className="default">
                 <div className="default-header">
@@ -264,7 +265,7 @@ class Login extends React.Component{
                     {elems}
                 </div>
             </div>
-            <Footer />
+            <Footer session={this.props.session}/>
             </main>   
         </div>
     }
@@ -283,11 +284,15 @@ export async function getServerSideProps({query, req}){
     const bLoggedIn = await userManager.bLoggedIn(cookies);
 
     console.log(`logged in = ${bLoggedIn}`);
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
 
     
     return {
         props: {
-            "bLoggedIn": bLoggedIn
+            "bLoggedIn": bLoggedIn,
+            "session": JSON.stringify(session.settings)
         }
     }
 }

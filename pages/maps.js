@@ -8,6 +8,7 @@ import Functions from '../api/functions';
 import Pagination from '../components/Pagination';
 import Option2 from '../components/Option2/';
 import React from 'react';
+import Session from '../api/session';
 
 
 
@@ -69,7 +70,7 @@ class Maps extends React.Component{
                 Currently viewing ${nameString} page ${this.props.page} of ${pages}, maps ${start} to ${end} out of ${this.props.results}`} 
                 keywords={`search,map,maps,page ${this.props.page}`}/>
                 <main>
-                <Nav />
+                <Nav session={this.props.session}/>
                 <div id="content">
                     <div className="default">
                     <div className="default-header">
@@ -101,7 +102,7 @@ class Maps extends React.Component{
                     <MapList data={this.props.maps} images={this.props.images} displayType={this.state.displayType}/>
                     </div>
                 </div>
-                <Footer />
+                <Footer session={this.props.session}/>
                 </main>   
             </div>
         );
@@ -136,6 +137,10 @@ export async function getServerSideProps({req, query}){
     const images = await manager.getImages(names);
     const totalResults = await manager.getTotalResults(name);
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
 
     return {
         props: {
@@ -146,7 +151,8 @@ export async function getServerSideProps({req, query}){
             "page": page,
             "perPage": perPage,
             "displayType": displayType,
-            "name": name
+            "name": name,
+            "session": JSON.stringify(session.settings)
         }
     };
 }

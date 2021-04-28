@@ -2,15 +2,16 @@ import Link from 'next/link';
 import DefaultHead from '../components/defaulthead'
 import Nav from '../components/Nav/'
 import Footer from '../components/Footer/'
+import Session from '../api/session';
 
-function Credits(props){
+function Credits({session}){
 
     return (
         <div>
             <DefaultHead />
             
             <main>
-            <Nav />
+            <Nav session={session}/>
             <div id="content">
                 <div className="default">
                 <div className="default-header">
@@ -22,22 +23,26 @@ function Credits(props){
                 Thanks to Batonix for useful feedback.
                 </div>
             </div>
-            <Footer />
+            <Footer session={session}/>
             </main>   
         </div>
     );
 }
 
 
-/*export async function getServerSideProps(){
+export async function getServerSideProps(){
 
+
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
 
     return {
         props: {
-            players
+            "session": JSON.stringify(session.settings)
         }
     }
-}*/
+}
 
 
 export default Credits;

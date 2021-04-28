@@ -20,6 +20,7 @@ import MapSpawns from '../../components/MapSpawns/';
 import Assault from '../../api/assault';
 import MapAssaultObjectives from '../../components/MapAssaultObjectives/';
 import MapAddictedPlayers from '../../components/MapAddictedPlayers/';
+import Session from '../../api/session';
 
 class Map extends React.Component{
 
@@ -45,7 +46,7 @@ class Map extends React.Component{
             image={this.props.ogImage}
         />
         <main>
-            <Nav />
+            <Nav session={this.props.session}/>
             <div id="content">
 
                 <div className="default">
@@ -163,7 +164,7 @@ class Map extends React.Component{
                     
                 </div>
             </div>
-            <Footer />
+            <Footer session={this.props.session}/>
         </main>
     </div>
 
@@ -404,6 +405,10 @@ export async function getServerSideProps({req, query}){
         ogImage = `maps/${ogImageResult[1]}`;
     }
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
     return {
         props: {
             "host": req.headers.host,
@@ -423,7 +428,8 @@ export async function getServerSideProps({req, query}){
             "domControlPointLocations": JSON.stringify(domControlPointLocations),
             "assaultObjectives": JSON.stringify(assaultObjectives),
             "assaultImages": JSON.stringify(assaultImages),
-            "ogImage": ogImage
+            "ogImage": ogImage,
+            "session": JSON.stringify(session.settings)
         }
     };
 }
