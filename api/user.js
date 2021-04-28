@@ -217,7 +217,7 @@ class User{
 
                     bPassed = true;
 
-                    hash = this.createSessionHash(username);
+                    
 
                     const now = Math.floor(Date.now() * 0.001);
                     const expires = this.maxLoginTime;
@@ -226,7 +226,9 @@ class User{
 
                         const userId = await this.getUserId(username);
 
+
                         if(userId !== null){
+                            hash = this.createSessionHash(username);
                             await this.saveUserLogin(userId, hash, now, now + expires);
                         }
 

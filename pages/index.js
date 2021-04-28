@@ -19,7 +19,7 @@ import Faces from '../api/faces';
 import HomeTopMaps from '../components/HomeTopMaps/';
 import HomeMostPlayedGametypes from '../components/HomeMostPlayedGametypes/';
 import MostUsedFaces from '../components/MostUsedFaces/';
-
+import Session from '../api/session';
 
 function createDatesGraphData(data){
 
@@ -170,6 +170,13 @@ function Home({host, matchesData, countriesData, totalMatches, firstMatch, lastM
 
 
 export async function getServerSideProps({req}) {
+
+	const session = new Session(req.headers.cookie);
+
+	const sessionData = await session.load();
+
+	console.log(sessionData);
+
 
 	const matchManager = new Matches();
 	const mapManager = new Maps();
