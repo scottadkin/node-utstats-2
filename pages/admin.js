@@ -13,6 +13,13 @@ class Admin extends React.Component{
     }
 
     render(){
+
+        if(!this.props.bUserAdmin){
+
+            return <div>
+                ACCESS DENIED.
+            </div>
+        }
         
         return <div>
             <DefaultHead title="Admin Control Panel"/>
@@ -42,11 +49,14 @@ export async function getServerSideProps({req, query}){
 
     console.log(session.settings);
 
-    console.log(await session.bUserAdmin());
+    const bUserAdmin = await session.bUserAdmin();
+
+    console.log(`Is this user an admin ${bUserAdmin}`);
 
     return {
         props: {
-            "session": JSON.stringify(session.settings)
+            "session": JSON.stringify(session.settings),
+            "bUserAdmin": bUserAdmin
         }
     };
 }

@@ -9,7 +9,11 @@ class Session{
 
         this.user = new User();
         this.rawCookies = cookies;
-        this.cookies = cookie.parse(cookies);
+        if(cookies !== undefined){
+            this.cookies = cookie.parse(cookies);
+        }else{
+            this.cookies = {};
+        }
 
         this.settings = {};
 

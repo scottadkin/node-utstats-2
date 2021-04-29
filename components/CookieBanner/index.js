@@ -27,8 +27,10 @@ class CookieBanner extends React.Component{
 
         this.setState({"bShow": false});
 
+        const year = ((60 * 60) * 24) * 365;
+
         if(process.browser){
-            document.cookie = "hideCookieBanner=true";
+            document.cookie = `hideCookieBanner=true; max-age=${year}`;
         }
     }
 
