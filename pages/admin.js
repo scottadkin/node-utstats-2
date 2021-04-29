@@ -6,6 +6,7 @@ import Nav from '../components/Nav/';
 import Footer from '../components/Footer';
 import SiteSettings from '../api/sitesettings';
 import styles from '../styles/Admin.module.css';
+import AdminSettingsTable from '../components/AdminSettingsTable/';
 
 class Admin extends React.Component{
 
@@ -14,76 +15,51 @@ class Admin extends React.Component{
         super(props);
     }
 
-    debugShowSettings(){
+
+    displaySettings(){
 
         const settings = JSON.parse(this.props.siteSettings);
 
-        const categories = [];
-
-        let elems = [];
+        const categories = {};
 
         let s = 0;
-
-        let previousCategory = null;
 
         for(let i = 0; i < settings.length; i++){
 
             s = settings[i];
+            //if(categories.indexOf(settings[i].category) === -1) categories.push(settings[i].category);
 
-            if(previousCategory === null || s.category !== previousCategory){
+            if(categories[s.category] !== undefined){
+                
+                categories[s.category].data.push({
+                    "name": s.name,
+                    "value": s.value
+                });
 
-                if(previousCategory !== null){
-                    categories.push({
-                        "title": previousCategory,
-                        "elems": elems
-                    });
+            }else{
 
-                    elems = [];
-                }
-                previousCategory = s.category;
+                categories[s.category] = {
+                    "data":
+                        [
+                            {
+                            "name": s.name,
+                            "value": s.value
+                            }
+                        ]
+                    };
             }
-
-            elems.push(<tr key={i}>
-                <td>{s.name}</td>
-                <td>{s.value}</td>
-                <td>change here</td>
-            </tr>);
         }
 
-        if(elems.length > 0){
+        console.log(categories);
 
-            categories.push({
-                "title": previousCategory,
-                "elems": elems
-            });
+        const elems = [];
+
+        for(const [key, value] of Object.entries(categories)){
+
+            elems.push(<AdminSettingsTable key={key} title={key} data={value.data}/>);
         }
 
-        const tables = [];
-
-        
-        for(let i = 0; i < categories.length; i++){
-
-            tables.push(<div key={i}>
-                <div className="default-header">
-                    {categories[i].title} Settings
-                </div>
-                <table className={`t-width-1 ${styles.stable}`}>
-                    <tbody>
-                        <tr>
-                            <th>Name</th>
-                            <th>Current Value</th>
-                            <th>New Value</th>
-                        </tr>
-                        {categories[i].elems}
-                    </tbody>
-                </table>
-            </div>);
-        }
-
-
-        return <div>
-            {tables}
-        </div>
+        return <div>{elems}</div>
     }
 
     render(){
@@ -104,7 +80,7 @@ class Admin extends React.Component{
                     <div className="default">
                         <div className="default-header">Admin Control Panel</div>
 
-                        {this.debugShowSettings()}
+                        {this.displaySettings()}
                     </div>   
                 </div>
 
