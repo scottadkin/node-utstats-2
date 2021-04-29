@@ -27,6 +27,42 @@ class SiteSettings{
 
         });
     }
+
+
+    updateSetting(category, name, value){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_site_settings SET value=? WHERE category=? AND name=?";
+
+            mysql.query(query, [value, category, name], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async updateSettings(data, category){
+
+        try{
+
+            let d = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                console.log(`update ${category}.${d.name} to ${d.value}`);
+
+                await this.updateSetting(category, d.name, d.value);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = SiteSettings;

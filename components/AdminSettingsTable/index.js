@@ -14,6 +14,30 @@ class AdminSettingsTable extends React.Component{
         this.saveSettings = this.saveSettings.bind(this);
 
         this.updateTrueFalse = this.updateTrueFalse.bind(this);
+
+        this.saveSettings = this.saveSettings.bind(this);
+    }
+
+
+    async saveSettings(e){
+
+        try{
+
+            if(process.browser){
+                e.preventDefault();
+
+                const req = await fetch("/api/sitesettings", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({"data": this.state.data, "category": this.props.title})
+                });
+
+                console.log(await req.json());
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
     
 
@@ -56,36 +80,28 @@ class AdminSettingsTable extends React.Component{
     }
 
 
-    saveSettings(e){
-
-        e.preventDefault();
-
-        console.log(e);
-
-        console.log(`save ${this.props.title} settings`);
-    }
 
 
     renderTrueFalse(name, value){
-
-
-        const valueField= <input type="hidden" name={name} id={name} value={value}/>;
 
         if(value === 'false'){
 
             return <td onClick={(() =>{
                 this.updateTrueFalse(name);
             })} className={styles.off}>
-                OFF{valueField}
+                OFF
             </td>
         }else if(value === 'true'){
 
             return <td className={styles.on} onClick={(() =>{
                 this.updateTrueFalse(name);
             })} >
-                ON{valueField}
+                ON
             </td>
         }
+
+
+        return value;
     }
 
     renderRows(){
