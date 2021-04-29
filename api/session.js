@@ -9,6 +9,7 @@ class Session{
 
         this.user = new User();
         this.rawCookies = cookies;
+
         if(cookies !== undefined){
             this.cookies = cookie.parse(cookies);
         }else{
@@ -40,6 +41,8 @@ class Session{
             console.log(`session.load bLoggedIn ${bLoggedIn}`);
 
             this.settings.bLoggedIn = bLoggedIn;
+
+            this.settings.bAdmin = await this.bUserAdmin();
 
        
 

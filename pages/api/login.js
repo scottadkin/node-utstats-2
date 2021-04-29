@@ -48,7 +48,7 @@ export default async (req, res) =>{
                     res.setHeader("Set-Cookie", cookie.serialize("sid", hash, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV !== "development",
-                        maxAge: 60 * 60,
+                        maxAge: (60 * 60) * 24,
                         sameSite: "strict",
                         path: "/"
                     }));

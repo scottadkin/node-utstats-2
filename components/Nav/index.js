@@ -24,6 +24,13 @@ function Nav({session}){
     }else{
 
         if(session.bLoggedIn){
+
+            if(session.bAdmin !== undefined){
+
+                if(session.bAdmin){
+                    links.push({"url": `/admin`, "text": "Admin"});
+                }
+            }
             links.push({"url": `/login`, "text": "Logout"});
         }else{
             links.push({"url": `/login`, "text": "Login/Register"});
