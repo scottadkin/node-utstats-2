@@ -20,6 +20,7 @@ import HomeTopMaps from '../components/HomeTopMaps/';
 import HomeMostPlayedGametypes from '../components/HomeMostPlayedGametypes/';
 import MostUsedFaces from '../components/MostUsedFaces/';
 import Session from '../api/session';
+import SiteSettings from '../api/sitesettings';
 
 function createDatesGraphData(data){
 
@@ -175,8 +176,13 @@ export async function getServerSideProps({req}) {
 
 	await session.load();
 
+	const siteSettings = new SiteSettings();
 
+	const pageSettings = await siteSettings.getCategorySettings("Home");
+	const navSettings = await siteSettings.getCategorySettings("Navigation");
 
+	console.log(pageSettings);
+	console.log(navSettings);
 
 	const matchManager = new Matches();
 	const mapManager = new Maps();
@@ -185,9 +191,17 @@ export async function getServerSideProps({req}) {
 	const countriesM = new CountryManager();
 	const playerManager = new Players();
 
-	let matchesData = await matchManager.getRecent(0,4);
+	let matchesData = [];
 
-	let mostPlayedMaps = await mapManager.getMostPlayed(4);
+	if(pageSettings["Display Recent Matches"] === "true"){
+		matchesData = await matchManager.getRecent(0,4);
+	}
+
+	let mostPlayedMaps = [];
+
+	if(pageSettings["Display Most Played Maps"] === "true"){
+		mostPlayedMaps = await mapManager.getMostPlayed(4);
+	}
 
 	let mapIds = Functions.getUniqueValues(matchesData, 'map');
 	const gametypeIds = Functions.getUniqueValues(matchesData, 'gametype');
@@ -205,7 +219,12 @@ export async function getServerSideProps({req}) {
 	const gametypeNames = await gametypeManager.getNames(gametypeIds);
 	const serverNames = await serverManager.getNames(serverIds);
 
-	const countryData = await countriesM.getMostPopular();
+
+	let countryData = [];
+
+	if(pageSettings["Display Most Popular Countries"] === "true"){
+		countryData = await countriesM.getMostPopular();
+	}
 
 	Functions.setIdNames(matchesData, mapNames, 'map', 'mapName');
 	Functions.setIdNames(matchesData, gametypeNames, 'gametype', 'gametypeName');
@@ -229,10 +248,23 @@ export async function getServerSideProps({req}) {
 
 	const mapImages = await mapManager.getImages(justMapNames);
 
-	const matchDates = await matchManager.getDatesPlayersInTimeframe(((60 * 60) * 24) * 28);
+	let matchDates = [];
 
-	const addictedPlayersData = await playerManager.getAddictedPlayers(5);
-	const recentPlayersData = await playerManager.getRecentPlayers(5);
+	if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
+		matchDates = await matchManager.getDatesPlayersInTimeframe(((60 * 60) * 24) * 28);
+	}
+
+
+	let addictedPlayersData = [];
+	let recentPlayersData = [];
+
+	if(pageSettings["Display Addicted Players"] === "true"){
+		addictedPlayersData = await playerManager.getAddictedPlayers(5);
+	}
+
+	if(pageSettings["Display Recent Players"] === "true"){
+		recentPlayersData = await playerManager.getRecentPlayers(5);
+	}
 
 	let faceIds = Functions.getUniqueValues(addictedPlayersData, 'face');
 
@@ -240,15 +272,27 @@ export async function getServerSideProps({req}) {
 
 	const faceManager = new Faces();
 
-	const mostUsedFaces = await faceManager.getMostUsed(5);
+	let mostUsedFaces = [];
+
+	if(pageSettings["Display Most Used Faces"] === "true"){
+		mostUsedFaces = await faceManager.getMostUsed(5);
+	}
 
 	faceIds = faceIds.concat(Functions.getUniqueValues(mostUsedFaces, 'id'));
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
-	const gametypeStats = await gametypeManager.getMostPlayed(5);
+	let gametypeStats = [];
+
+	if(pageSettings["Display Most Played Gametypes"] === "true"){
+		gametypeStats = await gametypeManager.getMostPlayed(5);
+	}
+
+
 
 	return { props: { 
+			"pageSettings": JSON.stringify(pageSettings),
+			"navSettings": JSON.stringify(navSettings),
 			"session": JSON.stringify(session.settings),
 			"host": req.headers.host,
 			"matchesData": JSON.stringify(matchesData),

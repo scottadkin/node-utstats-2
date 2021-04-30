@@ -25,7 +25,6 @@ class AdminSettingsTable extends React.Component{
 
     updateDropDown(name, value){
 
-        console.log(name, value);
 
         let d = 0;
 
@@ -36,7 +35,6 @@ class AdminSettingsTable extends React.Component{
             d = this.props.data[i];
 
             if(d.name === name){
-                console.log("found target value");
                 updatedData.push({"name": name, "value": value});
             }else{
                 updatedData.push(d);

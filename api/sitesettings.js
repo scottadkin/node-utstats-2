@@ -98,7 +98,34 @@ class SiteSettings{
                 {"name": "Table", "value": 1}
             ]
         };
+    }
 
+    getCategorySettings(cat){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
+
+            mysql.query(query, [cat], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    
+                    const data = {};
+
+                    for(let i = 0; i < result.length; i++){
+
+                        data[result[i].name] = result[i].value;
+                    }
+
+                    resolve(data);
+
+                }
+
+                resolve({});
+            });
+        });
     }
 }
 
