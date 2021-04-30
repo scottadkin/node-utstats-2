@@ -19,6 +19,7 @@ class Admin extends React.Component{
     displaySettings(){
 
         const settings = JSON.parse(this.props.siteSettings);
+        const validSettings = JSON.parse(this.props.validSiteSettings);
 
         const categories = {};
 
@@ -54,9 +55,17 @@ class Admin extends React.Component{
 
         const elems = [];
 
+        let currentValidSettings = [];
+
         for(const [key, value] of Object.entries(categories)){
 
-            elems.push(<AdminSettingsTable key={key} title={key} data={value.data}/>);
+            currentValidSettings = [];
+
+            if(key.toLowerCase() === "players page"){
+                currentValidSettings = validSettings.playersPage;
+            }
+
+            elems.push(<AdminSettingsTable key={key} title={key} data={value.data} validSettings={currentValidSettings}/>);
         }
 
         return <div>{elems}</div>
@@ -106,11 +115,14 @@ export async function getServerSideProps({req, query}){
     const bUserAdmin = await session.bUserAdmin();
 
     let currentSiteSettings = [];
+    let validSiteSettings = {};
 
     if(bUserAdmin){
 
         currentSiteSettings = await settings.debugGetAllSettings();
         console.log(currentSiteSettings);
+
+        validSiteSettings.playersPage = settings.getPlayersPageValidSettings();
     }
 
     console.log(`Is this user an admin ${bUserAdmin}`);
@@ -119,7 +131,8 @@ export async function getServerSideProps({req, query}){
         props: {
             "session": JSON.stringify(session.settings),
             "bUserAdmin": bUserAdmin,
-            "siteSettings": JSON.stringify(currentSiteSettings)
+            "siteSettings": JSON.stringify(currentSiteSettings),
+            "validSiteSettings": JSON.stringify(validSiteSettings)
         }
     };
 }

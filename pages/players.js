@@ -141,7 +141,7 @@ class Players extends React.Component{
                         </div>
                         <div className="select-row">
                             <div className="select-label">Order</div>
-                            <select id="order-type" className="default-select"  value={this.state.order} name="order-type" onChange={this.handleOrderChange}>
+                            <select id="orderType" className="default-select"  value={this.state.order} name="orderType" onChange={this.handleOrderChange}>
                                 <option value="ASC">Ascending</option>
                                 <option value="DESC">Descending</option>
                             </select>

@@ -11,13 +11,42 @@ class AdminSettingsTable extends React.Component{
 
         console.log(this.props.data);
 
+        console.log(this.props.validSettings);
+
         this.saveSettings = this.saveSettings.bind(this);
 
         this.updateTrueFalse = this.updateTrueFalse.bind(this);
 
         this.saveSettings = this.saveSettings.bind(this);
+
+        this.updateDropDown = this.updateDropDown.bind(this);
     }
 
+
+    updateDropDown(name, value){
+
+        console.log(name, value);
+
+        let d = 0;
+
+        const updatedData = [];
+
+        for(let i = 0; i < this.props.data.length; i++){
+
+            d = this.props.data[i];
+
+            if(d.name === name){
+                console.log("found target value");
+                updatedData.push({"name": name, "value": value});
+            }else{
+                updatedData.push(d);
+            }
+        }
+
+        console.log(updatedData);
+
+        this.setState({"data": updatedData});
+    }
 
     async saveSettings(e){
 
@@ -106,7 +135,38 @@ class AdminSettingsTable extends React.Component{
         }
 
 
-        return value;
+        return this.renderDropDown(name, value);
+    }
+
+
+    renderDropDown(name, value){
+
+        console.log(name);
+
+        const validSettings = this.props.validSettings;
+
+        const options = [];
+
+        if(validSettings[name] !== undefined){
+
+            let d = 0;
+
+            for(let i = 0; i < validSettings[name].length; i++){
+
+                d = validSettings[name][i];
+
+                options.push(<option key={i} value={d.value}>{d.name}</option>);
+            }
+
+        }else{
+            console.trace(`validSettings.${name} is undefined. Can't create drop down data.`);
+        }
+
+        return <td><select className={styles.select} name={name} value={value} onChange={((e) =>{
+            this.updateDropDown(name, e.target.value);
+        })}>
+            {options}
+        </select></td>;
     }
 
     renderRows(){

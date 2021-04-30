@@ -67,6 +67,39 @@ class SiteSettings{
             return false;
         }
     }
+
+    getPlayersPageValidSettings(){
+
+        return {
+            "Default Sort Type": [
+                {"name": "Name", "value": "name"},
+                {"name": "Country", "value": "country"},
+                {"name": "Matches", "value": "matches"},
+                {"name": "Score", "value": "score"},
+                {"name": "Kills", "value": "kills"},
+                {"name": "Deaths", "value": "deaths"},
+                {"name": "First", "value": "first"},
+                {"name": "Last", "value": "last"},
+            ],
+            "Default Order": [
+                {"name": "Ascending", "value": "ASC"},
+                {"name": "Descending", "value": "DESC"},
+            ],
+            "Default Display Per Page": [
+                {"name": 5, "value": 5},
+                {"name": 10, "value": 10},
+                {"name": 25, "value": 25},
+                {"name": 50, "value": 50},
+                {"name": 75, "value": 75},
+                {"name": 100, "value": 100}
+            ],
+            "Default Display Type": [
+                {"name": "Default", "value": 0},
+                {"name": "Table", "value": 1}
+            ]
+        };
+
+    }
 }
 
 module.exports = SiteSettings;
