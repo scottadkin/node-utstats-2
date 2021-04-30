@@ -122,12 +122,14 @@ function createDatesGraphData(data){
 
 
 
-function Home({session, host, matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
+function Home({navSettings, pageSettings, session, host, matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
 	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces}) {
 
 	matchDates = JSON.parse(matchDates);
 
 	const graphData = createDatesGraphData(matchDates);
+
+	pageSettings = JSON.parse(pageSettings);
 
 	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
@@ -140,26 +142,31 @@ function Home({session, host, matchesData, countriesData, totalMatches, firstMat
 				<div className="default">
 			
 
-				<div className="default-header">Recent Matches</div>
+				{(pageSettings["Display Recent Matches"] === "true") ? <div className="default-header">Recent Matches</div> : null }
 				<MatchesDefaultView images={mapImages} data={matchesData} />
 
-				<div className="default-header">Recent Matches &amp; Player Stats</div>
-				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
+				{(pageSettings["Display Recent Matches & Player Stats"] === "true") ? <div><div className="default-header">Recent Matches &amp; Player Stats</div>
+				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/></div> : null }
 
-				<HomeMostPlayedGametypes data={gametypeStats}/>
+				{(pageSettings["Display Most Played Gametypes"] === "true") ? <HomeMostPlayedGametypes data={gametypeStats}/> : null }
 			
-				<HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>
+				{(pageSettings["Display Most Played Maps"] === "true") ? <HomeTopMaps maps={mostPlayedMaps} images={mapImages}/> : null }
 
-				<BasicPlayers title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>
+				{(pageSettings["Display Recent Players"] === "true") ? <BasicPlayers title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/> : null }
 
-				<BasicPlayers title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>
+				{(pageSettings["Display Addicted Players"] === "true") ? <BasicPlayers title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/> : null }
 
-				<MostUsedFaces data={mostUsedFaces} images={faceFiles}/>
+				{(pageSettings["Display Most Used Faces"] === "true") ? <MostUsedFaces data={mostUsedFaces} images={faceFiles}/> : null }
 				
-				<div className="default-header">
-					Most Popular Countires
+				{(pageSettings["Display Most Popular Countries"] === "true") ? 
+				<div>
+					<div className="default-header">
+						Most Popular Countires
+					</div>
+					<PopularCountries data={countriesData}/>
 				</div>
-				<PopularCountries data={countriesData}/>
+				: null
+				}
 				
 			</div>
 			</div>
