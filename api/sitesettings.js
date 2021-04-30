@@ -49,6 +49,7 @@ class SiteSettings{
         try{
 
             let d = 0;
+            
 
             for(let i = 0; i < data.length; i++){
 
@@ -59,8 +60,11 @@ class SiteSettings{
                 await this.updateSetting(category, d.name, d.value);
             }
 
+            return true;
+
         }catch(err){
             console.trace(err);
+            return false;
         }
     }
 }

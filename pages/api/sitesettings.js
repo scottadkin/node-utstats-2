@@ -18,12 +18,13 @@ export default async (req, res) =>{
 
         const ss = new SiteSettings();
 
-        await ss.updateSettings(req.body.data, req.body.category);
+        const bPassed = await ss.updateSettings(req.body.data, req.body.category);
 
-        res.status(200).json({"passed": "I dont know"});
+        res.status(200).json({"bPassed": bPassed});
+
     }else{
 
-        res.status(200).json({"passed": "false", "reason": "Need admin to make these changes"});
+        res.status(200).json({"bPassed": "false", "reason": "Need admin to make these changes"});
     }
 
     console.log(req.body);

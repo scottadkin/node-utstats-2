@@ -7,7 +7,7 @@ class AdminSettingsTable extends React.Component{
 
         super(props);
 
-        this.state = {"data": this.props.data};
+        this.state = {"data": this.props.data, "previousSavedData": this.props.data};
 
         console.log(this.props.data);
 
@@ -24,6 +24,7 @@ class AdminSettingsTable extends React.Component{
         try{
 
             if(process.browser){
+
                 e.preventDefault();
 
                 const req = await fetch("/api/sitesettings", {
@@ -32,7 +33,14 @@ class AdminSettingsTable extends React.Component{
                     body: JSON.stringify({"data": this.state.data, "category": this.props.title})
                 });
 
-                console.log(await req.json());
+                const result = await req.json();
+
+                if(result.bPassed !== undefined){
+
+                    if(result.bPassed){
+                        this.setState({"previousSavedData": this.state.data});
+                    }
+                }
             }
 
         }catch(err){
@@ -78,9 +86,6 @@ class AdminSettingsTable extends React.Component{
         this.setState({"data": data});
 
     }
-
-
-
 
     renderTrueFalse(name, value){
 
@@ -128,7 +133,49 @@ class AdminSettingsTable extends React.Component{
 
     }
 
+    bAnySettingsChanged(){
+
+        const previousSettings = this.state.previousSavedData;
+        const currentSettings = this.state.data;
+
+        let c = 0;
+        let p = 0;
+
+        for(let i = 0; i < previousSettings.length; i++){
+
+            if(previousSettings[i].name === currentSettings[i].name){
+
+                p = previousSettings[i].value;
+                c = currentSettings[i].value;
+
+                if(p !== c){
+                    return true;
+                }
+            }else{
+                throw new Error("Setting names do not match");
+            }
+        }
+        
+
+        return false;
+    }
+
+
+    renderUnsavedSettings(){
+
+        if(this.bAnySettingsChanged()){
+
+            return <div className={`${styles.unsaved} center`}>
+                You have unsaved changes!
+            </div>
+        }
+
+        return null;
+    }
+
     render(){
+
+        
 
         return <div>
             <div className="default-header">
@@ -144,6 +191,7 @@ class AdminSettingsTable extends React.Component{
                         {this.renderRows()}
                     </tbody>
                 </table>
+                {this.renderUnsavedSettings()}
                 <input type="submit" className="search-button" name="submit" value="Save Changes"/>
             </form>
         </div>

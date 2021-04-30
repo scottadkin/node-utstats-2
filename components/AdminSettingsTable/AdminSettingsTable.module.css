@@ -33,3 +33,12 @@
 .on:hover, .off:hover{
     cursor:pointer;
 }
+
+.unsaved{
+    background-color:rgb(150,0,0);
+    width:var(--width-1);
+    max-width:var(--max-width-1);
+    padding:20px 0px;
+    margin-bottom:25px;
+    border:1px solid var(--border-color-1);
+}
