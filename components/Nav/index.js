@@ -1,42 +1,73 @@
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 
-function Nav({session}){
+function Nav({session, settings}){
 
     const router = useRouter();
 
+    session = JSON.parse(session);
+    
+    if(settings !== undefined){
+
+        settings = JSON.parse(settings);
+
+    }else{
+        settings = {
+            "Display Home": "true",
+            "Display Matches": "true",
+            "Display Players": "true",
+            "Display Rankings": "true",
+            "Display Records": "true",
+            "Display Maps": "true",
+            "Display Login/Logout": "true",
+            "Display Admin": "true",
+        };
+    }
+
+    const urls = {
+        "Display Home": {"text": "Home", "url": "/"},
+        "Display Matches": {"text": "Matches", "url": "/matches", "alt": "/match/[id]"},
+        "Display Players": {"text": "Players", "url": "/players", "alt": "/player/[id]"},
+        "Display Rankings":{"text": "Rankings", "url": "/rankings", "alt": "/rankings/[id]"},
+        "Display Records": {"text": "Records", "url": "/records"},
+        "Display Maps": {"text": "Maps", "url": "/maps", "alt": "/map/[id]"},
+        "Display Login/Logout": {"text": "Login/Register", "url": "/login"},
+        "Display Admin": {"text": "Admin", "url": "/admin"}
+    }
+
     const pathName = router.pathname.toLowerCase();;
 
-    const links = [
-        {"url": `/`, "text": "Home"},
-        {"url": `/matches`, "text": "Matches", "alt": "/match/[id]"},
-        {"url": `/players`, "text": "Players", "alt": "/player/[id]"},
-        {"url": `/rankings/0`, "text": "Rankings", "alt": "/rankings/[id]"},
-        {"url": `/records`, "text": "Records"},
-        {"url": `/maps`, "text": "Maps", "alt": "/map/[id]"}
-        //{"url": `/login`, "text": "Login/Register",},
-    ];
+    let links = [];
 
-    session = JSON.parse(session);
+    for(const [key, value] of Object.entries(urls)){
 
-    if(session.bLoggedIn === undefined){
-        links.push({"url": `/login`, "text": "Login/Register"});
-    }else{
 
-        if(session.bLoggedIn){
+        if(settings[key] === "true"){
 
-            if(session.bAdmin !== undefined){
+            if(key === "Display Login/Logout"){
 
-                if(session.bAdmin){
-                    links.push({"url": `/admin`, "text": "Admin"});
+                if(session.bLoggedIn === undefined){
+                    links.push({"url": `/login`, "text": "Login/Register"});
+                }else{
+            
+                    if(session.bLoggedIn){
+            
+                        links.push({"url": `/login`, "text": "Logout"});
+                    }else{
+                        links.push({"url": `/login`, "text": "Login/Register"});
+                    }
                 }
+            }else{
+
+                links.push({
+                    "url": value.url,
+                    "text": value.text,
+                    "alt": value.alt
+                });
             }
-            links.push({"url": `/login`, "text": "Logout"});
-        }else{
-            links.push({"url": `/login`, "text": "Login/Register"});
         }
     }
-    
+
 
     let bCurrent = false;
     const elems = [];

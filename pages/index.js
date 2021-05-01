@@ -137,7 +137,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 		<DefaultHead host={host} title={"Home"} description="Welcome to Node UTStats 2, view various stats for players,matches,maps,records and more!" keywords="home,welcome"/>
 		
 		<main>
-			<Nav session={session}/>
+			<Nav settings={navSettings} session={session}/>
 			<div id="content">
 				<div className="default">
 			

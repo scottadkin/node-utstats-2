@@ -5,6 +5,7 @@ import React from 'react';
 import styles from '../styles/Login.module.css';
 import User from '../api/user';
 import Session from '../api/session';
+import SiteSettings from '../api/sitesettings';
 
 class Login extends React.Component{
 
@@ -255,7 +256,7 @@ class Login extends React.Component{
         return <div>
             <DefaultHead title={"Login/Register"}/>   
             <main>
-            <Nav session={this.props.session}/>
+            <Nav settings={this.props.navSettings} session={this.props.session}/>
             <div id="content">
                 <div className="default">
                 <div className="default-header">
@@ -288,11 +289,15 @@ export async function getServerSideProps({query, req}){
 
 	await session.load();
 
+    const settings = new SiteSettings();
+
+    const navSettings = await settings.getCategorySettings("Navigation");
     
     return {
         props: {
             "bLoggedIn": bLoggedIn,
-            "session": JSON.stringify(session.settings)
+            "session": JSON.stringify(session.settings),
+            "navSettings": JSON.stringify(navSettings)
         }
     }
 }

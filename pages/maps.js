@@ -9,6 +9,7 @@ import Pagination from '../components/Pagination';
 import Option2 from '../components/Option2/';
 import React from 'react';
 import Session from '../api/session';
+import SiteSettings from '../api/sitesettings';
 
 
 
@@ -70,7 +71,7 @@ class Maps extends React.Component{
                 Currently viewing ${nameString} page ${this.props.page} of ${pages}, maps ${start} to ${end} out of ${this.props.results}`} 
                 keywords={`search,map,maps,page ${this.props.page}`}/>
                 <main>
-                <Nav session={this.props.session}/>
+                <Nav settings={this.props.navSettings} session={this.props.session}/>
                 <div id="content">
                     <div className="default">
                     <div className="default-header">
@@ -141,6 +142,10 @@ export async function getServerSideProps({req, query}){
 
 	await session.load();
 
+    const settings = new SiteSettings();
+
+    const navSettings = await settings.getCategorySettings("Navigation");
+
 
     return {
         props: {
@@ -152,7 +157,8 @@ export async function getServerSideProps({req, query}){
             "perPage": perPage,
             "displayType": displayType,
             "name": name,
-            "session": JSON.stringify(session.settings)
+            "session": JSON.stringify(session.settings),
+            "navSettings": JSON.stringify(navSettings)
         }
     };
 }

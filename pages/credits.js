@@ -3,15 +3,16 @@ import DefaultHead from '../components/defaulthead'
 import Nav from '../components/Nav/'
 import Footer from '../components/Footer/'
 import Session from '../api/session';
+import SiteSettings from '../api/sitesettings';
 
-function Credits({session}){
+function Credits({session, navSettings}){
 
     return (
         <div>
             <DefaultHead />
             
             <main>
-            <Nav session={session}/>
+            <Nav settings={navSettings} session={session}/>
             <div id="content">
                 <div className="default">
                 <div className="default-header">
@@ -30,16 +31,21 @@ function Credits({session}){
 }
 
 
-export async function getServerSideProps(){
+export async function getServerSideProps({req}){
 
 
     const session = new Session(req.headers.cookie);
 
 	await session.load();
 
+    const settings = new SiteSettings();
+
+    const navSettings = await settings.getCategorySettings("Navigation");
+
     return {
         props: {
-            "session": JSON.stringify(session.settings)
+            "session": JSON.stringify(session.settings),
+            "navSettings": JSON.stringify(navSettings)
         }
     }
 }

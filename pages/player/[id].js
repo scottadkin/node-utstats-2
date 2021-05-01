@@ -21,9 +21,10 @@ import PlayerAliases from '../../components/PlayerAliases/';
 import Items from '../../api/items';
 import PlayerItemsSummary from '../../components/PlayerItemsSummary/';
 import Session from '../../api/session';
+import SiteSettings from '../../api/sitesettings';
 
 
-function Home({session,host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
+function Home({navSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage}) {
 
@@ -34,7 +35,7 @@ function Home({session,host, playerId, summary, gametypeStats, gametypeNames, re
 					<DefaultHead />
 			
 					<main>
-						<Nav session={session}/>
+						<Nav settings={navSettings} session={session}/>
 						<div id="content">
 						<div className="default">
 							<div className="default-header">
@@ -80,7 +81,7 @@ function Home({session,host, playerId, summary, gametypeStats, gametypeNames, re
 						image={ogImage} imageType="png"
 					/>
 					<main>
-						<Nav session={session}/>
+						<Nav settings={navSettings} session={session}/>
 						<div id="content">
 							<div className="default">
 								<div className="default-header">
@@ -356,8 +357,13 @@ export async function getServerSideProps({req, query}) {
 
 	await session.load();
 
+	const settings = new SiteSettings();
+
+	const navSettings = await settings.getCategorySettings("Navigation");
+
 	return { 
 		props: {
+			"navSettings": JSON.stringify(navSettings),
 			"session": JSON.stringify(session.settings),
 			"host": req.headers.host,
 			"playerId": playerId,

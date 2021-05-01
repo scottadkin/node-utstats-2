@@ -10,6 +10,7 @@ import Link from 'next/link';
 import styles from '../styles/Records.module.css';
 import Maps from '../api/maps';
 import Session from '../api/session';
+import SiteSettings from '../api/sitesettings';
 
 const validTypes = [
     "matches",
@@ -277,7 +278,7 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
             host={this.props.host}
             keywords={`records,record,${title},${(mode === 0) ? "Player" : "Match" }`}/>
             <main>
-                <Nav session={this.props.session}/>
+                <Nav settings={this.props.navSettings} session={this.props.session}/>
                 <div id="content">
                     <div className="default">
                         <div className="default-header">Records</div>
@@ -413,6 +414,9 @@ export async function getServerSideProps({req, query}){
 
 	await session.load();
 
+    const settings = new SiteSettings();
+    const navSettings = await settings.getCategorySettings("Navigation");
+
     return {
         "props": {
             "host": req.headers.host,
@@ -425,7 +429,8 @@ export async function getServerSideProps({req, query}){
             "record": JSON.stringify(highestValue),
             "currentRecords": JSON.stringify(currentRecords),
             "title": title,
-            "session": JSON.stringify(session.settings)
+            "session": JSON.stringify(session.settings),
+            "navSettings": JSON.stringify(navSettings)
         }
     }
 }

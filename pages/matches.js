@@ -14,6 +14,7 @@ import Link from 'next/link';
 import Option2 from '../components/Option2';
 import React from 'react';
 import Session from '../api/session';
+import SiteSettings from '../api/sitesettings';
 
 class Matches extends React.Component{
 
@@ -97,7 +98,7 @@ class Matches extends React.Component{
                 keywords={`search,match,matches,page ${this.props.page}`}
             />
             <main>
-                <Nav session={this.props.session}/>
+                <Nav settings={this.props.navSettings} session={this.props.session}/>
                 <div id="content">
 
                     <div className="default">
@@ -243,6 +244,9 @@ export async function getServerSideProps({req, query}){
 
 	await session.load();
 
+    const settings = new SiteSettings();
+    const navSettings = await settings.getCategorySettings("Navigation");
+
     return {
         "props": {
             "host": req.headers.host,
@@ -254,7 +258,8 @@ export async function getServerSideProps({req, query}){
             "gametype": gametype,
             "displayType": displayType,
             "images": JSON.stringify(mapImages),
-            "session": JSON.stringify(session.settings)
+            "session": JSON.stringify(session.settings),
+            "navSettings": JSON.stringify(navSettings)
         }
     };
 }

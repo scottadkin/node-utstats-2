@@ -83,7 +83,7 @@ class Admin extends React.Component{
         return <div>
             <DefaultHead title="Admin Control Panel"/>
             <main>
-                <Nav session={this.props.session}/>
+                <Nav session={this.props.session} settings={this.props.navSettings}/>
 
                 <div id="content">
                     <div className="default">
@@ -120,15 +120,18 @@ export async function getServerSideProps({req, query}){
     if(bUserAdmin){
 
         currentSiteSettings = await settings.debugGetAllSettings();
-        console.log(currentSiteSettings);
+       // console.log(currentSiteSettings);
 
         validSiteSettings.playersPage = settings.getPlayersPageValidSettings();
     }
+
+    const navSettings = await settings.getCategorySettings("Navigation");
 
     console.log(`Is this user an admin ${bUserAdmin}`);
 
     return {
         props: {
+            "navSettings": JSON.stringify(navSettings),
             "session": JSON.stringify(session.settings),
             "bUserAdmin": bUserAdmin,
             "siteSettings": JSON.stringify(currentSiteSettings),

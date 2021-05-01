@@ -8,6 +8,7 @@ import Functions from '../../api/functions';
 import RankingTable from '../../components/RankingTable/';
 import Players from '../../api/players';
 import Session from '../../api/session';
+import SiteSettings from '../../api/sitesettings';
 
 
 class Rankings extends React.Component{
@@ -121,7 +122,7 @@ class Rankings extends React.Component{
                 keywords={keywords}
             />
             <main>
-                <Nav session={this.props.session}/>
+                <Nav settings={this.props.navSettings} session={this.props.session}/>
                 <div id="content">
                     <div className="default">
                         <div className="default-header">
@@ -229,6 +230,10 @@ export async function getServerSideProps({req, query}){
 
 	await session.load();
 
+    const sSettings = new SiteSettings();
+
+    const navSettings = await sSettings.getCategorySettings("Navigation");
+
     return {
         props:{
             "host": req.headers.host,
@@ -238,7 +243,8 @@ export async function getServerSideProps({req, query}){
             "page": page,
             "perPage": perPage,
             "gametypeId": gametype,
-            "session": JSON.stringify(session.settings)
+            "session": JSON.stringify(session.settings),
+            "navSettings": JSON.stringify(navSettings)
         }
     }
 }
