@@ -711,6 +711,10 @@ function createPlayerDomScoreData(events, totalPlayers, playerNames, matchStart)
 
     const data = new Map();
     const text = [];
+
+    if(events.length === 0){
+        return {"data": [], "text": []};
+    }
     
 
 
@@ -1280,7 +1284,7 @@ class PlayerGraphPingData{
 
 }
 
-function Match({navSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
+function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData}){
 
     //for default head open graph image
@@ -1296,6 +1300,8 @@ function Match({navSettings, session, host, info, server, gametype, map, image, 
     const parsedInfo = JSON.parse(info);
 
     const parsedPlayerData = JSON.parse(playerData);
+
+    pageSettings = JSON.parse(pageSettings);
 
     scoreHistory = JSON.parse(scoreHistory);
 
@@ -1400,18 +1406,27 @@ function Match({navSettings, session, host, info, server, gametype, map, image, 
 
     if(bDomination(parsedPlayerData)){
 
-        elems.push(
-            <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
-        );
+        if(pageSettings["Display Domination Summary"] === "true"){
+            elems.push(
+                <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
+            );
+        }
 
-        const domPlayerScores = createPlayerDomScoreData(JSON.parse(domPlayerScoreData), parsedInfo.players, justPlayerNames, parsedInfo.start);
+        let domPlayerScores = [];
+        let domData = [];
+        let domGraphData = [];
 
 
-        const domData = new DominationGraphData(domCapData, parsedInfo.total_teams, parsedInfo.start, domControlPointNames, playerNames);
-        const domGraphData = [domPlayerScores.data, domData.playerCapData, domData.teamCapData, domData.controlPointData];
+        domPlayerScores = createPlayerDomScoreData(JSON.parse(domPlayerScoreData), parsedInfo.players, justPlayerNames, parsedInfo.start);
 
-        elems.push(<Graph title={["Domination Player Scores", "Domination Player Caps", "Domination Team Caps", "Domination Control Caps"]} 
-        text={JSON.stringify([domPlayerScores.text, domData.text, domData.text, domData.text])} data={JSON.stringify(domGraphData)}/>);
+
+        domData = new DominationGraphData(domCapData, parsedInfo.total_teams, parsedInfo.start, domControlPointNames, playerNames);
+        domGraphData = [domPlayerScores.data, domData.playerCapData, domData.teamCapData, domData.controlPointData];
+
+        if(pageSettings["Display Domination Graphs"] === "true"){
+            elems.push(<Graph title={["Domination Player Scores", "Domination Player Caps", "Domination Team Caps", "Domination Control Caps"]} 
+            text={JSON.stringify([domPlayerScores.text, domData.text, domData.text, domData.text])} data={JSON.stringify(domGraphData)}/>);
+        }
     }
 
     if(bAssault(gametype)){
@@ -1544,6 +1559,15 @@ export async function getServerSideProps({req, query}){
 
     let matchId = (query.id !== undefined) ? parseInt(query.id) : parseInt(null);
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
+    const settings = new SiteSettings();
+    const pageSettings = await settings.getCategorySettings("Match Pages");
+
+    console.log(pageSettings);
+
     const m = new MatchManager();
 
     if(matchId !== matchId){
@@ -1638,8 +1662,14 @@ export async function getServerSideProps({req, query}){
         const dom = new Domination();
 
         domControlPointNames = await dom.getControlPointNames(matchInfo.map);
-        domCapData = await dom.getMatchCaps(matchId); 
-        domPlayerScoreData = await dom.getMatchPlayerScoreData(matchId);
+        
+        if(pageSettings["Display Domination Summary"] === "true" || pageSettings["Display Domination Graphs"]){
+            domCapData = await dom.getMatchCaps(matchId); 
+        }
+
+        if(pageSettings["Display Domination Graphs"] === "true"){
+            domPlayerScoreData = await dom.getMatchPlayerScoreData(matchId);
+        }
     }
     
 
@@ -1715,17 +1745,13 @@ export async function getServerSideProps({req, query}){
 
     const headshotData = await headshotsManager.getMatchData(matchId);
 
-    const session = new Session(req.headers.cookie);
-
-	await session.load();
-
-    const settings = new SiteSettings();
-
+    
     const navSettings = await settings.getCategorySettings("Navigation");
 
     return {
         props: {
             "navSettings": JSON.stringify(navSettings),
+            "pageSettings": JSON.stringify(pageSettings),
             "session": JSON.stringify(session.settings),
             "host": req.headers.host,
             "info": JSON.stringify(matchInfo),

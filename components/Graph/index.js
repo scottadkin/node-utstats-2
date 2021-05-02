@@ -9,6 +9,9 @@ class GraphCanvas{
 
     constructor(canvas, title, data, text, minValue, maxValue){
 
+
+        console.log(title);
+        console.log(JSON.parse(data));
         
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");

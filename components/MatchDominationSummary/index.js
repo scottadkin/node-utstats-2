@@ -18,6 +18,8 @@ const MatchDominationSummary = ({players, totalTeams, controlPointNames, capData
     players = JSON.parse(players);
     const teams = [];
 
+    if(capData === "[]") return null;
+
     for(let i = 0; i < totalTeams; i++){
 
         teams.push(<MatchDominationSummaryTable key={i} team={i} players={getPlayersOnTeam(players, i)} controlPointNames={controlPointNames} capData={capData}/>);

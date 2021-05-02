@@ -4,15 +4,6 @@ import Playtime from '../Playtime/';
 import MatchResult from '../MatchResult/';
 
 
-
-const ServerSetting = ({label, value}) =>{
-
-    return (<div className={styles.setting}>
-        <span className="yellow">{label} </span>
-        {value}
-    </div>);
-}
-
 const MatchSummary = ({info, server, gametype, map, image}) =>{
 
     if(info === undefined){

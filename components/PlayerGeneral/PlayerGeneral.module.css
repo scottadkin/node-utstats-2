@@ -4,7 +4,8 @@
     width:500px;
     margin-left:auto;
     margin-right:auto;
-    height:236px;
+    height:246px;
+    overflow:hidden;
 
 }
 
@@ -44,7 +45,7 @@
 .left{
     background-color:rgb(16,16,16);
     width:140px;
-    height:235px;
+    height:250px;
     border-right:1px solid rgba(255,255,255,0.25);
 }
 
@@ -52,11 +53,10 @@
     width:360px;
     margin-left:140px;
     position:absolute;
-    margin-top:-235px;
+    margin-top:-254px;
     font-size:14px;
     padding-top:5px;
     overflow:hidden;
-    height:235px;
 }
 
 .table{
