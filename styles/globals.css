@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,700;1,400&display=swap');
 
 
 :root{
@@ -18,7 +18,7 @@
 * {
 	padding: 0;
 	margin: 0;
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Open Sans', sans-serif;
 	font-weight:300;
 }
 
@@ -93,11 +93,15 @@ footer{
 
 .default-header{
 	text-align:center;
-	font-size:18px;
+	font-size:20px;
 	color:white;
-	font-weight:300;
+	font-weight:400;
 	padding-bottom:20px;
 	padding-top:20px;
+	width:90%;
+	max-width:1250px;
+	margin-left:auto;
+	margin-right:auto;
 }
 
 
@@ -264,6 +268,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	/*background:linear-gradient(to bottom right, rgb(71,71,0), rgb(91,91,20));*/
 }
 
+
+.solo{
+	background-color:var(--color-2);
+}
 
 .trio{
 	display:grid;

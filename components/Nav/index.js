@@ -6,6 +6,12 @@ function Nav({session, settings}){
     const router = useRouter();
 
     session = JSON.parse(session);
+
+    let displayName = "NOT FOUND";
+
+    if(session.displayName !== undefined){
+        displayName = session.displayName;
+    }
     
     if(settings !== undefined){
 
@@ -31,8 +37,9 @@ function Nav({session, settings}){
         "Display Rankings":{"text": "Rankings", "url": "/rankings", "alt": "/rankings/[id]"},
         "Display Records": {"text": "Records", "url": "/records"},
         "Display Maps": {"text": "Maps", "url": "/maps", "alt": "/map/[id]"},
+        "Display Admin": {"text": "Admin", "url": "/admin"},
         "Display Login/Logout": {"text": "Login/Register", "url": "/login"},
-        "Display Admin": {"text": "Admin", "url": "/admin"}
+        
     }
 
     const pathName = router.pathname.toLowerCase();;
@@ -52,7 +59,7 @@ function Nav({session, settings}){
             
                     if(session.bLoggedIn){
             
-                        links.push({"url": `/login`, "text": "Logout"});
+                        links.push({"url": `/login`, "text": `Logout ${displayName}`});
                     }else{
                         links.push({"url": `/login`, "text": "Login/Register"});
                     }

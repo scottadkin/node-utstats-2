@@ -6,6 +6,8 @@ export default async (req, res) =>{
 
     try{
 
+        const MAX_COOKIE_AGE = (60 * 60) * 24;
+
         const user = new UserManager();
 
         if(req.method === "POST"){
@@ -45,13 +47,24 @@ export default async (req, res) =>{
                     loggedIn = true;
                     hash = result.hash;
 
-                    res.setHeader("Set-Cookie", cookie.serialize("sid", hash, {
+                    res.setHeader("Set-Cookie", [
+
+                        cookie.serialize("sid", hash, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV !== "development",
-                        maxAge: (60 * 60) * 24,
+                        maxAge: MAX_COOKIE_AGE,
                         sameSite: "strict",
                         path: "/"
-                    }));
+                    }),
+
+                    cookie.serialize("displayName", username, {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV !== "development",
+                        maxAge: MAX_COOKIE_AGE,
+                        sameSite: "strict",
+                        path: "/"
+                    })
+                ]);
 
                     console.log(errors);
 
