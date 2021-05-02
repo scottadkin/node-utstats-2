@@ -1,4 +1,3 @@
-
 import DefaultHead from '../components/defaulthead';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
@@ -33,26 +32,77 @@ class Matches extends React.Component{
     componentDidMount(){
 
         const settings = JSON.parse(this.props.pageSettings);
+        const session = JSON.parse(this.props.session);
 
-        if(settings["Default Gametype"] !== undefined){
-            this.setState({"gametype": parseInt(settings["Default Gametype"])});
+        if(session["matchesGametype"] === undefined){
+
+            if(settings["Default Gametype"] !== undefined){
+                this.setState({"gametype": parseInt(settings["Default Gametype"])});
+            }
+
+        }else{
+            this.setState({"gametype": parseInt(session["matchesGametype"])});
         }
 
-        if(settings["Default Display Per Page"] !== undefined){
-            this.setState({"perPage": parseInt(settings["Default Display Per Page"])});
+        if(session["matchesPerPage"] === undefined){
+
+            if(settings["Default Display Per Page"] !== undefined){
+                this.setState({"perPage": parseInt(settings["Default Display Per Page"])});
+            }
+
+        }else{
+            this.setState({"perPage": parseInt(session["matchesPerPage"])});
         }
 
-        if(settings["Default Display Type"] !== undefined){
-            this.setState({"displayType": parseInt(settings["Default Display Type"])});
+
+        if(session["matchesDisplay"] === undefined){
+
+            if(settings["Default Display Type"] !== undefined){
+                this.setState({"displayType": parseInt(settings["Default Display Type"])});
+            }
+
+        }else{
+            this.setState({"displayType": parseInt(session["matchesDisplay"])});
+        }
+
+
+        
+        console.log(session);
+    }
+
+    setCookie(key, value){
+
+        const maxAge = ((60 * 60) * 24) * 365;
+
+        if(process.browser){
+            document.cookie = `${key}=${value}; max-age=${maxAge};`;
         }
     }
 
     changePerPage(event){
+
         this.setState({"perPage": event.target.value});
+
+        let value = parseInt(event.target.value);
+
+        if(value !== value) value = 25;
+        
+
+        this.setCookie("matchesPerPage", value);
+
     }
 
     changeGametype(event){
+
         this.setState({"gametype": event.target.value})
+
+        let value = parseInt(event.target.value);
+
+        if(value !== value) value = 0;
+        
+        this.setCookie("matchesGametype", value);
+
+
     }
 
     createGametypeOptions(){
@@ -81,8 +131,14 @@ class Matches extends React.Component{
     }
 
     changeDisplay(type){
-        console.log(`type = ${type}`);
+
         this.setState({"displayType": type});
+
+        if(type !== 0 && type !== 1){
+            type = 0;
+        }
+
+        this.setCookie("matchesDisplay", type);
     }
 
 
@@ -164,6 +220,11 @@ class Matches extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
+
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
     const matchManager = new MatchesManager();
     const gametypeManager = new Gametypes();
     const serverManager = new Servers();
@@ -206,6 +267,16 @@ export async function getServerSideProps({req, query}){
 
         if(gametype !== gametype){
             gametype = 0;
+        }
+
+    }else{
+
+
+        if(session.cookies["matchesGametype"] !== undefined){
+            
+            gametype = parseInt(session.cookies["matchesGametype"]);
+
+            if(gametype !== gametype) gametype = 0;
         }
     }
 
@@ -257,9 +328,7 @@ export async function getServerSideProps({req, query}){
 
     const mapImages = await mapManager.getImages(justMapNames);
 
-    const session = new Session(req.headers.cookie);
-
-	await session.load();
+    
 
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
