@@ -33,6 +33,18 @@ class Matches extends React.Component{
     componentDidMount(){
 
         const settings = JSON.parse(this.props.pageSettings);
+
+        if(settings["Default Gametype"] !== undefined){
+            this.setState({"gametype": parseInt(settings["Default Gametype"])});
+        }
+
+        if(settings["Default Display Per Page"] !== undefined){
+            this.setState({"perPage": parseInt(settings["Default Display Per Page"])});
+        }
+
+        if(settings["Default Display Type"] !== undefined){
+            this.setState({"displayType": parseInt(settings["Default Display Type"])});
+        }
     }
 
     changePerPage(event){
@@ -124,6 +136,7 @@ class Matches extends React.Component{
                                     <option value="10">10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
+                                    <option value="75">75</option>
                                     <option value="100">100</option>
                                 </select>
                     
@@ -251,7 +264,7 @@ export async function getServerSideProps({req, query}){
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
 
-    const pageSettings = await settings.getCategorySettings("Matches");
+    const pageSettings = await settings.getCategorySettings("Matches Page");
 
     console.log("pageSettings");
     console.log(pageSettings);
