@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 02, 2021 at 11:39 PM
+-- Generation Time: May 03, 2021 at 12:31 AM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -66,8 +66,27 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (30, 'Home', 'Recent Matches To Display', '10'),
 (31, 'Records Page', 'Default Record Type', 'Player'),
 (33, 'Records Page', 'Default Per Page', '75'),
-(34, 'Maps Page', 'Default Display Per Page', '25'),
-(35, 'Maps Page', 'Default Display Type', '0');
+(34, 'Maps Page', 'Default Display Per Page', '75'),
+(35, 'Maps Page', 'Default Display Type', '1'),
+(36, 'Match Pages', 'Display Summary', 'true'),
+(37, 'Match Pages', 'Display Screenshot', 'true'),
+(38, 'Match Pages', 'Display Frag Summary', 'true'),
+(39, 'Match Pages', 'Display Frags Graphs', 'true'),
+(40, 'Match Pages', 'Display Capture The Flag Summary', 'true'),
+(41, 'Match Pages', 'Display Capture The Flag Graphs', 'true'),
+(42, 'Match Pages', 'Display Capture The Flag Caps', 'true'),
+(43, 'Match Pages', 'Display Special Events', 'true'),
+(44, 'Match Pages', 'Display Kills Match Up', 'true'),
+(45, 'Match Pages', 'Display Powerup Control', 'true'),
+(46, 'Match Pages', 'Display Weapon Statistics', 'true'),
+(47, 'Match Pages', 'Display Pickup Summary', 'true'),
+(48, 'Match Pages', 'Display Player Ping Graph', 'true'),
+(49, 'Match Pages', 'Display Players Connected to Server Graph', 'true'),
+(50, 'Match Pages', 'Display Team Changes', 'true'),
+(51, 'Match Pages', 'Display Server Settings', 'true'),
+(52, 'Match Pages', 'Display Assault Summary', 'true'),
+(53, 'Match Pages', 'Display Domination Summary', 'true'),
+(54, 'Match Pages', 'Display Domination Graphs', 'true');
 
 --
 -- Indexes for dumped tables
@@ -87,7 +106,7 @@ ALTER TABLE `nstats_site_settings`
 -- AUTO_INCREMENT for table `nstats_site_settings`
 --
 ALTER TABLE `nstats_site_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
