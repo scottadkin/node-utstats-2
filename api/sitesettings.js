@@ -123,6 +123,17 @@ class SiteSettings{
         };
     }
 
+    getRecordsPageValidSettings(){
+
+        return {
+            "Default Per Page": this.defaultPerPageValues,
+            "Default Record Type": [
+                {"name": "Player", "value": "0"},
+                {"name": "Match", "value": "1"},
+            ]
+        }
+    }
+
     async getMatchesPageValidSettings(){
 
         try{

@@ -51,7 +51,6 @@ class Admin extends React.Component{
             }
         }
 
-        console.log(categories);
 
         const elems = [];
 
@@ -71,6 +70,8 @@ class Admin extends React.Component{
                 currentValidSettings = validSettings.matchesPage;
             }else if(fixedKey === "home"){
                 currentValidSettings = validSettings.home;
+            }else if(fixedKey === "records page"){
+                currentValidSettings = validSettings.recordsPage;
             }
 
             elems.push(<AdminSettingsTable key={key} title={key} data={value.data} validSettings={currentValidSettings}/>);
@@ -133,6 +134,7 @@ export async function getServerSideProps({req, query}){
         validSiteSettings.playersPage = settings.getPlayersPageValidSettings();
         validSiteSettings.matchesPage = await settings.getMatchesPageValidSettings();
         validSiteSettings.home = settings.getHomePageValidSettings();
+        validSiteSettings.recordsPage = settings.getRecordsPageValidSettings();
     }
 
     const navSettings = await settings.getCategorySettings("Navigation");

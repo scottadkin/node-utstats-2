@@ -85,10 +85,10 @@ const typeTitles = [
     "Flag Assists",
     "Flag Returns",
     "Flags Taken",
+    "Flag Seal",
     "Flag Dropped",
     "Flag Capture",
     "Flag Pickup",
-    "Flag Seal",
     "Flag Cover",
     "Flag Successful Cover",
     "Flag Failed Cover",
@@ -109,6 +109,8 @@ const typeTitles = [
     "Long Distance Kills",
     "Uber Long Distance Kills"
 ];
+
+
 
 
 const validTypesMatch = [
@@ -205,7 +207,6 @@ class SelectionBox extends React.Component{
         super(props);
 
         this.changeEvent = this.changeEvent.bind(this);
-
         
     }
 
@@ -213,6 +214,8 @@ class SelectionBox extends React.Component{
 
         this.props.changeEvent(event.target.value);
     }
+
+    
 
     render(){
         const options = [];
@@ -224,34 +227,92 @@ class SelectionBox extends React.Component{
             options.push(<option key={i} value={types[i]}>{titles[i]}</option>);
         }
 
-        return <div className="text-center m-bottom-10"><select id="type" value={this.props.currentValue} onChange={this.changeEvent} className="default-select">
+        return <div className="text-center"><select id="type" value={this.props.currentValue} onChange={this.changeEvent} className="default-select">
             {options}
         </select></div>
     }
 }
 
-class Records extends React.Component{//= ({type, results, perPage, title, page, pages, record, currentRecords}) =>{
+class Records extends React.Component{
 
 
     constructor(props){
 
-        
+      
         super(props);
 
-        this.state = {"type": this.props.type, "mode": this.props.mode};
+        this.state = {"type": this.props.type, "mode": this.props.mode, "perPage": parseInt(this.props.perPage)};
 
         this.changeSelectedType = this.changeSelectedType.bind(this);
         this.changeMode = this.changeMode.bind(this);
+        this.changePerPage = this.changePerPage.bind(this);
+    }
+
+    componentDidMount(){
+
+        const settings = JSON.parse(this.props.pageSettings);
+        const session = JSON.parse(this.props.session);
+
+        console.log(settings);
+        console.log(session);
+
+        if(settings["Default Per Page"] !== undefined){
+
+            if(session["recordsPerPage"] === undefined){
+                this.setState({"perPage": parseInt(settings["Default Per Page"])});
+            }else{
+                this.setState({"perPage": parseInt(session["recordsPerPage"])});
+            }
+        }
+
+        if(settings["Default Record Type"] !== undefined){
+
+            
+            if(session["recordsMode"] === undefined){
+                this.setState({"mode": parseInt(settings["Default Record Type"])});
+            }else{
+                console.log(`Using Records mode cookie (${session["recordsMode"]})`);
+                this.setState({"mode": parseInt(session["recordsMode"])});
+            }
+        }
+
+        if(session["recordsType"]){
+
+            this.setState({"type": session["recordsType"]});
+        }
+    }
+
+
+    setCookie(key, value){
+
+        const maxAge = ((60 * 60) * 24) * 365;
+
+        document.cookie = `${key}=${value}; max-age=${maxAge}; path=/;`;
     }
 
     changeSelectedType(type){
 
         this.setState({"type": type});
+
+        this.setCookie("recordsType", type);
+    }
+
+    changePerPage(event){
+
+        let value = parseInt(event.target.value);
+        if(value !== value) value = 50;
+
+        this.setState({"perPage": value});
+        this.setCookie("recordsPerPage", value);
     }
 
     changeMode(mode){
 
         this.setState({"mode": mode});
+
+        this.setCookie("recordsMode", mode);
+
+        console.log(`RecordsMode should now be ${mode}`);
     }
 
     render(){
@@ -259,14 +320,14 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
         const mode = this.props.mode;
         const type = this.state.type;
         const results = this.props.results;
-        const perPage = this.props.perPage;
+        const perPage = parseInt(this.props.perPage);
         const title = this.props.title;
         const page = this.props.page;
         const pages = this.props.pages;
         const record = this.props.record;
         const currentRecords = this.props.currentRecords;
 
-        const url = `/records?mode=${mode}&type=${type}&page=`;
+        const url = `/records?mode=${mode}&perPage=${parseInt(this.state.perPage)}&type=${type}&page=`;
 
         const start = (page - 1 < 1) ? 1 : (page - 1) * perPage;
         const end = (page * perPage < results) ? page * perPage : results;
@@ -289,11 +350,17 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
                                         Record Type
                                 </div>
                                 <div className="text-center">
-                                <Link href={`/records?mode=0&type=${type}&page=`}><a><div style={{"width": "30%", "maxWidth": "100px"}} className={`big-tab text-center ${(this.props.mode === 0) ? "tab-selected" : ""}`}>
+                                <Link href={`/records?mode=0&perPage=${parseInt(this.state.perPage)}&type=${type}&page=`}><a><div onClick={(() =>{
+                                    this.changeMode(0);
+                                })} style={{"width": "30%", "maxWidth": "100px"}} 
+                                className={`big-tab text-center ${(this.props.mode === 0) ? "tab-selected" : ""}`}>
                                     Player
                                 </div></a></Link>
 
-                                <Link href={`/records?mode=1&type=${type}&page=`}><a><div style={{"width": "30%", "maxWidth": "100px"}} className={`big-tab text-center ${(this.props.mode === 1) ? "tab-selected" : ""}`}>
+                                <Link  href={`/records?mode=1&perPage=${parseInt(this.state.perPage)}&type=${type}&page=`}><a><div onClick={(() =>{
+                                    this.changeMode(1);
+                                })}style={{"width": "30%", "maxWidth": "100px"}} 
+                                className={`big-tab text-center ${(this.props.mode === 1) ? "tab-selected" : ""}`}>
                                     Match
                                 </div></a></Link>
                                 </div>
@@ -308,6 +375,23 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
                                 </div>
                                 
                             </div>
+
+                            <div className="select-row">
+                                <div className="select-label">
+                                    Display Per Page
+                                </div>
+                                <div className="text-center">
+                                    <select className="default-select" onChange={this.changePerPage} value={this.state.perPage}>
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="75">75</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
                         </div>
                         <div className={styles.info}>Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
@@ -333,6 +417,22 @@ export async function getServerSideProps({req, query}){
 
     let typeIndex = 0;
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
+    console.log("session");
+    console.log("session");
+    console.log("session");
+    console.log("session");
+    console.log("session");
+    console.log("session");
+    console.log("session");
+    console.log("session");
+    console.log("session");
+    console.log("session");
+    console.log(session);
+
     if(query.mode !== undefined){
 
         mode = parseInt(query.mode);
@@ -345,7 +445,19 @@ export async function getServerSideProps({req, query}){
                 mode = 0;
             }
         }
+    }else{
+
+        if(session.cookies["recordsMode"] !== undefined){
+
+            mode = parseInt(session.cookies["recordsMode"]);
+
+            console.log(`momomomomomomomom  = ${mode}`);
+            if(mode !== 0 && mode !== 1) mode = 0;
+        }   
     }
+
+
+    console.log(`mmmmmmmmmmmmmmmmmmmmmmmmmmmode = ${mode}`);
 
     if(query.type !== undefined){
 
@@ -365,8 +477,7 @@ export async function getServerSideProps({req, query}){
             type = validTypesMatch[typeIndex];
             title= typeTitlesMatch[typeIndex];
         }
-            
-      
+        
     }
 
     if(query.page !== undefined){
@@ -377,6 +488,27 @@ export async function getServerSideProps({req, query}){
             page = 1;
         }else{
             if(page < 1) page = 1;
+        }
+    }
+
+    if(query.perPage !== undefined){
+
+        perPage = parseInt(query.perPage);
+
+        if(perPage !== perPage){
+            perPage = 50;
+        }else{
+
+            if(perPage < 1 || perPage > 100){
+                perPage = 50;
+            }
+        }
+
+    }else{
+
+        if(session.cookies["recordsPerPage"] !== undefined){
+            perPage = parseInt(session.cookies["recordsPerPage"]);
+            if(perPage !== perPage) perPage = 50;
         }
     }
 
@@ -417,12 +549,11 @@ export async function getServerSideProps({req, query}){
 
     if(pages !== pages) pages = 1;
 
-    const session = new Session(req.headers.cookie);
-
-	await session.load();
+   
 
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
+    const pageSettings = await settings.getCategorySettings("Records Page");
 
     return {
         "props": {
@@ -437,7 +568,8 @@ export async function getServerSideProps({req, query}){
             "currentRecords": JSON.stringify(currentRecords),
             "title": title,
             "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings)
+            "navSettings": JSON.stringify(navSettings),
+            "pageSettings": JSON.stringify(pageSettings)
         }
     }
 }

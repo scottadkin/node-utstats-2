@@ -338,8 +338,6 @@ export async function getServerSideProps({req, query}){
 
     const pageSettings = await settings.getCategorySettings("Matches Page");
 
-    console.log("pageSettings");
-    console.log(pageSettings);
 
     return {
         "props": {

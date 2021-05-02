@@ -41,7 +41,7 @@ class Players extends React.Component{
 
         const maxAge = ((60 * 60) * 24) * 365;
 
-        document.cookie = `${key}=${value}; max-age:${maxAge};`;
+        document.cookie = `${key}=${value}; max-age=${maxAge}; path=/;`;
     }
 
     componentDidMount(){
