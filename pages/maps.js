@@ -26,17 +26,65 @@ class Maps extends React.Component{
         this.updateName = this.updateName.bind(this);
     }
 
+    componentDidMount(){
+
+        const settings = JSON.parse(this.props.pageSettings);
+        const session = JSON.parse(this.props.session);
+
+        if(settings["Default Display Per Page"] !== undefined){
+
+            if(session["mapsPerPage"] === undefined){
+                this.setState({"perPage": parseInt(settings["Default Display Per Page"])});
+            }else{
+                this.setState({"perPage": parseInt(session["mapsPerPage"])});
+            }
+        }
+
+        if(settings["Default Display Type"] !== undefined){
+
+            if(session["mapsDisplayType"] === undefined){
+                this.setState({"displayType": parseInt(settings["Default Display Type"])});
+            }else{
+                this.setState({"displayType": parseInt(session["mapsDisplayType"])});
+            }
+        }
+    }
+
     changeDisplay(id){
+
+        id = parseInt(id);
+
+        if(id !== id) id = 0;
+
         this.setState({"displayType": id});
+
+        this.setCookie("mapsDisplayType", id);
     }
 
 
     changePerPage(event){
-        this.setState({"perPage": event.target.value});
+
+        let value = parseInt(event.target.value);
+        if(value !== value) value = 25;
+
+        this.setState({"perPage": value});
+
+        this.setCookie("mapsPerPage", value);
     }
 
     updateName(event){
         this.setState({"name": event.target.value});
+    }
+
+
+    setCookie(key, value){
+
+        const maxAge = ((60 * 60) * 24) * 365;
+
+        if(process.browser){
+
+            document.cookie = `${key}=${value}; max-age=${maxAge}; path=/;`;
+        }
     }
 
     render(){
@@ -86,6 +134,7 @@ class Maps extends React.Component{
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
+                                <option value="75">75</option>
                                 <option value="100">100</option>
                             </select>
                         </div>
@@ -145,6 +194,7 @@ export async function getServerSideProps({req, query}){
     const settings = new SiteSettings();
 
     const navSettings = await settings.getCategorySettings("Navigation");
+    const pageSettings = await settings.getCategorySettings("Maps Page");
 
 
     return {
@@ -158,7 +208,8 @@ export async function getServerSideProps({req, query}){
             "displayType": displayType,
             "name": name,
             "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings)
+            "navSettings": JSON.stringify(navSettings),
+            "pageSettings": JSON.stringify(pageSettings)
         }
     };
 }

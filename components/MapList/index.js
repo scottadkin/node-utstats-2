@@ -27,7 +27,7 @@ class MapList extends React.Component{
             }
 
             return (<div className="special-table">
-                <table className={styles.table}>
+                <table className={`${styles.table} t-width-1`}>
                     <tbody>
                         <tr>
                             <th>Name</th>

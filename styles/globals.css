@@ -93,7 +93,7 @@ footer{
 
 .default-header{
 	text-align:center;
-	font-size:20px;
+	font-size:22px;
 	color:white;
 	font-weight:400;
 	padding-bottom:20px;
@@ -230,7 +230,6 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .duo{
-	background-color:green;
 	display:grid;
 	grid-template-columns: 50% 50%;
 }

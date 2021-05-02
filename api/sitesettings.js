@@ -134,6 +134,14 @@ class SiteSettings{
         }
     }
 
+    getMapsPageValidSettings(){
+
+        return {
+            "Default Display Per Page": this.defaultPerPageValues,
+            "Default Display Type": this.defaultDiplayTypes
+        }
+    }
+
     async getMatchesPageValidSettings(){
 
         try{
