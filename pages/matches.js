@@ -177,32 +177,35 @@ class Matches extends React.Component{
                         <div className="default-header">
                             Recent Matches
                         </div>
-                        <div className="select-row">
-                            <div className="select-label">Gametype</div>
-                            <select className="default-select" value={this.state.gametype} onChange={this.changeGametype}>
-                                <option value="0" key={`gametype-default`}>All</option>
-                                {this.createGametypeOptions()}
-                            </select>
-                        </div>
-                        <div className="select-row">
-                            <div className="select-label">Results Per Page</div>
-    
-                                <select className="default-select" value={this.state.perPage} onChange={this.changePerPage}>
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="75">75</option>
-                                    <option value="100">100</option>
+                        <div className="form">
+                            <div className="select-row">
+                                <div className="select-label">Gametype</div>
+                                <select className="default-select" value={this.state.gametype} onChange={this.changeGametype}>
+                                    <option value="0" key={`gametype-default`}>All</option>
+                                    {this.createGametypeOptions()}
                                 </select>
-                    
-                        </div>
-                        <div className="select-row">
-                            <div className="select-label">Display</div>
-                            <Option2 title1="Default" title2="Table" changeEvent={this.changeDisplay} value={this.state.displayType}/>
-                        </div>
+                            </div>
+                            <div className="select-row">
+                                <div className="select-label">Results Per Page</div>
+        
+                                    <select className="default-select" value={this.state.perPage} onChange={this.changePerPage}>
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="75">75</option>
+                                        <option value="100">100</option>
+                                    </select>
                         
-                        <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
+                            </div>
+                            <div className="select-row">
+                                <div className="select-label">Display</div>
+                                <Option2 title1="Default" title2="Table" changeEvent={this.changeDisplay} value={this.state.displayType}/>
+                            </div>
+                            
+                            
+                            <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
+                        </div>
                         <Pagination currentPage={this.props.page} 
                             perPage={this.props.perPage} 
                             pages={pages} 

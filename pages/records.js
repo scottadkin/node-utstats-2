@@ -283,26 +283,33 @@ class Records extends React.Component{//= ({type, results, perPage, title, page,
                     <div className="default">
                         <div className="default-header">Records</div>
                     
+                        <div className="form">
+                                <div className="select-row">
+                                <div className="select-label">
+                                        Record Type
+                                </div>
+                                <div className="text-center">
+                                <Link href={`/records?mode=0&type=${type}&page=`}><a><div style={{"width": "30%", "maxWidth": "100px"}} className={`big-tab text-center ${(this.props.mode === 0) ? "tab-selected" : ""}`}>
+                                    Player
+                                </div></a></Link>
 
-                        <div className="big-tabs">
-                            <Link href={`/records?mode=0&type=${type}&page=`}><a><div className={`big-tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>
-                                Player Records
-                            </div></a></Link>
-
-                            <Link href={`/records?mode=1&type=${type}&page=`}><a><div className={`big-tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>
-                                Match Records
-                            </div></a></Link>
-                        </div>
-                        <div className="select-row">
-                            <div className="select-label">
-                                Order By
+                                <Link href={`/records?mode=1&type=${type}&page=`}><a><div style={{"width": "30%", "maxWidth": "100px"}} className={`big-tab text-center ${(this.props.mode === 1) ? "tab-selected" : ""}`}>
+                                    Match
+                                </div></a></Link>
+                                </div>
                             </div>
-                            <div>
-                                <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
+                          
+                            <div className="select-row">
+                                <div className="select-label">
+                                    Order By
+                                </div>
+                                <div>
+                                    <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
+                                </div>
+                                
                             </div>
-                            
+                            <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
                         </div>
-                        <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
                         <div className={styles.info}>Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
                         <RecordsList mode={mode} type={this.state.type} title={title} data={currentRecords} page={page} perPage={perPage} record={record}/>
                         <div className="text-center">

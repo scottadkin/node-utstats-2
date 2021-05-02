@@ -174,7 +174,7 @@ class Login extends React.Component{
 
         if(this.state.mode !== 0) return null;
 
-        return <div className={styles.form}>
+        return <div className={`${styles.form} form`}>
             <form onSubmit={this.login}>
                 <div className="select-row">
                     <div className="select-label">Username</div>
@@ -194,7 +194,7 @@ class Login extends React.Component{
 
         if(this.state.mode !== 1) return null;
 
-        return <div className={styles.form}>
+        return <div className={`${styles.form} form`}>
             <form onSubmit={this.login}>
                 <div className="select-row">
                     <div className="select-label">Username</div>

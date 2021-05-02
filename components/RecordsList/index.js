@@ -149,7 +149,7 @@ const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
     }
     
     return <div className="special-table">
-        <table className={`${styles.table}`}>
+        <table className={`${styles.table} t-width-1`}>
             <tbody>
                 <tr>
                     {headers}

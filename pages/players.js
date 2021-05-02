@@ -124,7 +124,7 @@ class Players extends React.Component{
                     <div className="default-header">
                         Players
                     </div>
-                    <form>
+                    <form className="form">
                         <input type="text" name="name" id="name" autoComplete="off" className="default-textbox" placeholder="Player Name..." value={this.state.name} 
                         onChange={this.handleNameChange}/>
                         <div className="select-row">
@@ -164,10 +164,11 @@ class Players extends React.Component{
                             <Option2 title1="Default" title2="Table" value={this.state.displayType} changeEvent={this.changeDisplay}/>
                             <input type="hidden" name="displayType" value={this.state.displayType}/>
                         </div>
+                    
+                    
+                    
+                        <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                     </form>
-                    
-                    
-                    <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                     
                     {paginationElem}
                     {pList}

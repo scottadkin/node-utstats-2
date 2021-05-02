@@ -77,7 +77,7 @@ class Maps extends React.Component{
                     <div className="default-header">
                         Maps
                     </div>
-                    <form>
+                    <form className="form">
                         <input type="text" name="name" className="default-textbox center" placeholder="map name..." value={this.state.name} onChange={this.updateName}/>
                         <div className="select-row">
                             <div className="select-label">Results Per Page</div>
