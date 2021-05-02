@@ -105,6 +105,24 @@ class SiteSettings{
         };
     }
 
+    getHomePageValidSettings(){
+
+        return {
+            "Recent Matches Display Type": this.defaultDiplayTypes,
+            "Recent Matches To Display": [
+                {"name": "1", "value": 1},
+                {"name": "2", "value": 2},
+                {"name": "3", "value": 3},
+                {"name": "4", "value": 4},
+                {"name": "5", "value": 5},
+                {"name": "10", "value": 10},
+                {"name": "15", "value": 15},
+                {"name": "20", "value": 20},
+                {"name": "25", "value": 25}
+            ]
+        };
+    }
+
     async getMatchesPageValidSettings(){
 
         try{

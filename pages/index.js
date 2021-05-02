@@ -21,6 +21,7 @@ import HomeMostPlayedGametypes from '../components/HomeMostPlayedGametypes/';
 import MostUsedFaces from '../components/MostUsedFaces/';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
+import MatchesTableView from '../components/MatchesTableView/';
 
 function createDatesGraphData(data){
 
@@ -131,6 +132,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 	pageSettings = JSON.parse(pageSettings);
 
+
 	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
 		<div>
@@ -143,7 +145,8 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 			
 
 				{(pageSettings["Display Recent Matches"] === "true") ? <div className="default-header">Recent Matches</div> : null }
-				<MatchesDefaultView images={mapImages} data={matchesData} />
+				{(pageSettings["Recent Matches Display Type"] == "0") ? <MatchesDefaultView images={mapImages} data={matchesData} /> : 
+				<MatchesTableView data={matchesData}/> }
 
 				{(pageSettings["Display Recent Matches & Player Stats"] === "true") ? <div><div className="default-header">Recent Matches &amp; Player Stats</div>
 				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/></div> : null }
@@ -201,7 +204,7 @@ export async function getServerSideProps({req}) {
 	let matchesData = [];
 
 	if(pageSettings["Display Recent Matches"] === "true"){
-		matchesData = await matchManager.getRecent(0,4);
+		matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"]);
 	}
 
 	let mostPlayedMaps = [];
@@ -294,8 +297,6 @@ export async function getServerSideProps({req}) {
 	if(pageSettings["Display Most Played Gametypes"] === "true"){
 		gametypeStats = await gametypeManager.getMostPlayed(5);
 	}
-
-
 
 	return { props: { 
 			"pageSettings": JSON.stringify(pageSettings),
