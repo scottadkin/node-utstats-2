@@ -36,37 +36,111 @@ class Players extends React.Component{
         this.changeSortAlt = this.changeSortAlt.bind(this);
     }
 
+
+    setCookie(key, value){
+
+        const maxAge = ((60 * 60) * 24) * 365;
+
+        document.cookie = `${key}=${value}; max-age:${maxAge};`;
+    }
+
+    componentDidMount(){
+
+        const settings = JSON.parse(this.props.pageSettings);
+
+        const session = JSON.parse(this.props.session);
+
+
+        if(settings["Default Display Per Page"] !== undefined){
+
+            if(session["playersPerPage"] === undefined){
+                this.setState({"perPage": parseInt(settings["Default Display Per Page"])});
+            }else{
+                this.setState({"perPage": parseInt(session["playersPerPage"])});
+            }
+        }
+
+        if(settings["Default Order"] !== undefined){
+
+            if(session["playersOrderBy"] === undefined){
+                this.setState({"order": settings["Default Order"]});
+            }else{
+                this.setState({"order": session["playersOrderBy"]});
+            }
+        }
+
+        if(settings["Default Display Type"] !== undefined){
+
+            if(session["playersDisplayType"] === undefined){
+                this.setState({"displayType": parseInt(settings["Default Display Type"])});
+            }else{
+                this.setState({"displayType": parseInt(session["playersDisplayType"])});
+            }
+        }
+
+        if(settings["Default Sort Type"] !== undefined){
+
+            if(session["playersSortBy"] === undefined){
+                this.setState({"value": settings["Default Sort Type"]});
+            }else{
+                this.setState({"value": session["playersSortBy"]});
+            }
+        }
+
+    }
+
     handleSortChange(event){
 
         //event.preventDefault;
         this.setState({"value": event.target.value});
+
+        this.setCookie("playersSortBy", event.target.value);
     }
 
     changeSortAlt(value){
 
         this.setState({"value": value});
+        this.setCookie("playersSortBy", value);
     }
 
     handleOrderChange(event){
         this.setState({"order": event.target.value});
+        this.setCookie("playersOrderBy", event.target.value);
     }
 
     handleNameChange(event){
-        this.setState({"name": event.target.value});    
+        this.setState({"name": event.target.value});  
+        this.setCookie("playersName", event.target.value);  
     }
 
     handlePerPageChange(event){
         
         this.setState({"perPage": parseInt(event.target.value)});
+
+        let value = parseInt(event.target.value);
+
+        if(value !== value) value = 25;
+
+        this.setCookie("playersPerPage", value);
     }
 
     handleDisplayTypeChange(event){
-        this.setState({"displayType": parseInt(event.target.value)});
+
+        let value = parseInt(event.target.value);
+        if(value !== value) value = 0;
+
+        this.setState({"displayType": value});
+        this.setCookie("playersDisplayType", value);
     }
 
     changeDisplay(id){
 
+        id = parseInt(id);
+
+        if(id !== id) id = 0;
+
         this.setState({"displayType": id});
+        this.setCookie("playersDisplayType", id);
     }
 
     render(){
@@ -164,8 +238,6 @@ class Players extends React.Component{
                             <Option2 title1="Default" title2="Table" value={this.state.displayType} changeEvent={this.changeDisplay}/>
                             <input type="hidden" name="displayType" value={this.state.displayType}/>
                         </div>
-                    
-                    
                     
                         <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                     </form>
@@ -278,6 +350,7 @@ export async function getServerSideProps({req, query}){
     const settings = new SiteSettings();
 
     const navSettings = await settings.getCategorySettings("Navigation");
+    const pageSettings = await settings.getCategorySettings("Players Page");
 
     return {
         props: {
@@ -293,7 +366,8 @@ export async function getServerSideProps({req, query}){
             "perPage": perPage,
             "displayType": displayType,
             "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings)
+            "navSettings": JSON.stringify(navSettings),
+            "pageSettings": JSON.stringify(pageSettings)
         }
     }
 }
