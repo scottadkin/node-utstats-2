@@ -1,10 +1,24 @@
 const mysql = require('./database');
 const Promise = require('promise');
+const Gametypes = require('../api/gametypes');
 
 class SiteSettings{
 
     constructor(){
 
+        this.defaultPerPageValues = [
+            {"name": 5, "value": 5},
+            {"name": 10, "value": 10},
+            {"name": 25, "value": 25},
+            {"name": 50, "value": 50},
+            {"name": 75, "value": 75},
+            {"name": 100, "value": 100}
+        ]
+
+        this.defaultDiplayTypes = [
+            {"name": "Default", "value": 0},
+            {"name": "Table", "value": 1}
+        ];
     }
 
 
@@ -85,19 +99,38 @@ class SiteSettings{
                 {"name": "Ascending", "value": "ASC"},
                 {"name": "Descending", "value": "DESC"},
             ],
-            "Default Display Per Page": [
-                {"name": 5, "value": 5},
-                {"name": 10, "value": 10},
-                {"name": 25, "value": 25},
-                {"name": 50, "value": 50},
-                {"name": 75, "value": 75},
-                {"name": 100, "value": 100}
-            ],
-            "Default Display Type": [
-                {"name": "Default", "value": 0},
-                {"name": "Table", "value": 1}
-            ]
+            "Default Display Per Page": 
+                this.defaultPerPageValues,
+            "Default Display Type": this.defaultDiplayTypes
         };
+    }
+
+    async getMatchesPageValidSettings(){
+
+        try{
+
+            const g = new Gametypes();
+
+            const names = await g.getAllNames();
+
+            const nameValues = [
+                {"name": "All", "value": 0}
+            ];
+
+            for(const [key, value] of Object.entries(names)){
+                nameValues.push({"name": value, "value": parseInt(key)});
+            }
+
+            return {
+                "Default Display Type": this.defaultDiplayTypes,
+                "Default Gametype": nameValues,
+                "Default Display Per Page":
+                    this.defaultPerPageValues
+            };
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     getCategorySettings(cat){

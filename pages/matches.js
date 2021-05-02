@@ -28,7 +28,11 @@ class Matches extends React.Component{
         this.changeGametype = this.changeGametype.bind(this);
         this.changeDisplay = this.changeDisplay.bind(this);
 
+    }
 
+    componentDidMount(){
+
+        const settings = JSON.parse(this.props.pageSettings);
     }
 
     changePerPage(event){
@@ -247,6 +251,11 @@ export async function getServerSideProps({req, query}){
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
 
+    const pageSettings = await settings.getCategorySettings("Matches");
+
+    console.log("pageSettings");
+    console.log(pageSettings);
+
     return {
         "props": {
             "host": req.headers.host,
@@ -259,7 +268,8 @@ export async function getServerSideProps({req, query}){
             "displayType": displayType,
             "images": JSON.stringify(mapImages),
             "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings)
+            "navSettings": JSON.stringify(navSettings),
+            "pageSettings": JSON.stringify(pageSettings)
         }
     };
 }
