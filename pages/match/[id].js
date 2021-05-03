@@ -1337,6 +1337,20 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}/>
     );
 
+    const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
+
+    const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
+
+    elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
+
+    if(parsedInfo.total_teams > 0){
+
+        const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
+        playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
+       
+        elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
+    }
+
     if(bCTF(parsedPlayerData)){
 
 
@@ -1385,17 +1399,21 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
             flagSaves.text, flagPickups.text, flagSeals.text
         ]
             
+        if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
-        elems.push(
-            <MatchCTFSummary key={`match_1`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>
-        );
+            elems.push(
+                <MatchCTFSummary key={`match_1`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>
+            );
+        }
 
+        if(pageSettings["Display Capture The Flag Graphs"] === "true"){
         
-        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-6"
-         data={JSON.stringify(ctfGraphData)} text={JSON.stringify(ctfGraphText)}/>);
+            elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-6"
+            data={JSON.stringify(ctfGraphData)} text={JSON.stringify(ctfGraphText)}/>);
 
-        elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-7" 
-        data={JSON.stringify(ctfPlayerGraphData)} text={JSON.stringify(ctfPlayerGraphText)}/>);
+            elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-7" 
+            data={JSON.stringify(ctfPlayerGraphData)} text={JSON.stringify(ctfPlayerGraphText)}/>);
+        }
 
         elems.push(
             <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />
@@ -1438,25 +1456,6 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         );
 
     }
-
-    
-
-    const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
-
-    const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
-
-    elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
-
-    if(parsedInfo.total_teams > 0){
-
-        const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
-        playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
-       
-        elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
-    }
-
-    //elems.push(<Graph title={"Team Total Kills"} key="g-3" data={JSON.stringify(teamTotalKillsData)}/>);
-
 
     elems.push(
         <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)}/>
@@ -1679,8 +1678,14 @@ export async function getServerSideProps({req, query}){
     if(bCTF(playerData)){
 
         const CTFManager = new CTF();
-        ctfCaps = await CTFManager.getMatchCaps(matchId);
-        ctfEvents = await CTFManager.getMatchEvents(matchId);
+        
+        if(pageSettings["Display Capture The Flag Caps"] === "true"){
+            ctfCaps = await CTFManager.getMatchCaps(matchId);
+        }
+
+        if(pageSettings["Display Capture The Flag Graphs"] === "true"){
+            ctfEvents = await CTFManager.getMatchEvents(matchId);
+        }
         
     }
 

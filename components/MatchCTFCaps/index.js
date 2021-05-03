@@ -174,6 +174,8 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
     const playerNames = createPlayerMap(players);
 
+    if(caps.length === 0) return null;
+
     let currentCovers = 0;
     let currentAssists = 0;
     let grabPlayer = 0;
