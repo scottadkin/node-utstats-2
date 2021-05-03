@@ -1324,31 +1324,39 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
     const elems = [];
 
-    elems.push(
-        <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
-    );
+    if(pageSettings["Display Summary"] === "true"){
+        elems.push(
+            <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
+        );
+    }
 
-    elems.push(<Screenshot 
-        key={"match-sshot"} map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image} matchData={info}
-        serverName={server} gametype={gametype} faces={faces}
-    />);
+    if(pageSettings["Display Screenshot"] === "true"){
+        elems.push(<Screenshot 
+            key={"match-sshot"} map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image} matchData={info}
+            serverName={server} gametype={gametype} faces={faces}
+        />);
+    }
 
-    elems.push(
-        <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}/>
-    );
+    if(pageSettings["Display Frag Summary"] === "true"){
+        elems.push(
+            <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}/>
+        );
+    }
 
-    const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
+    if(pageSettings["Display Frags Graphs"] === "true"){
+        const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
 
-    const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
+        const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
 
-    elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
+        elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
 
-    if(parsedInfo.total_teams > 0){
+        if(parsedInfo.total_teams > 0){
 
-        const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
-        playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
-       
-        elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
+            const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
+            playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
+        
+            elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
+        }
     }
 
     if(bCTF(parsedPlayerData)){
@@ -1457,73 +1465,95 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
     }
 
-    elems.push(
-        <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)}/>
-    );
-
-    elems.push(
-        <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
-    );
-
-    elems.push(<MatchPowerUpControl key={`match-power-control`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>);
-
-
-    elems.push(
-        <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
-    );
-
-
-    elems.push(
-        <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
-    );
-
-    const playerPingHistory = new PlayerGraphPingData(pingData, playerNames, parsedInfo.start);
-
-    const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames, parsedInfo.start);
-
-    //if(playerScoreHistoryGraph.data[0].data.length > 2){
-        const playerHistoryData = [];
-        const playerHistoryDataText = [];
-        const playerhistoryDataTitles = [];
-
-        if(playerScoreHistoryGraph.data[0] !== undefined){
-
-            if(playerScoreHistoryGraph.data[0].data.length > 2){
-                playerHistoryData.push(playerScoreHistoryGraph.data);
-                playerHistoryDataText.push(playerScoreHistoryGraph.text);
-                playerhistoryDataTitles.push("Player Score History");
-            }
-        }
-
-        if(playerPingHistory.data[0] !== undefined){
-            if(playerPingHistory.data[0].data.length > 0){
-                playerHistoryData.push(playerPingHistory.data);
-                playerHistoryDataText.push(playerPingHistory.text);
-                playerhistoryDataTitles.push("Player Ping History");
-            }
-        }
-
-        elems.push(<Graph title={playerhistoryDataTitles} key={"scosococsocos-hihishis"} data={JSON.stringify(playerHistoryData)} 
-        text={JSON.stringify(playerHistoryDataText)} />);
-   // }
-
-    elems.push(
-        <ConnectionSummary key={`connection-data`} data={JSON.parse(connections)} playerNames={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game} 
-        totalTeams={parsedInfo.total_teams} matchStart={parsedInfo.start}
-            teamsData={JSON.parse(teams)}
-        />
-    );
-
-    if(parsedInfo.team_game){
+    if(pageSettings["Display Special Events"] === "true"){
         elems.push(
-            <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames}/>
+            <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)}/>
         );
     }
 
-    elems.push(<MatchServerSettings key={"server-settings"} info={JSON.parse(info)}/>);
+    if(pageSettings["Display Kills Match Up"] === "true"){
+        elems.push(
+            <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
+        );
+    }
+
+    if(pageSettings["Display Powerup Control"] === "true"){
+        elems.push(<MatchPowerUpControl key={`match-power-control`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>);
+    }
+
+
+    if(pageSettings["Display Weapon Statistics"] === "true"){
+        elems.push(
+            <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
+        );
+    }
+
+    if(pageSettings["Display Pickup Summary"] === "true"){
+        elems.push(
+            <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
+        );
+    }
+    
+
+    if(pageSettings["Display Player Ping Graph"] === "true"){
+        const playerPingHistory = new PlayerGraphPingData(pingData, playerNames, parsedInfo.start);
+
+        const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames, parsedInfo.start);
+
+        //if(playerScoreHistoryGraph.data[0].data.length > 2){
+            const playerHistoryData = [];
+            const playerHistoryDataText = [];
+            const playerhistoryDataTitles = [];
+
+            if(playerScoreHistoryGraph.data[0] !== undefined){
+
+                if(playerScoreHistoryGraph.data[0].data.length > 2){
+                    playerHistoryData.push(playerScoreHistoryGraph.data);
+                    playerHistoryDataText.push(playerScoreHistoryGraph.text);
+                    playerhistoryDataTitles.push("Player Score History");
+                }
+            }
+
+            if(playerPingHistory.data[0] !== undefined){
+                if(playerPingHistory.data[0].data.length > 0){
+                    playerHistoryData.push(playerPingHistory.data);
+                    playerHistoryDataText.push(playerPingHistory.text);
+                    playerhistoryDataTitles.push("Player Ping History");
+                }
+            }
+
+            elems.push(<Graph title={playerhistoryDataTitles} key={"scosococsocos-hihishis"} data={JSON.stringify(playerHistoryData)} 
+            text={JSON.stringify(playerHistoryDataText)} />);
+    }
+
+    if(pageSettings["Display Players COnnected to Server Graph"] === "true"){
+        elems.push(
+            <ConnectionSummary key={`connection-data`} data={JSON.parse(connections)} playerNames={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game} 
+            totalTeams={parsedInfo.total_teams} matchStart={parsedInfo.start}
+                teamsData={JSON.parse(teams)}
+            />
+        );
+    }
+
+    if(pageSettings["Display Team Changes"] === "true"){
+        if(parsedInfo.team_game){
+            elems.push(
+                <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames}/>
+            );
+        }
+    }
+
+    if(pageSettings["Display Server Settings"] === "true"){
+        elems.push(<MatchServerSettings key={"server-settings"} info={JSON.parse(info)}/>);
+    }
     
 
     const dateString = Functions.convertTimestamp(parsedInfo.date, true);
+
+
+    const titleElem = (pageSettings["Display Match Report Title"] === "true") ? 
+    <div className="default-header">Match Report</div> 
+    : null;
 
     return <div>
         <DefaultHead host={host} 
@@ -1538,9 +1568,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
             <div id="content">
 
                 <div className="default">
-                    <div className="default-header">
-                        Match Report
-                    </div>
+                        {titleElem}
    
                         {elems}
     
