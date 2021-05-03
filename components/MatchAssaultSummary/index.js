@@ -24,6 +24,8 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
     matchStart = JSON.parse(matchStart);
     playerNames = JSON.parse(playerNames);
 
+    if(data.caps === undefined) return null;
+
     const elems = [];
 
     let d = 0;

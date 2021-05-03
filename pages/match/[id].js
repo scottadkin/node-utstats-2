@@ -1693,7 +1693,10 @@ export async function getServerSideProps({req, query}){
 
     const assaultManager = new Assault();
 
-    assaultData = await assaultManager.getMatchData(matchId, matchInfo.map);
+
+    if(pageSettings["Display Assault Summary"] === "true"){
+        assaultData = await assaultManager.getMatchData(matchId, matchInfo.map);
+    }
 
     domControlPointNames = JSON.stringify(domControlPointNames);
     domCapData = JSON.stringify(domCapData);
