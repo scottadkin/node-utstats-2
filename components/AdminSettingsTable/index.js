@@ -9,9 +9,9 @@ class AdminSettingsTable extends React.Component{
 
         this.state = {"data": this.props.data, "previousSavedData": this.props.data};
 
-        console.log(this.props.data);
+       // console.log(this.props.data);
 
-        console.log(this.props.validSettings);
+       // console.log(this.props.validSettings);
 
         this.saveSettings = this.saveSettings.bind(this);
 
@@ -30,9 +30,9 @@ class AdminSettingsTable extends React.Component{
 
         const updatedData = [];
 
-        for(let i = 0; i < this.props.data.length; i++){
+        for(let i = 0; i < this.state.data.length; i++){
 
-            d = this.props.data[i];
+            d = this.state.data[i];
 
             if(d.name === name){
                 updatedData.push({"name": name, "value": value});
@@ -41,7 +41,7 @@ class AdminSettingsTable extends React.Component{
             }
         }
 
-        console.log(updatedData);
+        //console.log(updatedData);
 
         this.setState({"data": updatedData});
     }
@@ -137,9 +137,10 @@ class AdminSettingsTable extends React.Component{
     }
 
 
+
     renderDropDown(name, value){
 
-        console.log(name);
+       // console.log(name);
 
         const validSettings = this.props.validSettings;
 

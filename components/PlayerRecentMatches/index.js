@@ -316,8 +316,6 @@ class PlayerRecentMatches extends React.Component{
         return (
             <div  id="recent-matches">
             
-            
-
             {(this.props.pageSettings["Display Recent Activity Graph"] !== "true") ? null :
             <div>
                 <div className="default-header" >
@@ -339,7 +337,8 @@ class PlayerRecentMatches extends React.Component{
 
             
             
-            <div className="default-header" >
+            {(this.props.pageSettings["Display Recent Matches"] !== "true") ? null :
+            <div><div className="default-header">
                 Recent Matches
             </div>
             
@@ -353,6 +352,7 @@ class PlayerRecentMatches extends React.Component{
                 })}>Table View</div>
             </div>
             
+            
             <Pagination 
                     currentPage={this.props.currentMatchPage}
                     results={this.props.totalMatches}
@@ -363,7 +363,8 @@ class PlayerRecentMatches extends React.Component{
                     
                 />
             
-                {elems}    
+                {elems}   
+            </div>} 
             </div>
         );
     }

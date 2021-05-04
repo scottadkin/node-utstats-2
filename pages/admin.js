@@ -123,7 +123,7 @@ export async function getServerSideProps({req, query}){
 
     await session.load();
 
-    console.log(session.settings);
+    //console.log(session.settings);
 
     const bUserAdmin = await session.bUserAdmin();
 
