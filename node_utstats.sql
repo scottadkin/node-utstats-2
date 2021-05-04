@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 29, 2021 at 06:30 PM
+-- Generation Time: May 04, 2021 at 02:18 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -714,6 +714,7 @@ CREATE TABLE `nstats_ranking_player_current` (
 
 CREATE TABLE `nstats_ranking_player_history` (
   `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
   `player_id` int(11) NOT NULL,
   `gametype` int(11) NOT NULL,
   `ranking` float NOT NULL

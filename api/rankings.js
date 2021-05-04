@@ -96,13 +96,13 @@ class Rankings{
         });
     }
 
-    insertPlayerHistory(player, gametype, ranking){
+    insertPlayerHistory(matchId, player, gametype, ranking){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?)";
+            const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?)";
 
-            mysql.query(query, [player, gametype, ranking], (err) =>{
+            mysql.query(query, [matchId, player, gametype, ranking], (err) =>{
 
                 if(err) reject(err);
 
@@ -111,7 +111,7 @@ class Rankings{
         });
     }
 
-    async update(players, gametype){
+    async update(matchId, players, gametype){
 
     
         try{
@@ -181,7 +181,7 @@ class Rankings{
                     await this.insertPlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore);
                 }
 
-                await this.insertPlayerHistory(parseInt(key), gametype, currentScore);
+                await this.insertPlayerHistory(matchId, parseInt(key), gametype, currentScore);
 
                // scores[key] = currentScore;
             }
