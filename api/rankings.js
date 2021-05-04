@@ -405,6 +405,28 @@ class Rankings{
             });
         });
     }
+
+    getGametypePosition(ranking, gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as player_position FROM nstats_ranking_player_current WHERE ranking > ? AND gametype=? ORDER BY ranking DESC";
+
+            mysql.query(query, [ranking, gametype], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0){
+                        resolve(result[0].player_position + 1);
+                    }
+                }
+
+                resolve(-1);
+            });
+        });
+    }
 }
 
 

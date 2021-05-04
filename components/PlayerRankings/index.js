@@ -1,9 +1,11 @@
 import MouseHoverBox from '../MouseHoverBox/';
+import Functions from '../../api/functions';
 
-const PlayerRankings = ({data, gametypeNames}) =>{
+const PlayerRankings = ({data, gametypeNames, positions}) =>{
 
     data = JSON.parse(data);
     gametypeNames = JSON.parse(gametypeNames);
+    positions = JSON.parse(positions);
 
     const rows = [];
 
@@ -12,6 +14,7 @@ const PlayerRankings = ({data, gametypeNames}) =>{
     let icon = "";
     let rankingString = "";
     let currentName = "";
+    let position = 0;
 
     for(let i = 0; i < data.length; i++){
 
@@ -30,11 +33,14 @@ const PlayerRankings = ({data, gametypeNames}) =>{
 
         currentName = (gametypeNames[d.gametype] !== undefined) ? gametypeNames[d.gametype] : "Not Found";
 
+        position = (positions[d.gametype] !== undefined) ? positions[d.gametype]  : "-1" ;
+
         rows.push(<tr>
             <td>{currentName}</td>
             <td>{d.matches}</td>
             <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
-            <td><img className="ranking-icon" src={icon} alt="image"/>
+            <td><span className="ranking-position">({position}{Functions.getOrdinal(position)})</span><img className="ranking-icon" src={icon} alt="image"/>
+            
             <MouseHoverBox title={`Previous Match Ranking Change`} 
                     content={rankingString} 
                     display={d.ranking.toFixed(2)} />

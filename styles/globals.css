@@ -510,3 +510,10 @@ input[type="range"]{
 	height:14px;
 	margin-right:5px;
 }
+
+.ranking-position{
+	font-style:italic;
+	color:yellow;
+	font-size:12px;
+	padding-right:5px;
+}

@@ -28,7 +28,7 @@ import PlayerRankings from '../../components/PlayerRankings/';
 
 function Home({navSettings, pageSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, rankingsData}) {
+	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, rankingsData, rankingPositions}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -100,7 +100,7 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 								/>
 
 								{(pageSettings["Display Rankings"] === "false") ? null :
-								<PlayerRankings data={rankingsData} gametypeNames={gametypeNames}/>}
+								<PlayerRankings data={rankingsData} gametypeNames={gametypeNames} positions={rankingPositions}/>}
 
 								{(pageSettings["Display Weapon Stats"] !== "true") ? null :
 								<PlayerWeapons session={parsedSession} pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
@@ -411,12 +411,22 @@ export async function getServerSideProps({req, query}) {
 
 
 	let rankingData = [];
+	let rankingPositions = [];
 
 	const rankingsManager = new Rankings();
 
 	if(pageSettings["Display Rankings"] === "true"){
+
+		rankingPositions = {};
+
 		rankingData = await rankingsManager.getPlayerRankings(playerId);
+
+		for(let i = 0; i < rankingData.length; i++){
+
+			rankingPositions[rankingData[i].gametype] = await rankingsManager.getGametypePosition(rankingData[i].ranking, rankingData[i].gametype);
+		}
 	}
+
 	
 
 	return { 
@@ -450,7 +460,8 @@ export async function getServerSideProps({req, query}) {
 			"itemData": JSON.stringify(playerItemData),
 			"itemNames": JSON.stringify(itemNames),
 			"ogImage": ogImage,
-			"rankingsData": JSON.stringify(rankingData)
+			"rankingsData": JSON.stringify(rankingData),
+			"rankingPositions": JSON.stringify(rankingPositions)
 			
 		}
 	}
