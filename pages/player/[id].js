@@ -99,7 +99,8 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 									faces={faces}
 								/>
 
-								<PlayerRankings data={rankingsData} gametypeNames={gametypeNames}/>
+								{(pageSettings["Display Rankings"] === "false") ? null :
+								<PlayerRankings data={rankingsData} gametypeNames={gametypeNames}/>}
 
 								{(pageSettings["Display Weapon Stats"] !== "true") ? null :
 								<PlayerWeapons session={parsedSession} pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
@@ -413,7 +414,9 @@ export async function getServerSideProps({req, query}) {
 
 	const rankingsManager = new Rankings();
 
-	rankingData = await rankingsManager.getPlayerRankings(playerId);
+	if(pageSettings["Display Rankings"] === "true"){
+		rankingData = await rankingsManager.getPlayerRankings(playerId);
+	}
 	
 
 	return { 
