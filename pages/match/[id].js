@@ -1497,7 +1497,9 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         );
     }
     
-    elems.push(<MatchRankingChanges key={"r-changes"} changes={rankingChanges} playerNames={playerNames} currentRankings={currentRankings}/>);
+    if(pageSettings["Display Rankings"] === "true"){
+        elems.push(<MatchRankingChanges key={"r-changes"} changes={rankingChanges} playerNames={playerNames} currentRankings={currentRankings}/>);
+    }
 
     if(pageSettings["Display Player Ping Graph"] === "true"){
         const playerPingHistory = new PlayerGraphPingData(pingData, playerNames, parsedInfo.start);
@@ -1794,10 +1796,11 @@ export async function getServerSideProps({req, query}){
     let rankingChanges = [];
     let currentRankings = [];
     
-    rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
-    currentRankings = await rankingsManager.getCurrentPlayersRanking(playerIds, matchInfo.gametype);
 
-    console.table(currentRankings);
+    if(pageSettings["Display Rankings"] === "true"){
+        rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
+        currentRankings = await rankingsManager.getCurrentPlayersRanking(playerIds, matchInfo.gametype);
+    }
 
     return {
         props: {

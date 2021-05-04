@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2021 at 01:01 PM
+-- Generation Time: May 04, 2021 at 07:59 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -40,7 +40,7 @@ CREATE TABLE `nstats_site_settings` (
 
 INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (2, 'Home', 'Display Recent Matches', 'true'),
-(3, 'Home', 'Display Recent Matches & Player Stats', 'false'),
+(3, 'Home', 'Display Recent Matches & Player Stats', 'true'),
 (4, 'Home', 'Display Most Played Gametypes', 'true'),
 (5, 'Home', 'Display Most Played Maps', 'true'),
 (6, 'Home', 'Display Addicted Players', 'true'),
@@ -63,7 +63,7 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (27, 'Matches Page', 'Default Display Per Page', '75'),
 (28, 'Matches Page', 'Default Display Type', '0'),
 (29, 'Home', 'Recent Matches Display Type', '0'),
-(30, 'Home', 'Recent Matches To Display', '3'),
+(30, 'Home', 'Recent Matches To Display', '4'),
 (31, 'Records Page', 'Default Record Type', '1'),
 (33, 'Records Page', 'Default Per Page', '25'),
 (34, 'Maps Page', 'Default Display Per Page', '5'),
@@ -114,7 +114,8 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (79, 'Map Pages', 'Display Control Points (Domination)', 'true'),
 (80, 'Map Pages', 'Max Addicted Players', '5'),
 (81, 'Map Pages', 'Max Longest Matches', '5'),
-(82, 'Map Pages', 'Recent Matches Per Page', '50');
+(82, 'Map Pages', 'Recent Matches Per Page', '50'),
+(83, 'Match Pages', 'Display Rankings', 'true');
 
 --
 -- Indexes for dumped tables
@@ -134,7 +135,7 @@ ALTER TABLE `nstats_site_settings`
 -- AUTO_INCREMENT for table `nstats_site_settings`
 --
 ALTER TABLE `nstats_site_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
