@@ -11,7 +11,9 @@ class PlayerWeapons extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 1};
+        this.state = {"mode": (this.props.pageSettings["Default Weapon Display"] !== undefined) ?  
+        parseInt(this.props.pageSettings["Default Weapon Display"])
+        : 0};
 
         this.changeMode = this.changeMode.bind(this);
     }   

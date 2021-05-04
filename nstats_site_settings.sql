@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2021 at 09:29 AM
+-- Generation Time: May 04, 2021 at 09:35 AM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -88,18 +88,20 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (53, 'Match Pages', 'Display Domination Summary', 'true'),
 (54, 'Match Pages', 'Display Domination Graphs', 'true'),
 (55, 'Match Pages', 'Display Match Report Title', 'true'),
-(56, 'Player Pages', 'Display Summary', 'true'),
-(57, 'Player Pages', 'Display Gametype Stats', 'true'),
-(58, 'Player Pages', 'Display Capture The Flag Summary', 'true'),
-(59, 'Player Pages', 'Display Assault & Domination', 'true'),
-(60, 'Player Pages', 'Display Frag Summary', 'true'),
-(61, 'Player Pages', 'Display Special Events', 'true'),
+(56, 'Player Pages', 'Display Summary', 'false'),
+(57, 'Player Pages', 'Display Gametype Stats', 'false'),
+(58, 'Player Pages', 'Display Capture The Flag Summary', 'false'),
+(59, 'Player Pages', 'Display Assault & Domination', 'false'),
+(60, 'Player Pages', 'Display Frag Summary', 'false'),
+(61, 'Player Pages', 'Display Special Events', 'false'),
 (62, 'Player Pages', 'Display Weapon Stats', 'true'),
 (63, 'Player Pages', 'Display Pickup History', 'true'),
 (64, 'Player Pages', 'Display Ping History Graph', 'true'),
 (65, 'Player Pages', 'Display Recent Activity Graph', 'true'),
 (66, 'Player Pages', 'Display Recent Matches', 'true'),
-(67, 'Player Pages', 'Default Recent Matches Display', '1');
+(67, 'Player Pages', 'Default Recent Matches Display', '1'),
+(68, 'Player Pages', 'Default Weapon Display', '0'),
+(69, 'Player Pages', 'Recent Matches Per Page', '25');
 
 --
 -- Indexes for dumped tables
@@ -119,7 +121,7 @@ ALTER TABLE `nstats_site_settings`
 -- AUTO_INCREMENT for table `nstats_site_settings`
 --
 ALTER TABLE `nstats_site_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

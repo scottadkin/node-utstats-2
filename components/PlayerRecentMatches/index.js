@@ -203,7 +203,7 @@ class PlayerRecentMatches extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 1};
+        this.state = {"mode": parseInt(this.props.pageSettings["Default Recent Matches Display"])};
 
         this.changeMode = this.changeMode.bind(this);
     }
@@ -316,26 +316,29 @@ class PlayerRecentMatches extends React.Component{
         return (
             <div  id="recent-matches">
             
-            <div className="default-header" >
-                Recent Activity
-            </div>
-
-            <Graph title={["Past 24 Hours", "Past 7 Days", "Past 28 Days"]} data={
-                JSON.stringify(
-                    [
-                        datesData.data.hours,
-                        datesData.data.days,
-                        datesData.data.month,
-                    ]
-                )
-                }
-
-                text={JSON.stringify(datesData.text)}
-
-            />
-
             
 
+            {(this.props.pageSettings["Display Recent Activity Graph"] !== "true") ? null :
+            <div>
+                <div className="default-header" >
+                    Recent Activity
+                </div>
+                <Graph title={["Past 24 Hours", "Past 7 Days", "Past 28 Days"]} data={
+                    JSON.stringify(
+                        [
+                            datesData.data.hours,
+                            datesData.data.days,
+                            datesData.data.month,
+                        ]
+                    )
+                    }
+
+                    text={JSON.stringify(datesData.text)}
+
+            /></div>}
+
+            
+            
             <div className="default-header" >
                 Recent Matches
             </div>

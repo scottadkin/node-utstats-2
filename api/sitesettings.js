@@ -146,7 +146,8 @@ class SiteSettings{
 
         return {
             "Default Recent Matches Display": this.defaultDiplayTypes,
-            "Default Recent Matches Per Page": this.defaultPerPageValues
+            "Default Weapon Display": this.defaultDiplayTypes,
+            "Recent Matches Per Page": this.defaultPerPageValues
         };
     }
 

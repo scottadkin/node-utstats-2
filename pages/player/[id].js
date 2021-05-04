@@ -96,15 +96,19 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 									faces={faces}
 								/>
 
-								<PlayerWeapons weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />
+								{(pageSettings["Display Weapon Stats"] !== "true") ? null :
+								<PlayerWeapons pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
 
 								<PlayerItemsSummary data={itemData} names={itemNames}/>
 								<PlayerAliases data={aliases} faces={faces} masterName={name}/>
 
-								<div className="default-header">Ping History</div>
-								<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/>
+								
+								{(pageSettings["Display Ping History Graph"] !== "true") ? null :
+								<div><div className="default-header">Ping History</div>
+								<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/></div>}
 
-								<PlayerRecentMatches playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
+								
+								<PlayerRecentMatches pageSettings={pageSettings} playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
 								totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
 								serverNames={serverNames} matchDates={matchDates}
 								/>
@@ -225,7 +229,12 @@ function createPingGraphData(history){
 
 export async function getServerSideProps({req, query}) {
 
-	const matchesPerPage = 25;
+	const settings = new SiteSettings();
+
+	const navSettings = await settings.getCategorySettings("Navigation");
+	const pageSettings = await settings.getCategorySettings("Player Pages");
+
+	const matchesPerPage = parseInt(pageSettings["Recent Matches Per Page"]);
 		
 	const playerManager = new Player();
 	const gametypes = new Gametypes();
@@ -256,7 +265,12 @@ export async function getServerSideProps({req, query}) {
 
 
 	const matchPage = (query.matchpage !== undefined) ? (parseInt(query.matchpage) === parseInt(query.matchpage) ? query.matchpage : 1) : 1;
-	let recentMatches = await playerManager.getRecentMatches(query.id, matchesPerPage, matchPage);
+
+	let recentMatches = [];
+
+	if(pageSettings["Display Recent Matches"] === "true"){
+		recentMatches = await playerManager.getRecentMatches(query.id, matchesPerPage, matchPage);
+	}
 	
 	const matchPages = Math.ceil(totalMatches / matchesPerPage);
 
@@ -264,11 +278,22 @@ export async function getServerSideProps({req, query}) {
 	const matchIds = Functions.getUniqueValues(recentMatches, 'match_id');
 
 	let mapData = await maps.getNames(uniqueMaps);
+
 	let matchScores = await matchManager.getWinners(matchIds);
+
 	let matchPlayerCount = await matchManager.getPlayerCount(matchIds);
-	let weaponStats = await weaponsManager.getPlayerTotals(playerId);
-	let weaponNames = await weaponsManager.getAllNames();
-	let weaponImages = await weaponsManager.getImageList();
+
+
+	let weaponStats = [];
+	let weaponNames = [];
+	let weaponImages = [];
+
+	if(pageSettings["Display Weapon Stats"] === "true"){
+		weaponStats = await weaponsManager.getPlayerTotals(playerId);
+		weaponNames = await weaponsManager.getAllNames();
+		weaponImages = await weaponsManager.getImageList();
+	}
+	
 
 
 	const justMapNames = [];
@@ -277,11 +302,16 @@ export async function getServerSideProps({req, query}) {
 		justMapNames.push(value);
 	}
 
+
+
 	let mapImages = await maps.getImages(justMapNames);
+	
 
 	Functions.setIdNames(recentMatches, mapData, 'map_id', 'mapName');
 
 	const serverNames = await serverManager.getAllNames();
+
+	
 
 	const serverIds = await matchManager.getServerNames(matchIds);
 
@@ -291,13 +321,7 @@ export async function getServerSideProps({req, query}) {
 
 	const faceManager = new Faces();
 
-	//console.log(await faceManager.getFacesWithFileStatuses([summary.face]));
-
-	//let currentFace = await faceManager.getFacesWithFileStatuses([summary.face]);
-
-	//console.log(currentFace);
-
-	//console.log(currentFace);
+	
 
 	const winRateManager = new WinRate();
 	let latestWinRate = await winRateManager.getPlayerLatest(playerId);
@@ -317,16 +341,25 @@ export async function getServerSideProps({req, query}) {
 
 	const month = ((60 * 60) * 24) * 28;
 
+	
+
 	const matchDates = await playerManager.getMatchDatesAfter(now - month, playerId);
 
 	//console.log(playerManager.getMatchDatesAfter());
 
-	const pingManager = new Pings();
+	let pingHistory = [];
+	let pingGraphData = [];
 
-	const pingHistory = await pingManager.getPlayerHistoryAfter(playerId, 100);
+	if(pageSettings["Display Ping History Graph"] === "true"){
 
-	const pingGraphData = createPingGraphData(pingHistory);
+		const pingManager = new Pings();
 
+		pingHistory = await pingManager.getPlayerHistoryAfter(playerId, 100);
+
+		pingGraphData = createPingGraphData(pingHistory);
+	}
+
+	
 	const aliases = await playerManager.getPossibleAliases(playerId);
 	const usedFaces = [summary.face];
 
@@ -336,6 +369,8 @@ export async function getServerSideProps({req, query}) {
 			usedFaces.push(aliases[i].face);
 		}
 	}
+
+	
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(usedFaces);
 
@@ -350,19 +385,25 @@ export async function getServerSideProps({req, query}) {
 
 	const itemManager = new Items();
 
-	const playerItemData = await itemManager.getPlayerTotalData(playerId);
-	const uniqueItemIds = Functions.getUniqueValues(playerItemData, 'item');
+	let playerItemData = [];
+	let uniqueItemIds = [];
+	let itemNames = [];
 
-	const itemNames = await itemManager.getNamesByIds(uniqueItemIds);
+	
+
+
+
+	if(pageSettings["Display Pickup History"] === "true"){
+		playerItemData = await itemManager.getPlayerTotalData(playerId);
+		uniqueItemIds = Functions.getUniqueValues(playerItemData, 'item');
+		itemNames = await itemManager.getNamesByIds(uniqueItemIds);
+	}
 
 	const session = new Session(req.headers.cookie);
 
 	await session.load();
 
-	const settings = new SiteSettings();
-
-	const navSettings = await settings.getCategorySettings("Navigation");
-	const pageSettings = await settings.getCategorySettings("Player Pages");
+	
 
 	return { 
 		props: {

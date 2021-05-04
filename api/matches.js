@@ -208,7 +208,7 @@ class Matches{
 
             const data = {};
 
-            if(ids.length === 0) return data;
+            if(ids.length === 0) resolve(data);
 
             mysql.query(query, [ids], (err, result) =>{
 
@@ -231,11 +231,15 @@ class Matches{
 
         return new Promise((resolve, reject) =>{
 
+
+            if(ids.length === 0) resolve([]);
+            
+
             const query = "SELECT id,players FROM nstats_matches WHERE id IN(?)";
 
             const data = {};
 
-            if(data.length === 0) return data;
+            //if(data.length === 0) return data;
 
             mysql.query(query, [ids], (err, result) =>{
 
