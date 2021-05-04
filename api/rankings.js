@@ -386,6 +386,25 @@ class Rankings{
             });
         });
     }
+
+    getPlayerRankings(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT gametype,matches,playtime,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

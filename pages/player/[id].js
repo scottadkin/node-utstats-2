@@ -22,11 +22,13 @@ import Items from '../../api/items';
 import PlayerItemsSummary from '../../components/PlayerItemsSummary/';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
+import Rankings from '../../api/rankings';
+import PlayerRankings from '../../components/PlayerRankings/';
 
 
 function Home({navSettings, pageSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage}) {
+	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, rankingsData}) {
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -96,6 +98,8 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 									gametypeNames={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory} matchDates={matchDates}
 									faces={faces}
 								/>
+
+								<PlayerRankings data={rankingsData} gametypeNames={gametypeNames}/>
 
 								{(pageSettings["Display Weapon Stats"] !== "true") ? null :
 								<PlayerWeapons session={parsedSession} pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
@@ -404,6 +408,12 @@ export async function getServerSideProps({req, query}) {
 
 	await session.load();
 
+
+	let rankingData = [];
+
+	const rankingsManager = new Rankings();
+
+	rankingData = await rankingsManager.getPlayerRankings(playerId);
 	
 
 	return { 
@@ -436,7 +446,8 @@ export async function getServerSideProps({req, query}) {
 			"faces": JSON.stringify(faceFiles),
 			"itemData": JSON.stringify(playerItemData),
 			"itemNames": JSON.stringify(itemNames),
-			"ogImage": ogImage
+			"ogImage": ogImage,
+			"rankingsData": JSON.stringify(rankingData)
 			
 		}
 	}
