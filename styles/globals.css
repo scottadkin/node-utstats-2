@@ -505,3 +505,8 @@ input[type="range"]{
 .td-1-150 td:nth-child(1){
 	width:150px;
 }
+
+.ranking-icon{
+	height:14px;
+	margin-right:5px;
+}

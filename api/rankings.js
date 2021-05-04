@@ -96,13 +96,13 @@ class Rankings{
         });
     }
 
-    insertPlayerHistory(matchId, player, gametype, ranking, matchScore){
+    insertPlayerHistory(matchId, player, gametype, ranking, matchScore, rankingChange, matchChange){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?,?)";
+            const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?,?,?,?)";
 
-            mysql.query(query, [matchId, player, gametype, ranking, matchScore], (err) =>{
+            mysql.query(query, [matchId, player, gametype, ranking, matchScore, rankingChange, matchChange], (err) =>{
 
                 if(err) reject(err);
 
@@ -111,9 +111,30 @@ class Rankings{
         });
     }
 
+    getPlayerPreviousHistoryRanking(player, gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT ranking,match_ranking FROM nstats_ranking_player_history WHERE player_id=? AND gametype=? ORDER BY id DESC LIMIT 1";
+
+            mysql.query(query, [player, gametype], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0){
+                        resolve(result[0]);
+                    }
+                }
+
+                resolve(null);
+            });
+        });
+    }
+
     async update(matchId, players, gametype){
 
-    
         try{
 
             const halfHour = 60 * 30;
@@ -142,6 +163,8 @@ class Rankings{
             let currentScore = 0;
             let currentPlaytime = 0;
             let matchScore = 0;
+
+            let previousData = 0;
 
             for(const [key, value] of Object.entries(players)){
 
@@ -179,11 +202,21 @@ class Rankings{
 
                 if(currentScore === Infinity) currentScore = 0;
 
+                previousData = await this.getPlayerPreviousHistoryRanking(parseInt(key), gametype);
+
+                console.log(`previousData = `);
+                console.log(previousData);
+
                 if(await this.updatePlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore) === 0){
                     await this.insertPlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore);
                 }
 
-                await this.insertPlayerHistory(matchId, parseInt(key), gametype, currentScore, matchScore);
+                if(previousData === null){
+                    previousData = {"ranking": currentScore, "match_ranking": matchScore};
+                }
+
+                await this.insertPlayerHistory(matchId, parseInt(key), gametype, currentScore, matchScore, 
+                previousData.ranking - currentScore, previousData.match_ranking - matchScore);
 
                // scores[key] = currentScore;
             }
@@ -319,9 +352,29 @@ class Rankings{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT player_id,ranking,match_ranking FROM nstats_ranking_player_history WHERE match_id=?";
+            const query = "SELECT player_id,ranking,match_ranking,ranking_change,match_ranking_change FROM nstats_ranking_player_history WHERE match_id=?";
 
             mysql.query(query, [matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+
+    getCurrentPlayersRanking(players, gametype){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT player_id,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id IN(?) AND gametype=?";
+
+            mysql.query(query, [players, gametype], (err, result) =>{
 
                 if(err) reject(err);
 

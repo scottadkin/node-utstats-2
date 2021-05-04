@@ -1286,8 +1286,9 @@ class PlayerGraphPingData{
 
 }
 
-function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
-    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges}){
+function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
+    domPlayerScoreData, ctfCaps, ctfEvents,
+    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges, currentRankings}){
 
     //for default head open graph image
     const imageReg = /^.+\/(.+)\.jpg$/i;
@@ -1496,6 +1497,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         );
     }
     
+    elems.push(<MatchRankingChanges key={"r-changes"} changes={rankingChanges} playerNames={playerNames} currentRankings={currentRankings}/>);
 
     if(pageSettings["Display Player Ping Graph"] === "true"){
         const playerPingHistory = new PlayerGraphPingData(pingData, playerNames, parsedInfo.start);
@@ -1528,7 +1530,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
             text={JSON.stringify(playerHistoryDataText)} />);
     }
 
-    if(pageSettings["Display Players COnnected to Server Graph"] === "true"){
+    if(pageSettings["Display Players Connected to Server Graph"] === "true"){
         elems.push(
             <ConnectionSummary key={`connection-data`} data={JSON.parse(connections)} playerNames={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game} 
             totalTeams={parsedInfo.total_teams} matchStart={parsedInfo.start}
@@ -1572,7 +1574,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
                 <div className="default">
                         {titleElem}
 
-                        <MatchRankingChanges changes={rankingChanges}/>
+                        
 
                         {elems}
     
@@ -1790,10 +1792,12 @@ export async function getServerSideProps({req, query}){
     const rankingsManager = new Rankings();
 
     let rankingChanges = [];
+    let currentRankings = [];
     
     rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
+    currentRankings = await rankingsManager.getCurrentPlayersRanking(playerIds, matchInfo.gametype);
 
-    console.table(rankingChanges);
+    console.table(currentRankings);
 
     return {
         props: {
@@ -1823,7 +1827,8 @@ export async function getServerSideProps({req, query}){
             "scoreHistory": JSON.stringify(scoreHistory),
             "pingData": JSON.stringify(pingData),
             "headshotData": JSON.stringify(headshotData),
-            "rankingChanges": JSON.stringify(rankingChanges)
+            "rankingChanges": JSON.stringify(rankingChanges),
+            "currentRankings": JSON.stringify(currentRankings)
         }
     };
 
