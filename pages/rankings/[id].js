@@ -9,6 +9,7 @@ import RankingTable from '../../components/RankingTable/';
 import Players from '../../api/players';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
+import RankingsExplained from '../../components/RankingsExplained/';
 
 
 class Rankings extends React.Component{
@@ -17,36 +18,34 @@ class Rankings extends React.Component{
 
         super(props);
 
+        this.state = {"bDisplayExplained": 0};
+
+        this.changeMode = this.changeMode.bind(this);
     }
 
-    debugDisplaySettings(){
 
-        const settings = JSON.parse(this.props.settings);
+    changeMode(){
 
-        let s = 0;
+        let current = this.state.bDisplayExplained;
 
-        const elems = [];
-
-        for(let i = 0; i < settings.length; i++){
-
-            s = settings[i];
-
-            elems.push(<tr key={i}>
-                <td>{s.name}</td>
-                <td>{s.value}</td>
-            </tr>);
+        if(current === 0){
+            current = 1;
+        }else{
+            current = 0;
         }
 
+        this.setState({
+            "bDisplayExplained": current
+        });
 
-        return <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                </tr>
-                {elems}
-            </tbody>
-        </table>
+        Functions.setCookie("rankingsDisplayExplained", current);
+    }
+
+    displaySettings(){
+
+        const settings = JSON.parse(this.props.rankingValues);
+
+        return <RankingsExplained settings={settings}/>
     }
 
     getGametypeName(names, id){
@@ -128,7 +127,15 @@ class Rankings extends React.Component{
                         <div className="default-header">
                             Rankings
                         </div>
+                        
                         {this.createElems()}
+
+                        <div className="big-tabs m-top-25">
+                            <div onClick={this.changeMode} className={`big-tab ${(this.state.bDisplayExplained) ? "tab-selected" : ""}`}>
+                                {(this.state.bDisplayExplained) ? "Hide Explain Ranking" : "Explain Rankings"}
+                            </div>
+                        </div>
+                        {(this.state.bDisplayExplained) ? this.displaySettings() : null }
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -174,8 +181,6 @@ export async function getServerSideProps({req, query}){
     const rankingManager = new RankingManager();
     const gametypeManager = new Gametypes();
     const playerManager = new Players();
-
-    const settings = await rankingManager.getRankingSettings(true);
 
     const gametypeNames = await gametypeManager.getAllNames();
 
@@ -242,17 +247,19 @@ export async function getServerSideProps({req, query}){
 
     const navSettings = await sSettings.getCategorySettings("Navigation");
 
+    const rankingValues = await rankingManager.getSettings();
+
     return {
         props:{
             "host": req.headers.host,
-            "settings": JSON.stringify(settings),
             "data": JSON.stringify(data),
             "gametypeNames": JSON.stringify(gametypeNames),
             "page": page,
             "perPage": perPage,
             "gametypeId": gametype,
             "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings)
+            "navSettings": JSON.stringify(navSettings),
+            "rankingValues": JSON.stringify(rankingValues)
         }
     }
 }

@@ -184,6 +184,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	height:20px;
 }
 
+.td-1-left td:nth-child(1){
+	text-align:left;
+}
+
 #mouse-over{
 	position:absolute;
 	background-color:var(--color-1);
@@ -333,6 +337,12 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .t-width-1{
 	width:90%;
 	max-width:1250px;
+	overflow:hidden;
+}
+
+.t-width-2{
+	width:90%;
+	max-width:500px;
 	overflow:hidden;
 }
 

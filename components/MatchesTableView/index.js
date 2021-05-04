@@ -57,7 +57,7 @@ class MatchesTableView extends React.Component{
 
 
         if(matches.length === 0){
-            return (<div className="not-found">There are no matches meeting your search requirements.</div>);
+            return null;//;(<div className="not-found">There are no matches meeting your search requirements.</div>);
         }
 
 

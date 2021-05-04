@@ -294,6 +294,24 @@ class Rankings{
             });
         });
     }
+
+    getSettings(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name,value FROM nstats_ranking_values";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+        });
+    }
 }
 
 
