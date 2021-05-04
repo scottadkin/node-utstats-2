@@ -96,13 +96,13 @@ class Rankings{
         });
     }
 
-    insertPlayerHistory(matchId, player, gametype, ranking){
+    insertPlayerHistory(matchId, player, gametype, ranking, matchScore){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?)";
+            const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?,?)";
 
-            mysql.query(query, [matchId, player, gametype, ranking], (err) =>{
+            mysql.query(query, [matchId, player, gametype, ranking, matchScore], (err) =>{
 
                 if(err) reject(err);
 
@@ -141,6 +141,7 @@ class Rankings{
             let p = 0;
             let currentScore = 0;
             let currentPlaytime = 0;
+            let matchScore = 0;
 
             for(const [key, value] of Object.entries(players)){
 
@@ -157,6 +158,7 @@ class Rankings{
 
                 currentScore = currentScore / (currentPlaytime / 60);
                 
+                matchScore = currentScore;
                     
                 if(currentPlaytime < halfHour){
 
@@ -181,7 +183,7 @@ class Rankings{
                     await this.insertPlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore);
                 }
 
-                await this.insertPlayerHistory(matchId, parseInt(key), gametype, currentScore);
+                await this.insertPlayerHistory(matchId, parseInt(key), gametype, currentScore, matchScore);
 
                // scores[key] = currentScore;
             }
@@ -308,6 +310,25 @@ class Rankings{
                 if(result !== undefined){
                     resolve(result);
                 }
+                resolve([]);
+            });
+        });
+    }
+
+    getMatchRankingChanges(matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT player_id,ranking,match_ranking FROM nstats_ranking_player_history WHERE match_id=?";
+
+            mysql.query(query, [matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
                 resolve([]);
             });
         });

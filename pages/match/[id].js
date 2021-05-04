@@ -36,6 +36,8 @@ import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
 import MatchServerSettings from '../../components/MatchServerSettings/';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
+import Rankings from '../../api/rankings';
+import MatchRankingChanges from '../../components/MatchRankingChanges/';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1285,7 +1287,7 @@ class PlayerGraphPingData{
 }
 
 function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, domPlayerScoreData, ctfCaps, ctfEvents,
-    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData}){
+    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges}){
 
     //for default head open graph image
     const imageReg = /^.+\/(.+)\.jpg$/i;
@@ -1410,7 +1412,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
             elems.push(
-                <MatchCTFSummary key={`match_1`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>
+                <MatchCTFSummary key={`match_1`} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>
             );
         }
 
@@ -1569,7 +1571,9 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
                 <div className="default">
                         {titleElem}
-   
+
+                        <MatchRankingChanges changes={rankingChanges}/>
+
                         {elems}
     
                 </div>
@@ -1593,7 +1597,7 @@ export async function getServerSideProps({req, query}){
     const settings = new SiteSettings();
     const pageSettings = await settings.getCategorySettings("Match Pages");
 
-    console.log(pageSettings);
+   // console.log(pageSettings);
 
     const m = new MatchManager();
 
@@ -1781,8 +1785,15 @@ export async function getServerSideProps({req, query}){
 
     const headshotData = await headshotsManager.getMatchData(matchId);
 
-    
     const navSettings = await settings.getCategorySettings("Navigation");
+
+    const rankingsManager = new Rankings();
+
+    let rankingChanges = [];
+    
+    rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
+
+    console.table(rankingChanges);
 
     return {
         props: {
@@ -1811,7 +1822,8 @@ export async function getServerSideProps({req, query}){
             "killsData": JSON.stringify(killsData),
             "scoreHistory": JSON.stringify(scoreHistory),
             "pingData": JSON.stringify(pingData),
-            "headshotData": JSON.stringify(headshotData)
+            "headshotData": JSON.stringify(headshotData),
+            "rankingChanges": JSON.stringify(rankingChanges)
         }
     };
 
