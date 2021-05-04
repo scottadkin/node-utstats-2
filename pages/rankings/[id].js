@@ -142,9 +142,13 @@ class Rankings extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
+
+    const sSettings = new SiteSettings();
+    
+    const pageSettings = await sSettings.getCategorySettings("rankings");
+
     let page = 1;
     let perPage = 25;
-
 
     let gametype = parseInt(query.id);
 
@@ -161,6 +165,10 @@ export async function getServerSideProps({req, query}){
                 if(page < 1) page = 1;
             }
         }
+
+        perPage = parseInt(pageSettings["Rankings Per Page (Individual)"]);
+    }else{
+        perPage = parseInt(pageSettings["Rankings Per Gametype (Main)"]);
     }
 
     const rankingManager = new RankingManager();
@@ -181,7 +189,7 @@ export async function getServerSideProps({req, query}){
     let data = [];
 
     if(gametype === 0){
-        data = await rankingManager.getMultipleGametypesData(gametypeIds, 10);
+        data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage);
     }else{
         data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage)});
     }
@@ -230,7 +238,7 @@ export async function getServerSideProps({req, query}){
 
 	await session.load();
 
-    const sSettings = new SiteSettings();
+    
 
     const navSettings = await sSettings.getCategorySettings("Navigation");
 

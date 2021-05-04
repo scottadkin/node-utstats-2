@@ -134,6 +134,15 @@ class SiteSettings{
         }
     }
 
+
+    getRankingsValidSettings(){
+
+        return {
+            "Rankings Per Gametype (Main)": this.defaultPerPageValues,
+            "Rankings Per Page (Individual)": this.defaultPerPageValues
+        }
+    }
+
     getMapsPageValidSettings(){
 
         return {

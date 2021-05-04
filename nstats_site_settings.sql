@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2021 at 09:35 AM
+-- Generation Time: May 04, 2021 at 12:02 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -53,19 +53,19 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (17, 'Navigation', 'Display Records', 'true'),
 (18, 'Navigation', 'Display Maps', 'true'),
 (19, 'Navigation', 'Display Login/Logout', 'true'),
-(20, 'Players Page', 'Default Sort Type', 'name'),
-(21, 'Players Page', 'Default Order', 'DESC'),
-(22, 'Players Page', 'Default Display Per Page', '75'),
-(23, 'Players Page', 'Default Display Type', '0'),
+(20, 'Players Page', 'Default Sort Type', 'matches'),
+(21, 'Players Page', 'Default Order', 'ASC'),
+(22, 'Players Page', 'Default Display Per Page', '10'),
+(23, 'Players Page', 'Default Display Type', '1'),
 (24, 'Home', 'Display Recent Players', 'true'),
 (25, 'Navigation', 'Display Admin', 'true'),
 (26, 'Matches Page', 'Default Gametype', '0'),
 (27, 'Matches Page', 'Default Display Per Page', '75'),
 (28, 'Matches Page', 'Default Display Type', '0'),
-(29, 'Home', 'Recent Matches Display Type', '1'),
-(30, 'Home', 'Recent Matches To Display', '10'),
-(31, 'Records Page', 'Default Record Type', 'Player'),
-(33, 'Records Page', 'Default Per Page', '75'),
+(29, 'Home', 'Recent Matches Display Type', '0'),
+(30, 'Home', 'Recent Matches To Display', '3'),
+(31, 'Records Page', 'Default Record Type', '1'),
+(33, 'Records Page', 'Default Per Page', '25'),
 (34, 'Maps Page', 'Default Display Per Page', '75'),
 (35, 'Maps Page', 'Default Display Type', '1'),
 (36, 'Match Pages', 'Display Summary', 'true'),
@@ -88,20 +88,22 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (53, 'Match Pages', 'Display Domination Summary', 'true'),
 (54, 'Match Pages', 'Display Domination Graphs', 'true'),
 (55, 'Match Pages', 'Display Match Report Title', 'true'),
-(56, 'Player Pages', 'Display Summary', 'false'),
-(57, 'Player Pages', 'Display Gametype Stats', 'false'),
-(58, 'Player Pages', 'Display Capture The Flag Summary', 'false'),
-(59, 'Player Pages', 'Display Assault & Domination', 'false'),
-(60, 'Player Pages', 'Display Frag Summary', 'false'),
-(61, 'Player Pages', 'Display Special Events', 'false'),
+(56, 'Player Pages', 'Display Summary', 'true'),
+(57, 'Player Pages', 'Display Gametype Stats', 'true'),
+(58, 'Player Pages', 'Display Capture The Flag Summary', 'true'),
+(59, 'Player Pages', 'Display Assault & Domination', 'true'),
+(60, 'Player Pages', 'Display Frag Summary', 'true'),
+(61, 'Player Pages', 'Display Special Events', 'true'),
 (62, 'Player Pages', 'Display Weapon Stats', 'true'),
 (63, 'Player Pages', 'Display Pickup History', 'true'),
 (64, 'Player Pages', 'Display Ping History Graph', 'true'),
 (65, 'Player Pages', 'Display Recent Activity Graph', 'true'),
 (66, 'Player Pages', 'Display Recent Matches', 'true'),
 (67, 'Player Pages', 'Default Recent Matches Display', '1'),
-(68, 'Player Pages', 'Default Weapon Display', '0'),
-(69, 'Player Pages', 'Recent Matches Per Page', '25');
+(68, 'Player Pages', 'Default Weapon Display', '1'),
+(69, 'Player Pages', 'Recent Matches Per Page', '100'),
+(70, 'Rankings', 'Rankings Per Gametype (Main)', '25'),
+(71, 'Rankings', 'Rankings Per Page (Individual)', '50');
 
 --
 -- Indexes for dumped tables
@@ -121,7 +123,7 @@ ALTER TABLE `nstats_site_settings`
 -- AUTO_INCREMENT for table `nstats_site_settings`
 --
 ALTER TABLE `nstats_site_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
