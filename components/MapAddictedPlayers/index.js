@@ -33,22 +33,29 @@ const MapAddictedPlayers = ({players, playerNames}) =>{
         if(elems.length === 0){
 
             
-            return <div key={"none"} className="not-found">No Player Data</div>
+            return null;
                 
         }else{
 
-            return <table className="t-width-1 td-1-150">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>First</th>
-                        <th>Last</th>
-                        <th>Matches</th>
-                        <th>Playtime</th>
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>
+            return <div>
+                <div className="default-header">
+                    Addicted Players
+                </div>
+                <div className="m-bottom-10 center">  
+                    <table className="t-width-1 td-1-150">
+                        <tbody>
+                            <tr>
+                                <th>Name</th>
+                                <th>First</th>
+                                <th>Last</th>
+                                <th>Matches</th>
+                                <th>Playtime</th>
+                            </tr>
+                            {elems}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         }
 
 }

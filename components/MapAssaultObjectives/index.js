@@ -27,6 +27,8 @@ const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
     objects = JSON.parse(objects);
     images = JSON.parse(images);
 
+    if(objects.length === 0) return null;
+
     let o = 0;
 
     let percent = 0;

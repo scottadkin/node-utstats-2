@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2021 at 12:02 PM
+-- Generation Time: May 04, 2021 at 12:24 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -66,8 +66,8 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (30, 'Home', 'Recent Matches To Display', '3'),
 (31, 'Records Page', 'Default Record Type', '1'),
 (33, 'Records Page', 'Default Per Page', '25'),
-(34, 'Maps Page', 'Default Display Per Page', '75'),
-(35, 'Maps Page', 'Default Display Type', '1'),
+(34, 'Maps Page', 'Default Display Per Page', '5'),
+(35, 'Maps Page', 'Default Display Type', '0'),
 (36, 'Match Pages', 'Display Summary', 'true'),
 (37, 'Match Pages', 'Display Screenshot', 'true'),
 (38, 'Match Pages', 'Display Frag Summary', 'true'),
@@ -102,8 +102,16 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (67, 'Player Pages', 'Default Recent Matches Display', '1'),
 (68, 'Player Pages', 'Default Weapon Display', '1'),
 (69, 'Player Pages', 'Recent Matches Per Page', '100'),
-(70, 'Rankings', 'Rankings Per Gametype (Main)', '25'),
-(71, 'Rankings', 'Rankings Per Page (Individual)', '50');
+(70, 'Rankings', 'Rankings Per Gametype (Main)', '5'),
+(71, 'Rankings', 'Rankings Per Page (Individual)', '100'),
+(72, 'Map Pages', 'Display Summary', 'true'),
+(73, 'Map Pages', 'Display Games Played', 'true'),
+(74, 'Map Pages', 'Display Spawn Points', 'true'),
+(75, 'Map Pages', 'Display Map Objectives (Assault)', 'true'),
+(76, 'Map Pages', 'Display Addicted Players', 'true'),
+(77, 'Map Pages', 'Display Longest Matches', 'true'),
+(78, 'Map Pages', 'Display Recent Matches', 'true'),
+(79, 'Map Pages', 'Display Control Points (Domination)', 'true');
 
 --
 -- Indexes for dumped tables
@@ -123,7 +131,7 @@ ALTER TABLE `nstats_site_settings`
 -- AUTO_INCREMENT for table `nstats_site_settings`
 --
 ALTER TABLE `nstats_site_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

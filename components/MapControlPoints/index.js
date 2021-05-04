@@ -2,11 +2,17 @@ import styles from './MapControlPoints.module.css';
 
 const MapControlPoints = ({points, mapPrefix}) =>{
     
+
+
+    
+
     const elems = [];
 
     if(mapPrefix === "dom"){
 
         points = JSON.parse(points);
+
+        if(points.length === 0) return null;
 
         for(let i = 0; i < points.length; i++){
 

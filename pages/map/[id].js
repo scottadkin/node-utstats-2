@@ -28,6 +28,8 @@ class Map extends React.Component{
     constructor(props){
 
         super(props);
+
+        console.log(props);
         
     }
 
@@ -55,7 +57,7 @@ class Map extends React.Component{
                         {Functions.removeUnr(basic.name)}
                     </div>
     
-                    
+                    {(this.props.pageSettings["Display Summary"] !== "true") ? null :
                     <div className={`${styles.top} m-bottom-10`}>
                         <img onClick={(() =>{
                             const elem = document.getElementById("main-image");
@@ -109,8 +111,10 @@ class Map extends React.Component{
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </div>}
 
+                    {(this.props.pageSettings["Display Games Played"] !== "true") ? null : 
+                    <div>
                     <div className="default-header">
                         Games Played
                     </div>
@@ -131,6 +135,7 @@ class Map extends React.Component{
                             ])
                         }
                     />
+                    </div>}
 
                     <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
 
@@ -139,30 +144,28 @@ class Map extends React.Component{
                     <MapAssaultObjectives images={this.props.assaultImages} mapName={Functions.cleanMapName(basic.name)} objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
 
 
-                    <div className="default-header">
-                        Addicted Players
-                    </div>
-                    <div className="m-bottom-10 center">  
-                        <MapAddictedPlayers players={this.props.addictedPlayers} playerNames={this.props.playerNames}/>
-                    </div>
-
-                    <div className="default-header">
-                        Longest Matches
-                    </div>
-
-                    <MatchesTableView data={this.props.longestMatches} image={image}/>
-
-                    <div className="default-header">Recent Matches</div>
-                    <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
-                    <div className={styles.recent}>
-                        <MatchesTableView data={matches} image={image}/>
-                    </div>
-
                     
+                    <MapAddictedPlayers players={this.props.addictedPlayers} playerNames={this.props.playerNames}/>
                     
 
-                    
-                    
+                    {(this.props.pageSettings["Display Addicted Players"] !== "true") ? null : 
+                    <div>
+                        <div className="default-header">
+                            Longest Matches
+                        </div>
+                        <MatchesTableView data={this.props.longestMatches} image={image}/>
+                    </div>}
+
+
+                    {(this.props.pageSettings["Display Recent Matches"] !== "true") ? null : 
+                    <div>
+                        <div className="default-header">Recent Matches</div>
+                        <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
+                        <div className={styles.recent}>
+                            <MatchesTableView data={matches} image={image}/>
+                        </div>
+                    </div>}
+
                 </div>
             </div>
             <Footer session={this.props.session}/>
@@ -251,6 +254,15 @@ function getNamePrefix(name){
 export async function getServerSideProps({req, query}){
 
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
+    const settings = new SiteSettings();
+    const navSettings = await settings.getCategorySettings("Navigation");
+    const pageSettings = await settings.getCategorySettings("Map Pages");
+
+
     let mapId = 0;
 
     if(query.id !== undefined){
@@ -291,7 +303,11 @@ export async function getServerSideProps({req, query}){
 
     const mapManager = new Maps();
 
-    let basicData = await mapManager.getSingle(mapId);
+    let basicData = [];
+
+    //if(pageSettings["Display Summary"] === "true"){
+        basicData = await mapManager.getSingle(mapId);
+    //}
 
     let image = null;
 
@@ -309,8 +325,17 @@ export async function getServerSideProps({req, query}){
     basicData[0].longestId = longestMatch.match;
 
 
-    const matches = await mapManager.getRecent(mapId, page, perPage);
-    const longestMatches = await mapManager.getLongestMatches(mapId, 5);
+    let matches = [];
+
+    if(pageSettings["Display Recent Matches"] === "true"){
+        matches = await mapManager.getRecent(mapId, page, perPage);
+    }
+
+    let longestMatches = [];
+
+    if(pageSettings["Display Longest Matches"] === "true"){
+        longestMatches = await mapManager.getLongestMatches(mapId, 5);
+    }
     
     for(let i = 0; i < matches.length; i++){
         matches[i].mapName = Functions.removeUnr(basicData[0].name);
@@ -347,9 +372,20 @@ export async function getServerSideProps({req, query}){
     Functions.setIdNames(longestMatches, gametypeNames, "gametype", "gametypeName");
 
 
-    const matchDates = await mapManager.getMatchDates(mapId);
-    const matchDatesData = createDatesData(matchDates);
-    const addictedPlayers = await mapManager.getTopPlayersPlaytime(mapId, 5);
+    let matchDates = [];
+    let matchDatesData = [];
+
+
+    if(pageSettings["Display Games Played"] === "true"){
+        matchDates = await mapManager.getMatchDates(mapId);
+        matchDatesData = createDatesData(matchDates);
+    }
+
+    let addictedPlayers = [];
+
+    if(pageSettings["Display Addicted Players"] === "true"){
+        addictedPlayers = await mapManager.getTopPlayersPlaytime(mapId, 5);
+    }
 
     const playerManager = new Players();
 
@@ -358,7 +394,11 @@ export async function getServerSideProps({req, query}){
 
     const playerNames = await playerManager.getNamesByIds(playerIds);
 
-    const spawns = await mapManager.getSpawns(mapId);
+    let spawns = [];
+
+    if(pageSettings["Display Spawn Points"] === "true"){
+        spawns = await mapManager.getSpawns(mapId);
+    }
 
     
     const mapPrefix = getNamePrefix(basicData[0].name);
@@ -377,17 +417,22 @@ export async function getServerSideProps({req, query}){
 
     }else if(mapPrefix === 'dom'){
 
-        const domManager = new Domination();
+        if(pageSettings["Display Control Points (Domination)"] === "true"){
+            const domManager = new Domination();
 
-        domControlPointLocations = await domManager.getMapFullControlPoints(mapId);
+            domControlPointLocations = await domManager.getMapFullControlPoints(mapId);
+        }
 
     }else if(mapPrefix === 'as'){
 
-        const assaultManager = new Assault();
+        if(pageSettings["Display Map Objectives (Assault)"] === "true"){
+            const assaultManager = new Assault();
 
-        assaultObjectives = await assaultManager.getMapObjectives(mapId);
+            assaultObjectives = await assaultManager.getMapObjectives(mapId);
 
-        assaultImages = await assaultManager.getMapImages(Functions.cleanMapName(basicData[0].name));
+            assaultImages = await assaultManager.getMapImages(Functions.cleanMapName(basicData[0].name));
+
+        }
     }
 
     let pages = 1;
@@ -405,13 +450,6 @@ export async function getServerSideProps({req, query}){
     if(ogImageResult !== null){
         ogImage = `maps/${ogImageResult[1]}`;
     }
-
-    const session = new Session(req.headers.cookie);
-
-	await session.load();
-
-    const settings = new SiteSettings();
-    const navSettings = await settings.getCategorySettings("Navigation");
 
     return {
         props: {
@@ -434,7 +472,8 @@ export async function getServerSideProps({req, query}){
             "assaultImages": JSON.stringify(assaultImages),
             "ogImage": ogImage,
             "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings)
+            "navSettings": JSON.stringify(navSettings),
+            "pageSettings": JSON.stringify(pageSettings)
         }
     };
 }
