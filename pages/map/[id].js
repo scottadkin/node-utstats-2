@@ -274,21 +274,7 @@ export async function getServerSideProps({req, query}){
         }
     }
 
-    let perPage = 25;
-
-    if(query.perPage !== undefined){
-
-        perPage = parseInt(query.perPage);
-
-        if(perPage !== perPage){
-            perPage = 25;
-        }
-
-        if(perPage < 1 || perPage > 100){
-
-            perPage = 25;
-        }
-    }
+    let perPage = parseInt(pageSettings["Recent Matches Per Page"]);
 
     let page = 1;
 
@@ -334,7 +320,7 @@ export async function getServerSideProps({req, query}){
     let longestMatches = [];
 
     if(pageSettings["Display Longest Matches"] === "true"){
-        longestMatches = await mapManager.getLongestMatches(mapId, 5);
+        longestMatches = await mapManager.getLongestMatches(mapId, parseInt(pageSettings["Max Longest Matches"]));
     }
     
     for(let i = 0; i < matches.length; i++){
@@ -384,7 +370,7 @@ export async function getServerSideProps({req, query}){
     let addictedPlayers = [];
 
     if(pageSettings["Display Addicted Players"] === "true"){
-        addictedPlayers = await mapManager.getTopPlayersPlaytime(mapId, 5);
+        addictedPlayers = await mapManager.getTopPlayersPlaytime(mapId, parseInt(pageSettings["Max Addicted Players"]));
     }
 
     const playerManager = new Players();

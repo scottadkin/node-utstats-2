@@ -160,6 +160,15 @@ class SiteSettings{
         };
     }
 
+    getMapPagesValidSettings(){
+
+        return {
+            "Max Addicted Players": this.defaultPerPageValues,
+            "Max Longest Matches": this.defaultPerPageValues,
+            "Recent Matches Per Page": this.defaultPerPageValues
+        }
+    }
+
     async getMatchesPageValidSettings(){
 
         try{

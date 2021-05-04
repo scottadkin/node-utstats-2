@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2021 at 12:24 PM
+-- Generation Time: May 04, 2021 at 01:01 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -111,7 +111,10 @@ INSERT INTO `nstats_site_settings` (`id`, `category`, `name`, `value`) VALUES
 (76, 'Map Pages', 'Display Addicted Players', 'true'),
 (77, 'Map Pages', 'Display Longest Matches', 'true'),
 (78, 'Map Pages', 'Display Recent Matches', 'true'),
-(79, 'Map Pages', 'Display Control Points (Domination)', 'true');
+(79, 'Map Pages', 'Display Control Points (Domination)', 'true'),
+(80, 'Map Pages', 'Max Addicted Players', '5'),
+(81, 'Map Pages', 'Max Longest Matches', '5'),
+(82, 'Map Pages', 'Recent Matches Per Page', '50');
 
 --
 -- Indexes for dumped tables
@@ -131,7 +134,7 @@ ALTER TABLE `nstats_site_settings`
 -- AUTO_INCREMENT for table `nstats_site_settings`
 --
 ALTER TABLE `nstats_site_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
