@@ -70,14 +70,6 @@ class Matches extends React.Component{
         console.log(session);
     }
 
-    setCookie(key, value){
-
-        const maxAge = ((60 * 60) * 24) * 365;
-
-        if(process.browser){
-            document.cookie = `${key}=${value}; max-age=${maxAge};`;
-        }
-    }
 
     changePerPage(event){
 
@@ -88,7 +80,7 @@ class Matches extends React.Component{
         if(value !== value) value = 25;
         
 
-        this.setCookie("matchesPerPage", value);
+        Functions.setCookie("matchesPerPage", value);
 
     }
 
@@ -100,7 +92,7 @@ class Matches extends React.Component{
 
         if(value !== value) value = 0;
         
-        this.setCookie("matchesGametype", value);
+        Functions.setCookie("matchesGametype", value);
 
 
     }
@@ -138,7 +130,7 @@ class Matches extends React.Component{
             type = 0;
         }
 
-        this.setCookie("matchesDisplay", type);
+        Functions.setCookie("matchesDisplay", type);
     }
 
 
