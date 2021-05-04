@@ -58,7 +58,7 @@ class Maps extends React.Component{
 
         this.setState({"displayType": id});
 
-        this.setCookie("mapsDisplayType", id);
+        Functions.setCookie("mapsDisplayType", id);
     }
 
 
@@ -69,23 +69,13 @@ class Maps extends React.Component{
 
         this.setState({"perPage": value});
 
-        this.setCookie("mapsPerPage", value);
+        Functions.setCookie("mapsPerPage", value);
     }
 
     updateName(event){
         this.setState({"name": event.target.value});
     }
 
-
-    setCookie(key, value){
-
-        const maxAge = ((60 * 60) * 24) * 365;
-
-        if(process.browser){
-
-            document.cookie = `${key}=${value}; max-age=${maxAge}; path=/;`;
-        }
-    }
 
     render(){
 
@@ -162,14 +152,31 @@ class Maps extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
+    const session = new Session(req.headers.cookie);
+
+	await session.load();
+
+    const settings = new SiteSettings();
+
+    const navSettings = await settings.getCategorySettings("Navigation");
+    const pageSettings = await settings.getCategorySettings("Maps Page");
+
 
     let page = 1;
-    let perPage = 25;
+    let perPage = parseInt(pageSettings["Default Display Per Page"]);
+
+    if(session.cookies["mapsPerPage"] !== undefined){
+
+        perPage = parseInt(session.cookies["mapsPerPage"]);
+
+        if(perPage !== perPage) perPage = parseInt(pageSettings["Default Display Per Page"]);
+    }
+
     let displayType = 0;
     let name = "";
 
     page = Functions.setSafeInt(query.page, 1, 1);
-    perPage = Functions.setSafeInt(query.perPage, 25, 1, 100);
+    perPage = Functions.setSafeInt(query.perPage, perPage, 1, 100);
     displayType = Functions.setSafeInt(query.displayType, 0);
 
     if(query.name !== undefined){
@@ -187,14 +194,9 @@ export async function getServerSideProps({req, query}){
     const images = await manager.getImages(names);
     const totalResults = await manager.getTotalResults(name);
 
-    const session = new Session(req.headers.cookie);
+    
 
-	await session.load();
-
-    const settings = new SiteSettings();
-
-    const navSettings = await settings.getCategorySettings("Navigation");
-    const pageSettings = await settings.getCategorySettings("Maps Page");
+    
 
 
     return {
