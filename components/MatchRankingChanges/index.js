@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
+import MouseHoverBox from '../../components/MouseHoverBox';
 
 function getCurrentRankings(rankings, player){
 
@@ -52,6 +53,8 @@ const MatchRankingChanges = ({changes, currentRankings, playerNames}) =>{
     let icon2 = "";
     let icon3 = "";
 
+    let rankingString = "";
+
     for(let i = 0; i < changes.length; i++){
 
         c = changes[i];
@@ -64,13 +67,24 @@ const MatchRankingChanges = ({changes, currentRankings, playerNames}) =>{
         icon2 = getIcon(currentRanking.ranking_change);
         icon3 = getIcon(c.match_ranking_change);
 
+
+        if(currentRanking.ranking_change > 0){
+
+            rankingString = `Gained ${currentRanking.ranking_change.toFixed(2)} in the previous match.`;
+
+        }else if(currentRanking.ranking_change < 0){
+            rankingString = `Lost ${currentRanking.ranking_change.toFixed(2)} in the previous match.`;
+        }else{
+            rankingString = `No change in the previous match.`;
+        }
+
         rows.push(<tr>
             <td><Link href={`/player/${c.player_id}`}><a><CountryFlag country={player.country}/>{player.name}</a></Link></td>
             <td>{previousRanking.toFixed(2)}</td>
             <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.ranking.toFixed(2)}</td>
             <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.match_ranking_change.toFixed(2)}</td>
             <td>{c.match_ranking.toFixed(2)}</td>
-            <td><img className="ranking-icon" src={icon2} alt="icon"/>{currentRanking.ranking}</td>
+            <td><img className="ranking-icon" src={icon2} alt="icon"/><MouseHoverBox title="Ranking Change" content={rankingString} display={currentRanking.ranking}/></td>
         </tr>);
     }
 
