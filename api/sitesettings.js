@@ -142,6 +142,14 @@ class SiteSettings{
         }
     }
 
+    getPlayerPagesValidSettings(){
+
+        return {
+            "Default Recent Matches Display": this.defaultDiplayTypes,
+            "Default Recent Matches Per Page": this.defaultPerPageValues
+        };
+    }
+
     async getMatchesPageValidSettings(){
 
         try{

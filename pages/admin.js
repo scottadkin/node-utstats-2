@@ -74,6 +74,8 @@ class Admin extends React.Component{
                 currentValidSettings = validSettings.recordsPage;
             }else if(fixedKey === "maps page"){
                 currentValidSettings = validSettings.mapsPage;
+            }else if(fixedKey === "player pages"){
+                currentValidSettings = validSettings.playerPages;
             }
 
             elems.push(<AdminSettingsTable key={key} title={key} data={value.data} validSettings={currentValidSettings}/>);
@@ -138,8 +140,9 @@ export async function getServerSideProps({req, query}){
         validSiteSettings.home = settings.getHomePageValidSettings();
         validSiteSettings.recordsPage = settings.getRecordsPageValidSettings();
         validSiteSettings.mapsPage = settings.getMapsPageValidSettings();
+        validSiteSettings.playerPages = settings.getPlayerPagesValidSettings();
     }
-
+    
     const navSettings = await settings.getCategorySettings("Navigation");
 
     console.log(`Is this user an admin ${bUserAdmin}`);

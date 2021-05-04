@@ -7,7 +7,7 @@ import PlayerADSummary from '../PlayerADSummary/';
 
 
 
-const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
+const PlayerSummary = ({pageSettings, summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
     winRateHistory, faces}) =>{   
 
     summary = JSON.parse(summary);
@@ -16,56 +16,72 @@ const PlayerSummary = ({summary, flag, country, gametypeStats, gametypeNames, la
 
     let faceId = Object.keys(faces)[0];
 
-    return (
-        <div>
+    const elems = [];
 
+    console.log(pageSettings);
+
+    if(pageSettings["Display Summary"] === "true"){
+
+        elems.push(<PlayerGeneral key={1} country={country}
+            flag={flag}
+            face={faces[faceId].name}
+            first={summary.first}
+            last={summary.last}
+            matches={summary.matches}
+            playtime={summary.playtime}
+            winRate={summary.winrate}
+            wins={summary.wins}
+            losses={summary.losses}
+            draws={summary.draws}
             
-            <PlayerGeneral 
-                country={country}
-                flag={flag}
-                face={faces[faceId].name}
-                first={summary.first}
-                last={summary.last}
-                matches={summary.matches}
-                playtime={summary.playtime}
-                winRate={summary.winrate}
-                wins={summary.wins}
-                losses={summary.losses}
-                draws={summary.draws}
-                
-            />
+        />);
+    }
 
-            <PlayerGametypeStats data={gametypeStats} names={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory}/>
+    if(pageSettings["Display Gametype Stats"] === "true"){
 
-            <PlayerCTFSummary data={summary} />
+        elems.push(<PlayerGametypeStats key={2} data={gametypeStats} names={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory}/>);
+    }
 
-            <PlayerADSummary dom={summary.dom_caps} domBest={summary.dom_caps_best} domBestLife={summary.dom_caps_best_life} assault={summary.assault_objectives}/>
+    if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
+        elems.push(<PlayerCTFSummary key={3} data={summary} />);
+    }
 
-            <PlayerFragSummary 
-                score={summary.score}
-                frags={summary.frags}
-                kills={summary.kills}
-                deaths={summary.deaths}
-                suicides={summary.suicides}
-                teamKills={summary.team_kills}
-                spawnKills={summary.spawn_kills}
-                efficiency={summary.efficiency}
-                firstBlood={summary.first_bloods}
-                accuracy={summary.accuracy}
-                close={summary.k_distance_normal}
-                long={summary.k_distance_long}
-                uber={summary.k_distance_uber}
-                headshots={summary.headshots}
-                spawnKillSpree={summary.best_spawn_kill_spree}
-            />
+    if(pageSettings["Display Assault & Domination"] === "true"){
 
-            <PlayerSpecialEvents 
-                data={summary}
-            />
+        elems.push(<PlayerADSummary key={4} dom={summary.dom_caps} domBest={summary.dom_caps_best} domBestLife={summary.dom_caps_best_life} assault={summary.assault_objectives}/>);
+    }
 
-        </div>
-    );
+    if(pageSettings["Display Frag Summary"] === "true"){
+
+        elems.push(<PlayerFragSummary key={5}
+            score={summary.score}
+            frags={summary.frags}
+            kills={summary.kills}
+            deaths={summary.deaths}
+            suicides={summary.suicides}
+            teamKills={summary.team_kills}
+            spawnKills={summary.spawn_kills}
+            efficiency={summary.efficiency}
+            firstBlood={summary.first_bloods}
+            accuracy={summary.accuracy}
+            close={summary.k_distance_normal}
+            long={summary.k_distance_long}
+            uber={summary.k_distance_uber}
+            headshots={summary.headshots}
+            spawnKillSpree={summary.best_spawn_kill_spree}
+        />);
+    }
+
+    if(pageSettings["Display Special Events"] === "true"){
+        elems.push(<PlayerSpecialEvents key={6}
+            data={summary}
+        />);
+    }
+
+    return <div>
+        {elems}
+    </div>
 
 }
 

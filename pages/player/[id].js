@@ -24,7 +24,7 @@ import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 
 
-function Home({navSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
+function Home({navSettings, pageSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage}) {
 
@@ -71,6 +71,8 @@ function Home({navSettings, session, host, playerId, summary, gametypeStats, gam
 
 		const parsedInfo = JSON.parse(summary);
 
+		pageSettings = JSON.parse(pageSettings);
+
 
 		return (
 				<div>
@@ -89,7 +91,7 @@ function Home({navSettings, session, host, playerId, summary, gametypeStats, gam
 								</div>
 
 
-								<PlayerSummary summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
+								<PlayerSummary pageSettings={pageSettings} summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
 									gametypeNames={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory} matchDates={matchDates}
 									faces={faces}
 								/>
@@ -360,10 +362,12 @@ export async function getServerSideProps({req, query}) {
 	const settings = new SiteSettings();
 
 	const navSettings = await settings.getCategorySettings("Navigation");
+	const pageSettings = await settings.getCategorySettings("Player Pages");
 
 	return { 
 		props: {
 			"navSettings": JSON.stringify(navSettings),
+			"pageSettings": JSON.stringify(pageSettings),
 			"session": JSON.stringify(session.settings),
 			"host": req.headers.host,
 			"playerId": playerId,
