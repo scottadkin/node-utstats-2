@@ -57,7 +57,7 @@ class Map extends React.Component{
                         {Functions.removeUnr(basic.name)}
                     </div>
     
-                    {(this.props.pageSettings["Display Summary"] !== "true") ? null :
+                    {(this.props.pageSettings["Display Summary"] === "false") ? null :
                     <div className={`${styles.top} m-bottom-10`}>
                         <img onClick={(() =>{
                             const elem = document.getElementById("main-image");
@@ -113,7 +113,7 @@ class Map extends React.Component{
                         </table>
                     </div>}
 
-                    {(this.props.pageSettings["Display Games Played"] !== "true") ? null : 
+                    {(this.props.pageSettings["Display Games Played"] === "false") ? null : 
                     <div>
                     <div className="default-header">
                         Games Played
@@ -148,7 +148,7 @@ class Map extends React.Component{
                     <MapAddictedPlayers players={this.props.addictedPlayers} playerNames={this.props.playerNames}/>
                     
 
-                    {(this.props.pageSettings["Display Addicted Players"] !== "true") ? null : 
+                    {(this.props.pageSettings["Display Addicted Players"] === "false") ? null : 
                     <div>
                         <div className="default-header">
                             Longest Matches
@@ -157,7 +157,7 @@ class Map extends React.Component{
                     </div>}
 
 
-                    {(this.props.pageSettings["Display Recent Matches"] !== "true") ? null : 
+                    {(this.props.pageSettings["Display Recent Matches"] === "false") ? null : 
                     <div>
                         <div className="default-header">Recent Matches</div>
                         <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
