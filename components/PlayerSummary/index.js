@@ -7,7 +7,7 @@ import PlayerADSummary from '../PlayerADSummary/';
 
 
 
-const PlayerSummary = ({pageSettings, summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
+const PlayerSummary = ({session, pageSettings, summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
     winRateHistory, faces}) =>{   
 
     summary = JSON.parse(summary);
@@ -39,12 +39,12 @@ const PlayerSummary = ({pageSettings, summary, flag, country, gametypeStats, gam
 
     if(pageSettings["Display Gametype Stats"] === "true"){
 
-        elems.push(<PlayerGametypeStats key={2} data={gametypeStats} names={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory}/>);
+        elems.push(<PlayerGametypeStats key={2} session={session} data={gametypeStats} names={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory}/>);
     }
 
     if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
-        elems.push(<PlayerCTFSummary key={3} data={summary} />);
+        elems.push(<PlayerCTFSummary key={3} session={session} data={summary} />);
     }
 
     if(pageSettings["Display Assault & Domination"] === "true"){
@@ -55,6 +55,7 @@ const PlayerSummary = ({pageSettings, summary, flag, country, gametypeStats, gam
     if(pageSettings["Display Frag Summary"] === "true"){
 
         elems.push(<PlayerFragSummary key={5}
+            session={session}
             score={summary.score}
             frags={summary.frags}
             kills={summary.kills}
@@ -74,7 +75,7 @@ const PlayerSummary = ({pageSettings, summary, flag, country, gametypeStats, gam
     }
 
     if(pageSettings["Display Special Events"] === "true"){
-        elems.push(<PlayerSpecialEvents key={6}
+        elems.push(<PlayerSpecialEvents session={session} key={6}
             data={summary}
         />);
     }

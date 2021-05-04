@@ -73,6 +73,7 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 
 		pageSettings = JSON.parse(pageSettings);
 
+		const parsedSession = JSON.parse(session);
 
 		return (
 				<div>
@@ -91,13 +92,13 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 								</div>
 
 
-								<PlayerSummary pageSettings={pageSettings} summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
+								<PlayerSummary session={parsedSession} pageSettings={pageSettings} summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
 									gametypeNames={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory} matchDates={matchDates}
 									faces={faces}
 								/>
 
 								{(pageSettings["Display Weapon Stats"] !== "true") ? null :
-								<PlayerWeapons pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
+								<PlayerWeapons session={parsedSession} pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
 
 								<PlayerItemsSummary data={itemData} names={itemNames}/>
 								<PlayerAliases data={aliases} faces={faces} masterName={name}/>
@@ -108,7 +109,7 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 								<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/></div>}
 
 								
-								<PlayerRecentMatches pageSettings={pageSettings} playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
+								<PlayerRecentMatches session={parsedSession} pageSettings={pageSettings} playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
 								totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
 								serverNames={serverNames} matchDates={matchDates}
 								/>

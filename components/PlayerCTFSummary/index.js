@@ -1,5 +1,6 @@
 import TipHeader from '../TipHeader';
 import React from 'react';
+import Functions from '../../api/functions';
 
 
 class PlayerCTFSummary extends React.Component{
@@ -12,9 +13,19 @@ class PlayerCTFSummary extends React.Component{
         this.changeMode = this.changeMode.bind(this);
     }
 
+    componentDidMount(){
+
+        const settings = this.props.session;
+
+        if(settings["playerPageCtfMode"] !== undefined){
+            this.setState({"mode": parseInt(settings["playerPageCtfMode"])});
+        }
+    }
+
     changeMode(id){
 
         this.setState({"mode": id});
+        Functions.setCookie("playerPageCtfMode", id);
     }
 
     displayGeneral(){

@@ -21,6 +21,7 @@
 .image{
     height:150px;
     position:relative;
+    background-color:black;
 }
 
 .image img{

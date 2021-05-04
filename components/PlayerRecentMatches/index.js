@@ -208,8 +208,18 @@ class PlayerRecentMatches extends React.Component{
         this.changeMode = this.changeMode.bind(this);
     }
 
+    componentDidMount(){
+
+        const settings = this.props.session;
+
+        if(settings["playerPageMatchesMode"] !== undefined){
+            this.setState({"mode": parseInt(settings["playerPageMatchesMode"])});
+        }
+    }
+
     changeMode(id){
         this.setState({"mode": id});
+        Functions.setCookie("playerPageMatchesMode", id);
     }
 
     render(){

@@ -2,6 +2,7 @@
 import styles from './PlayerWeapons.module.css';
 import PlayerWeapon from '../PlayerWeapon/';
 import React from 'react';
+import Functions from '../../api/functions';
 
 
 
@@ -18,8 +19,18 @@ class PlayerWeapons extends React.Component{
         this.changeMode = this.changeMode.bind(this);
     }   
 
+    componentDidMount(){
+
+        const settings = this.props.session;
+
+        if(settings["playerPageWeaponsMode"] !== undefined){
+            this.setState({"mode": parseInt(settings["playerPageWeaponsMode"])});
+        }
+    }
+
     changeMode(id){
         this.setState({"mode": id});
+        Functions.setCookie("playerPageWeaponsMode", id);
     }
 
     getWeaponName(names, id){
@@ -56,8 +67,6 @@ class PlayerWeapons extends React.Component{
 
 
     getWeaponData(stats, weapon){
-
-        console.log(`looking for ${weapon}`);
         
         for(let i = 0; i < stats.length; i++){
 
@@ -141,7 +150,7 @@ class PlayerWeapons extends React.Component{
 
                 if(currentWeaponStats !== null){
                     elems.push(
-                        <tr>
+                        <tr key={key}>
                             <td>{value.name}</td>
                             <td>{currentWeaponStats.kills}</td>
                             <td>{currentWeaponStats.deaths}</td>

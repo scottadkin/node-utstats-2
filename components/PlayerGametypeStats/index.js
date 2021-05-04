@@ -16,8 +16,20 @@ class PlayerGametypeStats extends React.Component{
         this.changeMode = this.changeMode.bind(this);
     }
 
+    componentDidMount(){
+
+        const settings = this.props.session;
+
+        console.log(settings);
+
+        if(settings["playerPageGametypeMode"] !== undefined){
+            this.setState({"mode": JSON.parse(settings["playerPageGametypeMode"])});
+        }
+    }
+
     changeMode(id){
         this.setState({"mode": id});
+        Functions.setCookie("playerPageGametypeMode",id);
     }
 
     renderGeneral(){

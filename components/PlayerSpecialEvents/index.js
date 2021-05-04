@@ -1,4 +1,5 @@
 import React from 'react';
+import Functions from '../../api/functions';
 
 class PlayerSpecialEvents extends React.Component{
 
@@ -11,9 +12,19 @@ class PlayerSpecialEvents extends React.Component{
         this.changeMode = this.changeMode.bind(this);
     }
 
+    componentDidMount(){
+
+        const settings = this.props.session;
+
+        if(settings["playerPageSpecialMode"] !== undefined){
+            this.setState({"mode": parseInt(settings["playerPageSpecialMode"])});
+        }
+    }
+
     changeMode(id){
 
         this.setState({"mode": id});
+        Functions.setCookie("playerPageSpecialMode", id);
     }
 
 

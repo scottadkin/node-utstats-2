@@ -380,6 +380,18 @@ class Functions{
     
     }
 
+
+    static setCookie(key, value){
+
+        if(process.browser){
+
+            const maxAge = ((60 * 60) * 24) * 365;
+            const path = "/";
+
+            document.cookie = `${key}=${value}; max-age=${maxAge}; path=${path}`;
+        }
+    }
+
 }
 
 module.exports = Functions;
