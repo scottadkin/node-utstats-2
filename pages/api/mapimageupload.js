@@ -47,8 +47,8 @@ export default async (req, res) =>{
 
             if(part.filename){
 
-                console.log("part.filename");
-                console.log(part.filename);
+               // console.log("part.filename");
+                //console.log(part.filename);
 
                 if(VALID_MIME_TYPES.indexOf(part.mime) !== -1){
 
@@ -64,6 +64,11 @@ export default async (req, res) =>{
                 form.handlePart(part);
             }
         }
+
+        form.on("file", (name, file) =>{
+
+            fs.renameSync(file.path, `./public/images/maps/${file.name}`);
+        })
         
 
         res.status(200).json({"potaotes": "yofoghdf"});
