@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2021 at 07:20 PM
+-- Generation Time: May 05, 2021 at 05:11 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -702,7 +702,7 @@ CREATE TABLE `nstats_ranking_player_current` (
   `gametype` int(11) NOT NULL,
   `matches` int(11) NOT NULL,
   `playtime` float NOT NULL,
-  `ranking` float NOT NULL,
+  `ranking` double NOT NULL,
   `ranking_change` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

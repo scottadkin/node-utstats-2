@@ -410,22 +410,18 @@ class Rankings{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT COUNT(*) as player_position FROM nstats_ranking_player_current WHERE ranking > ? AND gametype=?  ORDER BY ranking DESC";
+            const query = "SELECT COUNT(*) as player_position FROM nstats_ranking_player_current WHERE gametype=? AND ranking >= ?  ORDER BY ranking DESC";
 
-            mysql.query(query, [ranking, gametype], (err, result) =>{
+            mysql.query(query, [gametype, ranking], (err, result) =>{
 
                 if(err) reject(err);
 
                 if(result !== undefined){
 
                     if(result.length > 0){
-                        if(result[0].player_position === 0){
-                            resolve(1);
-                        }else{
+                        
 
-                            resolve(result[0].player_position);
-                        }
-
+                        resolve(result[0].player_position);
                     }
                 }
 
