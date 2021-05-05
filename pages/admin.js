@@ -77,12 +77,8 @@ class Admin extends React.Component{
 
         const files = this.state.mapFiles.files;
 
-        console.log(previous);
-
-
         files.push(name);
 
-        console.log(files);
 
         this.setState({"mapFiles": {"databaseNames": previous.databaseNames, "files": files}});
 
@@ -193,10 +189,16 @@ class Admin extends React.Component{
             console.log(this.state.files);
 
 
+            let names = [];
+
 
             //formData.append("files", this.state.files);
 
             for(let i = 0; i < this.state.files.length; i++){
+
+                console.log(this.state.files[i]);
+
+                names.push(this.state.files[i].name);
 
                 formData.append("files", this.state.files[i]);
             }
@@ -208,7 +210,18 @@ class Admin extends React.Component{
                     "body": formData
                 });
 
-                console.log(await req.json());
+                const result = await req.json();
+
+                if(result.bPassed !== undefined){
+
+                    if(result.bPassed){
+
+                        for(let i = 0; i < names.length; i++){
+                            this.updateMapFileStatus(names[i]);
+                        }
+
+                    }
+                }
             }
         }catch(err){
             console.trace(err);
