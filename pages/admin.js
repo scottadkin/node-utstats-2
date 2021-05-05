@@ -13,10 +13,31 @@ class Admin extends React.Component{
     constructor(props){
 
         super(props);
+        this.state = {"mode": 1, "files": []};
+
+        this.changeMode = this.changeMode.bind(this);
+        this.uploadImage = this.uploadImage.bind(this);
+        this.onChange = this.onChange.bind(this);
     }
 
+    onChange(e){
+
+
+        console.log(e.target.files[0]);
+
+        this.setState({"files": e.target.files[0]});
+        console.log("this.state");
+        console.log(this.state);
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
+    }
 
     displaySettings(){
+
+        if(this.state.mode !== 0) return null;
 
         const settings = JSON.parse(this.props.siteSettings);
         const validSettings = JSON.parse(this.props.validSiteSettings);
@@ -87,6 +108,53 @@ class Admin extends React.Component{
 
         return <div>{elems}</div>
     }
+    
+    async uploadImage(e){
+
+        try{
+            console.log("uploadFile");
+
+            e.preventDefault();
+
+            console.log(e);
+
+            console.log(e.target.files.value);
+
+            const formData = new FormData();
+
+            console.log(this.state.files);
+
+
+
+            formData.append("files", this.state.files);
+
+            console.log(formData);
+
+            if(process.browser){
+                const req = await fetch(`/api/mapimageupload`, {
+                    "method": "POST",
+                    "body": formData
+                });
+
+                console.log(await req.json());
+            }
+        }catch(err){
+            console.trace(err);
+        }   
+    }
+
+    displayMapImageUpload(){
+
+        if(this.state.mode !== 1) return null;
+
+        return <div>
+            <div className="default-header">Map Image Uploader</div>
+            <form className="form"  method="POST" encType="multipart/form-data" onSubmit={this.uploadImage}>
+                <input type="file" name="files" id="files" onChange={this.onChange}/>
+                <input type="submit" className="search-button" value="Upload" />
+            </form>
+        </div>
+    }
 
     render(){
 
@@ -105,8 +173,16 @@ class Admin extends React.Component{
                 <div id="content">
                     <div className="default">
                         <div className="default-header">Admin Control Panel</div>
-
+                        <div className="big-tabs">
+                            <div className={`big-tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(0);
+                            })}>Site Settings</div>
+                            <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(1);
+                            })}>Map Image Uploader</div>
+                        </div>
                         {this.displaySettings()}
+                        {this.displayMapImageUpload()}
                     </div>   
                 </div>
 

@@ -18,8 +18,6 @@ class Session{
 
         this.settings = {};
 
-        console.log("session.cookies");
-        console.log(this.cookies);
 
         this.addCookies();
 
@@ -78,8 +76,6 @@ class Session{
 
         try{
 
-
-            console.log(this.settings);
             //const result = await this.user.bUserAdmin();
 
             if(this.settings.sid !== undefined){
@@ -87,7 +83,7 @@ class Session{
                 if(this.settings.sid !== ""){
 
                     const userId = await this.getUserId(this.settings.sid);
-                    console.log(`userId = ${userId}`);
+              
                     return await this.user.bAdmin(userId);
                 }
             }

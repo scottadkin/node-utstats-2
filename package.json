@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "cookie": "^0.4.1",
+    "formidable": "^1.2.2",
     "ftp": "^0.3.10",
     "geoip-country": "^4.0.62",
     "geoip-lite": "^1.4.2",
