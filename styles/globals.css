@@ -357,6 +357,12 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	padding:10px 0px;
 }
 
+.form-info{
+	padding:10px;
+	font-size:14px;
+	line-height:24px;
+}
+
 .select-row{
 	display:grid;
 	grid-template-columns: 50% 50%;

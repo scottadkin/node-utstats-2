@@ -7,26 +7,89 @@ import Footer from '../components/Footer';
 import SiteSettings from '../api/sitesettings';
 import styles from '../styles/Admin.module.css';
 import AdminSettingsTable from '../components/AdminSettingsTable/';
+import AdminManager from '../api/admin';
+import Functions from '../api/functions';
 
 class Admin extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"mode": 1, "files": []};
+        this.state = {"mode": 1, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
         this.onChange = this.onChange.bind(this);
+        this.uploadSingleMap = this.uploadSingleMap.bind(this);
+    }
+
+    async uploadSingleMap(e, name, id){
+
+        try{
+
+            e.preventDefault();
+
+            const formData = new FormData();
+
+           // e.target[`map_${id}`].files[0].name = name;
+
+            let file = new File([e.target[`map_${id}`].files[0]], name, {
+                "type": "image/jpg"
+            });
+
+      
+            //undefined
+            if(file.size === 9){
+                console.trace("No file selected");
+                return;
+            }
+
+            console.log(file);
+
+            formData.append("files", file);
+
+            console.log(formData);
+
+
+            const req = await fetch("/api/mapimageupload", {
+                "method": "POST",
+                "body": formData
+            })
+
+
+            const result = await req.json();
+            
+            if(result.bPassed !== undefined){
+
+                if(result.bPassed){
+                    this.updateMapFileStatus(name);
+                }
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    updateMapFileStatus(name){
+
+        const previous = this.state.mapFiles;
+
+        const files = this.state.mapFiles.files;
+
+        console.log(previous);
+
+
+        files.push(name);
+
+        console.log(files);
+
+        this.setState({"mapFiles": {"databaseNames": previous.databaseNames, "files": files}});
+
+
     }
 
     onChange(e){
-
-
-        //console.log(e.target.files[0]);
-
-        //this.setState({"files": e.target.files[0]});
-
 
         const files = [];
 
@@ -125,10 +188,6 @@ class Admin extends React.Component{
 
             e.preventDefault();
 
-            console.log(e);
-
-            console.log(e.target.files.value);
-
             const formData = new FormData();
 
             console.log(this.state.files);
@@ -162,13 +221,97 @@ class Admin extends React.Component{
 
         return <div>
             <div className="default-header">Map Image Uploader</div>
+            
             <form className="form"  method="POST" encType="multipart/form-data" onSubmit={this.uploadImage}>
+                <div className="form-info">
+                    Image names must be in all lowercase(Automatically done) without the gametype prefix. e.g CTF-Face.unr image file should be called face.jpg.<br/>
+                    For best results the image should be in 16:9 aspect ratio, smaller files for icons are dynamically created by the site when needed.
+                </div>
                 <input type="file" 
                 accept={`.jpg,.jpeg`}
                 
-                name="files" multiple={true} id="files" onChange={this.onChange}/>
+                name="files" multiple={true} id="files" className="m-bottom-25 m-top-25" onChange={this.onChange}/>
                 <input type="submit" className="search-button" value="Upload" />
             </form>
+        </div>
+    }
+
+    bMapFileExist(name, files){
+
+        
+        if(files.indexOf(name) !== -1){
+            return true;
+        }
+
+        return false;
+    }
+
+    displayMapImageUploadList(){
+
+        if(this.state.mode !== 1) return null;
+
+        const data = this.state.mapFiles;
+
+
+
+        const files = data.files;
+        const mapsData = data.databaseNames;
+        const rows = [];
+
+        let m = 0;
+
+
+        let cleanName = "";
+        let fileStatus = 0;
+        
+
+        const createRow = (id, name, cleanName, fileStatus, callback) => {
+
+            rows.push(<tr key={id}>
+                <td>{Functions.removeUnr(name)}</td>
+                <td>{cleanName}</td>
+                <td className={(fileStatus) ? "team-green" : "team-red"}>{(fileStatus) ? "Found" : "Missing"}</td>
+                <td>
+                    <form encType="multipart/form-data" method="POST" onSubmit={((e) =>{
+
+                        callback(e, cleanName, id);
+                    })}>
+                        
+                        <input type="file" id={`map_${id}`} accept=".jpg,.jpeg"/><input type="submit" value="Upload"/>
+                    </form>
+                </td>
+            </tr>)
+        }
+
+        for(let i = 0; i < mapsData.length; i++){
+
+            m = mapsData[i];
+
+            cleanName = `${Functions.cleanMapName(m.name.toLowerCase())}.jpg`;
+            fileStatus = this.bMapFileExist(cleanName, files);
+
+            createRow(i, m.name, cleanName, fileStatus, this.uploadSingleMap);
+       
+        }
+
+        return <div>
+            <div className="default-header">Individual Map Image Upload</div>
+            <div className="form m-bottom-25">
+                <div className="form-info">
+                    For Individual map image uploads the name of the file is automatically set for easy upload.
+                </div>
+            </div>
+            <table className="t-width-1 td-1-left">
+                <tbody>
+                    <tr>
+                        <th>Map Name</th>
+                        <th>Required File</th>
+                        <th>File Status</th>
+                        <th>Upload</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
         </div>
     }
 
@@ -199,6 +342,7 @@ class Admin extends React.Component{
                         </div>
                         {this.displaySettings()}
                         {this.displayMapImageUpload()}
+                        {this.displayMapImageUploadList()}
                     </div>   
                 </div>
 
@@ -226,6 +370,8 @@ export async function getServerSideProps({req, query}){
     let currentSiteSettings = [];
     let validSiteSettings = {};
 
+    let mapFiles = [];
+
     if(bUserAdmin){
 
         currentSiteSettings = await settings.debugGetAllSettings();
@@ -239,6 +385,10 @@ export async function getServerSideProps({req, query}){
         validSiteSettings.playerPages = settings.getPlayerPagesValidSettings();
         validSiteSettings.rankings = settings.getRankingsValidSettings();
         validSiteSettings.mapPages = settings.getMapPagesValidSettings();
+
+        const admin = new AdminManager();
+
+        mapFiles = await admin.getMapsFolder();
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -251,7 +401,8 @@ export async function getServerSideProps({req, query}){
             "session": JSON.stringify(session.settings),
             "bUserAdmin": bUserAdmin,
             "siteSettings": JSON.stringify(currentSiteSettings),
-            "validSiteSettings": JSON.stringify(validSiteSettings)
+            "validSiteSettings": JSON.stringify(validSiteSettings),
+            "mapFiles": JSON.stringify(mapFiles)
         }
     };
 }

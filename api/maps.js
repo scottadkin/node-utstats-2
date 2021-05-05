@@ -722,6 +722,26 @@ class Maps{
             });
         });
     }
+
+
+    getAllNames(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name FROM nstats_maps ORDER BY name ASC";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 

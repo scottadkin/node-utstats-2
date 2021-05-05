@@ -13,7 +13,7 @@ export default async (req, res) =>{
     const VALID_FILE_TYPES = [".jpg", ".jpeg"];
     const VALID_MIME_TYPES = ["image/jpg", "image/jpeg"];
 
-    const form = new formidable.IncomingForm();
+    const form = new formidable.IncomingForm(/*{"maxFileSize": (1024 * 1024) * 5}*/);
 
     let cookies = [];
 
@@ -39,7 +39,7 @@ export default async (req, res) =>{
 
             //fs.writeFileSync("potato.fart", "test");
             
-            console.log(err, fields, files);
+           // console.log(err, fields, files);
         });
 
 
@@ -53,6 +53,7 @@ export default async (req, res) =>{
                 if(VALID_MIME_TYPES.indexOf(part.mime) !== -1){
 
                     console.log("VALID FILE TYPE");
+                
 
                     form.handlePart(part);
                 }else{
@@ -67,11 +68,19 @@ export default async (req, res) =>{
 
         form.on("file", (name, file) =>{
 
-            fs.renameSync(file.path, `./public/images/maps/${file.name}`);
+            fs.renameSync(file.path, `./public/images/maps/${file.name.toLowerCase()}`);
         })
         
 
-        res.status(200).json({"potaotes": "yofoghdf"});
+        /*form.on('progress', (bytesReceived, bytesExpected) => {
+
+            console.log(bytesReceived, bytesExpected);
+
+            res.status(200).json({"bytes": bytesReceived});
+
+        });*/
+
+        res.status(200).json({"bPassed": true});
     }else{
         res.status(200).json({"error": "Access Denied"});
     }
