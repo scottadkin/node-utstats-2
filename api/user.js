@@ -147,7 +147,7 @@ class User{
 
             const passwordHash = shajs('sha256').update(password).digest('hex');
 
-            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0)";
+            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0)";
 
             mysql.query(query, [username, passwordHash, now], (err) =>{
 
@@ -217,8 +217,6 @@ class User{
 
                     bPassed = true;
 
-                    
-
                     const now = Math.floor(Date.now() * 0.001);
                     const expires = this.maxLoginTime;
 
@@ -230,6 +228,7 @@ class User{
                         if(userId !== null){
                             hash = this.createSessionHash(username);
                             await this.saveUserLogin(userId, hash, now, now + expires);
+                            await this.updateLastLogin(userId);
                         }
 
                     }else{
@@ -343,6 +342,40 @@ class User{
         });
     }
 
+    updateLastActive(user){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_users SET last_active=? WHERE id=?";
+
+            const now = Math.floor(Date.now() * 0.001);
+
+            mysql.query(query, [now, user], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    updateLastLogin(user){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_users SET last_login=?,logins=logins+1 WHERE id=?";
+
+            const now = Math.floor(Date.now() * 0.001);
+
+            mysql.query(query, [now, user], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
     async bLoggedIn(cookies){
 
         try{
@@ -371,6 +404,19 @@ class User{
                     }else{
 
                         await this.updateSessionExpire(cookies.sid);
+                        //await this.updateLastActive();
+
+                        console.log("session");
+                        console.log("session");
+                        console.log("session");
+                        console.log("session");
+                        console.log("session");
+                        console.log("session");
+                        console.log("session");
+                        console.log("session");
+                        console.log(session);
+
+                        await this.updateLastActive(session.user);
 
                         return true;
                     }
@@ -408,6 +454,26 @@ class User{
                 }
 
                 resolve(false);
+            });
+        });
+    }
+
+
+    getAll(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name,joined,activated,logins,admin FROM nstats_users ORDER BY name ASC";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
             });
         });
     }

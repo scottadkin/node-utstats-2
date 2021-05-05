@@ -1,6 +1,7 @@
 const mysql = require("./database");
 const fs = require('fs');
 const Maps = require('./maps');
+const User = require('./user');
 
 class Admin{
 
@@ -20,6 +21,22 @@ class Admin{
         }catch(err){
             console.trace(err);
         }
+    }
+
+
+    async getAllUsers(){
+
+        try{
+
+            const u = new User();
+
+            const data = await u.getAll();
+
+            return data;
+
+        }catch(err){
+            console.trace(err);
+        }   
     }
 
 }

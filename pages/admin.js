@@ -9,13 +9,14 @@ import styles from '../styles/Admin.module.css';
 import AdminSettingsTable from '../components/AdminSettingsTable/';
 import AdminManager from '../api/admin';
 import Functions from '../api/functions';
+import AdminUserTable from '../components/AdminUserTable/'
 
 class Admin extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"mode": 1, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
+        this.state = {"mode": 2, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
@@ -238,7 +239,8 @@ class Admin extends React.Component{
             <form className="form"  method="POST" encType="multipart/form-data" onSubmit={this.uploadImage}>
                 <div className="form-info">
                     Image names must be in all lowercase(Automatically done) without the gametype prefix. e.g CTF-Face.unr image file should be called face.jpg.<br/>
-                    For best results the image should be in 16:9 aspect ratio, smaller files for icons are dynamically created by the site when needed.
+                    For best results the image should be in 16:9 aspect ratio, smaller files for icons are dynamically created by the site when needed.<br/>
+                    Important: Remove the following characters from map names(Next.js doesn't seem to like them for next/image file names) [ ] ` 
                 </div>
                 <input type="file" 
                 accept={`.jpg,.jpeg`}
@@ -328,6 +330,13 @@ class Admin extends React.Component{
         </div>
     }
 
+    displayUserAccounts(){
+
+        if(this.state.mode !== 2) return null; 
+
+        return <AdminUserTable accounts={this.props.userAccounts}/>;
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -352,10 +361,14 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(1);
                             })}>Map Image Uploader</div>
+                            <div className={`big-tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(2);
+                            })}>Manage User Accounts</div>
                         </div>
                         {this.displaySettings()}
                         {this.displayMapImageUpload()}
                         {this.displayMapImageUploadList()}
+                        {this.displayUserAccounts()}
                     </div>   
                 </div>
 
@@ -384,6 +397,7 @@ export async function getServerSideProps({req, query}){
     let validSiteSettings = {};
 
     let mapFiles = [];
+    let userAccounts = [];
 
     if(bUserAdmin){
 
@@ -402,6 +416,7 @@ export async function getServerSideProps({req, query}){
         const admin = new AdminManager();
 
         mapFiles = await admin.getMapsFolder();
+        userAccounts = await admin.getAllUsers();
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -415,7 +430,8 @@ export async function getServerSideProps({req, query}){
             "bUserAdmin": bUserAdmin,
             "siteSettings": JSON.stringify(currentSiteSettings),
             "validSiteSettings": JSON.stringify(validSiteSettings),
-            "mapFiles": JSON.stringify(mapFiles)
+            "mapFiles": JSON.stringify(mapFiles),
+            "userAccounts": JSON.stringify(userAccounts)
         }
     };
 }
