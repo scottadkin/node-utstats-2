@@ -23,11 +23,20 @@ class Admin extends React.Component{
     onChange(e){
 
 
-        console.log(e.target.files[0]);
+        //console.log(e.target.files[0]);
 
-        this.setState({"files": e.target.files[0]});
-        console.log("this.state");
-        console.log(this.state);
+        //this.setState({"files": e.target.files[0]});
+
+
+        const files = [];
+
+        for(let i = 0; i < e.target.files.length; i++){
+
+            files.push(e.target.files[i]);
+
+        }
+
+        this.setState({"files": files});
     }
 
     changeMode(id){
@@ -126,9 +135,13 @@ class Admin extends React.Component{
 
 
 
-            formData.append("files", this.state.files);
+            //formData.append("files", this.state.files);
 
-            console.log(formData);
+            for(let i = 0; i < this.state.files.length; i++){
+
+                formData.append("files", this.state.files[i]);
+            }
+
 
             if(process.browser){
                 const req = await fetch(`/api/mapimageupload`, {
@@ -150,7 +163,10 @@ class Admin extends React.Component{
         return <div>
             <div className="default-header">Map Image Uploader</div>
             <form className="form"  method="POST" encType="multipart/form-data" onSubmit={this.uploadImage}>
-                <input type="file" name="files" id="files" onChange={this.onChange}/>
+                <input type="file" 
+                accept={`.jpg,.jpeg`}
+                
+                name="files" multiple={true} id="files" onChange={this.onChange}/>
                 <input type="submit" className="search-button" value="Upload" />
             </form>
         </div>
