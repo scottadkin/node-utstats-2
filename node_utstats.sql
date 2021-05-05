@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 06, 2021 at 12:33 AM
+-- Generation Time: May 06, 2021 at 01:23 AM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -763,7 +763,9 @@ CREATE TABLE `nstats_sessions` (
   `date` int(11) NOT NULL,
   `user` int(11) NOT NULL,
   `hash` varchar(64) NOT NULL,
-  `expires` int(11) NOT NULL
+  `created` int(11) NOT NULL,
+  `expires` int(11) NOT NULL,
+  `login_ip` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -794,7 +796,8 @@ CREATE TABLE `nstats_users` (
   `logins` int(11) NOT NULL,
   `admin` int(11) NOT NULL,
   `last_login` int(11) NOT NULL,
-  `last_active` int(11) NOT NULL
+  `last_active` int(11) NOT NULL,
+  `last_ip` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

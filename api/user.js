@@ -139,7 +139,7 @@ class User{
         });
     }
 
-    createUser(username, password){
+    createUser(username, password, ip){
 
         return new Promise((resolve, reject) =>{
 
@@ -147,9 +147,9 @@ class User{
 
             const passwordHash = shajs('sha256').update(password).digest('hex');
 
-            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0)";
+            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?)";
 
-            mysql.query(query, [username, passwordHash, now], (err) =>{
+            mysql.query(query, [username, passwordHash, now, ip], (err) =>{
 
                 if(err) reject(err);
 
@@ -158,7 +158,7 @@ class User{
         });
     }
 
-    async register(username, password, password2){
+    async register(username, password, password2, ip){
 
         try{
 
@@ -183,7 +183,7 @@ class User{
 
             if(errors.length === 0){
 
-                await this.createUser(username, password);
+                await this.createUser(username, password, ip);
 
                 bPassed = true;
             }
@@ -197,7 +197,7 @@ class User{
     }
 
 
-    async login(username, password){
+    async login(username, password, ip){
 
         try{
 
@@ -227,7 +227,7 @@ class User{
 
                         if(userId !== null){
                             hash = this.createSessionHash(username);
-                            await this.saveUserLogin(userId, hash, now, now + expires);
+                            await this.saveUserLogin(userId, hash, now, now + expires, ip);
                             await this.updateLastLogin(userId);
                         }
 
@@ -274,16 +274,16 @@ class User{
     }
 
 
-    saveUserLogin(name, hash, date, expires){
+    saveUserLogin(name, hash, date, expires, ip){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?)";
+            const query = "INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?,?,?)";
 
-            mysql.query(query, [date, name, hash, expires], (err, result) =>{
+            const now = Math.floor(Date.now() * 0.001);
+            mysql.query(query, [date, name, hash, now, expires, ip], (err) =>{
 
                 if(err) reject(err);
-
 
                 resolve();
             });
@@ -342,15 +342,15 @@ class User{
         });
     }
 
-    updateLastActive(user){
+    updateLastActive(user, ip){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "UPDATE nstats_users SET last_active=? WHERE id=?";
+            const query = "UPDATE nstats_users SET last_active=?,last_ip=? WHERE id=?";
 
             const now = Math.floor(Date.now() * 0.001);
 
-            mysql.query(query, [now, user], (err) =>{
+            mysql.query(query, [now, ip, user], (err) =>{
 
                 if(err) reject(err);
 
@@ -376,7 +376,7 @@ class User{
         });
     }
 
-    async bLoggedIn(cookies){
+    async bLoggedIn(cookies, ip){
 
         try{
 
@@ -384,7 +384,6 @@ class User{
             
             cookies = cookie.parse(cookies);
 
-            console.log(cookies);
 
             if(cookies.sid !== undefined){
 
@@ -392,8 +391,6 @@ class User{
 
                 if(session !== null){
 
-                    console.log("session");
-                    console.log(session);
                     //check if it has expired
 
                     const now = Math.floor(Date.now() * 0.001);
@@ -406,17 +403,7 @@ class User{
                         await this.updateSessionExpire(cookies.sid);
                         //await this.updateLastActive();
 
-                        console.log("session");
-                        console.log("session");
-                        console.log("session");
-                        console.log("session");
-                        console.log("session");
-                        console.log("session");
-                        console.log("session");
-                        console.log("session");
-                        console.log(session);
-
-                        await this.updateLastActive(session.user);
+                        await this.updateLastActive(session.user, ip);
 
                         return true;
                     }
@@ -444,8 +431,6 @@ class User{
                 if(result !== undefined){
 
                     if(result.length > 0){
-
-                        console.log(result);
 
                         if(result[0].total_users > 0){
                             resolve(true);

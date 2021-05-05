@@ -239,7 +239,7 @@ export async function getServerSideProps({req, query}){
         Functions.setIdNames(data[i].data, playerNamesIdCountryPairs, 'player_id', 'country');
     }
 
-    const session = new Session(req.headers.cookie);
+    const session = new Session(req);
 
 	await session.load();
 

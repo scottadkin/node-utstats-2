@@ -1595,7 +1595,7 @@ export async function getServerSideProps({req, query}){
 
     let matchId = (query.id !== undefined) ? parseInt(query.id) : parseInt(null);
 
-    const session = new Session(req.headers.cookie);
+    const session = new Session(req);
 
 	await session.load();
 

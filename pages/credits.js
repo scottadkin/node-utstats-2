@@ -34,7 +34,7 @@ function Credits({session, navSettings}){
 export async function getServerSideProps({req}){
 
 
-    const session = new Session(req.headers.cookie);
+    const session = new Session(req);
 
 	await session.load();
 

@@ -31,14 +31,23 @@ export default async (req, res) =>{
 
                 password2 = req.body.password2;
 
-                result = await user.register(username, password, password2);
+                result = await user.register(username, password, password2, req.socket.remoteAddress);
                 errors = (result.errors !== undefined) ? result.errors : [];
 
+  
                 //finish this
+
+                if(errors.length === 0){
+                    res.statusCode = 200;
+                    res.json({
+                            "bPassed": true,
+                            "errors": errors
+                    });
+                }
               
             }else if(mode === 0){
 
-                result = await user.login(username, password);
+                result = await user.login(username, password, req.socket.remoteAddress);
 
                 errors = (result.errors !== undefined) ? result.errors : [];
 
@@ -66,8 +75,6 @@ export default async (req, res) =>{
                     })
                 ]);
 
-                    console.log(errors);
-
                     res.statusCode = 200;
                     res.json({
                         "sid": hash,
@@ -76,6 +83,13 @@ export default async (req, res) =>{
                 }
             }
             
+            console.log("ERROROSORORSO");
+            console.log("ERROROSORORSO");
+            console.log("ERROROSORORSO");
+            console.log("ERROROSORORSO");
+
+            console.log(errors);
+
             if(errors.length > 0){
                 res.status(200).json({"errors": errors})
             }

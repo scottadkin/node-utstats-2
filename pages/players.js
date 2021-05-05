@@ -343,7 +343,7 @@ export async function getServerSideProps({req, query}){
 
     records = JSON.stringify(records);
 
-    const session = new Session(req.headers.cookie);
+    const session = new Session(req);
 
 	await session.load();
 

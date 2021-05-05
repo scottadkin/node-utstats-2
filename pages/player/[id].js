@@ -405,7 +405,7 @@ export async function getServerSideProps({req, query}) {
 		itemNames = await itemManager.getNamesByIds(uniqueItemIds);
 	}
 
-	const session = new Session(req.headers.cookie);
+	const session = new Session(req);
 
 	await session.load();
 

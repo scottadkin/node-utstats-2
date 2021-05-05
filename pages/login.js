@@ -285,7 +285,7 @@ export async function getServerSideProps({query, req}){
     const bLoggedIn = await userManager.bLoggedIn(cookies);
 
     console.log(`logged in = ${bLoggedIn}`);
-    const session = new Session(req.headers.cookie);
+    const session = new Session(req);
 
 	await session.load();
 

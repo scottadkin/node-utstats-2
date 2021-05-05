@@ -5,16 +5,23 @@ const cookie = require('cookie');
 
 class Session{
 
-    constructor(cookies){
+    constructor(req){
 
         this.user = new User();
-        this.rawCookies = cookies;
+        this.rawCookies = req.headers.cookie;
 
-        if(cookies !== undefined){
-            this.cookies = cookie.parse(cookies);
+        if(req.headers.cookie !== undefined){
+            this.cookies = cookie.parse(req.headers.cookie);
         }else{
             this.cookies = {};
         }
+
+
+        this.userIp = -1;
+
+        if(req.socket.remoteAddress !== undefined) this.userIp = req.socket.remoteAddress;
+
+        console.log(`User's IP Address is ${this.userIp}`);
 
         this.settings = {};
 
@@ -34,7 +41,7 @@ class Session{
 
         try{
 
-            const bLoggedIn = await this.user.bLoggedIn(this.rawCookies);
+            const bLoggedIn = await this.user.bLoggedIn(this.rawCookies, this.userIp);
 
             console.log(`session.load bLoggedIn ${bLoggedIn}`);
 

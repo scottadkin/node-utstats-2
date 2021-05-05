@@ -216,7 +216,7 @@ class Matches extends React.Component{
 export async function getServerSideProps({req, query}){
 
 
-    const session = new Session(req.headers.cookie);
+    const session = new Session(req);
 
 	await session.load();
 

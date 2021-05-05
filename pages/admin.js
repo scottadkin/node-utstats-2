@@ -49,7 +49,7 @@ class Admin extends React.Component{
 
             formData.append("files", file);
 
-            console.log(formData);
+           // console.log(formData);
 
 
             const req = await fetch("/api/mapimageupload", {
@@ -197,7 +197,7 @@ class Admin extends React.Component{
 
             for(let i = 0; i < this.state.files.length; i++){
 
-                console.log(this.state.files[i]);
+               // console.log(this.state.files[i]);
 
                 names.push(this.state.files[i].name);
 
@@ -383,7 +383,7 @@ class Admin extends React.Component{
 export async function getServerSideProps({req, query}){
 
     const user = new User();
-    const session = new Session(req.headers.cookie);
+    const session = new Session(req);
     const settings = new SiteSettings();
     
 
@@ -423,6 +423,7 @@ export async function getServerSideProps({req, query}){
 
     console.log(`Is this user an admin ${bUserAdmin}`);
 
+    
     return {
         props: {
             "navSettings": JSON.stringify(navSettings),

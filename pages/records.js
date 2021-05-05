@@ -417,7 +417,7 @@ export async function getServerSideProps({req, query}){
 
     let typeIndex = 0;
 
-    const session = new Session(req.headers.cookie);
+    const session = new Session(req);
 
 	await session.load();
 
@@ -451,13 +451,10 @@ export async function getServerSideProps({req, query}){
 
             mode = parseInt(session.cookies["recordsMode"]);
 
-            console.log(`momomomomomomomom  = ${mode}`);
             if(mode !== 0 && mode !== 1) mode = 0;
         }   
     }
 
-
-    console.log(`mmmmmmmmmmmmmmmmmmmmmmmmmmmode = ${mode}`);
 
     if(query.type !== undefined){
 

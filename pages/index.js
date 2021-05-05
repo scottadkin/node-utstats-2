@@ -182,7 +182,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 export async function getServerSideProps({req}) {
 
-	const session = new Session(req.headers.cookie);
+	const session = new Session(req);
 
 	await session.load();
 
