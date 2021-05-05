@@ -14,7 +14,7 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
         keywords = `${keywords},`;
     }
     if(image === undefined) image = "defaultmap";
-    if(imageType === undefined) image = "jpg";
+    if(imageType === undefined) imageType = "jpg";
 
     // <meta property="og:image:secure_url" content={`https://${host}/images/${image}.jpg`} />
     return (
