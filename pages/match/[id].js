@@ -1288,7 +1288,8 @@ class PlayerGraphPingData{
 
 function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
     domPlayerScoreData, ctfCaps, ctfEvents,
-    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges, currentRankings}){
+    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
+    rankingPositions}){
 
     //for default head open graph image
     const imageReg = /^.+\/(.+)\.jpg$/i;
@@ -1498,7 +1499,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     }
     
     if(pageSettings["Display Rankings"] === "true"){
-        elems.push(<MatchRankingChanges key={"r-changes"} changes={rankingChanges} playerNames={playerNames} currentRankings={currentRankings}/>);
+        elems.push(<MatchRankingChanges key={"r-changes"} positions={rankingPositions} changes={rankingChanges} playerNames={playerNames} currentRankings={currentRankings}/>);
     }
 
     if(pageSettings["Display Player Ping Graph"] === "true"){
@@ -1795,11 +1796,17 @@ export async function getServerSideProps({req, query}){
 
     let rankingChanges = [];
     let currentRankings = [];
+    let rankingPositions = {};
     
 
     if(pageSettings["Display Rankings"] === "true"){
         rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
         currentRankings = await rankingsManager.getCurrentPlayersRanking(playerIds, matchInfo.gametype);
+
+        for(let i = 0; i < currentRankings.length; i++){
+
+            rankingPositions[currentRankings[i].player_id] = await rankingsManager.getGametypePosition(currentRankings[i].ranking, matchInfo.gametype);
+        }
     }
 
     return {
@@ -1831,7 +1838,8 @@ export async function getServerSideProps({req, query}){
             "pingData": JSON.stringify(pingData),
             "headshotData": JSON.stringify(headshotData),
             "rankingChanges": JSON.stringify(rankingChanges),
-            "currentRankings": JSON.stringify(currentRankings)
+            "currentRankings": JSON.stringify(currentRankings),
+            "rankingPositions": JSON.stringify(rankingPositions)
         }
     };
 

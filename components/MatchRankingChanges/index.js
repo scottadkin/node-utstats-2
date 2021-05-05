@@ -31,12 +31,13 @@ function getIcon(value){
     }
 }
 
-const MatchRankingChanges = ({changes, currentRankings, playerNames}) =>{
+const MatchRankingChanges = ({changes, currentRankings, playerNames, positions}) =>{
 
     changes = JSON.parse(changes);
     playerNames = JSON.parse(playerNames);
 
     currentRankings = JSON.parse(currentRankings);
+    positions = JSON.parse(positions);
 
     console.table(currentRankings);
 
@@ -84,7 +85,7 @@ const MatchRankingChanges = ({changes, currentRankings, playerNames}) =>{
             <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.ranking.toFixed(2)}</td>
             <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.match_ranking_change.toFixed(2)}</td>
             <td>{c.match_ranking.toFixed(2)}</td>
-            <td><img className="ranking-icon" src={icon2} alt="icon"/><MouseHoverBox title="Ranking Change" content={rankingString} display={currentRanking.ranking}/></td>
+            <td><span className="ranking-position">({positions[c.player_id]}{Functions.getOrdinal(positions[c.player_id])})</span><img className="ranking-icon" src={icon2} alt="icon"/><MouseHoverBox title="Ranking Change" content={rankingString} display={currentRanking.ranking}/></td>
         </tr>);
     }
 
