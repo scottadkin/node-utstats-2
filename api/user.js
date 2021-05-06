@@ -444,11 +444,11 @@ class User{
     }
 
 
-    getAll(){
+    adminGetAll(){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id,name,joined,activated,logins,admin FROM nstats_users ORDER BY name ASC";
+            const query = "SELECT id,name,joined,activated,logins,admin,last_login,last_active,last_ip FROM nstats_users ORDER BY name ASC";
 
             mysql.query(query, (err, result) =>{
 
@@ -459,6 +459,22 @@ class User{
                 }
 
                 resolve([]);
+            });
+        });
+    }
+
+
+    activateAccount(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_users SET activated=1 WHERE id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
             });
         });
     }

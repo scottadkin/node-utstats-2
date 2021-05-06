@@ -30,13 +30,29 @@ class Admin{
 
             const u = new User();
 
-            const data = await u.getAll();
+            const data = await u.adminGetAll();
 
             return data;
 
         }catch(err){
             console.trace(err);
         }   
+    }
+
+    async activateAccount(id){
+
+        try{
+
+            const u = new User();
+
+            await u.activateAccount(id);
+
+            return true;
+
+        }catch(err){
+            console.trace(err);
+            return false;
+        }
     }
 
 }

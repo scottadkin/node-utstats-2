@@ -1,0 +1,13 @@
+.activate{
+    background-color:rgb(0,155,0);
+    border:1px solid var(--border-color-1);
+    color:white;
+    font-size:14px;
+    padding:5px;
+}
+
+.activate:hover{
+    cursor: pointer;
+    background-color:rgb(0,185,0);
+    border:1px solid white;
+}
