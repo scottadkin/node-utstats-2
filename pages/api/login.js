@@ -83,11 +83,6 @@ export default async (req, res) =>{
                 }
             }
             
-            console.log("ERROROSORORSO");
-            console.log("ERROROSORORSO");
-            console.log("ERROROSORORSO");
-            console.log("ERROROSORORSO");
-
             console.log(errors);
 
             if(errors.length > 0){

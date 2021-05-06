@@ -376,6 +376,35 @@ class User{
         });
     }
 
+    bUserActivatedById(userId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as activated_accounts FROM nstats_users WHERE id=? AND activated=1";
+
+            console.log(`id = ${userId}`);
+            mysql.query(query, [userId], (err, result) =>{
+
+                if(err) reject(err);
+                
+                if(result !== undefined){
+
+                    if(result.length > 0){
+
+                        console.log(result);
+                        
+                        if(result[0].activated_accounts > 0){
+                            resolve(true);
+                        }
+                    }
+                }
+
+                resolve(false);
+            });
+
+        });
+    }
+
     async bLoggedIn(cookies, ip){
 
         try{
@@ -394,6 +423,13 @@ class User{
                     //check if it has expired
 
                     const now = Math.floor(Date.now() * 0.001);
+
+                    const bActivated = await this.bUserActivatedById(session.user);
+
+                    if(!bActivated){
+                        await this.deleteSession(cookies.sid);
+                        return false;
+                    }
 
                     if(now > session.expires){
                         console.log("session expired");

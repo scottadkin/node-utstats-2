@@ -5,9 +5,11 @@ import User from '../../api/user';
 export default async (req, res) =>{
 
     let bPassed = false;
-    let cookies = req.headers.cookie;
-
-    console.log(cookies);
+    let cookies = [];
+    
+    if(req.headers.cookie !== undefined){
+        cookies = req.headers.cookie;
+    }
 
     //cookies = cookie.parse(cookies);
 

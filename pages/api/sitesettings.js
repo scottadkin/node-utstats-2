@@ -3,12 +3,10 @@ import SiteSettings from '../../api/sitesettings';
 
 export default async (req, res) =>{
 
-    const s = new Session(req.headers.cookie);
+    const s = new Session(req);
 
     await s.load();
 
-    console.log("req.headers.cookie");
-    console.log(req.headers.cookie);
 
     const bUserAdmin = await s.bUserAdmin();
 

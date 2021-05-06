@@ -8,10 +8,10 @@ export default async (req, res) =>{
 
         await session.load();
 
-        if(session.bUserAdmin()){   
+        if(await session.bUserAdmin()){   
 
             const body = JSON.parse(req.body);
-            
+
             if(body.userId !== undefined){
 
                 const a = new Admin();
