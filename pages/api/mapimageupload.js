@@ -15,13 +15,7 @@ export default async (req, res) =>{
 
     const form = new formidable.IncomingForm(/*{"maxFileSize": (1024 * 1024) * 5}*/);
 
-    let cookies = [];
-
-    if(req.headers.cookie !== undefined){
-        cookies = req.headers.cookie;
-    }
-
-    const session = new Session(cookies);
+    const session = new Session(req);
 
     if(await session.bUserAdmin()){
 
