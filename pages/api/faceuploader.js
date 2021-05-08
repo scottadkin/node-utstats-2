@@ -20,6 +20,7 @@ export default async (req, res) =>{
         const form = new formidable.IncomingForm();
 
         let tempFiles = [];
+        let fileNames = [];
 
         form.uploadDir = "./uploads/";
         form.keepExtensions = false;
@@ -28,12 +29,20 @@ export default async (req, res) =>{
 
             if(err) console.log(err);
         
-            console.log(fields);
-
+            console.log(files);
+            
             if(fields.single !== undefined){
 
                 let fileName = fields.name.toLowerCase();
                 fs.renameSync(tempFiles[0], `./public/images/faces/${fileName}.png`);
+
+            }else{
+
+                for(let i = 0; i < tempFiles.length; i++){
+
+                    fs.renameSync(tempFiles[i], `./public/images/faces/${fileNames[i]}`)
+                }
+
             }
         
         });
@@ -57,6 +66,7 @@ export default async (req, res) =>{
         form.on("file", (name, file) =>{
 
             tempFiles.push(file.path);
+            fileNames.push(file.name);
 
             
         })

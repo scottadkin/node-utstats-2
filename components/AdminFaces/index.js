@@ -10,9 +10,53 @@ class AdminFaces extends React.Component{
 
         this.state = {"files": JSON.parse(this.props.files)};
         this.singleSubmit = this.singleSubmit.bind(this);
+        this.bulkUpload = this.bulkUpload.bind(this);
 
     }
 
+
+    async bulkUpload(e){
+
+        try{
+
+            e.preventDefault();
+
+            console.log(e.target);
+
+            console.log(e.target.files.files);
+
+            const formData = new FormData();
+
+            const fileNames = [];
+
+            let f = 0;
+
+            for(let i = 0; i < e.target.files.files.length; i++){
+
+                f = e.target.files.files[i];
+
+                formData.append(`f_${i}`, f);
+
+                fileNames.push(f.name);
+
+            }
+
+            const req = await fetch("/api/faceuploader", {
+                "method": "POST",
+                "body": formData
+            });
+
+
+            const res = await req.json();
+
+            if(res.message == "passed"){
+                this.updateFileStatus(fileNames);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 
     async singleSubmit(e){
 
@@ -62,7 +106,14 @@ class AdminFaces extends React.Component{
 
         const previous = this.state.files;
 
-        previous.push(`${name}.png`);
+        if(!Array.isArray(name)){
+            previous.push(`${name}.png`);
+        }else{
+
+            for(let i = 0; i < name.length; i++){
+                previous.push(name[i]);
+            }
+        }
 
         this.setState({"files": previous});
     }
@@ -128,13 +179,29 @@ class AdminFaces extends React.Component{
                     Files must be .png format.<br/>
                     Files must be in a 1:1 aspect ratio.<br/>
                     Files must be at least 64x64 to not look blurry.<br/>
+                    File names are automatically set in Single Upload.
                     
                 </div>
             </div>
 
             <div className="default-header">Bulk Face Image Uploader</div>
 
+            <div className="form">
+                <div className="form-info">
+                    
+                    <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.bulkUpload}>
+                        <input type="file" name="files" className="m-bottom-25 m-top-25" multiple={true} accept=".png"/>
+                        <input type="submit" className="search-button" value="Upload"/>
+                    </form>
+                    
+                </div>
+            </div>
+
+ 
             <div className="default-header">Single Upload</div>
+
+       
+
             {this.displayAll()}
         </div>
     }
