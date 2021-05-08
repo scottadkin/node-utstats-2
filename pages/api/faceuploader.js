@@ -63,7 +63,7 @@ export default async (req, res) =>{
 
 
 
-        res.status(200).json({"message": "Hi"});
+        res.status(200).json({"message": "passed"});
 
     }else{
         res.status(200).json({"message": "ACCES DENIED"});

@@ -8,7 +8,9 @@ class AdminFaces extends React.Component{
 
         super(props);
 
+        this.state = {"files": JSON.parse(this.props.files)};
         this.singleSubmit = this.singleSubmit.bind(this);
+
     }
 
 
@@ -44,10 +46,25 @@ class AdminFaces extends React.Component{
 
             console.log(res);
 
+
+            if(res.message == "passed"){
+                console.log("PPSPASPASPSP");
+                this.updateFileStatus(fileName);
+            }
+
         }catch(err){
             console.trace(err);
         }
 
+    }
+
+    updateFileStatus(name){
+
+        const previous = this.state.files;
+
+        previous.push(`${name}.png`);
+
+        this.setState({"files": previous});
     }
 
     displayAll(){
@@ -55,7 +72,7 @@ class AdminFaces extends React.Component{
         const rows = [];
 
         const data = JSON.parse(this.props.data);
-        const files = JSON.parse(this.props.files);
+        const files = this.state.files;
 
         let d = 0;
 
