@@ -322,6 +322,32 @@ class Faces{
             });
         });
     }
+
+
+    getAll(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name,first,last,uses FROM nstats_faces ORDER BY uses DESC";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+
+    getAllFiles(){
+
+        return fs.readdirSync("./public/images/faces");
+    }
 }
 
 module.exports = Faces;

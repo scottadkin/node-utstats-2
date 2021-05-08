@@ -9,14 +9,16 @@ import styles from '../styles/Admin.module.css';
 import AdminSettingsTable from '../components/AdminSettingsTable/';
 import AdminManager from '../api/admin';
 import Functions from '../api/functions';
-import AdminUserTable from '../components/AdminUserTable/'
+import AdminUserTable from '../components/AdminUserTable/';
+import Faces from '../api/faces';
+import AdminFaces from '../components/AdminFaces/';
 
 class Admin extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"mode": 2, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
+        this.state = {"mode": 3, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
@@ -337,6 +339,14 @@ class Admin extends React.Component{
         return <AdminUserTable accounts={this.props.userAccounts}/>;
     }
 
+
+    displayFaces(){
+
+        if(this.state.mode !== 3) return null;
+
+        return <AdminFaces data={this.props.faceData} files={this.props.faceFiles}/>
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -358,17 +368,22 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(0);
                             })}>Site Settings</div>
-                            <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                                this.changeMode(1);
-                            })}>Map Image Uploader</div>
                             <div className={`big-tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(2);
                             })}>Manage User Accounts</div>
+                            <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(1);
+                            })}>Map Image Uploader</div>
+                            <div className={`big-tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(3);
+                            })}>Face Image Uploader</div>
+                            
                         </div>
                         {this.displaySettings()}
                         {this.displayMapImageUpload()}
                         {this.displayMapImageUploadList()}
                         {this.displayUserAccounts()}
+                        {this.displayFaces()}
                     </div>   
                 </div>
 
@@ -385,6 +400,7 @@ export async function getServerSideProps({req, query}){
     const user = new User();
     const session = new Session(req);
     const settings = new SiteSettings();
+    const faceManager = new Faces();
     
 
     await session.load();
@@ -398,6 +414,8 @@ export async function getServerSideProps({req, query}){
 
     let mapFiles = [];
     let userAccounts = [];
+    let faceData = [];
+    let faceFiles = [];
 
     if(bUserAdmin){
 
@@ -417,6 +435,10 @@ export async function getServerSideProps({req, query}){
 
         mapFiles = await admin.getMapsFolder();
         userAccounts = await admin.getAllUsers();
+        faceData = await faceManager.getAll();
+        
+        faceFiles = faceManager.getAllFiles();
+
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -432,7 +454,9 @@ export async function getServerSideProps({req, query}){
             "siteSettings": JSON.stringify(currentSiteSettings),
             "validSiteSettings": JSON.stringify(validSiteSettings),
             "mapFiles": JSON.stringify(mapFiles),
-            "userAccounts": JSON.stringify(userAccounts)
+            "userAccounts": JSON.stringify(userAccounts),
+            "faceData": JSON.stringify(faceData),
+            "faceFiles": JSON.stringify(faceFiles)
         }
     };
 }

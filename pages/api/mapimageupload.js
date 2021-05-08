@@ -1,12 +1,13 @@
 import formidable from 'formidable';
 import fs from 'fs';
 import Session from '../../api/session';
+import Functions from '../../api/functions';
 
 export const config = {
     api: {
         bodyParser: false,
     },
-  };
+};
 
 export default async (req, res) =>{
 
@@ -29,11 +30,7 @@ export default async (req, res) =>{
 
         form.parse(req, (err, fields, files) => {
 
-            console.log("check 3");
-
-            //fs.writeFileSync("potato.fart", "test");
-            
-           // console.log(err, fields, files);
+        
         });
 
 
@@ -48,8 +45,8 @@ export default async (req, res) =>{
 
                     console.log("VALID FILE TYPE");
                 
-
                     form.handlePart(part);
+                    
                 }else{
                     console.log("Not valid file type");
                 }
@@ -62,7 +59,7 @@ export default async (req, res) =>{
 
         form.on("file", (name, file) =>{
 
-            fs.renameSync(file.path, `./public/images/maps/${file.name.toLowerCase()}`);
+            fs.renameSync(file.path, `./public/images/maps/${Functions.cleanMapName(file.name.toLowerCase())}`);
         })
         
 
