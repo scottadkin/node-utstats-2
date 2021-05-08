@@ -64,6 +64,18 @@ function Nav({session, settings}){
                         links.push({"url": `/login`, "text": "Login/Register"});
                     }
                 }
+
+            }else if(key === "Display Admin"){
+
+                if(session.bAdmin && session.bLoggedIn){
+
+                    links.push({
+                        "url": value.url,
+                        "text": value.text,
+                        "alt": value.alt
+                    });
+                }
+
             }else{
 
                 links.push({
