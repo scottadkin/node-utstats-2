@@ -147,7 +147,7 @@ class User{
 
             const passwordHash = shajs('sha256').update(password).digest('hex');
 
-            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?,0)";
+            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?,0,0)";
 
             mysql.query(query, [username, passwordHash, now, ip], (err) =>{
 
@@ -490,7 +490,7 @@ class User{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id,name,joined,activated,logins,admin,last_login,last_active,last_ip FROM nstats_users ORDER BY name ASC";
+            const query = "SELECT id,name,joined,activated,logins,admin,last_login,last_active,last_ip,banned,upload_images FROM nstats_users ORDER BY name ASC";
 
             mysql.query(query, (err, result) =>{
 

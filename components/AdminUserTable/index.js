@@ -84,6 +84,10 @@ class AdminUserTable extends React.Component{
         let adminDisplay = "";
         let activatedClassName = "";
         let activatedDisplay = "";
+        let bannedDisplay = "";
+        let bannedClassName = "";
+        let imagesDisplay = "";
+        let imagesClassName = "";
 
         for(let i = 0; i < this.state.accounts.length; i++){
 
@@ -91,15 +95,21 @@ class AdminUserTable extends React.Component{
 
             activatedClassName = (a.activated) ? "team-green" : "team-red";
             adminClassName = (a.admin) ? "team-green" : "team-red";
+            bannedClassName = (a.banned) ? "team-red" : "team-green" ;
+            imagesClassName = (a.upload_images || a.admin) ? "team-green" : "team-red" ;
 
             activatedDisplay = (a.activated) ? "Yes" : "No";
             adminDisplay = (a.admin) ? "Yes" : "No";
+            bannedDisplay = (a.banned) ? "Yes" : "No";
+            imagesDisplay = (a.upload_images || a.admin) ? "Yes" : "No";
 
             rows.push(<tr key={i}>
                 <td>{a.name}</td>
                 <td><TimeStamp timestamp={a.joined} /></td>
                 <td className={activatedClassName}>{activatedDisplay}</td>
                 <td className={adminClassName}>{adminDisplay}</td>
+                <td className={bannedClassName}>{bannedDisplay}</td>
+                <td className={imagesClassName}>{imagesDisplay}</td>
                 <td>{Functions.ignore0(a.logins)}</td>
                 <td><TimeStamp timestamp={a.last_login} noDayName={true}/></td>
                 <td><TimeStamp timestamp={a.last_active} noDayName={true}/></td>
@@ -116,6 +126,8 @@ class AdminUserTable extends React.Component{
                         <th>Joined</th>
                         <th>Activated</th>
                         <th>Admin</th>
+                        <th>Banned</th>
+                        <th>Upload Images</th>
                         <th>Times Logged In</th>
                         <th>Last Login</th>
                         <th>Last Active</th>

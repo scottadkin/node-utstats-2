@@ -314,8 +314,6 @@ export async function getServerSideProps({req, query}) {
 		gametypeStats = await gametypeManager.getMostPlayed(5);
 	}
 
-	console.log(query);
-
 	return { props: { 
 			"pageSettings": JSON.stringify(pageSettings),
 			"navSettings": JSON.stringify(navSettings),
