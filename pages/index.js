@@ -124,7 +124,7 @@ function createDatesGraphData(data){
 
 
 function Home({navSettings, pageSettings, session, host, matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
-	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces}) {
+	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query}) {
 
 	matchDates = JSON.parse(matchDates);
 
@@ -132,6 +132,21 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 	pageSettings = JSON.parse(pageSettings);
 
+	let message = [];
+
+	if(query.loggedin !== undefined){
+
+		message = <div className="pass">
+			Successfully Logged In.
+		</div>;
+	}
+
+	if(query.loggedout !== undefined){
+
+		message = <div className="pass">
+			Successfully Logged Out.
+		</div>;
+	}
 
 	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
@@ -143,6 +158,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 			<div id="content">
 				<div className="default">
 			
+				{message}
 
 				{(pageSettings["Display Recent Matches"] === "true") ? <div className="default-header">Recent Matches</div> : null }
 				{(pageSettings["Recent Matches Display Type"] == "0") ? <MatchesDefaultView images={mapImages} data={matchesData} /> : 
@@ -180,7 +196,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 }
 
 
-export async function getServerSideProps({req}) {
+export async function getServerSideProps({req, query}) {
 
 	const session = new Session(req);
 
@@ -298,6 +314,8 @@ export async function getServerSideProps({req}) {
 		gametypeStats = await gametypeManager.getMostPlayed(5);
 	}
 
+	console.log(query);
+
 	return { props: { 
 			"pageSettings": JSON.stringify(pageSettings),
 			"navSettings": JSON.stringify(navSettings),
@@ -316,7 +334,8 @@ export async function getServerSideProps({req}) {
 			"faceFiles": JSON.stringify(faceFiles),
 			"mostPlayedMaps": JSON.stringify(mostPlayedMaps),
 			"gametypeStats": JSON.stringify(gametypeStats),
-			"mostUsedFaces": JSON.stringify(mostUsedFaces)
+			"mostUsedFaces": JSON.stringify(mostUsedFaces),
+			"query": query
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}

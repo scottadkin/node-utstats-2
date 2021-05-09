@@ -147,7 +147,7 @@ class User{
 
             const passwordHash = shajs('sha256').update(password).digest('hex');
 
-            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?)";
+            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?,0)";
 
             mysql.query(query, [username, passwordHash, now, ip], (err) =>{
 
@@ -224,11 +224,17 @@ class User{
 
                         const userId = await this.getUserId(username);
 
+                        const bBanned = await this.bBanned(userId);
 
-                        if(userId !== null){
-                            hash = this.createSessionHash(username);
-                            await this.saveUserLogin(userId, hash, now, now + expires, ip);
-                            await this.updateLastLogin(userId);
+                        if(!bBanned){
+
+                            if(userId !== null){
+                                hash = this.createSessionHash(username);
+                                await this.saveUserLogin(userId, hash, now, now + expires, ip);
+                                await this.updateLastLogin(userId);
+                            }
+                        }else{
+                            errors.push(`This account has been banned.`);
                         }
 
                     }else{
@@ -515,6 +521,28 @@ class User{
         });
     }
     
+
+    bBanned(userId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND banned=0";
+
+            mysql.query(query, [userId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result.length > 0){
+
+                        if(result[0].total_users > 0) resolve(false);
+                    }
+                }
+
+                resolve(true);
+            });
+        });
+    }
 }
 
 
