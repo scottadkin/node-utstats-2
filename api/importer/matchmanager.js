@@ -48,7 +48,9 @@ class MatchManager{
                 }
             }
 
-            await Logs.insert(this.fileName);
+            const logId = await Logs.insert(this.fileName);
+
+            new Message(`Log file id is ${logId}`,"note");
 
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
@@ -271,6 +273,9 @@ class MatchManager{
             const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);
             //need to get player current totals then add them to the scores
             await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype);
+
+
+            await Logs.setMatchId(logId, this.matchId);
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 

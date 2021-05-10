@@ -150,7 +150,7 @@ class Importer{
     async openLog(file){
 
         try{
-            let data = fs.readFileSync(file, "ucs2");
+            let data = fs.readFileSync(file, "utf16le");
             data = data.toString();
 
             data = data.replace(/\u0000/ig, '');

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 09, 2021 at 11:36 PM
+-- Generation Time: May 10, 2021 at 11:57 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -289,7 +289,8 @@ CREATE TABLE `nstats_kills` (
 CREATE TABLE `nstats_logs` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `imported` int(11) NOT NULL
+  `imported` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

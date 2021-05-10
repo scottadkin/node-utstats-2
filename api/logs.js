@@ -33,16 +33,39 @@ class Logs{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_logs VALUES(NULL,?,?)";
+            const query = "INSERT INTO nstats_logs VALUES(NULL,?,?,0)";
 
-            mysql.query(query, [name, now], (err) =>{
+            mysql.query(query, [name, now], (err, result) =>{
+
+                if(err) reject(err);
+                
+                if(result !== undefined){
+                    resolve(result.insertId);   
+                }
+
+                resolve(-1);
+            });
+        });
+    }
+
+
+    static setMatchId(logId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_logs SET match_id=? WHERE id=?";
+
+            mysql.query(query, [matchId, logId], (err) =>{
 
                 if(err) reject(err);
 
                 resolve();
             });
+
         });
     }
+
+
 
 }
 
