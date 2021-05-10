@@ -22,6 +22,7 @@ import MapAssaultObjectives from '../../components/MapAssaultObjectives/';
 import MapAddictedPlayers from '../../components/MapAddictedPlayers/';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
+import MapImageUploader from '../../components/MapImageUploader/';
 
 class Map extends React.Component{
 
@@ -39,6 +40,9 @@ class Map extends React.Component{
         const basic = JSON.parse(this.props.basic);
         const image = this.props.image;
         const matches = this.props.matches;
+
+        const session = JSON.parse(this.props.session);
+        console.log(session);
 
         return <div>
         <DefaultHead host={this.props.host} 
@@ -112,6 +116,9 @@ class Map extends React.Component{
                             </tbody>
                         </table>
                     </div>}
+
+                    {(!session.bUploadImages) ? null :
+                    <MapImageUploader name={Functions.cleanMapName(basic.name.toLowerCase())}/>}
 
                     {(this.props.pageSettings["Display Games Played"] === "false") ? null : 
                     <div>

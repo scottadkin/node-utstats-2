@@ -23,7 +23,9 @@ class Session{
 
         console.log(`User's IP Address is ${this.userIp}`);
 
-        this.settings = {};
+        this.settings = {
+            "bUploadImages": false
+        };
 
 
         this.addCookies();
