@@ -580,6 +580,44 @@ class User{
             });
         });
     }
+
+    bUploadImages(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND upload_images=1";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    if(result.length > 0){
+
+                        if(result[0].total_users > 0) resolve(true);
+                    }
+                }
+
+                resolve(false);
+            });
+        });
+    }
+
+    changeBanValue(id, value){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_users SET banned=? WHERE id=?";
+
+            mysql.query(query, [value, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 

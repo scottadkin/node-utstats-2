@@ -49,6 +49,8 @@ class Session{
 
             this.settings.bAdmin = await this.bUserAdmin();
 
+           // this.settings.bUploadImages = await this.
+
        
 
         }catch(err){
@@ -90,8 +92,16 @@ class Session{
                 if(this.settings.sid !== ""){
 
                     const userId = await this.getUserId(this.settings.sid);
+
+                    const bAdmin = await this.user.bAdmin(userId);
+
+                    if(!bAdmin){
+                        this.settings.bUploadImages = await this.user.bUploadImages(userId);
+                    }else{
+                        this.settings.bUploadImages = true;
+                    }
               
-                    return await this.user.bAdmin(userId);
+                    return bAdmin
                 }
             }
 

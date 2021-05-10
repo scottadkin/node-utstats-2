@@ -10,11 +10,36 @@ class AdminUserTable extends React.Component{
 
         super(props);
 
-        this.state = {"accounts": JSON.parse(this.props.accounts), "mode": 2};
+        this.state = {"accounts": JSON.parse(this.props.accounts), "mode": 3};
 
         this.changeMode = this.changeMode.bind(this);
         this.activateUser = this.activateUser.bind(this);
         this.changePermission = this.changePermission.bind(this);
+        this.banUser = this.banUser.bind(this);
+    }
+
+    async banUser(id, value){
+
+        try{
+
+            console.log(id, value);
+
+            const req = await fetch("/api/banaccount", {
+                "headers": {"Content-Type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"id": id, "value": value})
+            });
+
+            console.log(`update user account ban status ${id} to value ${value}`);
+
+            const result = await req.json();
+
+            console.log(result);
+
+
+        }catch(err){
+            console.log(err);
+        }
     }
 
     async changePermission(type, id, value){
@@ -40,7 +65,9 @@ class AdminUserTable extends React.Component{
 
                 const result = await req.json();
 
-                this.updateUserAccountPermission(type, id, value);
+                if(result.message === "passed"){
+                    this.updateUserAccountPermission(type, id, value);
+                }
 
             }catch(err){
                // console.trace(err);
@@ -292,16 +319,23 @@ class AdminUserTable extends React.Component{
 
         let a = 0;
 
+        let bUploadImages = false;
 
         for(let i = 0; i < this.state.accounts.length; i++){
 
             a = this.state.accounts[i];
 
+            bUploadImages = a.upload_images;
+
+            if(a.admin){
+                bUploadImages = 1;
+            }
+
 
             rows.push(<tr key={i}>
                 <td>{a.name}</td>
                 <TrueFalse value={a.admin} bTable={true}/>
-                <TrueFalse value={a.upload_images} bTable={true}/>
+                <TrueFalse value={bUploadImages} bTable={true}/>
                 {this.createAdminPermissionRow(a)}
                 {this.createImagePermissionRow(a)}
             </tr>);
@@ -318,6 +352,62 @@ class AdminUserTable extends React.Component{
                         <th>Upload Images</th>
                         <th>Change Admin</th>
                         <th>Change Images</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
+    createBanTableRow(user){
+
+        let value = user.banned;
+
+        if(value === 1){
+            value = 0;
+        }else{
+            value = 1;
+        }
+
+        return <tr key={user.id}>
+            <td>{user.name}</td>
+            <TrueFalse value={user.banned} bTable={true}/>
+            <td>
+                <div className={styles.permission} onClick={(() =>{
+                    this.banUser(user.id, value);
+                })}>
+                    {(user.banned) ? "Unban" : "Ban"} User
+                </div>
+            </td>
+        </tr>
+    }
+
+    renderBanTable(){
+
+        if(this.state.mode !== 3) return null;
+
+        const rows = [];
+
+
+        let a = 0;
+
+        for(let i = 0; i < this.state.accounts.length; i++){
+
+            a = this.state.accounts[i];
+
+            rows.push(this.createBanTableRow(a));
+        }
+
+
+
+        return <div>
+            <div className="default-header">Ban Users</div>
+            <table className="t-width-2 td-1-left">
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th>Banned</th>
+                        <th>Update</th>
                     </tr>
                     {rows}
                 </tbody>
@@ -348,6 +438,7 @@ class AdminUserTable extends React.Component{
             {this.displayAll()}
             {this.renderActivateTable()}
             {this.renderPermissionsTable()}
+            {this.renderBanTable()}
         </div>
     }
 }

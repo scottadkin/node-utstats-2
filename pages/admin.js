@@ -18,7 +18,7 @@ class Admin extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"mode": 3, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
+        this.state = {"mode": 2, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
