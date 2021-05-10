@@ -2,6 +2,7 @@ import React from 'react';
 import TimeStamp from '../TimeStamp/';
 import Functions from '../../api/functions';
 import styles from './AdminUserTable.module.css';
+import TrueFalse from '../TrueFalse/';
 
 class AdminUserTable extends React.Component{
 
@@ -9,11 +10,75 @@ class AdminUserTable extends React.Component{
 
         super(props);
 
-        this.state = {"accounts": JSON.parse(this.props.accounts), "mode": 0};
+        this.state = {"accounts": JSON.parse(this.props.accounts), "mode": 2};
 
         this.changeMode = this.changeMode.bind(this);
         this.activateUser = this.activateUser.bind(this);
+        this.changePermission = this.changePermission.bind(this);
     }
+
+    async changePermission(type, id, value){
+
+        if(process.browser){
+
+
+            if(value == 0){
+                value = 1;
+            }else{
+                value = 0;
+            }
+
+            try{
+
+                console.log(`Change user ${id} admin permission  to ${value}`);
+
+                const req = await fetch("/api/permissions", {
+                    "method": "POST",
+                    "headers": {"Content-Type": "multipart/form-data"},
+                    "body": JSON.stringify({"type": type, "user": id, "value": value})
+                });
+
+                const result = await req.json();
+
+                this.updateUserAccountPermission(type, id, value);
+
+            }catch(err){
+               // console.trace(err);
+            }
+        }
+
+    }
+
+    updateUserAccountPermission(type, user, value){
+
+        const previous = this.state.accounts;
+
+        const current = [];
+
+        let p = 0;
+
+        for(let i = 0; i < previous.length; i++){
+
+            p = previous[i];
+
+            if(p.id === user){
+
+                if(type === "admin"){
+                    p.admin = value;
+                }else if(type === "images"){
+                    p.upload_images = value;
+                }
+
+                current.push(p);
+
+            }else{
+                current.push(p);
+            }
+        }
+
+        this.setState({"accounts": current});
+    }
+
 
     async activateUser(e){
 
@@ -193,6 +258,73 @@ class AdminUserTable extends React.Component{
         </div>
     }
 
+
+    createAdminPermissionRow(user){
+
+        return <td>
+        <div onClick={
+                (() =>{
+                    this.changePermission("admin", user.id, user.admin);
+                })
+            } className={styles.permission}>{(user.admin) ? "Remove" : "Give"} Admin</div>
+        </td>
+    }
+
+
+    createImagePermissionRow(user){
+
+        return <td>
+            {(user.admin) ? "" :
+            <div onClick={
+                (() =>{
+                    this.changePermission("images", user.id, user.upload_images);
+                })
+            }
+            className={styles.permission}>{(user.upload_images) ? "Remove" : "Allow"} Image Uploads</div>}
+        </td>
+    }
+
+    renderPermissionsTable(){
+
+        if(this.state.mode !== 2) return null;
+
+        const rows = [];
+
+        let a = 0;
+
+
+        for(let i = 0; i < this.state.accounts.length; i++){
+
+            a = this.state.accounts[i];
+
+
+            rows.push(<tr key={i}>
+                <td>{a.name}</td>
+                <TrueFalse value={a.admin} bTable={true}/>
+                <TrueFalse value={a.upload_images} bTable={true}/>
+                {this.createAdminPermissionRow(a)}
+                {this.createImagePermissionRow(a)}
+            </tr>);
+        }
+
+
+        return <div>
+            <div className="default-header">User Permissions</div>
+            <table className="t-width-1 td-1-left">
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th>Admin</th>
+                        <th>Upload Images</th>
+                        <th>Change Admin</th>
+                        <th>Change Images</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         return <div>
@@ -203,12 +335,19 @@ class AdminUserTable extends React.Component{
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "" }`} onClick={(() =>{
                     this.changeMode(0);
                 })}>Activate Users</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeMode(2);
+                })}>User Permissions</div>
+                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeMode(3);
+                })}>Ban Users</div>
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "" }`} onClick={(() =>{
                     this.changeMode(1);
                 })}>View All</div>
             </div>
             {this.displayAll()}
             {this.renderActivateTable()}
+            {this.renderPermissionsTable()}
         </div>
     }
 }

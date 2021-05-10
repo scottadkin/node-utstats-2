@@ -432,7 +432,14 @@ class User{
 
                     const bActivated = await this.bUserActivatedById(session.user);
 
+                    const bBanned = await this.bBanned(session.user);
+
                     if(!bActivated){
+                        await this.deleteSession(cookies.sid);
+                        return false;
+                    }
+
+                    if(bBanned){
                         await this.deleteSession(cookies.sid);
                         return false;
                     }
@@ -540,6 +547,36 @@ class User{
                 }
 
                 resolve(true);
+            });
+        });
+    }
+
+    changeAdminPermission(id, value){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_users SET admin=? WHERE id=?";
+
+            mysql.query(query, [value, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    changeImagesPermission(id, value){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_users SET upload_images=? WHERE id=?";
+
+            mysql.query(query, [value, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
             });
         });
     }

@@ -64,8 +64,6 @@ class AdminFaces extends React.Component{
 
             e.preventDefault();
 
-            console.log(e);
-
             let fileName = e.target[0].value;
             let file = e.target[1].files[0];
 
@@ -87,9 +85,6 @@ class AdminFaces extends React.Component{
 
 
             const res = await req.json();
-
-            console.log(res);
-
 
             if(res.message == "passed"){
                 console.log("PPSPASPASPSP");
