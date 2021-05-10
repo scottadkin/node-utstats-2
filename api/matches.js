@@ -321,6 +321,37 @@ class Matches{
             });
         });
     }
+
+
+
+    getDuplicates(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name,imported,COUNT(name) as found, match_id FROM nstats_logs GROUP BY name ORDER BY id DESC";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    const found = [];
+
+                    for(let i = 0; i < result.length; i++){
+
+                        if(result[i].found > 1) found.push(result[i]);
+                    }
+
+                    resolve(found);
+                }
+
+                resolve([]);
+            });
+
+        });
+        
+    }
     
 }
 module.exports = Matches;

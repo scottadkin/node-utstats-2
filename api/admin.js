@@ -2,6 +2,7 @@ const mysql = require("./database");
 const fs = require('fs');
 const Maps = require('./maps');
 const User = require('./user');
+const Matches = require('./matches');
 
 class Admin{
 
@@ -52,6 +53,26 @@ class Admin{
         }catch(err){
             console.trace(err);
             return false;
+        }
+    }
+
+
+
+
+    async getDuplicateMatches(){
+
+        try{
+
+
+            const m = new Matches();
+
+            return await m.getDuplicates();
+
+
+            
+
+        }catch(err){
+            console.trace(err);
         }
     }
 

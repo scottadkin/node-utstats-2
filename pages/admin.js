@@ -12,13 +12,14 @@ import Functions from '../api/functions';
 import AdminUserTable from '../components/AdminUserTable/';
 import Faces from '../api/faces';
 import AdminFaces from '../components/AdminFaces/';
+import AdminMatchesManager from '../components/AdminMatchesManager/';
 
 class Admin extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"mode": 2, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
+        this.state = {"mode": 4, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
@@ -347,6 +348,13 @@ class Admin extends React.Component{
         return <AdminFaces data={this.props.faceData} files={this.props.faceFiles}/>
     }
 
+    displayMatches(){
+
+        if(this.state.mode !== 4) return null;
+
+        return <AdminMatchesManager duplicates={this.props.duplicateMatches} />;
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -371,6 +379,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(2);
                             })}>Manage User Accounts</div>
+                            <div className={`big-tab ${(this.state.mode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(4);
+                            })}>Manage Matches</div>
                             <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(1);
                             })}>Map Image Uploader</div>
@@ -384,6 +395,7 @@ class Admin extends React.Component{
                         {this.displayMapImageUploadList()}
                         {this.displayUserAccounts()}
                         {this.displayFaces()}
+                        {this.displayMatches()}
                     </div>   
                 </div>
 
@@ -416,6 +428,7 @@ export async function getServerSideProps({req, query}){
     let userAccounts = [];
     let faceData = [];
     let faceFiles = [];
+    let duplicateMatches = [];
 
     if(bUserAdmin){
 
@@ -439,11 +452,15 @@ export async function getServerSideProps({req, query}){
         
         faceFiles = faceManager.getAllFiles();
 
+        duplicateMatches = await admin.getDuplicateMatches();
+
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
 
     console.log(`Is this user an admin ${bUserAdmin}`);
+
+    
 
     
     return {
@@ -456,7 +473,8 @@ export async function getServerSideProps({req, query}){
             "mapFiles": JSON.stringify(mapFiles),
             "userAccounts": JSON.stringify(userAccounts),
             "faceData": JSON.stringify(faceData),
-            "faceFiles": JSON.stringify(faceFiles)
+            "faceFiles": JSON.stringify(faceFiles),
+            "duplicateMatches": JSON.stringify(duplicateMatches)
         }
     };
 }
