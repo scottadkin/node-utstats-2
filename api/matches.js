@@ -3,6 +3,7 @@ const Match = require('./match');
 const Players = require('./players');
 const Assault = require('./assault');
 const CountriesManager = require('./countriesmanager');
+const CTF = require('./ctf');
 
 class Matches{
 
@@ -477,6 +478,50 @@ class Matches{
         });
     }
 
+    async deleteMatchCountryData(playersData){
+
+        try{
+
+            const countryData = {};
+
+            for(let i = 0; i < playersData.length; i++){
+
+                if(countryData[playersData[i].country] !== undefined){
+                    countryData[playersData[i].country]++;
+                }else{
+                    countryData[playersData[i].country] = 1;
+                }
+            }
+
+            const countriesManager = new CountriesManager();
+
+            for(const [key, value] of Object.entries(countryData)){
+
+                await countriesManager.reduceUses(key, value);
+
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async deleteCtfData(id){
+
+        try{
+
+            const ctf = new CTF();
+
+            await ctf.deleteMatchCapData(id);
+            console.log("deleted MatchCapData");
+
+            await ctf.deleteMatchEvents(id);
+            console.log("deleted matchctfevents");
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 
     async deleteMatch(id){
 
@@ -500,26 +545,9 @@ class Matches{
             const assault = new Assault();
             await assault.deleteMatch(id);
 
-            const countryData = {};
+            await this.deleteMatchCountryData(playersData);
 
-            for(let i = 0; i < playersData.length; i++){
-
-                if(countryData[playersData[i].country] !== undefined){
-                    countryData[playersData[i].country]++;
-                }else{
-                    countryData[playersData[i].country] = 1;
-                }
-            }
-
-            console.table(countryData);
-
-            const countriesManager = new CountriesManager();
-
-            for(const [key, value] of Object.entries(countryData)){
-
-                console.log(`Reducing uses for country code ${key}`);
-                await countriesManager.reduceUses(key, value);
-            }
+            await this.deleteCtfData(id);
             
 
         }catch(err){

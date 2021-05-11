@@ -275,6 +275,39 @@ class CTF{
             });
         });
     }
+
+
+    deleteMatchCapData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_ctf_caps WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    deleteMatchEvents(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_ctf_events WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+
+    }
+
 }
 
 
