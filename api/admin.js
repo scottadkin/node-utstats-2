@@ -63,13 +63,53 @@ class Admin{
 
         try{
 
-
             const m = new Matches();
 
             return await m.getDuplicates();
+ 
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async deleteDuplicateMatches(logNames){
+
+        try{
+
+            console.table(logNames);
+            const matchManager = new Matches();
+
+            const matches = await matchManager.getLogMatches(logNames);
+
+            console.table(matches);
+
+            const toDelete = [];
+            const alreadyFound = [];
 
 
-            
+            let m = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                if(alreadyFound.indexOf(m.name) !== -1){
+                    toDelete.push(m.match_id);
+                }else{
+                    alreadyFound.push(m.name);
+                }
+
+            }
+
+            console.log(`Delete these matches`);
+
+            console.table(toDelete);
+
+            await matchManager.deleteMatch(toDelete[0]);
+
+
+
 
         }catch(err){
             console.trace(err);

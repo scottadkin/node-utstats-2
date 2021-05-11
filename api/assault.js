@@ -254,7 +254,62 @@ class Assault{
             }
             return [];
         }   
+    }
 
+    deleteMatchObjectives(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_assault_match_objectives WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+
+    }
+
+
+    removeMatchCap(match, obj){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_assault_objects SET matches=matches-1,taken=taken-1 WHERE match_id=? AND id=?";
+
+            mysql.query(query, [match, obj], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async deleteMatch(id){
+
+        try{
+
+            const matchCaps = await this.getMatchCaps(id);
+
+            if(matchCaps.length === 0) return;
+            
+            console.log("Deleteing Assault Match Objectives");
+
+            await this.deleteMatchObjectives(id);
+
+            for(let i = 0; i < matchCaps; i++){
+
+                await this.removeMatchCap(id, matchCaps[i].id);
+            }
+
+        }catch(err){
+
+            console.trace(err);
+        }
+        
     }
 }
 

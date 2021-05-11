@@ -1,4 +1,7 @@
 const mysql = require('./database');
+const Match = require('./match');
+const Players = require('./players');
+const Assault = require('./assault');
 
 class Matches{
 
@@ -328,7 +331,7 @@ class Matches{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT name,imported,COUNT(name) as found, match_id FROM nstats_logs GROUP BY name ORDER BY id DESC";
+            const query = "SELECT name,COUNT(name) as found FROM nstats_logs GROUP BY name ORDER BY match_id DESC";
 
             mysql.query(query, (err, result) =>{
 
@@ -353,20 +356,154 @@ class Matches{
 
     getMatchLogFileNames(matchIds){
 
+        return new Promise((resolve, reject) =>{
+
+            if(matchIds.length === 0) resolve([]);
+
+            const query = "SELECT name,match_id FROM nstats_logs WHERE match_id IN (?)";
+
+            mysql.query(query, [matchIds], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
         
+    }
+
+
+    getPreviousDuplicates(latestIds, logFileNames){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT match_id,name FROM nstats_logs WHERE name IN (?) AND match_id NOT IN(?)";
+
+            mysql.query(query, [logFileNames, latestIds], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+
+    getLogIds(logNames){
+
+        return new Promise((resolve, reject) =>{
+
+            if(logNames.length === 0) resolve([]);
+
+            const query = "SELECT name,match_id,imported FROM nstats_logs WHERE name IN (?) ORDER BY match_id DESC";
+
+            mysql.query(query, [logNames], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
     }
 
     async getMatchesToDelete(latestIds){
 
         try{
 
-            await this.getMatchLogFileNames(latestIds);
+            const logFileNames = await this.getMatchLogFileNames(latestIds);
             //get older ids
             //the delete them one by one
+
+            console.log(logFileNames);
+
+
+            const names = [];
+
+            for(let i = 0; i < logFileNames.length; i++){
+
+                names.push(logFileNames[i].name);
+            }
+
+            console.log(names);
+
+            const matchIds = await this.getLogIds(names);
+
+            console.log("matchIds");
+            console.log(matchIds);
+           // return await this.getPreviousDuplicates(latestIds, names);
+
+            
+
+        }catch(err){
+            console.trace(err);
+            return [];
+        }
+    }
+
+
+    getLogMatches(logNames){
+
+        return new Promise((resolve, reject) =>{
+
+
+            if(logNames.length === 0) resolve([]);
+
+            const query = "SELECT id,name,match_id FROM nstats_logs WHERE name IN (?) ORDER BY match_id DESC";
+
+            mysql.query(query, [logNames], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+                resolve([]);
+            });
+        });
+    }
+
+
+    async deleteMatch(id){
+
+        try{
+
+            console.log(`attempting to delete data for match id ${id}`);
+
+            const matchManager = new Matches();
+            const match = new Match();
+
+            const matchData = await match.get(id);
+
+            console.log(matchData);
+
+            const players = new Players();
+
+            const playerData = await players.player.getAllInMatch(id);
+
+            console.log(playerData);
+
+            const assault = new Assault();
+            await assault.deleteMatch()id;
+            
 
         }catch(err){
             console.trace(err);
         }
+        
     }
     
 }
