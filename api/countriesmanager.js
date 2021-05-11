@@ -25,6 +25,21 @@ class CountriesManager{
             });
         });
     }
+
+    reduceUses(code, amount){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_countries SET total=total-? WHERE code=?";
+
+            mysql.query(query, [amount, code], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
-export default CountriesManager;
+module.exports = CountriesManager;

@@ -2,6 +2,7 @@ const mysql = require('./database');
 const Match = require('./match');
 const Players = require('./players');
 const Assault = require('./assault');
+const CountriesManager = require('./countriesmanager');
 
 class Matches{
 
@@ -492,12 +493,33 @@ class Matches{
 
             const players = new Players();
 
-            const playerData = await players.player.getAllInMatch(id);
+            const playersData = await players.player.getAllInMatch(id);
 
-            console.log(playerData);
+            console.log(playersData);
 
             const assault = new Assault();
-            await assault.deleteMatch()id;
+            await assault.deleteMatch(id);
+
+            const countryData = {};
+
+            for(let i = 0; i < playersData.length; i++){
+
+                if(countryData[playersData[i].country] !== undefined){
+                    countryData[playersData[i].country]++;
+                }else{
+                    countryData[playersData[i].country] = 1;
+                }
+            }
+
+            console.table(countryData);
+
+            const countriesManager = new CountriesManager();
+
+            for(const [key, value] of Object.entries(countryData)){
+
+                console.log(`Reducing uses for country code ${key}`);
+                await countriesManager.reduceUses(key, value);
+            }
             
 
         }catch(err){
