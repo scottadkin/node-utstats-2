@@ -4,6 +4,7 @@ const Players = require('./players');
 const Assault = require('./assault');
 const CountriesManager = require('./countriesmanager');
 const CTF = require('./ctf');
+const Domination = require('./domination');
 
 class Matches{
 
@@ -523,6 +524,29 @@ class Matches{
         }
     }
 
+    async deleteDominationData(id){
+
+        try{
+
+            const dom = new Domination();
+
+            const capData = await dom.getMatchDomPoints(id);
+
+            for(let i = 0; i < capData.length; i++){
+
+                console.log(`reducing point caps for point ${capData[i].id} by ${capData[i].captured}`);
+                await dom.reducePointCaps(capData[i].id, capData[i].captured);
+            }
+
+            await dom.deleteMatchControlPoints(id);
+
+            await dom.deletePlayerMatchScore(id);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
     async deleteMatch(id){
 
         try{
@@ -548,6 +572,8 @@ class Matches{
             await this.deleteMatchCountryData(playersData);
 
             await this.deleteCtfData(id);
+
+            await this.deleteDominationData(id);
             
 
         }catch(err){

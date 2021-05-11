@@ -341,6 +341,52 @@ class Domination{
             });
         });
     }
+
+
+    reducePointCaps(id, amount){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_dom_control_points SET captured=captured-? WHERE id=?";
+
+            mysql.query(query, [amount, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve(result);
+            });
+        });
+    }
+
+    deleteMatchControlPoints(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_dom_match_control_points WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    deletePlayerMatchScore(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_dom_match_player_score WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 
