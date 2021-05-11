@@ -348,9 +348,25 @@ class Matches{
 
                 resolve([]);
             });
+        });     
+    }
 
-        });
+    getMatchLogFileNames(matchIds){
+
         
+    }
+
+    async getMatchesToDelete(latestIds){
+
+        try{
+
+            await this.getMatchLogFileNames(latestIds);
+            //get older ids
+            //the delete them one by one
+
+        }catch(err){
+            console.trace(err);
+        }
     }
     
 }
