@@ -371,6 +371,78 @@ class Weapons{
         }
     }
 
+    deletePlayerMatchData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_player_weapon_match WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        })
+    }
+
+
+    reducePlayerWeaponTotal(data){
+
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_player_weapon_totals SET
+            kills=kills-?,deaths=deaths-?,shots=shots-?,hits=hits-?,damage=damage-?,
+            matches=matches-1,
+            accuracy = (hits / shots) * 100,
+            efficiency = (kills / (kills + deaths)) * 100
+            WHERE player_id=? AND weapon=?
+            `;
+
+            const vars = [
+                data.kills,
+                data.deaths,
+                data.shots,
+                data.hits,
+                data.damage,
+                data.player_id,
+                data.weapon_id
+            ];
+
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+                resolve()
+            });
+
+        });
+    }
+
+
+
+    async deleteMatchData(id){
+
+        try{
+
+
+            let matchData = await this.getMatchData(id);
+
+            matchData = matchData.playerData; 
+
+            for(let i = 0; i < matchData.length; i++){
+
+                await this.reducePlayerWeaponTotal(matchData[i]);
+            }
+
+            await this.deletePlayerMatchData(id);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
 }
 
 

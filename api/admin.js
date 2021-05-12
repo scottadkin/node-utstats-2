@@ -106,7 +106,7 @@ class Admin{
 
             console.table(toDelete);
 
-            await matchManager.deleteMatch(toDelete[0]);
+            await matchManager.deleteMatch(toDelete[1]);
 
 
 

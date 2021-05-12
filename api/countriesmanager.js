@@ -1,5 +1,5 @@
-import mysql from './database';
-import Promise from 'promise';
+const mysql = require('./database');
+const Promise = require('promise');
 
 class CountriesManager{
 

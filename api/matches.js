@@ -12,6 +12,7 @@ const Items = require('./items');
 const Kills = require('./kills');
 const Maps = require('./maps');
 const Connections = require('./connections');
+const Weapons = require('./weapons');
 
 class Matches{
 
@@ -702,6 +703,11 @@ class Matches{
             await this.deleteTeamChangesData(id);
 
             await this.removeMatchFromPlayerMapTotals(matchData.map, playersData);
+
+            
+            const weaponsManager = new Weapons();
+
+            await weaponsManager.deleteMatchData(id);
 
         }catch(err){
             console.trace(err);
