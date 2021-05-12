@@ -9,6 +9,9 @@ const Faces = require('./faces');
 const Gametypes = require('./gametypes');
 const Headshots = require('./headshots');
 const Items = require('./items');
+const Kills = require('./kills');
+const Maps = require('./maps');
+const Connections = require('./connections');
 
 class Matches{
 
@@ -551,7 +554,90 @@ class Matches{
         }
     }
 
+    deletePingData(id){
 
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_match_pings WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+
+            });
+        });
+    }
+
+    deletePlayerScoreData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_match_player_score WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+
+            });
+        });
+
+    }
+
+    deleteTeamChangesData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_match_team_changes WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+
+            });
+        });
+
+    }
+
+    reducePlayerMapTotals(mapId, playerId, playtime){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_player_maps SET matches=matches-1, playtime=playtime-? WHERE map=? AND player=?";
+
+            mysql.query(query, [playtime, mapId, playerId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+
+    async removeMatchFromPlayerMapTotals(mapId, playersData){
+
+        try{
+
+            let p = 0;
+
+            for(let i = 0; i < playersData.length; i++){
+
+                p = playersData[i];
+
+                await this.reducePlayerMapTotals(mapId, p.player_id, p.playtime);
+
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 
     async deleteMatch(id){
 
@@ -596,7 +682,26 @@ class Matches{
             const itemsManager = new Items();
 
             await itemsManager.deleteMatchData(id);
+
+            const killsManager = new Kills();
+
+            await killsManager.deleteMatchData(id);
             
+            const mapManager = new Maps();
+
+            await mapManager.reduceMapTotals(matchData.map, matchData.playtime);
+
+            const connectionsManager = new Connections();
+
+            await connectionsManager.deleteMatchData(id);
+
+            await this.deletePingData(id);
+
+            await this.deletePlayerScoreData(id);
+
+            await this.deleteTeamChangesData(id);
+
+            await this.removeMatchFromPlayerMapTotals(matchData.map, playersData);
 
         }catch(err){
             console.trace(err);

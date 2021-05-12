@@ -742,6 +742,21 @@ class Maps{
             });
         });
     }
+
+    reduceMapTotals(id, playtime){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_maps SET matches=matches-1, playtime=playtime-? WHERE id=?";
+
+            mysql.query(query, [playtime, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 

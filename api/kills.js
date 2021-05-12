@@ -44,6 +44,21 @@ class Kills{
         });
     }
 
+    deleteMatchData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_kills WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+                
+                if(err) reject(err);
+
+                resolve();
+            }); 
+        });
+    }
+
 }
 
 module.exports = Kills;
