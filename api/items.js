@@ -301,6 +301,88 @@ class Items{
             });
         });
     }
+
+
+    reduceItemTotal(id, amount){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_items SET uses=uses-?, matches=matches-1 WHERE id=?";
+
+            mysql.query(query, [amount, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    reduceItemPlayerTotal(id, playerId, amount){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_items_player SET uses=uses-?, matches=matches-1 WHERE player=? AND item=?";
+
+            mysql.query(query, [amount, playerId, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+
+    deleteMatchItems(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_items_match WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async deleteMatchData(id){
+
+        try{
+
+            const matchData = await this.getMatchData(id);
+
+            const uses = {};
+
+            let m = 0;
+
+            for(let i = 0; i < matchData.length; i++){
+
+                m = matchData[i];
+
+                if(uses[m.item] !== undefined){
+                    uses[m.item] += m.uses;
+                }else{
+                    uses[m.item] = m.uses;
+                }
+
+                await this.reduceItemPlayerTotal(id, m.player_id, m.uses);
+            }
+
+            for(const [key, value] of Object.entries(uses)){
+
+                await this.reduceItemTotal(key, value);
+            }
+
+            await this.deleteMatchItems(id);
+
+        }catch(err){
+            console.trace(err);
+        }   
+    }
 }
 
 module.exports = Items;

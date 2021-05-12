@@ -7,6 +7,8 @@ const CTF = require('./ctf');
 const Domination = require('./domination');
 const Faces = require('./faces');
 const Gametypes = require('./gametypes');
+const Headshots = require('./headshots');
+const Items = require('./items');
 
 class Matches{
 
@@ -586,6 +588,14 @@ class Matches{
             const gametypeManager = new Gametypes();
 
             await gametypeManager.reduceMatchStats(matchData.gametype, matchData.playtime);
+
+            const headshotsManager = new Headshots();
+
+            await headshotsManager.deleteMatchData(id);
+
+            const itemsManager = new Items();
+
+            await itemsManager.deleteMatchData(id);
             
 
         }catch(err){
