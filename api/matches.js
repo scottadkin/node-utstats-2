@@ -6,6 +6,7 @@ const CountriesManager = require('./countriesmanager');
 const CTF = require('./ctf');
 const Domination = require('./domination');
 const Faces = require('./faces');
+const Gametypes = require('./gametypes');
 
 class Matches{
 
@@ -567,7 +568,7 @@ class Matches{
 
             const playersData = await players.player.getAllInMatch(id);
 
-            console.log(playersData);
+            //console.log(playersData);
 
             const assault = new Assault();
             await assault.deleteMatch(id);
@@ -581,6 +582,10 @@ class Matches{
             const faceManager = new Faces();
 
             await faceManager.reduceMatchUses(playersData);
+
+            const gametypeManager = new Gametypes();
+
+            await gametypeManager.reduceMatchStats(matchData.gametype, matchData.playtime);
             
 
         }catch(err){

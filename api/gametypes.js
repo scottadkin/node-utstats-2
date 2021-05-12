@@ -227,6 +227,21 @@ class Gametypes{
             });
         });
     }
+
+    reduceMatchStats(gametype, playtime){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_gametypes SET matches=matches-1, playtime=playtime-? WHERE id=?";
+
+            mysql.query(query, [playtime, gametype], (err) =>{
+
+                if(err) reject(err);
+
+                resolve([]);
+            });
+        });
+    }
 }
 
 module.exports = Gametypes;
