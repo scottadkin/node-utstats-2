@@ -175,6 +175,22 @@ class Voices{
             new Message(`setPlayerVoices ${err}`,'error');
         }
     }
+
+
+    reduceTotals(id, amount){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_voices SET uses=uses-? WHERE id=?";
+
+            mysql.query(query, [amount, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 module.exports = Voices;

@@ -440,10 +440,23 @@ class WinRate{
         }catch(err){
             console.trace(err);
         }   
-
-
     }
 
+
+    deleteMatchData(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_winrates WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 module.exports = WinRate;

@@ -429,6 +429,21 @@ class Rankings{
             });
         });
     }
+
+    deleteMatchRankings(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_ranking_player_history WHERE match_id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 

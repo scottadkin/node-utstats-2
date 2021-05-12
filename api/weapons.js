@@ -421,6 +421,39 @@ class Weapons{
     }
 
 
+    reduceTotals(weapon, data){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_weapons SET
+            kills=kills-?,
+            deaths=deaths-?,
+            shots=shots-?,
+            hits=hits-?,
+            damage=damage-?,
+            matches=matches-1,
+            accuracy = (hits / shots) * 100
+            WHERE id=?
+            `;
+
+            const vars = [
+                data.kills,
+                data.deaths,
+                data.shots,
+                data.hits,
+                data.damage,
+                weapon
+            ];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
 
     async deleteMatchData(id){
 
@@ -431,12 +464,39 @@ class Weapons{
 
             matchData = matchData.playerData; 
 
+            const matchWeaponTotals = {};
+
             for(let i = 0; i < matchData.length; i++){
 
                 await this.reducePlayerWeaponTotal(matchData[i]);
+
+                if(matchWeaponTotals[matchData[i].weapon_id] !== undefined){
+
+                    matchWeaponTotals[matchData[i].weapon_id].kills += matchData[i].kills;
+                    matchWeaponTotals[matchData[i].weapon_id].deaths += matchData[i].deaths;
+                    matchWeaponTotals[matchData[i].weapon_id].shots += matchData[i].shots;
+                    matchWeaponTotals[matchData[i].weapon_id].hits += matchData[i].hits;
+                    matchWeaponTotals[matchData[i].weapon_id].damage += matchData[i].damage;
+
+                }else{
+
+                    matchWeaponTotals[matchData[i].weapon_id] = {
+                        "kills": matchData[i].kills,
+                        "deaths": matchData[i].deaths,
+                        "shots": matchData[i].shots,
+                        "hits": matchData[i].hits,
+                        "damage": matchData[i].damage
+                    };
+                }
             }
 
             await this.deletePlayerMatchData(id);
+
+            for(const [key, value] of Object.entries(matchWeaponTotals)){
+
+                await this.reduceTotals(key, value);
+            }
+        
 
         }catch(err){
             console.trace(err);

@@ -13,6 +13,10 @@ const Kills = require('./kills');
 const Maps = require('./maps');
 const Connections = require('./connections');
 const Weapons = require('./weapons');
+const Rankings = require('./rankings');
+const Servers = require('./servers');
+const Voices = require('./voices');
+const WinRates = require('./winrate');
 
 class Matches{
 
@@ -640,6 +644,37 @@ class Matches{
         }
     }
 
+
+    async removeVoiceData(playerData){
+
+        try{
+
+            const uses = {};
+
+            let p = 0;
+
+            for(let i = 0; i < playerData.length; i++){
+
+                p = playerData[i];
+
+                if(uses[p.vouce] !== undefined){
+                    uses[p.voice]++;
+                }else{
+                    uses[p.voice] = 1;
+                }
+            }
+
+            const voiceManager = new Voices();
+
+            for(const [key, value] of Object.entries(uses)){
+                await voiceManager.reduceTotals(key, value);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
     async deleteMatch(id){
 
         try{
@@ -703,11 +738,24 @@ class Matches{
             await this.deleteTeamChangesData(id);
 
             await this.removeMatchFromPlayerMapTotals(matchData.map, playersData);
-
-            
+   
             const weaponsManager = new Weapons();
 
             await weaponsManager.deleteMatchData(id);
+
+            const rankingManager = new Rankings();
+
+            await rankingManager.deleteMatchRankings(id);
+
+            const serverManager = new Servers();
+
+            await serverManager.reduceServerTotals(matchData.server, matchData.playtime);
+
+            await this.removeVoiceData(playersData);
+
+            const winrateManager = new WinRates();
+
+            await winrateManager.deleteMatchData(id);
 
         }catch(err){
             console.trace(err);
