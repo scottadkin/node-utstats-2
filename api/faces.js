@@ -345,8 +345,51 @@ class Faces{
 
 
     getAllFiles(){
-
         return fs.readdirSync("./public/images/faces");
+    }
+
+    reduceUsage(id, amount){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_faces SET uses=uses-? WHERE id=?";
+
+            mysql.query(query, [amount, id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async reduceMatchUses(playersData){
+
+        try{
+
+            const uses = {};
+
+            let p = 0;
+
+            for(let i = 0; i < playersData.length; i++){
+
+                p = playersData[i];
+
+                if(uses[p.face] !== undefined){
+                    uses[p.face]++;
+                }else{
+                    uses[p.face] = 1;
+                }
+            }
+
+            for(const [key, value] of Object.entries(uses)){
+
+                await this.reduceUsage(key, value);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }   
     }
 }
 

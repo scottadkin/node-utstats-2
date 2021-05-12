@@ -5,6 +5,7 @@ const Assault = require('./assault');
 const CountriesManager = require('./countriesmanager');
 const CTF = require('./ctf');
 const Domination = require('./domination');
+const Faces = require('./faces');
 
 class Matches{
 
@@ -547,6 +548,8 @@ class Matches{
         }
     }
 
+
+
     async deleteMatch(id){
 
         try{
@@ -574,13 +577,18 @@ class Matches{
             await this.deleteCtfData(id);
 
             await this.deleteDominationData(id);
+
+            const faceManager = new Faces();
+
+            await faceManager.reduceMatchUses(playersData);
             
 
         }catch(err){
             console.trace(err);
-        }
-        
+        }    
     }
+
+
     
 }
 module.exports = Matches;
