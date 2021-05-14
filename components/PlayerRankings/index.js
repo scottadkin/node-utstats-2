@@ -35,7 +35,7 @@ const PlayerRankings = ({data, gametypeNames, positions}) =>{
 
         position = (positions[d.gametype] !== undefined) ? positions[d.gametype]  : "-1" ;
 
-        rows.push(<tr>
+        rows.push(<tr key={i}>
             <td>{currentName}</td>
             <td>{d.matches}</td>
             <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>

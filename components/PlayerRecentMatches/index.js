@@ -80,6 +80,7 @@ function createDatesData(dates, gametypeNames){
 
         d = dates[i];
 
+
         if(uniqueGametypes.indexOf(d.gametype) === -1){
             uniqueGametypes.push(d.gametype);
         }
@@ -251,6 +252,8 @@ class PlayerRecentMatches extends React.Component{
 
             currentWinnerClass = (m.winner) ? "green" : (m.draw) ? "Draw" : "red";
 
+            if(currentScore === null) continue;
+
             currentGametype = gametypes[currentScore.gametype];
 
             if(currentGametype === undefined){
@@ -263,7 +266,7 @@ class PlayerRecentMatches extends React.Component{
 
                 mapImage = getMapImage(mapImages, m.mapName);
 
-                elems.push(<Link href={`/match/${m.match_id}`} key={m.id}><a>
+                elems.push(<Link key={i} href={`/match/${m.match_id}`} key={m.id}><a>
                     <div className={styles.wrapper}>
                         <div className={`${styles.title} ${currentWinnerClass}`}> 
                             { (m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"}

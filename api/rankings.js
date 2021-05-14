@@ -102,6 +102,8 @@ class Rankings{
 
             const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?,?,?,?)";
 
+            if(matchChange !== matchChange) matchChange = 0;
+
             mysql.query(query, [matchId, player, gametype, ranking, matchScore, rankingChange, matchChange], (err) =>{
 
                 if(err) reject(err);
@@ -200,12 +202,11 @@ class Rankings{
                     currentScore *= s.sub_3hour_multiplier;
                 }
 
-                if(currentScore === Infinity) currentScore = 0;
+                if(currentScore === Infinity || currentScore === -Infinity) currentScore = 0;
+                if(matchScore === Infinity || matchScore === -Infinity) matchScore = 0;
 
                 previousData = await this.getPlayerPreviousHistoryRanking(parseInt(key), gametype);
 
-                console.log(`previousData = `);
-                console.log(previousData);
 
                 if(await this.updatePlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore) === 0){
                     await this.insertPlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore);
