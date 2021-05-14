@@ -33,8 +33,10 @@ class Domination{
 
                 if(err) reject(err);
 
-                if(result[0].total_points > 0){
-                    resolve(true);
+                if(result !== undefined){
+                    if(result[0].total_points > 0){
+                        resolve(true);
+                    }
                 }
 
                 resolve(false);
@@ -353,7 +355,7 @@ class Domination{
 
                 if(err) reject(err);
 
-                resolve(result);
+                resolve();
             });
         });
     }

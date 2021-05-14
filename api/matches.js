@@ -18,6 +18,7 @@ const Servers = require('./servers');
 const Voices = require('./voices');
 const WinRates = require('./winrate');
 const Functions = require('./functions');
+const Logs = require('./logs');
 
 class Matches{
 
@@ -547,7 +548,7 @@ class Matches{
 
             for(let i = 0; i < capData.length; i++){
 
-                console.log(`reducing point caps for point ${capData[i].id} by ${capData[i].captured}`);
+               // console.log(`reducing point caps for point ${capData[i].id} by ${capData[i].captured}`);
                 await dom.reducePointCaps(capData[i].id, capData[i].captured);
             }
 
@@ -676,6 +677,22 @@ class Matches{
         }
     }
 
+
+    deleteMatchQuery(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_matches WHERE id=?";
+
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
     async deleteMatch(id){
 
         try{
@@ -686,14 +703,15 @@ class Matches{
             const match = new Match();
 
             const matchData = await match.get(id);
-
-            console.log(matchData);
+            
+            if(matchData === undefined) return;
 
             const players = new Players();
 
             const playersData = await players.player.getAllInMatch(id);
 
             //console.log(playersData);
+     
 
             const assault = new Assault();
             await assault.deleteMatch(id);
@@ -704,6 +722,7 @@ class Matches{
 
             await this.deleteDominationData(id);
 
+            
             const faceManager = new Faces();
 
             await faceManager.reduceMatchUses(playersData);
@@ -712,6 +731,7 @@ class Matches{
 
             await gametypeManager.reduceMatchStats(matchData.gametype, matchData.playtime);
 
+            
             const headshotsManager = new Headshots();
 
             await headshotsManager.deleteMatchData(id);
@@ -759,7 +779,6 @@ class Matches{
             await winrateManager.deleteMatchData(id);
 
             //await players.deleteMatchData(id);
-
             const playerIds = [];
 
             for(let i = 0; i < playersData.length; i++){
@@ -772,6 +791,10 @@ class Matches{
             Functions.setIdNames(playersData, playerNames, "player_id", "name");
 
             await players.reduceTotals(playersData, matchData.gametype);
+
+            await this.deleteMatchQuery(matchData.id);
+
+            await Logs.deleteFromDatabase(matchData.id);
 
         }catch(err){
             console.trace(err);

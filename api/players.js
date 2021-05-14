@@ -45,7 +45,14 @@ class Players{
 
                     if(err) reject(err);
 
-                    resolve(result[0].total_players);
+                    if(result !== undefined){
+
+                        if(result.length > 0){
+                            resolve(result[0].total_players);
+                        }
+                    }
+
+                    resolve(0);
                 });
 
             }else{
@@ -54,7 +61,14 @@ class Players{
 
                     if(err) console.log(err);//reject(err);
 
-                    resolve(result[0].total_players);
+                    if(result !== undefined){
+                        
+                        if(result.length > 0){
+                            resolve(result[0].total_players);
+                        }
+                    }
+
+                    resolve(0);
                 });
 
             }
@@ -405,8 +419,6 @@ class Players{
     }
 
     reduceTotal(player, gametypeId){
-
-        console.log(`update ${player.name} totals`);
 
         return new Promise((resolve, reject) =>{
 

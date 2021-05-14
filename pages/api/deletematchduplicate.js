@@ -3,28 +3,34 @@ import Admin from '../../api/admin';
 
 export default async (req, res) =>{
 
-    const session = new Session(req);
+    try{
 
-    await session.load();
+        const session = new Session(req);
 
-    if(await session.bUserAdmin()){
+        await session.load();
 
-        const a = new Admin();
- 
-        
-        const duplicates = await a.getDuplicateMatches();
+        if(await session.bUserAdmin()){
 
-        const logNames = [];
+            const a = new Admin();
+    
+            
+            const duplicates = await a.getDuplicateMatches();
 
-        for(let i = 0; i < duplicates.length; i++){
+            const logNames = [];
 
-            logNames.push(duplicates[i].name);
+            for(let i = 0; i < duplicates.length; i++){
+
+                logNames.push(duplicates[i].name);
+            }
+
+            await a.deleteDuplicateMatches(logNames);
+
+            console.log("ok");
         }
 
-        await a.deleteDuplicateMatches(logNames);
+        res.status(200).json({"message": "meow"})
 
-        console.log("ok");
+    }catch(err){
+        res.status(200).json({"message": `Error: ${err}`});
     }
-
-    res.status(200).json({"message": "meow"})
 }

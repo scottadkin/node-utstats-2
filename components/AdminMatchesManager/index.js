@@ -55,6 +55,13 @@ class AdminMatchesManager extends React.Component{
             </tr>);
         }
 
+        if(rows.length === 0){
+
+            rows.push(<tr key={"potato"}>
+                <td colSpan="2" style={{"textAlign": "center"}}>There are no duplicate matches detected.</td>
+            </tr>);
+        }
+
         return <div>
             <div className="default-header">Duplicate Matches</div>
             <table className="t-width-2 td-1-left">

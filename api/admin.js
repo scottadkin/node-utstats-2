@@ -77,12 +77,9 @@ class Admin{
 
         try{
 
-            console.table(logNames);
             const matchManager = new Matches();
 
             const matches = await matchManager.getLogMatches(logNames);
-
-            console.table(matches);
 
             const toDelete = [];
             const alreadyFound = [];
@@ -102,11 +99,12 @@ class Admin{
 
             }
 
-            console.log(`Delete these matches`);
+            //await matchManager.deleteMatch(toDelete[1]);
 
-            console.table(toDelete);
+            for(let i = 0; i < toDelete.length; i++){
 
-            await matchManager.deleteMatch(toDelete[1]);
+                await matchManager.deleteMatch(toDelete[i]);
+            }
 
 
 

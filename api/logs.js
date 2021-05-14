@@ -66,7 +66,20 @@ class Logs{
     }
 
 
+    static deleteFromDatabase(matchId){
 
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_logs WHERE match_id=?";
+
+            mysql.query(query, [matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 
