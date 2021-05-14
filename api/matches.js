@@ -17,6 +17,7 @@ const Rankings = require('./rankings');
 const Servers = require('./servers');
 const Voices = require('./voices');
 const WinRates = require('./winrate');
+const Functions = require('./functions');
 
 class Matches{
 
@@ -756,6 +757,21 @@ class Matches{
             const winrateManager = new WinRates();
 
             await winrateManager.deleteMatchData(id);
+
+            //await players.deleteMatchData(id);
+
+            const playerIds = [];
+
+            for(let i = 0; i < playersData.length; i++){
+
+                playerIds.push(playersData[i].player_id);
+            }
+
+            const playerNames = await players.getJustNamesByIds(playerIds);
+
+            Functions.setIdNames(playersData, playerNames, "player_id", "name");
+
+            await players.reduceTotals(playersData, matchData.gametype);
 
         }catch(err){
             console.trace(err);
