@@ -109,8 +109,14 @@ class Login extends React.Component{
         }
 
         if(errors.length === 0){
+
             if(process.browser){
-                window.location.replace("/?loggedin");
+                
+                if(mode !== 1){
+                    window.location.replace("/?loggedin");
+                }else{
+                    window.location.replace("/?registered");
+                }
             }
         }
 

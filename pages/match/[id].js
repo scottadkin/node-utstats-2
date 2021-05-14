@@ -1592,7 +1592,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
 
     if(parsedSession["bLoggedIn"]){
-        elems.push(<AdminMatchControl key={"a-c"} matchId={parsedInfo.id}/>);
+        elems.push(<AdminMatchControl key={"a-c"} matchId={parsedInfo.id} players={playerNames}/>);
     }
 
     return <div>

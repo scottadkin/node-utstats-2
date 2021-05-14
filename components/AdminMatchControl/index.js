@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './AdminMatchControl.module.css';
+import CountryFlag from '../CountryFlag/';
 
 
 class AdminMatchControl extends React.Component{
@@ -9,6 +10,7 @@ class AdminMatchControl extends React.Component{
         super(props);
 
         this.deleteMatch = this.deleteMatch.bind(this);
+        this.deletePlayer = this.deletePlayer.bind(this);
 
         this.state = {"matchDeleteMessage": ""};
     }
@@ -38,7 +40,6 @@ class AdminMatchControl extends React.Component{
         }catch(err){
             console.trace(err);
         }   
-
     }
 
     displayMatchDeletedMessage(){
@@ -56,13 +57,79 @@ class AdminMatchControl extends React.Component{
         </div>
     }
 
+
+    async deletePlayer(playerId){
+
+        try{
+
+            console.log(playerId);
+
+            const req = await fetch("/api/matchadmin", {
+                "headers": {"Content-Type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"type": "deletePlayer", "matchId": this.props.matchId,"playerId": playerId})
+            });
+
+            const result = await req.json();
+
+            console.log(result);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    displayPlayerOptions(){
+
+        const players = JSON.parse(this.props.players);
+
+        const rows = [];
+
+        let p = 0;
+
+        const createButton = (id) =>{
+            return <div className={`${styles.button} team-red`} onClick={(() =>{
+                this.deletePlayer(id);
+            })}>Remove From Match</div>
+        }
+
+        for(let i = 0; i < players.length; i++){
+
+            p = players[i];
+
+            rows.push(<tr key={i}>
+                <td><CountryFlag country={p.country}/>{p.name}</td>
+                <td>
+                    {createButton(p.id)}
+                </td>
+            </tr>);
+        }
+
+        return <div>
+            <table className="t-width-2 td-1-left">
+                <tbody>
+                    <tr>
+                        <th>Player</th>
+                        <th>Action</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         return <div>
-            <div className="default-header">Admin Options</div>
+            <div className="default-header">Admin</div>
 
                 <div className="form">
-                    <div className="form-info">Actions are irreversible!</div>
+
+                    <div className="default-header">Player Options</div>
+                    {this.displayPlayerOptions()}
+
+                    <div className="default-header">Delete Match</div>
                     {this.displayMatchDeletedMessage()}
                     <div className={`${styles.button} team-red`} onClick={this.deleteMatch}>Delete Match</div>
                 </div>

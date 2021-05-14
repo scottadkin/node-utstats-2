@@ -148,6 +148,14 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 		</div>;
 	}
 
+	if(query.registered !== undefined){
+
+		message = <div className="pass">
+			Successfully created account.<br/>
+			You will have to wait until an admin activates your account before you can login.
+		</div>;
+	}	
+
 	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
 		<div>

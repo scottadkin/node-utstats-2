@@ -14,6 +14,8 @@ const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
     console.log(`mode = ${mode}`);
     const rows = [];
 
+    if(record.length === 0) return null;
+
     const recordValue = record[0].value;
     
     page--;

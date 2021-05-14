@@ -1,5 +1,6 @@
 import Session from '../../api/session';
-import Matches from '../../api/matches'
+import Matches from '../../api/matches';
+import Player from '../../api/player';
 
 export default async (req, res) =>{
 
@@ -19,12 +20,19 @@ export default async (req, res) =>{
 
                 await matchManager.deleteMatch(parseInt(req.body.matchId));
 
+            }else if(req.body.type === "deletePlayer"){
+                
+                const playerManager = new Player();
+
+                await playerManager.removeFromMatch(parseInt(req.body.playerId), parseInt(req.body.matchId));
+
             }else{
                 res.status(200).json({"message": "Unknown command"});
                 return;
             }
 
             res.status(200).json({"message": "passed"});
+
         }else{
 
             res.status(200).json({"message": "Only admins can perform this action."});

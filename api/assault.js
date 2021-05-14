@@ -277,9 +277,9 @@ class Assault{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "UPDATE nstats_assault_objects SET matches=matches-1,taken=taken-1 WHERE match_id=? AND id=?";
+            const query = "UPDATE nstats_assault_objects SET matches=matches-1,taken=taken-1 AND id=?";
 
-            mysql.query(query, [match, obj], (err) =>{
+            mysql.query(query, [obj], (err) =>{
 
                 if(err) reject(err);
 
@@ -308,8 +308,70 @@ class Assault{
         }catch(err){
 
             console.trace(err);
+        }   
+    }
+
+
+    deletePlayerMatchCaps(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_assault_match_objectives WHERE player=? AND match_id=?";
+
+            mysql.query(query, [playerId, matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    getPlayerCaps(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_assault_match_objectives WHERE match_id=? AND player=?";
+
+            mysql.query(query, [matchId, playerId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    async deletePlayerFromMatch(playerId, matchId){
+
+        try{
+
+            const capturedObjectives = await this.getPlayerCaps(playerId, matchId);
+
+            console.table(capturedObjectives);
+
+            if(capturedObjectives.length > 0){
+
+                let c = 0;
+
+                for(let i = 0; i < capturedObjectives.length; i++){
+
+                    c = capturedObjectives[i];
+
+                    await this.removeMatchCap(matchId, c.obj_id);
+                }
+
+                await this.deletePlayerMatchCaps(playerId, matchId);
+            }
+
+
+        }catch(err){
+            console.trace(err);
         }
-        
     }
 }
 

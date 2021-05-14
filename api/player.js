@@ -2,6 +2,8 @@ const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
 const Functions = require('./functions');
+const CountriesManager = require('./countriesmanager');
+const Assault  = require('./assault');
 
 class Player{
 
@@ -653,6 +655,55 @@ class Player{
             });
 
         });
+    }
+
+
+    getMatchData(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id=?";
+
+            mysql.query(query, [playerId, matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    if(result.length > 0){
+                        resolve(result[0]);
+                    }
+                }
+
+                resolve(null);
+            });
+        });
+    }
+
+    async removeFromMatch(playerId, matchId){
+
+        try{
+
+            const matchData = await this.getMatchData(playerId, matchId);
+
+            console.log(matchData);
+
+            if(matchData !== null){
+
+                const countriesManager = new CountriesManager();
+
+                await countriesManager.reduceUses(matchData.country, 1);
+
+                const assaultManager = new Assault();
+
+                await assaultManager.deletePlayerFromMatch(playerId, matchId);
+            }
+
+            
+
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
 }

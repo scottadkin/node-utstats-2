@@ -9,10 +9,12 @@ function Nav({session, settings}){
 
     let displayName = "NOT FOUND";
 
+
     if(session.displayName !== undefined){
         displayName = session.displayName;
     }
     
+
     if(settings !== undefined){
 
         settings = JSON.parse(settings);
