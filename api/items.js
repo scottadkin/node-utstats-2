@@ -324,9 +324,11 @@ class Items{
 
             const query = "UPDATE nstats_items_player SET uses=uses-?, matches=matches-1 WHERE player=? AND item=?";
 
-            mysql.query(query, [amount, playerId, id], (err) =>{
+            mysql.query(query, [amount, playerId, id], (err, result) =>{
 
                 if(err) reject(err);
+
+                console.log(result.affectedRows);
 
                 resolve();
             });
@@ -369,7 +371,7 @@ class Items{
                     uses[m.item] = m.uses;
                 }
 
-                await this.reduceItemPlayerTotal(id, m.player_id, m.uses);
+                await this.reduceItemPlayerTotal(m.item, m.player_id, m.uses);
             }
 
             for(const [key, value] of Object.entries(uses)){
