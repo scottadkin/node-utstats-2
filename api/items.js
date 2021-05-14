@@ -328,8 +328,6 @@ class Items{
 
                 if(err) reject(err);
 
-                console.log(result.affectedRows);
-
                 resolve();
             });
         });

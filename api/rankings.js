@@ -373,6 +373,9 @@ class Rankings{
 
         return new Promise((resolve, reject) =>{
 
+
+            if(players.length === 0) resolve([]);
+            
             const query = "SELECT player_id,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id IN(?) AND gametype=?";
 
             mysql.query(query, [players, gametype], (err, result) =>{

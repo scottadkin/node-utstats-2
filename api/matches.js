@@ -528,10 +528,8 @@ class Matches{
             const ctf = new CTF();
 
             await ctf.deleteMatchCapData(id);
-            console.log("deleted MatchCapData");
 
             await ctf.deleteMatchEvents(id);
-            console.log("deleted matchctfevents");
 
         }catch(err){
             console.trace(err);

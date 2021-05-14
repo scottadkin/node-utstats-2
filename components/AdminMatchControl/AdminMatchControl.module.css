@@ -1,0 +1,22 @@
+.button{
+    border:1px solid var(--border-color-1);
+    text-align:center;
+    padding:5px 10px;
+    display:inline-block;
+    user-select: none;
+}
+
+.button:hover{
+    color:yellow;
+    cursor: pointer;
+    background-color:rgb(150,0,0);
+}
+
+.box{
+    border:1px solid var(--border-color-1);
+    text-align:center;
+    padding:5px 10px;
+    max-width:var(--max-width-1);
+    width:var(--width-1);
+   
+}

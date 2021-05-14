@@ -103,7 +103,7 @@ class Session{
                         this.settings.bUploadImages = true;
                     }
               
-                    return bAdmin
+                    return bAdmin;
                 }
             }
 

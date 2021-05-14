@@ -38,6 +38,7 @@ import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 import Rankings from '../../api/rankings';
 import MatchRankingChanges from '../../components/MatchRankingChanges/';
+import AdminMatchControl from '../../components/AdminMatchControl/';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1301,9 +1302,36 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     }
     //
 
+    if(info === undefined){
+
+        return <div>
+        <DefaultHead host={host} 
+            title={`Doesn't Exist! - Match Report`} 
+            description={`Match does not exist.`} 
+            keywords={`match,report`}
+            image={ogImage}    
+            />
+        <main>
+            <Nav settings={navSettings} session={session}/>
+            <div id="content">
+
+                <div className="default">
+                    
+                    <div className="default-header">Match Does Not Exist!</div>
+    
+                </div>
+            </div>
+            <Footer session={session}/>
+        </main>
+    </div>
+    }
+
+
     const parsedInfo = JSON.parse(info);
 
     const parsedPlayerData = JSON.parse(playerData);
+
+    const parsedSession = JSON.parse(session);
 
     pageSettings = JSON.parse(pageSettings);
 
@@ -1562,6 +1590,11 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     <div className="default-header">Match Report</div> 
     : null;
 
+
+    if(parsedSession["bLoggedIn"]){
+        elems.push(<AdminMatchControl key={"a-c"} matchId={parsedInfo.id}/>);
+    }
+
     return <div>
         <DefaultHead host={host} 
             title={`${map} (${dateString}) Match Report`} 
@@ -1575,10 +1608,9 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
             <div id="content">
 
                 <div className="default">
+
                         {titleElem}
-
                         
-
                         {elems}
     
                 </div>
@@ -1601,15 +1633,20 @@ export async function getServerSideProps({req, query}){
 
     const settings = new SiteSettings();
     const pageSettings = await settings.getCategorySettings("Match Pages");
+    const navSettings = await settings.getCategorySettings("Navigation");
 
    // console.log(pageSettings);
 
     const m = new MatchManager();
 
     if(matchId !== matchId){
-        return {
-            props: {
 
+        return {
+
+            props: {
+                "session": JSON.stringify(session.settings),
+                "navSettings": JSON.stringify(navSettings),
+                "pageSettings": JSON.stringify(pageSettings),
             }
         };
     }
@@ -1618,7 +1655,9 @@ export async function getServerSideProps({req, query}){
 
         return {
             props: {
-
+                "session": JSON.stringify(session.settings),         
+                "navSettings": JSON.stringify(navSettings),
+                "pageSettings": JSON.stringify(pageSettings),
             }
         };
     }
@@ -1790,7 +1829,7 @@ export async function getServerSideProps({req, query}){
 
     const headshotData = await headshotsManager.getMatchData(matchId);
 
-    const navSettings = await settings.getCategorySettings("Navigation");
+    
 
     const rankingsManager = new Rankings();
 

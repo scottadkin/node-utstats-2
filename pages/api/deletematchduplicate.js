@@ -12,8 +12,7 @@ export default async (req, res) =>{
         if(await session.bUserAdmin()){
 
             const a = new Admin();
-    
-            
+         
             const duplicates = await a.getDuplicateMatches();
 
             const logNames = [];
@@ -24,11 +23,9 @@ export default async (req, res) =>{
             }
 
             await a.deleteDuplicateMatches(logNames);
-
-            console.log("ok");
         }
 
-        res.status(200).json({"message": "meow"})
+        res.status(200).json({"message": "passed"})
 
     }catch(err){
         res.status(200).json({"message": `Error: ${err}`});

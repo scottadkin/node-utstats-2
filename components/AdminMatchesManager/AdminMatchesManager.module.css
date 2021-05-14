@@ -1,0 +1,6 @@
+.info{
+    padding:25px 0px;
+    max-width:var(--max-width-1);
+    width:var(--width-1);
+    border:1px solid var(--border-color-1);
+}

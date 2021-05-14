@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './AdminMatchesManager.module.css';
 
 class AdminMatchesManager extends React.Component{
 
@@ -6,7 +7,7 @@ class AdminMatchesManager extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0, "matches": JSON.parse(this.props.duplicates)};
+        this.state = {"mode": 0, "matches": JSON.parse(this.props.duplicates), "started": false, "finished": false, "failed": false};
 
         this.deleteDuplicate = this.deleteDuplicate.bind(this);
     }
@@ -18,6 +19,7 @@ class AdminMatchesManager extends React.Component{
 
             e.preventDefault();
 
+            this.setState({"started": true});
 
             const req = await fetch("/api/deletematchduplicate", {
                 "headers": {"Content-Type": "application/json"},
@@ -25,8 +27,17 @@ class AdminMatchesManager extends React.Component{
                 "body": JSON.stringify({"delete": true})
             });
 
+            
 
-            console.log(await req.json());
+            const result = await req.json();
+
+            if(result.message === "passed"){
+
+                this.setState({"finished": true, "matches": []});
+                
+            }else{
+                this.setState({"finished": true, "failed": true});
+            }
 
         }catch(err){
             console.trace(err);
@@ -35,6 +46,27 @@ class AdminMatchesManager extends React.Component{
     }
 
 
+
+    renderInfo(){
+
+        if(this.state.started === false) return null;
+
+        let className = "team-green";
+        let text = "Processing...";
+
+        if(this.state.failed){
+            className = "team-red";
+            text = "There was a problem deleting duplicates.";
+        }else{
+            if(this.state.finished){
+                text = "Duplicate matches deleted successfully.";
+            }
+        }
+
+        return <div className={`${styles.info} ${className} center`}>
+            {text}
+        </div>
+    }
 
 
     renderDuplicates(){
@@ -75,6 +107,7 @@ class AdminMatchesManager extends React.Component{
             </table>
 
             <div className="default-header">Delete Duplicates</div>
+            {this.renderInfo()}
             <form action="/" className="form" onSubmit={this.deleteDuplicate} method="POST">
                 <div className="form-info">
                     Performing this action will delete the previous imports of the log and only keep the most recent import.<br/>
@@ -92,6 +125,7 @@ class AdminMatchesManager extends React.Component{
             <div className="tabs">
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "null"}`}>Duplicates</div>
             </div>
+            
             {this.renderDuplicates()}
         </div>
     }

@@ -79,7 +79,7 @@ const MatchRankingChanges = ({changes, currentRankings, playerNames, positions})
             rankingString = `No change in the previous match.`;
         }
 
-        rows.push(<tr>
+        rows.push(<tr key={i}>
             <td><Link href={`/player/${c.player_id}`}><a><CountryFlag country={player.country}/>{player.name}</a></Link></td>
             <td>{previousRanking.toFixed(2)}</td>
             <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.ranking.toFixed(2)}</td>
