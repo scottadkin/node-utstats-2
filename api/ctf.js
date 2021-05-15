@@ -189,7 +189,7 @@ class CTF{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT timestamp,player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
+            const query = "SELECT id,timestamp,player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
 
             mysql.query(query, [id], (err, result) =>{
 
@@ -385,8 +385,10 @@ class CTF{
             pickups=?,
             covers=?,
             assists=?,
+            assist_carry_ids=?,
             cap=?
             WHERE id=?`;
+
 
             const vars = [
                 data.grab,
@@ -394,6 +396,7 @@ class CTF{
                 data.pickups.toString(),
                 data.covers.toString(),
                 data.assists.toString(),
+                data.assist_carry_ids.toString(),
                 data.cap,
                 data.id
             ];
@@ -407,6 +410,24 @@ class CTF{
         });
     }
 
+    updateEvent(data, ignoredPlayer){
+
+        return new Promise((resolve, reject) =>{
+
+            if(data.player !== ignoredPlayer){
+                resolve();
+            }else{
+
+                mysql.query(query, [data.id], (err) =>{
+
+                    if(err) reject(err);
+
+                    resolve();
+                });
+            }
+        });
+    }
+
     async deletePlayerFromMatch(playerId, matchId){
 
         try{
@@ -414,14 +435,13 @@ class CTF{
 
             const matchCaps = await this.getMatchCaps(matchId);
 
-            console.table(matchCaps);
+            const matchEvents = await this.getMatchEvents(matchId);
+
+            
 
             if(matchCaps.length > 0){
-
-                
+   
                 if(this.parseCapEvents(matchCaps, playerId)){
-
-                    console.table(matchCaps);
 
                     console.log("player data has been removed, need to update table rows");
 
@@ -430,8 +450,16 @@ class CTF{
                         await this.updateCap(matchCaps[i]);
                     }
                 }
+            }
 
-                
+            if(matchEvents.length > 0){
+
+                console.table(matchEvents);
+
+                for(let i = 0; i < matchEvents.length; i++){
+
+                    await this.updateEvent(matchEvents[i], playerId);
+                }
             }
 
         }catch(err){
