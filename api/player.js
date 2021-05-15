@@ -5,6 +5,7 @@ const Functions = require('./functions');
 const CountriesManager = require('./countriesmanager');
 const Assault = require('./assault');
 const CTF = require('./ctf');
+const Domination = require('./domination');
 
 class Player{
 
@@ -701,6 +702,10 @@ class Player{
                 const ctfManager = new CTF();
 
                 await ctfManager.deletePlayerFromMatch(playerId, matchId);
+
+                const domManager = new Domination();
+
+                await domManager.deletePlayerFromMatch(playerId, matchId);
             }
 
             

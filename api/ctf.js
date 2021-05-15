@@ -443,8 +443,6 @@ class CTF{
    
                 if(this.parseCapEvents(matchCaps, playerId)){
 
-                    console.log("player data has been removed, need to update table rows");
-
                     for(let i = 0; i < matchCaps.length; i++){
 
                         await this.updateCap(matchCaps[i]);
@@ -453,8 +451,6 @@ class CTF{
             }
 
             if(matchEvents.length > 0){
-
-                console.table(matchEvents);
 
                 for(let i = 0; i < matchEvents.length; i++){
 

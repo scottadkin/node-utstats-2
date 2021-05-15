@@ -960,10 +960,11 @@ class DominationGraphData{
 
             currentPlayerIndex = this.getPlayerIndex(c.player);
             
-
-            this.playerCapData[currentPlayerIndex].data.push(
-                this.playerCapData[currentPlayerIndex].data[this.playerCapData[currentPlayerIndex].data.length - 1] + 1
-            );
+            if(currentPlayerIndex !== -1){
+                this.playerCapData[currentPlayerIndex].data.push(
+                    this.playerCapData[currentPlayerIndex].data[this.playerCapData[currentPlayerIndex].data.length - 1] + 1
+                );
+            }
 
             this.updateOtherTeamData(c.team);
             this.updateOtherPointData(currentPointIndex);
@@ -1091,8 +1092,10 @@ function createScoreHistoryGraph(score, playerNames, matchStart){
 
         updated.push(s.player);
         current = data.get(s.player);
-        current.data.push(s.score);
-        data.set(s.player, {"name": current.name, "data": current.data});
+        if(current !== undefined){
+            current.data.push(s.score);
+            data.set(s.player, {"name": current.name, "data": current.data});
+        }
         
         //console.log(current);
 

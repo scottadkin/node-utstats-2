@@ -389,6 +389,50 @@ class Domination{
             });
         });
     }
+
+    removePlayerMatchCaps(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_dom_match_caps SET player=-1 WHERE player=? AND match_id=?";
+
+            mysql.query(query, [playerId, matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+
+    removePlayerMatchScoreHistory(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_match_player_score SET player=-1 WHERE player=? AND match_id=?";
+
+            mysql.query(query, [playerId, matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async deletePlayerFromMatch(playerId, matchId){
+
+        try{
+
+            await this.removePlayerMatchCaps(playerId, matchId);
+
+            await this.removePlayerMatchScoreHistory(playerId, matchId);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 
