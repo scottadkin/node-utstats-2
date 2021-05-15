@@ -316,7 +316,7 @@ class Assault{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "DELETE FROM nstats_assault_match_objectives WHERE player=? AND match_id=?";
+            const query = "UPDATE nstats_assault_match_objectives SET player=-1 WHERE player=? AND match_id=?";
 
             mysql.query(query, [playerId, matchId], (err) =>{
 

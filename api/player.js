@@ -3,7 +3,8 @@ const Promise = require('promise');
 const Message = require('./message');
 const Functions = require('./functions');
 const CountriesManager = require('./countriesmanager');
-const Assault  = require('./assault');
+const Assault = require('./assault');
+const CTF = require('./ctf');
 
 class Player{
 
@@ -696,6 +697,10 @@ class Player{
                 const assaultManager = new Assault();
 
                 await assaultManager.deletePlayerFromMatch(playerId, matchId);
+
+                const ctfManager = new CTF();
+
+                await ctfManager.deletePlayerFromMatch(playerId, matchId);
             }
 
             

@@ -305,7 +305,138 @@ class CTF{
                 resolve();
             });
         });
+    }
 
+    parseCapEvents(caps, removedPlayer){
+
+        let bRemovedPlayerData = false;
+
+        const cleanArray = (data, removedPlayer) =>{
+
+            data = data.split(",");
+
+            const cleanData = [];
+
+            let d = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                if(d !== ""){
+
+                    d = parseInt(d);
+
+                    if(d === d){
+
+                        if(removedPlayer !== undefined){
+
+                            if(d === removedPlayer){
+                                d = -1
+                                bRemovedPlayerData = true;
+                            }
+                        }
+
+                        cleanData.push(d);
+                    }
+                }
+
+            }
+
+            return cleanData;
+
+        }
+
+        let c = 0;
+
+        for(let i = 0; i < caps.length; i++){
+
+            c = caps[i];
+
+            if(removedPlayer !== undefined){
+
+                if(c.grab === removedPlayer) c.grab = -1;
+                if(c.cap === removedPlayer) c.cap = -1;
+            }
+
+            c.drops = cleanArray(c.drops, removedPlayer);
+            c.drop_times = cleanArray(c.drop_times);
+            c.pickups = cleanArray(c.pickups, removedPlayer);
+            c.pickup_times = cleanArray(c.pickup_times);
+            c.covers = cleanArray(c.covers, removedPlayer);
+            c.cover_times = cleanArray(c.cover_times);
+            c.assists = cleanArray(c.assists, removedPlayer);
+            c.assist_carry_times = cleanArray(c.assist_carry_times);
+            c.assist_carry_ids = cleanArray(c.assist_carry_ids, removedPlayer);
+
+        }
+
+        return bRemovedPlayerData;
+
+    }
+
+    updateCap(data){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `UPDATE nstats_ctf_caps SET
+            grab=?,
+            drops=?,
+            pickups=?,
+            covers=?,
+            assists=?,
+            cap=?
+            WHERE id=?`;
+
+            const vars = [
+                data.grab,
+                data.drops.toString(),
+                data.pickups.toString(),
+                data.covers.toString(),
+                data.assists.toString(),
+                data.cap,
+                data.id
+            ];
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async deletePlayerFromMatch(playerId, matchId){
+
+        try{
+
+
+            const matchCaps = await this.getMatchCaps(matchId);
+
+            console.table(matchCaps);
+
+            if(matchCaps.length > 0){
+
+                
+                if(this.parseCapEvents(matchCaps, playerId)){
+
+                    console.table(matchCaps);
+
+                    console.log("player data has been removed, need to update table rows");
+
+                    for(let i = 0; i < matchCaps.length; i++){
+
+                        await this.updateCap(matchCaps[i]);
+                    }
+                }
+
+                
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
 }
