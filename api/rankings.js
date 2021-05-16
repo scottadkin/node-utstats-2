@@ -25,7 +25,7 @@ class Rankings{
                     resolve(result);
                 }
 
-                resolve();
+                resolve([]);
             });
         });
     }
@@ -447,6 +447,115 @@ class Rankings{
                 resolve();
             });
         });
+    }
+
+    async getPlayerMatchHistory(playerId, matchId){
+        return await mysql.simpleFetch("SELECT * FROM nstats_ranking_player_history WHERE player_id=? AND match_id=?",
+        [playerId, matchId]);
+    }
+
+
+    async reducePlayerRankingPlaytime(playerId, gametypeId, playtime){
+
+        const query = "UPDATE nstats_ranking_player_current SET matches=matches-1,ranking_change=0,ranking=-1, playtime=playtime-? WHERE player_id=? AND gametype=?";
+        return await mysql.simpleUpdate(query, [playtime, playerId, gametypeId]);
+    }
+
+    async deletePlayerMatchHistory(playerId, matchId){
+
+        return await mysql.simpleDelete("DELETE FROM nstats_ranking_player_history WHERE player_id=? AND match_id=?",
+            [playerId, matchId]
+        );
+    }
+
+    async setPlayerGametypeRanking(playerId, gametype, value){
+
+        return await mysql.simpleUpdate("UPDATE nstats_ranking_player_current SET ranking=? WHERE player_id=? AND gametype=?",
+        [value, playerId, gametype]);
+    }
+
+    async recalculatePlayerRanking(playerId, playerGametypeData){
+
+        try{
+
+            const values = await this.getRankingSettings();
+
+            const halfHour = 60 * 30;
+            const hour = 60 * 60;
+            const hour2 = hour * 2;
+            const hour3 = hour * 3;
+
+            const ignore = [
+                "sub_half_hour_multiplier",
+                "sub_hour_multiplier",
+                "sub_2hour_multiplier",
+                "sub_3hour_multiplier",
+            ];
+
+            const penalties = {};
+
+            let currentScore = 0;
+
+            let v = 0;
+
+            for(let i = 0; i < values.length; i++){
+
+                v = values[i];
+
+                if(ignore.indexOf(v.name) === -1){
+
+                    currentScore += playerGametypeData[0][v.name] * v.value;
+
+                }else{
+
+                    penalties[v.name] = v.value;
+                }
+            }
+
+            const playtime = playerGametypeData[0].playtime;
+
+            if(playtime < halfHour){
+
+                currentScore *= penalties["sub_half_hour_multiplier"];
+
+            }else if(playtime < hour){
+
+                currentScore *= penalties["sub_hour_multiplier"];
+
+            }else if(playtime < hour2){
+
+                currentScore *= penalties["sub_2hour_multiplier"];
+
+            }else if(playtime < hour3){
+
+                currentScore *= penalties["sub_3hour_multiplier"];
+            }
+
+            await this.setPlayerGametypeRanking(playerId, playerGametypeData[0].gametype, currentScore);
+
+        }catch(err){
+            console.trace(err);
+        }
+
+    }
+
+
+
+    async deletePlayerFromMatch(playerId, matchId, playtime){
+
+        try{
+
+            const matchData = await this.getPlayerMatchHistory(playerId, matchId);
+
+            if(matchData.length > 0){
+
+                await this.reducePlayerRankingPlaytime(playerId, matchData[0].gametype, playtime);
+            }
+            //await this.deletePlayerMatchHistory(playerId, matchId);
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

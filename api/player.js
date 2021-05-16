@@ -13,6 +13,7 @@ const Kills = require('./kills');
 const Connections = require('./connections');
 const Pings = require('./pings');
 const Weapons = require('./weapons');
+const Rankings = require('./rankings');
 
 class Player{
 
@@ -855,6 +856,15 @@ class Player{
 
         return await mysql.simpleUpdate(query, vars);
     }
+
+
+    async getPlayerGametypeData(playerName, gametypeId){
+
+        console.log(`SELECT * FROM nstats_player_totals WHERE name=${playerName} AND gametype=${gametypeId}`);
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE name=? AND gametype=?", 
+            [playerName, gametypeId]
+        );
+    }
     
 
     async removeFromMatch(playerId, matchId, mapId){
@@ -924,6 +934,15 @@ class Player{
                 const weaponManager = new Weapons();
 
                 await weaponManager.deletePlayerFromMatch(playerId, matchId);
+
+                const rankingManager = new Rankings();
+
+                await rankingManager.deletePlayerFromMatch(playerId, matchId, matchData.playtime);
+
+
+                const playerGametypeData = await this.getPlayerGametypeData(matchData.name, matchData.gametype);
+
+                await rankingManager.recalculatePlayerRanking(playerId, playerGametypeData);
 
             }
 
