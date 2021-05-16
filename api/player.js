@@ -14,6 +14,8 @@ const Connections = require('./connections');
 const Pings = require('./pings');
 const Weapons = require('./weapons');
 const Rankings = require('./rankings');
+const Voices = require('./voices');
+const WinRate = require('./winrate');
 
 class Player{
 
@@ -860,7 +862,6 @@ class Player{
 
     async getPlayerGametypeData(playerName, gametypeId){
 
-        console.log(`SELECT * FROM nstats_player_totals WHERE name=${playerName} AND gametype=${gametypeId}`);
         return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE name=? AND gametype=?", 
             [playerName, gametypeId]
         );
@@ -943,6 +944,14 @@ class Player{
                 const playerGametypeData = await this.getPlayerGametypeData(matchData.name, matchData.gametype);
 
                 await rankingManager.recalculatePlayerRanking(playerId, playerGametypeData);
+
+                const voiceManager = new Voices();
+
+                await voiceManager.reduceTotals(matchData.voice, 1);
+
+                const winRateManager = new WinRate();
+
+                await winRateManager.deletePlayerFromMatch(playerId, matchId, matchData.gametype);
 
             }
 

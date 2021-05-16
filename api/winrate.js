@@ -368,6 +368,10 @@ class WinRate{
             let currentDraws = 0;
             let currentLosses = 0;
 
+            let wins = 0;
+            let draws = 0;
+            let losses = 0;
+
             let h = 0;
 
             for(let i = 0; i < history.length; i++){
@@ -433,8 +437,6 @@ class WinRate{
                     h.winrate = 0;
                 }
 
-                await this.updateHistoryEntry(h);
-
             }
 
         }catch(err){
@@ -456,6 +458,150 @@ class WinRate{
                 resolve();
             });
         });
+    }
+
+    async getPlayerGamtypeHistoryDetailed(playerId, gametypeId){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_winrates WHERE gametype=? AND player=? ORDER BY id ASC",[
+            gametypeId, playerId
+        ]);
+    }
+
+    async recalculatePlayerHistory(data, playerId, gametypeId){
+
+        try{
+
+            if(data.length === 0) return;
+
+            // loser = 0
+            // winner = 1
+            // draw = 2
+
+            let matches = 0;
+            let wins = 0;
+            let draws = 0;
+            let losses = 0;
+            let currentWinStreak = 0;
+            let currentDrawStreak = 0;
+            let currentLoseStreak = 0;
+            let maxWinStreak = 0;
+            let maxDrawStreak = 0;
+            let maxLoseStreak = 0;
+            let winrate = 0;
+            let matchId = 0;
+            let matchDate = 0;
+
+            let d = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                matches++;
+
+                matchId = d.match_id;
+                matchDate = d.date;
+
+                if(d.match_result === 0){
+
+                    losses++;
+                    currentWinStreak = 0;
+                    currentDrawStreak = 0;
+                    currentLoseStreak++;
+
+                }else if(d.match_result === 1){
+
+                    wins++;
+                    currentWinStreak++;
+                    currentDrawStreak = 0;
+                    currentLoseStreak = 0;
+
+                }else if(d.match_result === 2){
+
+                    draws++;
+                    currentDrawStreak++;
+                    currentWinStreak = 0;
+                    currentLoseStreak = 0;
+                }
+
+
+                if(currentWinStreak >= maxWinStreak) maxWinStreak = currentWinStreak;
+                if(currentDrawStreak >= maxDrawStreak) maxDrawStreak = currentDrawStreak;
+                if(currentLoseStreak >= maxLoseStreak) maxLoseStreak = currentLoseStreak;
+
+
+                winrate = 0;
+
+                if(wins > 0){
+
+                    if(losses === 0 && draws === 0){
+                        winrate = 100;
+                    }else{
+
+                        winrate = (wins / matches) * 100
+                    }
+
+                }
+
+                //query here
+
+                await this.updateHistoryEntry({
+                    "id": d.id,
+                    "matches": matches,
+                    "wins": wins,
+                    "draws": draws,
+                    "losses": losses,
+                    "current_win_streak": currentWinStreak,
+                    "current_draw_streak": currentDrawStreak,
+                    "current_lose_streak": currentLoseStreak,
+                    "max_win_streak": maxWinStreak,
+                    "max_draw_streak": maxDrawStreak,
+                    "max_lose_streak": maxLoseStreak,
+                    "winrate": winrate
+
+                });
+            }
+
+            await this.updateLatest(matchId, matchDate, {
+                "id": d.id,
+                "matches": matches,
+                "wins": wins,
+                "draws": draws,
+                "losses": losses,
+                "current_win_streak": currentWinStreak,
+                "current_draw_streak": currentDrawStreak,
+                "current_lose_streak": currentLoseStreak,
+                "max_win_streak": maxWinStreak,
+                "max_draw_streak": maxDrawStreak,
+                "max_lose_streak": maxLoseStreak,
+                "winrate": winrate,
+                "player": playerId,
+                "gametype": gametypeId
+
+            });
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async deletePlayerFromMatch(playerId, matchId, gametypeId){
+
+        try{
+
+            await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE player=? AND match_id=?", [playerId, matchId]);
+
+            const allHistory = await this.getPlayerGamtypeHistoryDetailed(playerId, 0);
+            const gametypeHistory = await this.getPlayerGamtypeHistoryDetailed(playerId, gametypeId);
+
+            console.table(allHistory);
+
+            await this.recalculatePlayerHistory(allHistory, playerId, gametypeId);
+            await this.recalculatePlayerHistory(gametypeHistory, playerId, gametypeId);
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

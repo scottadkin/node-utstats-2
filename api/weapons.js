@@ -524,8 +524,8 @@ class Weapons{
             const matchData = await this.getPlayerMatchData(playerId, matchId);
 
             for(let i = 0; i < matchData.length; i++){
-
-                await this.reduceTotals(matchData[i].weapon_data, matchData[i]);
+ 
+                await this.reduceTotals(matchData[i].weapon_id, matchData[i]);
                 await this.reducePlayerWeaponTotal(matchData[i]);
             }
 
