@@ -800,6 +800,13 @@ class Matches{
     }
 
 
+    async reducePlayerCount(matchId, amount){
+
+        return await mysql.simpleUpdate("UPDATE nstats_matches SET players=players-? WHERE id=?", [
+            amount, matchId
+        ]);
+    }
+
     
 }
 module.exports = Matches;

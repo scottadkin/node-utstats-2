@@ -594,8 +594,6 @@ class WinRate{
             const allHistory = await this.getPlayerGamtypeHistoryDetailed(playerId, 0);
             const gametypeHistory = await this.getPlayerGamtypeHistoryDetailed(playerId, gametypeId);
 
-            console.table(allHistory);
-
             await this.recalculatePlayerHistory(allHistory, playerId, gametypeId);
             await this.recalculatePlayerHistory(gametypeHistory, playerId, gametypeId);
 

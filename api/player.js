@@ -691,6 +691,13 @@ class Player{
         });
     }
 
+    async deletePlayerMatch(playerId, matchId){
+
+        return await mysql.simpleDelete("DELETE FROM nstats_player_matches WHERE player_id=? AND match_id=?", [
+            playerId, matchId
+        ]);
+    }
+
     async deletePlayerScoreData(playerId, matchId){
 
         return await mysql.simpleDelete("DELETE FROM nstats_match_player_score WHERE player=? AND match_id=?",
@@ -714,8 +721,6 @@ class Player{
 
 
     async reduceTotals(player, gametypeId){
-
-        console.log(`reduce Totals for player  ${player.name} for gametype ${gametypeId}`);
 
         const query = `UPDATE nstats_player_totals SET 
             matches=matches-1,
@@ -868,7 +873,7 @@ class Player{
     }
     
 
-    async removeFromMatch(playerId, matchId, mapId){
+    async removeFromMatch(playerId, matchId, mapId, matchManager){
 
         try{
 
@@ -952,6 +957,13 @@ class Player{
                 const winRateManager = new WinRate();
 
                 await winRateManager.deletePlayerFromMatch(playerId, matchId, matchData.gametype);
+
+
+                await this.deletePlayerMatch(playerId, matchId);
+
+
+
+                await matchManager.reducePlayerCount(matchId, 1);
 
             }
 
