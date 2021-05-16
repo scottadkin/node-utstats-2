@@ -11,6 +11,7 @@ const Headshots = require('./headshots');
 const Items = require('./items');
 const Kills = require('./kills');
 const Connections = require('./connections');
+const Pings = require('./pings');
 
 class Player{
 
@@ -686,6 +687,12 @@ class Player{
         });
     }
 
+    async deletePlayerScoreData(playerId, matchId){
+
+        return await mysql.simpleDelete("DELETE FROM nstats_match_player_score WHERE player=? AND match_id=?",
+        [playerId, matchId]);
+    }
+
     async removeFromMatch(playerId, matchId){
 
         try{
@@ -731,6 +738,12 @@ class Player{
                 const connectionsManager = new Connections();
 
                 await connectionsManager.deletePlayerFromMatch(playerId, matchId);
+
+                const pingManager = new Pings();
+
+                await pingManager.deletePlayerMatchData(playerId, matchId);
+
+                await this.deletePlayerScoreData(playerId, matchId);
 
             }
 

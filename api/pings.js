@@ -72,9 +72,13 @@ class Pings{
 
                 resolve([]);
             });
+        });     
+    }
 
-        });
-        
+    async deletePlayerMatchData(playerId, matchId){
+
+         return await mysql.simpleDelete("DELETE FROM nstats_match_pings WHERE player=? AND match_id=?", [playerId, matchId]);
+     
     }
 }
 
