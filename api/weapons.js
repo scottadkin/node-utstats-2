@@ -503,6 +503,38 @@ class Weapons{
         }
     }
 
+    async getPlayerMatchData(playerId, matchId){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_match WHERE match_id=? AND player_id=?",[matchId, playerId]);
+    }
+
+
+    async deleteSinglePlayerMatchData(playerId, matchId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id=?",[
+            playerId, matchId
+        ]);
+    }
+
+
+    async deletePlayerFromMatch(playerId, matchId){
+
+        try{
+
+            const matchData = await this.getPlayerMatchData(playerId, matchId);
+
+            for(let i = 0; i < matchData.length; i++){
+
+                await this.reduceTotals(matchData[i].weapon_data, matchData[i]);
+                await this.reducePlayerWeaponTotal(matchData[i]);
+            }
+
+            await this.deleteSinglePlayerMatchData(playerId, matchId);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 

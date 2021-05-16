@@ -67,7 +67,11 @@ class AdminMatchControl extends React.Component{
             const req = await fetch("/api/matchadmin", {
                 "headers": {"Content-Type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"type": "deletePlayer", "matchId": this.props.matchId,"playerId": playerId})
+                "body": JSON.stringify({
+                    "type": "deletePlayer", 
+                    "matchId": this.props.matchId,
+                    "playerId": playerId,
+                    "mapId": this.props.mapId})
             });
 
             const result = await req.json();

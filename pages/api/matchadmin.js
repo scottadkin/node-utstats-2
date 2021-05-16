@@ -24,7 +24,10 @@ export default async (req, res) =>{
                 
                 const playerManager = new Player();
 
-                await playerManager.removeFromMatch(parseInt(req.body.playerId), parseInt(req.body.matchId));
+                await playerManager.removeFromMatch(
+                    parseInt(req.body.playerId),
+                    parseInt(req.body.matchId),
+                    parseInt(req.body.mapId));
 
             }else{
                 res.status(200).json({"message": "Unknown command"});
