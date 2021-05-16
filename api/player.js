@@ -9,6 +9,8 @@ const Domination = require('./domination');
 const Faces = require('./faces');
 const Headshots = require('./headshots');
 const Items = require('./items');
+const Kills = require('./kills');
+const Connections = require('./connections');
 
 class Player{
 
@@ -721,6 +723,15 @@ class Player{
                 const itemsManager = new Items();
 
                 await itemsManager.deletePlayerFromMatch(playerId, matchId);
+
+                const killsManager = new Kills();
+
+                await killsManager.deletePlayerMatchData(playerId, matchId);
+
+                const connectionsManager = new Connections();
+
+                await connectionsManager.deletePlayerFromMatch(playerId, matchId);
+
             }
 
             

@@ -76,6 +76,10 @@ const rankingRows = [
 
     "INSERT INTO nstats_ranking_values VALUES(NULL,'dom_caps',6000)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'assault_objectives',6000)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,sub_half_hour_multiplier, 0.05)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,sub_hour_multiplier, 0.2)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,sub_2hour_multiplier, 0.5)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,sub_3hour_multiplier, 0.75)"
 
 ];
 

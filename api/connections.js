@@ -56,6 +56,21 @@ class Connections{
             }); 
         });
     }
+
+    deletePlayerFromMatch(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_match_connections WHERE player=? AND match_id=?";
+
+            mysql.query(query, [playerId, matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
 }
 
 
