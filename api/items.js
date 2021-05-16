@@ -383,6 +383,81 @@ class Items{
             console.trace(err);
         }   
     }
+
+
+    getPlayerMatchItemData(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
+
+            mysql.query(query, [matchId, playerId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result);
+                }
+
+                resolve([]);
+            });
+        });
+    }
+
+    reduceItemTotalsByPlayerMatchUse(item, uses){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "UPDATE nstats_items SET uses=uses-? WHERE id=?";
+
+            mysql.query(query, [uses, item], (err, result) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    deletePlayerMatchUses(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nstats_items_match WHERE player_id=? AND match_id=?";
+
+            mysql.query(query, [playerId, matchId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async deletePlayerFromMatch(playerId, matchId){
+
+        try{
+
+            const matchData = await this.getPlayerMatchItemData(playerId, matchId);
+
+            if(matchData.length > 0){
+
+                let m = 0;
+
+                for(let i = 0; i < matchData.length; i++){
+
+                    m = matchData[i];
+
+                    await this.reduceItemPlayerTotal(m.item, playerId, m.uses);
+                    await this.reduceItemTotalsByPlayerMatchUse(m.item, m.uses);
+                    await this.deletePlayerMatchUses(playerId, matchId);
+
+                }
+            }
+        }catch(err){
+            console.trace(err);
+        }   
+    }
 }
 
 module.exports = Items;

@@ -60,6 +60,21 @@ class Headshots{
             });
         });
     }
+
+    deletePlayerFromMatch(playerId, matchId){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = `DELETE FROM nstats_headshots WHERE (match_id=? AND killer=?) OR (match_id=? AND victim=?)`;
+
+            mysql.query(query, [matchId, playerId, matchId, playerId], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            }); 
+        });
+    }
 }
 
 

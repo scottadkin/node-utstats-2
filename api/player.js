@@ -6,6 +6,9 @@ const CountriesManager = require('./countriesmanager');
 const Assault = require('./assault');
 const CTF = require('./ctf');
 const Domination = require('./domination');
+const Faces = require('./faces');
+const Headshots = require('./headshots');
+const Items = require('./items');
 
 class Player{
 
@@ -706,6 +709,18 @@ class Player{
                 const domManager = new Domination();
 
                 await domManager.deletePlayerFromMatch(playerId, matchId);
+
+                const faceManager = new Faces();
+
+                await faceManager.reduceUsage(matchData.face, 1);
+
+                const headshotsManager = new Headshots();
+
+                await headshotsManager.deletePlayerFromMatch(playerId, matchId);
+
+                const itemsManager = new Items();
+
+                await itemsManager.deletePlayerFromMatch(playerId, matchId);
             }
 
             
