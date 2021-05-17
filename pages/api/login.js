@@ -6,7 +6,7 @@ export default async (req, res) =>{
 
     try{
 
-        const MAX_COOKIE_AGE = (60 * 60) * 24;
+        const MAX_COOKIE_AGE = ((60 * 60) * 24) * 365;
 
         const user = new UserManager();
 

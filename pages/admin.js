@@ -13,13 +13,15 @@ import AdminUserTable from '../components/AdminUserTable/';
 import Faces from '../api/faces';
 import AdminFaces from '../components/AdminFaces/';
 import AdminMatchesManager from '../components/AdminMatchesManager/';
+import AdminPlayersManager from '../components/AdminPlayersManager/';
+import Players from '../api/players';
 
 class Admin extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"mode": 4, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
+        this.state = {"mode": 5, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
@@ -270,8 +272,6 @@ class Admin extends React.Component{
 
         const data = this.state.mapFiles;
 
-
-
         const files = data.files;
         const mapsData = data.databaseNames;
         const rows = [];
@@ -355,6 +355,13 @@ class Admin extends React.Component{
         return <AdminMatchesManager duplicates={this.props.duplicateMatches} />;
     }
 
+
+    displayPlayersManager(){
+
+        if(this.state.mode !== 5) return null
+        return <AdminPlayersManager playerNames={this.props.playerNames}/>
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -382,6 +389,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(4);
                             })}>Manage Matches</div>
+                            <div className={`big-tab ${(this.state.mode === 5) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(5);
+                            })}>Manage Players</div>
                             <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(1);
                             })}>Map Image Uploader</div>
@@ -396,6 +406,7 @@ class Admin extends React.Component{
                         {this.displayUserAccounts()}
                         {this.displayFaces()}
                         {this.displayMatches()}
+                        {this.displayPlayersManager()}
                     </div>   
                 </div>
 
@@ -429,6 +440,7 @@ export async function getServerSideProps({req, query}){
     let faceData = [];
     let faceFiles = [];
     let duplicateMatches = [];
+    let playerNames = [];
 
     if(bUserAdmin){
 
@@ -454,6 +466,10 @@ export async function getServerSideProps({req, query}){
 
         duplicateMatches = await admin.getDuplicateMatches();
 
+        const playerManager = new Players();
+
+        playerNames = await playerManager.getAllNames();
+
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -474,7 +490,8 @@ export async function getServerSideProps({req, query}){
             "userAccounts": JSON.stringify(userAccounts),
             "faceData": JSON.stringify(faceData),
             "faceFiles": JSON.stringify(faceFiles),
-            "duplicateMatches": JSON.stringify(duplicateMatches)
+            "duplicateMatches": JSON.stringify(duplicateMatches),
+            "playerNames": JSON.stringify(playerNames)
         }
     };
 }

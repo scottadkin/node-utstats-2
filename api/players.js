@@ -433,6 +433,11 @@ class Players{
             console.trace(err);
         }
     }
+
+    async getAllNames(){
+
+        return await mysql.simpleFetch("SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC");
+    }
     
 }
 

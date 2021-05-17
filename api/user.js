@@ -324,6 +324,10 @@ class User{
 
             const query = "UPDATE nstats_sessions SET expires=? WHERE hash=?";
 
+            console.log(`update session expire`);
+
+            console.log(`UPDATE nstats_sessions SET expires=${expires} WHERE hash=${hash}`);
+
             mysql.query(query, [expires, hash], (err) =>{
 
                 if(err) reject(err);
@@ -444,9 +448,11 @@ class User{
                         return false;
                     }
 
+                    await this.deleteExpiredSessions();
+
                     if(now > session.expires){
                         console.log("session expired");
-                        await this.deleteSession(cookies.sid);
+                        //await this.deleteSession(cookies.sid);
                     }else{
 
                         await this.updateSessionExpire(cookies.sid);
@@ -617,6 +623,13 @@ class User{
                 resolve();
             });
         });
+    }
+
+
+    async deleteExpiredSessions(){
+
+        const now = Math.floor(Date.now() * 0.001) + 1;
+        return await mysql.simpleDelete("DELETE FROM nstats_sessions WHERE expires < ?", [now]);
     }
 }
 
