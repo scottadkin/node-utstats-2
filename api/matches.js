@@ -811,6 +811,12 @@ class Matches{
         ]);
     }
 
+
+    async renameDmWinner(oldName, newName){
+
+        return await mysql.simpleUpdate("UPDATE nstats_matches SET dm_winner=? WHERE dm_winner=?", [newName, oldName]);
+    }
+
     
 }
 module.exports = Matches;

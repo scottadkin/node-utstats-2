@@ -2,6 +2,7 @@ const Promise = require('promise');
 const Player = require('./player');
 const mysql = require('./database');
 const Functions = require('./functions');
+const Matches = require('./matches');
 
 class Players{
 
@@ -439,6 +440,21 @@ class Players{
         return await mysql.simpleFetch("SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC");
     }
     
+    async renamePlayer(oldName, newName){
+
+        try{
+
+            await mysql.simpleUpdate("UPDATE nstats_player_totals SET name=? WHERE name=?", [newName, oldName]);
+
+            const matchManager = new Matches();
+
+            await matchManager.renameDmWinner(oldName, newName);
+
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 

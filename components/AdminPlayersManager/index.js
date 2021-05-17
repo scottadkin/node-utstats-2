@@ -7,7 +7,14 @@ class AdminPlayersManager extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0, "playerNames": JSON.parse(this.props.playerNames), "nameErrors": []};
+        this.state = {
+            "mode": 0, 
+            "playerNames": JSON.parse(this.props.playerNames), 
+            "nameErrors": [], 
+            "namePassed": false, 
+            "newName": "", 
+            "oldName": ""
+        };
 
         this.renamePlayer = this.renamePlayer.bind(this);
         this.targetNameChange = this.targetNameChange(this);
@@ -34,9 +41,31 @@ class AdminPlayersManager extends React.Component{
 
             if(targetName === "") errors.push("You have not selected a player to rename.");
             if(newName === "")    errors.push("The new name can't be an empty string.")
-            
+        
+            this.setState({"nameErrors": errors, "namePassed": false});
 
-            this.setState({"nameErrors": errors});
+            if(errors.length === 0){
+
+                console.log("NO ERRORS");
+
+                const req = await fetch("/api/playeradmin", {
+                    "headers": {"Content-Type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"new": newName, "old": targetName})
+                });
+
+                const res = await req.json();
+
+                console.log(res);
+
+                if(res.message === "passed"){   
+
+                    this.setState({"namePassed": true, "newName": newName, "oldName": targetName});
+                }else{
+                    
+                    this.setState({"namePassed": false, "newName": newName, "oldName": targetName});
+                }
+            }
 
 
         }catch(err){
@@ -64,8 +93,21 @@ class AdminPlayersManager extends React.Component{
         }
 
         return <div className="team-red p-bottom-25 m-bottom-25">
-            <div className="default-header">Error</div>
+            <div className="default-header">Rename Failed</div>
             {strings}
+        </div>
+    }
+
+    renderNamePassed(){
+
+        if(this.state.mode !== 0) return null;
+
+        if(!this.state.namePassed) return null;
+
+        return <div className="team-green t-bottom-25 m-bottom-25 p-bottom-25">
+            <div className="default-header">Rename Successful</div>
+
+            The player with the name <b>{this.state.oldName}</b> is now known as <b>{this.state.newName}</b>
         </div>
     }
     
@@ -100,6 +142,7 @@ class AdminPlayersManager extends React.Component{
                 </div>
 
                 {this.renderNameErrors()}
+                {this.renderNamePassed()}
 
                 <div>
                     <select name="target" defaultValue={""} className="default-select m-bottom-25" onChange={this.targetNameChange}>
