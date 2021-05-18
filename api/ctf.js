@@ -589,6 +589,12 @@ class CTF{
         }
     }
 
+    async changeEventPlayerId(oldId, newId){
+
+        return await mysql.simpleUpdate("UPDATE nstats_ctf_events SET player=? WHERE player=?",[newId, oldId]);
+        
+    }
+
 }
 
 

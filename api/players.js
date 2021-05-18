@@ -521,6 +521,8 @@ class Players{
 
                 await ctfManager.changeCapEventPlayerIds(first.id, second.id, matchIds);
 
+                await ctfManager.changeEventPlayerId(first.id, second.id);
+
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");
             }
