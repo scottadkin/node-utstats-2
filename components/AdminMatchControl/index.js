@@ -12,7 +12,7 @@ class AdminMatchControl extends React.Component{
         this.deleteMatch = this.deleteMatch.bind(this);
         this.deletePlayer = this.deletePlayer.bind(this);
 
-        this.state = {"matchDeleteMessage": ""};
+        this.state = {"players": JSON.parse(this.props.players),"matchDeleteMessage": "", "playerDeleteMessages": []};
     }
 
     async deleteMatch(){
@@ -27,9 +27,6 @@ class AdminMatchControl extends React.Component{
 
             const result = await req.json();
 
-            console.log(result);
-
-            
             this.setState({"matchDeleteMessage": result.message});
 
             setTimeout(() =>{
@@ -76,17 +73,44 @@ class AdminMatchControl extends React.Component{
 
             const result = await req.json();
 
-            console.log(result);
+            if(result.message === "passed"){
+
+                this.updatePlayerList(playerId);
+            }
 
         }catch(err){
             console.trace(err);
         }
     }
 
+    updatePlayerList(id){
+
+        let p = 0;
+
+        const newPlayers = [];
+
+        for(let i = 0; i < this.state.players.length; i++){
+
+            p = this.state.players[i];
+
+            if(p.id !== id){
+                newPlayers.push(p);
+            }else{
+
+                const messages = this.state.playerDeleteMessages;
+
+                messages.push(`Player ${p.name} was deleted successfully.`);
+
+                this.setState({"playerDeleteMessages": messages});
+            }
+        }
+
+        this.setState({"players": newPlayers});
+    }
 
     displayPlayerOptions(){
 
-        const players = JSON.parse(this.props.players);
+        const players = this.state.players;
 
         const rows = [];
 
@@ -110,6 +134,26 @@ class AdminMatchControl extends React.Component{
             </tr>);
         }
 
+        const messages = [];
+
+        let m = 0;
+
+        for(let i = 0; i < this.state.playerDeleteMessages.length; i++){
+
+            m = this.state.playerDeleteMessages[i];
+
+            messages.push(<div key={i}>{m}</div>);
+        }
+
+        let messagesElems = null;
+
+        if(messages.length > 0){
+
+            messagesElems = <div className="team-green m-top-25 p-top-25 p-bottom-25">
+                {messages}
+            </div>
+        }
+
         return <div>
             <table className="t-width-2 td-1-left">
                 <tbody>
@@ -120,6 +164,7 @@ class AdminMatchControl extends React.Component{
                     {rows}
                 </tbody>
             </table>
+            {messagesElems}
         </div>
     }
 

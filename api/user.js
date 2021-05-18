@@ -324,10 +324,6 @@ class User{
 
             const query = "UPDATE nstats_sessions SET expires=? WHERE hash=?";
 
-            console.log(`update session expire`);
-
-            console.log(`UPDATE nstats_sessions SET expires=${expires} WHERE hash=${hash}`);
-
             mysql.query(query, [expires, hash], (err) =>{
 
                 if(err) reject(err);
@@ -391,8 +387,6 @@ class User{
         return new Promise((resolve, reject) =>{
 
             const query = "SELECT COUNT(*) as activated_accounts FROM nstats_users WHERE id=? AND activated=1";
-
-            console.log(`id = ${userId}`);
             mysql.query(query, [userId], (err, result) =>{
 
                 if(err) reject(err);
@@ -401,8 +395,6 @@ class User{
 
                     if(result.length > 0){
 
-                        console.log(result);
-                        
                         if(result[0].activated_accounts > 0){
                             resolve(true);
                         }

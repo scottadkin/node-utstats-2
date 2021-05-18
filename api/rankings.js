@@ -551,7 +551,7 @@ class Rankings{
 
                 await this.reducePlayerRankingPlaytime(playerId, matchData[0].gametype, playtime);
             }
-            //await this.deletePlayerMatchHistory(playerId, matchId);
+            await this.deletePlayerMatchHistory(playerId, matchId);
 
         }catch(err){
             console.trace(err);

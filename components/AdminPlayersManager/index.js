@@ -34,9 +34,6 @@ class AdminPlayersManager extends React.Component{
             const targetName = e.target[0].value;
             const newName = e.target[1].value;
 
-            console.log(`targetName = ${targetName}`);
-            console.log(`newName = ${newName}`);
-
             const errors = [];
 
             if(targetName === "") errors.push("You have not selected a player to rename.");
