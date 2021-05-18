@@ -455,6 +455,27 @@ class Players{
             console.trace(err);
         }
     }
+
+    async bNameInUse(name){
+
+        try{
+
+            const result = await mysql.simpleFetch("SELECT COUNT(*) as total_found FROM nstats_player_totals WHERE name=? AND gametype=0", 
+            [name]);
+
+            console.log(result);
+
+            if(result.length > 0){
+                if(result[0].total_found > 0) return true;
+            }
+
+            return false;
+
+        }catch(err){
+            console.trace(err);
+            return true;
+        }
+    }
 }
 
 

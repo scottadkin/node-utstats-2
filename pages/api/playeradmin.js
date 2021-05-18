@@ -20,11 +20,24 @@ export default async (req, res) =>{
 
                 if(newName !== "" && oldName !== ""){
 
-                    await playerManager.renamePlayer(oldName, newName);
+                    if(newName !== oldName){
+                        
+                        if(!await playerManager.bNameInUse(newName)){
+                            await playerManager.renamePlayer(oldName, newName);
+                        }else{
+                            
+                            res.status(200).json({"message": "Name already in use"});
+                            return;
+                        }
+                    }
+
+                }else{
+
+                    res.status(200).json({"message": "New name or old name is an empty string"});
                 }
 
             }else{
-                res.status(200).json({"message": "New name or old name is an empty string."});
+                res.status(200).json({"message": "New name or old name is undefined."});
             }
             
 

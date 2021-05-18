@@ -41,12 +41,17 @@ class AdminPlayersManager extends React.Component{
 
             if(targetName === "") errors.push("You have not selected a player to rename.");
             if(newName === "")    errors.push("The new name can't be an empty string.")
+
+            if(newName === targetName) errors.push("New name is the same as old name.");
+
+            if(this.bNameAlreadyTaken(newName)){
+                errors.push("Name is already taken.");
+            }
+
         
             this.setState({"nameErrors": errors, "namePassed": false});
 
             if(errors.length === 0){
-
-                console.log("NO ERRORS");
 
                 const req = await fetch("/api/playeradmin", {
                     "headers": {"Content-Type": "application/json"},
@@ -56,11 +61,12 @@ class AdminPlayersManager extends React.Component{
 
                 const res = await req.json();
 
-                console.log(res);
-
                 if(res.message === "passed"){   
 
+                    this.updatePlayerNames(targetName, newName);
+
                     this.setState({"namePassed": true, "newName": newName, "oldName": targetName});
+
                 }else{
                     
                     this.setState({"namePassed": false, "newName": newName, "oldName": targetName});
@@ -71,6 +77,41 @@ class AdminPlayersManager extends React.Component{
         }catch(err){
             console.trace(err);
         }
+    }
+
+    updatePlayerNames(oldName, newName){
+
+        let p = 0;
+
+        let newNames = [];
+
+        for(let i = 0; i < this.state.playerNames.length; i++){
+
+            p = this.state.playerNames[i];
+
+            if(p.name !== oldName){
+                newNames.push({"id": p.id, "name": p.name, "country": p.country});
+            }else{
+                newNames.push({"id": p.id, "name": newName, "country": p.country});
+            }
+
+        }
+
+        this.setState({"playerNames": newNames});
+    }
+
+    bNameAlreadyTaken(newName){
+
+        let p = 0;
+
+        for(let i = 0; i < this.state.playerNames.length; i++){
+
+            p = this.state.playerNames[i];
+
+            if(p.name === newName) return true;
+        }
+
+        return false;
     }
 
 
