@@ -8,16 +8,63 @@ class AdminPlayersManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 0, 
+            "mode": 1, 
             "playerNames": JSON.parse(this.props.playerNames), 
             "nameErrors": [], 
             "namePassed": false, 
             "newName": "", 
-            "oldName": ""
+            "oldName": "",
+            "mergeErrors": []
         };
 
         this.renamePlayer = this.renamePlayer.bind(this);
-        this.targetNameChange = this.targetNameChange(this);
+        this.targetNameChange = this.targetNameChange.bind(this);
+
+        this.changeMode = this.changeMode.bind(this);
+
+        this.mergePlayers = this.mergePlayers.bind(this);
+    }
+
+    async mergePlayers(e){
+
+        try{
+
+            e.preventDefault();
+
+            const first = e.target[0].value;
+            const second = e.target[1].value;
+
+            console.log(`Merge ${first} into ${second}`);
+
+            const errors = [];
+
+            if(first === "" || second === "")  errors.push("First or second name is an empry string.");
+            if(first === second) errors.push("First and the second player are the same player already.");
+            
+            if(errors.length === 0){
+
+                const req = await fetch("/api/playeradmin", {
+                    "headers": {"Content-Type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"type": "mergePlayers", "first": first, "second": second})
+                });
+
+                const result = await req.json();
+
+                console.log(result);
+            }
+
+            this.setState({"mergeErrors": errors});
+            
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
     targetNameChange(e){
@@ -53,7 +100,7 @@ class AdminPlayersManager extends React.Component{
                 const req = await fetch("/api/playeradmin", {
                     "headers": {"Content-Type": "application/json"},
                     "method": "POST",
-                    "body": JSON.stringify({"new": newName, "old": targetName})
+                    "body": JSON.stringify({"new": newName, "old": targetName, "type": "nameChange"})
                 });
 
                 const res = await req.json();
@@ -199,18 +246,97 @@ class AdminPlayersManager extends React.Component{
         
     }
 
+    createPlayerNamesDropDown(name){
+
+        const options = [];
+
+        let p = 0;
+
+
+        for(let i = 0; i < this.state.playerNames.length; i++){
+
+            p = this.state.playerNames[i];
+
+            options.push(<option key={i} value={p.id}>
+                {p.name}
+            </option>);
+        }
+
+        return <select name={name} className="default-select">
+            <option value="">Select a player</option>
+            {options}
+        </select>;
+    }
+
+    renderMergeErrors(){
+
+        if(this.state.mode !== 1) return null;
+
+        if(this.state.mergeErrors.length === 0) return null;
+
+        const errors = [];
+
+        let e = 0;
+
+        for(let i = 0; i < this.state.mergeErrors.length; i++){
+
+            e = this.state.mergeErrors[i];
+
+            errors.push(<div key={i}>{e}</div>);
+        }
+
+        return <div className="team-red m-top-25 p-top-25 m-bottom-25 p-bottom-25">
+            {errors}
+        </div>
+    }
+
+    renderPlayerMerger(){
+
+        if(this.state.mode !== 1) return null;
+
+        return <div>
+            <div className="default-header">Merge Players</div>
+            <form className="form" method="POST" action="/" onSubmit={this.mergePlayers}>
+                <div className="form-info m-bottom-25">
+                    Select a player to merge with another player, the first player will be merged into the second player taking the second player's name.
+                </div>
+                <div className="select-row">
+                    <div className="select-label">First Player</div>
+                    <div>
+                        {this.createPlayerNamesDropDown("first")}
+                    </div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Second Player</div>
+                    <div>
+                        {this.createPlayerNamesDropDown("second")}
+                    </div>
+                </div>
+                {this.renderMergeErrors()}
+                <input type="submit" className="search-button m-top-25" value="Merge Players"/>
+            </form>
+        </div>
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Manage Uses</div>
 
             <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>Rename Players</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Merge Players</div>
-                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`}>Delete Players</div>
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Rename Players</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Merge Players</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(2);
+                })}>Delete Players</div>
             </div>
 
             {this.renderPlayerNames()}
+            {this.renderPlayerMerger()}
         </div>
     }
 }

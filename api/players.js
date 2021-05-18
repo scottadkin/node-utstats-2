@@ -463,7 +463,6 @@ class Players{
             const result = await mysql.simpleFetch("SELECT COUNT(*) as total_found FROM nstats_player_totals WHERE name=? AND gametype=0", 
             [name]);
 
-            console.log(result);
 
             if(result.length > 0){
                 if(result[0].total_found > 0) return true;
@@ -474,6 +473,27 @@ class Players{
         }catch(err){
             console.trace(err);
             return true;
+        }
+    }
+
+    async mergePlayers(first, second){
+
+        try{
+
+            const names = await this.getNamesByIds([first, second]);
+
+            console.table(names);
+
+            if(names.length > 1){
+
+                
+
+            }else{
+                throw new Error("Only found 1 player out of 2, can't merge players.");
+            }
+
+        }catch(err){
+            console.trace(err);
         }
     }
 }
