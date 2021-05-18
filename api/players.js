@@ -3,6 +3,8 @@ const Player = require('./player');
 const mysql = require('./database');
 const Functions = require('./functions');
 const Matches = require('./matches');
+const Assault = require('./assault');
+const CTF = require('./ctf');
 
 class Players{
 
@@ -476,17 +478,48 @@ class Players{
         }
     }
 
-    async mergePlayers(first, second){
+    async getPlayerTotals(name){
 
-        try{
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE name=?",[name]);
+    }
+
+    //first player gets merged into second
+    async mergePlayers(first, second, matchManager){
+
+        try{    
 
             const names = await this.getNamesByIds([first, second]);
 
-            console.table(names);
-
             if(names.length > 1){
 
+                for(let i = 0; i < names.length; i++){
+
+                    if(names[i].id === first) first = names[i];
+                    if(names[i].id === second)  second = names[i];
+                    
+                }
+
+                console.log(first);
+                console.log(second);
+
+                const firstPlayerGametypes = await this.getPlayerTotals(first.name);
+                const secondPlayerGametypes = await this.getPlayerTotals(second.name);
                 
+
+               // console.log(firstPlayerGametypes);
+               // console.log(secondPlayerGametypes);
+
+                const matchIds = await matchManager.getAllPlayerMatchIds(first.id);
+
+                console.log(matchIds);
+
+                const assaultManager = new Assault();
+
+                await assaultManager.changeCapDataPlayerId(first.id, second.id);
+
+                const ctfManager = new CTF();
+
+                await ctfManager.changeCapEventPlayerIds(first.id, second.id, matchIds);
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");

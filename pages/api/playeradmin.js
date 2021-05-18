@@ -1,5 +1,6 @@
 import Session from '../../api/session';
 import Players from '../../api/players';
+import Matches from '../../api/matches';
 
 export default async (req, res) =>{
 
@@ -62,7 +63,9 @@ export default async (req, res) =>{
 
                            // console.table(names);
 
-                            await playerManager.mergePlayers(first, second);
+                            const matchManager = new Matches();
+
+                            await playerManager.mergePlayers(first, second, matchManager);
                             res.status(200).json({"message": "passed"});
                             return;
 

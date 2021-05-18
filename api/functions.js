@@ -392,6 +392,29 @@ class Functions{
         }
     }
 
+    static stringToIntArray(string){
+
+        const data = string.split(",");
+
+        if(data.length === 0) return [];
+
+        if(data.length === 1){
+
+            if(data[0] === "") return [];
+        }
+
+        let d = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            data[i] = parseInt(data[i]);
+
+
+        }
+
+        return data;
+    }
+
 }
 
 module.exports = Functions;

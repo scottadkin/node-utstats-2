@@ -373,6 +373,14 @@ class Assault{
             console.trace(err);
         }
     }
+
+    
+
+    async changeCapDataPlayerId(oldId, newId){
+
+
+        await mysql.simpleUpdate("UPDATE nstats_assault_match_objectives SET player=? WHERE player=?", [newId, oldId]);
+    }
 }
 
 module.exports = Assault;

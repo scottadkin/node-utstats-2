@@ -817,6 +817,28 @@ class Matches{
         return await mysql.simpleUpdate("UPDATE nstats_matches SET dm_winner=? WHERE dm_winner=?", [newName, oldName]);
     }
 
+
+    async getAllPlayerMatchIds(playerId){
+
+        try{
+
+            const result = await mysql.simpleFetch("SELECT match_id FROM nstats_player_matches WHERE player_id=?",[playerId]);
+
+            const data = [];
+
+            for(let i = 0; i < result.length; i++){
+
+                data.push(result[i].match_id);
+            }
+            
+            return data;
+
+        }catch(err){
+            console.trace(err);
+            return [];
+        }
+    }
+
     
 }
 module.exports = Matches;

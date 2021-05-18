@@ -1,6 +1,7 @@
 const Promise = require('promise');
 const mysql = require('./database');
 const Message = require('./message');
+const Functions = require('./functions');
 
 class CTF{
 
@@ -456,6 +457,131 @@ class CTF{
 
                     await this.updateEvent(matchEvents[i], playerId);
                 }
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    async getAllCapData(){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_ctf_caps");
+    }
+
+    async getCapDataByMatchIds(ids){
+
+        if(ids.length === 0) return [];
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_ctf_caps WHERE match_id IN(?)",[ids]);
+    }
+
+
+    async updateCapEvent(data){
+
+        const query = `UPDATE nstats_ctf_caps SET
+        grab=?,
+        drops=?,
+        pickups=?,
+        covers=?,
+        assists=?,
+        assist_carry_ids=?,
+        cap=?
+        WHERE id=?
+        `;
+
+        const vars = [
+            data.grab,
+            data.drops.toString(),
+            data.pickups.toString(),
+            data.covers.toString(),
+            data.assists.toString(),
+            data.assist_carry_ids.toString(),
+            data.cap,
+            data.id
+        ];
+
+        return await mysql.simpleUpdate(query, vars);
+    }
+
+    async changeCapEventPlayerIds(oldId, newId, matchIds){
+
+        try{
+
+            const data = await this.getCapDataByMatchIds(matchIds);
+
+            const replaceIds = (array, find, replace) =>{
+
+                for(let i = 0; i < array.length; i++){
+
+                    if(array[i] === find) array[i] = replace;
+                }
+            }
+
+
+            console.log(`Got ${data.length} caps to process`);
+
+            let d = 0;
+
+            console.log(data[0]);
+
+            let currentDrops = [];
+            let currentPickups = [];
+            let currentCovers = [];
+            let currentAssists = [];
+            let currentCarryIds = [];
+
+            let bCurrentNeedsUpdating = false;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                bCurrentNeedsUpdating = false;
+                currentDrops = Functions.stringToIntArray(d.drops);
+                currentPickups = Functions.stringToIntArray(d.pickups);
+                currentCovers = Functions.stringToIntArray(d.covers);
+                currentAssists = Functions.stringToIntArray(d.assists);
+                currentCarryIds = Functions.stringToIntArray(d.assist_carry_ids);
+                
+                if(d.grab === oldId){
+
+                    d.grab = newId;
+                    bCurrentNeedsUpdating = true;
+
+                }
+
+                if(d.cap === oldId){
+
+                    d.cap = newId;
+                    bCurrentNeedsUpdating = true;
+                }
+
+                if(currentDrops.length > 0 || currentPickups.length > 0 || currentCovers.length > 0 || currentAssists.length > 0 || currentCarryIds.length > 0){
+
+                    bCurrentNeedsUpdating = true;
+                    
+                    replaceIds(currentDrops, oldId, newId);
+                    replaceIds(currentPickups, oldId, newId);
+                    replaceIds(currentCovers, oldId, newId);
+                    replaceIds(currentAssists, oldId, newId);
+                    replaceIds(currentCarryIds, oldId, newId);
+
+                }
+
+                d.drops = currentDrops;
+                d.pickups = currentPickups;
+                d.covers = currentCovers;
+                d.assists = currentAssists;
+                d.assist_carry_ids = currentCarryIds;
+ 
+
+                if(bCurrentNeedsUpdating){
+
+                    await this.updateCapEvent(d);
+                }
+                
             }
 
         }catch(err){
