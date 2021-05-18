@@ -458,6 +458,76 @@ class Items{
             console.trace(err);
         }   
     }
+
+    async changePlayerIdsMatch(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
+    }
+
+    async deletePlayerTotals(id){
+
+        await mysql.simpleDelete("DELETE FROM nstats_items_player WHERE player=?", [id]);
+    }
+
+    async createNewPlayerTotalFromMerge(player, item, first, last, uses, matches){
+
+        const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,?)";
+        const vars = [player, item, first, last, uses, matches];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async mergePlayerTotals(oldId, newId){
+
+        try{
+
+            const oldData = await this.getPlayerTotalData(oldId);
+            const newData = await this.getPlayerTotalData(newId);
+
+            const mergedData = {};
+
+            let d = 0;
+
+            const merge = (array) =>{
+
+                for(let i = 0; i < array.length; i++){
+
+                    d = array[i];
+    
+                    if(mergedData[d.item] === undefined){
+                        mergedData[d.item] = d;
+                    }else{
+    
+                        mergedData[d.item].uses += d.uses;
+                        mergedData[d.item].matches += d.matches;
+    
+                        if(d.first < mergedData[d.item].first){
+                            mergedData[d.item].first = d.first;
+                        }
+    
+                        if(d.last > mergedData[d.item].last){
+                            mergedData[d.item].last = d.last;
+                        }
+                    }
+                }
+            }
+
+            merge(oldData);
+            merge(newData);
+
+            await this.deletePlayerTotals(oldId);
+            await this.deletePlayerTotals(newId);
+
+            for(const [key, value] of Object.entries(mergedData)){
+
+                await this.createNewPlayerTotalFromMerge(newId, key, value.first, value.last, value.uses, value.matches);
+            }
+
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = Items;

@@ -75,6 +75,12 @@ class Headshots{
             }); 
         });
     }
+
+    async changePlayerIds(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_headshots SET killer=? WHERE killer=?", [newId, oldId]);
+        await mysql.simpleUpdate("UPDATE nstats_headshots SET victim=? WHERE victim=?", [newId, oldId]);
+    }
 }
 
 

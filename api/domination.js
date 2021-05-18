@@ -433,7 +433,7 @@ class Domination{
     }
 
     async changeScoreHistoryPlayerId(oldId, newId){
-        
+
         return await mysql.simpleUpdate("UPDATE nstats_dom_match_player_score SET player=? WHERE player=?", [newId, oldId]);
     }
 }

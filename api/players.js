@@ -6,6 +6,8 @@ const Matches = require('./matches');
 const Assault = require('./assault');
 const CTF = require('./ctf');
 const Domination = require('./domination');
+const Headshots = require('./headshots');
+const Items = require('./items');
 
 class Players{
 
@@ -528,6 +530,16 @@ class Players{
 
                 await domManager.changeCapPlayerId(first.id, second.id);
                 await domManager.changeScoreHistoryPlayerId(first.id, second.id);
+
+                const headshotManager = new Headshots();
+
+                await headshotManager.changePlayerIds(first.id, second.id);
+
+                const itemsManager = new Items();
+
+                await itemsManager.changePlayerIdsMatch(first.id, second.id);
+
+                await itemsManager.mergePlayerTotals(first.id, second.id);
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");
