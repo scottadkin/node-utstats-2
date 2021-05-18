@@ -426,6 +426,16 @@ class Domination{
             console.trace(err);
         }
     }
+
+    async changeCapPlayerId(oldId, newId){
+
+        return await mysql.simpleUpdate("UPDATE nstats_dom_match_caps SET player=? WHERE player=?", [newId, oldId]);
+    }
+
+    async changeScoreHistoryPlayerId(oldId, newId){
+        
+        return await mysql.simpleUpdate("UPDATE nstats_dom_match_player_score SET player=? WHERE player=?", [newId, oldId]);
+    }
 }
 
 

@@ -5,6 +5,7 @@ const Functions = require('./functions');
 const Matches = require('./matches');
 const Assault = require('./assault');
 const CTF = require('./ctf');
+const Domination = require('./domination');
 
 class Players{
 
@@ -522,6 +523,11 @@ class Players{
                 await ctfManager.changeCapEventPlayerIds(first.id, second.id, matchIds);
 
                 await ctfManager.changeEventPlayerId(first.id, second.id);
+
+                const domManager = new Domination();
+
+                await domManager.changeCapPlayerId(first.id, second.id);
+                await domManager.changeScoreHistoryPlayerId(first.id, second.id);
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");
