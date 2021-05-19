@@ -849,6 +849,86 @@ class Matches{
         await mysql.simpleUpdate("UPDATE nstats_match_team_changes SET player=? WHERE player=?", [newId, oldId]);
     }
 
+
+    async getPlayerMatches(playerIds){
+
+        if(playerIds.length === 0) return;
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE player_id IN (?)", [playerIds]);
+    }
+
+
+    async mergePlayerMatches(oldId, newId){
+
+        try{
+
+            const matches = await this.getPlayerMatches([oldId, newId]);
+
+            const newData = {};
+
+            const mergeTypes = [
+                'playtime',              'team',                   
+                'frags',                 'score',                  'kills',
+                'deaths',                'suicides',               'team_kills',
+                'spawn_kills',           /*'efficiency',*/             'multi_1',
+                'multi_2',               'multi_3',                'multi_4',
+                'multi_5',               'multi_6',                'multi_7',
+                'multi_best',            'spree_1',                'spree_2',
+                'spree_3',               'spree_4',                'spree_5',
+                'spree_6',               'spree_7',                'spree_best',
+                /*'best_spawn_kill_spree',*/ 'flag_assist',            'flag_return',
+                'flag_taken',            'flag_dropped',           'flag_capture',
+                'flag_pickup',           'flag_seal',              'flag_cover',
+                'flag_cover_pass',       'flag_cover_fail',        'flag_self_cover',
+                'flag_self_cover_pass',  'flag_self_cover_fail',   'flag_multi_cover',
+                'flag_spree_cover',      /*'flag_cover_best',        'flag_self_cover_best',*/
+                'flag_kill',             'flag_save',              'flag_carry_time',
+                'assault_objectives',    'dom_caps',               /*'dom_caps_best_life',*/
+                /*'ping_min',              'ping_average',           'ping_max',*/
+                'accuracy',              /*'shortest_kill_distance',*/ /*'average_kill_distance'*/
+                /*'longest_kill_distance',*/ 'k_distance_normal',      'k_distance_long',
+                'k_distance_uber',       'headshots',              'shield_belt',
+                'amp',                   'amp_time',               'invisibility',
+                'invisibility_time',     'pads',                   'armor',
+                'boots',                 'super_health'
+
+            ];
+
+            let m = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                if(i === 0){
+
+                    console.log(Object.keys(m));
+                }
+
+                if(newData[m.match_id] === undefined){
+
+                    newData[m.match_id] = m;
+
+                    newData[m.match_id].player_id = newId;
+
+                }else{
+
+                    newData[m.match_id].playtime += m.playtime;
+                    newData[m.match_id].winner = m.winner;
+                    newData[m.match_id].draw = m.draw;
+                    newData[m.match_id].team = m.team;
+
+                    if(newData[m.match_id].first_blood || m.first_blood) newData[m.match_id].first_blood = 1;
+
+                }
+            }
+
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
     
 }
 module.exports = Matches;

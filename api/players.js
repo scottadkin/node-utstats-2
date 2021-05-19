@@ -565,6 +565,7 @@ class Players{
                 await mapManager.mergePlayerHistory(first.id, second.id);
 
                 
+                await matchManager.mergePlayerMatches(first.id, second.id);
 
                 //need to reduce player count if players have been merged in matches
 

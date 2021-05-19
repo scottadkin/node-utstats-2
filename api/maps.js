@@ -833,7 +833,7 @@ class Maps{
                 }else{
 
                     newData[h.map].matches += h.matches;
-                    newData[h.map].playtime += h.playtine;
+                    newData[h.map].playtime += h.playtime;
 
                     if(h.first < newData[h.map].first){
 
