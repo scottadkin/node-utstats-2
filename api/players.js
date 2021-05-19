@@ -565,7 +565,10 @@ class Players{
                 await mapManager.mergePlayerHistory(first.id, second.id);
 
                 
-                await matchManager.mergePlayerMatches(first.id, second.id);
+                await matchManager.mergePlayerMatches(first.id, second.id,second.name);
+                await this.deletePlayerTotals(first.name);
+
+                //recalculate new players gametype totals as they have changed and not been updated.
 
                 //need to reduce player count if players have been merged in matches
 
@@ -576,6 +579,10 @@ class Players{
         }catch(err){
             console.trace(err);
         }
+    }
+
+    async deletePlayerTotals(name){
+        await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE name=?", [name]);
     }
 }
 

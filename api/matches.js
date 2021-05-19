@@ -992,7 +992,13 @@ class Matches{
         await mysql.simpleInsert(query, vars);
     }
 
-    async mergePlayerMatches(oldId, newId){
+    async changePlayerMatchesCount(playerName, gametype, amount, playtime){
+
+        await mysql.simpleUpdate("UPDATE nstats_player_totals SET matches=matches+?, playtime=playtime+? WHERE name=? AND gametype=?", 
+            [amount, playtime, playerName, gametype]);
+    }
+
+    async mergePlayerMatches(oldId, newId, newName){
 
         try{
 
@@ -1039,6 +1045,15 @@ class Matches{
             ];
 
 
+            //merged played gametypes
+            const playedGametypes = {
+                "0": 0
+            };
+
+            const gametypesPlaytime = {
+                "0": 0
+            }
+
             //ids for player match data not the actual match_id
             const matchIds = [];
             const matchIdsWithMerge = [];
@@ -1046,6 +1061,7 @@ class Matches{
             let m = 0;
 
             let combinedAverageDistance = 0;
+            let addedPlaytime = 0;
 
             for(let i = 0; i < matches.length; i++){
 
@@ -1060,6 +1076,18 @@ class Matches{
                     newData[m.match_id].player_id = newId;
 
                 }else{
+
+                    gametypesPlaytime["0"] += m.playtime;
+
+                    playedGametypes["0"]++;
+
+                    if(playedGametypes[m.gametype] === undefined){
+                        playedGametypes[m.gametype] = 1;
+                        gametypesPlaytime[m.gametype] = m.playtime;
+                    }else{
+                        playedGametypes[m.gametype]++;
+                        gametypesPlaytime[m.gametype] += m.playtime;
+                    }
 
                     matchIdsWithMerge.push(m.match_id);
 
@@ -1123,6 +1151,20 @@ class Matches{
             }
 
             //update player match totals, reduce for removed add for new master account
+
+            console.log(`totalMatches = ${matches.length}`);
+            console.log(`matchesWithMerge = ${matchIdsWithMerge.length}`);
+
+            console.table(playedGametypes);
+
+            for(const [key, value] of Object.entries(playedGametypes)){
+
+                //await this.changePlayerMatchesCount(oldName, key, -value);
+                await this.changePlayerMatchesCount(newName, key, value, gametypesPlaytime[key]);
+
+            }
+
+            
 
         }catch(err){
             console.trace(err);
