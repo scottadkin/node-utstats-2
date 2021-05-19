@@ -106,6 +106,8 @@ class MatchWeaponSummary extends React.Component{
                     currentTeam = currentPlayer.team;
                 }
 
+                if(teamTotals[currentTeam] === undefined) continue;
+
                 teamTotals[currentTeam].kills += p.kills;
                 teamTotals[currentTeam].deaths += p.deaths;
                 teamTotals[currentTeam].shots += p.shots;
