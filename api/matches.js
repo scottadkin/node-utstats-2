@@ -1007,7 +1007,7 @@ class Matches{
             const newData = {};
 
             const mergeTypes = [
-                'playtime',              'team',                   
+                'playtime',                                
                 'frags',                 'score',                  'kills',
                 'deaths',                'suicides',               'team_kills',
                 'spawn_kills',                                     'multi_1',
@@ -1132,7 +1132,7 @@ class Matches{
                         if(newData[m.match_id].deaths === 0){
                             newData[m.match_id].efficiency = 100;
                         }else{
-                            newData[m.match_id].efficiency = newData[m.match_id].kills / (newData[m.match_id].kills + newData[m.match_id].deaths);
+                            newData[m.match_id].efficiency = (newData[m.match_id].kills / (newData[m.match_id].kills + newData[m.match_id].deaths)) * 100;
                         }
                     }
                 }
