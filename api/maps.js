@@ -757,6 +757,115 @@ class Maps{
             });
         });
     }
+
+    async getPlayerMapsHistory(ids){
+
+        if(ids.length === 0) return [];
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_maps WHERE player IN (?)",[ids]);
+    }
+
+    async deletePlayerHistoryRows(rowIds){
+
+        if(rowIds.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_maps WHERE id IN(?)", [rowIds]);
+    }
+
+
+    async insertMergedPlayerHistory(mapId, data){
+
+        try{
+
+            const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
+
+            const vars = [
+                mapId,
+                data.player,
+                data.first,
+                data.first_id,
+                data.last,
+                data.last_id,
+                data.matches,
+                data.playtime,
+                data.longest,
+                data.longest_id
+            ];
+
+            await mysql.simpleInsert(query, vars);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async mergePlayerHistory(oldId, newId){
+
+        try{
+
+            const history = await this.getPlayerMapsHistory([oldId, newId]);
+
+            const newData = {};
+
+            const rowsToDelete = [];
+
+            let h = 0;
+
+            for(let i = 0; i < history.length; i++){
+
+                h = history[i];
+
+                rowsToDelete.push(h.id);
+
+                if(newData[h.map] === undefined){
+
+                    newData[h.map] = {
+                        "player": newId,
+                        "first": h.first,
+                        "first_id": h.first_id,
+                        "last": h.last,
+                        "last_id": h.last_id,
+                        "matches": h.matches,
+                        "playtime": h.playtime,
+                        "longest": h.longest,
+                        "longest_id": h.longest_id,
+                    }
+                }else{
+
+                    newData[h.map].matches += h.matches;
+                    newData[h.map].playtime += h.playtine;
+
+                    if(h.first < newData[h.map].first){
+
+                        newData[h.map].first = h.first;
+                        newData[h.map].first_id = h.first_id;
+                    }
+
+                    if(h.last > newData[h.map].last){
+                        newData[h.map].last = h.last;
+                        newData[h.map].last_id = h.last_id;
+                    }
+
+                    if(h.playtime > newData[h.map].longest){
+
+                        newData[h.map].longest = h.playtime;
+                        newData[h.map].longest_id = h.longest_id;
+                    }
+                }
+            }
+
+            await this.deletePlayerHistoryRows(rowsToDelete);
+
+       
+            for(const [key, value] of Object.entries(newData)){
+
+                await this.insertMergedPlayerHistory(key, value);
+            }
+
+        }catch(err){
+            console.table(err);
+        }
+    }
 }
 
 

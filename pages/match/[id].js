@@ -189,6 +189,9 @@ class PlayerFragsGraphData{
                // console.log("suicide");
 
                 currentKiller = this.data.get(k.killer);
+
+                if(currentKiller === undefined) continue;
+
                 currentKiller.suicides.push(currentKiller.suicides[currentKiller.suicides.length - 1] + 1);
                 currentKiller.deaths.push(currentKiller.deaths[currentKiller.deaths.length - 1] + 1);
 
@@ -226,6 +229,9 @@ class PlayerFragsGraphData{
                 currentKiller = this.data.get(k.killer);
                 currentVictim = this.data.get(k.victim);
 
+                if(currentVictim === undefined) continue;
+                if(currentKiller === undefined) continue;
+
                 currentKiller.teamKills.push(currentKiller.teamKills[currentKiller.teamKills.length - 1] + 1);
                 currentVictim.deaths.push(currentVictim.deaths[currentVictim.deaths.length - 1] + 1);
 
@@ -252,7 +258,9 @@ class PlayerFragsGraphData{
 
                 currentKiller = this.data.get(k.killer);
                 currentVictim = this.data.get(k.victim);
-
+                
+                if(currentVictim === undefined) continue;
+                if(currentKiller === undefined) continue;
 
                 currentKiller.kills.push(
                     currentKiller.kills[currentKiller.kills.length - 1] + 1

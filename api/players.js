@@ -8,6 +8,10 @@ const CTF = require('./ctf');
 const Domination = require('./domination');
 const Headshots = require('./headshots');
 const Items = require('./items');
+const Kills = require('./kills');
+const Connections = require('./connections');
+const Pings = require('./pings');
+const Maps = require('./maps');
 
 class Players{
 
@@ -502,19 +506,16 @@ class Players{
                     
                 }
 
-                console.log(first);
-                console.log(second);
 
                 const firstPlayerGametypes = await this.getPlayerTotals(first.name);
                 const secondPlayerGametypes = await this.getPlayerTotals(second.name);
                 
+                console.table(names);
 
                // console.log(firstPlayerGametypes);
                // console.log(secondPlayerGametypes);
 
                 const matchIds = await matchManager.getAllPlayerMatchIds(first.id);
-
-                console.log(matchIds);
 
                 const assaultManager = new Assault();
 
@@ -540,6 +541,32 @@ class Players{
                 await itemsManager.changePlayerIdsMatch(first.id, second.id);
 
                 await itemsManager.mergePlayerTotals(first.id, second.id);
+
+                const killsManager = new Kills();
+
+                await killsManager.changePlayerIds(first.id, second.id);
+
+                await matchManager.renameDmWinner(first.name, second.name);
+
+
+                const connectionsManager = new Connections();
+
+                await connectionsManager.changePlayerIds(first.id, second.id);
+
+                const pingManager = new Pings();
+
+                await pingManager.changePlayerIds(first.id, second.id);
+
+                await matchManager.changePlayerScoreHistoryIds(first.id, second.id);
+                await matchManager.changeTeamChangesPlayerIds(first.id, second.id);
+
+                const mapManager = new Maps();
+
+                await mapManager.mergePlayerHistory(first.id, second.id);
+
+                
+
+                //need to reduce player count if players have been merged in matches
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");

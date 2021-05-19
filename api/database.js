@@ -93,4 +93,30 @@ Database.simpleUpdate = (query, vars) =>{
     });
 }
 
+Database.simpleInsert = (query, vars) =>{
+
+    return new Promise((resolve, reject) =>{
+
+        if(vars === undefined){
+
+            Database.query(query, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+
+            });
+
+        }else{
+
+            Database.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        }
+    });
+}
+
 module.exports = Database;

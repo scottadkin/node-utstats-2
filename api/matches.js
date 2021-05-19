@@ -839,6 +839,16 @@ class Matches{
         }
     }
 
+    async changePlayerScoreHistoryIds(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_match_player_score SET player=? WHERE player=?", [newId, oldId]);
+    }
+
+    async changeTeamChangesPlayerIds(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_match_team_changes SET player=? WHERE player=?", [newId, oldId]);
+    }
+
     
 }
 module.exports = Matches;

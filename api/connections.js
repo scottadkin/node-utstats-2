@@ -71,6 +71,11 @@ class Connections{
             });
         });
     }
+
+    async changePlayerIds(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_match_connections SET player=? WHERE player=?", [newId, oldId]);
+    }
 }
 
 

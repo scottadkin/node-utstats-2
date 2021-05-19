@@ -73,6 +73,13 @@ class Kills{
             });
         });
     }
+
+    async changePlayerIds(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_kills SET killer=? WHERE killer=?", [newId, oldId]);
+        await mysql.simpleUpdate("UPDATE nstats_kills SET victim=? WHERE victim=?", [newId, oldId]);
+        
+    }
 }
 
 module.exports = Kills;

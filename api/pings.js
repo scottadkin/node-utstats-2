@@ -80,6 +80,12 @@ class Pings{
          return await mysql.simpleDelete("DELETE FROM nstats_match_pings WHERE player=? AND match_id=?", [playerId, matchId]);
      
     }
+
+    async changePlayerIds(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_match_pings SET player=? WHERE player=?", [newId, oldId]);
+
+    }
 }
 
 module.exports = Pings;
