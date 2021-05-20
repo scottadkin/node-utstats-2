@@ -661,18 +661,33 @@ class Players{
 
             const query = `UPDATE nstats_player_totals SET
                 first=?, last=?, ip=?, country=?, face=?, voice=?,                
-                matches=?, wins=?, losses=?, draws=?, winrate=?,  playtime=?,
-                first_bloods=?, frags=?, score=?, kills=?, deaths=?, suicides=?,
-                team_kills=?, spawn_kills=?, efficiency=?,
-                multi_1=?, multi_2=?, multi_3=?, multi_4=?, multi_5=?, multi_6=?, multi_7=?, multi_best=?,
-                spree_1=?, spree_2=?, spree_3=?, spree_4=?, spree_5=?, spree_6=?, spree_7=?, spree_best=?,
-                fastest_kill=?, slowest_kill=?, best_spawn_kill_spree=?, flag_assist=?, flag_return=?,
-                flag_taken=?, flag_dropped=?, flag_capture=?, flag_pickup=?, flag_seal=?, flag_cover=?,
-                flag_cover_pass=?, flag_cover_fail=?, flag_self_cover=?, flag_self_cover_pass=?, flag_self_cover_fail=?, flag_multi_cover=?,
-                flag_spree_cover=?, flag_cover_best=?, flag_self_cover_best=?, flag_kill=?, flag_save=?, flag_carry_time=?,
-                assault_objectives=?, dom_caps=?, dom_caps_best=?, dom_caps_best_life=?, k_distance_normal=?,
-                k_distance_long=?, k_distance_uber=?, headshots=?, shield_belt=?, amp=?, amp_time=?,invisibility=?,
-                invisibility_time=?, pads=?, armor=?, boots=?, super_health=?
+                matches=matches+?, wins=wins+?, losses=losses+?, draws=draws+?, winrate=?,  playtime=playtime+?,
+                first_bloods=first_bloods+?, frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?,
+                team_kills=team_kills+?, spawn_kills=spawn_kills+?, efficiency=?,
+                multi_1=multi_1+?, multi_2=multi_2+?, multi_3=multi_3+?, multi_4=multi_4+?, multi_5=multi_5+?, multi_6=multi_6+?, multi_7=multi_7+?, 
+                multi_best = IF(multi_best < ?, ?, multi_best),
+                spree_1=?, spree_2=spree_2+?, spree_3=spree_3+?, spree_4=spree_4+?, spree_5=spree_5+?, spree_6=spree_6+?, spree_7=spree_7+?, 
+                spree_best = IF(spree_best < ?, ?, spree_best),
+                fastest_kill = IF(fastest_kill > ?, ?, fastest_kill), 
+                slowest_kill = IF(slowest_kill < ?, ?, slowest_kill), 
+                best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
+                 flag_assist=flag_assist+?, flag_return=flag_return+?,
+                flag_taken=flag_taken+?, flag_dropped=flag_dropped+?, flag_capture=flag_capture+?, flag_pickup=flag_pickup+?, flag_seal=flag_seal+?, 
+                flag_cover=flag_cover+?,
+                flag_cover_pass=flag_cover_pass+?, flag_cover_fail=flag_cover_fail+?, flag_self_cover=flag_self_cover+?, 
+                flag_self_cover_pass=flag_self_cover_pass+?, flag_self_cover_fail=flag_self_cover_fail+?, flag_multi_cover=flag_multi_cover+?,
+                flag_spree_cover=flag_spree_cover+?, 
+                flag_cover_best = IF(flag_cover_best < ?, ?, flag_cover_best), 
+                flag_self_cover_best = IF(flag_self_cover_best < ?, ?, flag_self_cover_best), 
+                flag_kill=flag_kill+?, flag_save=flag_save+?, flag_carry_time=flag_carry_time+?,
+                assault_objectives=assault_objectives+?, dom_caps=dom_caps+?, 
+                dom_caps_best = IF(dom_caps_best < ?, ?, dom_caps_best), 
+                dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life),
+                k_distance_normal=k_distance_normal+?,
+                k_distance_long=k_distance_long+?, 
+                k_distance_uber=k_distance_uber+?, headshots=headshots+?, shield_belt=shield_belt+?, amp=amp+?, amp_time=amp_time+?,
+                invisibility=invisibility+?,
+                invisibility_time=invisibility_time+?, pads=pads+?, armor=armor+?, boots=boots+?, super_health=super_health+?
                 
                 WHERE gametype=? AND name=?
                 `;
@@ -681,20 +696,21 @@ class Players{
 
             for(const [k, v] of Object.entries(gametypeTotals)){
 
-                console.log(`update totals for gametyp ${k}, total matches = ${v.matches}`);
 
                 vars = [
                     v.first, v.last, v.ip, v.country, v.face, v.voice,                
                     v.matches, v.wins, v.losses, v.draws, v.winrate,  v.playtime,
                     v.first_blood, v.frags, v.score, v.kills, v.deaths, v.suicides,
                     v.team_kills, v.spawn_kills, v.efficiency,
-                    v.multi_1, v.multi_2, v.multi_3, v.multi_4, v.multi_5, v.multi_6, v.multi_7, v.multi_best,
-                    v.spree_1, v.spree_2, v.spree_3, v.spree_4, v.spree_5, v.spree_6, v.spree_7, v.spree_best,
-                    v.fastest_kill, v.slowest_kill, v.best_spawn_kill_spree, v.flag_assist, v.flag_return,
+                    v.multi_1, v.multi_2, v.multi_3, v.multi_4, v.multi_5, v.multi_6, v.multi_7, v.multi_best, v.multi_best,
+                    v.spree_1, v.spree_2, v.spree_3, v.spree_4, v.spree_5, v.spree_6, v.spree_7, v.spree_best, v.spree_best,
+                    v.fastest_kill, v.fastest_kill, v.slowest_kill, v.slowest_kill, v.best_spawn_kill_spree, v.best_spawn_kill_spree,
+                     v.flag_assist, v.flag_return,
                     v.flag_taken, v.flag_dropped, v.flag_capture, v.flag_pickup, v.flag_seal, v.flag_cover,
                     v.flag_cover_pass, v.flag_cover_fail, v.flag_self_cover, v.flag_self_cover_pass, v.flag_self_cover_fail, v.flag_multi_cover,
-                    v.flag_spree_cover, v.flag_cover_best, v.flag_self_cover_best, v.flag_kill, v.flag_save, v.flag_carry_time,
-                    v.assault_objectives, v.dom_caps, v.dom_caps_best, v.dom_caps_best_life, v.k_distance_normal,
+                    v.flag_spree_cover, v.flag_cover_best, v.flag_cover_best, v.flag_self_cover_best, v.flag_self_cover_best,
+                     v.flag_kill, v.flag_save, v.flag_carry_time,
+                    v.assault_objectives, v.dom_caps, v.dom_caps_best, v.dom_caps_best, v.dom_caps_best_life, v.dom_caps_best_life, v.k_distance_normal,
                     v.k_distance_long, v.k_distance_uber, v.headshots, v.shield_belt, v.amp, v.amp_time,v.invisibility,
                     v.invisibility_time, v.pads, v.armor, v.boots, v.super_health,
 
@@ -791,7 +807,7 @@ class Players{
 
                 const updatedPlayerMatches = await matchManager.getAllPlayerMatches(second.id);
 
-                await this.recalculatePlayerTotalsAfterMerge(updatedPlayerMatches, "MR CUNT");
+                await this.recalculatePlayerTotalsAfterMerge(updatedPlayerMatches, second.name);
 
                 //recalculate new players gametype totals as they have changed and not been updated.
 

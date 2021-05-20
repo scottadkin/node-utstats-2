@@ -1151,6 +1151,7 @@ class Matches{
                 await this.insertMergedPlayerData(value);
             }
 
+            /*
             //update player match totals, reduce for removed add for new master account
 
             for(const [key, value] of Object.entries(playedGametypes)){
@@ -1158,7 +1159,7 @@ class Matches{
                 //await this.changePlayerMatchesCount(oldName, key, -value);
                 await this.changePlayerMatchesCount(newName, key, value, gametypesPlaytime[key]);
 
-            }
+            }*/
 
             
 

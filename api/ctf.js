@@ -524,8 +524,6 @@ class CTF{
 
             let d = 0;
 
-            console.log(data[0]);
-
             let currentDrops = [];
             let currentPickups = [];
             let currentCovers = [];
