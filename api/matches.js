@@ -1173,6 +1173,26 @@ class Matches{
 
         return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE player_id=?", [player]);
     }
+
+    async getMatchGametypes(ids){
+
+        if(ids.length === 0) return {};
+
+        const data = await mysql.simpleFetch("SELECT id,gametype FROM nstats_matches WHERE id IN (?)", [ids]);
+        
+        const obj = {};
+
+        let d = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            obj[d.id] = d.gametype;
+        }
+
+        return obj;
+    }
     
 }
 module.exports = Matches;

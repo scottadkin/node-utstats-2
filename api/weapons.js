@@ -267,6 +267,11 @@ class Weapons{
         });
     }
 
+    async getAllPlayerTotals(id){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_totals WHERE player_id=?", [id]);
+    }
+
     getAllNames(){
 
         return new Promise((resolve, reject) =>{
@@ -561,12 +566,31 @@ class Weapons{
         await mysql.simpleUpdate(query, vars);
     }
 
-    async deleteAllPlayerMatchData(id){
+    async deletePlayerMatchData(id, matchIds){
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=?", [id]);
+        if(matchIds.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id IN(?)", [id, matchIds]);
     }
 
-    async mergePlayers(oldId, newId){
+
+   /* async updatePlayerWeaponTotalsAfterMerged(player, data){
+
+        console.log("updatePlayerWeaponTotalsAfterMerged");
+
+
+        //UPDATE nstats_player_weapon_totals not delete
+        console.log(data);
+    }*/
+
+    async realculatePlayerWeaponTotals(playerId){
+
+        //get all player match weapon data
+        //then get all match ids gametypes
+        //add them up for the new totals
+    }
+
+    async mergePlayers(oldId, newId, matchManager){
 
         try{
 
@@ -574,43 +598,122 @@ class Weapons{
             const newPlayerData = await this.getAllPlayerMatchData(newId);
 
             const mergedData = {};
+            const weaponData = {};
 
-            const createMergedData = (data) =>{
+            
+            const matchIds = [];
+
+
+            const setMatchIds = (data) =>{
 
                 let d = 0;
 
                 for(let i = 0; i < data.length; i++){
 
                     d = data[i];
+                    if(matchIds.indexOf(d.match_id) === -1) matchIds.push(d.match_id);
+                }
+            }
 
+            setMatchIds(oldPlayerData);
+            setMatchIds(newPlayerData);
+
+            const matchGametypes = await matchManager.getMatchGametypes(matchIds);
+            
+            const createMergedData = (data) =>{
+
+                let d = 0;
+
+                let originalId = 0;
+
+                for(let i = 0; i < data.length; i++){
+
+                    d = data[i];
+
+                    d.gametype = matchGametypes[d.match_id];
+
+                    originalId = d.player_id;
+                    
                     if(mergedData[d.match_id] === undefined){
     
                         mergedData[d.match_id] = d;
                         mergedData[d.match_id].player_id = newId;
+                        mergedData[d.match_id].gametype = matchGametypes[d.match_id];
 
-                    }else{
+                    }
 
-                        mergedData[d.match_id].kills += d.kills;
-                        mergedData[d.match_id].deaths += d.deaths;
-                        mergedData[d.match_id].shots += d.shots;
-                        mergedData[d.match_id].hits += d.hits;
-                        mergedData[d.match_id].damage += d.damage;
-                        
-                        mergedData[d.match_id].accuracy = 0;
 
-                        if(mergedData[d.match_id].hits > 0){
+                    mergedData[d.match_id].kills += d.kills;
+                    mergedData[d.match_id].deaths += d.deaths;
+                    mergedData[d.match_id].shots += d.shots;
+                    mergedData[d.match_id].hits += d.hits;
+                    mergedData[d.match_id].damage += d.damage;
+                    
+                    mergedData[d.match_id].accuracy = 0;
 
-                            if(mergedData[d.match_id].shots > 0){
+                    if(mergedData[d.match_id].hits > 0){
 
-                                mergedData[d.match_id].accuracy = (mergedData[d.match_id].hits / mergedData[d.match_id].shots) * 100;
+                        if(mergedData[d.match_id].shots > 0){
 
-                            }else{
-                                mergedData[d.match_id].accuracy = 100;
-                            }
+                            mergedData[d.match_id].accuracy = (mergedData[d.match_id].hits / mergedData[d.match_id].shots) * 100;
+
+                        }else{
+                            mergedData[d.match_id].accuracy = 100;
                         }
                     }
+                    
+
+                    /*
+
+                    //data that needs to be added to the newids existsing weapon gametype totals
+                    if(originalId !== newId){
+
+                        if(weaponData[d.gametype] === undefined){
+
+                            weaponData[d.gametype] = {};
+    
+                        }
+    
+    
+                        if(weaponData[d.gametype][d.weapon_id] === undefined){
+    
+                            weaponData[d.gametype][d.weapon_id] = {
+                                "kills": 0,
+                                "deaths": 0,
+                                "shots": 0,
+                                "hits": 0,
+                                "damage": 0,
+                                "matches": 0,
+                            };
+                        }
+
+                        weaponData[d.gametype][d.weapon_id].kills += d.kills;
+                        weaponData[d.gametype][d.weapon_id].deaths += d.deaths;
+                        weaponData[d.gametype][d.weapon_id].shots += d.shots;
+                        weaponData[d.gametype][d.weapon_id].hits += d.hits;
+                        weaponData[d.gametype][d.weapon_id].damage += d.damage;
+                        weaponData[d.gametype][d.weapon_id].matches++;
+
+                        weaponData[d.gametype][d.weapon_id].accuracy = 0;
+
+                        /*if(weaponData[d.gametype][d.weapon_id].shots > 0){
+
+                            if(weaponData[d.gametype][d.weapon_id].hits > 0){
+
+                                weaponData[d.gametype][d.weapon_id].accuracy = 
+                                (weaponData[d.gametype][d.weapon_id].hits / weaponData[d.gametype][d.weapon_id].shots) * 100;
+                            }
+                        }else{
+                            //just in case there are hits with shots
+                            if(weaponData[d.gametype][d.weapon_id].hits > 0) weaponData[d.gametype][d.weapon_id].accuracy = 100;
+                        }
+                    }*/
+
+                    
                 }
             }
+
+            
 
             createMergedData(oldPlayerData);
             createMergedData(newPlayerData);
@@ -620,9 +723,15 @@ class Weapons{
                 await this.updateMatchRowFromMergedData(v);
             }
 
-            await this.deleteAllPlayerMatchData(oldId);
+            await this.deletePlayerMatchData(oldId, matchIds);
 
+            //await 
+
+            //await this.updatePlayerWeaponTotalsAfterMerged(newId, weaponData);
             
+
+            await this.realculatePlayerWeaponTotals(oldId);
+            await this.realculatePlayerWeaponTotals(newId);
 
         }catch(err){
            console.trace(err); 

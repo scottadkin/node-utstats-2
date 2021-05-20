@@ -811,7 +811,7 @@ class Players{
 
                 const weaponsManager = new Weapons();
 
-                await weaponsManager.mergePlayers(first.id, second.id);
+                await weaponsManager.mergePlayers(first.id, second.id, matchManager);
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");
