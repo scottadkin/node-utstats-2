@@ -490,6 +490,227 @@ class Players{
         return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE name=?",[name]);
     }
 
+
+    
+    async recalculatePlayerTotalsAfterMerge(matches, playerName){
+
+        try{
+
+            const mergeTypes = [
+                                 /*'first',
+                'last',                  'ip',                   'country',
+                'face',                  'voice',                'gametype',*/
+                            /*'wins',                 'losses',
+                'draws',                 'winrate',*/              'playtime',
+                /*'first_bloods',*/          'frags',                'score',
+                'kills',                 'deaths',               'suicides',
+                'team_kills',            'spawn_kills',          /*'efficiency',*/
+                'multi_1',               'multi_2',              'multi_3',
+                'multi_4',               'multi_5',              'multi_6',
+                'multi_7',               'multi_best',           'spree_1',
+                'spree_2',               'spree_3',              'spree_4',
+                'spree_5',               'spree_6',              'spree_7',
+                /*'spree_best',*/            /*'fastest_kill',         'slowest_kill',
+                'best_spawn_kill_spree',*/ 'flag_assist',          'flag_return',
+                'flag_taken',            'flag_dropped',         'flag_capture',
+                'flag_pickup',           'flag_seal',            'flag_cover',
+                'flag_cover_pass',       'flag_cover_fail',      'flag_self_cover',
+                'flag_self_cover_pass',  'flag_self_cover_fail', 'flag_multi_cover',
+                'flag_spree_cover',      /*'flag_cover_best',      'flag_self_cover_best'*/,
+                'flag_kill',             'flag_save',            'flag_carry_time',
+                'assault_objectives',    'dom_caps',             /*'dom_caps_best',
+                'dom_caps_best_life',    'accuracy',*/             'k_distance_normal',
+                'k_distance_long',       'k_distance_uber',      'headshots',
+                'shield_belt',           'amp',                  'amp_time',
+                'invisibility',          'invisibility_time',    'pads',
+                'armor',                 'boots',                'super_health'
+            ];
+
+
+            const gametypeTotals = {};
+
+            const update = (m, gametype) =>{
+
+                if(gametypeTotals[gametype] === undefined){
+
+                    gametypeTotals[gametype] = m;
+                    gametypeTotals[gametype].matches = 1;
+                    gametypeTotals[gametype].first = m.match_date;
+                    gametypeTotals[gametype].last = m.match_date;
+
+                    if(m.winner){
+
+                        gametypeTotals[gametype].wins = 1;
+                        gametypeTotals[gametype].losses = 0;
+                        gametypeTotals[gametype].winrate = 100;
+                    }else{
+                        gametypeTotals[gametype].losses = 1;
+                        gametypeTotals[gametype].wins = 0;
+                        gametypeTotals[gametype].winrate = 0;
+                        
+                    }
+
+                    if(m.draw){
+                        gametypeTotals[gametype].draws = 1;
+                    }else{
+                        gametypeTotals[gametype].draws = 0;
+                    }
+
+                }else{
+
+                    if(m.winner){
+
+                        gametypeTotals[gametype].wins++;
+                    }else{
+                        gametypeTotals[gametype].losses++;
+                    }
+
+                    if(m.draw){
+                        gametypeTotals[gametype].draws++;
+                    }
+
+                    gametypeTotals[gametype].matches++;
+
+                    if(gametypeTotals[gametype].first > m.match_date){
+                        gametypeTotals[gametype].first = m.match_date;
+                    }
+
+                    if(gametypeTotals[gametype].last < m.match_date){
+                        gametypeTotals[gametype].last = m.match_date;
+                    }
+
+                    gametypeTotals[gametype].ip = m.ip;
+                    gametypeTotals[gametype].country = m.country;
+                    gametypeTotals[gametype].face = m.face;
+                    gametypeTotals[gametype].voice = m.voice;
+
+
+                    gametypeTotals[gametype].winrate = 0;
+
+                    if(gametypeTotals[gametype].wins > 0){
+
+                        if(gametypeTotals[gametype].losses === 0){
+                            gametypeTotals[gametype].winrate = 100;
+                        }else{
+                            gametypeTotals[gametype].winrate = (gametypeTotals[gametype].wins / gametypeTotals[gametype].matches) * 100;
+                        }
+                    }
+
+
+                    gametypeTotals[gametype].efficiency = 0;
+
+                    if(gametypeTotals[gametype].kills > 0){
+                        
+                        if(gametypeTotals[gametype].deaths === 0){
+                            gametypeTotals[gametype].efficiency = 100;
+                        }else{
+                            gametypeTotals[gametype].efficiency = (gametypeTotals[gametype].kills / 
+                            (gametypeTotals[gametype].kills + gametypeTotals[gametype].deaths)) * 100;
+                        }
+                    }
+
+                    if(gametypeTotals[gametype].spree_best < m.spree_best){
+                        gametypeTotals[gametype].spree_best = m.spree_best;
+                    }
+
+                    if(gametypeTotals[gametype].fastest_kill > m.fastest_kill){
+                        gametypeTotals[gametype].fastest_kill = m.fastest_kill;
+                    }
+
+                    if(gametypeTotals[gametype].slowest_kill < m.slowest_kill){
+                        gametypeTotals[gametype].slowest_kill = m.slowest_kill;
+                    }
+
+                    if(gametypeTotals[gametype].best_spawn_kill_spree < m.best_spawn_kill_spree){
+                        gametypeTotals[gametype].best_spawn_kill_spree = m.best_spawn_kill_spree;
+                    }
+
+                    if(gametypeTotals[gametype].flag_cover_best < m.flag_cover_best){
+                        gametypeTotals[m.gametype].flag_cover_best = m.flag_cover_best;
+                    }
+
+                    if(gametypeTotals[gametype].flag_self_cover_best < m.flag_self_cover_best){
+                        gametypeTotals[gametype].flag_self_cover_best = m.flag_self_cover_best;
+                    }
+
+                    if(gametypeTotals[gametype].dom_caps_best_life < m.dom_caps_best_life){
+                        gametypeTotals[gametype].dom_caps_best_life = m.dom_caps_best_life;
+                    }
+
+                    if(gametypeTotals[gametype].dom_caps_best < m.dom_caps_best){
+                        gametypeTotals[gametype].dom_caps_best = m.dom_caps_best;
+                    }
+
+                    for(let x = 0; x < mergeTypes.length; x++){
+                        gametypeTotals[gametype][mergeTypes[x]] += m[mergeTypes[x]];
+                    }
+                }
+            }
+
+
+            let m = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                update(m, m.gametype);
+                update(m, 0);
+            }
+
+
+            const query = `UPDATE nstats_player_totals SET
+                first=?, last=?, ip=?, country=?, face=?, voice=?,                
+                matches=?, wins=?, losses=?, draws=?, winrate=?,  playtime=?,
+                first_bloods=?, frags=?, score=?, kills=?, deaths=?, suicides=?,
+                team_kills=?, spawn_kills=?, efficiency=?,
+                multi_1=?, multi_2=?, multi_3=?, multi_4=?, multi_5=?, multi_6=?, multi_7=?, multi_best=?,
+                spree_1=?, spree_2=?, spree_3=?, spree_4=?, spree_5=?, spree_6=?, spree_7=?, spree_best=?,
+                fastest_kill=?, slowest_kill=?, best_spawn_kill_spree=?, flag_assist=?, flag_return=?,
+                flag_taken=?, flag_dropped=?, flag_capture=?, flag_pickup=?, flag_seal=?, flag_cover=?,
+                flag_cover_pass=?, flag_cover_fail=?, flag_self_cover=?, flag_self_cover_pass=?, flag_self_cover_fail=?, flag_multi_cover=?,
+                flag_spree_cover=?, flag_cover_best=?, flag_self_cover_best=?, flag_kill=?, flag_save=?, flag_carry_time=?,
+                assault_objectives=?, dom_caps=?, dom_caps_best=?, dom_caps_best_life=?, k_distance_normal=?,
+                k_distance_long=?, k_distance_uber=?, headshots=?, shield_belt=?, amp=?, amp_time=?,invisibility=?,
+                invisibility_time=?, pads=?, armor=?, boots=?, super_health=?
+                
+                WHERE gametype=? AND name=?
+                `;
+
+            let vars = [];
+
+            for(const [k, v] of Object.entries(gametypeTotals)){
+
+                console.log(`update totals for gametyp ${k}, total matches = ${v.matches}`);
+
+                vars = [
+                    v.first, v.last, v.ip, v.country, v.face, v.voice,                
+                    v.matches, v.wins, v.losses, v.draws, v.winrate,  v.playtime,
+                    v.first_blood, v.frags, v.score, v.kills, v.deaths, v.suicides,
+                    v.team_kills, v.spawn_kills, v.efficiency,
+                    v.multi_1, v.multi_2, v.multi_3, v.multi_4, v.multi_5, v.multi_6, v.multi_7, v.multi_best,
+                    v.spree_1, v.spree_2, v.spree_3, v.spree_4, v.spree_5, v.spree_6, v.spree_7, v.spree_best,
+                    v.fastest_kill, v.slowest_kill, v.best_spawn_kill_spree, v.flag_assist, v.flag_return,
+                    v.flag_taken, v.flag_dropped, v.flag_capture, v.flag_pickup, v.flag_seal, v.flag_cover,
+                    v.flag_cover_pass, v.flag_cover_fail, v.flag_self_cover, v.flag_self_cover_pass, v.flag_self_cover_fail, v.flag_multi_cover,
+                    v.flag_spree_cover, v.flag_cover_best, v.flag_self_cover_best, v.flag_kill, v.flag_save, v.flag_carry_time,
+                    v.assault_objectives, v.dom_caps, v.dom_caps_best, v.dom_caps_best_life, v.k_distance_normal,
+                    v.k_distance_long, v.k_distance_uber, v.headshots, v.shield_belt, v.amp, v.amp_time,v.invisibility,
+                    v.invisibility_time, v.pads, v.armor, v.boots, v.super_health,
+
+                    k, playerName
+                ];
+    
+
+                await mysql.simpleUpdate(query, vars);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+    
+
     //first player gets merged into second
     async mergePlayers(first, second, matchManager){
 
@@ -568,9 +789,14 @@ class Players{
                 await matchManager.mergePlayerMatches(first.id, second.id,second.name);
                 await this.deletePlayerTotals(first.name);
 
+                const updatedPlayerMatches = await matchManager.getAllPlayerMatches(second.id);
+
+                await this.recalculatePlayerTotalsAfterMerge(updatedPlayerMatches, "MR CUNT");
+
                 //recalculate new players gametype totals as they have changed and not been updated.
 
                 //need to reduce player count if players have been merged in matches
+
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");

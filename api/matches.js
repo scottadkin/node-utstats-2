@@ -1015,7 +1015,7 @@ class Matches{
                 'multi_5',               'multi_6',                'multi_7',
                 'multi_best',            'spree_1',                'spree_2',
                 'spree_3',               'spree_4',                'spree_5',
-                'spree_6',               'spree_7',                'spree_best',
+                'spree_6',               'spree_7',                /*'spree_best',*/
                                          'flag_assist',            'flag_return',
                 'flag_taken',            'flag_dropped',           'flag_capture',
                 'flag_pickup',           'flag_seal',              'flag_cover',
@@ -1041,7 +1041,8 @@ class Matches{
                 "dom_caps_best_life",
                 "ping_min",
                 "ping_average",
-                "ping_max"
+                "ping_max",
+                "spree_best"
             ];
 
 
@@ -1152,11 +1153,6 @@ class Matches{
 
             //update player match totals, reduce for removed add for new master account
 
-            console.log(`totalMatches = ${matches.length}`);
-            console.log(`matchesWithMerge = ${matchIdsWithMerge.length}`);
-
-            console.table(playedGametypes);
-
             for(const [key, value] of Object.entries(playedGametypes)){
 
                 //await this.changePlayerMatchesCount(oldName, key, -value);
@@ -1171,6 +1167,11 @@ class Matches{
         }
     }
 
+
+    async getAllPlayerMatches(player){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE player_id=?", [player]);
+    }
     
 }
 module.exports = Matches;
