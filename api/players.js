@@ -12,6 +12,7 @@ const Kills = require('./kills');
 const Connections = require('./connections');
 const Pings = require('./pings');
 const Maps = require('./maps');
+const Weapons = require('./weapons');
 
 class Players{
 
@@ -801,7 +802,6 @@ class Players{
 
                 await mapManager.mergePlayerHistory(first.id, second.id);
 
-                
                 await matchManager.mergePlayerMatches(first.id, second.id,second.name);
                 await this.deletePlayerTotals(first.name);
 
@@ -809,10 +809,9 @@ class Players{
 
                 await this.recalculatePlayerTotalsAfterMerge(updatedPlayerMatches, second.name);
 
-                //recalculate new players gametype totals as they have changed and not been updated.
+                const weaponsManager = new Weapons();
 
-                //need to reduce player count if players have been merged in matches
-
+                await weaponsManager.mergePlayers(first.id, second.id);
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");

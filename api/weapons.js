@@ -508,6 +508,11 @@ class Weapons{
         return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_match WHERE match_id=? AND player_id=?",[matchId, playerId]);
     }
 
+    async getAllPlayerMatchData(playerId){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_match WHERE player_id=?", [playerId]);
+    }
+
 
     async deleteSinglePlayerMatchData(playerId, matchId){
 
@@ -533,6 +538,94 @@ class Weapons{
 
         }catch(err){
             console.trace(err);
+        }
+    }
+
+
+    async updateMatchRowFromMergedData(data){
+
+        const query = `UPDATE nstats_player_weapon_match SET 
+        kills=?, deaths=?, accuracy=?, shots=?, hits=?, damage=? 
+        WHERE id=?`;
+
+        const vars = [
+            data.kills,
+            data.deaths,
+            data.accuracy,
+            data.shots,
+            data.hits,
+            data.damage,
+            data.id
+        ];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async deleteAllPlayerMatchData(id){
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=?", [id]);
+    }
+
+    async mergePlayers(oldId, newId){
+
+        try{
+
+            const oldPlayerData = await this.getAllPlayerMatchData(oldId);
+            const newPlayerData = await this.getAllPlayerMatchData(newId);
+
+            const mergedData = {};
+
+            const createMergedData = (data) =>{
+
+                let d = 0;
+
+                for(let i = 0; i < data.length; i++){
+
+                    d = data[i];
+
+                    if(mergedData[d.match_id] === undefined){
+    
+                        mergedData[d.match_id] = d;
+                        mergedData[d.match_id].player_id = newId;
+
+                    }else{
+
+                        mergedData[d.match_id].kills += d.kills;
+                        mergedData[d.match_id].deaths += d.deaths;
+                        mergedData[d.match_id].shots += d.shots;
+                        mergedData[d.match_id].hits += d.hits;
+                        mergedData[d.match_id].damage += d.damage;
+                        
+                        mergedData[d.match_id].accuracy = 0;
+
+                        if(mergedData[d.match_id].hits > 0){
+
+                            if(mergedData[d.match_id].shots > 0){
+
+                                mergedData[d.match_id].accuracy = (mergedData[d.match_id].hits / mergedData[d.match_id].shots) * 100;
+
+                            }else{
+                                mergedData[d.match_id].accuracy = 100;
+                            }
+                        }
+                    }
+                }
+            }
+
+            createMergedData(oldPlayerData);
+            createMergedData(newPlayerData);
+
+            for(const [k, v] of Object.entries(mergedData)){
+
+                await this.updateMatchRowFromMergedData(v);
+            }
+
+            await this.deleteAllPlayerMatchData(oldId);
+
+            
+
+        }catch(err){
+           console.trace(err); 
         }
     }
 }
