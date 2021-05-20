@@ -583,11 +583,98 @@ class Weapons{
         console.log(data);
     }*/
 
-    async realculatePlayerWeaponTotals(playerId){
+    async realculatePlayerWeaponTotals(playerId, matchManager){
 
         //get all player match weapon data
         //then get all match ids gametypes
         //add them up for the new totals
+
+        const data = await this.getAllPlayerMatchData(playerId);
+
+        //get match gametypes
+
+        const matchIds = [];
+        let d = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            matchIds.push(d.match_id);
+        }
+
+        const gametypes = await matchManager.getMatchGametypes(matchIds);
+
+
+        console.log(gametypes);
+
+        const totals = {};
+
+        
+
+        let gametype = 0;
+        let weapon = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            gametype = gametypes[d.match_id];
+            weapon = d.weapon_id;
+
+            if(totals[gametype] === undefined){
+                totals[gametype] = {};
+            }
+
+            if(totals[gametype][weapon] === undefined){
+
+                totals[gametype][weapon] = {
+                    "kills": 0,
+                    "deaths": 0,
+                    "efficiency": 0,
+                    "accuracy": 0,
+                    "shots": 0,
+                    "hits": 0,
+                    "damage": 0,
+                    "matches": 0
+                }
+            }
+
+            totals[gametype][weapon].kills += d.kills;
+            totals[gametype][weapon].deaths += d.deaths;
+
+            totals[gametype][weapon].efficiency = 0;
+
+            if(totals[gametype][weapon].kills > 0){
+
+                if(totals[gametype][weapon].deaths === 0){
+                    totals[gametype][weapon].efficiency = 100;
+                }else{
+                    totals[gametype][weapon].efficiency = 
+                    (totals[gametype][weapon].kills / (totals[gametype][weapon].kills + totals[gametype][weapon].deaths)) * 100;
+                }
+            }
+
+            totals[gametype][weapon].shots += d.shots;
+            totals[gametype][weapon].hits += d.hits;
+
+            totals[gametype][weapon].accuracy = 0;
+
+            if(totals[gametype][weapon].hits > 0){
+
+                if(totals[gametype][weapon].shots === 0){
+                    totals[gametype][weapon].accuracy = 100;
+                }else{
+
+                    totals[gametype][weapon].accuracy = (totals[gametype][weapon].hits / totals[gametype][weapon].shots) * 100;
+                }
+            }
+
+            totals[gametype][weapon].damage += d.damage;
+            totals[gametype][weapon].matches++;
+        }
+
+        console.log(totals);
     }
 
     async mergePlayers(oldId, newId, matchManager){
@@ -730,8 +817,8 @@ class Weapons{
             //await this.updatePlayerWeaponTotalsAfterMerged(newId, weaponData);
             
 
-            await this.realculatePlayerWeaponTotals(oldId);
-            await this.realculatePlayerWeaponTotals(newId);
+            await this.realculatePlayerWeaponTotals(oldId, matchManager);
+            await this.realculatePlayerWeaponTotals(newId, matchManager);
 
         }catch(err){
            console.trace(err); 
