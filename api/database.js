@@ -119,4 +119,39 @@ Database.simpleInsert = (query, vars) =>{
     });
 }
 
+Database.updateReturnAffectedRows = (query, vars) =>{
+
+    return new Promise((resolve, reject) =>{
+
+        if(vars === undefined){
+
+            Database.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result.affectedRows);
+                }
+
+                resolve(0);
+
+            });
+
+        }else{
+
+            Database.query(query, vars, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result.affectedRows);
+                }
+
+                resolve(0);
+            });
+        }
+    });
+
+}
+
 module.exports = Database;

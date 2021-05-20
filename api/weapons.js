@@ -615,12 +615,7 @@ class Weapons{
         let gametype = 0;
         let weapon = 0;
 
-        for(let i = 0; i < data.length; i++){
-
-            d = data[i];
-
-            gametype = gametypes[d.match_id];
-            weapon = d.weapon_id;
+        const updateTotals = (d, gametype, weapon) =>{
 
             if(totals[gametype] === undefined){
                 totals[gametype] = {};
@@ -674,7 +669,97 @@ class Weapons{
             totals[gametype][weapon].matches++;
         }
 
-        console.log(totals);
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            gametype = gametypes[d.match_id];
+            weapon = d.weapon_id;
+
+            //totals
+            updateTotals(d, 0, weapon);
+            //gametype totals
+            updateTotals(d, gametype, weapon);
+
+        
+        }
+
+        const updateQuery = `UPDATE nstats_player_weapon_totals SET
+            kills=?,
+            deaths=?,
+            efficiency=?,
+            accuracy=?,
+            shots=?,
+            hits=?,
+            damage=?,
+            matches=?
+            WHERE player_id=? AND gametype=? AND weapon=?
+
+        `;
+
+        const insertQuery = `INSERT INTO nstats_player_weapon_totals VALUES(
+            ?,?,?,?,?,?,?,?,?,?,?
+        )`;
+
+        
+
+
+        let vars = [];
+
+        let updatedRows = 0;
+
+        for(const [gametype, data] of Object.entries(totals)){
+
+            console.log(`current gametype = ${gametype}`);
+
+            for(const [weapon, weaponData] of Object.entries(data)){
+
+                console.log(`currentWeapon ${weapon}`);
+
+                vars = [
+                    weaponData.kills,
+                    weaponData.deaths,
+                    weaponData.efficiency,
+                    weaponData.accuracy,
+                    weaponData.shots,
+                    weaponData.hits,
+                    weaponData.damage,
+                    weaponData.matches,
+                    playerId,
+                    gametype,
+                    weapon
+                ];
+
+
+                updatedRows = await mysql.updateReturnAffectedRows(updateQuery, vars);
+
+                console.log(`${updatedRows} rows updated`);
+
+                if(updatedRows === 0){
+
+                    console.log("insert new row");
+
+                    vars = [
+                        playerId,
+                        gametype,
+                        weapon,
+                        weaponData.kills,
+                        weaponData.deaths,
+                        weaponData.efficiency,
+                        weaponData.accuracy,
+                        weaponData.shots,
+                        weaponData.hits,
+                        weaponData.damage,
+                        weaponData.matches,     
+                    ];
+
+                    await mysql.simpleInsert(insertQuery, vars);
+                }
+            }
+        }
+
+        
     }
 
     async mergePlayers(oldId, newId, matchManager){
