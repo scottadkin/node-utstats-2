@@ -1171,7 +1171,7 @@ class Matches{
 
     async getAllPlayerMatches(player){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE player_id=?", [player]);
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE player_id=? ORDER BY id ASC", [player]);
     }
 
     async getMatchGametypes(ids){

@@ -514,6 +514,10 @@ class Rankings{
 
             const playtime = playerGametypeData[0].playtime;
 
+            currentScore = currentScore / (playtime / 60);
+
+            if(currentScore === Infinity) currentScore = 0;
+
             if(playtime < halfHour){
 
                 currentScore *= penalties["sub_half_hour_multiplier"];
@@ -554,6 +558,245 @@ class Rankings{
             await this.deletePlayerMatchHistory(playerId, matchId);
 
         }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async deleteAllPlayerHistory(playerId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_ranking_player_history WHERE player_id=?", [playerId]);
+    }
+
+    async deleteAllPlayerCurrent(playerId){
+        await mysql.simpleDelete("DELETE FROM nstats_ranking_player_current WHERE player_id=?", [playerId]);
+    }
+
+    async getSettingsObject(){
+
+        try{
+
+            const values = await this.getSettings();
+
+            const obj = {};
+
+            let v = 0;
+
+            for(let i = 0; i < values.length; i++){
+
+                v = values[i];
+
+                obj[v.name] = v.value;
+            }
+
+            return obj;
+
+        }catch(err){
+            console.trace(err);
+            return [];
+        }
+    }
+
+
+    async insertPlayerCurrentFromMerge(playerId, gametypeId, data){
+
+        const query = `INSERT INTO nstats_ranking_player_current VALUES(
+            NULL,?,?,?,?,?,?
+        )`;
+
+        const vars = [
+            playerId, 
+            gametypeId,
+            data.matches,
+            data.playtime,
+            data.ranking,
+            data.lastChange
+        ];
+
+        await mysql.simpleInsert(query, vars);
+    }
+
+    async fullPlayerRecalculate(playerId, matches){
+
+        try{
+
+            console.log(`Start of full player recalculation for playerId ${playerId}, ${matches.length * 2} matches needs to be processed`);
+
+            const values = await this.getSettingsObject();
+ 
+
+            const types = [
+                'frags',
+                'deaths',
+                'suicides',
+                'team_kills',
+                'flag_taken',
+                'flag_pickup',
+                'flag_return',
+                'flag_capture',
+                'flag_cover',
+                'flag_seal',
+                'flag_assist',
+                'flag_kill',
+                'dom_caps',
+                'assault_objectives',
+                'multi_1',
+                'multi_2',
+                'multi_3',
+                'multi_4',
+                'multi_5',
+                'multi_6',
+                'multi_7',
+                'spree_1',
+                'spree_2',
+                'spree_3',
+                'spree_4',
+                'spree_5',
+                'spree_6',
+                'spree_7',
+                'flag_dropped',
+                'flag_cover_pass',
+                'flag_cover_fail',
+                'flag_self_cover',
+                'flag_self_cover_pass',
+                'flag_self_cover_fail',
+                'flag_multi_cover',
+                'flag_spree_cover',
+                'flag_save'
+            ];
+
+            const gametypeTotals = {};
+
+
+            gametypeTotals[0] = {
+                "totalScore": 0,
+                "playtime": 0,
+                "matches": 0,
+                "lastChange": 0,
+                "ranking": 0,
+            };
+            
+
+            const updateGametypeTotals = (gametype, playtime, totalScore) =>{
+
+                if(gametypeTotals[gametype] === undefined){
+                    
+                    gametypeTotals[gametype] = {"totalScore": 0, "playtime": 0, "matches": 0, "lastChange": 0, "ranking": 0};
+                }
+
+                gametypeTotals[gametype].totalScore += totalScore;
+                gametypeTotals[gametype].playtime += playtime;
+                gametypeTotals[gametype].matches++;
+                
+            }
+
+
+            const halfHour = 60 * 30;
+            const hour = 60 * 60;
+            const hour2 = hour * 2;
+            const hour3 = hour * 3;
+
+
+            let m = 0;
+
+            let previousMatchScore = 0;
+            let currentMatchScore = 0;
+            let matchPlaytime = 0;
+            let matchChange = 0;
+
+            let currentTotalScore = 0;
+            let previousTotalScore = 0;
+            let totalPlaytime = 0;
+            let totalChange = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+               // console.log(m.gametype);
+               currentMatchScore = 0;
+
+                for(let x = 0; x < types.length; x++){
+
+                    currentMatchScore += m[types[x]] * values[types[x]];
+                }
+
+                updateGametypeTotals(0, m.playtime, currentMatchScore);
+                updateGametypeTotals(m.gametype, m.playtime, currentMatchScore);
+
+                
+                currentMatchScore = currentMatchScore / (m.playtime / 60);
+
+
+                matchPlaytime = m.playtime / 60;
+
+
+                if(matchPlaytime === Infinity){
+                    currentMatchScore = 0;
+                }else{
+
+                    if(matchPlaytime < halfHour){
+                        currentMatchScore *= values["sub_half_hour_multiplier"];
+                    }else if(matchPlaytime < hour){
+                        currentMatchScore *= values["sub_hour_multiplier"];
+                    }else if(matchPlaytime < hour2){
+                        currentMatchScore *= values["sub_2hour_multiplier"];
+                    }else if(matchPlaytime < hour3){
+                        currentMatchScore *= values["sub_3hour_multiplier"];
+                    }
+                }
+
+
+                matchChange = currentMatchScore - previousMatchScore;
+
+                totalPlaytime = gametypeTotals[m.gametype].playtime / 60;
+
+                currentTotalScore = gametypeTotals[m.gametype].totalScore / totalPlaytime;
+
+                if(currentTotalScore === Infinity){
+
+                    currentTotalScore = 0;
+
+                }else{
+
+                    
+                    if(totalPlaytime < halfHour){
+                        currentTotalScore *= values["sub_half_hour_multiplier"];
+                    }else if(totalPlaytime < hour){
+                        currentTotalScore *= values["sub_hour_multiplier"];
+                    }else if(totalPlaytime < hour2){
+                        currentTotalScore *= values["sub_2hour_multiplier"];
+                    }else if(totalPlaytime < hour3){
+                        currentTotalScore *= values["sub_3hour_multiplier"];
+                    }
+
+                }
+
+
+                totalChange = currentTotalScore - previousTotalScore;
+
+                gametypeTotals[m.gametype].lastChange = totalChange;
+                gametypeTotals[m.gametype].ranking = currentTotalScore;
+                gametypeTotals[0].lastChange = totalChange;
+                gametypeTotals[0].ranking = currentTotalScore;
+
+
+                await this.insertPlayerHistory(m.match_id, playerId, m.gametype, currentTotalScore, currentMatchScore, totalChange, matchChange);
+
+                previousMatchScore = currentMatchScore;
+                previousTotalScore = currentTotalScore;
+                
+            }
+
+            console.table(gametypeTotals);
+
+            //update current ranking
+
+            for(const [key, value] of Object.entries(gametypeTotals)){
+
+                await this.insertPlayerCurrentFromMerge(playerId, key, value);
+            }
+
+        }catch(err){
+
             console.trace(err);
         }
     }
