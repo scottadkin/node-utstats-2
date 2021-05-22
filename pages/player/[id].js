@@ -206,7 +206,7 @@ function createPingGraphData(history){
 	const data = [
 		{"name": "Min", "data": [0]},
 		{"name": "Average", "data": [0]},
-		{"name": "Mac", "data": [0]}
+		{"name": "Max", "data": [0]}
 	];
 
 

@@ -490,6 +490,8 @@ class GraphCanvas{
 
             d = data[i];
 
+            if(d.name === undefined) continue;
+
             if(d.name.length > this.longestLabelLength){
                 this.longestLabelLength = d.name.length;
                 this.longestLabel = d.name;

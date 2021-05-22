@@ -70,7 +70,7 @@ class Players{
 
                 mysql.query(query, vars, (err, result) =>{
 
-                    if(err) console.log(err);//reject(err);
+                    if(err) reject(err);
 
                     if(result !== undefined){
                         
@@ -492,6 +492,60 @@ class Players{
     }
 
 
+    async insertNewTotalsFromMerge(playerName, gametypeId, data){
+
+        try{
+            const query = `INSERT INTO nstats_player_totals VALUES(
+                NULL,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,
+                ?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,
+                ?,?,?,?,?,?
+            )`;
+
+            const d = data;
+
+            const vars = [
+                playerName, d.first, d.last, d.ip,
+                d.country, d.face, d.voice, gametypeId, d.matches,
+
+                d.wins, d.losses, d.draws, d.winrate, d.playtime,
+
+                d.first_bloods, d.frags, d.score, d.kills, d.deaths,
+
+                d.suicides, d.team_kills, d.spawn_kills, d.efficiency,
+
+                d.multi_1, d.multi_2, d.multi_3, d.multi_4, d.multi_5, d.multi_6, d.multi_7, d.multi_best,
+                d.spree_1, d.spree_2, d.spree_3, d.spree_4, d.spree_5, d.spree_6, d.spree_7, d.spree_best,
+
+                d.fastest_kill, d.slowest_kill, d.best_spawn_kill_spree, d.flag_assist, d.flag_return,
+                
+                d.flag_taken, d.flag_dropped, d.flag_capture, d.flag_pickup, d.flag_seal,
+                d.flag_cover, d.flag_cover_pass, d.flag_cover_fail, d.flag_self_cover, d.flag_self_cover_pass,
+                d.flag_self_cover_fail, d.flag_multi_cover, d.flag_spree_cover, d.flag_cover_best, d.flag_self_cover_best,
+                d.flag_kill, d.flag_save, d.flag_carry_time, d.assault_objectives, d.dom_caps,
+                d.dom_caps_best, d.dom_caps_best_life, d.accuracy, d.k_distance_normal, d.k_distance_long,
+                d.k_distance_uber, d.headshots, d.shield_belt, d.amp, d.amp_time,
+                d.invisibility, d.invisibility_time, d.pads, d.armor, d.boots, d.super_health
+            ];
+
+            await mysql.simpleInsert(query, vars);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
     
     async recalculatePlayerTotalsAfterMerge(matches, playerName){
 
@@ -508,7 +562,7 @@ class Players{
                 'team_kills',            'spawn_kills',          /*'efficiency',*/
                 'multi_1',               'multi_2',              'multi_3',
                 'multi_4',               'multi_5',              'multi_6',
-                'multi_7',               'multi_best',           'spree_1',
+                'multi_7',               /*'multi_best',*/           'spree_1',
                 'spree_2',               'spree_3',              'spree_4',
                 'spree_5',               'spree_6',              'spree_7',
                 /*'spree_best',*/            /*'fastest_kill',         'slowest_kill',
@@ -532,12 +586,20 @@ class Players{
 
             const update = (m, gametype) =>{
 
+               // console.log(m);
+
                 if(gametypeTotals[gametype] === undefined){
 
                     gametypeTotals[gametype] = m;
                     gametypeTotals[gametype].matches = 1;
                     gametypeTotals[gametype].first = m.match_date;
                     gametypeTotals[gametype].last = m.match_date;
+                    gametypeTotals[gametype].dom_caps = 0;
+                    gametypeTotals[gametype].dom_caps_best = 0;
+                    //gametypeTotals[gametype].spree_best = 0;
+                    gametypeTotals[gametype].first_bloods = 0;
+                    gametypeTotals[gametype].slowest_kill = 0;
+                    gametypeTotals[gametype].fastest_kill = 0;
 
                     if(m.winner){
 
@@ -557,95 +619,104 @@ class Players{
                         gametypeTotals[gametype].draws = 0;
                     }
 
+                }
+
+
+
+                if(m.winner){
+
+                    gametypeTotals[gametype].wins++;
                 }else{
+                    gametypeTotals[gametype].losses++;
+                }
 
-                    if(m.winner){
+                if(m.draw){
+                    gametypeTotals[gametype].draws++;
+                }
 
-                        gametypeTotals[gametype].wins++;
+                gametypeTotals[gametype].matches++;
+
+                if(gametypeTotals[gametype].first > m.match_date){
+                    gametypeTotals[gametype].first = m.match_date;
+                }
+
+                if(gametypeTotals[gametype].last < m.match_date){
+                    gametypeTotals[gametype].last = m.match_date;
+                }
+
+
+                if(m.first_blood) gametypeTotals[gametype].first_bloods++;
+
+                gametypeTotals[gametype].ip = m.ip;
+                gametypeTotals[gametype].country = m.country;
+                gametypeTotals[gametype].face = m.face;
+                gametypeTotals[gametype].voice = m.voice;
+
+
+                gametypeTotals[gametype].winrate = 0;
+
+                if(gametypeTotals[gametype].wins > 0){
+
+                    if(gametypeTotals[gametype].losses === 0){
+                        gametypeTotals[gametype].winrate = 100;
                     }else{
-                        gametypeTotals[gametype].losses++;
-                    }
-
-                    if(m.draw){
-                        gametypeTotals[gametype].draws++;
-                    }
-
-                    gametypeTotals[gametype].matches++;
-
-                    if(gametypeTotals[gametype].first > m.match_date){
-                        gametypeTotals[gametype].first = m.match_date;
-                    }
-
-                    if(gametypeTotals[gametype].last < m.match_date){
-                        gametypeTotals[gametype].last = m.match_date;
-                    }
-
-                    gametypeTotals[gametype].ip = m.ip;
-                    gametypeTotals[gametype].country = m.country;
-                    gametypeTotals[gametype].face = m.face;
-                    gametypeTotals[gametype].voice = m.voice;
-
-
-                    gametypeTotals[gametype].winrate = 0;
-
-                    if(gametypeTotals[gametype].wins > 0){
-
-                        if(gametypeTotals[gametype].losses === 0){
-                            gametypeTotals[gametype].winrate = 100;
-                        }else{
-                            gametypeTotals[gametype].winrate = (gametypeTotals[gametype].wins / gametypeTotals[gametype].matches) * 100;
-                        }
-                    }
-
-
-                    gametypeTotals[gametype].efficiency = 0;
-
-                    if(gametypeTotals[gametype].kills > 0){
-                        
-                        if(gametypeTotals[gametype].deaths === 0){
-                            gametypeTotals[gametype].efficiency = 100;
-                        }else{
-                            gametypeTotals[gametype].efficiency = (gametypeTotals[gametype].kills / 
-                            (gametypeTotals[gametype].kills + gametypeTotals[gametype].deaths)) * 100;
-                        }
-                    }
-
-                    if(gametypeTotals[gametype].spree_best < m.spree_best){
-                        gametypeTotals[gametype].spree_best = m.spree_best;
-                    }
-
-                    if(gametypeTotals[gametype].fastest_kill > m.fastest_kill){
-                        gametypeTotals[gametype].fastest_kill = m.fastest_kill;
-                    }
-
-                    if(gametypeTotals[gametype].slowest_kill < m.slowest_kill){
-                        gametypeTotals[gametype].slowest_kill = m.slowest_kill;
-                    }
-
-                    if(gametypeTotals[gametype].best_spawn_kill_spree < m.best_spawn_kill_spree){
-                        gametypeTotals[gametype].best_spawn_kill_spree = m.best_spawn_kill_spree;
-                    }
-
-                    if(gametypeTotals[gametype].flag_cover_best < m.flag_cover_best){
-                        gametypeTotals[m.gametype].flag_cover_best = m.flag_cover_best;
-                    }
-
-                    if(gametypeTotals[gametype].flag_self_cover_best < m.flag_self_cover_best){
-                        gametypeTotals[gametype].flag_self_cover_best = m.flag_self_cover_best;
-                    }
-
-                    if(gametypeTotals[gametype].dom_caps_best_life < m.dom_caps_best_life){
-                        gametypeTotals[gametype].dom_caps_best_life = m.dom_caps_best_life;
-                    }
-
-                    if(gametypeTotals[gametype].dom_caps_best < m.dom_caps_best){
-                        gametypeTotals[gametype].dom_caps_best = m.dom_caps_best;
-                    }
-
-                    for(let x = 0; x < mergeTypes.length; x++){
-                        gametypeTotals[gametype][mergeTypes[x]] += m[mergeTypes[x]];
+                        gametypeTotals[gametype].winrate = (gametypeTotals[gametype].wins / gametypeTotals[gametype].matches) * 100;
                     }
                 }
+
+
+                gametypeTotals[gametype].efficiency = 0;
+
+                if(gametypeTotals[gametype].kills > 0){
+                    
+                    if(gametypeTotals[gametype].deaths === 0){
+                        gametypeTotals[gametype].efficiency = 100;
+                    }else{
+                        gametypeTotals[gametype].efficiency = (gametypeTotals[gametype].kills / 
+                        (gametypeTotals[gametype].kills + gametypeTotals[gametype].deaths)) * 100;
+                    }
+                }
+
+                if(gametypeTotals[gametype].spree_best < m.spree_best){
+                    gametypeTotals[gametype].spree_best = m.spree_best;
+                }
+
+                if(gametypeTotals[gametype].multi_best < m.multi_best){
+                    gametypeTotals[gametype].multi_best = m.multi_best;
+                }
+
+                /*if(gametypeTotals[gametype].fastest_kill > m.fastest_kill){
+                    gametypeTotals[gametype].fastest_kill = m.fastest_kill;
+                }
+
+                if(gametypeTotals[gametype].slowest_kill < m.slowest_kill){
+                    gametypeTotals[gametype].slowest_kill = m.slowest_kill;
+                }*/
+
+                if(gametypeTotals[gametype].best_spawn_kill_spree < m.best_spawn_kill_spree){
+                    gametypeTotals[gametype].best_spawn_kill_spree = m.best_spawn_kill_spree;
+                }
+
+                if(gametypeTotals[gametype].flag_cover_best < m.flag_cover_best){
+                    gametypeTotals[m.gametype].flag_cover_best = m.flag_cover_best;
+                }
+
+                if(gametypeTotals[gametype].flag_self_cover_best < m.flag_self_cover_best){
+                    gametypeTotals[gametype].flag_self_cover_best = m.flag_self_cover_best;
+                }
+
+                if(gametypeTotals[gametype].dom_caps_best_life < m.dom_caps_best_life){
+                    gametypeTotals[gametype].dom_caps_best_life = m.dom_caps_best_life;
+                }
+
+                if(gametypeTotals[gametype].dom_caps_best < m.dom_caps_best){
+                    gametypeTotals[gametype].dom_caps_best = m.dom_caps_best;
+                }
+
+                for(let x = 0; x < mergeTypes.length; x++){
+                    gametypeTotals[gametype][mergeTypes[x]] += m[mergeTypes[x]];
+                }
+            
             }
 
 
@@ -719,7 +790,13 @@ class Players{
                 ];
     
 
-                await mysql.simpleUpdate(query, vars);
+                const updatedRows = await mysql.updateReturnAffectedRows(query, vars);
+
+                console.log(`total player totals rows update was ${updatedRows}`);
+
+                if(updatedRows === 0){
+                    await this.insertNewTotalsFromMerge(playerName, k, v);
+                }
             }
 
         }catch(err){
@@ -748,8 +825,6 @@ class Players{
                 const firstPlayerGametypes = await this.getPlayerTotals(first.name);
                 const secondPlayerGametypes = await this.getPlayerTotals(second.name);
                 
-                console.table(names);
-
                // console.log(firstPlayerGametypes);
                // console.log(secondPlayerGametypes);
 
