@@ -79,7 +79,7 @@ class Rankings{
             
 
             const query = `UPDATE nstats_ranking_player_current SET
-            matches=matches+1, playtime=playtime+?,ranking_change=?-ranking,ranking=?
+            matches=matches+1, playtime=?,ranking_change=?-ranking,ranking=?
             WHERE gametype=? AND player_id=?`;
 
             mysql.query(query, [playtime, newRanking, newRanking, gametype, player], (err, result) =>{
@@ -179,6 +179,7 @@ class Rankings{
                     currentScore += value[settingKey] * settingValue;
                 }
 
+
                 currentPlaytime = value.playtime;
 
                 currentScore = currentScore / (currentPlaytime / 60);
@@ -271,7 +272,7 @@ class Rankings{
                         string += `${result[i].name},`;
                     }
 
-                    console.log(string);
+                    //console.log(string);
 
                     resolve(result);
                 }
@@ -786,7 +787,7 @@ class Rankings{
                 
             }
 
-            console.table(gametypeTotals);
+            //console.table(gametypeTotals);
 
             //update current ranking
 

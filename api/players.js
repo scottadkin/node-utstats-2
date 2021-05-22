@@ -714,6 +714,8 @@ class Players{
                     gametypeTotals[gametype].dom_caps_best = m.dom_caps_best;
                 }
 
+                //gametypeTotals[gametype].playtime += m.playtime;
+
                 for(let x = 0; x < mergeTypes.length; x++){
                     gametypeTotals[gametype][mergeTypes[x]] += m[mergeTypes[x]];
                 }
