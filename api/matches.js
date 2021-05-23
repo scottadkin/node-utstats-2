@@ -998,6 +998,95 @@ class Matches{
             [amount, playtime, playerName, gametype]);
     }
 
+    createMatchDummyObject(){
+
+        return {
+            id: 0,
+            match_id: 0,
+            match_date: 0,
+            map_id: 0,
+            player_id: 0,
+            ip: 0,
+            country: 0,
+            face: 0,
+            voice: 0,
+            gametype: 0,
+            winner: 0,
+            draw: 0,
+            playtime: 0,
+            team: 0,
+            first_blood: 0,
+            frags: 0,
+            score: 0,
+            kills: 0,
+            deaths: 0,
+            suicides: 0,
+            team_kills: 0,
+            spawn_kills: 0,
+            efficiency: 0,
+            multi_1: 0,
+            multi_2: 0,
+            multi_3: 0,
+            multi_4: 0,
+            multi_5: 0,
+            multi_6: 0,
+            multi_7: 0,
+            multi_best: 0,
+            spree_1: 0,
+            spree_2: 0,
+            spree_3: 0,
+            spree_4: 0,
+            spree_5: 0,
+            spree_6: 0,
+            spree_7: 0,
+            spree_best: 0,
+            best_spawn_kill_spree: 0,
+            flag_assist: 0,
+            flag_return: 0,
+            flag_taken: 0,
+            flag_dropped: 0,
+            flag_capture: 0,
+            flag_pickup: 0,
+            flag_seal: 0,
+            flag_cover: 0,
+            flag_cover_pass: 0,
+            flag_cover_fail: 0,
+            flag_self_cover: 0,
+            flag_self_cover_pass: 0,
+            flag_self_cover_fail: 0,
+            flag_multi_cover: 0,
+            flag_spree_cover: 0,
+            flag_cover_best: 0,
+            flag_self_cover_best: 0,
+            flag_kill: 0,
+            flag_save: 0,
+            flag_carry_time: 0,
+            assault_objectives: 0,
+            dom_caps: 0,
+            dom_caps_best_life: 0,
+            ping_min: 0,
+            ping_average: 0,
+            ping_max: 0,
+            accuracy: 0,
+            shortest_kill_distance: 0,
+            average_kill_distance: 0,
+            longest_kill_distance: 0,
+            k_distance_normal: 0,
+            k_distance_long: 0,
+            k_distance_uber: 0,
+            headshots: 0,
+            shield_belt: 0,
+            amp: 0,
+            amp_time: 0,
+            invisibility: 0,
+            invisibility_time: 0,
+            pads: 0,
+            armor: 0,
+            boots: 0,
+            super_health: 0
+          };
+    }
+
     async mergePlayerMatches(oldId, newId, newName){
 
         try{
@@ -1007,7 +1096,7 @@ class Matches{
             const newData = {};
 
             const mergeTypes = [
-                'playtime',                                
+               // 'playtime',                                
                 'frags',                 'score',                  'kills',
                 'deaths',                'suicides',               'team_kills',
                 'spawn_kills',                                     'multi_1',
@@ -1064,6 +1153,11 @@ class Matches{
             let combinedAverageDistance = 0;
             let addedPlaytime = 0;
 
+
+            
+
+    
+
             for(let i = 0; i < matches.length; i++){
 
                 m = matches[i];
@@ -1072,7 +1166,8 @@ class Matches{
 
                 if(newData[m.match_id] === undefined){
 
-                    newData[m.match_id] = m;
+                    newData[m.match_id] = Object.assign(this.createMatchDummyObject(), m);
+
 
                     newData[m.match_id].player_id = newId;
 
@@ -1138,7 +1233,6 @@ class Matches{
                     }
                 }
             }
-
 
             await this.deletePlayerMatchesData(matchIds);
 

@@ -41,7 +41,8 @@ const tables = [
     "winrates",
     "winrates_latest",
     "ranking_values",
-    "ranking_player_current"
+    "ranking_player_current",
+    "ranking_player_history"
 ];
 
 function quickQuery(query){

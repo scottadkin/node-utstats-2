@@ -715,6 +715,7 @@ class Rankings{
                // console.log(m.gametype);
                currentMatchScore = 0;
 
+
                 for(let x = 0; x < types.length; x++){
 
                     currentMatchScore += m[types[x]] * values[types[x]];
@@ -778,6 +779,12 @@ class Rankings{
                 gametypeTotals[m.gametype].ranking = currentTotalScore;
                 gametypeTotals[0].lastChange = totalChange;
                 gametypeTotals[0].ranking = currentTotalScore;
+
+                if(currentTotalScore !== currentTotalScore) currentTotalScore = 0;
+                if(currentMatchScore !== currentMatchScore) currentMatchScore = 0;
+                if(totalChange !== totalChange) totalChange = 0;
+                if(matchChange !== matchChange) matchChange = 0;
+
 
 
                 await this.insertPlayerHistory(m.match_id, playerId, m.gametype, currentTotalScore, currentMatchScore, totalChange, matchChange);
