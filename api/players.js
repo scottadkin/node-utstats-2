@@ -871,7 +871,7 @@ class Players{
 
                 const mapManager = new Maps();
 
-                await mapManager.mergePlayerHistory(first.id, second.id);
+                //await mapManager.mergePlayerHistory(first.id, second.id);
 
                 await matchManager.mergePlayerMatches(first.id, second.id,second.name);
                 await this.deletePlayerTotals(first.name);
@@ -893,6 +893,11 @@ class Players{
                 await rankingsManager.deleteAllPlayerCurrent(second.id);
 
                 await rankingsManager.fullPlayerRecalculate(second.id, updatedPlayerMatches);
+
+                //await mapManager.recalculatePlayerTotalsAfterMerge(first.id, matchManager);
+                await mapManager.deletePlayer(first.id);
+                await mapManager.deletePlayer(second.id);
+                await mapManager.recalculatePlayerTotalsAfterMerge(second.id, matchManager);
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");

@@ -773,97 +773,99 @@ class Maps{
     }
 
 
-    async insertMergedPlayerHistory(mapId, data){
+    async getAllPlayerMatchesPlaytime(playerId){
+
+        const query = "SELECT id,match_date,map_id,playtime FROM nstats_player_matches WHERE player_id=?";
+
+        return await mysql.simpleFetch(query, [playerId]);
+    }
+
+
+    async deletePlayer(playerId){
+
+        return await mysql.simpleDelete("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
+    }
+
+
+    async insertPlayerTotals(playerId, mapId, data){
+
+        const query = `INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [
+            mapId,
+            playerId,
+            data.first,
+            data.first_id,
+            data.last,
+            data.last_id,
+            data.matches,
+            data.playtime,
+            data.longest,
+            data.longest_id
+        ];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async recalculatePlayerTotalsAfterMerge(playerId){
 
         try{
 
-            const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
+            const playtimeData = await this.getAllPlayerMatchesPlaytime(playerId);
+            
+            const totals = {};
 
-            const vars = [
-                mapId,
-                data.player,
-                data.first,
-                data.first_id,
-                data.last,
-                data.last_id,
-                data.matches,
-                data.playtime,
-                data.longest,
-                data.longest_id
-            ];
+            let p = 0;
+            let current = 0;
 
-            await mysql.simpleInsert(query, vars);
+            for(let i = 0; i < playtimeData.length; i++){
+
+                p = playtimeData[i];
+
+                if(totals[p.map_id] === undefined){
+
+                    totals[p.map_id] = {
+                        "matches": 0,
+                        "first": p.match_date,
+                        "last": p.match_date,
+                        "playtime": 0,
+                        "first_id": p.id,
+                        "last_id": p.id,
+                        "longest": p.playtime,
+                        "longest_id": p.id
+                    };
+                }
+
+                current = totals[p.map_id];
+
+                current.matches++;
+
+                if(p.match_date < current.first){
+                    current.first = p.match_date;
+                    current.first_id = p.id;
+                }
+
+                if(p.match_date > current.last){
+                    current.last = p.match_date;
+                    current.last_id = p.id;
+                }
+
+                if(p.playtime > current.longest){
+                    current.longest = p.playtime;
+                    current.longest_id = p.id;
+                }
+
+                current.playtime += p.playtime;
+            }
+
+
+            for(const [key, value] of Object.entries(totals)){
+
+                await this.insertPlayerTotals(playerId, key, value);
+            }
 
         }catch(err){
             console.trace(err);
-        }
-    }
-
-    async mergePlayerHistory(oldId, newId){
-
-        try{
-
-            const history = await this.getPlayerMapsHistory([oldId, newId]);
-
-            const newData = {};
-
-            const rowsToDelete = [];
-
-            let h = 0;
-
-            for(let i = 0; i < history.length; i++){
-
-                h = history[i];
-
-                rowsToDelete.push(h.id);
-
-                if(newData[h.map] === undefined){
-
-                    newData[h.map] = {
-                        "player": newId,
-                        "first": h.first,
-                        "first_id": h.first_id,
-                        "last": h.last,
-                        "last_id": h.last_id,
-                        "matches": h.matches,
-                        "playtime": h.playtime,
-                        "longest": h.longest,
-                        "longest_id": h.longest_id,
-                    }
-                }else{
-
-                    newData[h.map].matches += h.matches;
-                    newData[h.map].playtime += h.playtime;
-
-                    if(h.first < newData[h.map].first){
-
-                        newData[h.map].first = h.first;
-                        newData[h.map].first_id = h.first_id;
-                    }
-
-                    if(h.last > newData[h.map].last){
-                        newData[h.map].last = h.last;
-                        newData[h.map].last_id = h.last_id;
-                    }
-
-                    if(h.playtime > newData[h.map].longest){
-
-                        newData[h.map].longest = h.playtime;
-                        newData[h.map].longest_id = h.longest_id;
-                    }
-                }
-            }
-
-            await this.deletePlayerHistoryRows(rowsToDelete);
-
-       
-            for(const [key, value] of Object.entries(newData)){
-
-                await this.insertMergedPlayerHistory(key, value);
-            }
-
-        }catch(err){
-            console.table(err);
         }
     }
 }
