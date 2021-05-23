@@ -14,6 +14,7 @@ const Pings = require('./pings');
 const Maps = require('./maps');
 const Weapons = require('./weapons');
 const Rankings = require('./rankings');
+const Winrate = require('./winrate');
 
 class Players{
 
@@ -872,6 +873,9 @@ class Players{
                 const mapManager = new Maps();
 
                 //await mapManager.mergePlayerHistory(first.id, second.id);
+                await mapManager.deletePlayer(first.id);
+                await mapManager.deletePlayer(second.id);
+                await mapManager.recalculatePlayerTotalsAfterMerge(second.id, matchManager);
 
                 await matchManager.mergePlayerMatches(first.id, second.id,second.name);
                 await this.deletePlayerTotals(first.name);
@@ -894,10 +898,15 @@ class Players{
 
                 await rankingsManager.fullPlayerRecalculate(second.id, updatedPlayerMatches);
 
-                //await mapManager.recalculatePlayerTotalsAfterMerge(first.id, matchManager);
-                await mapManager.deletePlayer(first.id);
-                await mapManager.deletePlayer(second.id);
-                await mapManager.recalculatePlayerTotalsAfterMerge(second.id, matchManager);
+                const winrateManager = new Winrate();
+
+                await winrateManager.deletePlayer(first.id);
+                
+                await winrateManager.deletePlayer(first.id);
+                await winrateManager.deletePlayer(second.id);
+                await winrateManager.recalculatePlayerHistoryAfterMerge(second.id, updatedPlayerMatches);
+                //await winrateManager.recalculatePlayerHistory(updatedPlayerMatches, second.id, );
+
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");

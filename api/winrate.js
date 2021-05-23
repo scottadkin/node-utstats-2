@@ -139,7 +139,7 @@ class WinRate{
             mysql.query(query, vars, (err) =>{
 
                 if(err) reject(err);
-
+                
                 resolve();
             });
         });
@@ -596,6 +596,138 @@ class WinRate{
 
             await this.recalculatePlayerHistory(allHistory, playerId, gametypeId);
             await this.recalculatePlayerHistory(gametypeHistory, playerId, gametypeId);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async deletePlayer(playerId){
+        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE player=?", [playerId]);
+        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE player=?", [playerId]);
+    }
+
+    async insertLatestAfterMerge(gametype, data){
+
+        const query = `INSERT INTO nstats_winrates_latest VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const vars = [
+            data.date,
+            data.match_id,
+            data.player,
+            gametype,
+            data.matches,
+            data.wins,
+            data.draws,
+            data.losses,
+            data.winrate,
+            data.current_win_streak,
+            data.current_draw_streak,
+            data.current_lose_streak,
+            data.max_win_streak,
+            data.max_draw_streak,
+            data.max_lose_streak
+        ];
+
+        await mysql.simpleInsert(query, vars);
+    }
+
+    async recalculatePlayerHistoryAfterMerge(playerId, matches){
+
+        try{
+
+            const totals = {};
+
+            const updateTotal = (d, gametype) =>{
+
+                if(totals[gametype] === undefined){
+
+                    totals[gametype] = {
+                        "player": playerId,
+                        "match_id": 0,
+                        "date": 0,
+                        "matches": 0,
+                        "wins": 0,
+                        "draws": 0,
+                        "losses": 0,
+                        "winrate": 0,
+                        "current_win_streak": 0,
+                        "current_draw_streak": 0,
+                        "current_lose_streak": 0,
+                        "max_win_streak": 0,
+                        "max_draw_streak": 0,
+                        "max_lose_streak": 0,
+                        "winrate": 0,
+                        "match_result": 0, //for history table, 0 win, lose 1, draw 2,
+                        "gametype": gametype, //also for history
+                    };
+                }
+
+                const current = totals[gametype];
+
+                
+                current.date = d.match_date;
+                current.match_id = d.match_id;
+                current.matches++;
+
+                if(d.winner){
+                    current.wins++;
+                    current.current_win_streak++;
+                    current.current_draw_streak = 0;
+                    current.current_lose_streak = 0;
+                    current.match_result = 0;
+                }
+
+                if(d.draw){
+                    current.draws++;
+                    current.current_win_streak = 0;
+                    current.current_draw_streak++;
+                    current.current_lose_streak = 0;
+                    current.match_result = 2;
+
+                }else{
+                    if(!d.winner){
+                        current.losses++;
+                        current.current_win_streak = 0;
+                        current.current_draw_streak = 0;
+                        current.current_lose_streak++;
+                        current.match_result = 1;
+                    }
+                }
+
+                if(current.wins > 0){
+
+                    if(current.losses === 0){
+                        current.winrate = 100;
+                    }else{
+                        current.winrate = (current.wins / current.matches) * 100;
+                    }
+                }
+
+
+
+                if(current.current_win_streak > current.max_win_streak) current.max_win_streak = current.current_win_streak;
+                if(current.current_draw_streak > current.max_draw_streak) current.max_draw_streak = current.current_draw_streak;
+                if(current.current_lose_streak > current.max_lose_streak) current.max_lose_streak = current.current_lose_streak;
+            }
+
+
+            let m = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                updateTotal(m, 0);
+                updateTotal(m, m.gametype);
+                await this.insertHistory(m.match_id, m.match_date, totals[m.gametype]);
+                await this.insertHistory(m.match_id, m.match_date, totals[0]);
+            }
+
+
+            for(const [key, value] of Object.entries(totals)){
+
+                await this.insertLatestAfterMerge(key, value);
+            }
 
         }catch(err){
             console.trace(err);
