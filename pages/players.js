@@ -258,6 +258,11 @@ export async function getServerSideProps({req, query}){
     const Manager = new PlayerManager();
     const FaceManager = new Faces();
 
+    const settings = new SiteSettings();
+
+    const navSettings = await settings.getCategorySettings("Navigation");
+    const pageSettings = await settings.getCategorySettings("Players Page");
+
     let page = 1;
 
     if(query.page !== undefined){
@@ -268,8 +273,8 @@ export async function getServerSideProps({req, query}){
         }
     }
 
-    const defaultPerPage = 25;
-    let perPage = defaultPerPage;
+    const defaultPerPage = pageSettings["Default Display Per Page"];
+    let perPage = parseInt(defaultPerPage);
 
     if(query.perPage !== undefined){
 
@@ -280,7 +285,7 @@ export async function getServerSideProps({req, query}){
         }
 
         if(perPage > 100){
-            perPage = defaultPerPage25;
+            perPage = defaultPerPage;
         }else if(perPage < 1){
             perPage = 1;
         }
@@ -295,6 +300,9 @@ export async function getServerSideProps({req, query}){
         if(displayType !== 0 && displayType !== 1){
             displayType = 0;
         }
+    }else{
+
+        displayType = parseInt(pageSettings["Default Display Type"]);
     }
 
     let sortType = 'name';
@@ -302,15 +310,22 @@ export async function getServerSideProps({req, query}){
     if(query.sortType !== undefined){
 
         sortType = query.sortType;
+    }else{
+
+        sortType = pageSettings["Default Sort Type"];
     }
+
 
     let order = 'ASC';
 
     if(query.order !== undefined){
+
         order = query.order.toUpperCase();
         if(order !== 'ASC' && order !== 'DESC'){
             order = 'ASC';
         }
+    }else{
+        order = pageSettings["Default Order"];
     }
 
     let name = '';
@@ -347,10 +362,6 @@ export async function getServerSideProps({req, query}){
 
 	await session.load();
 
-    const settings = new SiteSettings();
-
-    const navSettings = await settings.getCategorySettings("Navigation");
-    const pageSettings = await settings.getCategorySettings("Players Page");
 
     return {
         props: {
