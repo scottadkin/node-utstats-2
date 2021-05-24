@@ -14,7 +14,8 @@ class AdminPlayersManager extends React.Component{
             "namePassed": false, 
             "newName": "", 
             "oldName": "",
-            "mergeErrors": []
+            "mergeErrors": [],
+            "mergedPassed": null
         };
 
         this.renamePlayer = this.renamePlayer.bind(this);
@@ -43,6 +44,8 @@ class AdminPlayersManager extends React.Component{
             
             if(errors.length === 0){
 
+                this.setState({"mergedPassed": null});
+
                 const req = await fetch("/api/playeradmin", {
                     "headers": {"Content-Type": "application/json"},
                     "method": "POST",
@@ -51,7 +54,16 @@ class AdminPlayersManager extends React.Component{
 
                 const result = await req.json();
 
-                console.log(result);
+
+                if(result.message === "passed"){
+
+                    this.removePlayerFromMergeList(first);
+                    this.setState({"mergedPassed": true});
+                }else{
+                    this.setState({"mergedPassed": false});
+                }
+            }else{
+                this.setState({"mergedPassed": false});
             }
 
             this.setState({"mergeErrors": errors});
@@ -60,6 +72,32 @@ class AdminPlayersManager extends React.Component{
         }catch(err){
             console.trace(err);
         }
+    }
+
+    removePlayerFromMergeList(playerId){
+
+        playerId = parseInt(playerId);
+        const newList = [];
+
+        let p = 0;
+
+        console.log(`remove player ${playerId}`);
+
+        for(let i = 0; i < this.state.playerNames.length; i++){
+
+            p = this.state.playerNames[i];
+
+            console.log(p);
+            console.log(playerId);
+
+            if(p.id !== playerId){
+                newList.push(p);
+            }
+
+        }
+
+
+        this.setState({"playerNames": newList});
     }
 
     changeMode(id){
@@ -290,6 +328,19 @@ class AdminPlayersManager extends React.Component{
         </div>
     }
 
+    renderMergedPassed(){
+
+        if(this.state.mode !== 1) return null;
+
+
+        if(this.state.mergedPassed !== true) return null;
+
+        
+        return <div className="team-green m-top-25 p-top-25 m-bottom-25 p-bottom-25">
+            Player Merge Passed!
+        </div>
+    }
+
     renderPlayerMerger(){
 
         if(this.state.mode !== 1) return null;
@@ -312,6 +363,7 @@ class AdminPlayersManager extends React.Component{
                         {this.createPlayerNamesDropDown("second")}
                     </div>
                 </div>
+                {this.renderMergedPassed()}
                 {this.renderMergeErrors()}
                 <input type="submit" className="search-button m-top-25" value="Merge Players"/>
             </form>
