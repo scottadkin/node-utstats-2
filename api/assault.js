@@ -381,6 +381,21 @@ class Assault{
 
         await mysql.simpleUpdate("UPDATE nstats_assault_match_objectives SET player=? WHERE player=?", [newId, oldId]);
     }
+
+
+    /**
+     * 
+     * @param {*} playerId player to delete
+     * @param {*} bReallyDelete if set delete data from database instead of settings playerId to -1
+     */
+    async deletePlayer(playerId, bReallyDelete){
+
+        if(bReallyDelete !== undefined){
+            await mysql.simpleDelete("DELETE FROM nstats_assault_match_objectives WHERE player=?", [playerId]);
+        }else{
+            await mysql.simpleUpdate("UPDATE nstats_assault_match_objectives SET player=-1 WHERE player=?", [playerId]);
+        }
+    }
 }
 
 module.exports = Assault;

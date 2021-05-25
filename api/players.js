@@ -920,6 +920,21 @@ class Players{
     async deletePlayerTotals(name){
         await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE name=?", [name]);
     }
+
+    async deletePlayer(playerId){
+
+        try{
+
+            console.log(`Delete Player ${playerId}`);
+
+            const assaultManager = new Assault();
+
+            await assaultManager.deletePlayer(playerId);
+
+        }catch(err){    
+            console.trace(err);
+        }
+    }
 }
 
 

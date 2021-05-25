@@ -57,24 +57,14 @@ export default async (req, res) =>{
 
                         const first = parseInt(req.body.first);
                         const second = parseInt(req.body.second);
-                        //const names = await playerManager.getNamesByIds([first, second]);
 
-                        //if(names.length > 1){
 
-                           // console.table(names);
+                        const matchManager = new Matches();
 
-                            const matchManager = new Matches();
+                        await playerManager.mergePlayers(first, second, matchManager);
+                        res.status(200).json({"message": "passed"});
+                        return;
 
-                            await playerManager.mergePlayers(first, second, matchManager);
-                            res.status(200).json({"message": "passed"});
-                            return;
-
-                       // }else{
-
-                           // res.status(200).json({"message": "Only one player was found out of the 2, unable to merge."});
-                           // return;
-
-                      // }
                         
 
                     }else{
@@ -87,6 +77,18 @@ export default async (req, res) =>{
                     res.status(200).json({"message": "First name or second name is undefined"});
                     return;
                 }
+
+            }else if(req.body.type === "deletePlayer"){
+
+                
+
+                let playerId = parseInt(req.body.playerId);
+
+                
+
+                await playerManager.deletePlayer(playerId);
+
+                res.status(200).json({"message": "passed"})
             }
 
             

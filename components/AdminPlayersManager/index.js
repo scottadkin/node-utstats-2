@@ -1,5 +1,4 @@
 import React from 'react';
-import CountryFlag from '../CountryFlag/';
 
 class AdminPlayersManager extends React.Component{
 
@@ -8,7 +7,7 @@ class AdminPlayersManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 1, 
+            "mode": 2, 
             "playerNames": JSON.parse(this.props.playerNames), 
             "nameErrors": [], 
             "namePassed": false, 
@@ -24,6 +23,8 @@ class AdminPlayersManager extends React.Component{
         this.changeMode = this.changeMode.bind(this);
 
         this.mergePlayers = this.mergePlayers.bind(this);
+
+        this.deletePlayer = this.deletePlayer.bind(this);
     }
 
     async mergePlayers(e){
@@ -370,6 +371,51 @@ class AdminPlayersManager extends React.Component{
         </div>
     }
 
+    async deletePlayer(e){
+
+        try{
+
+            e.preventDefault();
+
+            let playerId = parseInt(e.target[0].value);
+
+            console.log(`Attempting to delete player ${playerId}`);
+
+            const req = await fetch("/api/playeradmin", {
+                "headers": {"Content-Type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"type": "deletePlayer", "playerId": playerId})
+            });
+
+            const result = req.json();
+
+            console.log(result);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    renderDeletePlayer(){
+
+        if(this.state.mode !== 2) return null;
+
+        return <div>
+            <div className="default-header">Delete Player</div>
+
+            <form action="/" method="POST" className="form" onSubmit={this.deletePlayer}>
+                <div className="form-info">Select a player to delete, this will delete everything related to the player.<br/>This action is irreversible!</div>
+                <div className="select-row">
+                    <div className="select-label">Player To Delete</div>
+                    <div>
+                        {this.createPlayerNamesDropDown("player")}
+                    </div>
+                </div>
+                <input type="submit" className="search-button" value="Delete Player" />
+            </form>
+        </div>
+    }
+
     render(){
 
         return <div>
@@ -389,6 +435,7 @@ class AdminPlayersManager extends React.Component{
 
             {this.renderPlayerNames()}
             {this.renderPlayerMerger()}
+            {this.renderDeletePlayer()}
         </div>
     }
 }
