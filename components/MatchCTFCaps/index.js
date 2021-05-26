@@ -32,7 +32,7 @@ const getPlayer = (players, id) =>{
         return {"name": current.name, "country": current.country};
     }
 
-    return {"name": 'Not Found', "country": 'xx'};
+    return null;
 }
 
 function createCovers(covers, coverTimes){
@@ -109,26 +109,6 @@ function createAssists(carryTimes, carryIds){
     carryIds = carryIds.split(',');
 
 
-    /*assists = assists.split(',');
-    assistTimes = assistTimes.split(',');
-
-    console.log(assistTimes);
-    const players = [];
-
-    for(let i = 0; i < assists.length; i++){
-
-        if(assists[i] === ''){
-            continue;
-        }
-
-        if(players.indexOf(parseInt(assists[i])) === -1){
-            players.push({"player": parseInt(assists[i]), "time": parseFloat(assistTimes[i])});
-        }
-
-    }
-
-    return players;*/
-
 
     const players = [];
 
@@ -193,6 +173,9 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
     let c = 0;
 
+    let grabElem = [];
+    let capElem = [];
+
     for(let i = 0; i < caps.length; i++){
 
         c = caps[i];
@@ -218,29 +201,32 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
             currentCoverPlayer = getPlayer(playerNames, key);
 
-            //console.log(value);
-            coverTimes = [];
+            if(currentCoverPlayer !== null){
 
-            for(let x = 0; x < value.times.length; x++){
+                //console.log(value);
+                coverTimes = [];
 
-                coverTimes.push([Functions.MMSS(value.times[x] - matchStart), x + 1]);
+                for(let x = 0; x < value.times.length; x++){
+
+                    coverTimes.push([Functions.MMSS(value.times[x] - matchStart), x + 1]);
+                }
+
+                currentContent = [
+                    {
+                    
+                        "headers": ["Timestamp", "Cover"],
+                        "content": coverTimes }
+                ]
+
+                coverElems.push(<span key={`cap-${i}-cover-${key}`} className={styles.cover}>
+                    <CountryFlag country={currentCoverPlayer.country}/>
+                    <Link href={`/player/${key}`}><a>
+                    <MouseHoverBox title={`${currentCoverPlayer.name} covered the flag carrier ${value.value} ${(value.value === 1) ? "time" : "times"}`} 
+                        content={currentContent} 
+                        display={currentCoverPlayer.name}/>
+                    </a></Link> 
+                </span>);
             }
-
-            currentContent = [
-                {
-                
-                    "headers": ["Timestamp", "Cover"],
-                    "content": coverTimes }
-            ]
-
-            coverElems.push(<span key={`cap-${i}-cover-${key}`} className={styles.cover}>
-                <CountryFlag country={currentCoverPlayer.country}/>
-                <Link href={`/player/${key}`}><a>
-                <MouseHoverBox title={`${currentCoverPlayer.name} covered the flag carrier ${value.value} ${(value.value === 1) ? "time" : "times"}`} 
-                    content={currentContent} 
-                    display={currentCoverPlayer.name}/>
-                </a></Link> 
-            </span>);
         }
 
         
@@ -251,39 +237,42 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         let currentDropTimes = [];
         let currentGrabTimes = [];
         let currentCarryTime = [];
+
         const reducer = (accumulator, currentValue) => accumulator + parseFloat(currentValue);
 
         for(let x = 0; x < currentAssists.length; x++){
 
             currentAssistPlayer = getPlayer(playerNames, currentAssists[x].player);
 
-            currentGrabTimes = c.pickup_times.split(',');
+            if(currentAssistPlayer !== null){
+                currentGrabTimes = c.pickup_times.split(',');
 
-            if(x === 0){
-                grabTimestamp = Functions.MMSS(c.grab_time - matchStart);
-            }else{
-                grabTimestamp = Functions.MMSS(parseFloat(currentGrabTimes[x - 1]) - matchStart);
+                if(x === 0){
+                    grabTimestamp = Functions.MMSS(c.grab_time - matchStart);
+                }else{
+                    grabTimestamp = Functions.MMSS(parseFloat(currentGrabTimes[x - 1]) - matchStart);
+                }
+
+                currentDropTimes = c.drop_times.split(',');
+                
+
+                dropTimestamp = Functions.MMSS(parseFloat(currentDropTimes[x]) - matchStart);
+
+                currentCarryTime = c.assist_carry_times.reduce(reducer, 0);
+
+                currentContent = [
+                    {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], 
+                    "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time.toFixed(2)}`, `${((currentAssists[x].time / currentCarryTime) * 100).toFixed(2)}%`]}
+                ];
+
+                
+
+                assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
+                    <CountryFlag country={currentAssistPlayer.country}/>
+                    <Link href={`/player/${currentAssists[x].player}`}><a><MouseHoverBox title={"Assist"} display={currentAssistPlayer.name} 
+                    content={currentContent}/></a></Link>
+                </span>);
             }
-
-            currentDropTimes = c.drop_times.split(',');
-            
-
-            dropTimestamp = Functions.MMSS(parseFloat(currentDropTimes[x]) - matchStart);
-
-            currentCarryTime = c.assist_carry_times.reduce(reducer, 0);
-
-            currentContent = [
-                {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], 
-                "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time.toFixed(2)}`, `${((currentAssists[x].time / currentCarryTime) * 100).toFixed(2)}%`]}
-            ];
-
-            
-
-            assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
-                <CountryFlag country={currentAssistPlayer.country}/>
-                <Link href={`/player/${currentAssists[x].player}`}><a><MouseHoverBox title={"Assist"} display={currentAssistPlayer.name} 
-                content={currentContent}/></a></Link>
-            </span>);
         }
 
         bgColor = Functions.getTeamColor(c.team);
@@ -292,27 +281,48 @@ const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
         currentCarryTime = parseInt(currentCarryTime);
         if(currentCarryTime !== currentCarryTime) currentCarryTime = c.travel_time; 
 
-        elems.push(<tr key={`cover-${i}`} className={"team-none"}>
-            <td className={bgColor}>
-                    <span className={styles.time}><MMSS timestamp={c.grab_time - matchStart}/></span>
-                    <CountryFlag country={grabPlayer.country}/><Link href={`/player/${c.grab}`}><a>{grabPlayer.name}</a></Link>
+        if(grabPlayer === null){
+
+            grabElem = <td className="deleted">
+                Deleted
+            </td>
+
+        }else{
+        
+            grabElem = <td className={bgColor}>
+                <span className={styles.time}><MMSS timestamp={c.grab_time - matchStart}/></span>
+                <CountryFlag country={grabPlayer.country}/><Link href={`/player/${c.grab}`}><a>{grabPlayer.name}</a></Link>
+            </td>;
+        }
+
+        if(capPlayer === null){
+            capElem = <td className="deleted">
+                Deleted
+            </td>
+        }else{
+            capElem = <td className={bgColor}>
+                    <span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span>
+                    <CountryFlag country={capPlayer.country}/><Link href={`/player/${c.cap}`}>
+                    <a>
+                        <MouseHoverBox title={`${capPlayer.name} Captured the Flag`} display={capPlayer.name} content={
+                            [{
+                                "headers": ["Carry Time", "Carry Percent"],
+                                "content": [`${parseFloat(c.assist_carry_times[c.assist_carry_times.length - 1]).toFixed(2)}`,
+                                `${((c.assist_carry_times[c.assist_carry_times.length - 1] / currentCarryTime) * 100).toFixed(2)}%`]
+                            }]
+                        }/>
+                    </a>
+                    </Link>
                 </td>
+        }
+        
+
+
+        elems.push(<tr key={`cover-${i}`} className={"team-none"}>
+            {grabElem}
             <td>{coverElems}</td>
             <td>{assistElems}</td>
-            <td className={bgColor}>
-                <span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span>
-                <CountryFlag country={capPlayer.country}/><Link href={`/player/${c.cap}`}>
-                <a>
-                    <MouseHoverBox title={`${capPlayer.name} Captured the Flag`} display={capPlayer.name} content={
-                        [{
-                            "headers": ["Carry Time", "Carry Percent"],
-                            "content": [`${parseFloat(c.assist_carry_times[c.assist_carry_times.length - 1]).toFixed(2)}`,
-                             `${((c.assist_carry_times[c.assist_carry_times.length - 1] / currentCarryTime) * 100).toFixed(2)}%`]
-                        }]
-                    }/>
-                </a>
-                </Link>
-            </td>
+            {capElem}
             <td><span className={styles.time}>{(currentCarryTime != 0) ? <MMSS timestamp={currentCarryTime}/> : ''}</span></td>
             <td><span className={styles.time}><MMSS timestamp={c.travel_time}/></span></td>     
             <td className={styles.time}>{(totalDropTime > 0) ? `${totalDropTime} Seconds` : ''}</td>

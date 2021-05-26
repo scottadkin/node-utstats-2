@@ -542,3 +542,9 @@ input[type="range"]{
 	margin-right:auto;
 	margin-top:25px;
 }
+
+.deleted{
+	background-color:black;
+	color:rgb(100,100,100);
+	font-style:italic;
+}
