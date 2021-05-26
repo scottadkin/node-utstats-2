@@ -80,13 +80,11 @@ export default async (req, res) =>{
 
             }else if(req.body.type === "deletePlayer"){
 
-                
-
                 let playerId = parseInt(req.body.playerId);
 
-                
+                const matchManager = new Matches();
 
-                await playerManager.deletePlayer(playerId);
+                await playerManager.deletePlayer(playerId, matchManager);
 
                 res.status(200).json({"message": "passed"})
             }

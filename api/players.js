@@ -15,6 +15,7 @@ const Maps = require('./maps');
 const Weapons = require('./weapons');
 const Rankings = require('./rankings');
 const Winrate = require('./winrate');
+const CountriesManager = require('./countriesmanager');
 
 class Players{
 
@@ -921,7 +922,7 @@ class Players{
         await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE name=?", [name]);
     }
 
-    async deletePlayer(playerId){
+    async deletePlayer(playerId, matchManager){
 
         try{
 
@@ -930,6 +931,14 @@ class Players{
             const assaultManager = new Assault();
 
             await assaultManager.deletePlayer(playerId);
+
+            const matches = await matchManager.getAllPlayerMatches(playerId);
+
+            console.log(matches);
+
+            const countriesManager = new CountriesManager();
+
+            await countriesManager.deletePlayerViaMatchData(matches);
 
         }catch(err){    
             console.trace(err);

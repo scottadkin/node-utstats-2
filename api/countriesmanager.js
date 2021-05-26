@@ -40,6 +40,34 @@ class CountriesManager{
             });
         });
     }
+
+    async deletePlayerViaMatchData(matches){
+
+        try{
+
+            const uses = {};
+
+            let m = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                if(uses[m.country] === undefined){
+                    uses[m.country] = 0;
+                }
+
+                uses[m.country]++;
+            }
+
+            for(const [key, value] of Object.entries(uses)){
+                await this.reduceUses(key, value);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = CountriesManager;
