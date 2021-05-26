@@ -40,6 +40,11 @@ class Teams{
             });
         });
     }
+
+    async deletePlayer(playerId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_match_team_changes WHERE player=?", [playerId]);
+    }
 }
 
 

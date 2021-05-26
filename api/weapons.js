@@ -426,11 +426,11 @@ class Weapons{
     }
 
 
-    reduceTotals(weapon, data){
+    reduceTotals(weapon, data, dontReduceMatches){
 
         return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_weapons SET
+            let query = `UPDATE nstats_weapons SET
             kills=kills-?,
             deaths=deaths-?,
             shots=shots-?,
@@ -440,6 +440,18 @@ class Weapons{
             accuracy = (hits / shots) * 100
             WHERE id=?
             `;
+
+            if(dontReduceMatches !== undefined){
+                query = `UPDATE nstats_weapons SET
+                kills=kills-?,
+                deaths=deaths-?,
+                shots=shots-?,
+                hits=hits-?,
+                damage=damage-?,
+                accuracy = (hits / shots) * 100
+                WHERE id=?
+                `;
+            }
 
             const vars = [
                 data.kills,
@@ -886,6 +898,61 @@ class Weapons{
 
         }catch(err){
            console.trace(err); 
+        }
+    }
+
+    async deleteAllPlayerMatchData(playerId){
+        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=?", [playerId]);
+    }
+
+    async deleteAllPlayerTotals(playerId){
+        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_totals WHERE player_id=?", [playerId]);
+    }
+
+    async deletePlayer(playerId){
+
+        try{
+
+            const data = await this.getAllPlayerTotals(playerId);
+
+            const totals = {};
+
+            let d = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                if(totals[d.weapon] === undefined){
+
+                    totals[d.weapon] = {
+                        "kills": 0,
+                        "deaths": 0,
+                        "shots": 0,
+                        "hits": 0,
+                        "damage": 0
+                    };
+                }
+
+                totals[d.weapon].kills += d.kills;
+                totals[d.weapon].deaths += d.deaths;
+                totals[d.weapon].shots += d.shots;
+                totals[d.weapon].hits += d.hits;
+                totals[d.weapon].damage += d.damage;
+
+            }
+
+            for(const [key, value] of Object.entries(totals)){
+
+                await this.reduceTotals(parseInt(key), value, true)
+            }
+
+
+            await this.deleteAllPlayerMatchData(playerId);
+            await this.deleteAllPlayerTotals(playerId);
+
+        }catch(err){
+            console.trace(err);
         }
     }
 }

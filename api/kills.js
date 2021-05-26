@@ -80,6 +80,11 @@ class Kills{
         await mysql.simpleUpdate("UPDATE nstats_kills SET victim=? WHERE victim=?", [newId, oldId]);
         
     }
+
+    async deletePlayer(player){
+
+        await mysql.simpleDelete("DELETE FROM nstats_kills WHERE (killer = ?) OR (victim = ?)", [player, player]);
+    }
 }
 
 module.exports = Kills;

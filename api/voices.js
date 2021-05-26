@@ -191,6 +191,37 @@ class Voices{
             });
         });
     }
+
+
+    async deletePlayer(matches){
+
+        try{
+
+            const uses = {};
+
+            let m = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                if(uses[m.voice] === undefined){
+                    uses[m.voice] = 0;
+                }
+
+                uses[m.voice]++;
+            }
+
+
+            for(const [key, value] of Object.entries(uses)){
+
+                await this.reduceTotals(parseInt(key), value);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = Voices;

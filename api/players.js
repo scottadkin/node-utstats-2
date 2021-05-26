@@ -17,6 +17,8 @@ const Rankings = require('./rankings');
 const Winrate = require('./winrate');
 const CountriesManager = require('./countriesmanager');
 const Faces = require('./faces');
+const Teams = require('./teams');
+const Voices = require('./voices');
 
 class Players{
 
@@ -923,6 +925,40 @@ class Players{
         await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE name=?", [name]);
     }
 
+    async getPlayerName(player){
+
+        try{
+
+            const result = await mysql.simpleFetch("SELECT name FROM nstats_player_totals WHERE id=?", [player]);
+
+            if(result.length > 0){
+
+                return result[0].name;
+
+            }else{
+
+                return "Not Found";
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async deleteScoreHistory(playerId){
+        await mysql.simpleDelete("DELETE FROM nstats_match_player_score WHERE player=?", [playerId]);
+    }
+
+    async deleteMapTotals(playerId){
+        await mysql.simpleDelete("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
+    }
+
+
+    async deleteMatches(playerId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_matches WHERE player_id=?", [playerId]);
+    }
+
     async deletePlayer(playerId, matchManager){
 
         try{
@@ -962,6 +998,57 @@ class Players{
             const itemsManager = new Items();
 
             await itemsManager.deletePlayer(playerId);
+
+            const killsManager = new Kills();
+
+            await killsManager.deletePlayer(playerId);
+
+
+            const name = await this.getPlayerName(playerId);
+
+            await matchManager.renameDmWinner(name, "Deleted Player");
+            
+
+            const connectionManager = new Connections();
+
+            await connectionManager.deletePlayer(playerId);
+
+
+            const pingManager = new Pings();
+
+            await pingManager.deletePlayer(playerId);
+
+
+            await this.deleteScoreHistory(playerId);
+
+            const teamManager = new Teams();
+
+            await teamManager.deletePlayer(playerId);
+
+            await this.deleteMapTotals(playerId);
+
+            await this.deleteMatches(playerId);
+
+
+            const weaponsManager = new Weapons();
+
+            await weaponsManager.deletePlayer(playerId);
+
+            const rankingManager = new Rankings();
+
+            await rankingManager.deletePlayer(playerId);
+
+            const voiceManager = new Voices();
+
+            await voiceManager.deletePlayer(matches);
+
+            const winrateManager = new Winrate();
+
+            await winrateManager.deletePlayer(playerId);
+
+            //delete player totals last
+
+            await this.deletePlayerTotals(name);
 
         }catch(err){    
             console.trace(err);

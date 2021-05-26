@@ -76,6 +76,11 @@ class Connections{
 
         await mysql.simpleUpdate("UPDATE nstats_match_connections SET player=? WHERE player=?", [newId, oldId]);
     }
+
+    async deletePlayer(playerId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_match_connections WHERE player=?", [playerId]);
+    }
 }
 
 

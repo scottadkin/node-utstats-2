@@ -808,6 +808,12 @@ class Rankings{
             console.trace(err);
         }
     }
+
+    async deletePlayer(playerId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_ranking_player_current WHERE player_id=?", [playerId]);
+        await mysql.simpleDelete("DELETE FROM nstats_ranking_player_history WHERE player_id=?", [playerId]);
+    }
 }
 
 
