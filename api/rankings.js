@@ -183,9 +183,7 @@ class Rankings{
                 currentPlaytime = value.playtime;
 
                 currentScore = currentScore / (currentPlaytime / 60);
-                
-                matchScore = currentScore;
-                    
+                         
                 if(currentPlaytime < halfHour){
 
                     currentScore *= s.sub_half_hour_multiplier;
@@ -203,6 +201,8 @@ class Rankings{
                     currentScore *= s.sub_3hour_multiplier;
                 }
 
+                matchScore = currentScore;
+
                 if(currentScore === Infinity || currentScore === -Infinity) currentScore = 0;
                 if(matchScore === Infinity || matchScore === -Infinity) matchScore = 0;
 
@@ -218,7 +218,7 @@ class Rankings{
                 }
 
                 await this.insertPlayerHistory(matchId, parseInt(key), gametype, currentScore, matchScore, 
-                previousData.ranking - currentScore, previousData.match_ranking - matchScore);
+                currentScore - previousData.ranking, matchScore - previousData.match_ranking);
 
                // scores[key] = currentScore;
             }
