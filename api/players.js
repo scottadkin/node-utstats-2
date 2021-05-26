@@ -934,11 +934,20 @@ class Players{
 
             const matches = await matchManager.getAllPlayerMatches(playerId);
 
-            console.log(matches);
+            //console.log(matches);
+
 
             const countriesManager = new CountriesManager();
 
             await countriesManager.deletePlayerViaMatchData(matches);
+
+            const ctfManager = new CTF();
+
+            await ctfManager.deletePlayerViaMatchData(playerId, matches);
+
+            const domManager = new Domination();
+
+            await domManager.deletePlayer(playerId);
 
         }catch(err){    
             console.trace(err);

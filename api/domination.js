@@ -436,6 +436,30 @@ class Domination{
 
         return await mysql.simpleUpdate("UPDATE nstats_dom_match_player_score SET player=? WHERE player=?", [newId, oldId]);
     }
+
+
+    async deleteAllPlayerScoreHistory(playerId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_dom_match_player_score WHERE player=?", [playerId]);
+    }
+
+    async deleteAllPlayerMatchCaps(playerId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_dom_match_caps WHERE player=?", [playerId]);
+    }
+
+    async deletePlayer(playerId){
+
+        try{
+
+            await this.deleteAllPlayerScoreHistory(playerId);
+            await this.deleteAllPlayerMatchCaps(playerId);
+
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 

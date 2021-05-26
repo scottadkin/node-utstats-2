@@ -315,7 +315,6 @@ class CTF{
         const cleanArray = (data, removedPlayer) =>{
 
             data = data.split(",");
-
             const cleanData = [];
 
             let d = 0;
@@ -338,7 +337,10 @@ class CTF{
                             }
                         }
 
+                        //updated to remove player completely from match
+                    
                         cleanData.push(d);
+                        
                     }
                 }
 
@@ -361,13 +363,13 @@ class CTF{
             }
 
             c.drops = cleanArray(c.drops, removedPlayer);
-            c.drop_times = cleanArray(c.drop_times);
+           // c.drop_times = cleanArray(c.drop_times);
             c.pickups = cleanArray(c.pickups, removedPlayer);
-            c.pickup_times = cleanArray(c.pickup_times);
+            //c.pickup_times = cleanArray(c.pickup_times);
             c.covers = cleanArray(c.covers, removedPlayer);
-            c.cover_times = cleanArray(c.cover_times);
+            //c.cover_times = cleanArray(c.cover_times);
             c.assists = cleanArray(c.assists, removedPlayer);
-            c.assist_carry_times = cleanArray(c.assist_carry_times);
+            //c.assist_carry_times = cleanArray(c.assist_carry_times);
             c.assist_carry_ids = cleanArray(c.assist_carry_ids, removedPlayer);
 
         }
@@ -429,14 +431,24 @@ class CTF{
         });
     }
 
-    async deletePlayerFromMatch(playerId, matchId){
+    /**
+     * 
+     * @param {*} playerId 
+     * @param {*} matchId 
+     * @param {*} bIgnoreEvents only set this if you want to ignore events
+     */
+    async deletePlayerFromMatch(playerId, matchId, bIgnoreEvents){
 
         try{
 
 
             const matchCaps = await this.getMatchCaps(matchId);
 
-            const matchEvents = await this.getMatchEvents(matchId);
+            let matchEvents = [];
+
+            if(bIgnoreEvents === undefined){
+                matchEvents = await this.getMatchEvents(matchId);
+            }
 
             
 
@@ -589,8 +601,60 @@ class CTF{
 
     async changeEventPlayerId(oldId, newId){
 
-        return await mysql.simpleUpdate("UPDATE nstats_ctf_events SET player=? WHERE player=?",[newId, oldId]);
+        return await mysql.simpleUpdate("UPDATE nstats_ctf_events SET player=? WHERE player=?", [newId, oldId]);
         
+    }
+
+    
+    async deletePlayerEvents(playerId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_ctf_events WHERE player=?", [playerId]);
+    }
+
+    bAnyCtfDataInMatch(playerMatchData){
+
+        const types = ['flag_assist', 'flag_return',
+            'flag_taken',            'flag_dropped',           'flag_capture',
+            'flag_pickup',           'flag_seal',              'flag_cover',
+            'flag_cover_pass',       'flag_cover_fail',        'flag_self_cover',
+            'flag_self_cover_pass',  'flag_self_cover_fail',   'flag_multi_cover',
+            'flag_spree_cover',      'flag_cover_best',        'flag_self_cover_best',
+            'flag_kill',             'flag_save',              'flag_carry_time'];
+
+
+        for(let i = 0; i < types.length; i++){
+
+            if(playerMatchData[types[i]] !== undefined){
+                if(playerMatchData[types[i]] !== 0) return true;
+            }
+        }
+
+
+        return false;
+    }
+    
+    async deletePlayerViaMatchData(playerId, matches){
+
+        try{
+
+            await this.deletePlayerEvents(playerId);
+
+            let m = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                if(this.bAnyCtfDataInMatch(matches[i])){
+
+                    await this.deletePlayerFromMatch(playerId, m.match_id, true);
+
+                }
+            }
+
+        }catch(err){    
+            console.trace(err);
+        }
     }
 
 }
