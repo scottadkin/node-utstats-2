@@ -303,13 +303,26 @@ class Items{
     }
 
 
-    reduceItemTotal(id, amount){
+    reduceItemTotal(id, amount, matches){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "UPDATE nstats_items SET uses=uses-?, matches=matches-1 WHERE id=?";
+            let query = "UPDATE nstats_items SET uses=uses-?, matches=matches-1 WHERE id=?";
 
-            mysql.query(query, [amount, id], (err) =>{
+            let vars = [amount, id];
+
+            if(matches !== undefined){
+
+                matches = parseInt(matches);
+
+                if(matches !== matches) matches = 1;
+
+                vars = [amount, matches, id]
+
+                query = "UPDATE nstats_items SET uses=uses-?, matches=matches-? WHERE id=?";
+            }
+
+            mysql.query(query, vars, (err) =>{
 
                 if(err) reject(err);
 
@@ -523,6 +536,55 @@ class Items{
                 await this.createNewPlayerTotalFromMerge(newId, key, value.first, value.last, value.uses, value.matches);
             }
 
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+
+    async getAllPlayerMatchData(playerId){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_items_match WHERE player_id=?", [playerId]);
+    }
+
+    async deletePlayerTotals(player){
+
+        await mysql.simpleDelete("DELETE FROM nstats_items_player WHERE player=?", [player]);
+
+    }
+
+    async deleteAllPlayerMatchData(player){
+
+        await mysql.simpleDelete("DELETE FROM nstats_items_match WHERE player_id=?", [player]);
+    }
+
+    async deletePlayer(playerId){
+
+        try{
+
+            const matchData = await this.getAllPlayerMatchData(playerId);
+
+            const uses = {};
+
+            let m = 0;
+
+            for(let i = 0; i < matchData.length; i++){
+
+                m = matchData[i];
+
+                if(uses[m.item] === undefined) uses[m.item] = {"uses": 0, "matches": 0};
+
+                uses[m.item].uses += m.uses;
+                uses[m.item].matches++;
+            }
+
+            for(const [key, value] of Object.entries(uses)){
+                await this.reduceItemTotal(parseInt(key), value.uses, 0);
+                await this.deletePlayerTotals(playerId);
+                await this.deleteAllPlayerMatchData(playerId);
+            }
 
         }catch(err){
             console.trace(err);

@@ -81,6 +81,12 @@ class Headshots{
         await mysql.simpleUpdate("UPDATE nstats_headshots SET killer=? WHERE killer=?", [newId, oldId]);
         await mysql.simpleUpdate("UPDATE nstats_headshots SET victim=? WHERE victim=?", [newId, oldId]);
     }
+
+
+    async deletePlayer(player){
+
+        await mysql.simpleDelete("DELETE FROM nstats_headshots WHERE (killer = ?) OR (victim = ?)", [player, player]);
+    }
 }
 
 

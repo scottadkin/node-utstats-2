@@ -288,15 +288,23 @@ export async function getServerSideProps({req, query}){
         }
     }
 
+    let gametypeNames = {};
+
+    gametypeNames = await gametypeManager.getAllNames();
+
+    const testGametypeIds = Object.keys(gametypeNames);
+
+    if(testGametypeIds.indexOf(`${gametype}`) === -1){
+        gametype = 0;
+    }
+
     const matches = await matchManager.getRecent(page - 1, perPage, gametype);
     const totalMatches = await matchManager.getTotal(gametype);
     const uniqueServers = Functions.getUniqueValues(matches, 'server');
     const uniqueMaps = Functions.getUniqueValues(matches, 'map');
 
 
-    let gametypeNames = {};
-
-    gametypeNames = await gametypeManager.getAllNames();
+    
 
     let serverNames = {};
 

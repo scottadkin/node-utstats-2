@@ -16,6 +16,7 @@ const Weapons = require('./weapons');
 const Rankings = require('./rankings');
 const Winrate = require('./winrate');
 const CountriesManager = require('./countriesmanager');
+const Faces = require('./faces');
 
 class Players{
 
@@ -948,6 +949,19 @@ class Players{
             const domManager = new Domination();
 
             await domManager.deletePlayer(playerId);
+
+
+            const faceManager = new Faces();
+
+            await faceManager.deletePlayer(matches);
+
+            const headshotsManager = new Headshots();
+
+            await headshotsManager.deletePlayer(playerId);
+
+            const itemsManager = new Items();
+
+            await itemsManager.deletePlayer(playerId);
 
         }catch(err){    
             console.trace(err);

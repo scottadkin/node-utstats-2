@@ -384,12 +384,42 @@ class Faces{
 
             for(const [key, value] of Object.entries(uses)){
 
+                console.log(`reduce ${key} uses by ${value}`);
                 await this.reduceUsage(key, value);
             }
 
         }catch(err){
             console.trace(err);
         }   
+    }
+
+
+    async deletePlayer(matches){
+
+        try{
+
+            let m = 0
+
+            const uses = {};
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                if(uses[m.face] === undefined){
+                    uses[m.face] = 0;
+                }
+
+                uses[m.face]++;
+            }
+
+            for(const [key, value] of Object.entries(uses)){
+                await this.reduceUsage(parseInt(key), value);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 
