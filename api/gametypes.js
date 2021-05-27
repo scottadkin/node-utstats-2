@@ -297,6 +297,47 @@ class Gametypes{
         return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE gametype=?", [oldId]);
     }
 
+    async mergePlayerGametypeTotals(data, newId){
+
+        try{
+
+
+            let d = 0;
+
+            const query = `UPDATE nstats_player_totals SET
+            matches=matches+?,
+            wins=wins+?,
+            losses=losses+?,
+            draws=draws+?,
+            winrate = IF(wins > 0, (wins / matches) * 100, 0)
+            WHERE player_id=? AND gametype=?`;
+
+            //if statments for division by zero
+            let vars = [];
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+                vars = [
+                    d.matches,
+                    d.wins,
+                    d.losses,
+                    d.draws,
+
+
+
+                    d.player_id,
+                    newId
+                ];
+
+                await mysql.simpleUpdate(query, vars);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
     async merge(oldId, newId){
 
         try{
@@ -310,6 +351,8 @@ class Gametypes{
             console.log(oldGametypePlayerTotals);
 
             //merge player gametype totals here
+
+            await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
 
         }catch(err){
             console.trace(err);
