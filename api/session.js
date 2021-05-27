@@ -24,7 +24,8 @@ class Session{
         console.log(`User's IP Address is ${this.userIp}`);
 
         this.settings = {
-            "bUploadImages": false
+            "bUploadImages": false,
+            "bAdmin": false
         };
 
 

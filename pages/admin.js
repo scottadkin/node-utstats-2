@@ -15,13 +15,15 @@ import AdminFaces from '../components/AdminFaces/';
 import AdminMatchesManager from '../components/AdminMatchesManager/';
 import AdminPlayersManager from '../components/AdminPlayersManager/';
 import Players from '../api/players';
+import AdminGametypeManager from '../components/AdminGametypeManager/';
+import Gametypes from '../api/gametypes'
 
 class Admin extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"mode": 5, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
+        this.state = {"mode": 6, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
@@ -362,6 +364,13 @@ class Admin extends React.Component{
         return <AdminPlayersManager playerNames={this.props.playerNames}/>
     }
 
+    displayGametypeManager(){
+
+        if(this.state.mode !== 6) return null;
+
+        return <AdminGametypeManager data={this.props.gametypeNames}/>
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -392,6 +401,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 5) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(5);
                             })}>Manage Players</div>
+                            <div className={`big-tab ${(this.state.mode === 6) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(6);
+                            })}>Manage Gametypes</div>
                             <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(1);
                             })}>Map Image Uploader</div>
@@ -407,6 +419,7 @@ class Admin extends React.Component{
                         {this.displayFaces()}
                         {this.displayMatches()}
                         {this.displayPlayersManager()}
+                        {this.displayGametypeManager()}
                     </div>   
                 </div>
 
@@ -441,6 +454,7 @@ export async function getServerSideProps({req, query}){
     let faceFiles = [];
     let duplicateMatches = [];
     let playerNames = [];
+    let gametypeNames = [];
 
     if(bUserAdmin){
 
@@ -470,6 +484,11 @@ export async function getServerSideProps({req, query}){
 
         playerNames = await playerManager.getAllNames();
 
+
+        const gametypeManager = new Gametypes();
+
+        gametypeNames = await gametypeManager.getAll();
+
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -491,7 +510,8 @@ export async function getServerSideProps({req, query}){
             "faceData": JSON.stringify(faceData),
             "faceFiles": JSON.stringify(faceFiles),
             "duplicateMatches": JSON.stringify(duplicateMatches),
-            "playerNames": JSON.stringify(playerNames)
+            "playerNames": JSON.stringify(playerNames),
+            "gametypeNames": JSON.stringify(gametypeNames)
         }
     };
 }
