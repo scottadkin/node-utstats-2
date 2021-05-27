@@ -36,7 +36,9 @@ class Session{
     addCookies(){
 
         for(const [key, value] of Object.entries(this.cookies)){
-            this.settings[key] = value;
+            if(key.toLowerCase() !== "badmin"){
+                this.settings[key] = value;
+            }
         }
     }
 

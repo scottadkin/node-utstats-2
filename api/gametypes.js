@@ -247,6 +247,36 @@ class Gametypes{
 
         return await mysql.simpleFetch("SELECT * FROM nstats_gametypes ORDER BY name ASC");
     }
+
+
+    async bNameInUse(name){
+
+        try{
+
+            const result = await mysql.simpleFetch("SELECT COUNT(*) as same_names FROM nstats_gametypes WHERE name=?", [name]);
+
+            if(result[0].same_names > 0) return true;
+
+            return false;
+
+        }catch(err){
+            console.trace(err);
+            return true;
+        }
+    }
+
+
+    async rename(id, newName){
+
+        if(!await this.bNameInUse(newName)){
+
+            return await mysql.updateReturnAffectedRows("UPDATE nstats_gametypes SET name=? WHERE id=?", [newName, id]);
+
+        }else{
+            console.log(`gametype name already in use`);
+            return 0;
+        }
+    }
 }
 
 module.exports = Gametypes;

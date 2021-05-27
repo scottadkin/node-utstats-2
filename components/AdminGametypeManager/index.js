@@ -71,15 +71,15 @@ class AdminGametypeManager extends React.Component{
                 const req = await fetch("/api/gametypeadmin", {
                     "headers": {"Content-Type": "application/json"},
                     "method": "POST",
-                    "body": JSON.stringify({"id": gametypeId, "newName": newName})
+                    "body": JSON.stringify({"id": gametypeId, "newName": newName, "mode": "rename"})
                 });
 
 
                 const result = await req.json();
 
-                console.log(result);
-
                 if(result.message === "passed"){
+
+                    this.updateGametypeList(gametypeId, newName);
                     this.setState({"bFailedRename": false, "renameErrors": []});
                 }
 
@@ -97,6 +97,32 @@ class AdminGametypeManager extends React.Component{
         }
     }
 
+    updateGametypeList(id, newName){
+
+        const newData = [];
+
+        let d = 0;
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            d = this.state.data[i];
+
+            if(d.id !== id){
+                newData.push(d);
+            }else{
+
+                newData.push({
+                    "id": d.id,
+                    "name": newName,
+                    "first": d.first,
+                    "last": d.last,
+                    "matches": d.matches,
+                    "matches": d.playtime
+                })
+            }
+        }
+        this.setState({"data": newData});
+    }
     createDropDown(name){
 
         const options = [];
