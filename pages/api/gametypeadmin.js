@@ -41,6 +41,35 @@ export default async (req, res) =>{
 
 
                 await gametypeManager.rename(gametypeId, newName);
+
+            }else if(mode === "merge"){
+
+                const oldId = req.body.oldGametypeId;
+                const newId = req.body.newGametypeId;
+
+                console.log(`oldgametypeId = ${oldId}`);
+                console.log(`newGametypeId = ${newId}`);
+
+                if(oldId === -1){
+
+                    res.status(200).json({"message": "You have not selected a gametype to be merged."});
+                    return;
+                }
+
+                if(newId === -1){
+                    res.status(200).json({"message": "You have not selected a target gametype."});
+                    return;
+                }
+
+                if(newId < 1 || oldId < 1){
+                    res.status(200).json({"message": "Selected gametype ids must be a positive integer."});
+                    return;
+                }
+                
+
+
+                await gametypeManager.merge(oldId, newId);
+                
             }
 
             res.status(200).json({"message": "passed"});

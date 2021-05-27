@@ -50,7 +50,7 @@ class Player{
         });
     }
 
-    createNameIdQuery(name, gametype){
+    createNameIdQuery(name, gametype, masterPlayerId){
         
 
         return new Promise((resolve, reject) =>{
@@ -59,12 +59,16 @@ class Player{
                 gametype = 0;
             }
 
+            if(masterPlayerId === undefined){
+                masterPlayerId = 0;
+            }
 
-            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,'','','',0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,'','','',0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             ,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-            mysql.query(query, [name, gametype], (err, result) =>{
+            mysql.query(query, [name, masterPlayerId, gametype], (err, result) =>{
 
                 if(err) reject(err);
 
@@ -79,14 +83,16 @@ class Player{
 
 
             let id = await this.getNameIdQuery(name, 0);
-            let idGametype = await this.getNameIdQuery(name, gametype);
+            
             
             if(id === null){
-                id = await this.createNameIdQuery(name);
+                id = await this.createNameIdQuery(name, 0);
             }
 
+            let idGametype = await this.getNameIdQuery(name, gametype);
+
             if(idGametype === null){
-                idGametype = await this.createNameIdQuery(name, gametype);
+                idGametype = await this.createNameIdQuery(name, gametype, id.id);
             }
 
 

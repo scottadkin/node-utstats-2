@@ -277,6 +277,44 @@ class Gametypes{
             return 0;
         }
     }
+
+    async changeMatchGametypes(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_matches SET gametype=? WHERE gametype=?", [newId, oldId]);
+    }
+
+    async changePlayerMatchGametypes(oldId, newId){
+        await mysql.simpleUpdate("UPDATE nstats_player_matches SET gametype=? WHERE gametype=?", [newId, oldId]);
+    }
+
+    async changePlayerTotalsGametype(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_player_totals SET gametype=? WHERE gametype=?", [newId, oldId]);
+    }
+
+    async getOldIdPlayerGametypeTotals(oldId){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE gametype=?", [oldId]);
+    }
+
+    async merge(oldId, newId){
+
+        try{
+
+            //await this.changeMatchGametypes(oldId, newId);
+            //await this.cjangePlayerMatchGametypes(oldId, newId);
+            //await this.changePlayerTotalsGametype(oldId, newId);
+
+            const oldGametypePlayerTotals = await this.getOldIdPlayerGametypeTotals(oldId);
+
+            console.log(oldGametypePlayerTotals);
+
+            //merge player gametype totals here
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = Gametypes;

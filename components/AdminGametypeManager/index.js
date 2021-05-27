@@ -8,13 +8,20 @@ class AdminGametypeManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 0, 
+            "mode": 1, 
             "data": JSON.parse(this.props.data), 
             "bFailedRename": null, 
             "renameErrors": []
         };
 
         this.renameGametype = this.renameGametype.bind(this);
+        this.mergeGametype = this.mergeGametype.bind(this);
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
     bNameAlreadyInUse(name){
@@ -97,6 +104,50 @@ class AdminGametypeManager extends React.Component{
         }
     }
 
+
+    async mergeGametype(e){
+
+        try{
+
+            e.preventDefault();
+
+            let oldGametype = parseInt(e.target[0].value);
+            let newGametype = parseInt(e.target[1].value);
+
+            const errors = [];
+
+
+            if(oldGametype !== oldGametype) errors.push(`oldGametype must be a valid integer.`);
+            if(newGametype !== newGametype) errors.push(`newGametype must be a valid integer.`);
+
+            if(oldGametype === -1) errors.push(`You have not selected a gametype to be merged into another.`);
+            if(newGametype === -1) errors.push(`You have not selected a target gametype.`);
+
+            if(oldGametype === newGametype) errors.push(`You can't merge a gametype into itself.`);
+
+            console.log(`merge ${oldGametype} into ${newGametype}`);
+
+            if(errors.length === 0){
+
+                const req = await fetch("/api/gametypeadmin", {
+                    "headers": {"Content-Type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "merge", "oldGametypeId": oldGametype, "newGametypeId": newGametype})
+                });
+
+                const result = await req.json();
+
+                console.log(result);
+
+            }else{
+                console.log(`something went wrong`);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
     updateGametypeList(id, newName){
 
         const newData = [];
@@ -123,6 +174,8 @@ class AdminGametypeManager extends React.Component{
         }
         this.setState({"data": newData});
     }
+
+
     createDropDown(name){
 
         const options = [];
@@ -211,6 +264,39 @@ class AdminGametypeManager extends React.Component{
         </div>
     }
 
+    renderMerge(){
+
+        if(this.state.mode !== 1) return null;
+    
+        return <div>
+            <div className="default-header">Merge Gamtypes</div>
+            <form className="form" method="POST" action="/" onSubmit={this.mergeGametype}>
+                <div className="form-info">
+                    Merge gametypes into one single gametype taking the second selected option's name.
+                </div>
+                <div className="select-row">
+                    <div className="select-label">
+                        Merge
+                    </div>
+                    <div>
+                        {this.createDropDown("first")}
+                    </div>
+                </div>
+
+                <div className="select-row">
+                    <div className="select-label">
+                        Into
+                    </div>
+                    <div>
+                        {this.createDropDown("second")}
+                    </div>
+                </div>
+
+                <input type="submit" className="search-button" name="subit" value="Merge"/>
+            </form>
+        </div>
+    
+    }
 
     render(){
 
@@ -218,12 +304,25 @@ class AdminGametypeManager extends React.Component{
             <div className="default-header">Manage Gametypes</div>
 
             <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>
                     Rename Gametypes
+                </div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>
+                    Merge Gametypes
+                </div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(2);
+                })}>
+                    Delete Gametypes
                 </div>
             </div>
 
             {this.renderRename()}
+            {this.renderMerge()}
         </div>
     }
 }
