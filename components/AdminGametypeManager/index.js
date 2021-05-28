@@ -11,7 +11,10 @@ class AdminGametypeManager extends React.Component{
             "mode": 1, 
             "data": JSON.parse(this.props.data), 
             "bFailedRename": null, 
-            "renameErrors": []
+            "renameErrors": [],
+            "bFailedMerge": null,
+            "mergeErrors": [],
+            "mergeInProgress": false
         };
 
         this.renameGametype = this.renameGametype.bind(this);
@@ -127,6 +130,8 @@ class AdminGametypeManager extends React.Component{
 
             console.log(`merge ${oldGametype} into ${newGametype}`);
 
+            this.setState({"bFailedMerge": null, "mergeErrors": [], "mergeInProgress": true});
+
             if(errors.length === 0){
 
                 const req = await fetch("/api/gametypeadmin", {
@@ -139,10 +144,22 @@ class AdminGametypeManager extends React.Component{
 
                 console.log(result);
 
-            }else{
-                console.log(`something went wrong`);
+                if(result.message !== "passed"){
+
+                    errors.push(result.message);
+                }
+
             }
 
+            if(errors.length > 0){
+
+                this.setState({"bFailedMerge": true, "mergeErrors": errors});
+
+            }else{
+                this.setState({"bFailedMerge": false, "mergeErrors": []});
+            }
+
+            this.setState({"mergeInProgress": false});
         }catch(err){
             console.trace(err);
         }
@@ -264,6 +281,52 @@ class AdminGametypeManager extends React.Component{
         </div>
     }
 
+
+    renderMergeErrors(){
+
+        if(this.state.mode !== 1) return null;
+
+
+        if(this.state.bFailedMerge !== true) return null;
+
+        const errorElems = [];
+
+        let e = 0;
+
+        for(let i = 0; i < this.state.mergeErrors.length; i++){
+
+            e = this.state.mergeErrors[i];
+
+            errorElems.push(<div key={i}>{e}</div>);
+        }
+
+        return <div className="team-red p-bottom-25 m-bottom-25">
+            <div className="default-header">Error</div>
+            {errorElems}
+        </div>
+    }
+
+    renderMergePass(){
+
+        if(this.state.mode !== 1) return null;
+
+        if(this.state.mergeInProgress){
+
+            return <div className="team-yellow p-bottom-25 m-bottom-25">
+            <div className="default-header">Loading</div>
+                Merge in progress, please wait...
+        </div>
+        }
+
+        if(this.state.bFailedMerge !== false) return null;
+
+        return <div className="team-green p-bottom-25 m-bottom-25">
+            <div className="default-header">Passed</div>
+                Merge was successful.
+        </div>
+
+    }
+
     renderMerge(){
 
         if(this.state.mode !== 1) return null;
@@ -274,6 +337,8 @@ class AdminGametypeManager extends React.Component{
                 <div className="form-info">
                     Merge gametypes into one single gametype taking the second selected option's name.
                 </div>
+                {this.renderMergeErrors()}
+                {this.renderMergePass()}
                 <div className="select-row">
                     <div className="select-label">
                         Merge

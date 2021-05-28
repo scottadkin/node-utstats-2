@@ -621,6 +621,7 @@ class Gametypes{
     }
 
     async deleteGametype(id){
+        console.log(`delete gametypeID ${id}`);
         await mysql.simpleDelete("DELETE FROM nstats_gametypes WHERE id=?", [id]);
 
     }
@@ -631,7 +632,7 @@ class Gametypes{
 
             await this.changeMatchGametypes(oldId, newId);
             await this.changePlayerMatchGametypes(oldId, newId);
-            await this.changePlayerTotalsGametype(oldId, newId);
+           // await this.changePlayerTotalsGametype(oldId, newId);
 
             const oldGametypePlayerTotals = await this.getOldIdPlayerGametypeTotals(oldId);
 
@@ -649,7 +650,7 @@ class Gametypes{
 
             await rankingManager.changeGametypeId(oldId, newId);
 
-            await this.deleteGametype(oldID);
+            await this.deleteGametype(oldId);
 
         }catch(err){
             console.trace(err);
