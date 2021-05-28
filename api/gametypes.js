@@ -581,8 +581,6 @@ class Gametypes{
 
             const affectedRows = await mysql.updateReturnAffectedRows(query, vars);
 
-            console.log(`affectedRows = ${affectedRows}`);
-
             if(affectedRows === 0){
 
                 await this.insertPlayerGametypeWeaponTotal(gametype, data);
@@ -605,8 +603,6 @@ class Gametypes{
 
             const oldGametypeTotals = await this.getWeaponTotals(oldId);
 
-            console.table(oldGametypeTotals);
-
             let d = 0;
 
             for(let i = 0; i < oldGametypeTotals.length; i++){
@@ -624,13 +620,13 @@ class Gametypes{
         }
     }
 
-    async merge(oldId, newId){
+    async merge(oldId, newId, rankingManager){
 
         try{
 
-            //await this.changeMatchGametypes(oldId, newId);
-            //await this.cjangePlayerMatchGametypes(oldId, newId);
-            //await this.changePlayerTotalsGametype(oldId, newId);
+            await this.changeMatchGametypes(oldId, newId);
+            await this.changePlayerMatchGametypes(oldId, newId);
+            await this.changePlayerTotalsGametype(oldId, newId);
 
             const oldGametypePlayerTotals = await this.getOldIdPlayerGametypeTotals(oldId);
 
@@ -639,9 +635,14 @@ class Gametypes{
             //merge player gametype totals here
 
             await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
-            //await this.deleteGametypePlayerTotals(oldId);
+            await this.deleteGametypePlayerTotals(oldId);
 
             await this.mergeGametypeWeaponTotals(oldId, newId);
+
+
+            //update rankings
+
+            await rankingManager.changeGametypeId(oldId, newId);
 
         }catch(err){
             console.trace(err);

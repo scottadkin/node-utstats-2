@@ -814,6 +814,202 @@ class Rankings{
         await mysql.simpleDelete("DELETE FROM nstats_ranking_player_current WHERE player_id=?", [playerId]);
         await mysql.simpleDelete("DELETE FROM nstats_ranking_player_history WHERE player_id=?", [playerId]);
     }
+
+
+    createMatchScore(types, matchData, playtime){
+
+        let score = 0;
+
+        const ignore = [
+            "sub_half_hour_multiplier",
+            "sub_hour_multiplier",
+            "sub_2hour_multiplier",
+            "sub_3hour_multiplier"
+        ];
+
+        const penalties = {
+            "sub_half_hour_multiplier": 0,
+            "sub_hour_multiplier": 0,
+            "sub_2hour_multiplier": 0,
+            "sub_3hour_multiplier": 0
+        };
+
+        for(let i = 0; i < types.length; i++){
+
+            if(ignore.indexOf(types[i].name) === -1){
+
+                score += matchData[types[i].name] *= types[i].value;
+
+            }else{
+
+                penalties[types[i].name] = types[i].value;
+            }     
+        }
+
+        playtime = playtime + matchData.playtime;
+
+        const halfHour = 60 * 30;
+        const hour = 60 * 60;
+        const hour2 = hour * 2;
+        const hour3 = hour * 3;
+
+        score = score / (playtime / 60);
+
+        console.log(`score before penalties ${score}`);
+
+        if(playtime < halfHour){
+
+            score *= penalties.sub_half_hour_multiplier;
+
+        }else if(playtime < hour){
+
+            score *= penalties.sub_hour_multiplier;
+
+        }else if(playtime < hour2){
+
+            score *= penalties.sub_2hour_multiplier;
+
+        }else if(playtime < hour3){
+            score *= penalties.sub_3hour_multiplier;
+        }
+
+        console.log(`score after penalties ${score}`);
+
+        return score;
+    }
+
+    createDummyPlayerData(){
+
+        return {
+            "matches": 0,
+            "playtime": 0,
+            "ranking": 0,
+            "ranking_change": 0,
+            "match_ranking": 0,
+            "match_ranking_change": 0,
+            "match_id": 0
+        };
+    }
+
+    async deleteGametypeHistory(id){
+        await mysql.simpleDelete("DELETE FROM nstats_ranking_player_history WHERE gametype=?",[id]);
+        await mysql.simpleDelete("DELETE FROM nstats_ranking_player_current WHERE gametype=?",[id]);
+    }
+
+    async insertPlayerCurrentFull(playerId, gametypeId, matches, playtime, ranking, rankingChange){
+
+        const query = `INSERT nstats_ranking_player_current VALUES(NULL,?,?,?,?,?,?)`;
+
+        const vars = [playerId, gametypeId, matches, playtime, ranking, rankingChange];
+
+        await mysql.simpleInsert(query, vars);
+
+    }
+
+    async recalculateGametypeRankings(id){
+
+        try{
+
+            const values = await this.getSettings();
+
+            const data = await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE gametype=? ORDER BY match_id ASC", [id]);
+
+
+            const players = {
+
+            };
+
+            let d = 0;
+
+            let current = 0;
+            let previous = 0;
+            let currentIndex = 0;
+            let currentScore = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                if(players[d.player_id] === undefined){
+                    players[d.player_id] = [this.createDummyPlayerData()];
+                }else{
+                    players[d.player_id].push(this.createDummyPlayerData());
+                }
+
+                currentIndex = players[d.player_id].length - 1;
+                current = players[d.player_id][players[d.player_id].length - 1];
+                current.match_id = d.match_id;
+
+                if(currentIndex > 0){
+                    previous = players[d.player_id][players[d.player_id].length - 2]
+                }else{
+                    previous = current;
+                }
+
+                current.matches = previous.matches + 1;
+                current.playtime += previous.playtime + d.playtime;
+
+                currentScore = this.createMatchScore(values, d, current.playtime);
+
+                current.ranking = currentScore;
+                current.match_ranking = currentScore;
+
+
+                if(currentIndex === 0){
+                    current.ranking_change = current.ranking;
+                    current.match_ranking_change = current.match_ranking;
+                }else{
+                    current.ranking_change = current.ranking - players[d.player_id][currentIndex - 1].ranking;
+                    current.match_ranking_change = current.match_ranking_change - players[d.player_id][currentIndex - 1].match_ranking;
+                }
+            
+            }
+
+            await this.deleteGametypeHistory(id);
+
+            for(const [playerId, data] of Object.entries(players)){
+
+                let d = 0;
+
+                for(let i = 0; i < data.length; i++){
+
+                    d = data[i];
+
+                    await this.insertPlayerHistory(d.match_id, playerId, id, d.ranking, d.match_ranking, d.ranking_change, d.match_ranking_change);
+
+                    if(i === data.length - 1){
+                        await this.insertPlayerCurrentFull(playerId, id, d.matches, d.playtime, d.ranking, d.ranking_change)
+                    }
+                }
+            }
+
+            
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async changeGametypeId(oldId, newId){
+
+        try{
+
+            const vars = [newId, oldId];
+
+            const currentQuery = "UPDATE nstats_ranking_player_current SET gametype=? WHERE gametype=?";
+            await mysql.simpleUpdate(currentQuery, vars);
+
+            const historyQuery = "UPDATE nstats_ranking_player_history SET gametype=? WHERE gametype=?";
+
+            await mysql.simpleUpdate(historyQuery, vars);
+
+
+            await this.recalculateGametypeRankings(newId);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 
