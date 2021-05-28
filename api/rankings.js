@@ -838,7 +838,8 @@ class Rankings{
 
             if(ignore.indexOf(types[i].name) === -1){
 
-                score += matchData[types[i].name] *= types[i].value;
+               // console.log(`${types[i].name} = ${types[i].value}`);
+                score += matchData[types[i].name] * types[i].value;
 
             }else{
 
@@ -855,7 +856,7 @@ class Rankings{
 
         score = score / (playtime / 60);
 
-        console.log(`score before penalties ${score}`);
+        //console.log(`score before penalties ${score}`);
 
         if(playtime < halfHour){
 
@@ -873,7 +874,7 @@ class Rankings{
             score *= penalties.sub_3hour_multiplier;
         }
 
-        console.log(`score after penalties ${score}`);
+        //console.log(`score after penalties ${score}`);
 
         return score;
     }
@@ -994,17 +995,18 @@ class Rankings{
 
         try{
 
-            const vars = [newId, oldId];
+            const vars = [oldId, newId];
 
-            const currentQuery = "UPDATE nstats_ranking_player_current SET gametype=? WHERE gametype=?";
+            const currentQuery = "DELETE FROM nstats_ranking_player_current WHERE gametype IN (?)";
             await mysql.simpleUpdate(currentQuery, vars);
 
-            const historyQuery = "UPDATE nstats_ranking_player_history SET gametype=? WHERE gametype=?";
+            const historyQuery = "DELETE FROM nstats_ranking_player_history WHERE gametype IN (?)";
 
             await mysql.simpleUpdate(historyQuery, vars);
 
 
             await this.recalculateGametypeRankings(newId);
+            
 
         }catch(err){
             console.trace(err);

@@ -620,6 +620,11 @@ class Gametypes{
         }
     }
 
+    async deleteGametype(id){
+        await mysql.simpleDelete("DELETE FROM nstats_gametypes WHERE id=?", [id]);
+
+    }
+
     async merge(oldId, newId, rankingManager){
 
         try{
@@ -643,6 +648,8 @@ class Gametypes{
             //update rankings
 
             await rankingManager.changeGametypeId(oldId, newId);
+
+            await this.deleteGametype(oldID);
 
         }catch(err){
             console.trace(err);
