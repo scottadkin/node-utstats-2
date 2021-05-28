@@ -488,6 +488,142 @@ class Gametypes{
         }
     }
 
+    async deleteGametypePlayerTotals(oldId){
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE gametype=?", [oldId]);
+    }
+
+
+    async getWeaponTotals(id){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_totals WHERE gametype=?", [id]);
+    }
+
+
+    async insertPlayerGametypeWeaponTotal(gametype, data){
+
+        try{
+
+            const query = `INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)`;
+            
+            let efficiency = 0;
+            let accuracy = 0;
+
+            if(data.shots > 0){
+
+                if(data.hits > 0){
+                    accuracy = (data.hits / data.shots) * 100;
+                }
+            }
+
+            if(data.kills > 0){
+
+                if(data.deaths > 0){
+
+                    efficiency = (data.kills / (data.kills + data.deaths)) * 100
+
+                }else{
+                    efficiency = 100;
+                }
+            }
+
+            const vars = [
+                data.player_id,
+                gametype,
+                data.weapon,
+                data.kills,
+                data.deaths,
+                efficiency,
+                accuracy,
+                data.shots,
+                data.hits,
+                data.damage,
+                data.matches
+
+            ];
+
+
+            await mysql.simpleUpdate(query, vars);
+
+        }catch(err){
+            console.trace(err);
+        }   
+    }
+
+    async updateWeaponPlayerTotal(gametype, data){
+
+        try{
+
+            const query = `UPDATE nstats_player_weapon_totals SET
+            kills=Kills+?,
+            deaths=deaths+?,
+            efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills)) * 100 , 100)
+            , 0),
+            shots=shots+?,
+            hits=hits+?,
+            accuracy = IF(shots > 0, IF(hits > 0, (hits / shots) * 100 ,0) ,0),
+            damage=damage+?,
+            matches=matches+?
+            WHERE gametype=? AND weapon=? AND player_id=?`;
+
+            const vars = [
+                data.kills,
+                data.deaths,
+                data.shots,
+                data.hits,
+                data.damage,
+                data.matches,
+                gametype,
+                data.weapon,
+                data.player_id
+            ];
+
+
+            const affectedRows = await mysql.updateReturnAffectedRows(query, vars);
+
+            console.log(`affectedRows = ${affectedRows}`);
+
+            if(affectedRows === 0){
+
+                await this.insertPlayerGametypeWeaponTotal(gametype, data);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    async deleteGametypePlayerWeaponTotals(id){
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_totals WHERE gametype=?", [id]);
+    }
+
+    async mergeGametypeWeaponTotals(oldId, newId){
+
+        try{
+
+            const oldGametypeTotals = await this.getWeaponTotals(oldId);
+
+            console.table(oldGametypeTotals);
+
+            let d = 0;
+
+            for(let i = 0; i < oldGametypeTotals.length; i++){
+
+                d = oldGametypeTotals[i];
+
+                await this.updateWeaponPlayerTotal(newId, d);
+            }
+
+
+            await this.deleteGametypePlayerWeaponTotals(oldId);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
     async merge(oldId, newId){
 
         try{
@@ -503,8 +639,9 @@ class Gametypes{
             //merge player gametype totals here
 
             await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
+            //await this.deleteGametypePlayerTotals(oldId);
 
-            // delete old gametype totals
+            await this.mergeGametypeWeaponTotals(oldId, newId);
 
         }catch(err){
             console.trace(err);
