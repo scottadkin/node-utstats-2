@@ -8,7 +8,7 @@ class AdminGametypeManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 1, 
+            "mode": 2, 
             "data": JSON.parse(this.props.data), 
             "bFailedRename": null, 
             "renameErrors": [],
@@ -363,6 +363,21 @@ class AdminGametypeManager extends React.Component{
     
     }
 
+
+    renderDelete(){
+        
+        if(this.state.mode !== 2) return null;
+
+        return <div>
+            <div className="default-header">Delete Gametypes</div>
+            <form className="form" action="/" method="POST" onSubmit={this.delete}>
+                <div className="form-info">
+                    Deleting a gametype removes all data associated to it.
+                </div>
+            </form>
+        </div>
+    }
+
     render(){
 
         return <div>
@@ -388,6 +403,7 @@ class AdminGametypeManager extends React.Component{
 
             {this.renderRename()}
             {this.renderMerge()}
+            {this.renderDelete()}
         </div>
     }
 }

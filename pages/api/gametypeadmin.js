@@ -1,6 +1,7 @@
 import Session from '../../api/session';
 import Gametypes from '../../api/gametypes';
 import Rankings from '../../api/rankings';
+import Winrate from '../../api/winrate';
 
 export default async (req, res) =>{
 
@@ -69,8 +70,10 @@ export default async (req, res) =>{
                 
 
                 const rankingManager = new Rankings();
+                const winrateManager = new Winrate();
 
-                await gametypeManager.merge(oldId, newId, rankingManager);
+                await gametypeManager.merge(oldId, newId, rankingManager, winrateManager);
+
                 
             }
 

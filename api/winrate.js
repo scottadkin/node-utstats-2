@@ -84,6 +84,8 @@ class WinRate{
         return new Promise((resolve, reject) =>{
 
 
+            //console.log(`insert ${matchId}, ${data.gametype}`);
+
             let vars = [];
 
             let query = "INSERT INTO nstats_winrates VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -139,6 +141,7 @@ class WinRate{
             mysql.query(query, vars, (err) =>{
 
                 if(err) reject(err);
+                
                 
                 resolve();
             });
@@ -354,7 +357,7 @@ class WinRate{
 
             const history = await this.getAllPlayerGametypeHistory(player, gametype);
 
-            console.log(`player ${player} has ${history.length} data to calculate`);
+           // console.log(`player ${player} has ${history.length} data to calculate`);
 
             let currentWinStreak = 0;
             let currentDrawStreak = 0;
@@ -732,6 +735,146 @@ class WinRate{
         }catch(err){
             console.trace(err);
         }
+    }
+
+    async changeGametypeId(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_winrates SET gametype=? WHERE gametype=?", [newId, oldId]);
+        await mysql.simpleUpdate("UPDATE nstats_winrates_latest SET gametype=? WHERE gametype=?", [newId, oldId]);
+    }
+
+    async getGametypeData(id){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_winrates WHERE gametype=? ORDER BY match_id ASC", [id]);
+    }
+
+    async deleteGametype(id){
+
+        //console.log(`delete gametype ${id}`);
+        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE gametype=?", [id]);
+        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE gametype=?", [id]);
+    }
+
+    createDummyGametypeData(player, gametype){
+
+        return {
+            "player": player,
+            "gametype": gametype,
+            "match_id": 0,
+            "match_result": 0,
+            "matches": 0,
+            "wins": 0,
+            "draws": 0,
+            "losses": 0,
+            "winrate": 0,
+            "current_win_streak": 0,
+            "current_draw_streak": 0,
+            "current_lose_streak": 0,
+            "max_win_streak": 0,
+            "max_draw_streak": 0,
+            "max_lose_streak": 0
+        };
+    }
+
+    async recalculateGametype(id){
+
+        try{
+
+            const data = await this.getGametypeData(id);
+
+            await this.deleteGametype(id);
+
+            const players = {}
+
+
+            const updateGametype = async (gametype, data) =>{
+
+               // console.log(`update gametype id ${gametype}`);
+
+                try{
+                    let d = data;
+
+                    if(players[d.player] === undefined){
+                        players[d.player] = {}
+                    }
+
+                    if(players[d.player][gametype] === undefined){
+                        players[d.player][gametype] = this.createDummyGametypeData(d.player, gametype);
+                    }
+
+
+                    const current = players[d.player][gametype];
+
+                    current.matches++;
+                    current.match_id = d.match_id;
+                    current.match_result = d.match_result;
+
+                    //0 win 1 lose 2 draw
+
+                    if(d.match_result === 0){
+
+                        current.wins++;
+                        current.draws = 0;
+                        current.losses = 0;
+
+                        current.current_win_streak++;
+                        current.current_draw_streak = 0;
+                        current.current_lose_streak = 0;
+
+                    }else if(d.match_result === 1){
+
+                        current.wins = 0;
+                        current.draws = 0;
+                        current.losses++;
+
+                        current.current_win_streak = 0;
+                        current.current_draw_streak = 0;
+                        current.current_lose_streak++;
+
+                    }else if(d.match_result === 2){
+
+                        current.wins = 0;
+                        current.draws++;
+                        current.losses = 0;
+
+                        current.current_win_streak = 0;
+                        current.current_draw_streak++;
+                        current.current_lose_streak = 0;
+                    }
+
+
+                    if(current.current_win_streak > current.max_win_streak) current.max_win_streak = current.current_win_streak;
+                    if(current.current_draw_streak > current.max_draw_streak) current.max_draw_streak = current.current_draw_streak;
+                    if(current.current_lose_streak > current.max_lose_streak) current.max_lose_streak = current.current_lose_streak;
+
+
+                    await this.insertHistory(d.match_id, -1, d);
+                    await this.updateLatest(d.match_id, -1, d);
+
+                }catch(err){
+                    console.trace(err);
+                }
+            }
+
+            let d = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                await updateGametype(id, d);
+
+            }
+
+            if(id !== 0){
+
+                await this.recalculateGametype(0);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+
     }
 }
 
