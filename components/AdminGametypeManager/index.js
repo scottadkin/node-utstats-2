@@ -14,12 +14,70 @@ class AdminGametypeManager extends React.Component{
             "renameErrors": [],
             "bFailedMerge": null,
             "mergeErrors": [],
-            "mergeInProgress": false
+            "mergeInProgress": false,
+            "bFailedDelete": null,
+            "deleteErrors": [],
+            "deleteInProgress": false
         };
 
         this.renameGametype = this.renameGametype.bind(this);
         this.mergeGametype = this.mergeGametype.bind(this);
         this.changeMode = this.changeMode.bind(this);
+        this.delete = this.delete.bind(this);
+    }
+
+    async delete(e){
+
+        try{
+
+            e.preventDefault();
+
+            console.log(e.target[0].value);
+
+            let gametypeId = parseInt(e.target[0].value);
+
+            gametypeId = parseInt(gametypeId);
+
+            const errors = [];
+
+            this.setState({"bFailedDelete": null, "deleteInProgress": true});
+
+            if(gametypeId !== gametypeId){
+                errors.push("Gametype must be a valid integer.");
+            }
+
+            if(gametypeId < 1){
+                errors.push("You have not selected a gametype to delete.");
+            }
+
+
+            if(errors.length === 0){
+
+                const req = await fetch("/api/gametypeadmin", {
+                    "headers": {"Content-Type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "delete", "gametypeDelete": gametypeId})
+                });
+
+                const res = await req.json();
+
+                console.log(res);
+
+                if(res.message === "passed"){
+                    this.setState({"bFailedDelete": false, "deleteInProgress": false});
+                }else{
+                    errors.push(res.message);
+                }
+            }
+
+            if(errors.length > 0){
+
+                this.setState({"bFailedDelete": true, "deleteInProgress": false, "deleteErrors": errors});
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     changeMode(id){
@@ -252,8 +310,6 @@ class AdminGametypeManager extends React.Component{
 
         if(this.state.mode !== 0) return null;
 
-        console.log(this.state.data);
-
         return <div>
             <div className="default-header">Rename Gametypes</div>
 
@@ -357,12 +413,62 @@ class AdminGametypeManager extends React.Component{
                     </div>
                 </div>
 
-                <input type="submit" className="search-button" name="subit" value="Merge"/>
+                <input type="submit" className="search-button" name="submit" value="Merge"/>
             </form>
         </div>
     
     }
 
+
+    renderDeleteErrors(){
+
+        if(this.state.mode !== 2) return null;
+
+        if(this.state.bFailedDelete === false) return null;
+
+        const errorElems = [];
+
+        if(this.state.deleteInProgress){
+
+            return <div className="team-yellow p-bottom-25 m-bottom-25">
+                <div className="default-header">Processing</div>
+                Delete in progress please wait...
+            </div>
+        }
+
+        if(this.state.deleteErrors.length === 0) return null;
+
+        let e = 0;
+
+        for(let i = 0; i < this.state.deleteErrors.length; i++){
+
+            e = this.state.deleteErrors[i];
+
+            errorElems.push(<div key={i}>{e}</div>);
+        }
+
+
+        return <div className="team-red p-bottom-25 m-bottom-25">
+            <div className="default-header">Error</div>
+            {errorElems}
+        </div>
+    }
+
+    renderDeletePassed(){
+
+        if(this.state.mode !== 2) return null;
+
+
+        console.log(`failedDelete = ${this.state.bFailedDelete}`);
+        if(this.state.bFailedDelete !== false) return null;
+        if(this.state.deleteInProgress) return null;
+
+        return <div className="team-green p-bottom-25 m-bottom-25">
+            <div className="default-header">Passed</div>
+            Gametype delete was successful.
+        </div>
+
+    }
 
     renderDelete(){
         
@@ -374,6 +480,17 @@ class AdminGametypeManager extends React.Component{
                 <div className="form-info">
                     Deleting a gametype removes all data associated to it.
                 </div>
+                {this.renderDeleteErrors()}
+                {this.renderDeletePassed()}
+                <div className="select-row">
+                    <div className="select-label">
+                        Gametype to delete
+                    </div>
+                    <div>
+                        {this.createDropDown("delete")}
+                    </div>
+                </div>
+                <input type="submit" className="search-button"  name="submit" value="Delete"/>
             </form>
         </div>
     }

@@ -224,7 +224,7 @@ class WinRate{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_winrates WHERE player=? AND gametype=? ORDER BY date DESC LIMIT ?";
+            const query = "SELECT * FROM nstats_winrates WHERE player=? AND gametype=? ORDER BY match_id DESC LIMIT ?";
 
             mysql.query(query, [player, gametype, limit], (err, result) =>{
 
