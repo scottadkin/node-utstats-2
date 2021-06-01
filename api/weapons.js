@@ -955,6 +955,178 @@ class Weapons{
             console.trace(err);
         }
     }
+
+    async getMatches(ids){
+
+        if(ids.length === 0) return [];
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_match WHERE match_id IN(?)", [ids]);
+    }
+
+    async deleteMatchesData(matchIds){
+
+        if(matchIds.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE match_id IN(?)", [matchIds]);
+    }
+
+    async reduceTotalsAlt(weaponId, matches, data){
+
+        const query = `UPDATE nstats_weapons SET
+        matches=matches-?,
+        kills=kills-?,
+        deaths=deaths-?,
+        shots=shots-?,
+        hits=hits-?,
+        damage=damage-?,
+        accuracy = IF(shots > 0, IF(hits > 0, (hits / shots) * 100 ,0), 0)
+        WHERE id=?`;
+
+        const vars = [
+            matches,
+            data.kills,
+            data.deaths,
+            data.shots,
+            data.hits,
+            data.damage,
+            weaponId
+        ];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async deleteMatches(gametypeId, matchIds){
+
+        try{
+
+            if(matchIds.length === 0) return;
+
+            const playerData = await this.getMatches(matchIds);
+
+            const totals = {};
+
+            const weaponTotals = {};
+
+            let p = 0;
+
+            let current = 0;
+
+            for(let i = 0; i < playerData.length; i++){
+
+                p = playerData[i];
+
+                if(totals[p.player_id] === undefined){
+
+                    totals[p.player_id] = {};     
+                }
+
+                if(weaponTotals[p.weapon_id] === undefined){
+
+                    weaponTotals[p.weapon_id] = {
+                        "kills": 0,
+                        "deaths": 0,
+                        "shots": 0,
+                        "hits": 0,
+                        "damage": 0,
+                        "matchIds": []
+                    };
+                }
+
+                weaponTotals[p.weapon_id].kills += p.kills;
+                weaponTotals[p.weapon_id].deaths += p.deaths;
+                weaponTotals[p.weapon_id].shots += p.shots;
+                weaponTotals[p.weapon_id].hits += p.hits;
+                weaponTotals[p.weapon_id].damage += p.damage;
+
+                if(weaponTotals[p.weapon_id].matchIds.indexOf(p.match_id) === -1){
+                    weaponTotals[p.weapon_id].matchIds.push(p.match_id);
+                }
+
+                if(totals[p.player_id][p.weapon_id] === undefined){
+
+                    totals[p.player_id][p.weapon_id] = {
+                        "matches": 0,
+                        "kills": 0,
+                        "deaths": 0,
+                        "shots": 0,
+                        "hits": 0,
+                        "damage": 0
+                    };
+                }
+
+                current = totals[p.player_id][p.weapon_id];
+
+                current.matches++;
+
+                current.kills += p.kills;
+                current.deaths += p.deaths;
+                current.shots += p.shots;
+                current.hits += p.hits;
+                current.damage += p.damage;
+   
+            }
+
+
+            for(const [player, weapons] of Object.entries(totals)){
+
+                for(const [weapon, data] of Object.entries(weapons)){
+
+                    await this.reducePlayerGametypeTotals(gametypeId, parseInt(player), parseInt(weapon), data);
+                }
+            }
+
+            await this.deleteMatchesData(matchIds);
+
+            //reduce weapon totals
+
+
+            for(const [weapon, data] of Object.entries(weaponTotals)){
+
+                await this.reduceTotalsAlt(parseInt(weapon), data.matchIds.length, data)
+            }
+
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    /**
+     * Reduce player totals for the selected gametype totals and gametype 0
+     * @param {*} gametypeId 
+     * @param {*} playerId 
+     * @param {*} weaponId 
+     * @param {*} data 
+     */
+    async reducePlayerGametypeTotals(gametypeId, playerId, weaponId, data){
+
+        const query = `UPDATE nstats_player_weapon_totals SET 
+            matches=matches-?,
+            kills=kills-?,
+            deaths=deaths-?,
+            shots=shots-?,
+            hits=hits-?,
+            damage=damage-?,
+            accuracy= IF(shots > 0, IF(hits > 0, (hits / shots) * 100, 0) ,0)
+            WHERE gametype IN(?) AND player_id=? AND weapon=?
+            
+        `;
+
+        const vars = [
+            data.matches,
+            data.kills,
+            data.deaths,
+            data.shots,
+            data.hits,
+            data.damage,
+            [gametypeId, 0],
+            playerId,
+            weaponId,
+        ];
+
+        await mysql.simpleUpdate(query, vars);
+    }
 }
 
 

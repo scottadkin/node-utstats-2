@@ -12,6 +12,7 @@ const Logs = require('./logs');
 const Maps = require('./maps');
 const Connections = require('./connections');
 const Pings = require('./pings');
+const Weapons = require('./weapons');
 
 class Gametypes{
 
@@ -777,6 +778,11 @@ class Gametypes{
             await pingManager.deleteMatches(matchIds);
 
             await playerManager.deleteMatches(matchIds, playersData, gametypeId);
+
+
+            const weaponsManager = new Weapons();
+
+            await weaponsManager.deleteMatches(gametypeId, matchIds);
 
 
         }catch(err){
