@@ -423,7 +423,7 @@ class Items{
 
             const query = "UPDATE nstats_items SET uses=uses-? WHERE id=?";
 
-            mysql.query(query, [uses, item], (err, result) =>{
+            mysql.query(query, [uses, item], (err) =>{
 
                 if(err) reject(err);
 
@@ -587,6 +587,87 @@ class Items{
             }
 
         }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async getMatchesData(ids){
+
+        if(ids.length === 0) return [];
+        
+        return await mysql.simpleFetch("SELECT * FROM nstats_items_match WHERE match_id IN (?)", [ids]);
+    }
+
+    async reducePlayerTotalsAlt(player, item, uses, matches){
+
+        const query = "UPDATE nstats_items_player SET uses=uses-?,matches=matches-? WHERE player=? AND item=?";
+        const vars = [uses, matches, player, item];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async deleteMatchesData(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_items_match WHERE match_id IN (?)", [ids]);
+    }
+
+    async deleteMatches(ids){
+
+        try{
+
+            const matchesData = await this.getMatchesData(ids);
+
+            const uses = {};
+            const playerUses = {};
+
+            let m = 0;
+
+            for(let i = 0; i < matchesData.length; i++){
+
+                m = matchesData[i];
+
+                if(uses[m.item] === undefined){
+                    uses[m.item] = {"uses": 0, "matches": []};
+                }
+
+                if(playerUses[m.player_id] === undefined){
+                    playerUses[m.player_id] = {};
+                }
+
+                uses[m.item].uses += m.uses;
+                
+                if(uses[m.item].matches.indexOf(m.match_id) === -1){
+
+                    uses[m.item].matches.push(m.match_id);
+                }
+
+
+                if(playerUses[m.player_id][m.item] === undefined){
+                    playerUses[m.player_id][m.item] = {"uses": 0, "matches": 0};
+                }
+
+                playerUses[m.player_id][m.item].matches++;
+                playerUses[m.player_id][m.item].uses += m.uses;
+            }
+
+            for(const [player, items] of Object.entries(playerUses)){
+
+                for(const [item, data] of Object.entries(items)){
+
+                    await this.reducePlayerTotalsAlt(player, parseInt(item), data.uses, data.matches);
+                }
+            }
+
+            for(const [key, value] of Object.entries(uses)){
+
+                await this.reduceItemTotal(parseInt(key), value.uses, value.matches.length);
+            }
+
+            await this.deleteMatchesData(ids);
+
+        }catch(err){    
             console.trace(err);
         }
     }

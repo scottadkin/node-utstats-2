@@ -5,6 +5,8 @@ const CTF = require('./ctf');
 const Assault = require('./assault');
 const Domination = require('./domination');
 const Faces = require('./faces');
+const Headshots = require('./headshots');
+const Items = require('./items');
 
 class Gametypes{
 
@@ -724,7 +726,19 @@ class Gametypes{
             const faceManager = new Faces();
 
             await faceManager.deleteViaPlayerMatchesData(playersData);
-       
+
+
+            //DELETE GAMETYPE DATA HERE
+
+            //-------------------------
+
+            const headshotsManager = new Headshots();  
+            await headshotsManager.deleteMatches(matchIds);
+
+
+            const itemsManager = new Items();
+
+            await itemsManager.deleteMatches(matchIds);
 
 
         }catch(err){
