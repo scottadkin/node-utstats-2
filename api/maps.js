@@ -890,6 +890,56 @@ class Maps{
             console.trace(err);
         }
     }
+
+
+    async reducePlayerTotals(playerId, mapId, matches, playtime){
+
+        const query = "UPDATE nstats_player_maps SET matches=matches-?, playtime=playtime-? WHERE map=? AND player=?";
+        const vars = [matches, playtime, mapId, playerId];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async reducePlayersTotals(playerData){
+
+        try{
+
+            const stats = {};
+
+            let p = 0;
+
+            for(let i = 0; i < playerData.length; i++){
+
+                p = playerData[i];
+
+                if(stats[p.player_id] === undefined){
+                    stats[p.player_id] = {};
+                }
+
+                if(stats[p.player_id][p.map_id] === undefined){
+
+                    stats[p.player_id][p.map_id] = {
+                        "matches": 0,
+                        "playtime": 0
+                    };
+                }
+
+                stats[p.player_id][p.map_id].matches++;
+                stats[p.player_id][p.map_id].playtime += p.playtime;
+            }
+
+            for(const [player, maps] of Object.entries(stats)){
+
+                for(const [mapId, values] of Object.entries(maps)){
+
+                    await this.reducePlayerTotals(parseInt(player), parseInt(mapId), values.matches, values.playtime);
+                }
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 

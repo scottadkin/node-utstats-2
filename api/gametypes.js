@@ -765,6 +765,7 @@ class Gametypes{
             const mapsManager = new Maps();
 
             await mapsManager.reduceTotals(mapStats);
+            await mapsManager.reducePlayersTotals(playersData);
 
 
             const connectionsManager = new Connections();
@@ -775,9 +776,7 @@ class Gametypes{
 
             await pingManager.deleteMatches(matchIds);
 
-
-            await matchManager.deleteMatches(matchIds);
-            
+            await playerManager.deleteMatches(matchIds, playersData, gametypeId);
 
 
         }catch(err){
