@@ -2,6 +2,7 @@ const Promise = require('promise');
 const mysql = require('./database');
 const Message = require('./message');
 const CTF = require('./ctf');
+const Assault = require('./assault');
 
 class Gametypes{
 
@@ -27,6 +28,7 @@ class Gametypes{
 
                     resolve(result.insertId);
                 });
+
             }else{
                 reject("gametype name is undefined");
             }
@@ -665,7 +667,7 @@ class Gametypes{
 
 
 
-    async deleteAllData(gametypeId, matchManager, playerManager){
+    async deleteAllData(gametypeId, matchManager, playerManager, countriesManager){
 
         try{
 
@@ -673,29 +675,54 @@ class Gametypes{
             const playersData = await playerManager.getAllGametypeMatchData(gametypeId);
 
             const matchIds = [];
+            const mapMatches = {};
 
             let m = 0;
-
+            
             for(let i = 0; i < matches.length; i++){
 
                 m = matches[i];
 
                 matchIds.push(m.id);
 
+                if(mapMatches[m.map] === undefined){
+                    mapMatches[m.map] = 0;
+                }
+
+                mapMatches[m.map]++;
+
             }
+
+            const countryUses = countriesManager.countCountriesUses(playersData);
+
+            for(const [key, value] of Object.entries(countryUses)){
+                await countriesManager.reduceUses(key, value);
+            }
+
             
             console.log(matchIds);
+            console.log(mapMatches);
 
             console.log(`Trying to delete gametype ${gametypeId}`);
             console.log(`Found ${matches.length} matches to delete.`);
             console.log(`Found ${playersData.length} player data to delete.`);
 
 
+
+            const assaultManager = new Assault();
+
+            await assaultManager.deleteMatches(matchIds, mapMatches);
+
             const ctfManager = new CTF();
 
-            const ctfMatchIds = ctfManager.bAnyPlayerData(playersData);
+            //needed for ctf event tables
+            //const ctfMatchIds = ctfManager.bAnyPlayerData(playersData);
 
-            console.log(`CTF matches to delete ${ctfMatchIds}`);
+            //console.log(`CTF matches to delete ${ctfMatchIds}`);
+
+            //if(ctfMatchIds.length > 0){
+
+            //}
 
 
         }catch(err){

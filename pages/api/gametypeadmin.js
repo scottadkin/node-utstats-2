@@ -4,6 +4,7 @@ import Rankings from '../../api/rankings';
 import Winrate from '../../api/winrate';
 import Matches from '../../api/matches';
 import Players from '../../api/players';
+import CountriesManager from '../../api/countriesmanager';
 
 export default async (req, res) =>{
 
@@ -95,11 +96,12 @@ export default async (req, res) =>{
 
                 const matchManager = new Matches();
                 const playerManager = new Players();
+                const countriesManager = new CountriesManager();
 
    
                 
 
-                await gametypeManager.deleteAllData(gametypeId, matchManager, playerManager);
+                await gametypeManager.deleteAllData(gametypeId, matchManager, playerManager, countriesManager);
             }
 
             res.status(200).json({"message": "passed"});

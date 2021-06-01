@@ -396,6 +396,84 @@ class Assault{
             await mysql.simpleUpdate("UPDATE nstats_assault_match_objectives SET player=-1 WHERE player=?", [playerId]);
         }
     }
+
+
+    async getMatchesObjectiveCaps(ids){
+
+        if(ids.length === 0) return [];
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_assault_match_objectives WHERE match_id IN (?)", [ids]);
+    }
+
+    setMapObjCaps(objCaps){
+
+        const caps = {};
+
+        let o = 0;
+        
+        for(let i = 0; i < objCaps.length; i++){
+
+            o = objCaps[i];
+
+
+
+            if(caps[o.map] === undefined){
+                caps[o.map] = {};
+            }
+
+            if(caps[o.map][o.obj_id] === undefined){
+                caps[o.map][o.obj_id] = 0;
+            }
+
+            caps[o.map][o.obj_id]++;
+        }
+
+        return caps;
+    }
+
+    async reduceMapObjectiveCaps(map, objId, uses, matches){
+
+        const query = "UPDATE nstats_assault_objects SET matches=matches-?,taken=taken-? WHERE map=? AND obj_id=?";
+        const vars = [matches, uses, map, objId];
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async deleteMatchesCaps(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_assault_match_objectives WHERE match_id IN (?)", [ids]);
+    }
+
+    async deleteMatches(ids){
+
+        try{
+
+            if(ids.length === 0) return;
+
+            const query = "DELETE FROM nstats_assault_match_objectives WHERE match_id IN(?)";
+
+            //await mysql.simpleDelete(query, [ids]);
+            const objCaps = await this.getMatchesObjectiveCaps(ids);
+
+            const mapCaps = this.setMapObjCaps(objCaps);
+
+
+            for(const [mapId, ObjIds] of Object.entries(mapCaps)){
+
+                for(const [objId, caps] of Object.entries(ObjIds)){
+
+                    await this.reduceMapObjectiveCaps(mapId, objId, caps, caps);
+                }
+
+            }
+
+            await this.deleteMatchesCaps(ids);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = Assault;

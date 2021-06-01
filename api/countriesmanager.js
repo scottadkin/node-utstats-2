@@ -68,6 +68,27 @@ class CountriesManager{
             console.trace(err);
         }
     }
+
+    countCountriesUses(playerMatchData){
+
+        const uses = {};
+
+        let p = 0;
+
+        for(let i = 0; i < playerMatchData.length; i++){
+
+            p = playerMatchData[i];
+
+            if(uses[p.country] === undefined){
+                uses[p.country] = 0;
+            }
+            
+            uses[p.country]++;
+        }
+        
+
+        return uses;
+    }
 }
 
 module.exports = CountriesManager;
