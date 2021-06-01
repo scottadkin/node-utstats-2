@@ -85,6 +85,13 @@ class Kills{
 
         await mysql.simpleDelete("DELETE FROM nstats_kills WHERE (killer = ?) OR (victim = ?)", [player, player]);
     }
+
+    async deleteMatches(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_kills WHERE match_id IN (?)", [ids]);
+    }
 }
 
 module.exports = Kills;

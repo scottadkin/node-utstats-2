@@ -7,6 +7,11 @@ const Domination = require('./domination');
 const Faces = require('./faces');
 const Headshots = require('./headshots');
 const Items = require('./items');
+const Kills = require('./kills');
+const Logs = require('./logs');
+const Maps = require('./maps');
+const Connections = require('./connections');
+const Pings = require('./pings');
 
 class Gametypes{
 
@@ -680,6 +685,7 @@ class Gametypes{
 
             const matchIds = [];
             const mapMatches = {};
+            const mapStats = {};
 
             let m = 0;
             
@@ -695,6 +701,15 @@ class Gametypes{
 
                 mapMatches[m.map]++;
 
+                if(mapStats[m.map] === undefined){
+                    mapStats[m.map] = {
+                        "matches": 0,
+                        "playtime": 0
+                    };
+                }
+
+                mapStats[m.map].matches++;
+                mapStats[m.map].playtime += m.playtime;
             }
 
             const countryUses = countriesManager.countCountriesUses(playersData);
@@ -739,6 +754,30 @@ class Gametypes{
             const itemsManager = new Items();
 
             await itemsManager.deleteMatches(matchIds);
+
+
+            const killManager = new Kills();
+
+            await killManager.deleteMatches(matchIds);
+
+            await Logs.deleteMatches(matchIds);
+
+            const mapsManager = new Maps();
+
+            await mapsManager.reduceTotals(mapStats);
+
+
+            const connectionsManager = new Connections();
+
+            await connectionsManager.deleteMatches(matchIds);
+
+            const pingManager = new Pings();
+
+            await pingManager.deleteMatches(matchIds);
+
+
+            await matchManager.deleteMatches(matchIds);
+            
 
 
         }catch(err){

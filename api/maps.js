@@ -868,6 +868,28 @@ class Maps{
             console.trace(err);
         }
     }
+
+    async reduceTotal(mapId, playtime, matches){
+
+        const query = "UPDATE nstats_maps SET playtime=playtime-?, matches=matches-? WHERE id=?";
+        const vars = [playtime, matches, mapId];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async reduceTotals(mapStats){
+
+        try{
+
+            for(const [map, data] of Object.entries(mapStats)){
+
+                await this.reduceTotal(parseInt(map), data.playtime, data.matches);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 

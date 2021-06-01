@@ -90,6 +90,13 @@ class Pings{
     async deletePlayer(playerId){
         await mysql.simpleDelete("DELETE FROM nstats_match_pings WHERE player=?", [playerId]);
     }
+
+    async deleteMatches(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_match_pings WHERE match_id IN (?)", [ids]);
+    }
 }
 
 module.exports = Pings;

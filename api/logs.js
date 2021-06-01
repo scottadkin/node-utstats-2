@@ -80,6 +80,14 @@ class Logs{
             });
         });
     }
+
+
+    static async deleteMatches(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_logs WHERE match_id IN (?)", [ids]);
+    }
 }
 
 

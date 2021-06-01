@@ -81,6 +81,13 @@ class Connections{
 
         await mysql.simpleDelete("DELETE FROM nstats_match_connections WHERE player=?", [playerId]);
     }
+
+    async deleteMatches(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_match_connections WHERE match_id IN (?)", [ids]);
+    }
 }
 
 

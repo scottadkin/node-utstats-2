@@ -1302,6 +1302,35 @@ class Matches{
             return await mysql.simpleFetch("SELECT * FROM nstats_matches");
         }
     }
+
+    async deletePlayerScores(matchIds){
+
+        if(matchIds.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_match_player_score WHERE match_id IN (?)", [matchIds]);
+    }
+
+    async deleteTeamChanges(matchIds){
+
+        if(matchIds.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_match_team_changes WHERE match_id IN (?)", [matchIds]);
+    }
+
+
+    async deleteMatches(ids){
+
+        try{
+
+            if(ids.length === 0) return;
+
+            await this.deletePlayerScores(ids);
+            await this.deleteTeamChanges(ids);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
     
 }
 module.exports = Matches;
