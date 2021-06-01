@@ -715,6 +715,8 @@ class Gametypes{
 
             const ctfManager = new CTF();
 
+            await ctfManager.deleteMatches(matchIds);
+
             //needed for ctf event tables
             //const ctfMatchIds = ctfManager.bAnyPlayerData(playersData);
 

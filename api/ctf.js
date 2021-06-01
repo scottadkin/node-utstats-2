@@ -693,6 +693,35 @@ class CTF{
         return ctfMatchIds;
     }
 
+
+    async deleteMatchesCaps(ids){
+
+        if(ids.length === 0) return;
+        const query = "DELETE FROM nstats_ctf_caps WHERE match_id IN (?)";
+
+        await mysql.simpleDelete(query, [ids]);
+    }
+
+    async deleteMatchesEvents(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_ctf_events WHERE match_id IN (?)", [ids]);
+    }
+
+    async deleteMatches(ids){
+
+        try{
+
+            await this.deleteMatchesCaps(ids);
+            await this.deleteMatchesEvents(ids);
+
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
 }
 
 
