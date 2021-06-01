@@ -4,6 +4,7 @@ const Message = require('./message');
 const CTF = require('./ctf');
 const Assault = require('./assault');
 const Domination = require('./domination');
+const Faces = require('./faces');
 
 class Gametypes{
 
@@ -711,17 +712,18 @@ class Gametypes{
 
 
             const assaultManager = new Assault();
-
             await assaultManager.deleteMatches(matchIds, mapMatches);
 
             const ctfManager = new CTF();
-
             await ctfManager.deleteMatches(matchIds);
 
 
             const domManager = new Domination();
-
             await domManager.deleteMatches(matchIds);
+
+            const faceManager = new Faces();
+
+            await faceManager.deleteViaPlayerMatchesData(playersData);
        
 
 

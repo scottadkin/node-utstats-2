@@ -421,6 +421,42 @@ class Faces{
             console.trace(err);
         }
     }
+
+
+    async reduceUses(id, uses){
+
+        await mysql.simpleUpdate("UPDATE nstats_faces SET uses=uses-? WHERE id=?", [uses, id]);
+    }
+
+    async deleteViaPlayerMatchesData(playersData){
+
+        try{
+
+            const uses = {};
+
+            let p = 0;
+
+            for(let i = 0; i < playersData.length; i++){
+
+                p = playersData[i];
+
+                if(uses[p.face] === undefined){
+                    uses[p.face] = 0;
+                }
+
+                uses[p.face]++;
+            }
+
+
+            for(const [key, value] of Object.entries(uses)){
+
+                await this.reduceUses(parseInt(key), value);
+            }
+            
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = Faces;
