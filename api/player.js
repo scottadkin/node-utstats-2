@@ -77,6 +77,12 @@ class Player{
         });
     }
 
+    async setPlayerMasterId(name, gametype, id){
+
+        await mysql.simpleUpdate("UPDATE nstats_player_totals SET player_id=? WHERE name=? AND gametype=?", 
+            [id, name, gametype]
+        );
+    }
  
     async getNameId(name, gametype, bCreate){
 
@@ -86,7 +92,11 @@ class Player{
             
             
             if(id === null){
+
                 id = await this.createNameIdQuery(name, 0);
+
+                //only need for gametype 0, otherwise player totals for gametype 0 is always 0
+                await this.setPlayerMasterId(name, 0, id.id);
             }
 
             let idGametype = await this.getNameIdQuery(name, gametype);
