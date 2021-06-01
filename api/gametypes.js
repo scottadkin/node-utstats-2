@@ -1,6 +1,7 @@
 const Promise = require('promise');
 const mysql = require('./database');
 const Message = require('./message');
+const CTF = require('./ctf');
 
 class Gametypes{
 
@@ -655,6 +656,47 @@ class Gametypes{
             await winrateManager.changeGametypeId(oldId, newId);
 
             await winrateManager.recalculateGametype(newId);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+
+
+    async deleteAllData(gametypeId, matchManager, playerManager){
+
+        try{
+
+            const matches = await matchManager.getAll(gametypeId);
+            const playersData = await playerManager.getAllGametypeMatchData(gametypeId);
+
+            const matchIds = [];
+
+            let m = 0;
+
+            for(let i = 0; i < matches.length; i++){
+
+                m = matches[i];
+
+                matchIds.push(m.id);
+
+            }
+            
+            console.log(matchIds);
+
+            console.log(`Trying to delete gametype ${gametypeId}`);
+            console.log(`Found ${matches.length} matches to delete.`);
+            console.log(`Found ${playersData.length} player data to delete.`);
+
+
+            const ctfManager = new CTF();
+
+            const ctfMatchIds = ctfManager.bAnyPlayerData(playersData);
+
+            console.log(`CTF matches to delete ${ctfMatchIds}`);
+
 
         }catch(err){
             console.trace(err);

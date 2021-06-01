@@ -2,6 +2,8 @@ import Session from '../../api/session';
 import Gametypes from '../../api/gametypes';
 import Rankings from '../../api/rankings';
 import Winrate from '../../api/winrate';
+import Matches from '../../api/matches';
+import Players from '../../api/players';
 
 export default async (req, res) =>{
 
@@ -75,6 +77,29 @@ export default async (req, res) =>{
                 await gametypeManager.merge(oldId, newId, rankingManager, winrateManager);
 
                 
+            }else if(mode === "delete"){
+
+                console.log(`delete gametype`);
+
+                let gametypeId = parseInt(req.body.gametypeDelete);
+
+                if(gametypeId !== gametypeId){
+                    res.status(200).json({"message": "Gametype id must be a valid integer."});
+                    return;
+                }
+
+                if(gametypeId < 1){
+                    res.status(200).json({"message": "Gametype id must be a positive integer."});
+                    return;
+                }
+
+                const matchManager = new Matches();
+                const playerManager = new Players();
+
+   
+                
+
+                await gametypeManager.deleteAllData(gametypeId, matchManager, playerManager);
             }
 
             res.status(200).json({"message": "passed"});

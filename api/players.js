@@ -1054,6 +1054,11 @@ class Players{
             console.trace(err);
         }
     }
+
+    async getAllGametypeMatchData(gametypeId){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE gametype=?", [gametypeId]);
+    }
 }
 
 

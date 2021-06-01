@@ -1288,6 +1288,20 @@ class Matches{
         return obj;
     }
     
+
+    /**
+     * 
+     * @param {*} gametypeId if 0 get every single match else only get with gametypeID
+     * @returns 
+     */
+    async getAll(gametypeId){
+
+        if(gametypeId !== 0){
+            return await mysql.simpleFetch("SELECT * FROM nstats_matches WHERE gametype=?",[gametypeId]);
+        }else{
+            return await mysql.simpleFetch("SELECT * FROM nstats_matches");
+        }
+    }
     
 }
 module.exports = Matches;

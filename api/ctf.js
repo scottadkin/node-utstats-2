@@ -657,6 +657,42 @@ class CTF{
         }
     }
 
+
+    bAnyPlayerData(playersMatchData){
+
+        const ctfTypes = [
+            'flag_assist',           'flag_return',
+            'flag_taken',            'flag_dropped',           'flag_capture',
+            'flag_pickup',           'flag_seal',              'flag_cover',
+            'flag_cover_pass',       'flag_cover_fail',        'flag_self_cover',
+            'flag_self_cover_pass',  'flag_self_cover_fail',   'flag_multi_cover',
+            'flag_spree_cover',      'flag_cover_best',        'flag_self_cover_best',
+            'flag_kill',             'flag_save',              'flag_carry_time',
+        ];
+
+        const ctfMatchIds = [];
+
+        let p = 0;
+
+        for(let i = 0; i < playersMatchData.length; i++){
+
+            p = playersMatchData[i];
+
+            for(let x = 0; x < ctfTypes.length; x++){
+
+                if(p[ctfTypes[x]] !== 0){
+
+                    if(ctfMatchIds.indexOf(p.match_id) === -1){
+                        ctfMatchIds.push(p.match_id);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return ctfMatchIds;
+    }
+
 }
 
 
