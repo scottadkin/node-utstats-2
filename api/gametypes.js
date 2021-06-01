@@ -3,6 +3,7 @@ const mysql = require('./database');
 const Message = require('./message');
 const CTF = require('./ctf');
 const Assault = require('./assault');
+const Domination = require('./domination');
 
 class Gametypes{
 
@@ -717,14 +718,11 @@ class Gametypes{
 
             await ctfManager.deleteMatches(matchIds);
 
-            //needed for ctf event tables
-            //const ctfMatchIds = ctfManager.bAnyPlayerData(playersData);
 
-            //console.log(`CTF matches to delete ${ctfMatchIds}`);
+            const domManager = new Domination();
 
-            //if(ctfMatchIds.length > 0){
-
-            //}
+            await domManager.deleteMatches(matchIds);
+       
 
 
         }catch(err){

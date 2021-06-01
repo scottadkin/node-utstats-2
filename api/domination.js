@@ -460,6 +460,78 @@ class Domination{
             console.trace(err);
         }
     }
+
+    async getMatchesCaps(ids){
+
+        if(ids.length === 0) return;
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_dom_match_caps WHERE match_id IN (?)", [ids]);
+    }
+
+
+    async reduceCapsAlt(id, amount, matches){
+
+        await mysql.simpleUpdate("UPDATE nstats_dom_control_points SET captured=captured-?, matches=matches-? WHERE id=?",[amount, matches, id]);
+    }
+
+    async deleteMatchesCaps(ids){
+
+        if(ids.length === 0) return;
+        await mysql.simpleDelete("DELETE FROM nstats_dom_match_caps WHERE match_id IN (?)",[ids]);
+    }
+
+    async deleteMatchesControlPoints(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_dom_match_control_points WHERE match_id IN (?)", [ids]);
+    }
+
+    async deleteMatchesPlayerScores(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_dom_match_player_score WHERE match_id IN (?)", [ids]);
+    }
+
+    async deleteMatches(ids){
+
+        try{
+
+            const matchCaps = await this.getMatchesCaps(ids);
+
+            const pointCaps = {};
+
+            let m = 0;
+
+            for(let i = 0; i < matchCaps.length; i++){
+
+                m = matchCaps[i];
+
+                if(pointCaps[m.point] === undefined){
+                    pointCaps[m.point] = {"matches": [], "caps": 0}
+                }
+
+                if(pointCaps[m.point].matches.indexOf(m.match_id) === -1){
+                    pointCaps[m.point].matches.push(m.match_id);
+                }
+
+                pointCaps[m.point].caps++;
+            }
+
+            for(const [key, value] of Object.entries(pointCaps)){
+
+                await this.reduceCapsAlt(key, value.caps, value.matches.length);
+            }
+            
+            await this.deleteMatchesCaps(ids);
+            await this.deleteMatchesControlPoints(ids);
+            await this.deleteMatchesPlayerScores(ids);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 
