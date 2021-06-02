@@ -647,9 +647,13 @@ class Player{
 
             const ips = await this.getAllIps(id);
 
-            const ids = await this.getIdsWithThisIp(ips);
+            if(ips.length > 0){
 
-            return await this.getPlayerNames(ids);
+                const ids = await this.getIdsWithThisIp(ips);
+                return await this.getPlayerNames(ids);
+            }
+
+            return [];
 
         }catch(err){
             console.trace(err);

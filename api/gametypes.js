@@ -177,7 +177,7 @@ class Gametypes{
 
         return new Promise((resolve, reject) =>{
 
-            if(ids.length === 0) resolve();
+            if(ids.length === 0) resolve({});
 
             const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
 
