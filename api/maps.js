@@ -436,7 +436,9 @@ class Maps{
                 if(err) reject(err);
 
                 if(result !== undefined){
-                    resolve({"match": result[0].id, "playtime": result[0].playtime});
+                    if(result.length > 0){
+                        resolve({"match": result[0].id, "playtime": result[0].playtime});
+                    }
                 }
 
                 resolve({"match": -1, "playtime": -1});
