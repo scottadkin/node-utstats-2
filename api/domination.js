@@ -463,7 +463,7 @@ class Domination{
 
     async getMatchesCaps(ids){
 
-        if(ids.length === 0) return;
+        if(ids.length === 0) return [];
 
         return await mysql.simpleFetch("SELECT * FROM nstats_dom_match_caps WHERE match_id IN (?)", [ids]);
     }

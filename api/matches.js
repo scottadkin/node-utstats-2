@@ -1317,6 +1317,12 @@ class Matches{
         await mysql.simpleDelete("DELETE FROM nstats_match_team_changes WHERE match_id IN (?)", [matchIds]);
     }
 
+    async deleteMultiple(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_matches WHERE id IN (?)", [ids]);
+    }
 
     async deleteMatches(ids){
 
@@ -1326,6 +1332,7 @@ class Matches{
 
             await this.deletePlayerScores(ids);
             await this.deleteTeamChanges(ids);
+            await this.deleteMultiple(ids);
 
         }catch(err){
             console.trace(err);

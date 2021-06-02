@@ -1162,6 +1162,14 @@ class Players{
         await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE gametype=?", [id]);
     }
 
+    async deletePlayerMatchesData(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_player_matches WHERE match_id IN (?)", [ids]);
+
+    }
+
     async deleteMatches(matchIds, playersData, gametypeId){
 
         try{
@@ -1267,6 +1275,7 @@ class Players{
                 await this.reducePlayerGametypeTotals(0, playerId, data);
             }
 
+            await this.deletePlayerMatchesData(matchIds);
 
 
         }catch(err){

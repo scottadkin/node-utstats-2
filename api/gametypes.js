@@ -680,6 +680,10 @@ class Gametypes{
 
 
 
+    async delete(id){
+        await mysql.simpleDelete("DELETE FROM nstats_gametypes WHERE id=?", [id]);
+    }
+
 
     async deleteAllData(gametypeId, matchManager, playerManager, countriesManager){
 
@@ -687,6 +691,7 @@ class Gametypes{
 
             const matches = await matchManager.getAll(gametypeId);
             const playersData = await playerManager.getAllGametypeMatchData(gametypeId);
+
 
             const matchIds = [];
             const mapMatches = {};
@@ -743,6 +748,7 @@ class Gametypes{
                     playerIds.push(p.player_id);
                 }
             }
+            
 
             const countryUses = countriesManager.countCountriesUses(playersData);
 
@@ -751,12 +757,12 @@ class Gametypes{
             }
 
             
-            console.log(matchIds);
-            console.log(mapMatches);
+           // console.log(matchIds);
+            //console.log(mapMatches);
 
-            console.log(`Trying to delete gametype ${gametypeId}`);
-            console.log(`Found ${matches.length} matches to delete.`);
-            console.log(`Found ${playersData.length} player data to delete.`);
+            //console.log(`Trying to delete gametype ${gametypeId}`);
+            //console.log(`Found ${matches.length} matches to delete.`);
+            //console.log(`Found ${playersData.length} player data to delete.`);
 
 
 
@@ -773,11 +779,6 @@ class Gametypes{
             const faceManager = new Faces();
 
             await faceManager.deleteViaPlayerMatchesData(playersData);
-
-
-            //DELETE GAMETYPE DATA HERE
-
-            //-------------------------
 
             const headshotsManager = new Headshots();  
             await headshotsManager.deleteMatches(matchIds);
@@ -830,6 +831,11 @@ class Gametypes{
             const winrateManager = new Winrate();
 
             await winrateManager.deleteMatches(matchIds, gametypeId, playerIds);
+
+
+            await matchManager.deleteMatches(matchIds);
+
+            await this.delete(gametypeId);
 
         }catch(err){
             console.trace(err);
