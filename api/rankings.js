@@ -1012,6 +1012,21 @@ class Rankings{
             console.trace(err);
         }
     }
+
+
+    async deleteGametype(gametypeId){
+
+        try{
+
+
+            await mysql.simpleDelete("DELETE FROM nstats_ranking_player_current WHERE gametype=?", [gametypeId]);
+            await mysql.simpleDelete("DELETE FROM nstats_ranking_player_history WHERE gametype=?", [gametypeId]);
+
+        }catch(err){
+            console.trace(err);
+        }
+
+    }
 }
 
 

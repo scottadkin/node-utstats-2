@@ -13,6 +13,7 @@ const Maps = require('./maps');
 const Connections = require('./connections');
 const Pings = require('./pings');
 const Weapons = require('./weapons');
+const Rankings = require('./rankings');
 
 class Gametypes{
 
@@ -688,6 +689,8 @@ class Gametypes{
             const mapMatches = {};
             const mapStats = {};
 
+            const playerIds = [];
+
             let m = 0;
             
             for(let i = 0; i < matches.length; i++){
@@ -711,6 +714,18 @@ class Gametypes{
 
                 mapStats[m.map].matches++;
                 mapStats[m.map].playtime += m.playtime;
+            }
+
+
+            let p = 0;
+
+            for(let i = 0; i < playersData.length; i++){
+
+                p = playersData[i];
+
+                if(playerIds.indexOf(p.player_id) === -1){
+                    playerIds.push(p.player_id);
+                }
             }
 
             const countryUses = countriesManager.countCountriesUses(playersData);
@@ -783,6 +798,10 @@ class Gametypes{
             const weaponsManager = new Weapons();
 
             await weaponsManager.deleteMatches(gametypeId, matchIds);
+
+            const rankingsManager = new Rankings();
+
+            await rankingsManager.deleteGametype(gametypeId);
 
 
         }catch(err){
