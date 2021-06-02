@@ -18,6 +18,7 @@ import Players from '../api/players';
 import AdminGametypeManager from '../components/AdminGametypeManager/';
 import Gametypes from '../api/gametypes'
 import AdminRankingManager from '../components/AdminRankingManager/';
+import Rankings from '../api/rankings';
 
 class Admin extends React.Component{
 
@@ -363,7 +364,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 7) return null;
 
-        return <AdminRankingManager names={this.props.gametypeNames}/>
+        return <AdminRankingManager names={this.props.gametypeNames} events={this.props.rankingEvents}/>
     }
 
     displayPlayersManager(){
@@ -467,6 +468,7 @@ export async function getServerSideProps({req, query}){
     let duplicateMatches = [];
     let playerNames = [];
     let gametypeNames = [];
+    let rankingEvents = [];
 
     if(bUserAdmin){
 
@@ -501,6 +503,10 @@ export async function getServerSideProps({req, query}){
 
         gametypeNames = await gametypeManager.getAll();
 
+        const rankingManager = new Rankings();
+
+        rankingEvents = await rankingManager.getFullValues();
+
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -523,7 +529,8 @@ export async function getServerSideProps({req, query}){
             "faceFiles": JSON.stringify(faceFiles),
             "duplicateMatches": JSON.stringify(duplicateMatches),
             "playerNames": JSON.stringify(playerNames),
-            "gametypeNames": JSON.stringify(gametypeNames)
+            "gametypeNames": JSON.stringify(gametypeNames),
+            "rankingEvents": JSON.stringify(rankingEvents)
         }
     };
 }

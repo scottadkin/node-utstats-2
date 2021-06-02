@@ -30,6 +30,11 @@ class Rankings{
         });
     }
 
+    async getFullValues(){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_ranking_values");
+    }
+
     setRankingSettings(){
 
         return new Promise((resolve, reject) =>{

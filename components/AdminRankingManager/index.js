@@ -7,9 +7,22 @@ class AdminRankingManager extends React.Component{
 
         super(props);
 
-        this.state = {"gametypes": JSON.parse(this.props.names), "bPassed": false, "errors": [], "inProgress": false};
+        this.state = {
+            "gametypes": JSON.parse(this.props.names), 
+            "events": JSON.parse(this.props.events),
+            "mode": 1, 
+            "bPassed": false, 
+            "errors": [], 
+            "inProgress": false
+        };
 
         this.performAction = this.performAction.bind(this);
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+
+    changeMode(id){
+        this.setState({"mode": id});
     }
 
 
@@ -110,7 +123,7 @@ class AdminRankingManager extends React.Component{
         if(!this.state.bPassed){
 
             if(errors.length === 0) return null;
-            
+
             const errorElems = [];
 
             for(let i = 0; i < errors.length; i++){
@@ -134,7 +147,13 @@ class AdminRankingManager extends React.Component{
 
     renderActions(){
 
+        if(this.state.mode !== 0) return;
+
         return <div>
+            <div className="default-header">
+                    Select a gametype to update
+                </div>
+
             <form className="form" action="/" method="POST" onSubmit={this.performAction}>
                 <div className="form-info">
                     Recalculate rankings will set all player rankings for that gametype to 0 then go through all match data for players of that gametype and set them to their correct values.<br/>
@@ -143,10 +162,7 @@ class AdminRankingManager extends React.Component{
 
                 {this.renderErrors()}
 
-                <div className="default-header">
-                    Select a gametype to update
-                </div>
-
+                
                 <div className="select-row">
                     <div className="select-label">
                         Gametype
@@ -173,12 +189,55 @@ class AdminRankingManager extends React.Component{
         </div>
     }
 
+
+    renderEvents(){
+
+        if(this.state.mode !== 1) return null;
+
+        const rows = [];
+
+        let e = 0;
+
+        for(let i = 0; i < this.state.events.length; i++){
+
+            e = this.state.events[i];
+
+            rows.push(<tr key={i}>
+                <td>{e.display_name}</td>
+                <td>{e.value}</td>
+                <td>{e.value}</td>
+            </tr>);
+        }
+
+        return <div>
+            <div className="default-header">Change Ranking Event values</div>
+            <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>Event</th>
+                        <th>Current Points per Event</th>
+                        <th>New Points Per Event</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Manage Rankings</div>
-
+            <div className="tabs m-bottom-25">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Recalculate/Delete</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}  onClick={(() =>{
+                    this.changeMode(1);
+                })}>Change Event Values</div>
+            </div>
             {this.renderActions()}
+            {this.renderEvents()}
         </div>
     }
 }
