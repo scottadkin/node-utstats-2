@@ -65,6 +65,8 @@ class AdminGametypeManager extends React.Component{
 
                 if(res.message === "passed"){
                     this.setState({"bFailedDelete": false, "deleteInProgress": false});
+
+                    this.removeGametype(gametypeId);
                 }else{
                     errors.push(res.message);
                 }
@@ -78,6 +80,26 @@ class AdminGametypeManager extends React.Component{
         }catch(err){
             console.trace(err);
         }
+    }
+
+
+    removeGametype(id){
+
+        const newGametypes = [];
+
+
+        let d = 0;
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            d = this.state.data[i];
+
+            if(d.id !== id){
+                newGametypes.push(d);
+            }
+        }
+
+        this.setState({"data": newGametypes});
     }
 
     changeMode(id){
