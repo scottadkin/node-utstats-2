@@ -415,6 +415,16 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	color:white;
 }
 
+.default-textarea{
+	background-color:var(--color-1);
+	font-size:14px;
+	font-weight:300;
+	padding:5px;
+	border:1px solid var(--border-color-1);
+	margin-bottom:10px;
+	color:white;
+}
+
 .search-button{
 	display:block;
 	width:290px;

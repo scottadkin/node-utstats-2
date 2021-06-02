@@ -18,8 +18,65 @@ class AdminRankingManager extends React.Component{
 
         this.performAction = this.performAction.bind(this);
         this.changeMode = this.changeMode.bind(this);
+
+        this.updateEventDescription = this.updateEventDescription.bind(this);
+        this.updateEventValue = this.updateEventValue.bind(this);
     }
 
+    updateEventDescription(e){
+
+        console.log(e.target[0]);
+
+        const reg = /(.+?)-(.+)/i;
+
+        const result = reg.exec(e.target.id);
+
+        if(result !== null){
+
+        }
+    }
+
+    updateEventValue(e){
+
+        const newEvents = [];
+
+        const reg = /(.+?)-(.+)/i;
+
+        const result = reg.exec(e.target.id);
+
+        if(result !== null){
+
+
+            const eventId = parseInt(result[2]);
+
+            let d = 0;
+
+            for(let i = 0; i < this.state.events.length; i++){
+
+                d = this.state.events[i];
+
+                if(d.id === eventId){
+
+
+                    newEvents.push({
+                        "id": d.id,
+                        "description": d.description,
+                        "display_name": d.display_name,
+                        "name": d.name,
+                        "value": e.target.value
+
+                    });
+
+                }else{
+                    newEvents.push(d);
+                }
+
+            }
+
+
+            this.setState({"events": newEvents});
+        }
+    }
 
     changeMode(id){
         this.setState({"mode": id});
@@ -204,8 +261,12 @@ class AdminRankingManager extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{e.display_name}</td>
-                <td>{e.value}</td>
-                <td>{e.value}</td>
+                <td>
+                    <textarea style={{"width": "90%","minHeight": "50px"}} className="default-textarea" id={`desc-${e.id}`} defaultValue={e.description}></textarea>
+                </td>
+                <td>
+                    <input type="number" className="default-textbox" value={e.value} id={`value-${e.id}`} onChange={this.updateEventValue}/>
+                </td>
             </tr>);
         }
 
@@ -215,8 +276,8 @@ class AdminRankingManager extends React.Component{
                 <tbody>
                     <tr>
                         <th>Event</th>
-                        <th>Current Points per Event</th>
-                        <th>New Points Per Event</th>
+                        <th>Description</th>
+                        <th>Points Per Event</th>
                     </tr>
                     {rows}
                 </tbody>
