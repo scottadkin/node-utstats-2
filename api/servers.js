@@ -317,6 +317,25 @@ class Servers{
             });
         });
     }
+
+    async reduceTotals(id, matches, playtime){
+
+        await mysql.simpleUpdate("UPDATE nstats_servers SET matches=matches-?, playtime=playtime-? WHERE id=?",[matches, playtime, id]);
+    }
+
+    async reduceMultipleTotals(data){
+
+        try{
+
+            for(const [server, stats] of Object.entries(data)){
+
+                await this.reduceTotals(parseInt(server), stats.matches, stats.playtime);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = Servers;

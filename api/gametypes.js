@@ -14,6 +14,9 @@ const Connections = require('./connections');
 const Pings = require('./pings');
 const Weapons = require('./weapons');
 const Rankings = require('./rankings');
+const Servers = require('./servers');
+const Voices = require('./voices');
+const Winrate = require('./winrate');
 
 class Gametypes{
 
@@ -688,6 +691,7 @@ class Gametypes{
             const matchIds = [];
             const mapMatches = {};
             const mapStats = {};
+            const serverStats = {};
 
             const playerIds = [];
 
@@ -714,7 +718,19 @@ class Gametypes{
 
                 mapStats[m.map].matches++;
                 mapStats[m.map].playtime += m.playtime;
+
+                if(serverStats[m.server] === undefined){
+
+                    serverStats[m.server] = {
+                        "matches": 0,
+                        "playtime": 0
+                    };
+                }
+
+                serverStats[m.server].matches++;
+                serverStats[m.server].playtime+=m.playtime;
             }
+
 
 
             let p = 0;
@@ -803,6 +819,17 @@ class Gametypes{
 
             await rankingsManager.deleteGametype(gametypeId);
 
+            const serverManager = new Servers();
+
+            await serverManager.reduceMultipleTotals(serverStats);
+
+            const voiceManager = new Voices();
+            
+            await voiceManager.reduceViaPlayerMatchData(playersData);
+
+            const winrateManager = new Winrate();
+
+            await winrateManager.deleteMatches(matchIds, gametypeId, playerIds);
 
         }catch(err){
             console.trace(err);

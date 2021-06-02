@@ -177,19 +177,13 @@ class Voices{
     }
 
 
-    reduceTotals(id, amount){
+    async reduceTotals(id, amount){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_voices SET uses=uses-? WHERE id=?";
+        const vars = [amount, id];
 
-            const query = "UPDATE nstats_voices SET uses=uses-? WHERE id=?";
-
-            mysql.query(query, [amount, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        await mysql.simpleUpdate(query, vars);
+   
     }
 
 
@@ -216,6 +210,35 @@ class Voices{
             for(const [key, value] of Object.entries(uses)){
 
                 await this.reduceTotals(parseInt(key), value);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async reduceViaPlayerMatchData(data){
+
+        try{
+
+            const uses = {};
+
+            let d = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                if(uses[d.voice] === undefined){
+                    uses[d.voice] = 0;
+                }
+
+                uses[d.voice]++;
+            }
+
+            for(const [voice, count] of Object.entries(uses)){
+
+                await this.reduceTotals(parseInt(voice), count);
             }
 
         }catch(err){
