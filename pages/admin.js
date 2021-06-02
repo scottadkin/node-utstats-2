@@ -17,13 +17,14 @@ import AdminPlayersManager from '../components/AdminPlayersManager/';
 import Players from '../api/players';
 import AdminGametypeManager from '../components/AdminGametypeManager/';
 import Gametypes from '../api/gametypes'
+import AdminRankingManager from '../components/AdminRankingManager/';
 
 class Admin extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"mode": 6, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
+        this.state = {"mode": 7, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
@@ -358,6 +359,13 @@ class Admin extends React.Component{
     }
 
 
+    displayRanking(){
+
+        if(this.state.mode !== 7) return null;
+
+        return <AdminRankingManager names={this.props.gametypeNames}/>
+    }
+
     displayPlayersManager(){
 
         if(this.state.mode !== 5) return null
@@ -404,6 +412,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 6) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(6);
                             })}>Manage Gametypes</div>
+                            <div className={`big-tab ${(this.state.mode === 7) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(7);
+                            })}>Manage Rankings</div>
                             <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(1);
                             })}>Map Image Uploader</div>
@@ -420,6 +431,7 @@ class Admin extends React.Component{
                         {this.displayMatches()}
                         {this.displayPlayersManager()}
                         {this.displayGametypeManager()}
+                        {this.displayRanking()}
                     </div>   
                 </div>
 

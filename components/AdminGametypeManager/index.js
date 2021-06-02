@@ -8,7 +8,7 @@ class AdminGametypeManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 2, 
+            "mode": 0, 
             "data": JSON.parse(this.props.data), 
             "bFailedRename": null, 
             "renameErrors": [],

@@ -548,3 +548,18 @@ input[type="range"]{
 	color:rgb(100,100,100);
 	font-style:italic;
 }
+
+.button{
+	padding:5px;
+	border:1px solid var(--border-color-1);
+	background-color:var(--color-1);
+	user-select: none;
+	transition:all 0.5s;
+	color:white;
+}
+
+.button:hover{
+	background-color:var(--color-2);
+	cursor:pointer;
+	
+}

@@ -10,7 +10,7 @@ class AdminUserTable extends React.Component{
 
         super(props);
 
-        this.state = {"accounts": JSON.parse(this.props.accounts), "mode": 3};
+        this.state = {"accounts": JSON.parse(this.props.accounts), "mode": 0};
 
         this.changeMode = this.changeMode.bind(this);
         this.activateUser = this.activateUser.bind(this);

@@ -7,7 +7,7 @@ class AdminPlayersManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 2, 
+            "mode": 0, 
             "playerNames": JSON.parse(this.props.playerNames), 
             "nameErrors": [], 
             "namePassed": false, 
