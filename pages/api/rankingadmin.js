@@ -1,4 +1,5 @@
 import Session from '../../api/session';
+import Rankings from '../../api/rankings';
 
 export default async (req, res) =>{
 
@@ -12,25 +13,43 @@ export default async (req, res) =>{
         if(await session.bUserAdmin()){
 
             let gametypeId = parseInt(req.body.gametypeId);
-            let mode = req.body.mode;
+            let mode = parseInt(req.body.mode);
 
-            if(gametypeId === gametypeId){
+            if(mode === mode){
+
+                if(gametypeId === gametypeId){
 
 
-                if(gametypeId > 0){
+                    if(gametypeId > 0){
 
-                    console.log(`gametypeId = ${gametypeId}, mode = ${mode}`);
-                    res.status(200).json({"message": "passed"});
-                    return;
+                        const rankingManager = new Rankings();
+
+                        if(mode === 0){
+
+                            await rankingManager.recalculateGametypeRankings(gametypeId);
+
+                        }else if(mode === 1){
+
+                            await rankingManager.deleteGametype(gametypeId);
+                        }
+
+
+                        console.log(`gametypeId = ${gametypeId}, mode = ${mode}`);
+                        res.status(200).json({"message": "passed"});
+                        return;
+
+                    }else{
+
+                        res.status(200).json({"message": "Gametype must be a positive integer."});
+                    }
 
                 }else{
 
-                    res.status(200).json({"message": "Gametype must be a positive integer."});
+                    res.status(200).json({"message": "Gametype must a valid integer."});
                 }
-
             }else{
 
-                res.status(200).json({"message": "Gametype must a valid integer."});
+                res.status(200).json({"message": "Mode must be a valid interger."});
             }
 
         }else{
