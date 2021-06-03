@@ -6,11 +6,12 @@ class AdminRankingManager extends React.Component{
     constructor(props){
 
         super(props);
+        
 
         this.state = {
             "gametypes": JSON.parse(this.props.names), 
-            "events": JSON.parse(this.props.events),
-            "previousSavedEvents": JSON.parse(this.props.events),
+            "events": this.props.events,
+            "previousSavedEvents": this.props.events,
             "mode": 1, 
             "bPassed": false, 
             "errors": [], 
@@ -270,6 +271,38 @@ class AdminRankingManager extends React.Component{
 
     }
 
+    getChangedValues(){
+
+
+        const changed = [];
+
+        const oldData = this.state.previousSavedEvents;
+        const newData = this.state.events;
+
+        let bCurrentChanged = false;
+
+        for(let i = 0; i < newData.length; i++){
+
+            bCurrentChanged = false;
+
+            if(newData[i].description !== oldData[i].description) bCurrentChanged = true;
+            if(parseFloat(newData[i].value) !== parseFloat(oldData[i].value)) bCurrentChanged = true;
+
+            if(bCurrentChanged){
+
+                changed.push(
+                    {
+                        "id": newData[i].id,
+                        "description": newData[i].description,
+                        "value": newData[i].value
+                    }
+                );
+            }
+
+        }
+
+        return changed;
+    }
 
     async saveChanges(){
 
@@ -277,11 +310,25 @@ class AdminRankingManager extends React.Component{
 
             this.setState({"saveInProgress": true});
 
-            setTimeout(() =>{
+     
 
-                
-                this.setState({"previousSavedEvents": this.state.events, "saveInProgress": false, "savePassed": true});
-            }, 2000);
+            const changedData = this.getChangedValues();
+
+            console.table(changedData);
+            
+            this.setState({"previousSavedEvents": this.state.events, "saveInProgress": false, "savePassed": true});
+
+
+            const req = await fetch("/api/rankingadmin", {
+                "headers": {"Content-Type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "values", "data": changedData})
+            });
+
+
+            const result = await req.json();
+           
+            console.log(result);
 
         }catch(err){
             console.trace(err);
@@ -299,7 +346,7 @@ class AdminRankingManager extends React.Component{
                     Ranking value changes where updated successfully.
                 </div>
             }
-            
+
             return null;    
         }
 
@@ -345,6 +392,10 @@ class AdminRankingManager extends React.Component{
         }
 
         return <div>
+            <div className="team-red center t-width-1 p-bottom-25 m-top-25">
+                <div className="default-header">Important</div>
+                If you have already imported matches before making changes to event values you will have to recalculate the rankings using the tab above.
+            </div>
             {this.renderUnsavedChanges()}
             <div className="default-header">Change Ranking Event values</div>
             <table className="t-width-1">

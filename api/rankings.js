@@ -1030,7 +1030,28 @@ class Rankings{
         }catch(err){
             console.trace(err);
         }
+    }
 
+
+    async updateEvent(id, description, value){
+
+        try{
+
+            id = parseInt(id);
+            value = parseFloat(value);
+
+            if(value === value){
+
+                await mysql.simpleUpdate("UPDATE nstats_ranking_values SET description=?,value=? WHERE id=?", [description, value, id]);
+
+            }else{
+                console.log("Value must be a valid float");
+                return;
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 }
 

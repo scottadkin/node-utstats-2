@@ -12,44 +12,76 @@ export default async (req, res) =>{
 
         if(await session.bUserAdmin()){
 
+            const rankingManager = new Rankings();
+
             let gametypeId = parseInt(req.body.gametypeId);
-            let mode = parseInt(req.body.mode);
+            let mode = req.body.mode;
 
-            if(mode === mode){
+            if(mode === "values"){
 
-                if(gametypeId === gametypeId){
+                const values = req.body.data;
+
+                if(values !== undefined){
+
+                    console.log("change values");
+
+                    console.table(values);
+
+                    let v = 0;
+
+                    for(let i = 0; i < values.length; i++){
+
+                        v = values[i];
+
+                        await rankingManager.updateEvent(v.id, v.description, v.value);
+                    }
+
+                    res.status(200).json({"message": "passed"});
+
+                }else{
+                    res.status(200).json({"message": "Values are not set"});
+                }
+
+                
+
+            }else{
+
+                mode = parseInt(mode);
+
+                if(mode === mode){
+
+                    if(gametypeId === gametypeId){
 
 
-                    if(gametypeId > 0){
+                        if(gametypeId > 0){
 
-                        const rankingManager = new Rankings();
+                            if(mode === 0){
 
-                        if(mode === 0){
+                                await rankingManager.recalculateGametypeRankings(gametypeId);
 
-                            await rankingManager.recalculateGametypeRankings(gametypeId);
+                            }else if(mode === 1){
 
-                        }else if(mode === 1){
+                                await rankingManager.deleteGametype(gametypeId);
+                            }
 
-                            await rankingManager.deleteGametype(gametypeId);
+
+                            console.log(`gametypeId = ${gametypeId}, mode = ${mode}`);
+                            res.status(200).json({"message": "passed"});
+                            return;
+
+                        }else{
+
+                            res.status(200).json({"message": "Gametype must be a positive integer."});
                         }
-
-
-                        console.log(`gametypeId = ${gametypeId}, mode = ${mode}`);
-                        res.status(200).json({"message": "passed"});
-                        return;
 
                     }else{
 
-                        res.status(200).json({"message": "Gametype must be a positive integer."});
+                        res.status(200).json({"message": "Gametype must a valid integer."});
                     }
-
                 }else{
 
-                    res.status(200).json({"message": "Gametype must a valid integer."});
+                    res.status(200).json({"message": "Mode must be a valid interger."});
                 }
-            }else{
-
-                res.status(200).json({"message": "Mode must be a valid interger."});
             }
 
         }else{

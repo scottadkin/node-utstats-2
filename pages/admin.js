@@ -25,7 +25,12 @@ class Admin extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"mode": 7, "files": [], "mapFiles": JSON.parse(this.props.mapFiles)};
+        this.state = {
+            "mode": 7, 
+            "files": [], 
+            "mapFiles": JSON.parse(this.props.mapFiles),
+            "rankingEvents": JSON.parse(this.props.rankingEvents)
+        };
 
         this.changeMode = this.changeMode.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
@@ -364,7 +369,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 7) return null;
 
-        return <AdminRankingManager names={this.props.gametypeNames} events={this.props.rankingEvents}/>
+        return <AdminRankingManager names={this.props.gametypeNames} events={this.state.rankingEvents}/>
     }
 
     displayPlayersManager(){
