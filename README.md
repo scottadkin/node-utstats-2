@@ -63,10 +63,10 @@ The site contains many tools to allow you to change what is displayed and what u
 ## Map image uploader
 - On map pages admins and users with the correct permissions can upload a new image to be show in screenshots for that map.
 - Bulk map image uploader, upload many at once file names must be manually set.
-- Individual map image uploader, select the file uploader next to the map name to upload an image that is automatically named.
+- Individual map image uploader, select the fi,le uploader next to the map name to upload an image that is automatically named.
 
 ## Face image uploader
-- Bulk face image uploader, upload many at once file names must be manually set.
+- Bulk face image uploader, upload many at once, file names must be manually set.
 - Individual face image uploader, select the file uploader next to the face name to upload an image that is automatically named.
 
 ## Home Settings

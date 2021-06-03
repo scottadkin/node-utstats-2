@@ -513,7 +513,6 @@ export async function getServerSideProps({req, query}){
 
     console.log(`Is this user an admin ${bUserAdmin}`);
 
-    
 
     
     return {

@@ -10,10 +10,13 @@ class AdminRankingManager extends React.Component{
         this.state = {
             "gametypes": JSON.parse(this.props.names), 
             "events": JSON.parse(this.props.events),
+            "previousSavedEvents": JSON.parse(this.props.events),
             "mode": 1, 
             "bPassed": false, 
             "errors": [], 
-            "inProgress": false
+            "inProgress": false,
+            "saveInProgress": false,
+            "savePassed": null
         };
 
         this.performAction = this.performAction.bind(this);
@@ -21,6 +24,7 @@ class AdminRankingManager extends React.Component{
 
         this.updateEventDescription = this.updateEventDescription.bind(this);
         this.updateEventValue = this.updateEventValue.bind(this);
+        this.saveChanges = this.saveChanges.bind(this);
     }
 
     updateEventDescription(e){
@@ -247,6 +251,76 @@ class AdminRankingManager extends React.Component{
     }
 
 
+    bAnyChanges(){
+
+
+        const newData = this.state.events;
+        const oldData = this.state.previousSavedEvents;
+
+
+
+        for(let i = 0; i < newData.length; i++){
+
+            if(newData[i].description !== oldData[i].description) return true;
+            if(parseFloat(newData[i].value) !== parseFloat(oldData[i].value)) return true;
+            
+        }
+
+        return false;
+
+    }
+
+
+    async saveChanges(){
+
+        try{
+
+            this.setState({"saveInProgress": true});
+
+            setTimeout(() =>{
+
+                
+                this.setState({"previousSavedEvents": this.state.events, "saveInProgress": false, "savePassed": true});
+            }, 2000);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    renderUnsavedChanges(){
+
+        if(!this.bAnyChanges()){
+
+            if(this.state.savePassed){
+
+                return <div className="team-green center t-width-1 p-bottom-25 m-top-25">
+                    <div className="default-header">Passed</div>
+                    Ranking value changes where updated successfully.
+                </div>
+            }
+            
+            return null;    
+        }
+
+        if(this.state.saveInProgress){
+
+            return <div className="team-yellow center t-width-1 p-bottom-25 m-top-25">
+                <div className="default-header">Processing</div>
+                Save in progress please wait...
+            </div>
+        }
+        
+
+        
+
+        return <div className="team-red center t-width-1 p-bottom-25 m-top-25">
+            <div className="default-header">Warning</div>
+            You have unsaved changes please save them before going to another page.
+            <div className="search-button m-top-25" onClick={this.saveChanges}>Save Changes</div>
+        </div>
+    }
+
     renderEvents(){
 
         if(this.state.mode !== 1) return null;
@@ -271,6 +345,7 @@ class AdminRankingManager extends React.Component{
         }
 
         return <div>
+            {this.renderUnsavedChanges()}
             <div className="default-header">Change Ranking Event values</div>
             <table className="t-width-1">
                 <tbody>
@@ -282,6 +357,7 @@ class AdminRankingManager extends React.Component{
                     {rows}
                 </tbody>
             </table>
+            {this.renderUnsavedChanges()}
         </div>
     }
 
