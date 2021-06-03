@@ -9,7 +9,7 @@ class AdminRankingManager extends React.Component{
         
 
         this.state = {
-            "gametypes": JSON.parse(this.props.names), 
+            "gametypes": this.props.names, 
             "events": this.props.events,
             "previousSavedEvents": this.props.events,
             "mode": 1, 
@@ -30,13 +30,47 @@ class AdminRankingManager extends React.Component{
 
     updateEventDescription(e){
 
-        console.log(e.target[0]);
+       // console.log(e.target);
 
         const reg = /(.+?)-(.+)/i;
 
         const result = reg.exec(e.target.id);
+        const value = e.target.value;
 
         if(result !== null){
+
+            console.log(result);
+
+            console.log(`set description of ${result[2]} to ${value}`);
+
+            const eventId = parseInt(result[2]);
+
+            const newEvents = [];
+
+            let d = 0;
+
+            for(let i = 0; i < this.state.events.length; i++){
+
+                d = this.state.events[i];
+
+                if(d.id === eventId){
+
+                    newEvents.push({
+                        "id": d.id,
+                        "description": value,
+                        "display_name": d.display_name,
+                        "name": d.name,
+                        "value": d.value
+
+                    });
+
+                }else{
+                    newEvents.push(d);
+                }
+
+            }
+
+            this.setState({"events": newEvents});
 
         }
     }
@@ -316,7 +350,7 @@ class AdminRankingManager extends React.Component{
 
             console.table(changedData);
             
-            this.setState({"previousSavedEvents": this.state.events, "saveInProgress": false, "savePassed": true});
+            
 
 
             const req = await fetch("/api/rankingadmin", {
@@ -327,6 +361,14 @@ class AdminRankingManager extends React.Component{
 
 
             const result = await req.json();
+
+            if(result.message === "passed"){
+                this.props.updateParentRankingValues(this.state.events);
+                this.setState({"previousSavedEvents": this.state.events, "saveInProgress": false, "savePassed": true});
+            }else{
+
+                this.setState({"saveInProgress": false, "savePassed": false});
+            }
            
             console.log(result);
 
@@ -380,10 +422,15 @@ class AdminRankingManager extends React.Component{
 
             e = this.state.events[i];
 
+            //<textarea value={this.state.value} onChange={this.handleChange} />
             rows.push(<tr key={i}>
                 <td>{e.display_name}</td>
                 <td>
-                    <textarea style={{"width": "90%","minHeight": "50px"}} className="default-textarea" id={`desc-${e.id}`} defaultValue={e.description}></textarea>
+                    <textarea style={{"width": "90%","minHeight": "50px"}} className="default-textarea" id={`desc-${e.id}`} 
+                    defaultValue={this.state.events[i].description}
+                    onChange={this.updateEventDescription}
+                    
+                    />
                 </td>
                 <td>
                     <input type="number" className="default-textbox" value={e.value} id={`value-${e.id}`} onChange={this.updateEventValue}/>

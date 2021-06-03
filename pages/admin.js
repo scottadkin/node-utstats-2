@@ -29,6 +29,7 @@ class Admin extends React.Component{
             "mode": 7, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
+            "gametypeNames": JSON.parse(this.props.gametypeNames),
             "rankingEvents": JSON.parse(this.props.rankingEvents)
         };
 
@@ -36,6 +37,19 @@ class Admin extends React.Component{
         this.uploadImage = this.uploadImage.bind(this);
         this.onChange = this.onChange.bind(this);
         this.uploadSingleMap = this.uploadSingleMap.bind(this);
+        this.setRankingEvents = this.setRankingEvents.bind(this);
+        this.setGametypeNames = this.setGametypeNames.bind(this);
+    }
+
+    setRankingEvents(data){
+
+        this.setState({"rankingEvents": data});
+        
+    }
+
+    setGametypeNames(data){
+        console.log(`UPDATE GAMETYPENAMES`);
+        this.setState({"gametypeNames": data});
     }
 
     async uploadSingleMap(e, name, id){
@@ -369,7 +383,8 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 7) return null;
 
-        return <AdminRankingManager names={this.props.gametypeNames} events={this.state.rankingEvents}/>
+        return <AdminRankingManager names={this.state.gametypeNames}
+        updateParentRankingValues={this.setRankingEvents} events={this.state.rankingEvents}/>
     }
 
     displayPlayersManager(){
@@ -382,7 +397,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 6) return null;
 
-        return <AdminGametypeManager data={this.props.gametypeNames}/>
+        return <AdminGametypeManager data={this.state.gametypeNames} updateParentGametypeNames={this.setGametypeNames}/>
     }
 
     render(){

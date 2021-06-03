@@ -9,7 +9,7 @@ class AdminGametypeManager extends React.Component{
 
         this.state = {
             "mode": 0, 
-            "data": JSON.parse(this.props.data), 
+            "data": this.props.data, 
             "bFailedRename": null, 
             "renameErrors": [],
             "bFailedMerge": null,
@@ -67,6 +67,8 @@ class AdminGametypeManager extends React.Component{
                     this.setState({"bFailedDelete": false, "deleteInProgress": false});
 
                     this.removeGametype(gametypeId);
+
+                    this.props.updateParentGametypeNames(this.state.data);
                 }else{
                     errors.push(res.message);
                 }
@@ -171,6 +173,7 @@ class AdminGametypeManager extends React.Component{
 
                     this.updateGametypeList(gametypeId, newName);
                     this.setState({"bFailedRename": false, "renameErrors": []});
+                    this.props.updateParentGametypeNames(this.state.data);
                 }
 
             }
