@@ -31,11 +31,45 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 
 
-## Admin Control Panel
+# Admin Tools
+The site contains many tools to allow you to change what is displayed and what users can do.
 
-## Site Settings
+## User account tools
+- De/Activate user.
+- Give user admin permissions, or just allow them to upload map images.
+- Ban user accounts.
+- View all(shows generic information about user accounts)
 
-# Home Settings
+## Match tools
+- On every match page there is a block at the bottom of the page that will allow you to delete the map, and or delete players from the match.
+- Delete duplicate match imports, deletes all duplicate matches in one click.
+
+## Player tools
+- Rename player.
+- Merge two players.
+- Delete player.
+
+## Gametype tools
+- Rename gametype.
+- Merge two gametypes.
+- Delete gametype.
+
+
+## Ranking tools
+- Recalculate gametype rankings.
+- Delete gametype rankings.
+- Change ranking event values.
+
+## Map image uploader
+- On map pages admins and users with the correct permissions can upload a new image to be show in screenshots for that map.
+- Bulk map image uploader, upload many at once file names must be manually set.
+- Individual map image uploader, select the file uploader next to the map name to upload an image that is automatically named.
+
+## Face image uploader
+- Bulk face image uploader, upload many at once file names must be manually set.
+- Individual face image uploader, select the file uploader next to the face name to upload an image that is automatically named.
+
+## Home Settings
 - Display Addicted Players
 - Display Most Played Gametypes
 - Display Most Played Maps
@@ -47,7 +81,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - Recent Matches Display Type
 - Recent Matches To Display
 
-# Individual Map Pages settings
+## Individual Map Pages settings
 - Display Addicted Players
 - Display Control Points (Domination)
 - Display Games Played
@@ -60,11 +94,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - Max Longest Matches
 - Recent Matches Per Page
 
-# Map seach page settings
+## Map seach page settings
 - Default Display Per Page
 - Default Display Type
 
-# Match pages settings
+## Match pages settings
 - Display Assault Summary
 - Display Capture The Flag Caps
 - Display Capture The Flag Graphs
@@ -87,12 +121,12 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - Display Team Changes
 - Display Weapon Statistics
 
-# Match search page settings
+## Match search page settings
 - Default Display Per Page
 - Default Display Type
 - Default Gametype
 
-# Navigation settings
+## Navigation settings
 - Display Admin
 - Display Home
 - Display Login/Logout
@@ -102,7 +136,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - Display Rankings
 - Display Records
 
-# Player profile page settings
+## Player profile page settings
 - Default Recent Matches Display
 - Default Weapon Display
 - Display Assault & Domination
@@ -119,16 +153,16 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - Display Weapon Stats
 - Recent Matches Per Page
 
-# Player search page settings
+## Player search page settings
 - Default Display Per Page
 - Default Display Type
 - Default Order
 - Default Sort Type
 
-# Ranking page settings
+## Ranking page settings
 - Rankings Per Gametype (Main)
 - Rankings Per Page (Individual)
 
-# Records page settings
+## Records page settings
 - Default Per Page
 - Default Record Type
