@@ -12,7 +12,7 @@ class AdminRankingManager extends React.Component{
             "gametypes": this.props.names, 
             "events": this.props.events,
             "previousSavedEvents": this.props.events,
-            "mode": 1, 
+            "mode": 0, 
             "bPassed": false, 
             "errors": [], 
             "inProgress": false,

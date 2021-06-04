@@ -30,9 +30,9 @@ class Items{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?,1,0)";
+            const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?,?,1,0)";
 
-            mysql.query(query, [name, date, date, uses], (err) =>{
+            mysql.query(query, [name, name, date, date, uses], (err) =>{
 
                 if(err) reject(err);
 
@@ -670,6 +670,12 @@ class Items{
         }catch(err){    
             console.trace(err);
         }
+    }
+
+
+    async getAll(){
+
+        return await mysql.simpleFetch("SELECT * FROM nstats_items ORDER BY name ASC");
     }
 }
 

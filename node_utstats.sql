@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 02, 2021 at 07:16 PM
+-- Generation Time: Jun 04, 2021 at 05:46 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 7.4.19
 
@@ -224,6 +224,7 @@ CREATE TABLE `nstats_headshots` (
 CREATE TABLE `nstats_items` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
+  `display_name` varchar(100) NOT NULL,
   `first` int(11) NOT NULL,
   `last` int(11) NOT NULL,
   `uses` int(11) NOT NULL,

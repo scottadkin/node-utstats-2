@@ -19,18 +19,22 @@ import AdminGametypeManager from '../components/AdminGametypeManager/';
 import Gametypes from '../api/gametypes'
 import AdminRankingManager from '../components/AdminRankingManager/';
 import Rankings from '../api/rankings';
+import AdminPickupsManager from '../components/AdminPickupsManager/';
+import Items from '../api/items';
 
 class Admin extends React.Component{
 
     constructor(props){
 
         super(props);
+
         this.state = {
-            "mode": 7, 
+            "mode": 8, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
-            "rankingEvents": JSON.parse(this.props.rankingEvents)
+            "rankingEvents": JSON.parse(this.props.rankingEvents),
+            "itemList": JSON.parse(this.props.itemList)
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -39,6 +43,11 @@ class Admin extends React.Component{
         this.uploadSingleMap = this.uploadSingleMap.bind(this);
         this.setRankingEvents = this.setRankingEvents.bind(this);
         this.setGametypeNames = this.setGametypeNames.bind(this);
+        this.setItemList = this.setItemList.bind(this);
+    }
+
+    setItemList(data){
+        this.setState({"itemList": data});
     }
 
     setRankingEvents(data){
@@ -400,6 +409,13 @@ class Admin extends React.Component{
         return <AdminGametypeManager data={this.state.gametypeNames} updateParentGametypeNames={this.setGametypeNames}/>
     }
 
+    displayPickupsManager(){
+
+        if(this.state.mode !== 8) return null;
+
+        return <AdminPickupsManager data={this.state.itemList} updateParentList={this.setItemList}/>
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -436,6 +452,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 7) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(7);
                             })}>Manage Rankings</div>
+                            <div className={`big-tab ${(this.state.mode === 8) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(8);
+                            })}>Manage Pickups</div>
                             <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(1);
                             })}>Map Image Uploader</div>
@@ -453,6 +472,7 @@ class Admin extends React.Component{
                         {this.displayPlayersManager()}
                         {this.displayGametypeManager()}
                         {this.displayRanking()}
+                        {this.displayPickupsManager()}
                     </div>   
                 </div>
 
@@ -489,6 +509,7 @@ export async function getServerSideProps({req, query}){
     let playerNames = [];
     let gametypeNames = [];
     let rankingEvents = [];
+    let itemList = [];
 
     if(bUserAdmin){
 
@@ -527,6 +548,10 @@ export async function getServerSideProps({req, query}){
 
         rankingEvents = await rankingManager.getFullValues();
 
+        const itemManager = new Items();
+
+        itemList = await itemManager.getAll();
+
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -549,7 +574,8 @@ export async function getServerSideProps({req, query}){
             "duplicateMatches": JSON.stringify(duplicateMatches),
             "playerNames": JSON.stringify(playerNames),
             "gametypeNames": JSON.stringify(gametypeNames),
-            "rankingEvents": JSON.stringify(rankingEvents)
+            "rankingEvents": JSON.stringify(rankingEvents),
+            "itemList": JSON.stringify(itemList)
         }
     };
 }
