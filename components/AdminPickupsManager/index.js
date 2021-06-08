@@ -19,17 +19,76 @@ class AdminPickupsManager extends React.Component{
         this.saveChanges = this.saveChanges.bind(this);
     }
 
-    saveChanges(){
 
-        this.setState({"saveInProgress": true, "savePassed": null, "errors": []});
+    getChangedSettings(){
+
+        const changed = [];
+
+        const newItems = this.state.items;
+
+        const oldItems = this.state.previousSavedItems;
+
+        for(let x = 0; x < newItems.length; x++){
+
+            if(newItems[x].display_name !== oldItems[x].display_name){
+
+                changed.push(
+                    {
+                        "id": newItems[x].id,
+                        "display_name": newItems[x].display_name,
+                        "type": newItems[x].type,
+
+                    }
+                );
+
+            }else if(newItems[x].type !== oldItems[x].type){
+
+                changed.push({
+                    
+                    "id": newItems[x].id,
+                    "display_name": newItems[x].display_name,
+                    "type": newItems[x].type
+                });
+            }
 
 
-        const errors = [];
+        }
 
-        setTimeout(() =>{
-            
-            this.setState({"previousSavedItems": this.state.items, "saveInProgress": false, "savePassed": false, "errors": errors});
-        }, 750);
+        return changed;
+    }
+
+    async saveChanges(){
+
+        try{
+
+            this.setState({"saveInProgress": true, "savePassed": null, "errors": []});
+
+
+            const errors = [];
+
+            const changed = this.getChangedSettings();
+
+
+
+            const req = await fetch("/api/adminitems", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"data": changed})
+            });
+
+            const result = await req.json();
+
+
+            if(result.message === "passed"){
+
+                this.setState({"previousSavedItems": this.state.items, "saveInProgress": false, "savePassed": true, "errors": []});
+            }else{
+                this.setState({"saveInProgress": false, "savePassed": false, "errors": errors});
+            }
+           
+        }catch(err){
+            console.trace(err);
+        }
 
     }
 
@@ -44,7 +103,6 @@ class AdminPickupsManager extends React.Component{
             const id = parseInt(result[1]);
             const value = e.target.value;
 
-            console.log(`set item ${id} to ${value}`);
 
             this.updateItemList(id, value, true);
         }
@@ -56,8 +114,6 @@ class AdminPickupsManager extends React.Component{
         const reg = /^.+_(.+?)$/i;
 
         const result = reg.exec(e.target.id);
-
-        console.log(result);
 
         if(result !== null){
 

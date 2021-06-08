@@ -677,6 +677,32 @@ class Items{
 
         return await mysql.simpleFetch("SELECT * FROM nstats_items ORDER BY name ASC");
     }
+
+    async updateEntry(id, displayName, type){
+
+        const query = "UPDATE nstats_items SET display_name=?,type=? WHERE id=?";
+        const vars = [displayName, type, id];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async adminUpdateEntries(data){
+
+        try{
+
+            let d = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                await this.updateEntry(d.id, d.display_name, d.type);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 }
 
 module.exports = Items;
