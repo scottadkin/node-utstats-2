@@ -16,8 +16,6 @@ export default async (req, res) =>{
 
             const data = req.body.data;
 
-            console.log(data);
-
             const itemManager = new Items();
 
             await itemManager.adminUpdateEntries(data);

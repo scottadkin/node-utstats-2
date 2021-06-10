@@ -21,6 +21,7 @@ import AdminRankingManager from '../components/AdminRankingManager/';
 import Rankings from '../api/rankings';
 import AdminPickupsManager from '../components/AdminPickupsManager/';
 import Items from '../api/items';
+import AdminWeaponImageUploader from '../components/AdminWeaponImageUploader/'
 
 class Admin extends React.Component{
 
@@ -29,7 +30,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 8, 
+            "mode": 9, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
@@ -416,6 +417,13 @@ class Admin extends React.Component{
         return <AdminPickupsManager data={this.state.itemList} updateParentList={this.setItemList}/>
     }
 
+    displayWeaponImageUploader(){
+
+        if(this.state.mode !== 9) return null;
+
+        return <AdminWeaponImageUploader />
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -461,6 +469,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(3);
                             })}>Face Image Uploader</div>
+                            <div className={`big-tab ${(this.state.mode === 9) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(9);
+                            })}>Weapon Image Uploader</div>
                             
                         </div>
                         {this.displaySettings()}
@@ -473,6 +484,7 @@ class Admin extends React.Component{
                         {this.displayGametypeManager()}
                         {this.displayRanking()}
                         {this.displayPickupsManager()}
+                        {this.displayWeaponImageUploader()}
                     </div>   
                 </div>
 
