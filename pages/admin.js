@@ -21,7 +21,8 @@ import AdminRankingManager from '../components/AdminRankingManager/';
 import Rankings from '../api/rankings';
 import AdminPickupsManager from '../components/AdminPickupsManager/';
 import Items from '../api/items';
-import AdminWeaponImageUploader from '../components/AdminWeaponImageUploader/'
+import AdminWeaponImageUploader from '../components/AdminWeaponImageUploader/';
+import Weapons from '../api/weapons';
 
 class Admin extends React.Component{
 
@@ -35,7 +36,8 @@ class Admin extends React.Component{
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "rankingEvents": JSON.parse(this.props.rankingEvents),
-            "itemList": JSON.parse(this.props.itemList)
+            "itemList": JSON.parse(this.props.itemList),
+            "weaponData": JSON.parse(this.props.weaponData)
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -421,7 +423,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 9) return null;
 
-        return <AdminWeaponImageUploader />
+        return <AdminWeaponImageUploader data={this.state.weaponData}/>
     }
 
     render(){
@@ -522,6 +524,11 @@ export async function getServerSideProps({req, query}){
     let gametypeNames = [];
     let rankingEvents = [];
     let itemList = [];
+    let weaponData = {
+        "names": [],
+        "files": []
+    };
+
 
     if(bUserAdmin){
 
@@ -564,6 +571,11 @@ export async function getServerSideProps({req, query}){
 
         itemList = await itemManager.getAll();
 
+        const weaponManager = new Weapons();
+
+        weaponData.names = await weaponManager.getAllNames();
+        weaponData.files = await weaponManager.getImageList();
+
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -587,7 +599,8 @@ export async function getServerSideProps({req, query}){
             "playerNames": JSON.stringify(playerNames),
             "gametypeNames": JSON.stringify(gametypeNames),
             "rankingEvents": JSON.stringify(rankingEvents),
-            "itemList": JSON.stringify(itemList)
+            "itemList": JSON.stringify(itemList),
+            "weaponData": JSON.stringify(weaponData)
         }
     };
 }
