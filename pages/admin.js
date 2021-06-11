@@ -52,7 +52,6 @@ class Admin extends React.Component{
 
     updateWeaponData(file){
 
-        file = `${file}.png`;
 
         const newFiles = [file];
 

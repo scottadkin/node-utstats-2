@@ -10,7 +10,10 @@ class AdminWeaponImageUploader extends React.Component{
         this.state = {
             "singleUploadInProgress": false,
             "singleFailed": null,
-            "singleErrors": []
+            "singleErrors": [],
+            "multiUploadInProgress": false,
+            "multiFailed": null,
+            "multiErrors": []
         };
 
         this.uploadFiles = this.uploadFiles.bind(this);
@@ -51,7 +54,7 @@ class AdminWeaponImageUploader extends React.Component{
                     errors.push(result.message);
                 }else{
                     this.setState({"singleFailed": false, "singleErrors": [], "singleUploadInProgress": false});
-                    this.props.updateParent(name);
+                    this.props.updateParent(`${name}.png`);
                     return;
                 }
 
@@ -67,32 +70,65 @@ class AdminWeaponImageUploader extends React.Component{
             console.trace(err);
         }
     }
+
     async uploadFiles(e){
 
         try{
 
             e.preventDefault();
 
+            const errors = [];
 
-            const formData = new FormData();
+            const names = [];
 
-            for(let i = 0; i < e.target[0].files.length; i++){
+            this.setState({"multiFailed": null, "multiErrors": [], "multiUploadInProgress": true});
 
-               formData.append("files",e.target[0].files[i]);
+            if(e.target[0].files.length > 0){
+
+
+                const formData = new FormData();
+
+                for(let i = 0; i < e.target[0].files.length; i++){
+
+                    names.push(e.target[0].files[i].name);
+                    formData.append("files",e.target[0].files[i]);
+                }
+
+                console.log(names);
+
+                formData.append("single", false);
+                
+                //console.log(formData);
+
+                const req = await fetch("/api/adminweaponimageuploader", {
+                    "method": "POST",
+                    "body": formData
+                });
+
+                const result = await req.json();
+
+                if(result.message === "passed"){
+
+                    this.setState({"multiFailed": false, "multiErrors": [], "multiUploadInProgress": false});
+
+                    for(let i = 0; i < names.length; i++){
+                        this.props.updateParent(names[i]);
+                    }
+                    return;
+
+                }else{
+
+                    errors.push(result.message);
+                }
+
+            }else{
+
+                errors.push("You have not selected any files to upload.");
             }
 
-            formData.append("single", false);
+
+            this.setState({"multiFailed": true, "multiErrors": errors, "multiUploadInProgress": false});
             
-            //console.log(formData);
-
-            const req = await fetch("/api/adminweaponimageuploader", {
-                "method": "POST",
-                "body": formData
-            });
-
-            const result = await req.json();
-
-            console.log(result);
 
         }catch(err){
             console.trace(err);
@@ -210,12 +246,46 @@ class AdminWeaponImageUploader extends React.Component{
         }
     }
 
+    renderMultiNotification(){
+
+        const errors = [];
+
+        if(this.state.multiFailed === true){
+
+            for(let i = 0; i < this.state.multiErrors.length; i++){
+
+                errors.push(this.state.multiErrors[i]);
+            }
+
+            return <div className="team-red p-bottom-25 m-top-25 t-width-1 center">
+                <div className="default-header">Multi File Upload Failed</div>
+                {errors}
+            </div>;
+
+        }else if(this.state.multiFailed === false){
+
+            return <div className="team-green p-bottom-25 m-top-25 t-width-1 center">
+                <div className="default-header">Multi File Upload Passed</div>
+                Image uploads were successful.
+            </div>;
+
+        }
+
+        if(this.state.multiUploadInProgress){
+            return <div className="team-yellow p-bottom-25 m-top-25 t-width-1 center">
+                <div className="default-header">Multi Upload In Progress</div>
+                Uploading please wait....
+            </div>;
+        }
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Weapon Image Uploader</div>
 
             <div className="default-header">Bulk Image Uploader</div>
+            {this.renderMultiNotification()}
             <form action="/" className="form" method="POST" onSubmit={this.uploadFiles} encType="multipart/form-data">
                 <div className="form-info">
                     Upload multiple images at once, file type must be png, names are not set for bulk uploading, they are however cleaned to work with the naming scheme(all lower case, no spaces).
