@@ -8,17 +8,58 @@ class AdminWeaponImageUploader extends React.Component{
         super(props);
 
         this.uploadFiles = this.uploadFiles.bind(this);
+        this.uploadSingle = this.uploadSingle.bind(this);
 
-        console.table(props.data.files);
     }
 
+    async uploadSingle(e){
+
+        try{
+
+            e.preventDefault();
+
+            console.log("WOOF IM A GHORSE");
+
+            console.log(e.target[0]);
+
+            console.log(e.target[0].files);
+
+            if(e.target[0].files.length > 0){
+
+                const name = e.target[0].name;
+                const file = e.target[0].files[0]
+
+                console.log(`name = ${name}`);
+
+                const formData = new FormData();
+
+                formData.append("single", "true");
+                formData.append("name", name);
+                formData.append("file", file);
+
+                const req = await fetch("/api/adminweaponimageuploader", {
+                    "method": "POST",
+                    "body": formData
+                });
+
+                const result = await req.json();
+
+                console.log(result);
+
+            }else{
+                console.log("No file selected");
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
     async uploadFiles(e){
 
         try{
 
             e.preventDefault();
 
-            console.log(e.target[0].files);
 
             const formData = new FormData();
 
@@ -45,21 +86,23 @@ class AdminWeaponImageUploader extends React.Component{
         }
     }
 
-    fileExists(name){
+    fixFileName(name){
 
         name = name.toLowerCase();
-        name = name.replace(/ /ig, "");
+        return name.replace(/ /ig, "");
+        
+    }
+
+    fileExists(name){
+
+        name = this.fixFileName(name);
         name = `${name}.png`;
 
         let f = 0;
 
-        console.log(`looking for file ${name}`);
-
         for(let i = 0; i < this.props.data.files.length; i++){
 
             f = this.props.data.files[i];
-
-            console.log(`${name} === ${f}`);
 
             if(f === name) return true;
           
@@ -96,13 +139,18 @@ class AdminWeaponImageUploader extends React.Component{
             rows.push(<tr key={i}>
                 <td>{w.name}</td>
                 <td className={statusClassName}>{statusString}</td>
-                <td><input type="file" accept=".png"/></td>
+                <td>
+                    <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.uploadSingle}>
+                        <input type="file" accept=".png" name={this.fixFileName(w.name)} />
+                        <input type="submit" value="Upload"/>
+                    </form>
+                </td>
             </tr>);
         }
 
         return <div>
             <div className="default-header">Single Uploads</div>
-            <table className="t-width-2">
+            <table className="t-width-1">
                 <tbody>
                     <tr>
                         <th>Weapon Name</th>

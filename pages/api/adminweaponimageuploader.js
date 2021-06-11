@@ -18,7 +18,10 @@ export default async(req, res) =>{
     if(await session.bUserAdmin()){
 
         const files = [];
-        const TARGET_DIR = "./public/images/weapons/"
+        const TARGET_DIR = "./public/images/weapons/";
+
+        let singleFileName = "";
+        let bSingleUpload = false;
 
         const form = new formidable.IncomingForm({
             "uploadDir": "./uploads",
@@ -31,13 +34,20 @@ export default async(req, res) =>{
             //console.log(files);
             console.log(fields);
 
+            if(fields.single === "true"){
+
+                console.log("ONLY ONE FILE");
+
+                singleFileName = fields.name;
+                bSingleUpload = true;
+            }
+
             if(err){
                 res.status(200).json({"message": err});
                 return;
-            }else{
-                
-                console.log(fields);
             }
+
+
         });
 
         form.onPart =  function(part){
@@ -60,6 +70,8 @@ export default async(req, res) =>{
            // console.log(name);
             //console.log(file);
 
+            console.log("name");
+
             let newName = file.name;
 
             newName = newName.replace(/ /ig, "");
@@ -75,10 +87,14 @@ export default async(req, res) =>{
 
         form.on("end", () =>{
 
-            for(let i = 0; i < files.length; i++){
+            if(!bSingleUpload){
 
-                fs.renameSync(files[i].path, `${TARGET_DIR}${files[i].name}`);
-                
+                for(let i = 0; i < files.length; i++){
+                    fs.renameSync(files[i].path, `${TARGET_DIR}${files[i].name}`);    
+                }
+
+            }else{
+                fs.renameSync(files[0].path, `${TARGET_DIR}${singleFileName}.png`);
             }
 
             res.status(200).json({"message": "passed"});
