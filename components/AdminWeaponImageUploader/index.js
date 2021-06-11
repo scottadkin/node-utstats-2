@@ -7,6 +7,12 @@ class AdminWeaponImageUploader extends React.Component{
 
         super(props);
 
+        this.state = {
+            "singleUploadInProgress": false,
+            "singleFailed": null,
+            "singleErrors": []
+        };
+
         this.uploadFiles = this.uploadFiles.bind(this);
         this.uploadSingle = this.uploadSingle.bind(this);
 
@@ -18,18 +24,14 @@ class AdminWeaponImageUploader extends React.Component{
 
             e.preventDefault();
 
-            console.log("WOOF IM A GHORSE");
+            const errors = []
 
-            console.log(e.target[0]);
-
-            console.log(e.target[0].files);
+            this.setState({"singleFailed": null, "singleErrors": [], "singleUploadInProgress": true});
 
             if(e.target[0].files.length > 0){
 
                 const name = e.target[0].name;
                 const file = e.target[0].files[0]
-
-                console.log(`name = ${name}`);
 
                 const formData = new FormData();
 
@@ -44,11 +46,22 @@ class AdminWeaponImageUploader extends React.Component{
 
                 const result = await req.json();
 
-                console.log(result);
+
+                if(result.message !== "passed"){
+                    errors.push(result.message);
+                }else{
+                    this.setState({"singleFailed": false, "singleErrors": [], "singleUploadInProgress": false});
+                    this.props.updateParent(name);
+                    return;
+                }
+
+            
 
             }else{
-                console.log("No file selected");
+                errors.push("You have not selected a file to upload...");
             }
+
+            this.setState({"singleFailed": true, "singleErrors": errors, "singleUploadInProgress": false});
 
         }catch(err){
             console.trace(err);
@@ -163,6 +176,40 @@ class AdminWeaponImageUploader extends React.Component{
         </div>
     }
 
+
+    renderSingleNotification(){
+
+        const errors = [];
+
+        if(this.state.singleFailed === true){
+
+            for(let i = 0; i < this.state.singleErrors.length; i++){
+
+                errors.push(this.state.singleErrors[i]);
+            }
+
+            return <div className="team-red p-bottom-25 m-top-25 t-width-1 center">
+                <div className="default-header">Single Upload Failed</div>
+                {errors}
+            </div>;
+
+        }else if(this.state.singleFailed === false){
+
+            return <div className="team-green p-bottom-25 m-top-25 t-width-1 center">
+                <div className="default-header">Single Upload Passed</div>
+                Image upload was successful
+            </div>;
+
+        }
+
+        if(this.state.singleUploadInProgress){
+            return <div className="team-yellow p-bottom-25 m-top-25 t-width-1 center">
+                <div className="default-header">Single Upload In Progress</div>
+                Uploading please wait....
+            </div>;
+        }
+    }
+
     render(){
 
         return <div>
@@ -177,6 +224,7 @@ class AdminWeaponImageUploader extends React.Component{
                 <input type="submit" className="search-button" value="Upload Files"/>
             </form>
 
+            {this.renderSingleNotification()}
             {this.renderSingleUploads()}
         </div>
     }

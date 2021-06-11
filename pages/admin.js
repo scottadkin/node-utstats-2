@@ -47,6 +47,27 @@ class Admin extends React.Component{
         this.setRankingEvents = this.setRankingEvents.bind(this);
         this.setGametypeNames = this.setGametypeNames.bind(this);
         this.setItemList = this.setItemList.bind(this);
+        this.updateWeaponData = this.updateWeaponData.bind(this);
+    }
+
+    updateWeaponData(file){
+
+        file = `${file}.png`;
+
+        const newFiles = [file];
+
+        let w = 0;
+
+        for(let i = 0; i < this.state.weaponData.files.length; i++){
+
+            w = this.state.weaponData.files[i];
+
+            newFiles.push(w);
+        }
+
+
+        this.setState({"weaponData": {"files": newFiles, "names": this.state.weaponData.names}});
+        
     }
 
     setItemList(data){
@@ -423,7 +444,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 9) return null;
 
-        return <AdminWeaponImageUploader data={this.state.weaponData}/>
+        return <AdminWeaponImageUploader updateParent={this.updateWeaponData} data={this.state.weaponData}/>
     }
 
     render(){
