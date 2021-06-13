@@ -30,6 +30,12 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
 
+# Install
+
+
+- If there are no users in the database, the next created account will automatically set to admin and activated.
+
+
 
 # Admin Tools
 The site contains many tools to allow you to change what is displayed and what users can do.

@@ -139,23 +139,46 @@ class User{
         });
     }
 
-    createUser(username, password, ip){
+    async getTotalUsers(){
 
-        return new Promise((resolve, reject) =>{
+        try{
+            const result = await mysql.simpleFetch("SELECT COUNT(*) as total_users FROM nstats_users");
+
+            return result[0].total_users;
+
+        }catch(err){
+            console.trace(err);
+
+            return 9999;
+        }
+        
+    }
+
+    async createUser(username, password, ip){
+
+        try{
+
+            const totalUsers = await this.getTotalUsers();
+          
 
             const now = Math.floor(Date.now() * 0.001);
 
             const passwordHash = shajs('sha256').update(password).digest('hex');
 
-            const query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?,0,0)";
+            let query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?,0,0)";
 
-            mysql.query(query, [username, passwordHash, now, ip], (err) =>{
+            //if there are no uses already set account as admin and auto activate it
+            if(totalUsers === 0){
+                query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,1,0,1,0,0,?,0,0)";
+            }
 
-                if(err) reject(err);
+            const vars = [username, passwordHash, now, ip];
 
-                resolve();
-            });
-        });
+            await mysql.simpleInsert(query, vars);
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     async register(username, password, password2, ip){
