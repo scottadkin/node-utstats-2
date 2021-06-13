@@ -26,6 +26,33 @@ async function setFTPSettings(){
 }
 
 
+function startNewImport(ftpServer){
+
+    
+
+    return new Promise((resolve, reject) =>{
+
+        const f = ftpServer;
+
+        const I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_imports);
+
+        I.myEmitter.on("passed", () =>{
+
+            resolve();
+        });
+
+        I.myEmitter.on("error", (err) =>{
+
+            //console.log(`Oops...${err}`);
+            reject(err);
+        })
+
+    });
+
+       
+}
+
+
 
 (async () =>{
 
@@ -33,21 +60,19 @@ async function setFTPSettings(){
 
         await setFTPSettings();
 
+        let currentServerIndex = 0;
+
         console.log(ftpServers);
 
-        let f = ftpServers[0];
+        
 
-        const I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_imports);
+        while(currentServerIndex < ftpServers.length){
 
-        I.myEmitter.on("passed", () =>{
+            await startNewImport(ftpServers[currentServerIndex]);
 
-            console.log("DID IT WORK?");
-        });
+            currentServerIndex++;
 
-        I.myEmitter.on("error", () =>{
-
-            console.log("Oops...");
-        });
+        }
 
     }catch(err){
         console.trace(err);
@@ -56,4 +81,5 @@ async function setFTPSettings(){
 
 
 })();
+
 
