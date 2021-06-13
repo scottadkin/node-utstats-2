@@ -59,7 +59,7 @@ export default async (req, res) =>{
 
         form.on("file", (name, file) =>{
 
-            fs.renameSync(file.path, `./public/images/maps/${Functions.cleanMapName(file.name.toLowerCase())}`);
+            fs.renameSync(file.path, `./public/images/maps/${file.name.toLowerCase()}`);
         })
         
 
