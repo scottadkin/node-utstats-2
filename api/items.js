@@ -46,12 +46,12 @@ class Items{
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_items SET uses=uses+?,
-            first = IF(? < first, ?, first),
+            first = IF(? < first, ?, IF(first = 0, ?, first)),
             last = IF(? > last, ?, last),
             matches=matches+1
             WHERE name=?`;
 
-            mysql.query(query, [uses, date, date, date, date, name], (err) =>{
+            mysql.query(query, [uses, date, date, date, date, date, name], (err) =>{
                 if(err) reject(err);
 
                 resolve();
