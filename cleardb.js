@@ -42,7 +42,11 @@ const tables = [
     "winrates_latest",
     "ranking_values",
     "ranking_player_current",
-    "ranking_player_history"
+    "ranking_player_history",
+    "users",
+    "sessions",
+    "site_settings"
+
 ];
 
 function quickQuery(query){

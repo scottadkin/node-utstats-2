@@ -553,7 +553,7 @@ export async function getServerSideProps({req, query}){
     if(bUserAdmin){
 
         currentSiteSettings = await settings.debugGetAllSettings();
-       // console.log(currentSiteSettings);
+
 
         validSiteSettings.playersPage = settings.getPlayersPageValidSettings();
         validSiteSettings.matchesPage = await settings.getMatchesPageValidSettings();
@@ -600,7 +600,6 @@ export async function getServerSideProps({req, query}){
     
     const navSettings = await settings.getCategorySettings("Navigation");
 
-    console.log(`Is this user an admin ${bUserAdmin}`);
 
 
 
