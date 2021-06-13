@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 04, 2021 at 05:46 PM
+-- Generation Time: Jun 13, 2021 at 07:16 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 7.4.19
 
@@ -181,6 +181,25 @@ CREATE TABLE `nstats_faces` (
   `first` int(11) NOT NULL,
   `last` int(11) NOT NULL,
   `uses` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_ftp`
+--
+
+CREATE TABLE `nstats_ftp` (
+  `id` int(11) NOT NULL,
+  `host` varchar(250) NOT NULL,
+  `port` int(11) NOT NULL,
+  `user` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `target_folder` varchar(250) NOT NULL,
+  `delete_after_import` tinyint(1) NOT NULL,
+  `first` int(11) NOT NULL,
+  `last` int(11) NOT NULL,
+  `total_imports` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -955,6 +974,12 @@ ALTER TABLE `nstats_faces`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_ftp`
+--
+ALTER TABLE `nstats_ftp`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_gametypes`
 --
 ALTER TABLE `nstats_gametypes`
@@ -1202,6 +1227,12 @@ ALTER TABLE `nstats_dom_match_player_score`
 -- AUTO_INCREMENT for table `nstats_faces`
 --
 ALTER TABLE `nstats_faces`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_ftp`
+--
+ALTER TABLE `nstats_ftp`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

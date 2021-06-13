@@ -1,12 +1,4 @@
 {
-    "ftp": {
-        "host": "localhost",
-        "port": 21,
-        "user": "Ooper",
-        "password": "password",
-        "logsFolder": "/UnrealTournament/Logs",
-        "bDeleteLogsFromServer": false
-    }, 
     "mysql": {
         "host": "localhost",
         "port": 3306,
@@ -14,10 +6,8 @@
         "password": "",
         "database": "node_utstats"
     },
-    "bIgnoreDuplicates": false,
     "logFilePrefix": "unreal.nglog.",
     "importedLogsFolder": "Logs",
-    "test": "Dogs have wet noses",
     "multiKillTimeLimit": 3,
     "spawnKillTimeLimit": 2
 

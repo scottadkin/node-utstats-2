@@ -9,22 +9,34 @@ class MyEmitter extends EventEmitter {}
 
 class FTPImporter{
 
-    constructor(){
+    constructor(host, port, user, password, targetDir, bDeleteAfter){
 
         this.events = new MyEmitter();
+
+        this.host = host;
+        this.port = port;
+        this.user = user;
+        this.password = password;
+        this.targetDir = targetDir;
+        this.bDeleteAfter = bDeleteAfter;
+
         this.logsFound = [];
+
         this.createClient();
     }
 
+
     createClient(){
 
+
+        
         this.client = new Client();
 
         this.client.on('ready', () =>{
 
-            new Message(`Connected to ftp://${config.ftp.host}:${config.ftp.port}.`, 'pass');
+            new Message(`Connected to ftp://${this.host}:${this.port}.`, 'pass');
 
-            this.checkForFiles();
+            this.checkForLogFiles();
         });
 
         this.client.on('error', (err) =>{
@@ -32,25 +44,25 @@ class FTPImporter{
         });
 
         this.client.on('close', () =>{
-            new Message(`Connection to has closed ${config.ftp.host}:${config.ftp.port}.`, 'pass');
+            new Message(`Connection to ${this.host}:${this.port} has closed.`, 'pass');
             this.events.emit('finished');
         });
 
         this.client.connect({
 
-            "host": config.ftp.host,
-            "port": config.ftp.port,
-            "user": config.ftp.user,
-            "password": config.ftp.password
+            "host": this.host,
+            "port": this.port,
+            "user": this.user,
+            "password": this.password
 
         });
     }
 
-    checkForFiles(){
+    checkForLogFiles(){
 
         return new Promise((resolve, reject) =>{
 
-            this.client.list(config.ftp.logsFolder,async (err, files) =>{
+            this.client.list(`${this.targetDir}Logs/`,async (err, files) =>{
 
                 try{
     
@@ -103,7 +115,7 @@ class FTPImporter{
 
                 stream.once('close', () =>{
 
-                    if(config.ftp.bDeleteLogsFromServer){
+                    if(this.bDeleteAfter){
 
                         this.client.delete(target, (err) =>{
 
@@ -124,7 +136,8 @@ class FTPImporter{
                 // why did i not add this here before?
                 
                 stream.on('end', () =>{
-                    console.log("I finished");
+                    new Message(`Downloaded ${this.host}:${this.port}${target}`, "pass");
+
                     resolve();
                 });
 
@@ -142,10 +155,10 @@ class FTPImporter{
 
             for(let i = 0; i < this.logsFound.length; i++){
 
-                console.log(`${config.ftp.logsFolder}/${log.name}`);
 
                 log = this.logsFound[i];
-                await this.downloadFile(`${config.ftp.logsFolder}/${log.name}`, `${config.importedLogsFolder}/${log.name}`);
+
+                await this.downloadFile(`${this.targetDir}Logs/${log.name}`, `${config.importedLogsFolder}/${log.name}`);
          
             }
 

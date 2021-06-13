@@ -3,16 +3,29 @@ const FTPImporter =  require('./ftpimporter');
 const fs =  require('fs');
 const Message = require('../message');
 const MatchManager = require('./matchmanager');
-const WinRate = require('../winrate');
+const EventEmitter = require('events');
 
-//add the new player score loggggggggggggggggging
+
+class MyEventEmitter extends EventEmitter{};
+
 class Importer{
 
-    constructor(){
+    constructor(host, port, user, password, targetDir, bDeleteAfter){
 
-        this.ftpImporter = new FTPImporter();
+        this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter);
         this.updatedPlayers = [];
         this.updatedGametypes = [];
+
+        this.host = host;
+        this.port = port;
+        this.user = user;
+        this.password = password;
+        this.targetDir = targetDir;
+        this.bDeleteAfter = bDeleteAfter;
+
+
+        this.myEmitter = new MyEventEmitter();
+
 
         this.ftpImporter.events.on('finished', async () =>{
            
@@ -56,43 +69,16 @@ class Importer{
 
                 }
 
+                this.myEmitter.emit("passed");
 
-               /* new Message(`Players Updated`,'progress');
-                console.log(this.updatedPlayers);
-                new Message(`Gametypes Updated`,'progress');
-                console.log(this.updatedGametypes);
-
-                this.recalculateWinRates();*/
 
 
             }catch(err){
                 console.trace(err);
+                this.myEmitter.emit("error");
             }   
 
         });
-    }
-
-    async recalculateWinRates(){
-
-        try{
-
-            const winRateManager = new WinRate();
-
-            if(this.updatedGametypes.length > 0) this.updatedGametypes.unshift(0);
-
-            for(let i = 0; i < this.updatedGametypes.length; i++){
-
-                for(let x = 0; x < this.updatedPlayers.length; x++){
-
-                    new Message(`Starting WinRate recalculation of player${this.updatedPlayers[x]} for gametype ${this.updatedGametypes[i]}`,'note');
-                    await winRateManager.recalculateWinRates(this.updatedPlayers[x], this.updatedGametypes[i]);
-
-                }
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
     }
 
 
@@ -115,7 +101,7 @@ class Importer{
     async checkLogsFolder(){
 
         try{
-            const files = fs.readdirSync(config.importedLogsFolder);
+            const files = fs.readdirSync(`${this.targetDir}Logs/`);
 
             console.table(files);
 
@@ -150,6 +136,7 @@ class Importer{
     async openLog(file){
 
         try{
+
             let data = fs.readFileSync(file, "utf16le");
             data = data.toString();
 
