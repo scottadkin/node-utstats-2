@@ -114,6 +114,13 @@ class Admin{
         }
     }
 
+    async getAllFTPServers(){
+
+        const query = "SELECT * FROM nstats_ftp ORDER BY id ASC";
+
+        return await mysql.simpleFetch(query);
+    }
+
 }
 
 

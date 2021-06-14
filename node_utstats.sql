@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 13, 2021 at 07:16 PM
+-- Generation Time: Jun 14, 2021 at 11:12 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 7.4.19
 
@@ -191,6 +191,7 @@ CREATE TABLE `nstats_faces` (
 
 CREATE TABLE `nstats_ftp` (
   `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
   `host` varchar(250) NOT NULL,
   `port` int(11) NOT NULL,
   `user` varchar(50) NOT NULL,

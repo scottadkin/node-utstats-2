@@ -23,6 +23,7 @@ import AdminPickupsManager from '../components/AdminPickupsManager/';
 import Items from '../api/items';
 import AdminWeaponImageUploader from '../components/AdminWeaponImageUploader/';
 import Weapons from '../api/weapons';
+import AdminFTPManager from '../components/AdminFTPManager/'
 
 class Admin extends React.Component{
 
@@ -31,13 +32,14 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 9, 
+            "mode": 10, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "rankingEvents": JSON.parse(this.props.rankingEvents),
             "itemList": JSON.parse(this.props.itemList),
-            "weaponData": JSON.parse(this.props.weaponData)
+            "weaponData": JSON.parse(this.props.weaponData),
+            "ftpServers": JSON.parse(this.props.ftpServers)
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -446,6 +448,13 @@ class Admin extends React.Component{
         return <AdminWeaponImageUploader updateParent={this.updateWeaponData} data={this.state.weaponData}/>
     }
 
+    displayFtpManager(){
+
+        if(this.state.mode !== 10) return null;
+
+        return <AdminFTPManager servers={this.state.ftpServers}/>
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -467,6 +476,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(0);
                             })}>Site Settings</div>
+                            <div className={`big-tab ${(this.state.mode === 10) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(10);
+                            })}>FTP Manager</div>
                             <div className={`big-tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(2);
                             })}>Manage User Accounts</div>
@@ -494,6 +506,7 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 9) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(9);
                             })}>Weapon Image Uploader</div>
+
                             
                         </div>
                         {this.displaySettings()}
@@ -507,6 +520,7 @@ class Admin extends React.Component{
                         {this.displayRanking()}
                         {this.displayPickupsManager()}
                         {this.displayWeaponImageUploader()}
+                        {this.displayFtpManager()}
                     </div>   
                 </div>
 
@@ -549,6 +563,8 @@ export async function getServerSideProps({req, query}){
         "files": []
     };
 
+    let ftpServers = [];
+
 
     if(bUserAdmin){
 
@@ -565,6 +581,8 @@ export async function getServerSideProps({req, query}){
         validSiteSettings.mapPages = settings.getMapPagesValidSettings();
 
         const admin = new AdminManager();
+
+        ftpServers = await admin.getAllFTPServers();
 
         mapFiles = await admin.getMapsFolder();
         userAccounts = await admin.getAllUsers();
@@ -620,7 +638,8 @@ export async function getServerSideProps({req, query}){
             "gametypeNames": JSON.stringify(gametypeNames),
             "rankingEvents": JSON.stringify(rankingEvents),
             "itemList": JSON.stringify(itemList),
-            "weaponData": JSON.stringify(weaponData)
+            "weaponData": JSON.stringify(weaponData),
+            "ftpServers": JSON.stringify(ftpServers)
         }
     };
 }
