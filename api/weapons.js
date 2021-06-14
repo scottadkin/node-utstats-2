@@ -567,12 +567,12 @@ class Weapons{
         await mysql.simpleUpdate(query, vars);
     }
 
-    async deletePlayerMatchData(id, matchIds){
+    /*async deletePlayerMatchData(id, matchIds){
 
         if(matchIds.length === 0) return;
 
         await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id IN(?)", [id, matchIds]);
-    }
+    }*/
 
 
    /* async updatePlayerWeaponTotalsAfterMerged(player, data){
