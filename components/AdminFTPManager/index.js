@@ -21,22 +21,91 @@ class AdminFTPManager extends React.Component{
         this.updateSelected = this.updateSelected.bind(this);
 
         this.changeDeleteValue = this.changeDeleteValue.bind(this);
+        this.editEntry = this.editEntry.bind(this);
     }
 
+
+    async updateServerDetails(data){
+
+        try{
+
+            const req = await fetch("/api/ftpadmin", {
+                "method": "POST",
+                "body": JSON.stringify({"data": data})
+            });
+
+            const result = await req.json();
+
+            console.log(result);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    editEntry(e){
+
+
+        e.preventDefault();
+
+        let name = e.target[1].value;
+        let host = e.target[2].value;
+        let port = e.target[3].value;
+        let user = e.target[4].value;
+        let password = e.target[5].value;
+        let folder = e.target[6].value;
+
+        let deleteAfterImport = (e.target[7].checked) ? 1 : 0;
+        let serverId = parseInt(e.target[8].value);
+
+        const newData = [];
+
+        let editData = {};
+
+        let s = 0;
+
+        for(let i = 0; i < this.props.servers.length; i++){
+
+            s = this.props.servers[i];
+
+            if(s.id !== serverId){
+
+                newData.push(s);
+
+            }else{
+
+                editData = {
+
+                    "id": serverId,
+                    "name": name,
+                    "host": host,
+                    "port": port,
+                    "user": user,
+                    "password": password,
+                    "target_folder": folder,
+                    "delete_after_import": deleteAfterImport
+                };
+
+                newData.push(editData);
+            }
+        }
+
+        this.updateServerDetails(editData);
+        this.props.updateParent(newData);
+
+    }
 
     setDeleteValue(id, value){
 
 
         const oldServers = this.props.servers;
 
-
         const newServers = [];
-
 
         for(let i = 0; i < oldServers.length; i++){
 
             if(oldServers[i].id === id){
-                console.log("found id");
+                
                 newServers.push({
                     "id": id,
                     "name": oldServers[i].name,
@@ -53,8 +122,6 @@ class AdminFTPManager extends React.Component{
             }
         }
 
-        console.log(newServers);
-
         this.props.updateParent(newServers);
     }
 
@@ -63,13 +130,9 @@ class AdminFTPManager extends React.Component{
 
         const id = e.target.id;
 
-        console.log(id);
-
         const reg = /delete_(.+)/ig;
 
         const result = reg.exec(id);
-
-        console.log(result);
 
         if(result !== null){
 
@@ -99,11 +162,7 @@ class AdminFTPManager extends React.Component{
 
         const value = parseInt(e.target.value);
 
-        console.log(`selected ${value}`);
-
         this.setState({"selectedServer": value});
-
-        //this.setEditForm();
 
     }
     
@@ -119,6 +178,7 @@ class AdminFTPManager extends React.Component{
             s = this.props.servers[i];
 
             rows.push(<tr key={i}>
+                <td>{s.name}</td>
                 <td>{s.host}</td>
                 <td>{s.port}</td>
                 <td>{s.user}</td>
@@ -136,6 +196,7 @@ class AdminFTPManager extends React.Component{
             <table className="t-width-1">
                 <tbody>
                     <tr>
+                        <th>Name</th>
                         <th>Host</th>
                         <th>Port</th>
                         <th>User</th>
@@ -175,7 +236,6 @@ class AdminFTPManager extends React.Component{
 
     getServerSettings(){
 
-
         let s = 0;
 
         for(let i = 0; i < this.props.servers.length; i++){
@@ -202,19 +262,13 @@ class AdminFTPManager extends React.Component{
 
     renderEditForm(){
 
-        let selected = 0;
-
-        if(this.state.selectedServer !== -1){
-            selected = this.getServerSettings();
-        }
+        const selected = this.getServerSettings();
 
 
-        console.log(selected);
-
-
+        console.log(selected.delete_after_import);
         return <div>
             <div className="default-header">Edit Server</div>
-            <form className="form" action="/" method="POST">
+            <form className="form" action="/" method="POST" onSubmit={this.editEntry}>
                 <div className="form-info">
                     Edit an existing server.
                 </div>
@@ -258,9 +312,10 @@ class AdminFTPManager extends React.Component{
                 <div className="select-row">
                     <div className="select-label">Delete Logs After Import</div>
                     <div>
-                        <input id="logs" defaultChecked={selected.delete_after_import} id={`delete_${selected.id}`} type="checkbox" onChange={this.changeDeleteValue}/>
+                        <input id="logs" checked={selected.delete_after_import} id={`delete_${selected.id}`} type="checkbox" onChange={this.changeDeleteValue}/>
                     </div>
                 </div>
+                <input type="hidden" value={selected.id}/>
                 <input type="submit" className="search-button" value="Update"/>
             </form>
         </div>

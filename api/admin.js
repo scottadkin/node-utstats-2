@@ -121,6 +121,32 @@ class Admin{
         return await mysql.simpleFetch(query);
     }
 
+    async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport){
+
+        const query = `UPDATE nstats_ftp SET
+            name=?,
+            host=?,
+            port=?,
+            user=?,
+            password=?,
+            target_folder=?,
+            delete_after_import=?
+            WHERE id=?`;
+
+        const vars = [
+            name,
+            host, 
+            port,
+            user,
+            password,
+            folder,
+            deleteAfterImport,
+            id
+        ];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
 }
 
 
