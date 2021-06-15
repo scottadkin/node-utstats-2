@@ -50,6 +50,17 @@ class Admin extends React.Component{
         this.setGametypeNames = this.setGametypeNames.bind(this);
         this.setItemList = this.setItemList.bind(this);
         this.updateWeaponData = this.updateWeaponData.bind(this);
+        this.updateFtpServers = this.updateFtpServers.bind(this);
+    }
+
+    updateFtpServers(newData){
+
+        
+        console.log("update ftpservers");
+
+        console.log(newData);
+
+        this.setState({"ftpServers": newData});
     }
 
     updateWeaponData(file){
@@ -452,7 +463,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 10) return null;
 
-        return <AdminFTPManager servers={this.state.ftpServers}/>
+        return <AdminFTPManager servers={this.state.ftpServers} updateParent={this.updateFtpServers}/>
     }
 
     render(){
