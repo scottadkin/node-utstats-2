@@ -15,7 +15,10 @@ class AdminFTPManager extends React.Component{
             "currentUser": "",
             "currentPassword": "",
             "currentFolder": "",
-            "currentLogs": ""
+            "currentLogs": "",
+            "editPassed": null,
+            "editInProgress": false,
+            "editErrors": []
         };
 
         this.updateSelected = this.updateSelected.bind(this);
@@ -29,14 +32,54 @@ class AdminFTPManager extends React.Component{
 
         try{
 
-            const req = await fetch("/api/ftpadmin", {
-                "method": "POST",
-                "body": JSON.stringify({"data": data})
+            const errors = [];
+
+            this.setState({
+                "editPassed": null,
+                "editInProgress": true,
+                "editErrors": []
             });
 
-            const result = await req.json();
 
-            console.log(result);
+            console.log(data);
+
+            if(data.id < 1){
+                errors.push("You have not selected a server to edit.");
+            }
+
+            if(errors.length === 0){
+
+                const req = await fetch("/api/ftpadmin", {
+                    "method": "POST",
+                    "body": JSON.stringify({"data": data})
+                });
+
+                const result = await req.json();
+
+                if(result.message === "passed"){
+
+                    this.setState({
+                        "editPassed": true,
+                        "editInProgress": false,
+                        "editErrors": []
+                    });
+
+                }else{
+                    errors.push(result.message);
+                }
+
+
+                console.log(result);
+            }
+
+            if(errors.length > 0){
+
+                this.setState({
+                    "editPassed": false,
+                    "editInProgress": false,
+                    "editErrors": errors
+                });
+            }
 
         }catch(err){
             console.trace(err);
@@ -260,18 +303,56 @@ class AdminFTPManager extends React.Component{
         };
     }
 
+    renderEditProgress(){
+
+        if(this.state.editInProgress){
+
+
+            return <div className="team-yellow m-bottom-25 p-bottom-25 center t-width-1">
+                <div className="default-header">Processing</div>
+                Edit in progress, please wait...
+            </div>;
+
+        }else{
+
+            if(this.state.editPassed === false){
+
+                const errors = [];
+
+                let e = 0;
+
+                for(let i = 0; i < this.state.editErrors.length; i++){
+
+                    e = this.state.editErrors[i];
+
+                    errors.push(<div key={i}>{e}</div>);
+                }
+
+                return <div className="team-red m-bottom-25 p-bottom-25 center t-width-1">
+                    <div className="default-header">Error</div>
+                    {errors}
+                </div>;
+
+            }else if(this.state.editPassed === true){
+
+                return <div className="team-green m-bottom-25 p-bottom-25 center t-width-1">
+                    <div className="default-header">Passed</div>
+                    Edit was completed successfully
+                </div>;
+            }
+        }
+
+    }
+
     renderEditForm(){
 
         const selected = this.getServerSettings();
 
-
-        console.log(selected.delete_after_import);
         return <div>
             <div className="default-header">Edit Server</div>
+            {this.renderEditProgress()}
             <form className="form" action="/" method="POST" onSubmit={this.editEntry}>
-                <div className="form-info">
-                    Edit an existing server.
-                </div>
+       
                 {this.createServersDropDown()}
                 <div className="select-row">
                     <div className="select-label">Name</div>
@@ -321,6 +402,16 @@ class AdminFTPManager extends React.Component{
         </div>
     }
 
+    renderCreateForm(){
+
+        return <div>
+            <div className="default-header">Add FTP Server</div>
+            <form className="form" action="/" method="POST">
+
+            </form>
+        </div>
+    }
+
     render(){
 
         return <div>
@@ -328,6 +419,7 @@ class AdminFTPManager extends React.Component{
 
             {this.renderTable()}
             {this.renderEditForm()}
+            {this.renderCreateForm()}
         </div>
     }
 }
