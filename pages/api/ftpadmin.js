@@ -15,29 +15,53 @@ export default async (req, res) =>{
         const data = body.data;
         const admin = new Admin();
 
+        console.log(data);
+
         if(data !== undefined){
 
-            if(data.id > 0){
+            if(data.mode === "edit"){
 
-                await admin.updateFTPServer(
+                if(data.id > 0){
 
-                    data.id,
+                    await admin.updateFTPServer(
+
+                        data.id,
+                        data.name,
+                        data.host,
+                        data.port,
+                        data.user,
+                        data.password,
+                        data.target_folder,
+                        data.delete_after_import
+
+                    );
+
+                    res.status(200).json({"message": "passed"});
+                    return;
+
+                }else{
+
+                    res.status(200).json({"message": "You have not selected a server to edit"});
+                    return;
+                }
+
+            }else if(data.mode === "create"){
+
+                await admin.addFTPServer(
                     data.name,
                     data.host,
                     data.port,
                     data.user,
                     data.password,
                     data.target_folder,
-                    data.delete_after_import
-
+                    data.delete_after_import,
                 );
 
                 res.status(200).json({"message": "passed"});
-                return;
+                    return;
 
             }else{
-
-                res.status(200).json({"message": "You have not selected a server to edit"});
+                res.status(200).json({"message": "Unknown request"});
                 return;
             }
         }

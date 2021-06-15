@@ -147,6 +147,16 @@ class Admin{
         await mysql.simpleUpdate(query, vars);
     }
 
+
+    async addFTPServer(name, host, port, user, password, folder, deleteAfterImport){
+
+        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0)";
+
+        const vars = [name, host, port, user, password, folder, deleteAfterImport];
+
+        await mysql.simpleInsert(query, vars);
+    }
+
 }
 
 

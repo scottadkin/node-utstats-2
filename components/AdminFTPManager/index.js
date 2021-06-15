@@ -8,6 +8,7 @@ class AdminFTPManager extends React.Component{
         super(props);
 
         this.state = {
+            "mode": 2,
             "selectedServer": -1,
             "currentName": "",
             "currentHost": 0,
@@ -25,6 +26,75 @@ class AdminFTPManager extends React.Component{
 
         this.changeDeleteValue = this.changeDeleteValue.bind(this);
         this.editEntry = this.editEntry.bind(this);
+
+        this.changeMode = this.changeMode.bind(this);
+
+        this.addServer = this.addServer.bind(this);
+    }
+
+
+    async addServer(e){
+
+        try{
+
+            e.preventDefault();
+
+
+            let name = e.target[0].value;
+            let host = e.target[1].value;
+            let port = parseInt(e.target[2].value);
+            let user = e.target[3].value;
+            let password = e.target[4].value;
+            let folder = e.target[5].value;
+            let deleteAfter = (e.target[6].checked) ? 1 : 0;
+
+
+            const errors = [];
+
+            if(name === "") errors.push("Server name can not be blank");
+            if(host === "") errors.push("Host can not be blank");
+
+            if(port !== port) errors.push("Port must be a valid integer");
+            if(port < 1 || port > 65535) errors.push("Port must be between 1 and 65535");
+
+            if(user === "") errors.push("User can not be blank");
+
+            if(errors.length === 0){
+
+                const req = await fetch("/api/ftpadmin", {
+
+                    "method": "POST",
+                    "body": JSON.stringify({"data": {
+                        "mode": "create",
+                        "name": name,
+                        "host": host,
+                        "port": port,
+                        "user": user,
+                        "password": password,
+                        "target_folder": folder,
+                        "delete_after_import": deleteAfter
+                        }
+                    })
+                });
+
+                const result = await req.json();
+
+                console.log(result);
+
+                if(result.message !== "passed"){
+                    errors.push(result.message);
+                }
+            }
+
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
 
@@ -46,6 +116,8 @@ class AdminFTPManager extends React.Component{
             if(data.id < 1){
                 errors.push("You have not selected a server to edit.");
             }
+
+            data.mode = "edit";
 
             if(errors.length === 0){
 
@@ -212,6 +284,8 @@ class AdminFTPManager extends React.Component{
 
     renderTable(){
 
+        if(this.state.mode !== 0) return null;
+
         const rows = [];
 
         let s = 0;
@@ -346,6 +420,8 @@ class AdminFTPManager extends React.Component{
 
     renderEditForm(){
 
+        if(this.state.mode !== 1) return null;
+
         const selected = this.getServerSettings();
 
         return <div>
@@ -391,7 +467,7 @@ class AdminFTPManager extends React.Component{
                     </div>
                 </div>
                 <div className="select-row">
-                    <div className="select-label">Delete Logs After Import</div>
+                    <div className="select-label">Delete Logs From FTP After Import</div>
                     <div>
                         <input id="logs" checked={selected.delete_after_import} id={`delete_${selected.id}`} type="checkbox" onChange={this.changeDeleteValue}/>
                     </div>
@@ -404,10 +480,42 @@ class AdminFTPManager extends React.Component{
 
     renderCreateForm(){
 
+        if(this.state.mode !== 2) return null;
+
         return <div>
             <div className="default-header">Add FTP Server</div>
-            <form className="form" action="/" method="POST">
+            
+            <form className="form" action="/" method="POST" onSubmit={this.addServer}>
 
+                <div className="select-row">
+                    <div className="select-label">Name</div>
+                    <div><input type="text" className="default-textbox" placeholder="Name..." /></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Host</div>
+                    <div><input type="text" className="default-textbox" placeholder="Host..." /></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Port</div>
+                    <div><input type="number" className="default-textbox" placeholder="Port..." /></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">User</div>
+                    <div><input type="text" className="default-textbox" placeholder="User..." /></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Password</div>
+                    <div><input type="password" className="default-textbox" placeholder="Password..." /></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Target Folder</div>
+                    <div><input type="text" className="default-textbox" placeholder="Target Folder..." /></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Delete Logs From FTP After Import</div>
+                    <div><input type="checkbox"/></div>
+                </div>
+                <input type="submit" className="search-button" value="Add Server"/>
             </form>
         </div>
     }
@@ -416,6 +524,20 @@ class AdminFTPManager extends React.Component{
 
         return <div>
             <div className="default-header">FTP Manager</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Server List</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Edit Server</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(2);
+                })}>Add Server</div>
+                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(3);
+                })}>Delete Server</div>
+            </div>
 
             {this.renderTable()}
             {this.renderEditForm()}
