@@ -119,6 +119,40 @@ Database.simpleInsert = (query, vars) =>{
     });
 }
 
+Database.insertReturnInsertId = (query, vars) =>{
+
+    return new Promise((resolve, reject) =>{
+
+        if(vars === undefined){
+
+            Database.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result.insertId);
+                }
+
+                resolve(-1);
+
+            });
+
+        }else{
+
+            Database.query(query, vars, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result !== undefined){
+                    resolve(result.insertId);
+                }
+
+                resolve(-1);
+            });
+        }
+    });
+}
+
 Database.updateReturnAffectedRows = (query, vars) =>{
 
     return new Promise((resolve, reject) =>{

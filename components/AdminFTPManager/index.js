@@ -19,7 +19,10 @@ class AdminFTPManager extends React.Component{
             "currentLogs": "",
             "editPassed": null,
             "editInProgress": false,
-            "editErrors": []
+            "editErrors": [],
+            "createPassed": null,
+            "createInProgress": false,
+            "createErrors": []
         };
 
         this.updateSelected = this.updateSelected.bind(this);
@@ -32,12 +35,60 @@ class AdminFTPManager extends React.Component{
         this.addServer = this.addServer.bind(this);
     }
 
+    bServerAlreadyAdded(host, port, folder){
+
+
+        let s = 0;
+
+        for(let i = 0; i < this.props.servers.length; i++){
+
+            s = this.props.servers[i];
+
+            if(s.host === host && s.port === port && s.target_folder === folder){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    addServerToList(id, name, host, port, user, password, folder, deleteAfter){
+
+        const newObject = {
+            "id": id,
+            "name": name,
+            "host": host,
+            "port": port,
+            "user": user,
+            "password": password,
+            "target_folder": folder,
+            "delete_after_import": deleteAfter,
+            "first": 0,
+            "last": 0,
+            "total_imports": 0
+        };
+
+        const data = this.props.servers;
+
+        data.push(newObject);
+
+        console.log(data);
+
+        this.props.updateParent(data);
+    }
+
 
     async addServer(e){
 
         try{
 
             e.preventDefault();
+
+            this.setState({
+                "createPassed": null,
+                "createInProgress": true,
+                "createErrors": []
+            });
 
 
             let name = e.target[0].value;
@@ -58,6 +109,10 @@ class AdminFTPManager extends React.Component{
             if(port < 1 || port > 65535) errors.push("Port must be between 1 and 65535");
 
             if(user === "") errors.push("User can not be blank");
+
+            if(this.bServerAlreadyAdded(host, port, folder)){
+                errors.push(`The host port combo of ftp://${host}:${port}, with the target folder of "${folder}" is already in use.`);
+            }
 
             if(errors.length === 0){
 
@@ -83,7 +138,28 @@ class AdminFTPManager extends React.Component{
 
                 if(result.message !== "passed"){
                     errors.push(result.message);
+                }else{
+
+
+                    this.addServerToList(
+                        result.serverId, name, host, port, user, password, folder, deleteAfter
+                    );
+
+                    this.setState({
+                        "createPassed": true,
+                        "createInProgress": false,
+                        "createErrors": []
+                    });
                 }
+            }
+
+            if(errors.length > 0){
+
+                this.setState({
+                    "createPassed": false,
+                    "createInProgress": false,
+                    "createErrors": errors
+                });
             }
 
 
@@ -415,7 +491,46 @@ class AdminFTPManager extends React.Component{
                 </div>;
             }
         }
+    }
 
+    renderCreateProgress(){
+
+        if(this.state.createInProgress){
+
+
+            return <div className="team-yellow m-bottom-25 p-bottom-25 center t-width-1">
+                <div className="default-header">Processing</div>
+                Adding new server in progress, please wait...
+            </div>;
+
+        }else{
+
+            if(this.state.createPassed === false){
+
+                const errors = [];
+
+                let e = 0;
+
+                for(let i = 0; i < this.state.createErrors.length; i++){
+
+                    e = this.state.createErrors[i];
+
+                    errors.push(<div key={i}>{e}</div>);
+                }
+
+                return <div className="team-red m-bottom-25 p-bottom-25 center t-width-1">
+                    <div className="default-header">Error</div>
+                    {errors}
+                </div>;
+
+            }else if(this.state.createPassed === true){
+
+                return <div className="team-green m-bottom-25 p-bottom-25 center t-width-1">
+                    <div className="default-header">Passed</div>
+                    New server was added successfully
+                </div>;
+            }
+        }
     }
 
     renderEditForm(){
@@ -484,6 +599,8 @@ class AdminFTPManager extends React.Component{
 
         return <div>
             <div className="default-header">Add FTP Server</div>
+
+            {this.renderCreateProgress()}
             
             <form className="form" action="/" method="POST" onSubmit={this.addServer}>
 

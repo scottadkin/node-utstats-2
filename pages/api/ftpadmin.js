@@ -47,7 +47,8 @@ export default async (req, res) =>{
 
             }else if(data.mode === "create"){
 
-                await admin.addFTPServer(
+
+                const insertServerId = await admin.addFTPServer(
                     data.name,
                     data.host,
                     data.port,
@@ -57,7 +58,7 @@ export default async (req, res) =>{
                     data.delete_after_import,
                 );
 
-                res.status(200).json({"message": "passed"});
+                res.status(200).json({"message": "passed", "serverId": insertServerId});
                     return;
 
             }else{

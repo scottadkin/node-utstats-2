@@ -154,7 +154,7 @@ class Admin{
 
         const vars = [name, host, port, user, password, folder, deleteAfterImport];
 
-        await mysql.simpleInsert(query, vars);
+        return await mysql.insertReturnInsertId(query, vars);
     }
 
 }
