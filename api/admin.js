@@ -157,6 +157,13 @@ class Admin{
         return await mysql.insertReturnInsertId(query, vars);
     }
 
+    async deleteFTPServer(id){
+
+        const query = "DELETE FROM nstats_ftp WHERE id=?";
+
+        await mysql.simpleDelete(query, [id]);
+    }
+
 }
 
 

@@ -8,7 +8,7 @@ class AdminFTPManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 2,
+            "mode": 3,
             "selectedServer": -1,
             "currentName": "",
             "currentHost": 0,
@@ -22,7 +22,10 @@ class AdminFTPManager extends React.Component{
             "editErrors": [],
             "createPassed": null,
             "createInProgress": false,
-            "createErrors": []
+            "createErrors": [],
+            "deletePassed": null,
+            "deleteInProgress": false,
+            "deleteErrors": []
         };
 
         this.updateSelected = this.updateSelected.bind(this);
@@ -33,6 +36,100 @@ class AdminFTPManager extends React.Component{
         this.changeMode = this.changeMode.bind(this);
 
         this.addServer = this.addServer.bind(this);
+
+        this.deleteServer = this.deleteServer.bind(this);
+    }
+
+    removeServerFromList(id){
+
+        const newData = [];
+
+        let s = 0;
+
+        for(let i = 0; i < this.props.servers.length; i++){
+
+            s = this.props.servers[i];
+
+            if(s.id !== id){
+                newData.push(s);
+            }
+        }
+
+        this.props.updateParent(newData);
+    }
+
+    async deleteServer(e){
+
+        try{
+
+            const errors = [];
+
+            e.preventDefault();
+
+            this.setState({
+                "deletePassed": null,
+                "deleteInProgress": true,
+                "deleteErrors": []
+            });
+
+            const serverId = parseInt(e.target[0].value);
+
+            console.log(`serverId = ${serverId}`);
+
+            if(serverId !== serverId){
+                errors.push("Server ID must be a valid integer.");
+            }
+
+            if(serverId === -1){
+                errors.push("You have not selected a server to delete");
+            }
+
+
+            if(errors.length === 0){
+
+                const req = await fetch("/api/ftpadmin", {
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "data": {
+                            "id": serverId,
+                            "mode": "delete"
+                        }
+                    })
+                });
+
+                const result = await req.json();
+
+                if(result.message !== "passed"){
+                    errors.push(result.message);
+                }else{
+
+                    this.removeServerFromList(serverId);
+                }
+            }
+
+
+            if(errors.length === 0){
+
+                this.setState({
+                    "deletePassed": true,
+                    "deleteInProgress": false,
+                    "deleteErrors": []
+                });
+
+            }else{
+
+                this.setState({
+                    "deletePassed": false,
+                    "deleteInProgress": false,
+                    "deleteErrors": errors
+                });
+            }
+
+
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     bServerAlreadyAdded(host, port, folder){
@@ -71,8 +168,6 @@ class AdminFTPManager extends React.Component{
         const data = this.props.servers;
 
         data.push(newObject);
-
-        console.log(data);
 
         this.props.updateParent(data);
     }
@@ -533,6 +628,46 @@ class AdminFTPManager extends React.Component{
         }
     }
 
+    renderDeleteProgress(){
+
+        if(this.state.deleteInProgress){
+
+
+            return <div className="team-yellow m-bottom-25 p-bottom-25 center t-width-1">
+                <div className="default-header">Processing</div>
+                Deleting server in progress, please wait...
+            </div>;
+
+        }else{
+
+            if(this.state.deletePassed === false){
+
+                const errors = [];
+
+                let e = 0;
+
+                for(let i = 0; i < this.state.deleteErrors.length; i++){
+
+                    e = this.state.deleteErrors[i];
+
+                    errors.push(<div key={i}>{e}</div>);
+                }
+
+                return <div className="team-red m-bottom-25 p-bottom-25 center t-width-1">
+                    <div className="default-header">Error</div>
+                    {errors}
+                </div>;
+
+            }else if(this.state.deletePassed === true){
+
+                return <div className="team-green m-bottom-25 p-bottom-25 center t-width-1">
+                    <div className="default-header">Passed</div>
+                    Server deleted successfully
+                </div>;
+            }
+        }
+    }
+
     renderEditForm(){
 
         if(this.state.mode !== 1) return null;
@@ -637,6 +772,23 @@ class AdminFTPManager extends React.Component{
         </div>
     }
 
+    renderDeleteFrom(){
+
+        if(this.state.mode !== 3) return null;
+
+        return <div>
+            <div className="default-header">Delete Server</div>
+            {this.renderDeleteProgress()}
+            <form className="form" action="/" method="POST" onSubmit={this.deleteServer}>
+                <div className="select-row">
+                    <div className="select-label">Server To Delete</div>
+                    <div>{this.createServersDropDown()}</div>
+                </div>
+                <input type="submit" className="search-button" value="Delete Server"/>
+            </form>
+        </div>
+    }
+
     render(){
 
         return <div>
@@ -659,6 +811,7 @@ class AdminFTPManager extends React.Component{
             {this.renderTable()}
             {this.renderEditForm()}
             {this.renderCreateForm()}
+            {this.renderDeleteFrom()}
         </div>
     }
 }

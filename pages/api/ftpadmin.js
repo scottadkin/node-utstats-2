@@ -59,7 +59,15 @@ export default async (req, res) =>{
                 );
 
                 res.status(200).json({"message": "passed", "serverId": insertServerId});
-                    return;
+                return;
+
+            }else if(data.mode === "delete"){
+
+                console.log("DELETE SERVER");
+                await admin.deleteFTPServer(data.id);
+                
+                res.status(200).json({"message": "passed"});
+                return;
 
             }else{
                 res.status(200).json({"message": "Unknown request"});
