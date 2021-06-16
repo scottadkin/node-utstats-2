@@ -8,7 +8,7 @@ class AdminFTPManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 3,
+            "mode": 0,
             "selectedServer": -1,
             "currentName": "",
             "currentHost": 0,
@@ -73,8 +73,6 @@ class AdminFTPManager extends React.Component{
             });
 
             const serverId = parseInt(e.target[0].value);
-
-            console.log(`serverId = ${serverId}`);
 
             if(serverId !== serverId){
                 errors.push("Server ID must be a valid integer.");

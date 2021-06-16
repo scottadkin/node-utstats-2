@@ -794,9 +794,11 @@ class Matches{
 
             await Logs.deleteFromDatabase(matchData.id);
 
-            for(let i = 0; i < playersData.length; i++){
-                await winrateManager.deletePlayerFromMatch(playersData[i].player_id, id, matchData.gametype);
-            }
+           // for(let i = 0; i < playersData.length; i++){
+               // await winrateManager.deletePlayerFromMatch(playersData[i].player_id, id, matchData.gametype);
+            //}
+
+            return matchData.gametype;
 
         }catch(err){
             console.trace(err);

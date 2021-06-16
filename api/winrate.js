@@ -445,19 +445,12 @@ class WinRate{
     }
 
 
-    deleteMatchData(id){
+    async deleteMatchData(id){
 
-        return new Promise((resolve, reject) =>{
 
-            const query = "DELETE FROM nstats_winrates WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE match_id=?", [id]);
+        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE match_id=?", [id]);
+     
     }
 
     async getPlayerGamtypeHistoryDetailed(playerId, gametypeId){

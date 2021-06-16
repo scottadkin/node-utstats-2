@@ -384,7 +384,6 @@ class Faces{
 
             for(const [key, value] of Object.entries(uses)){
 
-                console.log(`reduce ${key} uses by ${value}`);
                 await this.reduceUsage(key, value);
             }
 

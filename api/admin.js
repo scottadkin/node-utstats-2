@@ -3,6 +3,7 @@ const fs = require('fs');
 const Maps = require('./maps');
 const User = require('./user');
 const Matches = require('./matches');
+const Winrates = require('./winrate');
 
 class Admin{
 
@@ -101,11 +102,29 @@ class Admin{
 
             //await matchManager.deleteMatch(toDelete[1]);
 
+            const affectedGametypes = [];
+
+            let currentGametype = 0;
+
             for(let i = 0; i < toDelete.length; i++){
 
-                await matchManager.deleteMatch(toDelete[i]);
+                currentGametype = await matchManager.deleteMatch(toDelete[i]);
+
+                if(currentGametype !== undefined){
+
+                    if(affectedGametypes.indexOf(currentGametype) === -1){
+                        affectedGametypes.push(currentGametype);
+                    }
+                }
             }
 
+
+            const winrateManager = new Winrates();
+
+            for(let i = 0; i < affectedGametypes.length; i++){
+
+                await winrateManager.recalculateGametype(affectedGametypes[i]);
+            }
 
 
 
