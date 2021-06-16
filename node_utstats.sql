@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2021 at 11:12 PM
+-- Generation Time: Jun 16, 2021 at 08:57 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 7.4.19
 
@@ -809,6 +809,23 @@ CREATE TABLE `nstats_site_settings` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nstats_sprees`
+--
+
+CREATE TABLE `nstats_sprees` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `player` int(11) NOT NULL,
+  `kills` int(11) NOT NULL,
+  `start_timestamp` float NOT NULL,
+  `end_timestamp` float NOT NULL,
+  `total_time` float NOT NULL,
+  `killer` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nstats_users`
 --
 
@@ -1137,6 +1154,12 @@ ALTER TABLE `nstats_site_settings`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_sprees`
+--
+ALTER TABLE `nstats_sprees`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_users`
 --
 ALTER TABLE `nstats_users`
@@ -1390,6 +1413,12 @@ ALTER TABLE `nstats_sessions`
 -- AUTO_INCREMENT for table `nstats_site_settings`
 --
 ALTER TABLE `nstats_site_settings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_sprees`
+--
+ALTER TABLE `nstats_sprees`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
