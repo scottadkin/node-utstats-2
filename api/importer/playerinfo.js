@@ -213,11 +213,11 @@ class PlayerInfo{
     updateMultis(){
 
 
-        if(this.currentMulti > this.stats.bestMulti){
-            this.stats.bestMulti = this.currentMulti;
+        if(this.stats.currentMulti > this.stats.bestMulti){
+            this.stats.bestMulti = this.stats.currentMulti;
         }
 
-        const m = this.currentMulti;
+        const m = this.stats.currentMulti;
 
         if(m === 2){
             this.stats.multis.double++;
@@ -235,17 +235,18 @@ class PlayerInfo{
             this.stats.multis.holyshit++;
         }
 
-        this.currentMulti = 0;
+        this.stats.currentMulti = 0;
 
     }
 
     updateSprees(){
 
-        if(this.currentSpree > this.stats.bestSpree){
-            this.stats.bestSpree = this.currentSpree;
+
+        if(this.stats.currentSpree > this.stats.bestSpree){
+            this.stats.bestSpree = this.stats.currentSpree;
         }
 
-        const k = this.currentSpree;
+        const k = this.stats.currentSpree;
 
         if(k >= 5 && k < 10){
             this.stats.sprees.spree++;
@@ -263,7 +264,7 @@ class PlayerInfo{
             this.stats.sprees.brutalizing++;
         }
 
-        this.currentSpree = 0;
+        this.stats.currentSpree = 0;
     }
 
 
@@ -298,7 +299,7 @@ class PlayerInfo{
 
         this.updateWeaponStats('kill', weapon);
 
-        this.currentSpree++;
+        this.stats.currentSpree++;
 
         if(timeDiff !== 0){
 
@@ -315,12 +316,11 @@ class PlayerInfo{
 
         if(timeDiff <= config.multiKillTimeLimit){
 
-            this.currentMulti++;
+            this.stats.currentMulti++;
 
         }else{
 
             this.updateMultis();
-            this.currentMulti++;
             
         }
 
@@ -424,6 +424,12 @@ class PlayerInfo{
 
         return null;
 
+    }
+
+    matchEnded(){
+
+        this.updateSprees();
+        this.updateMultis();
     }
 }
 

@@ -452,6 +452,7 @@ class PlayerManager{
                 }
 
             }else if(k.type === 'suicide'){
+               
 
                 victim = this.getPlayerById(k.killerId);
 
@@ -461,9 +462,24 @@ class PlayerManager{
             }
         }
 
-        //console.log(killer.stats.spawnKills);
+        this.matchEnded();
 
-        //this.debugDisplayPlayerStats();
+    }
+
+    /**
+     * Make sure sprees and multis that are still going at the end of the match are counted
+     */
+
+    matchEnded(){
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            p.matchEnded();
+        }
     }
 
     setHeadshots(data){
