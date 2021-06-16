@@ -431,6 +431,20 @@ class PlayerInfo{
         this.updateSprees();
         this.updateMultis();
     }
+
+    getCurrentSpree(){
+
+        return this.stats.currentSpree;
+    }
+
+    onASpree(){
+
+        if(this.stats.currentSpree >= 5){
+            return true;
+        }
+
+        return false;
+    }
 }
 
 

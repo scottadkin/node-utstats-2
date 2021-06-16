@@ -12,6 +12,7 @@ const ConnectionsManager = require('./connectionsmanager');
 const PingManager = require('./pingmanager');
 const TeamsManager = require('./teamsmanager');
 const WinRateManager = require('../winrate');
+const Sprees = require('../sprees');
 
 class PlayerManager{
 
@@ -37,6 +38,8 @@ class PlayerManager{
 
         this.pingManager = new PingManager();
         this.winRateManager = new WinRateManager();
+
+        this.sprees = new Sprees();
 
         this.createPlayers();
         this.setNStatsValues();
@@ -446,6 +449,19 @@ class PlayerManager{
 
               
                 if(victim !== null){
+
+                    if(victim.onASpree()){
+
+                        this.sprees.addToList(
+                            victim.id, 
+                            victim.getCurrentSpree(), 
+                            killer.id,
+                            victim.getPreviousSpawn(k.timestamp),
+                            k.timestamp
+                        );
+
+                    }
+
                    if(victim.died(k.timestamp, k.killerWeapon)){
                        killer.stats.spawnKills++;
                    }
@@ -457,26 +473,48 @@ class PlayerManager{
                 victim = this.getPlayerById(k.killerId);
 
                 if(victim !== null){
+
+                    if(victim.onASpree()){
+
+                        this.sprees.addToList(
+                            victim.id, 
+                            victim.getCurrentSpree(), 
+                            victim.id,
+                            victim.getPreviousSpawn(k.timestamp),
+                            k.timestamp
+                        );
+                        
+                    }
+
                     victim.died(k.timestamp, k.killerWeapon);
                 }
             }
         }
-
-        this.matchEnded();
-
     }
 
     /**
      * Make sure sprees and multis that are still going at the end of the match are counted
      */
 
-    matchEnded(){
+    matchEnded(endTimestamp){
 
         let p = 0;
 
         for(let i = 0; i < this.players.length; i++){
 
             p = this.players[i];
+
+            if(p.onASpree()){
+
+                this.sprees.addToList(
+                    p.id, 
+                    p.getCurrentSpree(), 
+                    -1,
+                    p.getPreviousSpawn(endTimestamp),
+                    endTimestamp
+                );
+                
+            }
 
             p.matchEnded();
         }
@@ -556,6 +594,7 @@ class PlayerManager{
         return null;
     }
 
+
     getOriginalConnectionById(id){
 
         id = parseInt(id);
@@ -569,6 +608,17 @@ class PlayerManager{
 
         return null;
 
+    }
+
+    getOriginalConnectionMasterId(id){
+        
+        const player = this.getOriginalConnectionById(id);
+
+        if(player !== null){
+            return player.masterId;
+        }
+
+        return -1;
     }
 
     displayDebugDuplicates(){
@@ -1408,6 +1458,37 @@ class PlayerManager{
             new Message(`PlayerManager.getPlayerTotals() ${err}`,"error");
             console.trace(err);
             return [];
+        }
+    }
+
+
+
+    setSpreeMasterIds(){
+
+        let s = 0;
+
+        for(let i = 0; i < this.sprees.currentSprees.length; i++){
+
+            s = this.sprees.currentSprees[i];
+
+            s.player = this.getOriginalConnectionMasterId(s.player);
+
+            if(s.killedBy !== -1){
+
+                s.killedBy = this.getOriginalConnectionMasterId(s.killedBy);
+            }
+        }
+    }
+
+    async insertSprees(matchId){
+
+        try{
+
+            this.setSpreeMasterIds();
+            await this.sprees.insertCurrentSprees(matchId);
+
+        }catch(err){
+            new Message(err, "error");
         }
     }
 }

@@ -73,6 +73,7 @@ class MatchManager{
             }
 
             this.playerManager.setKills(this.killManager.kills);
+            this.playerManager.matchEnded(this.gameInfo.end);
             this.playerManager.setHeadshots(this.killManager.headshots);
 
             this.match = new Match();
@@ -132,7 +133,7 @@ class MatchManager{
             }
 
             if(this.domManager !== undefined){
-                
+
                 this.domManager.mapId =this.mapInfo.mapId;
                 this.domManager.matchId = this.matchId;
                 this.domManager.playerManager = this.playerManager;
@@ -255,13 +256,16 @@ class MatchManager{
             await this.playerManager.insertScoreHistory(this.matchId);
             new Message(`Inserted player score history`,'pass');
 
-            new Message(`Starting player winrate updates.`,'note');
+            new Message(`Updating player winrates.`,'note');
             await this.playerManager.updateWinRates(this.matchId, this.serverInfo.date, this.gametype.currentMatchGametype);
-            new Message(`Finished player winrate updates.`,'pass');
+
+    
+            new Message(`Update player spree history`,'note');
+
+            await this.playerManager.insertSprees(this.matchId);
 
 
             new Message(`Updating Player Map History.`,'note');
-
             await this.maps.updateAllPlayersHistory(this.playerManager.players, this.mapInfo.mapId, this.matchId, this.serverInfo.date);
             new Message(`Updated player map history.`,'pass');
             //this.maps.updatePlayerHistory(this.playerManager.players[0].masterId, this.mapInfo.matchId);
@@ -271,8 +275,10 @@ class MatchManager{
 
             await this.rankingsManager.setRankingSettings();
 
+            new Message("Getting player totals for rankings calculation.","note");
             const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);
             //need to get player current totals then add them to the scores
+            new Message("Updating player rankings.","note");
             await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype);
 
 
