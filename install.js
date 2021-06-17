@@ -1,7 +1,6 @@
 const mysql = require('./api/database');
 const Message = require('./api/message');
 const fs = require('fs');
-const shajs = require('sha.js');
 const Functions = require('./api/functions');
 
 const queries = [
@@ -186,9 +185,8 @@ const queries = [
 
         const seed = Functions.generateRandomString(10000);
 
-        const hash = shajs('sha256').update(seed).digest("hex");
 
-        const fileContents = `module.exports = () => {  return "${hash}";}`;
+        const fileContents = `module.exports = () => {  return \`${seed}\`;}`;
 
         fs.writeFileSync("./salt.js", fileContents);
 
