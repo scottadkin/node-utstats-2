@@ -1,5 +1,8 @@
 const mysql = require('./api/database');
 const Message = require('./api/message');
+const fs = require('fs');
+const shajs = require('sha.js');
+const Functions = require('./api/functions');
 
 const queries = [
     "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Frag','Player Killed an enemy',300)",
@@ -181,6 +184,14 @@ const queries = [
         
         }
 
+        const seed = Functions.generateRandomString(10000);
+
+        const hash = shajs('sha256').update(seed).digest("hex");
+
+        const fileContents = `module.exports = () => {  return "${hash}";}`;
+
+        fs.writeFileSync("./salt.js", fileContents);
+
         process.exit();
 
     }catch(err){
@@ -188,34 +199,3 @@ const queries = [
     }
 })();
 
-
-/**
- * INSERT INTO nstats_items VALUES(NULL,"AntiGrav Boots","Jump Boots",0,0,0,0,5);
-INSERT INTO nstats_items VALUES(NULL,"Body Armor","Body Armor",0,0,0,0,3);
-INSERT INTO nstats_items VALUES(NULL,"Chainsaw","Chainsaw",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Damage Amplifier","Damage Amplifier",0,0,0,0,4);
-INSERT INTO nstats_items VALUES(NULL,"Double Enforcers","Double Enforcers",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Enforcer","Enforcer",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Enhanced Shock Rifle","Enhanced Shock Rifle",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Flak Cannon","Flak Cannon",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"GES Bio Rifle","GES Bio Rifle",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Health Pack","Health Pack",0,0,0,0,3);
-INSERT INTO nstats_items VALUES(NULL,"Health Vial","Health Vial",0,0,0,0,3);
-INSERT INTO nstats_items VALUES(NULL,"Invisibility","Invisibility",0,0,0,0,4);
-INSERT INTO nstats_items VALUES(NULL,"Minigun","Minigun",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Pulse Gun","Pulse Gun",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Redeemer","Redeemer",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"RelicDeathInventory","Relic Death",0,0,0,0,5);
-INSERT INTO nstats_items VALUES(NULL,"RelicDefenseInventory","Relic Defense",0,0,0,0,5);
-INSERT INTO nstats_items VALUES(NULL,"RelicRedemptionInventory","Relic Redemption",0,0,0,0,5);
-INSERT INTO nstats_items VALUES(NULL,"RelicRegenInventory","Relic Regen",0,0,0,0,5);
-INSERT INTO nstats_items VALUES(NULL,"RelicSpeedInventory","Relic Speed",0,0,0,0,5);
-INSERT INTO nstats_items VALUES(NULL,"RelicStrengthInventory","Relic Strength",0,0,0,0,5);
-INSERT INTO nstats_items VALUES(NULL,"Ripper","Ripper",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Rocket Launcher","Rocket Launcher",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Shield Belt","Shield Belt",0,0,0,0,3);
-INSERT INTO nstats_items VALUES(NULL,"Shock Rifle","Shock Rifle",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Sniper Rifle","Sniper Rifle",0,0,0,0,1);
-INSERT INTO nstats_items VALUES(NULL,"Super Health Pack","Super Health Pack",0,0,0,0,3);
-INSERT INTO nstats_items VALUES(NULL,"Thigh Pads","Thigh Pads",0,0,0,0,3);
- */

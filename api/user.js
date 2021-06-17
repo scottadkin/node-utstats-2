@@ -2,6 +2,8 @@ const mysql = require('./database');
 const Promise = require('promise');
 const shajs = require('sha.js');
 const cookie = require('cookie');
+const Functions  = require('./functions');
+const salt = require('../salt');
 
 class User{
 
@@ -95,7 +97,7 @@ class User{
 
         return new Promise((resolve, reject) =>{
 
-            password = shajs("sha256").update(password).digest("hex");
+            password = shajs("sha256").update(`${salt()}${password}`).digest("hex");
 
             const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE name=? AND password=?";
 
@@ -163,7 +165,7 @@ class User{
 
             const now = Math.floor(Date.now() * 0.001);
 
-            const passwordHash = shajs('sha256').update(password).digest('hex');
+            const passwordHash = shajs('sha256').update(`${salt()}${password}`).digest('hex');
 
             let query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?,0,0)";
 
@@ -285,19 +287,10 @@ class User{
 
         const now = Date.now();
 
-        let current = `${now * Math.random()}-${now}`;
+        
+        const string = Functions.generateRandomString(100);
 
-        let r = 0;
-
-        for(let i = 0; i < 100; i++){
-
-            r = Math.random();
-
-            current += `${r}`;
-
-        }
-
-        hash = shajs('sha256').update(current).digest("hex");
+        hash = shajs('sha256').update(string).digest("hex");
 
         return hash;
     }

@@ -415,6 +415,28 @@ class Functions{
         return data;
     }
 
+
+    static generateRandomChar(){
+
+        const chars = `abcdefghijklmnopqrstuvwxyz0123456789!"$%^&*()_+-=:;@'~#[],.<>?/`;
+
+        const r = Math.floor(Math.random() * (chars.length - 1));
+
+        return chars[r];
+    }
+
+    static generateRandomString(length){
+
+        let string = "";
+
+        for(let i = 0; i < length; i++){
+
+            string += this.generateRandomChar();
+        }
+
+        return string;
+    }
+
 }
 
 module.exports = Functions;
