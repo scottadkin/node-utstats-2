@@ -39,6 +39,8 @@ import SiteSettings from '../../api/sitesettings';
 import Rankings from '../../api/rankings';
 import MatchRankingChanges from '../../components/MatchRankingChanges/';
 import AdminMatchControl from '../../components/AdminMatchControl/';
+import Sprees from '../../api/sprees';
+import MatchSprees from '../../components/MatchSprees/'
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1301,7 +1303,7 @@ class PlayerGraphPingData{
 function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
     domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
-    rankingPositions}){
+    rankingPositions, spreesData}){
 
     //for default head open graph image
     const imageReg = /^.+\/(.+)\.jpg$/i;
@@ -1366,6 +1368,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     playerNames = JSON.stringify(playerNames);
 
     const elems = [];
+
 
     if(pageSettings["Display Summary"] === "true"){
         elems.push(
@@ -1512,6 +1515,12 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         elems.push(
             <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)}/>
         );
+    }
+
+    if(pageSettings["Display Extended Sprees"] === "true"){
+        spreesData = JSON.parse(spreesData);
+    
+        elems.push(<MatchSprees data={spreesData} players={JSON.parse(playerNames)} matchStart={parsedInfo.start}/>);
     }
 
     if(pageSettings["Display Kills Match Up"] === "true"){
@@ -1859,6 +1868,14 @@ export async function getServerSideProps({req, query}){
         }
     }
 
+
+    let spreesData = [];
+
+    if(pageSettings["Display Extended Sprees"] === "true"){
+        const spreesManager = new Sprees();
+        spreesData = await spreesManager.getMatchData(matchId);
+    }
+
     return {
         props: {
             "navSettings": JSON.stringify(navSettings),
@@ -1889,7 +1906,8 @@ export async function getServerSideProps({req, query}){
             "headshotData": JSON.stringify(headshotData),
             "rankingChanges": JSON.stringify(rankingChanges),
             "currentRankings": JSON.stringify(currentRankings),
-            "rankingPositions": JSON.stringify(rankingPositions)
+            "rankingPositions": JSON.stringify(rankingPositions),
+            "spreesData": JSON.stringify(spreesData)
         }
     };
 

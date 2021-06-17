@@ -130,6 +130,7 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Screenshot","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Server Settings","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Special Events","true")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Extended Sprees","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Summary","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Team Changes","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapon Statistics","true")`,
