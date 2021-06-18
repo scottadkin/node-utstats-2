@@ -66,14 +66,96 @@ class MatchScreenshot{
 
         this.createFullscreenEvents();
 
+        this.bDisplayLoading = true;
+
+        
+        this.renderLoading();
+
         this.image.onload = async () =>{
-         //   console.log(`image loaded`);
+ 
             await this.loadPlayerFlags();
             await this.loadPlayerIcons();
             await this.loadIcons();
-            this.render();
+
+            this.bDisplayLoading = false;
+    
             this.setupDownload();
+
+            
         }   
+    }
+
+    renderLoading(){
+
+
+        const minValue = 0;
+        const maxValue = 50;
+        let currentValue = minValue;
+        let bReverse = false;
+
+        let textOffsetX = 50;
+        
+
+        const tick = () =>{
+
+
+            if(!bReverse){
+                currentValue++;
+                if(currentValue >= maxValue){
+                    bReverse = true;
+                }
+            }else{
+                currentValue--;
+                if(currentValue <= minValue){
+                    bReverse = false;
+                }
+            }
+
+  
+            const c = this.context;
+
+            c.fillStyle = `rgb(${currentValue},${currentValue},${currentValue})`;
+            c.fillRect(0,0,this.canvas.width,this.canvas.height);
+
+            c.fillStyle = "white";
+
+            c.textAlign = "center";
+            c.font = `${this.y(5)}px Arial`;
+
+            const textWidth = this.xPercent(c.measureText("Loading Please Wait...").width);
+
+            console.log(this.xPercent(textWidth));
+
+            textOffsetX+=1;
+
+            if(textOffsetX > 100 + (textWidth * 0.5)){
+                textOffsetX = -textWidth * 0.5;
+            }
+
+            c.textBaseline = "top";
+
+            for(let i = 0; i < 20; i++){
+                c.fillText("Loading Please Wait...", this.x(textOffsetX), this.y((i * 5)));
+            }
+
+            c.textAlign = "left";
+
+            if(!this.bDisplayLoading){
+
+                clearInterval(loading);
+              
+                this.render();
+            
+            }
+
+        }
+
+        const loading = setInterval(tick, 33);
+
+    
+        
+            
+        
     }
 
 
@@ -235,6 +317,13 @@ class MatchScreenshot{
 
     x(input){
         return (this.canvas.width * 0.01) * input;
+    }
+
+    xPercent(input){
+
+        const bit = 100 / this.canvas.width;
+
+        return bit * input;
     }
 
     y(input){
@@ -973,6 +1062,7 @@ class MatchScreenshot{
     }
 
     render(){
+
 
         const c = this.context;
 
