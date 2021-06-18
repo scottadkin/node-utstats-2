@@ -673,7 +673,7 @@ class Player{
             flag_taken,flag_dropped,flag_capture,flag_pickup,flag_seal,flag_cover,flag_cover_pass,flag_cover_fail,
             flag_self_cover,flag_self_cover_pass,flag_self_cover_fail,flag_multi_cover,flag_spree_cover,flag_kill,
             flag_save,dom_caps,assault_objectives,playtime,matches
-            FROM nstats_player_totals WHERE gametype=? AND id=?
+            FROM nstats_player_totals WHERE gametype=? AND player_id=?
             `;
 
             mysql.query(query, [gametype, player], (err, result) =>{

@@ -437,6 +437,19 @@ class Functions{
         return string;
     }
 
+    static removeExtension(input){
+
+        const reg = /^(.+)\..+?$/i;
+
+        const result = reg.exec(input);
+
+        if(result !== null){
+
+            return result[1];
+        }
+
+        return input;
+    }
 }
 
 module.exports = Functions;

@@ -9,29 +9,55 @@ import Gametypes from '../../api/gametypes';
 import Servers from '../../api/servers';
 import Maps from '../../api/maps';
 import MatchSummary from "../../components/MatchSummary";
+import Player from "../../api/player";
+import Functions from '../../api/functions';
 
 class PlayerMatch extends React.Component{
 
     constructor(props){
 
         super(props);
+
+        console.log(this.props.playerData);
+    }
+
+    cleanImageURL(input){
+
+        const reg = /^\/images\/(.+)$/i;
+
+        const result = reg.exec(input);
+
+        if(result !== null){
+
+            return result[1];
+        }
+        return input;
     }
 
     render(){
 
+        const info = JSON.parse(this.props.info);
+        const playerData = JSON.parse(this.props.playerData);
+
+        let titleName = playerData.name;
+        titleName+=(titleName[titleName.length - 1] == "s") ? "'" : "'s";
+
+        const dateString = Functions.convertTimestamp(info.date, true);
+
+
         return <div>
             <DefaultHead 
                 host={this.props.host} 
-                title={`Player Match Report`} 
-                description={`Player Match report ) .`} 
-                keywords={`match,report,player`}
-                /*image={ogImage}    */
+                title={`${titleName} Match Report`} 
+                description={`${titleName} match report for ${this.props.map} (${this.props.gametype}${(info.insta) ? " Instagib" : ""}) ${dateString}.`} 
+                keywords={`match,report,player,${playerData.name},${this.props.map},${this.props.gametype}`}
+                image={this.cleanImageURL(this.props.mapImage)}    
             />
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
                 
                 <div className="default">
-                    <div className="default-header">Player Match Report</div>
+                    <div className="default-header">{titleName} Match Report</div>
                     <MatchSummary 
                         info={this.props.info} 
                         server={this.props.server} 
@@ -59,9 +85,13 @@ export async function getServerSideProps({req, query}){
         if(matchId !== matchId) matchId = -1;
     }
 
-    
+    if(query.player !== undefined){
 
-    console.log(query);
+        playerId = parseInt(query.player);
+
+        if(playerId !== playerId) playerId = -1;
+    }
+    
 
     const session = new Session(req);
 
@@ -82,6 +112,18 @@ export async function getServerSideProps({req, query}){
     const mapManager = new Maps();
     const mapName = await mapManager.getName(info.map);
 
+    const playerManager = new Player();
+
+    const playerData = await playerManager.getPlayerById(playerId);
+    const playerMatchData = await playerManager.getMatchData(playerId, matchId);
+    const playerGametypeData = await playerManager.getGametypeTotals(playerId, info.gametype);
+
+    const mapImage = Functions.removeExtension(await mapManager.getImage(mapName));
+    
+    
+
+
+    console.log(`mpaImage = ${mapImage}`);
     return {
         "props": {
             "host": req.headers.host,
@@ -90,7 +132,11 @@ export async function getServerSideProps({req, query}){
             "info": JSON.stringify(info),
             "server": serverName,
             "gametype": gametypeName,
-            "map": mapName
+            "map": mapName,
+            "playerData": JSON.stringify(playerData),
+            "playerMatchData": JSON.stringify(playerMatchData),
+            "playerGametypeData": JSON.stringify(playerGametypeData),
+            "mapImage": mapImage
         }
     }
 }
