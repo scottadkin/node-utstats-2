@@ -959,7 +959,7 @@ class Players{
     }
 
 
-    async deleteMatches(playerId){
+    async deleteAllMatches(playerId){
 
         await mysql.simpleDelete("DELETE FROM nstats_player_matches WHERE player_id=?", [playerId]);
     }
@@ -967,9 +967,6 @@ class Players{
     async deletePlayer(playerId, matchManager){
 
         try{
-
-            console.log(`Delete Player ${playerId}`);
-
             const assaultManager = new Assault();
 
             await assaultManager.deletePlayer(playerId);
@@ -1032,7 +1029,7 @@ class Players{
 
             await this.deleteMapTotals(playerId);
 
-            await this.deleteMatches(playerId);
+            await this.deleteAllMatches(playerId);
 
 
             const weaponsManager = new Weapons();
