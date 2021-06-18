@@ -19,6 +19,7 @@ const CountriesManager = require('./countriesmanager');
 const Faces = require('./faces');
 const Teams = require('./teams');
 const Voices = require('./voices');
+const Sprees = require('./sprees');
 
 class Players{
 
@@ -911,6 +912,10 @@ class Players{
                 await winrateManager.recalculatePlayerHistoryAfterMerge(second.id, updatedPlayerMatches);
                 //await winrateManager.recalculatePlayerHistory(updatedPlayerMatches, second.id, );
 
+                const spreeManager = new Sprees();
+
+                await spreeManager.changePlayerIds(first.id, second.id);
+
 
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");
@@ -1045,6 +1050,10 @@ class Players{
             const winrateManager = new Winrate();
 
             await winrateManager.deletePlayer(playerId);
+
+            const spreeManager = new Sprees();
+
+            await spreeManager.deletePlayer(playerId);
 
             //delete player totals last
 

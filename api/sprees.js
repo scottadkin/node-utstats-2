@@ -58,6 +58,30 @@ class Sprees{
         return await mysql.simpleFetch(query, vars);
 
     }
+
+    async deletePlayerMatchData(playerId, matchId){
+
+        const query = "DELETE FROM nstats_sprees WHERE match_id=? AND player=?";
+
+        await mysql.simpleDelete(query, [matchId, playerId]);
+    }
+
+    async deletePlayer(playerId){
+
+        const query = "DELETE FROM nstats_sprees WHERE player=?";
+
+        await mysql.simpleDelete(query, [playerId]);
+    }
+
+    async changePlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_sprees SET player=? WHERE player=?`;
+        const query2 = `UPDATE nstats_sprees SET killer=? WHERE killer=?`;
+
+        await mysql.simpleUpdate(query, [newId, oldId]);
+        await mysql.simpleUpdate(query2, [newId, oldId]);
+        
+    }
 }
 
 

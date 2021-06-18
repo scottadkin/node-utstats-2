@@ -16,6 +16,7 @@ const Weapons = require('./weapons');
 const Rankings = require('./rankings');
 const Voices = require('./voices');
 const WinRate = require('./winrate');
+const Sprees = require('./sprees');
 
 class Player{
 
@@ -901,8 +902,6 @@ class Player{
 
             let playerNames = await this.getNames([playerId]);
 
-            console.log(playerNames);
-
             const mapIterator = playerNames.values();
 
             matchData.name = mapIterator.next().value;
@@ -979,9 +978,11 @@ class Player{
                 await winRateManager.deletePlayerFromMatch(playerId, matchId, matchData.gametype);
 
 
+                const spreeManager = new Sprees();
+
+                await spreeManager.deletePlayerMatchData(playerId, matchId);
+
                 await this.deletePlayerMatch(playerId, matchId);
-
-
 
                 await matchManager.reducePlayerCount(matchId, 1);
 
