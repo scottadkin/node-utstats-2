@@ -34,11 +34,11 @@ function Nav({session, settings}){
 
     const urls = {
         "Display Home": {"text": "Home", "url": "/"},
-        "Display Matches": {"text": "Matches", "url": "/matches", "alt": "/match/[id]"},
-        "Display Players": {"text": "Players", "url": "/players", "alt": "/player/[id]"},
-        "Display Rankings":{"text": "Rankings", "url": "/rankings", "alt": "/rankings/[id]"},
+        "Display Matches": {"text": "Matches", "url": "/matches", "alt": ["/match/[id]","/pmatch/[match]"]},
+        "Display Players": {"text": "Players", "url": "/players", "alt": ["/player/[id]"]},
+        "Display Rankings":{"text": "Rankings", "url": "/rankings", "alt": ["/rankings/[id]"]},
         "Display Records": {"text": "Records", "url": "/records"},
-        "Display Maps": {"text": "Maps", "url": "/maps", "alt": "/map/[id]"},
+        "Display Maps": {"text": "Maps", "url": "/maps", "alt": ["/map/[id]"]},
         "Display Admin": {"text": "Admin", "url": "/admin"},
         "Display Login/Logout": {"text": "Login/Register", "url": "/login"},
         
@@ -95,6 +95,8 @@ function Nav({session, settings}){
 
     for(let i = 0; i < links.length; i++){
 
+        bCurrent = false;
+
         if(pathName === links[i].url.toLowerCase()){
 
             bCurrent = true;
@@ -103,17 +105,16 @@ function Nav({session, settings}){
 
             if(links[i].alt !== undefined){
 
-                if(pathName === links[i].alt.toLowerCase()){
-                    bCurrent = true;
-                }else{
-                    bCurrent = false;
+                for(let x = 0; x < links[i].alt.length; x++){
+                    
+                    if(pathName === links[i].alt[x].toLowerCase()){
+                        bCurrent = true;
+                    }
                 }
 
-            }else{
-
-                bCurrent = false;
             }
         }
+
 
         elems.push(<Link key={i} href={links[i].url}><a><div className={`nl ${(bCurrent) ? "green" : null}`}>{links[i].text}</div></a></Link>);
     }
