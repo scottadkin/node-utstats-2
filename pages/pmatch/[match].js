@@ -14,6 +14,7 @@ import Functions from '../../api/functions';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
 import MatchFragSummary from "../../components/MatchFragSummary";
+import MatchSpecialEvents from "../../components/MatchSpecialEvents";
 
 class PlayerMatch extends React.Component{
 
@@ -85,11 +86,13 @@ class PlayerMatch extends React.Component{
                         />
 
                         <MatchFragSummary 
-                            playerData={[JSON.parse(this.props.playerMatchData)]} 
+                            playerData={[playerMatchData]} 
                             totalTeams={parsedInfo.total_teams}
                             matchStart={parsedInfo.start}
                             single={true}
                         />
+
+                        <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 
                       
                     </div>

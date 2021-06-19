@@ -19,9 +19,6 @@
     padding:5px;
 }
 
-.table td:nth-child(1){
-    text-align:left;
-}
 
 .table{
     margin-bottom:20px;

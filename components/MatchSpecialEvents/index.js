@@ -84,7 +84,7 @@ class MatchSpecialEvents extends React.Component{
                 if(this.state.mode === 2){
 
                     elems.push(<tr key={`multi-2-${i}`}>
-                        <td className={bgColor}>{countryFlag}{playerName}</td>
+                        {(this.props.single) ? null :<td className={`${bgColor} text-left`}>{countryFlag}{playerName}</td>}
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -98,7 +98,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 0){
 
                     elems.push(<tr key={`multi-0-${i}`}>
-                        <td className={bgColor}>{countryFlag}{playerName}</td>
+                         {(this.props.single) ? null :<td className={`${bgColor} text-left`}>{countryFlag}{playerName}</td>}
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -109,7 +109,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 3){
 
                     elems.push(<tr key={`multi-3-${i}`} >
-                        <td className={bgColor}>{countryFlag}{playerName}</td>
+                        {(this.props.single) ? null : <td className={`${bgColor} text-left`}>{countryFlag}{playerName}</td>}
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -121,7 +121,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 1){
 
                     elems.push(<tr key={`multi-1-${i}`} className={bgColor}>
-                        <td className={bgColor}>{countryFlag}{playerName}</td>
+                         {(this.props.single) ? null :<td className={`${bgColor} text-left`}>{countryFlag}{playerName}</td>}
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -140,7 +140,7 @@ class MatchSpecialEvents extends React.Component{
             if(this.state.mode === 2){
 
                 elems.unshift(<tr key={`multi-2-h`}>
-                    <th>Player</th>
+                    {(this.props.single) ? null : <th className="text-left">Player</th>}
                     <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
                     <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
                     <TipHeader title={"Mega Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
@@ -154,7 +154,7 @@ class MatchSpecialEvents extends React.Component{
             }else if(this.state.mode === 0){
 
                 elems.unshift(<tr key={`multi-0-h`}>
-                    <th>Player</th>
+                     {(this.props.single) ? null :<th className="text-left">Player</th>}
                     <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
                     <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
                     <TipHeader title={"Ultra Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
@@ -165,7 +165,7 @@ class MatchSpecialEvents extends React.Component{
             }else if(this.state.mode === 3){
 
                 elems.unshift(<tr key={`multi-3-h`}>
-                    <th>Player</th>
+                     {(this.props.single) ? null :<th className="text-left">Player</th>}
                     <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
                     <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
                     <TipHeader title={"Mega Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
@@ -177,7 +177,7 @@ class MatchSpecialEvents extends React.Component{
             }else if(this.state.mode === 1){
 
                 elems.unshift(<tr key={`multi-1-h`}>
-                    <th>Player</th>
+                     {(this.props.single) ? null :<th className="text-left">Player</th>}
                     <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
                     <TipHeader title={"Triple Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
                     <TipHeader title={"Multi Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
@@ -200,8 +200,9 @@ class MatchSpecialEvents extends React.Component{
             </div>
 
         }else{
-            return [];
+            return null;
         }
+
     }
 
 
@@ -252,7 +253,7 @@ class MatchSpecialEvents extends React.Component{
                 if(this.state.mode === 0){
 
                     elems.push(<tr key={`spree-0-${i}`}>
-                        <td className={color}>{flag}{playerName}</td>
+                         {(this.props.single) ? null :<td className={`${color} text-left`}>{flag}{playerName}</td>}
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -263,8 +264,8 @@ class MatchSpecialEvents extends React.Component{
 
                 }else if(this.state.mode === 1){
 
-                    elems.push(<tr  key={`spree-1-${i}`} className={color}>
-                        <td className={color}>{flag}{playerName}</td>
+                    elems.push(<tr  key={`spree-1-${i}`} >
+                         {(this.props.single) ? null :<td className={`${color} text-left`}>{flag}{playerName}</td>}
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -278,7 +279,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 2){
 
                     elems.push(<tr  key={`spree-2-${i}`} className={color}>
-                        <td className={color}>{flag}{playerName}</td>
+                         {(this.props.single) ? null :<td className={`${color} text-left`}>{flag}{playerName}</td>}
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -291,7 +292,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 3){
 
                     elems.push(<tr  key={`spree-3-${i}`} className={color}>
-                        <td className={color}>{flag}{playerName}</td>
+                         {(this.props.single) ? null :<td className={`${color} text-left`}>{flag}{playerName}</td>}
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -312,7 +313,7 @@ class MatchSpecialEvents extends React.Component{
 
                 elems.unshift(
                     <tr key={`spree-0-h`}>
-                        <th>Player</th>
+                         {(this.props.single) ? null :<th className="text-left">Player</th>}
                         <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
                         <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
@@ -326,7 +327,7 @@ class MatchSpecialEvents extends React.Component{
 
                 elems.unshift(
                     <tr key={`spree-1-h`}>
-                        <th>Player</th>
+                         {(this.props.single) ? null :<th className="text-left">Player</th>}
                         <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
                         <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
@@ -342,7 +343,7 @@ class MatchSpecialEvents extends React.Component{
 
                 elems.unshift(
                     <tr key={`spree-2-h`}>
-                        <th>Player</th>
+                         {(this.props.single) ? null :<th className="text-left">Player</th>}
                         <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
                         <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
@@ -357,7 +358,7 @@ class MatchSpecialEvents extends React.Component{
 
                 elems.unshift(
                     <tr key={`spree-3-h`}>
-                        <th>Player</th>
+                         {(this.props.single) ? null :<th className="text-left">Player</th>}
                         <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
                         <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
@@ -378,7 +379,7 @@ class MatchSpecialEvents extends React.Component{
             </div>
         }
 
-        return elems;
+        return null;
     }
 
 
@@ -387,6 +388,21 @@ class MatchSpecialEvents extends React.Component{
         let p = 0;
 
         let bgColor = "team-none";
+
+        if(this.props.single){
+
+            p = this.props.players[0];
+
+            if(p.first_blood){
+                return <div className={styles.first}>
+                    <div>First Blood</div>
+                    <div className={bgColor}>Yes</div>
+                </div>
+            }
+
+            return null;
+        }
+
 
         for(let i = 0; i < this.props.players.length; i++){
 
@@ -404,7 +420,7 @@ class MatchSpecialEvents extends React.Component{
             }
         }
 
-        return [];
+        return null;
     }
 
     render(){
@@ -413,12 +429,21 @@ class MatchSpecialEvents extends React.Component{
         const multiElems = this.createMultiElems();
         const spreeElems = this.createSpreeElems();
 
+        const firstBloodElem = this.firetBloodElem();
+
+        if(multiElems === null && spreeElems === null && firstBloodElem === null){
+            return null;
+        }
+
+        console.log(`multiElems = ${multiElems}`);
+        console.log(`spreeElems = ${spreeElems}`);
+
         return (<div><div className={styles.special}>
 
             <div className="default-header">Special Events</div>
 
             {
-                (this.bAnyTypeData('spree') || this.bAnyTypeData('multi')) ?
+                (multiElems != null || spreeElems != null) ?
                 <div className="tabs">
                     <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : '' }`} onClick={(() =>{
                         this.changeMode(0)
@@ -441,7 +466,7 @@ class MatchSpecialEvents extends React.Component{
 
             {spreeElems}
 
-            {this.firetBloodElem()}
+            {firstBloodElem}
 
         </div></div>);
     }
