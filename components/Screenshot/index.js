@@ -5,7 +5,7 @@ import {useEffect, useRef} from "react";
 
 class MatchScreenshot{
 
-    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces){
+    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight){
 
    
         console.log(`new match screenshot`);
@@ -15,9 +15,11 @@ class MatchScreenshot{
         this.download = download;
         this.downloadJPG = downloadJPG;
         this.downloadBMP = downloadBMP;
+        
 
         this.map = map;
         this.players = JSON.parse(players);
+        console.log(this.players);
         //console.log(this.players);
         this.teams = parseInt(teams);
 
@@ -25,6 +27,10 @@ class MatchScreenshot{
         this.serverName = serverName;
         this.gametype = gametype;
         this.faces = JSON.parse(faces);
+
+        this.highlight = highlight;
+        console.log(highlight);
+    
 
         //console.log(this.matchData);
 
@@ -46,11 +52,13 @@ class MatchScreenshot{
         this.image = new Image();
         this.image.src = image;
 
+
         this.colors = {
             "red": "rgb(226,0,0)",
             "blue": "rgb(62,144,194)",
             "green": "rgb(0,181,0)",
             "yellow": "rgb(255,255,0)",
+            "yellowPlayer": "rgb(255,255,198)",
             "greenFooter": "rgb(0,255,0)",
             "dmName": "rgb(45,174,241)",
             "dmScore": "rgb(181,255,255)"
@@ -79,7 +87,7 @@ class MatchScreenshot{
 
             this.bDisplayLoading = false;
     
-            this.setupDownload();
+            
 
             
         }   
@@ -145,6 +153,7 @@ class MatchScreenshot{
                 clearInterval(loading);
               
                 this.render();
+                this.setupDownload();
             
             }
 
@@ -445,7 +454,9 @@ class MatchScreenshot{
         const x = this.x(startX);
         const y = this.y(startY) + (rowHeight * index);
 
+    
         c.fillStyle = this.getTeamColor(team);
+       
 
         if(bFinal !== undefined){
 
@@ -490,7 +501,13 @@ class MatchScreenshot{
         c.fillText(`PING: ${ping}`, x - this.x(4), y + pingSize + this.y(0.2));
 
 
-        c.fillStyle = this.getTeamColor(team);
+        if(team !== 3){
+            c.fillStyle = this.getTeamColor(team);
+        }else{
+            c.fillStyle = this.colors.yellowPlayer;
+        }
+
+        this.highlightPlayer(name, true);
 
         c.font = scoreFontSize+"px Arial";
         c.fillText(name, x, y);
@@ -602,6 +619,18 @@ class MatchScreenshot{
         this.renderFooter(c);
     }
 
+    highlightPlayer(name){
+
+        if(this.highlight !== undefined){
+
+            if(name === this.highlight){
+         
+                this.context.fillStyle = "yellow";
+                
+            }
+        }
+      
+    }
 
     renderStandardPlayer(c, index, name, score, deaths, ping, time, country){
 
@@ -628,10 +657,16 @@ class MatchScreenshot{
 
         c.font = defaultSize+"px Arial";
         c.fillStyle = this.colors.dmName;
+
+        this.highlightPlayer(name);
         c.fillText(name, row1X, y);
 
         c.textAlign = "right";
         c.fillStyle = this.colors.dmScore;
+        this.highlightPlayer(name);
+
+    
+
         c.fillText(score, row2X, y);
         c.fillText(deaths, row3X, y);
 
@@ -702,6 +737,11 @@ class MatchScreenshot{
         c.fillRect(x, y, width, height);
 
         c.fillStyle = this.getTeamColor(team);
+
+        
+        this.highlightPlayer(player.name);
+
+        
 
         const pingSize = this.y(0.9);
         const nameSize = this.y(2);
@@ -1087,7 +1127,7 @@ class MatchScreenshot{
 
 
 
-const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype, faces}) =>{
+const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight}) =>{
 
     const sshot = useRef(null);
     const sshotDownload = useRef(null);
@@ -1095,7 +1135,21 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
     const sshotDownload3 = useRef(null);
 
     useEffect(() =>{
-        new MatchScreenshot(sshot.current, sshotDownload.current, sshotDownload2.current, sshotDownload3.current, image, map, players,totalTeams, matchData, serverName, gametype, faces);
+        new MatchScreenshot(
+            sshot.current, 
+            sshotDownload.current, 
+            sshotDownload2.current, 
+            sshotDownload3.current, 
+            image, 
+            map, 
+            players,
+            totalTeams, 
+            matchData, 
+            serverName, 
+            gametype, 
+            faces,
+            highlight
+            );
     });
 
 
