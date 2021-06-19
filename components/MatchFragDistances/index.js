@@ -23,7 +23,7 @@ const bAnyData = (data) =>{
     return false;
 }
 
-const MatchFragDistances = ({players, team, toDisplay}) =>{
+const MatchFragDistances = ({players, team, toDisplay, single}) =>{
 
     const elems = [];
 
@@ -69,7 +69,10 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
         if(bAnyData(p)){
 
             elems.push(<tr key={i}>
-                <td className={`text-left name-td ${bgColor}`}><Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
+                {(single) ? null :
+                <td className={`text-left name-td ${bgColor}`}>
+                    <Link href={`/player/${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link>
+                </td>}
                 <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
                 <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>
                 <td>{Functions.ignore0(p.longest_kill_distance.toFixed(2))}</td>
@@ -87,9 +90,9 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
         totalAverage = totalAverage / index;
     }
 
-    if(elems.length > 0){
+    if(elems.length > 0 && !single){
         elems.push(<tr key={"end"}>
-            <td className="text-left">Best/Totals</td>
+            {(single) ? null :<td className="text-left">Best/Totals</td>}
             <td>{parseFloat(Functions.ignore0(shortestKillTotal)).toFixed(2)}</td>
             <td>{parseFloat(Functions.ignore0(totalAverage)).toFixed(2)}</td>
             <td>{parseFloat(Functions.ignore0(longestKillTotal)).toFixed(2)}</td>
@@ -102,7 +105,7 @@ const MatchFragDistances = ({players, team, toDisplay}) =>{
     if(elems.length > 0){
 
         elems.unshift(<tr key={"start"}>
-            <th>Player</th>
+            {(single) ? null :<th>Player</th>}
             <th>Shortest Distance</th>
             <th>Average Distance</th>
             <th>Longest Distance</th>

@@ -13,6 +13,7 @@ import Player from "../../api/player";
 import Functions from '../../api/functions';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
+import MatchFragSummary from "../../components/MatchFragSummary";
 
 class PlayerMatch extends React.Component{
 
@@ -47,6 +48,8 @@ class PlayerMatch extends React.Component{
 
         const parsedInfo = JSON.parse(this.props.info);
 
+        const playerMatchData = JSON.parse(this.props.playerMatchData);
+
 
         return <div>
             <DefaultHead 
@@ -58,28 +61,38 @@ class PlayerMatch extends React.Component{
             />
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
-                
-                <div className="default">
-                    <div className="default-header">{titleName} Match Report</div>
-                    <MatchSummary 
-                        info={this.props.info} 
-                        server={this.props.server} 
-                        gametype={this.props.gametype}
-                        map={this.props.map} 
-                        image={this.props.mapImage}
-                     />
+                <div id="content">
+                    <div className="default">
+                        <div className="default-header">{titleName} Match Report</div>
+                        <MatchSummary 
+                            info={this.props.info} 
+                            server={this.props.server} 
+                            gametype={this.props.gametype}
+                            map={this.props.map} 
+                            image={this.props.mapImage}
+                        />
 
-                    <Screenshot 
-                        map={this.props.map} 
-                        totalTeams={parsedInfo.total_teams} 
-                        players={this.props.players} 
-                        image={this.props.mapImage} 
-                        matchData={this.props.info} 
-                        serverName={this.props.server} 
-                        gametype={this.props.gametype} 
-                        faces={this.props.faces}
-                        highlight={playerData.name}
-                    />
+                        <Screenshot 
+                            map={this.props.map} 
+                            totalTeams={parsedInfo.total_teams} 
+                            players={this.props.players} 
+                            image={this.props.mapImage} 
+                            matchData={this.props.info} 
+                            serverName={this.props.server} 
+                            gametype={this.props.gametype} 
+                            faces={this.props.faces}
+                            highlight={playerData.name}
+                        />
+
+                        <MatchFragSummary 
+                            playerData={[JSON.parse(this.props.playerMatchData)]} 
+                            totalTeams={parsedInfo.total_teams}
+                            matchStart={parsedInfo.start}
+                            single={true}
+                        />
+
+                      
+                    </div>
                 </div>
                 <Footer session={this.props.session}/>
             </main>
@@ -154,7 +167,7 @@ export async function getServerSideProps({req, query}){
 
 
     const playerNames = await playerManager.getNames(playerIds);
-    console.log(playerNames);
+
 
     let currentName = "";
 
@@ -174,6 +187,9 @@ export async function getServerSideProps({req, query}){
 
     const playerData = await playerManager.getPlayerById(playerId);
     const playerMatchData = await playerManager.getMatchData(playerId, matchId);
+
+    playerMatchData.name = playerData.name;
+
     const playerGametypeData = await playerManager.getGametypeTotals(playerId, info.gametype);
 
     const mapImage = await mapManager.getImage(mapName);

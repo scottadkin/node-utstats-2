@@ -29,11 +29,12 @@ const bAnyData = (data) =>{
     return false;
 }
 
-const MatchFragTable = ({players, team, matchStart, toDisplay}) =>{
+const MatchFragTable = ({players, team, matchStart, toDisplay, single}) =>{
 
     if(players.length === 0) return null;
 
     let bgColor = Functions.getTeamColor(team);
+
 
     const elems = [];
     
@@ -68,7 +69,11 @@ const MatchFragTable = ({players, team, matchStart, toDisplay}) =>{
         if(bAnyData(p)){
 
             elems.push(<tr key={`frag_tr_${team}_${i}`} >
-                <td className={`text-left ${bgColor}`}><CountryFlag key={`frag_country__${team}_${i}`} country={p.country} /><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+                {(single) ? null : 
+                <td className={`text-left ${bgColor}`}>
+                    <CountryFlag key={`frag_country__${team}_${i}`} country={p.country} />
+                    <Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link>
+                </td>}
                 <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime - matchStart} /></td>
                 <td>{Functions.ignore0(p.score)}</td>
                 <td>{Functions.ignore0(p.frags)}</td>
@@ -91,27 +96,28 @@ const MatchFragTable = ({players, team, matchStart, toDisplay}) =>{
         totalEff = 100;
     }
 
-
-    elems.push(<tr key={`frag_tr_total__${team}`} className={`${styles.totals}`}>
-        <td className="text-left">Totals</td>
-        <td><MMSS key={`frag_country__${team}_total`} timestamp={totalPlaytime} /></td>
-        <td>{Functions.ignore0(totalScore)}</td>
-        <td>{Functions.ignore0(totalFrags)}</td>
-        <td>{Functions.ignore0(totalKills)}</td>
-        <td>{Functions.ignore0(totalDeaths)}</td>
-        {(toDisplay.indexOf('suicides') !== -1) ? <td>{Functions.ignore0(totalSuicides)}</td> : null}
-        {(toDisplay.indexOf('team_kills') !== -1) ? <td>{Functions.ignore0(totalTeamKills)}</td> : null}
-        {(toDisplay.indexOf('headshots') !== -1) ? <td>{Functions.ignore0(totalHeadshots)}</td> : null}
-        {(toDisplay.indexOf('spawn_kills') !== -1) ? <td>{Functions.ignore0(totalSpawnKills)}</td> : null}
-       
-        <td>{totalEff.toFixed(2)}%</td>
-    
-    </tr>);
+    if(!single){
+        elems.push(<tr key={`frag_tr_total__${team}`} className={`${styles.totals}`}>
+            <td className="text-left">Totals</td>
+            <td><MMSS key={`frag_country__${team}_total`} timestamp={totalPlaytime} /></td>
+            <td>{Functions.ignore0(totalScore)}</td>
+            <td>{Functions.ignore0(totalFrags)}</td>
+            <td>{Functions.ignore0(totalKills)}</td>
+            <td>{Functions.ignore0(totalDeaths)}</td>
+            {(toDisplay.indexOf('suicides') !== -1) ? <td>{Functions.ignore0(totalSuicides)}</td> : null}
+            {(toDisplay.indexOf('team_kills') !== -1) ? <td>{Functions.ignore0(totalTeamKills)}</td> : null}
+            {(toDisplay.indexOf('headshots') !== -1) ? <td>{Functions.ignore0(totalHeadshots)}</td> : null}
+            {(toDisplay.indexOf('spawn_kills') !== -1) ? <td>{Functions.ignore0(totalSpawnKills)}</td> : null}
+        
+            <td>{totalEff.toFixed(2)}%</td>
+        
+        </tr>);
+    }
 
     return (<table className={`${styles.table} center m-bottom-25 t-width-1`}>
         <tbody>
             <tr className={bgColor}>
-                <th className="name-td">Player</th>
+                {(single) ? null : <th className="name-td">Player</th>}
                 <th>Playtime</th>
                 <th>Score</th>
                 <th>Frags</th>
