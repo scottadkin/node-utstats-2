@@ -10,11 +10,14 @@ import Servers from '../../api/servers';
 import Maps from '../../api/maps';
 import MatchSummary from "../../components/MatchSummary";
 import Player from "../../api/player";
+import Players from "../../api/players";
 import Functions from '../../api/functions';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
 import MatchFragSummary from "../../components/MatchFragSummary";
 import MatchSpecialEvents from "../../components/MatchSpecialEvents";
+import MatchSprees from '../../components/MatchSprees';
+import Sprees from '../../api/sprees';
 
 class PlayerMatch extends React.Component{
 
@@ -94,6 +97,8 @@ class PlayerMatch extends React.Component{
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 
+                        <MatchSprees data={JSON.parse(this.props.sprees)} players={JSON.parse(this.props.playerNames)} matchStart={parsedInfo.start}/>
+
                       
                     </div>
                 </div>
@@ -144,6 +149,7 @@ export async function getServerSideProps({req, query}){
     const mapName = await mapManager.getName(info.map);
 
     const playerManager = new Player();
+    const playersManager = new Players();
 
     const players = await playerManager.getAllInMatch(matchId);
     
@@ -169,16 +175,37 @@ export async function getServerSideProps({req, query}){
     }
 
 
-    const playerNames = await playerManager.getNames(playerIds);
+    const playerNames = await playersManager.getNamesByIds(playerIds);
 
+    const playerNamesObject = {};
+
+
+    console.table(playerNames);
+    console.table(playerNamesObject);
 
     let currentName = "";
+
+    const getPlayerName = (id) =>{
+
+        let p = 0;
+
+        for(let i = 0; i < playerNames.length; i++){
+
+            p = playerNames[i];
+
+            if(p.id === id){
+                return p.name;
+            }
+        }
+
+        return "Not Found";
+    }
 
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
 
-        currentName = playerNames.get(p.player_id);
+        currentName = getPlayerName(p.player_id);
 
         if(currentName === undefined){
             currentName = "Not Found";
@@ -202,6 +229,10 @@ export async function getServerSideProps({req, query}){
     const playerFaces = await faceManager.getFacesWithFileStatuses(playerFaceIds);
 
 
+    const spreeManager = new Sprees();
+
+    const spreeData = await spreeManager.getPlayerMatchData(matchId, playerId);
+
 
 
     return {
@@ -213,13 +244,15 @@ export async function getServerSideProps({req, query}){
             "server": serverName,
             "gametype": gametypeName,
             "map": mapName,
+            "playerNames": JSON.stringify(playerNames),
             "playerData": JSON.stringify(playerData),
             "playerMatchData": JSON.stringify(playerMatchData),
             "playerGametypeData": JSON.stringify(playerGametypeData),
             "mapImage": mapImage,
             "cleanMapImage": cleanMapImage,
             "players": JSON.stringify(players),
-            "faces": JSON.stringify(playerFaces)
+            "faces": JSON.stringify(playerFaces),
+            "sprees": JSON.stringify(spreeData)
         }
     }
 }

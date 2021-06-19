@@ -6,8 +6,6 @@ const showTipBox = (title, content, event) =>{
     const titleElem = document.getElementById("mouse-over-title");
     const contentElem = document.getElementById("mouse-over-content");
 
-
-    console.log(event.pageY);
     titleElem.innerHTML = title;
     contentElem.innerHTML = content;
     elem.style.cssText = `display:block;position:fixed;margin-top:${event.pageY + 25}px;margin-left:${event.pageX + 10}px;`;

@@ -59,6 +59,14 @@ class Sprees{
 
     }
 
+    async getPlayerMatchData(matchId, playerId){
+
+        const query = "SELECT id,player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=? AND (player=? || killer=?)";
+        const vars = [matchId, playerId, playerId];
+        return await mysql.simpleFetch(query, vars);
+
+    }
+
     async deletePlayerMatchData(playerId, matchId){
 
         const query = "DELETE FROM nstats_sprees WHERE match_id=? AND player=?";
