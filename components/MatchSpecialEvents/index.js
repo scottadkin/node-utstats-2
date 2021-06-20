@@ -79,6 +79,12 @@ class MatchSpecialEvents extends React.Component{
 
                 if(this.bTeamGame){
                     bgColor = Functions.getTeamColor(p.team);
+                }else{
+                    bgColor = null;
+                }
+
+                if(this.props.single !== undefined){
+                    bgColor = null;
                 }
 
                 if(this.state.mode === 2){
@@ -248,6 +254,12 @@ class MatchSpecialEvents extends React.Component{
 
                 if(this.bTeamGame){
                     color = Functions.getTeamColor(p.team);
+                }else{
+                    color = null;
+                }
+
+                if(this.props.single !== undefined){
+                    color = null;
                 }
 
                 if(this.state.mode === 0){
@@ -434,9 +446,6 @@ class MatchSpecialEvents extends React.Component{
         if(multiElems === null && spreeElems === null && firstBloodElem === null){
             return null;
         }
-
-        console.log(`multiElems = ${multiElems}`);
-        console.log(`spreeElems = ${spreeElems}`);
 
         return (<div><div className={styles.special}>
 
