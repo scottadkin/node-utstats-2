@@ -277,6 +277,7 @@ class MatchManager{
 
             new Message("Getting player totals for rankings calculation.","note");
             const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);
+
             //need to get player current totals then add them to the scores
             new Message("Updating player rankings.","note");
             await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype);

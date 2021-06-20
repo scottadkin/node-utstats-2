@@ -1440,17 +1440,21 @@ class PlayerManager{
 
             for(let i = 0; i < this.players.length; i++){
 
+
                 p = this.players[i];
 
                 if(p.bDuplicate === undefined){
 
-                    current = await Player.getGametypeTotals(p.gametypeId, gametype);
+                    current = await Player.getGametypeTotals(p.masterId, gametype);
 
                     if(current !== null){
                         data[p.masterId] = current;
                     }
+
                 }
             }
+
+
 
             return data;
 
