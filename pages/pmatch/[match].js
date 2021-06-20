@@ -18,6 +18,8 @@ import MatchFragSummary from "../../components/MatchFragSummary";
 import MatchSpecialEvents from "../../components/MatchSpecialEvents";
 import MatchSprees from '../../components/MatchSprees';
 import Sprees from '../../api/sprees';
+import Kills from '../../api/kills';
+import PlayerMatchKills from '../../components/PlayerMatchKills';
 
 class PlayerMatch extends React.Component{
 
@@ -99,6 +101,12 @@ class PlayerMatch extends React.Component{
 
                         <MatchSprees data={JSON.parse(this.props.sprees)} players={JSON.parse(this.props.playerNames)} matchStart={parsedInfo.start}/>
 
+                        <PlayerMatchKills
+                            data={JSON.parse(this.props.killsData)} 
+                            player={playerData}
+                            players={JSON.parse(this.props.playerNames)
+                        }
+                        />
                       
                     </div>
                 </div>
@@ -233,7 +241,9 @@ export async function getServerSideProps({req, query}){
 
     const spreeData = await spreeManager.getPlayerMatchData(matchId, playerId);
 
+    const killManager = new Kills();
 
+    const killsData = await killManager.getMatchKillsIncludingPlayer(matchId, playerId);
 
     return {
         "props": {
@@ -252,7 +262,8 @@ export async function getServerSideProps({req, query}){
             "cleanMapImage": cleanMapImage,
             "players": JSON.stringify(players),
             "faces": JSON.stringify(playerFaces),
-            "sprees": JSON.stringify(spreeData)
+            "sprees": JSON.stringify(spreeData),
+            "killsData": JSON.stringify(killsData)
         }
     }
 }

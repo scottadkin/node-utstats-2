@@ -91,7 +91,7 @@ class Servers{
 
                 if(err) reject(err);
 
-                if(result.changedRows > 0){
+                if(result.affectedRows > 0){
                     resolve(true);
                 }
                 //console.log(result);

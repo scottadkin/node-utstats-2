@@ -92,6 +92,14 @@ class Kills{
 
         await mysql.simpleDelete("DELETE FROM nstats_kills WHERE match_id IN (?)", [ids]);
     }
+
+    async getMatchKillsIncludingPlayer(matchId, playerId){
+
+        const query = `SELECT timestamp,killer,killer_team,victim,victim_team,killer_weapon,victim_weapon,distance
+        FROM nstats_kills WHERE match_id=? AND (killer=? OR victim=?) ORDER BY timestamp ASC`;
+
+        return await mysql.simpleFetch(query, [matchId, playerId, playerId]);
+    }
 }
 
 module.exports = Kills;
