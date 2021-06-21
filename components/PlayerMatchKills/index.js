@@ -2,6 +2,7 @@ import React from 'react';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import styles from './PlayerMatchKills.module.css';
 
 
 class PlayerMatchKills extends React.Component{
@@ -78,10 +79,25 @@ class PlayerMatchKills extends React.Component{
 
             currentKills = this.getKillsDeaths(p.id);
 
-            rows.push(<tr key={i}>
-                <td>{Functions.ignore0(currentKills.deaths)}</td>
+            rows.push(<div className={`${styles.row} t-width-2 center`} key={i}>
+                <div>{playerElem}</div>
+                <div>{Functions.ignore0(currentKills.deaths)}</div>
+                <div>{Functions.ignore0(currentKills.kills)}</div>
+                <div>
+                    <Link href={`/player/${p.id}`}>
+                        <a>
+                            <CountryFlag country={p.country}/>{p.name}
+                        </a>
+                    </Link>
+                </div>
+            </div>);
+
+            /*rows.push(<tr key={i}>
                 <td>{playerElem}</td>
-                <td>-</td>
+                <td>{Functions.ignore0(currentKills.deaths)}</td>
+                
+                <td className="black">-</td>
+                <td>{Functions.ignore0(currentKills.kills)}</td>
                 <td>
                     <Link href={`/player/${p.id}`}>
                         <a>
@@ -89,34 +105,25 @@ class PlayerMatchKills extends React.Component{
                         </a>
                     </Link>
                 </td>
-                <td>{Functions.ignore0(currentKills.kills)}</td>
-            </tr>);
+                
+            </tr>);*/
 
-            /*
-            rows.push(<tr key={i}>
-                <td className="text-left">
-                    <Link href={`/player/${p.id}`}>
-                        <a>
-                            <CountryFlag country={p.country}/>{p.name}
-                        </a>
-                    </Link>
-                </td>
-                <td>{Functions.ignore0(currentKills.kills)}</td>
-                <td>{Functions.ignore0(currentKills.deaths)}</td>
-            </tr>)*/
+
         }
 
         const suicides = this.getKillsDeaths(0);
 
-        return <div>
+        return rows;
+
+       /* return <div>
             <table className="t-width-2">
                 <tbody>
                     <tr>
-                        <th>Kills</th>  
-                        <th>Player</th>
-                        <th>VS</th>
-                        <th>Player</th>
+                        <th>Player</th>  
                         <th>Kills</th>
+                        <th>VS</th>
+                        <th>Kills</th>
+                        <th>Player</th>
                     </tr>
                     {rows}
                     <tr>
@@ -130,7 +137,7 @@ class PlayerMatchKills extends React.Component{
                 </tbody>
             </table>
             
-        </div>
+        </div>*/;
     }
 
     render(){

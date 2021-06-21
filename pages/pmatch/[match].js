@@ -56,11 +56,12 @@ class PlayerMatch extends React.Component{
 
         const playerMatchData = JSON.parse(this.props.playerMatchData);
 
+        const compactDate = Functions.DDMMYY(info.date, true);
 
         return <div>
             <DefaultHead 
                 host={this.props.host} 
-                title={`${titleName} Match Report`} 
+                title={`${titleName} Match Report ${compactDate} ${this.props.map}`} 
                 description={`${titleName} match report for ${this.props.map} (${this.props.gametype}${(info.insta) ? " Instagib" : ""}) ${dateString}.`} 
                 keywords={`match,report,player,${playerData.name},${this.props.map},${this.props.gametype}`}
                 image={this.cleanImageURL(this.props.cleanMapImage)}    
@@ -187,9 +188,6 @@ export async function getServerSideProps({req, query}){
 
     const playerNamesObject = {};
 
-
-    console.table(playerNames);
-    console.table(playerNamesObject);
 
     let currentName = "";
 

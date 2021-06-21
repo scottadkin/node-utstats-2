@@ -380,6 +380,33 @@ class Functions{
     
     }
 
+    static DDMMYY(timestamp, displaySeconds){
+
+        const date = new Date(timestamp * 1000);
+
+
+        let minutes = date.getMinutes();
+        let hours = date.getHours();
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+
+        if(minutes < 10) minutes = `0${minutes}`;
+        if(hours < 10) hours = `0${hours}`;
+        if(day < 10) day = `0${day}`;
+        if(month < 10) month = `0${month}`;
+
+        if(displaySeconds === undefined){
+
+            return `${day}/${month}/${year}`;
+
+        }else{
+
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+    }
+
 
     static setCookie(key, value){
 
