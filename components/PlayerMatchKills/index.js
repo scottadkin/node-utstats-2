@@ -144,7 +144,7 @@ class PlayerMatchKills extends React.Component{
 
         //render suicides separately 
 
-        return <div>
+        return <div className="m-bottom-25">
             <div className="default-header">Kills Summary</div>
 
             {this.renderKillsTable()}

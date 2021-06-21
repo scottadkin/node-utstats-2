@@ -21,6 +21,8 @@ import Sprees from '../../api/sprees';
 import Kills from '../../api/kills';
 import PlayerMatchKills from '../../components/PlayerMatchKills';
 import PlayerMatchPowerUps from "../../components/PlayerMatchPowerUps";
+import Weapons from '../../api/weapons';
+import PlayerMatchWeapons from "../../components/PlayerMatchWeapons";
 
 class PlayerMatch extends React.Component{
 
@@ -119,6 +121,11 @@ class PlayerMatch extends React.Component{
                             armor={playerMatchData.armor}
                             boots={playerMatchData.boots}
                             superHealth={playerMatchData.super_health}
+                        />
+
+                        <PlayerMatchWeapons 
+                            data={JSON.parse(this.props.playerWeaponData)}
+                            names={JSON.parse(this.props.weaponNames)}
                         />
                       
                     </div>
@@ -255,6 +262,22 @@ export async function getServerSideProps({req, query}){
 
     const killsData = await killManager.getMatchKillsIncludingPlayer(matchId, playerId);
 
+    const weaponManager = new Weapons();
+
+    const playerWeaponData = await weaponManager.getPlayerMatchData(playerId, matchId);
+
+    const weaponIds = [];
+
+    for(let i = 0; i < playerWeaponData.length; i++){
+
+        if(weaponIds.indexOf(playerWeaponData[i].weapon_id) === -1){
+            weaponIds.push(playerWeaponData[i].weapon_id);
+        }
+    }
+
+    const weaponNames = await weaponManager.getNamesByIds(weaponIds);
+
+
     return {
         "props": {
             "host": req.headers.host,
@@ -273,7 +296,9 @@ export async function getServerSideProps({req, query}){
             "players": JSON.stringify(players),
             "faces": JSON.stringify(playerFaces),
             "sprees": JSON.stringify(spreeData),
-            "killsData": JSON.stringify(killsData)
+            "killsData": JSON.stringify(killsData),
+            "playerWeaponData": JSON.stringify(playerWeaponData),
+            "weaponNames": JSON.stringify(weaponNames)
         }
     }
 }

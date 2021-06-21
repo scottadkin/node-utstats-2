@@ -74,7 +74,7 @@ class PlayerMatchPowerUps extends React.Component{
         if(rows.length === 0) return null;
 
 
-        return <div>
+        return <div className="m-bottom-25">
             <div className="default-header">Power Ups Summary</div>
             <table className="t-width-2">
                 <tbody>
