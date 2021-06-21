@@ -1488,10 +1488,13 @@ class PlayerManager{
 
         try{
 
-            this.setSpreeMasterIds();
-            await this.sprees.insertCurrentSprees(matchId);
+            if(this.sprees.currentSprees !== undefined){
+                this.setSpreeMasterIds();
+                await this.sprees.insertCurrentSprees(matchId);
+            }
 
         }catch(err){
+            
             new Message(err, "error");
         }
     }

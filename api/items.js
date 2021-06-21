@@ -703,6 +703,12 @@ class Items{
             console.trace(err);
         }
     }
+
+    async getPlayerMatchData(matchId, playerId){
+
+        const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
+        return await mysql.simpleFetch(query, [matchId, playerId]);
+    }
 }
 
 module.exports = Items;

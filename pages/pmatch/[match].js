@@ -23,6 +23,8 @@ import PlayerMatchKills from '../../components/PlayerMatchKills';
 import PlayerMatchPowerUps from "../../components/PlayerMatchPowerUps";
 import Weapons from '../../api/weapons';
 import PlayerMatchWeapons from "../../components/PlayerMatchWeapons";
+import PlayerMatchPickups from "../../components/PlayerMatchPickups";
+import Items from '../../api/items';
 
 class PlayerMatch extends React.Component{
 
@@ -128,6 +130,10 @@ class PlayerMatch extends React.Component{
                             names={JSON.parse(this.props.weaponNames)}
                         />
                       
+                        <PlayerMatchPickups 
+                            data={JSON.parse(this.props.pickupData)}
+                            names={JSON.parse(this.props.pickupNames)}
+                            />
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -277,6 +283,22 @@ export async function getServerSideProps({req, query}){
 
     const weaponNames = await weaponManager.getNamesByIds(weaponIds);
 
+    const itemsManager = new Items();
+
+    const pickupData = await itemsManager.getPlayerMatchData(matchId, playerId);
+
+    const itemIds = [];
+
+    for(let i = 0; i < pickupData.length; i++){
+
+        if(itemIds.indexOf(pickupData[i].item) === -1){
+
+            itemIds.push(pickupData[i].item);
+        }
+    }
+
+    const pickupNames = await itemsManager.getNamesByIds(itemIds);
+
 
     return {
         "props": {
@@ -298,7 +320,9 @@ export async function getServerSideProps({req, query}){
             "sprees": JSON.stringify(spreeData),
             "killsData": JSON.stringify(killsData),
             "playerWeaponData": JSON.stringify(playerWeaponData),
-            "weaponNames": JSON.stringify(weaponNames)
+            "weaponNames": JSON.stringify(weaponNames),
+            "pickupData": JSON.stringify(pickupData),
+            "pickupNames": JSON.stringify(pickupNames)
         }
     }
 }
