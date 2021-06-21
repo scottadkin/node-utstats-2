@@ -25,6 +25,8 @@ import Weapons from '../../api/weapons';
 import PlayerMatchWeapons from "../../components/PlayerMatchWeapons";
 import PlayerMatchPickups from "../../components/PlayerMatchPickups";
 import Items from '../../api/items';
+import Rankings from '../../api/rankings';
+import PlayerMatchRankings from '../../components/PlayerMatchRankings/';
 
 class PlayerMatch extends React.Component{
 
@@ -133,7 +135,12 @@ class PlayerMatch extends React.Component{
                         <PlayerMatchPickups 
                             data={JSON.parse(this.props.pickupData)}
                             names={JSON.parse(this.props.pickupNames)}
-                            />
+                        />
+
+                        <PlayerMatchRankings data={JSON.parse(this.props.rankingData)}
+                            current={JSON.parse(this.props.rankingData)} 
+                            currentPosition={this.props.currentRankingPosition}
+                        />
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -299,6 +306,20 @@ export async function getServerSideProps({req, query}){
 
     const pickupNames = await itemsManager.getNamesByIds(itemIds);
 
+    
+    const rankingManager = new Rankings();
+
+    const matchRankingData = await rankingManager.getPlayerMatchHistory(playerId, matchId);
+
+    const currentRankingData = await rankingManager.getCurrentPlayerRanking(playerId, info.gametype);
+
+    let currentGametypePosition = 0;
+
+    if(currentRankingData.length > 0){
+        currentGametypePosition = await rankingManager.getGametypePosition(currentRankingData[0].ranking, info.gametype);
+    }
+
+    console.log(currentGametypePosition);
 
     return {
         "props": {
@@ -322,7 +343,10 @@ export async function getServerSideProps({req, query}){
             "playerWeaponData": JSON.stringify(playerWeaponData),
             "weaponNames": JSON.stringify(weaponNames),
             "pickupData": JSON.stringify(pickupData),
-            "pickupNames": JSON.stringify(pickupNames)
+            "pickupNames": JSON.stringify(pickupNames),
+            "rankingData": JSON.stringify(matchRankingData),
+            "currentRankingData": JSON.stringify(currentRankingData),
+            "currentRankingPosition": currentGametypePosition
         }
     }
 }

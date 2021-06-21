@@ -1053,6 +1053,14 @@ class Rankings{
             console.trace(err);
         }
     }
+
+    async getCurrentPlayerRanking(playerId, gametype){
+
+        const query = `SELECT matches, playtime, ranking, ranking_change FROM 
+        nstats_ranking_player_current WHERE player_id=? AND gametype=?`;
+        
+        return await mysql.simpleFetch(query, [playerId, gametype]);
+    }
 }
 
 
