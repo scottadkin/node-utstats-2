@@ -20,6 +20,7 @@ import MatchSprees from '../../components/MatchSprees';
 import Sprees from '../../api/sprees';
 import Kills from '../../api/kills';
 import PlayerMatchKills from '../../components/PlayerMatchKills';
+import PlayerMatchPowerUps from "../../components/PlayerMatchPowerUps";
 
 class PlayerMatch extends React.Component{
 
@@ -105,8 +106,19 @@ class PlayerMatch extends React.Component{
                         <PlayerMatchKills
                             data={JSON.parse(this.props.killsData)} 
                             player={playerData}
-                            players={JSON.parse(this.props.playerNames)
-                        }
+                            players={JSON.parse(this.props.playerNames)}
+                        />
+
+                        <PlayerMatchPowerUps 
+                            belt={playerMatchData.shield_belt} 
+                            amp={playerMatchData.amp}
+                            ampTime={playerMatchData.amp_time}
+                            invisibility={playerMatchData.invisibility}
+                            invisibilityTime={playerMatchData.invisibility_time}
+                            pads={playerMatchData.pads}
+                            armor={playerMatchData.armor}
+                            boots={playerMatchData.boots}
+                            superHealth={playerMatchData.super_health}
                         />
                       
                     </div>
