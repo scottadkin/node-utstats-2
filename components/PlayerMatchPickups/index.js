@@ -68,7 +68,7 @@ class PlayerMatchPickups extends React.Component{
             currentItem = this.getItemDetails(d.item);
 
             rows.push(<tr key={i}>
-                <td>{currentItem.name}</td>
+                <td>{currentItem.display_name}</td>
                 <td>{this.getTypeName(currentItem.type)}</td>
                 <td>{d.uses}</td>
             </tr>);

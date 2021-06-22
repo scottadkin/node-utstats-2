@@ -90,6 +90,7 @@ class PlayerMatchWeapons extends React.Component{
         return <div className="m-bottom-25">
             <div className="default-header">Weapon Statistics</div>
             <table className="t-width-1">
+                <tbody>
                 <tr>
                     <th>Weapon</th>
                     <th>Kills</th>
@@ -101,6 +102,7 @@ class PlayerMatchWeapons extends React.Component{
                     <th>Damage</th>
                 </tr>
                 {rows}
+                </tbody>
             </table>
         </div>
     }

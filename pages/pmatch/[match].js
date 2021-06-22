@@ -27,6 +27,8 @@ import PlayerMatchPickups from "../../components/PlayerMatchPickups";
 import Items from '../../api/items';
 import Rankings from '../../api/rankings';
 import PlayerMatchRankings from '../../components/PlayerMatchRankings/';
+import Pings from '../../api/pings';
+import PlayerMatchPing from "../../components/PlayerMatchPing";
 
 class PlayerMatch extends React.Component{
 
@@ -141,6 +143,8 @@ class PlayerMatch extends React.Component{
                             current={JSON.parse(this.props.rankingData)} 
                             currentPosition={this.props.currentRankingPosition}
                         />
+
+                        <PlayerMatchPing data={JSON.parse(this.props.pingData)}/>
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -319,7 +323,9 @@ export async function getServerSideProps({req, query}){
         currentGametypePosition = await rankingManager.getGametypePosition(currentRankingData[0].ranking, info.gametype);
     }
 
-    console.log(currentGametypePosition);
+    const pingManager = new Pings();
+
+    const pingData = await pingManager.getPlayerMatchData(matchId, playerId);
 
     return {
         "props": {
@@ -346,7 +352,8 @@ export async function getServerSideProps({req, query}){
             "pickupNames": JSON.stringify(pickupNames),
             "rankingData": JSON.stringify(matchRankingData),
             "currentRankingData": JSON.stringify(currentRankingData),
-            "currentRankingPosition": currentGametypePosition
+            "currentRankingPosition": currentGametypePosition,
+            "pingData": JSON.stringify(pingData)
         }
     }
 }

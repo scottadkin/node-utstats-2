@@ -97,6 +97,19 @@ class Pings{
 
         await mysql.simpleDelete("DELETE FROM nstats_match_pings WHERE match_id IN (?)", [ids]);
     }
+
+    async getPlayerMatchData(matchId, playerId){
+
+        const query = "SELECT timestamp,ping FROM nstats_match_pings WHERE match_id=? AND player=? ORDER BY timestamp ASC";
+
+        const data = await mysql.simpleFetch(query, [matchId, playerId]);
+
+        if(data.length === 0){
+            return [];
+        }
+
+        return data;
+    }
 }
 
 module.exports = Pings;

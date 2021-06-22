@@ -103,7 +103,7 @@ class Items{
 
             if(ids.length === 0) resolve([]);
 
-            const query = "SELECT id,name,type FROM nstats_items WHERE id IN(?) ORDER BY name ASC";
+            const query = "SELECT id,name,display_name,type FROM nstats_items WHERE id IN(?) ORDER BY name ASC";
 
             mysql.query(query, [ids], (err, result) =>{
 

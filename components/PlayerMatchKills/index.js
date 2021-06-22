@@ -79,6 +79,10 @@ class PlayerMatchKills extends React.Component{
 
             currentKills = this.getKillsDeaths(p.id);
 
+            if(currentKills.kills === 0 && currentKills.deaths === 0){
+                continue;
+            }
+
             rows.push(<div className={`${styles.row} t-width-2 center`} key={i}>
                 <div>{playerElem}</div>
                 <div>{Functions.ignore0(currentKills.deaths)}</div>
