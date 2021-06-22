@@ -96,57 +96,17 @@ class PlayerMatchKills extends React.Component{
                 </div>
             </div>);
 
-            /*rows.push(<tr key={i}>
-                <td>{playerElem}</td>
-                <td>{Functions.ignore0(currentKills.deaths)}</td>
-                
-                <td className="black">-</td>
-                <td>{Functions.ignore0(currentKills.kills)}</td>
-                <td>
-                    <Link href={`/player/${p.id}`}>
-                        <a>
-                            <CountryFlag country={p.country}/>{p.name}
-                        </a>
-                    </Link>
-                </td>
-                
-            </tr>);*/
-
-
         }
 
-        const suicides = this.getKillsDeaths(0);
 
         return rows;
 
-       /* return <div>
-            <table className="t-width-2">
-                <tbody>
-                    <tr>
-                        <th>Player</th>  
-                        <th>Kills</th>
-                        <th>VS</th>
-                        <th>Kills</th>
-                        <th>Player</th>
-                    </tr>
-                    {rows}
-                    <tr>
-                        <td className="black">
-                            Suicides
-                        </td>
-                        <td className="black" colSpan={4}>
-                            {suicides.deaths}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            
-        </div>*/;
+
     }
 
     render(){
 
-        //render suicides separately 
+        if(this.props.data.length === 0) return null;
 
         return <div className="m-bottom-25">
             <div className="default-header">Kills Summary</div>

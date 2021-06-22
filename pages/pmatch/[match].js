@@ -29,6 +29,8 @@ import Rankings from '../../api/rankings';
 import PlayerMatchRankings from '../../components/PlayerMatchRankings/';
 import Pings from '../../api/pings';
 import PlayerMatchPing from "../../components/PlayerMatchPing";
+import Connections from "../../api/connections";
+import PlayerMatchConnections from "../../components/PlayerMatchConnections";
 
 class PlayerMatch extends React.Component{
 
@@ -145,6 +147,10 @@ class PlayerMatch extends React.Component{
                         />
 
                         <PlayerMatchPing data={JSON.parse(this.props.pingData)}/>
+
+                        <div className="default-header">Team Information</div>
+
+                        <PlayerMatchConnections data={JSON.parse(this.props.connectionsData)} matchStart={parsedInfo.start}/>
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -327,6 +333,13 @@ export async function getServerSideProps({req, query}){
 
     const pingData = await pingManager.getPlayerMatchData(matchId, playerId);
 
+    const connectionManager = new Connections();
+
+    const connectionsData = await connectionManager.getPlayerMatchData(matchId, playerId);
+
+
+    console.log(connectionsData);
+
     return {
         "props": {
             "host": req.headers.host,
@@ -353,7 +366,8 @@ export async function getServerSideProps({req, query}){
             "rankingData": JSON.stringify(matchRankingData),
             "currentRankingData": JSON.stringify(currentRankingData),
             "currentRankingPosition": currentGametypePosition,
-            "pingData": JSON.stringify(pingData)
+            "pingData": JSON.stringify(pingData),
+            "connectionsData": JSON.stringify(connectionsData)
         }
     }
 }

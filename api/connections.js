@@ -88,6 +88,13 @@ class Connections{
 
         await mysql.simpleDelete("DELETE FROM nstats_match_connections WHERE match_id IN (?)", [ids]);
     }
+
+    async getPlayerMatchData(matchId, playerId){
+
+        const query = "SELECT timestamp,event FROM nstats_match_connections WHERE match_id=? AND player=?";
+
+        return await mysql.simpleFetch(query, [matchId, playerId]);
+    }
 }
 
 

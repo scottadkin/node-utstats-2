@@ -72,6 +72,8 @@ class MatchSprees extends React.Component{
 
     render(){
 
+        if(this.props.data.length === 0) return null;
+        
         return <div className="m-bottom-25">
             <div className="default-header">Extended Sprees Information</div>
             {this.renderTable()}
