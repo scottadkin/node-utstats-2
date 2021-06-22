@@ -33,6 +33,7 @@ import Connections from "../../api/connections";
 import PlayerMatchConnections from "../../components/PlayerMatchConnections";
 import Teams from "../../api/teams";
 import PlayerMatchTeamChanges from "../../components/PlayerMatchTeamChanges";
+import MatchPlayerViewProfile from "../../components/MatchPlayerViewProfile";
 
 class PlayerMatch extends React.Component{
 
@@ -84,6 +85,9 @@ class PlayerMatch extends React.Component{
                 <div id="content">
                     <div className="default">
                         <div className="default-header">{titleName} Match Report</div>
+
+                        <MatchPlayerViewProfile data={playerData}/>
+
                         <MatchSummary 
                             info={this.props.info} 
                             server={this.props.server} 
