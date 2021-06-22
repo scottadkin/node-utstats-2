@@ -1,6 +1,6 @@
-import Functions from '../../api/functions';
+import Functions from "../../api/functions";
 
-const PlayerMatchConnections = ({data, matchStart}) =>{
+const PlayerMatchTeamChanges = ({data, matchStart}) =>{
 
     const rows = [];
 
@@ -8,17 +8,18 @@ const PlayerMatchConnections = ({data, matchStart}) =>{
 
         rows.push(<tr key={i}>
             <td>{Functions.MMSS(data[i].timestamp - matchStart)}</td>
-            <td>{(data[i].event === 0) ? "Joined the server" : "Left the server"}</td>
+            <td className={Functions.getTeamColor(data[i].team)}>{Functions.getTeamName(data[i].team)}</td>
         </tr>);
     }
 
     return <div className="m-bottom-25">
-        <div className="default-header">Connection Summary</div>
+        <div className="default-header">Team Summary</div>
+
         <table className="t-width-2">
             <tbody>
                 <tr>
                     <th>Timestamp</th>
-                    <th>Event</th>
+                    <th>Team Joined</th>
                 </tr>
                 {rows}
             </tbody>
@@ -26,4 +27,4 @@ const PlayerMatchConnections = ({data, matchStart}) =>{
     </div>
 }
 
-export default PlayerMatchConnections;
+export default PlayerMatchTeamChanges;

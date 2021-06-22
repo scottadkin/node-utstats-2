@@ -45,6 +45,14 @@ class Teams{
 
         await mysql.simpleDelete("DELETE FROM nstats_match_team_changes WHERE player=?", [playerId]);
     }
+
+
+    async getPlayerMatchData(matchId, playerId){
+
+        const query = "SELECT timestamp,team FROM nstats_match_team_changes WHERE match_id=? AND player=? ORDER BY timestamp ASC";
+
+        return await mysql.simpleFetch(query, [matchId, playerId]);
+    }
 }
 
 
