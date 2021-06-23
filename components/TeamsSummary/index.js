@@ -34,7 +34,7 @@ function getPreviousTeam(data, timestamp, player){
     return {"team": previous, "playtime": playtime};
 }
 
-const TeamsSummary = ({data, playerNames}) =>{
+const TeamsSummary = ({data, playerNames, matchId}) =>{
 
     data = JSON.parse(data);
     playerNames = JSON.parse(playerNames);
@@ -51,7 +51,7 @@ const TeamsSummary = ({data, playerNames}) =>{
 
         elems.push(<tr key={`team-change-${i}`}>
             <td><MMSS timestamp={data[i].timestamp} /></td>
-            <td><Link href={`/players/${data[i].player}`}><a><CountryFlag country={currentPlayer.country}/> <b>{currentPlayer.name} </b></a></Link></td>
+            <td><Link href={`/pmatch/${matchId}?player=${data[i].player}`}><a><CountryFlag country={currentPlayer.country}/> <b>{currentPlayer.name} </b></a></Link></td>
             <td className={Functions.getTeamColor(previousTeam.team)}>
                 {Functions.getTeamName(previousTeam.team)}
             </td>

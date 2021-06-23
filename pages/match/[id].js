@@ -1549,7 +1549,9 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     }
     
     if(pageSettings["Display Rankings"] === "true"){
-        elems.push(<MatchRankingChanges key={"r-changes"} positions={rankingPositions} changes={rankingChanges} playerNames={playerNames} currentRankings={currentRankings}/>);
+        elems.push(<MatchRankingChanges key={"r-changes"} positions={rankingPositions} changes={rankingChanges} playerNames={playerNames} currentRankings={currentRankings}
+        matchId={parsedInfo.id}
+        />);
     }
 
     if(pageSettings["Display Player Ping Graph"] === "true"){
@@ -1595,7 +1597,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     if(pageSettings["Display Team Changes"] === "true"){
         if(parsedInfo.team_game){
             elems.push(
-                <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames}/>
+                <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames} matchId={parsedInfo.id}/>
             );
         }
     }

@@ -31,7 +31,7 @@ function getIcon(value){
     }
 }
 
-const MatchRankingChanges = ({changes, currentRankings, playerNames, positions}) =>{
+const MatchRankingChanges = ({changes, currentRankings, playerNames, positions, matchId}) =>{
 
     changes = JSON.parse(changes);
     playerNames = JSON.parse(playerNames);
@@ -80,7 +80,7 @@ const MatchRankingChanges = ({changes, currentRankings, playerNames, positions})
         }
 
         rows.push(<tr key={i}>
-            <td><Link href={`/player/${c.player_id}`}><a><CountryFlag country={player.country}/>{player.name}</a></Link></td>
+            <td><Link href={`/pmatch/${matchId}?player=${c.player_id}`}><a><CountryFlag country={player.country}/>{player.name}</a></Link></td>
             <td>{previousRanking.toFixed(2)}</td>
             <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.ranking.toFixed(2)}</td>
             <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.match_ranking_change.toFixed(2)}</td>
