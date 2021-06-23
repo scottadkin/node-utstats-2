@@ -1457,7 +1457,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
             elems.push(
-                <MatchCTFSummary key={`match_1`} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>
+                <MatchCTFSummary key={`match_1`} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
             );
         }
 
@@ -1471,7 +1471,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         }
 
         elems.push(
-            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} />
+            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>
         );
 
     }

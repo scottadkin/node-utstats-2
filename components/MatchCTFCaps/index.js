@@ -252,7 +252,7 @@ class MatchCTFCaps extends React.Component{
 
                     coverElems.push(<span key={`cap-${i}-cover-${key}`} className={styles.cover}>
                         <CountryFlag country={currentCoverPlayer.country}/>
-                        <Link href={`/player/${key}`}><a>
+                        <Link href={`/pmatch/${this.props.matchId}?player=${key}`}><a>
                         <MouseHoverBox title={`${currentCoverPlayer.name} covered the flag carrier ${value.value} ${(value.value === 1) ? "time" : "times"}`} 
                             content={currentContent} 
                             display={currentCoverPlayer.name}/>
@@ -301,7 +301,7 @@ class MatchCTFCaps extends React.Component{
 
                     assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
                         <CountryFlag country={currentAssistPlayer.country}/>
-                        <Link href={`/player/${currentAssists[x].player}`}><a><MouseHoverBox title={"Assist"} display={currentAssistPlayer.name} 
+                        <Link href={`/pmatch/${this.props.matchId}/?player=${currentAssists[x].player}`}><a><MouseHoverBox title={"Assist"} display={currentAssistPlayer.name} 
                         content={currentContent}/></a></Link>
                     </span>);
                 }
@@ -323,7 +323,7 @@ class MatchCTFCaps extends React.Component{
             
                 grabElem = <td className={bgColor}>
                     <span className={styles.time}><MMSS timestamp={c.grab_time - matchStart}/></span>
-                    <CountryFlag country={grabPlayer.country}/><Link href={`/player/${c.grab}`}><a>{grabPlayer.name}</a></Link>
+                    <CountryFlag country={grabPlayer.country}/><Link href={`/pmatch/${this.props.matchId}/?player=${c.grab}`}><a>{grabPlayer.name}</a></Link>
                 </td>;
             }
 
@@ -334,7 +334,7 @@ class MatchCTFCaps extends React.Component{
             }else{
                 capElem = <td className={bgColor}>
                         <span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span>
-                        <CountryFlag country={capPlayer.country}/><Link href={`/player/${c.cap}`}>
+                        <CountryFlag country={capPlayer.country}/><Link href={`/pmatch/${this.props.matchId}/?player=${c.cap}`}>
                         <a>
                             <MouseHoverBox title={`${capPlayer.name} Captured the Flag`} display={capPlayer.name} content={
                                 [{

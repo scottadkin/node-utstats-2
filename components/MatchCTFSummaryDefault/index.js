@@ -26,7 +26,7 @@ const bAnyData = (player) =>{
     return false;
 }
 
-const MatchCTFSummaryDefault = ({players, team}) =>{
+const MatchCTFSummaryDefault = ({players, team, matchId}) =>{
 
 
     const elems = [];
@@ -64,7 +64,9 @@ const MatchCTFSummaryDefault = ({players, team}) =>{
         totals.seal += p.flag_seal;
 
         elems.push(<tr  key={i}>
-            <td className={`text-left name-td ${Functions.getTeamColor(team)}`}><CountryFlag country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></td>
+            <td className={`text-left name-td ${Functions.getTeamColor(team)}`}><CountryFlag country={p.country}/>
+            <Link href={`/pmatch/${matchId}?player=${p.player_id}`}><a>{p.name}</a></Link>
+            </td>
             <td>{Functions.ignore0(p.flag_taken)}</td>
             <td>{Functions.ignore0(p.flag_pickup)}</td>
             <td>{Functions.ignore0(p.flag_dropped)}</td>
