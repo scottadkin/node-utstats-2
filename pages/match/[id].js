@@ -1537,13 +1537,14 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
     if(pageSettings["Display Weapon Statistics"] === "true"){
         elems.push(
-            <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
+            <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
         );
     }
 
     if(pageSettings["Display Pickup Summary"] === "true"){
         elems.push(
-            <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}/>
+            <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}
+            matchId={parsedInfo.id} />
         );
     }
     

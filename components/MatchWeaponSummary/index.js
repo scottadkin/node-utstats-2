@@ -149,7 +149,7 @@ class MatchWeaponSummary extends React.Component{
 
                 elems.push(<tr key={i}>
                     <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : currentTeam)}>
-                        <Link href={`/player/${p.player_id}`}>
+                        <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}>
                             <a>
                                 <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
                             </a>
@@ -315,7 +315,7 @@ class MatchWeaponSummary extends React.Component{
                 currentPlayers.push(
                     <tr key={x}>
                         <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : currentTeam)}>
-                            <Link href={`/player/${currentPlayer.id}`}>
+                            <Link href={`/pmatch/${this.props.matchId}?player=${currentPlayer.id}`}>
                                 <a><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a>
                             </Link>
                         </td>

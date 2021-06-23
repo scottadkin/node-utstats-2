@@ -97,7 +97,7 @@ class MatchItemPickups extends React.Component{
                 teamColor = "team-none";
             }
 
-            subElems.push(<td key={`player-${i}`} className={teamColor}><Link href={`/player/${p.id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>);
+            subElems.push(<td key={`player-${i}`} className={teamColor}><Link href={`/pmatch/${this.props.matchId}?player=${p.id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>);
 
             
             for(let x = offset; x < max; x++){
