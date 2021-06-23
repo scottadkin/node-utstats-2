@@ -92,7 +92,6 @@ class Matches{
 
                 if(err) reject(err);
                 
-                
                 resolve(result.insertId);
             });
         });

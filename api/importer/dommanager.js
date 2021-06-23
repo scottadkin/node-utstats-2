@@ -160,18 +160,6 @@ class DOMManager{
         }
     }
 
-    async updateTeamScores(){
-
-        try{
-
-            const s = this.teamScores;
-
-            await this.domination.updateTeamScores(this.matchId, s.red, s.blue, s.green, s.yellow);
-
-        }catch(err){
-            new Message(`updateTeamScores ${err}`,'error');
-        }   
-    }
 
     async updateControlPointStats(){
 

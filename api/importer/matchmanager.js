@@ -91,7 +91,7 @@ class MatchManager{
 
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
-
+            
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
             const bLMS = this.bLastManStanding();
@@ -138,7 +138,6 @@ class MatchManager{
                 this.domManager.matchId = this.matchId;
                 this.domManager.playerManager = this.playerManager;
                 this.domManager.parseData();
-                await this.domManager.updateTeamScores();
                 await this.domManager.updateControlPointStats();
                 await this.domManager.insertMatchControlPointStats();
                 await this.domManager.updateMatchDomCaps();
@@ -147,6 +146,8 @@ class MatchManager{
 
                 new Message(`Domination stats update complete.`,'pass');
             }
+
+            
 
             this.playerManager.mergeDuplicates(bLMS);
 
@@ -308,6 +309,7 @@ class MatchManager{
 
 
             const motd = this.serverInfo.getMotd();
+
 
             this.matchId = await this.matches.insertMatch(
                 this.serverInfo.date, 

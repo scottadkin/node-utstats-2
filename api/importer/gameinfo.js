@@ -38,7 +38,7 @@ class GameInfo{
     parseData(){
 
         const reg = /^\d+\.\d+\tgame\t(.+?)\t(.+)$/i;
-        const scoreReg = /^\d+\.\d+\tteamscore\t(\d+?)\t(.+)$/i;
+        const scoreReg = /^\d+\.\d+\tteamscore\t(.+?)\t(.+)$/i;
         const startReg = /^(\d+\.\d+)\tgame_start/;
         const endReg = /^(\d+\.\d+)\tgame_end\t(.+)$/;
 
