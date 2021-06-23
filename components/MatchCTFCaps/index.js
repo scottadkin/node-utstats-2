@@ -14,6 +14,11 @@ class MatchCTFCaps extends React.Component{
         super(props);
         this.state = {"page": 0, "perPage": 25, "results": JSON.parse(props.caps).length};
 
+        const twat = JSON.parse(props.caps).length;
+        console.log(`I have ${twat} total data`);
+        console.log(`total pages should be ${twat / this.state.perPage}`);
+
+
         this.changePage = this.changePage.bind(this);
     }
 
@@ -206,7 +211,7 @@ class MatchCTFCaps extends React.Component{
         let start = this.state.page * this.state.perPage;
         let end = start + this.state.perPage;
 
-        if(end > this.state.results) end = Math.ceil(caps.length / this.state.perPage);
+        if(end > this.state.results) end = caps.length;
 
         for(let i = start; i < end; i++){
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import TipHeader from '../TipHeader';
+import MatchCTFCaps from '../MatchCTFCaps';
 
 
 class PlayerMatchCTF extends React.Component{
@@ -95,7 +96,7 @@ class PlayerMatchCTF extends React.Component{
             cols.push(<td key={i}>{Functions.ignore0(p[`flag_${types[i]}`])}</td>);
         }
 
-        return <div>
+        return <div className="m-bottom-25">
             <table className="t-width-1">
                 <tbody>
                     <tr>
@@ -118,12 +119,19 @@ class PlayerMatchCTF extends React.Component{
         </div>
     }
 
-    render(){
+    renderCaps(){
+        return <div>
+            fart
+        </div>
+    }
 
+    render(){
+        //players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} matchId={parsedInfo.id}
         return <div>
             <div className="default-header">Capture The Flag Summary</div>
             {this.renderGeneral()}
             {this.renderCovers()}
+            <MatchCTFCaps players={this.props.playerData} caps={this.props.caps} matchStart={this.props.matchStart} matchId={this.props.matchId}/>
         </div>
     }
 }

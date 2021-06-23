@@ -118,7 +118,7 @@ class PlayerMatch extends React.Component{
                             
                         />
 
-                        <PlayerMatchCTF player={playerMatchData}/>
+                        <PlayerMatchCTF player={playerMatchData} playerData={this.props.players} caps={this.props.ctfCaps} matchId={parsedInfo.id} matchStart={parsedInfo.start}/>
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 
@@ -351,9 +351,8 @@ export async function getServerSideProps({req, query}){
 
     const ctfManager = new CTF();
 
-    const test = await ctfManager.getPlayerMatchCaps(matchId, playerId);
+    const ctfCaps = await ctfManager.getPlayerMatchCaps(matchId, playerId);
 
-    console.log(test);
 
 
     return {
@@ -384,7 +383,8 @@ export async function getServerSideProps({req, query}){
             "currentRankingPosition": currentGametypePosition,
             "pingData": JSON.stringify(pingData),
             "connectionsData": JSON.stringify(connectionsData),
-            "teamData": JSON.stringify(teamData)
+            "teamData": JSON.stringify(teamData),
+            "ctfCaps": JSON.stringify(ctfCaps)
         }
     }
 }
