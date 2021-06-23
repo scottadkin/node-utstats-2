@@ -155,7 +155,9 @@ class CTF{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_ctf_caps WHERE match_id=?";
+            const query = `SELECT 
+            team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,assist_carry_ids,cap,cap_time,travel_time 
+            FROM nstats_ctf_caps WHERE match_id=?`;
 
             mysql.query(query, [matchId], (err, result) =>{
 
@@ -190,7 +192,7 @@ class CTF{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id,timestamp,player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
+            const query = "SELECT timestamp,player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
 
             mysql.query(query, [id], (err, result) =>{
 

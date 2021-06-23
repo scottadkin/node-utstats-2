@@ -53,7 +53,7 @@ class Sprees{
 
     async getMatchData(id){
 
-        const query = "SELECT id,player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=?";
+        const query = "SELECT player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=?";
         const vars = [id];
         return await mysql.simpleFetch(query, vars);
 
@@ -61,7 +61,7 @@ class Sprees{
 
     async getPlayerMatchData(matchId, playerId){
 
-        const query = "SELECT id,player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=? AND (player=? || killer=?)";
+        const query = "SELECT player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=? AND (player=? || killer=?)";
         const vars = [matchId, playerId, playerId];
         return await mysql.simpleFetch(query, vars);
 
