@@ -1,0 +1,28 @@
+.wrapper{
+	background-color:var(--color-3);
+	height:40px;
+	border:1px solid var(--border-color-1);
+	max-width:1248px;
+	width:var(--width-1);
+	display:grid;
+	grid-template-columns: 25% 50% 25%;
+}
+
+.button{
+	background-color:var(--color-2);
+	height:40px;
+	line-height:40px;
+	transition: var(--transition-1);
+}
+
+.button:hover{
+	background-color:var(--color-4);
+	cursor: pointer;
+	color:yellow;
+}
+
+.info{
+	color:yellow;
+	font-size:12px;
+	line-height:40px;
+}

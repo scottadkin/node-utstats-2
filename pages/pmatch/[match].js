@@ -86,7 +86,7 @@ class PlayerMatch extends React.Component{
                     <div className="default">
                         <div className="default-header">{titleName} Match Report</div>
 
-                        <MatchPlayerViewProfile data={playerData}/>
+                        <MatchPlayerViewProfile data={playerData} matchId={parsedInfo.id}/>
 
                         <MatchSummary 
                             info={this.props.info} 

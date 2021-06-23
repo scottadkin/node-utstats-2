@@ -2,14 +2,30 @@ import React from 'react';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import BasicPageSelect from '../BasicPageSelect';
 
 class MatchSprees extends React.Component{
 
     constructor(props){
 
         super(props);
+        this.state = {"page": 0, "perPage": 25};
+
+        this.changePage = this.changePage.bind(this);
     }
 
+    changePage(page){
+
+        if(page < 0) page = 0;
+
+        const maxPage = Math.ceil(this.props.data.length / this.state.perPage) - 1;
+
+        if(page > maxPage){
+            page = maxPage;
+        }
+
+        this.setState({"page": page});
+    }
 
     renderTable(){
 
@@ -24,7 +40,15 @@ class MatchSprees extends React.Component{
 
         let endReason = "";
 
-        for(let i = 0; i < this.props.data.length; i++){
+        let start = this.state.page * this.state.perPage;
+        let end = (this.state.page + 1) * this.state.perPage;
+
+        if(end > this.props.data.length){
+
+            end = this.props.data.length;
+        }
+
+        for(let i = start; i < end; i++){
 
             s = this.props.data[i];
 
@@ -76,6 +100,7 @@ class MatchSprees extends React.Component{
         
         return <div className="m-bottom-25">
             <div className="default-header">Extended Sprees Information</div>
+            <BasicPageSelect page={this.state.page} results={this.props.data.length} changePage={this.changePage}/>
             {this.renderTable()}
         </div>
     }

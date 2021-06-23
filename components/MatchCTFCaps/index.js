@@ -148,6 +148,8 @@ function calcDropTime(data){
 
 const MatchCTFCaps = ({players, caps, matchStart, totalTeams}) =>{
 
+    return null;
+    
     players = JSON.parse(players);
     caps = JSON.parse(caps);
     matchStart = parseFloat(matchStart)
