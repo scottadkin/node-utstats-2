@@ -1385,7 +1385,8 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
     if(pageSettings["Display Frag Summary"] === "true"){
         elems.push(
-            <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}/>
+            <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}
+            matchId={parsedInfo.id}/>
         );
     }
 

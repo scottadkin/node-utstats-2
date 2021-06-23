@@ -113,6 +113,7 @@ class PlayerMatch extends React.Component{
                             totalTeams={parsedInfo.total_teams}
                             matchStart={parsedInfo.start}
                             single={true}
+                            
                         />
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>

@@ -29,7 +29,7 @@ const bAnyData = (data) =>{
     return false;
 }
 
-const MatchFragTable = ({players, team, matchStart, toDisplay, single}) =>{
+const MatchFragTable = ({players, team, matchStart, toDisplay, matchId, single}) =>{
 
     if(players.length === 0) return null;
 
@@ -66,13 +66,15 @@ const MatchFragTable = ({players, team, matchStart, toDisplay, single}) =>{
         totalScore += p.score;
         totalHeadshots += p.headshots;
 
+
+
         if(bAnyData(p)){
 
             elems.push(<tr key={`frag_tr_${team}_${i}`} >
                 {(single) ? null : 
                 <td className={`text-left ${bgColor}`}>
                     <CountryFlag key={`frag_country__${team}_${i}`} country={p.country} />
-                    <Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link>
+                    <Link href={`/pmatch/${matchId}/?player=${p.player_id}`}><a>{p.name}</a></Link>
                 </td>}
                 <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime - matchStart} /></td>
                 <td>{Functions.ignore0(p.score)}</td>
