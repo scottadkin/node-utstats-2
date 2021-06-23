@@ -1514,14 +1514,14 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
     if(pageSettings["Display Special Events"] === "true"){
         elems.push(
-            <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)}/>
+            <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)} matchId={parsedInfo.id}/>
         );
     }
 
     if(pageSettings["Display Extended Sprees"] === "true"){
         spreesData = JSON.parse(spreesData);
     
-        elems.push(<MatchSprees data={spreesData} players={JSON.parse(playerNames)} matchStart={parsedInfo.start}/>);
+        elems.push(<MatchSprees data={spreesData} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
     }
 
     if(pageSettings["Display Kills Match Up"] === "true"){

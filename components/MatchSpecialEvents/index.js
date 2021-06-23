@@ -75,7 +75,7 @@ class MatchSpecialEvents extends React.Component{
             if(this.bAnyData(p, 'multi')){
 
                 countryFlag = <CountryFlag country={p.country}/>;
-                playerName = <Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link>
+                playerName = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a>{p.name}</a></Link>
 
                 if(this.bTeamGame){
                     bgColor = Functions.getTeamColor(p.team);
@@ -249,7 +249,7 @@ class MatchSpecialEvents extends React.Component{
             
             if(this.bAnyData(p, 'spree')){
 
-                playerName = <Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link>
+                playerName = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a>{p.name}</a></Link>
                 flag = <CountryFlag country={p.country}/>
 
                 if(this.bTeamGame){

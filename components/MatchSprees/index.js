@@ -58,7 +58,7 @@ class MatchSprees extends React.Component{
 
                 if(s.killer !== s.player){
                     killer = Functions.getPlayer(this.props.players, s.killer);
-                    endReason = <span>Killed by <Link href={`/player/${s.killer}`}><a><CountryFlag country={killer.country}/>{killer.name}</a></Link></span>
+                    endReason = <span>Killed by <Link href={`/pmatch/${this.props.matchId}?player=${s.killer}`}><a><CountryFlag country={killer.country}/>{killer.name}</a></Link></span>
                 }else{
                     endReason = "Suicide";
                 }
@@ -69,7 +69,7 @@ class MatchSprees extends React.Component{
             }
 
             rows.push(<tr key={i}>
-                <td className="text-left"><Link href={`/player/${s.player}`}><a><CountryFlag country={player.country} />{player.name}</a></Link></td>
+                <td className="text-left"><Link href={`/pmatch/${this.props.matchId}?player=${s.player}`}><a><CountryFlag country={player.country} />{player.name}</a></Link></td>
                 <td>{Functions.MMSS(s.start_timestamp - ms)}</td>
                 <td>{Functions.MMSS(s.end_timestamp - ms)}</td>
                 <td>{endReason}</td>
