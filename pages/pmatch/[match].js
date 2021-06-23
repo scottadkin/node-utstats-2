@@ -34,6 +34,8 @@ import PlayerMatchConnections from "../../components/PlayerMatchConnections";
 import Teams from "../../api/teams";
 import PlayerMatchTeamChanges from "../../components/PlayerMatchTeamChanges";
 import MatchPlayerViewProfile from "../../components/MatchPlayerViewProfile";
+import CTF from '../../api/ctf';
+import PlayerMatchCTF from '../../components/PlayerMatchCTF';
 
 class PlayerMatch extends React.Component{
 
@@ -115,6 +117,8 @@ class PlayerMatch extends React.Component{
                             single={true}
                             
                         />
+
+                        <PlayerMatchCTF player={playerMatchData}/>
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 
@@ -344,6 +348,12 @@ export async function getServerSideProps({req, query}){
     const teamsManager = new Teams();
 
     const teamData = await teamsManager.getPlayerMatchData(matchId, playerId);
+
+    const ctfManager = new CTF();
+
+    const test = await ctfManager.getPlayerMatchCaps(matchId, playerId);
+
+    console.log(test);
 
 
     return {

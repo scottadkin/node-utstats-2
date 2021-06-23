@@ -724,6 +724,32 @@ class CTF{
         }
     }
 
+    async getPlayerMatchCaps(matchId, playerId){
+
+        const query = `SELECT team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,
+            assist_carry_ids,cap,cap_time,travel_time FROM nstats_ctf_caps 
+            WHERE match_id=? AND (
+            grab=? OR
+            drops LIKE('%?%') OR
+            pickups LIKE('%?%') OR
+            covers LIKE('%?%') OR
+            assists LIKE('%?%') OR
+            cap=?) `;
+
+        const vars = [
+            matchId,
+            playerId,
+            playerId,
+            playerId,
+            playerId,
+            playerId,
+            playerId,
+            
+        ];
+
+        return await mysql.simpleFetch(query, vars);
+    }
+
 }
 
 
