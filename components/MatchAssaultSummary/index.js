@@ -106,6 +106,7 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
             <div className={`${resultColor} ${styles.result} center`}>
                 {resultTitle}
             </div>
+            {(elems.length === 0) ? null :
             <table className={styles.table}>
                 <tbody>
                     <tr>
@@ -117,7 +118,7 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
                     </tr>
                     {elems}
                 </tbody>
-            </table>
+            </table>}
         </div>
     );
 }
