@@ -474,6 +474,14 @@ class Assault{
             console.trace(err);
         }
     }
+
+
+    async getPlayerMatchCaps(matchId, playerId){
+
+        const query = "SELECT timestamp,obj_id,bFinal FROM nstats_assault_match_objectives WHERE match_id=? AND player=?";
+
+        return await mysql.simpleFetch(query, [matchId, playerId]);
+    }
 }
 
 module.exports = Assault;

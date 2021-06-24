@@ -38,6 +38,8 @@ import CTF from '../../api/ctf';
 import PlayerMatchCTF from '../../components/PlayerMatchCTF';
 import Domination from '../../api/domination';
 import PlayerMatchDomination from '../../components/PlayerMatchDomination';
+import Assault from '../../api/assault';
+import PlayerMatchAssault from '../../components/PlayerMatchAssault';
 
 
 class PlayerMatch extends React.Component{
@@ -131,6 +133,8 @@ class PlayerMatch extends React.Component{
                         }
 
                         <PlayerMatchDomination pointNames={domPointNames} data={playerDomCaps}/>
+
+                        <PlayerMatchAssault pointNames={JSON.parse(this.props.assaultObjNames)} caps={JSON.parse(this.props.playerAssaultCaps)}/>
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 
@@ -373,8 +377,17 @@ export async function getServerSideProps({req, query}){
     const domPointNames = await dominationManager.getControlPointNames(info.map);
     const playerDomCaps = await dominationManager.getPlayerMatchCaps(matchId, playerId);
 
+    const assaultManager = new Assault();
 
+    const playerAssaultCaps = await assaultManager.getPlayerMatchCaps(matchId, playerId);
 
+    let assaultObjNames = [];
+
+    if(playerAssaultCaps.length !== 0){
+
+        assaultObjNames = await assaultManager.getMapObjectives(info.map);
+    }
+    
     return {
         "props": {
             "host": req.headers.host,
@@ -407,7 +420,9 @@ export async function getServerSideProps({req, query}){
             "ctfCaps": JSON.stringify(ctfCaps),
             "domPointNames": JSON.stringify(domPointNames),
             "playerDomCaps": JSON.stringify(playerDomCaps),
-            "bCTF": bCTF
+            "bCTF": bCTF,
+            "assaultObjNames": JSON.stringify(assaultObjNames),
+            "playerAssaultCaps": JSON.stringify(playerAssaultCaps)
 
         }
     }
