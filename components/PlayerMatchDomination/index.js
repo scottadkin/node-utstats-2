@@ -18,6 +18,8 @@ const getTotalPointCaps = (id, data) =>{
 
 const PlayerMatchDomination = ({data, pointNames}) =>{
 
+    if(data.length === 0) return null;
+
     const headers = [];
     const cols = [];
 

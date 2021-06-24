@@ -77,6 +77,11 @@ class PlayerMatch extends React.Component{
 
         const compactDate = Functions.DDMMYY(info.date, true);
 
+
+        const domPointNames = JSON.parse(this.props.domPointNames);
+        const playerDomCaps = JSON.parse(this.props.playerDomCaps);
+        
+
         return <div>
             <DefaultHead 
                 host={this.props.host} 
@@ -121,9 +126,11 @@ class PlayerMatch extends React.Component{
                             
                         />
 
-                        <PlayerMatchCTF player={playerMatchData} playerData={this.props.players} caps={this.props.ctfCaps} matchId={parsedInfo.id} matchStart={parsedInfo.start}/>
+                        {(!this.props.bCTF) ? null :
+                            <PlayerMatchCTF player={playerMatchData} playerData={this.props.players} caps={this.props.ctfCaps} matchId={parsedInfo.id} matchStart={parsedInfo.start}/>
+                        }
 
-                        <PlayerMatchDomination pointNames={JSON.parse(this.props.domPointNames)} data={JSON.parse(this.props.playerDomCaps)}/>
+                        <PlayerMatchDomination pointNames={domPointNames} data={playerDomCaps}/>
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 
@@ -358,6 +365,9 @@ export async function getServerSideProps({req, query}){
 
     const ctfCaps = await ctfManager.getPlayerMatchCaps(matchId, playerId);
 
+
+    const bCTF = ctfManager.bAnyCtfDataInMatch(playerMatchData);
+
     const dominationManager = new Domination();
 
     const domPointNames = await dominationManager.getControlPointNames(info.map);
@@ -396,7 +406,8 @@ export async function getServerSideProps({req, query}){
             "teamData": JSON.stringify(teamData),
             "ctfCaps": JSON.stringify(ctfCaps),
             "domPointNames": JSON.stringify(domPointNames),
-            "playerDomCaps": JSON.stringify(playerDomCaps)
+            "playerDomCaps": JSON.stringify(playerDomCaps),
+            "bCTF": bCTF
 
         }
     }
