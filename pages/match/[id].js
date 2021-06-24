@@ -1481,7 +1481,10 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
         if(pageSettings["Display Domination Summary"] === "true"){
             elems.push(
-                <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} capData={domCapData}/>
+                <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} 
+                capData={domCapData}
+                matchId={parsedInfo.id}
+                />
             );
         }
 

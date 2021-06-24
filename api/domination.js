@@ -532,6 +532,14 @@ class Domination{
             console.trace(err);
         }
     }
+
+
+    async getPlayerMatchCaps(matchId, playerId){
+
+        const query = "SELECT time,point,team FROM nstats_dom_match_caps WHERE match_id=? AND player=?";
+
+        return await mysql.simpleFetch(query, [matchId, playerId]);
+    }
 }
 
 

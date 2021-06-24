@@ -36,6 +36,9 @@ import PlayerMatchTeamChanges from "../../components/PlayerMatchTeamChanges";
 import MatchPlayerViewProfile from "../../components/MatchPlayerViewProfile";
 import CTF from '../../api/ctf';
 import PlayerMatchCTF from '../../components/PlayerMatchCTF';
+import Domination from '../../api/domination';
+import PlayerMatchDomination from '../../components/PlayerMatchDomination';
+
 
 class PlayerMatch extends React.Component{
 
@@ -119,6 +122,8 @@ class PlayerMatch extends React.Component{
                         />
 
                         <PlayerMatchCTF player={playerMatchData} playerData={this.props.players} caps={this.props.ctfCaps} matchId={parsedInfo.id} matchStart={parsedInfo.start}/>
+
+                        <PlayerMatchDomination pointNames={JSON.parse(this.props.domPointNames)} data={JSON.parse(this.props.playerDomCaps)}/>
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 
@@ -353,6 +358,11 @@ export async function getServerSideProps({req, query}){
 
     const ctfCaps = await ctfManager.getPlayerMatchCaps(matchId, playerId);
 
+    const dominationManager = new Domination();
+
+    const domPointNames = await dominationManager.getControlPointNames(info.map);
+    const playerDomCaps = await dominationManager.getPlayerMatchCaps(matchId, playerId);
+
 
 
     return {
@@ -384,7 +394,10 @@ export async function getServerSideProps({req, query}){
             "pingData": JSON.stringify(pingData),
             "connectionsData": JSON.stringify(connectionsData),
             "teamData": JSON.stringify(teamData),
-            "ctfCaps": JSON.stringify(ctfCaps)
+            "ctfCaps": JSON.stringify(ctfCaps),
+            "domPointNames": JSON.stringify(domPointNames),
+            "playerDomCaps": JSON.stringify(playerDomCaps)
+
         }
     }
 }

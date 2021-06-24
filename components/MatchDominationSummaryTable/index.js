@@ -33,7 +33,7 @@ const setPlayerPointCaps = (data) =>{
 
 
 
-const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}) =>{
+const MatchDominationSummaryTable = ({team, players, controlPointNames, capData, matchId}) =>{
 
     players = JSON.parse(players);
     controlPointNames = JSON.parse(controlPointNames);
@@ -84,7 +84,9 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData}
      
         playerElems = [];
 
-        playerElems.push(<td key={`players_name_${team}_${i}`} className={`text-left ${bgColor}`}><CountryFlag key={p.id} country={p.country}/><a href={`/player/${p.player_id}`}>{p.name}</a></td>);
+        playerElems.push(<td key={`players_name_${team}_${i}`} className={`text-left ${bgColor}`}>
+            <CountryFlag key={p.id} country={p.country}/><a href={`/pmatch/${matchId}?player=${p.player_id}`}>{p.name}</a>
+            </td>);
 
         for(let c = 0; c < controlPointNames.length; c++){
 

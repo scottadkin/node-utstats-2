@@ -13,7 +13,7 @@ const getPlayersOnTeam = (players, team) =>{
     return JSON.stringify(found);
 }
 
-const MatchDominationSummary = ({players, totalTeams, controlPointNames, capData}) =>{
+const MatchDominationSummary = ({players, totalTeams, controlPointNames, capData, matchId}) =>{
 
     players = JSON.parse(players);
     const teams = [];
@@ -22,7 +22,7 @@ const MatchDominationSummary = ({players, totalTeams, controlPointNames, capData
 
     for(let i = 0; i < totalTeams; i++){
 
-        teams.push(<MatchDominationSummaryTable key={i} team={i} players={getPlayersOnTeam(players, i)} controlPointNames={controlPointNames} capData={capData}/>);
+        teams.push(<MatchDominationSummaryTable matchId={matchId} key={i} team={i} players={getPlayersOnTeam(players, i)} controlPointNames={controlPointNames} capData={capData}/>);
     }
 
     return (<div className="special-table">
