@@ -19,7 +19,7 @@ class MatchScreenshot{
 
         this.map = map;
         this.players = JSON.parse(players);
-        console.log(this.players);
+       // console.log(this.players);
         //console.log(this.players);
         this.teams = parseInt(teams);
 
@@ -29,7 +29,7 @@ class MatchScreenshot{
         this.faces = JSON.parse(faces);
 
         this.highlight = highlight;
-        console.log(highlight);
+        //console.log(highlight);
     
 
         //console.log(this.matchData);
@@ -161,10 +161,6 @@ class MatchScreenshot{
 
         const loading = setInterval(tick, 33);
 
-    
-        
-            
-        
     }
 
 
@@ -249,11 +245,7 @@ class MatchScreenshot{
                     }
                 }
             }
-
-            //console.log(this.playerIcons);
-
         });     
-
     }
 
     loadPlayerFlags(){
@@ -586,7 +578,20 @@ class MatchScreenshot{
         const footerFontSize = this.y(1.15);
         c.textAlign = "center";
         c.font = footerFontSize+"px Arial";
+
+        const spectators = this.getSpectators();
+
+        let spectatorString = "There are currently no one spectating this match.";
+
+        if(spectators.length > 0){
+            spectatorString = `Spectators: ${this.createSpectatorString(spectators)}`;
+        }
+
+        c.fillStyle = "white";
+        c.fillText(spectatorString, this.x(50), this.y(90));
+
         c.fillStyle = this.colors.greenFooter;
+        
         c.fillText("The match has ended.", this.x(50), this.y(92));
         c.fillStyle = "white";
 
@@ -1070,6 +1075,43 @@ class MatchScreenshot{
         }
     }
 
+    getSpectators(){
+
+        const spectators = [];
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+            
+            if(!p.played){
+                spectators.push(p.name);
+            }
+        }
+
+        return spectators;
+    }
+
+    createSpectatorString(spectators){
+
+        let string = "";
+
+        for(let i = 0; i < spectators.length; i++){
+
+            string += `${spectators[i]}`;
+
+            if(i < spectators.length - 1){
+                string += ", ";
+            }else{
+                string += ".";
+            }
+        }
+
+        return string;
+
+    }
+
     renderSmartCTFFooter(c){
 
         c.font = this.y(1.3)+"px Arial";
@@ -1077,7 +1119,16 @@ class MatchScreenshot{
         c.textAlign = "center";
         c.fillStyle = "white";
 
-        c.fillText("There is currently no one spectating this match.", this.x(50), this.y(91));
+        const spectators = this.getSpectators();
+
+        if(spectators.length === 0){
+            c.fillText("There are currently no one spectating this match.", this.x(50), this.y(91));
+        }else{
+
+            const spectatorString = this.createSpectatorString(spectators);
+            
+            c.fillText(`Spectators: ${spectatorString}`, this.x(50), this.y(91));
+        }
         c.fillStyle = "yellow";
         c.fillText("[SmartCTF 4E {PiN}Kev | {DnF2}SiNiSTeR | [es]Rush | adminthis & The_Cowboy & Sp0ngeb0b]", this.x(50), this.y(94));
         c.fillStyle = "white";
