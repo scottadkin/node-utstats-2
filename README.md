@@ -36,6 +36,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - If there are no users in the database, the next created account will automatically set to admin and activated.
 
 
+# Experimental IPToCountry Support
+To add this feature to your server add the following entries in IpToCountry.ini in your UnrealTournament system folder.
+- QueryServerHost 127.0.0.1(The ip you host node utstats on)
+- QueryServerFilePath /api/iptocountry
+- QueryServerPort 3000(The port node ustats site uses)
 
 # Admin Tools
 The site contains many tools to allow you to change what is displayed and what users can do.
