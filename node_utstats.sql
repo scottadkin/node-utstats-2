@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 25, 2021 at 01:41 AM
+-- Generation Time: Jun 25, 2021 at 02:40 AM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 8.0.7
 
@@ -504,6 +504,7 @@ CREATE TABLE `nstats_player_matches` (
   `player_id` int(11) NOT NULL,
   `bot` tinyint(1) NOT NULL,
   `spectator` tinyint(1) NOT NULL,
+  `played` tinyint(1) NOT NULL,
   `ip` varchar(50) NOT NULL,
   `country` varchar(5) NOT NULL,
   `face` int(11) NOT NULL,
