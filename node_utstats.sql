@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.0
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 16, 2021 at 08:57 PM
+-- Generation Time: Jun 25, 2021 at 01:41 AM
 -- Server version: 10.4.19-MariaDB
--- PHP Version: 7.4.19
+-- PHP Version: 8.0.7
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -502,6 +502,8 @@ CREATE TABLE `nstats_player_matches` (
   `match_date` int(11) NOT NULL,
   `map_id` int(11) NOT NULL,
   `player_id` int(11) NOT NULL,
+  `bot` tinyint(1) NOT NULL,
+  `spectator` tinyint(1) NOT NULL,
   `ip` varchar(50) NOT NULL,
   `country` varchar(5) NOT NULL,
   `face` int(11) NOT NULL,

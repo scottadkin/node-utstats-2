@@ -251,7 +251,7 @@ class Player{
 
            // console.log(player);
 
-            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
                 ?,
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -262,6 +262,8 @@ class Player{
                 matchDate,
                 mapId,
                 player.masterId,
+                player.bBot,
+                player.bSpectator,
                 Functions.setValueIfUndefined(player.ip,''),
                 Functions.setValueIfUndefined(player.country,'xx'),
                 Functions.setValueIfUndefined(player.faceId),

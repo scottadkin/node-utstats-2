@@ -3,7 +3,7 @@ const WeaponStats = require('./weaponstats');
 
 class PlayerInfo{
 
-    constructor(id, name, timeStamp){
+    constructor(id, name, timeStamp, bSpectator){
 
         this.id = id;
         this.name = name;
@@ -11,6 +11,7 @@ class PlayerInfo{
         this.disconnects = [];
         this.teams = [];
         this.bBot = false;
+        this.bSpectator = (bSpectator === undefined) ? false : bSpectator;
 
         this.bWinner = false;
         this.bDrew = false;
@@ -107,8 +108,15 @@ class PlayerInfo{
 
     }
 
-    connect(timeStamp){
+    connect(timeStamp, bSpectator){
+
         this.connects.push(timeStamp);
+
+        if(bSpectator !== undefined){
+            this.bSpectator = true;
+        }else{
+            this.bSpectator = false;
+        }
     }
 
     disconnect(timeStamp){

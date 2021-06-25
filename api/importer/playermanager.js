@@ -174,7 +174,7 @@ class PlayerManager{
         
         let result = 0;
         let type = 0;
-        let timeStamp = 0;
+        let timestamp = 0;
         let subString = 0;
 
         for(let i = 0; i < this.data.length; i++){
@@ -186,13 +186,15 @@ class PlayerManager{
             if(result !== null){
 
                 type = result[2].toLowerCase();
-                timeStamp = parseFloat(result[1]);
+                timestamp = parseFloat(result[1]);
                 subString = result[3];
           
                 if(type === 'connect'){
-                    this.connectPlayer(timeStamp, subString);
+                    this.connectPlayer(timestamp, subString);
                 }else if(type === 'disconnect'){
-                     this.disconnectPlayer(subString, timeStamp);
+                     this.disconnectPlayer(subString, timestamp);
+                }else if(type === 'rename'){
+                    this.connectPlayer(timestamp, subString, true);
                 }
             }
         }
@@ -294,15 +296,19 @@ class PlayerManager{
         //set bestspawnkillspree, spawnkills ect
     }
 
-    connectPlayer(timeStamp, string){
+    connectPlayer(timestamp, string, bSpectator){
+
 
         const connectReg = /^(.+?)\t(.+?)\t(.+?)$/i
+        const renameReg = /^(.+)\t(.+)$/i;
 
-        const result = connectReg.exec(string);  
+        let result = connectReg.exec(string);  
+
+        let player = [];
 
         if(result !== null){
 
-            const player = this.getPlayerById(result[2]);
+            player = this.getPlayerById(result[2]);
 
             if(this.uniqueNames.indexOf(result[1]) === -1){
                 this.uniqueNames.push(result[1]);
@@ -314,19 +320,36 @@ class PlayerManager{
             }
 
             if(player === null){
-                //this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
-                this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timeStamp));
-
-               // if(!this.orginalIds.has(result[1])){
-               //     this.orginalIds.set(result[1], parseInt(result[2]));
-                //}
+   
+                this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timestamp));        
 
             }else{
-                player.connect(timeStamp);
+     
+                player.connect(timestamp);
+              
             }
 
         }else{
-            new Message(`ConnectPlayer Reg did not match for ${string}.`,'warning');
+
+            result = renameReg.exec(string);
+            
+            if(result !== null){
+
+
+                const id = parseInt(result[2]);
+
+                player = this.getPlayerById(id);
+
+                if(player === null){
+                    this.players.push(new PlayerInfo(id, result[1], timestamp, true));   
+                }else{
+                    player.connect(timestamp, true);
+                }
+
+            }else{
+                new Message(`ConnectPlayer & renamePlayer Reg did not match for ${string}.`,'warning');
+            }
+            
         }
     }
 
