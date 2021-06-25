@@ -60,14 +60,9 @@ export default (req, res) =>{
 
     return new Promise(async (resolve, reject) =>{
 
-        console.log(req.query);
-
         if(req.query.ip !== undefined){
 
             let ips = req.query.ip.split(",");
-
-            console.log("ips");
-            console.log(ips);
 
             //hh:mm xxx:aaa.bbb.ccc.ddd:hostname:COUNTRYNAME_LONG:COUNTRYNAME_SHORT:flagname
 
@@ -79,19 +74,35 @@ export default (req, res) =>{
             for(let i = 0; i < ips.length; i++){
 
                 currentGeo = geoip.lookup(ips[i]);
-                currentCountry = Countries(currentGeo.country)
+             
 
-                data.push({
-                    "ip": ips[i],
-                    "hostname": await createHostNameString(ips[i]),
-                    "code": currentGeo.country.toLowerCase(),
-                    "shortCountry": i18nCountries.alpha2ToAlpha3(currentGeo.country),
-                    "country": currentCountry.country
-                });
+
+                if(currentGeo !== null){
+
+                    currentCountry = Countries(currentGeo.country);
+         
+
+                    data.push({
+                        "ip": ips[i],
+                        "hostname": await createHostNameString(ips[i]),
+                        "code": currentGeo.country.toLowerCase(),
+                        "shortCountry": i18nCountries.alpha2ToAlpha3(currentGeo.country),
+                        "country": currentCountry.country
+                    });
+
+                }else{
+
+                    data.push({
+                        "ip": ips[i],
+                        "hostname": await createHostNameString(ips[i]),
+                        "code": "",
+                        "shortCountry": "",
+                        "country": "Unknown"
+                    });
+                }
                 
             }
          
-            console.table(data);
 
             const now = new Date(Date.now());
 
@@ -106,8 +117,6 @@ export default (req, res) =>{
             if(minutes < 10){
                 minutes = `0${minutes}`;
             }
-
-            console.log(`${hours}:${minutes}`);
 
             const string = createReturnString(data);
 
