@@ -13,6 +13,8 @@ class PlayerInfo{
         this.bBot = false;
         this.bSpectator = (bSpectator === undefined) ? false : bSpectator;
 
+        this.bPlayedInMatch = !this.bSpectator;
+
         this.bWinner = false;
         this.bDrew = false;
 
@@ -116,6 +118,7 @@ class PlayerInfo{
             this.bSpectator = true;
         }else{
             this.bSpectator = false;
+            this.bPlayedInMatch = true;
         }
     }
 

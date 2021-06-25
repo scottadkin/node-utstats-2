@@ -1466,7 +1466,7 @@ class PlayerManager{
 
                 p = this.players[i];
 
-                if(p.bDuplicate === undefined){
+                if(p.bDuplicate === undefined && p.bPlayedInMatch){
 
                     current = await Player.getGametypeTotals(p.masterId, gametype);
 
