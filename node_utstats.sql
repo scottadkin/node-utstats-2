@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 25, 2021 at 02:40 AM
+-- Generation Time: Jun 26, 2021 at 07:09 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 8.0.7
 
@@ -469,6 +469,22 @@ CREATE TABLE `nstats_match_team_changes` (
   `player` int(11) NOT NULL,
   `team` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_nexgen_stats_viewer`
+--
+
+CREATE TABLE `nstats_nexgen_stats_viewer` (
+  `id` int(11) NOT NULL,
+  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `type` int(11) NOT NULL,
+  `gametype` int(11) NOT NULL,
+  `players` int(11) NOT NULL,
+  `position` int(11) NOT NULL,
+  `enabled` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1091,6 +1107,12 @@ ALTER TABLE `nstats_match_team_changes`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_nexgen_stats_viewer`
+--
+ALTER TABLE `nstats_nexgen_stats_viewer`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_player_maps`
 --
 ALTER TABLE `nstats_player_maps`
@@ -1350,6 +1372,12 @@ ALTER TABLE `nstats_match_player_score`
 -- AUTO_INCREMENT for table `nstats_match_team_changes`
 --
 ALTER TABLE `nstats_match_team_changes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_nexgen_stats_viewer`
+--
+ALTER TABLE `nstats_nexgen_stats_viewer`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

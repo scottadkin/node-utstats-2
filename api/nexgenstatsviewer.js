@@ -6,8 +6,33 @@ class NexgenStatsViewer{
 
     constructor(){
 
+        this.validTypes = [
+            {"name": "Default (Top Gametype Rankings)", "id": 0},
+            {"name": "Most Wins", "id": 1},
+            {"name": "Most Playtime", "id": 2},
+            {"name": "Top Scores", "id": 3},
+            {"name": "Top Kills", "id": 4},
+            {"name": "Top Spawn Kills", "id": 5},
+            {"name": "Top Deaths", "id": 6},
+            {"name": "Top Suicides", "id": 7},
+            {"name": "Most Monster Kills", "id": 8},
+            {"name": "Most Godlikes", "id": 9},
+            {"name": "Longest Sprees", "id": 10},
+            {"name": "Flag Grabs", "id": 11},
+            {"name": "Flag Captures", "id": 12},
+            {"name": "Flag Kills", "id": 13},
+            {"name": "Flag Covers", "id": 14},
+            {"name": "Assault Objective Caps", "id": 15},
+            {"name": "Domination Control Point Caps", "id": 16}
+        ];
 
         this.playerManager = new Player();
+    }
+
+    async getCurrentSettings(){
+
+        const query = "SELECT * FROM nstats_nexgen_stats_viewer ORDER BY position ASC";
+        return await mysql.simpleFetch(query);
     }
 
     cleanString(string){

@@ -1,0 +1,10 @@
+.wrapper{
+
+    border:1px solid var(--border-color-1);
+    padding:5px;
+}
+
+.wrapper:hover{
+    cursor:pointer;
+    color:white;
+}

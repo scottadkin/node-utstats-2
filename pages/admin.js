@@ -23,7 +23,9 @@ import AdminPickupsManager from '../components/AdminPickupsManager/';
 import Items from '../api/items';
 import AdminWeaponImageUploader from '../components/AdminWeaponImageUploader/';
 import Weapons from '../api/weapons';
-import AdminFTPManager from '../components/AdminFTPManager/'
+import AdminFTPManager from '../components/AdminFTPManager/';
+import NexgenStatsViewer from '../api/nexgenstatsviewer';
+import AdminNexgenStatsViewer from '../components/AdminNexgenStatsViewer';
 
 class Admin extends React.Component{
 
@@ -32,14 +34,15 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 10, 
+            "mode": 11, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "rankingEvents": JSON.parse(this.props.rankingEvents),
             "itemList": JSON.parse(this.props.itemList),
             "weaponData": JSON.parse(this.props.weaponData),
-            "ftpServers": JSON.parse(this.props.ftpServers)
+            "ftpServers": JSON.parse(this.props.ftpServers),
+            "nexgenStatsViewerSettings": JSON.parse(this.props.nexgenStatsViewerSettings)
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -51,6 +54,40 @@ class Admin extends React.Component{
         this.setItemList = this.setItemList.bind(this);
         this.updateWeaponData = this.updateWeaponData.bind(this);
         this.updateFtpServers = this.updateFtpServers.bind(this);
+        this.updateNexgenSettings = this.updateNexgenSettings.bind(this);
+    }
+
+
+    updateNexgenSettings(id, type, value){
+
+        console.log(`UPDATE NEXGEN SETTINGS`);
+        console.log(id);
+        console.log(type);
+        console.log(value);
+
+        const oldSettings = this.state.nexgenStatsViewerSettings;
+
+        const newSettings = [];
+
+        for(let i = 0; i < oldSettings.length; i++){
+
+            if(oldSettings[i].id !== id){
+                newSettings.push(oldSettings[i]);
+            }else{
+                newSettings.push({
+                    "id": oldSettings[i].id,
+                    "title": (type === "title") ? value : oldSettings[i].title,
+                    "type": (type === "type") ? value : oldSettings[i].type,
+                    "gametype":(type === "gametype") ? value : oldSettings[i].gametype,
+                    "players": (type === "players") ? value : oldSettings[i].players,
+                    "enabled": (type === "enabled") ? value : oldSettings[i].enabled,
+                    "position": (type === "position") ? value : oldSettings[i].position
+
+                });
+            }
+        }
+
+        this.setState({"nexgenStatsViewerSettings": newSettings});
     }
 
     updateFtpServers(newData){
@@ -466,6 +503,18 @@ class Admin extends React.Component{
         return <AdminFTPManager servers={this.state.ftpServers} updateParent={this.updateFtpServers}/>
     }
 
+    displayNexgenStatsViewer(){
+
+        if(this.state.mode !== 11) return null;
+
+        return <AdminNexgenStatsViewer 
+            settings={this.state.nexgenStatsViewerSettings} 
+            validTypes={JSON.parse(this.props.nexgenValidTypes)}
+            gametypeNames={this.state.gametypeNames}
+            updateSettings={this.updateNexgenSettings}
+        />
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -517,6 +566,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 9) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(9);
                             })}>Weapon Image Uploader</div>
+                            <div className={`big-tab ${(this.state.mode === 11) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(11);
+                            })}>NexgenStatsViewer</div>
 
                             
                         </div>
@@ -532,6 +584,7 @@ class Admin extends React.Component{
                         {this.displayPickupsManager()}
                         {this.displayWeaponImageUploader()}
                         {this.displayFtpManager()}
+                        {this.displayNexgenStatsViewer()}
                     </div>   
                 </div>
 
@@ -575,6 +628,8 @@ export async function getServerSideProps({req, query}){
     };
 
     let ftpServers = [];
+    let nexgenStatsViewerSettings = [];
+    let nexgenValidTypes = [];
 
 
     if(bUserAdmin){
@@ -625,6 +680,12 @@ export async function getServerSideProps({req, query}){
         weaponData.names = await weaponManager.getAllNames();
         weaponData.files = await weaponManager.getImageList();
 
+        const nexgenStatsManager = new NexgenStatsViewer();
+
+        nexgenStatsViewerSettings = await nexgenStatsManager.getCurrentSettings();
+
+        nexgenValidTypes = nexgenStatsManager.validTypes;
+
     }
     
     const navSettings = await settings.getCategorySettings("Navigation");
@@ -650,7 +711,9 @@ export async function getServerSideProps({req, query}){
             "rankingEvents": JSON.stringify(rankingEvents),
             "itemList": JSON.stringify(itemList),
             "weaponData": JSON.stringify(weaponData),
-            "ftpServers": JSON.stringify(ftpServers)
+            "ftpServers": JSON.stringify(ftpServers),
+            "nexgenStatsViewerSettings": JSON.stringify(nexgenStatsViewerSettings),
+            "nexgenValidTypes": JSON.stringify(nexgenValidTypes)
         }
     };
 }
