@@ -68,14 +68,20 @@ class Admin extends React.Component{
         try{
 
 
-            this.setState({"nexgenSaveInProgress": true});
-
-
-            setTimeout(() =>{
-
-                this.setState({"lastSavedNexgenSettings": this.state.nexgenStatsViewerSettings, "nexgenSaveInProgress": false, "nexgenSavePassed": true});
-            }, 2000);
+            this.setState({"nexgenSaveInProgress": true, "nexgenSavePassed": null});
             
+
+            const req = await fetch("/api/adminnexgen", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"settings": this.state.nexgenStatsViewerSettings})
+            });
+            
+            const result = await req.json();
+
+            console.log(result);
+
+            this.setState({"lastSavedNexgenSettings": this.state.nexgenStatsViewerSettings, "nexgenSaveInProgress": false, "nexgenSavePassed": true});
 
         }catch(err){
             console.trace(err);

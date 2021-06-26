@@ -66,10 +66,7 @@ class NexgenStatsViewer{
                 }
             }
 
-
             const players = await this.playerManager.getPlayerNames(playerIds);
-
-
 
             let currentPlayer = 0;
             let d = 0;
@@ -83,8 +80,6 @@ class NexgenStatsViewer{
                 d.playerName = currentPlayer.name;
                 d.playerCountry = currentPlayer.country;
             }
-
-            console.log(data);
 
         }catch(err){
             console.trace(err);
@@ -141,6 +136,46 @@ class NexgenStatsViewer{
 
             console.trace(err);
             return "";
+        }
+    }
+
+
+    async updateSetting(settings){
+
+        const query = `UPDATE nstats_nexgen_stats_viewer SET
+        title=?,
+        type=?,
+        gametype=?,
+        players=?,
+        position=?,
+        enabled=?
+        WHERE id=?`;
+
+        const vars = [
+            settings.title,
+            settings.type,
+            settings.gametype,
+            settings.players,
+            settings.position,
+            settings.enabled,
+            settings.id
+        ];
+
+        await mysql.simpleUpdate(query, vars);
+    }
+
+    async updateSettings(settings){
+
+        try{
+
+            for(let i = 0; i < settings.length; i++){
+
+                await this.updateSetting(settings[i]);
+
+            }
+
+        }catch(err){
+            console.trace(err);
         }
     }
 }
