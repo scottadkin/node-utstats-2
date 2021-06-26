@@ -61,8 +61,57 @@ class Admin extends React.Component{
         this.updateNexgenSettings = this.updateNexgenSettings.bind(this);
         this.saveNexgenSettings = this.saveNexgenSettings.bind(this);
         this.setFullNexgenList = this.setFullNexgenList.bind(this);
+        this.deleteNexgenEntry = this.deleteNexgenEntry.bind(this);
     }
 
+    async deleteNexgenEntry(id){
+
+        try{
+
+
+            this.setState({"nexgenSaveInProgress": true, "nexgenSavePassed": null, "nexgenErrors": []});
+
+            const req = await fetch("/api/adminnexgen", {
+                "headers": {"Content-Type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "delete", "id": parseInt(id)})
+            });
+
+            const result = await req.json();
+
+            console.log(result);
+
+            if(result.message === "passed"){
+
+                const newList = [];
+
+                let s = 0;
+
+                for(let i = 0; i < this.state.nexgenStatsViewerSettings.length; i++){
+
+                    s = this.state.nexgenStatsViewerSettings[i];
+
+                    if(s.id !== id){
+                        newList.push(s);
+                    }
+                }
+
+                this.setState({
+                    "nexgenStatsViewerSettings": newList, 
+                    "lastSavedNexgenSettings": newList, 
+                    "nexgenSaveInProgress": false, 
+                    "nexgenSavePassed": true, 
+                    "nexgenErrors": []
+                });
+            }else{
+
+                this.setState({"nexgenSaveInProgress": false, "nexgenSavePassed": false, "nexgenErrors": [result.message]});
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
 
     setFullNexgenList(data){
 
@@ -83,7 +132,7 @@ class Admin extends React.Component{
             const req = await fetch("/api/adminnexgen", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"settings": this.state.nexgenStatsViewerSettings})
+                "body": JSON.stringify({"mode": "update", "settings": this.state.nexgenStatsViewerSettings})
             });
             
             const result = await req.json();
@@ -565,6 +614,7 @@ class Admin extends React.Component{
             savePassed={this.state.nexgenSavePassed}
             errors={this.state.nexgenErrors}
             setFullList={this.setFullNexgenList}
+            delete={this.deleteNexgenEntry}
         />
     }
 

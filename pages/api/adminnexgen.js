@@ -16,25 +16,49 @@ export default async (req, res) =>{
             const nexgen = new NexgenStatsViewer();
 
 
-            if(req.body.settings !== undefined){
+            if(req.body.mode === "update"){
 
-                const result = await nexgen.updateSettings(req.body.settings);
+                if(req.body.settings !== undefined){
 
-                if(result === true){
-                    res.status(200).json({"message": "passed"});
+                    const result = await nexgen.updateSettings(req.body.settings);
+
+                    if(result === true){
+                        res.status(200).json({"message": "passed"});
+                    }else{
+                        res.status(200).json({"message": result});
+                    }
+
+                    return;
+
                 }else{
-                    res.status(200).json({"message": result});
+
+                    res.status(200).json({"message": "req.body.settings was empty"});
+                    return;
                 }
 
-                return;
+            }else if(req.body.mode === "delete"){
 
-            }else{
 
-                res.status(200).json({"message": "req.body was empty"});
-                return;
+                if(req.body.id !== undefined){
+
+                    const passed = await nexgen.deleteList(parseInt(req.body.id));
+
+                    if(passed){
+                        res.status(200).json({"message": "passed"});
+                    }else{
+                        res.status(200).json({"message": "The row wasn't deleted"});
+                    }
+
+                    return;
+
+                }else{
+                    res.status(200).json({"message": "req.body.id is undefined"});
+                    return;
+                }
+
             }
 
-            
+            res.status(200).json({"message": "Unknown command"});
 
         }else{
             res.status(200).json({"message": "Only admins can perform this action"});

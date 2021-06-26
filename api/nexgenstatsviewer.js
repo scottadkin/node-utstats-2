@@ -189,6 +189,20 @@ class NexgenStatsViewer{
             return err;
         }
     }
+
+
+    async deleteList(id){
+
+        const query = "DELETE FROM nstats_nexgen_stats_viewer WHERE id=?";
+
+        const result = await mysql.updateReturnAffectedRows(query, [id]);
+
+        if(result === 0){
+            return false;
+        }
+
+        return true;
+    }
 }
 
 

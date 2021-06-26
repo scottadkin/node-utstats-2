@@ -15,6 +15,23 @@ class AdminNexgenStatsViewer extends React.Component{
         this.changeTitle = this.changeTitle.bind(this);
         this.moveUp = this.moveUp.bind(this);
         this.moveDown = this.moveDown.bind(this);
+        this.delete = this.delete.bind(this);
+    }
+
+    delete(e){
+
+        console.log(e.target.id);
+
+        const reg = /^delete-(.+)$/i;
+
+        const result = reg.exec(e.target.id);
+
+        if(result !== null){
+
+            const id = parseInt(result[1]);
+
+            this.props.delete(id);
+        }
     }
 
     getListCurrentPosition(id){
@@ -246,7 +263,15 @@ class AdminNexgenStatsViewer extends React.Component{
                     <div id={`down-${s.id}`} className={`${styles.button} team-red`} onClick={this.moveDown}>Down</div>
                     <div id={`up-${s.id}`} className={`${styles.button} team-green`} onClick={this.moveUp}>Up</div>
                 </td>
+                <td>
+                    <div className={`team-red ${styles.delete}`} id={`delete-${s.id}`} onClick={this.delete}>Delete</div>
+                </td>
             </tr>);
+        }
+
+        if(rows.length === 0){
+
+            rows.push(<tr key="none"><td colSpan="7">There are currently no lists created</td></tr>);
         }
 
         return <table className="t-width-1 m-bottom-25">
@@ -258,6 +283,7 @@ class AdminNexgenStatsViewer extends React.Component{
                     <th>To Display</th>
                     <th>Enabled</th>
                     <th>Position</th>
+                    <th>Delete</th>
                 </tr>
                 {rows}
             </tbody>
@@ -324,7 +350,7 @@ class AdminNexgenStatsViewer extends React.Component{
 
             e = this.props.errors[i];
             
-            errors.push(<div>{e}</div>);
+            errors.push(<div key={i}>{e}</div>);
         }
 
         return <div className="team-red center m-bottom-25 t-width-1 p-top-25 p-bottom-25">

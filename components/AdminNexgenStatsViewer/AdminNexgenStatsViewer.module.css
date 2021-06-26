@@ -7,6 +7,14 @@
     color:white;
 }
 
-.button:hover{
+.button:hover, .delete:hover{
     cursor:pointer;
+}
+
+.delete{
+    display:inline-block;
+    padding:5px;
+    user-select:none;
+    border:1px solid var(--border-color-1);
+    color:white;
 }
