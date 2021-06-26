@@ -42,7 +42,10 @@ class Admin extends React.Component{
             "itemList": JSON.parse(this.props.itemList),
             "weaponData": JSON.parse(this.props.weaponData),
             "ftpServers": JSON.parse(this.props.ftpServers),
-            "nexgenStatsViewerSettings": JSON.parse(this.props.nexgenStatsViewerSettings)
+            "nexgenStatsViewerSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
+            "lastSavedNexgenSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
+            "nexgenSaveInProgress": false,
+            "nexgenSavePassed": null
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -55,15 +58,31 @@ class Admin extends React.Component{
         this.updateWeaponData = this.updateWeaponData.bind(this);
         this.updateFtpServers = this.updateFtpServers.bind(this);
         this.updateNexgenSettings = this.updateNexgenSettings.bind(this);
+        this.saveNexgenSettings = this.saveNexgenSettings.bind(this);
     }
 
 
-    updateNexgenSettings(id, type, value){
+    async saveNexgenSettings(){
 
-        console.log(`UPDATE NEXGEN SETTINGS`);
-        console.log(id);
-        console.log(type);
-        console.log(value);
+
+        try{
+
+
+            this.setState({"nexgenSaveInProgress": true});
+
+
+            setTimeout(() =>{
+
+                this.setState({"lastSavedNexgenSettings": this.state.nexgenStatsViewerSettings, "nexgenSaveInProgress": false, "nexgenSavePassed": true});
+            }, 2000);
+            
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    updateNexgenSettings(id, type, value){
 
         const oldSettings = this.state.nexgenStatsViewerSettings;
 
@@ -87,7 +106,7 @@ class Admin extends React.Component{
             }
         }
 
-        this.setState({"nexgenStatsViewerSettings": newSettings});
+        this.setState({"nexgenStatsViewerSettings": newSettings, "nexgenSavePassed": null});
     }
 
     updateFtpServers(newData){
@@ -130,7 +149,6 @@ class Admin extends React.Component{
     }
 
     setGametypeNames(data){
-        console.log(`UPDATE GAMETYPENAMES`);
         this.setState({"gametypeNames": data});
     }
 
@@ -512,6 +530,10 @@ class Admin extends React.Component{
             validTypes={JSON.parse(this.props.nexgenValidTypes)}
             gametypeNames={this.state.gametypeNames}
             updateSettings={this.updateNexgenSettings}
+            lastSavedSettings={this.state.lastSavedNexgenSettings}
+            save={this.saveNexgenSettings}
+            saveInProgress={this.state.nexgenSaveInProgress}
+            savePassed={this.state.nexgenSavePassed}
         />
     }
 

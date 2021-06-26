@@ -445,6 +445,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	font-size:14px;
 	line-height:24px;
 	transition:all 0.5s;
+	user-select:none;
 }
 
 .search-button:hover{
