@@ -45,7 +45,8 @@ class Admin extends React.Component{
             "nexgenStatsViewerSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
             "lastSavedNexgenSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
             "nexgenSaveInProgress": false,
-            "nexgenSavePassed": null
+            "nexgenSavePassed": null,
+            "nexgenErrors": []
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -59,8 +60,14 @@ class Admin extends React.Component{
         this.updateFtpServers = this.updateFtpServers.bind(this);
         this.updateNexgenSettings = this.updateNexgenSettings.bind(this);
         this.saveNexgenSettings = this.saveNexgenSettings.bind(this);
+        this.setFullNexgenList = this.setFullNexgenList.bind(this);
     }
 
+
+    setFullNexgenList(data){
+
+        this.setState({"nexgenStatsViewerSettings": data});
+    }
 
     async saveNexgenSettings(){
 
@@ -68,7 +75,9 @@ class Admin extends React.Component{
         try{
 
 
-            this.setState({"nexgenSaveInProgress": true, "nexgenSavePassed": null});
+            this.setState({"nexgenSaveInProgress": true, "nexgenSavePassed": null, "nexgenErrors": []});
+
+            const errors = [];
             
 
             const req = await fetch("/api/adminnexgen", {
@@ -79,9 +88,23 @@ class Admin extends React.Component{
             
             const result = await req.json();
 
-            console.log(result);
+            if(result.message === "passed"){
 
-            this.setState({"lastSavedNexgenSettings": this.state.nexgenStatsViewerSettings, "nexgenSaveInProgress": false, "nexgenSavePassed": true});
+                this.setState({"lastSavedNexgenSettings": this.state.nexgenStatsViewerSettings, "nexgenSaveInProgress": false, "nexgenSavePassed": true});
+                return;
+
+            }else{
+
+                errors.push(result.message);
+            }
+
+            this.setState({
+                "nexgenSaveInProgress": false, 
+                "nexgenSavePassed": false,
+                "nexgenErrors": errors
+            });
+
+
 
         }catch(err){
             console.trace(err);
@@ -540,6 +563,8 @@ class Admin extends React.Component{
             save={this.saveNexgenSettings}
             saveInProgress={this.state.nexgenSaveInProgress}
             savePassed={this.state.nexgenSavePassed}
+            errors={this.state.nexgenErrors}
+            setFullList={this.setFullNexgenList}
         />
     }
 
@@ -713,6 +738,7 @@ export async function getServerSideProps({req, query}){
         nexgenStatsViewerSettings = await nexgenStatsManager.getCurrentSettings();
 
         nexgenValidTypes = nexgenStatsManager.validTypes;
+
 
     }
     

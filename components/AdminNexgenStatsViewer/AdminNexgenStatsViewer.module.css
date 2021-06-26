@@ -1,0 +1,12 @@
+.button{
+    display:inline-block;
+    user-select:none;
+    padding:5px;
+    border:1px solid var(--border-color-1);
+    margin-left:5px;
+    color:white;
+}
+
+.button:hover{
+    cursor:pointer;
+}

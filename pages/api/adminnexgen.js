@@ -18,10 +18,16 @@ export default async (req, res) =>{
 
             if(req.body.settings !== undefined){
 
-                await nexgen.updateSettings(req.body.settings);
+                const result = await nexgen.updateSettings(req.body.settings);
 
-                res.status(200).json({"message": "passed"});
+                if(result === true){
+                    res.status(200).json({"message": "passed"});
+                }else{
+                    res.status(200).json({"message": result});
+                }
+
                 return;
+
             }else{
 
                 res.status(200).json({"message": "req.body was empty"});

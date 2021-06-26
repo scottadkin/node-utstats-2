@@ -1,5 +1,6 @@
 import React from 'react';
 import OnOff from '../OnOff';
+import styles from './AdminNexgenStatsViewer.module.css';
 
 class AdminNexgenStatsViewer extends React.Component{
 
@@ -12,6 +13,119 @@ class AdminNexgenStatsViewer extends React.Component{
         this.changeGametype = this.changeGametype.bind(this);
         this.changeType = this.changeType.bind(this);
         this.changeTitle = this.changeTitle.bind(this);
+        this.moveUp = this.moveUp.bind(this);
+        this.moveDown = this.moveDown.bind(this);
+    }
+
+    getListCurrentPosition(id){
+
+        let s = 0;
+
+        for(let i = 0; i < this.props.settings.length; i++){
+
+            s = this.props.settings[i];
+
+            if(s.id === id) return {"position": i, "data": s}
+        }
+
+        return null;
+    }
+
+    moveUp(e){
+
+        const reg = /^up-(.+)$/i;
+        const result = reg.exec(e.target.id);
+
+        if(result !== null){
+
+            const id = parseInt(result[1]);
+
+            const currentIndex = this.getListCurrentPosition(id);
+
+            //can't move list down from last
+            if(currentIndex.position - 1 < 0) return;
+
+            if(currentIndex === null){
+                console.trace(`currentIndex is null`);
+                return;
+            }
+
+            const newList = Object.assign(this.props.settings);
+
+            const first = {
+                "id": this.props.settings[currentIndex.position].id,
+                "title": this.props.settings[currentIndex.position].title,
+                "type": this.props.settings[currentIndex.position].type,
+                "gametype": this.props.settings[currentIndex.position].gametype,
+                "players": this.props.settings[currentIndex.position].players,
+                "position": this.props.settings[currentIndex.position - 1].position,
+                "enabled": this.props.settings[currentIndex.position].enabled,
+            };
+
+            const second = {
+                "id": this.props.settings[currentIndex.position - 1].id,
+                "title": this.props.settings[currentIndex.position - 1].title,
+                "type": this.props.settings[currentIndex.position - 1].type,
+                "gametype": this.props.settings[currentIndex.position - 1].gametype,
+                "players": this.props.settings[currentIndex.position - 1].players,
+                "position": this.props.settings[currentIndex.position].position,
+                "enabled": this.props.settings[currentIndex.position - 1].enabled,
+            };
+
+            newList[currentIndex.position] = second;
+            newList[currentIndex.position - 1] = first;
+
+            this.props.setFullList(newList);
+        }
+    }
+
+    moveDown(e){
+
+
+        const reg = /^down-(.+)$/i;
+        const result = reg.exec(e.target.id);
+
+        if(result !== null){
+
+            const id = parseInt(result[1]);
+
+            const currentIndex = this.getListCurrentPosition(id);
+
+            //can't move list down from last
+            if(currentIndex.position + 1 >= this.props.settings.length) return;
+
+            if(currentIndex === null){
+                console.trace(`currentIndex is null`);
+                return;
+            }
+
+            const newList = Object.assign(this.props.settings);
+
+            const first = {
+                "id": this.props.settings[currentIndex.position].id,
+                "title": this.props.settings[currentIndex.position].title,
+                "type": this.props.settings[currentIndex.position].type,
+                "gametype": this.props.settings[currentIndex.position].gametype,
+                "players": this.props.settings[currentIndex.position].players,
+                "position": this.props.settings[currentIndex.position + 1].position,
+                "enabled": this.props.settings[currentIndex.position].enabled,
+            };
+
+            const second = {
+                "id": this.props.settings[currentIndex.position + 1].id,
+                "title": this.props.settings[currentIndex.position + 1].title,
+                "type": this.props.settings[currentIndex.position + 1].type,
+                "gametype": this.props.settings[currentIndex.position + 1].gametype,
+                "players": this.props.settings[currentIndex.position + 1].players,
+                "position": this.props.settings[currentIndex.position].position,
+                "enabled": this.props.settings[currentIndex.position + 1].enabled,
+            };
+
+            newList[currentIndex.position] = second;
+            newList[currentIndex.position + 1] = first;
+
+            this.props.setFullList(newList);
+        }
     }
 
     changeTitle(e){
@@ -83,7 +197,7 @@ class AdminNexgenStatsViewer extends React.Component{
 
         }
 
-        return <select id={`type-${id}`} className="default-select" defaultValue={defaultValue} onClick={this.changeType}>
+        return <select id={`type-${id}`} className="default-select" value={defaultValue} onChange={this.changeType}>
             {options}
         </select>;
     }
@@ -105,7 +219,7 @@ class AdminNexgenStatsViewer extends React.Component{
         }
 
 
-        return <select id={`gametype-${id}`} className="default-select" defaultValue={defaultValue} onChange={this.changeGametype}>
+        return <select id={`gametype-${id}`} className="default-select" value={defaultValue} onChange={this.changeGametype}>
             {options}
         </select>
 
@@ -128,7 +242,10 @@ class AdminNexgenStatsViewer extends React.Component{
                 <td>{this.createGametypeDropDown(s.id, s.gametype)}</td>
                 <td><input type="number" id={`number-${s.id}`} className="default-number" defaultValue={s.players} min={1} max={30} onChange={this.changePlayerCount}/></td>
                 <td><OnOff id={s.id} value={s.enabled} changeValue={this.changeOnOff}/></td>
-                <td></td>
+                <td>
+                    <div id={`down-${s.id}`} className={`${styles.button} team-red`} onClick={this.moveDown}>Down</div>
+                    <div id={`up-${s.id}`} className={`${styles.button} team-green`} onClick={this.moveUp}>Up</div>
+                </td>
             </tr>);
         }
 
@@ -195,6 +312,27 @@ class AdminNexgenStatsViewer extends React.Component{
         </div>
     }
 
+    renderErrors(){
+
+        if(this.props.errors.length === 0) return null;
+
+        const errors = [];
+
+        let e = 0;
+
+        for(let i = 0; i < this.props.errors.length; i++){
+
+            e = this.props.errors[i];
+            
+            errors.push(<div>{e}</div>);
+        }
+
+        return <div className="team-red center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
+            There was a problem updating nexgen stats viewer settings.<br/><br/>
+            {errors}
+        </div>
+    }
+
     render(){
 
         return <div>
@@ -207,6 +345,7 @@ class AdminNexgenStatsViewer extends React.Component{
             {this.renderSaveInProgress()}
             {this.renderUnsavedChanges()}
             {this.renderSavePassed()}
+            {this.renderErrors()}
             {this.renderTable()}
             <div className="search-button" onClick={this.props.save}>Save Changes</div>
         </div>

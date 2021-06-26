@@ -32,7 +32,15 @@ class NexgenStatsViewer{
     async getCurrentSettings(){
 
         const query = "SELECT * FROM nstats_nexgen_stats_viewer ORDER BY position ASC";
-        return await mysql.simpleFetch(query);
+
+        const data = await mysql.simpleFetch(query);
+
+        for(let i = 0; i < data.length; i++){
+
+            data[i].position = i;
+        }
+
+        return data;
     }
 
     cleanString(string){
@@ -174,8 +182,11 @@ class NexgenStatsViewer{
 
             }
 
+            return true;
+
         }catch(err){
             console.trace(err);
+            return err;
         }
     }
 }
