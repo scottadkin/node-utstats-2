@@ -18,6 +18,9 @@ class AdminNexgenStatsViewer extends React.Component{
         this.delete = this.delete.bind(this);
     }
 
+
+    
+
     delete(e){
 
         console.log(e.target.id);
@@ -198,7 +201,7 @@ class AdminNexgenStatsViewer extends React.Component{
         this.props.updateSettings(id, "enabled", value);
     }
 
-    createTypeDropDown(id, defaultValue){
+    createTypeDropDown(id, defaultValue, create){
 
         const options = [];
 
@@ -214,12 +217,19 @@ class AdminNexgenStatsViewer extends React.Component{
 
         }
 
-        return <select id={`type-${id}`} className="default-select" value={defaultValue} onChange={this.changeType}>
-            {options}
-        </select>;
+        if(create === undefined){
+            return <select id={`type-${id}`} className="default-select" value={defaultValue} onChange={this.changeType}>
+                {options}
+            </select>;
+        }else{
+
+            return <select id={`type-${id}`} className="default-select" >
+                {options}
+            </select>;
+        }
     }
 
-    createGametypeDropDown(id, defaultValue){
+    createGametypeDropDown(id, defaultValue, create){
 
         const options = [
             <option key={-1} value="-1">Select an option</option>,
@@ -236,9 +246,17 @@ class AdminNexgenStatsViewer extends React.Component{
         }
 
 
-        return <select id={`gametype-${id}`} className="default-select" value={defaultValue} onChange={this.changeGametype}>
-            {options}
-        </select>
+        if(create === undefined){
+
+            return <select id={`gametype-${id}`} className="default-select" value={defaultValue} onChange={this.changeGametype}>
+                {options}
+            </select>
+        }else{
+
+            return <select id={`gametype-${id}`} className="default-select">
+                {options}
+            </select>
+        }
 
     }
 
@@ -359,6 +377,49 @@ class AdminNexgenStatsViewer extends React.Component{
         </div>
     }
 
+
+    renderCreate(){
+
+        return <div>
+            <div className="default-header">Create New List</div>
+            <form className="form" method="POST" action="/" onSubmit={this.props.createList}>
+                <div className="select-row">
+                    <div className="select-label">
+                        Title
+                    </div>
+                    <div>
+                        <input type="text" className="default-textbox" placeholder="Display title..."/>
+                    </div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">
+                        List Type
+                    </div>
+                    <div>
+                        {this.createTypeDropDown(0,0,true)}
+                    </div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">
+                        Gametype
+                    </div>
+                    <div>
+                        {this.createGametypeDropDown(0,0,true)}
+                    </div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">
+                        Total Players
+                    </div>
+                    <div>
+                        <input type="number" className="default-number" min={1} max={30} defaultValue={5}/>
+                    </div>
+                </div>
+                <input type="submit" className="search-button" value="Create" />
+            </form>
+        </div>
+    }
+
     render(){
 
         return <div>
@@ -374,6 +435,7 @@ class AdminNexgenStatsViewer extends React.Component{
             {this.renderErrors()}
             {this.renderTable()}
             <div className="search-button" onClick={this.props.save}>Save Changes</div>
+            {this.renderCreate()}
         </div>
     }
 }

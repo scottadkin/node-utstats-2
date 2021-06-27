@@ -62,6 +62,70 @@ class Admin extends React.Component{
         this.saveNexgenSettings = this.saveNexgenSettings.bind(this);
         this.setFullNexgenList = this.setFullNexgenList.bind(this);
         this.deleteNexgenEntry = this.deleteNexgenEntry.bind(this);
+        this.nexgenCreateList = this.nexgenCreateList.bind(this);
+    }
+
+    async nexgenCreateList(e){
+
+        try{
+
+            e.preventDefault(e);
+
+            const title = e.target[0].value;
+            const type = e.target[1].value;
+            const gametype = e.target[2].value;
+            const players = parseInt(e.target[3].value);
+
+            const errors = [];
+
+            if(title.length === 0) errors.push("Title can not be an empty string");
+            if(type < 0) errors.push("You have not selected a list type");
+            if(gametype < 0) errors.push("You have not selected a gametype");
+
+            if(errors.length === 0){
+
+                const req = await fetch("/api/adminnexgen", {         
+                    "headers": {"Content-Type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode":"create", "data": {
+                        "title": title, 
+                        "type": type, 
+                        "gametype": gametype, 
+                        "players": players, 
+                        "position": this.state.nexgenStatsViewerSettings.length
+                    }})
+                });
+
+                const result = await req.json();
+
+                if(result.message === "passed"){
+
+                    const newData = Object.assign(this.state.nexgenStatsViewerSettings);
+
+                    newData.push(
+                        {
+                            "id": result.insertId,
+                            "title": title, 
+                            "type": parseInt(type), 
+                            "gametype": parseInt(gametype), 
+                            "players": players, 
+                            "position": this.state.nexgenStatsViewerSettings.length,
+                            "enabled": 1
+                        }
+                    );
+                    console.table(newData);
+                    
+                    this.setFullNexgenList(newData);
+                    this.setState({"lastSavedNexgenSettings": newData});
+                }
+                console.log(result);
+            }
+
+            console.table(errors);
+
+        }catch(err){
+            console.trace(err);
+        }   
     }
 
     async deleteNexgenEntry(id){
@@ -615,6 +679,7 @@ class Admin extends React.Component{
             errors={this.state.nexgenErrors}
             setFullList={this.setFullNexgenList}
             delete={this.deleteNexgenEntry}
+            createList={this.nexgenCreateList}
         />
     }
 

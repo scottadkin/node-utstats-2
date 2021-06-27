@@ -203,6 +203,24 @@ class NexgenStatsViewer{
 
         return true;
     }
+
+
+    async createList(data){
+
+        const query = "INSERT INTO nstats_nexgen_stats_viewer VALUES(NULL,?,?,?,?,?,1)";
+
+        const vars = [
+            data.title,
+            data.type,
+            data.gametype,
+            data.players,
+            data.position
+        ];
+
+        return await mysql.insertReturnInsertId(query, vars)
+        
+        
+    }
 }
 
 
