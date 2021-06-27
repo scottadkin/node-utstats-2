@@ -36,6 +36,19 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - If there are no users in the database, the next created account will automatically set to admin and activated.
 
 
+# NexgenStatsViewer Support
+- There are many more data types to be displayed instead of the standard top player rankings for each gametype, you can create lists in the admin control panel.
+
+- To setup nexgenstatsviewer to work with Node UTstats 2 you must edit/add the following to Nexgen.ini in your UnrealTournament/System folder
+```
+[NexgenStatsViewer105.NSVConfigExt]
+lastInstalledVersion=105
+enableUTStatsClient=True
+utStatsHost=localhost
+utStatsPort=3000
+utStatsPath=/api/nexgenstatsviewer
+```
+
 # Experimental IPToCountry Support
 To add this feature to your server add the following entries in IpToCountry.ini in your UnrealTournament system folder.
 - QueryServerHost 127.0.0.1(The ip you host node utstats on)
