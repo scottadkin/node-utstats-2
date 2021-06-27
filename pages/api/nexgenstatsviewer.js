@@ -11,8 +11,6 @@ export default (req, res) =>{
 
         const currentLists = await nexgen.getCurrentSettings();
 
-        console.table(currentLists);
-
         let string = "";
 
         let c = 0;
@@ -28,6 +26,17 @@ export default (req, res) =>{
 
                 string += await nexgen.displayDefaultList(c.title, currentData);
 
+            }else if(c.type === 2){
+                
+                currentData = await nexgen.getPlayerTotalsList(c.type, c.gametype, c.players);
+
+                for(let x = 0; x < currentData.length; x++){
+
+                    currentData[x].totals = (currentData[x].totals / (60 * 60)).toFixed(2);
+                }
+
+                string += nexgen.displayCustomList(c.title, currentData);
+                
             }else if(c.type === 8){
                 
                 currentData = await nexgen.getPlayerMonsterKills(c.gametype, c.players);
@@ -44,18 +53,9 @@ export default (req, res) =>{
 
                 currentData = await nexgen.getPlayerTotalsList(c.type, c.gametype, c.players);
 
-                console.log(currentData);
-
-
                 string += nexgen.displayCustomList(c.title, currentData);
             }
         }
-
-        /*const data = await nexgen.getDefaultList(6, 30);
-
-        console.log(data);
-
-        const string = await nexgen.displayDefaultList("Test title", data);*/
 
         res.status(200).send(string);
 
