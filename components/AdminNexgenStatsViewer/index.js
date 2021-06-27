@@ -23,7 +23,6 @@ class AdminNexgenStatsViewer extends React.Component{
 
     delete(e){
 
-        console.log(e.target.id);
 
         const reg = /^delete-(.+)$/i;
 
@@ -272,10 +271,10 @@ class AdminNexgenStatsViewer extends React.Component{
             s = this.props.settings[i];
 
             rows.push(<tr key={i}>
-                <td><input type="text" id={`title-${s.id}`} className="default-textbox" defaultValue={s.title} placeholder={"title..."} onChange={this.changeTitle}/></td>
+                <td><input type="text" id={`title-${s.id}`} className="default-textbox" value={s.title} placeholder={"title..."} onChange={this.changeTitle}/></td>
                 <td>{this.createTypeDropDown(s.id, s.type)}</td>
                 <td>{this.createGametypeDropDown(s.id, s.gametype)}</td>
-                <td><input type="number" id={`number-${s.id}`} className="default-number" defaultValue={s.players} min={1} max={30} onChange={this.changePlayerCount}/></td>
+                <td><input type="number" id={`number-${s.id}`} className="default-number" value={s.players} min={1} max={30} onChange={this.changePlayerCount}/></td>
                 <td><OnOff id={s.id} value={s.enabled} changeValue={this.changeOnOff}/></td>
                 <td>
                     <div id={`down-${s.id}`} className={`${styles.button} team-red`} onClick={this.moveDown}>Down</div>
@@ -382,6 +381,9 @@ class AdminNexgenStatsViewer extends React.Component{
 
         return <div>
             <div className="default-header">Create New List</div>
+            {this.renderCreateInProgress()}
+            {this.renderCreatePassed()}
+            {this.renderCreateErrors()}
             <form className="form" method="POST" action="/" onSubmit={this.props.createList}>
                 <div className="select-row">
                     <div className="select-label">
@@ -420,6 +422,47 @@ class AdminNexgenStatsViewer extends React.Component{
         </div>
     }
 
+    renderCreateInProgress(){
+
+        if(!this.props.createInProgress) return null;
+
+        return <div className="team-yellow center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
+            Creating new list please wait...
+        </div>
+    }
+
+    renderCreatePassed(){
+
+        if(this.props.createPassed !== true) return null;
+
+        return <div className="team-green center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
+            New list was created successfully 
+        </div>
+    }
+
+    renderCreateErrors(){
+
+        if(this.props.createPassed !== false) return null;
+
+        const errors = [];
+
+        let e = 0;
+
+        for(let i = 0; i < this.props.createErrors.length; i++){
+
+            e = this.props.createErrors[i];
+
+            errors.push(<div key={i}>{e}</div>);
+        }
+
+        return <div className="team-red center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
+            Failed to create new list!<br/><br/>
+            {errors}
+        </div>
+    }
+
+    
+
     render(){
 
         return <div>
@@ -435,6 +478,7 @@ class AdminNexgenStatsViewer extends React.Component{
             {this.renderErrors()}
             {this.renderTable()}
             <div className="search-button" onClick={this.props.save}>Save Changes</div>
+            
             {this.renderCreate()}
         </div>
     }

@@ -46,7 +46,10 @@ class Admin extends React.Component{
             "lastSavedNexgenSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
             "nexgenSaveInProgress": false,
             "nexgenSavePassed": null,
-            "nexgenErrors": []
+            "nexgenErrors": [],
+            "nexgenCreateInProgress": false,
+            "nexgenCreatePassed": null,
+            "nexgenCreateErrors": []
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -70,6 +73,12 @@ class Admin extends React.Component{
         try{
 
             e.preventDefault(e);
+
+            this.setState({
+                "nexgenCreateInProgress": true,
+                "nexgenCreatePassed": null,
+                "nexgenCreateErrors": []
+            });
 
             const title = e.target[0].value;
             const type = e.target[1].value;
@@ -100,28 +109,53 @@ class Admin extends React.Component{
 
                 if(result.message === "passed"){
 
-                    const newData = Object.assign(this.state.nexgenStatsViewerSettings);
+                    if(result.insertId >= 0){
 
-                    newData.push(
-                        {
-                            "id": result.insertId,
-                            "title": title, 
-                            "type": parseInt(type), 
-                            "gametype": parseInt(gametype), 
-                            "players": players, 
-                            "position": this.state.nexgenStatsViewerSettings.length,
-                            "enabled": 1
-                        }
-                    );
-                    console.table(newData);
-                    
-                    this.setFullNexgenList(newData);
-                    this.setState({"lastSavedNexgenSettings": newData});
+                        const newData = Object.assign(this.state.nexgenStatsViewerSettings);
+
+                        newData.push(
+                            {
+                                "id": result.insertId,
+                                "title": title, 
+                                "type": parseInt(type), 
+                                "gametype": parseInt(gametype), 
+                                "players": players, 
+                                "position": this.state.nexgenStatsViewerSettings.length,
+                                "enabled": 1
+                            }
+                        );
+                        
+                        this.setFullNexgenList(newData);
+                        this.setState({"lastSavedNexgenSettings": newData});
+
+                        this.setState({
+                            "nexgenCreateInProgress": false,
+                            "nexgenCreatePassed": true,
+                            "nexgenCreateErrors": []
+                        });
+
+                    }else{
+                        errors.push("List was not inserted into the database");
+                    }
+                }else{
+
+                    errors.push(result.message);
                 }
-                console.log(result);
+
             }
 
-            console.table(errors);
+
+            if(errors.length > 0){
+
+                console.log("THERE WHERE EREROREOREOROOS");
+                console.table(errors);
+
+                this.setState({
+                    "nexgenCreateInProgress": false,
+                    "nexgenCreatePassed": false,
+                    "nexgenCreateErrors": errors
+                });
+            }
 
         }catch(err){
             console.trace(err);
@@ -142,8 +176,6 @@ class Admin extends React.Component{
             });
 
             const result = await req.json();
-
-            console.log(result);
 
             if(result.message === "passed"){
 
@@ -680,6 +712,9 @@ class Admin extends React.Component{
             setFullList={this.setFullNexgenList}
             delete={this.deleteNexgenEntry}
             createList={this.nexgenCreateList}
+            createInProgress={this.state.nexgenCreateInProgress}
+            createPassed={this.state.nexgenCreatePassed}
+            createErrors={this.state.nexgenCreateErrors}
         />
     }
 
