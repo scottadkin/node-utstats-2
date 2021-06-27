@@ -8,22 +8,22 @@ class NexgenStatsViewer{
 
         this.validTypes = [
             {"name": "Default (Top Gametype Rankings)", "id": 0},
-            {"name": "Most Wins", "id": 1},
-            {"name": "Most Playtime", "id": 2},
-            {"name": "Top Scores", "id": 3},
-            {"name": "Top Kills", "id": 4},
-            {"name": "Top Spawn Kills", "id": 5},
-            {"name": "Top Deaths", "id": 6},
-            {"name": "Top Suicides", "id": 7},
-            {"name": "Most Monster Kills", "id": 8},
-            {"name": "Most Godlikes", "id": 9},
-            {"name": "Longest Sprees", "id": 10},
-            {"name": "Flag Grabs", "id": 11},
-            {"name": "Flag Captures", "id": 12},
-            {"name": "Flag Kills", "id": 13},
-            {"name": "Flag Covers", "id": 14},
-            {"name": "Assault Objective Caps", "id": 15},
-            {"name": "Domination Control Point Caps", "id": 16}
+            {"name": "Most Wins", "id": 1, "column": "wins"},
+            {"name": "Most Playtime", "id": 2, "column": "playtime"},
+            {"name": "Top Score", "id": 3, "column": "frags"},
+            {"name": "Top Kills", "id": 4, "column": "kills"},
+            {"name": "Top Spawn Kills", "id": 5, "column": "spawn_kills"},
+            {"name": "Top Deaths", "id": 6, "column": "deaths"},
+            {"name": "Top Suicides", "id": 7, "column": "suicides"},
+            {"name": "Most Monster Kills", "id": 8, "column": null},
+            {"name": "Most Godlikes", "id": 9, "column": null},
+            {"name": "Longest Sprees", "id": 10, "column": "spree_best"},
+            {"name": "Flag Grabs", "id": 11, "column": "flag_taken"},
+            {"name": "Flag Captures", "id": 12, "column": "flag_capture"},
+            {"name": "Flag Kills", "id": 13, "column": "flag_kill"},
+            {"name": "Flag Covers", "id": 14, "column": "flag_cover"},
+            {"name": "Assault Objective Caps", "id": 15, "column": "assault_objectives"},
+            {"name": "Domination Control Point Caps", "id": 16, "column": "dom_caps"}
         ];
 
         this.playerManager = new Player();
@@ -135,7 +135,7 @@ class NexgenStatsViewer{
                     icon = "nc";
                 }
 
-                string += `addplayer "${this.cleanString(d.playerName)}" ${d.value.toFixed(2)} gb ${icon}\r\n`;
+                string += `addplayer "${this.cleanString(d.playerName)}" ${d.value.toFixed(2)} ${d.playerCountry} ${icon}\r\n`;
             }
 
             return string;
@@ -218,8 +218,88 @@ class NexgenStatsViewer{
         ];
 
         return await mysql.insertReturnInsertId(query, vars)
+              
+    }
+
+    getValidType(id){
+
+        let v = 0;
+
+        for(let i = 0; i < this.validTypes.length; i++){
+
+            v = this.validTypes[i];
+
+            if(v.id === id) return v.column;
+        }
+
+        return null;
+    }
+
+    async getPlayerTotalsList(type, gametype, players){
+
+        if(type > this.validTypes.length || type < 1) return [];
+
+        const query = `SELECT player_id,${this.validTypes[type].column} as totals FROM nstats_player_totals
+        WHERE gametype=? ORDER BY ${this.validTypes[type].column} DESC LIMIT ?`;
+
+        const data = await mysql.simpleFetch(query, [gametype, players]);
+
+        await this.setPlayerData(data);
+
+        return data;
+
+    }
+
+    async getPlayerGodlikes(gametype, players){
+
+        const query = `SELECT player_id,SUM(spree_5 + spree_6 + spree_7) as totals 
+        FROM nstats_player_totals WHERE gametype=? 
+        GROUP BY(player_id) ORDER BY totals DESC LIMIT ?`;
+
+        const data = await mysql.simpleFetch(query, [gametype, players]);
+
+        await this.setPlayerData(data);
+
+        return data;
+    }
+
+
+    async getPlayerMonsterKills(gametype, players){
+
+        const query = `SELECT player_id,SUM(multi_4 + multi_5 + multi_6 + multi_7) as totals
+        FROM nstats_player_totals WHERE gametype=?
+        GROUP BY(player_id) ORDER BY totals DESC LIMIT ?`;
+
+        const data = await mysql.simpleFetch(query, [gametype, players]);
+
+        await this.setPlayerData(data);
+
+        return data;
+    }
+
+    displayCustomList(title, data){
+
+        try{
+
         
-        
+            let string = `beginlist "${this.cleanString(title)}"\r\n`;
+
+            let d = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+
+                string += `addplayer "${this.cleanString(d.playerName)}" ${d.totals} ${d.playerCountry} nc\r\n`;
+            }
+
+            return string;
+
+        }catch(err){
+
+            console.trace(err);
+            return "";
+        }
     }
 }
 
