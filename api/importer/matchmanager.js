@@ -18,9 +18,9 @@ const DOMManager = require('./dommanager');
 const SpawnManager = require('./spawnmanager');
 const WeaponsManager = require('./weaponsmanager');
 const ItemsManager = require('./itemsmanager');
-const ConnectionsManager = require('./connectionsmanager');
 const CountriesManager = require('./countriesmanager');
 const Rankings = require('../rankings');
+const MonsterHuntManager = require('./monsterhuntmanager');
 
 class MatchManager{
 
@@ -211,6 +211,14 @@ class MatchManager{
                 
             }
 
+            if(this.monsterHuntManager !== undefined){
+
+                this.monsterHuntManager.parseData(this.playerManager, this.killManager);
+
+                await this.monsterHuntManager.updatePlayerMatchData(this.matchId, this.playerManager.players);
+                await this.monsterHuntManager.updatePlayerTotals(this.gametype.currentMatchGametype, this.playerManager.players);
+            }
+
 
             if(this.weaponsManager !== undefined){
                 
@@ -361,6 +369,7 @@ class MatchManager{
         const reg = /^(.+?)$/img;
         const typeReg = /^\d+\.\d+?\t(.+?)(\t.+|)$/i;
         const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
+        const monsterReg = /monsterkill\t(\d+?)\t(.+)$/i
         this.lines = this.data.match(reg);
 
         this.serverLines = [];
@@ -463,7 +472,9 @@ class MatchManager{
                             this.playerLines.push(this.lines[i]);
 
                         }else if(currentType === 'kill_distance' || currentType == 'kill_location'){
+
                             this.killLines.push(this.lines[i]);
+
                         }else if(currentType === 'dom_point'){
 
                             if(this.domManager === undefined){
@@ -473,10 +484,24 @@ class MatchManager{
                             this.domManager.data.push(this.lines[i]);
 
                         }else if(currentType === 'flag_location'){
+
                             if(this.CTFManager === undefined){
                                 this.CTFManager = new CTFManager();
                             }
                             this.CTFManager.flagLines.push(this.lines[i]);
+
+                        }else{
+
+                            if(monsterReg.test(this.lines[i])){
+
+                                if(this.monsterHuntManager === undefined){
+
+                                    this.monsterHuntManager = new MonsterHuntManager();
+
+                                }
+
+                                this.monsterHuntManager.lines.push(this.lines[i]);
+                            }      
                         }
                     }
 

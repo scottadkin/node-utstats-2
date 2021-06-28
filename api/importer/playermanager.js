@@ -683,6 +683,12 @@ class PlayerManager{
             master.stats.ctf[c] += duplicate.stats.ctf[c];
         }
 
+        master.stats.monsterHunt.kills += duplicate.stats.monsterHunt.kills;
+
+        if(master.stats.monsterHunt.bestKillsInLife < duplicate.stats.monsterHunt.bestKillsInLife){
+            master.stats.monsterHunt.bestKillsInLife = duplicate.stats.monsterHunt.bestKillsInLife;
+        }
+
         master.stats.dom.caps += duplicate.stats.dom.caps;
         master.stats.dom.mostCapsLife = (master.stats.dom.mostCapsLife > duplicate.stats.dom.mostCapsLife) 
         ? master.stats.dom.mostCapsLife 

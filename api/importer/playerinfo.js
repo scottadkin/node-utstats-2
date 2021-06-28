@@ -96,6 +96,12 @@ class PlayerInfo{
             "assault": {
                 "caps": 0
             },
+            "monsterHunt": {
+                "kills": 0,
+                "bestKillsInLife": 0,
+                "currentKills": 0,
+                "lastKill": 0
+            },
             "time_on_server": 0
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };
@@ -201,6 +207,8 @@ class PlayerInfo{
         if(weapon !== undefined){
             this.updateWeaponStats('death', weapon);
         }
+
+        this.updateMonsterHuntSprees();
 
         this.lastDeath = parseFloat(timestamp);
 
@@ -437,10 +445,21 @@ class PlayerInfo{
 
     }
 
+    updateMonsterHuntSprees(){
+
+        if(this.stats.monsterHunt.currentKills > this.stats.monsterHunt.bestKillsInLife){
+
+            this.stats.monsterHunt.bestKillsInLife = this.stats.monsterHunt.currentKills;
+        }
+
+        this.stats.monsterHunt.currentKills = 0;
+    }
+
     matchEnded(){
 
         this.updateSprees();
         this.updateMultis();
+        this.updateMonsterHuntSprees();
     }
 
     getCurrentSpree(){
@@ -455,6 +474,13 @@ class PlayerInfo{
         }
 
         return false;
+    }
+
+    killedMonster(timestamp){
+
+        this.stats.monsterHunt.kills++;
+        this.stats.monsterHunt.currentKills++;
+        this.stats.monsterHunt.lastKill = timestamp;
     }
 }
 

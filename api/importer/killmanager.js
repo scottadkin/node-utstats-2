@@ -310,7 +310,7 @@ class KillManager{
      * @param {*} victim masterId
      * @returns total deaths in timeframe
      */
-    getDeathsBetween(start, end, victim){
+    getDeathsBetween(start, end, victim, bMonsterHunt){
 
         let found = 0;
 
@@ -337,6 +337,20 @@ class KillManager{
                         new Message(`KillManager.getDeathsBetween() currentVictim is null`,'warning');
                     }
                 }
+            }
+
+
+            //monsterhunt doesn't require the player master id, just the match id
+            if(bMonsterHunt !== undefined){
+
+                if(k.type === "suicide"){
+
+                    if(k.timestamp >= start){
+
+                        if(k.killerId === victim) found++;
+                    }
+                }
+
             }
         }
 
