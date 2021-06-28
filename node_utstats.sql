@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 26, 2021 at 07:09 PM
+-- Generation Time: Jun 28, 2021 at 07:08 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 8.0.7
 
@@ -598,7 +598,9 @@ CREATE TABLE `nstats_player_matches` (
   `pads` int(11) NOT NULL,
   `armor` int(11) NOT NULL,
   `boots` int(11) NOT NULL,
-  `super_health` int(11) NOT NULL
+  `super_health` int(11) NOT NULL,
+  `mh_kills` int(11) NOT NULL,
+  `mh_kills_best_life` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -689,7 +691,10 @@ CREATE TABLE `nstats_player_totals` (
   `pads` int(11) NOT NULL,
   `armor` int(11) NOT NULL,
   `boots` int(11) NOT NULL,
-  `super_health` int(11) NOT NULL
+  `super_health` int(11) NOT NULL,
+  `mh_kills` int(11) NOT NULL,
+  `mh_kills_best_life` int(11) NOT NULL,
+  `mh_kills_best` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
