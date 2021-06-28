@@ -198,7 +198,7 @@ class PlayersList extends React.Component{
         }else{
 
             return (<div>
-            <table className={styles.table}>
+            <table className={`${styles.table} t-width-1`}>
                 <tbody>
                     {elems}
                 </tbody>

@@ -199,7 +199,7 @@ class Players extends React.Component{
                         Players
                     </div>
                     <form className="form">
-                        <input type="text" name="name" id="name" autoComplete="off" className="default-textbox" placeholder="Player Name..." value={this.state.name} 
+                        <input type="text" name="name" id="name" autoComplete="off" className="default-textbox m-bottom-10" placeholder="Player Name..." value={this.state.name} 
                         onChange={this.handleNameChange}/>
                         <div className="select-row">
                             <div className="select-label">Sort Type</div>
@@ -263,6 +263,10 @@ export async function getServerSideProps({req, query}){
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Players Page");
 
+    const session = new Session(req);
+
+	await session.load();
+
     let page = 1;
 
     if(query.page !== undefined){
@@ -273,8 +277,22 @@ export async function getServerSideProps({req, query}){
         }
     }
 
-    const defaultPerPage = pageSettings["Default Display Per Page"];
-    let perPage = parseInt(defaultPerPage);
+    const defaultPerPage = parseInt(pageSettings["Default Display Per Page"]);
+    let perPage = defaultPerPage;
+
+    if(perPage !== perPage) perPage = 25;
+
+    const defaultDisplayType = parseInt(pageSettings["Default Display Type"]);
+    let displayType = defaultDisplayType;
+
+    if(displayType !== displayType) displayType = 0;
+
+    const defaultSortType = pageSettings["Default Sort Type"];
+    let sortType = 'name';
+
+    
+    const defaultOrderType = pageSettings["Default Order"];
+    let order = defaultOrderType;
 
     if(query.perPage !== undefined){
 
@@ -284,48 +302,73 @@ export async function getServerSideProps({req, query}){
             perPage = defaultPerPage;
         }
 
-        if(perPage > 100){
+        if(perPage > 100 || perPage < 1){
             perPage = defaultPerPage;
-        }else if(perPage < 1){
-            perPage = 1;
         }
     }
 
-    let displayType = 0;
+    if(session.settings.playersPerPage !== undefined){
+
+        perPage = parseInt(session.settings.playersPerPage);
+
+        if(perPage !== perPage) perPage = defaultPerPage;
+
+        if(perPage > 100 || perPage < 1){
+            perPage = defaultPerPage;
+        }
+    }
+
+    
 
     if(query.displayType !== undefined){
 
         displayType = parseInt(query.displayType);
 
-        if(displayType !== 0 && displayType !== 1){
-            displayType = 0;
-        }
     }else{
 
-        displayType = parseInt(pageSettings["Default Display Type"]);
+        if(session.settings.playersDisplayType !== undefined){
+
+            displayType = parseInt(session.settings.playersDisplayType);
+
+        }else{
+            displayType = defaultDisplayType;
+        }
     }
 
-    let sortType = 'name';
+    if(displayType !== 0 && displayType !== 1){
+        displayType = 0;
+    }
+
 
     if(query.sortType !== undefined){
 
         sortType = query.sortType;
+
     }else{
 
-        sortType = pageSettings["Default Sort Type"];
+        if(session.settings.playersSortBy === undefined){
+            sortType = defaultSortType;
+        }else{
+            sortType = session.settings.playersSortBy;
+        }
     }
 
-
-    let order = 'ASC';
 
     if(query.order !== undefined){
 
         order = query.order.toUpperCase();
-        if(order !== 'ASC' && order !== 'DESC'){
-            order = 'ASC';
-        }
+
     }else{
-        order = pageSettings["Default Order"];
+
+        if(session.settings.playersOrderBy === undefined){
+            order = defaultOrderType;
+        }else{
+            order = session.settings.playersOrderBy;
+        }
+    }
+
+    if(order !== 'ASC' && order !== 'DESC'){
+        order = 'ASC';
     }
 
     let name = '';
@@ -357,10 +400,6 @@ export async function getServerSideProps({req, query}){
     faces = JSON.stringify(faces);
 
     records = JSON.stringify(records);
-
-    const session = new Session(req);
-
-	await session.load();
 
 
     return {
