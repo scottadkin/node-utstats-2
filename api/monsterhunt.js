@@ -172,15 +172,68 @@ class MonsterHunt{
 
     }
 
+
+    async insertMergedMonsterMatchTotals(matchId, playerId, monsterId, kills){
+
+        const query = "INSERT INTO nstats_monsters_player_match VALUES(NULL,?,?,?,?)";
+
+        await mysql.simpleInsert(query, [matchId, playerId, monsterId, kills]);
+    }
+
+
+    async deletePlayerMatchTotals(player){
+
+        const query = "DELETE FROM nstats_monsters_player_match WHERE player=?";
+
+        await mysql.simpleDelete(query, [player]);
+    }
+
     async mergePlayers(oldId, newId){
 
         try{
 
             await this.changePlayerIds(oldId, newId);
 
-            const playerMatchTotals = await this.getAllPlayerMatchTotals(newId);
+    
+            const matchTotals = await this.getAllPlayerMatchTotals(newId);
 
-            console.table(playerMatchTotals);
+
+            const newTotals = {};
+
+            let m = 0;
+
+            for(let i = 0; i < matchTotals.length; i++){
+
+                m = matchTotals[i];
+
+                if(newTotals[m.match_id] === undefined){
+
+                    newTotals[m.match_id] = {
+                        "player": newId,
+                        "monsters": {},
+                    }
+                }
+
+                if(newTotals[m.match_id].monsters[m.monster] === undefined){
+
+                    newTotals[m.match_id].monsters[m.monster] = {"kills": 0};
+                }
+
+                newTotals[m.match_id].monsters[m.monster].kills += m.kills;
+            }
+            
+            await this.deletePlayerMatchTotals(newId);
+
+            for(const [match, data] of Object.entries(newTotals)){
+
+                for(const [monsterList, monster] of Object.entries(data)){
+
+                    for(const [monsterId, kills] of Object.entries(monster)){
+
+                        await this.insertMergedMonsterMatchTotals(match, newId, monsterId, kills.kills);
+                    }
+                }
+            }
 
         }catch(err){
             console.trace(err);
