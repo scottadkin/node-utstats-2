@@ -49,7 +49,8 @@ const tables = [
     "sprees",
     "monsters",
     "monsters_match",
-    "monster_kills"
+    "monster_kills",
+    "monsters_player_match"
 
 ];
 

@@ -137,6 +137,13 @@ class MonsterHunt{
         await mysql.simpleInsert(query, [matchId, timestamp, monsterId, killer]);
     }
 
+    async insertPlayerMatchTotals(matchId, player, monster, kills){
+
+        const query = "INSERT INTO nstats_monsters_player_match VALUES(NULL,?,?,?,?)";
+
+        await mysql.simpleInsert(query, [matchId, player, monster, kills]);
+    }
+
 }
 
 module.exports = MonsterHunt;

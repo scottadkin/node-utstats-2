@@ -9,6 +9,7 @@ class MonsterHuntManager{
         this.lines = [];
 
         this.monsterStats = {};
+        this.playerTotals = {};
         this.kills = [];
     }
 
@@ -134,9 +135,20 @@ class MonsterHuntManager{
             k = this.kills[i];
 
             k.monsterId = ids[k.name].id;
-            this.monsterStats[k.name].deaths++;
+            //this.monsterStats[k.name].deaths++;
             this.monsterStats[k.name].id = k.monsterId;
+
+            if(this.playerTotals[k.killer] === undefined){
+                this.playerTotals[k.killer] = {};
+            }
+
+            if(this.playerTotals[k.killer][k.monsterId] === undefined){
+                this.playerTotals[k.killer][k.monsterId] = 0;
+            }
+
+            this.playerTotals[k.killer][k.monsterId]++;
         }
+
 
     }
 
@@ -159,7 +171,10 @@ class MonsterHuntManager{
 
             this.setMonsterKillIds(monsterIds);
 
+            console.table(this.monsterStats);
+
             for(const [key, value] of Object.entries(this.monsterStats)){
+                
 
                 await this.monsterHunt.updateMonsterTotals(value.id, value.deaths);
                 await this.monsterHunt.insertMonsterMatchTotals(matchId, value.id, value.deaths);
@@ -187,6 +202,24 @@ class MonsterHuntManager{
         }catch(err){
             console.trace(err);
             new Message(`MonsterHuntManager.insertKills() ${err}`);
+        }
+    }
+
+    async insertPlayerMatchTotals(matchId){
+
+        try{
+
+            for(const [player, monsters] of Object.entries(this.playerTotals)){
+
+                for(const [monster, kills] of Object.entries(monsters)){
+
+                    await this.monsterHunt.insertPlayerMatchTotals(matchId, player, monster, kills);
+                }
+            }
+
+        }catch(err){
+            console.trace(err);
+            new Message(`MonsterHuntManager.insertPlayerMatchTotals() ${err}`);
         }
     }
 }

@@ -218,6 +218,7 @@ class MatchManager{
                 await this.monsterHuntManager.updatePlayerMatchData(this.matchId, this.playerManager.players);
                 await this.monsterHuntManager.updatePlayerTotals(this.gametype.currentMatchGametype, this.playerManager.players);
                 await this.monsterHuntManager.updateMatchMonsterTotals(this.matchId);
+                await this.monsterHuntManager.insertPlayerMatchTotals(this.matchId);
                 await this.monsterHuntManager.insertKills(this.matchId);
             }
 
