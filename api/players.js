@@ -20,6 +20,7 @@ const Faces = require('./faces');
 const Teams = require('./teams');
 const Voices = require('./voices');
 const Sprees = require('./sprees');
+const MonsterHunt = require('./monsterhunt');
 
 class Players{
 
@@ -517,7 +518,8 @@ class Players{
                 ?,?,?,?,?,
                 ?,?,?,?,?,
                 ?,?,?,?,?,
-                ?,?,?,?,?,?
+                ?,?,?,?,?,?,
+                ?,?,?
             )`;
 
             const d = data;
@@ -543,7 +545,8 @@ class Players{
                 d.flag_kill, d.flag_save, d.flag_carry_time, d.assault_objectives, d.dom_caps,
                 d.dom_caps_best, d.dom_caps_best_life, d.accuracy, d.k_distance_normal, d.k_distance_long,
                 d.k_distance_uber, d.headshots, d.shield_belt, d.amp, d.amp_time,
-                d.invisibility, d.invisibility_time, d.pads, d.armor, d.boots, d.super_health
+                d.invisibility, d.invisibility_time, d.pads, d.armor, d.boots, d.super_health,
+                d.mh_kills, d.mh_kills_best_life, mh_kills_best
             ];
 
             await mysql.simpleInsert(query, vars);
@@ -846,6 +849,11 @@ class Players{
 
                 await domManager.changeCapPlayerId(first.id, second.id);
                 await domManager.changeScoreHistoryPlayerId(first.id, second.id);
+
+
+                const monsterHuntManager = new MonsterHunt();
+
+                await monsterHuntManager.mergePlayers(first.id, second.id);
 
                 const headshotManager = new Headshots();
 
