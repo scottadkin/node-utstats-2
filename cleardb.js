@@ -46,7 +46,10 @@ const tables = [
     "users",
     "sessions",
     "site_settings",
-    "sprees"
+    "sprees",
+    "monsters",
+    "monsters_match",
+    "monster_kills"
 
 ];
 

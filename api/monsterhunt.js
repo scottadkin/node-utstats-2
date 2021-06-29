@@ -123,6 +123,20 @@ class MonsterHunt{
         await mysql.simpleUpdate(query, [deaths, id]);
     }
 
+    async insertMonsterMatchTotals(matchId, monsterId, deaths){
+
+        const query = "INSERT INTO nstats_monsters_match VALUES(NULL,?,?,?)";
+
+        await mysql.simpleInsert(query, [matchId, monsterId, deaths]);
+    }
+
+    async insertKill(matchId, timestamp, monsterId, killer){
+
+        const query = "INSERT INTO nstats_monster_kills VALUES(NULL,?,?,?,?)";
+
+        await mysql.simpleInsert(query, [matchId, timestamp, monsterId, killer]);
+    }
+
 }
 
 module.exports = MonsterHunt;
