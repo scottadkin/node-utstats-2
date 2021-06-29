@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 28, 2021 at 07:08 PM
+-- Generation Time: Jun 29, 2021 at 02:45 AM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 8.0.7
 
@@ -469,6 +469,20 @@ CREATE TABLE `nstats_match_team_changes` (
   `player` int(11) NOT NULL,
   `team` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_monsters`
+--
+
+CREATE TABLE `nstats_monsters` (
+  `id` int(11) NOT NULL,
+  `class_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `display_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `matches` int(11) NOT NULL,
+  `deaths` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1112,6 +1126,12 @@ ALTER TABLE `nstats_match_team_changes`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_monsters`
+--
+ALTER TABLE `nstats_monsters`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_nexgen_stats_viewer`
 --
 ALTER TABLE `nstats_nexgen_stats_viewer`
@@ -1377,6 +1397,12 @@ ALTER TABLE `nstats_match_player_score`
 -- AUTO_INCREMENT for table `nstats_match_team_changes`
 --
 ALTER TABLE `nstats_match_team_changes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_monsters`
+--
+ALTER TABLE `nstats_monsters`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

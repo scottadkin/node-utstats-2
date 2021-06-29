@@ -36,10 +36,13 @@ class MonsterHuntManager{
                 timestamp = parseFloat(result[1]);
                 monsterName = result[3].toLowerCase();
 
+                
+
                 if(this.monsterStats[monsterName] === undefined){
 
                     this.monsterStats[monsterName] = {
-                        "deaths": 0
+                        "deaths": 0,
+                        "id": -1
                     };
                 }
 
@@ -62,13 +65,17 @@ class MonsterHuntManager{
                     
                     currentKiller.killedMonster(timestamp);
 
-                }
+                    this.kills.push({
+                        "timestamp": timestamp,
+                        "name": monsterName,
+                        "killer": currentKiller.masterId,
+                        "monsterId": -1          
+                    });
 
-               // console.log(result);
+                }
             }
         }
 
-        console.table(this.monsterStats);
     }
 
 
@@ -116,6 +123,56 @@ class MonsterHuntManager{
             new Message(`MonsterHuntManager.updatePlayerTotals() ${err} `,"error");
         }
     }
+
+
+    setMonsterKillIds(ids){
+
+        let k = 0;
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            k = this.kills[i];
+
+            k.monsterId = ids[k.name].id;
+            this.monsterStats[k.name].deaths++;
+            this.monsterStats[k.name].id = k.monsterId;
+        }
+
+        console.table(this.kills);
+        console.table(this.monsterStats);
+    }
+
+    
+
+    async updateMatchMonsterTotals(){
+   
+        try{
+
+            const monsterClasses = [];
+
+            for(const [key, value] of Object.entries(this.monsterStats)){
+
+                if(monsterClasses.indexOf(key) === -1){
+                    monsterClasses.push(key);
+                }
+            }
+
+            console.table(monsterClasses);
+
+            const monsterIds = await this.monsterHunt.getMonsterIds(monsterClasses);
+
+            this.setMonsterKillIds(monsterIds);
+
+            for(const [key, value] of Object.entries(this.monsterStats)){
+
+                await this.monsterHunt.updateMonsterTotals(value.id, value.deaths);
+            }
+
+        }catch(err){
+            console.trace(err);
+            new Message(`MonsterHuntManager.updateMonsterTotals()`);
+        }
+    }         
 }
 
 

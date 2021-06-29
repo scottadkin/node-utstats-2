@@ -31,10 +31,96 @@ class MonsterHunt{
             gametypeId
         ];
 
-        console.log(vars);
-
         await mysql.simpleUpdate(query, vars);
     
+    }
+
+    async createNewMonsterTotals(className){
+
+        let displayName = className;
+
+        const classReg = /^.+\.(.+)$/i
+
+        const result = classReg.exec(className);
+
+        if(result !== null){
+            displayName = result[1];
+        }
+        
+
+        const query = "INSERT INTO nstats_monsters VALUES(NULL,?,?,0,0)";
+
+        return await mysql.insertReturnInsertId(query, [className, displayName]);
+    }
+
+
+    async getMonsterIds(classNames){
+
+        try{
+
+            if(classNames.length === 0) return [];
+
+            const returnData = {};
+
+            for(let i = 0; i < classNames.length; i++){
+
+                returnData[classNames[i]] = {"id": -1};
+            }
+
+            const query = "SELECT id,class_name from nstats_monsters WHERE class_name IN(?)";
+
+            const result = await mysql.simpleFetch(query, [classNames]);
+
+            const getId = (className) =>{
+
+                for(let i = 0; i < result.length; i++){
+
+                    if(result[i].class_name === className){
+                        return result[i].id;
+                    }
+                }
+
+                return null;
+            }
+
+
+            let currentId = 0;
+            let createdId = 0;
+
+            for(const [key, value] of Object.entries(returnData)){
+
+                currentId = getId(key);
+
+                if(currentId === null){
+
+                    createdId = await this.createNewMonsterTotals(key);
+
+                    returnData[key].id = createdId;
+
+                }else{
+
+                    returnData[key].id = currentId;
+                }
+
+            }
+
+            
+            return returnData;
+           
+
+        }catch(err){
+
+            console.trace(err);
+        }
+
+
+    }
+
+    async updateMonsterTotals(id, deaths){
+
+        const query = "UPDATE nstats_monsters SET deaths=deaths+?,matches=matches+1 WHERE id=?";
+
+        await mysql.simpleUpdate(query, [deaths, id]);
     }
 
 }
