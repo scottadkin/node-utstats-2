@@ -144,6 +144,49 @@ class MonsterHunt{
         await mysql.simpleInsert(query, [matchId, player, monster, kills]);
     }
 
+    async changeKillsPlayerIds(oldId, newId){
+
+        const query = "UPDATE nstats_monster_kills SET player=? WHERE player=?";
+
+        await mysql.simpleUpdate(query, [newId, oldId]);
+    }
+
+    async changePlayerIds(oldId, newId){
+
+       await this.changeKillsPlayerIds(oldId, newId);
+       await this.mergePlayerMatchTotalKills(oldId, newId);
+    }
+
+    async getAllPlayerMatchTotals(id){
+
+        const query = "SELECT * FROM nstats_monsters_player_match WHERE player=?";
+
+        return await mysql.simpleFetch(query, [id]);
+    }
+
+    async mergePlayerMatchTotalKills(oldId, newId){
+
+        const query = "UPDATE nstats_monsters_player_match SET player=? WHERE player=?";
+
+        await mysql.simpleUpdate(query, [newId, oldId]);
+
+    }
+
+    async mergePlayers(oldId, newId){
+
+        try{
+
+            await this.changePlayerIds(oldId, newId);
+
+            const playerMatchTotals = await this.getAllPlayerMatchTotals(newId);
+
+            console.table(playerMatchTotals);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
 }
 
 module.exports = MonsterHunt;

@@ -609,13 +609,18 @@ class Rankings{
             NULL,?,?,?,?,?,?
         )`;
 
+
+        const ranking = parseInt(data.ranking);
+        const lastChange = parseInt(data.lastChange);
+       
+
         const vars = [
             playerId, 
             gametypeId,
             data.matches,
             data.playtime,
-            data.ranking,
-            data.lastChange
+            (ranking !== ranking) ? 0 : data.ranking,
+            (lastChange !== lastChange) ? 0 : data.lastChange
         ];
 
         await mysql.simpleInsert(query, vars);

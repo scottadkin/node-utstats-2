@@ -504,7 +504,7 @@ class Players{
 
         try{
             const query = `INSERT INTO nstats_player_totals VALUES(
-                NULL,?,?,?,?,
+                NULL,?,?,?,?,?,
                 ?,?,?,?,?,
                 ?,?,?,?,?,
                 ?,?,?,?,?,
@@ -525,7 +525,7 @@ class Players{
             const d = data;
 
             const vars = [
-                playerName, d.first, d.last, d.ip,
+                playerName, d.player_id, d.first, d.last, d.ip,
                 d.country, d.face, d.voice, gametypeId, d.matches,
 
                 d.wins, d.losses, d.draws, d.winrate, d.playtime,
@@ -546,7 +546,7 @@ class Players{
                 d.dom_caps_best, d.dom_caps_best_life, d.accuracy, d.k_distance_normal, d.k_distance_long,
                 d.k_distance_uber, d.headshots, d.shield_belt, d.amp, d.amp_time,
                 d.invisibility, d.invisibility_time, d.pads, d.armor, d.boots, d.super_health,
-                d.mh_kills, d.mh_kills_best_life, mh_kills_best
+                d.mh_kills, d.mh_kills_best_life, d.mh_kills_best
             ];
 
             await mysql.simpleInsert(query, vars);
@@ -588,7 +588,8 @@ class Players{
                 'k_distance_long',       'k_distance_uber',      'headshots',
                 'shield_belt',           'amp',                  'amp_time',
                 'invisibility',          'invisibility_time',    'pads',
-                'armor',                 'boots',                'super_health'
+                'armor',                 'boots',                'super_health',
+                'mh_kills'
             ];
 
 
@@ -611,6 +612,7 @@ class Players{
                         gametypeTotals[gametype][mergeTypes[i]] = 0;
                     }
 
+                    gametypeTotals[gametype].player_id = m.player_id;
                     gametypeTotals[gametype].matches = 0;
                     gametypeTotals[gametype].first = m.match_date;
                     gametypeTotals[gametype].last = m.match_date;
@@ -625,6 +627,16 @@ class Players{
                     gametypeTotals[gametype].losses = 0;
                     gametypeTotals[gametype].winrate = 0;
                     gametypeTotals[gametype].draws = 0;
+
+                    gametypeTotals[gametype].mh_kills_best = 0;
+                    gametypeTotals[gametype].mh_kills_best_life = 0;
+
+                    gametypeTotals[gametype].multi_best = 0;
+                    gametypeTotals[gametype].spree_best = 0;
+                    gametypeTotals[gametype].best_spawn_kill_spree = 0;
+                    gametypeTotals[gametype].flag_cover_best = 0;
+                    gametypeTotals[gametype].dom_caps_best = 0;
+                    gametypeTotals[gametype].dom_caps_best_life = 0;
                   
 
                 }
@@ -698,7 +710,7 @@ class Players{
                 }
 
                 if(gametypeTotals[gametype].flag_cover_best < m.flag_cover_best){
-                    gametypeTotals[m.gametype].flag_cover_best = m.flag_cover_best;
+                    gametypeTotals[gametype].flag_cover_best = m.flag_cover_best;
                 }
 
                 if(gametypeTotals[gametype].flag_self_cover_best < m.flag_self_cover_best){
@@ -711,6 +723,14 @@ class Players{
 
                 if(gametypeTotals[gametype].dom_caps_best < m.dom_caps_best){
                     gametypeTotals[gametype].dom_caps_best = m.dom_caps_best;
+                }
+
+                if(gametypeTotals[gametype].mh_kills_best < m.mh_kills){
+                    gametypeTotals[gametype].mh_kills_best = m.mh_kills;
+                }
+
+                if(gametypeTotals[gametype].mh_kills_best_life < m.mh_kills_best_life){
+                    gametypeTotals[gametype].mh_kills_best_life = m.mh_kills_best_life;
                 }
 
                 //gametypeTotals[gametype].playtime += m.playtime;
@@ -763,7 +783,10 @@ class Players{
                 k_distance_long=?, 
                 k_distance_uber=?, headshots=?, shield_belt=?, amp=?, amp_time=?,
                 invisibility=?,
-                invisibility_time=?, pads=?, armor=?, boots=?, super_health=?
+                invisibility_time=?, pads=?, armor=?, boots=?, super_health=?,
+                mh_kills=?,
+                mh_kills_best = IF(mh_kills_best < ?, ?, mh_kills_best),
+                mh_kills_best_life = IF(mh_kills_best_life < ?, ?, mh_kills_best_life)
                 
                 WHERE gametype=? AND name=?
             `;
@@ -789,6 +812,9 @@ class Players{
                     v.assault_objectives, v.dom_caps, v.dom_caps_best, v.dom_caps_best, v.dom_caps_best_life, v.dom_caps_best_life, v.k_distance_normal,
                     v.k_distance_long, v.k_distance_uber, v.headshots, v.shield_belt, v.amp, v.amp_time,v.invisibility,
                     v.invisibility_time, v.pads, v.armor, v.boots, v.super_health,
+                    v.mh_kills,
+                    v.mh_kills_best, v.mh_kills_best, v.mh_kills_best,
+                    v.mh_kills_best_life, v.mh_kills_best_life, v.mh_kills_best_life,
 
                     k, playerName
                 ];

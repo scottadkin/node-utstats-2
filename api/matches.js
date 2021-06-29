@@ -881,7 +881,8 @@ class Matches{
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
-            ?,?,?,?
+            ?,?,?,?,?,?,
+            ?,?,?
 
         )`;
 
@@ -896,6 +897,9 @@ class Matches{
             data.match_date,
             data.map_id,
             data.player_id,
+            data.bot,
+            data.spectator,
+            data.played,
             data.ip,
             data.country,
 
@@ -986,7 +990,9 @@ class Matches{
             data.pads,
             data.armor,
             data.boots,
-            data.super_health
+            data.super_health,
+            data.mh_kills,
+            data.mh_kills_best_life
 
         ];
 
@@ -1120,7 +1126,7 @@ class Matches{
                 'k_distance_uber',       'headshots',              'shield_belt',
                 'amp',                   'amp_time',               'invisibility',
                 'invisibility_time',     'pads',                   'armor',
-                'boots',                 'super_health'
+                'boots',                 'super_health', 'mh_kills'
 
             ];
 
@@ -1132,7 +1138,8 @@ class Matches{
                 "ping_min",
                 "ping_average",
                 "ping_max",
-                "spree_best"
+                "spree_best",
+                "mh_kills_best_life"
             ];
 
 
