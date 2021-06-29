@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 29, 2021 at 02:45 AM
+-- Generation Time: Jun 29, 2021 at 09:21 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 8.0.7
 
@@ -482,6 +482,61 @@ CREATE TABLE `nstats_monsters` (
   `display_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `matches` int(11) NOT NULL,
   `deaths` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_monsters_match`
+--
+
+CREATE TABLE `nstats_monsters_match` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `monster` int(11) NOT NULL,
+  `deaths` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_monsters_player_match`
+--
+
+CREATE TABLE `nstats_monsters_player_match` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `player` int(11) NOT NULL,
+  `monster` int(11) NOT NULL,
+  `kills` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_monsters_player_totals`
+--
+
+CREATE TABLE `nstats_monsters_player_totals` (
+  `id` int(11) NOT NULL,
+  `player` int(11) NOT NULL,
+  `monster` int(11) NOT NULL,
+  `matches` int(11) NOT NULL,
+  `kills` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nstats_monster_kills`
+--
+
+CREATE TABLE `nstats_monster_kills` (
+  `id` int(11) NOT NULL,
+  `match_id` int(11) NOT NULL,
+  `timestamp` float NOT NULL,
+  `monster` int(11) NOT NULL,
+  `player` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1132,6 +1187,30 @@ ALTER TABLE `nstats_monsters`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `nstats_monsters_match`
+--
+ALTER TABLE `nstats_monsters_match`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `nstats_monsters_player_match`
+--
+ALTER TABLE `nstats_monsters_player_match`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `nstats_monsters_player_totals`
+--
+ALTER TABLE `nstats_monsters_player_totals`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `nstats_monster_kills`
+--
+ALTER TABLE `nstats_monster_kills`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nstats_nexgen_stats_viewer`
 --
 ALTER TABLE `nstats_nexgen_stats_viewer`
@@ -1403,6 +1482,30 @@ ALTER TABLE `nstats_match_team_changes`
 -- AUTO_INCREMENT for table `nstats_monsters`
 --
 ALTER TABLE `nstats_monsters`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_monsters_match`
+--
+ALTER TABLE `nstats_monsters_match`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_monsters_player_match`
+--
+ALTER TABLE `nstats_monsters_player_match`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_monsters_player_totals`
+--
+ALTER TABLE `nstats_monsters_player_totals`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nstats_monster_kills`
+--
+ALTER TABLE `nstats_monster_kills`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

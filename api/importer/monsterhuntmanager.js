@@ -214,6 +214,7 @@ class MonsterHuntManager{
                 for(const [monster, kills] of Object.entries(monsters)){
 
                     await this.monsterHunt.insertPlayerMatchTotals(matchId, player, monster, kills);
+                    await this.monsterHunt.updatePlayerMonsterTotals(player, monster, kills);
                 }
             }
 
