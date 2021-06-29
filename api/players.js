@@ -635,8 +635,10 @@ class Players{
                     gametypeTotals[gametype].spree_best = 0;
                     gametypeTotals[gametype].best_spawn_kill_spree = 0;
                     gametypeTotals[gametype].flag_cover_best = 0;
+                    gametypeTotals[gametype].flag_self_cover_best = 0;
                     gametypeTotals[gametype].dom_caps_best = 0;
                     gametypeTotals[gametype].dom_caps_best_life = 0;
+                    gametypeTotals[gametype].accuracy = 0;
                   
 
                 }
