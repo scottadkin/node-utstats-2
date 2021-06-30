@@ -10,11 +10,38 @@ class AdminMonsterHunt extends React.Component{
 
         this.bulkUpload = this.bulkUpload.bind(this);
         this.singleUpload = this.singleUpload.bind(this);
+
     }
 
-    bulkUpload(e){
+    async bulkUpload(e){
 
-        e.preventDefault();
+        try{
+
+            e.preventDefault();
+
+            const errors = [];
+
+            if(e.target[0].files.length > 0){
+
+                const formData = new FormData();
+
+                for(let i = 0; i < e.target[0].files.length; i++){
+
+                    formData.append("files", e.target[0].files[i]);
+                }
+
+                const req = await fetch("/api/adminmonsterhunt", {
+                    "method": "POST",
+                    "body": formData
+                });
+
+            }else{
+                errors.push("You have not selected any files to upload");
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     async singleUpload(e){

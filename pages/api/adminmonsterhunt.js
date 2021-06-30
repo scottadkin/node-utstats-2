@@ -7,51 +7,73 @@ export const config = {
     },
 };
 
-export default async (req, res) =>{
-
-    const form = new formidable.IncomingForm();
-    form.uploadDir = "./uploads";
-    form.keepExtensions = false;
-
-    const fileNames = [];
-    const tempFiles = [];
-
-    form.parse(req, (err, fields, files) =>{
-
-        if(err) console.log(err);
-
-        console.log(fields);
-        console.log(files);
+export default (req, res) =>{
 
 
-        if(fields.single !== undefined){
-            fs.renameSync(tempFiles[0], `./public/images/monsters/${fields.fileName}.png`);
-        }
-      
-        console.log(fileNames);
-        console.log(tempFiles);
-    });
 
-    form.onPart = function (part){
+    return new Promise((resolve, reject) =>{
 
-        if(part.filename){
+        const form = new formidable.IncomingForm();
+        form.uploadDir = "./uploads";
+        form.keepExtensions = false;
 
-            if(part.mime === "image/png"){
-                form.handlePart(part);
-            }else{
-                console.log("Filetype must be .png");
+        const fileNames = [];
+        const tempFiles = [];
+
+        form.parse(req, (err, fields, files) =>{
+
+            if(err){
+                res.status(200).json({"message": `ERROR: ${err}`});
             }
-    
-        }else{
-            form.handlePart(part);
+
+            let fileNameReg = /^(.+)\..+$/i;
+            let fileNameRegResult = 0;
+
+            if(fields.single !== undefined){
+                fs.renameSync(tempFiles[0], `./public/images/monsters/${fields.fileName}.png`);
+            }else{
+
+                for(let i = 0; i < fileNames.length; i++){
+
+                    fileNameRegResult = fileNameReg.exec(fileNames[i]);
+
+                    if(fileNameRegResult !== null){
+                        fs.renameSync(tempFiles[i], `./public/images/monsters/${fileNameRegResult[1]}.png`)
+                    }else{
+                        console.log(`fileNameRegResult is null`);
+                    }
+                }
+            }
+
+            res.status(200).json({"message": "passed"});
+            resolve();
+
+        });
+
+        form.onPart = function (part){
+
+            if(part.filename){
+
+                if(part.mime === "image/png"){
+                    form.handlePart(part);
+                }else{
+                    console.log("Filetype must be .png");
+                }
+        
+            }else{
+                form.handlePart(part);
+            }
         }
-    }
 
-    form.on("file", (name, file) =>{
+        form.on("file", (name, file) =>{
 
-        tempFiles.push(file.path);
-        fileNames.push(file.name);
+            tempFiles.push(file.path);
+            fileNames.push(file.name);
+        });
+
     });
 
-    res.status(200).json({"message": "passed"});
+    
+
+    
 }
