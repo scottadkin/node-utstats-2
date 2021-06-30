@@ -640,9 +640,7 @@ class Players{
                     gametypeTotals[gametype].dom_caps_best_life = 0;
                     gametypeTotals[gametype].accuracy = 0;
                   
-
                 }
-
 
 
                 if(m.winner){
@@ -790,7 +788,7 @@ class Players{
                 mh_kills_best = IF(mh_kills_best < ?, ?, mh_kills_best),
                 mh_kills_best_life = IF(mh_kills_best_life < ?, ?, mh_kills_best_life)
                 
-                WHERE gametype=? AND name=?
+                WHERE gametype=? AND player_id=?
             `;
 
             let vars = [];
@@ -818,7 +816,7 @@ class Players{
                     v.mh_kills_best, v.mh_kills_best, v.mh_kills_best,
                     v.mh_kills_best_life, v.mh_kills_best_life, v.mh_kills_best_life,
 
-                    k, playerName
+                    k, playerId
                 ];
     
 
@@ -853,13 +851,6 @@ class Players{
                     if(names[i].id === second)  second = names[i];
                     
                 }
-
-
-               // const firstPlayerGametypes = await this.getPlayerTotals(first.name);
-               // const secondPlayerGametypes = await this.getPlayerTotals(second.name);
-                
-               // console.log(firstPlayerGametypes);
-               // console.log(secondPlayerGametypes);
 
                 const matchIds = await matchManager.getAllPlayerMatchIds(first.id);
 
@@ -919,11 +910,11 @@ class Players{
                 await mapManager.recalculatePlayerTotalsAfterMerge(second.id, matchManager);
 
                 await matchManager.mergePlayerMatches(first.id, second.id,second.name);
-                await this.deletePlayerTotals(first.name);
+                await this.deletePlayerTotals(first.id);
 
                 const updatedPlayerMatches = await matchManager.getAllPlayerMatches(second.id);
 
-                await this.recalculatePlayerTotalsAfterMerge(updatedPlayerMatches, second.name);
+                await this.recalculatePlayerTotalsAfterMerge(updatedPlayerMatches, second.id);
 
                 const weaponsManager = new Weapons();
 
@@ -962,8 +953,8 @@ class Players{
         }
     }
 
-    async deletePlayerTotals(name){
-        await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE name=?", [name]);
+    async deletePlayerTotals(id){
+        await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE player_id=?", [id]);
     }
 
     async getPlayerName(player){

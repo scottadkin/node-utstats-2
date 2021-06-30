@@ -26,6 +26,8 @@ import Weapons from '../api/weapons';
 import AdminFTPManager from '../components/AdminFTPManager/';
 import NexgenStatsViewer from '../api/nexgenstatsviewer';
 import AdminNexgenStatsViewer from '../components/AdminNexgenStatsViewer';
+import MonsterHunt from '../api/monsterhunt';
+import AdminMonsterHunt from '../components/AdminMonsterHunt';
 
 class Admin extends React.Component{
 
@@ -718,6 +720,14 @@ class Admin extends React.Component{
         />
     }
 
+
+    displayMonsterHunt(){
+
+        if(this.state.mode !== 12) return null;
+
+        return <AdminMonsterHunt />
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -772,6 +782,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 11) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(11);
                             })}>NexgenStatsViewer</div>
+                            <div className={`big-tab ${(this.state.mode === 12) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(12);
+                            })}>MonsterHunt</div>
 
                             
                         </div>
@@ -788,6 +801,7 @@ class Admin extends React.Component{
                         {this.displayWeaponImageUploader()}
                         {this.displayFtpManager()}
                         {this.displayNexgenStatsViewer()}
+                        {this.displayMonsterHunt()}
                     </div>   
                 </div>
 
