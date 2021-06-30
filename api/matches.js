@@ -19,6 +19,7 @@ const Voices = require('./voices');
 const WinRates = require('./winrate');
 const Functions = require('./functions');
 const Logs = require('./logs');
+const MonsterHunt = require('./monsterhunt');
 
 class Matches{
 
@@ -712,6 +713,11 @@ class Matches{
 
             const assault = new Assault();
             await assault.deleteMatch(id);
+
+
+            const monsterHuntManager = new MonsterHunt();
+
+            await monsterHuntManager.deleteMatch(id);
 
             await this.deleteMatchCountryData(playersData);
 

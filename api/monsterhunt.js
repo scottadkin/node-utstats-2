@@ -357,6 +357,13 @@ class MonsterHunt{
         return await mysql.simpleFetch(query, [id]);
     }
 
+    async reducePlayerMonsterTotals(player, monster, kills){
+
+        const query = "UPDATE nstats_monsters_player_totals SET kills=kills-?,matches=matches-1 WHERE player=? AND monster=?";
+
+        await mysql.simpleUpdate(query, [kills, player, monster]);
+    }
+
 
     async reduceMonsterDeaths(monsterId, kills){
 
@@ -378,6 +385,7 @@ class MonsterHunt{
                 m = monsterKillTotals[i];
 
                 await this.reduceMonsterDeaths(m.monster, m.kills);
+                
             }
 
             await this.deletePlayerMonsterTotals(id);
@@ -447,7 +455,69 @@ class MonsterHunt{
 
                 await this.reduceMonsterTotals(p.monster, p.kills, 1);
                 await this.reduceMonsterTotalsMatch(matchId, p.monster, p.kills);
+                await this.reducePlayerMonsterTotals(playerId, p.monster, p.kills);
             }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    async getMatchMonsterTotals(id){
+
+        const query = "SELECT monster,deaths FROM nstats_monsters_match WHERE match_id=?";
+
+        return await mysql.simpleFetch(query, [id]);
+    }
+
+    async getMatchPlayerTotals(id){
+
+        const query = "SELECT player,monster,kills FROM nstats_monsters_player_match WHERE match_id=?";
+
+        return await mysql.simpleFetch(query, [id]);
+    }
+
+    async deleteMatchPlayerTotals(id){
+
+        const query = "DELETE FROM nstats_monsters_player_match WHERE match_id=?";
+
+        await mysql.simpleDelete(query, [id]);
+    }
+
+    async deleteMatchKills(id){
+
+        const query = "DELETE FROM nstats_monster_kills WHERE match_id=?";
+
+        await mysql.simpleDelete(query, [id]);
+    }
+
+    async deleteMatch(id){
+
+        try{
+
+            const monsterTotals = await this.getMatchMonsterTotals(id);
+
+            let m = 0;
+
+            for(let i = 0; i < monsterTotals.length; i++){
+
+                m = monsterTotals[i];
+
+                await this.reduceMonsterTotals(m.monster, m.deaths, 1);
+            }
+
+            const playerTotals = await this.getMatchPlayerTotals(id);
+
+            for(let i = 0; i < playerTotals.length; i++){
+
+                m = playerTotals[i];
+
+                await this.reducePlayerMonsterTotals(m.player, m.monster, m.kills);
+            }
+
+            await this.deleteMatchPlayerTotals(id);
+            await this.deleteMatchKills(id);
 
         }catch(err){
             console.trace(err);

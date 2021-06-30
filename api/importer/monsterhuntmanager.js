@@ -171,7 +171,7 @@ class MonsterHuntManager{
 
             this.setMonsterKillIds(monsterIds);
 
-            console.table(this.monsterStats);
+            //console.table(this.monsterStats);
 
             for(const [key, value] of Object.entries(this.monsterStats)){
                 
