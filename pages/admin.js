@@ -5,7 +5,6 @@ import DefaultHead from '../components/defaulthead';
 import Nav from '../components/Nav/';
 import Footer from '../components/Footer';
 import SiteSettings from '../api/sitesettings';
-import styles from '../styles/Admin.module.css';
 import AdminSettingsTable from '../components/AdminSettingsTable/';
 import AdminManager from '../api/admin';
 import Functions from '../api/functions';
@@ -36,7 +35,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 11, 
+            "mode": 12, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
@@ -725,7 +724,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 12) return null;
 
-        return <AdminMonsterHunt />
+        return <AdminMonsterHunt images={JSON.parse(this.props.monsterImages)} monsters={JSON.parse(this.props.monsters)}/>
     }
 
     render(){
@@ -847,6 +846,8 @@ export async function getServerSideProps({req, query}){
     let ftpServers = [];
     let nexgenStatsViewerSettings = [];
     let nexgenValidTypes = [];
+    let monsterImages = [];
+    let monsters = [];
 
 
     if(bUserAdmin){
@@ -903,6 +904,11 @@ export async function getServerSideProps({req, query}){
 
         nexgenValidTypes = nexgenStatsManager.validTypes;
 
+        const monsterHuntManager = new MonsterHunt();
+
+        monsterImages = await monsterHuntManager.getAllMonsterImages();
+        monsters = await monsterHuntManager.getAllMonsters();
+
 
     }
     
@@ -931,7 +937,9 @@ export async function getServerSideProps({req, query}){
             "weaponData": JSON.stringify(weaponData),
             "ftpServers": JSON.stringify(ftpServers),
             "nexgenStatsViewerSettings": JSON.stringify(nexgenStatsViewerSettings),
-            "nexgenValidTypes": JSON.stringify(nexgenValidTypes)
+            "nexgenValidTypes": JSON.stringify(nexgenValidTypes),
+            "monsterImages": JSON.stringify(monsterImages),
+            "monsters": JSON.stringify(monsters)
         }
     };
 }

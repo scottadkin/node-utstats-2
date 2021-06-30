@@ -1,4 +1,5 @@
 const mysql = require('./database');
+const fs = require('fs');
 
 class MonsterHunt{
 
@@ -522,6 +523,18 @@ class MonsterHunt{
         }catch(err){
             console.trace(err);
         }
+    }
+
+    async getAllMonsters(){
+
+        const query = "SELECT * FROM nstats_monsters ORDER BY class_name ASC";
+
+        return await mysql.simpleFetch(query);
+    }
+
+    async getAllMonsterImages(){
+
+        return fs.readdirSync("./public/images/monsters/");
     }
 
 }
