@@ -1016,6 +1016,11 @@ class Players{
             await domManager.deletePlayer(playerId);
 
 
+            const monsterHuntManager = new MonsterHunt();
+
+            await monsterHuntManager.deletePlayer(playerId);
+
+
             const faceManager = new Faces();
 
             await faceManager.deletePlayer(matches);

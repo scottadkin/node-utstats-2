@@ -328,6 +328,70 @@ class MonsterHunt{
         }
     }
 
+
+    async deletePlayerMonsterTotals(id){
+
+        const query = "DELETE FROM nstats_monsters_player_totals WHERE player=?";
+
+        await mysql.simpleDelete(query, [id]);
+    }
+
+    async deletePlayerMonsterMatchTotals(id){
+
+        const query = "DELETE FROM nstats_monsters_player_match WHERE player=?";
+
+        await mysql.simpleDelete(query, [id]);
+    }
+
+    async deletePlayerMonsterKills(id){
+
+        const query = "DELETE FROM nstats_monster_kills WHERE player=?";
+
+        await mysql.simpleDelete(query, [id]);
+    }
+
+    async getPlayerMonsterTotals(id){
+
+        const query = "SELECT monster,kills FROM nstats_monsters_player_totals WHERE player=?";
+
+        return await mysql.simpleFetch(query, [id]);
+    }
+
+
+    async reduceMonsterDeaths(monsterId, kills){
+
+        const query = "UPDATE nstats_monsters SET deaths=deaths-? WHERE id=?";
+
+        await mysql.simpleUpdate(query, [kills, monsterId]);
+    }
+
+    async deletePlayer(id){
+
+        try{
+
+            const monsterKillTotals = await this.getPlayerMonsterTotals(id);
+            
+            let m = 0;
+
+            for(let i = 0; i < monsterKillTotals.length; i++){
+
+                m = monsterKillTotals[i];
+
+                await this.reduceMonsterDeaths(m.monster, m.kills);
+            }
+
+            await this.deletePlayerMonsterTotals(id);
+            await this.deletePlayerMonsterMatchTotals(id);
+            await this.deletePlayerMonsterKills(id);
+
+            return true;
+
+        }catch(err){
+            console.trace(err);
+            return false;
+        }
+    }
+
 }
 
 module.exports = MonsterHunt;
