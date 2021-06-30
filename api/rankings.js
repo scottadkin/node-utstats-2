@@ -66,6 +66,8 @@ class Rankings{
 
         return new Promise((resolve, reject) =>{
 
+            if(ranking !== ranking) ranking = 0;
+
             const query = "INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,1,?,?,?)";
 
             mysql.query(query, [player,gametype,playtime,ranking,ranking], (err) =>{
@@ -87,6 +89,11 @@ class Rankings{
             matches=matches+1, playtime=?,ranking_change=?-ranking,ranking=?
             WHERE gametype=? AND player_id=?`;
 
+
+            if(newRanking !== newRanking){
+                newRanking = 0;
+            }
+
             mysql.query(query, [playtime, newRanking, newRanking, gametype, player], (err, result) =>{
 
                 if(err) reject(err);
@@ -107,7 +114,11 @@ class Rankings{
 
             const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?,?,?,?)";
 
+            if(matchScore !== matchScore) matchScore = 0;
             if(matchChange !== matchChange) matchChange = 0;
+
+            if(ranking !== ranking) ranking = 0;
+            if(rankingChange !== rankingChange) rankingChange = 0;
 
             mysql.query(query, [matchId, player, gametype, ranking, matchScore, rankingChange, matchChange], (err) =>{
 
@@ -150,6 +161,7 @@ class Rankings{
             const hour3 = hour * 3;
 
 
+
             if(this.settings === undefined){
                 new Message(`Rankings.update() Settings are not set, can't updated rankings!`,"error");
                 return;
@@ -177,6 +189,7 @@ class Rankings{
 
                 currentScore = 0;
 
+            
                 for(const [settingKey, settingValue] of Object.entries(s)){
 
                     if(ignore.indexOf(settingKey) != -1) continue;
@@ -909,7 +922,10 @@ class Rankings{
 
     async insertPlayerCurrentFull(playerId, gametypeId, matches, playtime, ranking, rankingChange){
 
-        const query = `INSERT nstats_ranking_player_current VALUES(NULL,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,?,?,?,?)`;
+
+        if(ranking !== ranking) ranking = 0;
+        if(rankingChange !== rankingChange) rankingChange = 0;
 
         const vars = [playerId, gametypeId, matches, playtime, ranking, rankingChange];
 

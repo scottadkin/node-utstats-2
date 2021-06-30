@@ -676,7 +676,7 @@ class Player{
             multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,flag_assist,flag_return,
             flag_taken,flag_dropped,flag_capture,flag_pickup,flag_seal,flag_cover,flag_cover_pass,flag_cover_fail,
             flag_self_cover,flag_self_cover_pass,flag_self_cover_fail,flag_multi_cover,flag_spree_cover,flag_kill,
-            flag_save,dom_caps,assault_objectives,playtime,matches
+            flag_save,dom_caps,assault_objectives,playtime,matches,mh_kills
             FROM nstats_player_totals WHERE gametype=? AND player_id=?
             `;
 

@@ -47,6 +47,7 @@ const queries = [
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_5','Godlike','Player killed 25 to 29 players in one life',1800)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_6','Too Easy','Player killed 30 to 34 players in one life',2400)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_7','Brutalizing the competition','Player killed 35 or more players in one life',3600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'mh_kills','Monster Kills(MonsterHunt)','Player killed a monster',360)",
 
 
     `INSERT INTO nstats_ranking_values
