@@ -17,6 +17,7 @@ const Rankings = require('./rankings');
 const Voices = require('./voices');
 const WinRate = require('./winrate');
 const Sprees = require('./sprees');
+const MonsterHunt = require('./monsterhunt');
 
 class Player{
 
@@ -810,7 +811,8 @@ class Player{
             pads = pads - ?,
             armor = armor - ?,
             boots = boots - ?,
-            super_health = super_health - ?
+            super_health = super_health - ?,
+            mh_kills = mh_kills - ?
 
 
             WHERE name=? AND gametype IN(?)
@@ -880,6 +882,7 @@ class Player{
                 player.armor,
                 player.boots,
                 player.super_health,
+                player.mh_kills,
 
                 player.name,
                 gametypes
@@ -926,6 +929,11 @@ class Player{
                 const domManager = new Domination();
 
                 await domManager.deletePlayerFromMatch(playerId, matchId);
+
+
+                const monsterHuntManager = new MonsterHunt();
+
+                await monsterHuntManager.removePlayerFromMatch(playerId, matchId);
 
                 const faceManager = new Faces();
 
