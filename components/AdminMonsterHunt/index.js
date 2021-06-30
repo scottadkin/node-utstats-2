@@ -7,6 +7,61 @@ class AdminMonsterHunt extends React.Component{
     constructor(props){
 
         super(props);
+
+        this.bulkUpload = this.bulkUpload.bind(this);
+        this.singleUpload = this.singleUpload.bind(this);
+    }
+
+    bulkUpload(e){
+
+        e.preventDefault();
+    }
+
+    async singleUpload(e){
+
+        try{
+
+            e.preventDefault();
+
+            const errors = [];
+
+            console.log(e.target[0]);
+            console.log(e.target[1]);
+
+            const name = e.target[0].value;
+
+            if(e.target[1].files[0] === undefined){
+                errors.push("You have not selected a file to upload.");
+            }
+
+
+            if(errors.length === 0){
+
+                const file = e.target[1].files[0];
+
+                const formData = new FormData();
+
+                formData.append("fileName", name);
+                formData.append("single", true);
+                formData.append("file", file);
+
+
+                console.log(formData);
+
+                const req = await fetch("/api/adminmonsterhunt", {
+                    "method": "POST",
+                    "body": formData
+                });
+
+                const result = await req.json();
+
+                console.log(result);
+            }
+          
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
 
@@ -38,11 +93,17 @@ class AdminMonsterHunt extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{m.class_name}</td>
-                <td><input type="text" id={`name-${m.id}`} className="default-textbox" value={m.display_name}/></td>
+                <td>{m.display_name}</td>
                 <td>{m.matches}</td>
                 <td>{m.deaths}</td>
                 <TrueFalse bTable={true} value={this.getImageStatus(m.class_name)} tDisplay="Found" fDisplay="Missing"/>
-                <td><input type="file" id={`file-${m.class_name}`} accept=".png" /><input type="button" value="Upload"/></td>
+                <td>
+                    <form action="/" method="POST" onSubmit={this.singleUpload}>
+                        <input type="hidden" value={m.class_name}/>
+                        <input type="file" accept=".png" />
+                        <input type="submit" value="Upload"/>
+                    </form>
+                </td>
             </tr>);
         }
 
@@ -68,7 +129,7 @@ class AdminMonsterHunt extends React.Component{
         return <div>
             <div className="default-header">MonsterHunt Monster Image Uploader</div>
 
-            <form className="form m-bottom-25" action="/" method="POST">
+            <form className="form m-bottom-25" action="/" method="POST" onSubmit={this.bulkUpload}>
                 <div className="form-info">
                     Image format must be .png.<br/>
                     File name must the the monster's classname in lowercase.<br/>
@@ -78,7 +139,7 @@ class AdminMonsterHunt extends React.Component{
 
                 <div className="default-header">Bulk Uploader</div>
 
-                <input type="file" className="m-bottom-25" multiple accept="png"/>
+                <input type="file" className="m-bottom-25" multiple accept=".png"/>
 
                 <input type="submit" className="search-button" value="Upload"/>
             </form>
