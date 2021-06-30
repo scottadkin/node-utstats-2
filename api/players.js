@@ -1081,7 +1081,7 @@ class Players{
 
             //delete player totals last
 
-            await this.deletePlayerTotals(name);
+            await this.deletePlayerTotals(playerId);
 
         }catch(err){    
             console.trace(err);
