@@ -14,7 +14,10 @@ class AdminMonsterHunt extends React.Component{
         this.state = {
             "singleErrors": [],
             "singlePassed": null,
-            "singleUploadInProgress": false
+            "singleUploadInProgress": false,
+            "bulkErrors": [],
+            "bulkPassed": null,
+            "bulkUploadInProgress": false
         };
 
     }
@@ -27,11 +30,25 @@ class AdminMonsterHunt extends React.Component{
 
             const errors = [];
 
+            this.setState({
+                "singleErrors": [],
+                "singlePassed": null,
+                "singleUploadInProgress": false,
+                "bulkErrors": [],
+                "bulkPassed": null,
+                "bulkUploadInProgress": true
+            });
+
+            const fileNames = [];
+
+
             if(e.target[0].files.length > 0){
 
                 const formData = new FormData();
 
                 for(let i = 0; i < e.target[0].files.length; i++){
+
+                    fileNames.push(e.target[0].files[i].name.toLowerCase());
 
                     formData.append("files", e.target[0].files[i]);
                 }
@@ -41,8 +58,41 @@ class AdminMonsterHunt extends React.Component{
                     "body": formData
                 });
 
+                const result = await req.json();
+
+                if(result.message !== "passed"){
+                    errors.push(result.message);
+                }
+
             }else{
                 errors.push("You have not selected any files to upload");
+            }
+
+            if(errors.length === 0){
+
+                for(let i = 0; i < fileNames.length; i++){
+
+                    this.props.addMonster(fileNames[i]);
+                }
+
+                this.setState({
+                    "singleErrors": [],
+                    "singlePassed": null,
+                    "singleUploadInProgress": false,
+                    "bulkErrors": [],
+                    "bulkPassed": true,
+                    "bulkUploadInProgress": false
+                });
+            }else{
+
+                this.setState({
+                    "singleErrors": [],
+                    "singlePassed": null,
+                    "singleUploadInProgress": false,
+                    "bulkErrors": errors,
+                    "bulkPassed": false,
+                    "bulkUploadInProgress": false
+                });
             }
 
         }catch(err){
@@ -58,13 +108,13 @@ class AdminMonsterHunt extends React.Component{
 
             const errors = [];
 
-            console.log(e.target[0]);
-            console.log(e.target[1]);
-
             this.setState({
                 "singleErrors": [],
                 "singlePassed": null,
-                "singleUploadInProgress": true
+                "singleUploadInProgress": false,
+                "bulkErrors": [],
+                "bulkPassed": null,
+                "bulkUploadInProgress": false
             });
 
             const name = e.target[0].value;
@@ -83,9 +133,6 @@ class AdminMonsterHunt extends React.Component{
                 formData.append("fileName", name);
                 formData.append("single", true);
                 formData.append("file", file);
-
-
-                console.log(formData);
 
                 const req = await fetch("/api/adminmonsterhunt", {
                     "method": "POST",
@@ -223,9 +270,42 @@ class AdminMonsterHunt extends React.Component{
         }
     }
 
-    render(){
 
-        console.table(this.props.images);
+    renderBulkProgress(){
+
+        if(this.state.bulkUploadInProgress){
+
+            return <div className="t-width-1 center team-yellow m-bottom-25 p-bottom-25">
+            <div className="default-header">Bulk Uploading</div>
+                Bulk upload in progress please wait...
+            </div>
+        }
+
+        if(this.state.bulkPassed === false){
+
+            const errors = [];
+
+            for(let i = 0; i < this.state.bulkErrors.length; i++){
+
+                errors.push(<div key={i}>{this.state.bulkErrors[i]}</div>);
+            }
+
+            return <div className="t-width-1 center team-red m-bottom-25 p-bottom-25">
+            <div className="default-header">Error</div>
+                There was a problem uploading the images.
+                {errors}
+            </div>
+
+        }else if(this.state.bulkPassed === true){
+
+            return <div className="t-width-1 center team-green m-bottom-25 p-bottom-25">
+            <div className="default-header">Success</div>
+                All images where uploaded successfully.
+            </div>
+        }
+    }
+
+    render(){
 
         return <div>
             <div className="default-header">MonsterHunt Monster Image Uploader</div>
@@ -239,6 +319,8 @@ class AdminMonsterHunt extends React.Component{
                 </div>
 
                 <div className="default-header">Bulk Uploader</div>
+
+                {this.renderBulkProgress()}
 
                 <input type="file" className="m-bottom-25" multiple accept=".png"/>
 

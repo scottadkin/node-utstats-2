@@ -1,5 +1,6 @@
 import formidable from "formidable";
 import fs from 'fs';
+import Session from '../../api/session';
 
 export const config = {
     api: {
@@ -11,65 +12,77 @@ export default (req, res) =>{
 
 
 
-    return new Promise((resolve, reject) =>{
+    return new Promise(async (resolve, reject) =>{
 
-        const form = new formidable.IncomingForm();
-        form.uploadDir = "./uploads";
-        form.keepExtensions = false;
 
-        const fileNames = [];
-        const tempFiles = [];
+        const session = new Session(req);
 
-        form.parse(req, (err, fields, files) =>{
+        await session.load();
 
-            if(err){
-                res.status(200).json({"message": `ERROR: ${err}`});
-            }
+        if(await session.bUserAdmin()){
 
-            let fileNameReg = /^(.+)\..+$/i;
-            let fileNameRegResult = 0;
+            const form = new formidable.IncomingForm();
+            form.uploadDir = "./uploads";
+            form.keepExtensions = false;
 
-            if(fields.single !== undefined){
-                fs.renameSync(tempFiles[0], `./public/images/monsters/${fields.fileName}.png`);
-            }else{
+            const fileNames = [];
+            const tempFiles = [];
 
-                for(let i = 0; i < fileNames.length; i++){
+            form.parse(req, (err, fields, files) =>{
 
-                    fileNameRegResult = fileNameReg.exec(fileNames[i]);
+                if(err){
+                    res.status(200).json({"message": `ERROR: ${err}`});
+                }
 
-                    if(fileNameRegResult !== null){
-                        fs.renameSync(tempFiles[i], `./public/images/monsters/${fileNameRegResult[1]}.png`)
-                    }else{
-                        console.log(`fileNameRegResult is null`);
+                let fileNameReg = /^(.+)\..+$/i;
+                let fileNameRegResult = 0;
+
+                if(fields.single !== undefined){
+                    fs.renameSync(tempFiles[0], `./public/images/monsters/${fields.fileName}.png`);
+                }else{
+
+                    for(let i = 0; i < fileNames.length; i++){
+
+                        fileNameRegResult = fileNameReg.exec(fileNames[i]);
+
+                        if(fileNameRegResult !== null){
+                            fs.renameSync(tempFiles[i], `./public/images/monsters/${fileNameRegResult[1]}.png`)
+                        }else{
+                            console.log(`fileNameRegResult is null`);
+                        }
                     }
                 }
-            }
 
-            res.status(200).json({"message": "passed"});
-            resolve();
+                res.status(200).json({"message": "passed"});
+                resolve();
 
-        });
+            });
 
-        form.onPart = function (part){
+            form.onPart = function (part){
 
-            if(part.filename){
+                if(part.filename){
 
-                if(part.mime === "image/png"){
-                    form.handlePart(part);
+                    if(part.mime === "image/png"){
+                        form.handlePart(part);
+                    }else{
+                        console.log("Filetype must be .png");
+                    }
+            
                 }else{
-                    console.log("Filetype must be .png");
+                    form.handlePart(part);
                 }
-        
-            }else{
-                form.handlePart(part);
             }
+
+            form.on("file", (name, file) =>{
+
+                tempFiles.push(file.path);
+                fileNames.push(file.name.toLowerCase());
+            });
+
+        }else{
+
+            res.status(200).json({"message": "Only admins can perform this action"});
         }
-
-        form.on("file", (name, file) =>{
-
-            tempFiles.push(file.path);
-            fileNames.push(file.name);
-        });
 
     });
 
