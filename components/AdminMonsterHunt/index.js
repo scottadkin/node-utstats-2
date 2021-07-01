@@ -11,6 +11,12 @@ class AdminMonsterHunt extends React.Component{
         this.bulkUpload = this.bulkUpload.bind(this);
         this.singleUpload = this.singleUpload.bind(this);
 
+        this.state = {
+            "singleErrors": [],
+            "singlePassed": null,
+            "singleUploadInProgress": false
+        };
+
     }
 
     async bulkUpload(e){
@@ -55,6 +61,12 @@ class AdminMonsterHunt extends React.Component{
             console.log(e.target[0]);
             console.log(e.target[1]);
 
+            this.setState({
+                "singleErrors": [],
+                "singlePassed": null,
+                "singleUploadInProgress": true
+            });
+
             const name = e.target[0].value;
 
             if(e.target[1].files[0] === undefined){
@@ -82,7 +94,30 @@ class AdminMonsterHunt extends React.Component{
 
                 const result = await req.json();
 
-                console.log(result);
+                if(result.message !== "passed"){
+                    errors.push(result.message);
+                }else{
+                    this.props.addMonster(`${name}.png`);
+                }
+            }
+
+
+            if(errors.length === 0){
+
+                this.setState({
+                    "singleErrors": [],
+                    "singlePassed": true,
+                    "singleUploadInProgress": false
+                });
+    
+            }else{
+
+                this.setState({
+                    "singleErrors": errors,
+                    "singlePassed": false,
+                    "singleUploadInProgress": false
+                });
+    
             }
           
 
@@ -134,19 +169,58 @@ class AdminMonsterHunt extends React.Component{
             </tr>);
         }
 
-        return <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Class Name</th>
-                    <th>Display Name</th>
-                    <th>Matches Seen</th>
-                    <th>Total Deaths</th>
-                    <th>Image Status</th>
-                    <th>Upload</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        return <div>
+            {this.renderSingleProgress()}
+            <table className="t-width-1 m-bottom-25">
+                <tbody>
+                    <tr>
+                        <th>Class Name</th>
+                        <th>Display Name</th>
+                        <th>Matches Seen</th>
+                        <th>Total Deaths</th>
+                        <th>Image Status</th>
+                        <th>Upload</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+            {this.renderSingleProgress()}
+        </div>
+    }
+
+    renderSingleProgress(){
+
+        if(this.state.singleUploadInProgress){
+
+            return <div className="t-width-1 center team-yellow m-bottom-25 p-bottom-25">
+                <div className="default-header">Uploading</div>
+                    Upload in progress please wait...
+                </div>
+        }
+
+        if(this.state.singlePassed === true){
+
+            return <div className="t-width-1 center team-green m-bottom-25 p-bottom-25">
+            <div className="default-header">Success</div>
+                Image was uploaded successfully.
+            </div>
+
+        }else if(this.state.singlePassed === false){
+
+            const errors = [];
+
+            for(let i = 0; i < this.state.singleErrors.length; i++){
+
+                errors.push(<div key={i}>{this.state.singleErrors[i]}</div>);
+            }
+
+            return <div className="t-width-1 center team-red m-bottom-25 p-bottom-25">
+            <div className="default-header">Error</div>
+                There was a problem upload the image.
+                {errors}
+            </div>
+
+        }
     }
 
     render(){

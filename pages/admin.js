@@ -50,7 +50,8 @@ class Admin extends React.Component{
             "nexgenErrors": [],
             "nexgenCreateInProgress": false,
             "nexgenCreatePassed": null,
-            "nexgenCreateErrors": []
+            "nexgenCreateErrors": [],
+            "monsterFiles": JSON.parse(this.props.monsterImages)
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -67,6 +68,16 @@ class Admin extends React.Component{
         this.setFullNexgenList = this.setFullNexgenList.bind(this);
         this.deleteNexgenEntry = this.deleteNexgenEntry.bind(this);
         this.nexgenCreateList = this.nexgenCreateList.bind(this);
+        this.addMonsterImage = this.addMonsterImage.bind(this);
+    }
+
+    addMonsterImage(file){
+
+        const newFiles = Object.assign(this.state.monsterFiles);
+
+        newFiles.push(file);
+        
+        this.setState({"monsterFiles": newFiles});
     }
 
     async nexgenCreateList(e){
@@ -724,7 +735,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 12) return null;
 
-        return <AdminMonsterHunt images={JSON.parse(this.props.monsterImages)} monsters={JSON.parse(this.props.monsters)}/>
+        return <AdminMonsterHunt images={this.state.monsterFiles} monsters={JSON.parse(this.props.monsters)} addMonster={this.addMonsterImage}/>
     }
 
     render(){
