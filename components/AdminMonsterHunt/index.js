@@ -10,6 +10,9 @@ class AdminMonsterHunt extends React.Component{
 
         this.bulkUpload = this.bulkUpload.bind(this);
         this.singleUpload = this.singleUpload.bind(this);
+        this.changeMode = this.changeMode.bind(this);
+
+        this.rename = this.rename.bind(this);
 
         this.state = {
             "singleErrors": [],
@@ -17,9 +20,81 @@ class AdminMonsterHunt extends React.Component{
             "singleUploadInProgress": false,
             "bulkErrors": [],
             "bulkPassed": null,
-            "bulkUploadInProgress": false
+            "bulkUploadInProgress": false,
+            "mode": 1,
+            "renamePassed": null,
+            "renameInProgress": false,
+            "renameErrors": []
         };
 
+    }
+
+    async rename(e){
+
+        try{
+
+            e.preventDefault();
+
+            this.setState({
+                "renamePassed": null,
+                "renameInProgress": true,
+                "renameErrors": []
+            });
+
+
+            const target = parseInt(e.target[0].value);
+            const newName = e.target[1].value;
+
+            const errors = [];
+
+            if(target !== target) errors.push("Monster id must be a valid integer.");
+            if(target < 1) errors.push("You have not selected a monster to rename.");
+
+            if(newName === "") errors.push("A monster's name can not be an empty string.");
+
+            if(errors.length === 0){
+
+                const req = await fetch("/api/adminmonsterrename", {
+                    "headers": {"Content-Type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"monsterId": target, "name": newName})
+                });
+
+                const result = await req.json();
+
+                if(result.message !== "passed"){
+                    errors.push(result.message);
+                }else{
+
+                    this.props.updateMonster(target, newName);
+                }
+            }
+
+            if(errors.length > 0){
+
+                this.setState({
+                    "renamePassed": false,
+                    "renameInProgress": false,
+                    "renameErrors": errors
+                });
+
+            }else{
+
+                this.setState({
+                    "renamePassed": true,
+                    "renameInProgress": false,
+                    "renameErrors": []
+                });
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    changeMode(id){
+        this.setState({"mode": id});
     }
 
     async bulkUpload(e){
@@ -305,11 +380,12 @@ class AdminMonsterHunt extends React.Component{
         }
     }
 
-    render(){
+    renderUpload(){
+
+        if(this.state.mode !== 0) return null;
 
         return <div>
-            <div className="default-header">MonsterHunt Monster Image Uploader</div>
-
+            <div className="default-header">Monster Image Uploader</div>
             <form className="form m-bottom-25" action="/" method="POST" onSubmit={this.bulkUpload}>
                 <div className="form-info">
                     Image format must be .png.<br/>
@@ -328,6 +404,97 @@ class AdminMonsterHunt extends React.Component{
             </form>
 
             {this.renderTable()}
+        </div>;
+    }
+
+    createDropDown(){
+
+        const options = [];
+
+
+        let m = 0;
+
+        for(let i = 0; i < this.props.monsters.length; i++){
+
+            m = this.props.monsters[i];
+
+            options.push(<option key={i} value={m.id}>{m.display_name} ({m.class_name})</option>);
+        }
+
+
+        return <select className="default-select">
+            <option value="-1">Select a monster...</option>
+            {options}
+        </select>
+    }
+
+    renderRenameProgress(){
+
+        if(this.state.renameInProgress){
+
+            return <div className="t-width-1 center team-yellow m-bottom-25 p-bottom-25">
+                <div className="default-header">Rename In Progress</div>
+                    Rename in progress, please wait...
+                </div>
+        }
+
+        if(this.state.renamePassed === true){
+
+            return <div className="t-width-1 center team-green m-bottom-25 p-bottom-25">
+                <div className="default-header">Success</div>
+                    Monster was rename successfully.
+                </div>
+
+        }else if(this.state.renamePassed === false){
+
+            const errors = [];
+
+            for(let i = 0; i < this.state.renameErrors.length; i++){
+
+                errors.push(<div key={i}>{this.state.renameErrors[i]}</div>);
+            }
+
+            return <div className="t-width-1 center team-red m-bottom-25 p-bottom-25">
+                <div className="default-header">Error</div>
+                    Failed to rename monster.
+                    {errors}
+                </div>
+        }
+    }
+
+    renderRename(){
+
+        return <div>
+            <div className="default-header">Rename Monsters</div>
+            <form className="form" action="/" method="POST" onSubmit={this.rename}>
+                {this.renderRenameProgress()}
+                <div className="select-row">
+                    <div className="select-label">Current Name</div>
+                    <div>{this.createDropDown()}</div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">New Name</div>
+                    <div><input type="text" className="default-textbox" placeholder="new name..." /></div>
+                </div>
+                <input type="submit" className="search-button" value="Rename"/>
+            </form>
+        </div>
+    }
+
+    render(){
+
+        return <div>
+            <div className="default-header">MonsterHunt Manager</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : null }`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Image Uploader</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : null }`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Rename Monsters</div>
+            </div>
+            {this.renderUpload()}
+            {this.renderRename()}
         </div>
     }
 }

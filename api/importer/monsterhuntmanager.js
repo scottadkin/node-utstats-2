@@ -223,6 +223,7 @@ class MonsterHuntManager{
             new Message(`MonsterHuntManager.insertPlayerMatchTotals() ${err}`);
         }
     }
+    
 }
 
 

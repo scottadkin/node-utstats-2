@@ -51,7 +51,8 @@ class Admin extends React.Component{
             "nexgenCreateInProgress": false,
             "nexgenCreatePassed": null,
             "nexgenCreateErrors": [],
-            "monsterFiles": JSON.parse(this.props.monsterImages)
+            "monsterFiles": JSON.parse(this.props.monsterImages),
+            "monsters": JSON.parse(this.props.monsters)
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -69,6 +70,25 @@ class Admin extends React.Component{
         this.deleteNexgenEntry = this.deleteNexgenEntry.bind(this);
         this.nexgenCreateList = this.nexgenCreateList.bind(this);
         this.addMonsterImage = this.addMonsterImage.bind(this);
+        this.renameMonster = this.renameMonster.bind(this);
+    }
+
+    renameMonster(id, newName){
+
+        const newData = Object.assign(this.state.monsters);
+
+        let n = 0;
+
+        for(let i = 0; i < newData.length; i++){
+
+            n = newData[i];
+
+            if(n.id === id){
+                n.display_name = newName;
+            }
+        }
+
+        this.setState({"monsters": newData});
     }
 
     addMonsterImage(file){
@@ -735,7 +755,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 12) return null;
 
-        return <AdminMonsterHunt images={this.state.monsterFiles} monsters={JSON.parse(this.props.monsters)} addMonster={this.addMonsterImage}/>
+        return <AdminMonsterHunt images={this.state.monsterFiles} monsters={this.state.monsters} addMonster={this.addMonsterImage} updateMonster={this.renameMonster}/>
     }
 
     render(){

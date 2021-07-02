@@ -537,6 +537,13 @@ class MonsterHunt{
         return fs.readdirSync("./public/images/monsters/");
     }
 
+    async renameMonster(id, name){
+
+        const query = "UPDATE nstats_monsters SET display_name=? WHERE id=?";
+
+        await mysql.simpleUpdate(query, [name, id]);
+    }
+
 }
 
 module.exports = MonsterHunt;
