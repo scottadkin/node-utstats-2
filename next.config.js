@@ -5,7 +5,14 @@ module.exports = {
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
         // Important: return the modified config
 
-        config.resolve.fallback = { fs: false, net: false, tls: false, crypto: false, stream: false, timers: false };
+        config.resolve.fallback = { 
+            ...config.resolve.fallback,
+            net: false,
+            tls: false,
+            fs: false
+
+            //fs: false, net: false, tls: false, crypto: false, stream: false, timers: false
+         };
   
         return config
     },
