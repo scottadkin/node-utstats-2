@@ -62,10 +62,6 @@ function startNewImport(ftpServer){
 
         let currentServerIndex = 0;
 
-        console.log(ftpServers);
-
-        
-
         while(currentServerIndex < ftpServers.length){
 
             await startNewImport(ftpServers[currentServerIndex]);

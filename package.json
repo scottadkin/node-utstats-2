@@ -11,7 +11,7 @@
     "cookie": "^0.4.1",
     "formidable": "^1.2.2",
     "ftp": "^0.3.10",
-    "geoip-country": "^4.0.73",
+    "geoip-country": "^4.0.75",
     "geoip-lite": "^1.4.2",
     "i18n-iso-countries": "^6.8.0",
     "mysql": "^2.18.1",

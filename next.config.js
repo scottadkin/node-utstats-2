@@ -1,15 +1,15 @@
 module.exports = {
-    webpack: (config, { isServer }) => {
-        if (!isServer) {
-            config.node = {
-                fs: 'empty',
-                net: 'empty',
-                tls: 'empty'
-            };
-        }
-
-        return config;
+    future: {
+        webpack5: true,
     },
+    webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+        // Important: return the modified config
+
+        config.resolve.fallback = { fs: false, net: false, tls: false, crypto: false, stream: false, timers: false };
+  
+        return config
+    },
+
     redirects: async () =>{
 
         return [
