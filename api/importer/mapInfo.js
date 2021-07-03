@@ -5,11 +5,11 @@ class MapInfo{
 
     constructor(data){
 
-        this.data = data;
-        this.parseData();
-        this.data = null;
+        this.data = data;      
         this.maps = new Maps();
         this.mapId = null;
+        this.mapPrefix = "";
+        this.parseData();
     }
 
     getMatchingType(type){
@@ -29,15 +29,27 @@ class MapInfo{
     parseData(){
 
         const reg = /^\d+\.\d+?\tmap\t(.+?)\t(.*)$/i;
+        const prefixReg = /^(.+?)-.+$/i;
 
         let currentResult = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
-            currentResult = reg.exec(this.data[i]);
+            currentResult = reg.exec(this.data[i]);            
 
             if(currentResult !== null){
-                this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2];     
+
+                this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2];   
+                
+                if(currentResult[1].toLowerCase() === "name"){
+
+                    currentResult = prefixReg.exec(currentResult[2]);
+
+                    if(currentResult !== null){
+                        this.mapPrefix = currentResult[1].toLowerCase();
+                    }
+
+                }
             }
         }
     }

@@ -544,6 +544,14 @@ class MonsterHunt{
         await mysql.simpleUpdate(query, [name, id]);
     }
 
+
+    async setMatchMonsterKills(matchId, kills){
+
+        const query = "UPDATE nstats_matches SET mh_kills=? WHERE id=?";
+
+        await mysql.simpleUpdate(query, [kills, matchId]);
+    }
+
 }
 
 module.exports = MonsterHunt;

@@ -85,6 +85,8 @@ class MatchManager{
 
             const matchTimings = this.gameInfo.getMatchLength();
             await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
+
+
             this.spawnManager.setMapId(this.mapInfo.mapId);
             await this.spawnManager.updateMapStats();
             new Message(`Inserted map info into database.`, 'pass');
@@ -220,6 +222,7 @@ class MatchManager{
                 await this.monsterHuntManager.updateMatchMonsterTotals(this.matchId);
                 await this.monsterHuntManager.insertPlayerMatchTotals(this.matchId);
                 await this.monsterHuntManager.insertKills(this.matchId);
+                await this.monsterHuntManager.setMatchMonsterKills(this.matchId);
             }
 
 
@@ -321,7 +324,6 @@ class MatchManager{
 
             const motd = this.serverInfo.getMotd();
 
-
             this.matchId = await this.matches.insertMatch(
                 this.serverInfo.date, 
                 serverId, 
@@ -358,7 +360,8 @@ class MatchManager{
                 this.gameInfo.teamScores[0],
                 this.gameInfo.teamScores[1],
                 this.gameInfo.teamScores[2],
-                this.gameInfo.teamScores[3]
+                this.gameInfo.teamScores[3],
+                (this.mapInfo.mapPrefix === "mh") ? true : false
             );
 
 

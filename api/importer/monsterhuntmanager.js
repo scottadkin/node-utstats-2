@@ -224,6 +224,11 @@ class MonsterHuntManager{
         }
     }
     
+
+    async setMatchMonsterKills(matchId){
+
+        await this.monsterHunt.setMatchMonsterKills(matchId, this.kills.length);
+    }
 }
 
 
