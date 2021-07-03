@@ -132,7 +132,7 @@ class MatchScreenshot{
 
             const textWidth = this.xPercent(c.measureText("Loading Please Wait...").width);
 
-            console.log(this.xPercent(textWidth));
+           // console.log(this.xPercent(textWidth));
 
             textOffsetX+=1;
 
@@ -550,26 +550,49 @@ class MatchScreenshot{
 
         c.textAlign = "center";
 
-        let offsetY = this.y(0.75)
+        let offsetY = this.y(0.75);
+
+        if(!this.matchData.mh){
+    
+            c.fillStyle = "white";
+            c.fillText(this.gametype, this.x(50), offsetY);
+
+            if(this.matchData.time_limit > 0){
+                offsetY += this.y(2.9);
+                c.fillText(`Time Limit: ${this.matchData.time_limit}:00`, this.x(50), offsetY);
+            }
         
-        c.fillStyle = "white";
-        c.fillText(this.gametype, this.x(50), offsetY);
+            if(this.matchData.target_score > 0){
+                offsetY += this.y(2.6);
+                c.fillText(`${(this.bLMS()) ? "Lives" : "Target Score"}: ${this.matchData.target_score}`, this.x(50), offsetY);
+            }
 
-        if(this.matchData.time_limit > 0){
             offsetY += this.y(2.9);
-            c.fillText(`Time Limit: ${this.matchData.time_limit}`, this.x(50), offsetY);
+
+            c.fillStyle = "yellow";
+            c.fillText((this.matchData.team_game) ? this.getTeamWinner() : this.getSoloWinner(), this.x(50), offsetY);
+
+        }else{
+
+
+            offsetY += this.y(1.25);
+
+            c.fillStyle = "yellow";
+            c.fillText((this.matchData.end_type.toLowerCase() === "hunt successfull!") ? "Hunt Successful!" : "Hunt Failed!" , this.x(50), offsetY);
+
+            offsetY += this.y(4);
+
+            c.fillStyle = "rgb(148,230,190)";
+            c.fillText(this.gametype, this.x(50), offsetY);
+
+            c.fillStyle = "rgb(56,194,44)";
+
+            if(this.matchData.time_limit > 0){
+                offsetY += this.y(3);
+                c.fillText(`Time Limit: ${this.matchData.time_limit}:00`, this.x(50), offsetY);
+            }
+
         }
-       
-        if(this.matchData.target_score > 0){
-            offsetY += this.y(2.6);
-            c.fillText(`${(this.bLMS()) ? "Lives" : "Target Score"}: ${this.matchData.target_score}`, this.x(50), offsetY);
-        }
-
-        offsetY += this.y(2.9);
-
-        c.fillStyle = "yellow";
-        c.fillText((this.matchData.team_game) ? this.getTeamWinner() : this.getSoloWinner(), this.x(50), offsetY);
-
         c.textAlign = "left";
     }
 
@@ -630,7 +653,11 @@ class MatchScreenshot{
 
             if(name === this.highlight){
          
-                this.context.fillStyle = "yellow";
+                if(!this.matchData.mh){
+                    this.context.fillStyle = "yellow";
+                }else{
+                    this.context.fillStyle = "red";
+                }
                 
             }
         }
@@ -719,11 +746,6 @@ class MatchScreenshot{
         if(max > 0){
             bit = maxWidth / max;
         }
-
-        if(type === "covers"){
-            console.log(`max for covers is ${max}`);
-        }
-
 
         const color = Math.floor((255 / total) * value);
 
@@ -1152,6 +1174,75 @@ class MatchScreenshot{
         this.renderSmartCTFFooter(c);
     }
 
+    renderMonsterHuntPlayers(c){
+
+        c.fillStyle = "rgb(56,194,44)";
+
+        const defaultFont = `${this.y(2.5)}px Arial`;
+        const pingFont = `${this.y(1)}px Arial`;
+        c.font = defaultFont;
+        c.textAlign = "left";
+
+        const nameTitleOffset = {
+            "x": this.x(35),
+            "y": this.y(18)
+        };
+
+        const scoreTitleOffset = {
+            "x": this.x(65),
+            "y": this.y(18)
+        };
+
+        c.fillText("Hunter", nameTitleOffset.x, nameTitleOffset.y);
+        c.fillText("Score", scoreTitleOffset.x, scoreTitleOffset.y);
+
+        const nameColor = "rgb(212,191,152)";
+        const scoreFont = "yellow";
+
+        let p = 0;
+
+        let offsetY = this.y(18);
+
+        for(let i = 0; i < this.players.length; i++){
+
+            offsetY += this.y(3);
+            p = this.players[i];
+
+
+            c.font = pingFont;
+            c.fillStyle = "white";
+
+            c.fillText(`TIME:${Math.ceil(p.playtime / 60)}`, nameTitleOffset.x - this.x(4.25), offsetY);
+            c.fillText(`Ping:${p.ping_average}`, nameTitleOffset.x - this.x(4.25), offsetY + this.y(1.1));
+
+            c.drawImage(this.getFlag(p.country), nameTitleOffset.x - this.flagWidth - this.x(0.25) , offsetY + this.y(0.25), this.flagWidth, this.flagHeight);
+
+            
+
+            c.font = defaultFont;
+            c.fillStyle = nameColor;
+            this.highlightPlayer(p.name);
+            c.fillText(p.name, nameTitleOffset.x, offsetY);
+
+            c.fillStyle = scoreFont;
+            this.highlightPlayer(p.name);
+
+            c.fillText(p.score, scoreTitleOffset.x, offsetY);
+
+        }
+
+        c.textAlign = "left";
+    }
+
+    renderMonsterHunt(c){
+
+        this.renderHeader(c);
+
+        this.renderMonsterHuntPlayers(c);
+
+        this.renderFooter(c);
+    }
+
     render(){
 
 
@@ -1163,14 +1254,20 @@ class MatchScreenshot{
         c.fillStyle = "rgba(0,0,0,0.45)";
         c.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        if(this.matchData.team_game){
-            if(!this.bCTF()){
-                this.renderStandardTeamGame(c);
-            }else{
-                this.renderSmartCTF(c);
-            }
+        if(this.matchData.mh){
+
+            this.renderMonsterHunt(c);
+
         }else{
-            this.renderStandard(c);
+            if(this.matchData.team_game){
+                if(!this.bCTF()){
+                    this.renderStandardTeamGame(c);
+                }else{
+                    this.renderSmartCTF(c);
+                }
+            }else{
+                this.renderStandard(c);
+            }
         }
     }
 
@@ -1184,6 +1281,7 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
     const sshotDownload = useRef(null);
     const sshotDownload2 = useRef(null);
     const sshotDownload3 = useRef(null);
+
 
     useEffect(() =>{
         new MatchScreenshot(
