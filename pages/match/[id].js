@@ -1303,7 +1303,7 @@ class PlayerGraphPingData{
 function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
     domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
-    rankingPositions, spreesData}){
+    rankingPositions, spreesData, bMonsterHunt}){
 
     //for default head open graph image
     const imageReg = /^.+\/(.+)\.jpg$/i;
@@ -1372,7 +1372,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
     if(pageSettings["Display Summary"] === "true"){
         elems.push(
-            <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image}/>
+            <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image} bMonsterHunt={bMonsterHunt}/>
         );
     }
 
@@ -1866,6 +1866,7 @@ export async function getServerSideProps({req, query}){
     
 
     if(pageSettings["Display Rankings"] === "true"){
+
         rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
         currentRankings = await rankingsManager.getCurrentPlayersRanking(playerIds, matchInfo.gametype);
 
@@ -1882,6 +1883,8 @@ export async function getServerSideProps({req, query}){
         const spreesManager = new Sprees();
         spreesData = await spreesManager.getMatchData(matchId);
     }
+
+    console.log(matchInfo);
 
     return {
         props: {
@@ -1914,7 +1917,8 @@ export async function getServerSideProps({req, query}){
             "rankingChanges": JSON.stringify(rankingChanges),
             "currentRankings": JSON.stringify(currentRankings),
             "rankingPositions": JSON.stringify(rankingPositions),
-            "spreesData": JSON.stringify(spreesData)
+            "spreesData": JSON.stringify(spreesData),
+            "bMonsterHunt": matchInfo.mh
         }
     };
 

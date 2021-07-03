@@ -4,7 +4,7 @@ import Playtime from '../Playtime/';
 import MatchResult from '../MatchResult/';
 
 
-const MatchSummary = ({info, server, gametype, map, image}) =>{
+const MatchSummary = ({info, server, gametype, map, image, bMonsterHunt}) =>{
 
     if(info === undefined){
 
@@ -60,7 +60,7 @@ const MatchSummary = ({info, server, gametype, map, image}) =>{
             <div className={styles.map}>
                 <MatchResult teamGame={info.team_game} dmWinner={info.dm_winner} dmScore={info.dm_score} totalTeams={info.total_teams}
                 redScore={Math.floor(info.team_score_0)} blueScore={Math.floor(info.team_score_1)} greenScore={Math.floor(info.team_score_2)} 
-                yellowScore={Math.floor(info.team_score_3)} />
+                yellowScore={Math.floor(info.team_score_3)} bMonsterHunt={bMonsterHunt} endReason={info.end_type}/>
                 <TimeStamp key={info.date} timestamp={info.date}/><br/>
                 <span className="yellow">{server}</span><br/>
                 <span className="yellow">{gametype} {(info.insta) ? '(Instagib)' : ''}</span> on <span className="yellow">{map}</span><br/>

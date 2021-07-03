@@ -63,6 +63,8 @@ class MatchesDefaultView extends React.Component{
                             greenScore={Math.floor(match.team_score_2)}
                             yellowScore={Math.floor(match.team_score_3)}
                             matchId={match.id}
+                            bMonsterHunt={match.mh}
+                            endReason={match.end_type}
                             />
                     </div>
                 </div>

@@ -40,7 +40,10 @@ class MatchesTableView extends React.Component{
                     redScore={Math.floor(m.team_score_0)}
                     blueScore={Math.floor(m.team_score_1)}
                     greenScore={Math.floor(m.team_score_2)}
-                    yellowScore={Math.floor(m.team_score_3)}/>
+                    yellowScore={Math.floor(m.team_score_3)}
+                    bMonsterHunt={m.mh}
+                    endReason={m.end_type}
+                    />
                 </td>
             </tr>);
 

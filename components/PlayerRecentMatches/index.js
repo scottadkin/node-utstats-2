@@ -11,6 +11,7 @@ import React from 'react';
 import MatchResultSmall from '../MatchResultSmall';
 
 const getMatchScores = (scores, id) =>{
+    
 
     for(let i = 0; i < scores.length; i++){
 
@@ -244,15 +245,49 @@ class PlayerRecentMatches extends React.Component{
         let mapImage = 0;
         let currentServerName = "";
 
+        let currentResultString = "";
+
         for(let i = 0; i < matches.length; i++){
 
             m = matches[i];
 
             currentScore = getMatchScores(scores, m.match_id);
 
-            currentWinnerClass = (m.winner) ? "green" : (m.draw) ? "Draw" : "red";
-
             if(currentScore === null) continue;
+
+            //(m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"
+
+            //currentWinnerClass = (m.winner) ? "green" : (m.draw) ? "draw" : "red";
+
+            if(m.winner){
+
+                currentWinnerClass = "green";
+                currentResultString = "Won the Match";
+
+            }else{
+
+                if(m.draw){
+                    currentWinnerClass = "yellow";
+                    currentResultString = "Drew the Match";
+                }else{
+                    currentWinnerClass = "red";
+                    currentResultString = "Lost the Match";
+                }
+            }
+
+
+            if(currentScore.mh){
+
+                if(currentScore.end_type.toLowerCase() === "hunt successfull!"){
+                 
+                    currentWinnerClass = "green";
+                    currentResultString = "Won the Match";
+                }else{
+                    currentWinnerClass = "red";
+                    currentResultString = "Lost the Match";
+                }
+            }
+
 
             currentGametype = gametypes[currentScore.gametype];
 
@@ -269,7 +304,7 @@ class PlayerRecentMatches extends React.Component{
                 elems.push(<Link key={i} href={`/match/${m.match_id}`} key={m.id}><a>
                     <div className={styles.wrapper}>
                         <div className={`${styles.title} ${currentWinnerClass}`}> 
-                            { (m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"}
+                            { currentResultString}
                         </div>
                         <div className={styles.image}>
                             <Image width={384} height={216} src={mapImage} />
@@ -282,7 +317,9 @@ class PlayerRecentMatches extends React.Component{
                             Players <span className="yellow">{m.players}</span>
                         </div>
                         <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
-                        redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3} />
+                        redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3} 
+                        bMonsterHunt={currentScore.mh} endReason={currentScore.end_type}
+                        />
                     </div>
                 </a></Link>);
 
@@ -295,9 +332,14 @@ class PlayerRecentMatches extends React.Component{
                     <td><Link href={`/match/${m.match_id}`}><a>{m.mapName}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a>{m.players}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a><MMSS timestamp={m.playtime}/></a></Link></td>
-                    <td><Link href={`/match/${m.match_id}`}><a><MatchResultSmall dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
-                        redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}/></a></Link></td>
-                    <td className={`${styles.title} ${currentWinnerClass}`}><Link href={`/match/${m.match_id}`}><a> { (m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"}</a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}><a>
+                        <MatchResultSmall dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
+                        redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}
+                        bMonsterHunt={currentScore.mh} endReason={currentScore.end_type}/>
+                    </a></Link></td>
+                    <td className={`${styles.title} ${currentWinnerClass}`}>
+                        <Link href={`/match/${m.match_id}`}><a> {currentResultString}</a></Link>
+                    </td>
                     
                     
                 </tr>);
