@@ -234,7 +234,17 @@ class PlayerFragsGraphData{
                 if(currentVictim === undefined) continue;
                 if(currentKiller === undefined) continue;
 
-                currentKiller.teamKills.push(currentKiller.teamKills[currentKiller.teamKills.length - 1] + 1);
+                if(this.totalTeams > 0){
+                    currentKiller.teamKills.push(currentKiller.teamKills[currentKiller.teamKills.length - 1] + 1);
+                    this.updateOthers(k.killer, 'teamKills');
+                }else{
+
+                    currentKiller.kills.push(
+                        currentKiller.kills[currentKiller.kills.length - 1] + 1
+                        
+                    );
+                    this.updateOthers(k.killer, 'kills');
+                }
                 currentVictim.deaths.push(currentVictim.deaths[currentVictim.deaths.length - 1] + 1);
 
                 if(this.totalTeams > 0){
@@ -248,7 +258,7 @@ class PlayerFragsGraphData{
                     );
                 }
 
-                this.updateOthers(k.killer, 'teamKills');
+                
                 this.updateOthers(k.victim, 'deaths');
 
                 if(this.totalTeams > 0){
@@ -1384,25 +1394,34 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     }
 
     if(pageSettings["Display Frag Summary"] === "true"){
-        elems.push(
-            <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}
-            matchId={parsedInfo.id}/>
-        );
+
+        if(!parsedInfo.mh){
+            elems.push(
+                <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}
+                matchId={parsedInfo.id}/>
+            );
+        }else{
+
+        }
     }
 
     if(pageSettings["Display Frags Graphs"] === "true"){
-        const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
 
-        const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
+        if(!parsedInfo.mh){
 
-        elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
+            const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
 
-        if(parsedInfo.total_teams > 0){
+            const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
 
-            const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
-            playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
-        
-            elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
+            elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
+
+            if(parsedInfo.total_teams > 0){
+
+                const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
+                playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
+            
+                elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
+            }
         }
     }
 
@@ -1528,9 +1547,12 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     }
 
     if(pageSettings["Display Kills Match Up"] === "true"){
-        elems.push(
-            <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
-        );
+
+        if(!parsedInfo.mh){
+            elems.push(
+                <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
+            );
+        }
     }
 
     if(pageSettings["Display Powerup Control"] === "true"){
@@ -1598,10 +1620,13 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     }
 
     if(pageSettings["Display Team Changes"] === "true"){
-        if(parsedInfo.team_game){
-            elems.push(
-                <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames} matchId={parsedInfo.id}/>
-            );
+
+        if(!parsedInfo.mh){
+            if(parsedInfo.team_game){
+                elems.push(
+                    <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames} matchId={parsedInfo.id}/>
+                );
+            }
         }
     }
 
