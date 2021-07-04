@@ -225,7 +225,16 @@ export async function getServerSideProps({req, query}){
     const serverManager = new Servers();
     const mapManager = new Maps();
 
-    let perPage = 25;
+    const settings = new SiteSettings();
+    const navSettings = await settings.getCategorySettings("Navigation");
+
+    const pageSettings = await settings.getCategorySettings("Matches Page");
+
+
+    console.log(session.settings);
+
+    const defaultPerPage = pageSettings["Default Display Per Page"];
+    let perPage = defaultPerPage;
     let page = 1;
     let gametype = 0;
     let displayType = 0;
@@ -234,13 +243,20 @@ export async function getServerSideProps({req, query}){
 
         perPage = parseInt(query.perPage);
 
-        if(perPage !== perPage){
-            perPage = 25;
-        }
+    }else{
 
-        if(perPage > 100 || perPage < 1){
-            perPage = 25;
+        if(session.settings.matchesPerPage !== undefined){
+
+            perPage = parseInt(session.settings.matchesPerPage);
         }
+    }
+
+    if(perPage !== perPage){
+        perPage = defaultPerPage;
+    }
+
+    if(perPage > 100 || perPage < 1){
+        perPage = defaultPerPage;
     }
 
     if(query.page !== undefined){
@@ -260,31 +276,27 @@ export async function getServerSideProps({req, query}){
 
         gametype = parseInt(query.gametype);
 
-        if(gametype !== gametype){
-            gametype = 0;
-        }
-
     }else{
 
-
-        if(session.cookies["matchesGametype"] !== undefined){
+        if(session.settings.matchesGametype !== undefined){
             
-            gametype = parseInt(session.cookies["matchesGametype"]);
-
-            if(gametype !== gametype) gametype = 0;
+            gametype = parseInt(session.settings.matchesGametype);
         }
     }
+
+    if(gametype !== gametype) gametype = 0;
 
     if(query.displayType !== undefined){
 
         displayType = parseInt(query.displayType);
 
-        if(displayType !== displayType){
+    }
+
+    if(displayType !== displayType){
+        displayType = 0;
+    }else{
+        if(displayType !== 0 && displayType !== 1){
             displayType = 0;
-        }else{
-            if(displayType !== 0 && displayType !== 1){
-                displayType = 0;
-            }
         }
     }
 
@@ -331,12 +343,6 @@ export async function getServerSideProps({req, query}){
 
     const mapImages = await mapManager.getImages(justMapNames);
 
-    
-
-    const settings = new SiteSettings();
-    const navSettings = await settings.getCategorySettings("Navigation");
-
-    const pageSettings = await settings.getCategorySettings("Matches Page");
 
 
     return {
