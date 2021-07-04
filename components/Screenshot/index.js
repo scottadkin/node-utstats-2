@@ -1193,6 +1193,11 @@ class MatchScreenshot{
             "y": this.y(18)
         };
 
+        const pingOffset = {
+            "x": this.x(75),
+            "y": this.y(18)
+        };
+
         c.fillText("Hunter", nameTitleOffset.x, nameTitleOffset.y);
         c.fillText("Score", scoreTitleOffset.x, scoreTitleOffset.y);
 
@@ -1203,6 +1208,8 @@ class MatchScreenshot{
 
         let offsetY = this.y(18);
 
+        let fph = 0;
+
         for(let i = 0; i < this.players.length; i++){
 
             offsetY += this.y(3);
@@ -1210,10 +1217,18 @@ class MatchScreenshot{
 
 
             c.font = pingFont;
-            c.fillStyle = "white";
+            c.fillStyle = "rgb(56,194,44)";
 
-            c.fillText(`TIME:${Math.ceil(p.playtime / 60)}`, nameTitleOffset.x - this.x(4.25), offsetY);
-            c.fillText(`Ping:${p.ping_average}`, nameTitleOffset.x - this.x(4.25), offsetY + this.y(1.1));
+            fph = 0;
+
+            if(p.score !== 0){
+                fph = p.score / (p.playtime / (60 * 60));
+            }
+
+            c.fillText(`TIME:${Math.ceil(p.playtime / 60)}`, pingOffset.x , offsetY);
+            c.fillText(`FPH:${Math.ceil(fph)}`, pingOffset.x , offsetY + this.y(1.2));
+            c.fillText(`Ping:${p.ping_average}`, pingOffset.x + this.x(3), offsetY );
+            c.fillText(`Loss:0%`, pingOffset.x + this.x(3), offsetY + this.y(1.2));
 
             c.drawImage(this.getFlag(p.country), nameTitleOffset.x - this.flagWidth - this.x(0.25) , offsetY + this.y(0.25), this.flagWidth, this.flagHeight);
 
