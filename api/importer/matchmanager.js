@@ -559,6 +559,23 @@ class MatchManager{
 
     setMatchWinners(){
 
+        
+        if(this.gameInfo.endReason.toLowerCase() === "hunt successfull!"){
+
+            let p = 0;
+
+            for(let i = 0; i < this.playerManager.players.length; i++){
+
+                p = this.playerManager.players[i];
+
+                if(p.bPlayedInMatch && !p.bSpectator){
+                    p.bWinner = true;
+                }
+            }
+
+            return;
+        }
+
         if(this.gameInfo.teamgame){
 
             new Message(`Match is a team game.`,'note');
