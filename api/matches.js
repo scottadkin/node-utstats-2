@@ -795,6 +795,7 @@ class Matches{
             Functions.setIdNames(playersData, playerNames, "player_id", "name");
 
             await players.reduceTotals(playersData, matchData.gametype);
+            await players.deleteMatchData(id);
 
             await this.deleteMatchQuery(matchData.id);
 
