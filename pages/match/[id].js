@@ -40,7 +40,9 @@ import Rankings from '../../api/rankings';
 import MatchRankingChanges from '../../components/MatchRankingChanges/';
 import AdminMatchControl from '../../components/AdminMatchControl/';
 import Sprees from '../../api/sprees';
-import MatchSprees from '../../components/MatchSprees/'
+import MatchSprees from '../../components/MatchSprees/';
+import MonsterHunt from '../../api/monsterhunt';
+import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSummary/';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1396,12 +1398,17 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     if(pageSettings["Display Frag Summary"] === "true"){
 
         if(!parsedInfo.mh){
+
             elems.push(
                 <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}
                 matchId={parsedInfo.id}/>
             );
+
         }else{
 
+            elems.push(
+                <MatchMonsterHuntFragSummary key={`mh-frags`} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>
+            );
         }
     }
 
@@ -1556,14 +1563,19 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     }
 
     if(pageSettings["Display Powerup Control"] === "true"){
-        elems.push(<MatchPowerUpControl key={`match-power-control`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>);
+        if(!parsedInfo.mh){
+            elems.push(<MatchPowerUpControl key={`match-power-control`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>);
+        }
     }
 
 
     if(pageSettings["Display Weapon Statistics"] === "true"){
-        elems.push(
-            <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
-        );
+
+        if(!parsedInfo.mh){
+            elems.push(
+                <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
+            );
+        }
     }
 
     if(pageSettings["Display Pickup Summary"] === "true"){
@@ -1909,7 +1921,18 @@ export async function getServerSideProps({req, query}){
         spreesData = await spreesManager.getMatchData(matchId);
     }
 
-    console.log(matchInfo);
+
+    let monsterHuntKills = [];
+    let monsterHuntPlayerKillTotals = [];
+    let monsterImages = [];
+
+    if(matchInfo.mh){
+
+        const monsterHuntManager = new MonsterHunt();
+
+        monsterHuntPlayerKillTotals = await monsterHuntManager.getPlayerMatchKillTotals(matchId);
+
+    }
 
     return {
         props: {
@@ -1943,7 +1966,8 @@ export async function getServerSideProps({req, query}){
             "currentRankings": JSON.stringify(currentRankings),
             "rankingPositions": JSON.stringify(rankingPositions),
             "spreesData": JSON.stringify(spreesData),
-            "bMonsterHunt": matchInfo.mh
+            "bMonsterHunt": matchInfo.mh,
+            "monsterHuntPlayerKillTotals": JSON.stringify(monsterHuntPlayerKillTotals)
         }
     };
 

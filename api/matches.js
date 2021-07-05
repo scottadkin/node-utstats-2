@@ -446,7 +446,7 @@ class Matches{
             //get older ids
             //the delete them one by one
 
-            console.log(logFileNames);
+            //console.log(logFileNames);
 
 
             const names = [];
@@ -456,12 +456,12 @@ class Matches{
                 names.push(logFileNames[i].name);
             }
 
-            console.log(names);
+            //console.log(names);
 
             const matchIds = await this.getLogIds(names);
 
-            console.log("matchIds");
-            console.log(matchIds);
+            //console.log("matchIds");
+            //console.log(matchIds);
            // return await this.getPreviousDuplicates(latestIds, names);
 
             

@@ -552,6 +552,12 @@ class MonsterHunt{
         await mysql.simpleUpdate(query, [kills, matchId]);
     }
 
+
+    async getPlayerMatchKillTotals(matchId){
+
+        return mysql.simpleFetch("SELECT player,monster,kills FROM nstats_monsters_player_match WHERE match_id=?",[matchId]);
+    }
+
 }
 
 module.exports = MonsterHunt;

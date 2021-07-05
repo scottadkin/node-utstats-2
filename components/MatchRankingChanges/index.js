@@ -39,8 +39,6 @@ const MatchRankingChanges = ({changes, currentRankings, playerNames, positions, 
     currentRankings = JSON.parse(currentRankings);
     positions = JSON.parse(positions);
 
-    console.table(currentRankings);
-
     const rows = [];
 
     let c = 0;

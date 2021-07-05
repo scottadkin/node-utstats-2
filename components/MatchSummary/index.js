@@ -18,8 +18,6 @@ const MatchSummary = ({info, server, gametype, map, image, bMonsterHunt}) =>{
 
     const motd = info.motd.split('\n');
 
-    console.log(motd);
-
     if(info.email === '') info.email = 'Not specified';
 
     let mutatorsElem = null;
