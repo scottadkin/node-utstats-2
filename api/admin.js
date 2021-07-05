@@ -100,8 +100,6 @@ class Admin{
 
             }
 
-            //await matchManager.deleteMatch(toDelete[1]);
-
             const affectedGametypes = [];
 
             let currentGametype = 0;
