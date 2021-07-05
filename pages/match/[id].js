@@ -43,6 +43,7 @@ import Sprees from '../../api/sprees';
 import MatchSprees from '../../components/MatchSprees/';
 import MonsterHunt from '../../api/monsterhunt';
 import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSummary/';
+import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonsterKills/'
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1315,7 +1316,7 @@ class PlayerGraphPingData{
 function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
     domPlayerScoreData, ctfCaps, ctfEvents,
     assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
-    rankingPositions, spreesData, bMonsterHunt}){
+    rankingPositions, spreesData, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
     //for default head open graph image
     const imageReg = /^.+\/(.+)\.jpg$/i;
@@ -1539,6 +1540,12 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
             />
         );
 
+    }
+
+    if(parsedInfo.mh){
+
+        elems.push(<MatchMonsterHuntMonsterKills key={"mh-monsters"} images={JSON.parse(monsterImages)} monsterNames={JSON.parse(monsterNames)}
+        playerData={JSON.parse(playerData)} monsterKills={JSON.parse(monsterHuntPlayerKillTotals)} matchId={parsedInfo.id}/>);
     }
 
     if(pageSettings["Display Special Events"] === "true"){
@@ -1925,12 +1932,39 @@ export async function getServerSideProps({req, query}){
     let monsterHuntKills = [];
     let monsterHuntPlayerKillTotals = [];
     let monsterImages = [];
+    let monsterNames = [];
 
     if(matchInfo.mh){
 
         const monsterHuntManager = new MonsterHunt();
 
         monsterHuntPlayerKillTotals = await monsterHuntManager.getPlayerMatchKillTotals(matchId);
+
+        const monsterIds = [];
+
+        for(let i = 0; i < monsterHuntPlayerKillTotals.length; i++){
+
+            if(monsterIds.indexOf(monsterHuntPlayerKillTotals[i].monster) === -1){
+
+                monsterIds.push(monsterHuntPlayerKillTotals[i].monster);
+            }
+        }
+
+        monsterNames = await monsterHuntManager.getMonsterNames(monsterIds);
+
+        const monsterClasses = [];
+
+        for(let i = 0; i < monsterNames.length; i++){
+
+            if(monsterClasses.indexOf(monsterNames[i].class_name) === -1){
+
+                monsterClasses.push(monsterNames[i].class_name);
+            }
+        }
+
+        monsterImages = monsterHuntManager.getImages(monsterClasses);
+
+        console.log(monsterNames);
 
     }
 
@@ -1967,7 +2001,9 @@ export async function getServerSideProps({req, query}){
             "rankingPositions": JSON.stringify(rankingPositions),
             "spreesData": JSON.stringify(spreesData),
             "bMonsterHunt": matchInfo.mh,
-            "monsterHuntPlayerKillTotals": JSON.stringify(monsterHuntPlayerKillTotals)
+            "monsterHuntPlayerKillTotals": JSON.stringify(monsterHuntPlayerKillTotals),
+            "monsterImages": JSON.stringify(monsterImages),
+            "monsterNames": JSON.stringify(monsterNames)
         }
     };
 

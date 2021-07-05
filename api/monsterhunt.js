@@ -558,6 +558,36 @@ class MonsterHunt{
         return mysql.simpleFetch("SELECT player,monster,kills FROM nstats_monsters_player_match WHERE match_id=?",[matchId]);
     }
 
+
+    async getMonsterNames(ids){
+
+        if(ids.length === 0) return [];
+
+        return await mysql.simpleFetch("SELECT id,class_name,display_name FROM nstats_monsters WHERE id IN(?)",[ids]);
+    }
+
+    getImages(classNames){
+
+
+        const currentFiles = fs.readdirSync("./public/images/monsters");
+
+        console.table(currentFiles);
+
+        const found = {};
+
+        for(let i = 0; i < classNames.length; i++){
+
+            if(currentFiles.indexOf(`${classNames[i]}.png`) !== -1){
+                found[classNames[i]] = `${classNames[i]}.png`;
+            }else{
+                found[classNames[i]] = "default.png";
+            }
+        }
+
+        console.log(found);
+
+        return found;
+    }
 }
 
 module.exports = MonsterHunt;
