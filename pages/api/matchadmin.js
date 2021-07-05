@@ -11,8 +11,6 @@ export default async (req, res) =>{
         await session.load();
 
         if(session.settings.bAdmin){
-            
-            console.log(req.body);
 
             const matchManager = new Matches();
 

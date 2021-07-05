@@ -916,6 +916,8 @@ class Player{
 
             matchData.name = mapIterator.next().value;
 
+            let currentDMWinner = "";
+
             if(matchData !== null){
 
                 const countriesManager = new CountriesManager();
@@ -933,7 +935,6 @@ class Player{
                 const domManager = new Domination();
 
                 await domManager.deletePlayerFromMatch(playerId, matchId);
-
 
                 const monsterHuntManager = new MonsterHunt();
 
@@ -1000,6 +1001,17 @@ class Player{
                 await this.deletePlayerMatch(playerId, matchId);
 
                 await matchManager.reducePlayerCount(matchId, 1);
+
+                console.log(matchData.name);
+
+                currentDMWinner = await matchManager.getDmWinner(matchId);
+
+                
+                if(currentDMWinner === matchData.name){
+                    await matchManager.recalculateDmWinner(matchId, this);
+                }
+
+               // await matchManager.renameSingleDMMatchWinner(matchId, oldName, matchData.name);
 
             }
 

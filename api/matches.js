@@ -826,6 +826,54 @@ class Matches{
         return await mysql.simpleUpdate("UPDATE nstats_matches SET dm_winner=? WHERE dm_winner=?", [newName, oldName]);
     }
 
+    async renameMatchDmWinner(matchId, name, score){
+
+        return await mysql.simpleUpdate("UPDATE nstats_matches SET dm_winner=?,dm_score=? WHERE id=?", [name, score, matchId]);
+    }
+
+    async getDmWinner(matchId){
+
+        const query = "SELECT dm_winner FROM nstats_matches WHERE id=?";
+
+        const result = await mysql.simpleFetch(query, [matchId]);
+
+        if(result.length > 0){
+            return result[0].dm_winner;
+        }
+
+        return "";
+    }
+
+    async getPlayerMatchTopScore(matchId){
+
+        return await mysql.simpleFetch("SELECT player_id,score FROM nstats_player_matches WHERE match_id=? ORDER BY score DESC LIMIT 1",[matchId]);
+    }
+
+
+    async recalculateDmWinner(matchId, playerManager){
+
+        try{
+
+            const score = await this.getPlayerMatchTopScore(matchId);
+
+            if(score.length > 0){
+
+                const playerName = await playerManager.getNames([score[0].player_id]);
+
+                if(playerName.size > 0){
+
+                    await this.renameMatchDmWinner(matchId, playerName.get(score[0].player_id), score[0].score);
+                }
+
+            }else{
+                console.log("Can't update dm winner, there is no player data found for that match.");
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
 
     async getAllPlayerMatchIds(playerId){
 
