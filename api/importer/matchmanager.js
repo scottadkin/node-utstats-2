@@ -57,6 +57,10 @@ class MatchManager{
             this.spawnManager = new SpawnManager();
             this.playerManager = new PlayerManager(this.playerLines, this.spawnManager);
             this.killManager = new KillManager(this.killLines, this.playerManager);
+
+            if(this.mapInfo.mapPrefix === "mh"){
+                this.gameInfo.totalTeams = 0;
+            }
             
             
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());

@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap');
 
 :root{
-	--color-1:rgb(32,32,32);
-	--color-2:rgb(46,46,46);
-	--color-3:rgb(26,26,26);
-	--color-3a:rgba(26,26,26,0.8);
-	--color-4:rgb(64,64,64);
-	--color-hf:rgb(100,100,100);
-	--lg-hf:linear-gradient(to bottom, rgb(0,0,0), rgb(32,32,32));
+	--color-1:rgb(22,22,22);
+	--color-2:rgb(36,36,36);
+	--color-3:rgb(16,16,16);
+	--color-3a:rgba(16,16,16,0.8);
+	--color-4:rgb(54,54,54);
+	--color-hf:rgb(90,90,90);
+	--lg-hf:linear-gradient(to bottom, rgb(0,0,0), rgb(22,22,22));
 	--border-color-1:rgba(255,255,255,0.25);
 	--border-color-2:rgba(255,255,255,0.125);
 	--transition-1:all 0.5s;
@@ -41,8 +41,9 @@ a {
 
 main{
 	min-height:100vh;
+	min-width:100vw;
 	position:relative;
-	background-color:rgba(3,3,3,0.85);
+	background-color:rgba(3,3,3,0.95);
 }
 
 header{
@@ -92,7 +93,7 @@ footer{
 	text-align:center;
 	font-size:22px;
 	color:white;
-	font-weight:400;
+	font-weight:300;
 	padding-bottom:20px;
 	padding-top:20px;
 	width:90%;

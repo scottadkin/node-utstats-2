@@ -10,7 +10,7 @@ class MatchItemPickups extends React.Component{
 
         super(props);
 
-        this.state = {"offset": 0, "maxDisplay": 10};
+        this.state = {"offset": 0, "maxDisplay": 7};
 
         this.changePage = this.changePage.bind(this);
     }
@@ -72,7 +72,7 @@ class MatchItemPickups extends React.Component{
 
         for(let i = offset; i < max; i++){
 
-            subElems.push(<th key={i} style={{"fontSize": "10px"}}>{this.props.names[i].name}</th>);
+            subElems.push(<th key={i}>{this.props.names[i].name}</th>);
         }
 
         elems.push(<tr key={`top`}>{subElems}</tr>);
