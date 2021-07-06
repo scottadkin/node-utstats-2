@@ -4,6 +4,8 @@ const fs = require('fs');
 const Promise = require('promise');
 const EventEmitter = require('events');
 const Message = require('../message');
+const mysql = require('../database');
+const Logs = require('../logs');
 
 class MyEmitter extends EventEmitter {}
 
@@ -67,10 +69,9 @@ class FTPImporter{
                 try{
     
                     if(err){
-                        console.log(err);
                         reject(err);
                     }else{
-                        this.sortFiles(files);
+                        await this.sortFiles(files);
                         await this.downloadLogFiles();
                     }
 
@@ -83,10 +84,12 @@ class FTPImporter{
         });
     }
 
-    sortFiles(files){
+    async sortFiles(files){
 
         const extReg = /^.+\.log$/i;
         let f = 0;
+
+        let bAlreadyImported = false;
 
         for(let i = 0; i < files.length; i++){
 
@@ -96,13 +99,20 @@ class FTPImporter{
 
                 if(f.name.toLowerCase().startsWith(config.logFilePrefix)){
 
-                    this.logsFound.push(f);
+                    bAlreadyImported = await Logs.bExists(f.name);
+
+                    if(!bAlreadyImported){
+                        this.logsFound.push(f);
+                    }else{
+                        new Message(`${f.name} has already been imported, skipping.`,'note');
+                    }
 
                 }else{
                     new Message(`${f.name} does not have the required prefix of ${config.logFilePrefix}`, 'error');
                 }
             }
         }
+
     }
 
     downloadFile(target, destination){
@@ -136,6 +146,7 @@ class FTPImporter{
                 // why did i not add this here before?
                 
                 stream.on('end', () =>{
+
                     new Message(`Downloaded ${this.host}:${this.port}${target}`, "pass");
 
                     resolve();

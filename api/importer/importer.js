@@ -13,6 +13,7 @@ class Importer{
     constructor(host, port, user, password, targetDir, bDeleteAfter){
 
         this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter);
+        
         this.updatedPlayers = [];
         this.updatedGametypes = [];
 
@@ -38,12 +39,9 @@ class Importer{
                 
                 this.logsToImport = [];
                 await this.checkLogsFolder();
+
                 console.table(this.logsToImport);
-                /*const testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[this.logsToImport.length - 1]}`)
-
-                const test = new MatchManager(testData, `${this.logsToImport[this.logsToImport.length - 1]}`);
-
-                test.import();*/
+ 
 
                 let test = 0;
                 let testData = 0;
@@ -55,12 +53,14 @@ class Importer{
                 for(let i = 0; i < this.logsToImport.length; i++){
 
                     new Message(`Starting import of log number ${imported + 1} of ${this.logsToImport.length}`,'progress');
+                    
                     testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
                     
                     test = new MatchManager(testData, this.logsToImport[i]);
 
                     currentData = await test.import();
 
+                    fs.renameSync(`${config.importedLogsFolder}/${this.logsToImport[i]}`,`Logs/imported/${this.logsToImport[i]}`);
 
                     this.addUpdatedPlayers(currentData.updatedPlayers);
                     this.addUpdatedGametype(currentData.updatedGametype);
@@ -101,9 +101,9 @@ class Importer{
     async checkLogsFolder(){
 
         try{
-            const files = fs.readdirSync(`${this.targetDir}Logs/`);
 
-            console.table(files);
+
+            const files = fs.readdirSync(`Logs/`);
 
             const fileExtReg = /^.+\.log$/i;
 

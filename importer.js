@@ -70,6 +70,8 @@ function startNewImport(ftpServer){
 
         }
 
+        process.exit(0);
+
     }catch(err){
         console.trace(err);
         new Message(err, "error");
