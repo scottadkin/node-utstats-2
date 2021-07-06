@@ -40,7 +40,7 @@ class Importer{
                 this.logsToImport = [];
                 await this.checkLogsFolder();
 
-                console.table(this.logsToImport);
+                //console.table(this.logsToImport);
  
 
                 let test = 0;
@@ -122,7 +122,7 @@ class Importer{
                     }
 
                 }else{
-                    new Message(`${files[i]} is not a log file.`,'error');
+                    //new Message(`${files[i]} is not a log file.`,'error');
                 }
             }
 

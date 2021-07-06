@@ -20,6 +20,7 @@ class FTPImporter{
         this.user = user;
         this.password = password;
         this.targetDir = targetDir;
+        
         this.bDeleteAfter = bDeleteAfter;
 
         this.logsFound = [];
@@ -123,7 +124,13 @@ class FTPImporter{
 
                 if(err) reject(err);
 
-                stream.once('close', () =>{
+
+                stream.pipe(fs.createWriteStream(destination));
+                // why did i not add this here before?
+                
+                stream.on('end', () =>{
+
+                    new Message(`Downloaded ${this.host}:${this.port}${target}`, "pass");
 
                     if(this.bDeleteAfter){
 
@@ -137,19 +144,10 @@ class FTPImporter{
                         });
 
                     }else{
+                        console.log("DONT DELETE AFTER IMPORT");
                         resolve();
                     }
-                });
 
-
-                stream.pipe(fs.createWriteStream(destination));
-                // why did i not add this here before?
-                
-                stream.on('end', () =>{
-
-                    new Message(`Downloaded ${this.host}:${this.port}${target}`, "pass");
-
-                    resolve();
                 });
 
                 
