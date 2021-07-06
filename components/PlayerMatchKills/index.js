@@ -106,12 +106,17 @@ class PlayerMatchKills extends React.Component{
 
     render(){
 
+
         if(this.props.data.length === 0) return null;
+
+        const elems = this.renderKillsTable();
+
+        if(elems.length === 0) return null;
 
         return <div className="m-bottom-25">
             <div className="default-header">Kills Summary</div>
 
-            {this.renderKillsTable()}
+            {elems}
         </div>
     }
 }

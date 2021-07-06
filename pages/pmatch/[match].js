@@ -40,6 +40,7 @@ import Domination from '../../api/domination';
 import PlayerMatchDomination from '../../components/PlayerMatchDomination';
 import Assault from '../../api/assault';
 import PlayerMatchAssault from '../../components/PlayerMatchAssault';
+import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSummary";
 
 
 class PlayerMatch extends React.Component{
@@ -82,6 +83,8 @@ class PlayerMatch extends React.Component{
 
         const domPointNames = JSON.parse(this.props.domPointNames);
         const playerDomCaps = JSON.parse(this.props.playerDomCaps);
+
+        console.log(parsedInfo);
         
 
         return <div>
@@ -106,6 +109,7 @@ class PlayerMatch extends React.Component{
                             gametype={this.props.gametype}
                             map={this.props.map} 
                             image={this.props.mapImage}
+                            bMonsterHunt={parsedInfo.mh}
                         />
 
                         <Screenshot 
@@ -120,13 +124,15 @@ class PlayerMatch extends React.Component{
                             highlight={playerData.name}
                         />
 
-                        <MatchFragSummary 
-                            playerData={[playerMatchData]} 
-                            totalTeams={parsedInfo.total_teams}
-                            matchStart={parsedInfo.start}
-                            single={true}
-                            
-                        />
+                        {(parsedInfo.mh) ? <MatchMonsterHuntFragSummary single={true} matchStart={parsedInfo.start} playerData={[playerMatchData]}/> :
+                            <MatchFragSummary 
+                                playerData={[playerMatchData]} 
+                                totalTeams={parsedInfo.total_teams}
+                                matchStart={parsedInfo.start}
+                                single={true}
+                                
+                            />
+                        }
 
                         {(!this.props.bCTF) ? null :
                             <PlayerMatchCTF player={playerMatchData} playerData={this.props.players} caps={this.props.ctfCaps} matchId={parsedInfo.id} matchStart={parsedInfo.start}/>
@@ -158,10 +164,12 @@ class PlayerMatch extends React.Component{
                             superHealth={playerMatchData.super_health}
                         />
 
-                        <PlayerMatchWeapons 
-                            data={JSON.parse(this.props.playerWeaponData)}
-                            names={JSON.parse(this.props.weaponNames)}
-                        />
+                        {(parsedInfo.mh) ? null :
+                            <PlayerMatchWeapons 
+                                data={JSON.parse(this.props.playerWeaponData)}
+                                names={JSON.parse(this.props.weaponNames)}
+                            />
+                        }
                       
                         <PlayerMatchPickups 
                             data={JSON.parse(this.props.pickupData)}

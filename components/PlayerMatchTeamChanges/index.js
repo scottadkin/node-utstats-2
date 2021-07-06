@@ -12,6 +12,8 @@ const PlayerMatchTeamChanges = ({data, matchStart}) =>{
         </tr>);
     }
 
+    if(data.length === 0) return null;
+
     return <div className="m-bottom-25">
         <div className="default-header">Team Summary</div>
 

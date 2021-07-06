@@ -24,9 +24,9 @@ class MatchMonsterHuntFragSummary extends React.Component{
             p = this.props.playerData[i];
 
             rows.push(<tr key={i}>
-                <td className="team-none">
+                {(this.props.single !== undefined) ? null : <td className="team-none text-left">
                     <Link href={`/pmatch/${this.props.matchId}/?player=${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link>
-                </td>
+                </td>}
                 <td>{Functions.MMSS(p.playtime - this.props.matchStart)}</td>
                 <td>{Functions.ignore0(p.team_kills)}</td>
                 <td>{Functions.ignore0(p.deaths + p.suicides)}</td>
@@ -36,10 +36,10 @@ class MatchMonsterHuntFragSummary extends React.Component{
             </tr>);
         }
 
-        return <table className="t-width-1 td-1-left td-1-150">
+        return <table className="t-width-1 td-1-150">
             <tbody>
                 <tr>
-                    <th>Player</th>
+                    {(this.props.single !== undefined) ? null : <th>Player</th>}
                     <th>Playtime</th>
                     <th>Team Kills</th>
                     <th>Deaths</th>
