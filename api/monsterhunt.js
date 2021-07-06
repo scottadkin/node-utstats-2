@@ -571,19 +571,69 @@ class MonsterHunt{
         return await mysql.simpleFetch("SELECT id,class_name,display_name FROM nstats_monsters WHERE id IN(?)",[ids]);
     }
 
+    getSimilarImage(monsterNames, className){
+
+        const reg = /^.+\.(.+)$/i;
+        const result = reg.exec(className);
+
+        if(result !== null){
+            
+            const name = result[1].toLowerCase();
+
+
+            for(let i = 0; i < monsterNames.length; i++){
+
+                if(name.includes(monsterNames[i])){
+                    return i;
+                }
+            }
+
+
+        }
+
+        return null;
+    }
+
     getImages(classNames){
 
 
         const currentFiles = fs.readdirSync("./public/images/monsters");
 
+        const justMonsterNames = [];
+
+        const reg = /^.+?\.(.+)\.png$/i;
+        let result = 0;
+
+        for(let i = 0; i < currentFiles.length; i++){
+
+            result = reg.exec(currentFiles[i]);
+
+            if(result === null){
+                justMonsterNames.push("default");
+            }else{
+                justMonsterNames.push(result[1]);
+            }
+           // cleanedImageNames.push(result[1]);
+        }
+
+
         const found = {};
+
+        let altImageIndex = 0;
 
         for(let i = 0; i < classNames.length; i++){
 
             if(currentFiles.indexOf(`${classNames[i]}.png`) !== -1){
                 found[classNames[i]] = `${classNames[i]}.png`;
             }else{
-                found[classNames[i]] = "default.png";
+
+                altImageIndex = this.getSimilarImage(justMonsterNames, classNames[i]);
+
+                if(altImageIndex !== null){
+                    found[classNames[i]] = currentFiles[altImageIndex];
+                }else{
+                    found[classNames[i]] = "default.png";
+                }
             }
         }
 
