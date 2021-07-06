@@ -1964,7 +1964,7 @@ export async function getServerSideProps({req, query}){
 
         monsterImages = monsterHuntManager.getImages(monsterClasses);
 
-        console.log(monsterNames);
+        //console.log(monsterNames);
 
     }
 

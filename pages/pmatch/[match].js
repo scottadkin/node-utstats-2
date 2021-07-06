@@ -40,7 +40,9 @@ import Domination from '../../api/domination';
 import PlayerMatchDomination from '../../components/PlayerMatchDomination';
 import Assault from '../../api/assault';
 import PlayerMatchAssault from '../../components/PlayerMatchAssault';
+import MonsterHunt from "../../api/monsterhunt";
 import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSummary";
+import PlayerMatchMonsters from  "../../components/PlayerMatchMonsters";
 
 
 class PlayerMatch extends React.Component{
@@ -83,8 +85,6 @@ class PlayerMatch extends React.Component{
 
         const domPointNames = JSON.parse(this.props.domPointNames);
         const playerDomCaps = JSON.parse(this.props.playerDomCaps);
-
-        console.log(parsedInfo);
         
 
         return <div>
@@ -135,7 +135,22 @@ class PlayerMatch extends React.Component{
                         }
 
                         {(!this.props.bCTF) ? null :
-                            <PlayerMatchCTF player={playerMatchData} playerData={this.props.players} caps={this.props.ctfCaps} matchId={parsedInfo.id} matchStart={parsedInfo.start}/>
+                            <PlayerMatchCTF 
+                                player={playerMatchData} 
+                                playerData={this.props.players} 
+                                caps={this.props.ctfCaps} 
+                                matchId={parsedInfo.id} 
+                                matchStart={parsedInfo.start}
+                            />
+                        }
+
+                        {(!parsedInfo.mh) ? null :
+                            <PlayerMatchMonsters 
+                                images={JSON.parse(this.props.monsterImages)} 
+                                monsters={JSON.parse(this.props.monsterNames)} 
+                                playerData={JSON.parse(this.props.playerMonsterKills)}
+                                monsterTotals={JSON.parse(this.props.monsterTotals)}
+                            />
                         }
 
                         <PlayerMatchDomination pointNames={domPointNames} data={playerDomCaps}/>
@@ -395,6 +410,43 @@ export async function getServerSideProps({req, query}){
 
         assaultObjNames = await assaultManager.getMapObjectives(info.map);
     }
+
+    let playerMonsterKills = [];
+    let monsterIds = [];
+    let monsterNames = [];
+    let monsterImages = [];
+    let monsterTotals = [];
+
+    if(info.mh){
+
+        const monsterHuntManager = new MonsterHunt();
+        playerMonsterKills = await monsterHuntManager.getSinglePlayerMatchKillTotals(matchId, playerId);
+
+        for(let i = 0; i < playerMonsterKills.length; i++){
+
+            if(monsterIds.indexOf(playerMonsterKills[i].monster) === -1){
+                monsterIds.push(playerMonsterKills[i].monster);
+            }
+        }
+
+        monsterNames = await monsterHuntManager.getMonsterNames(monsterIds);
+
+        const monsterClassNames = [];
+
+        for(let i = 0; i < monsterNames.length; i++){
+
+            if(monsterClassNames.indexOf(monsterNames[i].class_name) === -1){
+                monsterClassNames.push(monsterNames[i].class_name);
+            }
+        }
+
+        monsterImages = monsterHuntManager.getImages(monsterClassNames);
+
+        monsterTotals = await monsterHuntManager.getMatchMonsterTotals(matchId);
+
+    }
+
+    
     
     return {
         "props": {
@@ -430,7 +482,11 @@ export async function getServerSideProps({req, query}){
             "playerDomCaps": JSON.stringify(playerDomCaps),
             "bCTF": bCTF,
             "assaultObjNames": JSON.stringify(assaultObjNames),
-            "playerAssaultCaps": JSON.stringify(playerAssaultCaps)
+            "playerAssaultCaps": JSON.stringify(playerAssaultCaps),
+            "playerMonsterKills": JSON.stringify(playerMonsterKills),
+            "monsterNames": JSON.stringify(monsterNames),
+            "monsterImages": JSON.stringify(monsterImages),
+            "monsterTotals": JSON.stringify(monsterTotals)
 
         }
     }

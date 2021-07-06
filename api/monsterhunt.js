@@ -558,6 +558,11 @@ class MonsterHunt{
         return mysql.simpleFetch("SELECT player,monster,kills FROM nstats_monsters_player_match WHERE match_id=?",[matchId]);
     }
 
+    async getSinglePlayerMatchKillTotals(matchId, playerId){
+
+        return mysql.simpleFetch("SELECT monster,kills FROM nstats_monsters_player_match WHERE match_id=? AND player=?", [matchId, playerId]);
+    }
+
 
     async getMonsterNames(ids){
 
@@ -571,8 +576,6 @@ class MonsterHunt{
 
         const currentFiles = fs.readdirSync("./public/images/monsters");
 
-        console.table(currentFiles);
-
         const found = {};
 
         for(let i = 0; i < classNames.length; i++){
@@ -583,8 +586,6 @@ class MonsterHunt{
                 found[classNames[i]] = "default.png";
             }
         }
-
-        console.log(found);
 
         return found;
     }

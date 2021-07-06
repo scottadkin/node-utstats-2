@@ -15,7 +15,7 @@ const PlayerMatchRankings = ({data, current, currentPosition}) =>{
 
     return <div className="m-bottom-25">
         <div className="default-header">Match Ranking Summary</div>
-        <table>
+        <table className="t-width-1">
             <tbody>
                 <tr>
                     <th>Previous Ranking</th>
