@@ -138,7 +138,7 @@ class Admin{
         return await mysql.simpleFetch(query);
     }
 
-    async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport){
+    async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles){
 
         const query = `UPDATE nstats_ftp SET
             name=?,
@@ -147,7 +147,8 @@ class Admin{
             user=?,
             password=?,
             target_folder=?,
-            delete_after_import=?
+            delete_after_import=?,
+            delete_tmp_files=?
             WHERE id=?`;
 
         const vars = [
@@ -158,6 +159,7 @@ class Admin{
             password,
             folder,
             deleteAfterImport,
+            deleteTmpFiles,
             id
         ];
 
@@ -167,7 +169,7 @@ class Admin{
 
     async addFTPServer(name, host, port, user, password, folder, deleteAfterImport){
 
-        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0)";
+        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,0)";
 
         const vars = [name, host, port, user, password, folder, deleteAfterImport];
 

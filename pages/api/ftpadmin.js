@@ -32,7 +32,8 @@ export default async (req, res) =>{
                         data.user,
                         data.password,
                         data.target_folder,
-                        data.delete_after_import
+                        data.delete_after_import,
+                        data.delete_tmp_files
 
                     );
 

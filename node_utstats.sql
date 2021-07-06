@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 06, 2021 at 09:34 PM
+-- Generation Time: Jul 06, 2021 at 11:06 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 8.0.7
 
@@ -200,7 +200,8 @@ CREATE TABLE `nstats_ftp` (
   `delete_after_import` tinyint(1) NOT NULL,
   `first` int(11) NOT NULL,
   `last` int(11) NOT NULL,
-  `total_imports` int(11) NOT NULL
+  `total_imports` int(11) NOT NULL,
+  `delete_tmp_files` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

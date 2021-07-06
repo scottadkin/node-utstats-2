@@ -38,6 +38,44 @@ class AdminFTPManager extends React.Component{
         this.addServer = this.addServer.bind(this);
 
         this.deleteServer = this.deleteServer.bind(this);
+
+        this.changeDeleteTMPValue = this.changeDeleteTMPValue.bind(this);
+    }
+
+    changeDeleteTMPValue(e){
+
+        console.log(e);
+
+        const reg = /^tmp_(.+)$/i;
+        const result = reg.exec(e.target.id);
+
+        console.log(e.target.checked);
+
+        if(result !== null){
+
+            const id = parseInt(result[1]);
+
+            if(id === id){
+                this.setTMPValue(id, e.target.checked);
+            }
+        }else{
+            console.log("ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+        }
+    }
+
+    setTMPValue(id, value){
+
+
+        const newServers = Object.assign(this.props.servers);
+
+        for(let i = 0; i < newServers.length; i++){
+
+            if(newServers[i].id === id){       
+                newServers[i].delete_tmp_files = value;
+            }
+        }
+
+        this.props.updateParent(newServers);
     }
 
     removeServerFromList(id){
@@ -147,7 +185,7 @@ class AdminFTPManager extends React.Component{
         return false;
     }
 
-    addServerToList(id, name, host, port, user, password, folder, deleteAfter){
+    addServerToList(id, name, host, port, user, password, folder, deleteAfter, deleteTmp){
 
         const newObject = {
             "id": id,
@@ -160,7 +198,8 @@ class AdminFTPManager extends React.Component{
             "delete_after_import": deleteAfter,
             "first": 0,
             "last": 0,
-            "total_imports": 0
+            "total_imports": 0,
+            "delete_tmp_files": deleteTmp
         };
 
         const data = this.props.servers;
@@ -340,7 +379,10 @@ class AdminFTPManager extends React.Component{
         let folder = e.target[6].value;
 
         let deleteAfterImport = (e.target[7].checked) ? 1 : 0;
-        let serverId = parseInt(e.target[8].value);
+        let deleteTmpFiles = (e.target[8].checked) ? 1 : 0;
+        let serverId = parseInt(e.target[9].value);
+
+        console.log(`deleteTMPFILES = ${deleteTmpFiles}`);
 
         const newData = [];
 
@@ -367,7 +409,8 @@ class AdminFTPManager extends React.Component{
                     "user": user,
                     "password": password,
                     "target_folder": folder,
-                    "delete_after_import": deleteAfterImport
+                    "delete_after_import": deleteAfterImport,
+                    "delete_tmp_files": deleteTmpFiles
                 };
 
                 newData.push(editData);
@@ -398,7 +441,8 @@ class AdminFTPManager extends React.Component{
                     "user": oldServers[i].user,
                     "password": oldServers[i].password,
                     "target_folder": oldServers[i].target_folder,
-                    "delete_after_import": value
+                    "delete_after_import": value,
+                    "delete_tmp_files": oldServers[i].delete_tmp_files
                 });
 
             }else{
@@ -470,6 +514,7 @@ class AdminFTPManager extends React.Component{
                 <td>{s.user}</td>
                 <td>{s.target_folder}</td>
                 <td>{s.delete_after_import}</td>
+                <td>{s.delete_tmp_files}</td>
                 <td>{s.first}</td>
                 <td>{s.last}</td>
                 <td>{s.total_imports}</td>
@@ -487,7 +532,8 @@ class AdminFTPManager extends React.Component{
                         <th>Port</th>
                         <th>User</th>
                         <th>Target Folder</th>
-                        <th>Delete After Import</th>
+                        <th>Delete After Import<br/>(FTP/UnrealTournament/Logs)</th>
+                        <th>Delete TMP files</th>
                         <th>First</th>
                         <th>Last</th>
                         <th>Total</th>
@@ -542,7 +588,8 @@ class AdminFTPManager extends React.Component{
             "user": "",
             "password": "",
             "target_folder": "",
-            "delete_after_import": ""
+            "delete_after_import": "",
+            "delete_tmp_files": ""
         };
     }
 
@@ -672,6 +719,8 @@ class AdminFTPManager extends React.Component{
 
         const selected = this.getServerSettings();
 
+        console.log(selected);
+
         return <div>
             <div className="default-header">Edit Server</div>
             {this.renderEditProgress()}
@@ -718,6 +767,12 @@ class AdminFTPManager extends React.Component{
                     <div className="select-label">Delete Logs From FTP After Import</div>
                     <div>
                         <input id="logs" checked={selected.delete_after_import} id={`delete_${selected.id}`} type="checkbox" onChange={this.changeDeleteValue}/>
+                    </div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Delete TMP files</div>
+                    <div>
+                        <input id="logs" checked={selected.delete_tmp_files} id={`tmp_${selected.id}`} type="checkbox" onChange={this.changeDeleteTMPValue}/>
                     </div>
                 </div>
                 <input type="hidden" value={selected.id}/>
