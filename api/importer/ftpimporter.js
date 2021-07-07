@@ -11,7 +11,7 @@ class MyEmitter extends EventEmitter {}
 
 class FTPImporter{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates){
 
         this.events = new MyEmitter();
 
@@ -23,6 +23,9 @@ class FTPImporter{
         
         this.bDeleteAfter = bDeleteAfter;
         this.bDeleteTmpFiles = bDeleteTmpFiles;
+
+        this.bIgnoreBots = bIgnoreBots;
+        this.bIgnoreDuplicates = bIgnoreDuplicates;
 
         this.logsFound = [];
 
@@ -89,7 +92,7 @@ class FTPImporter{
         });
     }
 
-    deleteTmpFile(url){
+    deleteFile(url){
 
         return new Promise((resolve, reject) =>{
 
@@ -122,11 +125,17 @@ class FTPImporter{
 
                 if(f.name.toLowerCase().startsWith(config.logFilePrefix)){
 
-                    bAlreadyImported = await Logs.bExists(f.name);
+                    if(this.bIgnoreDuplicates){
+                        bAlreadyImported = await Logs.bExists(f.name);
+                    }
 
                     if(!bAlreadyImported){
                         this.logsFound.push(f);
                     }else{
+                        
+                        if(this.bDeleteAfter){
+                            await this.deleteFile(`${this.targetDir}Logs/${f.name}`);
+                        }
                         new Message(`${f.name} has already been imported, skipping.`,'note');
                     }
 
@@ -139,7 +148,7 @@ class FTPImporter{
                 if(f.name.toLowerCase().startsWith(config.logFilePrefix)){
 
                     if(this.bDeleteTmpFiles){
-                        await this.deleteTmpFile(`${this.targetDir}Logs/${f.name}`);
+                        await this.deleteFile(`${this.targetDir}Logs/${f.name}`);
                     }else{
                         new Message(`Delete TMP files is disabled on this server, skipping delete ${this.targetDir}Logs/${f.name}.`,'note');
                     }

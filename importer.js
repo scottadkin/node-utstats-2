@@ -34,7 +34,7 @@ function startNewImport(ftpServer){
 
         const f = ftpServer;
 
-        const I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files);
+        const I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files, f.ignore_bots, f.ignore_duplicates);
 
         I.myEmitter.on("passed", () =>{
 
