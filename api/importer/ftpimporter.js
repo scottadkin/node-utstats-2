@@ -11,7 +11,7 @@ class MyEmitter extends EventEmitter {}
 
 class FTPImporter{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles){
 
         this.events = new MyEmitter();
 
@@ -22,6 +22,7 @@ class FTPImporter{
         this.targetDir = targetDir;
         
         this.bDeleteAfter = bDeleteAfter;
+        this.bDeleteTmpFiles = bDeleteTmpFiles;
 
         this.logsFound = [];
 
@@ -88,9 +89,27 @@ class FTPImporter{
         });
     }
 
+    deleteTmpFile(url){
+
+        return new Promise((resolve, reject) =>{
+
+            this.client.delete(url, (err) =>{
+
+                if(err){
+                    new Message(`Failed to delete ${url}, ${err}`,'error');
+                }else{
+                    new Message(`Deleted ${url} successfully.`,'pass');
+                }
+
+                resolve();
+            });
+        });
+    }
+
     async sortFiles(files){
 
         const extReg = /^.+\.log$/i;
+        const tmpReg = /^.+\.tmp$/i;
         let f = 0;
 
         let bAlreadyImported = false;
@@ -114,6 +133,19 @@ class FTPImporter{
                 }else{
                     new Message(`${f.name} does not have the required prefix of ${config.logFilePrefix}`, 'error');
                 }
+
+            }else if(tmpReg.test(f.name)){
+
+                if(f.name.toLowerCase().startsWith(config.logFilePrefix)){
+
+                    if(this.bDeleteTmpFiles){
+                        await this.deleteTmpFile(`${this.targetDir}Logs/${f.name}`);
+                    }else{
+                        new Message(`Delete TMP files is disabled on this server, skipping delete ${this.targetDir}Logs/${f.name}.`,'note');
+                    }
+
+                }
+                
             }
         }
 

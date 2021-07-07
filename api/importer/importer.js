@@ -10,9 +10,9 @@ class MyEventEmitter extends EventEmitter{};
 
 class Importer{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles){
 
-        this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter);
+        this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles);
         
         this.updatedPlayers = [];
         this.updatedGametypes = [];
