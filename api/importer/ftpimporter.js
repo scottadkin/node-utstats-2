@@ -35,6 +35,8 @@ class FTPImporter{
         
         this.client = new Client();
 
+        new Message(`Attempting to connect to ftp://${this.host}:${this.port}`,'note');
+
         this.client.on('ready', () =>{
 
             new Message(`Connected to ftp://${this.host}:${this.port}.`, 'pass');
@@ -43,6 +45,7 @@ class FTPImporter{
         });
 
         this.client.on('error', (err) =>{
+            new Message(err, 'error');
             console.trace(err);
         });
 

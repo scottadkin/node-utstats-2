@@ -57,6 +57,7 @@ export default async (req, res) =>{
                     data.password,
                     data.target_folder,
                     data.delete_after_import,
+                    data.delete_tmp_files
                 );
 
                 res.status(200).json({"message": "passed", "serverId": insertServerId});

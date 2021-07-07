@@ -230,6 +230,7 @@ class AdminFTPManager extends React.Component{
             let password = e.target[4].value;
             let folder = e.target[5].value;
             let deleteAfter = (e.target[6].checked) ? 1 : 0;
+            let tempFiles = (e.target[7].checked) ? 1 : 0;
 
 
             const errors = [];
@@ -259,22 +260,20 @@ class AdminFTPManager extends React.Component{
                         "user": user,
                         "password": password,
                         "target_folder": folder,
-                        "delete_after_import": deleteAfter
+                        "delete_after_import": deleteAfter,
+                        "delete_tmp_files": tempFiles
                         }
                     })
                 });
 
                 const result = await req.json();
 
-                console.log(result);
-
                 if(result.message !== "passed"){
                     errors.push(result.message);
                 }else{
 
-
                     this.addServerToList(
-                        result.serverId, name, host, port, user, password, folder, deleteAfter
+                        result.serverId, name, host, port, user, password, folder, deleteAfter, tempFiles
                     );
 
                     this.setState({
@@ -381,8 +380,6 @@ class AdminFTPManager extends React.Component{
         let deleteAfterImport = (e.target[7].checked) ? 1 : 0;
         let deleteTmpFiles = (e.target[8].checked) ? 1 : 0;
         let serverId = parseInt(e.target[9].value);
-
-        console.log(`deleteTMPFILES = ${deleteTmpFiles}`);
 
         const newData = [];
 
@@ -533,7 +530,7 @@ class AdminFTPManager extends React.Component{
                         <th>User</th>
                         <th>Target Folder</th>
                         <th>Delete After Import<br/>(FTP/UnrealTournament/Logs)</th>
-                        <th>Delete TMP files</th>
+                        <th>Delete TMP Files</th>
                         <th>First</th>
                         <th>Last</th>
                         <th>Total</th>
@@ -754,13 +751,13 @@ class AdminFTPManager extends React.Component{
                 <div className="select-row">
                     <div className="select-label">Password</div>
                     <div>
-                        <input type="password" defaultValue={selected.password} id="password" className="default-textbox" placeholder="password..."/>
+                        <input type="password" defaultValue={selected.password} id="password" className="default-textbox" placeholder="Password..."/>
                     </div>
                 </div>
                 <div className="select-row">
                     <div className="select-label">Target Folder</div>
                     <div>
-                        <input type="text" defaultValue={selected.target_folder} id="folder" className="default-textbox" placeholder="target folder..."/>
+                        <input type="text" defaultValue={selected.target_folder} id="folder" className="default-textbox" placeholder="Target folder..."/>
                     </div>
                 </div>
                 <div className="select-row">
@@ -770,7 +767,7 @@ class AdminFTPManager extends React.Component{
                     </div>
                 </div>
                 <div className="select-row">
-                    <div className="select-label">Delete TMP files</div>
+                    <div className="select-label">Delete TMP Files</div>
                     <div>
                         <input id="logs" checked={selected.delete_tmp_files} id={`tmp_${selected.id}`} type="checkbox" onChange={this.changeDeleteTMPValue}/>
                     </div>
@@ -818,6 +815,10 @@ class AdminFTPManager extends React.Component{
                 </div>
                 <div className="select-row">
                     <div className="select-label">Delete Logs From FTP After Import</div>
+                    <div><input type="checkbox"/></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Delete TMP Files</div>
                     <div><input type="checkbox"/></div>
                 </div>
                 <input type="submit" className="search-button" value="Add Server"/>
