@@ -31,7 +31,6 @@ class AdminFTPManager extends React.Component{
 
         this.updateSelected = this.updateSelected.bind(this);
 
-        this.changeDeleteValue = this.changeDeleteValue.bind(this);
         this.editEntry = this.editEntry.bind(this);
 
         this.changeMode = this.changeMode.bind(this);
@@ -40,39 +39,7 @@ class AdminFTPManager extends React.Component{
 
         this.deleteServer = this.deleteServer.bind(this);
 
-        this.changeDeleteTMPValue = this.changeDeleteTMPValue.bind(this);
-
-        this.changeBotsValue = this.changeBotsValue.bind(this);
-    }
-
-    changeBotsValue(e){
-
-
-        const reg = /^bots_(.+)$/i;
-        const result = reg.exec(e.target.id);
-
-        if(result !== null){
-
-            const id = parseInt(result[1]);
-            if(id === id){
-                this.setValue(id, "ignore_bots", e.target.checked);
-            }
-        }
-    }
-
-    changeDeleteTMPValue(e){
-
-        const reg = /^tmp_(.+)$/i;
-        const result = reg.exec(e.target.id);
-
-        if(result !== null){
-
-            const id = parseInt(result[1]);
-
-            if(id === id){
-                this.setValue(id, "delete_tmp_files", e.target.checked);
-            }
-        }
+        this.setValue = this.setValue.bind(this);
     }
 
     setValue(id, key, value){
@@ -197,7 +164,7 @@ class AdminFTPManager extends React.Component{
         return false;
     }
 
-    addServerToList(id, name, host, port, user, password, folder, deleteAfter, deleteTmp, ignoreBots){
+    addServerToList(id, name, host, port, user, password, folder, deleteAfter, deleteTmp, ignoreBots, ignoreDuplicates){
 
         const newObject = {
             "id": id,
@@ -212,7 +179,8 @@ class AdminFTPManager extends React.Component{
             "last": 0,
             "total_imports": 0,
             "delete_tmp_files": deleteTmp,
-            "ignore_bots": ignoreBots
+            "ignore_bots": ignoreBots,
+            "ignore_duplicates": ignoreDuplicates
         };
 
         const data = this.props.servers;
@@ -244,7 +212,8 @@ class AdminFTPManager extends React.Component{
             let folder = e.target[5].value;
             let deleteAfter = (e.target[6].checked) ? 1 : 0;
             let tempFiles = (e.target[7].checked) ? 1 : 0;
-            let ignoreBots = (e.target[8]) ? 1 : 0;
+            let ignoreBots = (e.target[8].checked) ? 1 : 0;
+            let ignoreDuplicates = (e.target[9].checked) ? 1 : 0;
 
 
             const errors = [];
@@ -276,7 +245,8 @@ class AdminFTPManager extends React.Component{
                         "target_folder": folder,
                         "delete_after_import": deleteAfter,
                         "delete_tmp_files": tempFiles,
-                        "ignore_bots": ignoreBots
+                        "ignore_bots": ignoreBots,
+                        "ignore_duplicates": ignoreDuplicates
                         }
                     })
                 });
@@ -288,7 +258,7 @@ class AdminFTPManager extends React.Component{
                 }else{
 
                     this.addServerToList(
-                        result.serverId, name, host, port, user, password, folder, deleteAfter, tempFiles, ignoreBots
+                        result.serverId, name, host, port, user, password, folder, deleteAfter, tempFiles, ignoreBots, ignoreDuplicates
                     );
 
                     this.setState({
@@ -395,39 +365,32 @@ class AdminFTPManager extends React.Component{
         let deleteAfterImport = (e.target[7].checked) ? 1 : 0;
         let deleteTmpFiles = (e.target[8].checked) ? 1 : 0;
         let ignoreBots = (e.target[9].checked) ? 1 : 0;
-        let serverId = parseInt(e.target[10].value);
+        let ignoreDuplicates = (e.target[10].checked) ? 1 : 9;
+        let serverId = parseInt(e.target[11].value);
 
-        const newData = [];
+        const newData = Object.assign(this.props.servers);
+        let editData = 0;
 
-        let editData = {};
+        let current = 0;
 
-        let s = 0;
+        for(let i = 0; i < newData.length; i++){
 
-        for(let i = 0; i < this.props.servers.length; i++){
+            current = newData[i];
 
-            s = this.props.servers[i];
+            if(current.id === serverId){
 
-            if(s.id !== serverId){
+                current.name = name;
+                current.host = host;
+                current.port = port;
+                current.user = user;
+                current.password = password;
+                current.target_folder = folder;
+                current.delete_after_import = deleteAfterImport;
+                current.delete_tmp_files = deleteTmpFiles;
+                current.ignore_bots = ignoreBots;
+                current.ignore_duplicates = ignoreDuplicates;
 
-                newData.push(s);
-
-            }else{
-
-                editData = {
-
-                    "id": serverId,
-                    "name": name,
-                    "host": host,
-                    "port": port,
-                    "user": user,
-                    "password": password,
-                    "target_folder": folder,
-                    "delete_after_import": deleteAfterImport,
-                    "delete_tmp_files": deleteTmpFiles,
-                    "ignore_bots": ignoreBots
-                };
-
-                newData.push(editData);
+                editData = current;
             }
         }
 
@@ -435,40 +398,6 @@ class AdminFTPManager extends React.Component{
         this.props.updateParent(newData);
 
     }
-
-
-    changeDeleteValue(e){
-
-
-        const id = e.target.id;
-
-        const reg = /delete_(.+)/ig;
-
-        const result = reg.exec(id);
-
-        if(result !== null){
-
-            const parsedId = parseInt(result[1]);
-
-            if(parsedId === parsedId){
-
-                let value = 0;
-
-                if(e.target.checked){
-                    value = 1;
-                }else{
-                    value = 0;
-                }
-
-                this.setValue(parsedId, "delete_after_import", value);
-
-            }else{
-                console.log(`id is NaN`);
-            }
-
-        }
-    }
-
 
     updateSelected(e){
 
@@ -478,7 +407,6 @@ class AdminFTPManager extends React.Component{
 
     }
     
-
     renderTable(){
 
         if(this.state.mode !== 0) return null;
@@ -499,6 +427,7 @@ class AdminFTPManager extends React.Component{
                 <TrueFalse bTable={true} value={s.delete_after_import} />
                 <TrueFalse bTable={true} value={s.delete_tmp_files} />
                 <TrueFalse bTable={true} value={s.ignore_bots} />
+                <TrueFalse bTable={true} value={s.ignore_duplicates} />
                 <td>{s.first}</td>
                 <td>{s.last}</td>
                 <td>{s.total_imports}</td>
@@ -518,6 +447,7 @@ class AdminFTPManager extends React.Component{
                         <th>Delete After Import<br/>(FTP/UnrealTournament/Logs)</th>
                         <th>Delete TMP Files</th>
                         <th>Ignore Bots</th>
+                        <th>Ignore Duplicate Logs</th>
                         <th>First</th>
                         <th>Last</th>
                         <th>Total</th>
@@ -572,9 +502,13 @@ class AdminFTPManager extends React.Component{
             "user": "",
             "password": "",
             "target_folder": "",
+            "first": "",
+            "last": "",
+            "total": "",
             "delete_after_import": "",
             "delete_tmp_files": "",
-            "ignore_bots": ""
+            "ignore_bots": "",
+            "ignore_duplicates": ""
         };
     }
 
@@ -704,8 +638,6 @@ class AdminFTPManager extends React.Component{
 
         const selected = this.getServerSettings();
 
-        console.log(selected);
-
         return <div>
             <div className="default-header">Edit Server</div>
             {this.renderEditProgress()}
@@ -751,19 +683,33 @@ class AdminFTPManager extends React.Component{
                 <div className="select-row">
                     <div className="select-label">Delete Logs From FTP After Import</div>
                     <div>
-                        <input id="logs" checked={selected.delete_after_import} id={`delete_${selected.id}`} type="checkbox" onChange={this.changeDeleteValue}/>
+                        <input  checked={selected.delete_after_import} type="checkbox" onChange={(() =>{
+                            this.setValue(selected.id, "delete_after_import", (selected.delete_after_import) ? 0 : 1);
+                        })}/>
                     </div>
                 </div>
                 <div className="select-row">
                     <div className="select-label">Delete TMP Files</div>
                     <div>
-                        <input id="logs" checked={selected.delete_tmp_files} id={`tmp_${selected.id}`} type="checkbox" onChange={this.changeDeleteTMPValue}/>
+                        <input checked={selected.delete_tmp_files} type="checkbox" onChange={(() =>{
+                            this.setValue(selected.id, "delete_tmp_files", (selected.delete_tmp_files) ? 0 : 1);
+                        })}/>
                     </div>
                 </div>
                 <div className="select-row">
                     <div className="select-label">Ignore Bots</div>
                     <div>
-                        <input id="logs" checked={selected.ignore_bots} id={`bots_${selected.id}`} type="checkbox" onChange={this.changeBotsValue}/>
+                        <input  checked={selected.ignore_bots}  type="checkbox" onChange={(() =>{
+                            this.setValue(selected.id, "ignore_bots", (selected.ignore_bots) ? 0 : 1);
+                        })}/>
+                    </div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Ignore Duplicate Matches</div>
+                    <div>
+                        <input checked={selected.ignore_duplicates} type="checkbox" onChange={(() =>{
+                            this.setValue(selected.id, "ignore_duplicates", (selected.ignore_duplicates) ? 0 : 1);
+                        })}/>
                     </div>
                 </div>
                 <input type="hidden" value={selected.id}/>
@@ -817,6 +763,10 @@ class AdminFTPManager extends React.Component{
                 </div>
                 <div className="select-row">
                     <div className="select-label">Ignore Bots</div>
+                    <div><input type="checkbox"/></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Ignore Duplicate Matches</div>
                     <div><input type="checkbox"/></div>
                 </div>
                 <input type="submit" className="search-button" value="Add Server"/>

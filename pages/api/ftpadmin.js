@@ -32,7 +32,8 @@ export default async (req, res) =>{
                         data.target_folder,
                         data.delete_after_import,
                         data.delete_tmp_files,
-                        data.ignore_bots
+                        data.ignore_bots,
+                        data.ignore_duplicates      
 
                     );
 
@@ -57,7 +58,8 @@ export default async (req, res) =>{
                     data.target_folder,
                     data.delete_after_import,
                     data.delete_tmp_files,
-                    data.ignore_bots
+                    data.ignore_bots,
+                    data.ignore_duplicates
                 );
 
                 res.status(200).json({"message": "passed", "serverId": insertServerId});
