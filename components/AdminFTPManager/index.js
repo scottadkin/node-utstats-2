@@ -365,7 +365,7 @@ class AdminFTPManager extends React.Component{
         let deleteAfterImport = (e.target[7].checked) ? 1 : 0;
         let deleteTmpFiles = (e.target[8].checked) ? 1 : 0;
         let ignoreBots = (e.target[9].checked) ? 1 : 0;
-        let ignoreDuplicates = (e.target[10].checked) ? 1 : 9;
+        let ignoreDuplicates = (e.target[10].checked) ? 1 : 0;
         let serverId = parseInt(e.target[11].value);
 
         const newData = Object.assign(this.props.servers);
@@ -393,6 +393,8 @@ class AdminFTPManager extends React.Component{
                 editData = current;
             }
         }
+
+        console.log(editData);
 
         this.updateServerDetails(editData);
         this.props.updateParent(newData);

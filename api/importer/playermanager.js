@@ -17,9 +17,11 @@ const Sprees = require('../sprees');
 class PlayerManager{
 
 
-    constructor(data, spawnManager){
+    constructor(data, spawnManager, bIgnoreBots){
 
         this.data = data;
+
+        this.bIgnoreBots = bIgnoreBots;
 
         this.players = [];
         this.uniqueNames = [];
@@ -47,6 +49,30 @@ class PlayerManager{
         this.parsePlayerStrings();
         this.setWeaponStats();
 
+    }
+
+    getTotalPlayers(){
+
+        let found = 0;
+
+        let p = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            p = this.players[i];
+
+            if(p.bDuplicate === undefined && p.bPlayedInMatch){
+
+                if(this.bIgnoreBots){
+                    if(p.bBot) continue;
+                }
+
+                found++;
+                
+            }
+        }
+
+        return found;
     }
 
     debugDisplayPlayerStats(){
@@ -932,6 +958,11 @@ class PlayerManager{
 
                 p = this.players[i];
 
+                if(!p.bPlayedInMatch) continue;
+
+                if(this.bIgnoreBots){
+                    if(p.bBot) continue;
+                }
                  
                 if(p.bDuplicate === undefined){
 
@@ -1014,7 +1045,11 @@ class PlayerManager{
 
                 p = this.players[i];
 
-                if(p.bDuplicate === undefined){
+                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+
+                    if(this.bIgnoreBots){
+                        if(p.bBot) continue;
+                    }
 
                     await this.faces.updatePlayerFace(p.masterId, p.faceId);
                 }
@@ -1051,7 +1086,9 @@ class PlayerManager{
 
                 p = this.players[i];
 
-                await this.updateIpCountry(p.masterId, p.ip, p.country);
+                if(!p.bBot){
+                    await this.updateIpCountry(p.masterId, p.ip, p.country);
+                }
             }
 
         }catch(err){
@@ -1094,7 +1131,11 @@ class PlayerManager{
 
                 p = this.players[i];
 
-                if(p.bDuplicate === undefined){
+                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+
+                    if(this.bIgnoreBots){
+                        if(p.bBot) continue;
+                    }
 
                     await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
                     await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
@@ -1162,13 +1203,22 @@ class PlayerManager{
                 
                 p = this.players[i];
 
-                if(data[p.voice] === undefined){
-                    data[p.voice] = 1;
-                }else{
-                    data[p.voice]++;
+                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+
+                    if(this.bIgnoreBots){
+
+                        if(p.bBot) continue;
+                    }
+
+                    if(data[p.voice] === undefined){
+                        data[p.voice] = 1;
+                    }else{
+                        data[p.voice]++;
+                    }
                 }
 
             }
+
             await this.voices.updateStatsBulk(data, date);
 
             await this.voices.getAllIds();
@@ -1188,6 +1238,7 @@ class PlayerManager{
             let p = 0;
 
             let pingData = 0;
+    
 
             for(let i = 0; i < this.players.length; i++){
 
@@ -1196,6 +1247,7 @@ class PlayerManager{
                 if(p.bDuplicate === undefined){
 
                     pingData = this.pingManager.getPlayerValues(p.masterId);
+
                     if(pingData === null){
                         pingData = {
                             "min": 0,
@@ -1203,7 +1255,16 @@ class PlayerManager{
                             "max": 0
                         };
                     }
+
+                    if(this.bIgnoreBots){
+
+                        if(p.bBot) continue;
+                      
+                    }
+
                     p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData);
+
+                    
                     
                 }else{
                     new Message(`${p.name} is a duplicate not inserting match data.`,'note');
@@ -1214,24 +1275,6 @@ class PlayerManager{
 
         }catch(err){
             new Message(`insertMatchData ${err}`,'error');
-        }
-    }
-
-
-    async updateWeaponStats(){
-
-        try{
-
-            let p = 0;
-
-            for(let i = 0; i < this.players.length; i++){
-
-                p = this.players[i];
-
-            }
-
-        }catch(err){
-            new Message(`updateWeaponStats ${err}`,'error');
         }
     }
 
@@ -1280,7 +1323,15 @@ class PlayerManager{
                 currentPlayer = this.getOriginalConnectionById(s.player);
 
                 if(currentPlayer !== null){
-                    await Player.insertScoreHistory(matchId, s.timestamp, currentPlayer.masterId, s.score);
+
+                    if(currentPlayer.bPlayedInMatch){
+
+                        if(this.bIgnoreBots){
+                            if(currentPlayer.bBot) continue;
+                        }
+
+                        await Player.insertScoreHistory(matchId, s.timestamp, currentPlayer.masterId, s.score);
+                    }
                 }else{
                     new Message(`PlayerManager.insertSCoreHistory() currentPlayer is null`,'warning');
                 }
@@ -1378,7 +1429,12 @@ class PlayerManager{
 
                 p = this.players[i];
 
-                if(p.bDuplicate === undefined){
+                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+
+                    if(this.bIgnoreBots){
+                        if(p.bBot) continue;
+                    }
+
                     playerIds.push(p.masterId);
                 }
             }
@@ -1424,11 +1480,6 @@ class PlayerManager{
                 await this.winRateManager.insertHistory(matchId, date, data[i]);
 
                 await this.winRateManager.updateLatest(matchId, date, data[i]);
-
-                //check before if date is before latest
-                //if(data[i].player === 3068 && data[i].gametype === 0){
-                    //await this.winRateManager.recalculateWinRates(data[i].player, data[i].gametype);
-               // }
 
             }
 

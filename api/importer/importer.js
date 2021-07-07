@@ -57,7 +57,7 @@ class Importer{
                     
                     testData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
                     
-                    test = new MatchManager(testData, this.logsToImport[i]);
+                    test = new MatchManager(testData, this.logsToImport[i], bIgnoreBots);
 
                     currentData = await test.import();
 

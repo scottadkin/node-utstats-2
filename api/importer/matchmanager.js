@@ -24,10 +24,11 @@ const MonsterHuntManager = require('./monsterhuntmanager');
 
 class MatchManager{
 
-    constructor(data, fileName){
+    constructor(data, fileName, bIgnoreBots){
 
         this.data = data;
         this.fileName = fileName;
+        this.bIgnoreBots = bIgnoreBots;
 
         new Message(`Starting import of log file ${fileName}`,'note');
 
@@ -55,7 +56,7 @@ class MatchManager{
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
             this.spawnManager = new SpawnManager();
-            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager);
+            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots);
             this.killManager = new KillManager(this.killLines, this.playerManager);
 
             if(this.mapInfo.mapPrefix === "mh"){
@@ -266,7 +267,7 @@ class MatchManager{
             await this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
             new Message(`Updated Country stats`,'pass');
 
-            await this.killManager.insertKills(this.matchId, this.weaponsManager);
+            await this.killManager.insertKills(this.matchId, this.weaponsManager, this.bIgnoreBots);
             new Message(`Inserted match kill data`,'pass');
 
             await this.killManager.insertHeadshots(this.matchId);
@@ -356,7 +357,7 @@ class MatchManager{
                 this.gameInfo.maxspectators,
                 this.gameInfo.maxplayers,
                 this.gameInfo.totalTeams,
-                this.playerManager.uniqueNames.length,
+                this.playerManager.getTotalPlayers(),
                 this.gameInfo.timelimit,
                 this.gameInfo.targetScore,
                 '',

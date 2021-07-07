@@ -162,7 +162,7 @@ class KillManager{
         return found;
     }
 
-    async insertKills(matchId, weaponsManager){
+    async insertKills(matchId, weaponsManager, bIgnoreBots){
 
         try{
 
@@ -182,6 +182,17 @@ class KillManager{
                 //make a cache of playerIds 
                 currentKiller = this.playerManager.getOriginalConnectionById(k.killerId);
                 currentVictim = this.playerManager.getOriginalConnectionById(k.victimId);
+
+                if(bIgnoreBots){
+
+                    if(currentKiller !== null){
+                        if(currentKiller.bBot) continue;
+                    }
+
+                    if(currentVictim !== null){
+                        if(currentVictim.bBot) continue;
+                    }
+                }
 
                 currentKillerTeam = this.playerManager.getPlayerTeamAt(k.killerId, k.timestamp);
                 currentVictimTeam =  this.playerManager.getPlayerTeamAt(k.victimId, k.timestamp);
