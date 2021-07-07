@@ -34,7 +34,7 @@ function startNewImport(ftpServer){
 
         const f = ftpServer;
 
-        const I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import);
+        const I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files);
 
         I.myEmitter.on("passed", () =>{
 
@@ -70,6 +70,7 @@ function startNewImport(ftpServer){
 
         }
 
+        new Message(`Import process completed.`,'pass');
         process.exit(0);
 
     }catch(err){

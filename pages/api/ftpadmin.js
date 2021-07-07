@@ -15,8 +15,6 @@ export default async (req, res) =>{
         const data = body.data;
         const admin = new Admin();
 
-        console.log(data);
-
         if(data !== undefined){
 
             if(data.mode === "edit"){
@@ -33,7 +31,8 @@ export default async (req, res) =>{
                         data.password,
                         data.target_folder,
                         data.delete_after_import,
-                        data.delete_tmp_files
+                        data.delete_tmp_files,
+                        data.ignore_bots
 
                     );
 
@@ -57,7 +56,8 @@ export default async (req, res) =>{
                     data.password,
                     data.target_folder,
                     data.delete_after_import,
-                    data.delete_tmp_files
+                    data.delete_tmp_files,
+                    data.ignore_bots
                 );
 
                 res.status(200).json({"message": "passed", "serverId": insertServerId});
@@ -65,7 +65,6 @@ export default async (req, res) =>{
 
             }else if(data.mode === "delete"){
 
-                console.log("DELETE SERVER");
                 await admin.deleteFTPServer(data.id);
                 
                 res.status(200).json({"message": "passed"});

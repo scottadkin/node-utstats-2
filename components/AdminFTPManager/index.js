@@ -1,4 +1,5 @@
 import React from 'react';
+import TrueFalse from '../TrueFalse';
 
 
 class AdminFTPManager extends React.Component{
@@ -40,30 +41,41 @@ class AdminFTPManager extends React.Component{
         this.deleteServer = this.deleteServer.bind(this);
 
         this.changeDeleteTMPValue = this.changeDeleteTMPValue.bind(this);
+
+        this.changeBotsValue = this.changeBotsValue.bind(this);
+    }
+
+    changeBotsValue(e){
+
+
+        const reg = /^bots_(.+)$/i;
+        const result = reg.exec(e.target.id);
+
+        if(result !== null){
+
+            const id = parseInt(result[1]);
+            if(id === id){
+                this.setValue(id, "ignore_bots", e.target.checked);
+            }
+        }
     }
 
     changeDeleteTMPValue(e){
 
-        console.log(e);
-
         const reg = /^tmp_(.+)$/i;
         const result = reg.exec(e.target.id);
-
-        console.log(e.target.checked);
 
         if(result !== null){
 
             const id = parseInt(result[1]);
 
             if(id === id){
-                this.setTMPValue(id, e.target.checked);
+                this.setValue(id, "delete_tmp_files", e.target.checked);
             }
-        }else{
-            console.log("ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
         }
     }
 
-    setTMPValue(id, value){
+    setValue(id, key, value){
 
 
         const newServers = Object.assign(this.props.servers);
@@ -71,7 +83,7 @@ class AdminFTPManager extends React.Component{
         for(let i = 0; i < newServers.length; i++){
 
             if(newServers[i].id === id){       
-                newServers[i].delete_tmp_files = value;
+                newServers[i][key] = value;
             }
         }
 
@@ -185,7 +197,7 @@ class AdminFTPManager extends React.Component{
         return false;
     }
 
-    addServerToList(id, name, host, port, user, password, folder, deleteAfter, deleteTmp){
+    addServerToList(id, name, host, port, user, password, folder, deleteAfter, deleteTmp, ignoreBots){
 
         const newObject = {
             "id": id,
@@ -199,7 +211,8 @@ class AdminFTPManager extends React.Component{
             "first": 0,
             "last": 0,
             "total_imports": 0,
-            "delete_tmp_files": deleteTmp
+            "delete_tmp_files": deleteTmp,
+            "ignore_bots": ignoreBots
         };
 
         const data = this.props.servers;
@@ -231,6 +244,7 @@ class AdminFTPManager extends React.Component{
             let folder = e.target[5].value;
             let deleteAfter = (e.target[6].checked) ? 1 : 0;
             let tempFiles = (e.target[7].checked) ? 1 : 0;
+            let ignoreBots = (e.target[8]) ? 1 : 0;
 
 
             const errors = [];
@@ -261,7 +275,8 @@ class AdminFTPManager extends React.Component{
                         "password": password,
                         "target_folder": folder,
                         "delete_after_import": deleteAfter,
-                        "delete_tmp_files": tempFiles
+                        "delete_tmp_files": tempFiles,
+                        "ignore_bots": ignoreBots
                         }
                     })
                 });
@@ -273,7 +288,7 @@ class AdminFTPManager extends React.Component{
                 }else{
 
                     this.addServerToList(
-                        result.serverId, name, host, port, user, password, folder, deleteAfter, tempFiles
+                        result.serverId, name, host, port, user, password, folder, deleteAfter, tempFiles, ignoreBots
                     );
 
                     this.setState({
@@ -379,7 +394,8 @@ class AdminFTPManager extends React.Component{
 
         let deleteAfterImport = (e.target[7].checked) ? 1 : 0;
         let deleteTmpFiles = (e.target[8].checked) ? 1 : 0;
-        let serverId = parseInt(e.target[9].value);
+        let ignoreBots = (e.target[9].checked) ? 1 : 0;
+        let serverId = parseInt(e.target[10].value);
 
         const newData = [];
 
@@ -407,7 +423,8 @@ class AdminFTPManager extends React.Component{
                     "password": password,
                     "target_folder": folder,
                     "delete_after_import": deleteAfterImport,
-                    "delete_tmp_files": deleteTmpFiles
+                    "delete_tmp_files": deleteTmpFiles,
+                    "ignore_bots": ignoreBots
                 };
 
                 newData.push(editData);
@@ -419,36 +436,6 @@ class AdminFTPManager extends React.Component{
 
     }
 
-    setDeleteValue(id, value){
-
-
-        const oldServers = this.props.servers;
-
-        const newServers = [];
-
-        for(let i = 0; i < oldServers.length; i++){
-
-            if(oldServers[i].id === id){
-                
-                newServers.push({
-                    "id": id,
-                    "name": oldServers[i].name,
-                    "host": oldServers[i].host,
-                    "port": oldServers[i].port,
-                    "user": oldServers[i].user,
-                    "password": oldServers[i].password,
-                    "target_folder": oldServers[i].target_folder,
-                    "delete_after_import": value,
-                    "delete_tmp_files": oldServers[i].delete_tmp_files
-                });
-
-            }else{
-                newServers.push(oldServers[i]);
-            }
-        }
-
-        this.props.updateParent(newServers);
-    }
 
     changeDeleteValue(e){
 
@@ -473,7 +460,7 @@ class AdminFTPManager extends React.Component{
                     value = 0;
                 }
 
-                this.setDeleteValue(parsedId, value);
+                this.setValue(parsedId, "delete_after_import", value);
 
             }else{
                 console.log(`id is NaN`);
@@ -508,10 +495,10 @@ class AdminFTPManager extends React.Component{
                 <td>{s.name}</td>
                 <td>{s.host}</td>
                 <td>{s.port}</td>
-                <td>{s.user}</td>
                 <td>{s.target_folder}</td>
-                <td>{s.delete_after_import}</td>
-                <td>{s.delete_tmp_files}</td>
+                <TrueFalse bTable={true} value={s.delete_after_import} />
+                <TrueFalse bTable={true} value={s.delete_tmp_files} />
+                <TrueFalse bTable={true} value={s.ignore_bots} />
                 <td>{s.first}</td>
                 <td>{s.last}</td>
                 <td>{s.total_imports}</td>
@@ -527,10 +514,10 @@ class AdminFTPManager extends React.Component{
                         <th>Name</th>
                         <th>Host</th>
                         <th>Port</th>
-                        <th>User</th>
                         <th>Target Folder</th>
                         <th>Delete After Import<br/>(FTP/UnrealTournament/Logs)</th>
                         <th>Delete TMP Files</th>
+                        <th>Ignore Bots</th>
                         <th>First</th>
                         <th>Last</th>
                         <th>Total</th>
@@ -586,7 +573,8 @@ class AdminFTPManager extends React.Component{
             "password": "",
             "target_folder": "",
             "delete_after_import": "",
-            "delete_tmp_files": ""
+            "delete_tmp_files": "",
+            "ignore_bots": ""
         };
     }
 
@@ -772,6 +760,12 @@ class AdminFTPManager extends React.Component{
                         <input id="logs" checked={selected.delete_tmp_files} id={`tmp_${selected.id}`} type="checkbox" onChange={this.changeDeleteTMPValue}/>
                     </div>
                 </div>
+                <div className="select-row">
+                    <div className="select-label">Ignore Bots</div>
+                    <div>
+                        <input id="logs" checked={selected.ignore_bots} id={`bots_${selected.id}`} type="checkbox" onChange={this.changeBotsValue}/>
+                    </div>
+                </div>
                 <input type="hidden" value={selected.id}/>
                 <input type="submit" className="search-button" value="Update"/>
             </form>
@@ -819,6 +813,10 @@ class AdminFTPManager extends React.Component{
                 </div>
                 <div className="select-row">
                     <div className="select-label">Delete TMP Files</div>
+                    <div><input type="checkbox"/></div>
+                </div>
+                <div className="select-row">
+                    <div className="select-label">Ignore Bots</div>
                     <div><input type="checkbox"/></div>
                 </div>
                 <input type="submit" className="search-button" value="Add Server"/>
