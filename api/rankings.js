@@ -151,7 +151,7 @@ class Rankings{
         });
     }
 
-    async update(matchId, players, gametype){
+    async update(matchId, players, gametype, bIgnoreBots){
 
         try{
 
@@ -188,7 +188,6 @@ class Rankings{
             for(const [key, value] of Object.entries(players)){
 
                 currentScore = 0;
-
             
                 for(const [settingKey, settingValue] of Object.entries(s)){
 

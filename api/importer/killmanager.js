@@ -5,11 +5,12 @@ const Headshots = require('../headshots');
 
 class KillManager{
 
-    constructor(data, playerManager){
+    constructor(data, playerManager, bIgnoreBots){
 
         this.data = data;
         this.kills = [];
         this.headshots = [];
+        this.bIgnoreBots = this.bIgnoreBots;
 
         this.playerManager = playerManager;
 
@@ -162,7 +163,7 @@ class KillManager{
         return found;
     }
 
-    async insertKills(matchId, weaponsManager, bIgnoreBots){
+    async insertKills(matchId, weaponsManager){
 
         try{
 
@@ -183,7 +184,7 @@ class KillManager{
                 currentKiller = this.playerManager.getOriginalConnectionById(k.killerId);
                 currentVictim = this.playerManager.getOriginalConnectionById(k.victimId);
 
-                if(bIgnoreBots){
+                if(this.bIgnoreBots){
 
                     if(currentKiller !== null){
                         if(currentKiller.bBot) continue;
@@ -266,12 +267,33 @@ class KillManager{
                     currentKiller = this.playerManager.getOriginalConnectionById(h.killer);
                     currentVictim = this.playerManager.getOriginalConnectionById(h.victim);
 
+                    if(currentVictim !== null){
+
+                        if(this.bIgnoreBots){
+                            if(currentVictim.bBot) continue;
+                        }
+
+                    }else{
+                        currentVictim = {"masterId": -1};
+                    }
+
+                    if(currentKiller !== null){
+
+                        if(this.bIgnoreBots){
+                            if(currentKiller.bBot) continue;
+                        }
+                        
+                    }else{
+                        currentKiller = {"masterId": -1};
+                    }
+
                     killerTeam = this.playerManager.getPlayerTeamAt(h.killer,h.timestamp);
                     victimTeam = this.playerManager.getPlayerTeamAt(h.victim,h.timestamp);
 
                     await this.headshotsManager.insert(
                         matchId, h.timestamp, currentKiller.masterId, currentVictim.masterId, 
-                        currentKillInformation.killDistance, killerTeam, victimTeam);
+                        currentKillInformation.killDistance, killerTeam, victimTeam
+                    );
                 }
 
                 new Message(`Imported ${this.headshots.length} headshot data.`, 'pass');

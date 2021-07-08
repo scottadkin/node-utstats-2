@@ -28,6 +28,11 @@ class ConnectionsManager{
                 currentPlayer = playerManager.getOriginalConnectionById(result[2]);
                 
                 if(currentPlayer !== null){
+
+                    if(playerManager.bIgnoreBots){
+                        if(currentPlayer.bBot) continue;
+                    }
+
                     this.data.push({"type": 0, "player": currentPlayer.masterId, "timestamp": parseFloat(result[1])});
                 }else{
                     new Message(`ConnectionsManager.parseData currentPlayer is null (connect)`,'warning');
@@ -40,6 +45,11 @@ class ConnectionsManager{
                 currentPlayer = playerManager.getOriginalConnectionById(result[2]);
 
                 if(currentPlayer !== null){
+
+                    if(playerManager.bIgnoreBots){
+                        if(currentPlayer.bBot) continue;
+                    }
+
                     this.data.push({"type": 1, "player": currentPlayer.masterId, "timestamp": parseFloat(result[1])});
                 }else{
                     new Message(`ConnectionsManager.parseData currentPlayer is null (disconnect)`,'warning');

@@ -493,6 +493,21 @@ class PlayerManager{
                 victim = this.getPlayerById(k.victimId);
 
                 if(killer !== null){
+
+                    if(this.bIgnoreBots){
+                        if(killer.bBot) continue;
+                    }
+                }
+
+                if(victim !== null){
+
+                    if(this.bIgnoreBots){
+                        if(victim.bBot) continue;
+                    }
+                }
+                
+
+                if(killer !== null){   
                     killer.killedPlayer(k.timestamp, k.killerWeapon, k.killDistance);
                 }
 
@@ -909,6 +924,10 @@ class PlayerManager{
                 player = this.getPlayerById(parseInt(result[4]));
 
                 if(player !== null){
+
+                    if(this.bIgnoreBots){
+                        if(player.bBot) continue;
+                    }
 
                     player.setWeaponStat(result[3], result[2], result[5]);
 
@@ -1525,6 +1544,9 @@ class PlayerManager{
 
                 if(p.bDuplicate === undefined && p.bPlayedInMatch){
 
+                    if(this.bIgnoreBots){
+                        if(p.bBot) continue;
+                    }
                     current = await Player.getGametypeTotals(p.masterId, gametype);
 
                     if(current !== null){

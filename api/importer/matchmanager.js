@@ -57,7 +57,7 @@ class MatchManager{
             this.gameInfo = new GameInfo(this.gameLines);
             this.spawnManager = new SpawnManager();
             this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots);
-            this.killManager = new KillManager(this.killLines, this.playerManager);
+            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots);
 
             if(this.mapInfo.mapPrefix === "mh"){
                 this.gameInfo.totalTeams = 0;
@@ -267,7 +267,7 @@ class MatchManager{
             await this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);
             new Message(`Updated Country stats`,'pass');
 
-            await this.killManager.insertKills(this.matchId, this.weaponsManager, this.bIgnoreBots);
+            await this.killManager.insertKills(this.matchId, this.weaponsManager);
             new Message(`Inserted match kill data`,'pass');
 
             await this.killManager.insertHeadshots(this.matchId);
@@ -300,7 +300,7 @@ class MatchManager{
 
             //need to get player current totals then add them to the scores
             new Message("Updating player rankings.","note");
-            await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype);
+            await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
 
 
             await Logs.setMatchId(logId, this.matchId);
