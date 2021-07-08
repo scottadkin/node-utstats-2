@@ -108,6 +108,7 @@ class MatchManager{
             if(this.CTFManager !== undefined){
 
                 this.CTFManager.playerManager = this.playerManager;
+                this.CTFManager.bIgnoreBots = this.bIgnoreBots;
 
                 if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');

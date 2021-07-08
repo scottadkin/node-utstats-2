@@ -563,6 +563,10 @@ class CTFManager{
 
                 if(currentPlayer !== null){
 
+                    if(this.bIgnoreBots){
+                        if(currentPlayer.bBot) continue;
+                    }
+
                     await this.ctf.insertEvent(matchId, e.timestamp, currentPlayer.masterId, e.type, e.team);
                    
                 }else{
