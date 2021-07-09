@@ -31,6 +31,11 @@ class TeamsManager{
                 currentPlayer = playerManager.getOriginalConnectionById(parseInt(result[2]));
 
                 if(currentPlayer !== null){
+
+                    if(playerManager.bIgnoreBots){
+                        if(currentPlayer.bBot) continue;
+                    }
+
                     this.data.push({
                         "timestamp": parseFloat(result[1]),
                         "player": currentPlayer.masterId,

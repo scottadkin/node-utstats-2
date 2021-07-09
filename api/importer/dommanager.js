@@ -48,14 +48,20 @@ class DOMManager{
             }else if(capReg.test(d)){
 
                 result = capReg.exec(d);
-
-                this.pointCaptured(result[2], result[3]);
+       
 
                 currentPlayer = this.playerManager.getOriginalConnectionById(result[3]);
 
                 if(currentPlayer === null){
                     currentPlayer = {"masterId": -1};
+                }else{
+
+                    if(this.playerManager.bIgnoreBots){
+                        if(currentPlayer.bBot) continue;
+                    }
                 }
+
+                this.pointCaptured(result[2], result[3]);
 
                 this.capData.push({
                     "timestamp": parseFloat(result[1]),
@@ -77,6 +83,10 @@ class DOMManager{
                 currentPlayer = this.playerManager.getOriginalConnectionById(result[2]);
 
                 if(currentPlayer !== null){
+
+                    if(this.playerManager.bIgnoreBots){
+                        if(currentPlayer.bBot) continue;
+                    }
 
                     this.playerScores.push({
                         "timestamp": parseFloat(result[1]),
@@ -231,6 +241,10 @@ class DOMManager{
 
                 if(currentPlayer !== null){
 
+                    if(this.playerManager.bIgnoreBots){
+                        if(currentPlayer.bBot) continue;
+                    }
+
                     await this.domination.updatePlayerCapTotals(
                         currentPlayer.masterId, 
                         currentPlayer.gametypeId, 
@@ -262,7 +276,13 @@ class DOMManager{
                 p = players[i];
 
                 if(p.bDuplicate === undefined){
+
                     if(p.stats.dom.caps > 0){
+
+                        if(this.playerManager.bIgnoreBots){
+                            if(p.bBot) continue;
+                        }
+
                         await this.domination.updatePlayerMatchStats(p.matchId, p.stats.dom.caps);
                     }else{
                         new Message(`${p.name} did not have any control point caps, skipping stats update.`,'pass');
