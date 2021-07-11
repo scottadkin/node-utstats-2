@@ -35,14 +35,9 @@ class Login extends React.Component{
 
                 const result = await res.json();
 
-                console.log(result);
                 const errors = [];
 
                 if(result.passed){
-
-                    //this.setState({"showCreated": true, "loggedOut": true})
-
-                    console.log("I PASSED");
 
                     if(process.browser){
                         window.location.replace("/?loggedout");
@@ -95,9 +90,6 @@ class Login extends React.Component{
 
         const result = await res.json();
 
-        console.log("result");
-        console.log(result);
-
         const errors = [];
 
         if(result.errors.length > 0){
@@ -111,11 +103,17 @@ class Login extends React.Component{
         if(errors.length === 0){
 
             if(process.browser){
-                
+
                 if(mode !== 1){
+
                     window.location.replace("/?loggedin");
                 }else{
-                    window.location.replace("/?registered");
+
+                    if(result.bAutoLogin){
+                        window.location.replace("/?loggedin=potato");
+                    }else{
+                        window.location.replace("/?registered");
+                    }
                 }
             }
         }
@@ -283,10 +281,7 @@ export async function getServerSideProps({query, req}){
 
     const userManager = new User();
 
-    console.log("MMMMMMMMMMM cookies");
     const cookies = req.headers.cookie;
-
-    console.log(cookies);
 
     const bLoggedIn = await userManager.bLoggedIn(cookies);
 

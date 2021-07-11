@@ -178,6 +178,8 @@ class User{
 
             await mysql.simpleInsert(query, vars);
 
+            return totalUsers;
+
         }catch(err){
             console.trace(err);
         }
@@ -206,15 +208,27 @@ class User{
                 }
             }
 
+
             if(errors.length === 0){
 
-                await this.createUser(username, password, ip);
+                const totalUsers = await this.createUser(username, password, ip);
+
+                if(totalUsers === 0){
+
+                    const loginResult = await this.login(username, password, ip);
+
+                    if(loginResult.bPassed){
+                        return {"bPassed": true, "errors": [], "bAutoLogin": true};
+                    }
+
+                }
 
                 bPassed = true;
+                return {"bPassed": bPassed, "errors": errors};
             }
 
-
-            return {"bPassed": bPassed, "errors": errors};
+            return {"bPassed": false, "errors": errors};
+            
         }catch(err){
             console.trace(err);
             return {"bPassed": false, "errors": [`Fatal: ${err}`]};
@@ -223,6 +237,7 @@ class User{
 
 
     async login(username, password, ip){
+
 
         try{
 
@@ -258,6 +273,7 @@ class User{
                                 await this.saveUserLogin(userId, hash, now, now + expires, ip);
                                 await this.updateLastLogin(userId);
                             }
+
                         }else{
                             errors.push(`This account has been banned.`);
                         }

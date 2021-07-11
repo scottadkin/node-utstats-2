@@ -12,8 +12,6 @@ export default async (req, res) =>{
 
         if(req.method === "POST"){
 
-            console.log(req.body);
-
             const mode = parseInt(req.body.mode);
             let username = req.body.username;
             let password = req.body.password;
@@ -27,25 +25,7 @@ export default async (req, res) =>{
 
             let errors = [];
 
-            if(mode === 1){
-
-                password2 = req.body.password2;
-
-                result = await user.register(username, password, password2, req.socket.remoteAddress);
-                errors = (result.errors !== undefined) ? result.errors : [];
-
-  
-                //finish this
-
-                if(errors.length === 0){
-                    res.statusCode = 200;
-                    res.json({
-                            "bPassed": true,
-                            "errors": errors
-                    });
-                }
-              
-            }else if(mode === 0){
+            const login = async (bAutoLogin) =>{
 
                 result = await user.login(username, password, req.socket.remoteAddress);
 
@@ -76,14 +56,58 @@ export default async (req, res) =>{
                 ]);
 
                     res.statusCode = 200;
+
                     res.json({
                         "sid": hash,
-                        "errors": errors
+                        "errors": errors,
+                        "bAutoLogin": (bAutoLogin !== undefined) ? true : false
                     });
                 }
             }
+
+            const register = async () =>{
+
+                password2 = req.body.password2;
+
+                result = await user.register(username, password, password2, req.socket.remoteAddress);
+                errors = (result.errors !== undefined) ? result.errors : [];
+
+                //finish this
+
+                let bAutoLogin = false;
+
+                if(errors.length === 0){
+
+                    if(result.bAutoLogin !== undefined){
+
+                        if(result.bAutoLogin){
+                            bAutoLogin = true;
+                            console.log("attempt autologin");
+                            await login(true);
+                           
+                        }
+                    }
+
+                    if(!bAutoLogin){
+                        res.statusCode = 200;
+                        res.json({
+                            "bPassed": true,
+                            "errors": errors,
+                            "twat": "yes"
+                        });
+                    }
+                }
+            }
+
+            if(mode === 1){
+
+                await register();
+              
+            }else if(mode === 0){
+
+                await login();
+            }
             
-            console.log(errors);
 
             if(errors.length > 0){
                 res.status(200).json({"errors": errors})
