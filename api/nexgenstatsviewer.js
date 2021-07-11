@@ -29,9 +29,15 @@ class NexgenStatsViewer{
         this.playerManager = new Player();
     }
 
-    async getCurrentSettings(){
+    async getCurrentSettings(bOnlyActivated){
 
-        const query = "SELECT * FROM nstats_nexgen_stats_viewer ORDER BY position ASC";
+        let query = "SELECT * FROM nstats_nexgen_stats_viewer ORDER BY position ASC";
+
+        if(bOnlyActivated !== undefined){
+            if(bOnlyActivated === true){
+                query = "SELECT * FROM nstats_nexgen_stats_viewer WHERE enabled=1 ORDER BY position ASC";
+            }
+        }
 
         const data = await mysql.simpleFetch(query);
 

@@ -9,7 +9,7 @@ export default (req, res) =>{
 
         const nexgen = new NexgenStatsViewer();
 
-        const currentLists = await nexgen.getCurrentSettings();
+        const currentLists = await nexgen.getCurrentSettings(true);
 
         let string = "";
 
