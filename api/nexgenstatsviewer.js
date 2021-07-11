@@ -87,6 +87,10 @@ class NexgenStatsViewer{
 
                 d.playerName = currentPlayer.name;
                 d.playerCountry = currentPlayer.country;
+
+                if(d.playerCountry === ""){
+                    d.playerCountry = "xx";
+                }
             }
 
         }catch(err){
