@@ -1,11 +1,19 @@
-const mysql = require('./api/database');
+
 const Message = require('./api/message');
 const fs = require('fs');
 const Functions = require('./api/functions');
+const config = require('./config.json');
+
+const mysqlObject = require('mysql');
+
+let mysql = mysqlObject.createPool({
+    "host": config.mysql.host,
+    "user": config.mysql.user,
+    "password": config.mysql.password
+});
 
 const queries = [
-    //"CREATE DATABASE node_utstats_11",
-
+    `CREATE DATABASE ${config.mysql.database}`,
     `CREATE TABLE nstats_assault_match_objectives (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
@@ -873,12 +881,35 @@ const queries = [
 
 (async () =>{
 
+
+    const basicQuery = (query) =>{
+
+        return new Promise((resolve, reject) =>{
+
+            mysql.query(query, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }   
+
     try{
         
         for(let i = 0; i < queries.length; i++){
 
             
-            await mysql.simpleInsert(queries[i]);
+            await basicQuery(queries[i]);
+
+            if(i === 0){
+                mysql = mysqlObject.createPool({
+                    "host": config.mysql.host,
+                    "user": config.mysql.user,
+                    "password": config.mysql.password,
+                    "database": config.mysql.database
+                });
+            }
             new Message(`Performed query ${i+1} of ${queries.length}`,"pass");
         
         }
