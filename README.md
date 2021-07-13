@@ -1,4 +1,5 @@
-## Node UTStats 2
+# Node UTStats 2
+Unreal Tournament stats tracking website using node.js and mysql.
 
 # Requirements
 - Node.js 14.17 or greater.
@@ -19,7 +20,13 @@
 # Creating an admin account
 - If there are no users in the database, create an account by going to the site's login page, then press the "Not a member? Register now!" button, the next created account will automatically set to admin, and will be activated.
 
-
+# Currently Supported Gametypes
+- Deathmatch
+- Team Deathmatch
+- Capture The Flag
+- Domination 
+- Assault
+- MonsterHunt
 
 # NexgenStatsViewer Support
 - There are many more data types to be displayed instead of the standard top player rankings for each gametype, you can create lists in the admin control panel.
