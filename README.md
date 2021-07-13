@@ -9,7 +9,9 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Extract the contents of the archive into a folder.
 - Open command prompt in the folder.
 - Run the command **npm install** to install all the dependencies.
-- Once that has been completed run the command **node install** this will create the database and all the tables needed by node utstats 2.
+- Open config.json, and change the mysql settings to match your mysql setup and then save the file.
+![alt text](https://i.imgur.com/nwuVLkp.png "config.json image")
+- Now run the command **node install** this will create the database and all the tables needed by node utstats 2.
 
 # Starting the website
 - You have two options of running the website, development mode(slow, but easier for debugging) or production mode.
@@ -19,6 +21,13 @@ Unreal Tournament stats tracking website using node.js and mysql.
 
 # Creating an admin account
 - If there are no users in the database, create an account by going to the site's login page, then press the "Not a member? Register now!" button, the next created account will automatically set to admin, and will be activated.
+
+# Adding FTP servers
+- FTP accounts require read, write, and delete privileges. 
+- To add FTP servers to node utstats 2, go to the admin area of the website, then "FTP manager", then finally "Add Server", there is no limit in the amount of servers you can add.
+- Target Folder must link to your UnrealTournament main folder(CASE SENSITIVE), e.g /Servers/UnrealTournament/ for an FTP user with entry point of C:/
+![alt text](https://i.imgur.com/aMJUxCm.png "ftp image")
+- You can later edit settings if required.
 
 # Currently Supported Gametypes
 - Deathmatch
