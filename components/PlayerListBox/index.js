@@ -2,6 +2,7 @@ import styles from './PlayerListBox.module.css';
 import Countries from '../../api/countries';
 import Link from 'next/link';
 import TimeStamp from '../TimeStamp/';
+import CountryFlag from '../CountryFlag';
 
 
 
@@ -57,7 +58,7 @@ function PlayerListBox({
                         <div className={styles.left}>
                             <img className={styles.face} src={`/images/faces/${face}.png`} alt="face"/>
                             <div className={styles.country}>
-                                <img src={`/images/flags/${country}.svg`} alt="flag"/><br/>
+                                <CountryFlag country={countryData.country}/><br/>
                                 {countryData.country}
                             </div>
                         </div>

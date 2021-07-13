@@ -42,7 +42,7 @@ class Map extends React.Component{
         const matches = this.props.matches;
 
         const session = JSON.parse(this.props.session);
-        console.log(session);
+        //console.log(session);
 
         return <div>
         <DefaultHead host={this.props.host} 
