@@ -21,16 +21,23 @@
 	font-family: 'Source Sans Pro', sans-serif;
 }
 
-html,
-body {
-	/*background-color:hsl(60,10%,100%);*/
-	background-color:rgb(3,3,3);
+html{
+
 	background-image:url(../public/images/bg.jpg);
 	background-size:100% 100%;
 	background-attachment: fixed;
 	height:100%;
 	position: relative;
 	overflow-x:hidden;
+}
+
+
+body {
+	/*background-color:hsl(60,10%,100%);*/
+	background-color:rgba(3,3,3,0.95);
+	min-height:100vh;
+	min-width:100vw;
+	
 }
 
 a {
@@ -44,7 +51,6 @@ main{
 	min-height:100vh;
 	min-width:100vw;
 	position:relative;
-	background-color:rgba(3,3,3,0.95);
 }
 
 header{

@@ -1,6 +1,8 @@
 const Importer =  require('./api/importer/importer');
 const Message =  require('./api/message');
 const mysql = require('./api/database');
+const fs = require('fs');
+const config = require('./config.json');
 
 new Message('Node UTStats 2 Importer module started.','note');
 
@@ -26,7 +28,7 @@ async function setFTPSettings(){
 }
 
 
-function startNewImport(ftpServer){
+function startNewImport(ftpServer, logsToImport){
 
     
 
@@ -34,7 +36,13 @@ function startNewImport(ftpServer){
 
         const f = ftpServer;
 
-        const I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files, f.ignore_bots, f.ignore_duplicates);
+        let I = 0;
+
+        if(ftpServer !== null){
+            I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files, f.ignore_bots, f.ignore_duplicates);
+        }else{
+            I = new Importer(null, null, null, null, null, null, null, null, null, true, logsToImport);
+        }
 
         I.myEmitter.on("passed", () =>{
 
@@ -60,16 +68,41 @@ function startNewImport(ftpServer){
 
         await setFTPSettings();
 
-        let currentServerIndex = 0;
+        if(ftpServers.length > 0){
 
-        while(currentServerIndex < ftpServers.length){
+            let currentServerIndex = 0;
 
-            await startNewImport(ftpServers[currentServerIndex]);
+            while(currentServerIndex < ftpServers.length){
 
-            currentServerIndex++;
+                await startNewImport(ftpServers[currentServerIndex]);
+
+                currentServerIndex++;
+
+            }
 
         }
 
+        new Message(`Checking for logs in/Logs folder.`,'note');
+        //console.log(fs.readdirSync("./Logs"));
+
+        const foundFiles = fs.readdirSync("./Logs");
+
+        const toImport = [];
+
+        for(let i = 0; i < foundFiles.length; i++){
+
+            if(foundFiles[i].toLocaleLowerCase().startsWith(config.logFilePrefix)){
+                toImport.push(foundFiles[i]);
+            }
+        }
+
+        if(toImport.length > 0){
+            await startNewImport(null, toImport);
+        }else{
+            new Message(`There are no logs to import in /Logs folder`,'note');
+        }
+
+        
         new Message(`Import process completed.`,'pass');
         process.exit(0);
 
