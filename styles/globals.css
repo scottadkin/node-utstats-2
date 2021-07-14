@@ -82,6 +82,7 @@ footer{
 	font-weight:400;
 	padding:20px 0px;
 	font-size:14px;
+	line-height:24px;
 	border-top:1px solid var(--border-color-1);
 }
 
@@ -133,7 +134,7 @@ footer{
 }
 
 #content{
-	padding-bottom:100px;
+	padding-bottom:150px;
 }
 
 .kv{

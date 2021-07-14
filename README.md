@@ -1,6 +1,10 @@
 # Node UTStats 2
 Unreal Tournament stats tracking website using node.js and mysql.
 
+## Thanks to
+- Many thanks to the original creators of the UTStats mutators and website **azazel, )°DoE°(-AnthraX and toa**
+- Thanks to Krull0r for the Monster Icons.
+
 # Requirements
 - Node.js 14.17 or greater.
 - Mysql
@@ -14,13 +18,17 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Now run the command **node install** this will create the database and all the tables needed by node utstats 2.
 
 # Install Unreal Tournament mutators
-- First you will need to download and install the original utstats mutator, and follow it's install guide ignore the website part.
-- Now take nodeutstats2.u and nodeutstats2.ini from the Mutators folder(node utstats archive) and place them in your UnrealTournament server's System folder.
+- Go to the Mutators folder of the nodeutstats2 archive.
+- Copy the contents to your UnrealTournament system's folder.
 - Now open your UnrealTournament server's UnrealTournament.ini and find the block **[Engine.GameEngine]**.
 - Now add the following line at the bottom of the block:
 ```
+ServerPackages=UTSAccuBeta4_2
+ServerActors=UTStatsBeta4_2.UTStatsSA
 ServerActors=NodeUTStats2.NodeUTStatsServerActor
 ```
+- In the same file under the block **[Engine.GameInfo]**, make sure bLocalLog is set to **false** like this **bLocalLog=False**.
+- If you are running UT469A, or UT469B on your server, check the block **[Engine.StatLog]** and make sure **WorldLogDir** is set to **../Logs**(There was a bug where it was set to blank making the logs being written to the root directory of the drive)
 - Restart your UnrealTournament server if it's running
 
 # Starting the website

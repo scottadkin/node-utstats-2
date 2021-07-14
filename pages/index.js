@@ -188,7 +188,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 				{(pageSettings["Display Most Popular Countries"] === "true") ? 
 				<div>
 					<div className="default-header">
-						Most Popular Countires
+						Most Popular Countries
 					</div>
 					<PopularCountries data={countriesData}/>
 				</div>
