@@ -4,7 +4,7 @@
         "port": 3306,
         "user": "root",
         "password": "",
-        "database": "node_utstats"
+        "database": "node_utstats_2"
     },
     "logFilePrefix": "unreal.nglog.",
     "importedLogsFolder": "Logs",
