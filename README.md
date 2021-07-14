@@ -40,6 +40,12 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 # Creating an admin account
 - If there are no users in the database, create an account by going to the site's login page, then press the "Not a member? Register now!" button, the next created account will automatically set to admin, and will be activated.
 
+# Running the importer
+- Go to the folder you installed node utstats 2
+- Open command prompt, type **node importer** to start the import process(you can put stat logs in the /Logs folder to skip the ftp download).
+- Once completed you should see on your website new matches & players being displayed in their respected pages.
+
+
 # Adding FTP servers
 - FTP accounts require read, write, and delete privileges. 
 - To add FTP servers to node utstats 2, go to the admin area of the website, then "FTP manager", then finally "Add Server", there is no limit in the amount of servers you can add.
