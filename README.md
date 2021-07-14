@@ -13,6 +13,16 @@ Unreal Tournament stats tracking website using node.js and mysql.
 ![alt text](https://i.imgur.com/nwuVLkp.png "config.json image")
 - Now run the command **node install** this will create the database and all the tables needed by node utstats 2.
 
+# Install Unreal Tournament mutators
+- First you will need to download and install the original utstats mutator, and follow it's install guide ignore the website part.
+- Now take nodeutstats2.u and nodeutstats2.ini from the Mutators folder(node utstats archive) and place them in your UnrealTournament server's System folder.
+- Now open your UnrealTournament server's UnrealTournament.ini and find the block **[Engine.GameEngine]**.
+- Now add the following line at the bottom of the block:
+```
+ServerActors=NodeUTStats2.NodeUTStatsServerActor
+```
+- Restart your UnrealTournament server if it's running
+
 # Starting the website
 - You have two options of running the website, development mode(slow, but easier for debugging) or production mode.
 - To run in development mode open command prompt in the installed folder and run the command **npm run dev**

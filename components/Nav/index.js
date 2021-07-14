@@ -126,6 +126,9 @@ function Nav({session, settings}){
                 <div id="mouse-over-content"></div>
             </div>
         <header>
+            <div id="beta-message">
+                This is an early beta build, there may be problems at first, they will be fixed once reported <a className="yellow" href="https://github.com/scottadkin/node-utstats-2/issues">Here</a>
+            </div>
             <h1>Node UTStats 2</h1>
             <nav>
                 {elems} 

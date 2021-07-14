@@ -45,7 +45,12 @@ a {
 	text-decoration: none;
 }
 
-
+#beta-message{
+	background-color:rgb(200,0,0);
+	text-align:center;
+	padding:25px;
+	font-size:16px;
+}
 
 main{
 	min-height:100vh;
