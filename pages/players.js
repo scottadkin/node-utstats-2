@@ -174,8 +174,8 @@ class Players extends React.Component{
             paginationElem = <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>;
         }else{
 
-            pList = <div className="not-found">There are no matches for your search terms.</div>
-            paginationElem = '';
+            pList = null
+            paginationElem = null;
         }
 
 

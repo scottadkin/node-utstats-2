@@ -1,53 +1,16 @@
+import styles from './RankingsExplained.module.css';
+
+const createRow = (data) =>{
+    return <tr>
+        <td>{data.name}</td>
+        <td>{data.description}</td>
+        <td>{data.value}</td>
+    </tr>
+}
+
 const RankingsExplained = ({settings}) =>{
 
-    const titles = {
-        "multi_1": "Double Kill",
-        "multi_2": "Multi Kill",
-        "multi_3": "Mega Kill",
-        "multi_4": "Ultra Kill",
-        "multi_5": "Monster Kill",
-        "multi_6": "Ludicrous Kill",
-        "multi_7": "Holy Shit",
-        "spree_1": "Killing Spree",
-        "spree_2": "Rampage",
-        "spree_3": "Dominating",
-        "spree_4": "Unstoppable",
-        "spree_5": "Godlike",
-        "spree_6": "Too Easy",
-        "spree_7": "Brutalizing the Competition",
-        "frags": "Kills",
-        "deaths": "Deaths",
-        "suicides": "Suicides",
-        "team_kills": "Team Kills",
-        "flag_taken": "Flag Taken",
-        "flag_pickup": "Flag Pickup",
-        "flag_return": "Flag Return",
-        "flag_capture": "Flag Capture",
-        "flag_cover": "Flag Cover",
-        "flag_seal": "Flag Seal",
-        "flag_dropped": "Flag Dropped",
-        "flag_assist": "Flag Assist",
-        "flag_kill": "Flag Kill",
-        "flag_save": "Flag Close Return",
-        "flag_cover_pass": "Successful Flag Cover",
-        "flag_self_cover": "Kills With Flag",
-        "flag_self_cover_pass": "Successful Kills With Flag",
-        "flag_self_cover_fail": "Failed Kills With Flag",
-        "flag_cover_fail": "Failed Flag Cover",
-        "flag_multi_cover": "Multi Cover",
-        "flag_spree_cover": "Cover Spree",
-        "dom_caps": "Domination Control Points",
-        "assault_objectives": "Assault Objectives",
-        "sub_half_hour_multiplier": "Less than 30 minutes playtime penalty",
-        "sub_hour_multiplier": "Less than 1 Hour playtime penalty",
-        "sub_2hour_multiplier": "Less than 2 Hours playtime penalty",
-        "sub_3hour_multiplier": "Less than 3 Hours playtime penalty",
-  
-    }
-
-    const rows = [];
-
-    let currentTitle = "";
+    const settingsObject = {};
 
     let s = 0;
 
@@ -55,26 +18,149 @@ const RankingsExplained = ({settings}) =>{
 
         s = settings[i];
 
-        currentTitle = (titles[s.name] !== undefined) ? titles[s.name] : s.name;
-
-        rows.push(<tr key={i}>
-            <td>{currentTitle}</td>
-            <td>{s.value}</td>
-        </tr>);
+        settingsObject[s.name] = {
+            "value": s.value,
+            "name": s.display_name,
+            "description": s.description
+        };
     }
 
     return <div>
         <div className="default-header">Rankings Explained</div>
 
-        <table className="td-1-left t-width-2">
+        <div className="default-sub-header">Frags</div>
+
+        <table className={`t-width-1 ${styles.table}`}>
             <tbody>
                 <tr>
-                    <th>Name</th>
-                    <th>Value</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Points Per Event</th>
                 </tr>
-                {rows}
+                {createRow(settingsObject.frags)}
+                {createRow(settingsObject.deaths)}
+                {createRow(settingsObject.suicides)}
+                {createRow(settingsObject.team_kills)}
             </tbody>
         </table>
+
+        <div className="default-sub-header">
+            Multi Kills
+        </div>
+
+        <table className={`t-width-1 ${styles.table}`}>
+            <tbody>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Points Per Event</th>
+                </tr>
+                {createRow(settingsObject.multi_1)}
+                {createRow(settingsObject.multi_2)}
+                {createRow(settingsObject.multi_3)}
+                {createRow(settingsObject.multi_4)}
+                {createRow(settingsObject.multi_5)}
+                {createRow(settingsObject.multi_6)}
+                {createRow(settingsObject.multi_7)}
+                
+            </tbody>
+        </table>
+
+        <div className="default-sub-header">
+            Killing Sprees
+        </div>
+        <table className={`t-width-1 ${styles.table}`}>
+            <tbody>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Points Per Event</th>
+                </tr>
+                {createRow(settingsObject.spree_1)}
+                {createRow(settingsObject.spree_2)}
+                {createRow(settingsObject.spree_3)}
+                {createRow(settingsObject.spree_4)}
+                {createRow(settingsObject.spree_5)}
+                {createRow(settingsObject.spree_6)}
+                {createRow(settingsObject.spree_7)}
+                
+            </tbody>
+        </table>
+
+        <div className="default-sub-header">
+            Capture the Flag
+        </div>
+        <table className={`t-width-1 ${styles.table}`}>
+            <tbody>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Points Per Event</th>
+                </tr>
+                {createRow(settingsObject.flag_taken)}
+                {createRow(settingsObject.flag_pickup)}
+                {createRow(settingsObject.flag_return)}
+                {createRow(settingsObject.flag_save)}
+                {createRow(settingsObject.flag_capture)}
+                {createRow(settingsObject.flag_seal)}
+                {createRow(settingsObject.flag_assist)}
+                {createRow(settingsObject.flag_kill)}
+                {createRow(settingsObject.flag_dropped)}
+                {createRow(settingsObject.flag_cover)}
+                {createRow(settingsObject.flag_cover_pass)}
+                {createRow(settingsObject.flag_cover_fail)}
+                {createRow(settingsObject.flag_self_cover)}
+                {createRow(settingsObject.flag_self_cover_pass)}
+                {createRow(settingsObject.flag_self_cover_fail)}
+                {createRow(settingsObject.flag_multi_cover)}
+                {createRow(settingsObject.flag_spree_cover)}
+  
+                
+            </tbody>
+        </table>
+
+        <div className="default-sub-header">
+            Assault
+        </div>
+        <table className={`t-width-1 ${styles.table}`}>
+            <tbody>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Points Per Event</th>
+                </tr>
+                {createRow(settingsObject.assault_objectives)}
+            </tbody>
+        </table>
+
+        <div className="default-sub-header">
+            Domination
+        </div>
+        <table className={`t-width-1 ${styles.table}`}>
+            <tbody>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Points Per Event</th>
+                </tr>
+                {createRow(settingsObject.dom_caps)}
+            </tbody>
+        </table>
+
+        <div className="default-sub-header">
+            MonsterHunt
+        </div>
+        <table className={`t-width-1 ${styles.table}`}>
+            <tbody>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Points Per Event</th>
+                </tr>
+                {createRow(settingsObject.mh_kills)}
+            </tbody>
+        </table>
+        
     </div>
 }
 

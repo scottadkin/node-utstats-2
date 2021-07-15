@@ -353,7 +353,7 @@ class Rankings{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT name,value FROM nstats_ranking_values";
+            const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
 
             mysql.query(query, (err, result) =>{
 

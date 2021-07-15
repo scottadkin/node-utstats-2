@@ -1,0 +1,11 @@
+.table td:nth-child(1){
+    width:150px;
+}
+
+.table td:nth-child(2){
+    font-size:14px;
+}
+
+.table td:nth-child(3){
+    width:150px;
+}
