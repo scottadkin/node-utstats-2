@@ -7,7 +7,6 @@ import RecordsList from '../components/RecordsList/';
 import Pagination from '../components/Pagination/';
 import React from 'react';
 import Link from 'next/link';
-import styles from '../styles/Records.module.css';
 import Maps from '../api/maps';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
@@ -312,7 +311,6 @@ class Records extends React.Component{
 
         this.setCookie("recordsMode", mode);
 
-        console.log(`RecordsMode should now be ${mode}`);
     }
 
     render(){
@@ -394,7 +392,7 @@ class Records extends React.Component{
 
                             <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
                         </div>
-                        <div className={styles.info}>Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
+                        <div className="default-sub-header">Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
                         <RecordsList mode={mode} type={this.state.type} title={title} data={currentRecords} page={page} perPage={perPage} record={record}/>
                         <div className="text-center">
                             <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>

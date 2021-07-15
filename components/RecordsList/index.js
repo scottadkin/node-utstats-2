@@ -5,13 +5,16 @@ import Link from 'next/link';
 
 const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
 
-    console.log(type);
+    if(data === "[]"){
+        return <div>
+            There is currently no data for this record type.
+        </div>
+    }
     data = JSON.parse(data);
     record = JSON.parse(record);
 
     mode = parseInt(mode);
 
-    console.log(`mode = ${mode}`);
     const rows = [];
 
     if(record.length === 0) return null;
@@ -25,6 +28,8 @@ const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
     let d = 0;
     let place = 0;
     let currentValue = 0;
+
+    
 
     for(let i = 0; i < data.length; i++){
 
@@ -68,11 +73,9 @@ const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
 
             if(mode === 0){
 
-                if(currentValue / (60 * 60) >= 0.1){
-                    currentValue = `${(currentValue / (60 * 60)).toFixed(2)} Hours`;
-                }else{
-                    currentValue = `${(currentValue / 60).toFixed(2)} Minutes`;
-                }
+           
+                currentValue = `${(currentValue / (60 * 60)).toFixed(2)} Hours`;
+               
 
             }else{
                 currentValue = `${(currentValue / 60).toFixed(2)} Minutes`;
@@ -150,7 +153,7 @@ const RecordsList = ({mode, type, title, data, page, perPage, record}) =>{
         </th>);
     }
     
-    return <div className="special-table">
+    return <div className="special-table m-bottom-25">
         <table className={`${styles.table} t-width-1`}>
             <tbody>
                 <tr>
