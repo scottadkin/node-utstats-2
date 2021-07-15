@@ -137,6 +137,11 @@ footer{
 	padding-bottom:150px;
 }
 
+
+#welcome-text{
+	font-size:14px;
+}
+
 .kv{
 	display:grid;
 	grid-template-columns: 50% 50%;

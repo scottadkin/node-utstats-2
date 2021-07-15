@@ -104,6 +104,12 @@ function createDatesGraphData(data){
 	if(totalWeekPlayers === 0) weekPlayers = [];
 	if(totalMonth === 0) month = [];
 	if(totalMonthPlayers === 0) monthPlayers = [];
+
+	if(hours.length === 0 && week.length === 0 && month.length === 0 && hoursPlayers.length === 0 &&
+		 weekPlayers.length === 0 && monthPlayers.length === 0){
+
+			return null;
+	}
 	
 	return {
 		"title": ["Stats Past 24 Hours", "Stats Past 7 Days", "Stats Past 28 Days"],
@@ -156,6 +162,88 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 		</div>;
 	}	
 
+
+	const elems = [];
+
+	if(JSON.parse(matchesData) > 0){
+
+		if(pageSettings["Display Recent Matches"] === "true"){
+
+			elems.push(<div key={"recent-matches"}>
+
+				<div className="default-header">Recent Matches</div>
+			
+				{(pageSettings["Recent Matches Display Type"] == "0") ? <MatchesDefaultView images={mapImages} data={matchesData} /> : 
+				<MatchesTableView data={matchesData}/> }
+
+			</div>);
+		}
+	}
+
+	if(graphData !== null){
+
+		if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
+			elems.push(
+				<div key={"matches-graph"}>
+					<div className="default-header">Recent Matches &amp; Player Stats</div>
+					<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
+				</div>
+			);
+		}
+	}
+
+	if(JSON.parse(gametypeStats).length > 0){
+		
+		if(pageSettings["Display Most Played Gametypes"] === "true"){
+			elems.push(<HomeMostPlayedGametypes data={gametypeStats}/>);
+		}
+	}
+
+
+
+	if(JSON.parse(mostPlayedMaps).length > 0){
+
+		if(pageSettings["Display Most Played Maps"] === "true"){
+			elems.push(<HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>);
+		}
+	}
+
+	if(JSON.parse(recentPlayersData).length > 0){
+
+		if(pageSettings["Display Recent Players"] === "true"){
+			elems.push(<BasicPlayers title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>);
+		}
+	}
+
+	if(JSON.parse(addictedPlayersData).length > 0){
+
+		if(pageSettings["Display Addicted Players"] === "true"){
+			elems.push(<BasicPlayers title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>);
+		}
+	}
+
+	if(JSON.parse(mostUsedFaces).length > 0){
+
+		if(pageSettings["Display Most Used Faces"] === "true"){
+			elems.push(<MostUsedFaces data={mostUsedFaces} images={faceFiles}/>);
+		}
+	}
+
+
+	if(JSON.parse(countriesData).length > 0){
+
+		if(pageSettings["Display Most Popular Countries"] === "true"){
+
+			elems.push(<div key={"countries"}>
+				<div className="default-header">
+					Most Popular Countries
+				</div>
+				<PopularCountries data={countriesData}/>
+			</div>);
+		}
+
+	}
+
 	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
 		<div>
@@ -168,32 +256,10 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 			
 				{message}
 
-				{(pageSettings["Display Recent Matches"] === "true") ? <div className="default-header">Recent Matches</div> : null }
-				{(pageSettings["Recent Matches Display Type"] == "0") ? <MatchesDefaultView images={mapImages} data={matchesData} /> : 
-				<MatchesTableView data={matchesData}/> }
+				<div className="default-header">Welcome to Node UTStats 2</div>
+				<div id="welcome-text">Here you can look up information on UT matches, players, and maps.</div>
 
-				{(pageSettings["Display Recent Matches & Player Stats"] === "true") ? <div><div className="default-header">Recent Matches &amp; Player Stats</div>
-				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/></div> : null }
-
-				{(pageSettings["Display Most Played Gametypes"] === "true") ? <HomeMostPlayedGametypes data={gametypeStats}/> : null }
-			
-				{(pageSettings["Display Most Played Maps"] === "true") ? <HomeTopMaps maps={mostPlayedMaps} images={mapImages}/> : null }
-
-				{(pageSettings["Display Recent Players"] === "true") ? <BasicPlayers title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/> : null }
-
-				{(pageSettings["Display Addicted Players"] === "true") ? <BasicPlayers title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/> : null }
-
-				{(pageSettings["Display Most Used Faces"] === "true") ? <MostUsedFaces data={mostUsedFaces} images={faceFiles}/> : null }
-				
-				{(pageSettings["Display Most Popular Countries"] === "true") ? 
-				<div>
-					<div className="default-header">
-						Most Popular Countries
-					</div>
-					<PopularCountries data={countriesData}/>
-				</div>
-				: null
-				}
+				{elems}
 				
 			</div>
 			</div>
