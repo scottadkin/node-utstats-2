@@ -685,7 +685,7 @@ const queries = [
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Frag','Player Killed an enemy',300)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Kill','Player Killed an enemy',300)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'deaths','Death','Player died',-150)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'suicides','Suicide','Player killed themself',-150)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'team_kills','Team Kill','Player killed a team mate',-1200)",
@@ -713,13 +713,13 @@ const queries = [
 
     "INSERT INTO nstats_ranking_values VALUES(NULL,'assault_objectives','Assault Objectives','Player captured an assault objective.',6000)",
 
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_1','Double Kill','Player killed 2 people in a short amount of time without dying',600)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_2','Multi Kill','Player killed 3 people in a short amount of time without dying',650)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_3','Mega Kill','Player killed 4 people in a short amount of time without dying',700)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_4','Ultra Kill','Player killed 5 people in a short amount of time without dying',1000)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_5','Monster Kill','Player killed 6 people in a short amount of time without dying',1250)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_6','Ludicrous Kill','Player killed 7 people in a short amount of time without dying',1500)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_7','Holy Shit','Player killed 8 or more people in a short amount of time without dying',1750)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_1','Double Kill','Player killed 2 people in a short amount of time without dying',100)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_2','Multi Kill','Player killed 3 people in a short amount of time without dying',150)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_3','Mega Kill','Player killed 4 people in a short amount of time without dying',200)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_4','Ultra Kill','Player killed 5 people in a short amount of time without dying',300)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_5','Monster Kill','Player killed 6 people in a short amount of time without dying',450)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_6','Ludicrous Kill','Player killed 7 people in a short amount of time without dying',600)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'multi_7','Holy Shit','Player killed 8 or more people in a short amount of time without dying',750)",
 
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_1','Killing Spree','Player killed 5 to 9 players in one life',600)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_2','Rampage','Player killed 10 to 14 players in one life',750)",
@@ -736,13 +736,13 @@ const queries = [
          NULL,
          'sub_half_hour_multiplier',
          'Sub 30 Minutes Playtime Penalty',
-         'Multiply the player\\'s ranking score to penalize them for not playing enough. (Multiplying by 0.05 for example will reduce the player\\'s score by 95%)',
+         'Reduce the player\\'s score to a percentage of it\\'s original value',
           0.05)`,
     
     
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_hour_multiplier','Sub 1 Hour Playtime Penalty Multiplier','Multiply the player\\'s ranking score to penalize them for not playing enough. (Multiplying by 0.05 for example will reduce the player\\'s score by 95%)', 0.2)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_2hour_multiplier','Sub 2 Hour Playtime Penalty Multiplier','Multiply the player\\'s ranking score to penalize them for not playing enough. (Multiplying by 0.05 for example will reduce the player\\'s score by 95%)', 0.5)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_3hour_multiplier','Sub 3 Hour Playtime Penalty Multiplier','Multiply the player\\'s ranking score to penalize them for not playing enough. (Multiplying by 0.05 for example will reduce the player\\'s score by 95%)', 0.75)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_hour_multiplier','Sub 1 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.2)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_2hour_multiplier','Sub 2 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.5)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_3hour_multiplier','Sub 3 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.75)",
     `INSERT INTO nstats_items VALUES(NULL,"AntiGrav Boots","Jump Boots",0,0,0,0,5)`,
     `INSERT INTO nstats_items VALUES(NULL,"Body Armor","Body Armor",0,0,0,0,3)`,
     `INSERT INTO nstats_items VALUES(NULL,"Chainsaw","Chainsaw",0,0,0,0,1)`,
@@ -903,6 +903,7 @@ const queries = [
             await basicQuery(queries[i]);
 
             if(i === 0){
+                mysql.end();
                 mysql = mysqlObject.createPool({
                     "host": config.mysql.host,
                     "user": config.mysql.user,
@@ -913,6 +914,8 @@ const queries = [
             new Message(`Performed query ${i+1} of ${queries.length}`,"pass");
         
         }
+
+        mysql.end();
 
         const seed = Functions.generateRandomString(10000);
 

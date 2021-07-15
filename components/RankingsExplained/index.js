@@ -14,12 +14,19 @@ const RankingsExplained = ({settings}) =>{
 
     let s = 0;
 
+    const penalites = [
+        "sub_half_hour_multiplier",
+        "sub_hour_multiplier",
+        "sub_2hour_multiplier",
+        "sub_3hour_multiplier"
+    ];
+
     for(let i = 0; i < settings.length; i++){
 
         s = settings[i];
 
         settingsObject[s.name] = {
-            "value": s.value,
+            "value": (penalites.indexOf(s.name) === -1) ? s.value: `${100 - (s.value * 100)}%`,
             "name": s.display_name,
             "description": s.description
         };
@@ -27,6 +34,23 @@ const RankingsExplained = ({settings}) =>{
 
     return <div>
         <div className="default-header">Rankings Explained</div>
+
+        <div className="default-sub-header">
+            Penalties
+        </div>
+        <table className={`t-width-1 ${styles.table}`}>
+            <tbody>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Penalty</th>
+                </tr>
+                {createRow(settingsObject.sub_half_hour_multiplier)}
+                {createRow(settingsObject.sub_hour_multiplier)}
+                {createRow(settingsObject.sub_2hour_multiplier)}
+                {createRow(settingsObject.sub_3hour_multiplier)}
+            </tbody>
+        </table>
 
         <div className="default-sub-header">Frags</div>
 
