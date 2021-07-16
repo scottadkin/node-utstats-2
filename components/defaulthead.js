@@ -28,6 +28,7 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
             <meta property="og:type" content="website" />
             <meta property="og:url" content={`https://${host}${router.asPath}`} />
             <meta property="og:image" content={`http://${host}/images/${image}.${imageType}`} />
+            <meta property="og:site_name" content="Node UTStats 2" />
            
             <script src="../js/main.js"></script>
         </Head>    

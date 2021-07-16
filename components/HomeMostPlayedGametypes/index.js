@@ -1,4 +1,6 @@
 import TimeStamp from '../TimeStamp/';
+import styles from './HomeMostPlayedGametypes.module.css';
+import Image from 'next/image';
 
 const HomeMostPlayedGametypes = ({data}) =>{
     
@@ -6,7 +8,29 @@ const HomeMostPlayedGametypes = ({data}) =>{
 
     const elems = [];
 
+    console.log(data);
+
     let d = 0;
+
+    data.push(data[data.length - 1]);
+
+    for(let i = 0; i < data.length; i++){
+
+        d = data[i];
+
+        elems.push(<div className={styles.box} key={i}>
+            <div className={styles.name}>{d.name}</div>
+            <div className={styles.image}><Image src={`/images/temp.jpg`} width="384" height="216"/></div>
+            <div className={styles.info}>
+                Matches {d.matches}<br/>
+                Playtime {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
+                <span className="yellow">First</span> <TimeStamp timestamp={d.first} noDayName={true}/><br/>
+                <span className="yellow">Last</span> <TimeStamp timestamp={d.last} noDayName={true}/><br/>
+            </div>
+        </div>);
+    }
+
+    /*let d = 0;
 
     for(let i = 0; i < data.length; i++){
 
@@ -39,11 +63,11 @@ const HomeMostPlayedGametypes = ({data}) =>{
         </table>
     }else{
         return null;
-    }
+    }*/
 
-    return <div className="special-table">
+    return <div className="special-table center">
         <div className="default-header">Most Played Gametypes</div>
-        {table}
+        {elems}
     </div>
 }
 
