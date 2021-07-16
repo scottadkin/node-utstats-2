@@ -17,6 +17,7 @@ const Rankings = require('./rankings');
 const Servers = require('./servers');
 const Voices = require('./voices');
 const Winrate = require('./winrate');
+const fs = require('fs');
 
 class Gametypes{
 
@@ -840,6 +841,12 @@ class Gametypes{
         }catch(err){
             console.trace(err);
         }
+    }
+
+
+    getImages(){
+
+        return fs.readdirSync("./public/images/gametypes/");
     }
 }
 

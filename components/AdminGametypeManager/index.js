@@ -8,7 +8,7 @@ class AdminGametypeManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 0, 
+            "mode": 3, 
             "data": this.props.data, 
             "bFailedRename": null, 
             "renameErrors": [],
@@ -24,6 +24,47 @@ class AdminGametypeManager extends React.Component{
         this.mergeGametype = this.mergeGametype.bind(this);
         this.changeMode = this.changeMode.bind(this);
         this.delete = this.delete.bind(this);
+
+        this.uploadSingle = this.uploadSingle.bind(this);
+    }
+
+    async uploadSingle(e){
+
+        try{
+
+            e.preventDefault();
+
+            const errors = [];
+
+            if(e.target[1].files.length === 0){
+                errors.push("You have not selected a file to upload.");
+            }
+
+        
+
+            if(errors.length === 0){
+
+                const formData = new FormData();
+
+                formData.append("mode", "single");
+                formData.append("fileName", e.target[0].value);
+                formData.append("file", e.target[1].files[0]);
+                
+
+                const req = await fetch("/api/gametypeimageuploader",{
+                    "method": "POST",
+                    "body": formData
+                });
+
+                const result = await req.json();
+
+                console.log(result);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+
     }
 
     async delete(e){
@@ -520,6 +561,70 @@ class AdminGametypeManager extends React.Component{
         </div>
     }
 
+
+    cleanName(input){
+
+        input = input.toLowerCase();
+
+        return input.replace(/ /ig,"");
+    }
+
+
+    renderImageUploader(){
+
+        if(this.state.mode !== 3) return null;
+
+        const rows = [];
+
+        let d = 0;
+
+        for(let i = 0; i < this.props.data.length; i++){
+
+            d = this.props.data[i];
+
+            rows.push(<tr key={i}>
+                <td>{d.name}</td>
+                <td></td>
+                <td>
+                    <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.uploadSingle}>
+                        <input type="hidden" value={this.cleanName(d.name)}/>
+                        <input type="file" accept=".jpg" />
+                        <input type="submit" value="Upload" />
+                    </form>
+                </td>
+            </tr>);
+        }
+
+        return <div>
+            <div className="default-header">Gametype Image Uploader</div>
+
+            <div className="default-header">Bulk Image Uploader</div>
+            <form className="form">
+                <div className="form-info">
+                    Images must be .jpg, and ideally 16:9 aspect ratio.<br/>
+                    Name them in all lowercase with no spaces, e.g Capture the Flag should be called <b>capturetheflag.jpg</b>
+                </div>
+            </form>
+
+            <div className="default-header">Single Image uploader</div>
+            <form className="form m-bottom-25">
+                <div className="form-info">For single image uploads the name is automatically set, required file type is the same as specified above.</div>
+            </form>
+            {(rows.length === 0) ? null :
+                <table className="t-width-1">
+                    <tbody>
+                        <tr>
+                            <th>Gametype Name</th>
+                            <th>File Status</th>
+                            <th>Upload</th>
+                        </tr>
+                        {rows}
+                    </tbody>
+                </table>
+                }
+        </div>  
+    }
+
     render(){
 
         return <div>
@@ -541,11 +646,17 @@ class AdminGametypeManager extends React.Component{
                 })}>
                     Delete Gametypes
                 </div>
+                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(3);
+                })}>
+                    Upload Gametype Images
+                </div>
             </div>
 
             {this.renderRename()}
             {this.renderMerge()}
             {this.renderDelete()}
+            {this.renderImageUploader()}
         </div>
     }
 }

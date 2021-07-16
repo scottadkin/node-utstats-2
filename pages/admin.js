@@ -52,7 +52,8 @@ class Admin extends React.Component{
             "nexgenCreatePassed": null,
             "nexgenCreateErrors": [],
             "monsterFiles": JSON.parse(this.props.monsterImages),
-            "monsters": JSON.parse(this.props.monsters)
+            "monsters": JSON.parse(this.props.monsters),
+            "gametypeImages": JSON.parse(this.props.gametypeImages)
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -703,7 +704,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 6) return null;
 
-        return <AdminGametypeManager data={this.state.gametypeNames} updateParentGametypeNames={this.setGametypeNames}/>
+        return <AdminGametypeManager data={this.state.gametypeNames} updateParentGametypeNames={this.setGametypeNames} images={this.state.gametypeImages}/>
     }
 
     displayPickupsManager(){
@@ -879,6 +880,7 @@ export async function getServerSideProps({req, query}){
     let nexgenValidTypes = [];
     let monsterImages = [];
     let monsters = [];
+    let gametypeImages = [];
 
 
     if(bUserAdmin){
@@ -915,6 +917,7 @@ export async function getServerSideProps({req, query}){
         const gametypeManager = new Gametypes();
 
         gametypeNames = await gametypeManager.getAll();
+        gametypeImages = gametypeManager.getImages();
 
         const rankingManager = new Rankings();
 
@@ -970,7 +973,8 @@ export async function getServerSideProps({req, query}){
             "nexgenStatsViewerSettings": JSON.stringify(nexgenStatsViewerSettings),
             "nexgenValidTypes": JSON.stringify(nexgenValidTypes),
             "monsterImages": JSON.stringify(monsterImages),
-            "monsters": JSON.stringify(monsters)
+            "monsters": JSON.stringify(monsters),
+            "gametypeImages": JSON.stringify(gametypeImages)
         }
     };
 }
