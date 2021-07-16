@@ -13,6 +13,8 @@ export default async (req, res) =>{
 
     try{
 
+        console.log("CHECK");
+
         const session = new Session(req);
 
         await session.load();
@@ -29,10 +31,13 @@ export default async (req, res) =>{
             let fileSingleName = null;
             let filePath = "";
 
+            const filePaths = [];
+            const fileNames = [];
+
             form.parse(req, (err, fields, files) =>{
 
                 if(err) console.trace(err);
-                console.log(fields, files);
+               // console.log(fields, files);
 
                 if(fields.mode !== undefined){
 
@@ -50,7 +55,6 @@ export default async (req, res) =>{
                 if(part.filename){
 
                     const result = reg.exec(part.filename);
-
 
                     if(result !== null){
 
@@ -79,12 +83,21 @@ export default async (req, res) =>{
             form.on("file", (name, file) =>{
 
                 filePath = file.path;
+
+                filePaths.push(file.path);
+                fileNames.push(file.name);
             });
 
             form.once("end", () =>{
 
                 if(fileSingleName !== null){
                     fs.renameSync(filePath, `./public/images/gametypes/${fileSingleName}.jpg`);
+                }else{
+
+                    for(let i = 0; i < filePaths.length; i++){
+
+                        fs.renameSync(filePaths[i],`./public/images/gametypes/${fileNames[i].replace(/ /ig, "").toLowerCase()}.jpg` );
+                    }
                 }
             });
 

@@ -26,6 +26,51 @@ class AdminGametypeManager extends React.Component{
         this.delete = this.delete.bind(this);
 
         this.uploadSingle = this.uploadSingle.bind(this);
+        this.uploadMultiple = this.uploadMultiple.bind(this);
+    }
+
+    async uploadMultiple(e){
+
+        try{
+
+            console.log("FUCK");
+            e.preventDefault();
+
+            console.log(e.target[0].files);
+
+            const errors = [];
+
+            if(e.target[0].files.length === 0){
+
+                errors.push("You have not selected an image to upload");
+            };
+
+            if(errors.length === 0){
+
+                console.log("OK");
+
+                const formData = new FormData();
+
+
+                for(let i = 0; i < e.target[0].files.length; i++){
+
+                    formData.append(`file_${i}`, e.target[0].files[i]);
+                }
+
+
+                const req = await fetch("/api/gametypeimageuploader", {
+                    "method": "POST",
+                    "body": formData
+                });
+
+                const result = await req.json();
+
+                console.log(result);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     async uploadSingle(e){
@@ -588,7 +633,7 @@ class AdminGametypeManager extends React.Component{
                 <td>
                     <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.uploadSingle}>
                         <input type="hidden" value={this.cleanName(d.name)}/>
-                        <input type="file" accept=".jpg" />
+                        <input type="file" accept=".jpg,.jpeg" />
                         <input type="submit" value="Upload" />
                     </form>
                 </td>
@@ -599,11 +644,21 @@ class AdminGametypeManager extends React.Component{
             <div className="default-header">Gametype Image Uploader</div>
 
             <div className="default-header">Bulk Image Uploader</div>
-            <form className="form">
+            <form className="form" method="POST" action="/" encType="multipart/form-data" onSubmit={this.uploadMultiple}>
                 <div className="form-info">
                     Images must be .jpg, and ideally 16:9 aspect ratio.<br/>
                     Name them in all lowercase with no spaces, e.g Capture the Flag should be called <b>capturetheflag.jpg</b>
                 </div>
+
+                <div className="select-row">
+                    <div className="select-label">
+                        Files
+                    </div>
+                    <div>
+                        <input type="file" multiple accept=".jpg,.jpeg"/>
+                    </div>
+                </div>
+                <input type="submit" className="search-button" value="Upload Images"/>
             </form>
 
             <div className="default-header">Single Image uploader</div>
