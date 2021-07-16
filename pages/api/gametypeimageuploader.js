@@ -13,7 +13,6 @@ export default async (req, res) =>{
 
     try{
 
-        console.log("CHECK");
 
         const session = new Session(req);
 

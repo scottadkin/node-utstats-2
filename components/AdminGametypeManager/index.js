@@ -17,7 +17,13 @@ class AdminGametypeManager extends React.Component{
             "mergeInProgress": false,
             "bFailedDelete": null,
             "deleteErrors": [],
-            "deleteInProgress": false
+            "deleteInProgress": false,
+            "singleUploadPassed": null,
+            "singleUploadInProgress": false,
+            "singleErrors": [],
+            "multiUploadInProgress": false,
+            "multiUploadPassed": null,
+            "multiErrors": []
         };
 
         this.renameGametype = this.renameGametype.bind(this);
@@ -33,12 +39,15 @@ class AdminGametypeManager extends React.Component{
 
         try{
 
-            console.log("FUCK");
             e.preventDefault();
 
-            console.log(e.target[0].files);
-
             const errors = [];
+
+            this.setState({
+                "multiUploadInProgress": true,
+                "multiUploadPassed": null,
+                "multiErrors": []
+            });
 
             if(e.target[0].files.length === 0){
 
@@ -46,8 +55,6 @@ class AdminGametypeManager extends React.Component{
             };
 
             if(errors.length === 0){
-
-                console.log("OK");
 
                 const formData = new FormData();
 
@@ -66,6 +73,28 @@ class AdminGametypeManager extends React.Component{
                 const result = await req.json();
 
                 console.log(result);
+
+                if(result.message !== "passed"){
+                    errors.push(result.message);
+                }
+            }
+
+
+            if(errors.length === 0){
+
+                this.setState({
+                    "multiUploadInProgress": false,
+                    "multiUploadPassed": true,
+                    "multiErrors": []
+                });
+
+            }else{
+
+                this.setState({
+                    "multiUploadInProgress": false,
+                    "multiUploadPassed": false,
+                    "multiErrors": errors
+                });
             }
 
         }catch(err){
@@ -85,6 +114,12 @@ class AdminGametypeManager extends React.Component{
                 errors.push("You have not selected a file to upload.");
             }
 
+
+            this.setState({
+                "singleUploadInProgress": true,
+                "singleErrors":[],
+                "singleUploadPassed": null
+            });
         
 
             if(errors.length === 0){
@@ -104,6 +139,27 @@ class AdminGametypeManager extends React.Component{
                 const result = await req.json();
 
                 console.log(result);
+
+                if(result.message !== "passed"){
+                    errors.push(result.message);
+                }
+            }
+
+            if(errors.length > 0){
+
+                this.setState({
+                    "singleUploadInProgress": false,
+                    "singleErrors":errors,
+                    "singleUploadPassed": false
+                });
+
+            }else{
+
+                this.setState({
+                    "singleUploadInProgress": false,
+                    "singleErrors":[],
+                    "singleUploadPassed": true
+                });
             }
 
         }catch(err){
@@ -615,6 +671,80 @@ class AdminGametypeManager extends React.Component{
     }
 
 
+    renderSingleProgress(){
+
+        if(this.state.mode !== 3) return null;
+
+        if(this.state.singleUploadInProgress){
+
+            return <div className="center team-yellow t-width-1 m-bottom-25 p-bottom-25">
+                <div className="default-header">Uploading Image</div>
+                Upload in progress please wait...
+            </div>
+        }
+
+        if(this.state.singleUploadPassed === true){
+
+            return <div className="center team-green t-width-1 m-bottom-25 p-bottom-25">
+                <div className="default-header">Upload Successful</div>
+                Image was uploaded successfully
+            </div>
+
+        }else if(this.state.singleUploadPassed === false){
+
+            const errors = [];
+
+            for(let i = 0; i < this.state.singleErrors.length; i++){
+
+                errors.push(<div key={i}>{this.state.singleErrors.length}</div>);
+            }
+
+            return <div className="center team-red t-width-1 m-bottom-25 p-bottom-25">
+                <div className="default-header">Error</div>
+                There was a problem uploading the image.
+                {errors}
+            </div>
+
+        }
+    }
+
+    renderMultiProgress(){
+
+        if(this.state.mode !== 3) return null;
+
+        if(this.state.multiUploadInProgress){
+
+            return <div className="center team-yellow t-width-1 m-bottom-25 p-bottom-25">
+                <div className="default-header">Uploading Image</div>
+                Upload in progress please wait...
+            </div>
+        }
+
+        if(this.state.multiUploadPassed === true){
+
+            return <div className="center team-green t-width-1 m-bottom-25 p-bottom-25">
+                <div className="default-header">Upload Successful</div>
+                Images were uploaded successfully
+            </div>
+
+        }else if(this.state.multiUploadPassed === false){
+
+            const errors = [];
+
+            for(let i = 0; i < this.state.multiErrors.length; i++){
+
+                errors.push(<div key={i}>{this.state.multiErrors.length}</div>);
+            }
+
+            return <div className="center team-red t-width-1 m-bottom-25 p-bottom-25">
+                <div className="default-header">Error</div>
+                There was a problem uploading the image files.
+                {errors}
+            </div>
+
+        }
+    }
+
     renderImageUploader(){
 
         if(this.state.mode !== 3) return null;
@@ -644,12 +774,12 @@ class AdminGametypeManager extends React.Component{
             <div className="default-header">Gametype Image Uploader</div>
 
             <div className="default-header">Bulk Image Uploader</div>
+            {this.renderMultiProgress()}
             <form className="form" method="POST" action="/" encType="multipart/form-data" onSubmit={this.uploadMultiple}>
                 <div className="form-info">
                     Images must be .jpg, and ideally 16:9 aspect ratio.<br/>
                     Name them in all lowercase with no spaces, e.g Capture the Flag should be called <b>capturetheflag.jpg</b>
                 </div>
-
                 <div className="select-row">
                     <div className="select-label">
                         Files
@@ -665,6 +795,7 @@ class AdminGametypeManager extends React.Component{
             <form className="form m-bottom-25">
                 <div className="form-info">For single image uploads the name is automatically set, required file type is the same as specified above.</div>
             </form>
+            {this.renderSingleProgress()}
             {(rows.length === 0) ? null :
                 <table className="t-width-1">
                     <tbody>
