@@ -12,8 +12,6 @@ const HomeMostPlayedGametypes = ({data}) =>{
 
     let d = 0;
 
-    data.push(data[data.length - 1]);
-
     for(let i = 0; i < data.length; i++){
 
         d = data[i];

@@ -20,7 +20,7 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
     return (
         <Head>
             <title>{title} - Node UTStats 2</title>
-            <link rel="icon" href="/favicon.ico" />
+            <link rel="icon" href="/fav.png" />
             <meta name="description" content={`${description} Node UTStats 2 powered by Next.js.`} />
             <meta name="keywords" content={`${keywords}ut,unreal,tournament,stats,node`} />
             <meta property="og:title" content={`${title} - Node UTStats 2`} />
