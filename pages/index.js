@@ -319,15 +319,6 @@ export async function getServerSideProps({req, query}) {
 	const gametypeNames = await gametypeManager.getNames(gametypeIds);
 	const serverNames = await serverManager.getNames(serverIds);
 
-
-	const imageGametypeNames = [];
-
-	for(const [key, value] of Object.entries(gametypeNames)){
-
-		imageGametypeNames.push(value.replace(/ /ig,'').toLowerCase());
-	}
-
-	const gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);
 	
 	let countryData = [];
 
@@ -392,9 +383,20 @@ export async function getServerSideProps({req, query}) {
 	const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
 	let gametypeStats = [];
+	let gametypeImages = [];
 
 	if(pageSettings["Display Most Played Gametypes"] === "true"){
+
 		gametypeStats = await gametypeManager.getMostPlayed(5);
+
+		const imageGametypeNames = [];
+
+		for(let i = 0; i < gametypeStats.length; i++){
+	
+			imageGametypeNames.push(gametypeStats[i].name.replace(/ /ig,'').toLowerCase());
+		}
+	
+		gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);
 	}
 
 	return { props: { 
