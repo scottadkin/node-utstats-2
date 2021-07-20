@@ -848,6 +848,66 @@ class Gametypes{
 
         return fs.readdirSync("./public/images/gametypes/");
     }
+
+
+    getSimilarImage(name, images){
+
+        for(let i = 0; i < images.length; i++){
+
+            if(name.includes(images[i])){
+                return images[i];
+            }
+        }
+
+        return null;
+    }
+
+    getMatchingImage(images, name, bStrict){
+
+        let partialMatch = null;
+
+        let currentPartial = null;
+
+        for(let i = 0; i < images.length; i++){
+
+            if(images[i] === name){
+                return `${images[i]}.jpg`;
+            }else{
+
+                if(!bStrict){
+
+                    currentPartial = this.getSimilarImage(name, images);
+
+                    if(currentPartial !== null) partialMatch = `${currentPartial}.jpg`;
+                }
+            }
+        }
+
+        return partialMatch;
+    }
+
+    getMatchingImages(images, bStrict){
+        
+
+        if(images.length === 0) return [];
+
+        const currentImages = this.getImages();
+
+        for(let i = 0; i < currentImages.length; i++){
+
+            currentImages[i] = currentImages[i].replace(/\.jpg/i, '');
+        }
+
+        const foundImages = {};
+
+        for(let i = 0; i < images.length; i++){
+
+            foundImages[images[i]] = this.getMatchingImage(currentImages, images[i], bStrict);
+        }
+
+        return foundImages;
+
+    }
 }
 
 module.exports = Gametypes;

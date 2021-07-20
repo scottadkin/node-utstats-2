@@ -817,7 +817,7 @@ class AdminGametypeManager extends React.Component{
 
             images.push(<div key={i} className={styles.image}>
                 <div className={styles.name}>{this.props.images[i]}</div>
-                <Image src={`/images/gametypes/${this.props.images[i]}`} width="384" height="206"/>
+                <Image src={`/images/gametypes/${this.props.images[i]}`} width="384" height="216"/>
             </div>);
         }
 

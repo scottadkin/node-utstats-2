@@ -129,8 +129,8 @@ function createDatesGraphData(data){
 
 
 
-function Home({navSettings, pageSettings, session, host, matchesData, countriesData, totalMatches, firstMatch, lastMatch, totalPlayers, mapImages, matchDates,
-	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query}) {
+function Home({navSettings, pageSettings, session, host, matchesData, countriesData, mapImages, matchDates,
+	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query, gametypeImages}) {
 
 	matchDates = JSON.parse(matchDates);
 
@@ -195,7 +195,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 	if(JSON.parse(gametypeStats).length > 0){
 		
 		if(pageSettings["Display Most Played Gametypes"] === "true"){
-			elems.push(<HomeMostPlayedGametypes data={gametypeStats}/>);
+			elems.push(<HomeMostPlayedGametypes key={"monstplayedgametypes"} data={gametypeStats} images={JSON.parse(gametypeImages)}/>);
 		}
 	}
 
@@ -204,28 +204,28 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 	if(JSON.parse(mostPlayedMaps).length > 0){
 
 		if(pageSettings["Display Most Played Maps"] === "true"){
-			elems.push(<HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>);
+			elems.push(<HomeTopMaps key={"maps"} maps={mostPlayedMaps} images={mapImages}/>);
 		}
 	}
 
 	if(JSON.parse(recentPlayersData).length > 0){
 
 		if(pageSettings["Display Recent Players"] === "true"){
-			elems.push(<BasicPlayers title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>);
+			elems.push(<BasicPlayers key={"recent-players"} title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>);
 		}
 	}
 
 	if(JSON.parse(addictedPlayersData).length > 0){
 
 		if(pageSettings["Display Addicted Players"] === "true"){
-			elems.push(<BasicPlayers title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>);
+			elems.push(<BasicPlayers key={"addicted-players"} title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>);
 		}
 	}
 
 	if(JSON.parse(mostUsedFaces).length > 0){
 
 		if(pageSettings["Display Most Used Faces"] === "true"){
-			elems.push(<MostUsedFaces data={mostUsedFaces} images={faceFiles}/>);
+			elems.push(<MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles}/>);
 		}
 	}
 
@@ -320,6 +320,15 @@ export async function getServerSideProps({req, query}) {
 	const serverNames = await serverManager.getNames(serverIds);
 
 
+	const imageGametypeNames = [];
+
+	for(const [key, value] of Object.entries(gametypeNames)){
+
+		imageGametypeNames.push(value.replace(/ /ig,'').toLowerCase());
+	}
+
+	const gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);
+	
 	let countryData = [];
 
 	if(pageSettings["Display Most Popular Countries"] === "true"){
@@ -407,7 +416,8 @@ export async function getServerSideProps({req, query}) {
 			"mostPlayedMaps": JSON.stringify(mostPlayedMaps),
 			"gametypeStats": JSON.stringify(gametypeStats),
 			"mostUsedFaces": JSON.stringify(mostUsedFaces),
-			"query": query
+			"query": query,
+			"gametypeImages": JSON.stringify(gametypeImages)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}
