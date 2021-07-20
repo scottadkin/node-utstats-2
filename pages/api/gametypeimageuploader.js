@@ -95,7 +95,7 @@ export default async (req, res) =>{
 
                     for(let i = 0; i < filePaths.length; i++){
 
-                        fs.renameSync(filePaths[i],`./public/images/gametypes/${fileNames[i].replace(/ /ig, "").toLowerCase()}.jpg` );
+                        fs.renameSync(filePaths[i],`./public/images/gametypes/${fileNames[i].replace(/ /ig, "").toLowerCase()}` );
                     }
                 }
             });

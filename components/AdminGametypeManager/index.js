@@ -1,5 +1,6 @@
 import React from 'react';
-
+import Image from 'next/image';
+import styles from './AdminGametypeManager.module.css';
 
 class AdminGametypeManager extends React.Component{
 
@@ -68,7 +69,7 @@ class AdminGametypeManager extends React.Component{
 
                     formData.append(`file_${i}`, e.target[0].files[i]);
 
-                    fileNames.push(e.target[0].files[i].name);
+                    fileNames.push(this.cleanName(e.target[0].files[i].name));
                 }
 
 
@@ -78,8 +79,6 @@ class AdminGametypeManager extends React.Component{
                 });
 
                 const result = await req.json();
-
-                console.log(result);
 
                 if(result.message !== "passed"){
                     errors.push(result.message);
@@ -91,6 +90,8 @@ class AdminGametypeManager extends React.Component{
 
                         images.push(fileNames[i]);
                     }
+
+                    console.log(fileNames);
 
                     this.props.updateImages(images);
                 }
@@ -157,11 +158,13 @@ class AdminGametypeManager extends React.Component{
 
 
                 if(result.message !== "passed"){
+
                     errors.push(result.message);
+
                 }else{
 
                     const images = Object.assign(this.props.images);
-                    images.push(e.target[0].value);
+                    images.push(`${e.target[0].value}.jpg`);
                     this.props.updateImages(images);
                 }
             }
@@ -195,8 +198,6 @@ class AdminGametypeManager extends React.Component{
 
             e.preventDefault();
 
-            console.log(e.target[0].value);
-
             let gametypeId = parseInt(e.target[0].value);
 
             gametypeId = parseInt(gametypeId);
@@ -223,8 +224,6 @@ class AdminGametypeManager extends React.Component{
                 });
 
                 const res = await req.json();
-
-                console.log(res);
 
                 if(res.message === "passed"){
 
@@ -295,11 +294,6 @@ class AdminGametypeManager extends React.Component{
         try{
 
             e.preventDefault();
-
-            console.log(e.target);
-
-            console.log(e.target[0].value);
-            console.log(e.target[1].value);
 
             this.setState({"bFailedRename": null, "renameErrors": []});
 
@@ -769,24 +763,69 @@ class AdminGametypeManager extends React.Component{
     }
 
 
+    getSimilarImageStatus(name){
+
+        let current = 0;
+
+        for(let i = 0; i < this.props.images.length; i++){
+
+            current = this.props.images[i].replace('.jpg','');
+
+
+            if(name.includes(current)){
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     getImageStatus(name){
 
         let current = 0;
 
-        console.log(`LOOKING FOR ${name}`);
+        let bFoundSimilar = false;
 
         for(let i = 0; i < this.props.images.length; i++){
 
-            current = this.props.images[i];
+            current = this.props.images[i].replace('.jpg','')
 
-            console.log(current);
-
-            if(current.replace('.jpg','') === name){
+            if(current === name){
                 return <td className="team-green">Found</td>
+            }else{
+
+                if(this.getSimilarImageStatus(name)){
+                    bFoundSimilar = true;
+                }
             }
         }
 
+        if(bFoundSimilar){
+            return <td className="team-yellow">Partial Match</td>
+        }
+
         return <td className="team-red">Missing</td>
+    }
+
+    renderImageDirectory(){
+
+        const images = [];
+
+
+        for(let i = 0; i < this.props.images.length; i++){
+
+            images.push(<div key={i} className={styles.image}>
+                <div className={styles.name}>{this.props.images[i]}</div>
+                <Image src={`/images/gametypes/${this.props.images[i]}`} width="384" height="206"/>
+            </div>);
+        }
+
+        return <div>
+            <div className="default-header">Current Images</div>
+
+            {(images.length === 0) ? <div>There are currently no gametype images.</div> : images}
+        </div>
     }
 
     renderImageUploader(){
@@ -851,7 +890,9 @@ class AdminGametypeManager extends React.Component{
                         {rows}
                     </tbody>
                 </table>
-                }
+                }       
+
+            {this.renderImageDirectory()}
         </div>  
     }
 
