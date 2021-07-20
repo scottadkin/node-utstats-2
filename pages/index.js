@@ -165,7 +165,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 	const elems = [];
 
-	if(JSON.parse(matchesData) > 0){
+	if(JSON.parse(matchesData).length > 0){
 
 		if(pageSettings["Display Recent Matches"] === "true"){
 
@@ -173,7 +173,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 				<div className="default-header">Recent Matches</div>
 			
-				{(pageSettings["Recent Matches Display Type"] == "0") ? <MatchesDefaultView images={mapImages} data={matchesData} /> : 
+				{(pageSettings["Recent Matches Display Type"] === "0") ? <MatchesDefaultView images={mapImages} data={matchesData} /> : 
 				<MatchesTableView data={matchesData}/> }
 
 			</div>);

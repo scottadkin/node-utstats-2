@@ -1,4 +1,5 @@
 {
+    "importInterval": 60,
     "mysql": {
         "host": "localhost",
         "port": 3306,

@@ -6,12 +6,14 @@ const config = require('./config.json');
 
 new Message('Node UTStats 2 Importer module started.','note');
 
-const ftpServers = [];
+ftpServers = [];
+bCurrentImportFinished = false;
 
 async function setFTPSettings(){
 
     try{
 
+        ftpServers = [];
         const query = "SELECT * FROM nstats_ftp ORDER BY id ASC";
         const result = await mysql.simpleFetch(query);
 
@@ -61,10 +63,11 @@ function startNewImport(ftpServer, logsToImport){
 }
 
 
-
-(async () =>{
+async function main(){
 
     try{
+
+        bCurrentImportFinished = false;
 
         await setFTPSettings();
 
@@ -104,14 +107,24 @@ function startNewImport(ftpServer, logsToImport){
 
         
         new Message(`Import process completed.`,'pass');
-        process.exit(0);
+        bCurrentImportFinished = true;
 
     }catch(err){
         console.trace(err);
         new Message(err, "error");
     }
 
+}
 
-})();
 
+main();
 
+setInterval(() =>{
+
+    if(bCurrentImportFinished){
+        main();
+    }else{
+        new Message("Previous import has not finished, skipping until next check interval.", 'note');
+    }
+
+}, config.importInterval * 1000);
