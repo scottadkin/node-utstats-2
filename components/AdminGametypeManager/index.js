@@ -33,6 +33,8 @@ class AdminGametypeManager extends React.Component{
 
         this.uploadSingle = this.uploadSingle.bind(this);
         this.uploadMultiple = this.uploadMultiple.bind(this);
+
+        console.log(this.props.images);
     }
 
     async uploadMultiple(e){
@@ -59,9 +61,14 @@ class AdminGametypeManager extends React.Component{
                 const formData = new FormData();
 
 
+                const fileNames = [];
+
+
                 for(let i = 0; i < e.target[0].files.length; i++){
 
                     formData.append(`file_${i}`, e.target[0].files[i]);
+
+                    fileNames.push(e.target[0].files[i].name);
                 }
 
 
@@ -76,6 +83,16 @@ class AdminGametypeManager extends React.Component{
 
                 if(result.message !== "passed"){
                     errors.push(result.message);
+                }else{
+
+                    const images = Object.assign(this.props.images);
+
+                    for(let i = 0; i < fileNames.length; i++){
+
+                        images.push(fileNames[i]);
+                    }
+
+                    this.props.updateImages(images);
                 }
             }
 
@@ -138,10 +155,14 @@ class AdminGametypeManager extends React.Component{
 
                 const result = await req.json();
 
-                console.log(result);
 
                 if(result.message !== "passed"){
                     errors.push(result.message);
+                }else{
+
+                    const images = Object.assign(this.props.images);
+                    images.push(e.target[0].value);
+                    this.props.updateImages(images);
                 }
             }
 
@@ -206,11 +227,13 @@ class AdminGametypeManager extends React.Component{
                 console.log(res);
 
                 if(res.message === "passed"){
+
                     this.setState({"bFailedDelete": false, "deleteInProgress": false});
 
                     this.removeGametype(gametypeId);
 
                     this.props.updateParentGametypeNames(this.state.data);
+
                 }else{
                     errors.push(res.message);
                 }
@@ -745,6 +768,27 @@ class AdminGametypeManager extends React.Component{
         }
     }
 
+
+    getImageStatus(name){
+
+        let current = 0;
+
+        console.log(`LOOKING FOR ${name}`);
+
+        for(let i = 0; i < this.props.images.length; i++){
+
+            current = this.props.images[i];
+
+            console.log(current);
+
+            if(current.replace('.jpg','') === name){
+                return <td className="team-green">Found</td>
+            }
+        }
+
+        return <td className="team-red">Missing</td>
+    }
+
     renderImageUploader(){
 
         if(this.state.mode !== 3) return null;
@@ -759,7 +803,7 @@ class AdminGametypeManager extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{d.name}</td>
-                <td></td>
+                {this.getImageStatus(this.cleanName(d.name))}
                 <td>
                     <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.uploadSingle}>
                         <input type="hidden" value={this.cleanName(d.name)}/>

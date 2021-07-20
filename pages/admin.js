@@ -35,7 +35,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 10, 
+            "mode": 6, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
@@ -72,6 +72,11 @@ class Admin extends React.Component{
         this.nexgenCreateList = this.nexgenCreateList.bind(this);
         this.addMonsterImage = this.addMonsterImage.bind(this);
         this.renameMonster = this.renameMonster.bind(this);
+        this.updateGametypeImages = this.updateGametypeImages.bind(this);
+    }
+
+    updateGametypeImages(images){
+        this.setState({"gametypeImages": images});
     }
 
     renameMonster(id, newName){
@@ -704,7 +709,9 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 6) return null;
 
-        return <AdminGametypeManager data={this.state.gametypeNames} updateParentGametypeNames={this.setGametypeNames} images={this.state.gametypeImages}/>
+        return <AdminGametypeManager data={this.state.gametypeNames} updateParentGametypeNames={this.setGametypeNames} images={this.state.gametypeImages}
+            updateImages={this.updateGametypeImages}
+        />
     }
 
     displayPickupsManager(){
