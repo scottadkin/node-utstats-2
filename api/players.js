@@ -1320,6 +1320,37 @@ class Players{
             console.trace(err);
         }
     }
+
+
+    async getAllInMatch(id){
+
+        const players = await this.player.getAllInMatch(id);
+
+        const ids = [];
+
+        for(let i = 0; i < players.length; i++){
+
+            ids.push(players[i].player_id);
+        }
+
+        const names = await this.getJustNamesByIds(ids);
+
+        let p = 0;
+
+        for(let i = 0; i < players.length; i++){
+
+            p = players[i];
+
+            if(names[`${p.player_id}`] !== undefined){
+                p.name = names[`${p.player_id}`];
+            }else{
+                p.name = "Not Found";
+            }
+        }
+
+        return players;
+
+    }
 }
 
 

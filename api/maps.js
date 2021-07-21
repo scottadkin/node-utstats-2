@@ -942,6 +942,18 @@ class Maps{
             console.trace(err);
         }
     }
+
+
+    async getDetails(id){
+
+        const result = await mysql.simpleFetch("SELECT * FROM nstats_maps WHERE id=?", [id]);
+
+        if(result.length === 0){
+            return null;
+        }
+
+        return result[0];
+    }
 }
 
 

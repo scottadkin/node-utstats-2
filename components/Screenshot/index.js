@@ -5,7 +5,7 @@ import {useEffect, useRef} from "react";
 
 class MatchScreenshot{
 
-    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight){
+    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome){
 
    
         console.log(`new match screenshot`);
@@ -15,7 +15,8 @@ class MatchScreenshot{
         this.download = download;
         this.downloadJPG = downloadJPG;
         this.downloadBMP = downloadBMP;
-        
+
+        this.bHome = bHome;
 
         this.map = map;
         this.players = JSON.parse(players);
@@ -175,6 +176,8 @@ class MatchScreenshot{
     }
 
     setupDownload(){
+
+        if(this.bHome) return;
 
         const imagePNG = this.canvas.toDataURL("image/png");
         const imageJPG = this.canvas.toDataURL("image/jpeg");
@@ -1290,12 +1293,14 @@ class MatchScreenshot{
 
 
 
-const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight}) =>{
+const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome}) =>{
 
     const sshot = useRef(null);
     const sshotDownload = useRef(null);
     const sshotDownload2 = useRef(null);
     const sshotDownload3 = useRef(null);
+
+    bHome = (bHome !== undefined) ? bHome : false;
 
 
     useEffect(() =>{
@@ -1312,14 +1317,15 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
             serverName, 
             gametype, 
             faces,
-            highlight
-            );
+            highlight,
+            bHome
+        );
     });
 
 
     return (<div className={`${styles.wrapper} center`}>
         <div className="default-header">
-            Match Screenshot
+            {(!bHome) ? "Match Screenshot" : "Latest Match"}
         </div>
         <div className={`${styles.content} center`}>
             <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-10" 
@@ -1330,11 +1336,13 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
                 data-players={players} 
                 width="1920" height="1080">
             </canvas>
-            <div id={styles.downloads} className="m-bottom-25">
-                <a id="sshot-download" href="#" ref={sshotDownload} download="testests.png">Download as PNG</a>
-                <a id="sshot-download2" href="#" ref={sshotDownload2} download="testests.jpg">Download as JPG</a>
-                <a id="sshot-download3" href="#" ref={sshotDownload3} download="testests.bmp">Download as BMP</a>
-            </div>
+            {(bHome) ? null :
+                <div id={styles.downloads} className="m-bottom-25">
+                    <a id="sshot-download" href="#" ref={sshotDownload} download="testests.png">Download as PNG</a>
+                    <a id="sshot-download2" href="#" ref={sshotDownload2} download="testests.jpg">Download as JPG</a>
+                    <a id="sshot-download3" href="#" ref={sshotDownload3} download="testests.bmp">Download as BMP</a>
+                </div>
+            }
         </div>
     </div>);
 }

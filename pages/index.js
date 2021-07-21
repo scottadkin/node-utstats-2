@@ -22,6 +22,7 @@ import MostUsedFaces from '../components/MostUsedFaces/';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
 import MatchesTableView from '../components/MatchesTableView/';
+import Screenshot from '../components/Screenshot';
 
 function createDatesGraphData(data){
 
@@ -130,7 +131,8 @@ function createDatesGraphData(data){
 
 
 function Home({navSettings, pageSettings, session, host, matchesData, countriesData, mapImages, matchDates,
-	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query, gametypeImages}) {
+	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query, gametypeImages, 
+	latestMatchPlayers, latestMatchImage}) {
 
 	matchDates = JSON.parse(matchDates);
 
@@ -165,7 +167,17 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 	const elems = [];
 
+
 	if(JSON.parse(matchesData).length > 0){
+
+		const latestMatch = JSON.parse(matchesData)[0];
+		
+		elems.push(<Screenshot 
+            key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} image={`/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
+			matchData={JSON.stringify(latestMatch)}
+            serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={"[]"} bHome={true}
+        />);
+		
 
 		if(pageSettings["Display Recent Matches"] === "true"){
 
@@ -281,8 +293,6 @@ export async function getServerSideProps({req, query}) {
 	const pageSettings = await siteSettings.getCategorySettings("Home");
 	const navSettings = await siteSettings.getCategorySettings("Navigation");
 
-	console.log(pageSettings);
-	console.log(navSettings);
 
 	const matchManager = new Matches();
 	const mapManager = new Maps();
@@ -399,6 +409,22 @@ export async function getServerSideProps({req, query}) {
 		gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);
 	}
 
+	let latestMatchPlayers = [];
+
+	let latestMatchImage = "default";
+
+	if(matchesData.length > 0){
+
+		latestMatchPlayers = await playerManager.getAllInMatch(matchesData[0].id);
+
+		const latestMapName = Functions.cleanMapName(matchesData[0].mapName).toLowerCase();
+
+		if(mapImages.indexOf(latestMapName) !== -1){
+			latestMatchImage = latestMapName;
+		}
+	}
+
+
 	return { props: { 
 			"pageSettings": JSON.stringify(pageSettings),
 			"navSettings": JSON.stringify(navSettings),
@@ -419,7 +445,9 @@ export async function getServerSideProps({req, query}) {
 			"gametypeStats": JSON.stringify(gametypeStats),
 			"mostUsedFaces": JSON.stringify(mostUsedFaces),
 			"query": query,
-			"gametypeImages": JSON.stringify(gametypeImages)
+			"gametypeImages": JSON.stringify(gametypeImages),
+			"latestMatchPlayers": JSON.stringify(latestMatchPlayers),
+			"latestMatchImage": JSON.stringify(latestMatchImage)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}
