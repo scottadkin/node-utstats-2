@@ -804,6 +804,7 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Recent Matches","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Recent Matches & Player Stats","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Recent Players","true")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Latest Match","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Recent Matches Display Type","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Recent Matches To Display","3")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Addicted Players","true")`,

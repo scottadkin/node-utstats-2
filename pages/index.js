@@ -170,13 +170,15 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 	if(JSON.parse(matchesData).length > 0){
 
-		const latestMatch = JSON.parse(matchesData)[0];
-		
-		elems.push(<Screenshot 
-            key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} image={`/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
-			matchData={JSON.stringify(latestMatch)}
-            serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={"[]"} bHome={true}
-        />);
+		if(pageSettings["Display Latest Match"] === "true"){
+			const latestMatch = JSON.parse(matchesData)[0];
+			
+			elems.push(<Screenshot 
+				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} image={`/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
+				matchData={JSON.stringify(latestMatch)}
+				serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={"[]"} bHome={true}
+			/>);
+		}
 		
 
 		if(pageSettings["Display Recent Matches"] === "true"){
@@ -413,14 +415,17 @@ export async function getServerSideProps({req, query}) {
 
 	let latestMatchImage = "default";
 
-	if(matchesData.length > 0){
+	if(pageSettings["Display Latest Match"] === "true"){
 
-		latestMatchPlayers = await playerManager.getAllInMatch(matchesData[0].id);
+		if(matchesData.length > 0){
 
-		const latestMapName = Functions.cleanMapName(matchesData[0].mapName).toLowerCase();
+			latestMatchPlayers = await playerManager.getAllInMatch(matchesData[0].id);
 
-		if(mapImages.indexOf(latestMapName) !== -1){
-			latestMatchImage = latestMapName;
+			const latestMapName = Functions.cleanMapName(matchesData[0].mapName).toLowerCase();
+
+			if(mapImages.indexOf(latestMapName) !== -1){
+				latestMatchImage = latestMapName;
+			}
 		}
 	}
 
