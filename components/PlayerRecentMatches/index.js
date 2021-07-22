@@ -326,13 +326,12 @@ class PlayerRecentMatches extends React.Component{
             }else{
 
                 elems.push(<tr key={i}>
-                    <td><Link href={`/match/${m.match_id}`}><a><TimeStamp timestamp={m.match_date} /></a></Link></td>   
-                    <td><Link href={`/match/${m.match_id}`}><a>{getServerName(serverNames, m.server)}</a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}><a><TimeStamp timestamp={m.match_date} noDayName={true}/></a></Link></td>   
                     <td><Link href={`/match/${m.match_id}`}><a>{currentGametype}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a>{m.mapName}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a>{m.players}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a><MMSS timestamp={m.playtime}/></a></Link></td>
-                    <td><Link href={`/match/${m.match_id}`}><a>
+                    <td className={"padding-0 relative"}><Link href={`/match/${m.match_id}`}><a>
                         <MatchResultSmall dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
                         redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}
                         bMonsterHunt={currentScore.mh} endReason={currentScore.end_type}/>
@@ -352,7 +351,6 @@ class PlayerRecentMatches extends React.Component{
                 <tbody>
                 <tr>
                     <th>Date</th>
-                    <th>Server</th>
                     <th>Gametype</th>
                     <th>Map</th>
                     <th>Players</th>

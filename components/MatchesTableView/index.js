@@ -26,13 +26,14 @@ class MatchesTableView extends React.Component{
 
             url = `/match/${m.id}`;
 
+            // <td><Link href={url}><a>{m.serverName}</a></Link></td>
             rows.push(<tr key={`matches-row-${i}`}>
-                <td><Link href={url}><a>{m.serverName}</a></Link></td>
-                <td><TimeStamp timestamp={m.date} /></td>
-                <td>{m.gametypeName}</td>
-                <td>{m.mapName}</td>
-                <td>{m.players}</td>
-                <td><MMSS timestamp={m.playtime} /></td>
+               
+                <td><Link href={url}><a><TimeStamp timestamp={m.date} noDayName={true}/></a></Link></td>
+                <td><Link href={url}><a>{m.gametypeName}</a></Link></td>
+                <td><Link href={url}><a>{m.mapName}</a></Link></td>
+                <td><Link href={url}><a>{m.players}</a></Link></td>
+                <td><Link href={url}><a><MMSS timestamp={m.playtime} /></a></Link></td>
                 <td className="padding-0"><MatchResultSmall 
                     totalTeams={m.total_teams} 
                     dmWinner={m.dm_winner} 
@@ -69,7 +70,6 @@ class MatchesTableView extends React.Component{
                 <table className="t-width-1">
                     <tbody>
                         <tr>
-                            <th>Server</th>
                             <th>Date</th>
                             <th>Gametype</th>
                             <th>Map</th>               

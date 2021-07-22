@@ -132,7 +132,7 @@ function createDatesGraphData(data){
 
 function Home({navSettings, pageSettings, session, host, matchesData, countriesData, mapImages, matchDates,
 	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query, gametypeImages, 
-	latestMatchPlayers, latestMatchImage}) {
+	latestMatchPlayers, latestMatchImage, latestFaces}) {
 
 	matchDates = JSON.parse(matchDates);
 
@@ -176,7 +176,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 			elems.push(<Screenshot 
 				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} image={`/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
 				matchData={JSON.stringify(latestMatch)}
-				serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={"[]"} bHome={true}
+				serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={latestFaces} bHome={true}
 			/>);
 		}
 		
@@ -415,11 +415,24 @@ export async function getServerSideProps({req, query}) {
 
 	let latestMatchImage = "default";
 
+	let latestFaces = [];
+
 	if(pageSettings["Display Latest Match"] === "true"){
 
 		if(matchesData.length > 0){
 
 			latestMatchPlayers = await playerManager.getAllInMatch(matchesData[0].id);
+
+			const playerFaces = [];
+
+			for(let i = 0; i < latestMatchPlayers.length; i++){
+
+				if(playerFaces.indexOf(latestMatchPlayers[i].face) === -1){
+					playerFaces.push(latestMatchPlayers[i].face);
+				}
+			}
+
+			latestFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
 
 			const latestMapName = Functions.cleanMapName(matchesData[0].mapName).toLowerCase();
 
@@ -452,7 +465,8 @@ export async function getServerSideProps({req, query}) {
 			"query": query,
 			"gametypeImages": JSON.stringify(gametypeImages),
 			"latestMatchPlayers": JSON.stringify(latestMatchPlayers),
-			"latestMatchImage": JSON.stringify(latestMatchImage)
+			"latestMatchImage": JSON.stringify(latestMatchImage),
+			"latestFaces": JSON.stringify(latestFaces)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 
 	}

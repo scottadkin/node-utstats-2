@@ -154,6 +154,9 @@ footer{
 	padding-bottom:150px;
 }
 
+.relative{
+	position:relative;
+}
 
 #welcome-text{
 	font-size:14px;
@@ -327,7 +330,6 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 
 .solo div, .duo div, .trio div, .quad div{
 	font-size:14px;
-	margin-left:-1px;
 	height:100%;
 }
 
