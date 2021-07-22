@@ -116,15 +116,27 @@ async function main(){
 
 }
 
+(async () =>{
 
-main();
+    await main();
 
-setInterval(() =>{
+    if(config.importInterval > 0){
 
-    if(bCurrentImportFinished){
-        main();
+        setInterval(() =>{
+    
+            if(bCurrentImportFinished){
+                main();
+            }else{
+                new Message("Previous import has not finished, skipping until next check interval.", "note");
+            }
+    
+        }, config.importInterval * 1000);
+    
     }else{
-        new Message("Previous import has not finished, skipping until next check interval.", 'note');
+        new Message("Import Interval is set to 0, this means the importer will only run once.", "note");
+        process.exit(0);
     }
 
-}, config.importInterval * 1000);
+})();
+
+

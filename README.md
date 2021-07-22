@@ -32,8 +32,9 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Extract the contents of the archive into a folder.
 - Open command prompt in the folder.
 - Run the command **npm install** to install all the dependencies.
-- Open config.json, and change the mysql settings to match your mysql setup and then save the file.
-![alt text](https://i.imgur.com/nwuVLkp.png "config.json image")
+- Open config.json, and change the mysql settings to match your mysql setup.
+- Also in config.json you will see the variable called **importInterval**, this will tell the importer how long to wait(in seconds) between looking for new logs to import. IF you set this to 0 the import will run once only.
+![alt text](https://i.imgur.com/4Lb34fb.png "config.json image")
 - Now run the command **node install** this will create the database and all the tables needed by node utstats 2.
 
 # Install Unreal Tournament mutators
