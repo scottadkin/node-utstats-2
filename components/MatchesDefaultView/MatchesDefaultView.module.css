@@ -1,7 +1,7 @@
 .wrapper{
     display:inline-block;
     background-color:var(--color-3);
-    background-size:100% 100%;
+    background:var(--linear-gradient-3);
     color:white;
     margin-bottom:10px;
     margin-right:10px;
@@ -29,6 +29,7 @@
 .gametype{
     font-size:14px;
     padding:10px;
+    background-color:var(--color-3);
 }
 
 

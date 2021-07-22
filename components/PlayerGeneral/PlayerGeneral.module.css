@@ -4,8 +4,6 @@
     width:500px;
     margin-left:auto;
     margin-right:auto;
-    height:246px;
-    overflow:hidden;
 
 }
 
@@ -45,7 +43,7 @@
 .left{
     background-color:rgb(16,16,16);
     width:140px;
-    height:250px;
+    height:280px;
     border-right:1px solid rgba(255,255,255,0.25);
 }
 
@@ -53,7 +51,7 @@
     width:360px;
     margin-left:140px;
     position:absolute;
-    margin-top:-254px;
+    margin-top:-285px;
     font-size:14px;
     padding-top:5px;
     overflow:hidden;

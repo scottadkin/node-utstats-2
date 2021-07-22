@@ -4,6 +4,7 @@
 	--color-1:rgb(22,22,22);
 	--linear-gradient-1:linear-gradient(to bottom, rgb(22,22,22), rgb(33,33,33));
 	--linear-gradient-2:linear-gradient(to bottom, rgb(44,44,44), rgb(55,55,55));
+	--linear-gradient-3:linear-gradient(to bottom right, rgb(24,24,24), rgb(46,46,46), rgb(24,24,24));
 	--color-2:rgb(36,36,36);
 	--color-3:rgb(16,16,16);
 	--color-3a:rgba(16,16,16,0.8);
@@ -520,27 +521,27 @@ input[type="range"]{
 .tabs, .big-tabs{
 	text-align:center;
 	margin-bottom:10px;
+	max-width:var(--max-width-1);
+	margin-left:auto;
+	margin-right:auto;
+	border:1px solid var(--border-color-1);
+	background-color:var(--color-3);
 }
 
 .tab{
-	background-color:var(--color-3);
+	
 	display:inline-block;
-	font-size:12px;
-	padding:5px;
-	border:1px solid var(--border-color-1);
+	font-size:14px;
+	padding:5px 10px;
 	transition:background-color 0.5s;
-	margin-left:-1px;
+
 }
 
 .big-tab{
-	font-size:14px;
+	font-size:16px;
 	display:inline-block;
-	background-color:var(--color-3);
 	color:white;
-	padding:5px;
-	border:1px solid var(--border-color-1);
-	margin-left:-1px;
-	margin-top:-1px;
+	padding:5px 10px;
 	transition:background-color 0.5s;
 	height:20px;
 }

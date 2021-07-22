@@ -1,5 +1,6 @@
 .wrapper{
     background-color:var(--color-1);
+    background:var(--linear-gradient-3);
     border:1px solid var(--border-color-1);
     display:inline-block;
     color:white;

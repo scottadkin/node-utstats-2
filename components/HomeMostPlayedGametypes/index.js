@@ -34,8 +34,8 @@ const HomeMostPlayedGametypes = ({data, images}) =>{
             <div className={styles.info}>
                 <span className="yellow">Playtime</span> {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
                 {d.matches} <span className="yellow">Matches</span><br/> 
-                <span className="yellow">First</span> <TimeStamp timestamp={d.first} noDayName={true}/><br/>
-                <span className="yellow">Last</span> <TimeStamp timestamp={d.last} noDayName={true}/><br/>
+                <span className="yellow">First</span> <TimeStamp timestamp={d.first}/><br/>
+                <span className="yellow">Last</span> <TimeStamp timestamp={d.last}/><br/>
             </div>
         </div>);
     }
