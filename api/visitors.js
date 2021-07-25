@@ -1,7 +1,7 @@
 const mysql = require('./database');
-const geo = require('geoip-lite');
+const geo =  require('geoip-lite');
 
-class Analytics{
+class Visitors{
 
     constructor(){
 
@@ -54,6 +54,7 @@ class Analytics{
 
             const changed = await mysql.updateReturnAffectedRows(query, [date, code]);
 
+            console.log(`changed = ${changed}`);
             if(changed === 0){
                 await this.insertNewCountry(code, date);
             }
@@ -69,14 +70,16 @@ class Analytics{
 
         const now = Math.floor(Date.now() * 0.001);
 
+        console.log(`update hits`);
 
+        console.log(geo.lookup(ip));
 
         await mysql.simpleInsert(query, [ip, now]);
 
         await this.updateVisitorHistory(ip, now);
 
-        await this.updateVisitorCountryHistory(geo.lookup("222.222.222.222"), now);
+        await this.updateVisitorCountryHistory(geo.lookup(ip), now);
     }
 }
 
-module.exports = Analytics;
+module.exports = Visitors;

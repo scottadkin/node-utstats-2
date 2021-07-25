@@ -24,7 +24,7 @@ import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 import Rankings from '../../api/rankings';
 import PlayerRankings from '../../components/PlayerRankings/';
-import Analytics from '../../api/analytics';
+import Visitors from '../../api/visitors';
 
 
 function Home({navSettings, pageSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
@@ -429,7 +429,7 @@ export async function getServerSideProps({req, query}) {
 	}
 
 
-	await Analytics.insertHit(session.userIp);
+	await Visitors.insertHit(session.userIp);
 	
 
 	return { 

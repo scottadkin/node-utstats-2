@@ -23,7 +23,7 @@ import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
 import MatchesTableView from '../components/MatchesTableView/';
 import Screenshot from '../components/Screenshot';
-import Analytics from '../api/analytics';
+import Visitors from '../api/visitors';
 
 function createDatesGraphData(data){
 
@@ -444,7 +444,7 @@ export async function getServerSideProps({req, query}) {
 	}
 
 
-	await Analytics.insertHit(session.userIp);
+	await Visitors.insertHit(session.userIp);
 
 	return { props: { 
 			"pageSettings": JSON.stringify(pageSettings),

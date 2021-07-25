@@ -10,7 +10,7 @@ import Link from 'next/link';
 import Maps from '../api/maps';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
-import Analytics from '../api/analytics';
+import Visitors from '../api/visitors';
 
 const validTypes = [
     "matches",
@@ -551,7 +551,7 @@ export async function getServerSideProps({req, query}){
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
 
-    await Analytics.insertHit(session.userIp);
+    await Visitors.insertHit(session.userIp);
 
     return {
         "props": {

@@ -10,7 +10,7 @@ import Option2 from '../components/Option2/';
 import React from 'react';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
-import Analytics from '../api/analytics';
+import Visitors from '../api/visitors';
 
 
 
@@ -197,7 +197,7 @@ export async function getServerSideProps({req, query}){
 
     
 
-    await Analytics.insertHit(session.userIp);
+    await Visitors.insertHit(session.userIp);
 
 
     return {

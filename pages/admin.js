@@ -27,7 +27,6 @@ import NexgenStatsViewer from '../api/nexgenstatsviewer';
 import AdminNexgenStatsViewer from '../components/AdminNexgenStatsViewer';
 import MonsterHunt from '../api/monsterhunt';
 import AdminMonsterHunt from '../components/AdminMonsterHunt';
-import Analytics from '../api/analytics';
 import SiteAnalytics from '../components/SiteAnalytics';
 
 class Admin extends React.Component{
