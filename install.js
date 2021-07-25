@@ -690,6 +690,14 @@ const queries = [
         date int(11) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
+      `CREATE TABLE nstats_visitors (
+          id int(11) NOT NULL AUTO_INCREMENT,
+          ip varchar(50) NOT NULL,
+          first int(11) NOT NULL,
+          last int(11) NOT NULL,
+          total int(11) NOT NULL,
+          PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
 
     "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Kill','Player Killed an enemy',300)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'deaths','Death','Player died',-150)",

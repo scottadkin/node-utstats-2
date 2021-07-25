@@ -51,7 +51,9 @@ const tables = [
     "monsters_match",
     "monster_kills",
     "monsters_player_match",
-    "monsters_player_totals"
+    "monsters_player_totals",
+    "hits",
+    "visitors"
 
 ];
 
