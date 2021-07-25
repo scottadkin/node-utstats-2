@@ -27,6 +27,8 @@ import NexgenStatsViewer from '../api/nexgenstatsviewer';
 import AdminNexgenStatsViewer from '../components/AdminNexgenStatsViewer';
 import MonsterHunt from '../api/monsterhunt';
 import AdminMonsterHunt from '../components/AdminMonsterHunt';
+import Analytics from '../api/analytics';
+import SiteAnalytics from '../components/SiteAnalytics';
 
 class Admin extends React.Component{
 
@@ -35,7 +37,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 6, 
+            "mode": 13, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
@@ -766,6 +768,13 @@ class Admin extends React.Component{
         return <AdminMonsterHunt images={this.state.monsterFiles} monsters={this.state.monsters} addMonster={this.addMonsterImage} updateMonster={this.renameMonster}/>
     }
 
+    displayAnalytics(){
+
+        if(this.state.mode !== 13) return null;
+
+        return <SiteAnalytics />;
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -787,6 +796,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(0);
                             })}>Site Settings</div>
+                            <div className={`big-tab ${(this.state.mode === 13) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(13);
+                            })}>Site Analytics</div>
                             <div className={`big-tab ${(this.state.mode === 10) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(10);
                             })}>FTP Manager</div>
@@ -840,6 +852,7 @@ class Admin extends React.Component{
                         {this.displayFtpManager()}
                         {this.displayNexgenStatsViewer()}
                         {this.displayMonsterHunt()}
+                        {this.displayAnalytics()}
                     </div>   
                 </div>
 

@@ -53,7 +53,8 @@ const tables = [
     "monsters_player_match",
     "monsters_player_totals",
     "hits",
-    "visitors"
+    "visitors",
+    "visitors_countries"
 
 ];
 

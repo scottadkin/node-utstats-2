@@ -1,4 +1,5 @@
 const mysql = require('./database');
+const geo = require('geoip-lite');
 
 class Analytics{
 
@@ -14,7 +15,7 @@ class Analytics{
         await mysql.simpleInsert(query, [ip, date, date]);
     }
 
-    static async updateVistorHistory(ip, date){
+    static async updateVisitorHistory(ip, date){
 
         try{
 
@@ -28,7 +29,34 @@ class Analytics{
                 await this.insertNewVisitor(ip, date);
             }
 
-            console.log(`Changed = ${changed}`);
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    static async insertNewCountry(code, date){
+        const query = "INSERT INTO nstats_visitors_countries VALUES(NULL,?,?,?,1)";
+
+        await mysql.simpleInsert(query, [code, date, date]);
+    }
+
+    static async updateVisitorCountryHistory(code, date){
+
+        try{
+
+            if(code === null){ 
+                code = "XX";
+            }else{
+                code = code.country;
+            }
+
+            const query = "UPDATE nstats_visitors_countries SET last=?,total=total+1 WHERE code=?";
+
+            const changed = await mysql.updateReturnAffectedRows(query, [date, code]);
+
+            if(changed === 0){
+                await this.insertNewCountry(code, date);
+            }
 
         }catch(err){
             console.trace(err);
@@ -39,11 +67,15 @@ class Analytics{
 
         const query = "INSERT INTO nstats_hits VALUES(NULL,?,?)";
 
-        const now = Date.now() * 0.001;
+        const now = Math.floor(Date.now() * 0.001);
+
+
 
         await mysql.simpleInsert(query, [ip, now]);
 
-        await this.updateVistorHistory(ip, now);
+        await this.updateVisitorHistory(ip, now);
+
+        await this.updateVisitorCountryHistory(geo.lookup("222.222.222.222"), now);
     }
 }
 
