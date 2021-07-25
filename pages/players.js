@@ -10,6 +10,7 @@ import Option2 from '../components/Option2';
 import React from 'react';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
+import Analytics from '../api/analytics';
 
 
 class Players extends React.Component{
@@ -401,6 +402,7 @@ export async function getServerSideProps({req, query}){
 
     records = JSON.stringify(records);
 
+    await Analytics.insertHit(session.userIp);
 
     return {
         props: {

@@ -6,6 +6,7 @@ import styles from '../styles/Login.module.css';
 import User from '../api/user';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
+import Analytics from '../api/analytics';
 
 class Login extends React.Component{
 
@@ -293,6 +294,8 @@ export async function getServerSideProps({query, req}){
     const settings = new SiteSettings();
 
     const navSettings = await settings.getCategorySettings("Navigation");
+
+    await Analytics.insertHit(session.userIp);
     
     return {
         props: {

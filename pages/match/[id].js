@@ -43,7 +43,8 @@ import Sprees from '../../api/sprees';
 import MatchSprees from '../../components/MatchSprees/';
 import MonsterHunt from '../../api/monsterhunt';
 import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSummary/';
-import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonsterKills/'
+import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonsterKills/';
+import Analytics from '../../api/analytics';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1967,6 +1968,8 @@ export async function getServerSideProps({req, query}){
         //console.log(monsterNames);
 
     }
+
+    await Analytics.insertHit(session.userIp);
 
     return {
         props: {

@@ -23,6 +23,7 @@ import MapAddictedPlayers from '../../components/MapAddictedPlayers/';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 import MapImageUploader from '../../components/MapImageUploader/';
+import Analytics from '../../api/analytics';
 
 class Map extends React.Component{
 
@@ -450,6 +451,8 @@ export async function getServerSideProps({req, query}){
         if(ogImageResult !== null){
             ogImage = `maps/${ogImageResult[1]}`;
         }
+
+        await Analytics.insertHit(session.userIp);
 
         return {
             props: {

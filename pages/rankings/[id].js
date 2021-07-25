@@ -10,6 +10,7 @@ import Players from '../../api/players';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 import RankingsExplained from '../../components/RankingsExplained/';
+import Analytics from '../../api/analytics';
 
 
 class Rankings extends React.Component{
@@ -248,6 +249,8 @@ export async function getServerSideProps({req, query}){
     const navSettings = await sSettings.getCategorySettings("Navigation");
 
     const rankingValues = await rankingManager.getSettings();
+
+    await Analytics.insertHit(session.userIp);
 
     return {
         props:{
