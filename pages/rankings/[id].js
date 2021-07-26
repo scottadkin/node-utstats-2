@@ -10,7 +10,7 @@ import Players from '../../api/players';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 import RankingsExplained from '../../components/RankingsExplained/';
-import Visitors from '../../api/visitors';
+import Analytics from '../../api/analytics';
 
 
 class Rankings extends React.Component{
@@ -250,7 +250,7 @@ export async function getServerSideProps({req, query}){
 
     const rankingValues = await rankingManager.getSettings();
 
-    await Visitors.insertHit(session.userIp);
+    await Analytics.insertHit(session.userIp, req.headers.host);
 
     return {
         props:{

@@ -4,7 +4,7 @@ import Nav from '../components/Nav/'
 import Footer from '../components/Footer/'
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
-import Visitors from '../api/visitors';
+import Analytics from '../api/analytics';
 
 function Credits({session, navSettings}){
 
@@ -43,7 +43,7 @@ export async function getServerSideProps({req}){
 
     const navSettings = await settings.getCategorySettings("Navigation");
 
-    await Visitors.insertHit(session.userIp);
+    await Analytics.insertHit(session.userIp, req.headers.host);
 
     return {
         props: {

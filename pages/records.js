@@ -10,7 +10,7 @@ import Link from 'next/link';
 import Maps from '../api/maps';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
-import Visitors from '../api/visitors';
+import Analytics from '../api/analytics';
 
 const validTypes = [
     "matches",
@@ -420,18 +420,6 @@ export async function getServerSideProps({req, query}){
 
 	await session.load();
 
-    console.log("session");
-    console.log("session");
-    console.log("session");
-    console.log("session");
-    console.log("session");
-    console.log("session");
-    console.log("session");
-    console.log("session");
-    console.log("session");
-    console.log("session");
-    console.log(session);
-
     if(query.mode !== undefined){
 
         mode = parseInt(query.mode);
@@ -551,7 +539,7 @@ export async function getServerSideProps({req, query}){
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
 
-    await Visitors.insertHit(session.userIp);
+    await Analytics.insertHit(session.userIp, req.headers.host);
 
     return {
         "props": {

@@ -43,7 +43,7 @@ import PlayerMatchAssault from '../../components/PlayerMatchAssault';
 import MonsterHunt from "../../api/monsterhunt";
 import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSummary";
 import PlayerMatchMonsters from  "../../components/PlayerMatchMonsters";
-import Visitors from "../../api/visitors";
+import Analytics from "../../api/analytics";
 
 
 class PlayerMatch extends React.Component{
@@ -447,7 +447,7 @@ export async function getServerSideProps({req, query}){
 
     }
 
-    await Visitors.insertHit(session.userIp);
+    await Analytics.insertHit(session.userIp, req.headers.host);
     
     return {
         "props": {

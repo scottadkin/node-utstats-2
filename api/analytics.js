@@ -1,7 +1,6 @@
 const mysql = require('./database');
-const geo =  require('geoip-lite');
 
-class Visitors{
+class Analytics{
 
     constructor(){
 
@@ -34,29 +33,29 @@ class Visitors{
         }
     }
 
-    static async insertNewCountry(code, date){
-        const query = "INSERT INTO nstats_visitors_countries VALUES(NULL,?,?,?,1)";
+    static async insertNewCountry(code, country, date){
 
-        await mysql.simpleInsert(query, [code, date, date]);
+        const query = "INSERT INTO nstats_visitors_countries VALUES(NULL,?,?,?,?,1)";
+
+        await mysql.simpleInsert(query, [code, country, date, date]);
     }
 
-    static async updateVisitorCountryHistory(code, date){
+    static async updateVisitorCountryHistory(countryData, date){
 
         try{
 
-            if(code === null){ 
-                code = "XX";
-            }else{
-                code = code.country;
-            }
+        
+
+            const code = countryData.code;
+            const country = countryData.country;
+            
 
             const query = "UPDATE nstats_visitors_countries SET last=?,total=total+1 WHERE code=?";
 
             const changed = await mysql.updateReturnAffectedRows(query, [date, code]);
 
-            console.log(`changed = ${changed}`);
             if(changed === 0){
-                await this.insertNewCountry(code, date);
+                await this.insertNewCountry(code, country, date);
             }
 
         }catch(err){
@@ -64,22 +63,38 @@ class Visitors{
         }
     }
 
-    static async insertHit(ip){
+    static async insertHit(ip, host){
 
         const query = "INSERT INTO nstats_hits VALUES(NULL,?,?)";
 
         const now = Math.floor(Date.now() * 0.001);
 
-        console.log(`update hits`);
-
-        console.log(geo.lookup(ip));
+       // console.log(geo.lookup(ip));
 
         await mysql.simpleInsert(query, [ip, now]);
 
         await this.updateVisitorHistory(ip, now);
+        
+        const req = await fetch(`http://${host}/api/iplookup`, {
 
-        await this.updateVisitorCountryHistory(geo.lookup(ip), now);
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "method": "POST",
+            "body": JSON.stringify({"ip": ip})
+
+        });
+
+        const result = await req.json();
+
+
+        if(result.error === undefined){
+
+            await this.updateVisitorCountryHistory(result, now)
+        }
+
+        // this.updateVisitorCountryHistory(geo.lookup(ip), now);
     }
 }
 
-module.exports = Visitors;
+module.exports = Analytics;

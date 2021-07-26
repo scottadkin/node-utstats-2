@@ -44,7 +44,7 @@ import MatchSprees from '../../components/MatchSprees/';
 import MonsterHunt from '../../api/monsterhunt';
 import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSummary/';
 import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonsterKills/';
-import Visitors from '../../api/visitors';
+import Analytics from '../../api/analytics';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -1969,7 +1969,7 @@ export async function getServerSideProps({req, query}){
 
     }
 
-    await Visitors.insertHit(session.userIp);
+    await Analytics.insertHit(session.userIp, req.headers.host);
 
     return {
         props: {

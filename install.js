@@ -701,6 +701,7 @@ const queries = [
           `CREATE TABLE nstats_visitors_countries (
             id int(11) NOT NULL AUTO_INCREMENT,
             code varchar(2) NOT NULL,
+            country varchar(100) NOT NULL,
             first int(11) NOT NULL,
             last int(11) NOT NULL,
             total int(11) NOT NULL,

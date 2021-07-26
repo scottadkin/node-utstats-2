@@ -14,7 +14,7 @@ import Option2 from '../components/Option2';
 import React from 'react';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
-import Visitors from '../api/visitors';
+import Analytics from '../api/analytics';
 
 class Matches extends React.Component{
 
@@ -344,7 +344,7 @@ export async function getServerSideProps({req, query}){
 
     const mapImages = await mapManager.getImages(justMapNames);
 
-    await Visitors.insertHit(session.userIp);
+    await Analytics.insertHit(session.userIp, req.headers.host);
 
     return {
         "props": {
