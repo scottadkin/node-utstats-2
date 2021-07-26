@@ -13,7 +13,7 @@ export default async (req, res) =>{
 
             if(iplookup !== null){
 
-                res.status(200).json({"country": countries(iplookup.country).code, "code": iplookup.country});
+                res.status(200).json({"country": countries(iplookup.country).country, "code": iplookup.country});
 
             }else{
                 res.status(200).json({"country": "Unknown", "code": "XX"});

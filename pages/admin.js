@@ -27,6 +27,7 @@ import NexgenStatsViewer from '../api/nexgenstatsviewer';
 import AdminNexgenStatsViewer from '../components/AdminNexgenStatsViewer';
 import MonsterHunt from '../api/monsterhunt';
 import AdminMonsterHunt from '../components/AdminMonsterHunt';
+import Analytics from '../api/analytics';
 import SiteAnalytics from '../components/SiteAnalytics';
 
 class Admin extends React.Component{
@@ -771,7 +772,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 13) return null;
 
-        return <SiteAnalytics />;
+        return <SiteAnalytics countriesByHits={JSON.parse(this.props.countriesByHits)}/>;
     }
 
     render(){
@@ -969,6 +970,9 @@ export async function getServerSideProps({req, query}){
 
 
 
+    const analytics = new Analytics();
+
+    const countriesByHits = await analytics.getCountriesByHits();
 
     
     return {
@@ -993,7 +997,8 @@ export async function getServerSideProps({req, query}){
             "nexgenValidTypes": JSON.stringify(nexgenValidTypes),
             "monsterImages": JSON.stringify(monsterImages),
             "monsters": JSON.stringify(monsters),
-            "gametypeImages": JSON.stringify(gametypeImages)
+            "gametypeImages": JSON.stringify(gametypeImages),
+            "countriesByHits": JSON.stringify(countriesByHits)
         }
     };
 }

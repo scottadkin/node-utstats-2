@@ -44,12 +44,9 @@ class Analytics{
 
         try{
 
-        
-
             const code = countryData.code;
             const country = countryData.country;
             
-
             const query = "UPDATE nstats_visitors_countries SET last=?,total=total+1 WHERE code=?";
 
             const changed = await mysql.updateReturnAffectedRows(query, [date, code]);
@@ -74,7 +71,7 @@ class Analytics{
         await mysql.simpleInsert(query, [ip, now]);
 
         await this.updateVisitorHistory(ip, now);
-        
+
         const req = await fetch(`http://${host}/api/iplookup`, {
 
             "headers": {
@@ -94,6 +91,14 @@ class Analytics{
         }
 
         // this.updateVisitorCountryHistory(geo.lookup(ip), now);
+    }
+
+
+    async getCountriesByHits(){
+
+        const query = "SELECT * FROM nstats_visitors_countries ORDER BY total DESC";
+
+        return await mysql.simpleFetch(query);
     }
 }
 
