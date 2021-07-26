@@ -280,11 +280,9 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .team-none{
 	background-color:rgb(32,32,32);
 	/*background:linear-gradient(to bottom, rgb(16,16,16), rgb(24,24,24));*/
+	background:linear-gradient(to bottom, rgb(12,12,12), rgb(32,32,32));
 }
 
-.team-none:nth-child(even){
-	background-color:rgb(24,24,24);
-}
 
 .duo div:nth-child(1), .trio div:nth-child(1), .quad div:nth-child(1), .team-red{
 	background-color:rgb(89,0,0);
