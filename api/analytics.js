@@ -68,9 +68,13 @@ class Analytics{
 
        // console.log(geo.lookup(ip));
 
+        //ip = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+
         await mysql.simpleInsert(query, [ip, now]);
 
         await this.updateVisitorHistory(ip, now);
+
+        
 
         const req = await fetch(`http://${host}/api/iplookup`, {
 
@@ -108,16 +112,14 @@ class Analytics{
         return await mysql.simpleFetch(query);
     }
 
-    async getTotalHitsPast24Hours(){
+    daysToSeconds(days){
 
-        const start = Math.floor(Date.now() * 0.001) - ((60 * 60) * 24);
-
-        return await this.getTotalHitsBetween(start);
+        return Math.floor(Date.now() * 0.001) - (((60 * 60) * 24) * days);
     }
 
     async getTotalHitsPastXDays(days){
 
-        const start = Math.floor(Date.now() * 0.001) - (((60 * 60) * 24) * days);
+        const start = this.daysToSeconds(days);
 
         return await this.getTotalHitsBetween(start);
     }
@@ -131,6 +133,40 @@ class Analytics{
         const total = await mysql.simpleFetch(query, [start, end]);
 
         return total[0].total_hits;
+    }
+
+    async getVisitorCountBetween(start, end){
+
+        if(end === undefined) end = Math.floor(Date.now() * 0.001);
+
+        const query = "SELECT COUNT(*) as hits FROM nstats_hits WHERE date >= ? AND date <= ? GROUP BY (ip)";
+
+        const data = await mysql.simpleFetch(query, [start, end]);
+
+        let returning = 0;
+
+        let d = 0;
+        
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            if(d.hits > 1){
+                returning++;
+            }
+        }
+
+        return {"unique": data.length, "returning": returning};
+
+    }
+
+    async getVisitorsCountPastXDays(days){
+
+        const start = this.daysToSeconds(days);
+
+        return await this.getVisitorCountBetween(start);
+
+
     }
 }
 

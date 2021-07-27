@@ -773,7 +773,7 @@ class Admin extends React.Component{
         if(this.state.mode !== 13) return null;
 
         return <SiteAnalytics countriesByHits={JSON.parse(this.props.countriesByHits)} ipsByHits={JSON.parse(this.props.ipsByHits)}
-            generalHits={JSON.parse(this.props.hits)}
+            generalHits={JSON.parse(this.props.hits)} visitors={JSON.parse(this.props.visitors)}
         />;
     }
 
@@ -978,13 +978,17 @@ export async function getServerSideProps({req, query}){
     const ipsByHits = await analytics.getIpsByHits();
 
     const hitsPast24Hours = await analytics.getTotalHitsPastXDays(1);
+    const visitorsPast24Hours = await analytics.getVisitorsCountPastXDays(1);
 
     const hitsPast7Days = await analytics.getTotalHitsPastXDays(7);
-    const hitsPast28Days = await analytics.getTotalHitsPastXDays(28);
-    const hitsPastYear = await analytics.getTotalHitsPastXDays(365);
+    const visitorsPast7Days = await analytics.getVisitorsCountPastXDays(7);
 
-    console.log(hitsPast24Hours, hitsPast7Days, hitsPast28Days, hitsPastYear);
-    
+    const hitsPast28Days = await analytics.getTotalHitsPastXDays(28);
+    const visitorsPast28Days = await analytics.getVisitorsCountPastXDays(28);
+
+    const hitsPastYear = await analytics.getTotalHitsPastXDays(365);
+    const visitorsPast365Days = await analytics.getVisitorsCountPastXDays(365);
+
     return {
         props: {
             "navSettings": JSON.stringify(navSettings),
@@ -1015,7 +1019,15 @@ export async function getServerSideProps({req, query}){
                 "week": hitsPast7Days,
                 "month": hitsPast28Days,
                 "year": hitsPastYear
-            })
+            }),
+            "visitors": JSON.stringify(
+                {
+                    "day": visitorsPast24Hours,
+                    "week": visitorsPast7Days,
+                    "month": visitorsPast28Days,
+                    "year": visitorsPast365Days
+                }
+            )
         }
     };
 }

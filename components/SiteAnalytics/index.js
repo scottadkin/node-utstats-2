@@ -23,7 +23,7 @@ class SiteAnalytics extends React.Component{
 
         if(this.state.mode !== 0) return null;
 
-        return <AnalyticsGeneral data={this.props.generalHits}/>;
+        return <AnalyticsGeneral data={this.props.generalHits} visitors={this.props.visitors}/>;
     }
 
     renderHitsByCountry(){
