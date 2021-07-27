@@ -119,7 +119,11 @@ class Analytics{
 
     async getTotalHitsPastXDays(days){
 
-        const start = this.daysToSeconds(days);
+        let start = 0;
+
+        if(days !== undefined){
+            start = this.daysToSeconds(days);
+        }
 
         return await this.getTotalHitsBetween(start);
     }
@@ -162,7 +166,11 @@ class Analytics{
 
     async getVisitorsCountPastXDays(days){
 
-        const start = this.daysToSeconds(days);
+        let start = 0;
+
+        if(days !== undefined){
+            start = this.daysToSeconds(days);
+        }
 
         return await this.getVisitorCountBetween(start);
 

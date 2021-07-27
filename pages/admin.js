@@ -989,6 +989,9 @@ export async function getServerSideProps({req, query}){
     const hitsPastYear = await analytics.getTotalHitsPastXDays(365);
     const visitorsPast365Days = await analytics.getVisitorsCountPastXDays(365);
 
+    const hitsAllTime = await analytics.getTotalHitsPastXDays();
+    const visitorsAllTime = await analytics.getVisitorsCountPastXDays();
+
     return {
         props: {
             "navSettings": JSON.stringify(navSettings),
@@ -1018,14 +1021,16 @@ export async function getServerSideProps({req, query}){
                 "day": hitsPast24Hours,
                 "week": hitsPast7Days,
                 "month": hitsPast28Days,
-                "year": hitsPastYear
+                "year": hitsPastYear,
+                "allTime": hitsAllTime
             }),
             "visitors": JSON.stringify(
                 {
                     "day": visitorsPast24Hours,
                     "week": visitorsPast7Days,
                     "month": visitorsPast28Days,
-                    "year": visitorsPast365Days
+                    "year": visitorsPast365Days,
+                    "allTime": visitorsAllTime
                 }
             )
         }

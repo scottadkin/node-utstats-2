@@ -44,6 +44,8 @@ const AnalyticsHitsGeneral = ({data, visitors}) =>{
 
         <div className="default-sub-header">All Time Hits</div>
 
+        <Box hits={data.allTime} unique={visitors.allTime.unique} returning={visitors.allTime.returning}/>
+
     </div>
 }
 
