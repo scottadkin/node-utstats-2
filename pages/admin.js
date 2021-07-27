@@ -772,7 +772,9 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 13) return null;
 
-        return <SiteAnalytics countriesByHits={JSON.parse(this.props.countriesByHits)}/>;
+        return <SiteAnalytics countriesByHits={JSON.parse(this.props.countriesByHits)} ipsByHits={JSON.parse(this.props.ipsByHits)}
+            generalHits={JSON.parse(this.props.hits)}
+        />;
     }
 
     render(){
@@ -973,7 +975,15 @@ export async function getServerSideProps({req, query}){
     const analytics = new Analytics();
 
     const countriesByHits = await analytics.getCountriesByHits();
+    const ipsByHits = await analytics.getIpsByHits();
 
+    const hitsPast24Hours = await analytics.getTotalHitsPastXDays(1);
+
+    const hitsPast7Days = await analytics.getTotalHitsPastXDays(7);
+    const hitsPast28Days = await analytics.getTotalHitsPastXDays(28);
+    const hitsPastYear = await analytics.getTotalHitsPastXDays(365);
+
+    console.log(hitsPast24Hours, hitsPast7Days, hitsPast28Days, hitsPastYear);
     
     return {
         props: {
@@ -998,7 +1008,14 @@ export async function getServerSideProps({req, query}){
             "monsterImages": JSON.stringify(monsterImages),
             "monsters": JSON.stringify(monsters),
             "gametypeImages": JSON.stringify(gametypeImages),
-            "countriesByHits": JSON.stringify(countriesByHits)
+            "countriesByHits": JSON.stringify(countriesByHits),
+            "ipsByHits": JSON.stringify(ipsByHits),
+            "hits": JSON.stringify({
+                "day": hitsPast24Hours,
+                "week": hitsPast7Days,
+                "month": hitsPast28Days,
+                "year": hitsPastYear
+            })
         }
     };
 }

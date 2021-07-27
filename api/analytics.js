@@ -100,6 +100,38 @@ class Analytics{
 
         return await mysql.simpleFetch(query);
     }
+
+    async getIpsByHits(){
+
+        const query = "SELECT * FROM nstats_visitors ORDER BY total DESC";
+
+        return await mysql.simpleFetch(query);
+    }
+
+    async getTotalHitsPast24Hours(){
+
+        const start = Math.floor(Date.now() * 0.001) - ((60 * 60) * 24);
+
+        return await this.getTotalHitsBetween(start);
+    }
+
+    async getTotalHitsPastXDays(days){
+
+        const start = Math.floor(Date.now() * 0.001) - (((60 * 60) * 24) * days);
+
+        return await this.getTotalHitsBetween(start);
+    }
+
+    async getTotalHitsBetween(start, end){
+
+        if(end === undefined) end = Math.floor(Date.now() * 0.001);
+
+        const query = "SELECT COUNT(*) as total_hits FROM nstats_hits WHERE date >= ? AND date <= ?";
+
+        const total = await mysql.simpleFetch(query, [start, end]);
+
+        return total[0].total_hits;
+    }
 }
 
 module.exports = Analytics;
