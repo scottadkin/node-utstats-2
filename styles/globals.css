@@ -524,6 +524,7 @@ input[type="range"]{
 	margin-right:auto;
 	border:1px solid var(--border-color-1);
 	background-color:var(--color-3);
+	width:90%;
 }
 
 .tab{

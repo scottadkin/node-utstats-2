@@ -54,7 +54,8 @@ const tables = [
     "monsters_player_totals",
     "hits",
     "visitors",
-    "visitors_countries"
+    "visitors_countries",
+    "user_agents"
 
 ];
 

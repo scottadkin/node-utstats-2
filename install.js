@@ -698,14 +698,23 @@ const queries = [
           total int(11) NOT NULL,
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-          `CREATE TABLE nstats_visitors_countries (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            code varchar(2) NOT NULL,
-            country varchar(100) NOT NULL,
-            first int(11) NOT NULL,
-            last int(11) NOT NULL,
-            total int(11) NOT NULL,
-            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE nstats_visitors_countries (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        code varchar(2) NOT NULL,
+        country varchar(100) NOT NULL,
+        first int(11) NOT NULL,
+        last int(11) NOT NULL,
+        total int(11) NOT NULL,
+        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+        `CREATE TABLE nstats_user_agents (
+          id int(11) NOT NULL AUTO_INCREMENT,
+          system varchar(100) NOT NULL,
+          browser varchar(100) NOT NULL,
+          first int(11) NOT NULL,
+          last int(11) NOT NULL,
+          total int(11) NOT NULL,
+          PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 
     "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Kill','Player Killed an enemy',300)",

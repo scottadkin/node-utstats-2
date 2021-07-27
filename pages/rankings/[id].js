@@ -250,7 +250,7 @@ export async function getServerSideProps({req, query}){
 
     const rankingValues = await rankingManager.getSettings();
 
-    await Analytics.insertHit(session.userIp, req.headers.host);
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         props:{

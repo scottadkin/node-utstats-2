@@ -452,7 +452,7 @@ export async function getServerSideProps({req, query}){
             ogImage = `maps/${ogImageResult[1]}`;
         }
 
-        await Analytics.insertHit(session.userIp, req.headers.host);
+        await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
         return {
             props: {

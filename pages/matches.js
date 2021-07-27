@@ -344,7 +344,7 @@ export async function getServerSideProps({req, query}){
 
     const mapImages = await mapManager.getImages(justMapNames);
 
-    await Analytics.insertHit(session.userIp, req.headers.host);
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {

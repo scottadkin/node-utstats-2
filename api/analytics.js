@@ -60,7 +60,110 @@ class Analytics{
         }
     }
 
-    static async insertHit(ip, host){
+    static async insertUserAgent(system, platform, date){
+
+        const query = "INSERT INTO nstats_user_agents VALUES(NULL,?,?,?,?,1)";
+
+        await mysql.simpleInsert(query, [system, platform, date, date]);
+    }
+
+    static findBrowserName(agent){
+
+        const firefox = /firefox\/.+?/i;
+        const seamonkeyCheck = /seamonkey\/.+?/i;
+
+        const chromeCheck = /chrome\/.+?/i;
+        const chromiumCheck = /chromium\/.+?/i;
+
+        const safariCheck = /safari\/.+?/i;
+
+        const operaCheck = /(OPR|opera)\/.+?/i;
+
+        const ie10Check = /; msie .+?;/i;
+        const ie11Check = /Trident\/7.0; rv:.+?/i;
+
+        const testEdgeCheck = /edg\/.+?/i;
+
+
+        if(firefox.test(agent) && !seamonkeyCheck.test(agent)){
+            return "Firefox";
+        }
+
+        if(seamonkeyCheck.test(agent)){
+            return "Seamonkey";
+        }
+
+        if(testEdgeCheck.test(agent)){
+            return "Edge";
+        }
+
+        if(chromeCheck.test(agent) && !chromiumCheck.test(agent) && !operaCheck.test(agent)){
+            return "Chrome";
+        }
+
+        if(chromiumCheck.test(agent)){
+            return "Chromium";
+        }
+
+        if(safariCheck.test(agent) && !chromiumCheck.test(agent) && !chromeCheck.test(agent)){
+            return "Safari";
+        }
+
+        if(operaCheck.test(agent)){
+            return "Opera";
+        }
+
+        if(ie10Check.test(agent)){
+            return "Internet Explorer 10";
+        }
+
+        if(ie11Check.test(agent)){
+            return "Internet Explorer 11";
+        }
+
+
+        return "Unknown";
+
+
+    }
+
+    static async updateUserAgent(agent){
+
+        //Mozilla/[version] ([system and browser information]) [platform] ([platform details]) [extensions]. 
+        const reg = /.+?\((.+?)\)(.+?).+?.+/i;
+
+        const result = reg.exec(agent);
+
+
+        if(result !== null){
+
+            const system = result[1];
+
+            const now = Math.floor(Date.now() * 0.001);
+
+            const query = "UPDATE nstats_user_agents SET last=?,total=total+1 WHERE system=? AND browser=?";
+
+            const browser = this.findBrowserName(agent);
+
+            const changedRows = await mysql.updateReturnAffectedRows(query, [now, system, browser]);
+
+
+            if(changedRows === 0){
+
+                await this.insertUserAgent(system, browser, now);
+            }
+
+        }else{
+
+            //check for bots here
+        }
+
+    }
+
+    static async insertHit(ip, host, userAgent){
+
+
+        await this.updateUserAgent(userAgent);
 
         const query = "INSERT INTO nstats_hits VALUES(NULL,?,?)";
 
