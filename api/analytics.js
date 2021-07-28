@@ -276,9 +276,17 @@ class Analytics{
         }
 
         return await this.getVisitorCountBetween(start);
+    }
 
+    async getUserAgents(){
+
+        const query = "SELECT * FROM nstats_user_agents ORDER BY total DESC";
+
+
+        return await mysql.simpleFetch(query);
 
     }
 }
+
 
 module.exports = Analytics;

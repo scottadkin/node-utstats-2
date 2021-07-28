@@ -773,7 +773,7 @@ class Admin extends React.Component{
         if(this.state.mode !== 13) return null;
 
         return <SiteAnalytics countriesByHits={JSON.parse(this.props.countriesByHits)} ipsByHits={JSON.parse(this.props.ipsByHits)}
-            generalHits={JSON.parse(this.props.hits)} visitors={JSON.parse(this.props.visitors)}
+            generalHits={JSON.parse(this.props.hits)} visitors={JSON.parse(this.props.visitors)} userAgents={JSON.parse(this.props.userAgents)}
         />;
     }
 
@@ -992,6 +992,8 @@ export async function getServerSideProps({req, query}){
     const hitsAllTime = await analytics.getTotalHitsPastXDays();
     const visitorsAllTime = await analytics.getVisitorsCountPastXDays();
 
+    const userAgents = await analytics.getUserAgents();
+
     return {
         props: {
             "navSettings": JSON.stringify(navSettings),
@@ -1032,7 +1034,8 @@ export async function getServerSideProps({req, query}){
                     "year": visitorsPast365Days,
                     "allTime": visitorsAllTime
                 }
-            )
+            ),
+            "userAgents": JSON.stringify(userAgents)
         }
     };
 }

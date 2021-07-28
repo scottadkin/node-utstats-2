@@ -2,6 +2,7 @@ import React from 'react';
 import AnalyticsGeneral from '../AnalyticsHitsGeneral';
 import AnalyticsHitsByCountry from '../AnalyticsHitsByCountry';
 import AnalyticsHitsByIp from '../AnalyticsHitsByIp';
+import AnalyticsUserAgents from '../AnalyticsUserAgents';
 
 class SiteAnalytics extends React.Component{
 
@@ -40,6 +41,13 @@ class SiteAnalytics extends React.Component{
         return <AnalyticsHitsByIp data={this.props.ipsByHits}/>;
     }
 
+    renderUserAgents(){
+
+        if(this.state.mode !== 3) return null;
+
+        return <AnalyticsUserAgents data={this.props.userAgents}/>
+    }
+
     render(){
 
         return <div>
@@ -54,11 +62,15 @@ class SiteAnalytics extends React.Component{
                 <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : null }`} onClick={(() =>{
                     this.changeMode(2);
                 })}>Hits By IP</div>
+                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : null }`} onClick={(() =>{
+                    this.changeMode(3);
+                })}>User Agents</div>
             </div>
 
             {this.renderGeneral()}
             {this.renderHitsByCountry()}
             {this.renderHitsByIp()}
+            {this.renderUserAgents()}
         </div>
     }
 }
