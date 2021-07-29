@@ -1,5 +1,7 @@
 import React from "react";
 import Functions from '../../../api/functions';
+import MatchResult from '../MatchResult';
+import Link from 'next/link';
 
 
 class MatchesList extends React.Component{
@@ -21,11 +23,12 @@ class MatchesList extends React.Component{
             d = this.props.data[i];
 
             elems.push(<tr key={i}>
-                <td>{Functions.convertTimestamp(Functions.utDate(d.time), true)}</td>
-                <td>{d.gamename}</td>
-                <td>{Functions.removeUnr(d.mapfile)}</td>
-                <td>{Functions.MMSS(d.gametime)}</td>
-                <td>{d.players}</td>
+                <td><Link href={`/classic/match/${d.id}`}><a>{Functions.convertTimestamp(Functions.utDate(d.time), true)}</a></Link></td>
+                <td><Link href={`/classic/match/${d.id}`}><a>{d.gamename}</a></Link></td>
+                <td><Link href={`/classic/match/${d.id}`}><a>{Functions.removeUnr(d.mapfile)}</a></Link></td>
+                <td><Link href={`/classic/match/${d.id}`}><a>{Functions.MMSS(d.gametime)}</a></Link></td>
+                <td><Link href={`/classic/match/${d.id}`}><a>{d.players}</a></Link></td>
+                <td className="padding-0"><Link href={`/classic/match/${d.id}`}><a><MatchResult data={d.result}/></a></Link></td>
             </tr>);
         }
 
@@ -42,6 +45,7 @@ class MatchesList extends React.Component{
                         <th>Map</th>
                         <th>Playtime</th>
                         <th>Players</th>
+                        <th>Result</th>
                     </tr>
                     {elems}
                 </tbody>

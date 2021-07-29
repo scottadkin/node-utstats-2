@@ -31,6 +31,8 @@ class Matches{
         for(let i = 0; i < matches.length; i++){
 
             matches[i].players = await this.getMatchPlayerCount(matches[i].id);
+
+            matches[i].result = this.createMatchResult(matches[i]);
         }
 
         return matches;
@@ -43,6 +45,25 @@ class Matches{
         const result = await mysql.simpleQuery(query, [id]);
 
         return result[0].players;
+    }
+
+    createMatchResult(matchData){
+
+        const teamGame = matchData.teamgame.toLowerCase();
+
+        if(teamGame === "true"){
+
+            const teamScores = [];
+
+            for(let i = 0; i < 4; i++){
+                if(matchData[`t${i}`]) teamScores.push(matchData[`t${i}score`]);
+            }
+
+            return teamScores;
+
+        }
+
+        return null;
     }
 
 }

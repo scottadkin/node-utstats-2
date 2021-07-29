@@ -627,3 +627,6 @@ input[type="range"]{
 	cursor:pointer;
 }
 
+.min-width-150{
+	min-width:150px;
+}

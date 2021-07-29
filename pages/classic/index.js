@@ -2,16 +2,12 @@ import Head from '../../components/classic/Head';
 import Nav from '../../components/classic/Nav';
 import Footer from '../../components/Footer';
 import Session from '../../api/session';
-import mysql from '../../api/classic/database';
 import Matches from '../../api/classic/matches';
 import MatchesList from '../../components/classic/MatchesList';
 
 const Home = ({host, session, recentMatches}) =>{
 
     recentMatches = JSON.parse(recentMatches);
-
-    console.log(recentMatches);
-
 
     return <div>
         <Head host={host} title={"Home"} description="Welcome to Node UTStats 2 (Classic Support), view various stats for players,matches,maps,records and more, using original utstats databases!" keywords="home,welcome"/>
@@ -42,7 +38,7 @@ export async function getServerSideProps({req, query}) {
     const page = 1;
 
     const matchManager = new Matches();
-    const recentMatches = await matchManager.getLatestMatches(page, 5);
+    const recentMatches = await matchManager.getLatestMatches(page, 995);
 
 
     return {
