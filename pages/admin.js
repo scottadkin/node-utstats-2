@@ -975,7 +975,7 @@ export async function getServerSideProps({req, query}){
     const analytics = new Analytics();
 
     const countriesByHits = await analytics.getCountriesByHits();
-    const ipsByHits = await analytics.getIpsByHits();
+    const ipsByHits = await analytics.getIpsByHits(50);
 
     const hitsPast24Hours = await analytics.getTotalHitsPastXDays(1);
     const visitorsPast24Hours = await analytics.getVisitorsCountPastXDays(1);

@@ -443,6 +443,8 @@ export async function getServerSideProps({req, query}) {
 		}
 	}
 
+	console.log(req.headers);
+
 	await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
 	return { props: { 

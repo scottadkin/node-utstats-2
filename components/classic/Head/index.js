@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import {useRouter} from 'next/router';
 
-const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
+const ClassicHead = ({host, title, description, keywords, image, imageType}) =>{
 
     const router = useRouter();
 
@@ -21,18 +21,17 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
         <Head>
             <title>{title} - Node UTStats 2</title>
             <link rel="icon" href="/fav.png" />
-            <meta name="description" content={`${description} Node UTStats 2.`} />
-            <meta name="keywords" content={`${keywords}ut,unreal,tournament,stats,node`} />
-            <meta property="og:title" content={`${title} - Node UTStats 2`} />
-            <meta property="og:description" content={`${description} Node UTStats 2.`} />
+            <meta name="description" content={`${description} Node UTStats 2 (Classic Support)`} />
+            <meta name="keywords" content={`${keywords}ut,unreal,tournament,stats,node,classic`} />
+            <meta property="og:title" content={`${title} - Node UTStats 2 (Classic Support)`} />
+            <meta property="og:description" content={`${description} Node UTStats 2 (Classic Support)`} />
             <meta property="og:type" content="website" />
             <meta property="og:url" content={`https://${host}${router.asPath}`} />
             <meta property="og:image" content={`http://${host}/images/${image}.${imageType}`} />
-            <meta property="og:site_name" content="Node UTStats 2" />
-           
-            <script src="../js/main.js"></script>
+            <meta property="og:site_name" content="Node UTStats 2 Classic Support" />
+        
         </Head>    
     );
 }
 
-export default DefaultHead;
+export default ClassicHead;

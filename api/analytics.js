@@ -208,11 +208,11 @@ class Analytics{
         return await mysql.simpleFetch(query);
     }
 
-    async getIpsByHits(){
+    async getIpsByHits(limit){
 
-        const query = "SELECT * FROM nstats_visitors ORDER BY total DESC";
+        const query = "SELECT * FROM nstats_visitors ORDER BY total DESC LIMIT ?";
 
-        return await mysql.simpleFetch(query);
+        return await mysql.simpleFetch(query, [limit]);
     }
 
     daysToSeconds(days){
