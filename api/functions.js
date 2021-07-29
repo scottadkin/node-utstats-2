@@ -477,6 +477,20 @@ class Functions{
 
         return input;
     }
+
+
+    static utDate(input){
+
+
+        const year = input.slice(0,4);
+        const month = input.slice(4,6);
+        const day = input.slice(6,8);
+        const hour = input.slice(8,10);
+        const minute = input.slice(10,12);
+        const seconds = input.slice(12,14);
+
+        return Math.floor(new Date(year, month, day, hour, minute, seconds) * 0.001);
+    }
 }
 
 module.exports = Functions;
