@@ -2,6 +2,7 @@ import React from "react";
 import Functions from '../../../api/functions';
 import MatchResult from '../MatchResult';
 import Link from 'next/link';
+import MatchResultBox from '../../../components/MatchResultBox';
 
 
 class MatchesList extends React.Component{
@@ -9,12 +10,16 @@ class MatchesList extends React.Component{
     constructor(props){
 
         super(props);
+
+        this.state = {"mode": 1};
     }
 
-    render(){
+
+    renderTable(){
+
+        if(this.state.mode !== 0) return null;
 
         const elems = [];
-
 
         let d = 0;
 
@@ -32,24 +37,55 @@ class MatchesList extends React.Component{
             </tr>);
         }
 
+
+        return <table className="t-width-1">
+            <tbody>
+                <tr>
+                    <th>Date</th>
+                    <th>Gametype</th>
+                    <th>Map</th>
+                    <th>Playtime</th>
+                    <th>Players</th>
+                    <th>Result</th>
+                </tr>
+                {elems}
+            </tbody>
+        </table>;
+
+    }
+
+
+    renderDefault(){
+
+        if(this.state.mode !== 1) return null;
+
+        const elems = [];
+
+        let d = 0;
+
+        for(let i = 0; i < this.props.data.length; i++){
+
+            d = this.props.data[i];
+
+            elems.push(<MatchResultBox key={i} serverName={d.servername} gametypeName={d.gamename} mapName={Functions.removeUnr(d.mapfile)}
+            date={Functions.convertTimestamp(Functions.utDate(d.time))} playtime={Functions.MMSS(d.gametime)} players={d.players}
+            totalTeams={d.totalTeams} result={d.result} mapImage={d.image}/>);
+        }
+
+        return elems;
+
+    }
+
+    render(){
+
+
         return <div>
             <div className="default-header">
                 {this.props.title}
             </div>
 
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Date</th>
-                        <th>Gametype</th>
-                        <th>Map</th>
-                        <th>Playtime</th>
-                        <th>Players</th>
-                        <th>Result</th>
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>
+            {this.renderTable()}
+            {this.renderDefault()}
             
         </div>
     }

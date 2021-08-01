@@ -20,7 +20,17 @@ const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenS
         if(totalTeams < 2){
             elems.push(
                 <div key={`match_result_solo`}>
-                    <span className="yellow">{dmWinner}</span> won with <span className="yellow">{dmScore}</span> Points
+                    {(dmScore === null) ? 
+                    
+                        <div>
+                            <span className="yellow">{dmWinner}</span> Won the Match
+                        </div>
+
+                    :
+                    <div>
+                        <span className="yellow">{dmWinner}</span> won with <span className="yellow">{dmScore}</span> Points
+                    </div>
+                    }
                 </div>
             );
         }else{

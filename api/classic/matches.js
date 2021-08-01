@@ -1,5 +1,7 @@
 import mysql from './database';
 import Players from './players';
+import Functions from '../functions';
+import MainMaps from '../../api/maps';
 
 class Matches{
 
@@ -25,20 +27,84 @@ class Matches{
 
         const start = page * perPage;
 
-        const query = `SELECT id,time,gamename,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
+        const query = `SELECT id,time,servername,gamename,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
         FROM uts_match ORDER BY time DESC LIMIT ?,?`;
 
 
         const matches = await mysql.simpleQuery(query, [start, perPage]);
 
+        const uniqueMaps = this.setUniqueMaps(matches);
+
+        const mapImages = await this.getMapImages(uniqueMaps);
+
+        let imageIndex = 0;
+
+        let m = 0;
+
         for(let i = 0; i < matches.length; i++){
 
-            matches[i].players = await this.getMatchPlayerCount(matches[i].id);
+            m = matches[i];
 
-            matches[i].result = await this.createMatchResult(matches[i]);
+            m.players = await this.getMatchPlayerCount(m.id);
+
+            m.result = await this.createMatchResult(m);
+
+            m.totalTeams = this.setTotalTeams(m.t0, m.t1, m.t2, m.t3);
+
+            imageIndex = mapImages.indexOf(Functions.cleanMapName(m.mapfile).toLowerCase());
+
+            if(imageIndex === -1){
+                m.image = "default";
+            }else{
+                m.image = mapImages[imageIndex];
+            }
         }
 
         return matches;
+    }
+
+
+    async getMapImages(mapNames){
+
+        const mainMaps = new MainMaps();
+
+        return await mainMaps.getImages(mapNames);
+        
+    }
+
+
+    setUniqueMaps(matches){
+
+        const unique = [];
+
+        let m = 0;
+
+        let currentName = "";
+
+        for(let i = 0; i < matches.length; i++){
+
+            m = matches[i];
+
+            currentName = Functions.removeUnr(m.mapfile);
+
+            if(unique.indexOf(currentName) === -1){
+                unique.push(currentName);
+            }
+        }
+
+        return unique;
+    }
+
+    setTotalTeams(red, blue, green, yellow){
+
+        let total = 0;
+
+        if(red > 0) total++;
+        if(blue > 0) total++;
+        if(green > 0) total++;
+        if(yellow > 0) total++;
+
+        return total;
     }
 
     async getMatchPlayerCount(id){
