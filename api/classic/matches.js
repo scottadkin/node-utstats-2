@@ -1,8 +1,11 @@
 import mysql from './database';
+import Players from './players';
 
 class Matches{
 
     constructor(){
+
+        this.players = new Players();
 
     }
 
@@ -32,7 +35,7 @@ class Matches{
 
             matches[i].players = await this.getMatchPlayerCount(matches[i].id);
 
-            matches[i].result = this.createMatchResult(matches[i]);
+            matches[i].result = await this.createMatchResult(matches[i]);
         }
 
         return matches;
@@ -47,7 +50,7 @@ class Matches{
         return result[0].players;
     }
 
-    createMatchResult(matchData){
+    async createMatchResult(matchData){
 
         const teamGame = matchData.teamgame.toLowerCase();
 
@@ -61,9 +64,11 @@ class Matches{
 
             return teamScores;
 
+        }else{
+
+            return await this.players.getDmWinner(matchData.id);
         }
 
-        return null;
     }
 
 }

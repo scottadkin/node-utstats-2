@@ -19,8 +19,6 @@ Database.simpleQuery = (query, vars) =>{
             Database.query(query, (err, result) =>{
     
                 if(err) reject(err);
-    
-                console.log(result);
                 
                 resolve(result);
             });
@@ -31,7 +29,6 @@ Database.simpleQuery = (query, vars) =>{
     
                 if(err) reject(err);
     
-                console.log(result);
                 resolve(result);
             });
         }

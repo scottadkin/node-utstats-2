@@ -38,7 +38,7 @@ export async function getServerSideProps({req, query}) {
     const page = 1;
 
     const matchManager = new Matches();
-    const recentMatches = await matchManager.getLatestMatches(page, 995);
+    const recentMatches = await matchManager.getLatestMatches(page, 50);
 
 
     return {

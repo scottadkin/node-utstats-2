@@ -2,14 +2,12 @@ import styles from './MatchResult.module.css';
 
 const MatchResult = ({data}) =>{
 
-    if(data === null) return <div className={`${styles.wrapper}`}>N/A</div>
+    if(!Array.isArray(data)) return <div className={`${styles.wrapper}`}><div className="team-none">{data}</div></div>
 
     const colors = ["red", "blue", "green", "yellow"];
     const classes = ["solo", "duo", "trio", "quad"];
 
     const elems = [];
-
-    console.log(data);
 
     for(let i = 0; i < data.length; i++){
 
