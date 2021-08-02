@@ -44,7 +44,7 @@ function Nav({session, settings}){
         
     }
 
-    const pathName = router.pathname.toLowerCase();;
+    const pathName = router.pathname.toLowerCase();
 
     let links = [];
 

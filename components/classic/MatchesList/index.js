@@ -88,9 +88,16 @@ class MatchesList extends React.Component{
 
             d = this.props.data[i];
 
-            elems.push(<MatchResultBox key={i} serverName={d.servername} gametypeName={d.gamename} mapName={Functions.removeUnr(d.mapfile)}
-            date={Functions.convertTimestamp(Functions.utDate(d.time))} playtime={Functions.MMSS(d.gametime)} players={d.players}
-            totalTeams={d.totalTeams} result={d.result} mapImage={d.image} classic={true}/>);
+            elems.push(
+                <Link href={`/classic/match/${d.id}`}>
+                    <a>
+                        <MatchResultBox key={i} serverName={d.servername} gametypeName={d.gamename} mapName={Functions.removeUnr(d.mapfile)}
+                        date={Functions.convertTimestamp(Functions.utDate(d.time))} playtime={Functions.MMSS(d.gametime)} players={d.players}
+                        totalTeams={d.totalTeams} result={d.result} mapImage={d.image} classic={true}
+                        />
+                    </a>
+                </Link>
+            );
         }
 
         return elems;
@@ -102,21 +109,11 @@ class MatchesList extends React.Component{
 
         const options = [];
 
-        let g = 0;
-
-        /*for(let i = 0; i < this.props.gametypes.length; i++){
-
-            g = this.props.gametypes[i];
-
-            options.push(<option key={i} value={g.id}>{g.name}</option>);
-        }*/
-
         for(const [key, value] of Object.entries(this.props.gametypes)){
 
             options.push(<option key={key} value={key}>{value}</option>);
 
         }
-
 
         return <select defaultValue={this.props.gametype} name="gametype" className="default-select">
             <option key={-1} value={0}>All</option>
