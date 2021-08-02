@@ -489,7 +489,7 @@ class Functions{
         const minute = input.slice(10,12);
         const seconds = input.slice(12,14);
 
-        return Math.floor(new Date(year, month, day, hour, minute, seconds) * 0.001);
+        return Math.floor(new Date(year, month - 1, day, hour, minute, seconds) * 0.001);
     }
 }
 

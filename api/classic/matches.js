@@ -2,6 +2,7 @@ import mysql from './database';
 import Players from './players';
 import Functions from '../functions';
 import MainMaps from '../../api/maps';
+import Gametypes from './gametypes'
 
 class Matches{
 
@@ -12,8 +13,8 @@ class Matches{
     }
 
 
-    async getLatestMatches(page, perPage){
-
+    async getLatestMatches(gametype, page, perPage){
+        
         page = parseInt(page);
         perPage = parseInt(perPage);
 
@@ -27,11 +28,19 @@ class Matches{
 
         const start = page * perPage;
 
-        const query = `SELECT id,time,servername,gamename,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
+        let query = `SELECT id,time,servername,gamename,gid,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
         FROM uts_match ORDER BY time DESC LIMIT ?,?`;
+        let vars = [start, perPage];
+
+        if(gametype !== 0){
+
+            query = `SELECT id,time,servername,gamename,gid,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
+            FROM uts_match WHERE gid=? ORDER BY time DESC LIMIT ?,?`;
+            vars = [gametype, start, perPage];
+        }
 
 
-        const matches = await mysql.simpleQuery(query, [start, perPage]);
+        const matches = await mysql.simpleQuery(query, vars);
 
         const uniqueMaps = this.setUniqueMaps(matches);
 
@@ -57,7 +66,7 @@ class Matches{
                 m.image = "default";
             }else{
                 m.image = mapImages[imageIndex];
-            }
+            }     
         }
 
         return matches;
