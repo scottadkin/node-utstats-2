@@ -7,6 +7,8 @@ import Image from 'next/image';
 import Functions from '../../api/functions'
 import React from 'react';
 
+import MatchResultBox from '../MatchResultBox';
+
 class MatchesDefaultView extends React.Component{
 
     constructor(props){
@@ -23,63 +25,58 @@ class MatchesDefaultView extends React.Component{
     }
 
 
-    getImage(name){
-
-        if(this.state.image !== undefined) return this.state.image;
-
-        name = Functions.removeMapGametypePrefix(name).toLowerCase();
-
-        const index = this.state.images.indexOf(name)
-        
-        if(index !== -1){
-            return `/images/maps/${this.state.images[index]}.jpg`;
-        }else{
-            return "/images/maps/default.jpg";
-        }
-    }
-
-    createBox(match){
-
-        const imageURL = this.getImage(match.mapName);
-
-        return (<Link key={`match_${match.id}`} href={`/match/${match.id}`}>
-            <a>
-                <div className={styles.wrapper}>
-                    <div className={styles.content}>
-                        <div className={styles.gametype}><span className="yellow">{match.gametypeName}</span> on <span className="yellow">{match.mapName}</span></div>
-                        <Image src={imageURL} alt="map image" width={480} height={270}/>
-                        <div className={styles.server}>{match.serverName}</div>
-                        <div className={styles.info}>
-                            <TimeStamp timestamp={match.date}/><br/>
-                            Players <span className="yellow">{match.players}</span><br/>
-                            Playtime <span className="yellow"><MMSS timestamp={match.playtime}/></span>
-                        </div>
-                        <MatchResult 
-                            dmWinner={match.dm_winner} 
-                            dmScore={match.dm_score} 
-                            totalTeams={match.total_teams}
-                            redScore={Math.floor(match.team_score_0)}
-                            blueScore={Math.floor(match.team_score_1)}
-                            greenScore={Math.floor(match.team_score_2)}
-                            yellowScore={Math.floor(match.team_score_3)}
-                            matchId={match.id}
-                            bMonsterHunt={match.mh}
-                            endReason={match.end_type}
-                            />
-                    </div>
-                </div>
-            </a>
-        </Link>);
-    }
-
     render(){
 
         const matches = JSON.parse(this.props.data);
 
         const elems = [];
 
+        let m = 0;
+        let image = "";
+        let imageIndex = 0;
+        let result = 0;
+        let dmScore = 0;
+
         for(let i = 0; i < matches.length; i++){
-            elems.push(this.createBox(matches[i]));
+
+            m = matches[i];
+
+            if(i < 5){
+                console.log(m);
+            }
+
+            if(m.total_teams < 2){
+
+                result = m.dm_winner;
+                dmScore = m.dm_score;
+            }else{
+
+                result = [];
+                dmScore = null;
+
+                for(let x = 0; x < m.total_teams; x++){
+                    result.push(m[`team_score_${x}`]);
+                }
+            }
+
+            imageIndex = this.state.images.indexOf(Functions.cleanMapName(m.mapName).toLowerCase());
+
+            if(imageIndex === -1){
+                image = "default";
+            }else{
+                image = this.state.images[imageIndex];
+            }
+
+            elems.push(
+                <Link key={i} href={`/match/${m.id}`}>
+                    <a>
+                        <MatchResultBox serverName={m.serverName} gametypeName={m.gametypeName} mapName={m.mapName}
+                        mapImage={image} date={Functions.convertTimestamp(m.date)} players={m.players} playtime={Functions.MMSS(m.playtime)}
+                        result={result} dmScore={dmScore} totalTeams={m.total_teams} monsterHunt={m.mh} endReason={m.end_type}
+                        />
+                    </a>
+                </Link>
+            );
         }
 
         return <div>{elems}</div>

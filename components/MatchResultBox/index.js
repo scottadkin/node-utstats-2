@@ -2,7 +2,7 @@ import styles from './MatchResultBox.module.css';
 import Image from 'next/image';
 import MatchResult from '../MatchResult';
 
-const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, players, playtime, totalTeams, result}) =>{
+const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, players, playtime, totalTeams, result, dmScore, monsterHunt, endReason}) =>{
 
 
     let dmWinner = ""; 
@@ -32,7 +32,8 @@ const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, play
                 Players <span className="yellow">{players}</span><br/>
                 Playtime <span className="yellow">{playtime}</span>
             </div>
-            <MatchResult dmWinner={dmWinner} dmScore={null} totalTeams={totalTeams} redScore={scores[0]} blueScore={scores[1]} greenScore={scores[2]} yellowScore={scores[3]}/>
+            <MatchResult bMonsterHunt={monsterHunt} endReason={endReason} dmWinner={dmWinner} dmScore={(dmScore === undefined) ? null : dmScore} totalTeams={totalTeams} 
+            redScore={scores[0]} blueScore={scores[1]} greenScore={scores[2]} yellowScore={scores[3]}/>
         </div>
         
     </div>

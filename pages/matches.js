@@ -231,9 +231,6 @@ export async function getServerSideProps({req, query}){
 
     const pageSettings = await settings.getCategorySettings("Matches Page");
 
-
-    console.log(session.settings);
-
     const defaultPerPage = pageSettings["Default Display Per Page"];
     let perPage = defaultPerPage;
     let page = 1;

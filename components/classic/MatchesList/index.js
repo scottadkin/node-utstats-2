@@ -69,7 +69,7 @@ class MatchesList extends React.Component{
 
             elems.push(<MatchResultBox key={i} serverName={d.servername} gametypeName={d.gamename} mapName={Functions.removeUnr(d.mapfile)}
             date={Functions.convertTimestamp(Functions.utDate(d.time))} playtime={Functions.MMSS(d.gametime)} players={d.players}
-            totalTeams={d.totalTeams} result={d.result} mapImage={d.image}/>);
+            totalTeams={d.totalTeams} result={d.result} mapImage={d.image} classic={true}/>);
         }
 
         return elems;
