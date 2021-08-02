@@ -172,6 +172,20 @@ class Matches{
 
     }
 
+
+    async getData(id){
+
+        const query = "SELECT * FROM uts_match WHERE id=?";
+
+        const result = await mysql.simpleQuery(query, [id]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return [];
+    }
+
 }
 
 export default Matches;
