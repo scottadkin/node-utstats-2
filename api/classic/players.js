@@ -22,12 +22,12 @@ class Players{
 
     async getDmWinner(matchId){
 
-        const query = "SELECT playerid from uts_player WHERE matchid=? ORDER by frags DESC LIMIT 1";
+        const query = "SELECT pid from uts_player WHERE matchid=? ORDER by frags DESC LIMIT 1";
 
         const result = await mysql.simpleQuery(query, [matchId]);
 
         if(result.length > 0){
-            return await this.getPlayerName(result[0].playerid);
+            return await this.getPlayerName(result[0].pid);
         }
 
         return null;

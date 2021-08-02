@@ -11,9 +11,6 @@ const RecentMatches = ({host, session, recentMatches, gametypeList, gametype, pe
     recentMatches = JSON.parse(recentMatches);
     gametypeList = JSON.parse(gametypeList);
 
-    console.log(gametype);
-    console.log(gametypeList);
-
     let gametypeName = "";
 
     if(gametypeList[`${gametype}`] !== undefined){
@@ -104,8 +101,6 @@ export async function getServerSideProps({req, query}) {
     const gametypeList = await gametypeManager.getAllNames();
 
     const totalMatches = await matchManager.getTotalMatches(gametype);
-
-    console.log(totalMatches);
 
     let pages = 1;
 
