@@ -6,7 +6,7 @@ import Matches from '../../api/classic/matches';
 import MatchesList from '../../components/classic/MatchesList';
 import Gametypes from '../../api/classic/gametypes';
 
-const Home = ({host, session, recentMatches, gametypeList, gametype, perPage, display}) =>{
+const Home = ({host, session, recentMatches, gametypeList, gametype, perPage, display, page, results, pages}) =>{
 
     recentMatches = JSON.parse(recentMatches);
 
@@ -18,7 +18,7 @@ const Home = ({host, session, recentMatches, gametypeList, gametype, perPage, di
 
                 <div className="default">
                 <MatchesList title={"Recent Matches"} data={recentMatches} gametypes={JSON.parse(gametypeList)} gametype={gametype} perPage={perPage}
-                    display={display}
+                    display={display} results={results} pages={pages} page={page}
                 />
                 </div>
             </div>
@@ -41,6 +41,7 @@ export async function getServerSideProps({req, query}) {
     let gametype = 0;
     let perPage = 25;
     let display = 0;
+    let currentPage = 0;
 
 
     if(query.gametype !== undefined){
@@ -70,15 +71,35 @@ export async function getServerSideProps({req, query}) {
         }
     }
 
-    const page = 1;
+    if(query.page !== undefined){
+        currentPage = parseInt(query.page);
+
+        if(currentPage !== currentPage){
+            currentPage = 0;
+        }else{
+            currentPage = currentPage - 1;
+        }
+
+        if(currentPage < 0) currentPage = 0;
+    }
 
     const matchManager = new Matches();
-    const recentMatches = await matchManager.getLatestMatches(gametype, page, perPage);
+    const recentMatches = await matchManager.getLatestMatches(gametype, currentPage, perPage);
 
     const gametypeManager = new Gametypes();
 
     const gametypeList = await gametypeManager.getAllNames();
 
+    const totalMatches = await matchManager.getTotalMatches(gametype);
+
+    console.log(totalMatches);
+
+    let pages = 1;
+
+    if(totalMatches > 0 && perPage > 0){
+
+        pages = Math.ceil(totalMatches / perPage);
+    }
 
     return {
         "props": {
@@ -88,7 +109,10 @@ export async function getServerSideProps({req, query}) {
             "gametypeList": JSON.stringify(gametypeList),
             "gametype": gametype,
             "perPage": perPage,
-            "display": display
+            "display": display,
+            "page": currentPage,
+            "results": totalMatches,
+            "pages": pages
         }
     };
 }

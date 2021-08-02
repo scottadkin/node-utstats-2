@@ -13,8 +13,34 @@ class Matches{
     }
 
 
+    async getTotalMatches(gametype){
+
+        let query = "SELECT COUNT(*) as total_matches FROM uts_match WHERE gid=?";
+
+        if(gametype === 0){
+
+            query = "SELECT COUNT(*) as total_matches FROM uts_match";
+            const result = await mysql.simpleQuery(query);
+
+            if(result.length > 0){
+                return result[0].total_matches;
+            }
+
+        }else{
+
+            const altResult = await mysql.simpleQuery(query, [gametype]);
+
+            if(altResult.length > 0){
+                return altResult[0].total_matches;
+            }
+        }
+
+        return 0;
+    }
+
+
     async getLatestMatches(gametype, page, perPage){
-        
+
         page = parseInt(page);
         perPage = parseInt(perPage);
 

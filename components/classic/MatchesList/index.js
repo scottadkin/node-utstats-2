@@ -2,8 +2,9 @@ import React from "react";
 import Functions from '../../../api/functions';
 import MatchResult from '../MatchResult';
 import Link from 'next/link';
-import MatchResultBox from '../../../components/MatchResultBox';
-import Option2 from '../../../components/Option2';
+import MatchResultBox from '../../MatchResultBox';
+import Option2 from '../../Option2';
+import Pagination from '../../Pagination';
 
 
 class MatchesList extends React.Component{
@@ -12,12 +13,23 @@ class MatchesList extends React.Component{
 
         super(props);
 
-        this.state = {"mode": this.props.display};
+        this.state = {
+            "mode": this.props.display,
+            "gametype": this.props.gametype,
+            "perPage": this.props.perPage,
+            "page": this.props.page
+        };
 
         this.changeMode = this.changeMode.bind(this);
+
+        this.changePerPage = this.changePerPage.bind(this);
     }
 
 
+    changePerPage(e){
+
+        this.setState({"perPage": e.target.value});
+    }
 
     changeMode(id){
         this.setState({"mode": id});
@@ -107,13 +119,14 @@ class MatchesList extends React.Component{
 
     render(){
 
+        
 
         return <div>
             <div className="default-header">
                 {this.props.title}
             </div>
 
-            <div className="form m-bottom-25">
+            <div className="form">
                 <form action="/classic/" method="GET">
                     <div className="select-row">
                         <div className="select-label">Gametype</div>
@@ -124,7 +137,7 @@ class MatchesList extends React.Component{
                     <div className="select-row">
                         <div className="select-label">Results Per Page</div>
                         <div>
-                            <select name="perPage" defaultValue={this.props.perPage} className="default-select">
+                            <select name="perPage" defaultValue={this.props.perPage} className="default-select" onChange={this.changePerPage}>
                                 <option value="5">5</option>
                                 <option value="10">10</option>
                                 <option value="25">25</option>
@@ -143,6 +156,9 @@ class MatchesList extends React.Component{
                     <input type="submit" className="search-button" value="Search"/>
                 </form>
             </div>
+            <Pagination url={`/classic/?display=${this.state.mode}&gametype=${this.state.gametype}&perPage=${this.state.perPage}&page=`}
+                currentPage={this.props.page + 1} results={this.props.results} pages={this.props.pages} perPage={this.state.perPage}
+            />
             {this.renderTable()}
             {this.renderDefault()}
             
