@@ -28,7 +28,16 @@ class Gametypes{
 
         const query = "SELECT id,name FROM uts_games ORDER BY name ASC";
 
-        return await mysql.simpleQuery(query);
+        const result = await mysql.simpleQuery(query);
+
+        const returnData = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            returnData[result[i].id] = result[i].name;
+        }
+
+        return returnData;
     }
 
 }

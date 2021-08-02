@@ -6,18 +6,31 @@ import Matches from '../../api/classic/matches';
 import MatchesList from '../../components/classic/MatchesList';
 import Gametypes from '../../api/classic/gametypes';
 
-const Home = ({host, session, recentMatches, gametypeList, gametype, perPage, display, page, results, pages}) =>{
+const RecentMatches = ({host, session, recentMatches, gametypeList, gametype, perPage, display, page, results, pages}) =>{
 
     recentMatches = JSON.parse(recentMatches);
+    gametypeList = JSON.parse(gametypeList);
+
+    console.log(gametype);
+    console.log(gametypeList);
+
+    let gametypeName = "";
+
+    if(gametypeList[`${gametype}`] !== undefined){
+        gametypeName = `${gametypeList[gametype]} `;
+    }
+    
 
     return <div>
-        <Head host={host} title={"Home"} description="Welcome to Node UTStats 2 (Classic Support), view various stats for players,matches,maps,records and more, using original utstats databases!" keywords="home,welcome"/>
+        <Head host={host} title={`${gametypeName}Matches - Page ${page + 1} of ${pages}`} 
+        description={`${gametypeName}Matches - Page ${page + 1} of ${pages}, ${results} matches found.`} 
+        keywords={`${(gametypeName !== "") ? `${gametypeName},` : ""},matches,classic,match`}/>
         <main>
             <Nav />
             <div id="content">
 
                 <div className="default">
-                <MatchesList title={"Recent Matches"} data={recentMatches} gametypes={JSON.parse(gametypeList)} gametype={gametype} perPage={perPage}
+                <MatchesList title={"Recent Matches"} data={recentMatches} gametypes={gametypeList} gametype={gametype} perPage={perPage}
                     display={display} results={results} pages={pages} page={page}
                 />
                 </div>
@@ -118,4 +131,4 @@ export async function getServerSideProps({req, query}) {
 }
 
 
-export default Home;
+export default RecentMatches;

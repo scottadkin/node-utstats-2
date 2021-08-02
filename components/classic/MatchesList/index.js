@@ -57,6 +57,7 @@ class MatchesList extends React.Component{
             </tr>);
         }
 
+        if(elems.length === 0) return null;
 
         return <table className="t-width-1">
             <tbody>
@@ -103,11 +104,17 @@ class MatchesList extends React.Component{
 
         let g = 0;
 
-        for(let i = 0; i < this.props.gametypes.length; i++){
+        /*for(let i = 0; i < this.props.gametypes.length; i++){
 
             g = this.props.gametypes[i];
 
             options.push(<option key={i} value={g.id}>{g.name}</option>);
+        }*/
+
+        for(const [key, value] of Object.entries(this.props.gametypes)){
+
+            options.push(<option key={key} value={key}>{value}</option>);
+
         }
 
 
@@ -127,7 +134,7 @@ class MatchesList extends React.Component{
             </div>
 
             <div className="form">
-                <form action="/classic/" method="GET">
+                <form action="/classic/matches/" method="GET">
                     <div className="select-row">
                         <div className="select-label">Gametype</div>
                         <div>
@@ -156,7 +163,7 @@ class MatchesList extends React.Component{
                     <input type="submit" className="search-button" value="Search"/>
                 </form>
             </div>
-            <Pagination url={`/classic/?display=${this.state.mode}&gametype=${this.state.gametype}&perPage=${this.state.perPage}&page=`}
+            <Pagination url={`/classic/matches/?display=${this.state.mode}&gametype=${this.state.gametype}&perPage=${this.state.perPage}&page=`}
                 currentPage={this.props.page + 1} results={this.props.results} pages={this.props.pages} perPage={this.state.perPage}
             />
             {this.renderTable()}
