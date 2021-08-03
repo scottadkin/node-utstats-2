@@ -180,6 +180,9 @@ class Matches{
         const result = await mysql.simpleQuery(query, [id]);
 
         if(result.length > 0){
+
+            result[0].result = await this.createMatchResult(result[0]);
+            result[0].players = await this.getMatchPlayerCount(id);
             return result[0];
         }
 

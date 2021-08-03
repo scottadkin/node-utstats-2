@@ -27,7 +27,7 @@ const MatchPage = ({host, session, matchData}) =>{
 
                 <div className="default">
                     <div className="default-header">Match Report</div>
-                    <MatchSummary date={Functions.utDate(matchData.time)}/>
+                    <MatchSummary data={matchData}/>
                 </div>
             </div>
             
