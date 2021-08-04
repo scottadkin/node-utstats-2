@@ -156,8 +156,8 @@ const MatchSpecialEvents = ({data, teams}) =>{
 
     if(teams < 2){
 
-        tables.push(<TeamTable key={-1} teamId={-1} players={data} bSpree={false}/>);
-        tables.push(<TeamTable key={-1} teamId={-1} players={data} bSpree={true}/>);
+        tables.push(<TeamTable key={`multis`} teamId={-1} players={data} bSpree={false}/>);
+        tables.push(<TeamTable key={`sprees`} teamId={-1} players={data} bSpree={true}/>);
     }else{
 
         for(let i = 0; i < teams; i++){
@@ -165,7 +165,7 @@ const MatchSpecialEvents = ({data, teams}) =>{
         }
 
         for(let i = 0; i < teams; i++){
-            tables.push(<TeamTable key={`${i}-m`} teamId={i} players={data} bSpree={true}/>);
+            tables.push(<TeamTable key={`${i}-s`} teamId={i} players={data} bSpree={true}/>);
         }
     }
 

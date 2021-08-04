@@ -11,7 +11,7 @@ class Weapons{
 
         if(ids.length === 0) return [];
 
-        const query = "SELECT id,name FROM uts_weapons WHERE id IN (?)";
+        const query = "SELECT id,name FROM uts_weapons WHERE id IN (?) ORDER BY sequence ";
 
         const result = await mysql.simpleQuery(query, [ids]);
 

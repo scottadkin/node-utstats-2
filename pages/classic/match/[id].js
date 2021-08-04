@@ -18,6 +18,21 @@ const MatchPage = ({host, session, matchData, playerData, weaponData}) =>{
     playerData = JSON.parse(playerData);
     weaponData = JSON.parse(weaponData);
 
+    const basicPlayerData = {};
+
+    for(const [key, value] of Object.entries(playerData)){
+
+        basicPlayerData[value.pid] = {
+            "name": value.name,
+            "team": value.team,
+            "country": value.country,
+            "id": value.pid
+        }
+    }
+
+    console.log(basicPlayerData);
+
+
     return <div>
         <Head host={host} title={`Match report`} 
         description={`match report`} 
@@ -31,7 +46,8 @@ const MatchPage = ({host, session, matchData, playerData, weaponData}) =>{
                     <MatchSummary data={matchData}/>
                     <MatchFragSummary data={playerData} teams={matchData.teams}/>
                     <MatchSpecialEvents data={playerData} teams={matchData.teams}/>
-                    <MatchWeaponStats data={weaponData.stats} names={weaponData.names}/>
+                    <MatchWeaponStats data={weaponData.stats} names={weaponData.names} players={basicPlayerData}
+                    teams={matchData.teams}/>
                 </div>
             </div>
             
@@ -68,8 +84,6 @@ export async function getServerSideProps({req, query}){
     const weaponsManager = new Weapons();
 
     const weaponData = await weaponsManager.getMatchData(id);
-
-    console.log(weaponData);
 
     return {
         "props": {
