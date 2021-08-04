@@ -3,22 +3,20 @@ import Nav from '../../../components/classic/Nav';
 import Footer from '../../../components/Footer';
 import Session from '../../../api/session';
 import Matches from '../../../api/classic/matches';
-import MatchesList from '../../../components/classic/MatchesList';
 import Gametypes from '../../../api/classic/gametypes';
 import MatchSummary from '../../../components/classic/MatchSummary';
 import Functions from '../../../api/functions';
 import Players from '../../../api/classic/players';
-import FragSummary from '../../../components/classic/FragSummary';
-import SpecialEvents from '../../../components/classic/SpecialEvents';
+import MatchFragSummary from '../../../components/classic/MatchFragSummary';
+import MatchSpecialEvents from '../../../components/classic/MatchSpecialEvents';
+import Weapons from '../../../api/classic/weapons';
+import MatchWeaponStats from '../../../components/classic/MatchWeaponStats';
 
-const MatchPage = ({host, session, matchData, playerData}) =>{
+const MatchPage = ({host, session, matchData, playerData, weaponData}) =>{
 
     matchData = JSON.parse(matchData);
-
-    //info, server, gametype, map, image, bMonsterHunt
-
     playerData = JSON.parse(playerData);
-
+    weaponData = JSON.parse(weaponData);
 
     return <div>
         <Head host={host} title={`Match report`} 
@@ -31,8 +29,9 @@ const MatchPage = ({host, session, matchData, playerData}) =>{
                 <div className="default">
                     <div className="default-header">Match Report</div>
                     <MatchSummary data={matchData}/>
-                    <FragSummary data={playerData} teams={matchData.teams}/>
-                    <SpecialEvents data={playerData} teams={matchData.teams}/>
+                    <MatchFragSummary data={playerData} teams={matchData.teams}/>
+                    <MatchSpecialEvents data={playerData} teams={matchData.teams}/>
+                    <MatchWeaponStats data={weaponData.stats} names={weaponData.names}/>
                 </div>
             </div>
             
@@ -66,12 +65,19 @@ export async function getServerSideProps({req, query}){
 
     const playerData = await playerManager.getMatchData(id);
 
+    const weaponsManager = new Weapons();
+
+    const weaponData = await weaponsManager.getMatchData(id);
+
+    console.log(weaponData);
+
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
             "matchData": JSON.stringify(matchData),
-            "playerData": JSON.stringify(playerData)
+            "playerData": JSON.stringify(playerData),
+            "weaponData": JSON.stringify(weaponData)
         }
     }
 }

@@ -113,7 +113,7 @@ const TeamTable = ({teamId, players}) =>{
  
 }
 
-const FragSummary = ({data, teams}) =>{
+const MatchFragSummary = ({data, teams}) =>{
 
     const tables = [];
 
@@ -133,4 +133,4 @@ const FragSummary = ({data, teams}) =>{
     </div>
 }
 
-export default FragSummary;
+export default MatchFragSummary;

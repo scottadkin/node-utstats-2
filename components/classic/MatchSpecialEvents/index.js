@@ -150,7 +150,7 @@ const TeamTable = ({teamId, players, bSpree}) =>{
     </table>
 }
 
-const SpecialEvents = ({data, teams}) =>{
+const MatchSpecialEvents = ({data, teams}) =>{
 
     const tables = [];
 
@@ -177,4 +177,4 @@ const SpecialEvents = ({data, teams}) =>{
 }
 
 
-export default SpecialEvents;
+export default MatchSpecialEvents;
