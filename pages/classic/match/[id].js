@@ -9,6 +9,7 @@ import MatchSummary from '../../../components/classic/MatchSummary';
 import Functions from '../../../api/functions';
 import Players from '../../../api/classic/players';
 import FragSummary from '../../../components/classic/FragSummary';
+import SpecialEvents from '../../../components/classic/SpecialEvents';
 
 const MatchPage = ({host, session, matchData, playerData}) =>{
 
@@ -31,6 +32,7 @@ const MatchPage = ({host, session, matchData, playerData}) =>{
                     <div className="default-header">Match Report</div>
                     <MatchSummary data={matchData}/>
                     <FragSummary data={playerData} teams={matchData.teams}/>
+                    <SpecialEvents data={playerData} teams={matchData.teams}/>
                 </div>
             </div>
             

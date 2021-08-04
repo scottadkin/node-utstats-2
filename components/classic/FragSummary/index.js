@@ -80,7 +80,6 @@ const TeamTable = ({teamId, players}) =>{
         totals.ttl / totals.players;
     }
 
-    console.log(totalTTL);
 
     rows.push(<tr key={"totals"}>
         <td>Totals</td>
@@ -93,6 +92,7 @@ const TeamTable = ({teamId, players}) =>{
         <td>{totalEff.toFixed(2)}%</td>
         <td>{Functions.MMSS(totalTTL)}</td>
     </tr>);
+
 
     return <table className="t-width-1 td-1-left td-1-150 m-bottom-25">
         <tbody>
