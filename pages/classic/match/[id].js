@@ -7,14 +7,16 @@ import MatchesList from '../../../components/classic/MatchesList';
 import Gametypes from '../../../api/classic/gametypes';
 import MatchSummary from '../../../components/classic/MatchSummary';
 import Functions from '../../../api/functions';
+import Players from '../../../api/classic/players';
+import FragSummary from '../../../components/classic/FragSummary';
 
-const MatchPage = ({host, session, matchData}) =>{
+const MatchPage = ({host, session, matchData, playerData}) =>{
 
     matchData = JSON.parse(matchData);
 
-    console.log(matchData);
-
     //info, server, gametype, map, image, bMonsterHunt
+
+    playerData = JSON.parse(playerData);
 
 
     return <div>
@@ -28,6 +30,7 @@ const MatchPage = ({host, session, matchData}) =>{
                 <div className="default">
                     <div className="default-header">Match Report</div>
                     <MatchSummary data={matchData}/>
+                    <FragSummary data={playerData} teams={matchData.teams}/>
                 </div>
             </div>
             
@@ -57,11 +60,16 @@ export async function getServerSideProps({req, query}){
 
     const matchData = await matchManager.getData(id);
 
+    const playerManager = new Players();
+
+    const playerData = await playerManager.getMatchData(id);
+
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
-            "matchData": JSON.stringify(matchData)
+            "matchData": JSON.stringify(matchData),
+            "playerData": JSON.stringify(playerData)
         }
     }
 }

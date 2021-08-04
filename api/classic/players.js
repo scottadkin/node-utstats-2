@@ -33,6 +33,58 @@ class Players{
         return null;
     }
 
+    async getNames(ids){
+
+        if(ids.length === 0) return [];
+
+        const query = "SELECT id,name FROM uts_pinfo WHERE id IN (?)";
+
+        const result =  await mysql.simpleQuery(query, [ids]);
+
+        const names = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            names[result[i].id] = result[i].name;
+        }
+
+        return names;
+    }
+
+    async getMatchData(matchId){
+
+        const query = "SELECT * FROM uts_player WHERE matchid=? ORDER BY frags DESC";
+
+        const players = await mysql.simpleQuery(query, [matchId]);
+
+        const playerIds = [];
+
+        for(let i = 0; i < players.length; i++){
+
+            playerIds.push(players[i].pid);
+        }
+
+        const names = await this.getNames(playerIds);
+
+        let nameIndex = 0;
+
+        let p = 0;
+
+        for(let i = 0; i < players.length; i++){
+
+            p = players[i];
+
+            if(names[p.pid] === undefined){
+                p.name = "Not Found";
+            }else{
+                p.name = names[p.pid];
+            }
+        }
+
+        return players;
+
+    }
+
 }
 
 

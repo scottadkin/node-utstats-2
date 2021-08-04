@@ -89,7 +89,7 @@ class MatchesList extends React.Component{
             d = this.props.data[i];
 
             elems.push(
-                <Link href={`/classic/match/${d.id}`}>
+                <Link key={d.id} href={`/classic/match/${d.id}`}>
                     <a>
                         <MatchResultBox key={i} serverName={d.servername} gametypeName={d.gamename} mapName={Functions.removeUnr(d.mapfile)}
                         date={Functions.convertTimestamp(Functions.utDate(d.time))} playtime={Functions.MMSS(d.gametime)} players={d.players}

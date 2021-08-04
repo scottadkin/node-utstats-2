@@ -183,6 +183,17 @@ class Matches{
 
             result[0].result = await this.createMatchResult(result[0]);
             result[0].players = await this.getMatchPlayerCount(id);
+
+            
+            let teams = 0;
+
+            for(let i = 0; i < 4; i++){
+
+                if(result[0][`t${i}`] !== 0) teams++;
+            }
+
+            result[0].teams = teams;
+
             return result[0];
         }
 
