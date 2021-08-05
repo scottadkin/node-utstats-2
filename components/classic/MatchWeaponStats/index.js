@@ -1,6 +1,7 @@
 import React from 'react';
 import CountryFlag from '../../CountryFlag';
 import Functions from '../../../api/functions';
+import Link from 'next/link';
 
 class MatchWeaponStats extends React.Component{
 
@@ -84,7 +85,7 @@ class MatchWeaponStats extends React.Component{
                     currentPlayer = {
                         "team": 255,
                         "country": "xx",
-                        "pid": -1,
+                        "id": -1,
                         "name": "Not Found"
                     };
                 }
@@ -95,7 +96,11 @@ class MatchWeaponStats extends React.Component{
 
                 rows.push(<tr key={i}>
                     <td className={colorClass}>
-                        <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
+                        <Link href={`/classic/pmatch/${currentPlayer.id}`}>
+                            <a>
+                                <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
+                            </a>
+                        </Link>
                     </td>
                     <td>{Functions.ignore0(d.kills)}</td>
                     <td>{Functions.ignore0(d.shots)}</td>
