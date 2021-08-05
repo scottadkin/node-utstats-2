@@ -11,8 +11,9 @@ import Weapons from '../../../api/classic/weapons';
 import MatchWeaponStats from '../../../components/classic/MatchWeaponStats';
 import Rankings from '../../../api/classic/rankings';
 import MatchRankingSummary from '../../../components/classic/MatchRankingSummary';
+import MatchPickupsSummary from '../../../components/classic/MatchPickupsSummary';
 
-const MatchPage = ({host, session, matchData, playerData, weaponData, rankingData}) =>{
+const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData}) =>{
 
     matchData = JSON.parse(matchData);
     playerData = JSON.parse(playerData);
@@ -45,9 +46,10 @@ const MatchPage = ({host, session, matchData, playerData, weaponData, rankingDat
                     <MatchSummary data={matchData}/>
                     <MatchFragSummary data={playerData} teams={matchData.teams}/>
                     <MatchSpecialEvents data={playerData} teams={matchData.teams}/>
+                    <MatchPickupsSummary data={playerData} matchId={matchId} teams={matchData.teams}/>
                     <MatchWeaponStats data={weaponData.stats} names={weaponData.names} players={basicPlayerData}
                     teams={matchData.teams}/>
-                    <MatchRankingSummary data={rankingData} players={basicPlayerData}/>
+                    <MatchRankingSummary data={rankingData} players={basicPlayerData} teams={matchData.teams}/>
                 </div>
             </div>
             
@@ -101,6 +103,7 @@ export async function getServerSideProps({req, query}){
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
+            "matchId": id,
             "matchData": JSON.stringify(matchData),
             "playerData": JSON.stringify(playerData),
             "weaponData": JSON.stringify(weaponData),
