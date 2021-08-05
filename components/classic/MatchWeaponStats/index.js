@@ -134,6 +134,8 @@ class MatchWeaponStats extends React.Component{
 
     render(){
 
+        if(this.props.names.length === 0) return null;
+
         return <div>
             <div className="default-header">Weapon Stats</div>
             {this.renderTabs()}

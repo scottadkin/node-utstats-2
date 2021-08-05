@@ -2,7 +2,26 @@ import CountryFlag from "../../CountryFlag";
 import Link from 'next/link';
 import Functions from "../../../api/functions";
 
+/**
+ * Workaround database storing ass_obj data in non assault games
+ */
+function bAnyDomData(data){
+
+    let d = 0;
+
+    for(let i = 0; i < data.length; i++){
+
+        d = data[i];
+
+        if(d.dom_cp > 0) return true;
+    }
+
+    return false;
+}
+
 const MatchAssaultSummary = ({data, matchId}) =>{
+
+    if(bAnyDomData(data)) return null;
 
     const rows = [];
     let d = 0;
