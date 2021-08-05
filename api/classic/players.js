@@ -53,7 +53,7 @@ class Players{
 
     async getMatchData(matchId){
 
-        const query = "SELECT * FROM uts_player WHERE matchid=? ORDER BY frags DESC";
+        const query = "SELECT * FROM uts_player WHERE matchid=? ORDER BY gamescore DESC";
 
         const players = await mysql.simpleQuery(query, [matchId]);
 

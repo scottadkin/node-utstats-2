@@ -27,7 +27,8 @@ const TeamTable = ({teamId, players, matchId}) =>{
         "suicides": 0,
         "teamkills": 0,
         "ttl": 0,
-        "players": 0
+        "players": 0,
+        "gamescore": 0
     };
 
     for(let i = 0; i < players.length; i++){
@@ -47,11 +48,13 @@ const TeamTable = ({teamId, players, matchId}) =>{
             totals.suicides += p.suicides;
             totals.teamkills += p.teamkills;
             totals.ttl += p.ttl;
+            totals.gamescore += p.gamescore;
             totals.players++;
 
             rows.push(<tr key={i}>
                 <td className={teamColor}><Link href={`/classic/pmatch/${matchId}?p=${p.pid}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
                 <td>{Functions.MMSS(p.gametime)}</td>
+                <td>{Functions.ignore0(p.gamescore)}</td>
                 <td>{Functions.ignore0(p.frags)}</td>
                 <td>{Functions.ignore0(p.kills)}</td>
                 <td>{Functions.ignore0(p.deaths)}</td>
@@ -84,6 +87,7 @@ const TeamTable = ({teamId, players, matchId}) =>{
     rows.push(<tr key={"totals"}>
         <td>Totals</td>
         <td>{Functions.MMSS(totals.gametime)}</td>
+        <td>{Functions.ignore0(totals.gamescore)}</td>
         <td>{Functions.ignore0(totals.frags)}</td>
         <td>{Functions.ignore0(totals.kills)}</td>
         <td>{Functions.ignore0(totals.deaths)}</td>
@@ -99,6 +103,7 @@ const TeamTable = ({teamId, players, matchId}) =>{
             <tr>
                 <th>Player</th>
                 <th>Playtime</th>
+                <th>Score</th>
                 <th>Frags</th>
                 <th>Kills</th>
                 <th>Deaths</th>

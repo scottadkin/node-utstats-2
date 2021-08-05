@@ -2,7 +2,6 @@ import mysql from './database';
 import Players from './players';
 import Functions from '../functions';
 import MainMaps from '../../api/maps';
-import Gametypes from './gametypes'
 
 class Matches{
 
@@ -63,8 +62,6 @@ class Matches{
             FROM uts_match WHERE gid=? ORDER BY time DESC LIMIT ?,?`;
             vars = [gametype, start, perPage];
         }
-
-        console.log(start, perPage);
 
         const matches = await mysql.simpleQuery(query, vars);
 
