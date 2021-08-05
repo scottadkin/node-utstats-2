@@ -197,6 +197,15 @@ class Matches{
         return [];
     }
 
+    async getKillsData(matchId){
+
+
+        const query = "SELECT killer,victim,kills FROM uts_killsmatrix WHERE matchid=? ORDER BY kills DESC";
+
+        return await mysql.simpleQuery(query, [matchId]);
+
+    }
+
 }
 
 export default Matches;

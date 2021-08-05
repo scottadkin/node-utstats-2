@@ -630,3 +630,11 @@ input[type="range"]{
 .min-width-150{
 	min-width:150px;
 }
+
+.width-150{
+	width:150px;
+}
+
+.width-50{
+	width:50px;
+}

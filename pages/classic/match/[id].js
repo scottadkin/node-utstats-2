@@ -15,13 +15,15 @@ import MatchPickupsSummary from '../../../components/classic/MatchPickupsSummary
 import MatchCTFSummary from '../../../components/classic/MatchCTFSummary';
 import MatchAssaultSummary from '../../../components/classic/MatchAssaultSummary';
 import MatchDominationSummary from '../../../components/classic/MatchDominationSummary';
+import MatchKillsMatchUp from '../../../components/classic/MatchKillsMatchUp';
 
-const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData}) =>{
+const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData, killsData}) =>{
 
     matchData = JSON.parse(matchData);
     playerData = JSON.parse(playerData);
     weaponData = JSON.parse(weaponData);
     rankingData = JSON.parse(rankingData);
+    killsData = JSON.parse(killsData);
 
     const basicPlayerData = {};
 
@@ -31,7 +33,8 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
             "name": value.name,
             "team": value.team,
             "country": value.country,
-            "id": value.pid
+            "id": value.pid,
+            "matchId": value.playerid
         }
     }
 
@@ -52,6 +55,7 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
                     <MatchAssaultSummary data={playerData} matchId={matchId}/>
                     <MatchDominationSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
                     <MatchSpecialEvents data={playerData} teams={matchData.teams} matchId={matchId}/>
+                    <MatchKillsMatchUp data={killsData} matchId={matchId} players={basicPlayerData} teams={matchData.teams}/>
                     <MatchPickupsSummary data={playerData} matchId={matchId} teams={matchData.teams} />
                     <MatchWeaponStats data={weaponData.stats} names={weaponData.names} players={basicPlayerData}
                     teams={matchData.teams} matchId={matchId}/>
@@ -104,6 +108,7 @@ export async function getServerSideProps({req, query}){
 
     const rankingData = await rankingManager.getPlayers(playerIds, matchData.gid);
 
+    const killsData = await matchManager.getKillsData(id);
 
     return {
         "props": {
@@ -113,7 +118,8 @@ export async function getServerSideProps({req, query}){
             "matchData": JSON.stringify(matchData),
             "playerData": JSON.stringify(playerData),
             "weaponData": JSON.stringify(weaponData),
-            "rankingData": JSON.stringify(rankingData)
+            "rankingData": JSON.stringify(rankingData),
+            "killsData": JSON.stringify(killsData)
         }
     }
 }
