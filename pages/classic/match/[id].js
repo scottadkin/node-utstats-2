@@ -12,6 +12,7 @@ import MatchWeaponStats from '../../../components/classic/MatchWeaponStats';
 import Rankings from '../../../api/classic/rankings';
 import MatchRankingSummary from '../../../components/classic/MatchRankingSummary';
 import MatchPickupsSummary from '../../../components/classic/MatchPickupsSummary';
+import MatchCTFSummary from '../../../components/classic/MatchCTFSummary';
 
 const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData}) =>{
 
@@ -45,6 +46,7 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
                     <div className="default-header">Match Report</div>
                     <MatchSummary data={matchData}/>
                     <MatchFragSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
+                    <MatchCTFSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
                     <MatchSpecialEvents data={playerData} teams={matchData.teams} matchId={matchId}/>
                     <MatchPickupsSummary data={playerData} matchId={matchId} teams={matchData.teams} />
                     <MatchWeaponStats data={weaponData.stats} names={weaponData.names} players={basicPlayerData}
