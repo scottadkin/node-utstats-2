@@ -44,10 +44,9 @@ class Matches{
         page = parseInt(page);
         perPage = parseInt(perPage);
 
-        if(page !== page) page = 1;
+        if(page !== page) page = 0;
         if(perPage !== perPage) perPage = 25;
 
-        page--;
 
         if(page < 0){ page = 0; }
         if(perPage <= 0) perPage = 25;
@@ -65,6 +64,7 @@ class Matches{
             vars = [gametype, start, perPage];
         }
 
+        console.log(start, perPage);
 
         const matches = await mysql.simpleQuery(query, vars);
 
