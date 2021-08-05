@@ -2,6 +2,39 @@ import Functions from '../../../api/functions';
 import CountryFlag from '../../CountryFlag';
 import Link from 'next/link';
 
+function bAnyData(player){
+
+    const types = [
+        "taken",
+        "pickedup",
+        "dropped",
+        "assist",
+        "cover",
+        "seal",
+        "capture",
+        "kill",
+        "return"
+    ];
+
+    for(let i = 0; i < types.length; i++){
+
+        if(player[`flag_${types[i]}`] > 0) return true;
+    }
+
+    return false;
+}
+
+function bAllAnyData(players){
+
+
+    for(let i = 0; i < players.length; i++){
+
+        if(bAnyData(players[i])) return true;
+    }
+
+    return false;
+}
+
 const TeamTable = ({teamId, players, matchId}) =>{
 
     const classColor = Functions.getTeamColor(teamId);
@@ -27,6 +60,8 @@ const TeamTable = ({teamId, players, matchId}) =>{
         p = players[i];
 
         if(p.team !== teamId) continue;
+
+        if(!bAnyData(p)) continue;
 
         totals.taken += p.flag_taken;
         totals.pickup += p.flag_pickedup;
@@ -101,6 +136,8 @@ const MatchCTFSummary = ({teams, data, matchId}) =>{
 
     if(teams < 2) return null;
 
+    if(!bAllAnyData(data)) return null;
+
     const tables = [];
 
     for(let i = 0; i < teams; i++){
@@ -109,6 +146,7 @@ const MatchCTFSummary = ({teams, data, matchId}) =>{
     }
 
     if(tables.length === 0) return null;
+
 
     return <div className="m-bottom-25">
         <div className="default-header">Capture The Flag Summary</div>
