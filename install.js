@@ -559,18 +559,18 @@ const queries = [
         gametype int(11) NOT NULL,
         matches int(11) NOT NULL,
         playtime float NOT NULL,
-        ranking double NOT NULL,
-        ranking_change float NOT NULL
+        ranking Decimal(10,4) NOT NULL,
+        ranking_change Decimal(10,4) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE nstats_ranking_player_history (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         player_id int(11) NOT NULL,
         gametype int(11) NOT NULL,
-        ranking float NOT NULL,
-        match_ranking float NOT NULL,
-        ranking_change float NOT NULL,
-        match_ranking_change float NOT NULL
+        ranking Decimal(10,4) NOT NULL,
+        match_ranking Decimal(10,4) NOT NULL,
+        ranking_change Decimal(10,4) NOT NULL,
+        match_ranking_change Decimal(10,4) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE nstats_ranking_values (
         id int(11) NOT NULL AUTO_INCREMENT,
