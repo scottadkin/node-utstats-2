@@ -1,6 +1,7 @@
 import CountryFlag from '../../CountryFlag';
 import Link from 'next/link';
 import Functions from '../../../api/functions';
+import MouseHoverBox from '../../MouseHoverBox';
 
 const MatchRankingSummary = ({data, players}) =>{
 
@@ -24,6 +25,7 @@ const MatchRankingSummary = ({data, players}) =>{
     });
 
     let d = 0;
+    let rankingString = "";
 
     for(let i = 0; i < data.length; i++){
 
@@ -33,7 +35,7 @@ const MatchRankingSummary = ({data, players}) =>{
         if(d.time > 0){
             playtime = d.time / 60;
         }
-        
+
         currentPlayer = players[d.player];
 
         if(currentPlayer === undefined){
@@ -45,18 +47,31 @@ const MatchRankingSummary = ({data, players}) =>{
             };
         }
 
+        if(d.difference === 0){
+            rankingString = `There was no change to ${currentPlayer.name} ranking score.`;
+        }else if(d.difference > 0){
+            rankingString = `${currentPlayer.name} gained ${d.difference.toFixed(2)} ranking points.`;
+        }else{
+            rankingString = `${currentPlayer.name} lost ${d.difference.toFixed(2)} ranking points.`;
+        }
+
 
         rows.push(<tr key={i}>
             <td>
                 <Link href={`/classic/pmatch/${currentPlayer.id}`}>
-                    <a>
-                        <span className="ranking-position">({d.position}{Functions.getOrdinal(d.position)})</span><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
+                    <a>    
+                        <span className="ranking-position">({d.position}{Functions.getOrdinal(d.position)})</span>
+                        <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
                     </a>
                 </Link>
             </td>
             <td>{playtime.toFixed(2)} Hours</td>
             <td>{d.matches}</td>
-            <td><img className="ranking-icon" src={`/images/${d.change}.png`} alt="icon"/>{d.rank}</td>
+            <td>
+                <img className="ranking-icon" src={`/images/${d.change}.png`} alt="icon"/>
+                <MouseHoverBox title="Ranking Change" content={rankingString} display={d.rank.toFixed(2)}/>
+            
+            </td>
         </tr>);
     }
 

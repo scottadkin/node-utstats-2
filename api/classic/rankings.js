@@ -25,13 +25,14 @@ class Rankings{
             data.push( {
                 "player": r.pid, 
                 "rank": r.rank,
+                "difference": r.rank - r.prevrank,
                 "change": (r.rank === r.prevrank) ? "nc" : (r.rank > r.prevrank) ? "up" : "down",
                 "matches": r.matches,
                 "time": r.time,
                 "position": await this.getPosition(gametype, r.rank)
             });
         }
-
+        
         return data;
 
     }
