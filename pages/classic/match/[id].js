@@ -44,12 +44,12 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
                 <div className="default">
                     <div className="default-header">Match Report</div>
                     <MatchSummary data={matchData}/>
-                    <MatchFragSummary data={playerData} teams={matchData.teams}/>
-                    <MatchSpecialEvents data={playerData} teams={matchData.teams}/>
-                    <MatchPickupsSummary data={playerData} matchId={matchId} teams={matchData.teams}/>
+                    <MatchFragSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
+                    <MatchSpecialEvents data={playerData} teams={matchData.teams} matchId={matchId}/>
+                    <MatchPickupsSummary data={playerData} matchId={matchId} teams={matchData.teams} />
                     <MatchWeaponStats data={weaponData.stats} names={weaponData.names} players={basicPlayerData}
-                    teams={matchData.teams}/>
-                    <MatchRankingSummary data={rankingData} players={basicPlayerData} teams={matchData.teams}/>
+                    teams={matchData.teams} matchId={matchId}/>
+                    <MatchRankingSummary data={rankingData} players={basicPlayerData} teams={matchData.teams} matchId={matchId}/>
                 </div>
             </div>
             

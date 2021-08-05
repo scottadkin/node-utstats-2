@@ -2,7 +2,7 @@ import Link from 'next/link';
 import CountryFlag from '../../CountryFlag';
 import Functions from '../../../api/functions';
 
-const TeamTable = ({teamId, players}) =>{
+const TeamTable = ({teamId, players, matchId}) =>{
 
     const rows = [];
 
@@ -50,7 +50,7 @@ const TeamTable = ({teamId, players}) =>{
             totals.players++;
 
             rows.push(<tr key={i}>
-                <td className={teamColor}><Link href={`/classic/pmatch/${p.pid}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
+                <td className={teamColor}><Link href={`/classic/pmatch/${matchId}?p=${p.pid}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
                 <td>{Functions.MMSS(p.gametime)}</td>
                 <td>{Functions.ignore0(p.frags)}</td>
                 <td>{Functions.ignore0(p.kills)}</td>
@@ -113,17 +113,17 @@ const TeamTable = ({teamId, players}) =>{
  
 }
 
-const MatchFragSummary = ({data, teams}) =>{
+const MatchFragSummary = ({data, teams, matchId}) =>{
 
     const tables = [];
 
     if(teams === 0){
-        tables.push(<TeamTable key={-1} teamId={-1} players={data} />);
+        tables.push(<TeamTable key={-1} teamId={-1} players={data} matchId={matchId}/>);
     }else{
 
         for(let i = 0; i < teams; i++){
 
-            tables.push(<TeamTable key={i} teamId={i} players={data} />);
+            tables.push(<TeamTable key={i} teamId={i} players={data} matchId={matchId}/>);
         }
     }
 

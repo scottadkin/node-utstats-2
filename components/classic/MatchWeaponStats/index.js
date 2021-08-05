@@ -96,7 +96,7 @@ class MatchWeaponStats extends React.Component{
 
                 rows.push(<tr key={i}>
                     <td className={colorClass}>
-                        <Link href={`/classic/pmatch/${currentPlayer.id}`}>
+                        <Link href={`/classic/pmatch/${this.props.matchId}?p=${currentPlayer.id}`}>
                             <a>
                                 <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
                             </a>

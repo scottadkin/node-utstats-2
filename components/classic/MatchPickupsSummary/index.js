@@ -28,7 +28,7 @@ const MatchPickupsSummary = ({data, matchId, teams}) =>{
 
         rows.push(<tr key={i}>
             <td className={(teams >= 2) ? Functions.getTeamColor(d.team) : null}>
-                <Link href={`/classic/pmatch/${matchId}&p=${d.pid}`}>
+                <Link href={`/classic/pmatch/${matchId}?p=${d.pid}`}>
                     <a>
                         <CountryFlag country={d.country}/>
                         {d.name}

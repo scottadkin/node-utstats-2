@@ -26,7 +26,7 @@ function bAnyMultis(data){
     return false;
 }
 
-const TeamTable = ({teamId, players, bSpree}) =>{
+const TeamTable = ({teamId, players, bSpree, matchId}) =>{
 
     const rows = [];
 
@@ -63,7 +63,7 @@ const TeamTable = ({teamId, players, bSpree}) =>{
                     totals.monster += p.spree_monster;
 
                     rows.push(<tr key={i}>
-                        <td className={teamColor}><Link href={`/classic/pmatch/${p.pid}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
+                        <td className={teamColor}><Link href={`/classic/pmatch/${matchId}?p=${p.pid}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
                         <td>{Functions.ignore0(p.spree_double)}</td>
                         <td>{Functions.ignore0(p.spree_multi)}</td>
                         <td>{Functions.ignore0(p.spree_ultra)}</td>
@@ -82,7 +82,7 @@ const TeamTable = ({teamId, players, bSpree}) =>{
                     totals.godlike += p.spree_god;
 
                     rows.push(<tr key={i}>
-                        <td className={teamColor}><Link href={`/classic/pmatch/${p.pid}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
+                        <td className={teamColor}><Link href={`/classic/pmatch/${matchId}?p=${p.pid}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
                         <td>{Functions.ignore0(p.spree_kill)}</td>
                         <td>{Functions.ignore0(p.spree_rampage)}</td>
                         <td>{Functions.ignore0(p.spree_dom)}</td>
@@ -150,22 +150,22 @@ const TeamTable = ({teamId, players, bSpree}) =>{
     </table>
 }
 
-const MatchSpecialEvents = ({data, teams}) =>{
+const MatchSpecialEvents = ({data, teams, matchId}) =>{
 
     const tables = [];
 
     if(teams < 2){
 
-        tables.push(<TeamTable key={`multis`} teamId={-1} players={data} bSpree={false}/>);
-        tables.push(<TeamTable key={`sprees`} teamId={-1} players={data} bSpree={true}/>);
+        tables.push(<TeamTable key={`multis`} teamId={-1} players={data} bSpree={false} matchId={matchId}/>);
+        tables.push(<TeamTable key={`sprees`} teamId={-1} players={data} bSpree={true} matchId={matchId}/>);
     }else{
 
         for(let i = 0; i < teams; i++){
-            tables.push(<TeamTable key={`${i}-m`} teamId={i} players={data} bSpree={false}/>);
+            tables.push(<TeamTable key={`${i}-m`} teamId={i} players={data} bSpree={false} matchId={matchId}/>);
         }
 
         for(let i = 0; i < teams; i++){
-            tables.push(<TeamTable key={`${i}-s`} teamId={i} players={data} bSpree={true}/>);
+            tables.push(<TeamTable key={`${i}-s`} teamId={i} players={data} bSpree={true} matchId={matchId}/>);
         }
     }
 

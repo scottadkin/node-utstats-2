@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Functions from '../../../api/functions';
 import MouseHoverBox from '../../MouseHoverBox';
 
-const MatchRankingSummary = ({data, players, teams}) =>{
+const MatchRankingSummary = ({data, players, teams, matchId}) =>{
 
     const rows = [];
 
@@ -59,7 +59,7 @@ const MatchRankingSummary = ({data, players, teams}) =>{
 
         rows.push(<tr key={i}>
             <td className={(teams > 0) ? Functions.getTeamColor(currentPlayer.team) : null}>
-                <Link href={`/classic/pmatch/${currentPlayer.id}`}>
+                <Link href={`/classic/pmatch/${matchId}?p=${currentPlayer.id}`}>
                     <a>    
                         <span className="ranking-position">({d.position}{Functions.getOrdinal(d.position)})</span>
                         <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
@@ -80,7 +80,7 @@ const MatchRankingSummary = ({data, players, teams}) =>{
 
     return <div className="m-bottom-25">
         <div className="default-header">Rankings Summary</div>
-        <table className="t-width-2 td-1-left td-1-150">
+        <table className="t-width-1 td-1-left td-1-150">
             <tbody>
                 <tr>
                     <th>Player</th>
