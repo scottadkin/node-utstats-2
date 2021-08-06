@@ -26,6 +26,8 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
     rankingData = JSON.parse(rankingData);
     killsData = JSON.parse(killsData);
 
+    console.log(matchData);
+
     const basicPlayerData = {};
 
     for(const [key, value] of Object.entries(playerData)){

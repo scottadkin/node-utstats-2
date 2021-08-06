@@ -1,5 +1,6 @@
 import styles from './Screenshot.module.css'
 import {useEffect, useRef} from "react";
+import Functions from '../../api/functions';
 
 //fix screenshot not loading on page back
 
@@ -13,6 +14,8 @@ class MatchScreenshot{
         this.downloadJPG = downloadJPG;
         this.downloadBMP = downloadBMP;
 
+
+
         this.bHome = bHome;
 
         this.bClassic = false;
@@ -23,8 +26,7 @@ class MatchScreenshot{
 
         this.map = map;
         this.players = JSON.parse(players);
-       // console.log(this.players);
-        //console.log(this.players);
+
         this.teams = parseInt(teams);
 
         this.matchData = JSON.parse(matchData);
@@ -33,12 +35,6 @@ class MatchScreenshot{
         this.faces = JSON.parse(faces);
 
         this.highlight = highlight;
-        //console.log(highlight);
-    
-
-        //console.log(this.matchData);
-
-        //console.log(this.players);
 
         this.players.sort((a,b) =>{
 
@@ -132,8 +128,6 @@ class MatchScreenshot{
             c.font = `${this.y(5)}px Arial`;
 
             const textWidth = this.xPercent(c.measureText("Loading Please Wait...").width);
-
-           // console.log(this.xPercent(textWidth));
 
             textOffsetX+=1;
 
@@ -369,7 +363,7 @@ class MatchScreenshot{
 
     getDate(){
 
-        let date = this.matchData.date * 1000;
+        let date = (!this.bClassic) ? this.matchData.date : Functions.utDate(this.matchData.time) * 1000;
 
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "Novemeber", "December"];
@@ -699,8 +693,10 @@ class MatchScreenshot{
         c.fillText("The match has ended.", this.x(50), this.y(92));
         c.fillStyle = "white";
 
+        const playtime = (!this.bClassic) ? this.matchData.playtime : this.matchData.gametime;
+
         c.fillText(`Playing ${this.gametype} on ${this.map}`, this.x(50), this.y(95));
-        c.fillText(`${this.getDate()} Elapsed Time: ${this.MMSS(this.matchData.playtime)}`, this.x(50), this.y(96.75));
+        c.fillText(`${this.getDate()} Elapsed Time: ${this.MMSS(playtime)}`, this.x(50), this.y(96.75));
         c.fillText(`Server: ${this.serverName}`, this.x(50), this.y(98.50));
 
         c.textAlign = "left";
@@ -1211,14 +1207,29 @@ class MatchScreenshot{
 
         const spectators = [];
 
-        let p = 0;
+        if(!this.bClassic){
 
-        for(let i = 0; i < this.players.length; i++){
+            let p = 0;
 
-            p = this.players[i];
-            
-            if(!p.played){
-                spectators.push(p.name);
+            for(let i = 0; i < this.players.length; i++){
+
+                p = this.players[i];
+                
+                if(!p.played){
+                    spectators.push(p.name);
+                }
+            }
+        }else{
+
+            const reg = /ignored players: (.+?)<br>/i;
+
+            const result = reg.exec(this.matchData.gameinfo);
+
+            if(result !== null){
+
+                const players = result[1].split(", ");
+
+                return players;
             }
         }
 
