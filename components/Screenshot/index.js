@@ -1002,8 +1002,6 @@ class MatchScreenshot{
             }
         }
 
-        //console.log(`team = ${team} used ${used} out of ${total}`)
-
         if(total === 0) return null;
         if(used === 0) return 0;
 

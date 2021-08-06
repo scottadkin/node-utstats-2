@@ -17,16 +17,16 @@ import MatchAssaultSummary from '../../../components/classic/MatchAssaultSummary
 import MatchDominationSummary from '../../../components/classic/MatchDominationSummary';
 import MatchKillsMatchUp from '../../../components/classic/MatchKillsMatchUp';
 import Screenshot from '../../../components/Screenshot';
+import Functions from '../../../api/functions';
+import Maps from '../../../api/maps';
 
-const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData, killsData}) =>{
+const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData, killsData, image}) =>{
 
     matchData = JSON.parse(matchData);
     playerData = JSON.parse(playerData);
     weaponData = JSON.parse(weaponData);
     rankingData = JSON.parse(rankingData);
     killsData = JSON.parse(killsData);
-
-    console.log(matchData);
 
     const basicPlayerData = {};
 
@@ -41,17 +41,24 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
         }
     }
 
-    //map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome
+    const map = Functions.removeUnr(matchData.mapfile);
+    const dateString = Functions.convertTimestamp(Functions.utDate(matchData.time, true, true));
 
-    /**
-     * map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image} matchData={info}
-            serverName={server} gametype={gametype} faces={faces}
-     */
+    //for default head open graph image
+    const imageReg = /^.+\/(.+)\.jpg$/i;
+    const imageRegResult = imageReg.exec(image);
+    let ogImage = "maps/default";
+
+    if(imageRegResult !== null){
+        ogImage = `maps/${imageRegResult[1]}`;
+    }
 
     return <div>
-        <Head host={host} title={`Match report`} 
-        description={`match report`} 
-        keywords={`classic,match,report`}/>
+        <Head host={host} title={`${map} (${dateString}) Match report (Classic)`} 
+        description={`Match report for ${map} (${matchData.gamename}${(matchData.insta) ? " Instagib" : ""}) 
+        played on ${matchData.servername} at ${dateString}, total players ${matchData.players}, match length ${Functions.MMSS(matchData.gametime)}.`} 
+        keywords={`match,report,${map},${matchData.gamename},${matchData.servername}`} image={ogImage}
+        />
         <main>
             <Nav />
             <div id="content">
@@ -59,7 +66,7 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
                 <div className="default">
                     <div className="default-header">Match Report</div>
                     <MatchSummary data={matchData}/>
-                    <Screenshot map={matchData.mapfile} totalTeams={matchData.teams} players={JSON.stringify(playerData)} image={`/images/maps/default.jpg`} bClassic={true}
+                    <Screenshot map={matchData.mapfile} totalTeams={matchData.teams} players={JSON.stringify(playerData)} image={image} bClassic={true}
                         serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={"[]"}
                     />
                     <MatchFragSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
@@ -122,6 +129,10 @@ export async function getServerSideProps({req, query}){
 
     const killsData = await matchManager.getKillsData(id);
 
+    const mapManager = new Maps();
+
+    const image = await mapManager.getImage(matchData.mapfile);
+
     return {
         "props": {
             "host": req.headers.host,
@@ -131,7 +142,8 @@ export async function getServerSideProps({req, query}){
             "playerData": JSON.stringify(playerData),
             "weaponData": JSON.stringify(weaponData),
             "rankingData": JSON.stringify(rankingData),
-            "killsData": JSON.stringify(killsData)
+            "killsData": JSON.stringify(killsData),
+            "image": image
         }
     }
 }

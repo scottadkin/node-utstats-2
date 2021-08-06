@@ -293,7 +293,7 @@ class Maps{
             return `/images/maps/${name}`;
         }
 
-        return `/images/temp.jpg`;
+        return `/images/maps/default.jpg`;
     }
 
     async getImages(names){
