@@ -16,6 +16,7 @@ import MatchCTFSummary from '../../../components/classic/MatchCTFSummary';
 import MatchAssaultSummary from '../../../components/classic/MatchAssaultSummary';
 import MatchDominationSummary from '../../../components/classic/MatchDominationSummary';
 import MatchKillsMatchUp from '../../../components/classic/MatchKillsMatchUp';
+import Screenshot from '../../../components/Screenshot';
 
 const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData, killsData}) =>{
 
@@ -38,6 +39,12 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
         }
     }
 
+    //map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome
+
+    /**
+     * map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image} matchData={info}
+            serverName={server} gametype={gametype} faces={faces}
+     */
 
     return <div>
         <Head host={host} title={`Match report`} 
@@ -50,6 +57,9 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
                 <div className="default">
                     <div className="default-header">Match Report</div>
                     <MatchSummary data={matchData}/>
+                    <Screenshot map={matchData.mapfile} totalTeams={matchData.teams} players={JSON.stringify(playerData)} image={`/images/maps/default.jpg`} bClassic={true}
+                        serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={"[]"}
+                    />
                     <MatchFragSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
                     <MatchCTFSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
                     <MatchAssaultSummary data={playerData} matchId={matchId}/>

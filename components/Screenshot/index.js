@@ -5,10 +5,7 @@ import {useEffect, useRef} from "react";
 
 class MatchScreenshot{
 
-    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome){
-
-   
-        console.log(`new match screenshot`);
+    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic){
         
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
@@ -17,6 +14,12 @@ class MatchScreenshot{
         this.downloadBMP = downloadBMP;
 
         this.bHome = bHome;
+
+        this.bClassic = false;
+
+        if(bClassic !== undefined){
+            this.bClassic = bClassic;
+        }
 
         this.map = map;
         this.players = JSON.parse(players);
@@ -87,10 +90,7 @@ class MatchScreenshot{
             await this.loadIcons();
 
             this.bDisplayLoading = false;
-    
-            
 
-            
         }   
     }
 
@@ -265,7 +265,7 @@ class MatchScreenshot{
 
                 p = this.players[i];
 
-                if(uniqueFlags.indexOf(p.country.toUpperCase()) === -1){
+                if(uniqueFlags.indexOf(p.country.toUpperCase()) === -1 && p.country !== ""){
                     uniqueFlags.push(p.country.toUpperCase());
                 }
             }
@@ -485,7 +485,12 @@ class MatchScreenshot{
 
             c.font = teamHeaderFontSize+"px Arial";
             c.fillText(teamTitle, x, y - this.y(3.5));
-            c.fillText(this.matchData[`team_score_${team}`], x + scoreOffset, y - this.y(3.5));
+
+            if(!this.bClassic){
+                c.fillText(this.matchData[`team_score_${team}`], x + scoreOffset, y - this.y(3.5));
+            }else{
+                c.fillText(this.matchData[`t${team}score`], x + scoreOffset, y - this.y(3.5));
+            }
 
         }
 
@@ -506,7 +511,7 @@ class MatchScreenshot{
 
         c.font = scoreFontSize+"px Arial";
         c.fillText(name, x, y);
-        c.fillText(score,x + scoreOffset, y);
+        c.fillText(score, x + scoreOffset, y);
 
         this.teamPlayerCount[team]++;
 
@@ -640,7 +645,11 @@ class MatchScreenshot{
 
             p = this.players[i];
             //console.log(p);
-            this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score, p.playtime, Math.floor(p.ping_average), p.country);
+            if(!this.bClassic){
+                this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score, p.playtime, Math.floor(p.ping_average), p.country);
+            }else{
+                this.renderStandardTeamGamePlayer(c, p.team, p.name, p.gamescore, p.gametime, Math.floor(p.avgping), p.country);
+            }
         }
 
         for(let i = 0; i < this.teams; i++){
@@ -731,7 +740,12 @@ class MatchScreenshot{
 
             p = this.players[i];
             c.font = this.y(2)+"px Arial";
-            this.renderStandardPlayer(c, i, p.name, p.score, p.deaths, p.ping_average, p.playtime, p.country);
+
+            if(!this.bClassic){
+                this.renderStandardPlayer(c, i, p.name, p.score, p.deaths, p.ping_average, p.playtime, p.country);
+            }else{
+                this.renderStandardPlayer(c, i, p.name, p.gamescore, p.deaths, p.avgping, p.gametime, p.country);
+            }
         }
 
         this.renderFooter(c);
@@ -782,7 +796,10 @@ class MatchScreenshot{
         c.textAlign = "left";
         c.fillText(player.name, x + nameOffset, y + this.y(0.75));
         c.textAlign = "right";
-        c.fillText(`${player.kills} / ${player.score}`, x + scoreOffset, y + this.y(0.75));
+
+        const score = (!this.bClassic) ? player.score : player.gamescore;
+
+        c.fillText(`${player.kills} / ${score}`, x + scoreOffset, y + this.y(0.75));
 
         c.textAlign = "left";
 
@@ -793,15 +810,24 @@ class MatchScreenshot{
 
         let pickupString = "";
 
-        if(player.headshots > 0) pickupString += `HS:${player.headshots} `;
-        if(player.shield_belt > 0) pickupString += `SB:${player.shield_belt} `;
-        if(player.amp > 0) pickupString += `AMP:${player.amp} (${this.MMSS(player.amp_time)}) `;
-        if(player.invisibility > 0) pickupString += `INVIS:${player.invisibility} (${this.MMSS(player.invisibility_time)})`;
+        const headshots = (!this.bClassic) ? player.headshots : 0;
+        const belts = (!this.bCLassic) ? player.shield_belt : player.pu_belt;
+        const amps = (!this.bClassic) ? `${player.amp} (${this.MMSS(player.amp_time)})` : player.pu_amp;
+        const invisibility = (!this.bClassic) ? `${player.invisibility} (${this.MMSS(player.invisibility_time)}` : player.pu_invis;
+
+        
+        if(headshots > 0) pickupString += `HS:${headshots} `;
+        if(belts > 0) pickupString += `SB:${belts} `;
+        if(amps > 0) pickupString += `AMP:${amps} `;
+        if(invisibility > 0) pickupString += `INVIS:${invisibility}`;
+    
       
   
+        const playtime = (!this.bClassic) ? Math.floor(player.playtime / 60) : Math.floor(player.gametime / 60);
+        const efficiency = (!this.bClassic) ? Math.floor(player.efficiency) : Math.floor(player.eff);
 
         c.fillText(pickupString, x + nameOffset + timeOffset, y + this.y(0.9));
-        c.fillText(`TM:${Math.floor(player.playtime / 60)} EFF:${Math.floor(player.efficiency)}%`, x + nameOffset + timeOffset, y + this.y(1.8));
+        c.fillText(`TM:${playtime} EFF:${efficiency}%`, x + nameOffset + timeOffset, y + this.y(1.8));
         
         c.fillStyle = "black";
         c.strokeStyle = "rgb(100,100,100)";
@@ -818,7 +844,9 @@ class MatchScreenshot{
 
         c.drawImage(this.getFlag(player.country), x + pingOffsetX + this.x(0.5), y + pingOffsetY, this.flagWidth, this.flagHeight);
 
-        c.fillText(`PING:${player.ping_average}`, x + pingOffsetX + this.x(0.25) , y + pingOffsetY + this.flagHeight + this.y(0.5));
+        const pingAverage = (!this.bClassic) ? player.ping_average : player.avgping;
+
+        c.fillText(`PING:${pingAverage}`, x + pingOffsetX + this.x(0.25) , y + pingOffsetY + this.flagHeight + this.y(0.5));
         //c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.3) + this.flagHeight + this.y(0.5));
 
         const row1Offset = this.y(3.2);
@@ -874,7 +902,7 @@ class MatchScreenshot{
 
             if(p.team === team){
                 totalPlayers++;
-                totalPing += p.ping_average;
+                totalPing += (!this.bClassic) ? p.ping_average : p.avgping;
             }
         }
 
@@ -887,6 +915,7 @@ class MatchScreenshot{
 
     getTeamSmartCTFItemPickupPercent(team, item){
 
+        if(item === null) return null;
         let total = 0;
         let used = 0;
 
@@ -919,10 +948,10 @@ class MatchScreenshot{
 
         const headerHeight = this.y(5);
 
-        const ampPercent = this.getTeamSmartCTFItemPickupPercent(team, "amp");
-        const beltPercent = this.getTeamSmartCTFItemPickupPercent(team, "shield_belt");
-        const invisPercent = this.getTeamSmartCTFItemPickupPercent(team, "invisibility");
-        const headshotPercent = this.getTeamSmartCTFItemPickupPercent(team, "headshots");
+        const ampPercent = this.getTeamSmartCTFItemPickupPercent(team, (!this.bClassic) ? "amp" : "pu_amp");
+        const beltPercent = this.getTeamSmartCTFItemPickupPercent(team, (!this.bClassic) ? "shield_belt" : "pu_belt");
+        const invisPercent = this.getTeamSmartCTFItemPickupPercent(team, (!this.bClassic) ? "invisibility": "pu_invis");
+        const headshotPercent = this.getTeamSmartCTFItemPickupPercent(team, (!this.bClassic) ? "headshots" : null);
 
         let startX = 0;
         let startY = 0;
@@ -973,8 +1002,11 @@ class MatchScreenshot{
 
         c.fillStyle = this.getTeamColor(team);
         c.font = headerFont+"px Arial";
-        c.fillText(this.matchData[`team_score_${team}`], startX + this.x(3), startY + this.y(0.6));
-        const pingOffsetX = c.measureText(`${this.matchData[`team_score_${team}`]}_`).width;
+
+        const teamScore = (!this.bClassic) ? this.matchData[`team_score_${team}`] : this.matchData[`t${team}score`]
+
+        c.fillText(teamScore, startX + this.x(3), startY + this.y(0.6));
+        const pingOffsetX = c.measureText(`${teamScore}_`).width;
         c.font = `bold ${this.y(2.1)}px Arial`;
         c.fillText("Frags / PTS", startX + this.x(32.5), startY + this.y(1));
 
@@ -984,7 +1016,9 @@ class MatchScreenshot{
 
         c.fillText(`PING: ${this.getTeamPingAverage(team)} PL:0%`, startX + this.x(3) + pingOffsetX, startY + this.y(1.5));
 
-        let timePowerupString = `TM: ${Math.ceil((this.matchData.end - this.matchData.start) / 60)} `;
+        const time = (!this.bClassic) ? Math.ceil((this.matchData.end - this.matchData.start) / 60) : Math.floor(this.matchData.gametime / 60);
+
+        let timePowerupString = `TM: ${time} `;
 
         if(headshotPercent !== null){
             timePowerupString += `HS: ${headshotPercent}% `;
@@ -1277,7 +1311,7 @@ class MatchScreenshot{
             this.renderMonsterHunt(c);
 
         }else{
-            if(this.matchData.team_game){
+            if(this.teams >= 2){
                 if(!this.bCTF()){
                     this.renderStandardTeamGame(c);
                 }else{
@@ -1293,7 +1327,7 @@ class MatchScreenshot{
 
 
 
-const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome}) =>{
+const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome, bClassic}) =>{
 
     const sshot = useRef(null);
     const sshotDownload = useRef(null);
@@ -1318,7 +1352,8 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
             gametype, 
             faces,
             highlight,
-            bHome
+            bHome,
+            bClassic
         );
     });
 
