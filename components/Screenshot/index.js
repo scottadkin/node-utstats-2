@@ -521,11 +521,16 @@ class MatchScreenshot{
 
         let d = this.matchData;
 
+        const redScore = (!this.bClassic) ? d.team_score_0 : d.t0score; 
+        const blueScore = (!this.bClassic) ? d.team_score_1 : d.t1score; 
+        const greenScore = (!this.bClassic) ? d.team_score_2 : d.t2score; 
+        const yellowScore = (!this.bClassic) ? d.team_score_3 : d.t3score; 
+
         const scores = [
-            {"name": "Red Team", "score": d.team_score_0},
-            {"name": "Blue Team", "score": d.team_score_1},
-            {"name": "Green Team", "score": d.team_score_2},
-            {"name": "Yellow Team", "score": d.team_score_3}
+            {"name": "Red Team", "score": redScore},
+            {"name": "Blue Team", "score": blueScore},
+            {"name": "Green Team", "score": greenScore},
+            {"name": "Yellow Team", "score": yellowScore}
         ];
 
         scores.sort((a, b) =>{
@@ -547,9 +552,71 @@ class MatchScreenshot{
 
     getSoloWinner(){
 
-        return `${this.matchData.dm_winner} Wins the match!`
+        if(!this.bClassic){
+            return `${this.matchData.dm_winner} Wins the match!`;
+        }else{
+
+            if(this.players.length > 0){
+
+                return `${this.players[0].name} Wins the match!`;
+            }
+
+            return "";
+        }
     }
 
+    parseClassicGameInfo(){
+
+        if(!this.bClassic) return null;
+
+        const values = this.matchData.gameinfo.split("<br>");
+
+        const resultReg = /^.+:(.+)$/i;
+        let result = 0;
+
+        const data = {
+            "timeLimit": 0,
+            "targetScore": 0
+        };
+
+        for(let i = 0; i < values.length; i++){
+
+            if(values[i].toLowerCase().startsWith("time limit:")){
+
+                result = resultReg.exec(values[i]);
+
+                if(result !== null){
+                    data.timeLimit = parseInt(result[1]);
+                }
+
+            }else if(this.teams >= 2){
+
+                if(values[i].toLowerCase().startsWith("goal team score:")){
+
+                    result = resultReg.exec(values[i]);
+
+                    if(result !== null){
+                        data.targetScore = parseInt(result[1]);
+                    }
+
+                }
+
+            }else if(this.teams < 2){
+
+                if(values[i].toLowerCase().startsWith("frag limit:")){
+
+                    result = resultReg.exec(values[i]);
+
+                    if(result !== null){
+                        data.targetScore = parseInt(result[1]);
+                    }
+
+                }
+            }
+        }
+        
+        return data;
+    }
 
     renderHeader(c){
 
@@ -560,25 +627,31 @@ class MatchScreenshot{
 
         let offsetY = this.y(0.75);
 
+        const classicData = this.parseClassicGameInfo();
+
         if(!this.matchData.mh){
     
             c.fillStyle = "white";
             c.fillText(this.gametype, this.x(50), offsetY);
 
-            if(this.matchData.time_limit > 0){
+            const timeLimit = (!this.bClassic) ? this.matchData.time_limit : classicData.timeLimit;
+
+            if(timeLimit > 0){
                 offsetY += this.y(2.9);
-                c.fillText(`Time Limit: ${this.matchData.time_limit}:00`, this.x(50), offsetY);
+                c.fillText(`Time Limit: ${timeLimit}:00`, this.x(50), offsetY);
             }
+
+            const targetScore = (!this.bClassic) ? this.matchData.target_score : classicData.targetScore;
         
-            if(this.matchData.target_score > 0){
+            if(targetScore > 0){
                 offsetY += this.y(2.6);
-                c.fillText(`${(this.bLMS()) ? "Lives" : "Target Score"}: ${this.matchData.target_score}`, this.x(50), offsetY);
+                c.fillText(`${(this.bLMS()) ? "Lives" : "Target Score"}: ${targetScore}`, this.x(50), offsetY);
             }
 
             offsetY += this.y(2.9);
 
             c.fillStyle = "yellow";
-            c.fillText((this.matchData.team_game) ? this.getTeamWinner() : this.getSoloWinner(), this.x(50), offsetY);
+            c.fillText((this.teams >= 2) ? this.getTeamWinner() : this.getSoloWinner(), this.x(50), offsetY);
 
         }else{
 
