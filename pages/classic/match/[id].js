@@ -19,8 +19,9 @@ import MatchKillsMatchUp from '../../../components/classic/MatchKillsMatchUp';
 import Screenshot from '../../../components/Screenshot';
 import Functions from '../../../api/functions';
 import Maps from '../../../api/maps';
+import Faces from '../../../api/faces';
 
-const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData, killsData, image}) =>{
+const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData, killsData, image, faces}) =>{
 
     matchData = JSON.parse(matchData);
     playerData = JSON.parse(playerData);
@@ -67,7 +68,7 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
                     <div className="default-header">Match Report</div>
                     <MatchSummary data={matchData}/>
                     <Screenshot map={matchData.mapfile} totalTeams={matchData.teams} players={JSON.stringify(playerData)} image={image} bClassic={true}
-                        serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={"[]"}
+                        serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={faces}
                     />
                     <MatchFragSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
                     <MatchCTFSummary data={playerData} teams={matchData.teams} matchId={matchId}/>
@@ -133,6 +134,11 @@ export async function getServerSideProps({req, query}){
 
     const image = await mapManager.getImage(matchData.mapfile);
 
+    const faceManager = new Faces();
+
+    const faces = faceManager.getRandom(matchData.players);
+
+
     return {
         "props": {
             "host": req.headers.host,
@@ -143,7 +149,8 @@ export async function getServerSideProps({req, query}){
             "weaponData": JSON.stringify(weaponData),
             "rankingData": JSON.stringify(rankingData),
             "killsData": JSON.stringify(killsData),
-            "image": image
+            "image": image,
+            "faces": JSON.stringify(faces)
         }
     }
 }

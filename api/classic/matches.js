@@ -166,9 +166,7 @@ class Matches{
 
             return await this.players.getDmWinner(matchData.id);
         }
-
     }
-
 
     async getData(id){
 
@@ -180,8 +178,7 @@ class Matches{
 
             result[0].result = await this.createMatchResult(result[0]);
             result[0].players = await this.getMatchPlayerCount(id);
-
-            
+     
             let teams = 0;
 
             for(let i = 0; i < 4; i++){
@@ -190,7 +187,6 @@ class Matches{
             }
 
             result[0].teams = teams;
-
             return result[0];
         }
 
@@ -199,9 +195,7 @@ class Matches{
 
     async getKillsData(matchId){
 
-
         const query = "SELECT killer,victim,kills FROM uts_killsmatrix WHERE matchid=? ORDER BY kills DESC";
-
         return await mysql.simpleQuery(query, [matchId]);
 
     }

@@ -214,31 +214,59 @@ class MatchScreenshot{
 
             this.playerIcons = {};
 
-            let p = 0;
+            if(!this.bClassic){
 
-            for(let i = 0; i < this.players.length; i++){
+                let p = 0;
 
-                p = this.players[i];
+                for(let i = 0; i < this.players.length; i++){
 
-                if(uniqueIcons.indexOf(p.face) === -1){
-                    uniqueIcons.push(p.face);
+                    p = this.players[i];
+
+                    if(uniqueIcons.indexOf(p.face) === -1){
+                        uniqueIcons.push(p.face);
+                    }
                 }
-            }
 
-            this.playerIconsToLoad = uniqueIcons.length;
-            this.playerIconsLoaded = 0;
+                this.playerIconsToLoad = uniqueIcons.length;
+                this.playerIconsLoaded = 0;
 
-            for(let i = 0; i < uniqueIcons.length; i++){
+                for(let i = 0; i < uniqueIcons.length; i++){
 
-                this.playerIcons[uniqueIcons[i]] = new Image();
-                this.playerIcons[uniqueIcons[i]].src = `/images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
+                    this.playerIcons[uniqueIcons[i]] = new Image();
 
-                this.playerIcons[uniqueIcons[i]].onload = () =>{
+                    this.playerIcons[uniqueIcons[i]].src = `/images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
 
-                    this.playerIconsLoaded++;
+                    this.playerIcons[uniqueIcons[i]].onload = () =>{
 
-                    if(this.playerIconsLoaded >= this.playerIconsToLoad){
-                        resolve();
+                        this.playerIconsLoaded++;
+
+                        if(this.playerIconsLoaded >= this.playerIconsToLoad){
+                            resolve();
+                        }
+                    }
+                }
+
+            }else{
+
+                this.playerIcons = [];
+
+                this.playerIconsToLoad = this.faces.length;
+                this.playerIconsLoaded = 0;
+
+                for(let i = 0; i < this.faces.length; i++){
+
+                    this.playerIcons.push(new Image());
+
+                    this.playerIcons[i].src = `/images/faces/${this.faces[i]}`;
+
+                    this.playerIcons[i].onload = () =>{
+
+                        this.playerIconsLoaded++;
+
+                        if(this.playerIconsLoaded >= this.playerIconsToLoad){
+                            resolve();
+                        }
+
                     }
                 }
             }
@@ -902,7 +930,13 @@ class MatchScreenshot{
         c.strokeStyle = "rgb(100,100,100)";
         c.lineWidth = this.y(0.1);
         c.fillRect(x + this.y(1.25), y, this.x(2.5), this.x(2.5));
-        c.drawImage(this.playerIcons[player.face], x + this.y(1.25), y, this.x(2.5), this.x(2.5));
+
+        //const face = (!this.bClassic) ? this.playerIcons[player.face] : 
+
+        const face = (!this.bClassic) ? this.playerIcons[player.face] : this.playerIcons[Math.floor(Math.random() * this.playerIcons.length)];
+
+        c.drawImage(face, x + this.y(1.25), y, this.x(2.5), this.x(2.5));
+
         c.strokeRect(x + this.y(1.25), y, this.x(2.5), this.x(2.5));
 
         c.fillStyle = "white";

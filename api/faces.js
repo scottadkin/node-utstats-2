@@ -456,6 +456,34 @@ class Faces{
             console.trace(err);
         }
     }
+
+
+    getRandom(amount){
+
+        const files = fs.readdirSync("./public/images/faces");
+
+        if(amount >= files.length){
+
+            return files;
+            
+        }else{
+
+            let r = 0;
+
+            const currentFiles = [];
+
+            for(let i = 0; i < amount; i++){
+
+                r = Math.floor(Math.random() * files.length);
+
+                if(currentFiles.indexOf(files[r]) === -1){
+                    currentFiles.push(files[r]);
+                }
+            }
+
+            return currentFiles;
+        }
+    }
 }
 
 module.exports = Faces;
