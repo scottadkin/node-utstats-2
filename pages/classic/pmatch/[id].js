@@ -8,6 +8,7 @@ import MatchSummary from '../../../components/classic/MatchSummary';
 import Players from '../../../api/classic/players';
 import Screenshot from '../../../components/Screenshot';
 import Faces from '../../../api/faces';
+import MatchFragSummary from '../../../components/classic/MatchFragSummary';
 
 
 function getPlayerName(id, players){
@@ -18,6 +19,16 @@ function getPlayerName(id, players){
     }
 
     return "Not Found";
+}
+
+function getTargetPlayerData(id, players){
+
+    for(let i = 0; i < players.length; i++){
+
+        if(players[i].pid === id) return players[i];
+    }
+
+    return null;
 }
 
 const PMatch = ({host, session, matchId, playerId, matchData, image, playerData, faces}) =>{
@@ -31,7 +42,9 @@ const PMatch = ({host, session, matchId, playerId, matchData, image, playerData,
     const dateString = Functions.convertTimestamp(Functions.utDate(matchData.time), true, true);
 
     const playerName = getPlayerName(playerId, playerData);
+    const targetPlayerData = getTargetPlayerData(playerId, playerData);
 
+    console.log(playerData);
 
     return <div>
         <Head host={host} title={`${playerName}${Functions.apostrophe(playerName)} match report for ${map} (${dateString})(Classic)`} 
@@ -51,6 +64,7 @@ const PMatch = ({host, session, matchId, playerId, matchData, image, playerData,
                         serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={faces} 
                         highlight={playerName}
                     />
+                    <MatchFragSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} solo={true}/>
     
                 </div>
             </div>

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import CountryFlag from '../../CountryFlag';
 import Functions from '../../../api/functions';
 
-const TeamTable = ({teamId, players, matchId}) =>{
+const TeamTable = ({teamId, players, matchId, solo}) =>{
 
     const rows = [];
 
@@ -31,6 +31,8 @@ const TeamTable = ({teamId, players, matchId}) =>{
         "gamescore": 0
     };
 
+    let url = "";
+
     for(let i = 0; i < players.length; i++){
 
         p = players[i];
@@ -51,8 +53,14 @@ const TeamTable = ({teamId, players, matchId}) =>{
             totals.gamescore += p.gamescore;
             totals.players++;
 
+            if(solo){
+                url = `/classic/player/${p.pid}`;
+            }else{
+                url = `/classic/pmatch/${matchId}?p=${p.pid}`;
+            }
+
             rows.push(<tr key={i}>
-                <td className={teamColor}><Link href={`/classic/pmatch/${matchId}?p=${p.pid}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
+                <td className={teamColor}><Link href={url}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
                 <td>{Functions.MMSS(p.gametime)}</td>
                 <td>{Functions.ignore0(p.gamescore)}</td>
                 <td>{Functions.ignore0(p.frags)}</td>
@@ -84,18 +92,22 @@ const TeamTable = ({teamId, players, matchId}) =>{
     }
 
 
-    rows.push(<tr key={"totals"}>
-        <td>Totals</td>
-        <td>{Functions.MMSS(totals.gametime)}</td>
-        <td>{Functions.ignore0(totals.gamescore)}</td>
-        <td>{Functions.ignore0(totals.frags)}</td>
-        <td>{Functions.ignore0(totals.kills)}</td>
-        <td>{Functions.ignore0(totals.deaths)}</td>
-        <td>{Functions.ignore0(totals.suicides)}</td>
-        <td>{Functions.ignore0(totals.teamkills)}</td>
-        <td>{totalEff.toFixed(2)}%</td>
-        <td>{Functions.MMSS(totalTTL)}</td>
-    </tr>);
+    if(rows.length === 0) return null;
+
+    if(rows.length > 1){
+        rows.push(<tr key={"totals"}>
+            <td>Totals</td>
+            <td>{Functions.MMSS(totals.gametime)}</td>
+            <td>{Functions.ignore0(totals.gamescore)}</td>
+            <td>{Functions.ignore0(totals.frags)}</td>
+            <td>{Functions.ignore0(totals.kills)}</td>
+            <td>{Functions.ignore0(totals.deaths)}</td>
+            <td>{Functions.ignore0(totals.suicides)}</td>
+            <td>{Functions.ignore0(totals.teamkills)}</td>
+            <td>{totalEff.toFixed(2)}%</td>
+            <td>{Functions.MMSS(totalTTL)}</td>
+        </tr>);
+    }
 
 
     return <table className="t-width-1 td-1-left td-1-150 m-bottom-25">
@@ -118,17 +130,19 @@ const TeamTable = ({teamId, players, matchId}) =>{
  
 }
 
-const MatchFragSummary = ({data, teams, matchId}) =>{
+const MatchFragSummary = ({data, teams, matchId, solo}) =>{
 
     const tables = [];
 
+    if(solo === undefined) solo = false;
+
     if(teams === 0){
-        tables.push(<TeamTable key={-1} teamId={-1} players={data} matchId={matchId}/>);
+        tables.push(<TeamTable key={-1} teamId={-1} players={data} matchId={matchId} solo={solo}/>);
     }else{
 
         for(let i = 0; i < teams; i++){
 
-            tables.push(<TeamTable key={i} teamId={i} players={data} matchId={matchId}/>);
+            tables.push(<TeamTable key={i} teamId={i} players={data} matchId={matchId} solo={solo}/>);
         }
     }
 
