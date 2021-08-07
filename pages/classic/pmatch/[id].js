@@ -9,6 +9,15 @@ import Players from '../../../api/classic/players';
 import Screenshot from '../../../components/Screenshot';
 import Faces from '../../../api/faces';
 import MatchFragSummary from '../../../components/classic/MatchFragSummary';
+import MatchCTFSummary from '../../../components/classic/MatchCTFSummary';
+import MatchSpecialEvents from '../../../components/classic/MatchSpecialEvents';
+import MatchPickupsSummary from '../../../components/classic/MatchPickupsSummary';
+import MatchWeaponStats from '../../../components/classic/MatchWeaponStats';
+import Weapons from '../../../api/classic/weapons';
+import Rankings from '../../../api/classic/rankings';
+import MatchRankingSummary from '../../../components/classic/MatchRankingSummary';
+import MatchAssaultSummary from '../../../components/classic/MatchAssaultSummary';
+import MatchDominationSummary from '../../../components/classic/MatchDominationSummary';
 
 
 function getPlayerName(id, players){
@@ -31,10 +40,12 @@ function getTargetPlayerData(id, players){
     return null;
 }
 
-const PMatch = ({host, session, matchId, playerId, matchData, image, playerData, faces}) =>{
+const PMatch = ({host, session, matchId, playerId, matchData, image, playerData, faces, weaponData, rankingData}) =>{
 
     matchData = JSON.parse(matchData);
     playerData = JSON.parse(playerData);
+    weaponData = JSON.parse(weaponData);
+    rankingData = JSON.parse(rankingData);
 
     const ogImage = Functions.createMapOGLink(image);
 
@@ -43,8 +54,23 @@ const PMatch = ({host, session, matchId, playerId, matchData, image, playerData,
 
     const playerName = getPlayerName(playerId, playerData);
     const targetPlayerData = getTargetPlayerData(playerId, playerData);
+    
+    const basicPlayerData = {};
 
-    console.log(playerData);
+    for(const [key, value] of Object.entries(playerData)){
+
+        if(value.pid === playerId){
+
+            basicPlayerData[value.pid] = {
+                "name": value.name,
+                "team": value.team,
+                "country": value.country,
+                "id": value.pid,
+                "matchId": value.playerid
+            }
+            break;
+        }
+    }
 
     return <div>
         <Head host={host} title={`${playerName}${Functions.apostrophe(playerName)} match report for ${map} (${dateString})(Classic)`} 
@@ -64,7 +90,18 @@ const PMatch = ({host, session, matchId, playerId, matchData, image, playerData,
                         serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={faces} 
                         highlight={playerName}
                     />
-                    <MatchFragSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} solo={true}/>
+                    <MatchFragSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
+                    <MatchCTFSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
+                    <MatchAssaultSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
+                    <MatchDominationSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
+
+                    <MatchSpecialEvents data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
+                    
+                    <MatchPickupsSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
+
+                    <MatchWeaponStats data={weaponData.stats} names={weaponData.names} players={basicPlayerData}
+                    teams={matchData.teams} matchId={matchId}/>
+                    <MatchRankingSummary data={rankingData} players={basicPlayerData} teams={matchData.teams} matchId={matchId}/>
     
                 </div>
             </div>
@@ -96,6 +133,13 @@ export async function getServerSideProps({req, query}){
     const faceManager = new Faces();
     const faces = faceManager.getRandom(matchData.players);
 
+    const weaponsManager = new Weapons();
+
+    const weaponData = await weaponsManager.getMatchData(id, [playerId]);
+
+    const rankingManager = new Rankings();
+    const rankingData = await rankingManager.getPlayers([playerId], matchData.gid);
+
     return {
         "props": {
             "host": host,
@@ -105,7 +149,9 @@ export async function getServerSideProps({req, query}){
             "matchData": JSON.stringify(matchData),
             "image": "/images/maps/default.jpg",
             "playerData": JSON.stringify(playerData),
-            "faces": JSON.stringify(faces)
+            "faces": JSON.stringify(faces),
+            "weaponData": JSON.stringify(weaponData),
+            "rankingData": JSON.stringify(rankingData)
             
         }
     }

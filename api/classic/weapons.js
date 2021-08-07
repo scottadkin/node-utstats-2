@@ -24,11 +24,18 @@ class Weapons{
         return weaponNames;
     }
 
-    async getMatchData(id){
+    async getMatchData(id, playerIds){
 
-        const query = "SELECT pid,weapon,kills,shots,hits,damage,acc FROM uts_weaponstats WHERE matchid=?";
+        let query = "SELECT pid,weapon,kills,shots,hits,damage,acc FROM uts_weaponstats WHERE matchid=?";
+        let vars = [id];
 
-        const data = await mysql.simpleQuery(query, [id]);
+        if(playerIds !== undefined){
+
+            query = "SELECT pid,weapon,kills,shots,hits,damage,acc FROM uts_weaponstats WHERE matchid=? AND pid IN (?)";
+            vars.push(playerIds);
+        }
+
+        const data = await mysql.simpleQuery(query, vars);
 
         const weaponIds = [];
 

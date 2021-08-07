@@ -2,11 +2,18 @@ import Functions from "../../../api/functions";
 import CountryFlag from "../../CountryFlag";
 import Link from "next/link";
 
-function bAnyDomData(players){
+function bAnyDomData(players, team){
 
     for(let i = 0; i < players.length; i++){
 
-        if(players[i].dom_cp > 0) return true;
+        if(team === undefined){
+            if(players[i].dom_cp > 0) return true;
+        }else{
+
+            if(players[i].team === team){
+                if(players[i].dom_cp > 0) return true;
+            }
+        }
     }
 
     return false;
@@ -58,7 +65,9 @@ const MatchDominationSummary = ({data, teams, matchId}) =>{
 
     for(let i = 0; i < teams; i++){
 
-        tables.push(<TeamTable teamId={i} players={data} matchId={matchId}/>);
+        if(bAnyDomData(data, i)){
+            tables.push(<TeamTable teamId={i} players={data} matchId={matchId}/>);
+        }
     }
 
     return <div>

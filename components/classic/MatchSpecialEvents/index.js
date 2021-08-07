@@ -152,12 +152,29 @@ const TeamTable = ({teamId, players, bSpree, matchId}) =>{
 
 const MatchSpecialEvents = ({data, teams, matchId}) =>{
 
+    let d = 0;
+
+    for(let i = 0; i < data.length; i++){
+
+        d = data[i];
+
+        if(bAnyMultis(d) || bAnySprees(d)){
+            break;
+        }
+
+        if(i === data.length - 1){
+
+            return null;
+        }
+    }
+
     const tables = [];
 
     if(teams < 2){
 
         tables.push(<TeamTable key={`multis`} teamId={-1} players={data} bSpree={false} matchId={matchId}/>);
         tables.push(<TeamTable key={`sprees`} teamId={-1} players={data} bSpree={true} matchId={matchId}/>);
+
     }else{
 
         for(let i = 0; i < teams; i++){
