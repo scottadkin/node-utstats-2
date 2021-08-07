@@ -491,6 +491,29 @@ class Functions{
 
         return Math.floor(new Date(year, month - 1, day, hour, minute, seconds) * 0.001);
     }
+
+    static createMapOGLink(image){
+
+        const imageReg = /^.+\/(.+)\.jpg$/i;
+        const imageRegResult = imageReg.exec(image);
+        let ogImage = "maps/default";
+
+        if(imageRegResult !== null){
+            ogImage = `maps/${imageRegResult[1]}`;
+        }
+
+        return ogImage;
+    }
+
+    static apostrophe(name){
+
+        name = name.toLowerCase();
+        if(name[name.length - 1] === 's'){
+            return '\'';
+        }
+
+        return '\'s';
+    }
 }
 
 module.exports = Functions;

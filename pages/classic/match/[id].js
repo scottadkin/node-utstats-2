@@ -45,20 +45,13 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
     const map = Functions.removeUnr(matchData.mapfile);
     const dateString = Functions.convertTimestamp(Functions.utDate(matchData.time, true, true));
 
-    //for default head open graph image
-    const imageReg = /^.+\/(.+)\.jpg$/i;
-    const imageRegResult = imageReg.exec(image);
-    let ogImage = "maps/default";
-
-    if(imageRegResult !== null){
-        ogImage = `maps/${imageRegResult[1]}`;
-    }
+    const ogImage = Functions.createMapOGLink(image);
 
     return <div>
         <Head host={host} title={`${map} (${dateString}) Match report (Classic)`} 
-        description={`Match report for ${map} (${matchData.gamename}${(matchData.insta) ? " Instagib" : ""}) 
-        played on ${matchData.servername} at ${dateString}, total players ${matchData.players}, match length ${Functions.MMSS(matchData.gametime)}.`} 
-        keywords={`match,report,${map},${matchData.gamename},${matchData.servername}`} image={ogImage}
+            description={`Match report for ${map} (${matchData.gamename}${(matchData.insta) ? " Instagib" : ""}) 
+            played on ${matchData.servername} at ${dateString}, total players ${matchData.players}, match length ${Functions.MMSS(matchData.gametime)}.`} 
+            keywords={`match,report,${map},${matchData.gamename},${matchData.servername}`} image={ogImage}
         />
         <main>
             <Nav />
