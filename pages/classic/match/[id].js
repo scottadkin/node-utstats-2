@@ -41,6 +41,7 @@ const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, r
             "matchId": value.playerid
         }
     }
+    
 
     const map = Functions.removeUnr(matchData.mapfile);
     const dateString = Functions.convertTimestamp(Functions.utDate(matchData.time, true, true));
@@ -104,7 +105,7 @@ export async function getServerSideProps({req, query}){
 
     const playerManager = new Players();
 
-    const playerData = await playerManager.getMatchData(id);
+    const playerData = await playerManager.getMatchData(id, false);
 
     const weaponsManager = new Weapons();
 

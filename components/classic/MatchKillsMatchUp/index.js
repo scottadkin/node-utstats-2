@@ -7,9 +7,23 @@ class MatchKillsMatchUp extends React.Component{
 
         super(props);
 
-        this.state = {"player1": 0, "player2": 1};
+        const player1 = (this.props.solo !== undefined) ? this.props.soloId : 0;
+
+        this.state = {
+            "player1": player1, 
+            "player2": this.selectDifferentPlayer(player1)};
 
         this.changePlayer = this.changePlayer.bind(this);
+    }
+
+    selectDifferentPlayer(ignore){
+
+        for(const [key, value] of Object.entries(this.props.players)){
+
+            if(value.matchId !== ignore) return value.matchId;
+        }
+        
+        return 0;
     }
 
     changePlayer(e){
@@ -50,12 +64,18 @@ class MatchKillsMatchUp extends React.Component{
 
     createPlayerDropDown(id){
 
+        
         const value = (id === 0) ? this.state.player1 : this.state.player2;
 
         const options = [];
 
         for(const [key, value] of Object.entries(this.props.players)){
  
+            if(this.props.solo !== undefined && id !== 1){
+
+                if(value.matchId !== this.props.soloId) continue;
+            }
+
             options.push(<option key={key} value={value.matchId}>{value.name}</option>);
         }
 

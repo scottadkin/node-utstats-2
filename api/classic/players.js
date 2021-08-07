@@ -51,9 +51,13 @@ class Players{
         return names;
     }
 
-    async getMatchData(matchId){
+    async getMatchData(matchId, bBasic){
 
-        const query = "SELECT * FROM uts_player WHERE matchid=? ORDER BY gamescore DESC";
+        let query = "SELECT * FROM uts_player WHERE matchid=? ORDER BY gamescore DESC";
+
+        if(bBasic){
+            query = "SELECT pid,team,country,id,matchid FROM uts_player WHERE matchid=? ORDER BY matchid DESC";
+        }
 
         const players = await mysql.simpleQuery(query, [matchId]);
 
@@ -65,8 +69,6 @@ class Players{
         }
 
         const names = await this.getNames(playerIds);
-
-        let nameIndex = 0;
 
         let p = 0;
 

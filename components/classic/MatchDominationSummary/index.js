@@ -66,7 +66,7 @@ const MatchDominationSummary = ({data, teams, matchId}) =>{
     for(let i = 0; i < teams; i++){
 
         if(bAnyDomData(data, i)){
-            tables.push(<TeamTable teamId={i} players={data} matchId={matchId}/>);
+            tables.push(<TeamTable key={i} teamId={i} players={data} matchId={matchId}/>);
         }
     }
 

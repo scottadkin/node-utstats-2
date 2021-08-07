@@ -200,6 +200,13 @@ class Matches{
 
     }
 
+    async getPlayerKillsData(matchId, playerId){
+
+        const query = "SELECT killer,victim,kills FROM uts_killsmatrix WHERE matchid=? AND (killer=? OR victim=?) ORDER BY kills DESC";
+
+        return await mysql.simpleQuery(query, [matchId, playerId, playerId]);
+    }
+
 }
 
 export default Matches;

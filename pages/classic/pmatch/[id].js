@@ -18,6 +18,7 @@ import Rankings from '../../../api/classic/rankings';
 import MatchRankingSummary from '../../../components/classic/MatchRankingSummary';
 import MatchAssaultSummary from '../../../components/classic/MatchAssaultSummary';
 import MatchDominationSummary from '../../../components/classic/MatchDominationSummary';
+import MatchKillsMatchUp from '../../../components/classic/MatchKillsMatchUp';
 
 
 function getPlayerName(id, players){
@@ -40,12 +41,14 @@ function getTargetPlayerData(id, players){
     return null;
 }
 
-const PMatch = ({host, session, matchId, playerId, matchData, image, playerData, faces, weaponData, rankingData}) =>{
+const PMatch = ({host, session, matchId, playerId, playerMatchId, matchData, image, playerData, faces, 
+    weaponData, rankingData, killsData}) =>{
 
     matchData = JSON.parse(matchData);
     playerData = JSON.parse(playerData);
     weaponData = JSON.parse(weaponData);
     rankingData = JSON.parse(rankingData);
+    killsData = JSON.parse(killsData);
 
     const ogImage = Functions.createMapOGLink(image);
 
@@ -56,6 +59,7 @@ const PMatch = ({host, session, matchId, playerId, matchData, image, playerData,
     const targetPlayerData = getTargetPlayerData(playerId, playerData);
     
     const basicPlayerData = {};
+    const allBasicPlayerData = {};
 
     for(const [key, value] of Object.entries(playerData)){
 
@@ -68,7 +72,15 @@ const PMatch = ({host, session, matchId, playerId, matchData, image, playerData,
                 "id": value.pid,
                 "matchId": value.playerid
             }
-            break;
+           // break;
+        }
+
+        allBasicPlayerData[value.pid] = {
+            "name": value.name,
+            "team": value.team,
+            "country": value.country,
+            "id": value.pid,
+            "matchId": value.playerid
         }
     }
 
@@ -96,6 +108,9 @@ const PMatch = ({host, session, matchId, playerId, matchData, image, playerData,
                     <MatchDominationSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
 
                     <MatchSpecialEvents data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
+                    <MatchKillsMatchUp data={killsData} matchId={matchId} players={allBasicPlayerData} teams={matchData.teams} solo={true}
+                    soloId={playerMatchId}
+                    />
                     
                     <MatchPickupsSummary data={[targetPlayerData]} teams={matchData.teams} matchId={matchId} />
 
@@ -128,7 +143,7 @@ export async function getServerSideProps({req, query}){
     const matchData = await matchManager.getData(id); 
 
     const playerManager = new Players();
-    const playerData = await playerManager.getMatchData(id);
+    const playerData = await playerManager.getMatchData(id, false);
 
     const faceManager = new Faces();
     const faces = faceManager.getRandom(matchData.players);
@@ -140,18 +155,34 @@ export async function getServerSideProps({req, query}){
     const rankingManager = new Rankings();
     const rankingData = await rankingManager.getPlayers([playerId], matchData.gid);
 
+    let playerMatchId = -1;
+
+    for(let i = 0; i < playerData.length; i++){
+
+        if(playerData[i].pid === playerId){
+
+            playerMatchId = playerData[i].playerid;
+            break;
+        }
+
+    }
+
+    const killsData = await matchManager.getPlayerKillsData(id, playerMatchId);
+
     return {
         "props": {
             "host": host,
             "session": JSON.stringify(session.settings),
             "matchId": id,
             "playerId": playerId,
+            "playerMatchId": playerMatchId,
             "matchData": JSON.stringify(matchData),
             "image": "/images/maps/default.jpg",
             "playerData": JSON.stringify(playerData),
             "faces": JSON.stringify(faces),
             "weaponData": JSON.stringify(weaponData),
-            "rankingData": JSON.stringify(rankingData)
+            "rankingData": JSON.stringify(rankingData),
+            "killsData": JSON.stringify(killsData)
             
         }
     }
