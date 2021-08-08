@@ -52,7 +52,7 @@ const Nav = () =>{
             {createLink("/classic/servers", "Servers", cleanPath, ["servers"], true)}
             {createLink("/classic/players", "Players", cleanPath, ["players","player"], true)}
             {createLink("/classic/maps", "Maps", cleanPath, ["map","maps"], true)}
-            {createLink("/classic/totals", "Totals", cleanPath, ["totals"], true)}
+            {createLink("/classic/records", "Records", cleanPath, ["records"], true)}
 
         </nav>         
 </header>

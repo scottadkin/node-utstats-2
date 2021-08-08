@@ -53,7 +53,7 @@ const PMatch = ({host, session, matchId, playerId, playerMatchId, matchData, ima
     const ogImage = Functions.createMapOGLink(image);
 
     const map = Functions.removeUnr(matchData.mapfile);
-    const dateString = Functions.convertTimestamp(Functions.utDate(matchData.time), true, true);
+    const dateString = Functions.convertTimestamp(Functions.utDate(matchData.time), true);
 
     const playerName = getPlayerName(playerId, playerData);
     const targetPlayerData = getTargetPlayerData(playerId, playerData);
