@@ -4,6 +4,7 @@ import Footer from '../../../components/Footer';
 import Session from '../../../api/session';
 import Records from '../../../api/classic/records';
 import Functions from '../../../api/functions';
+import CountryFlag from '../../../components/CountryFlag';
 
 const RecordMatch = ({host, session, data}) =>{
 
@@ -31,7 +32,8 @@ const RecordMatch = ({host, session, data}) =>{
 
             rows.push(<tr key={x}>
                 <td>{x + 1}{Functions.getOrdinal(x + 1)}</td>
-                <td>{d.data[x].pid}</td>
+                <td className="text-left"><CountryFlag country={d.data[x].country}/>{d.data[x].name}</td>
+                <td>{Functions.MMSS(d.data[x].gametime)}</td>
                 <td>{d.data[x].value}</td>
             </tr>);
 
@@ -45,6 +47,7 @@ const RecordMatch = ({host, session, data}) =>{
                         <tr>
                             <th>Place</th>
                             <th>Player</th>
+                            <th>Playtime</th>         
                             <th>{currentType}</th>
                         </tr>
                         {rows}
@@ -88,8 +91,6 @@ export async function getServerSideProps({req, query}) {
     const recordsManager = new Records();
 
     const data = await recordsManager.getDefault();
-
-    console.log(data);
 
     return {
         "props": {

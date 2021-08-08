@@ -44,17 +44,55 @@ class Records{
         return false;
     }
 
+    async setPlayerNames(data){
+
+        const playerIds = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            if(playerIds.indexOf(data[i].pid) === -1){
+                playerIds.push(data[i].pid);
+            }
+        }
+
+        console.log(playerIds);
+
+        const names = await this.players.getNames(playerIds);
+
+        console.log(names);
+
+        let d = 0;
+
+        let currentName = "";
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            currentName = names[d.pid]
+
+            if(currentName !== undefined){
+                d.name = currentName;
+            }else{
+                d.name = "Not Found";
+            }
+        }
+        return data;
+    }
+
     async getType(name, page, perPage){
 
         if(this.bValidType(name)){
 
             const typeValues = this.validTypes[name];
 
-            const query = `SELECT matchid,pid,team,country,${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT ?, ?`;
+            const query = `SELECT matchid,pid,team,country,gametime,${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT ?, ?`;
 
-            const result = await mysql.simpleQuery(query, [page, perPage]);
+            let result = await mysql.simpleQuery(query, [page, perPage]);
 
-            return {"name": typeValues.display, "data": result}
+            result = await this.setPlayerNames(result);
+
+            return {"name": typeValues.display, "data": result};
 
         }
 

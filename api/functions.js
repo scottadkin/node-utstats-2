@@ -227,6 +227,7 @@ class Functions{
 
         let seconds = Math.floor(timestamp % 60);
         let minutes = Math.floor(timestamp / 60);
+        let hours = Math.floor(minutes / 60);
 
         if(seconds < 0) seconds = 0;
         if(minutes < 0) minutes = 0;
@@ -239,7 +240,11 @@ class Functions{
             minutes = `0${minutes}`;
         }
 
-        return `${minutes}:${seconds}`;
+        if(hours < 1){
+            return `${minutes}:${seconds}`;
+        }else{
+            return `${hours}:${minutes % 60}:${seconds}`;
+        }
     }
 
 
