@@ -7,12 +7,15 @@ import Functions from '../../../api/functions';
 import CountryFlag from '../../../components/CountryFlag';
 import styles from '../../../styles/Records.module.css';
 import Link from 'next/link';
+import Pagination from '../../../components/Pagination';
 
-const RecordsPage = ({host, session, data}) =>{
+const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
 
     data = JSON.parse(data);
 
     const tables = [];
+
+    console.log(data.length);
 
     for(let i = 0; i < data.length; i++){
 
@@ -33,8 +36,10 @@ const RecordsPage = ({host, session, data}) =>{
                 currentValue = Functions.timeString(currentValue);
             }
 
+            const place = x + 1 + (perPage * (page - 1));
+
             rows.push(<tr key={x}>
-                <td className="yellow">{x + 1}{Functions.getOrdinal(x + 1)}</td>
+                <td className="yellow">{place}{Functions.getOrdinal(place)}</td>
                 <td className="text-left"><CountryFlag country={d.data[x].country}/>{d.data[x].name}</td>
                 <td>{Functions.timeString(d.data[x].gametime)}</td>
                 <td>{currentValue}</td>
@@ -56,11 +61,17 @@ const RecordsPage = ({host, session, data}) =>{
                     </div>
                 </a>
             </Link>
+        }else{
+
+            showAllElem = <Pagination currentPage={page} perPage={perPage} pages={pages} results={d.totalResults} url={`/classic/records/${d.id}?page=`}/>
         }
+
+        const titleElem = (data.length === 1) ? null : <div className="default-sub-header">{currentType} Records</div>;
 
         tables.push(
             <div className="m-bottom-25">
-                <div className="default-sub-header">{currentType} Records</div>
+                {titleElem}
+                {(data.length === 1) ? showAllElem : null}
                 <table key={i} className={`t-width-1 ${styles.table} m-bottom-25`}>
                     <tbody>
                         <tr>
@@ -88,7 +99,7 @@ const RecordsPage = ({host, session, data}) =>{
             <div id="content">
 
                 <div className="default">
-                    <div className="default-header">Records</div>
+                    <div className="default-header">{(data.length !== 1) ? "Records" : `${data[0].name} Records`}</div>
                     {tables}
                 </div>
             </div>
@@ -102,22 +113,51 @@ const RecordsPage = ({host, session, data}) =>{
 
 export async function getServerSideProps({req, query}) {
 
-    let id = (query.id !== undefined) ? query.id : 0;
+    let id = (query.id !== undefined) ? parseInt(query.id) : 0;
+    let page = (query.page !== undefined) ? parseInt(query.page) : 1;
+    let perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 25;
 
-    if(id !== id) id = 0;
+    if(id !== id) id = -1;
+    if(page !== page) page = 1;
+
+    if(perPage !== perPage){
+        perPage = 25;
+    }else{
+        if(perPage < 5 || perPage > 100){
+            perPage = 25;
+        }
+    }
 
     const session = new Session(req);
     await session.load();
 
     const recordsManager = new Records();
 
-    const data = await recordsManager.getDefault();
+    let data = [];
+
+    let pages = 0;
+
+    if(id === -1){
+        data = await recordsManager.getDefault();
+    }else{
+        data = await recordsManager.getTypeById(id, page, 25);
+
+        if(data[0].totalResults > 0){
+            pages = Math.ceil(data[0].totalResults / perPage);
+        }
+
+        console.log(`pages = ${pages}`);
+    }
+
 
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
-            "data": JSON.stringify(data)
+            "data": JSON.stringify(data),
+            "page": page,
+            "perPage": perPage,
+            "pages": pages
         }
     };
 }

@@ -139,7 +139,22 @@ class Records{
 
         }
 
-        return [];
+        return {};
+    }
+
+
+    async getTypeById(id, page, perPage){
+
+        for(const [key, value] of Object.entries(this.validTypes)){
+
+            if(value.id === id){
+
+                return [await this.getType(key, page, perPage)];
+            }
+        }
+
+
+        return {};
     }
 }
 

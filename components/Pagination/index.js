@@ -88,7 +88,7 @@ const Pagination = ({currentPage, results, pages, perPage, url, anchor}) =>{
             Showing Page {currentPage} of {pages}
         </div>
         <div className={styles.result}>
-            Showing results {(currentPage === 1) ? 1 : (currentPage - 1) * perPage} to {(currentPage !== pages ) ? currentPage * perPage : results} out of a possible {results}
+            Showing results {(currentPage === 1) ? 1 : 1 + ((currentPage - 1) * perPage)} to {(currentPage !== pages ) ? currentPage * perPage : results} out of a possible {results}
         </div>
         {elems}
     </div>);
