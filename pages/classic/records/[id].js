@@ -15,8 +15,6 @@ const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
 
     const tables = [];
 
-    console.log(data.length);
-
     for(let i = 0; i < data.length; i++){
 
         const d = data[i];
@@ -39,13 +37,41 @@ const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
             const place = x + 1 + (perPage * (page - 1));
 
             rows.push(<tr key={x}>
-                <td className="yellow">{place}{Functions.getOrdinal(place)}</td>
-                <td className="text-left"><CountryFlag country={d.data[x].country}/>{d.data[x].name}</td>
-                <td>{Functions.timeString(d.data[x].gametime)}</td>
-                <td>{currentValue}</td>
-                <td className={(offset === 0) ? "team-green" : "team-red"}>{(offset === 0) ? null : `-${
-                    (d.name === "Playtime") ? Functions.timeString(d.record - d.data[x].value) : offset
-                }`}</td>
+                <td className="yellow">
+                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                        <a>
+                            {place}{Functions.getOrdinal(place)}
+                        </a>
+                    </Link>
+                </td>
+                <td className="text-left">
+                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                        <a>
+                            <CountryFlag country={d.data[x].country}/>{d.data[x].name}
+                        </a>
+                    </Link>
+                </td>
+                <td>
+                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                        <a>
+                            {Functions.timeString(d.data[x].gametime)}
+                        </a>
+                    </Link>
+                </td>
+                <td>
+                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                        <a>
+                            {currentValue}
+                        </a>
+                    </Link>
+                </td>
+                <td className={(offset === 0) ? "team-green" : "team-red"}>
+                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                        <a>{(offset === 0) ? null : `-${
+                            (d.name === "Playtime") ? Functions.timeString(d.record - d.data[x].value) : offset}`}
+                        </a>
+                    </Link>
+                </td>
             </tr>);
 
         }
@@ -89,11 +115,28 @@ const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
         );
     }
 
+    const title = `${(data.length === 1) ? `View Player ${data[0].name} Records - Page ${page} of ${pages}` : `View Player Records`}`;
+
+    let description = "";
+    let keywords = "";
+
+    if(data.length === 1){
+
+        const start = perPage * (page - 1);
+        const end = start + perPage;
+   
+        description = `View player ${data[0].name} records - Page ${page} of ${pages}, results ${start + 1} to ${end} out of a possible ${data[0].totalResults}.`;
+        keywords = `${data[0].name}`;
+    }else{
+
+        description = `View various player record categories.`;
+    }
+
     
     return <div>
-        <Head host={host} title={`records`} 
-        description={`records.`} 
-        keywords={`record,classic,records`}/>
+        <Head host={host} title={title} 
+        description={description} 
+        keywords={`record,records,player,${keywords}`}/>
         <main>
             <Nav />
             <div id="content">
@@ -145,8 +188,6 @@ export async function getServerSideProps({req, query}) {
         if(data[0].totalResults > 0){
             pages = Math.ceil(data[0].totalResults / perPage);
         }
-
-        console.log(`pages = ${pages}`);
     }
 
 
