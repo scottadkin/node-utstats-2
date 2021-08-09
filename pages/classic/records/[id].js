@@ -9,7 +9,7 @@ import styles from '../../../styles/Records.module.css';
 import Link from 'next/link';
 import Pagination from '../../../components/Pagination';
 
-const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
+const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
 
     data = JSON.parse(data);
 
@@ -80,7 +80,7 @@ const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
 
         if(data.length > 1){
 
-            showAllElem = <Link href={`/classic/records/${d.id}`}>
+            showAllElem = <Link href={`/classic/records/${d.id}?mode=${mode}`}>
                 <a>
                     <div className={`${styles.viewall} center`}>
                         <img className={styles.icon} src="/images/up.png" alt="image"/>View all {d.totalResults} Results<img src="/images/down.png" className={`${styles.icon} ${styles.mleft5}`} alt="image"/>
@@ -89,7 +89,7 @@ const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
             </Link>
         }else{
 
-            showAllElem = <Pagination currentPage={page} perPage={perPage} pages={pages} results={d.totalResults} url={`/classic/records/${d.id}?page=`}/>
+            showAllElem = <Pagination currentPage={page} perPage={perPage} pages={pages} results={d.totalResults} url={`/classic/records/${d.id}?mode=${mode}&page=`}/>
         }
 
         const titleElem = (data.length === 1) ? null : <div className="default-sub-header">{currentType} Records</div>;
@@ -115,7 +115,7 @@ const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
         );
     }
 
-    const title = `${(data.length === 1) ? `View Player ${data[0].name} Records - Page ${page} of ${pages}` : `View Player Records`}`;
+    const title = `${(data.length === 1) ? `View Player Match ${data[0].name} Records - Page ${page} of ${pages}` : `View Player Records`}`;
 
     let description = "";
     let keywords = "";
@@ -125,7 +125,7 @@ const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
         const start = perPage * (page - 1);
         const end = start + perPage;
    
-        description = `View player ${data[0].name} records - Page ${page} of ${pages}, results ${start + 1} to ${end} out of a possible ${data[0].totalResults}.`;
+        description = `View player match ${data[0].name} records - Page ${page} of ${pages}, results ${start + 1} to ${end} out of a possible ${data[0].totalResults}.`;
         keywords = `${data[0].name}`;
     }else{
 
@@ -136,13 +136,33 @@ const RecordsPage = ({host, session, data, page, perPage, pages}) =>{
     return <div>
         <Head host={host} title={title} 
         description={description} 
-        keywords={`record,records,player,${keywords}`}/>
+        keywords={`record,records,player,match,${keywords}`}/>
         <main>
             <Nav />
             <div id="content">
 
                 <div className="default">
-                    <div className="default-header">{(data.length !== 1) ? "Records" : `${data[0].name} Records`}</div>
+                    <div className="default-header">{(data.length !== 1) ? "Player Match Records" : `Player Match ${data[0].name} Records`}</div>
+
+                        <div className="big-tabs">
+                            <Link href={`/classic/records/all?mode=0`}>
+                                <a>
+                                    <div style={{"width": "30%", "max-width":"150px"}}className={`big-tab ${(mode === 0) ? "tab-selected" : null}`}>
+                                        Match
+                                    </div>
+                                </a>
+                            </Link>
+                            <Link href={`/classic/records/all?mode=1`}>
+                                <a>
+                                    <div style={{"width": "30%", "max-width":"150px"}}className={`big-tab ${(mode === 1) ? "tab-selected" : null}`}>
+                                        Totals
+                                    </div>
+                                </a>
+                            </Link>
+                        
+                            
+                    </div>
+
                     {tables}
                 </div>
             </div>
@@ -159,6 +179,7 @@ export async function getServerSideProps({req, query}) {
     let id = (query.id !== undefined) ? parseInt(query.id) : 0;
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     let perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 25;
+    let mode = (query.mode !== undefined) ? parseInt(query.mode) : 0;
 
     if(id !== id) id = -1;
     if(page !== page) page = 1;
@@ -171,6 +192,10 @@ export async function getServerSideProps({req, query}) {
         }
     }
 
+    if(mode !== mode) mode = 0;
+
+    if(mode !== 0 && mode !== 1) mode = 0;
+
     const session = new Session(req);
     await session.load();
 
@@ -181,15 +206,16 @@ export async function getServerSideProps({req, query}) {
     let pages = 0;
 
     if(id === -1){
-        data = await recordsManager.getDefault();
+        data = await recordsManager.getDefault(mode);
     }else{
-        data = await recordsManager.getTypeById(id, page, 25);
+        data = await recordsManager.getTypeById(id, page, 25, mode);
 
         if(data[0].totalResults > 0){
             pages = Math.ceil(data[0].totalResults / perPage);
         }
     }
 
+    
 
     return {
         "props": {
@@ -198,7 +224,8 @@ export async function getServerSideProps({req, query}) {
             "data": JSON.stringify(data),
             "page": page,
             "perPage": perPage,
-            "pages": pages
+            "pages": pages,
+            "mode": mode
         }
     };
 }

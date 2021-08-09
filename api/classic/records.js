@@ -20,13 +20,13 @@ class Records{
         this.players = new Players();
     }
 
-    async getDefault(){
+    async getDefault(mode){
 
         const records = [];
 
         for(const [key, value] of Object.entries(this.validTypes)){
            
-            records.push(await this.getType(key, 1, 10));
+            records.push(await this.getType(key, 1, 10, mode));
           
         }
 
@@ -76,13 +76,17 @@ class Records{
         return data;
     }
 
-    async getAllTimeRecord(type){
+    async getAllTimeRecord(type, mode){
 
         if(this.bValidType(type)){
 
             const typeValues = this.validTypes[type];
 
-            const query = `SELECT ${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT 1`;
+            let query = `SELECT ${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT 1`;
+
+            if(mode === 1){
+                mode = `SELECT SUM(${typeValues.column}) as value FROM uts_player GROUP BY(pid) ORDER BY value DESC LIMIT 1`;
+            }
 
             const result = await mysql.simpleQuery(query);
 
@@ -93,9 +97,13 @@ class Records{
         return 0;
     }
 
-    async getTotalRows(){
+    async getTotalRows(mode){
 
-        const query = "SELECT COUNT(*) as total_rows FROM uts_player";
+        let query = "SELECT COUNT(*) as total_rows FROM uts_player";
+
+        if(mode === 1){
+            query = "SELECT COUNT(*) as total_rows FROM uts_pinfo";
+        }
 
         const result = await mysql.simpleQuery(query);
 
@@ -104,13 +112,17 @@ class Records{
         return 0;
     }
 
-    async getType(name, page, perPage){
+    async getType(name, page, perPage, mode){
 
         if(this.bValidType(name)){
 
             const typeValues = this.validTypes[name];
 
-            const query = `SELECT matchid,pid,team,country,gametime,${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT ?, ?`;
+            let query = `SELECT matchid,pid,team,country,gametime,${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT ?, ?`;
+
+            if(mode === 1){
+                query = `SELECT matchid,pid,team,country,SUM(gametime) as gametime,SUM(${typeValues.column}) as value FROM uts_player GROUP BY(pid) ORDER BY value DESC LIMIT ?, ?`;
+            }
 
             page--;
 
@@ -122,7 +134,7 @@ class Records{
 
             if(page !== 0){
                 
-                allTimeRecord = await this.getAllTimeRecord(name);
+                allTimeRecord = await this.getAllTimeRecord(name, mode);
 
             }else{
 
@@ -133,7 +145,7 @@ class Records{
 
             result = await this.setPlayerNames(result);
 
-            const totalResults = await this.getTotalRows();
+            const totalResults = await this.getTotalRows(mode);
 
             return {"id": typeValues.id, "name": typeValues.display, "data": result, "record": allTimeRecord, "totalResults": totalResults};
 
@@ -143,13 +155,13 @@ class Records{
     }
 
 
-    async getTypeById(id, page, perPage){
+    async getTypeById(id, page, perPage, mode){
 
         for(const [key, value] of Object.entries(this.validTypes)){
 
             if(value.id === id){
 
-                return [await this.getType(key, page, perPage)];
+                return [await this.getType(key, page, perPage, mode)];
             }
         }
 
