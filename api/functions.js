@@ -519,6 +519,44 @@ class Functions{
 
         return '\'s';
     }
+
+
+    static timeString(input){
+
+        let seconds = Math.floor(input % 60);
+        let minutes = Math.floor((input / 60) % 60);
+        let hours = Math.floor(input / (60 * 60));
+
+        const secondLabel = (seconds === 1) ? 'Second' : 'Seconds';
+        const minuteLabel = (minutes === 1) ? 'Minute': 'Minutes';
+        const hourLabel = (hours === 1) ? 'Hour' : 'Hours';
+
+        const secondString = (seconds > 0) ? `${seconds} ${secondLabel}` : null;
+        const minuteString = (minutes > 0) ? `${minutes} ${minuteLabel}` : null;
+        const hourString = (hours > 0) ? `${hours} ${hourLabel}` : null;
+
+        let string = "";
+        let parts = 0;
+
+
+        if(hourString !== null){
+            string += hourString;
+            parts++;
+        }
+
+        if(minuteString !== null){
+            if(string !== "") string += ", "
+            string += minuteString;
+            parts++;
+        }
+
+        if(secondString !== null && parts < 2){
+            if(string !== "") string += ", "
+            string += secondString;
+        }
+      
+        return string;
+    }
 }
 
 module.exports = Functions;

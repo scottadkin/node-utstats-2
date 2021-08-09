@@ -55,11 +55,7 @@ class Records{
             }
         }
 
-        console.log(playerIds);
-
         const names = await this.players.getNames(playerIds);
-
-        console.log(names);
 
         let d = 0;
 
@@ -80,6 +76,24 @@ class Records{
         return data;
     }
 
+    async getAllTimeRecord(type){
+
+        if(this.bValidType(type)){
+
+            console.log(type);
+            const typeValues = this.validTypes[type];
+
+            const query = `SELECT ${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT 1`;
+
+            const result = await mysql.simpleQuery(query);
+
+            if(result.length > 0) return result[0].value;
+
+        }
+
+        return 0;
+    }
+
     async getType(name, page, perPage){
 
         if(this.bValidType(name)){
@@ -88,11 +102,28 @@ class Records{
 
             const query = `SELECT matchid,pid,team,country,gametime,${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT ?, ?`;
 
-            let result = await mysql.simpleQuery(query, [page, perPage]);
+            page--;
+
+            let allTimeRecord = 0;
+
+            const start = page * perPage;
+
+            let result = await mysql.simpleQuery(query, [start, perPage]);
+
+            if(page !== 0){
+                
+                allTimeRecord = await this.getAllTimeRecord(name);
+
+            }else{
+
+                if(result.length > 0){
+                    allTimeRecord = result[0].value;
+                }
+            }
 
             result = await this.setPlayerNames(result);
 
-            return {"name": typeValues.display, "data": result};
+            return {"name": typeValues.display, "data": result, "record": allTimeRecord};
 
         }
 
