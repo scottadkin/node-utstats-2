@@ -115,7 +115,7 @@ const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
         );
     }
 
-    const title = `${(data.length === 1) ? `View Player Match ${data[0].name} Records - Page ${page} of ${pages}` : `View Player Records`}`;
+    const title = `${(data.length === 1) ? `View Player ${(mode === 0) ? "Match" : "Total"} ${data[0].name} Records - Page ${page} of ${pages}` : `View Player ${(mode === 0) ? "Match" : "Total"} Records`}`;
 
     let description = "";
     let keywords = "";
@@ -125,11 +125,11 @@ const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
         const start = perPage * (page - 1);
         const end = start + perPage;
    
-        description = `View player match ${data[0].name} records - Page ${page} of ${pages}, results ${start + 1} to ${end} out of a possible ${data[0].totalResults}.`;
+        description = `View player ${(mode === 0) ? "match" : "total"} ${data[0].name} records - Page ${page} of ${pages}, results ${start + 1} to ${end} out of a possible ${data[0].totalResults}.`;
         keywords = `${data[0].name}`;
     }else{
 
-        description = `View various player record categories.`;
+        description = `View various player ${(mode === 0) ? "match" : "total"} record categories.`;
     }
 
     
@@ -142,7 +142,7 @@ const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
             <div id="content">
 
                 <div className="default">
-                    <div className="default-header">{(data.length !== 1) ? "Player Match Records" : `Player Match ${data[0].name} Records`}</div>
+                    <div className="default-header">{(data.length !== 1) ? `Player ${(mode === 0) ? "Match" : "Totals"} Records` : `Player ${(mode === 0) ? "Match" : "Totals"} ${data[0].name} Records`}</div>
 
                         <div className="big-tabs">
                             <Link href={`/classic/records/all?mode=0`}>
@@ -158,10 +158,8 @@ const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
                                         Totals
                                     </div>
                                 </a>
-                            </Link>
-                        
-                            
-                    </div>
+                            </Link>                 
+                        </div>
 
                     {tables}
                 </div>
