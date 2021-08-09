@@ -6,15 +6,15 @@ class Records{
     constructor(){
 
         this.validTypes = {
-            "score": {"column": "gamescore", "display": "Score"},
-            "frags": {"column": "frags", "display": "Frags"},
-            "kills": {"column": "kills", "display": "Kills"},
-            "deaths": {"column": "deaths", "display": "Deaths"},
-            "suicides": {"column": "suicides", "display": "Suicides"},
-            "teamkills": {"column": "teamkills", "display": "Team Kills"},
-            "monsters": {"column": "spree_monster", "display": "Monster Kills"},
-            "godlikes": {"column": "spree_god", "display": "Godlikes"},
-            "playtime": {"column": "gametime", "display": "Playtime"}
+            "score": {"id": 0, "column": "gamescore", "display": "Score"},
+            "frags": {"id": 1, "column": "frags", "display": "Frags"},
+            "kills": {"id": 2, "column": "kills", "display": "Kills"},
+            "deaths": {"id": 3, "column": "deaths", "display": "Deaths"},
+            "suicides": {"id": 4, "column": "suicides", "display": "Suicides"},
+            "teamkills": {"id": 5, "column": "teamkills", "display": "Team Kills"},
+            "monsters": {"id": 6, "column": "spree_monster", "display": "Monster Kills"},
+            "godlikes": {"id": 7, "column": "spree_god", "display": "Godlikes"},
+            "playtime": {"id": 8, "column": "gametime", "display": "Playtime"}
         };
 
         this.players = new Players();
@@ -80,7 +80,6 @@ class Records{
 
         if(this.bValidType(type)){
 
-            console.log(type);
             const typeValues = this.validTypes[type];
 
             const query = `SELECT ${typeValues.column} as value FROM uts_player ORDER BY value DESC LIMIT 1`;
@@ -90,6 +89,17 @@ class Records{
             if(result.length > 0) return result[0].value;
 
         }
+
+        return 0;
+    }
+
+    async getTotalRows(){
+
+        const query = "SELECT COUNT(*) as total_rows FROM uts_player";
+
+        const result = await mysql.simpleQuery(query);
+
+        if(result.length > 0) return result[0].total_rows;
 
         return 0;
     }
@@ -123,7 +133,9 @@ class Records{
 
             result = await this.setPlayerNames(result);
 
-            return {"name": typeValues.display, "data": result, "record": allTimeRecord};
+            const totalResults = await this.getTotalRows();
+
+            return {"id": typeValues.id, "name": typeValues.display, "data": result, "record": allTimeRecord, "totalResults": totalResults};
 
         }
 

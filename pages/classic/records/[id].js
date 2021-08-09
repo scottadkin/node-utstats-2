@@ -6,37 +6,28 @@ import Records from '../../../api/classic/records';
 import Functions from '../../../api/functions';
 import CountryFlag from '../../../components/CountryFlag';
 import styles from '../../../styles/Records.module.css';
+import Link from 'next/link';
 
 const RecordsPage = ({host, session, data}) =>{
 
     data = JSON.parse(data);
 
     const tables = [];
-    let rows = [];
-
-    
-    let d = 0;
-    let currentType = "";
-
-    let offset = 0;
-    let currentValue = 0;
 
     for(let i = 0; i < data.length; i++){
 
-        d = data[i];
-        
-        //console.log(value);
-        rows = [];
+        const d = data[i];
 
-        currentType = d.name;
+        let rows = [];
+
+        const currentType = d.name;
 
         for(let x = 0; x < d.data.length; x++){
  
-            offset = d.record - d.data[x].value;
+            const offset = d.record - d.data[x].value;
 
-            currentValue = d.data[x].value;
+            let currentValue = d.data[x].value;
 
-            console.log(d.name);
             if(d.name === "Playtime"){
 
                 currentValue = Functions.timeString(currentValue);
@@ -54,10 +45,23 @@ const RecordsPage = ({host, session, data}) =>{
 
         }
 
+        let showAllElem = null;
+
+        if(data.length > 1){
+
+            showAllElem = <Link href={`/classic/records/${d.id}`}>
+                <a>
+                    <div className={`${styles.viewall} center`}>
+                        <img className={styles.icon} src="/images/up.png" alt="image"/>View all {d.totalResults} Results<img src="/images/down.png" className={`${styles.icon} ${styles.mleft5}`} alt="image"/>
+                    </div>
+                </a>
+            </Link>
+        }
+
         tables.push(
             <div className="m-bottom-25">
                 <div className="default-sub-header">{currentType} Records</div>
-                <table key={i} className={`t-width-1 ${styles.table}`}>
+                <table key={i} className={`t-width-1 ${styles.table} m-bottom-25`}>
                     <tbody>
                         <tr>
                             <th>Place</th>
@@ -69,6 +73,7 @@ const RecordsPage = ({host, session, data}) =>{
                         {rows}
                     </tbody>
                 </table>
+                {showAllElem}
             </div>
         );
     }
