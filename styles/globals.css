@@ -516,7 +516,7 @@ input[type="range"]{
 	color:green;
 }
 
-.tabs, .big-tabs{
+.tabs, .big-tabs, .view-profile{
 	text-align:center;
 	margin-bottom:10px;
 	max-width:var(--max-width-1);
@@ -525,6 +525,9 @@ input[type="range"]{
 	border:1px solid var(--border-color-1);
 	background-color:var(--color-3);
 	width:90%;
+}
+.view-profile{
+	padding:5px;
 }
 
 .tab{

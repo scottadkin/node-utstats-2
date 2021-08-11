@@ -19,6 +19,8 @@ import MatchRankingSummary from '../../../components/classic/MatchRankingSummary
 import MatchAssaultSummary from '../../../components/classic/MatchAssaultSummary';
 import MatchDominationSummary from '../../../components/classic/MatchDominationSummary';
 import MatchKillsMatchUp from '../../../components/classic/MatchKillsMatchUp';
+import Link from 'next/link';
+import CountryFlag from '../../../components/CountryFlag'; 
 
 
 function getPlayerName(id, players){
@@ -97,6 +99,21 @@ const PMatch = ({host, session, matchId, playerId, playerMatchId, matchData, ima
 
                 <div className="default">
                     <div className="default-header">{playerName}{Functions.apostrophe(playerName)} Match Report</div>
+
+                    <Link href={`/classic/player/${playerId}`}>
+                        <a>
+                            <div className="view-profile">
+                                Click to view <CountryFlag country={basicPlayerData[playerId].country}/><span className="yellow">{playerName}{Functions.apostrophe(playerName)}</span> Career profile.
+                            </div>
+                        </a>
+                    </Link>
+                    <Link href={`/classic/match/${matchId}`}>
+                        <a>
+                            <div className="view-profile">
+                                Click to view full match report.
+                            </div>
+                        </a>
+                    </Link>
                     <MatchSummary data={matchData}/>
                     <Screenshot map={matchData.mapfile} totalTeams={matchData.teams} players={JSON.stringify(playerData)} image={image} bClassic={true}
                         serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={faces} 
