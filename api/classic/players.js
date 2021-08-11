@@ -87,6 +87,28 @@ class Players{
 
     }
 
+    //temp fix to order names correctly in player lists like mysql does
+    orderElementsByName(correctOrder, currentData){
+
+        const data = [];
+
+        const currentDataObj = {};
+
+        for(let i = 0; i < currentData.length; i++){
+
+            currentDataObj[currentData[i].pid] = currentData[i];
+        }
+
+        for(let i = 0; i < correctOrder.length; i++){
+
+            const index = correctOrder[i];
+
+            data.push(currentDataObj[index]);
+        }
+
+        return data;
+
+    }
 
     async getDefaultPlayers(page, perPage){
 
@@ -96,6 +118,8 @@ class Players{
         const start = page * perPage;
 
         const result = await mysql.simpleQuery(query, [start, perPage]);
+
+        console.table(result);
 
         if(result.length === 0) return [];
 
@@ -109,6 +133,7 @@ class Players{
 
             names[result[i].id] = {"name": result[i].name, "country": result[i].country};
         }
+
         
         const statsQuery = `SELECT COUNT(*) as total_matches,pid,SUM(gamescore) as gamescore,
         SUM(frags) as frags, SUM(kills) as kills, SUM(deaths) as deaths,
@@ -122,17 +147,23 @@ class Players{
             stats[i].country = names[stats[i].pid].country;
         }
 
-        stats.sort((a, b) =>{
+        
+        return this.orderElementsByName(playerIds, stats);
+       
+    }
 
-            a = a.name.toLowerCase();
-            b = b.name.toLowerCase();
 
-            if(a > b) return 1;
-            if(a < b) return -1;
-            return 0;
-        });
+    async getTotalPlayers(){
 
-        return stats;
+        const query = "SELECT COUNT(*) as players FROM uts_pinfo";
+
+        const result = await mysql.simpleQuery(query);
+
+        if(result.length > 0){
+            return result[0].players;
+        }
+
+        return 0;
     }
 
 }

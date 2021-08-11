@@ -5,14 +5,17 @@ import Session from '../../api/session';
 import Players from '../../api/classic/players';
 import CountryFlag from '../../components/CountryFlag';
 import Link from 'next/link';
+import Pagination from '../../components/Pagination';
 
-const PlayersPage = ({host, session, data}) =>{
+const PlayersPage = ({host, session, data, totalPlayers, perPage, pages, page}) =>{
 
     data = JSON.parse(data);
 
     const rows = [];
 
     let d = 0;
+
+    console.log(`page = ${page}`);
 
     for(let i = 0; i < data.length; i++){
 
@@ -40,7 +43,8 @@ const PlayersPage = ({host, session, data}) =>{
 
                 <div className="default">
                     <div className="default-header">Players</div>
-                    <table className="t-width-1 td-1-left tf-1-150">
+                    <Pagination currentPage={page} results={totalPlayers} perPage={perPage} pages={pages} url={`/classic/players/?page=`}/>
+                    <table className="t-width-1 td-1-left tf-1-150 m-bottom-25">
                         <tbody>
                             <tr>
                                 <th>Player</th>
@@ -55,6 +59,7 @@ const PlayersPage = ({host, session, data}) =>{
                             {rows}
                         </tbody>
                     </table>
+                    <Pagination currentPage={page} results={totalPlayers} perPage={perPage} pages={pages} url={`/classic/players/?page=`}/>
                 </div>
             </div>
             
@@ -73,17 +78,38 @@ export async function getServerSideProps({req, query}) {
 
     const defaultPerPage = 25;
 
+    let perPage = 25;
+    let page = 1;
+
+    if(query.page !== undefined){
+        page = query.page;
+    }
+
+    if(page !== page) page = 1;
 
     const playerManager = new Players();
 
-    const data = await playerManager.getDefaultPlayers(1,25);
+    const data = await playerManager.getDefaultPlayers(page, perPage);
+
+    const totalPlayers = await playerManager.getTotalPlayers();
     
+    let pages = 1;
+
+    if(totalPlayers > 0 && perPage > 0){
+
+        pages = Math.ceil(totalPlayers / perPage);
+    }
+
 
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
-            "data": JSON.stringify(data)
+            "data": JSON.stringify(data),
+            "totalPlayers": totalPlayers,
+            "perPage": perPage,
+            "pages": pages,
+            "page": page
         }
     };
 }
