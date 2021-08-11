@@ -128,9 +128,11 @@ class Players{
 
     }
 
-    async getDefaultPlayers(page, perPage){
+    async getDefaultPlayers(page, perPage, desc){
 
-        const query = "SELECT id,name,country FROM uts_pinfo ORDER by name ASC LIMIT ?, ?";
+        const order = (desc) ? "DESC" : "ASC";
+
+        const query = `SELECT id,name,country FROM uts_pinfo ORDER by name ${order} LIMIT ?, ?`;
         page--;
 
         const start = page * perPage;
