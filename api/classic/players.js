@@ -87,6 +87,54 @@ class Players{
 
     }
 
+
+    async getDefaultPlayers(page, perPage){
+
+        const query = "SELECT id,name,country FROM uts_pinfo ORDER by name ASC LIMIT ?, ?";
+        page--;
+
+        const start = page * perPage;
+
+        const result = await mysql.simpleQuery(query, [start, perPage]);
+
+        if(result.length === 0) return [];
+
+        const names = {};
+
+        const playerIds = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            playerIds.push(result[i].id);
+
+            names[result[i].id] = {"name": result[i].name, "country": result[i].country};
+        }
+        
+        const statsQuery = `SELECT COUNT(*) as total_matches,pid,SUM(gamescore) as gamescore,
+        SUM(frags) as frags, SUM(kills) as kills, SUM(deaths) as deaths,
+        eff,SUM(gametime) as gametime FROM uts_player WHERE pid IN(?) GROUP BY(pid)`;
+
+        const stats = await mysql.simpleQuery(statsQuery, [playerIds]);
+
+        for(let i = 0; i < stats.length; i++){
+
+            stats[i].name = names[stats[i].pid].name;
+            stats[i].country = names[stats[i].pid].country;
+        }
+
+        stats.sort((a, b) =>{
+
+            a = a.name.toLowerCase();
+            b = b.name.toLowerCase();
+
+            if(a > b) return 1;
+            if(a < b) return -1;
+            return 0;
+        });
+
+        return stats;
+    }
+
 }
 
 

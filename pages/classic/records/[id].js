@@ -147,14 +147,14 @@ const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
                         <div className="big-tabs">
                             <Link href={`/classic/records/all?mode=0`}>
                                 <a>
-                                    <div style={{"width": "30%", "max-width":"150px"}}className={`big-tab ${(mode === 0) ? "tab-selected" : null}`}>
+                                    <div style={{"width": "30%", "maxWidth":"150px"}}className={`big-tab ${(mode === 0) ? "tab-selected" : null}`}>
                                         Match
                                     </div>
                                 </a>
                             </Link>
                             <Link href={`/classic/records/all?mode=1`}>
                                 <a>
-                                    <div style={{"width": "30%", "max-width":"150px"}}className={`big-tab ${(mode === 1) ? "tab-selected" : null}`}>
+                                    <div style={{"width": "30%", "maxWidth":"150px"}}className={`big-tab ${(mode === 1) ? "tab-selected" : null}`}>
                                         Totals
                                     </div>
                                 </a>
@@ -176,17 +176,17 @@ export async function getServerSideProps({req, query}) {
 
     let id = (query.id !== undefined) ? parseInt(query.id) : 0;
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
-    let perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 25;
+    let perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 50;
     let mode = (query.mode !== undefined) ? parseInt(query.mode) : 0;
 
     if(id !== id) id = -1;
     if(page !== page) page = 1;
 
     if(perPage !== perPage){
-        perPage = 25;
+        perPage = 50;
     }else{
         if(perPage < 5 || perPage > 100){
-            perPage = 25;
+            perPage = 50;
         }
     }
 
@@ -206,7 +206,7 @@ export async function getServerSideProps({req, query}) {
     if(id === -1){
         data = await recordsManager.getDefault(mode);
     }else{
-        data = await recordsManager.getTypeById(id, page, 25, mode);
+        data = await recordsManager.getTypeById(id, page, perPage, mode);
 
         if(data[0].totalResults > 0){
             pages = Math.ceil(data[0].totalResults / perPage);
