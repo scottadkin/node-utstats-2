@@ -14,7 +14,6 @@ class PlayersPage extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"mode": this.props.mode, "order": this.props.order};
 
     }
 
@@ -30,6 +29,39 @@ class PlayersPage extends React.Component{
 
         return "a";
     
+    }
+
+    getCleanModeName(){
+
+        const mode = this.props.mode.toLowerCase();
+
+        if(mode === "player"){
+            return "Name";
+        }else if(mode === "hours"){
+            return "Total Playtime";
+        }else if(mode === "matches"){
+            return "Total Matches";
+        }else if(mode === "score"){
+            return "Total Score";
+        }else if(mode === "frags"){
+            return "Total Frags";
+        }else if(mode === "deaths"){
+            return "Total Deaths";
+        }else if(mode === "kills"){
+            return "Total Kills";
+        }else if(mode === "eff"){
+            return "Efficiency";
+        }
+
+        return "Not Found";
+    }
+
+    getOrderedBy(){
+
+        const order = this.props.order.toLowerCase();
+
+        if(order === "a") return "Ascending";
+        return "Descending";
     }
 
     render(){
@@ -66,11 +98,26 @@ class PlayersPage extends React.Component{
         }
 
         const url = `/classic/players/?mode=${mode}&order=${order}&page=`;
+
+        const orderedBy = this.getOrderedBy();
+        const cleanModeName = this.getCleanModeName();
+
+
+        let tableClassName = `t-width-1 td-1-left td-1-150 m-bottom-25`;
+
+        if(rows.length === 0){
+
+            tableClassName = `t-width-1 text-center td-1-150 m-bottom-25`;
+
+            rows.push(<tr key={1}>
+                <td colSpan={8}>No data found.</td>
+            </tr>);
+        }
         
         return <div>
-            <Head host={host} title={`players`} 
-            description={`players`} 
-            keywords={`players,classic,match`}/>
+            <Head host={host} title={`Players sorted by ${cleanModeName} (${orderedBy} order)`} 
+            description={`View a list of all players sorted by ${cleanModeName} (${orderedBy} order), see how you compare against the ${totalPlayers} saved players in the database.`} 
+            keywords={`players,classic,match,list,${orderedBy},${cleanModeName}`}/>
             <main>
                 <Nav />
                 <div id="content">
@@ -78,7 +125,10 @@ class PlayersPage extends React.Component{
                     <div className="default">
                         <div className="default-header">Players</div>
                         <Pagination currentPage={page} results={totalPlayers} perPage={perPage} pages={pages} url={url}/>
-                        <table className="t-width-1 td-1-left td-1-150 m-bottom-25">
+                        <div className="default-sub-header">
+                            Players sorted by <span className="yellow">{cleanModeName}</span> {orderedBy} order
+                        </div>
+                        <table className={tableClassName}>
                             <tbody>
                                 <tr>
                                     <th><Link href={`/classic/players/?mode=player&order=${this.getOrder("player")}`}><a>Player</a></Link></th>
@@ -132,17 +182,29 @@ export async function getServerSideProps({req, query}) {
         order = query.order.toLowerCase();
     }
 
+
+
     const playerManager = new Players();
 
     let data = [];
 
-    if(mode === "player"){
-        data = await playerManager.getDefaultPlayers(page, perPage);
-    }else{
-        data = await playerManager.getPlayersInOrderOf(mode, order, page, perPage);
+    const validTypes = ["total_matches","gamescore","frags","kills","deaths","eff","gametime","player"];
+
+    let totalPlayers = 0;
+
+    if(validTypes.indexOf(mode) !== -1){
+     
+
+        if(mode === "player"){
+            data = await playerManager.getDefaultPlayers(page, perPage, (order === "a") ? false : true);
+        }else{
+            data = await playerManager.getPlayersInOrderOf(mode, order, page, perPage);
+        }
+
+        totalPlayers = await playerManager.getTotalPlayers();
     }
 
-    const totalPlayers = await playerManager.getTotalPlayers();
+    
     
     let pages = 1;
 
@@ -150,6 +212,8 @@ export async function getServerSideProps({req, query}) {
 
         pages = Math.ceil(totalPlayers / perPage);
     }
+
+
 
     
 
