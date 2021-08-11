@@ -51,6 +51,24 @@ class Players{
         return names;
     }
 
+    async getNamesAndCountry(ids){
+
+        if(ids.length === 0) return [];
+
+        const query = "SELECT id,name,country FROM uts_pinfo WHERE id IN (?)";
+
+        const result = await mysql.simpleQuery(query, [ids]);
+
+        const names = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            names[result[i].id] = {"name": result[i].name, "country": result[i].country};
+        }
+
+        return names;
+    }
+
     async getMatchData(matchId, bBasic){
 
         let query = "SELECT * FROM uts_player WHERE matchid=? ORDER BY gamescore DESC";
@@ -119,8 +137,6 @@ class Players{
 
         const result = await mysql.simpleQuery(query, [start, perPage]);
 
-        console.table(result);
-
         if(result.length === 0) return [];
 
         const names = {};
@@ -164,6 +180,60 @@ class Players{
         }
 
         return 0;
+    }
+
+    async getPlayersInOrderOf(type, order, page, perPage){
+
+        type = type.toLowerCase();
+        order = order.toLowerCase();
+
+        if(type === "matches") type = "total_matches";
+        if(type === "score") type = "gamescore";
+        if(type === "hours") type = "gametime";
+
+        const validTypes = ["total_matches","gamescore","frags","kills","deaths","eff","gametime"];
+
+        const index = validTypes.indexOf(type);
+
+        if(index !== -1){
+
+            const safeType = validTypes[index];
+
+            if(order === "a"){
+                order = "ASC";
+            }else{
+                order = "DESC";
+            }
+
+            const query = `SELECT COUNT(*) as total_matches,pid,SUM(gamescore) as gamescore,
+            SUM(frags) as frags, SUM(kills) as kills, SUM(deaths) as deaths,
+            IF(SUM(kills) > 0, IF(SUM(deaths) > 0, (SUM(kills) / (SUM(deaths) + SUM(kills))) * 100, 100), 0) as eff,
+            SUM(gametime) as gametime FROM uts_player GROUP BY(pid) ORDER by ${safeType} ${order} LIMIT ?, ?`;
+            
+            page--;
+            const start = page * perPage;
+
+            const result = await mysql.simpleQuery(query, [start, perPage]);
+
+            const playerIds = [];
+
+            for(let i = 0; i < result.length; i++){
+
+                playerIds.push(result[i].pid);
+            }
+
+            const names = await this.getNamesAndCountry(playerIds);
+
+            for(let i = 0; i < result.length; i++){
+
+                result[i].name = names[result[i].pid].name;
+                result[i].country = names[result[i].pid].country;
+            }
+
+            return result;
+        }
+
+        return [];
     }
 
 }

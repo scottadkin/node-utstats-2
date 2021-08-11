@@ -6,68 +6,103 @@ import Players from '../../api/classic/players';
 import CountryFlag from '../../components/CountryFlag';
 import Link from 'next/link';
 import Pagination from '../../components/Pagination';
+import React from 'react';
 
-const PlayersPage = ({host, session, data, totalPlayers, perPage, pages, page}) =>{
 
-    data = JSON.parse(data);
+class PlayersPage extends React.Component{
 
-    const rows = [];
+    constructor(props){
 
-    let d = 0;
+        super(props);
+        this.state = {"mode": this.props.mode, "order": this.props.order};
 
-    console.log(`page = ${page}`);
-
-    for(let i = 0; i < data.length; i++){
-
-        d = data[i];
-
-        rows.push(<tr key={i} >
-            <td><Link href={`/classic/player/${d.pid}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
-            <td>{d.total_matches}</td>
-            <td>{d.gamescore}</td>
-            <td>{d.frags}</td>
-            <td>{d.kills}</td>
-            <td>{d.deaths}</td>
-            <td>{d.eff}%</td>
-            <td>{(d.gametime / (60 * 60)).toFixed(2)}</td>
-        </tr>);
     }
+
+    getOrder(type){
+
+        type = type.toLowerCase();
+        const mode = this.props.mode.toLowerCase();
+
+        if(type === mode){
+            if(this.props.order === "a") return "b";
+            return "a";
+        }
+
+        return "a";
     
-    return <div>
-        <Head host={host} title={`players`} 
-        description={`players`} 
-        keywords={`players,classic,match`}/>
-        <main>
-            <Nav />
-            <div id="content">
+    }
 
-                <div className="default">
-                    <div className="default-header">Players</div>
-                    <Pagination currentPage={page} results={totalPlayers} perPage={perPage} pages={pages} url={`/classic/players/?page=`}/>
-                    <table className="t-width-1 td-1-left tf-1-150 m-bottom-25">
-                        <tbody>
-                            <tr>
-                                <th>Player</th>
-                                <th>Matches</th>
-                                <th>Score</th>
-                                <th>Frags</th>
-                                <th>Kills</th>
-                                <th>Deaths</th>
-                                <th>Efficiency</th>
-                                <th>Hours</th>
-                            </tr>
-                            {rows}
-                        </tbody>
-                    </table>
-                    <Pagination currentPage={page} results={totalPlayers} perPage={perPage} pages={pages} url={`/classic/players/?page=`}/>
+    render(){
+
+        const host = this.props.host;
+        const session = this.props.session;
+        const data = JSON.parse(this.props.data);
+        const totalPlayers = this.props.totalPlayers;
+        const perPage = this.props.perPage;
+        const pages = this.props.pages;
+        const page = this.props.page;
+        const mode = this.props.mode;
+        const order = this.props.order;
+
+        const rows = [];
+
+        let d = 0;
+
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            rows.push(<tr key={i} >
+                <td><Link href={`/classic/player/${d.pid}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
+                <td>{d.total_matches}</td>
+                <td>{d.gamescore}</td>
+                <td>{d.frags}</td>
+                <td>{d.kills}</td>
+                <td>{d.deaths}</td>
+                <td>{d.eff.toFixed(2)}%</td>
+                <td>{(d.gametime / (60 * 60)).toFixed(2)}</td>
+            </tr>);
+        }
+
+        const url = `/classic/players/?mode=${mode}&order=${order}&page=`;
+        
+        return <div>
+            <Head host={host} title={`players`} 
+            description={`players`} 
+            keywords={`players,classic,match`}/>
+            <main>
+                <Nav />
+                <div id="content">
+
+                    <div className="default">
+                        <div className="default-header">Players</div>
+                        <Pagination currentPage={page} results={totalPlayers} perPage={perPage} pages={pages} url={url}/>
+                        <table className="t-width-1 td-1-left td-1-150 m-bottom-25">
+                            <tbody>
+                                <tr>
+                                    <th><Link href={`/classic/players/?mode=player&order=${this.getOrder("player")}`}><a>Player</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=matches&order=${this.getOrder("matches")}`}><a>Matches</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=score&order=${this.getOrder("score")}`}><a>Score</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=frags&order=${this.getOrder("frags")}`}><a>Frags</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=kills&order=${this.getOrder("kills")}`}><a>Kills</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=deaths&order=${this.getOrder("deaths")}`}><a>Deaths</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=eff&order=${this.getOrder("eff")}`}><a>Efficiency</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=hours&order=${this.getOrder("hours")}`}><a>Hours</a></Link></th>
+                                </tr>
+                                {rows}
+                            </tbody>
+                        </table>
+                        <Pagination currentPage={page} results={totalPlayers} perPage={perPage} pages={pages} url={url}/>
+                    </div>
                 </div>
-            </div>
-            
-            <Footer session={session}/>
-        </main>
-    </div>
-}
+                
+                <Footer session={session}/>
+            </main>
+        </div>
 
+    }
+}
 
 
 export async function getServerSideProps({req, query}) {
@@ -80,6 +115,8 @@ export async function getServerSideProps({req, query}) {
 
     let perPage = 25;
     let page = 1;
+    let mode = "player";
+    let order = "d";
 
     if(query.page !== undefined){
         page = query.page;
@@ -87,9 +124,23 @@ export async function getServerSideProps({req, query}) {
 
     if(page !== page) page = 1;
 
+    if(query.mode !== undefined){
+        mode = query.mode.toLowerCase();
+    }
+
+    if(query.order !== undefined){
+        order = query.order.toLowerCase();
+    }
+
     const playerManager = new Players();
 
-    const data = await playerManager.getDefaultPlayers(page, perPage);
+    let data = [];
+
+    if(mode === "player"){
+        data = await playerManager.getDefaultPlayers(page, perPage);
+    }else{
+        data = await playerManager.getPlayersInOrderOf(mode, order, page, perPage);
+    }
 
     const totalPlayers = await playerManager.getTotalPlayers();
     
@@ -100,6 +151,7 @@ export async function getServerSideProps({req, query}) {
         pages = Math.ceil(totalPlayers / perPage);
     }
 
+    
 
     return {
         "props": {
@@ -109,7 +161,9 @@ export async function getServerSideProps({req, query}) {
             "totalPlayers": totalPlayers,
             "perPage": perPage,
             "pages": pages,
-            "page": page
+            "page": page,
+            "mode": mode,
+            "order": order
         }
     };
 }
