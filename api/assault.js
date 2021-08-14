@@ -181,7 +181,7 @@ class Assault{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT DISTINCT * FROM nstats_assault_objects WHERE map=? GROUP BY(obj_id) ORDER BY obj_order ASC";
+            const query = "SELECT map,obj_order,name,obj_id,matches,taken FROM nstats_assault_objects WHERE map=?";
 
             mysql.query(query, [mapId], (err, result) =>{
 
