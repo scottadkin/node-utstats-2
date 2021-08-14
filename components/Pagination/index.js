@@ -1,4 +1,4 @@
-import styles from './pagination.module.css';
+import styles from './Pagination.module.css';
 import Link from 'next/link';
 
 

@@ -349,7 +349,7 @@ class Matches{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT name,COUNT(name) as found FROM nstats_logs GROUP BY name ORDER BY match_id DESC";
+            const query = "SELECT name,COUNT(name) as found FROM nstats_logs GROUP BY name";
 
             mysql.query(query, (err, result) =>{
 
