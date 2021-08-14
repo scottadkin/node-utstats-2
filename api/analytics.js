@@ -141,7 +141,7 @@ class Analytics{
 
             const now = Math.floor(Date.now() * 0.001);
 
-            const query = "UPDATE nstats_user_agents SET last=?,total=total+1 WHERE system=? AND browser=?";
+            const query = "UPDATE nstats_user_agents SET last=?,total=total+1 WHERE system_name=? AND browser=?";
 
             const browser = this.findBrowserName(agent);
 

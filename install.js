@@ -709,7 +709,7 @@ const queries = [
 
         `CREATE TABLE nstats_user_agents (
           id int(11) NOT NULL AUTO_INCREMENT,
-          system varchar(100) NOT NULL,
+          system_name varchar(100) NOT NULL,
           browser varchar(100) NOT NULL,
           first int(11) NOT NULL,
           last int(11) NOT NULL,
