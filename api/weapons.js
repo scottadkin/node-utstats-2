@@ -54,7 +54,7 @@ class Weapons{
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_weapons SET matches=matches+1,kills=kills+?,deaths=deaths+?,shots=shots+?,hits=hits+?,damage=damage+?,
-            accuracy=hits/(shots + hits)*100
+            accuracy=IF(hits > 0 AND shots > 0, (hits/shots)*100, IF(hits > 0, 100,0))
             WHERE id=?`;
 
             mysql.query(query, [kills,deaths,shots,hits,damage, weapon], (err) =>{
@@ -205,8 +205,8 @@ class Weapons{
         return new Promise((resolve, reject) =>{
 
             const query = `UPDATE nstats_player_weapon_totals SET kills=kills+?, deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
-             accuracy=(hits/shots)*100, 
-             efficiency=(kills/(kills + deaths)) * 100,
+             accuracy=IF(hits > 0 && shots > 0, (hits/shots) * 100, IF(hits > 0, 100, 0)), 
+             efficiency=IF(kills > 0 && deaths > 0, (hits/shots) * 100, IF(kills > 0, 100, 0)),
              matches=matches+1 WHERE player_id=? AND weapon=? AND gametype=?`;
 
              const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, Math.abs(stats.damage), playerId, weaponId, gametypeId];
@@ -389,8 +389,8 @@ class Weapons{
             const query = `UPDATE nstats_player_weapon_totals SET
             kills=kills-?,deaths=deaths-?,shots=shots-?,hits=hits-?,damage=damage-?,
             matches=matches-1,
-            accuracy = (hits / shots) * 100,
-            efficiency = (kills / (kills + deaths)) * 100
+            accuracy = IF(hits > 0 AND shots > 0,(hits / shots) * 100, IF(hits > 0), 100, 0),
+            efficiency = IF(kills > 0 && deaths > 0, (kills / (kills + deaths)) * 100, IF(kills > 0, 100, 0))
             WHERE player_id=? AND weapon=?
             `;
 
@@ -426,7 +426,7 @@ class Weapons{
             hits=hits-?,
             damage=damage-?,
             matches=matches-1,
-            accuracy = (hits / shots) * 100
+            accuracy = IF(hits > 0 && shots > 0, (hits / shots) * 100, IF(hits > 0, 100, 0))
             WHERE id=?
             `;
 
@@ -437,7 +437,7 @@ class Weapons{
                 shots=shots-?,
                 hits=hits-?,
                 damage=damage-?,
-                accuracy = (hits / shots) * 100
+                accuracy = IF(hits > 0 && shots > 0, (hits / shots) * 100, IF(hits > 0, 100, 0))
                 WHERE id=?
                 `;
             }
@@ -968,7 +968,7 @@ class Weapons{
         shots=shots-?,
         hits=hits-?,
         damage=damage-?,
-        accuracy = IF(shots > 0, IF(hits > 0, (hits / shots) * 100 ,0), 0)
+        accuracy = IF(shots > 0 && hits > 0, (hits / shots) * 100, IF(hits > 0, 100, 0))
         WHERE id=?`;
 
         const vars = [
