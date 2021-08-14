@@ -74,7 +74,7 @@ class MatchManager{
 
             if(this.gametype.currentMatchGametype === undefined){
                 new Message(`Incomplete log skipping...`,'error');
-                return;
+                return null;
             }
 
             this.playerManager.setKills(this.killManager.kills);

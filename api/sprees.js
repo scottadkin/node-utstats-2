@@ -41,8 +41,8 @@ class Sprees{
                 matchId,
                 s.player,
                 s.kills,
-                s.start,
-                s.end,
+                (s.start === null) ? 0 : s.start,
+                (s.end === null) ? 0 : s.end,
                 s.totalTime,
                 s.killedBy
             ];

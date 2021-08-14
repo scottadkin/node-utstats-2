@@ -61,9 +61,11 @@ class Importer{
                         currentData = await log.import();
 
                         fs.renameSync(`${config.importedLogsFolder}/${this.logsToImport[i]}`,`Logs/imported/${this.logsToImport[i]}`);
-
-                        this.addUpdatedPlayers(currentData.updatedPlayers);
-                        this.addUpdatedGametype(currentData.updatedGametype);
+                        
+                        if(currentData !== null){
+                            this.addUpdatedPlayers(currentData.updatedPlayers);
+                            this.addUpdatedGametype(currentData.updatedGametype);
+                        }
 
                         imported++;
 
@@ -96,8 +98,10 @@ class Importer{
 
                     fs.renameSync(`${config.importedLogsFolder}/${logsToImport[i]}`,`Logs/imported/${logsToImport[i]}`);
 
-                    this.addUpdatedPlayers(currentData.updatedPlayers);
-                    this.addUpdatedGametype(currentData.updatedGametype);
+                    if(currentData !== null){
+                        this.addUpdatedPlayers(currentData.updatedPlayers);
+                        this.addUpdatedGametype(currentData.updatedGametype);
+                    }
                     imported++;
                 }
 
