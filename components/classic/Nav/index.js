@@ -48,7 +48,7 @@ const Nav = () =>{
 
             {createLink("/classic/", "Classic Home", cleanPath, [""], true)}
             {createLink("/classic/matches", "Matches", cleanPath, ["match","matches"], true)}
-            {createLink("/classic/rankings", "Rankings", cleanPath, ["rankings"], true)}
+            {createLink("/classic/rankings/all", "Rankings", cleanPath, ["rankings"], true)}
             {createLink("/classic/servers", "Servers", cleanPath, ["servers"], true)}
             {createLink("/classic/players", "Players", cleanPath, ["players","player"], true)}
             {createLink("/classic/maps", "Maps", cleanPath, ["map","maps"], true)}

@@ -1,0 +1,12 @@
+.table td:nth-child(1){
+    width:75px;
+}
+
+.table td:nth-child(2){
+    width:275px;
+    text-align:left;
+}
+
+.table td:nth-child(3){
+    width:150px;
+}
