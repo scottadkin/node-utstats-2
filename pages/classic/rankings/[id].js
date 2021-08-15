@@ -12,6 +12,9 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
     const tables = [];
 
+    let pages = 1;
+    let totalPlayers = 1;
+
     if(mode === "all"){
 
         for(const [key, value] of Object.entries(data.data)){
@@ -23,7 +26,8 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
     }else{
 
-        const pages = (data.totalPlayers > 0 && perPage > 0) ? Math.ceil(data.totalPlayers / perPage) : 1;
+        pages = (data.totalPlayers > 0 && perPage > 0) ? Math.ceil(data.totalPlayers / perPage) : 1;
+        totalPlayers = data.totalPlayers;
 
         tables.push(<RankingTable key={1} gametypeId={data.gametypeId} title={data.name} data={data.data} page={page} perPage={perPage}
             players={data.players} showAllButton={false} totalResults={data.totalPlayers} pages={pages}
@@ -32,10 +36,21 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
     const title = (data.name !== undefined) ? data.name : "Unknown";
 
+    let description = "";
+    let metaTitle = "";
+
+    if(mode === "all"){
+        description = `View all available gametype rankings, see where you place against your friends in your favourite gametypes.`;
+        metaTitle = "Gametype Rankings";
+    }else{
+        description = `Viewing ${title} gametype rankings, see who are the top players of this gametype. Page ${page + 1} of ${pages}, ${totalPlayers} players saved.`;
+        metaTitle = `${title} Rankings - Page ${page + 1} of ${pages}`;
+    }
+
     return <div>
-    <Head host={host} title={`page title`} 
-    description={`page desc`} 
-    keywords={`,classic`}/>
+    <Head host={host} title={metaTitle} 
+    description={description} 
+    keywords={`ranking,rankings,classic,${title},gametype,gametypes`}/>
     <main>
         <Nav />
         <div id="content">
