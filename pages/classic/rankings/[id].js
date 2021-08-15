@@ -16,11 +16,16 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
         for(const [key, value] of Object.entries(data.data)){
 
-
             tables.push(<RankingTable key={key} gametypeId={key} title={value.name} data={value.data} page={page} perPage={perPage}
                 players={data.players} showAllButton={true} totalResults={value.totalPlayers}
             />);
         }
+
+    }else{
+
+        tables.push(<RankingTable key={1} gametypeId={data.gametypeId} title={data.name} data={data.data} page={page} perPage={perPage}
+            players={data.players} showAllButton={false} totalResults={data.totalPlayers}
+        />);
     }
 
     return <div>
@@ -47,35 +52,62 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
 export async function getServerSideProps({req, query}) {
 
+    console.log("check");
+
     console.log(query);
 
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     if(page !== page) page = 1;
     page--;
 
-    const defaultPerPage = 10;
+    const parsedId = parseInt(query.id);
 
-    let perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : defaultPerPage;
-    if(perPage !== perPage) perPage = defaultPerPage;
+    let gametypeId = (parsedId !== parsedId) ? "all" : parsedId;
+
+    const defaultPerPage = 10;
+    const singleDefaultPerPage = 50;
+
+    let perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : (gametypeId === "all") ? defaultPerPage : singleDefaultPerPage;
+
+    if(perPage !== perPage){
+        perPage = (gametypeId === "all") ? defaultPerPage : singleDefaultPerPage;
+    }
+
+    if(perPage > 100 || perPage < 5){
+
+        perPage = (gametypeId === "all") ? defaultPerPage : singleDefaultPerPage;
+    }
 
     const session = new Session(req);
     await session.load();
 
     const gametypeManager = new Gametypes();
-
-    const gametypes = await gametypeManager.getAllNames();
-
-
     const rankingsManager = new Rankings();
 
-    const data = await rankingsManager.getMultipleTopPlayers(gametypes, page, perPage);
+    let data = [];
+
+    if(gametypeId === "all"){
+
+        const gametypes = await gametypeManager.getAllNames();
+        data = await rankingsManager.getMultipleTopPlayers(gametypes, page, perPage);
+
+    }else{
+
+        const gametype = await gametypeManager.getNames([gametypeId]);
+
+        data = await rankingsManager.getTopPlayers(gametypeId, page, perPage, true);
+
+
+        data.name = (gametype[gametypeId] !== undefined) ? gametype[gametypeId] : "Not Found";
+        data.gametypeId = gametypeId;
+    }
 
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
             "data": JSON.stringify(data),
-            "mode": query.id,
+            "mode": gametypeId,
             "page": page,
             "perPage": perPage
         }

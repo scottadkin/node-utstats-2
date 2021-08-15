@@ -81,7 +81,18 @@ class Rankings{
                 playerIds.push(result[i].pid);
             }
 
-            return {"data": result, "playerIds": playerIds, "totalPlayers": totalPlayers};
+            const playerNames = await this.players.getNamesAndCountry(playerIds);
+
+            for(let i = 0; i < result.length; i++){
+
+                const r = result[i];
+                const player = (playerNames[r.pid] !== undefined) ? playerNames[r.pid] : {"name": "Not Found", "country": "xx"};
+
+                r.name = player.name;
+                r.country = player.country;
+            }
+
+            return {"data": result, "totalPlayers": totalPlayers};
         }
 
         return {"data": result, "totalPlayers": totalPlayers};

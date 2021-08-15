@@ -12,9 +12,21 @@ const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllB
 
         const d = data[i];
 
+        
+
         const place = i + (page * perPage) + 1;
 
-        const player = (players[d.pid] !== undefined) ? players[d.pid] : {"name": "Not Found", "country": "xx"};
+        const defaultPlayer = {"name": "Not Found", "country": "xx"};
+
+        let player = {};
+
+        if(d.name !== undefined){
+            player = {"name": d.name, "country": d.country};
+        }else{
+            player = (players[d.pid] !== undefined) ? players[d.pid] : defaultPlayer;
+        }
+
+       // const player = (players[d.pid] !== undefined) ? players[d.pid] : {"name": "Not Found", "country": "xx"};
 
         const icon = (d.prevrank < d.rank) ? "up" : (d.prevrank === d.rank) ? "nc" : "down";
 
@@ -44,7 +56,7 @@ const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllB
         </tr>);
     }
 
-    const showAllElem = (!showAllButton) ? null : <Link href={`/classic/records/${gametypeId}`}>
+    const showAllElem = (!showAllButton) ? null : <Link href={`/classic/rankings/${gametypeId}`}>
         <a>
             <div className={styles.viewall}>
                 <img className="ranking-icon" src="/images/up.png" alt="image"/>Show all {totalResults} Results <img className="ranking-icon" src="/images/down.png" alt="image"/>
