@@ -13,8 +13,8 @@ let mysql = mysqlObject.createPool({
 });
 
 const queries = [
-    `CREATE DATABASE ${config.mysql.database}`,
-    `CREATE TABLE nstats_assault_match_objectives (
+    `CREATE DATABASE IF NOT EXISTS ${config.mysql.database}`,
+    `CREATE TABLE IF NOT EXISTS nstats_assault_match_objectives (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         map int(11) NOT NULL,
@@ -24,7 +24,7 @@ const queries = [
         bfinal int(11) NOT NULL,
         PRIMARY KEY (id))
         ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_assault_objects (
+    `CREATE TABLE IF NOT EXISTS nstats_assault_objects (
         id int(11) NOT NULL AUTO_INCREMENT,
         map int(11) NOT NULL,
         obj_order int(11) NOT NULL,
@@ -33,14 +33,14 @@ const queries = [
         matches int(11) NOT NULL,
         taken int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_countries (
+    `CREATE TABLE IF NOT EXISTS nstats_countries (
         id int(11) NOT NULL AUTO_INCREMENT,
         code varchar(2) NOT NULL,
         first int(11) NOT NULL,
         last int(11) NOT NULL,
         total int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_ctf_caps (
+    `CREATE TABLE IF NOT EXISTS nstats_ctf_caps (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         map int(11) NOT NULL,
@@ -60,7 +60,7 @@ const queries = [
         cap_time float NOT NULL,
         travel_time float NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_ctf_events (
+    `CREATE TABLE IF NOT EXISTS nstats_ctf_events (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
@@ -68,7 +68,7 @@ const queries = [
         event varchar(30) NOT NULL,
         team int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_dom_control_points (
+    `CREATE TABLE IF NOT EXISTS nstats_dom_control_points (
         id int(11) NOT NULL AUTO_INCREMENT,
         map int(11) NOT NULL,
         name varchar(100) NOT NULL,
@@ -78,7 +78,7 @@ const queries = [
         y float NOT NULL,
         z float NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_dom_match_caps (
+    `CREATE TABLE IF NOT EXISTS nstats_dom_match_caps (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         time float NOT NULL,
@@ -86,28 +86,28 @@ const queries = [
         point int(11) NOT NULL,
         team int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_dom_match_control_points (
+    `CREATE TABLE IF NOT EXISTS nstats_dom_match_control_points (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         map int(11) NOT NULL,
         name varchar(100) NOT NULL,
         captured int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_dom_match_player_score (
+    `CREATE TABLE IF NOT EXISTS nstats_dom_match_player_score (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
         player int(11) NOT NULL,
         score int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_faces (
+    `CREATE TABLE IF NOT EXISTS nstats_faces (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         first int(11) NOT NULL,
         last int(11) NOT NULL,
         uses int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_ftp (
+    `CREATE TABLE IF NOT EXISTS nstats_ftp (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         host varchar(250) NOT NULL,
@@ -124,7 +124,7 @@ const queries = [
         ignore_bots int(1) NOT NULL,
         ignore_duplicates int(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_gametypes (
+    `CREATE TABLE IF NOT EXISTS nstats_gametypes (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         first int(11) NOT NULL,
@@ -132,7 +132,7 @@ const queries = [
         matches int(11) NOT NULL,
         playtime double NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_headshots (
+    `CREATE TABLE IF NOT EXISTS nstats_headshots (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
@@ -142,7 +142,7 @@ const queries = [
         killer_team int(11) NOT NULL,
         victim_team int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_items (
+    `CREATE TABLE IF NOT EXISTS nstats_items (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         display_name varchar(100) NOT NULL,
@@ -152,7 +152,7 @@ const queries = [
         matches int(11) NOT NULL,
         type int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_items_match (
+    `CREATE TABLE IF NOT EXISTS nstats_items_match (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         player_id int(11) NOT NULL,
@@ -160,7 +160,7 @@ const queries = [
         uses int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
       `,
-    `CREATE TABLE nstats_items_player (
+    `CREATE TABLE IF NOT EXISTS nstats_items_player (
         id int(11) NOT NULL AUTO_INCREMENT,
         player int(11) NOT NULL,
         item int(11) NOT NULL,
@@ -169,7 +169,7 @@ const queries = [
         uses int(11) NOT NULL,
         matches int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_kills (
+    `CREATE TABLE IF NOT EXISTS nstats_kills (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
@@ -181,13 +181,13 @@ const queries = [
         victim_weapon int(11) NOT NULL,
         distance float NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_logs (
+    `CREATE TABLE IF NOT EXISTS nstats_logs (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         imported int(11) NOT NULL,
         match_id int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_maps (
+    `CREATE TABLE IF NOT EXISTS nstats_maps (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         title varchar(100) NOT NULL,
@@ -199,7 +199,7 @@ const queries = [
         matches int(11) NOT NULL,
         playtime double NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_maps_flags (
+    `CREATE TABLE IF NOT EXISTS nstats_maps_flags (
         id int(11) NOT NULL AUTO_INCREMENT,
         map int(11) NOT NULL,
         team int(11) NOT NULL,
@@ -207,7 +207,7 @@ const queries = [
         y float NOT NULL,
         z float NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_map_spawns (
+    `CREATE TABLE IF NOT EXISTS nstats_map_spawns (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(50) NOT NULL,
         map int(11) NOT NULL,
@@ -217,7 +217,7 @@ const queries = [
         spawns int(11) NOT NULL,
         team int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_matches (
+    `CREATE TABLE IF NOT EXISTS nstats_matches (
         id int(11) NOT NULL AUTO_INCREMENT,
         date int(11) NOT NULL,
         server int(11) NOT NULL,
@@ -262,21 +262,21 @@ const queries = [
         mh int(11) NOT NULL,
         views int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_match_connections (
+    `CREATE TABLE IF NOT EXISTS nstats_match_connections (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
         player int(11) NOT NULL,
         event tinyint(4) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_match_pings (
+    `CREATE TABLE IF NOT EXISTS nstats_match_pings (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp int(11) NOT NULL,
         player int(11) NOT NULL,
         ping int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_match_player_score (
+    `CREATE TABLE IF NOT EXISTS nstats_match_player_score (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
@@ -284,7 +284,7 @@ const queries = [
         score int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
       `,
-    `CREATE TABLE nstats_match_team_changes (
+    `CREATE TABLE IF NOT EXISTS nstats_match_team_changes (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
@@ -292,41 +292,41 @@ const queries = [
         team int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
       `,
-    `CREATE TABLE nstats_monsters (
+    `CREATE TABLE IF NOT EXISTS nstats_monsters (
         id int(11) NOT NULL AUTO_INCREMENT,
         class_name varchar(150) COLLATE utf8_unicode_ci NOT NULL,
         display_name varchar(50) COLLATE utf8_unicode_ci NOT NULL,
         matches int(11) NOT NULL,
         deaths int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_monsters_match (
+    `CREATE TABLE IF NOT EXISTS nstats_monsters_match (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         monster int(11) NOT NULL,
         deaths int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_monsters_player_match (
+    `CREATE TABLE IF NOT EXISTS nstats_monsters_player_match (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         player int(11) NOT NULL,
         monster int(11) NOT NULL,
         kills int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_monsters_player_totals (
+    `CREATE TABLE IF NOT EXISTS nstats_monsters_player_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
         player int(11) NOT NULL,
         monster int(11) NOT NULL,
         matches int(11) NOT NULL,
         kills int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_monster_kills (
+    `CREATE TABLE IF NOT EXISTS nstats_monster_kills (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
         monster int(11) NOT NULL,
         player int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_nexgen_stats_viewer (
+    `CREATE TABLE IF NOT EXISTS nstats_nexgen_stats_viewer (
         id int(11) NOT NULL AUTO_INCREMENT,
         title varchar(100) COLLATE utf8_unicode_ci NOT NULL,
         type int(11) NOT NULL,
@@ -335,7 +335,7 @@ const queries = [
         position int(11) NOT NULL,
         enabled tinyint(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_player_maps (
+    `CREATE TABLE IF NOT EXISTS nstats_player_maps (
         id int(11) NOT NULL AUTO_INCREMENT,
         map int(11) NOT NULL,
         player int(11) NOT NULL,
@@ -348,7 +348,7 @@ const queries = [
         longest float NOT NULL,
         longest_id int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_player_matches (
+    `CREATE TABLE IF NOT EXISTS nstats_player_matches (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         match_date int(11) NOT NULL,
@@ -439,7 +439,7 @@ const queries = [
         mh_kills_best_life int(11) NOT NULL,
         views int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_player_totals (
+    `CREATE TABLE IF NOT EXISTS nstats_player_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(30) NOT NULL,
         player_id int(11) NOT NULL,
@@ -527,7 +527,7 @@ const queries = [
         mh_kills_best int(11) NOT NULL,
         views int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_player_weapon_match (
+    `CREATE TABLE IF NOT EXISTS nstats_player_weapon_match (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         player_id int(11) NOT NULL,
@@ -539,7 +539,7 @@ const queries = [
         hits int(11) NOT NULL,
         damage bigint(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_player_weapon_totals (
+    `CREATE TABLE IF NOT EXISTS nstats_player_weapon_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
         player_id int(11) NOT NULL,
         gametype int(11) NOT NULL,
@@ -553,7 +553,7 @@ const queries = [
         damage bigint(11) NOT NULL,
         matches int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_ranking_player_current (
+    `CREATE TABLE IF NOT EXISTS nstats_ranking_player_current (
         id int(11) NOT NULL AUTO_INCREMENT,
         player_id int(11) NOT NULL,
         gametype int(11) NOT NULL,
@@ -562,7 +562,7 @@ const queries = [
         ranking Decimal(10,4) NOT NULL,
         ranking_change Decimal(10,4) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_ranking_player_history (
+    `CREATE TABLE IF NOT EXISTS nstats_ranking_player_history (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         player_id int(11) NOT NULL,
@@ -572,14 +572,14 @@ const queries = [
         ranking_change Decimal(10,4) NOT NULL,
         match_ranking_change Decimal(10,4) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_ranking_values (
+    `CREATE TABLE IF NOT EXISTS nstats_ranking_values (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(30) NOT NULL,
         display_name varchar(75) NOT NULL,
         description varchar(250) NOT NULL,
         value float NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_servers (
+    `CREATE TABLE IF NOT EXISTS nstats_servers (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         ip varchar(100) NOT NULL,
@@ -589,7 +589,7 @@ const queries = [
         matches int(11) NOT NULL,
         playtime double NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_sessions (
+    `CREATE TABLE IF NOT EXISTS nstats_sessions (
         id int(11) NOT NULL AUTO_INCREMENT,
         date int(11) NOT NULL,
         user int(11) NOT NULL,
@@ -598,13 +598,13 @@ const queries = [
         expires int(11) NOT NULL,
         login_ip varchar(50) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_site_settings (
+    `CREATE TABLE IF NOT EXISTS nstats_site_settings (
         id int(11) NOT NULL AUTO_INCREMENT,
         category varchar(50) NOT NULL,
         name varchar(100) NOT NULL,
         value varchar(100) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_sprees (
+    `CREATE TABLE IF NOT EXISTS nstats_sprees (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         player int(11) NOT NULL,
@@ -614,7 +614,7 @@ const queries = [
         total_time float NOT NULL,
         killer int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_users (
+    `CREATE TABLE IF NOT EXISTS nstats_users (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(20) NOT NULL,
         password varchar(64) NOT NULL,
@@ -628,14 +628,14 @@ const queries = [
         banned int(11) NOT NULL,
         upload_images int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_voices (
+    `CREATE TABLE IF NOT EXISTS nstats_voices (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         first int(11) NOT NULL,
         last int(11) NOT NULL,
         uses int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_weapons (
+    `CREATE TABLE IF NOT EXISTS nstats_weapons (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         matches int(11) NOT NULL,
@@ -646,7 +646,7 @@ const queries = [
         hits int(11) NOT NULL,
         damage bigint(20) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_winrates (
+    `CREATE TABLE IF NOT EXISTS nstats_winrates (
         id int(11) NOT NULL AUTO_INCREMENT,
         date int(11) NOT NULL,
         match_id int(11) NOT NULL,
@@ -665,7 +665,7 @@ const queries = [
         max_draw_streak int(11) NOT NULL,
         max_lose_streak int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_winrates_latest (
+    `CREATE TABLE IF NOT EXISTS nstats_winrates_latest (
         id int(11) NOT NULL AUTO_INCREMENT,
         date int(11) NOT NULL,
         match_id int(11) NOT NULL,
@@ -684,13 +684,13 @@ const queries = [
         max_lose_streak int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-      `CREATE TABLE nstats_hits (
+      `CREATE TABLE IF NOT EXISTS nstats_hits (
         id int(11) NOT NULL AUTO_INCREMENT,
         ip varchar(50) NOT NULL,
         date int(11) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-      `CREATE TABLE nstats_visitors (
+      `CREATE TABLE IF NOT EXISTS nstats_visitors (
           id int(11) NOT NULL AUTO_INCREMENT,
           ip varchar(50) NOT NULL,
           first int(11) NOT NULL,
@@ -698,7 +698,7 @@ const queries = [
           total int(11) NOT NULL,
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-      `CREATE TABLE nstats_visitors_countries (
+      `CREATE TABLE IF NOT EXISTS nstats_visitors_countries (
         id int(11) NOT NULL AUTO_INCREMENT,
         code varchar(2) NOT NULL,
         country varchar(100) NOT NULL,
@@ -707,7 +707,7 @@ const queries = [
         total int(11) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-        `CREATE TABLE nstats_user_agents (
+        `CREATE TABLE IF NOT EXISTS nstats_user_agents (
           id int(11) NOT NULL AUTO_INCREMENT,
           system_name varchar(100) NOT NULL,
           browser varchar(100) NOT NULL,
