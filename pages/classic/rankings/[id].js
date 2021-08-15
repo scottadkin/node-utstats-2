@@ -16,8 +16,9 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
         for(const [key, value] of Object.entries(data.data)){
 
+
             tables.push(<RankingTable key={key} gametypeId={key} title={value.name} data={value.data} page={page} perPage={perPage}
-                players={data.players}
+                players={data.players} showAllButton={true} totalResults={value.totalPlayers}
             />);
         }
     }

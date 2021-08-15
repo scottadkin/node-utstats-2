@@ -4,13 +4,14 @@ import Link from 'next/link';
 import styles from './RankingTable.module.css';
 import MouseHoverBox from '../../MouseHoverBox';
 
-const RankingTable = ({title, data, page, perPage, players}) =>{
+const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllButton, totalResults}) =>{
 
     const rows = [];
 
     for(let i = 0; i < data.length; i++){
 
         const d = data[i];
+
         const place = i + (page * perPage) + 1;
 
         const player = (players[d.pid] !== undefined) ? players[d.pid] : {"name": "Not Found", "country": "xx"};
@@ -43,9 +44,17 @@ const RankingTable = ({title, data, page, perPage, players}) =>{
         </tr>);
     }
 
+    const showAllElem = (!showAllButton) ? null : <Link href={`/classic/records/${gametypeId}`}>
+        <a>
+            <div className={styles.viewall}>
+                <img className="ranking-icon" src="/images/up.png" alt="image"/>Show all {totalResults} Results <img className="ranking-icon" src="/images/down.png" alt="image"/>
+            </div>
+        </a>
+    </Link>;
+
     return <div className="m-bottom-25">
         <div className="default-subheader m-bottom-25">{title}</div>
-        <table className={`t-width-2 ${styles.table}`}>
+        <table className={`t-width-2 ${styles.table} m-bottom-25`}>
             <tbody>
                 <tr>
                     <th>Place</th>
@@ -55,6 +64,7 @@ const RankingTable = ({title, data, page, perPage, players}) =>{
                 {rows}
             </tbody>
         </table>
+        {showAllElem}
     </div>
 }
 

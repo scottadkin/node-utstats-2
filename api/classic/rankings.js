@@ -52,6 +52,16 @@ class Rankings{
         
     }
 
+    async getTotalPlayers(gametypeId){
+
+        const query = "SELECT COUNT(*) as total_players FROM uts_rank WHERE gid=?";
+
+        const result = await mysql.simpleQuery(query, [gametypeId]);
+
+        if(result.length > 0) return result[0].total_players;
+
+        return 0;
+    }
 
     async getTopPlayers(gametype, page, perPage, bSetPlayerNames){
 
@@ -59,6 +69,8 @@ class Rankings{
         const start = page * perPage;
 
         const result = await mysql.simpleQuery(query, [gametype, start, perPage]);
+
+        const totalPlayers = await this.getTotalPlayers(gametype);
 
         if(bSetPlayerNames){
 
@@ -69,10 +81,10 @@ class Rankings{
                 playerIds.push(result[i].pid);
             }
 
-            return {"data": result, "playerIds": playerIds};
+            return {"data": result, "playerIds": playerIds, "totalPlayers": totalPlayers};
         }
 
-        return result;
+        return {"data": result, "totalPlayers": totalPlayers};
     }
 
 
@@ -88,9 +100,9 @@ class Rankings{
 
             const currentResult = await this.getTopPlayers(key, page, perPage, false);
 
-            for(let i = 0; i < currentResult.length; i++){
+            for(let i = 0; i < currentResult.data.length; i++){
 
-                const c = currentResult[i];
+                const c = currentResult.data[i];
 
                 if(playerIds.indexOf(c.pid) === -1){
                     playerIds.push(c.pid);
@@ -99,7 +111,8 @@ class Rankings{
 
             data[key] = {
                 "name": value,
-                "data": currentResult
+                "data": currentResult.data,
+                "totalPlayers": currentResult.totalPlayers
             };
         }
 
