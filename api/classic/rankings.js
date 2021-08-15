@@ -66,7 +66,9 @@ class Rankings{
     async getTopPlayers(gametype, page, perPage, bSetPlayerNames){
 
         const query = "SELECT time,pid,rank,prevrank,matches FROM uts_rank WHERE gid=? ORDER BY rank DESC LIMIT ?, ?";
-        const start = page * perPage;
+        let start = page * perPage;
+
+        if(start < 0) start = 0;
 
         const result = await mysql.simpleQuery(query, [gametype, start, perPage]);
 

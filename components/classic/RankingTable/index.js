@@ -3,8 +3,9 @@ import CountryFlag from '../../CountryFlag';
 import Link from 'next/link';
 import styles from './RankingTable.module.css';
 import MouseHoverBox from '../../MouseHoverBox';
+import Pagination from '../../Pagination';
 
-const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllButton, totalResults}) =>{
+const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllButton, totalResults, pages}) =>{
 
     const rows = [];
 
@@ -56,16 +57,32 @@ const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllB
         </tr>);
     }
 
-    const showAllElem = (!showAllButton) ? null : <Link href={`/classic/rankings/${gametypeId}`}>
-        <a>
-            <div className={styles.viewall}>
-                <img className="ranking-icon" src="/images/up.png" alt="image"/>Show all {totalResults} Results <img className="ranking-icon" src="/images/down.png" alt="image"/>
-            </div>
-        </a>
-    </Link>;
+    let showAllElem = null;
+
+    if(!showAllButton){
+
+        showAllElem = <Pagination currentPage={page + 1} perPage={perPage} pages={pages} results={totalResults} url={`/classic/rankings/${gametypeId}?page=`}/>
+
+    }else{
+
+        showAllElem = <Link href={`/classic/rankings/${gametypeId}`}>
+            <a>
+                <div className={styles.viewall}>
+                    <img className="ranking-icon" src="/images/up.png" alt="image"/>
+                    Show all {totalResults} Results <img className="ranking-icon" src="/images/down.png" alt="image"/>
+                </div>
+            </a>
+        </Link>;
+
+    }
+
+   
 
     return <div className="m-bottom-25">
-        <div className="default-subheader m-bottom-25">{title}</div>
+
+        {(!showAllButton) ? null : <div className="default-subheader m-bottom-25">{title}</div>}
+
+        {(!showAllButton) ? showAllElem : null}
         <table className={`t-width-2 ${styles.table} m-bottom-25`}>
             <tbody>
                 <tr>

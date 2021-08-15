@@ -23,10 +23,14 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
     }else{
 
+        const pages = (data.totalPlayers > 0 && perPage > 0) ? Math.ceil(data.totalPlayers / perPage) : 1;
+
         tables.push(<RankingTable key={1} gametypeId={data.gametypeId} title={data.name} data={data.data} page={page} perPage={perPage}
-            players={data.players} showAllButton={false} totalResults={data.totalPlayers}
+            players={data.players} showAllButton={false} totalResults={data.totalPlayers} pages={pages}
         />);
     }
+
+    const title = (data.name !== undefined) ? data.name : "Unknown";
 
     return <div>
     <Head host={host} title={`page title`} 
@@ -37,7 +41,7 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
         <div id="content">
 
             <div className="default">
-                <div className="default-header">Rankings</div>
+                <div className="default-header">{(mode !== "all") ? `${title} ` : null}Rankings</div>
 
                 {tables}
             </div>
@@ -51,10 +55,6 @@ const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
 
 export async function getServerSideProps({req, query}) {
-
-    console.log("check");
-
-    console.log(query);
 
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     if(page !== page) page = 1;
@@ -97,7 +97,6 @@ export async function getServerSideProps({req, query}) {
 
         data = await rankingsManager.getTopPlayers(gametypeId, page, perPage, true);
 
-
         data.name = (gametype[gametypeId] !== undefined) ? gametype[gametypeId] : "Not Found";
         data.gametypeId = gametypeId;
     }
@@ -108,7 +107,7 @@ export async function getServerSideProps({req, query}) {
             "session": JSON.stringify(session.settings),
             "data": JSON.stringify(data),
             "mode": gametypeId,
-            "page": page,
+            "page": page ,
             "perPage": perPage
         }
     };
