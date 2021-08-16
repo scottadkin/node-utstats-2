@@ -557,6 +557,13 @@ class Functions{
       
         return string;
     }
+
+    static toHours(seconds){
+
+        if(seconds === 0) return 0;
+
+        return seconds / (60 * 60)
+    }
 }
 
 module.exports = Functions;
