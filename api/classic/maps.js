@@ -39,7 +39,6 @@ class Maps{
             COUNT(*) as total_matches, AVG(gametime) as average_gametime
             FROM uts_match GROUP BY(mapfile) ORDER BY ${colNames[index]} ${orderDirection} LIMIT ?, ?`;
 
-        console.log(query);
 
         let start = page * perPage;
         if(start !== start) start = 0;
