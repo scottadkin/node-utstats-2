@@ -21,7 +21,20 @@ function createLink(display, mode, displayType, currentMode, order){
     </Link>
 }
 
-const MapsDefaultView = ({data, mode, order, display}) =>{
+
+const MapsDefaultView = ({data, mode, order, display, images}) =>{
+
+
+    const getImage = (name) =>{
+
+        name = Functions.cleanMapName(name).toLowerCase();
+
+        if(images.indexOf(name) !== -1){
+            return name;
+        }else{
+            return "default";
+        }
+    }
 
     const elems = [];
 
@@ -31,7 +44,7 @@ const MapsDefaultView = ({data, mode, order, display}) =>{
 
         elems.push(<div key={i} className={styles.wrapper}>
             <div className={styles.title}>{Functions.removeUnr(d.mapfile)}</div>
-            <Image src={`/images/maps/default.jpg`} width={384} height={216} alt="image"/>
+            <Image src={`/images/maps/${getImage(d.mapfile)}.jpg`} width={384} height={216} alt="image"/>
             <div className={styles.info}>
                 <span className="yellow">Matches</span> {d.total_matches}<br/>
                 <span className="yellow">Playtime</span> {Functions.toHours(d.gametime).toFixed(2)} Hours<br/>
@@ -43,7 +56,6 @@ const MapsDefaultView = ({data, mode, order, display}) =>{
     }
 
     const orderByElem = <div className="m-bottom-25">
-        <div className="default-sub-header">Order By</div>
         <div className="big-tabs">
             {createLink("Matches", "matches", display, mode, order)}
             {createLink("Playtime", "playtime", display, mode, order)}

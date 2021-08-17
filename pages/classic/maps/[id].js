@@ -7,12 +7,14 @@ import MapsTableView from '../../../components/classic/MapsTableView';
 import MapsDefaultView from '../../../components/classic/MapsDefaultView';
 import Pagination from '../../../components/Pagination';
 import Link from 'next/link';
+import Functions from '../../../api/functions';
+import MainMaps from '../../../api/maps';
 
-const RankingsPage = ({session, host, data, mode, order, page, perPage, pages, totalResults, display}) =>{
+const RankingsPage = ({session, host, data, mode, order, page, perPage, pages, totalResults, display, mapImages}) =>{
 
     data = JSON.parse(data);
+    mapImages = JSON.parse(mapImages);
 
-    console.log(display);
 
     const pageination = <Pagination currentPage={page + 1} perPage={perPage} pages={pages} results={totalResults} url={`/classic/maps/${mode}?display=${display}&page=`}/>;
 
@@ -26,7 +28,7 @@ const RankingsPage = ({session, host, data, mode, order, page, perPage, pages, t
 
                 <div className="default">
                     <div className="default-header">Maps</div>
-                  
+                    {pageination}
                     <div className="big-tabs">
                         <Link href={`/classic/maps/${mode}?display=d`}>
                             <a>
@@ -40,7 +42,7 @@ const RankingsPage = ({session, host, data, mode, order, page, perPage, pages, t
                         </Link>
                        
                     </div>
-                    {(display === "d") ? <MapsDefaultView data={data} mode={mode} order={order} display={display}/> : null }
+                    {(display === "d") ? <MapsDefaultView data={data} mode={mode} order={order} display={display} images={mapImages}/> : null }
                     
                     {(display === "t") ? <MapsTableView data={data} order={order} mode={mode}/> : null }
                     {pageination}
@@ -89,6 +91,20 @@ export async function getServerSideProps({req, query}) {
 
     const pages = (totalMaps > 0) ? Math.ceil(totalMaps / perPage) : 1;
 
+    const cleanMapNames = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        const currentName = Functions.cleanMapName(d.mapfile).toLowerCase();
+        if(cleanMapNames.indexOf(currentName) === -1) cleanMapNames.push(currentName);
+
+    }
+
+    const mainMapsManager = new MainMaps();
+
+    const mapImages = await mainMapsManager.getImages(cleanMapNames);
+
     return {
         "props": {
             "host": req.headers.host,
@@ -100,7 +116,8 @@ export async function getServerSideProps({req, query}) {
             "totalResults": totalMaps,
             "mode": mode,
             "order": order,
-            "display": display
+            "display": display,
+            "mapImages": JSON.stringify(mapImages)
 
         }
     };
