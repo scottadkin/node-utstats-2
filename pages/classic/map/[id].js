@@ -17,6 +17,8 @@ const MapPage = ({session, host, page, perPage, pages, title, image, generalStat
 
     matches = JSON.parse(matches);
 
+    const ogImage = Functions.createMapOGLink(image);
+
     const rows = [];
 
     const createRow = (title, value, teamColor) =>{
@@ -46,9 +48,9 @@ const MapPage = ({session, host, page, perPage, pages, title, image, generalStat
     if(generalStats.yellow_team) createRow("Max Yellow Score", generalStats.yellow_max_score, "yellow");
 
     return <div>
-        <Head host={host} title={`page title`} 
-        description={`page desc`} 
-        keywords={`,classic`}/>
+        <Head host={host} title={title} 
+        description={`View stats for the map ${title}, a total of ${totalMatches} matches have been played on this map so far.`} 
+        keywords={`${title},map,details,classic`} image={ogImage}/>
         <main>
             <Nav />
             <div id="content">
@@ -90,8 +92,6 @@ export async function getServerSideProps({req, query}) {
 
     const session = new Session(req);
     await session.load();
-
-    console.log(query);
 
     const title = decodeURIComponent(query.id);
 
