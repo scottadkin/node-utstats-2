@@ -21,13 +21,17 @@ const MapsTableView = ({data, mode, order}) =>{
 
         const d = data[i];
 
+        // /<Link href={`/classic/map/${encodeURIComponent(Functions.removeUnr(d.mapfile))}`}>
+
+        const url = `/classic/map/${encodeURIComponent(Functions.removeUnr(d.mapfile))}`;
+
         rows.push(<tr key={i}>
-            <td>{Functions.removeUnr(d.mapfile)}</td>
-            <td>{Functions.convertTimestamp(Functions.utDate(d.first_match), true)}</td>
-            <td>{Functions.convertTimestamp(Functions.utDate(d.last_match), true)}</td>
-            <td>{Functions.MMSS(d.average_gametime)}</td>
-            <td>{Functions.toHours(d.gametime).toFixed(2)} Hours</td>
-            <td>{d.total_matches}</td>
+            <td><Link href={url}><a>{Functions.removeUnr(d.mapfile)}</a></Link></td>
+            <td><Link href={url}><a>{Functions.convertTimestamp(Functions.utDate(d.first_match), true)}</a></Link></td>
+            <td><Link href={url}><a>{Functions.convertTimestamp(Functions.utDate(d.last_match), true)}</a></Link></td>
+            <td><Link href={url}><a>{Functions.MMSS(d.average_gametime)}</a></Link></td>
+            <td><Link href={url}><a>{Functions.toHours(d.gametime).toFixed(2)} Hours</a></Link></td>
+            <td><Link href={url}><a>{d.total_matches}</a></Link></td>
         </tr>);
     }
 

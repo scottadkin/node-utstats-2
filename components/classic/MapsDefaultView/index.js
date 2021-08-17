@@ -42,17 +42,22 @@ const MapsDefaultView = ({data, mode, order, display, images}) =>{
 
         const d = data[i];
 
-        elems.push(<div key={i} className={styles.wrapper}>
-            <div className={styles.title}>{Functions.removeUnr(d.mapfile)}</div>
-            <Image src={`/images/maps/${getImage(d.mapfile)}.jpg`} width={384} height={216} alt="image"/>
-            <div className={styles.info}>
-                <span className="yellow">Matches</span> {d.total_matches}<br/>
-                <span className="yellow">Playtime</span> {Functions.toHours(d.gametime).toFixed(2)} Hours<br/>
-                <span className="yellow">Average Match Length</span> {Functions.MMSS(d.average_gametime)}<br/>
-                <span className="yellow">First</span> {Functions.convertTimestamp(Functions.utDate(d.first_match))}<br/>
-                <span className="yellow">Last</span> {Functions.convertTimestamp(Functions.utDate(d.last_match))}<br/>
-            </div>
-        </div>);
+        elems.push(<Link href={`/classic/map/${encodeURIComponent(Functions.removeUnr(d.mapfile))}`}>
+                <a>
+                    <div key={i} className={styles.wrapper}>
+                        <div className={styles.title}>{Functions.removeUnr(d.mapfile)}</div>
+                        <Image src={`/images/maps/${getImage(d.mapfile)}.jpg`} width={384} height={216} alt="image"/>
+                        <div className={styles.info}>
+                            <span className="yellow">Matches</span> {d.total_matches}<br/>
+                            <span className="yellow">Playtime</span> {Functions.toHours(d.gametime).toFixed(2)} Hours<br/>
+                            <span className="yellow">Average Match Length</span> {Functions.MMSS(d.average_gametime)}<br/>
+                            <span className="yellow">First</span> {Functions.convertTimestamp(Functions.utDate(d.first_match))}<br/>
+                            <span className="yellow">Last</span> {Functions.convertTimestamp(Functions.utDate(d.last_match))}<br/>
+                        </div>
+                    </div>
+                </a>
+            </Link>
+        );
     }
 
     const orderByElem = <div className="m-bottom-25">

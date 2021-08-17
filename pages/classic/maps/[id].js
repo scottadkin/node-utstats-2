@@ -15,13 +15,27 @@ const RankingsPage = ({session, host, data, mode, order, page, perPage, pages, t
     data = JSON.parse(data);
     mapImages = JSON.parse(mapImages);
 
+    const modes = ["name", "first", "last", "matches", "avglength", "playtime"];
+    const modeTitles = ["Name", "First Match Date", "Last Match Date", "Total Matches", "Average Match Length", "Total Playtime"];
+
+    const modeIndex = modes.indexOf(mode);
+
+    const orderedByString = (modeIndex !== -1) ? modeTitles[modeIndex] : "Unknown";
 
     const pageination = <Pagination currentPage={page + 1} perPage={perPage} pages={pages} results={totalResults} url={`/classic/maps/${mode}?display=${display}&page=`}/>;
 
+    const orderIndexString = (order === "a") ? "Ascending" : "Descending";
+
+    const start = (page * perPage) + 1;
+    let end = (page + 1) * perPage;
+
+    if(end > totalResults) end = totalResults;
+
     return <div>
-    <Head host={host} title={`page title`} 
-        description={`page desc`} 
-        keywords={`,classic`}/>
+    <Head host={host} title={`Maps - ${orderedByString} in ${orderIndexString} Order - Page ${page + 1} of ${pages}`} 
+        description={`View every map played in our database, see which ones are the most popular. Displayed in ${orderedByString} ${orderIndexString} Order,
+         page ${page + 1} of ${pages}, results ${start} to ${end} out of a possible ${totalResults}`} 
+        keywords={`maps,list,classic`}/>
         <main>
             <Nav />
             <div id="content">
