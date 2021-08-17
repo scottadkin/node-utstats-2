@@ -109,6 +109,16 @@ class Maps{
         
     }
 
+    async getTotalMatches(map){
+
+        const query = "SELECT COUNT(*) as total_matches FROM uts_match WHERE mapfile=?";
+
+        const result = await mysql.simpleQuery(query, [map]);
+
+        if(result.length > 0) return result[0].total_matches;
+        return 0;
+    }
+
 }
 
 export default Maps;

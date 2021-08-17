@@ -11,7 +11,7 @@ import React from 'react';
 import MapRecentMatches from '../../../components/classic/MapRecentMatches';
 
 
-const MapPage = ({session, host, title, image, generalStats, matches}) =>{
+const MapPage = ({session, host, page, perPage, pages, title, image, generalStats, matches, totalMatches}) =>{
 
     generalStats = JSON.parse(generalStats);
 
@@ -69,7 +69,7 @@ const MapPage = ({session, host, title, image, generalStats, matches}) =>{
                         </tbody>
                     </table>
 
-                    <MapRecentMatches data={matches}/>
+                    <MapRecentMatches id="matches" data={matches} page={page} perPage={perPage} pages={pages} mapName={title} totalMatches={totalMatches}/>
                 </div>
             </div>
             
@@ -86,7 +86,7 @@ export async function getServerSideProps({req, query}) {
     if(page !== page) page = 1;
     page--;
 
-    const perPage = 75;
+    const perPage = 25;
 
     const session = new Session(req);
     await session.load();
@@ -103,6 +103,10 @@ export async function getServerSideProps({req, query}) {
     const generalStats = await mapManager.getStats(title);
 
     const matches = await mapManager.getRecentMatches(`${title}.unr`, page, perPage);
+    const totalMatches = await mapManager.getTotalMatches(`${title}.unr`);
+    
+
+    const pages = (totalMatches > 0 && perPage > 0) ? Math.ceil(totalMatches / perPage) : 1;
 
     return {
         "props": {
@@ -111,7 +115,11 @@ export async function getServerSideProps({req, query}) {
             "title": title,
             "image": image,
             "generalStats": JSON.stringify(generalStats),
-            "matches": JSON.stringify(matches)
+            "matches": JSON.stringify(matches),
+            "page": page,
+            "perPage": perPage,
+            "totalMatches": totalMatches,
+            "pages": pages
         }
     };
 }

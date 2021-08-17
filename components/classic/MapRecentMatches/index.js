@@ -1,8 +1,9 @@
 import Functions from "../../../api/functions";
 import MatchResult from "../MatchResult";
 import Link from 'next/link';
+import Pagination from "../../Pagination";
 
-const MapRecentMatches = ({data}) =>{
+const MapRecentMatches = ({data, mapName, page, perPage, pages, totalMatches}) =>{
 
     const rows = [];
 
@@ -22,6 +23,10 @@ const MapRecentMatches = ({data}) =>{
 
     return <div>
             <div className="default-header">Recent Matches</div>
+            <Pagination url={`/classic/map/${encodeURIComponent(mapName)}?page=`}
+                currentPage={page + 1} results={totalMatches} pages={pages} perPage={perPage}
+                anchor="#matches"
+            />
             <table className="t-width-1">
             <tbody>
                 <tr>
