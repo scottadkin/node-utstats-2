@@ -58,6 +58,29 @@ class Maps{
         return result[0].total_maps;
     }
 
+    async getStats(mapFile){
+
+        mapFile = `${mapFile}.unr`;
+
+        const query = `SELECT MIN(time) as first_match, MAX(time) as last_match, SUM(gametime) as gametime, 
+        COUNT(*) as total_matches, AVG(gametime) as average_gametime, SUM(frags) as total_frags, SUM(kills) as total_kills,
+        SUM(suicides) as total_suicides, SUM(teamkills) as total_teamkills, MAX(gametime) as longest_match,
+        MAX(kills) as most_kills, MAX(suicides) as most_suicides, MAX(teamkills) as most_teamkills,
+        SUM(t0score) as red_total_score, SUM(t1score) as blue_total_score, SUM(t2score) as green_total_score,
+        SUM(t3score) as yellow_total_score, MAX(t0score) as red_max_score, MAX(t1score) as blue_max_score,
+        MAX(t2score) as green_max_score, MAX(t3score) as yellow_max_score,
+        MAX(t0) as red_team, MAX(t1) as blue_team, MAX(t2) as green_team, MAX(t3) as yellow_team
+        FROM uts_match WHERE mapfile=?`;
+
+        const result = await mysql.simpleQuery(query, [mapFile]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
+    }
+
 }
 
 export default Maps;

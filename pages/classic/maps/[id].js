@@ -10,7 +10,7 @@ import Link from 'next/link';
 import Functions from '../../../api/functions';
 import MainMaps from '../../../api/maps';
 
-const RankingsPage = ({session, host, data, mode, order, page, perPage, pages, totalResults, display, mapImages}) =>{
+const MapsPage = ({session, host, data, mode, order, page, perPage, pages, totalResults, display, mapImages}) =>{
 
     data = JSON.parse(data);
     mapImages = JSON.parse(mapImages);
@@ -138,4 +138,4 @@ export async function getServerSideProps({req, query}) {
 }
 
 
-export default RankingsPage;
+export default MapsPage;
