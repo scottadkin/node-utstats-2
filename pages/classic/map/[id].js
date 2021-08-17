@@ -8,13 +8,14 @@ import styles from '../../../styles/CMap.module.css';
 import Image from 'next/image';
 import Functions from '../../../api/functions';
 import React from 'react';
+import MapRecentMatches from '../../../components/classic/MapRecentMatches';
 
 
-const MapPage = ({session, host, title, image, generalStats}) =>{
+const MapPage = ({session, host, title, image, generalStats, matches}) =>{
 
     generalStats = JSON.parse(generalStats);
 
-    console.log(generalStats);
+    matches = JSON.parse(matches);
 
     const rows = [];
 
@@ -62,12 +63,13 @@ const MapPage = ({session, host, title, image, generalStats}) =>{
                         }}
                     />
                   
-                    <table className="t-width-2 td-1-left">
+                    <table className="t-width-2 td-1-left m-bottom-25">
                         <tbody>
-     
                             {rows}
                         </tbody>
                     </table>
+
+                    <MapRecentMatches data={matches}/>
                 </div>
             </div>
             
@@ -80,8 +82,13 @@ const MapPage = ({session, host, title, image, generalStats}) =>{
 
 export async function getServerSideProps({req, query}) {
 
-    const session = new Session(req);
+    let page = (query.page !== undefined) ? parseInt(query.page) : 1;
+    if(page !== page) page = 1;
+    page--;
 
+    const perPage = 75;
+
+    const session = new Session(req);
     await session.load();
 
     console.log(query);
@@ -95,13 +102,16 @@ export async function getServerSideProps({req, query}) {
 
     const generalStats = await mapManager.getStats(title);
 
+    const matches = await mapManager.getRecentMatches(`${title}.unr`, page, perPage);
+
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
             "title": title,
             "image": image,
-            "generalStats": JSON.stringify(generalStats)
+            "generalStats": JSON.stringify(generalStats),
+            "matches": JSON.stringify(matches)
         }
     };
 }

@@ -123,8 +123,7 @@ class MatchesList extends React.Component{
 
     render(){
 
-        
-
+    
         return <div>
             <div className="default-header">
                 {this.props.title}

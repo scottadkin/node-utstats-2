@@ -62,6 +62,7 @@ const MapsDefaultView = ({data, mode, order, display, images}) =>{
 
     const orderByElem = <div className="m-bottom-25">
         <div className="big-tabs">
+            {createLink("Name", "name", display, mode, order)}
             {createLink("Matches", "matches", display, mode, order)}
             {createLink("Playtime", "playtime", display, mode, order)}
             {createLink("First Match", "first", display, mode, order)}

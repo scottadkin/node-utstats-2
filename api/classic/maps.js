@@ -1,4 +1,5 @@
 import mysql from './database';
+import Matches from './matches';
 
 class Maps{
 
@@ -79,6 +80,33 @@ class Maps{
         }
 
         return null;
+    }
+
+
+    async getRecentMatches(map, page, perPage){
+
+        const query = `SELECT id,time,servername,gamename,gametime,teamgame,t0,t1,t2,t3,t0score,t1score,t2score,t3score
+         FROM uts_match WHERE mapfile=? ORDER by time DESC LIMIT ?, ?`;
+
+        let start = page * perPage;
+        if(start !== start) start = 0;
+        if(start < 0) start = 0;
+
+        const result = await mysql.simpleQuery(query, [map, start, perPage]);
+
+        const matchManager = new Matches();
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            r.result = await matchManager.createMatchResult(r);
+            r.players = await matchManager.getMatchPlayerCount(r.id);
+        }
+
+
+        return result;
+        
     }
 
 }
