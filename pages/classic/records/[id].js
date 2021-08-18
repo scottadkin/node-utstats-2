@@ -23,6 +23,8 @@ const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
 
         const currentType = d.name;
 
+        
+
         for(let x = 0; x < d.data.length; x++){
  
             const offset = d.record - d.data[x].value;
@@ -36,37 +38,39 @@ const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
 
             const place = x + 1 + (perPage * (page - 1));
 
+            const url = (mode === 1) ? `/classic/player/${d.data[x].pid}` : `/classic/match/${d.data[x].matchid}`;
+
             rows.push(<tr key={x}>
                 <td className="yellow">
-                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                    <Link href={url}>
                         <a>
                             {place}{Functions.getOrdinal(place)}
                         </a>
                     </Link>
                 </td>
                 <td className="text-left">
-                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                    <Link href={url}>
                         <a>
                             <CountryFlag country={d.data[x].country}/>{d.data[x].name}
                         </a>
                     </Link>
                 </td>
                 <td>
-                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                    <Link href={url}>
                         <a>
                             {Functions.timeString(d.data[x].gametime)}
                         </a>
                     </Link>
                 </td>
                 <td>
-                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                    <Link href={url}>
                         <a>
                             {currentValue}
                         </a>
                     </Link>
                 </td>
                 <td className={(offset === 0) ? "team-green" : "team-red"}>
-                    <Link href={`/classic/match/${d.data[x].matchid}`}>
+                    <Link href={url}>
                         <a>{(offset === 0) ? null : `-${
                             (d.name === "Playtime") ? Functions.timeString(d.record - d.data[x].value) : offset}`}
                         </a>
