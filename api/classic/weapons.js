@@ -50,6 +50,35 @@ class Weapons{
 
         return {"stats": data, "names": weaponNames}
     }
+
+    async getPlayerTotals(id){
+
+        const query = `SELECT weapon, SUM(kills) as kills, SUM(shots) as shots, SUM(hits) as hits, 
+        SUM(damage) as damage
+        FROM uts_weaponstats WHERE pid=? GROUP BY(weapon) ORDER BY weapon ASC`;
+        
+        const result = await mysql.simpleQuery(query, [id]);
+
+        const weaponIds = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i].weapon;
+            weaponIds.push(r);
+
+        }
+
+        const weaponNames = await this.getNames(weaponIds);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            r.name = (weaponNames[r.weapon] !== undefined) ? weaponNames[r.weapon] : "Not Found";
+        }
+
+        return result;
+    }
 }
 
 

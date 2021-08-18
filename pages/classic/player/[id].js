@@ -9,12 +9,15 @@ import Gametypes from '../../../api/classic/gametypes';
 import PlayerSpecialEvents from '../../../components/classic/PlayerSpecialEvents';
 import PlayerCTFSummary from '../../../components/classic/PlayerCTFSummary';
 import PlayerADSummary from '../../../components/classic/PlayerADSummary';
+import Weapons from '../../../api/classic/weapons';
+import PlayerWeaponStats from '../../../components/classic/PlayerWeaponStats';
 
-const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods}) =>{
+const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, weaponData}) =>{
 
     basicData = JSON.parse(basicData)
     data = JSON.parse(data);
     gametypeData = JSON.parse(gametypeData);
+    weaponData = JSON.parse(weaponData);
 
     const title = `${basicData.name}${Functions.apostrophe(basicData.name)} Career Profile`;
 
@@ -41,6 +44,7 @@ const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods})
                 <PlayerCTFSummary totals={data.totals.ctf} max={data.max.ctf}/>
                 <PlayerADSummary totals={adTotals} max={adMax}/>
                 <PlayerSpecialEvents data={data.totals} firstBloods={firstBloods}/>
+                <PlayerWeaponStats data={weaponData}/>
             </div>
         </div>
         
@@ -96,6 +100,10 @@ export async function getServerSideProps({req, query}) {
 
     const firstBloods = await playerManager.getTotalFirstBloods(id);
 
+    const weaponManager = new Weapons();
+
+    const weaponData = await weaponManager.getPlayerTotals(id);
+
     return {
         "props": {
             "host": req.headers.host,
@@ -103,7 +111,8 @@ export async function getServerSideProps({req, query}) {
             "basicData": JSON.stringify(basicData),
             "data": JSON.stringify(data),
             "gametypeData": JSON.stringify(playerGametypeData),
-            "firstBloods": firstBloods
+            "firstBloods": firstBloods,
+            "weaponData": JSON.stringify(weaponData)
         }
     };
 }
