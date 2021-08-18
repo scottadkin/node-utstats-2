@@ -318,7 +318,6 @@ class Players{
         MAX(flag_kill) as max_flag_kill,
         MAX(flag_pickedup) as max_flag_pickedup,
         MAX(dom_cp) as max_dom_cp,
-        MAX(ass_obj) as max_ass_obj,
         MAX(spree_double) as max_spree_double,
         MAX(spree_multi) as max_spree_multi,
         MAX(spree_ultra) as max_spree_ultra,
@@ -372,7 +371,7 @@ class Players{
                         "pickup": r.flag_pickedup
                     },
                     "dom": { "caps": r.dom_cp},
-                    "assualt": {"caps": r.ass_obj},
+                    "assault": {"caps": r.ass_obj},
                     "multis": {
                         "double": r.spree_double,
                         "multi": r.spree_multi,
@@ -423,7 +422,6 @@ class Players{
                         "pickup": r.max_flag_pickedup
                     },
                     "dom": { "caps": r.max_dom_cp},
-                    "assualt": {"caps": r.max_ass_obj},
                     "multis": {
                         "double": r.max_spree_double,
                         "multi": r.max_spree_multi,

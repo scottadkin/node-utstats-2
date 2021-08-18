@@ -8,6 +8,7 @@ import PlayerGeneral from '../../../components/classic/PlayerGeneral';
 import Gametypes from '../../../api/classic/gametypes';
 import PlayerSpecialEvents from '../../../components/classic/PlayerSpecialEvents';
 import PlayerCTFSummary from '../../../components/classic/PlayerCTFSummary';
+import PlayerADSummary from '../../../components/classic/PlayerADSummary';
 
 const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods}) =>{
 
@@ -16,6 +17,15 @@ const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods})
     gametypeData = JSON.parse(gametypeData);
 
     const title = `${basicData.name}${Functions.apostrophe(basicData.name)} Career Profile`;
+
+    const adTotals = {
+        "dom": data.totals.dom.caps,
+        "assault": data.totals.assault.caps
+    };
+
+    const adMax = {
+        "dom": data.max.dom.caps
+    };
 
     return <div>
     <Head host={host} title={title} 
@@ -29,6 +39,7 @@ const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods})
                 <div className="default-header">{title}</div>
                 <PlayerGeneral totals={data.totals} gametypes={gametypeData}/>
                 <PlayerCTFSummary totals={data.totals.ctf} max={data.max.ctf}/>
+                <PlayerADSummary totals={adTotals} max={adMax}/>
                 <PlayerSpecialEvents data={data.totals} firstBloods={firstBloods}/>
             </div>
         </div>
