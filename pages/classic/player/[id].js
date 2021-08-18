@@ -11,6 +11,7 @@ import PlayerCTFSummary from '../../../components/classic/PlayerCTFSummary';
 import PlayerADSummary from '../../../components/classic/PlayerADSummary';
 import Weapons from '../../../api/classic/weapons';
 import PlayerWeaponStats from '../../../components/classic/PlayerWeaponStats';
+import PlayerPingSummary from '../../../components/classic/PlayerPingSummary';
 
 const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, weaponData}) =>{
 
@@ -30,6 +31,18 @@ const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, 
         "dom": data.max.dom.caps
     };
 
+    const pingAverage = {
+        "min": data.totals.ping.low,
+        "average": data.totals.ping.average,
+        "max": data.totals.ping.max
+    };
+
+    const pingMax = {
+        "min": data.max.ping.low,
+        "average": data.max.ping.average,
+        "max": data.max.ping.max
+    };
+
     return <div>
     <Head host={host} title={title} 
     description={`page desc`} 
@@ -45,6 +58,7 @@ const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, 
                 <PlayerADSummary totals={adTotals} max={adMax}/>
                 <PlayerSpecialEvents data={data.totals} firstBloods={firstBloods}/>
                 <PlayerWeaponStats data={weaponData}/>
+                <PlayerPingSummary average={pingAverage} max={pingMax}/>
             </div>
         </div>
         
@@ -103,6 +117,7 @@ export async function getServerSideProps({req, query}) {
     const weaponManager = new Weapons();
 
     const weaponData = await weaponManager.getPlayerTotals(id);
+
 
     return {
         "props": {
