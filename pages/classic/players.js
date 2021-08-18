@@ -188,13 +188,12 @@ export async function getServerSideProps({req, query}) {
 
     let data = [];
 
-    const validTypes = ["total_matches","gamescore","frags","kills","deaths","eff","gametime","player"];
+    const validTypes = ["matches","score","frags","kills","deaths","eff","hours","player"];
 
     let totalPlayers = 0;
 
     if(validTypes.indexOf(mode) !== -1){
      
-
         if(mode === "player"){
             data = await playerManager.getDefaultPlayers(page, perPage, (order === "a") ? false : true);
         }else{
@@ -204,18 +203,12 @@ export async function getServerSideProps({req, query}) {
         totalPlayers = await playerManager.getTotalPlayers();
     }
 
-    
-    
     let pages = 1;
 
     if(totalPlayers > 0 && perPage > 0){
 
         pages = Math.ceil(totalPlayers / perPage);
     }
-
-
-
-    
 
     return {
         "props": {
