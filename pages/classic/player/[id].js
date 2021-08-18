@@ -6,6 +6,7 @@ import Players from '../../../api/classic/players';
 import Functions from '../../../api/functions';
 import PlayerGeneral from '../../../components/classic/PlayerGeneral';
 import Gametypes from '../../../api/classic/gametypes';
+import PlayerSpecialEvents from '../../../components/classic/PlayerSpecialEvents';
 
 const PlayerPage = ({session, host, basicData, data, gametypeData}) =>{
 
@@ -26,6 +27,7 @@ const PlayerPage = ({session, host, basicData, data, gametypeData}) =>{
             <div className="default">
                 <div className="default-header">{title}</div>
                 <PlayerGeneral totals={data.totals} gametypes={gametypeData}/>
+                <PlayerSpecialEvents data={data.totals}/>
             </div>
         </div>
         
@@ -76,8 +78,6 @@ export async function getServerSideProps({req, query}) {
 
         g.name = currentName;
     }
-
-    console.log(playerGametypeData);
 
     return {
         "props": {

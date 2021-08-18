@@ -457,7 +457,7 @@ class Players{
 
         const query = `SELECT gid,COUNT(*) as total_matches,SUM(gametime) as playtime,
         SUM(gamescore) as gamescore, SUM(frags) as frags, SUM(kills) as kills, SUM(deaths) as deaths,
-        SUM(suicides) as suicides, SUM(teamkills) as teamKills, AVG(eff) as eff, AVG(ttl) as ttl
+        SUM(suicides) as suicides, SUM(teamkills) as teamKills, AVG(ttl) as ttl
         FROM uts_player WHERE pid=? GROUP BY(gid) ORDER BY total_matches DESC`;
 
         return await mysql.simpleQuery(query, [id]);

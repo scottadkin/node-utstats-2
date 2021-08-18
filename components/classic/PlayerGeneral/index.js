@@ -40,6 +40,11 @@ const PlayerGeneral = ({totals, gametypes}) =>{
             playtime = (playtime / (60 * 60)).toFixed(2)
         }
 
+        let eff = 0;
+
+        if(g.kills > 0 && g.deaths === 0) eff = 100;
+        if(g.kills > 0 && g.deaths > 0) eff = (g.kills / (g.kills + g.deaths)) * 100;
+
         rows.push(<tr key={-1}>
             <td>{g.name}</td>
             <td>{g.total_matches}</td>
@@ -49,7 +54,7 @@ const PlayerGeneral = ({totals, gametypes}) =>{
             <td>{g.kills}</td>
             <td>{g.deaths}</td>
             <td>{g.suicides}</td>
-            <td>{g.eff.toFixed(2)}%</td>
+            <td>{eff.toFixed(2)}%</td>
             <td>{g.teamKills}</td>
         </tr>);
     }
