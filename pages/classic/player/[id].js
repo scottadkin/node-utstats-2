@@ -12,13 +12,16 @@ import PlayerADSummary from '../../../components/classic/PlayerADSummary';
 import Weapons from '../../../api/classic/weapons';
 import PlayerWeaponStats from '../../../components/classic/PlayerWeaponStats';
 import PlayerPingSummary from '../../../components/classic/PlayerPingSummary';
+import Rankings from '../../../api/classic/rankings';
+import PlayerRankingSummary from '../../../components/classic/PlayerRankingSummary';
 
-const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, weaponData}) =>{
+const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, weaponData, rankingData}) =>{
 
     basicData = JSON.parse(basicData)
     data = JSON.parse(data);
     gametypeData = JSON.parse(gametypeData);
     weaponData = JSON.parse(weaponData);
+    rankingData = JSON.parse(rankingData);
 
     const title = `${basicData.name}${Functions.apostrophe(basicData.name)} Career Profile`;
 
@@ -59,6 +62,7 @@ const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, 
                 <PlayerSpecialEvents data={data.totals} firstBloods={firstBloods}/>
                 <PlayerWeaponStats data={weaponData}/>
                 <PlayerPingSummary average={pingAverage} max={pingMax}/>
+                <PlayerRankingSummary data={rankingData} playerName={basicData.name}/>
             </div>
         </div>
         
@@ -115,9 +119,11 @@ export async function getServerSideProps({req, query}) {
     const firstBloods = await playerManager.getTotalFirstBloods(id);
 
     const weaponManager = new Weapons();
-
     const weaponData = await weaponManager.getPlayerTotals(id);
 
+    const rankingManager = new Rankings();
+
+    const rankingData = await rankingManager.getPlayerData(id);
 
     return {
         "props": {
@@ -127,7 +133,8 @@ export async function getServerSideProps({req, query}) {
             "data": JSON.stringify(data),
             "gametypeData": JSON.stringify(playerGametypeData),
             "firstBloods": firstBloods,
-            "weaponData": JSON.stringify(weaponData)
+            "weaponData": JSON.stringify(weaponData),
+            "rankingData": JSON.stringify(rankingData)
         }
     };
 }

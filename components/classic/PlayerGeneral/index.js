@@ -45,7 +45,7 @@ const PlayerGeneral = ({totals, gametypes}) =>{
         if(g.kills > 0 && g.deaths === 0) eff = 100;
         if(g.kills > 0 && g.deaths > 0) eff = (g.kills / (g.kills + g.deaths)) * 100;
 
-        rows.push(<tr key={-1}>
+        rows.push(<tr key={i}>
             <td>{g.name}</td>
             <td>{g.total_matches}</td>
             <td>{playtime} Hours</td>

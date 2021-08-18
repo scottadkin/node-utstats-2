@@ -25,15 +25,17 @@ const PlayerWeaponStats = ({data}) =>{
     return <div className="m-bottom-25">
         <div className="default-header">Weapon Stats</div>
         <table className="t-width-1 td-1-left">
-            <tr>
-                <th>Name</th>
-                <th>Kills</th>
-                <th>Shots</th>
-                <th>Hits</th>
-                <th>Accuracy</th>
-                <th>Damage</th>
-            </tr>
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <th>Kills</th>
+                    <th>Shots</th>
+                    <th>Hits</th>
+                    <th>Accuracy</th>
+                    <th>Damage</th>
+                </tr>
             {rows}
+            </tbody>
         </table>
     </div>
 }

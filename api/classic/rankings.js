@@ -1,5 +1,6 @@
 import mysql from './database';
 import Players from './players';
+import Gametypes from './gametypes';
 
 class Rankings{
 
@@ -132,6 +133,37 @@ class Rankings{
         const playerData = await this.players.getNamesAndCountry(playerIds);
 
         return {"data": data, "players": playerData};
+    }
+
+
+    async getPlayerData(id){
+
+        const query = "SELECT time,gid,rank,prevrank,matches FROM uts_rank WHERE pid=?";
+
+        const result = await mysql.simpleQuery(query, [id]);
+
+        const gametypeIds = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i].gid;
+            gametypeIds.push(r);
+        }
+
+        const gametypeManager = new Gametypes();
+
+        const names = await gametypeManager.getNames(gametypeIds);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            r.name = (names[r.gid] !== undefined) ? names[r.gid] : "Not Found";
+            r.position = await this.getPosition(r.gid, r.rank);
+            r.totalPlayers = await this.getTotalPlayers(r.gid);
+        }
+
+        return result;
     }
 
 }

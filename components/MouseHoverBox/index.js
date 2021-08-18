@@ -46,22 +46,22 @@ class MouseHoverBox extends React.Component{
 
                     if(!Array.isArray(p[x])){
                         //for just a single table row
-                        currentColumns.push(<td>{p[x]}</td>);
+                        currentColumns.push(<td key={-x}>{p[x]}</td>);
 
                     }else{
                         //for multiple table rows
                         bMultiRows = true;
                         for(let z = 0; z < p[x].length; z++){
-                            currentColumns.push(<td>{p[x][z]}</td>);
+                            currentColumns.push(<td key={z}>{p[x][z]}</td>);
                         }
-                        elems.push(<tr>{currentColumns}</tr>);
+                        elems.push(<tr key={x}>{currentColumns}</tr>);
                         currentColumns = [];
                         
                     }
                 }
                 
                 if(!bMultiRows){
-                    elems.push(<tr>
+                    elems.push(<tr key={i}>
                         {currentColumns}
                     </tr>);
                 }
