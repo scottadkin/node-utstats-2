@@ -51,6 +51,19 @@ class Players{
         return names;
     }
 
+    async getSingleNameAndCountry(id){
+
+        const query = "SELECT name,country FROM uts_pinfo WHERE id=?";
+
+        const result = await mysql.simpleQuery(query, [id]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
+    }
+
     async getNamesAndCountry(ids){
 
         if(ids.length === 0) return [];
@@ -242,6 +255,7 @@ class Players{
     async getPlayerProfileData(id){
 
         const query = `SELECT 
+        COUNT(*) as total_matches,
         SUM(gametime) as gametime,
         SUM(gamescore) as gamescore,
         MIN(lowping) as lowping,
@@ -331,6 +345,7 @@ class Players{
 
             return {
                 "totals": {
+                    "matches": r.total_matches,
                     "playtime": (r.gametime > 0) ? (r.gametime / (60 * 60)).toFixed(2) : 0,
                     "score": r.gamescore,
                     "ping": {
@@ -436,6 +451,17 @@ class Players{
         }
 
         return null;
+    }
+
+    async getPlayerGametypes(id){
+
+        const query = `SELECT gid,COUNT(*) as total_matches,SUM(gametime) as playtime,
+        SUM(gamescore) as gamescore, SUM(frags) as frags, SUM(kills) as kills, SUM(deaths) as deaths,
+        SUM(suicides) as suicides, SUM(teamkills) as teamKills, AVG(eff) as eff, AVG(ttl) as ttl
+        FROM uts_player WHERE pid=? GROUP BY(gid) ORDER BY total_matches DESC`;
+
+        return await mysql.simpleQuery(query, [id]);
+
     }
 
 }
