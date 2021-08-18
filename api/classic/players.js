@@ -464,6 +464,14 @@ class Players{
 
     }
 
+    async getTotalFirstBloods(id){
+
+        const query = "SELECT COUNT(*) as first_bloods FROM uts_match WHERE firstblood=?";
+
+        const result = await mysql.simpleQuery(query, [id]);
+        return result[0].first_bloods;    
+    }
+
 }
 
 

@@ -7,8 +7,9 @@ import Functions from '../../../api/functions';
 import PlayerGeneral from '../../../components/classic/PlayerGeneral';
 import Gametypes from '../../../api/classic/gametypes';
 import PlayerSpecialEvents from '../../../components/classic/PlayerSpecialEvents';
+import PlayerCTFSummary from '../../../components/classic/PlayerCTFSummary';
 
-const PlayerPage = ({session, host, basicData, data, gametypeData}) =>{
+const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods}) =>{
 
     basicData = JSON.parse(basicData)
     data = JSON.parse(data);
@@ -27,7 +28,8 @@ const PlayerPage = ({session, host, basicData, data, gametypeData}) =>{
             <div className="default">
                 <div className="default-header">{title}</div>
                 <PlayerGeneral totals={data.totals} gametypes={gametypeData}/>
-                <PlayerSpecialEvents data={data.totals}/>
+                <PlayerCTFSummary totals={data.totals.ctf} max={data.max.ctf}/>
+                <PlayerSpecialEvents data={data.totals} firstBloods={firstBloods}/>
             </div>
         </div>
         
@@ -49,6 +51,8 @@ export async function getServerSideProps({req, query}) {
 
 
     const playerManager = new Players();
+
+    
 
     const data = await playerManager.getPlayerProfileData(id);
 
@@ -79,13 +83,16 @@ export async function getServerSideProps({req, query}) {
         g.name = currentName;
     }
 
+    const firstBloods = await playerManager.getTotalFirstBloods(id);
+
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
             "basicData": JSON.stringify(basicData),
             "data": JSON.stringify(data),
-            "gametypeData": JSON.stringify(playerGametypeData)
+            "gametypeData": JSON.stringify(playerGametypeData),
+            "firstBloods": firstBloods
         }
     };
 }

@@ -1,6 +1,6 @@
 import Functions from '../../../api/functions';
 
-const PlayerSpecialEvents = ({data}) =>{
+const PlayerSpecialEvents = ({data, firstBloods}) =>{
 
     return <div className="m-bottom-25">
         <div className="default-header">Special Events</div>
@@ -8,12 +8,14 @@ const PlayerSpecialEvents = ({data}) =>{
         <table className="t-width-2 m-bottom-25">
             <tbody>
                 <tr>
+                    <th>First Blood</th>
                     <th>Double Kill</th>
                     <th>Multi Kill</th>
                     <th>Ultra Kill</th>
                     <th>Monster Kill</th>
                 </tr>
                 <tr>
+                    <td>{Functions.ignore0(firstBloods)}</td>
                     <td>{Functions.ignore0(data.multis.double)}</td>
                     <td>{Functions.ignore0(data.multis.multi)}</td>
                     <td>{Functions.ignore0(data.multis.ultra)}</td>
