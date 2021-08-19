@@ -19,10 +19,14 @@ const PlayerRecentMatches = ({data, images, playerId, page, pages, perPage, mode
         if(mode === "d"){
 
             elems.push(
-                <MatchResultBox key={i} serverName={d.servername} gametypeName={d.gamename} mapName={Functions.removeUnr(d.mapfile)}
-                    date={Functions.convertTimestamp(Functions.utDate(d.time))} playtime={Functions.MMSS(d.gametime)} players={d.players}
-                    totalTeams={d.totalTeams} result={d.result} mapImage={image} classic={true}
-                />
+                <Link href={`/classic/match/${d.id}`}>
+                    <a>
+                        <MatchResultBox key={i} serverName={d.servername} gametypeName={d.gamename} mapName={Functions.removeUnr(d.mapfile)}
+                            date={Functions.convertTimestamp(Functions.utDate(d.time))} playtime={Functions.MMSS(d.gametime)} players={d.players}
+                            totalTeams={d.totalTeams} result={d.result} mapImage={image} classic={true}
+                        />
+                    </a>
+                </Link>
             );
 
         }else{
