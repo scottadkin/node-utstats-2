@@ -489,9 +489,7 @@ class Players{
         return matchIds;
     }
 
-    async getRecentMatches(id, page, perPage){
-
-        const matchIds = await this.getPlayedMatches(id);
+    async getRecentMatches(id, page, perPage, matchIds){
 
         if(matchIds.length === 0) return [];
 
@@ -509,6 +507,32 @@ class Players{
 
         return {"matches": result, "totalMatches": matchIds.length};
 
+    }
+
+    async getFirstMatchDate(matchIds){
+
+        if(matchIds.length === 0) return 0;
+
+        const query = "SELECT time FROM uts_match WHERE id IN(?) ORDER BY time ASC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+        
+        if(result.length > 0) return result[0].time;
+
+        return 0;
+    }
+
+    async getLastMatchDate(matchIds){
+
+        if(matchIds.length === 0) return 0;
+
+        const query = "SELECT time FROM uts_match WHERE id IN(?) ORDER BY time DESC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+        
+        if(result.length > 0) return result[0].time;
+
+        return 0;
     }
 
 }

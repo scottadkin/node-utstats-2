@@ -63,6 +63,7 @@ const PlayerGeneral = ({totals, gametypes}) =>{
     rows.push(totalsRow);
 
     return <div>
+        <div className="default-header">General Summary</div>
         <table className="t-width-1 m-bottom-25 td-1-left">
             <tbody>
                 <tr>

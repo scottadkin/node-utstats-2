@@ -16,9 +16,11 @@ import Rankings from '../../../api/classic/rankings';
 import PlayerRankingSummary from '../../../components/classic/PlayerRankingSummary';
 import PlayerRecentMatches from '../../../components/classic/PlayerRecentMatches';
 import MainMaps from '../../../api/maps';
+import countries from '../../../api/countries';
+import CountryFlag from '../../../components/CountryFlag';
 
 const PlayerPage = ({session, host, playerId, basicData, data, gametypeData, firstBloods, weaponData, rankingData,
-        recentMatches, mapImages, page, pages, perPage, mode }) =>{
+        recentMatches, mapImages, page, pages, perPage, mode, first, last }) =>{
 
     basicData = JSON.parse(basicData)
     data = JSON.parse(data);
@@ -51,16 +53,41 @@ const PlayerPage = ({session, host, playerId, basicData, data, gametypeData, fir
         "max": data.max.ping.max
     };
 
+
+    const countryInfo = countries(basicData.country);
+
+    const metaFirstDate = Functions.convertTimestamp(Functions.utDate(first), true);
+    const metaLastDate = Functions.convertTimestamp(Functions.utDate(last), true);
+
+    const fullFirstDate = Functions.convertTimestamp(Functions.utDate(first));
+    const fullLastDate = Functions.convertTimestamp(Functions.utDate(last));
+
     return <div>
     <Head host={host} title={title} 
-    description={`page desc`} 
-    keywords={`,classic`}/>
+    description={`${title}, ${basicData.name} is from ${countryInfo.country}, and has played a total of ${data.totals.matches} matches with a total of ${data.totals.playtime} hours of playtime. First seen ${metaFirstDate}, last seen ${metaLastDate}.`} 
+    keywords={`${basicData.name},profile,carrer,classic`}/>
     <main>
         <Nav />
         <div id="content">
 
             <div className="default">
                 <div className="default-header">{title}</div>
+                <table className="t-width-2 m-bottom-25">
+                    <tbody>
+                        <tr>
+                            <td>Country</td>
+                            <td><CountryFlag country={countryInfo.code}/>{countryInfo.country}</td>
+                        </tr>
+                        <tr>
+                            <td>First Seen</td>
+                            <td>{fullFirstDate}</td>
+                        </tr>
+                        <tr>
+                            <td>Last Seen</td>
+                            <td>{fullLastDate}</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <PlayerGeneral totals={data.totals} gametypes={gametypeData}/>
                 <PlayerCTFSummary totals={data.totals.ctf} max={data.max.ctf}/>
                 <PlayerADSummary totals={adTotals} max={adMax}/>
@@ -139,7 +166,11 @@ export async function getServerSideProps({req, query}) {
     const rankingData = await rankingManager.getPlayerData(id);
 
     const matchesPerPage = 20;
-    const recentMatches = await playerManager.getRecentMatches(id, matchPage, matchesPerPage);
+    const matchIds = await playerManager.getPlayedMatches(id);
+    const recentMatches = await playerManager.getRecentMatches(id, matchPage, matchesPerPage, matchIds);
+
+    const firstMatchDate = await playerManager.getFirstMatchDate(matchIds);
+    const lastMatchDate =  await playerManager.getLastMatchDate(matchIds);
 
     const mapNames = [];
 
@@ -174,7 +205,9 @@ export async function getServerSideProps({req, query}) {
             "page": matchPage,
             "perPage": matchesPerPage,
             "pages": pages,
-            "mode": matchView
+            "mode": matchView,
+            "first": firstMatchDate,
+            "last": lastMatchDate
         }
     };
 }
