@@ -18,7 +18,7 @@ import PlayerRecentMatches from '../../../components/classic/PlayerRecentMatches
 import MainMaps from '../../../api/maps';
 
 const PlayerPage = ({session, host, playerId, basicData, data, gametypeData, firstBloods, weaponData, rankingData,
-        recentMatches, mapImages, page, pages, perPage }) =>{
+        recentMatches, mapImages, page, pages, perPage, mode }) =>{
 
     basicData = JSON.parse(basicData)
     data = JSON.parse(data);
@@ -69,7 +69,7 @@ const PlayerPage = ({session, host, playerId, basicData, data, gametypeData, fir
                 <PlayerPingSummary average={pingAverage} max={pingMax}/>
                 <PlayerRankingSummary data={rankingData} playerName={basicData.name}/>
                 <PlayerRecentMatches data={recentMatches} images={mapImages} page={page} perPage={perPage} pages={pages}
-                    playerId={playerId}
+                    playerId={playerId} mode={mode}
                 />
             </div>
         </div>
@@ -93,9 +93,13 @@ export async function getServerSideProps({req, query}) {
     if(matchPage !== matchPage) matchPage = 1;
     matchPage--;
 
+    let matchView = "d";
+
+    if(query.mv !== undefined) matchView = query.mv;
+
+    if(query.mv != "a" || query.mv !== "t") query.mv = "d";
+
     const playerManager = new Players();
-
-
     const data = await playerManager.getPlayerProfileData(id);
 
     const basicData = await playerManager.getSingleNameAndCountry([id]);
@@ -169,7 +173,8 @@ export async function getServerSideProps({req, query}) {
             "mapImages": JSON.stringify(images),
             "page": matchPage,
             "perPage": matchesPerPage,
-            "pages": pages
+            "pages": pages,
+            "mode": matchView
         }
     };
 }
