@@ -14,14 +14,19 @@ import PlayerWeaponStats from '../../../components/classic/PlayerWeaponStats';
 import PlayerPingSummary from '../../../components/classic/PlayerPingSummary';
 import Rankings from '../../../api/classic/rankings';
 import PlayerRankingSummary from '../../../components/classic/PlayerRankingSummary';
+import PlayerRecentMatches from '../../../components/classic/PlayerRecentMatches';
+import MainMaps from '../../../api/maps';
 
-const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, weaponData, rankingData}) =>{
+const PlayerPage = ({session, host, playerId, basicData, data, gametypeData, firstBloods, weaponData, rankingData,
+        recentMatches, mapImages, page, pages, perPage }) =>{
 
     basicData = JSON.parse(basicData)
     data = JSON.parse(data);
     gametypeData = JSON.parse(gametypeData);
     weaponData = JSON.parse(weaponData);
     rankingData = JSON.parse(rankingData);
+    recentMatches = JSON.parse(recentMatches);
+    mapImages = JSON.parse(mapImages);
 
     const title = `${basicData.name}${Functions.apostrophe(basicData.name)} Career Profile`;
 
@@ -63,6 +68,9 @@ const PlayerPage = ({session, host, basicData, data, gametypeData, firstBloods, 
                 <PlayerWeaponStats data={weaponData}/>
                 <PlayerPingSummary average={pingAverage} max={pingMax}/>
                 <PlayerRankingSummary data={rankingData} playerName={basicData.name}/>
+                <PlayerRecentMatches data={recentMatches} images={mapImages} page={page} perPage={perPage} pages={pages}
+                    playerId={playerId}
+                />
             </div>
         </div>
         
@@ -79,13 +87,14 @@ export async function getServerSideProps({req, query}) {
     await session.load();
 
     let id = parseInt(query.id);
-
     if(id !== id) id = 1;
 
+    let matchPage = (query.matchPage !== undefined) ? parseInt(query.matchPage) : 1;
+    if(matchPage !== matchPage) matchPage = 1;
+    matchPage--;
 
     const playerManager = new Players();
 
-    
 
     const data = await playerManager.getPlayerProfileData(id);
 
@@ -125,16 +134,42 @@ export async function getServerSideProps({req, query}) {
 
     const rankingData = await rankingManager.getPlayerData(id);
 
+    const matchesPerPage = 20;
+    const recentMatches = await playerManager.getRecentMatches(id, matchPage, matchesPerPage);
+
+    const mapNames = [];
+
+    for(let i = 0; i < recentMatches.matches.length; i++){
+
+        const r = recentMatches.matches[i];
+        if(mapNames.indexOf(r.mapfile) === -1) mapNames.push(r.mapfile);
+    }
+
+    let pages = 1;
+
+    if(recentMatches.totalMatches > 0){
+        pages = Math.ceil(recentMatches.totalMatches / matchesPerPage);
+    }
+
+    const mapManager = new MainMaps();
+    const images = await mapManager.getImages(mapNames);
+   
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
+            "playerId": id,
             "basicData": JSON.stringify(basicData),
             "data": JSON.stringify(data),
             "gametypeData": JSON.stringify(playerGametypeData),
             "firstBloods": firstBloods,
             "weaponData": JSON.stringify(weaponData),
-            "rankingData": JSON.stringify(rankingData)
+            "rankingData": JSON.stringify(rankingData),
+            "recentMatches": JSON.stringify(recentMatches),
+            "mapImages": JSON.stringify(images),
+            "page": matchPage,
+            "perPage": matchesPerPage,
+            "pages": pages
         }
     };
 }

@@ -180,6 +180,9 @@ export async function getServerSideProps({req, query}) {
 
     if(query.order !== undefined){
         order = query.order.toLowerCase();
+    }else{
+
+        if(mode === "player") order = "a";
     }
 
 

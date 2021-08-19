@@ -207,6 +207,26 @@ class Matches{
         return await mysql.simpleQuery(query, [matchId, playerId, playerId]);
     }
 
+
+    async setPlayersAndResult(matchData){
+
+        for(let i = 0; i < matchData.length; i++){
+
+            const m = matchData[i];
+
+            m.result = await this.createMatchResult(m);
+            m.players = await this.getMatchPlayerCount(m.id);
+
+            let teams = 0;
+
+            for(let i = 0; i < 4; i++){
+                if(m[`t${i}`] !== 0) teams++;
+            }
+
+            m.totalTeams = teams;
+        }
+    }
+
 }
 
 export default Matches;

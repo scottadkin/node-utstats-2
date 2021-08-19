@@ -1,4 +1,5 @@
 import mysql from './database';
+import Matches from './matches';
 
 class Players{
 
@@ -468,6 +469,46 @@ class Players{
 
         const result = await mysql.simpleQuery(query, [id]);
         return result[0].first_bloods;    
+    }
+
+
+    async getPlayedMatches(id){
+
+        const query = "SELECT matchid FROM uts_player WHERE pid=?";
+
+        const result = await mysql.simpleQuery(query, [id]);
+
+        const matchIds = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            matchIds.push(result[i].matchid);
+
+        }
+        
+        return matchIds;
+    }
+
+    async getRecentMatches(id, page, perPage){
+
+        const matchIds = await this.getPlayedMatches(id);
+
+        if(matchIds.length === 0) return [];
+
+        const query = "SELECT * FROM uts_match WHERE id IN(?) ORDER BY time DESC LIMIT ?, ?";
+
+        let start = page * perPage;
+
+        if(start < 0) start = 0;
+
+        const result = await mysql.simpleQuery(query, [matchIds, start, perPage]);
+
+        const matchManager = new Matches();
+
+        await matchManager.setPlayersAndResult(result);
+
+        return {"matches": result, "totalMatches": matchIds.length};
+
     }
 
 }
