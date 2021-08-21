@@ -535,6 +535,65 @@ class Players{
         return 0;
     }
 
+
+    async getIdsFromMatchOrderedByScore(matchId, maxPlayers){
+
+        const query = "SELECT pid FROM uts_player WHERE matchid=? ORDER BY gamescore DESC LIMIT ?";
+        const result = await mysql.simpleQuery(query, [matchId, maxPlayers]);
+
+        const playerIds = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            playerIds.push(result[i].pid);
+        }
+
+        return playerIds;
+    }
+
+
+    async getBasicStats(ids){
+
+        if(ids.length === 0) return [];
+
+        const query = `SELECT pid,COUNT(*) as total_matches, SUM(gametime) as gametime, SUM(gamescore) as gamescore, SUM(kills) as kills, SUM(deaths) as deaths
+        FROM uts_player WHERE pid IN(?) GROUP BY(pid)`;
+
+        return await mysql.simpleQuery(query, [ids]);
+        
+    }
+
+
+    async getLatestPlayerDetails(matchId, maxPlayers){
+
+        const playerIds = await this.getIdsFromMatchOrderedByScore(matchId, maxPlayers);
+        
+        if(playerIds.length === 0) return [];
+
+        const names = await this.getNamesAndCountry(playerIds);
+   
+        const basicData = await this.getBasicStats(playerIds);
+
+        for(let i = 0; i < basicData.length; i++){
+
+            const b = basicData[i];
+
+            if(names[b.pid] !== undefined){
+
+                const n = names[b.pid];
+
+                n.gametime = (b.gametime > 0) ? (b.gametime / (60 * 60)).toFixed(2) : 0;
+                n.matches = b.total_matches;
+                n.kills = b.kills;
+                n.deaths = b.deaths;
+                n.gamescore = b.gamescore;    
+            }
+        }
+
+        return names;
+
+    }
+
 }
 
 

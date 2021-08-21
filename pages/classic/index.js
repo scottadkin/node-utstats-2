@@ -7,20 +7,24 @@ import Matches from '../../api/classic/matches';
 import Players from '../../api/classic/players';
 import Maps from '../../api/maps';
 import Faces from '../../api/faces';
+import HomeRecentMatches from '../../components/classic/HomeRecentMatches';
+import HomeRecentPlayers from '../../components/classic/HomeRecentPlayers';
 
 
 
 
-const HomePage = ({host, session, matchData, playerData, faces, image}) =>{
+const HomePage = ({host, session, matchData, playerData, faces, image, recentMatches, recentPlayers}) =>{
 
     matchData = JSON.parse(matchData);
+    recentMatches = JSON.parse(recentMatches);
+    recentPlayers = JSON.parse(recentPlayers);
 
     let screenshotElem = null;
 
     if(matchData !== -1){
 
         screenshotElem = <Screenshot map={matchData.mapfile} totalTeams={matchData.teams} players={playerData} image={image} bClassic={true}
-            serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={faces}
+            serverName={matchData.servername} gametype={matchData.gamename} matchData={JSON.stringify(matchData)} faces={faces} bHome={true}
         />
     }
 
@@ -38,10 +42,9 @@ const HomePage = ({host, session, matchData, playerData, faces, image}) =>{
                             Here you can look up information for UT matches, players, and maps from original utstats databases.<br/>
                             Not all features from the main site are available because the original utstats database don't have the required data.
                         </div>
-
-
-                        {screenshotElem}
-                    
+                        {screenshotElem}      
+                        <HomeRecentMatches data={recentMatches}/>  
+                        <HomeRecentPlayers data={recentPlayers} faces={JSON.parse(faces)}/>   
                     </div>
                 </div>
                 
@@ -75,7 +78,9 @@ export async function getServerSideProps({req, query}) {
 
     const faceManager = new Faces();
 
-    const faces = faceManager.getRandom(matchData.players);
+    const totalFaces = (matchData.players > 4) ? matchData.players : 5
+
+    const faces = faceManager.getRandom(totalFaces);
 
     if(matchData !== null){
         playerData = await playerManager.getMatchData(matchData.id, false);
@@ -84,6 +89,18 @@ export async function getServerSideProps({req, query}) {
         matchData = -1;
     }
 
+    const recentMatches = await matchManager.getLatestMatches(0, 0, 3);
+
+    const recentPlayerIds = [];
+
+    let recentPlayerData = [];
+
+    if(recentMatches.length > 0){
+
+        recentPlayerData = await playerManager.getLatestPlayerDetails(recentMatches[0].id, 5);
+    }
+
+
     return {
         "props": {
             "host": req.headers.host,
@@ -91,7 +108,9 @@ export async function getServerSideProps({req, query}) {
             "matchData": JSON.stringify(matchData),
             "playerData": JSON.stringify(playerData),
             "faces": JSON.stringify(faces),
-            "image": image
+            "image": image,
+            "recentMatches": JSON.stringify(recentMatches),
+            "recentPlayers": JSON.stringify(recentPlayerData)
   
         }
     };
