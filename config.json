@@ -10,6 +10,15 @@
     "logFilePrefix": "unreal.nglog.",
     "importedLogsFolder": "Logs",
     "multiKillTimeLimit": 3,
-    "spawnKillTimeLimit": 2
+    "spawnKillTimeLimit": 2,
+    "classic": {
+        "mysql": {
+            "host": "localhost",
+            "port": 3306,
+            "user": "user",
+            "password": "",
+            "database": ""
+        }
+    }
 
 }

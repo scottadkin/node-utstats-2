@@ -1,12 +1,14 @@
 const mysql = require("mysql");
 const Promise = require("promise");
+const config = require('../../config.json');
 
 
 const Database = mysql.createPool({
-    "host": "192.168.0.12",
-    "user": "Scott",
-    "password": "password",
-    "database": "utstats"
+    "host": config.classic.mysql.host,
+    "user": config.classic.mysql.user,
+    "password": config.classic.mysql.password,
+    "database": config.classic.mysql.database,
+    "port": config.classic.mysql.port
 });
 
 
