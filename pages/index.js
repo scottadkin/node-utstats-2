@@ -272,7 +272,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 				{message}
 
 				<div className="default-header">Welcome to Node UTStats 2</div>
-				<div id="welcome-text">Here you can look up information on UT matches, players, and maps.</div>
+				<div id="welcome-text">Here you can look up information for UT matches, players, and maps.</div>
 
 				{elems}
 				

@@ -227,6 +227,19 @@ class Matches{
         }
     }
 
+    async getLatestMatch(){
+
+        const query = "SELECT id FROM uts_match ORDER BY time DESC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query);
+
+        if(result.length > 0){
+            return await this.getData(result[0].id);
+        }
+
+        return null;
+    }
+
 }
 
 export default Matches;
