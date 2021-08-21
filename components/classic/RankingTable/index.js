@@ -44,7 +44,7 @@ const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllB
         rows.push(<tr key={i}>
             <td className="yellow">{place}{Functions.getOrdinal(place)}</td>
             <td>
-                <Link href={`/player/${d.pid}`}>
+                <Link href={`/classic/player/${d.pid}`}>
                     <a>
                         <CountryFlag country={player.country}/>{player.name}
                     </a>
