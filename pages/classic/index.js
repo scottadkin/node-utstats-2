@@ -9,15 +9,18 @@ import Maps from '../../api/maps';
 import Faces from '../../api/faces';
 import HomeRecentMatches from '../../components/classic/HomeRecentMatches';
 import HomeRecentPlayers from '../../components/classic/HomeRecentPlayers';
+import Gametypes from '../../api/classic/gametypes';
+import HomeGametypes from '../../components/classic/HomeGametypes';
 
 
 
 
-const HomePage = ({host, session, matchData, playerData, faces, image, recentMatches, recentPlayers}) =>{
+const HomePage = ({host, session, matchData, playerData, faces, image, recentMatches, recentPlayers, gametypesData}) =>{
 
     matchData = JSON.parse(matchData);
     recentMatches = JSON.parse(recentMatches);
     recentPlayers = JSON.parse(recentPlayers);
+    gametypesData = JSON.parse(gametypesData);
 
     let screenshotElem = null;
 
@@ -44,6 +47,7 @@ const HomePage = ({host, session, matchData, playerData, faces, image, recentMat
                         </div>
                         {screenshotElem}      
                         <HomeRecentMatches data={recentMatches}/>  
+                        <HomeGametypes data={gametypesData}/>
                         <HomeRecentPlayers data={recentPlayers} faces={JSON.parse(faces)}/>   
                     </div>
                 </div>
@@ -77,9 +81,7 @@ export async function getServerSideProps({req, query}) {
     const image = await mapManager.getImage(matchData.mapfile);
 
     const faceManager = new Faces();
-
     const totalFaces = (matchData.players > 4) ? matchData.players : 5
-
     const faces = faceManager.getRandom(totalFaces);
 
     if(matchData !== null){
@@ -91,14 +93,16 @@ export async function getServerSideProps({req, query}) {
 
     const recentMatches = await matchManager.getLatestMatches(0, 0, 3);
 
-    const recentPlayerIds = [];
-
     let recentPlayerData = [];
 
     if(recentMatches.length > 0){
-
         recentPlayerData = await playerManager.getLatestPlayerDetails(recentMatches[0].id, 5);
     }
+
+
+    const gametypeManager = new Gametypes();
+
+    const gametypesData = await gametypeManager.getMostPlayed(5);
 
 
     return {
@@ -110,7 +114,8 @@ export async function getServerSideProps({req, query}) {
             "faces": JSON.stringify(faces),
             "image": image,
             "recentMatches": JSON.stringify(recentMatches),
-            "recentPlayers": JSON.stringify(recentPlayerData)
+            "recentPlayers": JSON.stringify(recentPlayerData),
+            "gametypesData": JSON.stringify(gametypesData)
   
         }
     };

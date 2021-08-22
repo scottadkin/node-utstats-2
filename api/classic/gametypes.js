@@ -40,6 +40,36 @@ class Gametypes{
         return returnData;
     }
 
+    async getMostPlayed(max){
+
+        if(max === undefined) max = 5;
+
+        const query = `SELECT gid, COUNT(*) as total_matches, SUM(gametime) as gametime,
+        MIN(time) as first_match, MAX(time) as last_match
+        FROM uts_match GROUP BY(gid) ORDER BY total_matches DESC LIMIT ?`;
+
+        const result = await mysql.simpleQuery(query, [max]);
+
+        const ids = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            ids.push(result[i].gid);
+
+        }
+
+        const names = await this.getNames(ids);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            r.name = (names[r.gid] !== undefined) ? names[r.gid] : "Not Found";
+        }
+
+        return result;
+
+    }
+
 }
 
 
