@@ -11,11 +11,14 @@ import HomeRecentMatches from '../../components/classic/HomeRecentMatches';
 import HomeRecentPlayers from '../../components/classic/HomeRecentPlayers';
 import Gametypes from '../../api/classic/gametypes';
 import HomeGametypes from '../../components/classic/HomeGametypes';
+import ClassicMaps from '../../api/classic/maps';
+import HomeTopMaps from '../../components/HomeTopMaps';
 
 
 
 
-const HomePage = ({host, session, matchData, playerData, faces, image, recentMatches, recentPlayers, gametypesData}) =>{
+const HomePage = ({host, session, matchData, playerData, faces, image, recentMatches, recentPlayers, gametypesData,
+        mostPlayedMaps, mapImages}) =>{
 
     matchData = JSON.parse(matchData);
     recentMatches = JSON.parse(recentMatches);
@@ -48,6 +51,7 @@ const HomePage = ({host, session, matchData, playerData, faces, image, recentMat
                         {screenshotElem}      
                         <HomeRecentMatches data={recentMatches}/>  
                         <HomeGametypes data={gametypesData}/>
+                        <HomeTopMaps maps={mostPlayedMaps} images={mapImages} classic={true}/>
                         <HomeRecentPlayers data={recentPlayers} faces={JSON.parse(faces)}/>   
                     </div>
                 </div>
@@ -99,11 +103,23 @@ export async function getServerSideProps({req, query}) {
         recentPlayerData = await playerManager.getLatestPlayerDetails(recentMatches[0].id, 5);
     }
 
-
     const gametypeManager = new Gametypes();
-
     const gametypesData = await gametypeManager.getMostPlayed(5);
 
+    const cMapManager = new ClassicMaps();
+
+    const mostPlayedMaps = await cMapManager.getMostPlayedBasic(3);
+
+    const mapNames = [];
+
+    for(let i = 0; i < mostPlayedMaps.length; i++){
+
+        const m = mostPlayedMaps[i];
+
+        mapNames.push(m.name);
+    }
+
+    const mapImages = await mapManager.getImages(mapNames);
 
     return {
         "props": {
@@ -115,7 +131,9 @@ export async function getServerSideProps({req, query}) {
             "image": image,
             "recentMatches": JSON.stringify(recentMatches),
             "recentPlayers": JSON.stringify(recentPlayerData),
-            "gametypesData": JSON.stringify(gametypesData)
+            "gametypesData": JSON.stringify(gametypesData),
+            "mostPlayedMaps": JSON.stringify(mostPlayedMaps),
+            "mapImages": JSON.stringify(mapImages)
   
         }
     };

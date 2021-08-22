@@ -2,24 +2,31 @@ import Functions from '../../api/functions';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './HomeTopMaps.module.css';
-import TimeStamp from '../TimeStamp/';
 
-const HomeTopMaps = ({maps, images}) =>{
+const HomeTopMaps = ({maps, images, classic}) =>{
 
     maps = JSON.parse(maps);
     images = JSON.parse(images);
 
-    const elems = [];
+    if(classic === undefined) classic = false;
 
-    let currentImage = 0;
-    let currentImageIndex = 0;
-    let m = 0;
+    const elems = [];
 
     for(let i = 0; i < maps.length; i++){
 
-        m = maps[i];
+        const m = maps[i];
 
-        currentImageIndex = images.indexOf(Functions.cleanMapName(m.name).toLowerCase());
+        let currentImage = 0;
+
+        const first = (m.first !== undefined) ? m.first : Functions.utDate(m.first_match);
+        const last = (m.last !== undefined) ? m.last : Functions.utDate(m.last_match);
+        const matches = (m.matches !== undefined) ? m.matches : m.total_matches ;
+
+        const currentImageIndex = images.indexOf(Functions.cleanMapName(m.name).toLowerCase());
+
+        const playtime = (m.playtime !== undefined) ? m.playtime : m.gametime;
+
+        const hours = (playtime > 0) ? playtime / (60 * 60) : 0;
 
         if(currentImageIndex === -1){
             currentImage = "default";
@@ -27,16 +34,18 @@ const HomeTopMaps = ({maps, images}) =>{
             currentImage = images[currentImageIndex];
         }
 
+        const id = (m.id !== undefined) ? m.id : Functions.removeUnr(m.name);
 
-        elems.push(<Link key={i} href={`/map/${m.id}`}><a>
+
+        elems.push(<Link key={i} href={`${(classic) ? "/classic" : "" }/map/${id}`}><a>
             <div className={styles.wrapper}>
                 <div className={styles.name}>{Functions.removeUnr(m.name)} </div> 
                 <Image src={`/images/maps/${currentImage}.jpg`} width="480" height="270"/>
                 <div className={styles.info}>
-                    <span className="yellow">Playtime</span> {(m.playtime / (60 * 60)).toFixed(2)} Hours<br/>
-                    {m.matches} <span className="yellow">Matches</span><br/>
-                    <span className="yellow">First</span> <TimeStamp timestamp={m.first}/><br/>
-                    <span className="yellow">Last</span> <TimeStamp timestamp={m.last}/><br/>
+                    <span className="yellow">Playtime</span> {hours.toFixed(2)} Hours<br/>
+                    {matches} <span className="yellow">Matches</span><br/>
+                    <span className="yellow">First</span> {Functions.convertTimestamp(first)}<br/>
+                    <span className="yellow">Last</span> {Functions.convertTimestamp(last)}<br/>
                 </div>
             </div>    
         </a></Link>);

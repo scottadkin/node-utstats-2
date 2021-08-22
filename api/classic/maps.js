@@ -21,6 +21,17 @@ class Maps{
         return await mysql.simpleQuery(query, [start, perPage]);
     }
 
+    async getMostPlayedBasic(max){
+
+        const query = `SELECT mapfile as name, COUNT(*) as total_matches, SUM(gametime) as gametime, MIN(time) as first_match, MAX(time) as last_match
+        FROM uts_match GROUP BY(mapfile) ORDER BY total_matches DESC LIMIT ?`;
+
+        const result = await mysql.simpleQuery(query, [max]);
+
+
+        return result;
+    }
+
     async getOrderedBy(mode, page, perPage, order){
 
 
