@@ -5,6 +5,7 @@ import Session from '../../../api/session';
 import Gametypes from '../../../api/classic/gametypes';
 import Rankings from '../../../api/classic/rankings';
 import RankingTable from '../../../components/classic/RankingTable';
+import Analytics from '../../../api/analytics';
 
 const RankingsPage = ({session, host, mode, page, perPage, data}) =>{
 
@@ -115,6 +116,8 @@ export async function getServerSideProps({req, query}) {
         data.name = (gametype[gametypeId] !== undefined) ? gametype[gametypeId] : "Not Found";
         data.gametypeId = gametypeId;
     }
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {

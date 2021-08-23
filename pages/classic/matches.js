@@ -5,6 +5,7 @@ import Session from '../../api/session';
 import Matches from '../../api/classic/matches';
 import MatchesList from '../../components/classic/MatchesList';
 import Gametypes from '../../api/classic/gametypes';
+import Analytics from '../../api/analytics';
 
 const RecentMatches = ({host, session, recentMatches, gametypeList, gametype, perPage, display, page, results, pages}) =>{
 
@@ -108,6 +109,8 @@ export async function getServerSideProps({req, query}) {
 
         pages = Math.ceil(totalMatches / perPage);
     }
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {

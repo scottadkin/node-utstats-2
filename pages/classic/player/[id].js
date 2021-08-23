@@ -18,6 +18,7 @@ import PlayerRecentMatches from '../../../components/classic/PlayerRecentMatches
 import MainMaps from '../../../api/maps';
 import countries from '../../../api/countries';
 import CountryFlag from '../../../components/CountryFlag';
+import Analytics from '../../../api/analytics';
 
 const PlayerPage = ({session, host, playerId, basicData, data, gametypeData, firstBloods, weaponData, rankingData,
         recentMatches, mapImages, page, pages, perPage, mode, first, last }) =>{
@@ -188,6 +189,8 @@ export async function getServerSideProps({req, query}) {
 
     const mapManager = new MainMaps();
     const images = await mapManager.getImages(mapNames);
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
    
     return {
         "props": {

@@ -4,11 +4,10 @@ import Footer from '../../../components/Footer';
 import Session from '../../../api/session';
 import Maps from '../../../api/classic/maps';
 import MainMaps from '../../../api/maps';
-import styles from '../../../styles/CMap.module.css';
-import Image from 'next/image';
 import Functions from '../../../api/functions';
 import React from 'react';
 import MapRecentMatches from '../../../components/classic/MapRecentMatches';
+import Analytics from '../../../api/analytics';
 
 
 const MapPage = ({session, host, page, perPage, pages, title, image, generalStats, matches, totalMatches}) =>{
@@ -107,6 +106,8 @@ export async function getServerSideProps({req, query}) {
     
 
     const pages = (totalMatches > 0 && perPage > 0) ? Math.ceil(totalMatches / perPage) : 1;
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {

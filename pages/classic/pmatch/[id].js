@@ -21,6 +21,7 @@ import MatchDominationSummary from '../../../components/classic/MatchDominationS
 import MatchKillsMatchUp from '../../../components/classic/MatchKillsMatchUp';
 import Link from 'next/link';
 import CountryFlag from '../../../components/CountryFlag'; 
+import Analytics from '../../../api/analytics';
 
 
 function getPlayerName(id, players){
@@ -185,6 +186,8 @@ export async function getServerSideProps({req, query}){
     }
 
     const killsData = await matchManager.getPlayerKillsData(id, playerMatchId);
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {

@@ -20,6 +20,7 @@ import Screenshot from '../../../components/Screenshot';
 import Functions from '../../../api/functions';
 import Maps from '../../../api/maps';
 import Faces from '../../../api/faces';
+import Analytics from '../../../api/analytics';
 
 const MatchPage = ({host, session, matchId, matchData, playerData, weaponData, rankingData, killsData, image, faces}) =>{
 
@@ -131,6 +132,8 @@ export async function getServerSideProps({req, query}){
     const faceManager = new Faces();
 
     const faces = faceManager.getRandom(matchData.players);
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
 
     return {

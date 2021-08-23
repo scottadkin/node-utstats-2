@@ -9,6 +9,7 @@ import Pagination from '../../../components/Pagination';
 import Link from 'next/link';
 import Functions from '../../../api/functions';
 import MainMaps from '../../../api/maps';
+import Analytics from '../../../api/analytics';
 
 const MapsPage = ({session, host, data, mode, order, page, perPage, pages, totalResults, display, mapImages}) =>{
 
@@ -118,6 +119,8 @@ export async function getServerSideProps({req, query}) {
     const mainMapsManager = new MainMaps();
 
     const mapImages = await mainMapsManager.getImages(cleanMapNames);
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {

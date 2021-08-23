@@ -15,6 +15,7 @@ import ClassicMaps from '../../api/classic/maps';
 import HomeTopMaps from '../../components/HomeTopMaps';
 import ClassicCountries from '../../api/classic/countries';
 import PopularCountries from '../../components/PopularCountries';
+import Analytics from '../../api/analytics';
 
 
 
@@ -127,6 +128,8 @@ export async function getServerSideProps({req, query}) {
     const classicCountriesManager = new ClassicCountries();
 
     const countriesData = await classicCountriesManager.getMostPopular(5);
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {

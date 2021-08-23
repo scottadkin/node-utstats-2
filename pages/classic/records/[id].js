@@ -8,6 +8,7 @@ import CountryFlag from '../../../components/CountryFlag';
 import styles from '../../../styles/Records.module.css';
 import Link from 'next/link';
 import Pagination from '../../../components/Pagination';
+import Analytics from '../../../api/analytics';
 
 const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
 
@@ -217,7 +218,7 @@ export async function getServerSideProps({req, query}) {
         }
     }
 
-    
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {

@@ -7,6 +7,7 @@ import CountryFlag from '../../components/CountryFlag';
 import Link from 'next/link';
 import Pagination from '../../components/Pagination';
 import React from 'react';
+import Analytics from '../../api/analytics';
 
 
 class PlayersPage extends React.Component{
@@ -212,6 +213,8 @@ export async function getServerSideProps({req, query}) {
 
         pages = Math.ceil(totalPlayers / perPage);
     }
+
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
         "props": {
