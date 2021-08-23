@@ -10,6 +10,7 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Maps system
 - User Accounts (in future builds you will be able to save matches, players to your favourites for easy tracking)
 - Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images.
+- **Classic Support** You can now connect to classic utstats databases.
 
 # Current Supported Gametypes
 - Deathmatch
@@ -33,8 +34,9 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Open command prompt in the folder.
 - Run the command **npm install** to install all the dependencies.
 - Open config.json, and change the mysql settings to match your mysql setup.
+- If you wish to use classic mode you must also fill in the **classic.mysql** variables to connect to your utstats database.
 - Also in config.json you will see the variable called **importInterval**, this will tell the importer how long to wait(in seconds) between looking for new logs to import. IF you set this to 0 the import will run once only.
-![alt text](https://i.imgur.com/4Lb34fb.png "config.json image")
+![alt text](https://i.imgur.com/qcVGOvd.png "config.json image")
 - Now run the command **node install** this will create the database and all the tables needed by node utstats 2.
 
 # Install Unreal Tournament mutators
@@ -56,6 +58,7 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 - To run in development mode open command prompt in the installed folder and run the command **npm run dev**
 - To run in production mode run the following commands in this order, **npm run buld** this will create the production version of the website(will take a few seconds), once that has finished run the command **npm run start** to run the production website. 
 - Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- If you have enabled classic mode you will find it [http://localhost:3000/classic](http://localhost:3000/classic)
 
 # Creating an admin account
 - If there are no users in the database, create an account by going to the site's login page, then press the "Not a member? Register now!" button, the next created account will automatically set to admin, and will be activated.
