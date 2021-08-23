@@ -14,7 +14,7 @@ const HomeRecentPlayers = ({data, faces}) =>{
         const face = `/images/faces/${faces[Math.floor(Math.random() * faces.length)]}`;
 
         elems.push(
-            <Link href={`/classic/player/${k}`}>
+            <Link href={`/classic/player/${k}`} key={k}>
                 <a>
                     <div className={styles.outter}>
                         <div className={styles.inner} >      

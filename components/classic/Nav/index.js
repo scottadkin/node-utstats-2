@@ -44,9 +44,7 @@ const Nav = () =>{
         </div>
         <h1>Node UTStats 2 Classic Mode</h1>
         <nav>
-            <Link href="/"><a><div className="nl yellow">Main Site</div></a></Link>
-
-            {createLink("/classic/", "Classic Home", cleanPath, [""], true)}
+            {createLink("/classic/", "Home", cleanPath, [""], true)}
             {createLink("/classic/matches", "Matches", cleanPath, ["match","matches"], true)}
             {createLink("/classic/rankings/all", "Rankings", cleanPath, ["rankings"], true)}
             {createLink("/classic/players", "Players", cleanPath, ["players","player"], true)}

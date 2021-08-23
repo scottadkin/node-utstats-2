@@ -249,12 +249,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 		if(pageSettings["Display Most Popular Countries"] === "true"){
 
-			elems.push(<div key={"countries"}>
-				<div className="default-header">
-					Most Popular Countries
-				</div>
-				<PopularCountries data={countriesData}/>
-			</div>);
+			elems.push(<PopularCountries key={"countries"} data={countriesData}/>);
 		}
 
 	}
@@ -442,8 +437,6 @@ export async function getServerSideProps({req, query}) {
 			}
 		}
 	}
-
-	console.log(req.headers);
 
 	await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 

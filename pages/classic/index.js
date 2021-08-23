@@ -13,12 +13,14 @@ import Gametypes from '../../api/classic/gametypes';
 import HomeGametypes from '../../components/classic/HomeGametypes';
 import ClassicMaps from '../../api/classic/maps';
 import HomeTopMaps from '../../components/HomeTopMaps';
+import ClassicCountries from '../../api/classic/countries';
+import PopularCountries from '../../components/PopularCountries';
 
 
 
 
 const HomePage = ({host, session, matchData, playerData, faces, image, recentMatches, recentPlayers, gametypesData,
-        mostPlayedMaps, mapImages}) =>{
+        mostPlayedMaps, mapImages, countryData}) =>{
 
     matchData = JSON.parse(matchData);
     recentMatches = JSON.parse(recentMatches);
@@ -53,6 +55,7 @@ const HomePage = ({host, session, matchData, playerData, faces, image, recentMat
                         <HomeGametypes data={gametypesData}/>
                         <HomeTopMaps maps={mostPlayedMaps} images={mapImages} classic={true}/>
                         <HomeRecentPlayers data={recentPlayers} faces={JSON.parse(faces)}/>   
+                        <PopularCountries data={countryData} classic={true}/>
                     </div>
                 </div>
                 
@@ -121,6 +124,10 @@ export async function getServerSideProps({req, query}) {
 
     const mapImages = await mapManager.getImages(mapNames);
 
+    const classicCountriesManager = new ClassicCountries();
+
+    const countriesData = await classicCountriesManager.getMostPopular(5);
+
     return {
         "props": {
             "host": req.headers.host,
@@ -133,7 +140,8 @@ export async function getServerSideProps({req, query}) {
             "recentPlayers": JSON.stringify(recentPlayerData),
             "gametypesData": JSON.stringify(gametypesData),
             "mostPlayedMaps": JSON.stringify(mostPlayedMaps),
-            "mapImages": JSON.stringify(mapImages)
+            "mapImages": JSON.stringify(mapImages),
+            "countryData": JSON.stringify(countriesData)
   
         }
     };
