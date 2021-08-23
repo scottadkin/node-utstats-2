@@ -7,10 +7,12 @@ import MatchesList from '../../components/classic/MatchesList';
 import Gametypes from '../../api/classic/gametypes';
 import Analytics from '../../api/analytics';
 
-const RecentMatches = ({host, session, recentMatches, gametypeList, gametype, perPage, display, page, results, pages}) =>{
+const RecentMatches = ({host, session, recentMatches, gametypeList, gametype, perPage, display, page, results, pages,
+        serverNames, server}) =>{
 
     recentMatches = JSON.parse(recentMatches);
     gametypeList = JSON.parse(gametypeList);
+    serverNames = JSON.parse(serverNames);
 
     let gametypeName = "";
 
@@ -18,10 +20,15 @@ const RecentMatches = ({host, session, recentMatches, gametypeList, gametype, pe
         gametypeName = `${gametypeList[gametype]} `;
     }
     
+    let serverName = "";
+
+    if(serverName !== 0){
+        serverName = `on ${server} `;
+    }
 
     return <div>
-        <Head host={host} title={`${gametypeName}Matches - Page ${page + 1} of ${pages}`} 
-        description={`${gametypeName}Matches - Page ${page + 1} of ${pages}, ${results} matches found.`} 
+        <Head host={host} title={`${gametypeName}Matches ${serverName}- Page ${page + 1} of ${pages}`} 
+        description={`${gametypeName}Matches ${serverName}- Page ${page + 1} of ${pages}, ${results} matches found.`} 
         keywords={`${(gametypeName !== "") ? `${gametypeName},` : ""},matches,classic,match`}/>
         <main>
             <Nav />
@@ -29,7 +36,7 @@ const RecentMatches = ({host, session, recentMatches, gametypeList, gametype, pe
 
                 <div className="default">
                 <MatchesList title={"Recent Matches"} data={recentMatches} gametypes={gametypeList} gametype={gametype} perPage={perPage}
-                    display={display} results={results} pages={pages} page={page}
+                    display={display} results={results} pages={pages} page={page} serverNames={serverNames} server={server}
                 />
                 </div>
             </div>
@@ -53,6 +60,7 @@ export async function getServerSideProps({req, query}) {
     let perPage = 25;
     let display = 0;
     let currentPage = 0;
+    let server = 0;
 
 
     if(query.gametype !== undefined){
@@ -60,6 +68,13 @@ export async function getServerSideProps({req, query}) {
         gametype = parseInt(query.gametype);
 
         if(gametype !== gametype) gametype = 0;
+    }
+
+    if(query.server !== undefined){
+
+        server = query.server;
+
+        if(server === "0") server = 0;
     }
 
     if(query.perPage !== undefined){
@@ -83,6 +98,7 @@ export async function getServerSideProps({req, query}) {
     }
 
     if(query.page !== undefined){
+
         currentPage = parseInt(query.page);
 
         if(currentPage !== currentPage){
@@ -95,13 +111,13 @@ export async function getServerSideProps({req, query}) {
     }
 
     const matchManager = new Matches();
-    const recentMatches = await matchManager.getLatestMatches(gametype, currentPage, perPage);
+    const recentMatches = await matchManager.getLatestMatches(gametype, server, currentPage, perPage);
 
     const gametypeManager = new Gametypes();
 
     const gametypeList = await gametypeManager.getAllNames();
 
-    const totalMatches = await matchManager.getTotalMatches(gametype);
+    const totalMatches = await matchManager.getTotalMatches(gametype, server);
 
     let pages = 1;
 
@@ -111,6 +127,8 @@ export async function getServerSideProps({req, query}) {
     }
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+
+    const serverNames = await matchManager.getAllServerNames();
 
     return {
         "props": {
@@ -123,7 +141,9 @@ export async function getServerSideProps({req, query}) {
             "display": display,
             "page": currentPage,
             "results": totalMatches,
-            "pages": pages
+            "pages": pages,
+            "serverNames": JSON.stringify(serverNames),
+            "server": server
         }
     };
 }

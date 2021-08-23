@@ -99,7 +99,7 @@ export async function getServerSideProps({req, query}) {
         matchData = -1;
     }
 
-    const recentMatches = await matchManager.getLatestMatches(0, 0, 3);
+    const recentMatches = await matchManager.getLatestMatches(0, 0, 0, 3);
 
     let recentPlayerData = [];
 

@@ -11,14 +11,44 @@ class Matches{
 
     }
 
+    async getGametypeTotalMatches(id){
 
-    async getTotalMatches(gametype){
+        const query = "SELECT COUNT(*) as total_matches FROM uts_match WHERE gid=?";
 
-        let query = "SELECT COUNT(*) as total_matches FROM uts_match WHERE gid=?";
+        const result = await mysql.simpleQuery(query, [id]);
 
-        if(gametype === 0){
+        return result[0].total_matches;
 
-            query = "SELECT COUNT(*) as total_matches FROM uts_match";
+    }
+
+    async getServerGametypeTotalMatches(serverName, gametypeId){
+
+        const query = "SELECT COUNT(*) as total_matches FROM uts_match WHERE gid=? AND servername=?";
+
+        const result = await mysql.simpleQuery(query, [gametypeId, serverName]);
+
+        return result[0].total_matches;
+    }
+
+
+    async getServerTotalMatches(serverName){
+
+        const query = "SELECT COUNT(*) as total_matches FROM uts_match WHERE servername=?";
+
+        const result = await mysql.simpleQuery(query, [serverName]);
+
+        return result[0].total_matches;
+    }
+
+    async getTotalMatches(gametype, server){
+
+        gametype = parseInt(gametype);
+
+        if(gametype !== gametype) gametype = 0;
+    
+        if(gametype === 0 && server === 0){
+
+            const query = "SELECT COUNT(*) as total_matches FROM uts_match";
             const result = await mysql.simpleQuery(query);
 
             if(result.length > 0){
@@ -27,18 +57,21 @@ class Matches{
 
         }else{
 
-            const altResult = await mysql.simpleQuery(query, [gametype]);
+            if(server == 0){
+                return await this.getGametypeTotalMatches(gametype);
+            }else{
 
-            if(altResult.length > 0){
-                return altResult[0].total_matches;
+                if(gametype !== 0){
+                    return await this.getServerGametypeTotalMatches(server, gametype);
+                }else{
+                    return await this.getServerTotalMatches(server);
+                }
             }
         }
-
-        return 0;
     }
 
 
-    async getLatestMatches(gametype, page, perPage){
+    async getLatestMatches(gametype, server, page, perPage){
 
         page = parseInt(page);
         perPage = parseInt(perPage);
@@ -58,9 +91,29 @@ class Matches{
 
         if(gametype !== 0){
 
-            query = `SELECT id,time,servername,gamename,gid,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
-            FROM uts_match WHERE gid=? ORDER BY time DESC LIMIT ?,?`;
-            vars = [gametype, start, perPage];
+            if(server === 0){
+
+                query = `SELECT id,time,servername,gamename,gid,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
+                FROM uts_match WHERE gid=? ORDER BY time DESC LIMIT ?,?`;
+                vars = [gametype, start, perPage];
+
+            }else{
+
+                query = `SELECT id,time,servername,gamename,gid,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
+                FROM uts_match WHERE gid=? AND servername =? ORDER BY time DESC LIMIT ?,?`;
+                vars = [gametype, server, start, perPage];
+
+            }
+
+
+        }else{
+
+            if(server !== 0){
+
+                query = `SELECT id,time,servername,gamename,gid,gametime,mapfile,teamgame,ass_att,ass_win,t0,t1,t2,t3,t0score,t1score,t2score,t3score 
+                FROM uts_match WHERE servername=? ORDER BY time DESC LIMIT ?,?`;
+                vars = [server, start, perPage];
+            }
         }
 
         const matches = await mysql.simpleQuery(query, vars);
@@ -238,6 +291,24 @@ class Matches{
         }
 
         return null;
+    }
+
+
+    async getAllServerNames(){
+
+        const query = "SELECT DISTINCT servername FROM uts_Match ORDER BY servername ASC";
+
+        const result = await mysql.simpleQuery(query);
+        
+        const names = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            names.push(r.servername);
+        }
+
+        return names;
     }
 
 }

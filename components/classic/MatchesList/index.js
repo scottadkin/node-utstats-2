@@ -121,6 +121,31 @@ class MatchesList extends React.Component{
         </select>
     }
 
+    createServerDropDown(){
+
+        const options = [];
+
+        for(let i = 0; i < this.props.serverNames.length; i++){
+
+            const s = this.props.serverNames[i];
+
+            options.push(<option key={i} value={s}>{s}</option>);
+
+        }
+
+        return <select defaultValue={this.props.server} name="server" className="default-select">
+            <option key={-1} value={0}>All</option>
+            {options}
+        </select>
+    }
+
+    renderNoneFound(){
+
+        if(this.props.data.length > 0) return null;
+
+        return <div className="default-sub-header">No matches where found using the current parameters.</div>
+    }
+
     render(){
 
     
@@ -135,6 +160,12 @@ class MatchesList extends React.Component{
                         <div className="select-label">Gametype</div>
                         <div>
                             {this.createGametypesDropDown()}
+                        </div>
+                    </div>
+                    <div className="select-row">
+                        <div className="select-label">Server Name</div>
+                        <div>
+                            {this.createServerDropDown()}
                         </div>
                     </div>
                     <div className="select-row">
@@ -164,6 +195,7 @@ class MatchesList extends React.Component{
             />
             {this.renderTable()}
             {this.renderDefault()}
+            {this.renderNoneFound()}
             
         </div>
     }
