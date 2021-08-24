@@ -1,7 +1,7 @@
 import Functions from '../../../api/functions';
 import Link from 'next/link';
 
-function createLink(display, mode, currentMode, currentOrder){
+function createLink(display, mode, name, currentMode, currentOrder){
 
     let order = "a";
 
@@ -10,10 +10,10 @@ function createLink(display, mode, currentMode, currentOrder){
         order = (currentOrder === "a") ? "d" : "a";
     }
 
-    return <Link href={`/classic/maps/${mode}?order=${order}`}><a>{display}</a></Link>
+    return <Link href={`/classic/maps/${mode}?name=${name}&order=${order}`}><a>{display}</a></Link>
 }
 
-const MapsTableView = ({data, mode, order}) =>{
+const MapsTableView = ({data, mode, order, name}) =>{
 
     const rows = [];
 
@@ -39,12 +39,12 @@ const MapsTableView = ({data, mode, order}) =>{
         <table className="t-width-1 td-1-left">
             <tbody>
                 <tr>
-                    <th>{createLink("Name", "name", mode, order)}</th>
-                    <th>{createLink("First", "first", mode, order)}</th>
-                    <th>{createLink("Last", "last", mode, order)}</th>
-                    <th>{createLink("Average Match Length", "avglength", mode, order)}</th>
-                    <th>{createLink("Playtime", "playtime", mode, order)}</th>
-                    <th>{createLink("Matches", "matches", mode, order)}</th>
+                    <th>{createLink("Name", "name", name, mode, order)}</th>
+                    <th>{createLink("First", "first",name, mode, order)}</th>
+                    <th>{createLink("Last", "last",name, mode, order)}</th>
+                    <th>{createLink("Average Match Length", "avglength", name, mode,  order)}</th>
+                    <th>{createLink("Playtime", "playtime", name, mode,  order)}</th>
+                    <th>{createLink("Matches", "matches", name, mode,  order)}</th>
                 </tr>
                 {rows}
             </tbody>

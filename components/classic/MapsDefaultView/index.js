@@ -3,7 +3,7 @@ import Functions from '../../../api/functions';
 import Link from 'next/link';
 import Image from 'next/image';
 
-function createLink(display, mode, displayType, currentMode, order){
+function createLink(display, mode, name, displayType, currentMode, order){
 
     let selectedClassName = null;
 
@@ -12,7 +12,7 @@ function createLink(display, mode, displayType, currentMode, order){
         selectedClassName = "tab-selected";
     }
 
-    return <Link href={`/classic/maps/${mode}?display=${displayType}&order=${order}`}>
+    return <Link href={`/classic/maps/${mode}?name=${name}&display=${displayType}&order=${order}`}>
         <a>
             <div className={`tab ${selectedClassName}`}>
                 {display}
@@ -22,7 +22,7 @@ function createLink(display, mode, displayType, currentMode, order){
 }
 
 
-const MapsDefaultView = ({data, mode, order, display, images}) =>{
+const MapsDefaultView = ({data, mode, order, display, images, name}) =>{
 
 
     const getImage = (name) =>{
@@ -42,7 +42,7 @@ const MapsDefaultView = ({data, mode, order, display, images}) =>{
 
         const d = data[i];
 
-        elems.push(<Link href={`/classic/map/${encodeURIComponent(Functions.removeUnr(d.mapfile))}`}>
+        elems.push(<Link key={i} href={`/classic/map/${encodeURIComponent(Functions.removeUnr(d.mapfile))}`}>
                 <a>
                     <div key={i} className={styles.wrapper}>
                         <div className={styles.title}>{Functions.removeUnr(d.mapfile)}</div>
@@ -62,12 +62,12 @@ const MapsDefaultView = ({data, mode, order, display, images}) =>{
 
     const orderByElem = <div className="m-bottom-25">
         <div className="big-tabs">
-            {createLink("Name", "name", display, mode, order)}
-            {createLink("Matches", "matches", display, mode, order)}
-            {createLink("Playtime", "playtime", display, mode, order)}
-            {createLink("First Match", "first", display, mode, order)}
-            {createLink("Last Match", "last", display, mode, order)}
-            {createLink("Average Match Length", "avglength", display, mode, order)}
+            {createLink("Name", "name", name, display, mode, order)}
+            {createLink("Matches", "matches", name, display, mode, order)}
+            {createLink("Playtime", "playtime", name, display, mode, order)}
+            {createLink("First Match", "first", name, display, mode, order)}
+            {createLink("Last Match", "last", name, display, mode, order)}
+            {createLink("Average Match Length", "avglength", name, display, mode, order)}
 
         </div>
     </div>;

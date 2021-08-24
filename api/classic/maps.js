@@ -5,20 +5,39 @@ class Maps{
 
     constructor(){};
 
-    async getMostPlayed(page, perPage, order){
+    async getMostPlayed(page, perPage, order, name){
 
         let orderDirection = "ASC";
         if(order === "d") orderDirection = "DESC"; 
 
-        const query = `SELECT mapfile, MIN(time) as first_match, MAX(time) as last_match, SUM(gametime) as gametime, 
-            COUNT(*) as total_matches, AVG(gametime) as average_gametime
-            FROM uts_match GROUP BY(mapfile) ORDER BY total_matches ${orderDirection} LIMIT ?, ?`;
+        if(name === undefined) name = "";
 
         let start = page * perPage;
         if(start !== start) start = 0;
         if(start < 0) start = 0;
 
-        return await mysql.simpleQuery(query, [start, perPage]);
+        let query = "";
+        let vars = [];
+
+        if(name === ""){
+
+            query = `SELECT mapfile, MIN(time) as first_match, MAX(time) as last_match, SUM(gametime) as gametime, 
+            COUNT(*) as total_matches, AVG(gametime) as average_gametime
+            FROM uts_match GROUP BY(mapfile) ORDER BY total_matches ${orderDirection} LIMIT ?, ?`;
+
+            vars = [start, perPage];
+
+        }else{
+
+            query = `SELECT mapfile, MIN(time) as first_match, MAX(time) as last_match, SUM(gametime) as gametime, 
+            COUNT(*) as total_matches, AVG(gametime) as average_gametime
+            FROM uts_match WHERE mapfile LIKE(?) GROUP BY(mapfile) ORDER BY total_matches ${orderDirection} LIMIT ?, ?`;
+
+            vars = [`%${name}%`, start, perPage]
+
+        }
+        
+        return await mysql.simpleQuery(query, vars);
     }
 
     async getMostPlayedBasic(max){
@@ -32,8 +51,10 @@ class Maps{
         return result;
     }
 
-    async getOrderedBy(mode, page, perPage, order){
+    async getOrderedBy(mode, page, perPage, order, name){
 
+
+        if(name === undefined) name = "";
 
         let orderDirection = "ASC";
         if(order === "d") orderDirection = "DESC"; 
@@ -47,25 +68,50 @@ class Maps{
 
         if(index === -1) return [];
 
-        const query = `SELECT mapfile, MIN(time) as first_match, MAX(time) as last_match, SUM(gametime) as gametime, 
-            COUNT(*) as total_matches, AVG(gametime) as average_gametime
-            FROM uts_match GROUP BY(mapfile) ORDER BY ${colNames[index]} ${orderDirection} LIMIT ?, ?`;
-
-
         let start = page * perPage;
         if(start !== start) start = 0;
         if(start < 0) start = 0;
 
-        return await mysql.simpleQuery(query, [start, perPage]);
+        let query = "";
+        let vars = [];
+
+        if(name === ""){
+
+            query = `SELECT mapfile, MIN(time) as first_match, MAX(time) as last_match, SUM(gametime) as gametime, 
+            COUNT(*) as total_matches, AVG(gametime) as average_gametime
+            FROM uts_match GROUP BY(mapfile) ORDER BY ${colNames[index]} ${orderDirection} LIMIT ?, ?`;
+
+            vars = [start, perPage];
+
+        }else{
+
+            query = `SELECT mapfile, MIN(time) as first_match, MAX(time) as last_match, SUM(gametime) as gametime, 
+            COUNT(*) as total_matches, AVG(gametime) as average_gametime
+            FROM uts_match WHERE mapfile LIKE(?) GROUP BY(mapfile) ORDER BY ${colNames[index]} ${orderDirection} LIMIT ?, ?`;
+            vars = [`%${name}%`, start, perPage];
+        }
+
+
+        return await mysql.simpleQuery(query, vars);
     }
 
 
 
-    async getTotalMaps(){
+    async getTotalMaps(name){
 
-        const query = "SELECT COUNT(DISTINCT mapfile) as total_maps FROM uts_match";
+        if(name === undefined) name = "";
 
-        const result = await mysql.simpleQuery(query);
+        let query = "";
+        let result = 0;
+
+        if(name === ""){
+            query = "SELECT COUNT(DISTINCT mapfile) as total_maps FROM uts_match";
+            result = await mysql.simpleQuery(query);
+        }else{
+            query = "SELECT COUNT(DISTINCT mapfile) as total_maps FROM uts_match WHERE mapfile LIKE(?)";
+            result = await mysql.simpleQuery(query, [`%${name}%`]);
+        }
+  
 
         return result[0].total_maps;
     }
