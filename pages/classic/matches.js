@@ -22,7 +22,7 @@ const RecentMatches = ({host, session, recentMatches, gametypeList, gametype, pe
     
     let serverName = "";
 
-    if(serverName !== 0){
+    if(server !== 0){
         serverName = `on ${server} `;
     }
 

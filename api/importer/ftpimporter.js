@@ -4,7 +4,6 @@ const fs = require('fs');
 const Promise = require('promise');
 const EventEmitter = require('events');
 const Message = require('../message');
-const mysql = require('../database');
 const Logs = require('../logs');
 
 class MyEmitter extends EventEmitter {}
@@ -29,23 +28,30 @@ class FTPImporter{
 
         this.logsFound = [];
 
+        this.aceLogsFound = [];
+        this.acePlayerLogsFound = [];
+
         this.createClient();
     }
 
 
     createClient(){
-
-
         
         this.client = new Client();
 
         new Message(`Attempting to connect to ftp://${this.host}:${this.port}`,'note');
 
-        this.client.on('ready', () =>{
+        this.client.on('ready', async () =>{
 
             new Message(`Connected to ftp://${this.host}:${this.port}.`, 'pass');
 
-            this.checkForLogFiles();
+            await this.checkForLogFiles();
+
+            if(config.ace.importLogs){
+                await this.checkForACELogs();
+            }
+
+            this.client.end();
         });
 
         this.client.on('error', (err) =>{
@@ -139,9 +145,9 @@ class FTPImporter{
                         new Message(`${f.name} has already been imported, skipping.`,'note');
                     }
 
-                }else{
+                }/*else{
                     new Message(`${f.name} does not have the required prefix of ${config.logFilePrefix}`, 'error');
-                }
+                }*/
 
             }else if(tmpReg.test(f.name)){
 
@@ -188,7 +194,6 @@ class FTPImporter{
                         });
 
                     }else{
-                        console.log("DONT DELETE AFTER IMPORT");
                         resolve();
                     }
 
@@ -204,24 +209,82 @@ class FTPImporter{
 
         try{
 
-            let log = 0;
-
             for(let i = 0; i < this.logsFound.length; i++){
 
-
-                log = this.logsFound[i];
-
+                const log = this.logsFound[i];
                 await this.downloadFile(`${this.targetDir}Logs/${log.name}`, `${config.importedLogsFolder}/${log.name}`);
          
             }
 
             new Message(`Downloaded ${this.logsFound.length} log files.`, 'pass');
 
-            this.client.end();
-
         }catch(err){
             console.trace(err);
         }
+    }
+
+
+    async downloadACEFiles(){
+
+        try{
+
+            new Message("Starting download of ACE player join logs.","note");
+
+            for(let i = 0; i < this.acePlayerLogsFound.length; i++){
+
+                const f = this.acePlayerLogsFound[i];
+                await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`);
+            }
+
+            new Message("Finished downloading of ACE player join logs.","pass");
+
+            new Message("Starting download of ACE logs.","note");
+
+            for(let i = 0; i < this.aceLogsFound.length; i++){
+
+                const f = this.aceLogsFound[i];
+                await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`);
+
+            }
+
+        }catch(err){
+            new Message(err, "error");
+            console.trace(err);
+        }
+    }
+
+    checkForACELogs(){
+        
+        return new Promise((resolve, reject) =>{
+
+            this.client.list(`${this.targetDir}${config.ace.logDir}/`, async (err, files) =>{
+
+                if(err) reject(err);
+
+                for(let i = 0; i < files.length; i++){
+
+                    const f = files[i];
+
+                    if(f.name.startsWith(config.ace.playerJoinLogPrefix)){
+
+                        if(f.name.endsWith(".log")){
+                            this.acePlayerLogsFound.push(f.name);
+                        }
+                        
+                    }else if(f.name.startsWith(config.ace.kickLogPrefix)){
+
+                        if(f.name.endsWith(".log")){
+                            this.aceLogsFound.push(f.name);
+                        }
+                    }
+
+                }
+
+                await this.downloadACEFiles();
+                resolve();
+            });
+        });
+
     }
 
 }

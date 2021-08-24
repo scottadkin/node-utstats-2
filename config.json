@@ -1,5 +1,5 @@
 {
-    "importInterval": 60,
+    "importInterval": 30,
     "mysql": {
         "host": "localhost",
         "port": 3306,
@@ -13,12 +13,18 @@
     "spawnKillTimeLimit": 2,
     "classic": {
         "mysql": {
-            "host": "localhost",
-            "port": 3306,
-            "user": "user",
-            "password": "",
-            "database": ""
+            "host": "192.168.0.12",
+            "user": "Scott",
+            "password": "password",
+            "database": "utstats",
+            "port": 3306
         }
+    },
+    "ace": {
+        "logDir": "Logs",
+        "importLogs": true,
+        "playerJoinLogPrefix": "ACE_JOIN",
+        "kickLogPrefix": "[ACE]"
     }
 
 }
