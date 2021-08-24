@@ -98,7 +98,7 @@ class PlayersPage extends React.Component{
             </tr>);
         }
 
-        const url = `/classic/players/?mode=${mode}&order=${order}&page=`;
+        const url = `/classic/players/?mode=${mode}&name=${this.props.name}&order=${order}&page=`;
 
         const orderedBy = this.getOrderedBy();
         const cleanModeName = this.getCleanModeName();
@@ -114,10 +114,25 @@ class PlayersPage extends React.Component{
                 <td colSpan={8}>No data found.</td>
             </tr>);
         }
+
+        let description = "";
+        let title = "";
         
+        if(this.props.name === ""){
+
+            title = `Players sorted by ${cleanModeName} (${orderedBy})`;
+            description = `View a list of all players sorted by ${cleanModeName} (${orderedBy} order), `;
+            description += `see how you compare against the ${totalPlayers} saved players in the database.`;
+
+        }else{
+
+            title = `Players named like ${this.props.name} sorted by ${cleanModeName} (${orderedBy})`;
+            description = `View a list of players named like ${this.props.name} sorted by ${cleanModeName} (${orderedBy} order).`;
+        }
+
         return <div>
-            <Head host={host} title={`Players sorted by ${cleanModeName} (${orderedBy} order)`} 
-            description={`View a list of all players sorted by ${cleanModeName} (${orderedBy} order), see how you compare against the ${totalPlayers} saved players in the database.`} 
+            <Head host={host} title={title} 
+            description={description} 
             keywords={`players,classic,match,list,${orderedBy},${cleanModeName}`}/>
             <main>
                 <Nav />
@@ -125,6 +140,19 @@ class PlayersPage extends React.Component{
 
                     <div className="default">
                         <div className="default-header">Players</div>
+                        <div className="form">
+                            <form action={`/classic/players`} method="GET">
+                                <input type="hidden" name="mode" value={this.props.mode}/>
+                                <input type="hidden" name="order" value={this.props.order}/>
+                                <div className="select-row">
+                                    <div className="select-label">Name</div>
+                                    <div>
+                                        <input type="text" className="default-textbox" name="name" placeholder="Search for player..." defaultValue={this.props.name}/>
+                                    </div>
+                                </div>
+                                <input type="submit" className="search-button" value="Search"/>
+                            </form>
+                        </div>
                         <Pagination currentPage={page} results={totalPlayers} perPage={perPage} pages={pages} url={url}/>
                         <div className="default-sub-header">
                             Players sorted by <span className="yellow">{cleanModeName}</span> {orderedBy} order
@@ -132,14 +160,14 @@ class PlayersPage extends React.Component{
                         <table className={tableClassName}>
                             <tbody>
                                 <tr>
-                                    <th><Link href={`/classic/players/?mode=player&order=${this.getOrder("player")}`}><a>Player</a></Link></th>
-                                    <th><Link href={`/classic/players/?mode=matches&order=${this.getOrder("matches")}`}><a>Matches</a></Link></th>
-                                    <th><Link href={`/classic/players/?mode=score&order=${this.getOrder("score")}`}><a>Score</a></Link></th>
-                                    <th><Link href={`/classic/players/?mode=frags&order=${this.getOrder("frags")}`}><a>Frags</a></Link></th>
-                                    <th><Link href={`/classic/players/?mode=kills&order=${this.getOrder("kills")}`}><a>Kills</a></Link></th>
-                                    <th><Link href={`/classic/players/?mode=deaths&order=${this.getOrder("deaths")}`}><a>Deaths</a></Link></th>
-                                    <th><Link href={`/classic/players/?mode=eff&order=${this.getOrder("eff")}`}><a>Efficiency</a></Link></th>
-                                    <th><Link href={`/classic/players/?mode=hours&order=${this.getOrder("hours")}`}><a>Hours</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=player&name=${this.props.name}&order=${this.getOrder("player")}`}><a>Player</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=matches&name=${this.props.name}&order=${this.getOrder("matches")}`}><a>Matches</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=score&name=${this.props.name}&order=${this.getOrder("score")}`}><a>Score</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=frags&name=${this.props.name}&order=${this.getOrder("frags")}`}><a>Frags</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=kills&name=${this.props.name}&order=${this.getOrder("kills")}`}><a>Kills</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=deaths&name=${this.props.name}&order=${this.getOrder("deaths")}`}><a>Deaths</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=eff&name=${this.props.name}&order=${this.getOrder("eff")}`}><a>Efficiency</a></Link></th>
+                                    <th><Link href={`/classic/players/?mode=hours&name=${this.props.name}&order=${this.getOrder("hours")}`}><a>Hours</a></Link></th>
                                 </tr>
                                 {rows}
                             </tbody>
@@ -168,6 +196,7 @@ export async function getServerSideProps({req, query}) {
     let page = 1;
     let mode = "player";
     let order = "d";
+    let name = "";
 
     if(query.page !== undefined){
         page = query.page;
@@ -187,6 +216,9 @@ export async function getServerSideProps({req, query}) {
     }
 
 
+    if(query.name !== undefined){
+        name = query.name;
+    }
 
     const playerManager = new Players();
 
@@ -199,12 +231,12 @@ export async function getServerSideProps({req, query}) {
     if(validTypes.indexOf(mode) !== -1){
      
         if(mode === "player"){
-            data = await playerManager.getDefaultPlayers(page, perPage, (order === "a") ? false : true);
+            data = await playerManager.getDefaultPlayers(page, perPage, (order === "a") ? false : true, name);
         }else{
-            data = await playerManager.getPlayersInOrderOf(mode, order, page, perPage);
+            data = await playerManager.getPlayersInOrderOf(mode, order, page, perPage, name);
         }
 
-        totalPlayers = await playerManager.getTotalPlayers();
+        totalPlayers = await playerManager.getTotalPlayers(name);
     }
 
     let pages = 1;
@@ -226,7 +258,8 @@ export async function getServerSideProps({req, query}) {
             "pages": pages,
             "page": page,
             "mode": mode,
-            "order": order
+            "order": order,
+            "name": name
         }
     };
 }

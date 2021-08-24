@@ -142,16 +142,33 @@ class Players{
 
     }
 
-    async getDefaultPlayers(page, perPage, desc){
+    async getPlayerInfoOrderedByName(order, page, perPage, player){
 
-        const order = (desc) ? "DESC" : "ASC";
-
-        const query = `SELECT id,name,country FROM uts_pinfo ORDER by name ${order} LIMIT ?, ?`;
-        page--;
+        order = (order) ? "DESC" : "ASC";
 
         const start = page * perPage;
 
-        const result = await mysql.simpleQuery(query, [start, perPage]);
+        let query = "";
+        let vars = [];
+
+        if(player === ""){
+            query = `SELECT id,name,country FROM uts_pinfo ORDER by name ${order} LIMIT ?, ?`;
+            vars = [start, perPage];
+        }else{
+            query = `SELECT id,name,country FROM uts_pinfo WHERE name LIKE(?) ORDER by name ${order} LIMIT ?, ?`;
+            vars = [`%${player}%`, start, perPage]
+        }
+
+        return await mysql.simpleQuery(query, vars);
+
+
+    }
+
+    async getDefaultPlayers(page, perPage, order, player){
+
+        page--;
+
+        const result = await this.getPlayerInfoOrderedByName(order, page, perPage, player);
 
         if(result.length === 0) return [];
 
@@ -185,11 +202,26 @@ class Players{
     }
 
 
-    async getTotalPlayers(){
+    async getTotalPlayers(name){
 
-        const query = "SELECT COUNT(*) as players FROM uts_pinfo";
+        let query = "SELECT COUNT(*) as players FROM uts_pinfo";
+        let vars = [];
 
-        const result = await mysql.simpleQuery(query);
+        if(name !== undefined){
+
+            if(name !== ""){
+                query = "SELECT COUNT(*) as players FROM uts_pinfo WHERE name LIKE(?)";
+                vars = [`%${name}%`];
+            }
+        }
+
+        let result = 0;
+
+        if(vars.length === 0){
+            result = await mysql.simpleQuery(query);
+        }else{
+            result = await mysql.simpleQuery(query, [vars]);
+        }
 
         if(result.length > 0){
             return result[0].players;
@@ -198,7 +230,32 @@ class Players{
         return 0;
     }
 
-    async getPlayersInOrderOf(type, order, page, perPage){
+    async getIdsWhereNameLike(name){
+
+        if(name === "") return [];
+
+        const query = "SELECT id FROM uts_pinfo WHERE name LIKE(?)";
+
+        const result = await mysql.simpleQuery(query, [`%${name}%`]);
+
+        if(result.length === 0) return [];
+
+        const data = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data.push(r.id);
+        }
+
+        return data;
+
+    }
+
+    async getPlayersInOrderOf(type, order, page, perPage, name){
+
+        if(name === undefined) name = "";
 
         type = type.toLowerCase();
         order = order.toLowerCase();
@@ -213,6 +270,9 @@ class Players{
 
         if(index !== -1){
 
+            page--;
+            const start = page * perPage;
+
             const safeType = validTypes[index];
 
             if(order === "a"){
@@ -221,15 +281,34 @@ class Players{
                 order = "DESC";
             }
 
-            const query = `SELECT COUNT(*) as total_matches,pid,SUM(gamescore) as gamescore,
-            SUM(frags) as frags, SUM(kills) as kills, SUM(deaths) as deaths,
-            IF(SUM(kills) > 0, IF(SUM(deaths) > 0, (SUM(kills) / (SUM(deaths) + SUM(kills))) * 100, 100), 0) as eff,
-            SUM(gametime) as gametime FROM uts_player GROUP BY(pid) ORDER by ${safeType} ${order} LIMIT ?, ?`;
-            
-            page--;
-            const start = page * perPage;
+            let query = "";
+            let vars = [];
 
-            const result = await mysql.simpleQuery(query, [start, perPage]);
+            if(name === ""){
+
+                query = `SELECT COUNT(*) as total_matches,pid,SUM(gamescore) as gamescore,
+                SUM(frags) as frags, SUM(kills) as kills, SUM(deaths) as deaths,
+                IF(SUM(kills) > 0, IF(SUM(deaths) > 0, (SUM(kills) / (SUM(deaths) + SUM(kills))) * 100, 100), 0) as eff,
+                SUM(gametime) as gametime FROM uts_player GROUP BY(pid) ORDER by ${safeType} ${order} LIMIT ?, ?`;
+
+                vars = [start, perPage];
+
+            }else{
+
+                query = `SELECT COUNT(*) as total_matches,pid,SUM(gamescore) as gamescore,
+                SUM(frags) as frags, SUM(kills) as kills, SUM(deaths) as deaths,
+                IF(SUM(kills) > 0, IF(SUM(deaths) > 0, (SUM(kills) / (SUM(deaths) + SUM(kills))) * 100, 100), 0) as eff,
+                SUM(gametime) as gametime FROM uts_player WHERE pid IN(?) GROUP BY(pid) ORDER by ${safeType} ${order} LIMIT ?, ?`;
+
+                const playerIds = await this.getIdsWhereNameLike(name);
+
+                if(playerIds.length === 0) return [];
+                vars = [playerIds, start, perPage];
+
+            }
+            
+
+            const result = await mysql.simpleQuery(query, vars);
 
             const playerIds = [];
 
