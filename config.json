@@ -25,10 +25,12 @@
         "importLogs": true,
         "playerJoinLogPrefix": "ACE_JOIN",
         "kickLogPrefix": "[ACE]",
-        "importedScreenshotsDir": "Shots",
+        "importedScreenshotsDir": "public/images/ace",
         "screenshotsDir": "Shots",
         "screenshotExtensionType": ".jpg",
-        "screenshotPrefix": "[ACE]"
+        "screenshotPrefix": "[ACE]",
+        "deleteLogsAfterImport": true,
+        "deleteScreenshotsAfterImport": true
     }
 
 }

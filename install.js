@@ -717,6 +717,20 @@ const queries = [
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 
+    `CREATE TABLE IF NOT EXISTS nstats_ace_players (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        log_file varchar(255) NOT NULL,
+        ace_version varchar(50) NOT NULL,
+        timestamp int(11) NOT NULL,
+        player varchar(30) NOT NULL,
+        ip varchar(50) NOT NULL,
+        os varchar(32) NOT NULL,
+        mac1 varchar(32) NOT NULL,
+        mac2 varchar(32) NOT NULL,
+        hwid varchar(32) NOT NULL
+      ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+
     "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Kill','Player Killed an enemy',300)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'deaths','Death','Player died',-150)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'suicides','Suicide','Player killed themself',-150)",

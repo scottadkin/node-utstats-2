@@ -4,6 +4,7 @@ const fs =  require('fs');
 const Message = require('../message');
 const MatchManager = require('./matchmanager');
 const EventEmitter = require('events');
+const AceManager = require('./acemanager');
 
 
 class MyEventEmitter extends EventEmitter{};
@@ -26,75 +27,78 @@ class Importer{
         this.targetDir = targetDir;
         this.bDeleteAfter = bDeleteAfter;
         this.bIgnoreDuplicates = bIgnoreDuplicates;
-
+        this.bIgnoreBots = bIgnoreBots;
 
         this.myEmitter = new MyEventEmitter();
 
-        let imported = 0;
-        let failed = 0;
-        let passed = 0;
-        let currentData = [];
-
-        let log = 0;
-        let logData = 0;
-
         if(this.ftpImporter !== undefined){
 
-            this.ftpImporter.events.on('finished', async () =>{
-                   
-                
-                try{
-                    
-                    this.logsToImport = [];
-                    await this.checkLogsFolder();
-
-                    
-
-                    for(let i = 0; i < this.logsToImport.length; i++){
-
-                        new Message(`Starting import of log number ${imported + 1} of ${this.logsToImport.length}`,'progress');
-                        
-                        logData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
-                        
-                        log = new MatchManager(logData, this.logsToImport[i], bIgnoreBots);
-
-                        currentData = await log.import();
-
-                        fs.renameSync(`${config.importedLogsFolder}/${this.logsToImport[i]}`,`Logs/imported/${this.logsToImport[i]}`);
-                        
-                        if(currentData !== null){
-                            this.addUpdatedPlayers(currentData.updatedPlayers);
-                            this.addUpdatedGametype(currentData.updatedGametype);
-                        }
-
-                        imported++;
-
-                    }
-
-                    this.myEmitter.emit("passed");
-
-
-
-                }catch(err){
-                    console.trace(err);
-                    this.myEmitter.emit("error");
-                }   
-
-            });
+            this.standardImport();
 
         }else{
 
-            (async () =>{
+            this.nonFtpImport();
+            
+        }
+    }
 
-                new Message(`Import running without FTP.`,'note');
+    async standardImport(){
+
+        this.ftpImporter.events.on('finished', async () =>{
+                          
+            try{
+
+                let imported = 0;
+                
+                this.logsToImport = [];
+                await this.checkLogsFolder();
+
+                for(let i = 0; i < this.logsToImport.length; i++){
+
+                    new Message(`Starting import of log number ${imported + 1} of ${this.logsToImport.length}`,'progress');
+                    
+                    const logData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
+                    
+                    const log = new MatchManager(logData, this.logsToImport[i], this.bIgnoreBots);
+
+                    const currentData = await log.import();
+
+                    fs.renameSync(`${config.importedLogsFolder}/${this.logsToImport[i]}`,`Logs/imported/${this.logsToImport[i]}`);
+                    
+                    if(currentData !== null){
+                        this.addUpdatedPlayers(currentData.updatedPlayers);
+                        this.addUpdatedGametype(currentData.updatedGametype);
+                    }
+
+                    imported++;
+
+                }
+
+                this.myEmitter.emit("passed");
+
+            }catch(err){
+                console.trace(err);
+                this.myEmitter.emit("error");
+            }   
+
+        });
+
+    }
+
+    async nonFtpImport(){
+
+        try{
+
+            new Message(`Import running without FTP.`,'note');
 
                 for(let i = 0; i < logsToImport.length; i++){
-                    new Message(`Starting import of log number ${imported + 1} of ${logsToImport.length}`,'progress');
-                    logData = await this.openLog(`${config.importedLogsFolder}/${logsToImport[i]}`);
-                        
-                    log = new MatchManager(logData, logsToImport[i], bIgnoreBots);
 
-                    currentData = await log.import();
+                    new Message(`Starting import of log number ${imported + 1} of ${logsToImport.length}`,'progress');
+                    const logData = await this.openLog(`${config.importedLogsFolder}/${logsToImport[i]}`);
+                        
+                    const log = new MatchManager(logData, logsToImport[i], this.bIgnoreBots);
+
+                    const currentData = await log.import();
 
                     fs.renameSync(`${config.importedLogsFolder}/${logsToImport[i]}`,`Logs/imported/${logsToImport[i]}`);
 
@@ -107,9 +111,9 @@ class Importer{
 
                 this.myEmitter.emit("passed");
 
-            })();
-            
-        }
+            }catch(err){
+                console.trace(err);
+            }
     }
 
 
@@ -140,20 +144,29 @@ class Importer{
 
             for(let i = 0; i < files.length; i++){
 
-                if(fileExtReg.test(files[i])){
+                const f = files[i];
 
-                    if(files[i].toLowerCase().startsWith(config.logFilePrefix)){
+                if(fileExtReg.test(f)){
 
-                        this.logsToImport.push(files[i]);
+                    if(f.toLowerCase().startsWith(config.logFilePrefix)){
 
-                        new Message(`${files[i]} is a log file.`,'pass');
+                        this.logsToImport.push(f);
+
+                        new Message(`${f} is a log file.`,'pass');
 
                     }else{
-                        new Message(`${files[i]} does not have the prefix ${config.logFilePrefix}.`, 'pass');
-                    }
 
-                }else{
-                    //new Message(`${files[i]} is not a log file.`,'error');
+                        const bKickLog = f.startsWith(config.ace.kickLogPrefix);
+                        const bJoinLog = f.startsWith(config.ace.playerJoinLogPrefix);
+
+                        if(!bKickLog && !bJoinLog){
+                            new Message(`${f} does not have the prefix ${config.logFilePrefix}.`, 'pass');
+                        }else if(bKickLog){
+                            new Message(`${f} is an ACE kick log`);
+                        }else if(bJoinLog){
+                            new Message(`${f} is an ACE player join log`);
+                        }
+                    }
                 }
             }
 

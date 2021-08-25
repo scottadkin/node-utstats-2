@@ -237,6 +237,10 @@ class FTPImporter{
 
                 const f = this.acePlayerLogsFound[i];
                 await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`);
+
+                if(config.ace.deleteLogsAfterImport){
+                    await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
+                }
             }
 
             new Message("Finished downloading of ACE player join logs.","pass");
@@ -247,6 +251,10 @@ class FTPImporter{
                 const f = this.aceLogsFound[i];
                 await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`);
 
+                if(config.ace.deleteLogsAfterImport){
+                    await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
+                }
+
             }
 
             new Message("Finished downloading of ACE logs.","pass");
@@ -256,6 +264,10 @@ class FTPImporter{
 
                 const f = this.aceScreenshotsFound[i];
                 await this.downloadFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`, `${config.ace.importedScreenshotsDir}/${f}`);
+
+                if(config.ace.deleteScreenshotsAfterImport){
+                    await this.deleteFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`);
+                }
 
             }
 
