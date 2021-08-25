@@ -11,7 +11,7 @@ class MyEventEmitter extends EventEmitter{};
 
 class Importer{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates, bSkipFTP, logsToImport){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates, bSkipFTP){
 
         if(bSkipFTP === undefined){
             this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates);
@@ -28,18 +28,53 @@ class Importer{
         this.bDeleteAfter = bDeleteAfter;
         this.bIgnoreDuplicates = bIgnoreDuplicates;
         this.bIgnoreBots = bIgnoreBots;
+        this.logsToImport = [];
 
         this.myEmitter = new MyEventEmitter();
 
         if(this.ftpImporter !== undefined){
-
             this.standardImport();
-
         }else{
-
-            this.nonFtpImport();
-            
+            this.nonFtpImport();        
         }
+    }
+
+    updateCurrentUpdatedStats(currentData){
+
+        if(currentData !== null){
+            this.addUpdatedPlayers(currentData.updatedPlayers);
+            this.addUpdatedGametype(currentData.updatedGametype);
+        }
+    }
+
+    async importLogs(){
+
+        try{
+
+
+            for(let i = 0; i < this.logsToImport.length; i++){
+
+                new Message(`Starting import of log number ${i + 1} of ${this.logsToImport.length}`,'progress');
+                
+                const logData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
+                
+                const log = new MatchManager(logData, this.logsToImport[i], this.bIgnoreBots);
+
+                const currentData = await log.import();
+
+                fs.renameSync(`${config.importedLogsFolder}/${this.logsToImport[i]}`,`Logs/imported/${this.logsToImport[i]}`);
+                
+                this.updateCurrentUpdatedStats(currentData);
+
+            }
+
+            this.myEmitter.emit("passed");
+
+
+        }catch(err){
+
+        }
+
     }
 
     async standardImport(){
@@ -47,34 +82,9 @@ class Importer{
         this.ftpImporter.events.on('finished', async () =>{
                           
             try{
-
-                let imported = 0;
                 
-                this.logsToImport = [];
                 await this.checkLogsFolder();
-
-                for(let i = 0; i < this.logsToImport.length; i++){
-
-                    new Message(`Starting import of log number ${imported + 1} of ${this.logsToImport.length}`,'progress');
-                    
-                    const logData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
-                    
-                    const log = new MatchManager(logData, this.logsToImport[i], this.bIgnoreBots);
-
-                    const currentData = await log.import();
-
-                    fs.renameSync(`${config.importedLogsFolder}/${this.logsToImport[i]}`,`Logs/imported/${this.logsToImport[i]}`);
-                    
-                    if(currentData !== null){
-                        this.addUpdatedPlayers(currentData.updatedPlayers);
-                        this.addUpdatedGametype(currentData.updatedGametype);
-                    }
-
-                    imported++;
-
-                }
-
-                this.myEmitter.emit("passed");
+                await this.importLogs();
 
             }catch(err){
                 console.trace(err);
@@ -91,25 +101,9 @@ class Importer{
 
             new Message(`Import running without FTP.`,'note');
 
-                for(let i = 0; i < logsToImport.length; i++){
-
-                    new Message(`Starting import of log number ${imported + 1} of ${logsToImport.length}`,'progress');
-                    const logData = await this.openLog(`${config.importedLogsFolder}/${logsToImport[i]}`);
-                        
-                    const log = new MatchManager(logData, logsToImport[i], this.bIgnoreBots);
-
-                    const currentData = await log.import();
-
-                    fs.renameSync(`${config.importedLogsFolder}/${logsToImport[i]}`,`Logs/imported/${logsToImport[i]}`);
-
-                    if(currentData !== null){
-                        this.addUpdatedPlayers(currentData.updatedPlayers);
-                        this.addUpdatedGametype(currentData.updatedGametype);
-                    }
-                    imported++;
-                }
-
-                this.myEmitter.emit("passed");
+            await this.checkLogsFolder();
+            await this.importLogs();
+            
 
             }catch(err){
                 console.trace(err);
@@ -182,9 +176,7 @@ class Importer{
         try{
 
             let data = fs.readFileSync(file, "utf16le");
-            data = data.toString();
-
-            data = data.replace(/\u0000/ig, '');
+            data = data.toString().replace(/\u0000/ig, '');
 
             return data;
             

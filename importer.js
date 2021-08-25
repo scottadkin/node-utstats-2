@@ -30,7 +30,7 @@ async function setFTPSettings(){
 }
 
 
-function startNewImport(ftpServer, logsToImport){
+function startNewImport(ftpServer){
 
     
 
@@ -43,7 +43,7 @@ function startNewImport(ftpServer, logsToImport){
         if(ftpServer !== null){
             I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files, f.ignore_bots, f.ignore_duplicates);
         }else{
-            I = new Importer(null, null, null, null, null, null, null, null, null, true, logsToImport);
+            I = new Importer(null, null, null, null, null, null, null, null, null, true);
         }
 
         I.myEmitter.on("passed", () =>{
@@ -85,26 +85,12 @@ async function main(){
 
         }
 
-        new Message(`Checking for logs in/Logs folder.`,'note');
+        new Message(`Checking for leftover logs in/Logs folder.`,'note');
         //console.log(fs.readdirSync("./Logs"));
 
-        const foundFiles = fs.readdirSync("./Logs");
-
-        const toImport = [];
-
-        for(let i = 0; i < foundFiles.length; i++){
-
-            if(foundFiles[i].toLocaleLowerCase().startsWith(config.logFilePrefix)){
-                toImport.push(foundFiles[i]);
-            }
-        }
-
-        if(toImport.length > 0){
-            await startNewImport(null, toImport);
-        }else{
-            new Message(`There are no logs to import in /Logs folder`,'note');
-        }
-
+ 
+        await startNewImport(null);
+        
         
         new Message(`Import process completed.`,'pass');
         bCurrentImportFinished = true;
