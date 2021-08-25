@@ -24,7 +24,11 @@
         "logDir": "Logs",
         "importLogs": true,
         "playerJoinLogPrefix": "ACE_JOIN",
-        "kickLogPrefix": "[ACE]"
+        "kickLogPrefix": "[ACE]",
+        "importedScreenshotsDir": "Shots",
+        "screenshotsDir": "Shots",
+        "screenshotExtensionType": ".jpg",
+        "screenshotPrefix": "[ACE]"
     }
 
 }

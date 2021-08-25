@@ -30,6 +30,7 @@ class FTPImporter{
 
         this.aceLogsFound = [];
         this.acePlayerLogsFound = [];
+        this.aceScreenshotsFound = [];
 
         this.createClient();
     }
@@ -48,7 +49,9 @@ class FTPImporter{
             await this.checkForLogFiles();
 
             if(config.ace.importLogs){
+                await this.checkForAceScreenshots();
                 await this.checkForACELogs();
+                await this.downloadACEFiles();
             }
 
             this.client.end();
@@ -237,7 +240,6 @@ class FTPImporter{
             }
 
             new Message("Finished downloading of ACE player join logs.","pass");
-
             new Message("Starting download of ACE logs.","note");
 
             for(let i = 0; i < this.aceLogsFound.length; i++){
@@ -247,10 +249,49 @@ class FTPImporter{
 
             }
 
+            new Message("Finished downloading of ACE logs.","pass");
+            new Message("Starting download of ACE screenshots.","note");
+
+            for(let i = 0; i < this.aceScreenshotsFound.length; i++){
+
+                const f = this.aceScreenshotsFound[i];
+                await this.downloadFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`, `${config.ace.importedScreenshotsDir}/${f}`);
+
+            }
+
+            new Message("Finished downloading of ACE screenshots.","pass");
+
+
         }catch(err){
             new Message(err, "error");
             console.trace(err);
         }
+    }
+
+    checkForAceScreenshots(){
+
+        return new Promise((resolve, reject) =>{
+
+            this.client.list(`${this.targetDir}${config.ace.screenshotsDir}/`, async (err, files) =>{
+
+                if(err) reject(err);
+
+                for(let i = 0; i < files.length; i++){
+
+                    const f = files[i].name;
+                    
+                    if(f.startsWith(config.ace.screenshotPrefix)){
+
+                        if(f.endsWith(config.ace.screenshotExtensionType)){
+        
+                            this.aceScreenshotsFound.push(f);
+                        }
+                    }   
+                }
+
+                resolve();
+            });
+        });
     }
 
     checkForACELogs(){
@@ -279,8 +320,6 @@ class FTPImporter{
                     }
 
                 }
-
-                await this.downloadACEFiles();
                 resolve();
             });
         });
