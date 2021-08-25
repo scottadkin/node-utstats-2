@@ -29,6 +29,7 @@ class Importer{
         this.bIgnoreDuplicates = bIgnoreDuplicates;
         this.bIgnoreBots = bIgnoreBots;
         this.logsToImport = [];
+        this.aceLogsToImport = [];
 
         this.myEmitter = new MyEventEmitter();
 
@@ -51,21 +52,45 @@ class Importer{
 
         try{
 
+            await this.checkLogsFolder();
 
-            for(let i = 0; i < this.logsToImport.length; i++){
+            const totalLogs = this.logsToImport.length;
 
-                new Message(`Starting import of log number ${i + 1} of ${this.logsToImport.length}`,'progress');
+            for(let i = 0; i < totalLogs; i++){
+
+                const f = this.logsToImport[i];
+
+                new Message(`Starting import of log number ${i + 1} of ${totalLogs}`,'progress');
                 
-                const logData = await this.openLog(`${config.importedLogsFolder}/${this.logsToImport[i]}`);
+                const logData = await this.openLog(`${config.importedLogsFolder}/${f}`);
                 
-                const log = new MatchManager(logData, this.logsToImport[i], this.bIgnoreBots);
+                const log = new MatchManager(logData, f, this.bIgnoreBots);
 
                 const currentData = await log.import();
 
-                fs.renameSync(`${config.importedLogsFolder}/${this.logsToImport[i]}`,`Logs/imported/${this.logsToImport[i]}`);
+                fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
                 
                 this.updateCurrentUpdatedStats(currentData);
 
+            }
+
+            for(let i = 0; i < this.aceLogsToImport.length; i++){
+
+                const f = this.aceLogsToImport[i];
+
+                let data = "";
+
+                if(f.startsWith(config.ace.playerJoinLogPrefix)){
+
+                    data = await this.openLog(`${config.importedLogsFolder}/${f}`);
+
+                }else if(f.startsWith(config.ace.kickLogPrefix)){
+
+                    data = await this.openLog(`${config.importedLogsFolder}/${f}`, true);
+                }
+
+                console.log(f);
+                console.log(data);
             }
 
             this.myEmitter.emit("passed");
@@ -83,7 +108,6 @@ class Importer{
                           
             try{
                 
-                await this.checkLogsFolder();
                 await this.importLogs();
 
             }catch(err){
@@ -101,10 +125,8 @@ class Importer{
 
             new Message(`Import running without FTP.`,'note');
 
-            await this.checkLogsFolder();
             await this.importLogs();
             
-
             }catch(err){
                 console.trace(err);
             }
@@ -154,11 +176,16 @@ class Importer{
                         const bJoinLog = f.startsWith(config.ace.playerJoinLogPrefix);
 
                         if(!bKickLog && !bJoinLog){
+
                             new Message(`${f} does not have the prefix ${config.logFilePrefix}.`, 'pass');
-                        }else if(bKickLog){
-                            new Message(`${f} is an ACE kick log`);
-                        }else if(bJoinLog){
-                            new Message(`${f} is an ACE player join log`);
+
+                        }else{
+
+                            if(config.ace.importLogs){
+                                this.aceLogsToImport.push(f);
+                            }else{
+                                new Message(`ACE log found but importing is disabled`, "note");
+                            }
                         }
                     }
                 }
@@ -171,12 +198,18 @@ class Importer{
     }
     
 
-    async openLog(file){
+    async openLog(file, bAceLog){
 
         try{
 
-            let data = fs.readFileSync(file, "utf16le");
+            if(bAceLog === undefined) bAceLog = false;
+
+            const encoding = (bAceLog) ? "utf8" : "utf16le";
+
+            let data = fs.readFileSync(file, encoding);
+
             data = data.toString().replace(/\u0000/ig, '');
+            
 
             return data;
             

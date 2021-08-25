@@ -12,8 +12,9 @@ let mysql = mysqlObject.createPool({
     "password": config.mysql.password
 });
 
+
 const queries = [
-    `CREATE DATABASE IF NOT EXISTS ${config.mysql.database}`,
+    `CREATE DATABASE IF NOT EXISTS ${config.mysql.database} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_assault_match_objectives (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
