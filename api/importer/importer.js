@@ -16,6 +16,8 @@ class Importer{
         if(bSkipFTP === undefined){
             this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates);
         }
+
+        this.aceManager = new AceManager();
         
         this.updatedPlayers = [];
         this.updatedGametypes = [];
@@ -38,7 +40,10 @@ class Importer{
         }else{
             this.nonFtpImport();        
         }
+
     }
+
+
 
     updateCurrentUpdatedStats(currentData){
 
@@ -79,18 +84,21 @@ class Importer{
                 const f = this.aceLogsToImport[i];
 
                 let data = "";
+                let mode = "";
 
                 if(f.startsWith(config.ace.playerJoinLogPrefix)){
 
                     data = await this.openLog(`${config.importedLogsFolder}/${f}`);
+                    mode = "join";
 
                 }else if(f.startsWith(config.ace.kickLogPrefix)){
 
                     data = await this.openLog(`${config.importedLogsFolder}/${f}`, true);
+                    mode = "kick";
                 }
 
-                console.log(f);
-                console.log(data);
+
+                await this.aceManager.importLog(f, mode, data);
             }
 
             this.myEmitter.emit("passed");
@@ -98,6 +106,7 @@ class Importer{
 
         }catch(err){
 
+            console.trace(err);
         }
 
     }
