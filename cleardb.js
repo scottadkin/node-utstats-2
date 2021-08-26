@@ -56,7 +56,8 @@ const tables = [
     "visitors",
     "visitors_countries",
     "user_agents",
-    "ace_players"
+    "ace_players",
+    "ace_kicks"
 
 ];
 

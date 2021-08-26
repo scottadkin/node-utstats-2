@@ -97,7 +97,6 @@ class Importer{
                     mode = "kick";
                 }
 
-
                 await this.aceManager.importLog(f, mode, data);
             }
 
