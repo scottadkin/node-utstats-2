@@ -1,6 +1,6 @@
-const mysql = require('../database');
-const Message = require('../message');
 const ACE = require('../ace');
+const fs = require('fs');
+const config = require('../../config.json');
 
 
 class AceManager{
@@ -29,6 +29,8 @@ class AceManager{
             const j = joins[i];
             await this.ace.insertJoin(fileName, j);
         }
+
+        fs.renameSync(`${config.ace.logDir}/${fileName}`, `Logs/imported/ace/joins/${fileName}`);
     }
 
     parseJoinLog(lines){
@@ -123,6 +125,8 @@ class AceManager{
         if(data.kickreason){
             await this.ace.insertKick(fileName, rawData, data);
         }
+
+        fs.renameSync(`${config.ace.logDir}/${fileName}`, `Logs/imported/ace/kicks/${fileName}`);
         
     }
 }

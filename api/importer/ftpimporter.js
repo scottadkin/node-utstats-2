@@ -1,7 +1,6 @@
 const config = require('../../config.json');
 const Client = require('ftp');
 const fs = require('fs');
-const Promise = require('promise');
 const EventEmitter = require('events');
 const Message = require('../message');
 const Logs = require('../logs');
@@ -169,9 +168,11 @@ class FTPImporter{
 
     }
 
-    downloadFile(target, destination){
+    downloadFile(target, destination, bSkipDelete){
 
         return new Promise((resolve, reject) =>{
+
+            if(bSkipDelete === undefined) bSkipDelete = false;
 
             this.client.get(target, (err, stream) =>{
 
@@ -184,6 +185,11 @@ class FTPImporter{
                 stream.on('end', () =>{
 
                     new Message(`Downloaded ${this.host}:${this.port}${target}`, "pass");
+
+                    if(bSkipDelete){
+                        resolve();
+                        return;
+                    }
 
                     if(this.bDeleteAfter){
 
@@ -200,10 +206,7 @@ class FTPImporter{
                         resolve();
                     }
 
-                });
-
-                
-                
+                });               
             });
         });
     }
@@ -236,7 +239,7 @@ class FTPImporter{
             for(let i = 0; i < this.acePlayerLogsFound.length; i++){
 
                 const f = this.acePlayerLogsFound[i];
-                await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`);
+                await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`, true);
 
                 if(config.ace.deleteLogsAfterImport){
                     await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
@@ -249,7 +252,7 @@ class FTPImporter{
             for(let i = 0; i < this.aceLogsFound.length; i++){
 
                 const f = this.aceLogsFound[i];
-                await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`);
+                await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`, true);
 
                 if(config.ace.deleteLogsAfterImport){
                     await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
