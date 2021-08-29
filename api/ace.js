@@ -90,6 +90,17 @@ class ACE{
 
         await mysql.simpleInsert(query, vars);
     }
+
+
+    async getHomeRecentKicks(){
+
+
+        const query = `SELECT name,ip,mac1,mac2,hwid,timestamp,kick_reason,package_name,package_version
+        FROM nstats_ace_kicks ORDER BY timestamp DESC LIMIT 5`;
+
+        return await mysql.simpleFetch(query);
+       
+    }
 }
 
 module.exports = ACE;

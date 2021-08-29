@@ -29,6 +29,7 @@ import MonsterHunt from '../api/monsterhunt';
 import AdminMonsterHunt from '../components/AdminMonsterHunt';
 import Analytics from '../api/analytics';
 import SiteAnalytics from '../components/SiteAnalytics';
+import ACEManager from '../components/ACEManager';
 
 class Admin extends React.Component{
 
@@ -37,7 +38,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 13, 
+            "mode": 14, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
@@ -777,6 +778,13 @@ class Admin extends React.Component{
         />;
     }
 
+    displayACEManager(){
+
+        if(this.state.mode !== 14) return null;
+
+        return <ACEManager />;
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -837,6 +845,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 12) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(12);
                             })}>MonsterHunt</div>
+                            <div className={`big-tab ${(this.state.mode === 14) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(14);
+                            })}>ACE</div>
 
                             
                         </div>
