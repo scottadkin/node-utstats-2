@@ -8,6 +8,7 @@ import Link from 'next/link';
 import AccessDenied from '../components/AccessDenied';
 import ACE from '../api/ace';
 import ACEHome from '../components/ACEHome';
+import ACEPlayers from '../components/ACEPlayers';
 
 
 
@@ -25,6 +26,8 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
 
     if(mode === ""){
         elems = <ACEHome recentKicks={recentKicks} recentPlayers={recentPlayers}/>
+    }else if(mode === "players"){
+        elems = <ACEPlayers />
     }
 
     return <div>

@@ -20,7 +20,7 @@ const KickTable = ({kicks}) =>{
         </tr>);
     }
 
-    return <div>
+    return <div className="m-bottom-25">
         <div className="default-sub-header">Recent Kicks</div>
         <table className="t-width-1">
             <tbody>
@@ -56,7 +56,7 @@ const PlayersTable = ({players}) =>{
         </tr>);
     }
 
-    return <div>
+    return <div className="m-bottom-25">
         <div className="default-sub-header">Recent Players</div>
         <table className="t-width-1 td-1-left">
             <tbody>
