@@ -9,12 +9,10 @@ function Nav({session, settings}){
 
     let displayName = "NOT FOUND";
 
-
     if(session.displayName !== undefined){
         displayName = session.displayName;
     }
     
-
     if(settings !== undefined){
 
         settings = JSON.parse(settings);
@@ -29,6 +27,7 @@ function Nav({session, settings}){
             "Display Maps": "true",
             "Display Login/Logout": "true",
             "Display Admin": "true",
+            "Display ACE": "true",
         };
     }
 
@@ -40,6 +39,7 @@ function Nav({session, settings}){
         "Display Records": {"text": "Records", "url": "/records"},
         "Display Maps": {"text": "Maps", "url": "/maps", "alt": ["/map/[id]"]},
         "Display Admin": {"text": "Admin", "url": "/admin"},
+        "Display ACE": {"text": "Ace", "url": "/ace"},
         "Display Login/Logout": {"text": "Login/Register", "url": "/login"},
         
     }
@@ -131,8 +131,7 @@ function Nav({session, settings}){
             </div>
             <h1>Node UTStats 2</h1>
             <nav>
-                {elems} 
-
+                {elems}
             </nav>         
         </header>
         </div>

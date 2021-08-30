@@ -101,6 +101,10 @@ class ACE{
         return await mysql.simpleFetch(query);
        
     }
+
+    async getHomeRecentPlayers(){
+
+    }
 }
 
 module.exports = ACE;

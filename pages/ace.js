@@ -5,32 +5,25 @@ import React from 'react';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
 import Link from 'next/link';
+import AccessDenied from '../components/AccessDenied';
+import ACE from '../api/ace';
+import ACEHome from '../components/ACEHome'
 
 
 
-const ACEPage = ({error, session, host, navSettings, mode}) =>{
+const ACEPage = ({error, session, host, navSettings, mode, recentKicks}) =>{
 
     if(error !== undefined){
+        return <AccessDenied host={host} session={session} navSettings={navSettings}/>
+    }
 
-        return <div>
-            <DefaultHead host={host} title={`Access Denied`}  
-            description={``} 
-            keywords={``}/>
-            <main>
-            <Nav settings={navSettings} session={session}/>
-            <div id="content">
-                <div className="default">
-                    <div className="default-header">
-                        Access Denied
-                    </div>
-                    <div id="welcome">
-                        You do not have permission to view this page.
-                    </div>
-                </div>
-            </div>
-            <Footer session={session}/>
-            </main>   
-        </div>
+    recentKicks = JSON.parse(recentKicks);
+
+    let elems = [];
+
+
+    if(mode === ""){
+        elems = <ACEHome recentKicks={recentKicks}/>
     }
 
     return <div>
@@ -61,6 +54,8 @@ const ACEPage = ({error, session, host, navSettings, mode}) =>{
                             </a>
                         </Link>
                     </div>
+
+                    {elems}
                 </div>
             </div>
             <Footer session={session}/>
@@ -90,15 +85,19 @@ export async function getServerSideProps({req, query}){
                 "navSettings": JSON.stringify(navSettings),
             }
         };
-
     }
+
+    const aceManager = new ACE();
+
+    const recentKicks = await aceManager.getHomeRecentKicks();
 
     return {
         props: {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "mode": mode
+            "mode": mode,
+            "recentKicks": JSON.stringify(recentKicks)
         }
     };
 }
