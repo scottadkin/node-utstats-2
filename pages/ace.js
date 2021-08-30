@@ -11,7 +11,6 @@ import ACEHome from '../components/ACEHome';
 import ACEPlayers from '../components/ACEPlayers';
 
 
-
 const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers}) =>{
 
     if(error !== undefined){
