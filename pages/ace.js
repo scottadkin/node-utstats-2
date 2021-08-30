@@ -11,19 +11,20 @@ import ACEHome from '../components/ACEHome'
 
 
 
-const ACEPage = ({error, session, host, navSettings, mode, recentKicks}) =>{
+const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers}) =>{
 
     if(error !== undefined){
         return <AccessDenied host={host} session={session} navSettings={navSettings}/>
     }
 
     recentKicks = JSON.parse(recentKicks);
+    recentPlayers = JSON.parse(recentPlayers);
 
     let elems = [];
 
 
     if(mode === ""){
-        elems = <ACEHome recentKicks={recentKicks}/>
+        elems = <ACEHome recentKicks={recentKicks} recentPlayers={recentPlayers}/>
     }
 
     return <div>
@@ -90,6 +91,7 @@ export async function getServerSideProps({req, query}){
     const aceManager = new ACE();
 
     const recentKicks = await aceManager.getHomeRecentKicks();
+    const recentPlayers = await aceManager.getHomeRecentPlayers();
 
     return {
         props: {
@@ -97,7 +99,8 @@ export async function getServerSideProps({req, query}){
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "mode": mode,
-            "recentKicks": JSON.stringify(recentKicks)
+            "recentKicks": JSON.stringify(recentKicks),
+            "recentPlayers": JSON.stringify(recentPlayers)
         }
     };
 }

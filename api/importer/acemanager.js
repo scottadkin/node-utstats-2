@@ -1,6 +1,7 @@
 const ACE = require('../ace');
 const fs = require('fs');
 const config = require('../../config.json');
+const geoip = require('geoip-lite');
 
 
 class AceManager{
@@ -27,6 +28,15 @@ class AceManager{
         for(let i = 0; i < joins.length; i++){
 
             const j = joins[i];
+
+            const country = geoip.lookup(j.ip);
+
+            if(country === null){
+                j.country = "XX";
+            }else{
+                j.country = country.country;
+            }
+
             await this.ace.insertJoin(fileName, j);
             await this.ace.updatePlayer(j);
         }
@@ -124,6 +134,15 @@ class AceManager{
         const data = this.parseKickLog(lines);
 
         if(data.kickreason){
+
+            const country = geoip.lookup(data.playerip);
+
+            if(country === null){
+                data.country = "XX";
+            }else{
+                data.country = country.country;
+            }
+
             await this.ace.insertKick(fileName, rawData, data);
         }
 

@@ -34,15 +34,50 @@ const KickTable = ({kicks}) =>{
             </tbody>
         </table>
     </div>
-
-
 }
 
-const ACEHome = ({recentKicks}) =>{
+const PlayersTable = ({players}) =>{
+
+    if(players.length === 0) return null;
+
+    const rows = [];
+
+    for(let i = 0; i < players.length; i++){
+
+        const p = players[i];
+
+        rows.push(<tr key={i}>
+            <td>{p.name}</td>
+            <td>{p.hwid}</td>
+            <td>{Functions.convertTimestamp(p.first, true)}</td>
+            <td>{Functions.convertTimestamp(p.last, true)}</td>
+            <td>{p.times_connected}</td>
+        </tr>);
+    }
+
+    return <div>
+        <div className="default-sub-header">Recent Players</div>
+        <table className="t-width-1 td-1-left">
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <th>HWID</th>
+                    <th>First</th>
+                    <th>Last</th>
+                    <th>Times Connected</th>
+                </tr>
+                {rows}
+            </tbody>
+        </table>
+    </div>
+}
+
+const ACEHome = ({recentKicks, recentPlayers}) =>{
 
     return <div>
         <div className="default-header">Recent Events</div>
         <KickTable kicks={recentKicks}/>
+        <PlayersTable players={recentPlayers} />
     </div>
 }
 

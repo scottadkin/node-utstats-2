@@ -725,6 +725,7 @@ const queries = [
         timestamp int(11) NOT NULL,
         player varchar(30) NOT NULL,
         ip varchar(50) NOT NULL,
+        country varchar(2) NOT NULL,
         os varchar(32) NOT NULL,
         mac1 varchar(32) NOT NULL,
         mac2 varchar(32) NOT NULL,
@@ -738,6 +739,7 @@ const queries = [
         name varchar(30) NOT NULL,
         ace_version varchar(20) NOT NULL,
         ip varchar(50) NOT NULL,
+        country varchar(2) NOT NULL,
         os varchar(100) NOT NULL,
         cpu varchar(100) NOT NULL,
         cpu_speed decimal(10,5) NOT NULL,
@@ -761,9 +763,10 @@ const queries = [
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
         `CREATE TABLE nstats_ace_players (
-          id int(11) NOT NULL,
+          id int(11) NOT NULL AUTO_INCREMENT,
           name varchar(30) NOT NULL,
           ip varchar(50) NOT NULL,
+          country varchar(2) NOT NULL,
           mac1 varchar(32) NOT NULL,
           mac2 varchar(32) NOT NULL,
           hwid varchar(32) NOT NULL,
@@ -771,7 +774,7 @@ const queries = [
           last int(11) NOT NULL,
           times_connected int(11) NOT NULL,
           times_kicked int(11) NOT NULL,
-          last_kicked int(11) NOT NULL,
+          last_kick int(11) NOT NULL,
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 

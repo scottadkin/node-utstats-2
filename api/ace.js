@@ -32,11 +32,11 @@ class ACE{
     }
 
 
-    async createNewPlayer(name, ip, mac1, mac2, hwid, time){
+    async createNewPlayer(name, ip, country, mac1, mac2, hwid, time){
 
-        const query = "INSERT INTO nstats_ace_players VALUES(NULL,?,?,?,?,?,?,?,1,0,0)";
+        const query = "INSERT INTO nstats_ace_players VALUES(NULL,?,?,?,?,?,?,?,?,1,0,0)";
 
-        const vars = [name, ip, mac1, mac2, hwid, time, time];
+        const vars = [name, ip, country, mac1, mac2, hwid, time, time];
 
         await mysql.simpleInsert(query, vars);
     }
@@ -44,12 +44,14 @@ class ACE{
     async updatePlayer(data){
 
         const query = `UPDATE nstats_ace_players SET 
+        country=?,
         first = IF(? > first, first, ?),
         last = IF(? > last, ?, last),
         times_connected=times_connected+1
         WHERE name=? AND ip=? AND mac1=? AND mac2=? AND hwid=?`;
 
         const vars = [
+            data.country,
             data.time,
             data.time,
             data.time,
@@ -64,13 +66,13 @@ class ACE{
         const result = await mysql.updateReturnAffectedRows(query, vars);
 
         if(result === 0){
-            await this.createNewPlayer(data.name, data.ip, data.mac1, data.mac2, data.hwid, data.time);
+            await this.createNewPlayer(data.name, data.ip, data.country, data.mac1, data.mac2, data.hwid, data.time);
         }
     }
 
     async insertJoin(fileName, data){
 
-        const query = "INSERT INTO nstats_ace_joins VALUES(NULL,?,?,?,?,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_ace_joins VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
 
         const vars = [
             fileName, 
@@ -78,6 +80,7 @@ class ACE{
             data.time, 
             data.name, 
             data.ip, 
+            data.country,
             data.os,
             data.mac1, 
             data.mac2, 
@@ -95,7 +98,6 @@ class ACE{
 
         const vars = [date, date, date, name, ip, mac1, mac2, hwid];
 
-        console.log(vars);
         await mysql.simpleUpdate(query, vars);
     }
 
@@ -106,7 +108,7 @@ class ACE{
             ?,?,?,?,?,
             ?,?,?,?,?,
             ?,?,?,?,?,
-            ?,?,?,?,?)`;
+            ?,?,?,?,?,?)`;
 
         const vars = [
             fileName,
@@ -114,6 +116,7 @@ class ACE{
             data.playername,
             data.version,
             data.playerip,
+            data.country,
             data.os,
             data.cpu,
             data.cpuspeed,
@@ -138,9 +141,6 @@ class ACE{
 
         await mysql.simpleInsert(query, vars);
 
-        console.log(data);
-
-        //name, ip, mac1, mac2, hwid, date
         await this.updatePlayerKickStats(data.playername, data.playerip, data.machash1, data.machash2, data.hwid, data.timestamp);
     }
 
@@ -157,6 +157,9 @@ class ACE{
 
     async getHomeRecentPlayers(){
 
+        const query = "SELECT name,ip,hwid,first,last,times_connected FROM nstats_ace_players ORDER BY last DESC LIMIT 5";
+
+        return await mysql.simpleFetch(query);
     }
 }
 
