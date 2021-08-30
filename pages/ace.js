@@ -7,7 +7,7 @@ import SiteSettings from '../api/sitesettings';
 import Link from 'next/link';
 import AccessDenied from '../components/AccessDenied';
 import ACE from '../api/ace';
-import ACEHome from '../components/ACEHome'
+import ACEHome from '../components/ACEHome';
 
 
 

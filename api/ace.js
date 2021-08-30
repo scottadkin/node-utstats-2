@@ -148,7 +148,7 @@ class ACE{
     async getHomeRecentKicks(){
 
 
-        const query = `SELECT name,ip,mac1,mac2,hwid,timestamp,kick_reason,package_name,package_version
+        const query = `SELECT name,ip,country,mac1,mac2,hwid,timestamp,kick_reason,package_name,package_version
         FROM nstats_ace_kicks ORDER BY timestamp DESC LIMIT 5`;
 
         return await mysql.simpleFetch(query);
@@ -157,7 +157,7 @@ class ACE{
 
     async getHomeRecentPlayers(){
 
-        const query = "SELECT name,ip,hwid,first,last,times_connected FROM nstats_ace_players ORDER BY last DESC LIMIT 5";
+        const query = "SELECT name,ip,country,hwid,first,last,times_connected FROM nstats_ace_players ORDER BY last DESC LIMIT 5";
 
         return await mysql.simpleFetch(query);
     }
