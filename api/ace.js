@@ -29,12 +29,48 @@ class ACE{
         }
 
         return 0;
+    }
 
+
+    async createNewPlayer(name, ip, mac1, mac2, hwid, time){
+
+        const query = "INSERT INTO nstats_ace_players VALUES(NULL,?,?,?,?,?,?,?,1,0,0)";
+
+        const vars = [name, ip, mac1, mac2, hwid, time, time];
+
+        await mysql.simpleInsert(query, vars);
+    }
+
+    async updatePlayer(data){
+
+        const query = `UPDATE nstats_ace_players SET 
+        first = IF(? > first, first, ?),
+        last = IF(? > last, ?, last),
+        times_connected=times_connected+1
+        WHERE name=? AND ip=? AND mac1=? AND mac2=? AND hwid=?`;
+
+        const vars = [
+            data.time,
+            data.time,
+            data.time,
+            data.time,
+            data.name,
+            data.ip,
+            data.mac1,
+            data.mac2,
+            data.hwid
+        ];
+
+        const result = await mysql.updateReturnAffectedRows(query, vars);
+
+        if(result === 0){
+            await this.createNewPlayer(data.name, data.ip, data.mac1, data.mac2, data.hwid, data.time);
+        }
     }
 
     async insertJoin(fileName, data){
 
-        const query = "INSERT INTO nstats_ace_players VALUES(NULL,?,?,?,?,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_ace_joins VALUES(NULL,?,?,?,?,?,?,?,?,?)";
 
         const vars = [
             fileName, 
@@ -49,6 +85,18 @@ class ACE{
         ];
 
         await mysql.simpleInsert(query, vars);
+    }
+
+    async updatePlayerKickStats(name, ip, mac1, mac2, hwid, date){
+
+        const query = `UPDATE nstats_ace_players SET times_kicked=times_kicked+1,
+        last_kick = IF(last_kick=0, ?, IF(last_kick > ?, last_kick, ?))
+        WHERE name=? AND ip=? AND mac1=? AND mac2=? AND hwid=?`;
+
+        const vars = [date, date, date, name, ip, mac1, mac2, hwid];
+
+        console.log(vars);
+        await mysql.simpleUpdate(query, vars);
     }
 
     async insertKick(fileName, rawData, data){
@@ -89,6 +137,11 @@ class ACE{
         ];
 
         await mysql.simpleInsert(query, vars);
+
+        console.log(data);
+
+        //name, ip, mac1, mac2, hwid, date
+        await this.updatePlayerKickStats(data.playername, data.playerip, data.machash1, data.machash2, data.hwid, data.timestamp);
     }
 
 

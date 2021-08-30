@@ -28,6 +28,7 @@ class AceManager{
 
             const j = joins[i];
             await this.ace.insertJoin(fileName, j);
+            await this.ace.updatePlayer(j);
         }
 
         fs.renameSync(`${config.ace.logDir}/${fileName}`, `Logs/imported/ace/joins/${fileName}`);

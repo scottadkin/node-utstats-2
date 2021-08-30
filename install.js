@@ -718,7 +718,7 @@ const queries = [
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 
-    `CREATE TABLE IF NOT EXISTS nstats_ace_players (
+    `CREATE TABLE IF NOT EXISTS nstats_ace_joins (
         id int(11) NOT NULL AUTO_INCREMENT,
         log_file varchar(255) NOT NULL,
         ace_version varchar(50) NOT NULL,
@@ -731,7 +731,7 @@ const queries = [
         hwid varchar(32) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-      `CREATE TABLE nstats_ace_kicks (
+      `CREATE TABLE IF NOT EXISTS nstats_ace_kicks (
         id int(11) NOT NULL AUTO_INCREMENT,
         file varchar(255) NOT NULL,
         raw_data TEXT NOT NULL,
@@ -759,6 +759,20 @@ const queries = [
         screenshot_file varchar(255) NOT NULL,
         screenshot_status varchar(100) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+        `CREATE TABLE nstats_ace_players (
+          id int(11) NOT NULL,
+          name varchar(30) NOT NULL,
+          ip varchar(50) NOT NULL,
+          mac1 varchar(32) NOT NULL,
+          mac2 varchar(32) NOT NULL,
+          hwid varchar(32) NOT NULL,
+          first int(11) NOT NULL,
+          last int(11) NOT NULL,
+          times_connected int(11) NOT NULL,
+          times_kicked int(11) NOT NULL,
+          last_kicked int(11) NOT NULL,
+          PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 
     "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Kill','Player Killed an enemy',300)",
@@ -929,6 +943,7 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display Players","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display Rankings","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display Records","true")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display ACE","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Default Recent Matches Display","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Default Weapon Display","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Assault & Domination","true")`,
