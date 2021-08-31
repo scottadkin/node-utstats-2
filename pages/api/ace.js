@@ -22,8 +22,6 @@ export default async(req, res) =>{
 
             mode = mode.toLowerCase();
 
-            console.log(mode);
-
             if(mode === "player-search"){
 
                 const name = req.body.name || "";
@@ -49,7 +47,7 @@ export default async(req, res) =>{
 
     }catch(err){
         console.trace(err);
-        res.status(200).json({"error": err});
+        res.status(200).json({"error": `Error: "${err.message}"`});
     }
     
 }

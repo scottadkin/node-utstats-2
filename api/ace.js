@@ -180,9 +180,9 @@ class ACE{
                 query += "AND ";
             }
 
-            vars.push(value);
+            vars.push(`%${value}%`);
 
-            query += `${name}=? `;
+            query += `${name} LIKE(?) `;
             colsAdded++;
 
         }
