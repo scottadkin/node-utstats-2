@@ -642,3 +642,34 @@ input[type="range"]{
 .width-50{
 	width:50px;
 }
+
+.simple-pagination{
+	background-color:var(--color-3);
+	border:1px solid var(--border-color-1);
+	width:var(--width-1);
+	max-width:var(--max-width-1);
+	margin-left:auto;
+	margin-right:auto;
+	display:grid;
+	grid-template-columns: 30% 40% 30%;
+	height:40px;
+}
+
+.simple-pagination div:nth-child(1), .simple-pagination div:nth-child(3){
+	line-height:40px;
+	background-color:var(--color-2);
+	transition: all 0.5s;
+	
+}
+
+.simple-pagination div:nth-child(1):hover, .simple-pagination div:nth-child(3):hover{
+	cursor: pointer;
+	background-color:var(--color-4);
+	color:yellow;
+}
+
+.simple-pagination div:nth-child(2){
+	font-size:12px;
+	line-height:16px;
+	padding-top:4px;
+}

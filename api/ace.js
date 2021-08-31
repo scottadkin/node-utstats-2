@@ -198,9 +198,49 @@ class ACE{
         if(vars.length === 0) return [];
 
         return await mysql.simpleFetch(query, vars);
+    }
 
 
+    async getTotalPlayerJoins(name){
+
+        const query = "SELECT COUNT(*) as total_joins FROM nstats_ace_joins WHERE player=?";
+
+        const result = await mysql.simpleFetch(query, [name]);
+
+        if(result.length > 0) return result[0].total_joins;
+
+        return 0;
+    }
+
+    async getPlayerJoins(name, page, perPage){
+
+        if(name === "") return [];
+        if(page < 0) page = 0;
+        if(perPage < 0 || perPage > 100) perPage = 25;
+        
+        const start = page * perPage;
+
+        const query = `SELECT ace_version,timestamp,ip,country,os,mac1,mac2,hwid 
+        FROM nstats_ace_joins WHERE player=? ORDER BY timestamp DESC LIMIT ?, ?`;
+
+        const totalPlayerData = await this.getTotalPlayerJoins(name);
+
+        const data = await mysql.simpleFetch(query, [name, start, perPage]);
+
+        return {"data": data, "results": totalPlayerData};
+        
+    }
+
+    async getPlayerReport(name){
+
+        if(name === undefined) return [];
+        if(name === "") return [];
+
+        const playerSearchData = await this.playerSearch(name);
+
+        return {"searchData": playerSearchData};
     }
 }
+
 
 module.exports = ACE;

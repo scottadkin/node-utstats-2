@@ -1,5 +1,7 @@
 import React from 'react';
 import Functions from '../../api/functions';
+import CountryFlag from '../CountryFlag';
+import Link from 'next/link';
 
 class ACEPlayers extends React.Component{
 
@@ -181,7 +183,11 @@ class ACEPlayers extends React.Component{
             const lastKicked = (d.last_kick === 0) ? "Never" : Functions.convertTimestamp(d.last_kick, true);
 
             rows.push(<tr key={i}>
-                <td>{d.name}</td>
+                <td>
+                    <Link href={`/ace/?mode=player&name=${d.name}`}>
+                        <a><CountryFlag country={d.country}/>{d.name}</a>
+                    </Link>
+                </td>
                 <td>{d.ip}</td>
                 <td>
                     <span className="yellow">HWID:</span> {d.hwid}<br/>
@@ -194,9 +200,10 @@ class ACEPlayers extends React.Component{
                 </td>
                 <td>{d.times_connected}</td>
                 <td>
-                <span className="yellow">Times Kicked:</span> {d.times_kicked}<br/>
+                    <span className="yellow">Times Kicked:</span> {d.times_kicked}<br/>
                     <span className="yellow">Last:</span> {lastKicked}
                 </td>
+               
             </tr>);
         }
 
@@ -243,7 +250,8 @@ class ACEPlayers extends React.Component{
             <div className="form m-bottom-25">
                 <form action="/" method="POST" onSubmit={this.playerSearch}>
                     <div className="form-info">
-                        Search for a player using one or multiple parameters.
+                        Search for a player using one or multiple parameters.<br/>
+                        Click on a players name in the search result area to be taken to their full report.
                     </div>
            
                     {this.createFormRow("Name", "name", this.state.name)}
