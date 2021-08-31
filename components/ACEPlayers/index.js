@@ -41,6 +41,26 @@ class ACEPlayers extends React.Component{
             
 
             console.log(name, ip, hwid, mac1, mac2);
+            
+
+            const req = await fetch("/api/ace", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify(
+                    {
+                        "mode": "player-search",
+                        "name": name,
+                        "ip": ip,
+                        "hwid": hwid,
+                        "mac1": mac1,
+                        "mac2": mac2
+                    }
+                )
+            });
+
+            const res = await req.json();
+
+            console.log(res);
 
         }catch(err){
             console.trace(err);
@@ -67,7 +87,7 @@ class ACEPlayers extends React.Component{
 
         const cookies = document.cookie.split(`;`);
 
-        const reg = /^.+?-(.+?)=(.+)$/i;
+        const reg = /^.+?-(.+?)=(.*)$/i;
 
         const aceCookies = {};
 

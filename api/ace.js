@@ -161,6 +161,46 @@ class ACE{
 
         return await mysql.simpleFetch(query);
     }
+
+
+    async playerSearch(name, ip, hwid, mac1, mac2){
+
+        let query = "SELECT * FROM nstats_ace_players WHERE ";
+
+        let colsAdded = 0;
+
+        const vars = [];
+
+        const appendParameter = (value, name) =>{
+
+            if(value === undefined) return;
+            if(value === "") return;
+
+            if(colsAdded > 0){
+                query += "AND ";
+            }
+
+            vars.push(value);
+
+            query += `${name}=? `;
+            colsAdded++;
+
+        }
+
+        appendParameter(name, "name");
+        appendParameter(ip, "ip");
+        appendParameter(hwid, "hwid");
+        appendParameter(mac1, "mac1");
+        appendParameter(mac2, "mac2");
+
+        query += " ORDER BY name ASC";
+
+        if(vars.length === 0) return [];
+
+        return await mysql.simpleFetch(query, vars);
+
+
+    }
 }
 
 module.exports = ACE;

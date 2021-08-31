@@ -24,11 +24,17 @@ export default async(req, res) =>{
 
             console.log(mode);
 
-            if(mode === "home-kicks"){
+            if(mode === "player-search"){
 
-                const data = await aceManager.getHomeRecentKicks();
+                const name = req.body.name || "";
+                const ip = req.body.ip || "";
+                const hwid = req.body.hwid || "";
+                const mac1 = req.body.mac1 || "";
+                const mac2 = req.body.mac2 || "";
 
-                res.status(200).json({"data": data});
+                const searchResult = await aceManager.playerSearch(name, ip, hwid, mac1, mac2);
+
+                res.status(200).json({"message": "passed", "data": searchResult});
                 return;
             }
 
