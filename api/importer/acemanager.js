@@ -102,6 +102,8 @@ class AceManager{
 
                 let currentValue = result[3];
 
+                if(type === "event type") type = "eventtype";
+
                 if(type === "cpuspeed"){
 
                     const speedResult = speedReg.exec(currentValue);
@@ -134,17 +136,18 @@ class AceManager{
 
         const data = this.parseKickLog(lines);
 
+        const country = geoip.lookup(data.playerip);
+
+        if(country === null){
+            data.country = "XX";
+        }else{
+            data.country = country.country;
+        }
+
         if(data.kickreason){
-
-            const country = geoip.lookup(data.playerip);
-
-            if(country === null){
-                data.country = "XX";
-            }else{
-                data.country = country.country;
-            }
-
             await this.ace.insertKick(fileName, rawData, data);
+        }else{
+            await this.ace.insertScreenshotRequest(fileName, rawData, data);
         }
 
         fs.renameSync(`${config.ace.logDir}/${fileName}`, `Logs/imported/ace/kicks/${fileName}`);

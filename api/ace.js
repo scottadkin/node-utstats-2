@@ -268,7 +268,42 @@ class ACE{
         FROM nstats_ace_kicks WHERE name=? ORDER BY timestamp DESC LIMIT ?, ?`;
 
         return await mysql.simpleFetch(query, [name, start, perPage]);
+    }
 
+    async insertScreenshotRequest(fileName, rawData, data){
+
+        const query = `INSERT INTO nstats_ace_sshot_requests VALUES(NULL,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+        ?)`;
+
+        const vars = [
+            fileName,
+            rawData,
+            data.playername,
+            data.playerip,
+            data.country,
+            data.version,
+            data.os,
+            data.cpu,
+            data.cpuspeed,
+            data.nicdesc,
+            data.machash1,
+            data.machash2,
+            data.hwid,
+            data.gameversion,
+            data.renderer,
+            data.sounddevice,
+            data.commandline,
+            data.timestamp,
+            data.adminname,
+            data.filename,
+            data.status
+        ];
+
+        await mysql.simpleInsert(query, vars);
     }
 }
 
