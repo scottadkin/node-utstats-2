@@ -110,21 +110,22 @@ class AceManager{
                 }else if(type === "timestamp"){
 
                     currentValue = this.ace.convertTimeStamp(currentValue);
-
                 }
 
-                if(type === "libraryname") type = "packagename";
+                if(type === "libraryname" || type === "modulename") type = "packagename";
                 if(type === "librarypath") type = "packagepath";
                 if(type === "librarysize") type = "packagesize";
                 if(type === "libraryhash") type = "packagehash";
                 if(type === "libraryver") type = "packagever";
                 
-                
-
                 data[type] = currentValue;
-
             }
         }
+
+        if(data['packagepath'] === undefined) data['packagepath'] = "N/A";
+        if(data['packagehash'] === undefined) data['packagehash'] = "N/A";
+        if(data['packagever'] === undefined) data['packagever'] = "N/A";
+        if(data['packagesize'] === undefined) data['packagesize'] = 0;
 
         return data;
     }
