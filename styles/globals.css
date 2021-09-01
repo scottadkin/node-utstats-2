@@ -659,6 +659,7 @@ input[type="range"]{
 	line-height:40px;
 	background-color:var(--color-2);
 	transition: all 0.5s;
+	user-select: none;
 	
 }
 

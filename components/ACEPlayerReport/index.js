@@ -7,7 +7,7 @@ class ACEPlayerReport extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"basicData": [], "joinsPage": 0, "joinsData": [], "joinsResult": 0, "joinsPages": 0};
+        this.state = {"basicData": [], "joinsPage": 0, "joinsData": [], "joinsResult": 0, "joinPages": 0};
 
         this.previous = this.previous.bind(this);
         this.next = this.next.bind(this);
@@ -15,8 +15,6 @@ class ACEPlayerReport extends React.Component{
     }
 
     async previous(){
-
-        console.log("PREVIOUS");
 
         if(this.state.joinsPage > 0){
             this.setState({"joinsPage": this.state.joinsPage - 1});
@@ -26,9 +24,8 @@ class ACEPlayerReport extends React.Component{
 
     async next(){
 
-        console.log("NEXT");
+        if(this.state.joinsPage < this.state.joinPages - 1){
 
-        if(this.state.joinsPage < this.joinsPages - 1){
             this.setState({"joinsPage": this.state.joinsPage + 1});
             await this.loadPlayerJoins(this.state.joinsPage);
         }
@@ -74,8 +71,6 @@ class ACEPlayerReport extends React.Component{
     async loadPlayerJoins(page){
 
         try{
-
-            console.log("2LOAD PLAYERS)");
 
             const req = await fetch("/api/ace", {
                 "headers": {"Content-type": "application/json"},

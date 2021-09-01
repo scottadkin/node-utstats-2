@@ -1,5 +1,6 @@
 import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
+import Link from 'next/link';
 
 const KickTable = ({kicks}) =>{
 
@@ -13,7 +14,7 @@ const KickTable = ({kicks}) =>{
 
         rows.push(<tr key={i}>
             <td>{Functions.convertTimestamp(k.timestamp, true)}</td>
-            <td><CountryFlag country={k.country}/>{k.name}</td>
+            <td><Link href={`/ace/?mode=player&name=${k.name}`}><a><CountryFlag country={k.country}/>{k.name}</a></Link></td>
             <td>{k.kick_reason}</td>
             <td>{k.package_name}</td>
             <td>{k.package_version}</td>
@@ -48,7 +49,7 @@ const PlayersTable = ({players}) =>{
         const p = players[i];
 
         rows.push(<tr key={i}>
-            <td><CountryFlag country={p.country}/>{p.name}</td>
+            <td><Link href={`/ace/?mode=player&name=${p.name}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
             <td>{p.hwid}</td>
             <td>{Functions.convertTimestamp(p.first, true)}</td>
             <td>{Functions.convertTimestamp(p.last, true)}</td>
