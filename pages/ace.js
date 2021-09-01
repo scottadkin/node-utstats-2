@@ -12,7 +12,8 @@ import ACEPlayers from '../components/ACEPlayers';
 import ACEPlayerReport from '../components/ACEPlayerReport';
 
 
-const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers, playerName}) =>{
+const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers, playerName,
+    recentSShotRequests}) =>{
 
     if(error !== undefined){
         return <AccessDenied host={host} session={session} navSettings={navSettings}/>
@@ -20,12 +21,13 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
 
     recentKicks = JSON.parse(recentKicks);
     recentPlayers = JSON.parse(recentPlayers);
+    recentSShotRequests = JSON.parse(recentSShotRequests);
 
     let elems = [];
 
 
     if(mode === ""){
-        elems = <ACEHome recentKicks={recentKicks} recentPlayers={recentPlayers}/>
+        elems = <ACEHome recentKicks={recentKicks} recentPlayers={recentPlayers} recentSShots={recentSShotRequests}/>
     }else if(mode === "players"){
         elems = <ACEPlayers />
     }else if(mode === "player"){
@@ -109,8 +111,7 @@ export async function getServerSideProps({req, query}){
 
     const recentKicks = await aceManager.getHomeRecentKicks();
     const recentPlayers = await aceManager.getHomeRecentPlayers();
-
-    console.log(`name = ${playerName}`);
+    const recentSShotRequests = await aceManager.getHomeRecentSShotRequests();
 
     return {
         props: {
@@ -120,7 +121,8 @@ export async function getServerSideProps({req, query}){
             "mode": mode,
             "recentKicks": JSON.stringify(recentKicks),
             "recentPlayers": JSON.stringify(recentPlayers),
-            "playerName": playerName
+            "playerName": playerName,
+            "recentSShotRequests": JSON.stringify(recentSShotRequests)
         }
     };
 }

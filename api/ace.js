@@ -316,7 +316,7 @@ class ACE{
         const perPage = 10;
         const start = page * perPage;
 
-        const query = `SELECT ip,country,ace_version,admin_name,screenshot_file,timestamp FROM nstats_ace_sshot_requests
+        const query = `SELECT ip,country,admin_name,screenshot_file,timestamp,hwid,mac1,mac2 FROM nstats_ace_sshot_requests
         WHERE player=? ORDER BY timestamp DESC LIMIT ?, ?`;
         
         return await mysql.simpleFetch(query, [name, start, perPage]);
@@ -330,6 +330,28 @@ class ACE{
 
         if(result.length > 0) return result[0].total_sshots;
         return 0;
+    }
+
+    async getHomeRecentSShotRequests(){
+
+        const query = `SELECT ip,country,admin_name,screenshot_file,timestamp,hwid,mac1,mac2 FROM nstats_ace_sshot_requests 
+        ORDER BY timestamp DESC LIMIT 5`;
+
+        return await mysql.simpleFetch(query);
+    }
+
+    static cleanImageURL(url){
+
+        const reg = /^.*\/(.+)$/i;
+        
+        const result = reg.exec(url);
+
+        if(result !== null){
+            return `/images/ace/${result[1]}`;
+        }
+
+        return url;
+
     }
 }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import ACE from '../../api/ace';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 
@@ -313,22 +314,9 @@ class ACEPlayerReport extends React.Component{
 
         const rows = [];
 
-        const reg = /^.+\/(.+)$/i;
-
         for(let i = 0; i < this.state.kickData.length; i++){
 
             const d = this.state.kickData[i];
-            
-            const imageResult = reg.exec(d.screenshot_file);
- 
-            let imageElem = null;
-
-            if(imageResult !== null){
-                imageElem = <a href={`/images/ace/${imageResult[1]}`} target="_blank">View</a>
-            }else{
-                imageElem = <span>N/A</span>
-            }
-
 
             rows.push(<tr key={i}>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
@@ -346,7 +334,7 @@ class ACEPlayerReport extends React.Component{
                      {d.package_version}
                 </td>
                 <td>
-                    {imageElem}
+                    <a href={ACE.cleanImageURL(d.screenshot_file)} target="_blank">View</a>
                 </td>
             </tr>);
         }
@@ -381,27 +369,20 @@ class ACEPlayerReport extends React.Component{
 
         const rows = [];
 
-        const reg = /^.+\/(.+)$/i;
-
         for(let i = 0; i < this.state.sshotData.length; i++){
 
             const d = this.state.sshotData[i];
 
-            const imageResult = reg.exec(d.screenshot_file);
-
-            let imageElem = null;
-
-            if(imageResult !== null){
-                imageElem = <a href={`/images/ace/${imageResult[1]}`} target="_blank">View</a>
-            }else{
-                imageElem = <span>N/A</span>
-            }
-
             rows.push(<tr key={i}>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
                 <td><CountryFlag country={d.country}/>{d.ip}</td>
+                <td>
+                    <span className="yellow">HWID: </span> {d.hwid}<br/>
+                    <span className="yellow">MAC1: </span> {d.mac1}<br/>
+                    <span className="yellow">Mac1: </span> {d.mac2}
+                </td>
                 <td>{d.admin_name}</td>
-                <td>{imageElem}</td>
+                <td><a href={ACE.cleanImageURL(d.screenshot_file)} target="_blank">View</a></td>
             </tr>);
         }
 
@@ -420,6 +401,7 @@ class ACEPlayerReport extends React.Component{
                     <tr>
                         <th>Date</th>
                         <th>IP</th>
+                        <th>Hardware Info</th>
                         <th>Requested By</th>
                         <th>Screenshot</th>
                     </tr>
