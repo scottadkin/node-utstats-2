@@ -240,6 +240,36 @@ class ACE{
 
         return {"searchData": playerSearchData};
     }
+
+    async getTotalPlayerKicks(name){
+
+        const query = "SELECT COUNT(*) as total_kicks FROM nstats_ace_kicks WHERE name=?";
+
+        const result = await mysql.simpleFetch(query, [name]);
+
+        if(result.length > 0) return result[0].total_kicks;
+
+        return 0;
+    }
+
+    async getPlayerKicks(name, page, perPage){
+
+        if(name === undefined) return [];
+        if(name === "") return [];
+        if(page < 0) page = 0;
+        if(perPage < 1 || perPage > 100) perPage = 10;
+
+        let start = page * perPage;
+
+        if(start < 0) start = 0;
+
+        const query = `SELECT ip,country,hwid,mac1,mac2,kick_reason,package_name,
+        package_version,screenshot_file,screenshot_status,timestamp
+        FROM nstats_ace_kicks WHERE name=? ORDER BY timestamp DESC LIMIT ?, ?`;
+
+        return await mysql.simpleFetch(query, [name, start, perPage]);
+
+    }
 }
 
 

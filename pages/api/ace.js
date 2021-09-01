@@ -70,13 +70,36 @@ export default async(req, res) =>{
                 if(req.body.perPage !== undefined){
 
                     perPage = parseInt(req.body.perPage);
-                    if(perPage !== perPage) perPage = 25;
+                    if(perPage !== perPage) perPage = 10;
                 }
 
                 const data = await aceManager.getPlayerJoins(name, page, perPage);
 
                 res.status(200).json({"data": data.data, "results": data.results});
-                return;         
+                return;   
+
+            }else if(mode === "player-kicks"){
+
+                const name = req.body.name || "";
+                let page = 0;
+                let perPage = 10;
+
+                if(req.body.perPage !== undefined){
+                    perPage = parseInt(req.body.perPage);
+                    if(perPage !== perPage) perPage = 10;
+                }
+
+                if(req.body.page !== undefined){
+                    page = parseInt(req.body.page);
+                    if(page !== page) page = 0;
+                }
+
+                const data = await aceManager.getPlayerKicks(name, page, perPage);
+                const totalKicks = await aceManager.getTotalPlayerKicks(name);
+
+                res.status(200).json({"data": data, "results": totalKicks});
+
+                return;
             }
 
 
