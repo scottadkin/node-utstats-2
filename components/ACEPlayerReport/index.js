@@ -16,14 +16,37 @@ class ACEPlayerReport extends React.Component{
             "kickPage": 0,
             "kickPages": 0,
             "kickResult": 0,
-            "kickData": []
+            "kickData": [],
+            "sshotPage": 0,
+            "sshotPages": 0,
+            "sshotResult": 0,
+            "sshotData": []
         };
 
         this.previous = this.previous.bind(this);
         this.next = this.next.bind(this);
         this.nextKicks = this.nextKicks.bind(this);
         this.previousKicks = this.previousKicks.bind(this);
+        this.nextSShots = this.nextSShots.bind(this);
+        this.previousSShots = this.previousSShots.bind(this);
 
+    }
+
+    async nextSShots(){
+
+        if(this.state.sshotPage < this.state.sshotPages - 1){
+  
+            this.setState({"sshotPage": ++this.state.sshotPage});
+            await this.loadScreenshotRequests(this.state.sshotPage);
+        }
+    }
+
+    async previousSShots(){
+
+        if(this.state.sshotPage > 0){
+            this.setState({"sshotPage": --this.state.sshotPage});
+            await this.loadScreenshotRequests(this.state.sshotPage);
+        }
     }
 
     async nextKicks(){
@@ -150,13 +173,45 @@ class ACEPlayerReport extends React.Component{
         }
     }
 
-    componentDidMount(){
+    async loadScreenshotRequests(page){
+
+        try{
+
+            const perPage = 10;
+
+            const req = await fetch("/api/ace", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "player-sshots", "name": this.props.name, "page": page})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+
+                const pages = (res.results > 0) ? Math.ceil(res.results / perPage) : 0;
+
+                this.setState({
+                    "sshotPage": page,
+                    "sshotPages": pages,
+                    "sshotResult": res.results,
+                    "sshotData": res.data
+                });
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async componentDidMount(){
 
         if(this.props.name !== ""){
 
-            this.loadPlayerInfo();
-            this.loadPlayerJoins(0);
-            this.loadKickLogs(0);
+            await this.loadPlayerInfo();
+            await this.loadPlayerJoins(0);
+            await this.loadKickLogs(0);
+            await this.loadScreenshotRequests(0);
         }
     }
 
@@ -322,6 +377,58 @@ class ACEPlayerReport extends React.Component{
         </div>
     }
 
+    renderScreenshotRequests(){
+
+        const rows = [];
+
+        const reg = /^.+\/(.+)$/i;
+
+        for(let i = 0; i < this.state.sshotData.length; i++){
+
+            const d = this.state.sshotData[i];
+
+            const imageResult = reg.exec(d.screenshot_file);
+
+            let imageElem = null;
+
+            if(imageResult !== null){
+                imageElem = <a href={`/images/ace/${imageResult[1]}`} target="_blank">View</a>
+            }else{
+                imageElem = <span>N/A</span>
+            }
+
+            rows.push(<tr key={i}>
+                <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
+                <td><CountryFlag country={d.country}/>{d.ip}</td>
+                <td>{d.admin_name}</td>
+                <td>{imageElem}</td>
+            </tr>);
+        }
+
+        return <div className="m-bottom-25">
+            <div className="default-sub-header">Screenshot Requests</div>
+            <div className="simple-pagination">
+                <div onClick={this.previousSShots}>Previous</div>
+                <div>
+                    <span className="yellow">Viewing Page {this.state.sshotPage + 1} of {this.state.sshotPages}</span><br/>
+                    Total Results {this.state.sshotResult}
+                </div>
+                <div onClick={this.nextSShots}>Next</div>
+            </div>
+            <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>Date</th>
+                        <th>IP</th>
+                        <th>Requested By</th>
+                        <th>Screenshot</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         //this.props.name
@@ -337,8 +444,10 @@ class ACEPlayerReport extends React.Component{
             <div className="default-header">Player Report for {this.props.name}</div>
 
             {this.renderBasicData()}
+            {this.renderScreenshotRequests()}
             {this.renderKickLogs()}
             {this.renderJoins()}
+            
         </div>
     }
 }

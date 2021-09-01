@@ -98,7 +98,21 @@ export default async(req, res) =>{
                 const totalKicks = await aceManager.getTotalPlayerKicks(name);
 
                 res.status(200).json({"data": data, "results": totalKicks});
+                return;
 
+            }else if(mode === "player-sshots"){
+
+                const name = req.body.name || "";
+                let page = 0;
+
+                if(req.body.page !== undefined){
+                    page = parseInt(req.body.page);
+                    if(page !== page) page = 0;
+                }
+
+                const data = await aceManager.getPlayerScreenshotRequests(name, page);
+                const totalSShots = await aceManager.getTotalPlayerScreenshotRequests(name);
+                res.status(200).json({"data": data, "results": totalSShots});
                 return;
             }
 

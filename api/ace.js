@@ -305,6 +305,32 @@ class ACE{
 
         await mysql.simpleInsert(query, vars);
     }
+
+
+    async getPlayerScreenshotRequests(name, page){
+
+        page = parseInt(page);
+        if(page !== page) page = 0;
+        if(page < 0) page = 0;
+
+        const perPage = 10;
+        const start = page * perPage;
+
+        const query = `SELECT ip,country,ace_version,admin_name,screenshot_file,timestamp FROM nstats_ace_sshot_requests
+        WHERE player=? ORDER BY timestamp DESC LIMIT ?, ?`;
+        
+        return await mysql.simpleFetch(query, [name, start, perPage]);
+    }
+
+    async getTotalPlayerScreenshotRequests(name){
+
+        const query = "SELECT COUNT(*) as total_sshots FROM nstats_ace_sshot_requests WHERE player=?";
+
+        const result = await mysql.simpleFetch(query, [name]);
+
+        if(result.length > 0) return result[0].total_sshots;
+        return 0;
+    }
 }
 
 
