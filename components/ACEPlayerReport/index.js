@@ -244,6 +244,10 @@ class ACEPlayerReport extends React.Component{
             </tr>);
         }
 
+        if(rows.length === 0){
+            rows.push(<tr key="0"><td colSpan="5">None</td></tr>);
+        }
+
         return <div className="m-bottom-25">
             <div className="default-sub-header">Basic Summary</div>
 
@@ -266,8 +270,6 @@ class ACEPlayerReport extends React.Component{
 
         const rows = [];
 
-        if(this.state.joinsData.length === 0) return null;
-
         for(let i = 0; i < this.state.joinsData.length; i++){
 
             const d = this.state.joinsData[i];
@@ -283,6 +285,10 @@ class ACEPlayerReport extends React.Component{
                     <span className="yellow">MAC2:</span> {d.mac2}<br/>
                 </td>
             </tr>);
+        }
+
+        if(rows.length === 0){
+            rows.push(<tr key="0"><td colSpan="5">None</td></tr>);
         }
 
         return <div className="m-bottom-25">
@@ -339,6 +345,10 @@ class ACEPlayerReport extends React.Component{
             </tr>);
         }
 
+        if(rows.length === 0){
+            rows.push(<tr key="0"><td colSpan="6">None</td></tr>);
+        }
+
         return <div className="m-bottom-25">
             <div className="default-sub-header">Kick Logs</div>
             <div className="simple-pagination">
@@ -384,6 +394,10 @@ class ACEPlayerReport extends React.Component{
                 <td>{d.admin_name}</td>
                 <td><a href={ACE.cleanImageURL(d.screenshot_file)} target="_blank">View</a></td>
             </tr>);
+        }
+
+        if(rows.length === 0){
+            rows.push(<tr key="0"><td colSpan="6">None</td></tr>);
         }
 
         return <div className="m-bottom-25">
