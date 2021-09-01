@@ -58,7 +58,8 @@ const tables = [
     "user_agents",
     "ace_joins",
     "ace_kicks",
-    "ace_players"
+    "ace_players",
+    "ace_sshot_requests"
 
 ];
 
