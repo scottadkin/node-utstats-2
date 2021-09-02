@@ -24,7 +24,8 @@ class ACEPlayerReport extends React.Component{
             "sshotPages": 0,
             "sshotResult": 0,
             "sshotData": [],
-            "aliasMode": 0
+            "aliasMode": 0,
+            "uniqueVariables": []
         };
 
         this.previous = this.previous.bind(this);
@@ -120,9 +121,12 @@ class ACEPlayerReport extends React.Component{
                     });
                 }
 
+                console.log(res);
+
                 this.setState({
                     "basicData": res.playerData,
-                    "aliases": res.aliases
+                    "aliases": res.aliases,
+                    "uniqueVariables": res.uniqueVariables
                 });
             }
             
@@ -243,18 +247,65 @@ class ACEPlayerReport extends React.Component{
 
         const rows = [];
 
+        const cleanedData = [];
+
+        const getHardwareIndex = (mac1, mac2, hwid) =>{
+
+            for(let i = 0; i < cleanedData.length; i++){
+
+                const c = cleanedData[i];
+
+                if(c.mac1 === mac1 && c.mac2 === mac2 && c.hwid === hwid){
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         for(let i = 0; i < this.state.basicData.length; i++){
 
             const d = this.state.basicData[i];
 
+            let index = getHardwareIndex(d.mac1, d.mac2, d.hwid);
+
+            if(index === -1){
+                
+                cleanedData.push({
+                    "hwid": d.hwid,
+                    "mac1": d.mac1,
+                    "mac2": d.mac2,
+                    "first": d.first,
+                    "last": d.last,
+                    "times_connected": d.times_connected,
+                    "times_kicked": d.times_kicked,
+                    "ips_used": 1
+                });
+
+            }else{
+
+                const current = cleanedData[index];
+
+                current.times_connected += d.times_connected;
+                current.times_kicked += d.times_kicked;
+                current.ips_used++;
+                if(current.first > d.first) current.first = d.first;
+                if(current.last < d.last) current.last = d.last;
+            }
+        }
+
+        for(let i = 0; i < cleanedData.length; i++){
+
+            const d = cleanedData[i];
+
             rows.push(<tr key={i}>
-                <td><CountryFlag country={d.country}/>{d.ip}</td>
                 <td>
                     <span className="yellow">HWID: </span> {d.hwid}<br/>
                     <span className="yellow">MAC1: </span> {d.mac1}<br/>
                     <span className="yellow">Mac1: </span> {d.mac2}
                 </td>
-                    <td>
+                <td>{d.ips_used}</td>
+                <td>
                     <span className="yellow">First: </span> {Functions.convertTimestamp(d.first, true)}<br/>
                     <span className="yellow">Last: </span> {Functions.convertTimestamp(d.last, true)}<br/>
                 </td>
@@ -277,8 +328,8 @@ class ACEPlayerReport extends React.Component{
             <table className="t-width-1">
                 <tbody>
                     <tr>
-                        <th>IP</th>
                         <th>Hardware Info</th>
+                        <th>Unique IPs</th>
                         <th>Dates</th>
                         <th>Times Connected</th>
                         <th>Times Kicked</th>
@@ -584,7 +635,9 @@ class ACEPlayerReport extends React.Component{
      
             <table className="t-width-3 m-top-25 td-1-left">
                 <tbody>
-                    <th>Name</th>
+                    <tr>
+                        <th>Name</th>
+                    </tr>
                     {rows}
                 </tbody>
             </table>
