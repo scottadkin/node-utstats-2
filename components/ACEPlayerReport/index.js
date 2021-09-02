@@ -8,13 +8,10 @@ class ACEPlayerReport extends React.Component{
 
     constructor(props){
 
-        console.log(props);
-
         super(props);
         this.state = {
             "basicData": [], 
             "aliases": [],
-            "uniqueVariables": [],
             "joinsPage": 0, 
             "joinsData": [], 
             "joinsResult": 0, 
@@ -26,7 +23,8 @@ class ACEPlayerReport extends React.Component{
             "sshotPage": 0,
             "sshotPages": 0,
             "sshotResult": 0,
-            "sshotData": []
+            "sshotData": [],
+            "aliasMode": 0
         };
 
         this.previous = this.previous.bind(this);
@@ -35,7 +33,12 @@ class ACEPlayerReport extends React.Component{
         this.previousKicks = this.previousKicks.bind(this);
         this.nextSShots = this.nextSShots.bind(this);
         this.previousSShots = this.previousSShots.bind(this);
+        this.changeAliasMode = this.changeAliasMode.bind(this);
 
+    }
+
+    changeAliasMode(id){
+        this.setState({"aliasMode": id});
     }
 
     async nextSShots(){
@@ -106,9 +109,9 @@ class ACEPlayerReport extends React.Component{
 
             if(res.error === undefined){
 
-                if(res.searchData.length > 0){
+                if(res.playerData.length > 0){
 
-                    res.searchData.sort((a, b) =>{
+                    res.playerData.sort((a, b) =>{
 
                         a = a.last;
                         b = b.last;
@@ -118,9 +121,8 @@ class ACEPlayerReport extends React.Component{
                 }
 
                 this.setState({
-                    "basicData": res.searchData,
-                    "aliases": res.aliases,
-                    "uniqueVariables": res.uniqueVariables
+                    "basicData": res.playerData,
+                    "aliases": res.aliases
                 });
             }
             
@@ -448,12 +450,52 @@ class ACEPlayerReport extends React.Component{
 
     renderAliases(){
 
-        const elems = [];
-
-        const usedNames = [];
+        const ipMatches = [];
+        const dualMacMatches = [];
+        const mac1Matches = [];
+        const mac2Matches = [];
+        const hwidMatches = [];
+        const hardwareMatches = [];
+        const exactMatches = [];
 
 
         for(let i = 0; i < this.state.aliases.length; i++){
+
+            const a = this.state.aliases[i];
+
+            for(let x = 0; x < this.state.basicData.length; x++){
+
+                const p = this.state.basicData[x];
+
+                if(a.ip === p.ip){
+                    if(ipMatches.indexOf(a.name) === -1) ipMatches.push(a.name);
+                }
+
+                if(a.mac1 === p.mac1){
+                    if(mac1Matches.indexOf(a.name) === -1) mac1Matches.push(a.name);
+                }
+
+                if(a.mac2 === p.mac2){
+                    if(mac2Matches.indexOf(a.name) === -1) mac2Matches.push(a.name);
+                }
+
+                if(a.hwid === p.hwid){
+                    if(hwidMatches.indexOf(a.name) === -1) hwidMatches.push(a.name);
+                }
+
+                if(a.mac1 === p.mac1 && a.mac2 === p.mac2 && a.hwid === p.hwid){
+
+                    if(hardwareMatches.indexOf(a.name) === -1) hardwareMatches.push(a.name);
+
+                    if(a.ip === p.ip){
+                        if(exactMatches.indexOf(a.name) === -1) exactMatches.push(a.name);
+                    }
+                }
+            }
+        }
+
+        
+        /*for(let i = 0; i < this.state.aliases.length; i++){
 
             const d = this.state.aliases[i];
 
@@ -472,14 +514,57 @@ class ACEPlayerReport extends React.Component{
 
                 usedNames.push(d.name);
             }
-        }
+        }*/
 
         return <div className="m-bottom-25">
+            
             <div className="default-sub-header">Aliases</div>
-            <div className="default-info m-bottom-10">
-                Aliases based on used ips, mac1, mac2, and HWID.<br/><br/>
-                {elems}
+            <div className="tabs">
+                <div className={`tab ${(this.state.aliasMode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+
+                    this.changeAliasMode(0);
+          
+                })}>
+                    Exact Matches
+                </div>
+                <div className={`tab ${(this.state.aliasMode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+
+                    this.changeAliasMode(1);
+          
+                })}>
+                    Hardware Matches
+                </div>
+                <div className={`tab ${(this.state.aliasMode === 2) ? "tab-selected" : ""}`}  onClick={(() =>{
+
+                    this.changeAliasMode(2);
+          
+                })}>
+                    Mac1 &amp; Mac2 Matches
+                </div>
+                <div className={`tab ${(this.state.aliasesMode === 3) ? "tab-selected" : ""}`}  onClick={(() =>{
+
+                    this.changeAliasMode(3);
+          
+                })}>
+                    Mac1 Matches
+                </div>
+                <div className={`tab ${(this.state.aliasMode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
+
+                    this.changeAliasMode(4);
+          
+                })}>
+                    Mac2 Matches
+                </div>
+                <div className={`tab ${(this.state.aliasMode === 5) ? "tab-selected" : ""}`} onClick={(() =>{
+
+                    this.changeAliasMode(5);
+          
+                })}>
+                    IP Matches
+                </div>
             </div>
+
+  
             
             
         </div>

@@ -265,7 +265,7 @@ class ACE{
 
         if(ips.length === 0 && mac1s.length === 0 && mac2s.length === 0 && hwids.length === 0) return [];
 
-        let query = `SELECT name,ip,country,first,last,times_connected,hwid,mac1,mac2 FROM nstats_ace_players WHERE (name != ?) AND (`;
+        let query = `SELECT name,ip,country,hwid,mac1,mac2 FROM nstats_ace_players WHERE (name != ?) AND (`;
 
         const vars = [name];
 
@@ -289,8 +289,14 @@ class ACE{
 
         return await mysql.simpleFetch(query, vars);
 
-        
+    }
 
+    async getPlayersByName(name){
+
+
+        const query = `SELECT * FROM nstats_ace_players WHERE name=? ORDER BY id ASC`;
+
+        return await mysql.simpleFetch(query, [name]);
     }
     
 
@@ -299,9 +305,9 @@ class ACE{
         if(name === undefined) return [];
         if(name === "") return [];
 
-        const playerSearchData = await this.playerSearch(name);
+        const playerData = await this.getPlayersByName(name);
 
-        const uniqueVariables = this.toUniqueVariables(playerSearchData);
+        const uniqueVariables = this.toUniqueVariables(playerData);
 
         const aliases = await this.getAliases(
             name,
@@ -309,7 +315,7 @@ class ACE{
             uniqueVariables.mac2, uniqueVariables.hwid
         );
 
-        return {"searchData": playerSearchData, "aliases": aliases, "uniqueVariables": uniqueVariables};
+        return {"playerData": playerData, "aliases": aliases};
     }
 
     async getTotalPlayerKicks(name){

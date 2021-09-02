@@ -50,7 +50,10 @@ export default async(req, res) =>{
                 }
 
                 const data = await aceManager.getPlayerReport(name);
-                res.status(200).json({"searchData": data.searchData, "aliases": data.aliases, "uniqueVariables": data.uniqueVariables})
+
+                console.log(data);
+
+                res.status(200).json({"playerData": data.playerData, "aliases": data.aliases})
 
                 return;
 
