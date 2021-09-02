@@ -450,6 +450,8 @@ class ACEPlayerReport extends React.Component{
 
     renderAliases(){
 
+        const elems = [];
+
         const ipMatches = [];
         const dualMacMatches = [];
         const mac1Matches = [];
@@ -457,7 +459,6 @@ class ACEPlayerReport extends React.Component{
         const hwidMatches = [];
         const hardwareMatches = [];
         const exactMatches = [];
-
 
         for(let i = 0; i < this.state.aliases.length; i++){
 
@@ -479,6 +480,10 @@ class ACEPlayerReport extends React.Component{
                     if(mac2Matches.indexOf(a.name) === -1) mac2Matches.push(a.name);
                 }
 
+                if(a.mac1 === p.mac1 && a.mac2 === p.mac2){
+                    if(dualMacMatches.indexOf(a.name) === -1) dualMacMatches.push(a.name);
+                }
+
                 if(a.hwid === p.hwid){
                     if(hwidMatches.indexOf(a.name) === -1) hwidMatches.push(a.name);
                 }
@@ -494,27 +499,40 @@ class ACEPlayerReport extends React.Component{
             }
         }
 
+        let data = [];
+
+        const mode = this.state.aliasMode;
+
+        if(mode === 0) data = exactMatches;
+        if(mode === 1) data = hardwareMatches;
+        if(mode === 2) data = dualMacMatches;
+        if(mode === 3) data = mac1Matches;
+        if(mode === 4) data = mac2Matches;
+        if(mode === 5) data = ipMatches;
+
+
+        const rows = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            rows.push(
+                <tr key={i}>
+                    <td>
+                    <Link href={`/ace/?mode=player&name=${d}`}>
+                        <a>
+                            <CountryFlag country={"xx"}/>{d}
+                        </a>
+                    </Link>
+                    </td>
+                </tr>
+            );
+        }
         
-        /*for(let i = 0; i < this.state.aliases.length; i++){
-
-            const d = this.state.aliases[i];
-
-            if(usedNames.indexOf(d.name) === -1){
-          
-                elems.push(
-                    <span key={i}>
-                        <Link href={`/ace/?mode=player&name=${d.name}`}>
-                            <a>
-                                <CountryFlag country={d.country}/>{d.name}
-                            </a>
-                        </Link>
-                        {(i < this.state.aliases.length - 1) ? ", " : ""}
-                    </span>
-                );
-
-                usedNames.push(d.name);
-            }
-        }*/
+        if(rows.length === 0){
+            rows.push(<tr key="0"><td>No Data</td></tr>);
+        }
 
         return <div className="m-bottom-25">
             
@@ -541,7 +559,7 @@ class ACEPlayerReport extends React.Component{
                 })}>
                     Mac1 &amp; Mac2 Matches
                 </div>
-                <div className={`tab ${(this.state.aliasesMode === 3) ? "tab-selected" : ""}`}  onClick={(() =>{
+                <div className={`tab ${(this.state.aliasMode === 3) ? "tab-selected" : ""}`}  onClick={(() =>{
 
                     this.changeAliasMode(3);
           
@@ -563,10 +581,13 @@ class ACEPlayerReport extends React.Component{
                     IP Matches
                 </div>
             </div>
-
-  
-            
-            
+     
+            <table className="t-width-3 m-top-25 td-1-left">
+                <tbody>
+                    <th>Name</th>
+                    {rows}
+                </tbody>
+            </table>
         </div>
     }
 

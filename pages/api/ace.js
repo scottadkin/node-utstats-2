@@ -51,8 +51,6 @@ export default async(req, res) =>{
 
                 const data = await aceManager.getPlayerReport(name);
 
-                console.log(data);
-
                 res.status(200).json({"playerData": data.playerData, "aliases": data.aliases})
 
                 return;
@@ -119,9 +117,6 @@ export default async(req, res) =>{
                 return;
             }
 
-
-
-            console.log(req.body);
             res.status(200).json({"message": "passed"});
 
         }else{

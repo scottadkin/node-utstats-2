@@ -410,6 +410,11 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	overflow:hidden;
 }
 
+.t-width-3{
+	width:90%;
+	max-width:250px;
+	overflow:hidden;
+}
 
 .form{
 	background-color:var(--color-3a);
