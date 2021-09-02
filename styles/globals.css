@@ -133,6 +133,18 @@ footer{
 }
 
 
+.default-info{
+
+	background-color:var(--color-3a);
+	border:1px solid var(--border-color-1);
+	max-width:var(--max-width-1);
+	width:90%;
+	margin-left:auto;
+	margin-right:auto;
+	padding:10px 0px;
+	
+}
+
 
 .nl{
 	display:inline-block;

@@ -2,10 +2,13 @@ import React from 'react';
 import ACE from '../../api/ace';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
+import Link from 'next/link';
 
 class ACEPlayerReport extends React.Component{
 
     constructor(props){
+
+        console.log(props);
 
         super(props);
         this.state = {
@@ -211,7 +214,7 @@ class ACEPlayerReport extends React.Component{
         }
     }
 
-    async componentDidMount(){
+    async loadDefault(){
 
         if(this.props.name !== ""){
 
@@ -219,6 +222,18 @@ class ACEPlayerReport extends React.Component{
             await this.loadPlayerJoins(0);
             await this.loadKickLogs(0);
             await this.loadScreenshotRequests(0);
+        }
+    }
+
+    async componentDidMount(){
+
+        await this.loadDefault();
+    }
+
+    async componentDidUpdate(prevProps){
+
+        if(this.props.name !== prevProps.name){
+            this.loadDefault();
         }
     }
 
@@ -431,6 +446,45 @@ class ACEPlayerReport extends React.Component{
         </div>
     }
 
+    renderAliases(){
+
+        const elems = [];
+
+        const usedNames = [];
+
+
+        for(let i = 0; i < this.state.aliases.length; i++){
+
+            const d = this.state.aliases[i];
+
+            if(usedNames.indexOf(d.name) === -1){
+          
+                elems.push(
+                    <span key={i}>
+                        <Link href={`/ace/?mode=player&name=${d.name}`}>
+                            <a>
+                                <CountryFlag country={d.country}/>{d.name}
+                            </a>
+                        </Link>
+                        {(i < this.state.aliases.length - 1) ? ", " : ""}
+                    </span>
+                );
+
+                usedNames.push(d.name);
+            }
+        }
+
+        return <div className="m-bottom-25">
+            <div className="default-sub-header">Aliases</div>
+            <div className="default-info m-bottom-10">
+                Aliases based on used ips, mac1, mac2, and HWID.<br/><br/>
+                {elems}
+            </div>
+            
+            
+        </div>
+    }
+
     render(){
 
         //this.props.name
@@ -445,6 +499,7 @@ class ACEPlayerReport extends React.Component{
         return <div>
             <div className="default-header">Player Report for {this.props.name}</div>
 
+            {this.renderAliases()}
             {this.renderBasicData()}
             {this.renderScreenshotRequests()}
             {this.renderKickLogs()}
