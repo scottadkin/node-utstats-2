@@ -644,6 +644,65 @@ class ACEPlayerReport extends React.Component{
         </div>
     }
 
+    renderIps(){
+
+
+        const ips = {};
+
+        for(let i = 0; i < this.state.basicData.length; i++){
+
+            const d = this.state.basicData[i];
+
+            if(ips[d.ip] === undefined){
+
+                ips[d.ip] = {
+                    "first": d.first,
+                    "last": d.last,
+                    "times_connected": d.times_connected,
+                    "times_kicked": d.times_kicked,
+                    "country": d.country
+                }
+            }else{
+
+                const c = ips[d.ip];
+
+                if(c.first > d.first) c.first = d.first;
+                if(c.last < d.last) c.last = d.last;
+                c.times_connected += d.times_connected;
+                c.times_kicked += d.times_kicked;
+            }
+        }
+
+        const rows = [];
+        
+        for(const [key, value] of Object.entries(ips)){
+
+            rows.push(<tr key={key}>
+                <td><CountryFlag country={value.country}/>{key}</td>
+                <td>{value.times_connected}</td>
+                <td>{Functions.convertTimestamp(value.first, true)}</td>
+                <td>{Functions.convertTimestamp(value.last, true)}</td>
+                <td>{value.times_kicked}</td>
+            </tr>);
+        }
+
+        return <div className="m-bottom-25">
+            <div className="default-sub-header">Used IPS</div>
+            <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>IP</th>
+                        <th>Times Connected</th>
+                        <th>First Used</th>
+                        <th>Last Used</th>
+                        <th>Times Kicked</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         //this.props.name
@@ -660,6 +719,7 @@ class ACEPlayerReport extends React.Component{
 
             {this.renderAliases()}
             {this.renderBasicData()}
+            {this.renderIps()}
             {this.renderScreenshotRequests()}
             {this.renderKickLogs()}
             {this.renderJoins()}
