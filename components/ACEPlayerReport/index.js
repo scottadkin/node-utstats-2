@@ -10,6 +10,8 @@ class ACEPlayerReport extends React.Component{
         super(props);
         this.state = {
             "basicData": [], 
+            "aliases": [],
+            "uniqueVariables": [],
             "joinsPage": 0, 
             "joinsData": [], 
             "joinsResult": 0, 
@@ -112,7 +114,11 @@ class ACEPlayerReport extends React.Component{
                     });
                 }
 
-                this.setState({"basicData": res.searchData});
+                this.setState({
+                    "basicData": res.searchData,
+                    "aliases": res.aliases,
+                    "uniqueVariables": res.uniqueVariables
+                });
             }
             
 

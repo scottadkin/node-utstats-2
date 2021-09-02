@@ -231,6 +231,69 @@ class ACE{
         
     }
 
+    toUniqueVariables(data){
+
+        const uniqueMac1s = [];
+        const uniqueMac2s = [];
+        const uniqueHWIDs = [];
+        const uniqueIps = [];
+        const uniqueCountries = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(uniqueMac1s.indexOf(d.mac1) === -1) uniqueMac1s.push(d.mac1);
+            if(uniqueMac2s.indexOf(d.mac2) === -1) uniqueMac2s.push(d.mac2);
+            if(uniqueHWIDs.indexOf(d.hwid) === -1) uniqueHWIDs.push(d.hwid);
+            if(uniqueIps.indexOf(d.ip) === -1) uniqueIps.push(d.ip);
+            if(uniqueCountries.indexOf(d.country) === -1) uniqueCountries.push(d.country);
+
+        }
+
+        return {
+            "mac1": uniqueMac1s,
+            "mac2": uniqueMac2s,
+            "hwid": uniqueHWIDs,
+            "ip": uniqueIps,
+            "country": uniqueCountries
+        };
+    }
+
+
+    async getAliases(name, ips, mac1s, mac2s, hwids){
+
+        if(ips.length === 0 && mac1s.length === 0 && mac2s.length === 0 && hwids.length === 0) return [];
+
+        let query = `SELECT name,ip,country,first,last,times_connected,hwid,mac1,mac2 FROM nstats_ace_players WHERE (name != ?) AND (`;
+
+        const vars = [name];
+
+        const appendParameter = (column, data) =>{
+
+            if(data.length === 0) return;
+
+            if(vars.length > 1) query += `OR `;
+            query += `${column} IN(?) `;
+            
+            vars.push(data);
+
+        }
+
+        appendParameter("ip", ips);
+        appendParameter("mac1", mac1s);
+        appendParameter("mac2", mac2s);
+        appendParameter("hwid", hwids);
+
+        query += ")";
+
+        return await mysql.simpleFetch(query, vars);
+
+        
+
+    }
+    
+
     async getPlayerReport(name){
 
         if(name === undefined) return [];
@@ -238,7 +301,15 @@ class ACE{
 
         const playerSearchData = await this.playerSearch(name);
 
-        return {"searchData": playerSearchData};
+        const uniqueVariables = this.toUniqueVariables(playerSearchData);
+
+        const aliases = await this.getAliases(
+            name,
+            uniqueVariables.ip, uniqueVariables.mac1, 
+            uniqueVariables.mac2, uniqueVariables.hwid
+        );
+
+        return {"searchData": playerSearchData, "aliases": aliases, "uniqueVariables": uniqueVariables};
     }
 
     async getTotalPlayerKicks(name){
@@ -351,7 +422,6 @@ class ACE{
         }
 
         return url;
-
     }
 }
 
