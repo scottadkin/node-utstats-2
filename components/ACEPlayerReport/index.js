@@ -300,9 +300,9 @@ class ACEPlayerReport extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>
-                    <span className="yellow">HWID: </span> {d.hwid}<br/>
-                    <span className="yellow">MAC1: </span> {d.mac1}<br/>
-                    <span className="yellow">Mac1: </span> {d.mac2}
+                    <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span> {d.hwid}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span> {d.mac1}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">Mac1: </span> {d.mac2}</a></Link>
                 </td>
                 <td>{d.ips_used}</td>
                 <td>
@@ -354,9 +354,9 @@ class ACEPlayerReport extends React.Component{
                 <td><CountryFlag country={d.country}/>{d.ip}</td>
                 <td>{d.os}</td>
                 <td>
-                    <span className="yellow">HWID:</span> {d.hwid}<br/>
-                    <span className="yellow">MAC1:</span> {d.mac1}<br/>
-                    <span className="yellow">MAC2:</span> {d.mac2}<br/>
+                    <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID:</span> {d.hwid}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1:</span> {d.mac1}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2:</span> {d.mac2}</a></Link><br/>
                 </td>
             </tr>);
         }
@@ -404,9 +404,9 @@ class ACEPlayerReport extends React.Component{
                     <CountryFlag country={d.country}/>{d.ip}
                 </td>
                 <td>
-                    <span className="yellow">HWID:</span> {d.hwid}<br/>
-                    <span className="yellow">MAC1:</span> {d.mac1}<br/>
-                    <span className="yellow">MAC2:</span> {d.mac2}
+                    <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID:</span> {d.hwid}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1:</span> {d.mac1}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2:</span> {d.mac2}</a></Link>
                 </td>
                 <td>{d.kick_reason}</td>
                 <td>
@@ -461,9 +461,9 @@ class ACEPlayerReport extends React.Component{
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
                 <td><CountryFlag country={d.country}/>{d.ip}</td>
                 <td>
-                    <span className="yellow">HWID: </span> {d.hwid}<br/>
-                    <span className="yellow">MAC1: </span> {d.mac1}<br/>
-                    <span className="yellow">Mac1: </span> {d.mac2}
+                    <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span> {d.hwid}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span> {d.mac1}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2: </span> {d.mac2}</a></Link>
                 </td>
                 <td>{d.admin_name}</td>
                 <td><a href={ACE.cleanImageURL(d.screenshot_file)} target="_blank">View</a></td>
@@ -678,7 +678,7 @@ class ACEPlayerReport extends React.Component{
         for(const [key, value] of Object.entries(ips)){
 
             rows.push(<tr key={key}>
-                <td><CountryFlag country={value.country}/>{key}</td>
+                <td><Link href={`/ace?mode=players&ip=${key}`}><a><CountryFlag country={value.country}/>{key}</a></Link></td>
                 <td>{value.times_connected}</td>
                 <td>{Functions.convertTimestamp(value.first, true)}</td>
                 <td>{Functions.convertTimestamp(value.last, true)}</td>
