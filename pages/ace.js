@@ -13,7 +13,7 @@ import ACEPlayerReport from '../components/ACEPlayerReport';
 
 
 const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers, playerName,
-    recentSShotRequests}) =>{
+    recentSShotRequests, playerSearchMode, playerSearchValue}) =>{
 
     if(error !== undefined){
         return <AccessDenied host={host} session={session} navSettings={navSettings}/>
@@ -93,6 +93,30 @@ export async function getServerSideProps({req, query}){
 
     const mode = (query.mode !== undefined) ? query.mode.toLowerCase() : "";
 
+    let playerSearchMode = "";
+    let playerSearchValue = "";
+
+    if(mode === "players"){
+
+        if(query.mac1 !== undefined){
+            playerSearchValue = query.mac1;
+            playerSearchMode = "mac1";
+        }
+        if(query.mac2 !== undefined){
+            playerSearchValue = query.mac2;
+            playerSearchMode = "mac2";
+        }
+        if(query.hwid !== undefined){
+            playerSearchValue = query.hwid;
+            playerSearchMode = "hwid";
+        }
+
+        if(query.ip !== undefined){
+            playerSearchValue = query.ip;
+            playerSearchMode = "ip";
+        }
+    }
+
     let playerName = (query.name !== undefined) ? query.name : "";
 
     if(!await session.bUserAdmin()){
@@ -122,7 +146,9 @@ export async function getServerSideProps({req, query}){
             "recentKicks": JSON.stringify(recentKicks),
             "recentPlayers": JSON.stringify(recentPlayers),
             "playerName": playerName,
-            "recentSShotRequests": JSON.stringify(recentSShotRequests)
+            "recentSShotRequests": JSON.stringify(recentSShotRequests),
+            "playerSearchMode": playerSearchMode,
+            "playerSearchValue": playerSearchValue
         }
     };
 }

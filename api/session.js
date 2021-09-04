@@ -2,6 +2,7 @@ const mysql = require('./database');
 const Promise = require('promise');
 const User = require('./user');
 const cookie = require('cookie');
+const Message = require('./message');
 
 class Session{
 
@@ -20,12 +21,13 @@ class Session{
         this.userIp = -1;
 
         if(req.socket.remoteAddress !== undefined) this.userIp = req.socket.remoteAddress;
-
-        console.log(`User's IP Address is ${this.userIp}`);
+        console.log("***************************************");
+        new Message(`User's IP Address is ${this.userIp}`, "note");
 
         this.settings = {
             "bUploadImages": false,
-            "bAdmin": false
+            "bAdmin": false,
+            "bLoggedIn": false
         };
 
 
@@ -48,11 +50,17 @@ class Session{
 
             const bLoggedIn = await this.user.bLoggedIn(this.rawCookies, this.userIp);
 
-            console.log(`session.load bLoggedIn ${bLoggedIn}`);
+            new Message(`Session.load() bLoggedIn = ${bLoggedIn}`, "note");
 
             this.settings.bLoggedIn = bLoggedIn;
 
             this.settings.bAdmin = await this.bUserAdmin();
+
+            new Message(`Session bAdmin = ${this.settings.bAdmin}`, "note");
+
+            console.log(this.settings);
+
+            console.log("***************************************");
 
            // this.settings.bUploadImages = await this.
 

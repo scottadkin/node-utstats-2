@@ -50,7 +50,6 @@ function Nav({session, settings}){
 
     for(const [key, value] of Object.entries(urls)){
 
-
         if(settings[key] === "true"){
 
             if(key === "Display Login/Logout"){
@@ -67,7 +66,7 @@ function Nav({session, settings}){
                     }
                 }
 
-            }else if(key === "Display Admin"){
+            }else if(key === "Display Admin" || key === "Display ACE"){
 
                 if(session.bAdmin && session.bLoggedIn){
 

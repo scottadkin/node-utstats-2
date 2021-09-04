@@ -116,6 +116,6 @@ export default async (req, res) =>{
 
     }catch(err){
         console.trace(err);
-        //res.status(200).json({"error": err});
+        res.status(200).json({"error": err});
     }
 }
