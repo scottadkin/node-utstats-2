@@ -18,29 +18,17 @@ class User{
     }
 
 
-    bUserExists(name){
+    async bUserExists(name){
 
-        return new Promise((resolve, reject) =>{
 
-            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE name=?";
+        const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE name=?";
+        const result = await mysql.simpleFetch(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
+        if(result.length > 0){
+            if(result[0].total_users > 0) return true;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-
-                        if(result[0].total_users > 0){
-                            resolve(true);
-                        }
-                    }
-                }
-
-                resolve(false);
-            });
-        });
+        return false;
     }
 
     /**
@@ -332,24 +320,17 @@ class User{
         });
     }
 
-    getSessionData(hash){
 
-        return new Promise((resolve, reject) =>{
+    async getSessionData(hash){
 
-            const query = "SELECT * FROM nstats_sessions WHERE hash=?";
+        //SELECT * FROM nstats_sessions WHERE hash=?
+        const query = "SELECT * FROM nstats_sessions WHERE hash=? ORDER BY date DESC LIMIT 1";
 
-            mysql.query(query, [hash], (err, result) =>{
+        const result = await mysql.simpleFetch(query, [hash]);
 
-                if(err) reject(err);
+        if(result.length === 0) return null;
+        return result[0];
 
-                if(result !== undefined){
-
-                    if(result.length > 0) resolve(result[0]);
-                }
-
-                resolve(null);
-            });
-        });
     }
 
     updateSessionExpire(hash){
@@ -451,11 +432,14 @@ class User{
             
             cookies = cookie.parse(cookies);
 
+            console.log(cookies);
+
             let sid = -1;
 
             //[connect.sid] for bug (piter ut99.org)
-            if(cookies.sid !== undefined) sid = cookies.sid;
             if(cookies['connect.sid'] !== undefined) sid = cookies['connect.sid'];
+            if(cookies.sid !== undefined) sid = cookies.sid;
+            
 
             if(sid !== -1){
      
@@ -493,6 +477,7 @@ class User{
 
                         return true;
                     }
+
                 }else{
                     new Message(`bLoggedIn() session is null`,"warning");
                 }
