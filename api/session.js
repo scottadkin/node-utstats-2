@@ -11,9 +11,6 @@ class Session{
         this.user = new User();
         this.rawCookies = "";
 
-        //console.log("req.headers");
-        //console.log(req.headers);
-
         if(req.headers.cookie !== undefined){
             this.rawCookies = req.headers.cookie;
             this.cookies = cookie.parse(req.headers.cookie);
@@ -26,8 +23,6 @@ class Session{
 
         if(req.socket.remoteAddress !== undefined) this.userIp = req.socket.remoteAddress;
 
-       // console.log("***************************************");
-       // new Message(`User's IP Address is ${this.userIp}`, "note");
 
         this.settings = {
             "bUploadImages": false,
@@ -48,7 +43,11 @@ class Session{
 
                 //piter ut99.org bug
                 if(key === "connect.sid"){
-                    this.settings["sid"] = value;
+                    
+                    if(this.settings["sid"] === undefined){
+                        this.settings["sid"] = value;
+                    }
+
                 }else{
                     this.settings[key] = value;
                 }
@@ -70,14 +69,6 @@ class Session{
 
             new Message(`Session bAdmin = ${this.settings.bAdmin}`, "note");
 
-           //.. console.log(this.rawCookies);
-            //console.log(this.settings);
-
-            //console.log("***************************************");
-
-           // this.settings.bUploadImages = await this.
-
-       
 
         }catch(err){
             console.trace(err);

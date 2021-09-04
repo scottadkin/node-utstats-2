@@ -56,29 +56,18 @@ class User{
         return false;
     }
 
-    bUserActivated(username){
+    async bUserActivated(username){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_results FROM nstats_users WHERE name=? AND activated=1";
 
-            const query = "SELECT COUNT(*) as total_results FROM nstats_users WHERE name=? AND activated=1";
+        const result = await mysql.simpleFetch(query, username);
 
-            mysql.query(query, [username], (err, result) =>{
+        if(result.length > 0){
+            if(result[0].total_results > 0) return true;
+        }
+        
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-
-                        if(result[0].total_results > 0){
-
-                            resolve(true);
-                        }
-                    }
-                }   
-                resolve(false);
-            });
-        });
+        return false;
     }
 
 
@@ -431,8 +420,6 @@ class User{
             if(cookies === undefined) return false;
             
             cookies = cookie.parse(cookies);
-
-            console.log(cookies);
 
             let sid = -1;
 
