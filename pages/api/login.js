@@ -20,7 +20,7 @@ export default async (req, res) =>{
 
                 cookie.serialize("sid", result.hash, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV !== "development",
+                //secure: process.env.NODE_ENV !== "development",
                 maxAge: MAX_COOKIE_AGE,
                 sameSite: "strict",
                 path: "/"
@@ -28,7 +28,7 @@ export default async (req, res) =>{
 
             cookie.serialize("displayName", username, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV !== "development",
+                //secure: process.env.NODE_ENV !== "development",
                 maxAge: MAX_COOKIE_AGE,
                 sameSite: "strict",
                 path: "/"

@@ -290,6 +290,8 @@ class User{
 
             }
 
+            console.table(errors);
+
             return {"bPassed": bPassed, "errors": errors, "hash": hash};
 
         }catch(err){

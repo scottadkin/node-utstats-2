@@ -9,9 +9,13 @@ class Session{
     constructor(req){
 
         this.user = new User();
-        this.rawCookies = req.headers.cookie;
+        this.rawCookies = "";
+
+        //console.log("req.headers");
+        //console.log(req.headers);
 
         if(req.headers.cookie !== undefined){
+            this.rawCookies = req.headers.cookie;
             this.cookies = cookie.parse(req.headers.cookie);
         }else{
             this.cookies = {};
@@ -22,8 +26,8 @@ class Session{
 
         if(req.socket.remoteAddress !== undefined) this.userIp = req.socket.remoteAddress;
 
-        console.log("***************************************");
-        new Message(`User's IP Address is ${this.userIp}`, "note");
+       // console.log("***************************************");
+       // new Message(`User's IP Address is ${this.userIp}`, "note");
 
         this.settings = {
             "bUploadImages": false,
@@ -66,10 +70,10 @@ class Session{
 
             new Message(`Session bAdmin = ${this.settings.bAdmin}`, "note");
 
-            console.log(this.rawCookies);
-            console.log(this.settings);
+           //.. console.log(this.rawCookies);
+            //console.log(this.settings);
 
-            console.log("***************************************");
+            //console.log("***************************************");
 
            // this.settings.bUploadImages = await this.
 
