@@ -21,6 +21,7 @@ class Session{
         this.userIp = -1;
 
         if(req.socket.remoteAddress !== undefined) this.userIp = req.socket.remoteAddress;
+
         console.log("***************************************");
         new Message(`User's IP Address is ${this.userIp}`, "note");
 
@@ -38,8 +39,15 @@ class Session{
     addCookies(){
 
         for(const [key, value] of Object.entries(this.cookies)){
+
             if(key.toLowerCase() !== "badmin"){
-                this.settings[key] = value;
+
+                //piter ut99.org bug
+                if(key === "connect.sid"){
+                    this.settings["sid"] = value;
+                }else{
+                    this.settings[key] = value;
+                }
             }
         }
     }
@@ -58,6 +66,7 @@ class Session{
 
             new Message(`Session bAdmin = ${this.settings.bAdmin}`, "note");
 
+            console.log(this.rawCookies);
             console.log(this.settings);
 
             console.log("***************************************");
@@ -97,8 +106,6 @@ class Session{
     async bUserAdmin(){
 
         try{
-
-            //const result = await this.user.bUserAdmin();
 
             if(this.settings.sid !== undefined){
 

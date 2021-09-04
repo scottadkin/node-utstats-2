@@ -447,14 +447,17 @@ class User{
             
             cookies = cookie.parse(cookies);
 
+            let sid = -1;
 
-            if(cookies.sid !== undefined){
+            //[connect.sid] for bug (piter ut99.org)
+            if(cookies.sid !== undefined) sid = cookies.sid;
+            if(cookies['connect.sid'] !== undefined) sid = cookies['connect.sid'];
 
-                const session = await this.getSessionData(cookies.sid);
+            if(sid !== -1){
+     
+                const session = await this.getSessionData(sid);
 
                 if(session !== null){
-
-                    //check if it has expired
 
                     const now = Math.floor(Date.now() * 0.001);
 
@@ -463,12 +466,12 @@ class User{
                     const bBanned = await this.bBanned(session.user);
 
                     if(!bActivated){
-                        await this.deleteSession(cookies.sid);
+                        await this.deleteSession(sid);
                         return false;
                     }
 
                     if(bBanned){
-                        await this.deleteSession(cookies.sid);
+                        await this.deleteSession(sid);
                         return false;
                     }
 
@@ -479,7 +482,7 @@ class User{
                         //await this.deleteSession(cookies.sid);
                     }else{
 
-                        await this.updateSessionExpire(cookies.sid);
+                        await this.updateSessionExpire(sid);
                         //await this.updateLastActive();
 
                         await this.updateLastActive(session.user, ip);
