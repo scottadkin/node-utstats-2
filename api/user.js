@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const shajs = require('sha.js');
 const cookie = require('cookie');
 const Functions  = require('./functions');
@@ -31,9 +30,6 @@ class User{
         return false;
     }
 
-    /**
-     * For registering users
-     */
     bPasswordsMatch(pass1, pass2){
 
         if(pass1 === pass2) return true;
@@ -71,59 +67,38 @@ class User{
     }
 
 
-    bCorrectPassword(username, password){
+    async bCorrectPassword(username, password){
 
-        return new Promise((resolve, reject) =>{
+        password = shajs("sha256").update(`${salt()}${password}`).digest("hex");
 
-            password = shajs("sha256").update(`${salt()}${password}`).digest("hex");
+        const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE name=? AND password=?";
+        
+        const result = await mysql.simpleFetch(query, [username, password]);
 
-            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE name=? AND password=?";
+        if(result.length > 0){
+            if(result[0].total_users > 0) return true;
+        }
 
-            mysql.query(query, [username, password], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-
-                        if(result[0].total_users > 0){
-                            resolve(true);
-                        }
-                    }
-                }
-
-                resolve(false);
-            });
-        });
+        return false;
+    
     }
 
-    getUserId(name){
+    async getUserId(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id FROM nstats_users WHERE name=? ORDER BY id ASC LIMIT 1";
+        const result = await mysql.simpleFetch(query, [name]);
 
-            const query = "SELECT id FROM nstats_users WHERE name=? LIMIT 1";
+        if(result.length > 0) return result[0].id;
 
-            mysql.query(query, [name], (err, result) =>{
+        return null;
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0){
-                        resolve(result[0].id);
-                    }
-                }
-
-                resolve(null)
-            });
-        });
     }
 
     async getTotalUsers(){
 
         try{
-            const result = await mysql.simpleFetch("SELECT COUNT(*) as total_users FROM nstats_users");
 
+            const result = await mysql.simpleFetch("SELECT COUNT(*) as total_users FROM nstats_users");
             return result[0].total_users;
 
         }catch(err){
@@ -264,10 +239,7 @@ class User{
                 }else{
                     errors.push(`The account "${username}" has been created but needs to be activated by an admin.`);
                 }
-
             }
-
-            console.table(errors);
 
             return {"bPassed": bPassed, "errors": errors, "hash": hash};
 
@@ -281,10 +253,7 @@ class User{
     createSessionHash(){
 
         let hash = "";
-
-        const now = Date.now();
-
-        
+  
         const string = Functions.generateRandomString(100);
 
         hash = shajs('sha256').update(string).digest("hex");
@@ -293,26 +262,17 @@ class User{
     }
 
 
-    saveUserLogin(name, hash, date, expires, ip){
+    async saveUserLogin(name, hash, date, expires, ip){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?,?,?)";
+        const now = Math.floor(Date.now() * 0.001);
 
-            const query = "INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?,?,?)";
-
-            const now = Math.floor(Date.now() * 0.001);
-            mysql.query(query, [date, name, hash, now, expires, ip], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        await mysql.simpleInsert(query, [date, name, hash, now, expires, ip]);
     }
 
 
     async getSessionData(hash){
 
-        //SELECT * FROM nstats_sessions WHERE hash=?
         const query = "SELECT * FROM nstats_sessions WHERE hash=? ORDER BY date DESC LIMIT 1";
 
         const result = await mysql.simpleFetch(query, [hash]);
@@ -322,95 +282,55 @@ class User{
 
     }
 
-    updateSessionExpire(hash){
+    async updateSessionExpire(hash){
 
-        return new Promise((resolve, reject) =>{
+        const expires = Math.floor(Date.now() * 0.001) + this.maxLoginTime;
 
-            const expires = Math.floor(Date.now() * 0.001) + this.maxLoginTime;
+        const query = "UPDATE nstats_sessions SET expires=? WHERE hash=?";
 
-            const query = "UPDATE nstats_sessions SET expires=? WHERE hash=?";
+        await mysql.simpleInsert(query, [expires, hash]);
 
-            mysql.query(query, [expires, hash], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
-    deleteSession(hash){
+    async deleteSession(hash){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_sessions WHERE hash=?";
 
-            const query = "DELETE FROM nstats_sessions WHERE hash=?";
+        await mysql.simpleDelete(query, [hash]);
 
-            mysql.query(query, [hash], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
-    updateLastActive(user, ip){
+    async updateLastActive(user, ip){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_users SET last_active=?,last_ip=? WHERE id=?";
 
-            const query = "UPDATE nstats_users SET last_active=?,last_ip=? WHERE id=?";
+        const now = Math.floor(Date.now() * 0.001);
 
-            const now = Math.floor(Date.now() * 0.001);
+        await mysql.simpleUpdate(query, [now, ip, user]);
 
-            mysql.query(query, [now, ip, user], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
-    updateLastLogin(user){
+    async updateLastLogin(user){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_users SET last_login=?,logins=logins+1 WHERE id=?";
 
-            const query = "UPDATE nstats_users SET last_login=?,logins=logins+1 WHERE id=?";
+        const now = Math.floor(Date.now() * 0.001);
 
-            const now = Math.floor(Date.now() * 0.001);
+        await mysql.simpleUpdate(query, [now, user]);
 
-            mysql.query(query, [now, user], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
-    bUserActivatedById(userId){
+    async bUserActivatedById(userId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as activated_accounts FROM nstats_users WHERE id=? AND activated=1";
+        const result = await mysql.simpleFetch(query, [userId]);
 
-            const query = "SELECT COUNT(*) as activated_accounts FROM nstats_users WHERE id=? AND activated=1";
-            mysql.query(query, [userId], (err, result) =>{
+        if(result.length > 0){
+            if(result[0].activated_accounts > 0) return true;
+        }
 
-                if(err) reject(err);
-                
-                if(result !== undefined){
-
-                    if(result.length > 0){
-
-                        if(result[0].activated_accounts > 0){
-                            resolve(true);
-                        }
-                    }
-                }
-
-                resolve(false);
-            });
-
-        });
+        return false;
+      
     }
 
     async bLoggedIn(cookies, ip){
@@ -478,156 +398,81 @@ class User{
         }
     }
 
-    bAdmin(user){
+    async bAdmin(user){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND admin=1";
+        const result = await mysql.simpleFetch(query, [user]);
 
-            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND admin=1";
+        if(result.length > 0){
+            if(result[0].total_users > 0) return true;
+        }
 
-            mysql.query(query, [user], (err, result) =>{
+        return false;
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-
-                        if(result[0].total_users > 0){
-                            resolve(true);
-                        }
-                    }
-                }
-
-                resolve(false);
-            });
-        });
     }
 
 
-    adminGetAll(){
+    async adminGetAll(){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT id,name,joined,activated,logins,admin,last_login,last_active,last_ip,banned,upload_images FROM nstats_users ORDER BY name ASC";
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT id,name,joined,activated,logins,admin,last_login,last_active,last_ip,banned,upload_images FROM nstats_users ORDER BY name ASC";
+        return await mysql.simpleFetch(query);
+        
     }
 
 
-    activateAccount(id){
+    async activateAccount(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_users SET activated=1 WHERE id=?";
+        await mysql.simpleUpdate(query, [id]);
 
-            const query = "UPDATE nstats_users SET activated=1 WHERE id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
     
 
-    bBanned(userId){
+    async bBanned(userId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND banned=1";
+        const result = await mysql.simpleFetch(query, [userId]);
 
-            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND banned=0";
+        if(result.length > 0){
+            if(result[0].total_users > 0) return true;
+        }
 
-            mysql.query(query, [userId], (err, result) =>{
+        return false;
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0){
-
-                        if(result[0].total_users > 0) resolve(false);
-                    }
-                }
-
-                resolve(true);
-            });
-        });
     }
 
-    changeAdminPermission(id, value){
+    async changeAdminPermission(id, value){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_users SET admin=? WHERE id=?";
-
-            mysql.query(query, [value, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "UPDATE nstats_users SET admin=? WHERE id=?";
+        await mysql.simpleUpdate(query, [value, id]);
+   
     }
 
-    changeImagesPermission(id, value){
+    async changeImagesPermission(id, value){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_users SET upload_images=? WHERE id=?";
-
-            mysql.query(query, [value, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "UPDATE nstats_users SET upload_images=? WHERE id=?";
+        await mysql.simpleUpdate(query, [value, id]);
+   
     }
 
-    bUploadImages(id){
+    async bUploadImages(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND upload_images=1";
+        const result = await mysql.simpleFetch(query, [id]);
 
-            const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND upload_images=1";
+        if(result.length > 0){
+            if(result[0].total_users > 0) return true;
+        }
 
-            mysql.query(query, [id], (err, result) =>{
+        return false;
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-
-                        if(result[0].total_users > 0) resolve(true);
-                    }
-                }
-
-                resolve(false);
-            });
-        });
     }
 
-    changeBanValue(id, value){
+    async changeBanValue(id, value){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_users SET banned=? WHERE id=?";
+        await mysql.simpleUpdate(query, [value, id]);
 
-            const query = "UPDATE nstats_users SET banned=? WHERE id=?";
-
-            mysql.query(query, [value, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
 
