@@ -4,6 +4,7 @@ const shajs = require('sha.js');
 const cookie = require('cookie');
 const Functions  = require('./functions');
 const salt = require('../salt');
+const Message = require('./message');
 
 class User{
 
@@ -241,12 +242,13 @@ class User{
 
         try{
 
+            new Message("New login attempt", "note");
+
             const errors = [];
 
             let bPassed = false;
 
             let hash = "";
-
             if(!await this.bUserExists(username)){
 
                 errors.push(`There is no member with the username ${username}.`);
@@ -292,7 +294,7 @@ class User{
 
         }catch(err){
             console.trace(err);
-            return {"bPassed": false, "errors": [`Fatal: ${err}`]};
+            return {"bPassed": false, "errors": [`Fatal: ${err}`], "hash": ""};
         }
     }
 
@@ -489,6 +491,8 @@ class User{
 
                         return true;
                     }
+                }else{
+                    new Message(`bLoggedIn() session is null`,"warning");
                 }
             }
 

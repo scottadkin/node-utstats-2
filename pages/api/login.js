@@ -3,119 +3,89 @@ import UserManager from '../../api/user';
 
 export default async (req, res) =>{
 
+    const MAX_COOKIE_AGE = ((60 * 60) * 24) * 365;
+    const user = new UserManager();
+
+    async function login(username, password, ip){
+
+        const result = await user.login(username, password, ip);
+
+        if(result.errors.length !== 0 || !result.bPassed){
+
+            res.status(200).json({"errors": result.errors});
+            return;
+        }
+
+        res.setHeader("Set-Cookie", [
+
+                cookie.serialize("sid", result.hash, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV !== "development",
+                maxAge: MAX_COOKIE_AGE,
+                sameSite: "strict",
+                path: "/"
+            }),
+
+            cookie.serialize("displayName", username, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV !== "development",
+                maxAge: MAX_COOKIE_AGE,
+                sameSite: "strict",
+                path: "/"
+            })]
+        );
+
+        res.status(200).json({"errors": [], "sid": result.hash});
+    }
+
+    async function register(username, password, password2, ip){
+        
+        const result = await user.register(username, password, password2, ip);
+
+        if(result.errors.length !== 0 || !result.bPassed){
+
+            res.status(200).json({"errors": result.errors});
+            return;
+        }
+
+        if(result.bAutoLogin){
+
+            await login(username, password, ip);
+
+        }else{
+            return res.status(200).json({"errors": [], "bPassed": true});
+        }
+    }
 
     try{
 
-        const MAX_COOKIE_AGE = ((60 * 60) * 24) * 365;
-
-        const user = new UserManager();
 
         if(req.method === "POST"){
 
+            // 0 login 1 register
             const mode = parseInt(req.body.mode);
-            let username = req.body.username;
-            let password = req.body.password;
-            let password2 = "";
+            const username = req.body.username;
+            const password = req.body.password;
+            const ip = req.socket.remoteAddress;
 
-            let result = "";
+            if(mode === 0){
 
-            let userCreated = false;
-            let loggedIn = false;
-            let hash = "";
+                await login(username, password, ip);
+                return;     
+                
+            }else if(mode === 1){
 
-            let errors = [];
+                const password2 = (req.body.password2 !== undefined) ? req.body.password2 : "";
 
-            const login = async (bAutoLogin) =>{
-
-                result = await user.login(username, password, req.socket.remoteAddress);
-
-                errors = (result.errors !== undefined) ? result.errors : [];
-
-                if(result.hash !== ""){
-
-                    loggedIn = true;
-                    hash = result.hash;
-
-                    res.setHeader("Set-Cookie", [
-
-                        cookie.serialize("sid", hash, {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV !== "development",
-                        maxAge: MAX_COOKIE_AGE,
-                        sameSite: "strict",
-                        path: "/"
-                    }),
-
-                    cookie.serialize("displayName", username, {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV !== "development",
-                        maxAge: MAX_COOKIE_AGE,
-                        sameSite: "strict",
-                        path: "/"
-                    })
-                ]);
-
-                    res.statusCode = 200;
-
-                    res.json({
-                        "sid": hash,
-                        "errors": errors,
-                        "bAutoLogin": (bAutoLogin !== undefined) ? true : false
-                    });
-                }
+                await register(username, password, password2, ip);
+                return;
             }
 
-            const register = async () =>{
-
-                password2 = req.body.password2;
-
-                result = await user.register(username, password, password2, req.socket.remoteAddress);
-                errors = (result.errors !== undefined) ? result.errors : [];
-
-                //finish this
-
-                let bAutoLogin = false;
-
-                if(errors.length === 0){
-
-                    if(result.bAutoLogin !== undefined){
-
-                        if(result.bAutoLogin){
-                            bAutoLogin = true;
-                            console.log("attempt autologin");
-                            await login(true);
-                           
-                        }
-                    }
-
-                    if(!bAutoLogin){
-                        res.statusCode = 200;
-                        res.json({
-                            "bPassed": true,
-                            "errors": errors,
-                            "twat": "yes"
-                        });
-                    }
-                }
-            }
-
-            if(mode === 1){
-
-                await register();
-              
-            }else if(mode === 0){
-
-                await login();
-            }
-            
-
-            if(errors.length > 0){
-                res.status(200).json({"errors": errors})
-            }
+            res.status(200).json({"errors": ["Unknown login mode"]});
         }        
 
     }catch(err){
         console.trace(err);
-        res.status(200).json({"error": err});
+        res.status(200).json({"errors": err});
     }
 }

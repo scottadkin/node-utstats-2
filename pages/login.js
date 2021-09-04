@@ -90,7 +90,7 @@ class Login extends React.Component{
         });
 
         const result = await res.json();
-
+        
         const errors = [];
 
         if(result.errors.length > 0){
