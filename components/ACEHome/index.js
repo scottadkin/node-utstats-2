@@ -51,7 +51,7 @@ const PlayersTable = ({players}) =>{
 
         rows.push(<tr key={i}>
             <td><Link href={`/ace/?mode=player&name=${p.name}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
-            <td>{p.hwid}</td>
+            <td><Link href={`/ace?mode=players&hwid=${p.hwid}`}><a>{p.hwid}</a></Link></td>
             <td>{Functions.convertTimestamp(p.first, true)}</td>
             <td>{Functions.convertTimestamp(p.last, true)}</td>
             <td>{p.times_connected}</td>
@@ -85,11 +85,11 @@ const ScreenShotsTable = ({data}) =>{
 
         rows.push(<tr key={i}>
             <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
-            <td><CountryFlag country={d.country}/>{d.ip}</td>
+            <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag country={d.country}/>{d.ip}</a></Link></td>
             <td>
-                <span className="yellow">HWID: </span> {d.hwid}<br/>
-                <span className="yellow">MAC1: </span> {d.mac1}<br/>
-                <span className="yellow">Mac1: </span> {d.mac2}
+                <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span> {d.hwid}</a></Link><br/>
+                <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span> {d.mac1}</a></Link><br/>
+                <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2: </span> {d.mac2}</a></Link>
             </td>
             <td>{d.admin_name}</td>
             <td><a href={ACE.cleanImageURL(d.screenshot_file)} target="_blank">View</a></td>
