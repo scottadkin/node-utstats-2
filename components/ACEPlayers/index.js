@@ -38,7 +38,9 @@ class ACEPlayers extends React.Component{
 
         try{
 
-            e.preventDefault();
+            if(e.preventDefault !== undefined){
+                e.preventDefault();
+            }
 
             const name = e.target[0].value;
             const ip = e.target[1].value;
@@ -78,16 +80,52 @@ class ACEPlayers extends React.Component{
 
             this.setState({"searchInProgress": false, "searchFailed": failed});
 
-            console.log(res.data);
-
         }catch(err){
             console.trace(err);
         }
     }
 
-    componentDidMount(){
+    async prepareSearch(){
 
         const cookies = this.getCookieArray();
+
+        if(this.props.playerSearchMode !== "" && this.props.playerSearchValue !== ""){
+
+            const m = this.props.playerSearchMode.toLowerCase();
+            const valid = ["name", "ip", "hwid", "mac1", "mac2"];
+    
+            if(valid.indexOf(m) !== -1){
+
+                this.setState({
+                    "name": "",
+                    "ip": "",
+                    "hwid": "",
+                    "mac1": "",
+                    "mac2": ""
+                });
+
+                const v = this.props.playerSearchValue;
+
+                const obj = {};
+
+                obj[m] = v;
+
+                this.setState(obj);
+
+                const data = {
+                    "target":[
+                        {"value": (m === "name") ? v : ""},
+                        {"value": (m === "ip") ? v : ""},
+                        {"value": (m === "hwid") ? v : ""},
+                        {"value": (m === "mac1") ? v : ""},
+                        {"value": (m === "mac2") ? v : ""}
+                    ]
+                }
+
+                await this.playerSearch(data);
+                return;
+            }
+        }
 
         this.setState({
             "name": cookies.name,
@@ -97,7 +135,25 @@ class ACEPlayers extends React.Component{
             "mac2": cookies.mac2
         });
 
+    }
+
+    async componentDidMount(){
+
+        this.prepareSearch();
         
+    }
+
+    async componentDidUpdate(prevProps){
+     
+        if(prevProps.playerSearchValue !== this.props.playerSearchValue){
+            await this.prepareSearch();
+            return;
+        }
+
+        if(prevProps.playerSearchMode !== this.props.playerSearchMode){
+            await this.prepareSearch();
+            return;
+        }
 
     }
 
@@ -137,6 +193,8 @@ class ACEPlayers extends React.Component{
     renderStatus(){
 
         if(!this.state.searchInProgress && this.state.searchFailed === null) return null;
+
+        if(!this.state.searchFailed) return null;
 
         let color = "";
         let title = "";
@@ -188,11 +246,11 @@ class ACEPlayers extends React.Component{
                         <a><CountryFlag country={d.country}/>{d.name}</a>
                     </Link>
                 </td>
-                <td>{d.ip}</td>
+                <td> <Link href={`/ace?mode=players&ip=${d.ip}`}><a>{d.ip}</a></Link></td>
                 <td>
-                    <span className="yellow">HWID:</span> {d.hwid}<br/>
-                    <span className="yellow">MAC1:</span> {d.mac1}<br/>
-                    <span className="yellow">MAC2:</span> {d.mac2}
+                    <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID:</span> {d.hwid}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1:</span> {d.mac1}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2:</span> {d.mac2}</a></Link>
                 </td>
                 <td>
                     <span className="yellow">First:</span> {Functions.convertTimestamp(d.first, true)}<br/>

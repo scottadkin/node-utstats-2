@@ -302,7 +302,7 @@ class ACEPlayerReport extends React.Component{
                 <td>
                     <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span> {d.hwid}</a></Link><br/>
                     <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span> {d.mac1}</a></Link><br/>
-                    <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">Mac1: </span> {d.mac2}</a></Link>
+                    <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2: </span> {d.mac2}</a></Link>
                 </td>
                 <td>{d.ips_used}</td>
                 <td>
@@ -351,7 +351,7 @@ class ACEPlayerReport extends React.Component{
             rows.push(<tr key={i}>
                 <td>{d.ace_version}</td>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
-                <td><CountryFlag country={d.country}/>{d.ip}</td>
+                <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag country={d.country}/>{d.ip}</a></Link></td>
                 <td>{d.os}</td>
                 <td>
                     <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID:</span> {d.hwid}</a></Link><br/>
@@ -401,7 +401,7 @@ class ACEPlayerReport extends React.Component{
             rows.push(<tr key={i}>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
                 <td>
-                    <CountryFlag country={d.country}/>{d.ip}
+                    <Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag country={d.country}/>{d.ip}</a></Link>
                 </td>
                 <td>
                     <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID:</span> {d.hwid}</a></Link><br/>
@@ -459,7 +459,7 @@ class ACEPlayerReport extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
-                <td><CountryFlag country={d.country}/>{d.ip}</td>
+                <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag country={d.country}/>{d.ip}</a></Link></td>
                 <td>
                     <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span> {d.hwid}</a></Link><br/>
                     <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span> {d.mac1}</a></Link><br/>

@@ -29,7 +29,7 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
     if(mode === ""){
         elems = <ACEHome recentKicks={recentKicks} recentPlayers={recentPlayers} recentSShots={recentSShotRequests}/>
     }else if(mode === "players"){
-        elems = <ACEPlayers />
+        elems = <ACEPlayers playerSearchMode={playerSearchMode} playerSearchValue={playerSearchValue}/>
     }else if(mode === "player"){
         elems = <ACEPlayerReport name={playerName}/>
     }
