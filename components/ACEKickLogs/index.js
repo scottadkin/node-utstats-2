@@ -1,0 +1,148 @@
+import React from 'react';
+import Link from 'next/link';
+import CountryFlag from '../CountryFlag';
+import Functions from '../../api/functions';
+
+class ACEKickLogs extends React.Component{
+
+    constructor(props){
+
+        super(props);
+        this.state = {"pages": 1, "mode": "default", "errors": [], "logs": [], "results": 0};
+
+    }
+
+    async loadPage(page){
+
+        try{
+
+            this.setState({"errors": []});
+
+            const req = await fetch("/api/ace", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "kick-logs", "page": page, "perPage": this.props.perPage})
+            });
+
+
+            const res = await req.json();
+
+            if(res.errors !== undefined){
+
+                this.setState({"errors": res.errors});
+
+            }else{
+
+                let pages = Math.ceil(res.results / this.props.perPage);
+
+                this.setState({
+                    "logs": res.data,
+                    "results": res.results,
+                    "pages": pages
+                });
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async componentDidMount(){
+
+        if(this.state.mode === "default"){
+            await this.loadPage(this.props.page);
+        }
+    }
+
+    async componentDidUpdate(prevProps){
+
+        if(this.props.page !== prevProps.page){
+            await this.loadPage(this.props.page);
+        }
+    }
+
+    getPreviousPage(){
+
+        let targetPage = this.props.page - 1;
+
+        if(targetPage < 1) targetPage = 1;
+
+        return `/ace?mode=kicks&page=${targetPage}`;
+    }
+
+    getNextPage(){
+
+
+        let next = this.props.page + 1;
+
+        if(next > this.state.pages) next = this.state.pages;
+
+        return `/ace?mode=kicks&page=${next}`;
+    }
+
+    renderLogList(){
+
+        const rows = [];
+
+        console.log(this.state.logs);
+
+        for(let i = 0; i < this.state.logs.length; i++){
+
+            const d = this.state.logs[i];
+
+            rows.push(<tr key={i}>
+                <td><Link href={`/ace?mode=players&name=${d.name}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
+                <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
+                <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a>{d.ip}</a></Link></td>
+                <td>
+                    <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span>{d.hwid}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span>{d.mac1}</a></Link><br/>
+                    <Link href={`/ace?mode=players&mac2=${d.mac1}`}><a><span className="yellow">MAC2: </span>{d.mac2}</a></Link>
+                </td>
+                <td>
+                    <span className="yellow">Reason: </span>{d.kick_reason}<br/>
+                    <span className="yellow">Package Name: </span>{d.package_name}<br/>
+                    <span className="yellow">Package Version: </span>{d.package_version}
+                </td>
+                <td>
+                    <Link href={`/ace?mode=kick&logId=${d.id}`}><a>View</a></Link>
+                </td>
+            </tr>);
+        }
+
+        return <div>
+            <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>IP</th>
+                        <th>Hardware Info</th>
+                        <th>Kick Info</th>
+                        <th>View Log</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
+    render(){
+
+        return <div>
+            <div className="default-header">Kick Logs</div>
+            <div className="simple-pagination">
+                <Link href={this.getPreviousPage()}><a><div>Previous</div></a></Link>
+                <div>
+                    <span className="yellow">Viewing Page {this.props.page} of {this.state.pages} </span><br/>
+                    Total Results {this.state.results}
+                </div>
+                <Link href={this.getNextPage()}><a><div>Next</div></a></Link>
+            </div>
+
+            {this.renderLogList()}
+        </div>
+    }
+}
+
+export default ACEKickLogs;

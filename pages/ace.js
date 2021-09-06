@@ -10,10 +10,11 @@ import ACE from '../api/ace';
 import ACEHome from '../components/ACEHome';
 import ACEPlayers from '../components/ACEPlayers';
 import ACEPlayerReport from '../components/ACEPlayerReport';
+import ACEKickLogs from '../components/ACEKickLogs';
 
 
 const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers, playerName,
-    recentSShotRequests, playerSearchMode, playerSearchValue}) =>{
+    recentSShotRequests, playerSearchMode, playerSearchValue, logId, page}) =>{
 
     if(error !== undefined){
         return <AccessDenied host={host} session={session} navSettings={navSettings}/>
@@ -32,6 +33,8 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
         elems = <ACEPlayers playerSearchMode={playerSearchMode} playerSearchValue={playerSearchValue}/>
     }else if(mode === "player"){
         elems = <ACEPlayerReport name={playerName}/>
+    }else if(mode === "kicks"){
+        elems = <ACEKickLogs logId={logId} page={page} perPage={25}/>
     }
 
     return <div>
@@ -53,12 +56,7 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
                         </Link>
                         <Link href="/ace?mode=players">
                             <a>
-                                <div className={`tab ${(mode === "players") ? "tab-selected" : null}`}>Player Search</div>
-                            </a>
-                        </Link>
-                        <Link href="/ace?mode=player">
-                            <a>
-                                <div className={`tab ${(mode === "player") ? "tab-selected" : null}`}>Player Report</div>
+                                <div className={`tab ${(mode === "players" || mode === "player") ? "tab-selected" : null}`}>Players</div>
                             </a>
                         </Link>
                         <Link href="/ace?mode=kicks">
@@ -119,6 +117,13 @@ export async function getServerSideProps({req, query}){
 
     let playerName = (query.name !== undefined) ? query.name : "";
 
+    let logId = (query.logId !== undefined) ? parseInt(query.logId) : "";
+    if(logId !== logId) logId = -1;
+
+    //for kick logs
+    let page = (query.page !== undefined) ? parseInt(query.page) : 1;
+    if(page !== page) page = 1;
+
     if(!await session.bUserAdmin()){
        
         return {
@@ -148,7 +153,9 @@ export async function getServerSideProps({req, query}){
             "playerName": playerName,
             "recentSShotRequests": JSON.stringify(recentSShotRequests),
             "playerSearchMode": playerSearchMode,
-            "playerSearchValue": playerSearchValue
+            "playerSearchValue": playerSearchValue,
+            "logId": logId,
+            "page": page
         }
     };
 }

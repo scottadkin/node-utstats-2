@@ -446,6 +446,37 @@ class ACE{
 
         return url;
     }
+
+    async getLatestKickLogsBasic(page, perPage){
+
+        let start = 0;
+
+        page = parseInt(page);
+        page--;
+        if(page !== page) page = 0;
+
+        perPage = parseInt(perPage);
+        if(perPage !== perPage) perPage = 25;
+
+        start = page * perPage;
+        if(start < 0) start = 0;
+        
+        const query = "SELECT id,timestamp,ip,country,hwid,mac1,mac2,name,kick_reason,package_name,package_version FROM nstats_ace_kicks ORDER BY timestamp DESC LIMIT ?, ?";
+
+        return await mysql.simpleFetch(query, [start, perPage]);
+
+    }
+
+    async getTotalKicks(){
+
+        const query = "SELECT COUNT(*) as total_logs FROM nstats_ace_kicks";
+
+        const result = await mysql.simpleFetch(query);
+
+        if(result.length > 0) return result[0].total_logs;
+
+        return 0;
+    }
 }
 
 

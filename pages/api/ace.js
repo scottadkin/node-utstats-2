@@ -9,6 +9,8 @@ export default async(req, res) =>{
 
         await session.load();
 
+        console.log(req.body);
+
         if(await session.bUserAdmin()){
 
             const aceManager = new ACE();
@@ -114,6 +116,30 @@ export default async(req, res) =>{
                 const data = await aceManager.getPlayerScreenshotRequests(name, page);
                 const totalSShots = await aceManager.getTotalPlayerScreenshotRequests(name);
                 res.status(200).json({"data": data, "results": totalSShots});
+                return;
+
+            }else if(mode === "kick-logs"){
+
+                let page = 0;
+                let perPage = 25;
+
+                if(req.body.page !== undefined){
+
+                    page = parseInt(req.body.page);
+                    if(page !== page) page = 1;
+                }
+
+                if(req.body.perPage !== undefined){
+
+                    perPage = parseInt(req.body.perPage);
+                    if(perPage !== perPage) perPage = 25;
+                }
+
+                const data = await aceManager.getLatestKickLogsBasic(page, perPage);
+                const totalKickLogs = await aceManager.getTotalKicks();
+
+                res.status(200).json({"data": data, "results": totalKickLogs});
+
                 return;
             }
 

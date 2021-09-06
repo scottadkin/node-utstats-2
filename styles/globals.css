@@ -18,29 +18,28 @@
 	--max-width-1:1250px;
 }
 
-* {
-	padding: 0;
-	margin: 0;
-	font-family: 'Source Sans Pro', sans-serif;
-}
 
 html{
 
 	background-image:url(../public/images/bg.jpg);
 	background-size:100% 100%;
 	background-attachment: fixed;
-	height:100%;
+	
+}
+
+body{
+
+	min-height:100vh;
 	position: relative;
+	background-color:rgba(3,3,3,0.86);
 	overflow-x:hidden;
 }
 
-
-body {
-	/*background-color:hsl(60,10%,100%);*/
-	background-color:rgba(3,3,3,0.95);
-	min-height:100vh;
-	min-width:100vw;
-	
+* {
+	padding: 0;
+	margin: 0;
+	font-family: 'Source Sans Pro', sans-serif;
+	box-sizing: border-box;
 }
 
 a {
@@ -55,11 +54,6 @@ a {
 	font-size:16px;
 }
 
-main{
-	min-height:100vh;
-	min-width:100vw;
-	position:relative;
-}
 
 header{
 	background-color:var(--color-3);
@@ -196,8 +190,8 @@ table{
 	margin-left:auto;
 	margin-right:auto;
 	max-width:1250px;
-
 }
+
 
 th{
 	font-weight:400;
