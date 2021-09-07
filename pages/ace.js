@@ -99,6 +99,11 @@ export async function getServerSideProps({req, query}){
 
     if(mode === "players"){
 
+        if(query.name !== undefined){
+            playerSearchValue = query.name;
+            playerSearchMode = "name";
+        }
+
         if(query.mac1 !== undefined){
             playerSearchValue = query.mac1;
             playerSearchMode = "mac1";
