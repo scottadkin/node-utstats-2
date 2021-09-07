@@ -477,6 +477,19 @@ class ACE{
 
         return 0;
     }
+
+    async getKickLog(id){
+
+        const query = "SELECT * FROM nstats_ace_kicks WHERE id=?";
+
+        const result = await mysql.simpleFetch(query, [id]);
+
+        console.log(result[0]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
 }
 
 

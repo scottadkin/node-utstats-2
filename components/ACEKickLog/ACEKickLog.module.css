@@ -1,0 +1,32 @@
+.raw{
+    max-width:var(--max-width-1);
+    margin-left:auto;
+    margin-right:auto;
+    text-align:left;
+    background-color:var(--color-2);
+    font-size:14px;
+    padding:5px;
+    border:1px solid var(--border-color-1);
+}
+
+.line{
+    display:grid;
+    grid-template-columns: 50px auto;
+}
+
+.line:hover{
+    background-color: var(--color-1);
+}
+
+.line div:nth-child(1){
+    background-color:var(--color-1);
+    text-align:right;
+    padding-right:5px;
+    border:1px solid var(--border-color-1);
+    margin-top:-1px;
+
+}
+
+.line div:nth-child(2){
+    padding-left:10px;
+}

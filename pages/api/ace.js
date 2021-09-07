@@ -141,6 +141,16 @@ export default async(req, res) =>{
                 res.status(200).json({"data": data, "results": totalKickLogs});
 
                 return;
+
+            }else if(mode === "kick-log"){
+
+                let id = (req.body.id !== undefined) ? parseInt(req.body.id) : -1;
+                if(id !== id) id = -1;
+
+                const data = await aceManager.getKickLog(id);
+
+                res.status(200).json({"data": data});
+                return;
             }
 
             res.status(200).json({"message": "passed"});
