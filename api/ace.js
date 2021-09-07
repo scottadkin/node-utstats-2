@@ -484,8 +484,6 @@ class ACE{
 
         const result = await mysql.simpleFetch(query, [id]);
 
-        console.log(result[0]);
-
         if(result.length > 0) return result[0];
 
         return null;
