@@ -40,7 +40,7 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
     }else if(mode === "kick"){
         elems = <ACEKickLog id={logId}/>
     }else if(mode === "screenshots"){
-        elems = <ACEScreenshots />
+        elems = <ACEScreenshots page={page}/>
     }
 
     return <div>
@@ -131,7 +131,6 @@ export async function getServerSideProps({req, query}){
     let logId = (query.logId !== undefined) ? parseInt(query.logId) : "";
     if(logId !== logId) logId = -1;
 
-    //for kick logs
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     if(page !== page) page = 1;
 

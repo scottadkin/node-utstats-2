@@ -2,13 +2,14 @@ import React from "react";
 import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
 import Link from 'next/link';
+import SimplePaginationLinks from "../SImplePaginationLinks";
 
 class ACEScreenshots extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"data": []};
+        this.state = {"data": [], "pages": 1, "results": 0};
 
     }
 
@@ -20,6 +21,13 @@ class ACEScreenshots extends React.Component{
 
         }catch(err){    
             console.trace(err);
+        }
+    }
+
+    async componentDidUpdate(preProps){
+
+        if(preProps.page !== this.props.page){
+            await this.loadData(this.props.page);
         }
     }
 
@@ -36,7 +44,9 @@ class ACEScreenshots extends React.Component{
         const res = await req.json();
 
         if(res.error === undefined){
-            this.setState({"data": res.data, "results": res.results});
+
+            const pages = (res.results > 0) ? Math.ceil(res.results / 25) :1;
+            this.setState({"data": res.data, "results": res.results, "pages": pages});
         }
         console.log(res);
 
@@ -85,6 +95,7 @@ class ACEScreenshots extends React.Component{
 
         return <div>
             <div className="default-header">Screenshot Requests</div>
+            <SimplePaginationLinks url={`/ace?mode=screenshots&page=`} page={this.props.page} totalPages={this.state.pages} totalResults={this.state.results}/>
             {this.renderData()}
         </div>
     }
