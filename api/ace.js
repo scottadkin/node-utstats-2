@@ -488,6 +488,30 @@ class ACE{
 
         return null;
     }
+
+
+    async getRecentScreenshots(page, perPage){
+
+        page--;
+
+        const query = "SELECT * FROM nstats_ace_sshot_requests ORDER BY timestamp DESC LIMIT ?, ?";
+
+        let start = page * perPage;
+        if(start < 0) start = 0;
+
+        return await mysql.simpleFetch(query, [start, perPage]);
+    }
+
+    async getTotalScreenshots(){
+
+        const query = "SELECT COUNT(*) as total_sshots FROM nstats_ace_sshot_requests";
+
+        const result = await mysql.simpleFetch(query);
+
+        if(result.length > 0) return result[0].total_sshots;
+
+        return 0;
+    }
 }
 
 

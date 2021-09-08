@@ -151,6 +151,24 @@ export default async(req, res) =>{
 
                 res.status(200).json({"data": data});
                 return;
+
+            }else if(mode === "sshots"){
+
+                let page = (req.body.page !== undefined) ? parseInt(req.body.page) : 1;
+
+                if(page !== page) page = 1;
+
+                const perPage = 25;
+
+                const data = await aceManager.getRecentScreenshots(page, perPage);
+                const totalSshots = await aceManager.getTotalScreenshots();
+
+                console.log(data);
+
+                res.status(200).json({"data": data, "results": totalSshots});
+
+                return;
+
             }
 
             res.status(200).json({"message": "passed"});

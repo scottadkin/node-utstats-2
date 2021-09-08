@@ -12,6 +12,7 @@ import ACEPlayers from '../components/ACEPlayers';
 import ACEPlayerReport from '../components/ACEPlayerReport';
 import ACEKickLogs from '../components/ACEKickLogs';
 import ACEKickLog from '../components/ACEKickLog';
+import ACEScreenshots from '../components/ACEScreenshots';
 
 
 const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers, playerName,
@@ -38,6 +39,8 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
         elems = <ACEKickLogs logId={logId} page={page} perPage={25}/>
     }else if(mode === "kick"){
         elems = <ACEKickLog id={logId}/>
+    }else if(mode === "screenshots"){
+        elems = <ACEScreenshots />
     }
 
     return <div>
@@ -67,9 +70,9 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
                                 <div className={`tab ${(mode === "kicks" || mode === "kick") ? "tab-selected" : null}`}>Kick Logs</div>
                             </a>
                         </Link>
-                        <Link href="/ace?mode=sshot-requests">
+                        <Link href="/ace?mode=screenshots">
                             <a>
-                                <div className={`tab ${(mode === "sshot-requests") ? "tab-selected" : null}`}>Screenshot Requests</div>
+                                <div className={`tab ${(mode === "screenshots") ? "tab-selected" : null}`}>Screenshot Requests</div>
                             </a>
                         </Link>
                     </div>
