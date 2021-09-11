@@ -72,7 +72,7 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
                         </Link>
                         <Link href="/ace?mode=screenshots">
                             <a>
-                                <div className={`tab ${(mode === "screenshots") ? "tab-selected" : null}`}>Screenshot Requests</div>
+                                <div className={`tab ${(mode === "screenshots" || mode === "screenshot") ? "tab-selected" : null}`}>Screenshot Requests</div>
                             </a>
                         </Link>
                     </div>

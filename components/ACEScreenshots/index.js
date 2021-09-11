@@ -70,7 +70,7 @@ class ACEScreenshots extends React.Component{
                     <Link href={`/ace/?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2: </span>{d.mac2}</a></Link>
                 </td>
                 <td>{d.admin_name}</td>
-                <td><Link href={`/ace/?mode=sshot&id=${d.id}`}><a>View</a></Link></td>
+                <td><Link href={`/ace/?mode=screenshot&id=${d.id}`}><a>View</a></Link></td>
             </tr>);
         }
 

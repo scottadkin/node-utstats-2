@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import Functions from '../../api/functions';
+import SimplePaginationLinks from '../SImplePaginationLinks';
 
 class ACEKickLogs extends React.Component{
 
@@ -61,25 +62,6 @@ class ACEKickLogs extends React.Component{
         }
     }
 
-    getPreviousPage(){
-
-        let targetPage = this.props.page - 1;
-
-        if(targetPage < 1) targetPage = 1;
-
-        return `/ace?mode=kicks&page=${targetPage}`;
-    }
-
-    getNextPage(){
-
-
-        let next = this.props.page + 1;
-
-        if(next > this.state.pages) next = this.state.pages;
-
-        return `/ace?mode=kicks&page=${next}`;
-    }
-
     renderLogList(){
 
         const rows = [];
@@ -131,14 +113,8 @@ class ACEKickLogs extends React.Component{
 
         return <div>
             <div className="default-header">Kick Logs</div>
-            <div className="simple-pagination">
-                <Link href={this.getPreviousPage()}><a><div>Previous</div></a></Link>
-                <div>
-                    <span className="yellow">Viewing Page {this.props.page} of {this.state.pages} </span><br/>
-                    Total Results {this.state.results}
-                </div>
-                <Link href={this.getNextPage()}><a><div>Next</div></a></Link>
-            </div>
+            <SimplePaginationLinks url={`/ace?mode=kicks&page=`} page={this.props.page} totalPages={this.state.pages} 
+            totalResults={this.state.results}/>
 
             {this.renderLogList()}
         </div>
