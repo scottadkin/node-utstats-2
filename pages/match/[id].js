@@ -1558,7 +1558,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
     if(pageSettings["Display Extended Sprees"] === "true"){
         spreesData = JSON.parse(spreesData);
     
-        elems.push(<MatchSprees data={spreesData} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
+        elems.push(<MatchSprees key={"sprees"} data={spreesData} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
     }
 
     if(pageSettings["Display Kills Match Up"] === "true"){
