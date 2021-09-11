@@ -176,7 +176,7 @@ class ItemsManager{
                     }
 
                 }else{
-                    new Message(`Failed to insert player item pickup, player with id ${currentPlayer.masterId} does not exist.`,'warning');
+                    new Message(`Failed to insert player item pickup, currentPlayer is null.`,'warning');
                 }
         
             }

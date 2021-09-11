@@ -473,7 +473,6 @@ class PlayerManager{
 
     setKills(kills){
 
-        let k = 0;
 
         let killer = 0;
         let victim = 0;
@@ -482,7 +481,7 @@ class PlayerManager{
 
         for(let i = 0; i < kills.length; i++){
 
-            k = kills[i];
+            const k = kills[i];
 
             //console.log(k);
 
@@ -515,6 +514,10 @@ class PlayerManager{
                 if(victim !== null){
 
                     if(victim.onASpree()){
+
+                        if(killer === null){
+                            killer = {"id": -1}
+                        }
 
                         this.sprees.addToList(
                             victim.id, 
