@@ -21,8 +21,8 @@ const MostUsedFaces = ({data, images}) =>{
         if(currentImage === undefined) currentImage = {"name": "faceless"};
 
         elems.push(<div className={`${styles.wrapper} center`} key={i}>
+            <div className={styles.face}><img src={`/images/faces/${currentImage.name}.png`} alt="Image" /></div>
             <div className={styles.inner}>
-                <div className={styles.face}><img src={`/images/faces/${currentImage.name}.png`} alt="Image" /></div>
                 <div>
                     <span className="yellow">Used</span> {d.uses} times<br/>
                     <span className="yellow">First</span> <TimeStamp timestamp={d.first} noDayName={true}/><br/>

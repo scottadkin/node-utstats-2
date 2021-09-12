@@ -1,21 +1,20 @@
 .wrapper{
     display:inline-block;
-    height:64px;
     background-color: var(--color-1);
     border:1px solid rgba(255,255,255,0.25);
     max-width:300px; 
-    width:215px;
-    padding:5px;
+    width:225px;
+    padding-top:10px;
     margin-top:-1px;
     margin-left:-1px;
 }
 
 .inner{
-    
-    display:grid;
-    grid-template-columns: 74px auto; 
     font-size:12px;
     line-height:21px;
+    background-color:var(--color-2);
+    padding-bottom:5px;
+    border-top:1px solid var(--border-color-1);
 }
 
 .face img{
