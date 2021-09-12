@@ -168,7 +168,7 @@ class PlayerWeapons extends React.Component{
 
             //if(elems.length > 0){
 
-                elems = <table className="t-width-1">
+                elems = <table className="t-width-1 td-1-left">
                     <tbody>
                         <tr>
                             <th>Weapon</th>

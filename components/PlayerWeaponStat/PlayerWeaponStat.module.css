@@ -7,6 +7,8 @@
     height:26px;
     font-size:14px;
     line-height:26px;
+    text-align:left;
+    padding-left:8px;
 }
 .bar{
     background-color:var(--color-3);

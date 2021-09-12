@@ -19,6 +19,12 @@ const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, play
         dmWinner = result;
     }
 
+    let shortenedName = serverName.slice(0, 65);
+
+    if(serverName !== shortenedName){
+
+        serverName = `${shortenedName}...`;
+    }
 
 
     //dmWinner, dmScore, totalTeams, redScore, blueScore, greenScore, yellowScore, bMonsterHunt, endReason

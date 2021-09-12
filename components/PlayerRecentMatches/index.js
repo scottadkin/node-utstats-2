@@ -39,7 +39,18 @@ function getMapImage(maps, name){
 function getServerName(servers, id){
 
     if(servers[id] !== undefined){
-        return servers[id];
+
+        const originalString = servers[id];
+        let shortenedString = originalString.slice(0,65);
+
+        if(originalString === shortenedString){
+            return originalString;
+        }else{
+
+            return `${shortenedString}...`;
+        }
+        
+
     }
     return 'Not Found';
 }
@@ -416,7 +427,9 @@ class PlayerRecentMatches extends React.Component{
                     
                 />
             
-                {elems}   
+                <div className={`${styles.main} center`}>
+                    {elems}   
+                </div>
             </div>} 
             </div>
         );

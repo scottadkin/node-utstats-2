@@ -1,12 +1,12 @@
 .wrapper{
     background-color:var(--color-1);
     display:inline-block;
-    height:390px;
+    height:370px;
     width:250px;
     overflow:hidden;
     border:1px solid var(--border-color-1);
     margin-left:-1px;
-    margin-top:-5px;
+    margin-bottom:10px;
 }
 
 .name{
@@ -14,8 +14,8 @@
     background-color:var(--color-3);
     border-bottom:1px solid var(--border-color-1);
     font-size:14px;
-    line-height:20px;
-    height:20px;
+    line-height:14px;
+    height:26px;
 }
 
 .image{

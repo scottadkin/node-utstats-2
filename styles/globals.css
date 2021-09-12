@@ -394,7 +394,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 
 .t-width-1{
 	width:90%;
-	max-width:1250px;
+	max-width:var(--max-width-1);
 	overflow:hidden;
 }
 
