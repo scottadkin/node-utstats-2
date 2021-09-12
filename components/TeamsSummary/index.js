@@ -40,24 +40,23 @@ const TeamsSummary = ({data, playerNames, matchId}) =>{
     playerNames = JSON.parse(playerNames);
 
     const elems = [];
-    let currentPlayer = 0;
-    let previousTeam = "";
 
     for(let i = 0; i < data.length; i++){
 
-        currentPlayer = Functions.getPlayer(playerNames, data[i].player);
+        const currentPlayer = Functions.getPlayer(playerNames, data[i].player);
+        const previousTeam = getPreviousTeam(data, data[i].timestamp, data[i].player);
 
-        previousTeam = getPreviousTeam(data, data[i].timestamp, data[i].player);
+        const previousTeamString = (previousTeam.team === -1) ? "Joined Server" : (previousTeam.team === 255) ? "Spectator" : Functions.getTeamName(previousTeam.team)
+        const currentTeamString = (data[i].team === 255) ? "Spectator" : Functions.getTeamName(data[i].team);
 
         elems.push(<tr key={`team-change-${i}`}>
             <td><MMSS timestamp={data[i].timestamp} /></td>
-            <td><Link href={`/pmatch/${matchId}?player=${data[i].player}`}><a><CountryFlag country={currentPlayer.country}/> <b>{currentPlayer.name} </b></a></Link></td>
+            <td><Link href={`/pmatch/${matchId}?player=${data[i].player}`}><a><CountryFlag country={currentPlayer.country}/> {currentPlayer.name} </a></Link></td>
             <td className={Functions.getTeamColor(previousTeam.team)}>
-                {Functions.getTeamName(previousTeam.team)}
+                {previousTeamString}
             </td>
-            <td>{(previousTeam.playtime > 0) ? Functions.MMSS(previousTeam.playtime) : ''}</td>
             <td className={Functions.getTeamColor(data[i].team)}>
-                <b>{Functions.getTeamName(data[i].team)}</b> 
+                <b>{currentTeamString}</b> 
             </td>
         </tr>);
     }
@@ -73,7 +72,6 @@ const TeamsSummary = ({data, playerNames, matchId}) =>{
                     <th>Timestamp</th>
                     <th>Player</th>
                     <th>Old Team</th>
-                    <th>Playtime</th>
                     <th>New Team</th>
                 </tr>
                 {elems}

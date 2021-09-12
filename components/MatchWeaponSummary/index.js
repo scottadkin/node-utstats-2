@@ -281,9 +281,13 @@ class MatchWeaponSummary extends React.Component{
 
                 currentTeam = currentPlayer.team;
 
+                //ignore spectators
+                if(currentTeam > this.props.totalTeams) continue;
+
                 if(this.props.totalTeams < 2){
                     currentTeam = 0;
                 }
+
 
                 currentTeamTotals[currentTeam].kills += p.kills;
                 currentTeamTotals[currentTeam].deaths += p.deaths;
@@ -333,6 +337,7 @@ class MatchWeaponSummary extends React.Component{
 
 
             if(this.props.players.length > currentTeamTotals.length){
+
                 for(let x = 0; x < currentTeamTotals.length; x++){
 
                     currentEfficiency = "";
@@ -362,7 +367,7 @@ class MatchWeaponSummary extends React.Component{
 
                     currentPlayers.push(
                         <tr key={`team-totals ${x}`} className="yellow">
-                            <td>
+                            <td className="team-none">
                                 {(this.props.totalTeams < 2) ? "Totals" : Functions.getTeamName(x)}
                             </td>
                             <td>{Functions.ignore0(currentTeamTotals[x].kills)}</td>

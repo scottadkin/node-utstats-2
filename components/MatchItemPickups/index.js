@@ -10,9 +10,20 @@ class MatchItemPickups extends React.Component{
 
         super(props);
 
-        this.state = {"offset": 0, "maxDisplay": 7};
+        this.state = {"offset": 0, "maxDisplay": 7, "ignoredPlayers": []};
+
 
         this.changePage = this.changePage.bind(this);
+    }
+
+    componentDidMount(){
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            const p = this.props.players[i];
+
+            this.bPlayerUseAnything(p.id);
+        }
     }
 
     changePage(type){
@@ -40,11 +51,36 @@ class MatchItemPickups extends React.Component{
             d = this.props.data[i];
 
             if(d.player_id === player && d.item === item){
-                return d.uses;
+                return Functions.ignore0(d.uses);
             }
         }
 
-        return Functions.ignore0(0);
+        return "";
+    }
+
+    bPlayerUseAnything(player){
+
+        const ignoredPlayers = this.state.ignoredPlayers;
+
+
+        if(ignoredPlayers.indexOf(player) !== -1) return false;
+
+        for(let i = 0; i < this.props.data.length; i++){
+
+            const d = this.props.data[i];
+
+            if(d.player_id === player){
+                return true;
+            }
+
+        }
+
+        
+        ignoredPlayers.push(player);
+
+        this.setState({"ignoredPlayers": ignoredPlayers});
+
+        return false;
     }
 
     createElems(){
@@ -52,8 +88,6 @@ class MatchItemPickups extends React.Component{
         const elems = [];
 
         let n = 0;
-        let p = 0;
-
         let subElems = [];
 
         let max = this.state.maxDisplay * (this.state.offset + 1);
@@ -78,16 +112,13 @@ class MatchItemPickups extends React.Component{
         elems.push(<tr key={`top`}>{subElems}</tr>);
 
         let teamColor = "";
-
-
         let currentPlayerUses = 0;
 
         for(let i = 0; i < this.props.players.length; i++){
 
-            p = this.props.players[i];
+            const p = this.props.players[i];
 
-            
-            
+            if(this.state.ignoredPlayers.indexOf(p.id) !== -1) continue;
 
             subElems = [];
 
