@@ -169,6 +169,20 @@ export default async(req, res) =>{
 
                 return;
 
+            }else if(mode === "sshot"){
+
+                let id = (req.body.id !== undefined) ? parseInt(req.body.id) : -1;
+
+                if(id === id){
+
+                    const data = await aceManager.getScreenshotRequest(id);
+                    res.status(200).json({"data": data});
+                    return;
+
+                }else{
+                    res.status(200).json({"error": "Id must be a valid integer"});
+                    return;
+                }
             }
 
             res.status(200).json({"message": "passed"});

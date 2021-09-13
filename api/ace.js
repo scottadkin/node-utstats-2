@@ -512,6 +512,19 @@ class ACE{
 
         return 0;
     }
+
+
+    async getScreenshotRequest(id){
+
+        const query = "SELECT * FROM nstats_ace_sshot_requests WHERE id=?";
+
+        const result = await mysql.simpleFetch(query, [id]);
+
+        if(result.length > 0) return result[0];
+
+        return [];
+        
+    }
 }
 
 

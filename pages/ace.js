@@ -13,6 +13,7 @@ import ACEPlayerReport from '../components/ACEPlayerReport';
 import ACEKickLogs from '../components/ACEKickLogs';
 import ACEKickLog from '../components/ACEKickLog';
 import ACEScreenshots from '../components/ACEScreenshots';
+import ACEScreenshot from '../components/ACEScreenshot';
 
 
 const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers, playerName,
@@ -41,6 +42,8 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
         elems = <ACEKickLog id={logId}/>
     }else if(mode === "screenshots"){
         elems = <ACEScreenshots page={page}/>
+    }else if(mode === "screenshot"){
+        elems = <ACEScreenshot id={logId}/>
     }
 
     return <div>
