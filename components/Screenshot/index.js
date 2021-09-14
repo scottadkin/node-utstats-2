@@ -831,12 +831,13 @@ class MatchScreenshot{
         c.fillText((this.bLMS()) ? "Lives" : "Frags", row2X, titleY);
         c.fillText("Deaths", row3X, titleY);
 
-        let p = 0;
 
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
             c.font = this.y(2)+"px Arial";
+
+            if(!p.played) continue;
 
             if(!this.bClassic){
                 this.renderStandardPlayer(c, i, p.name, p.score, p.deaths, p.ping_average, p.playtime, p.country);

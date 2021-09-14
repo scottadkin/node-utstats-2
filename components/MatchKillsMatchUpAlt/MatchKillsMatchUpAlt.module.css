@@ -1,0 +1,13 @@
+.wrapper{
+    background-color:var(--color-2);
+    border:1px solid var(--border-color-1);
+    width:var(--width-1);
+    max-width:var(--max-width-2);
+    display:grid;
+    grid-template-columns: auto 30px 10px 30px auto;
+    line-height:48px;
+}
+
+.wrapper div:nth-child(3){
+    background-color:var(--color-1);
+}

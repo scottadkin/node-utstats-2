@@ -99,6 +99,18 @@ class PlayerManager{
 
     }
 
+    getPlayerByName(name){
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            if(p.name == name) return p;
+        }
+
+        return null;
+    }
+
     getPlayerByMasterId(id){
 
         id = parseInt(id);
@@ -334,13 +346,16 @@ class PlayerManager{
 
         if(result !== null){
 
-            player = this.getPlayerById(result[2]);
+            player = this.getPlayerByName(result[1]);
 
-            if(this.uniqueNames.indexOf(result[1]) === -1){
+            const uniqueNameIndex = this.uniqueNames.indexOf(result[1]);
+            const duplicateNameIndex = this.duplicateNames.indexOf(result[1]);
+
+            if(uniqueNameIndex === -1){
                 this.uniqueNames.push(result[1]);
             }else{
 
-                if(this.duplicateNames.indexOf(result[1]) === -1){
+                if(duplicateNameIndex === -1){
                     this.duplicateNames.push(result[1]);
                 }
             }
@@ -361,10 +376,9 @@ class PlayerManager{
             
             if(result !== null){
 
-
                 const id = parseInt(result[2]);
 
-                player = this.getPlayerById(id);
+                player = this.getPlayerByName(result[1]);
 
                 if(player === null){
                     this.players.push(new PlayerInfo(id, result[1], timestamp, true));   
@@ -1257,14 +1271,11 @@ class PlayerManager{
 
         try{
 
-            let p = 0;
-
             let pingData = 0;
     
-
             for(let i = 0; i < this.players.length; i++){
 
-                p = this.players[i];
+                const p = this.players[i];
 
                 if(p.bDuplicate === undefined){
 

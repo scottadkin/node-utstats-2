@@ -28,7 +28,8 @@ import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
 import Graph from '../../components/Graph/';
 import Kills from '../../api/kills';
-import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
+//import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
+import MatchKillsMatchUpAlt from '../../components/MatchKillsMatchUpAlt/';
 import Functions from '../../api/functions';
 import Pings from '../../api/pings';
 import Headshots from '../../api/headshots';
@@ -1314,9 +1315,9 @@ class PlayerGraphPingData{
 
 }
 
-function Match({navSettings, pageSettings, session, host, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
+function Match({navSettings, pageSettings, session, host, matchId, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
     domPlayerScoreData, ctfCaps, ctfEvents,
-    assaultData, itemData, itemNames, connections, teams, faces, killsData, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
+    assaultData, itemData, itemNames, connections, teams, faces, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
     rankingPositions, spreesData, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
     //for default head open graph image
@@ -1366,14 +1367,18 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
 
     let playerNames = [];
     const justPlayerNames = {};
-
+    
     for(let i = 0; i < parsedPlayerData.length; i++){
 
+        const p = parsedPlayerData[i];
+
         playerNames.push({
-            "id": parsedPlayerData[i].player_id, 
-            "name": parsedPlayerData[i].name, 
-            "country": parsedPlayerData[i].country,
-            "team": parsedPlayerData[i].team
+            "id": p.player_id, 
+            "name": p.name, 
+            "country": p.country,
+            "team": p.team,
+            "spectator": p.spectator,
+            "played": p.played
         });
 
         justPlayerNames[parsedPlayerData[i].player_id] = parsedPlayerData[i].name;
@@ -1414,7 +1419,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         }
     }
 
-    if(pageSettings["Display Frags Graphs"] === "true"){
+    /*if(pageSettings["Display Frags Graphs"] === "true"){
 
         if(!parsedInfo.mh){
 
@@ -1432,7 +1437,7 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
                 elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
             }
         }
-    }
+    }*/
 
     if(bCTF(parsedPlayerData)){
 
@@ -1561,12 +1566,15 @@ function Match({navSettings, pageSettings, session, host, info, server, gametype
         elems.push(<MatchSprees key={"sprees"} data={spreesData} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
     }
 
+
     if(pageSettings["Display Kills Match Up"] === "true"){
 
         if(!parsedInfo.mh){
-            elems.push(
+
+            elems.push(<MatchKillsMatchUpAlt key={`kills-matchup`} matchId={matchId} totalTeams={parsedInfo.total_teams} players={JSON.parse(playerNames)}/>);
+            /*elems.push(
                 <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
-            );
+            );*/
         }
     }
 
@@ -1887,7 +1895,7 @@ export async function getServerSideProps({req, query}){
 
     let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
 
-    const killsData = await killManager.getMatchData(matchId);
+   // const killsData = await killManager.getMatchData(matchId);
 
     const scoreHistory = await playerManager.getScoreHistory(matchId);
 
@@ -1977,6 +1985,7 @@ export async function getServerSideProps({req, query}){
             "pageSettings": JSON.stringify(pageSettings),
             "session": JSON.stringify(session.settings),
             "host": req.headers.host,
+            "matchId": matchId,
             "info": JSON.stringify(matchInfo),
             "server": serverName,
             "gametype": gametypeName,
@@ -1995,7 +2004,7 @@ export async function getServerSideProps({req, query}){
             "connections": JSON.stringify(connectionsData),
             "teams": JSON.stringify(teamsData),
             "faces": JSON.stringify(pFaces),
-            "killsData": JSON.stringify(killsData),
+            //"killsData": JSON.stringify(killsData),
             "scoreHistory": JSON.stringify(scoreHistory),
             "pingData": JSON.stringify(pingData),
             "headshotData": JSON.stringify(headshotData),

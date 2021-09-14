@@ -100,6 +100,59 @@ class Kills{
 
         return await mysql.simpleFetch(query, [matchId, playerId, playerId]);
     }
+
+
+    async getMatchKillsBasic(matchId){
+
+        const query = "SELECT killer,victim FROM nstats_kills WHERE match_id=?";
+
+        return await mysql.simpleFetch(query, [matchId]);
+   
+    }
+
+
+    async getKillsMatchUp(matchId){
+
+        const kills = await this.getMatchKillsBasic(matchId);
+
+        const data = [];
+
+        const getIndex = (killer, victim) =>{
+
+            for(let i = 0; i < data.length; i++){
+
+                const d = data[i];
+
+                if(d.killer === killer && d.victim === victim){
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+
+        for(let i = 0; i < kills.length; i++){
+
+            const k = kills[i];
+
+            //ignore suicides
+            if(k.victim === 0) continue;
+
+            let index = getIndex(k.killer, k.victim);
+
+            if(index === -1){
+                data.push({"killer": k.killer, "victim": k.victim, "kills": 0});
+                index = data.length - 1;
+            }
+
+            data[index].kills++;
+
+        }
+
+        return data;
+
+    }
 }
 
 module.exports = Kills;

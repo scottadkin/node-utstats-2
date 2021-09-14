@@ -49,12 +49,10 @@ const MatchFragTable = ({players, team, matchStart, toDisplay, matchId, single})
     let totalEff = 0;
     let totalHeadshots = 0;
 
-    let p = 0;
-
 
     for(let i = 0; i < players.length; i++){
 
-        p = players[i];
+        const p = players[i];
 
         totalPlaytime += p.playtime - matchStart;
         totalSuicides += p.suicides;
@@ -67,6 +65,7 @@ const MatchFragTable = ({players, team, matchStart, toDisplay, matchId, single})
         totalHeadshots += p.headshots;
 
 
+        if(!p.played) continue;
 
         if(bAnyData(p)){
 
