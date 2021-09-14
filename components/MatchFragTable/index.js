@@ -23,7 +23,7 @@ const bAnyData = (data) =>{
 
     for(let i = 0; i < types.length; i++){
 
-        if(types[i] !== 0) return true;
+        if(data[types[i]] !== 0) return true;
     }
 
     return false;
@@ -34,7 +34,6 @@ const MatchFragTable = ({players, team, matchStart, toDisplay, matchId, single})
     if(players.length === 0) return null;
 
     let bgColor = Functions.getTeamColor(team);
-
 
     const elems = [];
     
@@ -75,7 +74,7 @@ const MatchFragTable = ({players, team, matchStart, toDisplay, matchId, single})
                     <CountryFlag key={`frag_country__${team}_${i}`} country={p.country} />
                     <Link href={`/pmatch/${matchId}/?player=${p.player_id}`}><a>{p.name}</a></Link>
                 </td>}
-                <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime - matchStart} /></td>
+                <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime} /></td>
                 <td>{Functions.ignore0(p.score)}</td>
                 <td>{Functions.ignore0(p.frags)}</td>
                 <td>{Functions.ignore0(p.kills)}</td>
