@@ -1,0 +1,31 @@
+.header{
+	background-color:var(--color-2);
+	border-bottom:1px solid var(--border-color-1);
+	color:white;
+}
+
+.h1{
+	font-weight:300;
+	font-size:14px;
+    background-color:black;
+    display:inline-block;
+    padding:10px;
+    margin-left:5px;
+    margin-top:5px;
+    border:1px solid var(--border-color-1);
+}
+
+.nl{
+	display:inline-block;
+	font-weight:400;
+	font-size:16px;
+	padding:5px 5px;
+}
+
+.nl:hover{
+	color:yellow;
+}
+
+.nav{
+    color:white;
+}

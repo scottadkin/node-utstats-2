@@ -56,20 +56,6 @@ a {
 }
 
 
-header{
-	background-color:var(--color-3);
-	border-bottom:1px solid var(--border-color-1);
-	color:white;
-}
-
-h1{
-	font-weight:300;
-	text-align:right;
-	font-size:16px;
-	padding-right:25px;
-	padding-top:10px;
-}
-
 
 footer{
 	background-color:var(--color-3);
@@ -140,18 +126,6 @@ footer{
 	
 }
 
-
-.nl{
-	display:inline-block;
-	color:white;
-	font-weight:300;
-	font-size:16px;
-	padding:5px 5px;
-}
-
-.nl:hover{
-	color:yellow;
-}
 
 .country-flag{
 	width:16px;

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {useRouter} from 'next/router';
+import styles from './Nav.module.css';
 
 function Nav({session, settings}){
 
@@ -117,7 +118,7 @@ function Nav({session, settings}){
         }
 
 
-        elems.push(<Link key={i} href={links[i].url}><a><div className={`nl ${(bCurrent) ? "green" : null}`}>{links[i].text}</div></a></Link>);
+        elems.push(<Link key={i} href={links[i].url}><a><div className={`${styles.nl} ${(bCurrent) ? "green" : null}`}>{links[i].text}</div></a></Link>);
     }
 
     return (
@@ -126,12 +127,12 @@ function Nav({session, settings}){
                 <div id="mouse-over-title"></div>
                 <div id="mouse-over-content"></div>
             </div>
-        <header>
+        <header className={styles.header}>
             <div id="beta-message">
                 This is an early beta build, there may be problems at first, they will be fixed once reported <a className="yellow" href="https://github.com/scottadkin/node-utstats-2/issues">Here</a>
             </div>
-            <h1>Node UTStats 2</h1>
-            <nav>
+            <h1 className={styles.h1}>Node UTStats 2</h1>
+            <nav className={styles.nav}>
                 {elems}
             </nav>         
         </header>
