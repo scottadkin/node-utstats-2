@@ -38,7 +38,7 @@ function Nav({session, settings}){
         "Display Home": {"text": "Home", "url": "/"},
         "Display Matches": {"text": "Matches", "url": "/matches", "alt": ["/match/[id]","/pmatch/[match]"]},
         "Display Players": {"text": "Players", "url": "/players", "alt": ["/player/[id]"]},
-        "Display Rankings":{"text": "Rankings", "url": "/rankings", "alt": ["/rankings/[id]"]},
+        "Display Rankings":{"text": "Rankings", "url": "/rankings/0", "alt": ["/rankings/[id]"]},
         "Display Records": {"text": "Records", "url": "/records"},
         "Display Maps": {"text": "Maps", "url": "/maps", "alt": ["/map/[id]"]},
         "Display Admin": {"text": "Admin", "url": "/admin"},
