@@ -152,11 +152,11 @@ class PlayerWeapons extends React.Component{
                     elems.push(
                         <tr key={key}>
                             <td>{value.name}</td>
-                            <td>{currentWeaponStats.kills}</td>
-                            <td>{currentWeaponStats.deaths}</td>
-                            <td>{currentWeaponStats.shots}</td>
-                            <td>{currentWeaponStats.hits}</td>
-                            <td>{currentWeaponStats.damage}</td>
+                            <td>{Functions.ignore0(currentWeaponStats.kills)}</td>
+                            <td>{Functions.ignore0(currentWeaponStats.deaths)}</td>
+                            <td>{Functions.ignore0(currentWeaponStats.shots)}</td>
+                            <td>{Functions.ignore0(currentWeaponStats.hits)}</td>
+                            <td>{Functions.ignore0(currentWeaponStats.damage)}</td>
                             <td>{currentWeaponStats.accuracy.toFixed(2)}%</td>
                             <td>{currentWeaponStats.efficiency}%</td>
                             <td>{currentWeaponStats.matches}</td>

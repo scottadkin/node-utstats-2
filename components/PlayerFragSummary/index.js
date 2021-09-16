@@ -43,12 +43,12 @@ class PlayerFragSummary extends React.Component{
                     <th>Last Accuracy</th>
                 </tr>
                 <tr>
-                    <td>{this.props.score}</td>
-                    <td>{this.props.frags}</td>
-                    <td>{this.props.suicides}</td>
-                    <td>{this.props.teamKills}</td>
-                    <td>{this.props.kills}</td>
-                    <td>{this.props.deaths}</td>  
+                    <td>{Functions.ignore0(this.props.score)}</td>
+                    <td>{Functions.ignore0(this.props.frags)}</td>
+                    <td>{Functions.ignore0(this.props.suicides)}</td>
+                    <td>{Functions.ignore0(this.props.teamKills)}</td>
+                    <td>{Functions.ignore0(this.props.kills)}</td>
+                    <td>{Functions.ignore0(this.props.deaths)}</td>  
                     <td>{this.props.efficiency.toFixed(2)}%</td>
                     <td>{this.props.accuracy.toFixed(2)}%</td>
                 </tr>
@@ -69,12 +69,12 @@ class PlayerFragSummary extends React.Component{
                     <th>Uber Long Range kills</th>
                 </tr>
                 <tr>
-                    <td>{this.props.headshots}</td>
-                    <td>{this.props.spawnKills}</td>
-                    <td>{this.props.spawnKillSpree} Kills</td>
-                    <td>{this.props.close}</td>
-                    <td>{this.props.long}</td>
-                    <td>{this.props.uber}</td>
+                    <td>{Functions.ignore0(this.props.headshots)}</td>
+                    <td>{Functions.ignore0(this.props.spawnKills)}</td>
+                    <td>{Functions.ignore0(this.props.spawnKillSpree)} Kills</td>
+                    <td>{Functions.ignore0(this.props.close)}</td>
+                    <td>{Functions.ignore0(this.props.long)}</td>
+                    <td>{Functions.ignore0(this.props.uber)}</td>
                 </tr>
             </tbody>
         </table>

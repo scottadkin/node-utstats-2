@@ -47,16 +47,16 @@ class PlayerCTFSummary extends React.Component{
                     <TipHeader title="Flag Close Save" content="Player return their flag that was close to the enemy flag base."/>
                 </tr>
                 <tr>
-                    <td>{this.props.data.flag_taken}</td>
-                    <td>{this.props.data.flag_pickup}</td>
-                    <td>{this.props.data.flag_dropped}</td>
-                    <td>{this.props.data.flag_capture}</td>
-                    <td>{this.props.data.flag_assist}</td>
-                    <td>{this.props.data.flag_cover}</td>
-                    <td>{this.props.data.flag_seal}</td>
-                    <td>{this.props.data.flag_kill}</td>
-                    <td>{this.props.data.flag_return}</td>
-                    <td>{this.props.data.flag_save}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_taken)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_pickup)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_dropped)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_capture)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_assist)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_cover)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_seal)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_kill)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_return)}</td>
+                    <td>{Functions.ignore0(this.props.data.flag_save)}</td>
 
             
                 </tr>

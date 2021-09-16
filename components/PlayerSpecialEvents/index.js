@@ -34,7 +34,7 @@ class PlayerSpecialEvents extends React.Component{
         for(let i = 0; i < titles.length; i++){
 
             headers.push(<th key={i}>{titles[i]}</th>);
-            cols.push(<td key={i}>{data[i]}</td>);
+            cols.push(<td key={i}>{Functions.ignore0(data[i])}</td>);
         }
 
 
@@ -154,7 +154,7 @@ class PlayerSpecialEvents extends React.Component{
         for(let i = 0; i < titles.length; i++){
 
             headers.push(<th key={i}>{titles[i]}</th>);
-            cols.push(<td key={i}>{data[i]}</td>);
+            cols.push(<td key={i}>{Functions.ignore0(data[i])}</td>);
         }
     }
 
