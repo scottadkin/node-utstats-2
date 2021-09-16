@@ -30,12 +30,16 @@ const PlayerAliases = ({data, faces, masterName}) =>{
 
     if(elems.length === 0) return null;
 
-    return <div className={`${styles.wrapper} m-bottom-10`}>
+    return <div> 
         <div className="default-header">
             Possible Aliases
         </div>
-        <div className={styles.players}>
-            {elems}
+
+        <div className={`${styles.wrapper} m-bottom-10`}>
+            
+            <div className={styles.players}>
+                {elems}
+            </div>
         </div>
     </div>
 

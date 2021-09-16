@@ -1,7 +1,7 @@
 .wrapper{
     background-color:var(--color-1);
     display:inline-block;
-    height:370px;
+    height:380px;
     width:250px;
     overflow:hidden;
     border:1px solid var(--border-color-1);
@@ -14,8 +14,8 @@
     background-color:var(--color-3);
     border-bottom:1px solid var(--border-color-1);
     font-size:14px;
-    line-height:14px;
-    height:26px;
+    line-height:24px;
+    height:32px;
 }
 
 .image{
@@ -36,5 +36,5 @@
 .stats{
     background-color:var(--color-2);
     border-top:1px solid rgba(255,255,255,0.25);
-    height:210px;
+    height:200px;
 }

@@ -43,18 +43,19 @@
 .left{
     background-color:rgb(16,16,16);
     width:140px;
-    height:280px;
+    height:334px;
     border-right:1px solid rgba(255,255,255,0.25);
 }
 
 .right{
-    width:360px;
+    width:358px;
     margin-left:140px;
     position:absolute;
-    margin-top:-285px;
+    margin-top:-339px;
     font-size:14px;
     padding-top:5px;
     overflow:hidden;
+    height:339px;
 }
 
 .table{
