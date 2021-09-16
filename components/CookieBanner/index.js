@@ -36,7 +36,9 @@ class CookieBanner extends React.Component{
 
     render(){
 
-        return <div className={`${styles.wrapper} ${(this.state.bShow) ? "" : "hidden"}`}>
+        if(!this.state.bShow) return null;
+
+        return <div className={styles.wrapper}>
             <div className={styles.header}>Cookies</div>
 
             <div className={styles.info}>
