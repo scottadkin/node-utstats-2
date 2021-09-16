@@ -197,13 +197,13 @@ class PlayersList extends React.Component{
             );
         }else{
 
-            return (<div>
-            <table className={`${styles.table} t-width-1`}>
-                <tbody>
-                    {elems}
-                </tbody>
-            </table>
-            </div>);
+            return <div>
+                <table className={`${styles.table} t-width-1`}>
+                    <tbody>
+                        {elems}
+                    </tbody>
+                </table>
+            </div>;
         }
     }
     

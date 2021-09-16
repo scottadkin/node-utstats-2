@@ -19,20 +19,11 @@
 	--max-width-2:500px;
 }
 
-
-html{
-
-	background-image:url(../public/images/bg.jpg);
-	background-size:100% 100%;
-	background-attachment: fixed;
-	
-}
-
 body{
 
 	min-height:100vh;
 	position: relative;
-	background-color:rgba(3,3,3,0.86);
+	background-color:var(--color-2);
 	overflow-x:hidden;
 }
 
@@ -80,9 +71,6 @@ footer{
 	padding-top:10px;
 	text-align:center;
 	padding-bottom:25px;
-	width:95%;
-	margin-left:auto;
-	margin-right:auto;
 	color:white;
 }
 
@@ -94,10 +82,13 @@ footer{
 	font-weight:300;
 	padding-bottom:20px;
 	padding-top:20px;
-	width:90%;
-	max-width:var(--max-width-1);
+	background-color:var(--color-3);
+	border-top:1px solid var(--border-color-1);
+	border-bottom:1px solid var(--border-color-1);
 	margin-left:auto;
 	margin-right:auto;
+	margin-bottom:25px;
+	margin-top:25px;
 }
 
 .default-sub-header{
@@ -111,6 +102,8 @@ footer{
 	max-width:1250px;
 	margin-left:auto;
 	margin-right:auto;
+	background-color:var(--color-3);
+	border:1px solid var(--border-color-1);
 }
 
 

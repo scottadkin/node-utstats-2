@@ -343,7 +343,8 @@ class Records extends React.Component{
                     <div className="default">
                         <div className="default-header">Records</div>
                     
-                        <div className="form">
+                        <div className="default-sub-header">Choose a record type</div>
+                        <div className="form m-bottom-25">
                                 <div className="select-row">
                                 <div className="select-label">
                                         Record Type

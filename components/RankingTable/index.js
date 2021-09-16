@@ -5,7 +5,7 @@ import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
 import Pagination from '../../components/Pagination/';
 
-const RankingTable = ({gametypeId, title, data, page, perPage, results, bDisplayPagination}) =>{
+const RankingTable = ({gametypeId, title, data, page, perPage, results, bDisplayPagination, mode}) =>{
 
     const rows = [];
 
@@ -53,7 +53,7 @@ const RankingTable = ({gametypeId, title, data, page, perPage, results, bDisplay
     let pages = Math.ceil(results / perPage);
 
     return <div>
-        <div className="default-header">{title}</div>
+        <div className="default-header">{title} {(mode === 0) ? "" : "Rankings"}</div>
         <table className={`${styles.table} m-bottom-25`}>
             <tbody>
                 <tr>

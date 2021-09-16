@@ -73,7 +73,7 @@ class Rankings extends React.Component{
 
             d = data[i];
 
-            elems.push(<RankingTable gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} key={i} 
+            elems.push(<RankingTable gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} key={i} mode={this.props.gametypeId}
                 title={this.getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results} bDisplayPagination={(data.length > 1) ? false : true}/>);
         }
 
@@ -111,10 +111,14 @@ class Rankings extends React.Component{
             keywords += `,${gametypeNames[`${this.props.gametypeId}`]}`
 
             description = `View all the top players of the ${gametypeNames[`${this.props.gametypeId}`]} gametype, there are a total of ${data[0].results} players in the rankings.`;
-
-            
-                
+   
         }
+
+        const welcomeElem = (this.props.gametypeId !== 0) ? null :  <div id="welcome-text">
+            View all the top players for each available gametype.
+        </div>
+
+        const mainTitle = (this.props.gametypeId === 0) ? <div className="default-header">Rankings</div> : null;
 
         return <div>
             <DefaultHead host={this.props.host} title={titleName}
@@ -125,10 +129,8 @@ class Rankings extends React.Component{
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
                 <div id="content">
                     <div className="default">
-                        <div className="default-header">
-                            Rankings
-                        </div>
-                        
+                        {mainTitle}
+                        {welcomeElem}
                         {this.createElems()}
 
                         <div className="big-tabs m-top-25">

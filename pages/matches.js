@@ -170,6 +170,7 @@ class Matches extends React.Component{
                         <div className="default-header">
                             Recent Matches
                         </div>
+                        <div className="default-sub-header">Search for matches</div>
                         <div className="form">
                             <div className="select-row">
                                 <div className="select-label">Gametype</div>

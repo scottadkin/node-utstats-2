@@ -199,6 +199,7 @@ class Players extends React.Component{
                     <div className="default-header">
                         Players
                     </div>
+                    <div className="default-sub-header">Search for a player</div>
                     <form className="form">
                         <input type="text" name="name" id="name" autoComplete="off" className="default-textbox m-bottom-10" placeholder="Player Name..." value={this.state.name} 
                         onChange={this.handleNameChange}/>
