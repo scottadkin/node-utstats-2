@@ -26,13 +26,16 @@ const PageButton = ({url, page, anchor, current}) =>{
     );
 }
 
-const Pagination = ({currentPage, results, pages, perPage, url, anchor}) =>{
+const Pagination = ({currentPage, results, perPage, url, anchor}) =>{
 
-    //console.log(currentPage, results, pages, perPage, url, anchor);
     currentPage = parseInt(currentPage);
-    pages = parseInt(pages);
-    //console.log(currentPage);
-    //console.log(pages);
+
+    let pages = Math.ceil(results / perPage);
+
+    if(pages !== pages) pages = 1;
+
+    if(pages <= 1) return null;
+
     const elems = [];
     
     if(currentPage !== 1){
@@ -85,10 +88,10 @@ const Pagination = ({currentPage, results, pages, perPage, url, anchor}) =>{
     return (<div className={styles.wrapper}>
 
         <div className={styles.header}>
-            Showing Page {currentPage} of {pages}
+            Displaying Page {currentPage} of {pages}
         </div>
         <div className={styles.result}>
-            Showing results {(currentPage === 1) ? 1 : 1 + ((currentPage - 1) * perPage)} to {(currentPage !== pages ) ? currentPage * perPage : results} out of a possible {results}
+            Displaying results {(currentPage === 1) ? 1 : 1 + ((currentPage - 1) * perPage)} to {(currentPage !== pages ) ? currentPage * perPage : results} out of {results}
         </div>
         {elems}
     </div>);
