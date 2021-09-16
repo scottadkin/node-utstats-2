@@ -1,25 +1,29 @@
+.wrapper{
+	position:fixed;
+	top:0;
+	width:100%;
+	z-index: 999999;
+}
+
 .header{
 	background-color:var(--color-1);
-	border-bottom:1px solid var(--border-color-1);
 	color:white;
 }
 
 .h1{
 	font-weight:300;
 	font-size:14px;
-    background-color:black;
     display:inline-block;
-    padding:10px;
+    padding:5px;
     margin-left:5px;
     margin-top:5px;
 	margin-bottom:5px;
-    border:1px solid var(--border-color-1);
 }
 
 .nl{
 	display:inline-block;
 	font-weight:400;
-	font-size:16px;
+	font-size:14px;
 	padding:5px 5px;
 }
 

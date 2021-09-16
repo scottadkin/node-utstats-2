@@ -122,7 +122,7 @@ function Nav({session, settings}){
     }
 
     return (
-        <div>
+        <div className={styles.wrapper}>
         <div id="mouse-over">
                 <div id="mouse-over-title"></div>
                 <div id="mouse-over-content"></div>
