@@ -207,12 +207,11 @@ class Players extends React.Component{
                             <div className="select-label">Sort Type</div>
                             <select id="sortType" className="default-select" name="sortType" value={this.state.value} onChange={this.handleSortChange}>
                                 <option value="name">Name</option>
-                                <option value="country">Country</option>
                                 <option value="matches">Matches</option>
                                 <option value="score">Score</option>
                                 <option value="kills">Kills</option>
                                 <option value="deaths">Deaths</option>
-                                <option value="first">First</option>
+                                <option value="playtime">Playtime</option>
                                 <option value="last">Last</option>
                             </select>
                         </div>

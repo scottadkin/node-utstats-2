@@ -4,6 +4,7 @@ import CountryFlag from '../CountryFlag/';
 import TimeStamp from '../TimeStamp/';
 import Link from 'next/link';
 import React from 'react';
+import Functions from '../../api/functions';
 
 function createOrderLink(terms, type, value){
 
@@ -105,9 +106,6 @@ class PlayersList extends React.Component{
                     <th><Link href={createOrderLink(searchTerms, "name", this.state.order)}><a onClick={(() =>{
                         this.changeOrder("name");
                     })}>Name</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "first", this.state.order)}><a onClick={(() =>{
-                        this.changeOrder("first");
-                    })}>First</a></Link></th>
                     <th><Link href={createOrderLink(searchTerms, "last", this.state.order)}><a onClick={(() =>{
                         this.changeOrder("last");
                     })}>Last</a></Link></th>
@@ -129,9 +127,6 @@ class PlayersList extends React.Component{
                     <th><Link href={createOrderLink(searchTerms, "playtime", this.state.order)}><a onClick={(() =>{
                         this.changeOrder("playtime");
                     })}>Playtime (Hours)</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "matches", this.state.order)}><a onClick={(() =>{
-                        this.changeOrder("matches");
-                    })}>Matches</a></Link></th>
                 </tr>);
             }
 
@@ -175,15 +170,13 @@ class PlayersList extends React.Component{
             }else{
                 elems.push(<tr key={i}>
                     <td><CountryFlag country={p.country}/> <Link href={`/player/${p.id}`}><a>{p.name}</a></Link></td>
-                    <td><TimeStamp timestamp={p.first} noTime="1" noDayName="1"/></td>
-                    <td><TimeStamp timestamp={p.last}  noTime="1" noDayName="1"/></td>
+                    <td>{Functions.convertTimestamp(p.last, true)}</td>
                     <td>{p.score}</td>
                     <td>{p.kills}</td>
                     <td>{p.deaths}</td>
                     <td>{p.efficiency.toFixed(2)}%</td>
                     <td>{p.accuracy.toFixed(2)}%</td>
                     <td>{(p.playtime / (60 * 60)).toFixed(2)}</td>
-                    <td>{p.matches}</td>
             
                 </tr>);
             }
@@ -198,7 +191,7 @@ class PlayersList extends React.Component{
         }else{
 
             return <div>
-                <table className={`${styles.table} t-width-1`}>
+                <table className={`${styles.table} t-width-1 td-1-left`}>
                     <tbody>
                         {elems}
                     </tbody>

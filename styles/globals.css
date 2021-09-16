@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,300;0,400;0,700;1,400&display=swap');
 
 :root{
 	--color-1:rgb(22,22,22);
@@ -30,7 +30,7 @@ body{
 * {
 	padding: 0;
 	margin: 0;
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Montserrat', sans-serif;
 	box-sizing: border-box;
 }
 
@@ -83,8 +83,6 @@ footer{
 	padding-bottom:20px;
 	padding-top:20px;
 	background-color:var(--color-3);
-	border-top:1px solid var(--border-color-1);
-	border-bottom:1px solid var(--border-color-1);
 	margin-left:auto;
 	margin-right:auto;
 	margin-bottom:25px;
@@ -103,7 +101,6 @@ footer{
 	margin-left:auto;
 	margin-right:auto;
 	background-color:var(--color-3);
-	border:1px solid var(--border-color-1);
 }
 
 
@@ -154,7 +151,6 @@ table{
 	margin-left:auto;
 	margin-right:auto;
 	background-color:var(--color-1);
-	border:1px solid var(--border-color-1);
 	margin-left:auto;
 	margin-right:auto;
 	max-width:1250px;
@@ -164,17 +160,15 @@ table{
 th{
 	font-weight:400;
 	color:yellow;
-	border:1px solid var(--border-color-2);
 	font-size:16px;
-	padding:10px 5px;
+	padding:20px 5px;
 	background-color:var(--color-3);
 }
 
 td{
 	font-weight:400;
-	padding:10px 10px;
-	border:1px solid var(--border-color-2);
-	font-size:16px;
+	padding:15px 10px;
+	font-size:14px;
 }
 
 tr{
@@ -379,8 +373,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .form{
-	background-color:var(--color-3a);
-	border:1px solid var(--border-color-1);
+	background-color:var(--color-3);
 	max-width:var(--max-width-1);
 	width:90%;
 	margin-left:auto;
@@ -502,7 +495,6 @@ input[type="range"]{
 	max-width:var(--max-width-1);
 	margin-left:auto;
 	margin-right:auto;
-	border:1px solid var(--border-color-1);
 	background-color:var(--color-3);
 	width:90%;
 }
@@ -523,7 +515,7 @@ input[type="range"]{
 	font-size:16px;
 	display:inline-block;
 	color:white;
-	padding:5px 10px;
+	padding:10px 10px;
 	transition:background-color 0.5s;
 }
 
