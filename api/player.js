@@ -41,10 +41,9 @@ class Player{
 
                 if(err) reject(err);
 
-                if(result[0] === undefined){
-                    resolve(null);
-                }else{
+                if(result[0] !== undefined){         
                     resolve(result[0]);
+                    return;
                 }
 
                 resolve(null);
@@ -72,9 +71,11 @@ class Player{
 
             mysql.query(query, [name, masterPlayerId, gametype], (err, result) =>{
 
-                if(err) reject(err);
-
-                resolve({"id": result.insertId, "gametype": gametype});
+                if(err){
+                    reject(err);
+                }else{
+                    resolve({"id": result.insertId, "gametype": gametype});
+                }
             });
         });
     }
