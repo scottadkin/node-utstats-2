@@ -83,6 +83,7 @@ footer{
 	padding-bottom:20px;
 	padding-top:20px;
 	background-color:var(--color-3);
+	background:linear-gradient(to bottom, var(--color-1), var(--color-3));
 	margin-left:auto;
 	margin-right:auto;
 	margin-bottom:25px;
