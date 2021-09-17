@@ -43,7 +43,7 @@ a {
 	background-color:rgb(200,0,0);
 	text-align:center;
 	padding:5px;
-	font-size:16px;
+	font-size:12px;
 }
 
 
@@ -615,8 +615,7 @@ input[type="range"]{
 }
 
 .simple-pagination{
-	background-color:var(--color-3);
-	border:1px solid var(--border-color-1);
+	background-color:var(--color-1);
 	width:var(--width-1);
 	max-width:var(--max-width-1);
 	margin-left:auto;
@@ -628,7 +627,7 @@ input[type="range"]{
 
 .simple-pagination div:nth-child(1), .simple-pagination div:nth-child(3){
 	line-height:40px;
-	background-color:var(--color-2);
+	background-color:var(--color-4);
 	transition: all 0.5s;
 	user-select: none;
 	
@@ -636,7 +635,7 @@ input[type="range"]{
 
 .simple-pagination div:nth-child(1):hover, .simple-pagination div:nth-child(3):hover{
 	cursor: pointer;
-	background-color:var(--color-4);
+	background-color:var(--color-2);
 	color:yellow;
 }
 

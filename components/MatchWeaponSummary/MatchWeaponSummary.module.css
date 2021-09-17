@@ -4,7 +4,6 @@
     background-color:var(--color-3);
     height:40px;
     overflow:hidden;
-    border:1px solid var(--border-color-1);
     user-select: none;
 }
 
@@ -27,21 +26,19 @@
 
 .next{
     float:right;
-    border-left:1px solid var(--border-color-1)
 }
 
 .previous{
     float:left;
-    border-left:1px solid var(--border-color-1)
 }
 
 .next, .previous{
-    background-color:var(--color-2);
+    background-color:var(--color-4);
     transition:0.5s all;
 }
 
 .next:hover, .previous:hover{
-    background-color:var(--color-4);
+    background-color:var(--color-2);
     color:yellow;
     cursor:pointer;
 }

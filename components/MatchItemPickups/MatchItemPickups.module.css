@@ -5,7 +5,6 @@
     overflow:hidden;
     height:40px;
     background-color:var(--color-3);
-    border:1px solid var(--border-color-1);
     user-select: none;
 
 }
@@ -25,23 +24,21 @@
 }
 
 .previous{
-    background-color:var(--color-2);
+    background-color:var(--color-4);
     font-size:16px;
     float:left;
-    border-right:1px solid var(--border-color-1);
 }
 
 .next{
-    background-color:var(--color-2);
+    background-color:var(--color-4);
     font-size:16px;
     float:right;
-    border-right:1px solid var(--border-color-1);
 }
 
 .previous:hover, .next:hover{
     cursor:pointer;
     color:yellow;
-    background-color:var(--color-4);
+    background-color:var(--color-2);
 }
 
 

@@ -1,7 +1,6 @@
 .wrapper{
 	background-color:var(--color-3);
 	height:40px;
-	border:1px solid var(--border-color-1);
 	max-width:1248px;
 	width:var(--width-1);
 	display:grid;
@@ -9,14 +8,14 @@
 }
 
 .button{
-	background-color:var(--color-2);
+	background-color:var(--color-4);
 	height:40px;
 	line-height:40px;
 	transition: var(--transition-1);
 }
 
 .button:hover{
-	background-color:var(--color-4);
+	background-color:var(--color-2);
 	cursor: pointer;
 	color:yellow;
 }
