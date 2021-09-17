@@ -121,17 +121,19 @@ class FTPImporter{
 
         const extReg = /^.+\.log$/i;
         const tmpReg = /^.+\.tmp$/i;
-        let f = 0;
 
         let bAlreadyImported = false;
 
+        const logFilePrefix = config.logFilePrefix.toLowerCase();
+
         for(let i = 0; i < files.length; i++){
 
-            f = files[i];
+            const f = files[i];
+            const name = f.name.toLowerCase();
 
-            if(extReg.test(f.name)){
+            if(extReg.test(name)){
 
-                if(f.name.toLowerCase().startsWith(config.logFilePrefix)){
+                if(name.startsWith(logFilePrefix)){
 
                     if(this.bIgnoreDuplicates){
                         bAlreadyImported = await Logs.bExists(f.name);
@@ -144,25 +146,27 @@ class FTPImporter{
                         if(this.bDeleteAfter){
                             await this.deleteFile(`${this.targetDir}Logs/${f.name}`);
                         }
+
                         new Message(`${f.name} has already been imported, skipping.`,'note');
                     }
 
-                }/*else{
-                    new Message(`${f.name} does not have the required prefix of ${config.logFilePrefix}`, 'error');
-                }*/
+                }else{
+
+                    if(!name.startsWith(config.ace.logFilePrefix) && !name.startsWith(config.ace.kickLogPrefix)){
+                        new Message(`${f.name} does not have the required prefix of ${logFilePrefix}`, 'warning');
+                    }
+                }
 
             }else if(tmpReg.test(f.name)){
 
-                if(f.name.toLowerCase().startsWith(config.logFilePrefix)){
+                if(f.name.toLowerCase().startsWith(logFilePrefix)){
 
                     if(this.bDeleteTmpFiles){
                         await this.deleteFile(`${this.targetDir}Logs/${f.name}`);
                     }else{
                         new Message(`Delete TMP files is disabled on this server, skipping delete ${this.targetDir}Logs/${f.name}.`,'note');
                     }
-
-                }
-                
+                }         
             }
         }
 
@@ -291,16 +295,17 @@ class FTPImporter{
 
                 if(err) reject(err);
 
+                const prefix = config.ace.screenshotPrefix.toLowerCase();
+                const extensionType = config.ace.screenshotExtensionType.toLowerCase();
+
                 for(let i = 0; i < files.length; i++){
 
                     const f = files[i].name;
+                    const name = f.toLowerCase();
                     
-                    if(f.startsWith(config.ace.screenshotPrefix)){
+                    if(name.startsWith(prefix) && name.endsWith(extensionType)){
 
-                        if(f.endsWith(config.ace.screenshotExtensionType)){
-        
-                            this.aceScreenshotsFound.push(f);
-                        }
+                        this.aceScreenshotsFound.push(f);            
                     }   
                 }
 
@@ -317,23 +322,27 @@ class FTPImporter{
 
                 if(err) reject(err);
 
+                const joinPrefix = config.ace.playerJoinLogPrefix.toLowerCase();
+                const kickPrefix = config.ace.kickLogPrefix.toLowerCase();
+
                 for(let i = 0; i < files.length; i++){
 
                     const f = files[i];
 
-                    if(f.name.startsWith(config.ace.playerJoinLogPrefix)){
+                    const name = f.name.toLowerCase();
 
-                        if(f.name.endsWith(".log")){
+                    if(name.endsWith(".log")){
+
+                        if(name.startsWith(joinPrefix)){
+
                             this.acePlayerLogsFound.push(f.name);
-                        }
-                        
-                    }else if(f.name.startsWith(config.ace.kickLogPrefix)){
-
-                        if(f.name.endsWith(".log")){
+                                  
+                        }else if(name.startsWith(kickPrefix)){
+    
                             this.aceLogsFound.push(f.name);
+                          
                         }
                     }
-
                 }
                 resolve();
             });
