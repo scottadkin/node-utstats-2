@@ -166,13 +166,17 @@ class Importer{
 
             const fileExtReg = /^.+\.log$/i;
 
+            const logPrefix = config.logFilePrefix.toLowerCase();
+
             for(let i = 0; i < files.length; i++){
 
                 const f = files[i];
 
-                if(fileExtReg.test(f)){
+                const fileName = f.toLowerCase();
+                
+                if(fileExtReg.test(fileName)){
 
-                    if(f.toLowerCase().startsWith(config.logFilePrefix)){
+                    if(fileName.startsWith(logPrefix)){
 
                         this.logsToImport.push(f);
 
@@ -180,8 +184,8 @@ class Importer{
 
                     }else{
 
-                        const bKickLog = f.startsWith(config.ace.kickLogPrefix);
-                        const bJoinLog = f.startsWith(config.ace.playerJoinLogPrefix);
+                        const bKickLog = fileName.startsWith(config.ace.kickLogPrefix.toLowerCase());
+                        const bJoinLog = fileName.startsWith(config.ace.playerJoinLogPrefix.toLowerCase());
 
                         if(!bKickLog && !bJoinLog){
 
