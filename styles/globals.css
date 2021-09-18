@@ -102,6 +102,7 @@ footer{
 	margin-left:auto;
 	margin-right:auto;
 	background-color:var(--color-3);
+	background:linear-gradient(to bottom, var(--color-1), var(--color-3));
 }
 
 
@@ -165,6 +166,7 @@ th{
 	font-size:16px;
 	padding:20px 5px;
 	background-color:var(--color-3);
+	background:linear-gradient(to bottom, var(--color-1), var(--color-3));
 }
 
 td{
@@ -376,6 +378,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 
 .form{
 	background-color:var(--color-3);
+	background:linear-gradient(to bottom, var(--color-1), var(--color-3));
 	max-width:var(--max-width-1);
 	width:90%;
 	margin-left:auto;
