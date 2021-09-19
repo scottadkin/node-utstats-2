@@ -762,7 +762,7 @@ const queries = [
         screenshot_status varchar(100) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-        `CREATE TABLE nstats_ace_players (
+        `CREATE TABLE IF NOT EXISTS nstats_ace_players (
           id int(11) NOT NULL AUTO_INCREMENT,
           name varchar(30) NOT NULL,
           ip varchar(50) NOT NULL,
@@ -777,7 +777,7 @@ const queries = [
           last_kick int(11) NOT NULL,
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-        `CREATE TABLE nstats_ace_sshot_requests (
+        `CREATE TABLE IF NOT EXISTS nstats_ace_sshot_requests (
           id int(11) NOT NULL AUTO_INCREMENT,
           file varchar(255) NOT NULL,
           raw_data text NOT NULL,

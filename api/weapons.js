@@ -206,7 +206,7 @@ class Weapons{
 
             const query = `UPDATE nstats_player_weapon_totals SET kills=kills+?, deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
              accuracy=IF(hits > 0 && shots > 0, (hits/shots) * 100, IF(hits > 0, 100, 0)), 
-             efficiency=IF(kills > 0 && deaths > 0, (hits/shots) * 100, IF(kills > 0, 100, 0)),
+             efficiency=IF(kills > 0 && deaths > 0, (kills/(kills + deaths)) * 100, IF(kills > 0, 100, 0)),
              matches=matches+1 WHERE player_id=? AND weapon=? AND gametype=?`;
 
              const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, Math.abs(stats.damage), playerId, weaponId, gametypeId];
