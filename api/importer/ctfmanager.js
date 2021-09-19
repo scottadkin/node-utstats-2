@@ -498,11 +498,9 @@ class CTFManager{
             let currentPickupTimes = [];
             let currentPickup = 0;
 
-            let c = 0;
-
             for(let i = 0; i < this.capData.length; i++){
 
-                c = this.capData[i];
+                const c = this.capData[i];
 
                 currentGrab = this.playerManager.getOriginalConnectionById(c.grab);
                 
@@ -521,49 +519,68 @@ class CTFManager{
                 for(let x = 0; x < c.dropTimes.length; x++){
 
                     currentDrop = this.playerManager.getOriginalConnectionById(c.dropTimes[x].player);
-                    currentDrops.push(currentDrop.masterId);
-                    currentDropTimes.push(c.dropTimes[x].timestamp);
+
+                    if(currentDrop !== null){
+                        currentDrops.push(currentDrop.masterId);
+                        currentDropTimes.push(c.dropTimes[x].timestamp);
+                    }
                 }
 
                 for(let x = 0; x < c.pickupTimes.length; x++){
 
                     currentPickup = this.playerManager.getOriginalConnectionById(c.pickupTimes[x].player);
-                    currentPickups.push(currentPickup.masterId);
-                    currentPickupTimes.push(c.pickupTimes[x].timestamp);
+
+                    if(currentPickup !== null){
+                        currentPickups.push(currentPickup.masterId);
+                        currentPickupTimes.push(c.pickupTimes[x].timestamp);
+                    }
                 }
 
 
                 for(let x = 0; x < c.covers.length; x++){
 
                     currentCover = this.playerManager.getOriginalConnectionById(c.covers[x]);
-                    currentCover.stats.ctf.coverPass++;
-                    currentCovers.push(currentCover.masterId);
+
+                    if(currentCover !== null){
+                        currentCover.stats.ctf.coverPass++;
+                        currentCovers.push(currentCover.masterId);
+                    }
                 }
 
                 for(let x = 0; x < c.assists.length; x++){
 
                     currentAssist = this.playerManager.getOriginalConnectionById(c.assists[x]);
-                    currentAssists.push(currentAssist.masterId);
+
+                    if(currentAssist !== null){
+                        currentAssists.push(currentAssist.masterId);
+                    }
                 }
 
                 for(let x = 0; x < c.carryIds.length; x++){     
 
                     currentCarry = this.playerManager.getOriginalConnectionById(c.carryIds[x]);
-                    currentCarryIds.push(currentCarry.masterId);
+                    if(currentCarry !== null){
+                        currentCarryIds.push(currentCarry.masterId);
+                    }
                 }
 
 
                 currentCap = this.playerManager.getOriginalConnectionById(c.cap);
 
-                await this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
-                    currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, currentCap.masterId, c.capTime, c.travelTime);
+                if(currentCap !== null){
+
+                    await this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
+                        currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, 
+                        currentCap.masterId, c.capTime, c.travelTime);
+                }else{
+                    new Message(`CTFManager.insertCaps() currentCap is null`,"warning");
+                }
             }
 
-            let p =0;
 
             for(let i = 0; i < this.playerManager.players.length; i++){
 
-                p = this.playerManager.players[i];
+                const p = this.playerManager.players[i];
 
                 p.stats.ctf.coverFail = p.stats.ctf.cover - p.stats.ctf.coverPass;
                 
