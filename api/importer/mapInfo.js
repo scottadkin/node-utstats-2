@@ -39,6 +39,10 @@ class MapInfo{
 
             if(currentResult !== null){
 
+                if(currentResult[1].toLowerCase() === "levelentertext"){
+                    currentResult[2] = currentResult[2].slice(0,100);
+                }
+
                 this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2];   
                 
                 if(currentResult[1].toLowerCase() === "name"){
