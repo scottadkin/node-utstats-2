@@ -65,7 +65,7 @@ class Player{
             }
 
 
-            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,'','',0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,'',0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             ,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
@@ -259,6 +259,8 @@ class Player{
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                 0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
+            console.log(player);
+
             const vars = [
                 matchId,
                 matchDate,
@@ -321,6 +323,8 @@ class Player{
                 if(err){
                     console.trace(err);
                     reject(err);
+                    console.log(vars);
+                    return;
                 }
 
                 //console.log(result);

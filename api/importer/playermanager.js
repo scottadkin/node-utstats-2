@@ -964,11 +964,9 @@ class PlayerManager{
 
         try{
 
-            let currentId = 0;
-
             for(let i = 0; i < this.players.length; i++){
 
-                currentId = await Player.getNameId(this.players[i].name, gametypeId, true);
+                const currentId = await Player.getNameId(this.players[i].name, gametypeId, true);
 
                 this.players[i].masterId = currentId.totalId;
                 this.players[i].gametypeId = currentId.gametypeId;
@@ -977,6 +975,7 @@ class PlayerManager{
 
 
         }catch(err){
+            console.trace(err);
             new Message(`Problem setting player id ${err}`,'error');
         }
 
@@ -1075,11 +1074,10 @@ class PlayerManager{
             await this.faces.updateFaceStats(this.players, date);
             this.faces.setPlayerFaceIds(this.players);
 
-            let p = 0;
 
             for(let i = 0; i < this.players.length; i++){
 
-                p = this.players[i];
+                const p = this.players[i];
 
                 if(p.bDuplicate === undefined && p.bPlayedInMatch){
 

@@ -181,13 +181,15 @@ class Faces{
 
     setPlayerFaceIds(players){
 
-        let p = 0;
-
         for(let i = 0; i < players.length; i++){
 
-            p = players[i];
+            const p = players[i];
 
-            p.faceId = this.usedFaces[p.face];
+            if(this.usedFaces[p.face] !== undefined){
+                p.faceId = this.usedFaces[p.face];
+            }else{
+                p.faceId = 0;
+            }     
         }
     }
     
