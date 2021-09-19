@@ -117,8 +117,10 @@ class Player{
     updateEfficiency(id){
 
         return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_player_totals SET efficiency = (kills / (deaths + kills)) * 100 WHERE id=?`;
+    
+            const query = `UPDATE nstats_player_totals SET 
+            efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills)) * 100), 100, 0)
+            WHERE id=?`;
 
             mysql.query(query, [id], (err) =>{
 
@@ -209,7 +211,9 @@ class Player{
                 if(err) reject(err);
 
                 try{
+
                     await this.updateEfficiency(id);
+
                 }catch(err){
                     new Message(err, 'warning');
                 }
@@ -258,8 +262,6 @@ class Player{
                 ?,
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                 0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0)`;
-
-            console.log(player);
 
             const vars = [
                 matchId,
