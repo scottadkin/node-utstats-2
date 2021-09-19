@@ -214,6 +214,7 @@ class CTFManager{
                     "carryTimes": [],
                     "carryIds": []
                 };
+                setCurrent(e.team, current);
                 //continue;
             }
 
@@ -305,26 +306,28 @@ class CTFManager{
 
                 this.setCoverSprees(current.covers);
 
-                for(let x = current.dropTimes.length - 1; x >= 0; x--){
+                if(current.dropTimes !== undefined){
+                    for(let x = current.dropTimes.length - 1; x >= 0; x--){
 
-                    //first drop will always be the grab player
-                    if(current.dropTimes[x].player === current.grab && x === 0){
+                        //first drop will always be the grab player
+                        if(current.dropTimes[x].player === current.grab && x === 0){
 
-                        current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - current.grabTime).toFixed(2)));
-                        current.carryIds.push(current.dropTimes[x].player);
-
-                    }else{
-   
-                        matchingPickup = this.getMatchingPickupId(current.pickupTimes, current.dropTimes[x].player, current.dropTimes[x].timestamp);
-
-                        if(matchingPickup !== null){
-                            current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
+                            current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - current.grabTime).toFixed(2)));
                             current.carryIds.push(current.dropTimes[x].player);
+
                         }else{
-                            new Message(`CTFManager.createCapData() matchingPickup is null`,'warning');
-                        }
-                      
-                    }    
+    
+                            matchingPickup = this.getMatchingPickupId(current.pickupTimes, current.dropTimes[x].player, current.dropTimes[x].timestamp);
+
+                            if(matchingPickup !== null){
+                                current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
+                                current.carryIds.push(current.dropTimes[x].player);
+                            }else{
+                                new Message(`CTFManager.createCapData() matchingPickup is null`,'warning');
+                            }
+                        
+                        }    
+                    }
                 }
 
                 current.carryTimes.reverse();
