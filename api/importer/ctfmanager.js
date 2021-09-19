@@ -200,7 +200,7 @@ class CTFManager{
             current = getCurrent(e.team);
 
             if(current === undefined && e.type !== "taken"){
-                new Message(`CTFManager.createCapData() current is undefined. Type = ${e.type}`);
+                new Message(`CTFManager.createCapData() current is undefined. Type = ${e.type}`, "warning");
 
                 current = {
                     "team": e.team,
@@ -240,7 +240,7 @@ class CTFManager{
                 current = getCurrent(e.team);
 
                 if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (taken)`);
+                    new Message(`CTFManager.createCapData() current is undefined (taken)`, "warning");
                     continue;
                 }
                 
@@ -307,6 +307,7 @@ class CTFManager{
                 this.setCoverSprees(current.covers);
 
                 if(current.dropTimes !== undefined){
+
                     for(let x = current.dropTimes.length - 1; x >= 0; x--){
 
                         //first drop will always be the grab player
@@ -324,22 +325,40 @@ class CTFManager{
                                 current.carryIds.push(current.dropTimes[x].player);
                             }else{
                                 new Message(`CTFManager.createCapData() matchingPickup is null`,'warning');
-                            }
-                        
+                            }      
                         }    
                     }
                 }
 
-                current.carryTimes.reverse();
-                current.carryIds.reverse();
+                if(current.carryTimes !== undefined && current.carryIds !== undefined){
+                    current.carryTimes.reverse();
+                    current.carryIds.reverse();
+                }else{
+                    new Message(`CTFManager.createCapData() carryTimes or carryIDs is undefined`,"warning");
+                }
 
-                //dont forget cap carry time
-                if(current.pickupTimes.length > 0){
-                    if(current.pickupTimes[current.pickupTimes.length - 1].player === current.cap){
+                
+                if(current.pickupTimes !== undefined){
+                    //dont forget cap carry time
+                    if(current.pickupTimes.length > 0){
 
-                        current.carryIds.push(current.cap);
-                        current.carryTimes.push(parseFloat(parseFloat(current.capTime - current.pickupTimes[current.pickupTimes.length - 1].timestamp).toFixed(2)));
+                        if(current.pickupTimes[current.pickupTimes.length - 1].player === current.cap){
+
+                            if(current.carryIds !== undefined && current.carryTimes !== undefined){
+
+                                current.carryIds.push(current.cap);
+                                current.carryTimes.push(parseFloat(parseFloat(current.capTime - current.pickupTimes[current.pickupTimes.length - 1].timestamp).toFixed(2)));
+
+                            }else{
+                                new Message(`CTFManager.createCapData() carryIds or carryTimes is undefined`,"warning");
+                            }
+
+                            
+                        }
                     }
+
+                }else{
+                    new Message(`CTFManager.createCapData() pickupTimes is undefined`,"warning");
                 }
 
                 
