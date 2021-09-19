@@ -275,6 +275,11 @@ class CTFManager{
 
                 current = getCurrent(e.team);
 
+                if(current === undefined){
+                    new Message(`CTFManager.createCapData() current is undefined (CAPTURED)`);
+                    continue;
+                }
+
                 current.cap = e.player;
                 current.capTime = e.timestamp;
                 current.travelTime = (current.capTime - current.grabTime).toFixed(2);

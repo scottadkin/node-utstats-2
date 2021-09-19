@@ -272,6 +272,9 @@ class Player{
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                 0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
+
+            const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
+
             const vars = [
                 matchId,
                 matchDate,
@@ -288,7 +291,7 @@ class Player{
                 player.bWinner,
                 player.bDrew,
                 Functions.setValueIfUndefined(player.stats.time_on_server),
-                player.teams[player.teams.length - 1].id,
+                lastTeam,
                 player.stats.firstBlood,
                 player.stats.frags,
                 player.stats.score,

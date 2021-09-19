@@ -403,6 +403,8 @@ class PlayerInfo{
 
     getTeam(){
 
+        if(this.teams.length === 0) return 255;
+
         return this.teams[this.teams.length - 1].id;
     }
 
