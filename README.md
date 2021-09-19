@@ -56,7 +56,7 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 # Starting the website
 - You have two options of running the website, development mode(slow, but easier for debugging) or production mode.
 - To run in development mode open command prompt in the installed folder and run the command **npm run dev**
-- To run in production mode run the following commands in this order, **npm run buld** this will create the production version of the website(will take a few seconds), once that has finished run the command **npm run start** to run the production website. 
+- To run in production mode run the following commands in this order, **npm run build** this will create the production version of the website(will take a few seconds), once that has finished run the command **npm run start** to run the production website. 
 - Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 - If you have enabled classic mode you will find it [http://localhost:3000/classic](http://localhost:3000/classic)
 

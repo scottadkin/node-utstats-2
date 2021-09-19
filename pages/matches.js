@@ -271,6 +271,7 @@ export async function getServerSideProps({req, query}){
         }
     }
 
+    
     if(query.gametype !== undefined){
 
         gametype = parseInt(query.gametype);
@@ -309,13 +310,23 @@ export async function getServerSideProps({req, query}){
         gametype = 0;
     }
 
-    const matches = await matchManager.getRecent(page - 1, perPage, gametype);
     const totalMatches = await matchManager.getTotal(gametype);
+
+    if(totalMatches > 0){
+
+        if(page > Math.ceil(totalMatches / perPage)){
+            page = Math.ceil(totalMatches / perPage);
+        }
+
+    }else{
+        page = 1;
+    }
+
+    const matches = await matchManager.getRecent(page - 1, perPage, gametype);
     const uniqueServers = Functions.getUniqueValues(matches, 'server');
     const uniqueMaps = Functions.getUniqueValues(matches, 'map');
 
 
-    
 
     let serverNames = {};
 
