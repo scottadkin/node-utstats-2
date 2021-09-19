@@ -197,6 +197,9 @@ class Faces{
 
         return new Promise((resolve, reject) =>{
 
+            face = parseInt(face);
+            if(face !== face) face = 0;
+
             const query = `UPDATE nstats_player_totals SET face=? WHERE id=?`
 
             mysql.query(query, [face, player], (err) =>{

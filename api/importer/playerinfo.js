@@ -12,11 +12,14 @@ class PlayerInfo{
         this.teams = [];
         this.bBot = false;
         this.bSpectator = (bSpectator === undefined) ? false : bSpectator;
+        this.face = 0;
+        this.faceId = 0;
 
         this.bPlayedInMatch = !this.bSpectator;
 
         this.bWinner = false;
         this.bDrew = false;
+
 
         this.weaponStats = new Map();
 

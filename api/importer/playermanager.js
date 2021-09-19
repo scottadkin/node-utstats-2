@@ -544,7 +544,10 @@ class PlayerManager{
                     }
 
                    if(victim.died(k.timestamp, k.killerWeapon)){
-                       killer.stats.spawnKills++;
+                       
+                       if(killer !== null){
+                            killer.stats.spawnKills++;
+                       }
                    }
                 }
 
