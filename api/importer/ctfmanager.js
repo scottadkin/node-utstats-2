@@ -673,8 +673,9 @@ class CTFManager{
 
             currentPlayer = this.playerManager.getOriginalConnectionById(key);
 
-            if(currentPlayer !== undefined){
-                
+
+            if(currentPlayer !== null){
+            
                 if(value === 3){
                     currentPlayer.stats.ctf.multiCover++;
                 }else if(value >= 4){
@@ -685,6 +686,7 @@ class CTFManager{
                     currentPlayer.stats.ctf.bestCover = value;
                 }
             }
+            
 
         }    
     }
