@@ -119,7 +119,7 @@ class Player{
         return new Promise((resolve, reject) =>{
     
             const query = `UPDATE nstats_player_totals SET 
-            efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills)) * 100), 100, 0)
+            efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills) * 100), 100), 0)
             WHERE id=?`;
 
             mysql.query(query, [id], (err) =>{
@@ -215,6 +215,7 @@ class Player{
                     await this.updateEfficiency(id);
 
                 }catch(err){
+                    console.trace(err);
                     new Message(err, 'warning');
                 }
 
@@ -230,19 +231,27 @@ class Player{
 
             if(gametype === undefined) gametype = 0;
 
-            let query = "UPDATE nstats_player_totals SET wins=wins+1, winrate=(wins/matches)*100 WHERE id=? AND gametype=?";
+            const winRateString = `winrate = IF(wins > 0 && matches > 0, (wins/matches) * 100, 0)`;
+
+            let query = `UPDATE nstats_player_totals SET 
+                wins=wins+1, 
+                ${winRateString}
+                 WHERE id=? AND gametype=?`;
 
             if(!win){
                 if(!drew){
-                    query = "UPDATE nstats_player_totals SET losses=losses+1, winrate=(wins/matches)*100 WHERE id=? AND gametype=?";
+                    query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=?`;
                 }else{
-                    query = "UPDATE nstats_player_totals SET draws=draws+1, winrate=(wins/matches)*100 WHERE id=? AND gametype=?";
+                    query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=?`;
                 }
             }
 
             mysql.query(query, [id, gametype], (err) =>{
 
-                if(err) reject(err);
+                if(err){
+                    console.trace(err);
+                    reject(err);
+                }
 
                 resolve();
             });

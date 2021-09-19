@@ -1100,7 +1100,10 @@ class PlayerManager{
 
             const query = "UPDATE nstats_player_totals SET ip=?,country=? WHERE id=?";
 
-            mysql.query(query, [ip,country, id], (err) =>{
+            if(ip === undefined) ip = "";
+            if(country === undefined) country = "Unknown";
+
+            mysql.query(query, [ip, country, id], (err) =>{
 
                 if(err) reject(err);
 

@@ -186,7 +186,6 @@ class MatchManager{
                 this.setMatchWinners();
             }
 
-
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
             new Message(`Updated player frag performance.`,'pass');
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
