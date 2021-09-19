@@ -169,7 +169,6 @@ class CTFManager{
         let currentGreen = [];
         let currentYellow = [];
         let matchingPickup = 0;
-        let e = 0;
 
 
         const getCurrent = (team) =>{
@@ -196,7 +195,7 @@ class CTFManager{
 
         for(let i = 0; i < this.events.length; i++){
 
-            e = this.events[i];
+            const e = this.events[i];
 
             if(e.type === 'taken'){
 
@@ -226,17 +225,31 @@ class CTFManager{
 
                 current = getCurrent(e.team);
 
+                if(current === undefined){
+                    new Message(`CTFManager.createCapData() current is undefined (PICKEDUP)`);
+                    continue;
+                }
+
                 current.pickupTimes.push({"timestamp":e.timestamp,"player": e.player});
                 
             }else if(e.type === 'dropped'){
                 
                 current = getCurrent(e.team);
+                if(current === undefined){
+                    new Message(`CTFManager.createCapData() current is undefined (DROPPED)`);
+                    continue;
+                }
                 //console.log(current);
                 current.dropTimes.push({"timestamp":e.timestamp,"player": e.player});
                 
             }else if(e.type === 'cover'){
 
                 current = getCurrent(e.team);
+
+                if(current === undefined){
+                    new Message(`CTFManager.createCapData() current is undefined (COVER)`);
+                    continue;
+                }
     
                 //work around for players that have changed teams
                 if(current.covers !== undefined){
@@ -258,6 +271,10 @@ class CTFManager{
 
                // console.log(e);
                 current = getCurrent(e.team);
+                if(current === undefined){
+                    new Message(`CTFManager.createCapData() current is undefined (ASSIST)`);
+                    continue;
+                }
                 //work around for players that have changed teams
                 if(current.assists !== undefined){
                     current.assists.push(e.player);
@@ -336,6 +353,12 @@ class CTFManager{
             }else if(e.type === 'returned'){
 
                 current = getCurrent(e.team);
+
+                if(current === undefined){
+                    new Message(`CTFManager.createCapData() current is undefined (RETURNED)`);
+                    continue;
+                }
+
                 this.setCoverSprees(current.covers);
             }
         }
