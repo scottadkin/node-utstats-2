@@ -197,11 +197,29 @@ class CTFManager{
 
             const e = this.events[i];
 
+            current = getCurrent(e.team);
+
+            if(current === undefined && e.type !== "taken"){
+                new Message(`CTFManager.createCapData() current is undefined. Type = ${e.type}`);
+
+                current = {
+                    "team": e.team,
+                    "grabTime": 0,
+                    "grab": 0,
+                    "covers": [],
+                    "coverTimes": [],
+                    "assists": [],
+                    "pickupTimes": [],
+                    "dropTimes": [],
+                    "carryTimes": [],
+                    "carryIds": []
+                };
+                //continue;
+            }
+
             if(e.type === 'taken'){
 
                 matchingPickup = 0;
-
-                //console.log(e);
 
                 current = {
                     "team": e.team,
@@ -219,37 +237,33 @@ class CTFManager{
     
                 setCurrent(e.team, current);
                 current = getCurrent(e.team);
+
+                if(current === undefined){
+                    new Message(`CTFManager.createCapData() current is undefined (taken)`);
+                    continue;
+                }
                 
 
             }else if(e.type === 'pickedup'){
 
-                current = getCurrent(e.team);
-
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (PICKEDUP)`);
-                    continue;
+                if(current.pickupTimes !== undefined){
+                    current.pickupTimes.push({"timestamp":e.timestamp,"player": e.player});
                 }
-
-                current.pickupTimes.push({"timestamp":e.timestamp,"player": e.player});
                 
             }else if(e.type === 'dropped'){
-                
-                current = getCurrent(e.team);
+
                 if(current === undefined){
                     new Message(`CTFManager.createCapData() current is undefined (DROPPED)`);
                     continue;
                 }
                 //console.log(current);
-                current.dropTimes.push({"timestamp":e.timestamp,"player": e.player});
+                if(current.dropTimes !== undefined){
+                    current.dropTimes.push({"timestamp":e.timestamp,"player": e.player});
+                }
                 
             }else if(e.type === 'cover'){
 
-                current = getCurrent(e.team);
 
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (COVER)`);
-                    continue;
-                }
     
                 //work around for players that have changed teams
                 if(current.covers !== undefined){
@@ -269,12 +283,7 @@ class CTFManager{
                 
             }else if(e.type === 'assist'){
 
-               // console.log(e);
-                current = getCurrent(e.team);
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (ASSIST)`);
-                    continue;
-                }
+     
                 //work around for players that have changed teams
                 if(current.assists !== undefined){
                     current.assists.push(e.player);
@@ -289,13 +298,6 @@ class CTFManager{
                 //(current.assists);
 
             }else if(e.type === 'captured'){
-
-                current = getCurrent(e.team);
-
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (CAPTURED)`);
-                    continue;
-                }
 
                 current.cap = e.player;
                 current.capTime = e.timestamp;
@@ -351,13 +353,6 @@ class CTFManager{
                 this.capData.push(current);
                 
             }else if(e.type === 'returned'){
-
-                current = getCurrent(e.team);
-
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (RETURNED)`);
-                    continue;
-                }
 
                 this.setCoverSprees(current.covers);
             }
