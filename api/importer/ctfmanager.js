@@ -265,22 +265,23 @@ class CTFManager{
             }else if(e.type === 'cover'){
 
 
-    
-                //work around for players that have changed teams
-                if(current.covers !== undefined){
+                if(current.covers !== undefined && current.coverTimes !== undefined){
 
                     current.covers.push(e.player);
                     current.coverTimes.push(e.timestamp);
                     
-                }else{
+                }/*else{
+
                     switch(e.team){
                         case 1: {   current = currentRed; } break;
                         case 0: {   current = currentBlue; } break;
                     }
 
-                    current.covers.push(e.player);
-                    current.coverTimes.push(e.timestamp);
-                }
+                    if(current.covers !== undefined && current.coverTimes !== undefined){
+                        current.covers.push(e.player);
+                        current.coverTimes.push(e.timestamp);
+                    }
+                }*/
                 
             }else if(e.type === 'assist'){
 
@@ -351,9 +352,7 @@ class CTFManager{
 
                             }else{
                                 new Message(`CTFManager.createCapData() carryIds or carryTimes is undefined`,"warning");
-                            }
-
-                            
+                            }                        
                         }
                     }
 
