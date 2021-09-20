@@ -65,7 +65,7 @@ class Matches{
                 endType, 
                 start, 
                 end, 
-                insta, 
+                insta || 0, 
                 teamGame, 
                 gameSpeed, 
                 hardcore, 
@@ -92,7 +92,11 @@ class Matches{
 
             mysql.query(query, vars, (err, result) =>{
 
-                if(err) reject(err);
+                if(err){
+                    reject(err);
+                    return;
+                }
+                
                 
                 resolve(result.insertId);
             });

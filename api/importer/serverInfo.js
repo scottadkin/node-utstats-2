@@ -20,7 +20,8 @@ class ServerInfo{
     async updateServer(){
 
         try{
-            await this.servers.updateServer(this.true_server_ip, this.server_port, this.server_servername, this.date, this.matchTimings.length);
+           
+            await this.servers.updateServer(this.true_server_ip ?? this.server_ip, this.server_port, this.server_servername, this.date, this.matchTimings.length);
 
         }catch(err){
             console.trace(err);
@@ -87,7 +88,7 @@ class ServerInfo{
 
         try{
 
-            const id = await this.servers.getServerId(this.true_server_ip, this.server_port);
+            const id = await this.servers.getServerId(this.true_server_ip ?? this.server_ip, this.server_port);
       
             if(id !== null){
                 return id;
