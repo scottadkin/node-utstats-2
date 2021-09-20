@@ -9,14 +9,13 @@ import CountryFlag from '../CountryFlag';
 const RecordBar = ({name, value, percent}) =>{
 
     return <div className={styles.bwrapper}>
-        <div className={styles.lb}>
-            <div className={styles.bname}>{name}</div>
+            <div>{name}</div>
+            <div>{value}</div>
             <div className={styles.bar}>
-                <div className={styles.barinner} style={{"width": `${percent}%`}}></div>
+                <div className={styles.ibar} style={{"width": `${percent}%`}}></div>
             </div>
         </div>
-        <div className={styles.bvalue}>{value}</div>
-    </div>
+    
 }
 
 
@@ -49,35 +48,41 @@ function PlayerListBox({
     }
 
     efficiency = (efficiency * 100).toFixed(2);
-    
-    return (
-        <Link href={`player/${playerId}`}>
-            <a>
-                <div className={styles.wrapper}>
-                    <div className={styles.inner}>
-                        <div className={styles.left}>
-                            <img className={styles.face} src={`/images/faces/${face}.png`} alt="face"/>
-                            <div className={styles.country}>
-                                <CountryFlag country={countryData.country}/><br/>
-                                {countryData.country}
-                            </div>
-                        </div>
-                        <div className={styles.right}>
-                            <div className={styles.name}>{name}</div>
-                            <div className={styles.last}>Last <TimeStamp timestamp={last} noDayName={true} noTime={true}/></div>
-                            <RecordBar name={"Matches"} value={matches} percent={recordsPercent.matches}/>
-                            <RecordBar name={"Wins"} value={wins} percent={recordsPercent.wins}/>
-                            <RecordBar name={"Score"} value={score} percent={recordsPercent.score}/>
-                            <RecordBar name={"Kills"} value={kills} percent={recordsPercent.kills}/>
-                            <RecordBar name={"Deaths"} value={deaths} percent={recordsPercent.deaths}/>
-                            <RecordBar name={"Efficiency"} value={`${efficiency}%`} percent={recordsPercent.efficiency}/>
-                            <RecordBar name={"Accuracy"} value={`${accuracy}%`} percent={recordsPercent.accuracy}/>
-                        </div>
+
+    if(playtime > 0){
+        playtime = (playtime / (60 * 60)).toFixed(2);
+    }
+   
+    return <Link href={`/player/${playerId}`}>
+        <a>
+            <div className={`${styles.wrapper} center`}>
+                <div className={styles.name}> 
+                    <img src={`/images/flags/${countryData.code.toLowerCase()}.svg`} alt="flag"/> 
+                    {name}
+                    <span className={styles.countryName}>{countryData.country}</span>
+                    <span className={styles.playtime}>{playtime} Hours</span>
+                </div>
+                <div className={styles.face}>
+                    <img src={`/images/faces/${face}.png`} alt="face"/>
+                </div>
+                <div className={styles.right}>
+                    <div className={styles.info}>
+                        Played {matches} Matches<br/>
+                        Last Seen <TimeStamp timestamp={last} noDayName={true}/><br/>
+                    </div>
+                    <div className={styles.bars}>
+                        
+                        <RecordBar name={"Score"} value={score} percent={22}/>
+                        <RecordBar name={"Kills"} value={kills} percent={recordsPercent.kills}/>
+                        <RecordBar name={"Deaths"} value={deaths} percent={recordsPercent.deaths}/>
+                        <RecordBar name={"Efficiency"} value={`${efficiency}%`} percent={recordsPercent.efficiency}/>
+                        <RecordBar name={"Accuracy"} value={`${accuracy}%`} percent={recordsPercent.accuracy}/>
                     </div>
                 </div>
-            </a>
-        </Link>
-    )
+            </div>
+        </a>
+    </Link>
+    
 }
 
 

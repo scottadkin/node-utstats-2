@@ -1,85 +1,71 @@
 .wrapper{
-    background-color:var(--color-1);
-    display:inline-block;
-    width:400px;
-    height:218px;
-    margin-left:-1px;
-}
-
-.inner{
-    display:grid;
-    grid-template-columns: 120px 280px;
-    height:203px;
-}
-
-.left{
-    background-color:var(--color-2);
-    border:1px solid var(--border-color-1);
-}
-
-.face{
-    width:64px;
-    height:64px;
-    margin-top:25px;
-    margin-bottom:15px;
-    border:1px solid var(--border-color-1);
-}
-
-.country{
-    font-size:12px;
-}
-
-.country img{
-    width:64px;
-    margin-bottom:5px;
-    max-height:32px;
-}
-
-.right{
-    border:1px solid var(--border-color-1);
     background-color:var(--color-3);
-    margin-left:-1px;
+    max-width:var(--max-width-2);
+    width:var(--width-1);
+    margin-bottom:5px;
+    text-align:left;
+    transition:all 0.5s;
+    display:inline-block;
+    margin-right:10px;
+    padding-bottom:10px;
+}
+
+.wrapper:hover{
+    background-color:var(--color-1);
 }
 
 .name{
-    font-size:16px;
-    padding:8px 0px;
-    color:yellow;
+    font-size:20px;
+    padding:10px;
+    line-height:38px;
 }
 
-.last{
-    font-size:12px;
-    padding-bottom:8px;
+.name img{
+    height:20px;
+    margin-right:10px;
 }
+
+.face{
+    margin-left:10px;
+    margin-bottom:10px;
+    display:inline-block;
+}
+
+.countryName{
+    font-size:12px;
+    color:rgb(150,150,150);
+    padding-left:10px;
+}
+
+.playtime{
+    float:right;
+}
+
+.right{
+    margin-left:84px;
+    margin-top:-80px;
+    font-size:12px;
+    color:rgb(150,150,150);
+    line-height:20px;
+}
+
 
 .bwrapper{
-    height:22px;
-    font-size:12px;
-    line-height:22px;
-}
-
-.lb{
     display:grid;
-    grid-template-columns: 30% 70%;
+    grid-template-columns: 75px 50px auto;
+    padding-right:10px;
+   
 }
 
 .bar{
-    border-left:1px solid var(--border-color-2);
-    border-top:1px solid  var(--border-color-2);
-    border-bottom:1px solid var(--border-color-2);
-    height:20px;
+    background-color:black;
+    height:8px;
+    margin-top:5px;
+    margin-right:10px;
+    width:100%;
     overflow:hidden;
-    background-color:var(--color-1);
 }
-
-.barinner{
-    background-color:green;
-    background:linear-gradient(to bottom, rgb(0,70,0), rgb(0,20,0));
-    height:22px;
-}
-
-.bvalue{
-    margin-top:-22px;
-    width:70%;
-    margin-left:30%;
+.ibar{
+    background-color:lightskyblue;
+    height:8px;
 }
