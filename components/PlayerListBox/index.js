@@ -72,7 +72,7 @@ function PlayerListBox({
                     </div>
                     <div className={styles.bars}>
                         
-                        <RecordBar name={"Score"} value={score} percent={22}/>
+                        <RecordBar name={"Score"} value={score} percent={recordsPercent.score}/>
                         <RecordBar name={"Kills"} value={kills} percent={recordsPercent.kills}/>
                         <RecordBar name={"Deaths"} value={deaths} percent={recordsPercent.deaths}/>
                         <RecordBar name={"Efficiency"} value={`${efficiency}%`} percent={recordsPercent.efficiency}/>
