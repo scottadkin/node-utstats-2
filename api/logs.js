@@ -88,6 +88,7 @@ class Logs{
 
         await mysql.simpleDelete("DELETE FROM nstats_logs WHERE match_id IN (?)", [ids]);
     }
+
 }
 
 

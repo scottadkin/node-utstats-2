@@ -5,6 +5,7 @@ const Message = require('../message');
 const MatchManager = require('./matchmanager');
 const EventEmitter = require('events');
 const AceManager = require('./acemanager');
+const mysql = require('../database');
 
 
 class MyEventEmitter extends EventEmitter{};
@@ -76,6 +77,9 @@ class Importer{
                 fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
                 
                 this.updateCurrentUpdatedStats(currentData);
+
+                await this.updateImportStats();
+                
 
             }
 
@@ -222,13 +226,25 @@ class Importer{
 
             data = data.toString().replace(/\u0000/ig, '');
             
-
             return data;
             
         }catch(err){
             console.trace(err);
         }
-        
+     
+    }
+
+    async updateImportStats(){
+
+        const now = Math.floor(Date.now() / 1000);
+
+        const query = `UPDATE nstats_ftp 
+        SET total_imports = total_imports + 1,
+        first = IF (first > ?, ?, IF(first=0, ?, first)),
+        last = IF (last < ?, ?, last)
+        WHERE host=? AND port=?`;
+
+        await mysql.simpleInsert(query, [now, now, now, now, now, this.host, this.port]);
     }
 
 

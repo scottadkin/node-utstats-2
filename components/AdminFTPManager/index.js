@@ -1,4 +1,5 @@
 import React from 'react';
+import Functions from '../../api/functions';
 import TrueFalse from '../TrueFalse';
 
 
@@ -430,8 +431,8 @@ class AdminFTPManager extends React.Component{
                 <TrueFalse bTable={true} value={s.delete_tmp_files} />
                 <TrueFalse bTable={true} value={s.ignore_bots} />
                 <TrueFalse bTable={true} value={s.ignore_duplicates} />
-                <td>{s.first}</td>
-                <td>{s.last}</td>
+                <td>{(s.first !== 0) ? Functions.convertTimestamp(s.first, true, true): "Never"}</td>
+                <td>{(s.last !== 0) ? Functions.convertTimestamp(s.last, true, true): "Never"}</td>
                 <td>{s.total_imports}</td>
             </tr>);
         }
