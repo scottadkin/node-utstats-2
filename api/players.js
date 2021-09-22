@@ -152,11 +152,11 @@ class Players{
                 order = 'ASC';
             }
 
-            let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+            let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND playtime>0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
             let vars = [start, perPage];
 
             if(name !== ''){
-                query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND name LIKE(?) ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+                query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND playtime>0 AND name LIKE(?) ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
                 vars = [`%${name}%`, start, perPage];
             }
 
@@ -225,7 +225,7 @@ class Players{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=0 ORDER BY last DESC LIMIT ?";
+            const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=0 AND playtime>0 ORDER BY last DESC LIMIT ?";
 
             mysql.query(query, [max], (err, result) =>{
 

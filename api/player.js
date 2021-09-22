@@ -1034,9 +1034,6 @@ class Player{
 
             }
 
-            
-
-
         }catch(err){
             console.trace(err);
         }
