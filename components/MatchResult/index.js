@@ -14,25 +14,24 @@ const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenS
             case 2: { className = "duo"; } break;
             case 3: { className = "trio"; } break;
             case 4: { className = "quad"; } break;
+            default: { className = "solo"; } break;
         }
 
 
         if(totalTeams < 2){
-            elems.push(
-                <div key={`match_result_solo`}>
-                    {(dmScore === null) ? 
-                    
-                        <div>
-                            <span className="yellow">{dmWinner}</span> Won the Match
-                        </div>
 
-                    :
-                    <div>
-                        <span className="yellow">{dmWinner}</span> won with <span className="yellow">{dmScore}</span> Points
-                    </div>
-                    }
-                </div>
-            );
+            if(dmScore === null){
+
+                elems.push(<div key="dm">
+                    <span className="yellow">{dmWinner}</span> Won the Match
+                </div>);
+            }else{
+                elems.push(<div key="dm">
+                    <span className="yellow">{dmWinner}</span> won with <span className="yellow">{dmScore}</span> Points
+                </div>);
+            }
+
+            
         }else{
 
             for(let i = 0; i < totalTeams; i++){

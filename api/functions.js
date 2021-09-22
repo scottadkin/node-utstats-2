@@ -243,7 +243,11 @@ class Functions{
         if(hours < 1){
             return `${minutes}:${seconds}`;
         }else{
-            return `${hours}:${minutes % 60}:${seconds}`;
+
+            minutes = minutes % 60;
+            if(minutes < 10) minutes = `0${minutes}`;
+            
+            return `${hours}:${minutes}:${seconds}`;
         }
     }
 
