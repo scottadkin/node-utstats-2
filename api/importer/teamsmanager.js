@@ -16,19 +16,15 @@ class TeamsManager{
 
         const reg = /^(\d+?\.\d+?)\tplayer\tteamchange\t(.+?)\t(.+)$/i;
 
-        let d = 0;
-        let result = 0;
-        let currentPlayer = 0;
-
         for(let i = 0; i < this.lines.length; i++){
 
-            d = this.lines[i];
+            const d = this.lines[i];
 
-            result = reg.exec(d);
+            const result = reg.exec(d);
 
             if(result !== null){
 
-                currentPlayer = playerManager.getOriginalConnectionById(parseInt(result[2]));
+                const currentPlayer = playerManager.getOriginalConnectionById(parseInt(result[2]));
 
                 if(currentPlayer !== null){
 

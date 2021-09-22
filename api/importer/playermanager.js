@@ -226,13 +226,15 @@ class PlayerManager{
                 type = result[2].toLowerCase();
                 timestamp = parseFloat(result[1]);
                 subString = result[3];
+
+                
           
                 if(type === 'connect'){
                     this.connectPlayer(timestamp, subString);
                 }else if(type === 'disconnect'){
                      this.disconnectPlayer(subString, timestamp);
                 }else if(type === 'rename'){
-                    this.connectPlayer(timestamp, subString, true);
+                    this.connectPlayer(timestamp, subString);
                 }
             }
         }
@@ -334,7 +336,22 @@ class PlayerManager{
         //set bestspawnkillspree, spawnkills ect
     }
 
-    connectPlayer(timestamp, string, bSpectator){
+    updateDuplicateNames(name){
+
+        const uniqueNameIndex = this.uniqueNames.indexOf(name);
+        const duplicateNameIndex = this.duplicateNames.indexOf(name);
+
+        if(uniqueNameIndex === -1){
+            this.uniqueNames.push(name);
+        }else{
+
+            if(duplicateNameIndex === -1){
+                this.duplicateNames.push(name);
+            }
+        }
+    }
+
+    connectPlayer(timestamp, string){
 
 
         const connectReg = /^(.+?)\t(.+?)\t(.+?)$/i
@@ -346,19 +363,9 @@ class PlayerManager{
 
         if(result !== null){
 
-            player = this.getPlayerByName(result[1]);
+            player = this.getPlayerById(result[2]);
 
-            const uniqueNameIndex = this.uniqueNames.indexOf(result[1]);
-            const duplicateNameIndex = this.duplicateNames.indexOf(result[1]);
-
-            if(uniqueNameIndex === -1){
-                this.uniqueNames.push(result[1]);
-            }else{
-
-                if(duplicateNameIndex === -1){
-                    this.duplicateNames.push(result[1]);
-                }
-            }
+            this.updateDuplicateNames(result[1]);
 
             if(player === null){
    
@@ -378,7 +385,9 @@ class PlayerManager{
 
                 const id = parseInt(result[2]);
 
-                player = this.getPlayerByName(result[1]);
+                player = this.getPlayerById(id);
+
+                this.updateDuplicateNames(result[1]);
 
                 if(player === null){
                     this.players.push(new PlayerInfo(id, result[1], timestamp, true));   
@@ -910,8 +919,7 @@ class PlayerManager{
                             this.players[x].bDuplicate = true;
                             this.mergePlayer(this.players[originalIndex], this.players[x]);
                             
-                        }
-                        
+                        }                
                     }
                 }
             }
