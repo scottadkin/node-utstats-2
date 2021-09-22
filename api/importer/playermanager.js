@@ -734,7 +734,13 @@ class PlayerManager{
 
     mergePlayer(master, duplicate){
 
+
+        //bPlayedInMatch
        
+        if(master.bPlayedInMatch || duplicate.bPlayedInMatch){
+            master.bPlayedInMatch = true;
+        }
+
         master.connects.push(...duplicate.connects);
         master.disconnects.push(...duplicate.disconnects);
         master.teams.push(...duplicate.teams);
