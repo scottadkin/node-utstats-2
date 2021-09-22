@@ -245,6 +245,7 @@ class Players extends React.Component{
                     
                     {paginationElem}
                     {pList}
+                    {paginationElem}
                     </div>
                 </div>
                 <Footer session={this.props.session}/>

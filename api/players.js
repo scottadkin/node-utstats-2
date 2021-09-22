@@ -50,11 +50,11 @@ class Players{
 
         return new Promise((resolve, reject) =>{
 
-            let query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0";
+            let query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND playtime>0";
             let vars = [];
 
             if(name !== undefined){
-                query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND name LIKE(?) ";
+                query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND playtime>0 AND name LIKE(?) ";
                 vars = [`%${name}%`]
             }
 
