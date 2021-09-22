@@ -866,10 +866,10 @@ class PlayerManager{
                     mergedStats.accuracy = mergedStats.hits / mergedStats.shots;
                 }else{
 
-                    if(mergedStats.hits == 0){
+                    if(mergedStats.hits === 0){
                         mergedStats.accuracy = 0;
                     }else if(mergedStats.hits > 0){
-                        mergedStats.accuracy = 100;
+                        mergedStats.accuracy = 1;
                     }
                 }
 
