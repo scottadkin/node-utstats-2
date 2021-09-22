@@ -1,4 +1,5 @@
 const mysql = require('./database');
+const Message = require('./message');
 
 class Analytics{
 
@@ -17,6 +18,13 @@ class Analytics{
     static async updateVisitorHistory(ip, date){
 
         try{
+
+            if(ip === -1){
+
+                new Message(`User ip is -1`,"error");
+                ip = "Unknown";
+                
+            }
 
             const vars = [date, ip];
 
