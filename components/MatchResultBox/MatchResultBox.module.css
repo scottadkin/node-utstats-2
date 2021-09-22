@@ -1,6 +1,39 @@
 .wrapper{
     display:inline-block;
     background-color:var(--color-3);
+    background:linear-gradient(to bottom right, var(--color-3),var(--color-1));
+    margin-right:10px;
+    margin-bottom:10px;
+    width:400px;
+}
+
+.title{
+    font-size:16px;
+    padding:10px;
+}
+
+.gametype{
+    font-size:12px;
+    padding-bottom:5px;
+    color:yellow;
+}
+
+.date, .players, .playtime, .server{
+    font-size:12px;
+    padding:5px;
+}
+
+.server{
+    font-size:10px;
+}
+
+.playtime{
+    padding-bottom:10px;
+}
+
+/*.wrapper{
+    display:inline-block;
+    background-color:var(--color-3);
     background:var(--linear-gradient-3);
     color:white;
     margin-bottom:10px;
@@ -40,4 +73,4 @@
 .info{
     font-size:14px;
     line-height:24px;
-}
+}*/
