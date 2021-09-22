@@ -103,6 +103,8 @@ class Maps extends React.Component{
         
         const nameString = (this.props.name !== "") ? `search for name ${this.props.name}` : "";
 
+        const paginationElem = <Pagination url={url} results={this.props.results} currentPage={this.props.page} pages={pages} perPage={this.props.perPage}/>;
+
         return (
             <div>
                 <DefaultHead host={this.props.host} title={`Maps ${nameString} - Page ${this.props.page} of ${pages}`}  
@@ -140,8 +142,9 @@ class Maps extends React.Component{
                         </Link>
                     </form>
                     {notFound}
-                    <Pagination url={url} results={this.props.results} currentPage={this.props.page} pages={pages} perPage={this.props.perPage}/>
+                    {paginationElem}
                     <MapList data={this.props.maps} images={this.props.images} displayType={this.state.displayType}/>
+                    {paginationElem}
                     </div>
                 </div>
                 <Footer session={this.props.session}/>

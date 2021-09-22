@@ -331,6 +331,10 @@ class Records extends React.Component{
         const start = (page - 1 < 1) ? 1 : (page - 1) * perPage;
         const end = (page * perPage < results) ? page * perPage : results;
 
+        const paginationElem = <div className="text-center">
+            <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>
+        </div>
+
         return <div>
             <DefaultHead 
             title={`${title} - ${(mode === 0) ? "Player" : "Match" } Records Page ${page} of ${pages}`} 
@@ -394,11 +398,10 @@ class Records extends React.Component{
 
                             <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
                         </div>
+                        {paginationElem}
                         <div className="default-sub-header">Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
                         <RecordsList mode={mode} type={this.state.type} title={title} data={currentRecords} page={page} perPage={perPage} record={record}/>
-                        <div className="text-center">
-                            <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>
-                        </div>
+                        {paginationElem}
                     </div>
                 </div>
                 <Footer session={this.props.session}/>

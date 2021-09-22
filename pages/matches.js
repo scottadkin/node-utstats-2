@@ -155,6 +155,12 @@ class Matches extends React.Component{
         const gametypeName = this.getGametypeName(this.props.gametype);
         const nameString = (gametypeName !== "") ? `(${gametypeName})` : "";
 
+        const paginationElem = <Pagination currentPage={this.props.page} 
+                perPage={this.props.perPage} 
+                pages={pages} 
+                results={this.props.totalMatches} 
+            url={url} />
+
         return (<div>
             <DefaultHead 
                 host={this.props.host} 
@@ -200,12 +206,9 @@ class Matches extends React.Component{
                             
                             <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
                         </div>
-                        <Pagination currentPage={this.props.page} 
-                            perPage={this.props.perPage} 
-                            pages={pages} 
-                            results={this.props.totalMatches} 
-                            url={url}/>
+                        {paginationElem}
                             {matchElems}
+                        {paginationElem}
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
