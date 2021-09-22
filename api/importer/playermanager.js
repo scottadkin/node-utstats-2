@@ -750,6 +750,11 @@ class PlayerManager{
             master.stats.sprees[c] += duplicate.stats.sprees[c];
         }
 
+        const totalAccuracy = master.stats.accuracy + duplicate.stats.accuracy;
+
+        if(totalAccuracy > 0){
+            master.stats.accuracy = totalAccuracy / 2;
+        }
 
         for(const c in master.stats.multis){
             master.stats.multis[c] += duplicate.stats.multis[c];
