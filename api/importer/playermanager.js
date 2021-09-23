@@ -1637,6 +1637,21 @@ class PlayerManager{
             new Message(err, "error");
         }
     }
+
+    getTotalPlayersWithPlaytime(){
+
+        let total = 0;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+            if(p.stats.time_on_server > 0) total++;
+            
+        }
+
+        return total;
+
+    }
 }
 
 module.exports = PlayerManager;

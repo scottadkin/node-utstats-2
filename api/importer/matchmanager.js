@@ -66,13 +66,22 @@ class MatchManager{
 
             this.spawnManager = new SpawnManager();
             this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots);
+
+            const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
+
+            if(playersWithPlaytime < this.minPlayers){
+                new Message(`Total players is less then the minimum specified, skipping.`, "note");
+                return null;
+            }
+
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots);
 
             if(this.mapInfo.mapPrefix === "mh"){
                 this.gameInfo.totalTeams = 0;
             }
+
             
-            console.log(this.gameInfo);
+            
             
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 
