@@ -108,6 +108,19 @@ footer{
 	background:linear-gradient(to bottom, var(--color-1), var(--color-3));
 }
 
+.default-sub-header-alt{
+	text-align:center;
+	font-size:18px;
+	color:white;
+	font-weight:300;
+	padding-bottom:15px;
+	padding-top:15px;
+	width:90%;
+	max-width:1250px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
 
 .default-info{
 
@@ -658,4 +671,8 @@ input[type="range"]{
 	font-size:12px;
 	line-height:16px;
 	padding-top:4px;
+}
+
+.error{
+	padding:5px;
 }

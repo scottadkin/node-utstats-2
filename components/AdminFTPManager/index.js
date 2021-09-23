@@ -13,15 +13,32 @@ class AdminFTPManager extends React.Component{
         this.state = {
             "mode": 2,
             "servers": [],
-            "error": null
+            "errors": [],
+            "inProgress": false,
+            "passed": false
         };
 
         this.changeMode = this.changeMode.bind(this);
+        this.addServer = this.addServer.bind(this);
     }
 
     changeMode(id){
 
-        this.setState({"mode": id});
+        this.setState({"mode": id, "errors": [], "inProgress": false, "passed": false});
+    }
+
+    bServerComboExist(ip, port, target){
+
+        for(let i = 0; i < this.state.servers.length; i++){
+
+            const s = this.state.servers[i];
+
+            if(s.host === ip && s.port === port && s.target_folder === target){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     async loadServers(){
@@ -39,7 +56,7 @@ class AdminFTPManager extends React.Component{
             if(result.error === undefined){
                 this.setState({"servers": result.data});
             }else{
-                this.setState({"error": [result.error]});
+                this.setState({"errors": [result.error]});
             }
 
         }catch(err){
@@ -142,9 +159,9 @@ class AdminFTPManager extends React.Component{
         try{
 
             e.preventDefault();
+            this.setState({"errors": [], "inProgress": true});
 
-            console.log(e);
-
+           
             const errors = [];
 
             const target = e.target;
@@ -179,8 +196,12 @@ class AdminFTPManager extends React.Component{
                 errors.push("Minimum playtime must be a valid integer.");
             }
 
+            if(this.bServerComboExist(ip, port, folder)){
+                errors.push("That Host, IP, and Source folder already exists.");
+            }
+
             if(errors.length > 0){
-                console.trace(errors);
+                this.setState({"errors": errors, "inProgress": false, "passed": false});
             }else{
 
                 const json = {
@@ -207,7 +228,36 @@ class AdminFTPManager extends React.Component{
 
                 const res = await req.json();
 
-                console.log(res);
+               
+                if(res.message.toLowerCase() === "passed"){
+
+                    const servers = Object.assign(this.state.servers);
+
+                    servers.push({
+                        "name": server,
+                        "host": ip,
+                        "port": port,
+                        "user": user,
+                        "password": password,
+                        "target_folder": folder,
+                        "delete_after_import": deleteLogs,
+                        "delet_tmp_files": deleteTMP,
+                        "first": 0,
+                        "last": 0,
+                        "total_imports": 0,
+                        "ignore_duplicates": ignoreDuplicates,
+                        "ignore_bots": ignoreBots,
+                        "min_players": minPlayers,
+                        "min_playtime": minPlaytime
+                    });
+
+                    this.setState({"servers": servers, "inProgress": false, "passed": true});
+                }
+               
+
+                if(errors.length > 0){
+                    this.setState({"errors": errors, "inProgress": false, "passed": false});
+                }
             }
 
         }catch(err){
@@ -216,6 +266,8 @@ class AdminFTPManager extends React.Component{
     }
 
     renderCreateForm(){
+
+        if(this.state.mode !== 2) return null;
 
         return <div>
             <div className="default-header">Add New FTP Server</div>
@@ -262,15 +314,61 @@ class AdminFTPManager extends React.Component{
                 </div>
                 <div className="select-row">
                     <div className="select-label">Minimum Players</div>
-                    <div><input type="number" className="default-textbox" placeholder="Minimum Players"/></div>
+                    <div><input type="number" className="default-textbox" defaultValue="0" placeholder="Minimum Players"/></div>
                 </div>
                 <div className="select-row">
                     <div className="select-label">Minimum Playtime(Seconds)</div>
-                    <div><input type="number" className="default-textbox" placeholder="Minimum Playtime"/></div>
+                    <div><input type="number" className="default-textbox" defaultValue="0" placeholder="Minimum Playtime"/></div>
                 </div>
                 <input type="submit" className="search-button" value="Add Server"/>
             </form>
         </div>
+    }
+
+    renderErrors(){
+
+        if(this.state.errors.length === 0) return null;
+
+        const elems = [];
+
+        for(let i = 0; i < this.state.errors.length; i++){
+
+            const e = this.state.errors[i];
+
+            elems.push(<div className="error" key={i}>{e}</div>);
+
+        }
+
+        return <div className="team-red t-width-1 center p-bottom-25">
+            <div className="default-sub-header-alt">Error</div>
+            {elems}
+        </div>     
+    }
+
+    renderPassed(){
+
+        if(!this.state.inProgress && this.state.passed){
+
+            return <div className="team-green t-width-1 center p-bottom-25">
+                <div className="default-sub-header-alt">Success</div>
+                Process completed successfully
+            </div>  
+        }
+
+        return null;
+    }
+
+    renderProcessing(){
+
+        if(this.state.inProgress){
+
+            return <div className="team-yellow t-width-1 center p-bottom-25">
+                <div className="default-sub-header-alt">Processing</div>
+                Processing request, please wait.
+            </div>  
+        }
+
+        return null;
     }
 
     render(){
@@ -292,6 +390,9 @@ class AdminFTPManager extends React.Component{
                 })}>Delete Server</div>
             </div>
 
+            {this.renderErrors()}
+            {this.renderPassed()}
+            {this.renderProcessing()}
             {this.renderServers()}
             {this.renderCreateForm()}
 

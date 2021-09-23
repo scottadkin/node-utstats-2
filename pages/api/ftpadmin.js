@@ -71,7 +71,7 @@ export default async (req, res) =>{
                         body.ignoreDuplicates, 
                         body.minPlayers, 
                         body.minPlaytime
-                );
+                    );
 
                 res.status(200).json({"message": "Passed"});
                 return;
