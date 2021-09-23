@@ -12,10 +12,10 @@ class MyEventEmitter extends EventEmitter{};
 
 class Importer{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates, bSkipFTP){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSkipFTP){
 
         if(bSkipFTP === undefined){
-            this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates);
+            this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates);
         }
 
         this.aceManager = new AceManager();
@@ -33,6 +33,8 @@ class Importer{
         this.bIgnoreBots = bIgnoreBots;
         this.logsToImport = [];
         this.aceLogsToImport = [];
+        this.minPlayers = minPlayers;
+        this.minPlaytime = minPlaytime;
 
         this.myEmitter = new MyEventEmitter();
 
@@ -70,7 +72,7 @@ class Importer{
                 
                 const logData = await this.openLog(`${config.importedLogsFolder}/${f}`);
                 
-                const log = new MatchManager(logData, f, this.bIgnoreBots);
+                const log = new MatchManager(logData, f, this.bIgnoreBots, this.minPlayers, this.minPlaytime);
 
                 const currentData = await log.import();
 

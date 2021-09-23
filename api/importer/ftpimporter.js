@@ -9,7 +9,7 @@ class MyEmitter extends EventEmitter {}
 
 class FTPImporter{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates){
 
         this.events = new MyEmitter();
 
@@ -22,7 +22,6 @@ class FTPImporter{
         this.bDeleteAfter = bDeleteAfter;
         this.bDeleteTmpFiles = bDeleteTmpFiles;
 
-        this.bIgnoreBots = bIgnoreBots;
         this.bIgnoreDuplicates = bIgnoreDuplicates;
 
         this.logsFound = [];

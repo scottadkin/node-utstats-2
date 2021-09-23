@@ -24,11 +24,14 @@ const MonsterHuntManager = require('./monsterhuntmanager');
 
 class MatchManager{
 
-    constructor(data, fileName, bIgnoreBots){
+    constructor(data, fileName, bIgnoreBots, minPlayers, minPlaytime){
 
         this.data = data;
         this.fileName = fileName;
         this.bIgnoreBots = bIgnoreBots;
+
+        this.minPlayers = minPlayers;
+        this.minPlaytime = minPlaytime;
 
         new Message(`Starting import of log file ${fileName}`,'note');
 
@@ -55,6 +58,12 @@ class MatchManager{
 
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
+
+            if(this.gameInfo.length < this.minPlaytime){
+                new Message(`Match length is less then the minimum specified, skipping.`, "note");
+                return null;
+            }
+
             this.spawnManager = new SpawnManager();
             this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots);
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots);
@@ -63,6 +72,7 @@ class MatchManager{
                 this.gameInfo.totalTeams = 0;
             }
             
+            console.log(this.gameInfo);
             
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 

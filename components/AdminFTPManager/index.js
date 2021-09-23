@@ -620,8 +620,6 @@ class AdminFTPManager extends React.Component{
 
         if(checkboxes.indexOf(name) !== -1){
 
-            console.log(e.target.checked);
-
             value = e.target.checked;
         }
 

@@ -41,9 +41,9 @@ function startNewImport(ftpServer){
         let I = 0;
 
         if(ftpServer !== null){
-            I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files, f.ignore_bots, f.ignore_duplicates);
+            I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files, f.ignore_bots, f.ignore_duplicates, f.min_players, f.min_playtime);
         }else{
-            I = new Importer(null, null, null, null, null, null, null, null, null, true);
+            I = new Importer(null, null, null, null, null, null, null, null, null, 0, 0, true);
         }
 
         I.myEmitter.on("passed", () =>{
@@ -67,6 +67,7 @@ async function main(){
 
     try{
 
+        const start = process.uptime();
         bCurrentImportFinished = false;
 
         await setFTPSettings();
@@ -94,6 +95,11 @@ async function main(){
         
         new Message(`Import process completed.`,'pass');
         bCurrentImportFinished = true;
+        const end = process.uptime();
+
+        new Message(`----------------------------------------------`, "note");
+        new Message(`Import completed in ${(end - start).toFixed(4)} seconds`,"note");
+        new Message(`----------------------------------------------`, "note");
 
     }catch(err){
         console.trace(err);
@@ -103,6 +109,8 @@ async function main(){
 }
 
 (async () =>{
+
+
 
     await main();
 
