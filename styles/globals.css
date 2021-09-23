@@ -47,7 +47,9 @@ a {
 	font-size:12px;
 }
 
-
+.left-text{
+	text-align:left;
+}
 
 footer{
 	background-color:var(--color-3);
@@ -323,6 +325,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	text-align:center;
 }
 
+.text-right{
+	text-align:right;
+}
+
 .m-bottom-25{
 	margin-bottom:25px;
 }
@@ -357,6 +363,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 
 .p-left-5{
 	padding-left:5px;
+}
+
+.p-right-5{
+	padding-right:5px;
 }
 
 .t-width-1{

@@ -1,0 +1,28 @@
+.server{
+    background-color:var(--color-1);
+    width:var(--width-1);
+    max-width:var(--max-width-2);
+    display:inline-block;
+    line-height:40px;
+}
+
+
+.default{
+    display:grid;
+    grid-template-columns: 50% 50%;
+    height:40px;
+}
+
+.default div{
+    height:40px;
+}
+
+.ff{
+    display:grid;
+    grid-template-columns: 50% 50%;
+}
+
+.ff div:nth-child(1){
+    text-align:right;
+    padding-right:5px;
+}

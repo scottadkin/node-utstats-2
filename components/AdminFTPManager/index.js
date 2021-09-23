@@ -1,6 +1,7 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import TrueFalse from '../TrueFalse';
+import styles from './AdminFTPManager.module.css';
 
 
 class AdminFTPManager extends React.Component{
@@ -414,50 +415,83 @@ class AdminFTPManager extends React.Component{
 
         if(this.state.mode !== 0) return null;
 
-        const rows = [];
-
-        let s = 0;
+        const elems = [];
 
         for(let i = 0; i < this.props.servers.length; i++){
 
-            s = this.props.servers[i];
+            const s = this.props.servers[i];
 
-            rows.push(<tr key={i}>
-                <td>{s.name}</td>
-                <td>{s.host}</td>
-                <td>{s.port}</td>
-                <td>{s.target_folder}</td>
-                <TrueFalse bTable={true} value={s.delete_after_import} />
-                <TrueFalse bTable={true} value={s.delete_tmp_files} />
-                <TrueFalse bTable={true} value={s.ignore_bots} />
-                <TrueFalse bTable={true} value={s.ignore_duplicates} />
-                <td>{(s.first !== 0) ? Functions.convertTimestamp(s.first, true, true): "Never"}</td>
-                <td>{(s.last !== 0) ? Functions.convertTimestamp(s.last, true, true): "Never"}</td>
-                <td>{s.total_imports}</td>
-            </tr>);
+            elems.push(<div className={styles.server}>
+                <div className={styles.name}>
+                    {s.name}
+                </div>
+                <div className={styles.host}>
+                    {s.host}:{s.port}
+                </div>
+                <div className={styles.target}>
+                    <span className="yellow">Target:</span> {s.target_folder}
+                </div>
+                <div className={styles.default}>
+                    <div className="text-right p-right-5">
+                        Delete Logs from FTP
+                    </div>
+                    <div>
+                        <TrueFalse bTable={false} value={s.delete_after_import} />
+                    </div>
+                </div>
+                <div className={styles.default}>
+                    <div className="text-right p-right-5">
+                        Delete TMP files from FTP
+                    </div>
+                    <div>
+                        <TrueFalse bTable={false} value={s.delete_tmp_files} />
+                    </div>
+                </div>
+                <div className={styles.default}>
+                    <div className="text-right p-right-5">
+                        Ignore Bots
+                    </div>
+                    <div>
+                        <TrueFalse bTable={false} value={s.ignore_bots} />
+                    </div>
+                </div>
+                <div className={styles.default}>
+                    <div className="text-right p-right-5">
+                        Ignore Duplicate Logs
+                    </div>
+                    <div>
+                        <TrueFalse bTable={false} value={s.ignore_duplicates} />
+                    </div>
+                </div>
+                <div className={styles.ff}>
+                    <div>First Import </div>
+                    <div>{(s.first !== 0) ? Functions.convertTimestamp(s.first, true): "Never"}</div>
+                </div>
+                <div className={styles.ff}>
+                    <div>Last Import </div>
+                    <div>{(s.last !== 0) ? Functions.convertTimestamp(s.last, true): "Never"}</div>
+                </div>
+                <div className={styles.ff}>
+                    <div>Logs Imported</div>
+                    <div>{s.total_imports}</div>
+                </div>
+                <div className={styles.ff}>
+                    <div>Min Players</div>
+                    <div>{s.min_players}</div>
+                </div>
+                <div className={styles.ff}>
+                    <div>Min Playtime(Seconds)</div>
+                    <div>{s.min_playtime}</div>
+                </div>
+     
+            </div>);
+
         }
 
 
         return <div>
             <div className="default-header">Current Servers</div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Host</th>
-                        <th>Port</th>
-                        <th>Target Folder</th>
-                        <th>Delete After Import<br/>(FTP/UnrealTournament/Logs)</th>
-                        <th>Delete TMP Files</th>
-                        <th>Ignore Bots</th>
-                        <th>Ignore Duplicate Logs</th>
-                        <th>First</th>
-                        <th>Last</th>
-                        <th>Total</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            {elems}
         </div>
     }
 
