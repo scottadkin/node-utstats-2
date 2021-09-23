@@ -11,20 +11,89 @@ class AdminFTPManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 2,
+            "mode": 3,
             "servers": [],
             "errors": [],
             "inProgress": false,
-            "passed": false
+            "passed": false,
+            "selected": -1
         };
 
         this.changeMode = this.changeMode.bind(this);
         this.addServer = this.addServer.bind(this);
+        this.deleteServer = this.deleteServer.bind(this);
+        this.updateSelected = this.updateSelected.bind(this);
+
+    }
+
+    updateSelected(e){
+  
+        this.setState({"selected": e.target.value});
+    }
+
+    removeServerFromList(id){
+
+        const newList = [];
+
+        for(let i = 0; i < this.state.servers.length; i++){
+
+            const s = this.state.servers[i];
+
+            if(s.id !== id){
+                newList.push(s);
+            }
+        }
+
+        this.setState({"servers": newList});
+
+    }
+
+    async deleteServer(e){
+
+        try{
+
+            e.preventDefault();
+
+            this.setState({"errors": [], "inProgress": true});
+
+            const errors = [];
+            const id = parseInt(e.target[0].value);
+
+            if(id !== id) errors.push("Id must be a valid integer");
+            if(id < 0) errors.push("You have not selected a server to delete.");
+
+            if(errors.length === 0){
+
+                const req = await fetch("/api/ftpadmin", {
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "delete", "id": id})
+                });
+
+                const result = await req.json();
+
+                if(result.error === undefined){
+                    this.removeServerFromList(id);
+                    this.setState({"errors": [], "passed": true, "inProgress": false});
+                }else{
+                    errors.push(result.error);
+                }
+
+            }
+
+            if(errors.length > 0){
+                this.setState({"errors": errors, "passed": false, "inProgress": false});
+            }
+            console.log(e.target[0].value);
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     changeMode(id){
 
-        this.setState({"mode": id, "errors": [], "inProgress": false, "passed": false});
+        this.setState({"mode": id, "errors": [], "inProgress": false, "passed": false, "selected": -1});
     }
 
     bServerComboExist(ip, port, target){
@@ -233,6 +302,8 @@ class AdminFTPManager extends React.Component{
 
                     const servers = Object.assign(this.state.servers);
 
+                    e.target.reset();
+
                     servers.push({
                         "name": server,
                         "host": ip,
@@ -371,6 +442,39 @@ class AdminFTPManager extends React.Component{
         return null;
     }
 
+    createServerDropDown(){
+
+        const options = [];
+
+        for(let i = 0; i < this.state.servers.length; i++){
+
+            const s = this.state.servers[i];
+
+            options.push(<option key={i} value={s.id}>{s.name} ({s.host}:{s.port})</option>);
+        }
+
+        return <select className="default-select">
+            <option value="-1">Select a server</option>
+            {options}
+        </select>
+    }
+
+    renderDeleteServer(){
+
+        if(this.state.mode !== 3) return null;
+
+        return <div>
+            <div className="default-header">Delete Server</div>
+            <form className="form" method="POST" action="/" onSubmit={this.deleteServer}>
+                <div className="select-row">
+                    <div className="select-label">Server</div>
+                    <div>{this.createServerDropDown()}</div>
+                </div>
+                <input type="submit" className="search-button team-red" value="Delete Server"/>
+            </form>
+        </div>
+    }
+
     render(){
 
         return <div>
@@ -395,6 +499,7 @@ class AdminFTPManager extends React.Component{
             {this.renderProcessing()}
             {this.renderServers()}
             {this.renderCreateForm()}
+            {this.renderDeleteServer()}
 
         </div>
     }

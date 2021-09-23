@@ -189,7 +189,7 @@ class Admin{
 
         const query = "DELETE FROM nstats_ftp WHERE id=?";
 
-        await mysql.simpleDelete(query, [id]);
+        return await mysql.updateReturnAffectedRows(query, [id]);
     }
 
 }

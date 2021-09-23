@@ -77,6 +77,19 @@ export default async (req, res) =>{
                 return;
             }
 
+        }else if(mode === "delete"){
+
+            const serverId = body.id;
+
+            const result = await admin.deleteFTPServer(serverId);
+
+            if(result === 0){
+                res.status(200).json({"error": "There was a problem deleting the server settings."});
+                return;
+            }
+
+            res.status(200).json({"message": "passed"});
+            return;
         }
 
 
