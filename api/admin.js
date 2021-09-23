@@ -172,7 +172,7 @@ class Admin{
             id
         ];
 
-        await mysql.simpleUpdate(query, vars);
+        return await mysql.updateReturnAffectedRows(query, vars);
     }
 
 

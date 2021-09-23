@@ -58,7 +58,7 @@ export default async (req, res) =>{
 
             if(errors.length === 0){
 
-                await admin.addFTPServer(
+                const result = await admin.addFTPServer(
                         body.server, 
                         body.ip, 
                         body.port, 
@@ -73,7 +73,7 @@ export default async (req, res) =>{
                         body.minPlaytime
                     );
 
-                res.status(200).json({"message": "Passed"});
+                res.status(200).json({"message": "Passed", "id": result});
                 return;
             }
 
@@ -90,6 +90,22 @@ export default async (req, res) =>{
 
             res.status(200).json({"message": "passed"});
             return;
+
+        }else if(mode === "edit"){
+
+
+            const result = await admin.updateFTPServer(body.id, body.server, body.ip, body.port, body.user, body.password, body.folder, body.deleteLogs, 
+                body.deleteTmp, body.ignoreBots, body.ignoreDuplicates, body.minPlayers, body.minPlaytime);
+            
+            if(result > 0){
+
+                res.status(200).json({"message": "passed"});
+                return;
+
+            }else{
+                res.status(200).json({"error": "Failed to update any servers."});
+                return;
+            }
         }
 
 
