@@ -409,7 +409,6 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	text-align:left;
 	margin-left:auto;
 	margin-right:auto;
-	width:50%;
 	margin-bottom:10px;
 	position:relative;
 }
@@ -437,7 +436,8 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .default-textbox{
-	width:290px;
+	max-width:290px;
+	width:90%;
 	background-color:var(--color-1);
 	font-size:18px;
 	font-weight:300;
