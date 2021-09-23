@@ -45,7 +45,6 @@ class Admin extends React.Component{
             "rankingEvents": JSON.parse(this.props.rankingEvents),
             "itemList": JSON.parse(this.props.itemList),
             "weaponData": JSON.parse(this.props.weaponData),
-            "ftpServers": JSON.parse(this.props.ftpServers),
             "nexgenStatsViewerSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
             "lastSavedNexgenSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
             "nexgenSaveInProgress": false,
@@ -67,7 +66,6 @@ class Admin extends React.Component{
         this.setGametypeNames = this.setGametypeNames.bind(this);
         this.setItemList = this.setItemList.bind(this);
         this.updateWeaponData = this.updateWeaponData.bind(this);
-        this.updateFtpServers = this.updateFtpServers.bind(this);
         this.updateNexgenSettings = this.updateNexgenSettings.bind(this);
         this.saveNexgenSettings = this.saveNexgenSettings.bind(this);
         this.setFullNexgenList = this.setFullNexgenList.bind(this);
@@ -324,15 +322,6 @@ class Admin extends React.Component{
         this.setState({"nexgenStatsViewerSettings": newSettings, "nexgenSavePassed": null});
     }
 
-    updateFtpServers(newData){
-
-        
-        console.log("update ftpservers");
-
-        console.log(newData);
-
-        this.setState({"ftpServers": newData});
-    }
 
     updateWeaponData(file){
 
@@ -908,7 +897,6 @@ export async function getServerSideProps({req, query}){
         "files": []
     };
 
-    let ftpServers = [];
     let nexgenStatsViewerSettings = [];
     let nexgenValidTypes = [];
     let monsterImages = [];
@@ -931,8 +919,6 @@ export async function getServerSideProps({req, query}){
         validSiteSettings.mapPages = settings.getMapPagesValidSettings();
 
         const admin = new AdminManager();
-
-        ftpServers = await admin.getAllFTPServers();
 
         mapFiles = await admin.getMapsFolder();
         userAccounts = await admin.getAllUsers();
@@ -1022,7 +1008,6 @@ export async function getServerSideProps({req, query}){
             "rankingEvents": JSON.stringify(rankingEvents),
             "itemList": JSON.stringify(itemList),
             "weaponData": JSON.stringify(weaponData),
-            "ftpServers": JSON.stringify(ftpServers),
             "nexgenStatsViewerSettings": JSON.stringify(nexgenStatsViewerSettings),
             "nexgenValidTypes": JSON.stringify(nexgenValidTypes),
             "monsterImages": JSON.stringify(monsterImages),
