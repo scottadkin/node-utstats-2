@@ -23,7 +23,7 @@ const PopularCountries = ({data, totalPlayers, classic}) =>{
 
         elems.push(<div key={i} className={styles.country}>
             <div>{d.countryName}</div>
-            <div><img src={`/images/flags/${d.country}.svg`} alt={d.country} /></div>
+            <div><img src={`/images/flags/${d.country.toLowerCase()}.svg`} alt={d.country} /></div>
             <div><span className="yellow">{d.total_uses}</span> Players</div>
             <div className={styles.info}><span className="yellow">{percent.toFixed(2)}%</span> of all Players</div>
             <div className={styles.info}><span className="yellow">First Seen</span> {Functions.convertTimestamp(d.first_match, true)}</div>
