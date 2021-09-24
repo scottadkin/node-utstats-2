@@ -395,7 +395,7 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? ORDER BY match_date DESC, id DESC LIMIT ?,?";
+            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND playtime > 0 ORDER BY match_date DESC, id DESC LIMIT ?,?";
 
             if(page === undefined){
                 page = 1;
@@ -428,7 +428,7 @@ class Player{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE player_id=?";
+            const query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE player_id=? AND playtime > 0";
 
             mysql.query(query, [id], (err, result) =>{
 

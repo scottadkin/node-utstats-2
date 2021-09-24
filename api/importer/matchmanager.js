@@ -1,4 +1,3 @@
-const Promise = require('promise');
 const config = require('../../config.json');
 const Message = require('../message');
 const Logs = require('../logs');
@@ -79,9 +78,7 @@ class MatchManager{
             if(this.mapInfo.mapPrefix === "mh"){
                 this.gameInfo.totalTeams = 0;
             }
-
-            
-            
+ 
             
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 

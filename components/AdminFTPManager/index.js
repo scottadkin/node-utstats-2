@@ -11,7 +11,7 @@ class AdminFTPManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 1,
+            "mode": 0,
             "servers": [],
             "errors": [],
             "inProgress": false,
