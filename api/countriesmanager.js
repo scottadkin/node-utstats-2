@@ -1,29 +1,29 @@
 const mysql = require('./database');
-const Promise = require('promise');
+const countries = require('./countries');
 
 class CountriesManager{
 
-    constructor(){
+    constructor(){}
 
-    }
 
-    getMostPopular(){
+    async getMostPopular(){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT COUNT(*) as total_uses, country, MIN(first) as first_match, MAX(last) as last_match
+        FROM nstats_player_totals WHERE gametype=0 
+        GROUP BY(country) ORDER BY total_uses DESC LIMIT 5`;
 
-            const query = "SELECT * FROM nstats_countries ORDER BY total DESC LIMIT 5";
+        const result = await mysql.simpleFetch(query);
 
-            mysql.query(query, (err, result) =>{
+        for(let i = 0; i < result.length; i++){
 
-                if(err) reject(err);
+            const r = result[i];
 
-                if(result !== undefined){
-                    resolve(result);
-                }
-                
-                resolve([]);
-            });
-        });
+            const currentCountry = countries(r.country);
+            r.countryName = currentCountry.country;
+            r.country = currentCountry.code;
+        }
+
+        return result;
     }
 
     reduceUses(code, amount){

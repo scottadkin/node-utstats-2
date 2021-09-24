@@ -1,6 +1,7 @@
+import Functions from '../../api/functions';
 import styles from './PopularCountries.module.css';
 
-const PopularCountries = ({data, classic}) =>{
+const PopularCountries = ({data, totalPlayers, classic}) =>{
 
     data = JSON.parse(data);
 
@@ -13,21 +14,20 @@ const PopularCountries = ({data, classic}) =>{
 
         const d = data[i];
 
-        let code = d.code;
+        let percent = 0;
 
-        let uses = 0;
-
-        if(classic){
-            uses = d.total_uses;
-        }else{
-            uses = d.total;
+        if(totalPlayers > 0){
+            percent = (d.total_uses / totalPlayers) * 100;
         }
 
 
         elems.push(<div key={i} className={styles.country}>
-            <div><img src={`/images/flags/${code}.svg`} alt={code} /></div>
-            <div>{data[i].name}</div>
-            <div>{uses} Uses</div>
+            <div>{d.countryName}</div>
+            <div><img src={`/images/flags/${d.country}.svg`} alt={d.country} /></div>
+            <div><span className="yellow">{d.total_uses}</span> Players</div>
+            <div className={styles.info}><span className="yellow">{percent.toFixed(2)}%</span> of all Players</div>
+            <div className={styles.info}><span className="yellow">First Seen</span> {Functions.convertTimestamp(d.first_match, true)}</div>
+            <div className={styles.info}><span className="yellow">Last Seen</span> {Functions.convertTimestamp(d.last_match, true)}</div>
         </div>);
     }
 

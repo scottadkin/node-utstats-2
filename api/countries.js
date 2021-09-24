@@ -274,4 +274,4 @@ const Countires = (code) =>{
 
 }
 
-export default Countires;
+module.exports = Countires;

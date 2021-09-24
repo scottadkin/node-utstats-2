@@ -73,7 +73,7 @@ function createDatesGraphData(data){
 
 function Home({navSettings, pageSettings, session, host, matchesData, countriesData, mapImages, matchDates,
 	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query, gametypeImages, 
-	latestMatchPlayers, latestMatchImage, latestFaces}) {
+	latestMatchPlayers, latestMatchImage, latestFaces, totalPlayers}) {
 
 	matchDates = JSON.parse(matchDates);
 
@@ -189,7 +189,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 		if(pageSettings["Display Most Popular Countries"] === "true"){
 
-			elems.push(<PopularCountries key={"countries"} data={countriesData}/>);
+			elems.push(<PopularCountries key={"countries"} data={countriesData} totalPlayers={totalPlayers}/>);
 		}
 
 	}
@@ -277,11 +277,6 @@ export async function getServerSideProps({req, query}) {
 	Functions.setIdNames(matchesData, mapNames, 'map', 'mapName');
 	Functions.setIdNames(matchesData, gametypeNames, 'gametype', 'gametypeName');
 	Functions.setIdNames(matchesData, serverNames, 'server', 'serverName');
-
-	for(let i = 0; i < countryData.length; i++){
-
-		countryData[i]['name'] = Countries(countryData[i].code).country;
-	}
 
 	const totalMatches = await matchManager.getTotal();
 	const firstMatch = await matchManager.getFirst();
