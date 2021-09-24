@@ -1,3 +1,4 @@
+import Functions from '../../api/functions';
 import TimeStamp from '../TimeStamp/';
 import styles from './MostUsedFaces.module.css';
 
@@ -25,8 +26,8 @@ const MostUsedFaces = ({data, images}) =>{
             <div className={styles.inner}>
                 <div>
                     <span className="yellow">Used</span> {d.uses} times<br/>
-                    <span className="yellow">First</span> <TimeStamp timestamp={d.first} noDayName={true}/><br/>
-                    <span className="yellow">Last</span> <TimeStamp timestamp={d.last} noDayName={true}/><br/>
+                    <span className="yellow">First Used</span> {Functions.convertTimestamp(d.first, true)}<br/>
+                    <span className="yellow">Last Used</span> {Functions.convertTimestamp(d.last, true)}<br/>
                 </div>
             </div>
         </div>);

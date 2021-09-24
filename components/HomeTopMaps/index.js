@@ -44,8 +44,8 @@ const HomeTopMaps = ({maps, images, classic}) =>{
                 <div className={styles.info}>
                     <span className="yellow">Playtime</span> {hours.toFixed(2)} Hours<br/>
                     {matches} <span className="yellow">Matches</span><br/>
-                    <span className="yellow">First</span> {Functions.convertTimestamp(first)}<br/>
-                    <span className="yellow">Last</span> {Functions.convertTimestamp(last)}<br/>
+                    <span className="yellow">First Match</span> {Functions.convertTimestamp(first, true)}<br/>
+                    <span className="yellow">Last Match</span> {Functions.convertTimestamp(last, true)}<br/>
                 </div>
             </div>    
         </a></Link>);

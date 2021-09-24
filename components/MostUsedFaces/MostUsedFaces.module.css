@@ -1,20 +1,18 @@
 .wrapper{
     display:inline-block;
-    background-color: var(--color-1);
-    border:1px solid rgba(255,255,255,0.25);
+    background-color: var(--color-3);
+    background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
+    margin-right:10px;
+    margin-bottom:10px;
     max-width:300px; 
-    width:225px;
+    width:250px;
     padding-top:10px;
-    margin-top:-1px;
-    margin-left:-1px;
 }
 
 .inner{
     font-size:12px;
-    line-height:21px;
-    background-color:var(--color-2);
+    line-height:24px;
     padding-bottom:5px;
-    border-top:1px solid var(--border-color-1);
 }
 
 .face img{

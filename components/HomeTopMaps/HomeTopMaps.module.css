@@ -1,23 +1,19 @@
 .wrapper{
     background-color:var(--color-1);
-    background:var(--linear-gradient-3);
+    background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
     display:inline-block;
-    border:1px solid rgba(255,255,255,0.25);
-    margin-top:-1px;
-    margin-left:-1px;
-    width:384px;
-    margin-right:5px;
-    margin-bottom:5px;
+    width:400px;
+    margin-right:10px;
+    margin-bottom:10px;
 }
 
 .name{
-    color:yellow;
     font-size:16px;
     padding:10px;
     background-color:var(--color-3);
 }
 
 .info{
-    font-size:14px;
+    font-size:12px;
     line-height:24px;
 }
