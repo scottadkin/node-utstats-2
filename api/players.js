@@ -1349,8 +1349,42 @@ class Players{
         }
 
         return players;
-
     }
+
+    async getUniquePlayersBetween(start, end){
+
+        const query = "SELECT COUNT(DISTINCT player_id) as players FROM nstats_player_matches WHERE match_date>? AND match_date<=?";
+
+        const data = await mysql.simpleFetch(query, [start, end]);
+
+        if(data.length > 0) return data[0].players;
+
+        return 0;
+    }
+
+    /**
+     * 
+     * @param {*} units How many days/minutes/years
+     * @param {*} timeUnit How many seconds a unit is 60 * 60 is one hour, ect
+     * @returns Array of times frames starting with most recent to latest
+     */
+    async getUniquePlayersInRecentUnits(units, timeUnit){
+
+        const now = Math.floor(Date.now() * 0.001);
+
+        const data = [];
+
+        for(let i = 0; i < units; i++){
+
+            const min = now - (timeUnit * (i + 1));
+            const max = now - (timeUnit * i);
+
+            data.push(await this.getUniquePlayersBetween(min, max));         
+        }
+
+        return data;
+    }
+
 }
 
 

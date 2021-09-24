@@ -27,98 +27,38 @@ import Analytics from '../api/analytics';
 
 function createDatesGraphData(data){
 
-	let hours = Functions.createDateRange(24, 0);
-	let week = Functions.createDateRange(7, 0);
-	let month = Functions.createDateRange(28, 0);
+	const dayText = [];
+	const weekText = [];
+	const monthText = [];
 
-	let hoursPlayers = Functions.createDateRange(24, 0);
-	let weekPlayers = Functions.createDateRange(7, 0);
-	let monthPlayers = Functions.createDateRange(28, 0);
+	const playersWeek = [0, 0, 0, 0, 0, 0];
+	const matchesWeek = [0, 0, 0, 0, 0, 0];
 
-	let totalDay = 0;
-	let totalDayPlayers = 0;
-	let totalWeek = 0;
-	let totalWeekPlayers = 0;
-	let totalMonth = 0;
-	let totalMonthPlayers = 0;
+	for(let i = 0; i < 7; i++){
 
-	let dayText = [];
-	let weekText = [];
-	let monthText = [];
-
-	const hourDiff = 60 * 60;
-	const dayDiff = hourDiff * 24;
-
-
-	let d = 0;
-	const now = Math.floor(Date.now() * 0.001);
-	let diff = 0;
-
-	let currentHourDiff = 0;
-	let currentDayDiff = 0;
-
-	for(let i = 0; i < data.length; i++){
-
-		d = data[i];
-
-		diff = now - d.date;
-
-		currentHourDiff = Math.floor(diff / hourDiff);
-		currentDayDiff = Math.floor(diff / dayDiff);
-
-		if(currentHourDiff < 24){
-
-			hours[currentHourDiff]++;
-			hoursPlayers[currentHourDiff] += d.players;
-			totalDay++;
-			totalDayPlayers += d.players;
-			dayText.push(
-				`Hour ${i} to ${i + 1}`
-			);
-		}
-
-		if(currentDayDiff < 7){
-
-			week[currentDayDiff]++;
-			weekPlayers[currentDayDiff] += d.players;
-			totalWeek++;
-			totalWeekPlayers += d.players;
-			weekText.push(
-				`Day ${i} to ${i + 1}`
-			);
-		}
-
-		if(currentDayDiff < 28){
-
-			month[currentDayDiff]++;
-			monthPlayers[currentDayDiff] += d.players;
-			totalMonth++;
-			totalMonthPlayers += d.players;
-			monthText.push(
-				`Day ${i} to ${i + 1}`
-			);
-		}
+		playersWeek[i] = data.players.days[i];
+		matchesWeek[i] = data.matches.days[i];
 	}
 
-	if(totalDay === 0) hours = [];
-	if(totalDayPlayers === 0) hoursPlayers = [];
-	if(totalWeek === 0) week = [];
-	if(totalWeekPlayers === 0) weekPlayers = [];
-	if(totalMonth === 0) month = [];
-	if(totalMonthPlayers === 0) monthPlayers = [];
+	for(let i = 0; i < 28; i++){
 
-	if(hours.length === 0 && week.length === 0 && month.length === 0 && hoursPlayers.length === 0 &&
-		 weekPlayers.length === 0 && monthPlayers.length === 0){
+		monthText.push(`Day ${i} to Day ${i+1}`);
 
-			return null;
+		if(i < 7){
+			weekText.push(`Day ${i} to Day ${i+1}`);
+		}
+
+		if(i < 24){
+			dayText.push(`Hour ${i} to Hour ${i+1}`);
+		}
 	}
 	
 	return {
 		"title": ["Stats Past 24 Hours", "Stats Past 7 Days", "Stats Past 28 Days"],
 		"data": [
-			[{"name": "Matches", "data": hours}, {"name": "Players", "data": hoursPlayers}],
-			[{"name": "Matches", "data": week}, {"name": "Players", "data": weekPlayers}],
-			[{"name": "Matches", "data": month}, {"name": "Players", "data": monthPlayers}],
+			[{"name": "Matches", "data": data.matches.hours}, {"name": "Players", "data": data.players.hours}],
+			[{"name": "Matches", "data": matchesWeek}, {"name": "Players", "data": playersWeek}],
+			[{"name": "Matches", "data": data.matches.days}, {"name": "Players", "data": data.players.days}],
 		],
 		"text": [
 			dayText,
@@ -356,10 +296,27 @@ export async function getServerSideProps({req, query}) {
 
 	const mapImages = await mapManager.getImages(justMapNames);
 
-	let matchDates = [];
+	let matchDates = {
+		"matches": {"hours": [], "days": []},
+		"players": {"hours": [], "days": []}
+	};
 
 	if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
-		matchDates = await matchManager.getDatesPlayersInTimeframe(((60 * 60) * 24) * 28);
+		//matchDates = await matchManager.getDatesPlayersInRecentDays(28);
+
+		const day = (60 * 60) * 24;
+
+		const playersLast24Hours = await playerManager.getUniquePlayersInRecentUnits(24, 60 * 60);
+		const playersLast28Days = await playerManager.getUniquePlayersInRecentUnits(28, day);
+
+
+		const matchesLast24Hours = await matchManager.getMatchesInRecentUnits(24, 60 * 60);
+		const matchesLast28Days = await matchManager.getMatchesInRecentUnits(28, day);
+		
+		matchDates = {
+			"matches": {"hours": matchesLast24Hours, "days": matchesLast28Days},
+			"players": {"hours": playersLast24Hours, "days": playersLast28Days}
+		};
 	}
 
 

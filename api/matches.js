@@ -323,32 +323,6 @@ class Matches{
         });
     }
 
-
-    getDatesPlayersInTimeframe(timeframe){
-
-        return new Promise((resolve, reject) =>{
-
-            const now = Math.floor(Date.now() * 0.001);
-
-            const min = now - timeframe;
-
-
-            const query = "SELECT date,players FROM nstats_matches WHERE date>=? ORDER BY date DESC";
-
-            mysql.query(query, [min], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
-    }
-
-
-
     getDuplicates(){
 
         return new Promise((resolve, reject) =>{
@@ -1405,6 +1379,43 @@ class Matches{
         }catch(err){
             console.trace(err);
         }
+    }
+
+
+    async getMatchesBetween(start, end){
+
+        const query = "SELECT COUNT(*) as total_matches FROM nstats_matches WHERE date>? AND date<=?";
+
+        const data = await mysql.simpleFetch(query, [start, end]);
+
+        if(data.length > 0) return data[0].total_matches;
+
+        return 0;
+    }
+
+    /**
+     * 
+     * @param {*} units How many days/minutes/years
+     * @param {*} timeUnit How many seconds a unit is 60 * 60 is one hour, ect
+     * @returns Array of times frames starting with most recent to latest
+     */
+
+    async getMatchesInRecentUnits(units, timeUnit){
+
+        const now = Math.floor(Date.now() * 0.001);
+
+        const data = [];
+
+        for(let i = 0; i < units; i++){
+
+            const min = now - (timeUnit * (i + 1));
+            const max = now - (timeUnit * i);
+
+            data.push(await this.getMatchesBetween(min, max));
+
+        }
+
+        return data;
     }
     
 }
