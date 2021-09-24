@@ -1,20 +1,18 @@
 .box{
     background-color:var(--color-1);
-    background:var(--linear-gradient-3);
-    border:1px solid var(--border-color-1);
-    width:384px;
+    background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
+    width:400px;
     display:inline-block;
-    margin-right:5px;
-    margin-bottom:5px;
+    margin-right:10px;
+    margin-bottom:10px;
 }
 
 .name{
     padding:10px;
-    color:yellow;
-    background-color:var(--color-3);
+    font-size:16px;
 }
 
 .info{
-    font-size:14px;
+    font-size:12px;
     line-height:24px;
 }

@@ -1,6 +1,7 @@
 import TimeStamp from '../TimeStamp/';
 import styles from './HomeMostPlayedGametypes.module.css';
 import Image from 'next/image';
+import Functions from '../../api/functions';
 
 const HomeMostPlayedGametypes = ({data, images}) =>{
     
@@ -8,18 +9,16 @@ const HomeMostPlayedGametypes = ({data, images}) =>{
 
     const elems = [];
 
-    let d = 0;
-
     const defaultImage = "default.jpg";
 
     let currentImage = "";
-    let currentName = "";
+
 
     for(let i = 0; i < data.length; i++){
 
-        d = data[i];
+        const d = data[i];
 
-        currentName = d.name.replace(/ /ig, '').toLowerCase();
+        const currentName = d.name.replace(/ /ig, '').toLowerCase();
 
 
         if(images[currentName] !== undefined){
@@ -28,14 +27,22 @@ const HomeMostPlayedGametypes = ({data, images}) =>{
             currentImage = defaultImage;
         }
 
+        const originalLength = d.name.length;
+
+        d.name = d.name.slice(0, 40);
+
+        if(d.name.length < originalLength){
+            d.name += "...";
+        }
+
         elems.push(<div className={styles.box} key={i}>
             <div className={styles.name}>{d.name}</div>
-            <div className={styles.image}><Image src={`/images/gametypes/${currentImage}`} width="384" height="216"/></div>
+            <div className={styles.image}><Image src={`/images/gametypes/${currentImage}`} width="400" height="225"/></div>
             <div className={styles.info}>
                 <span className="yellow">Playtime</span> {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
                 {d.matches} <span className="yellow">Matches</span><br/> 
-                <span className="yellow">First</span> <TimeStamp timestamp={d.first}/><br/>
-                <span className="yellow">Last</span> <TimeStamp timestamp={d.last}/><br/>
+                <span className="yellow">First Match</span> {Functions.convertTimestamp(d.first, true)}<br/>
+                <span className="yellow">Last Match</span> {Functions.convertTimestamp(d.last, true)}<br/>
             </div>
         </div>);
     }
