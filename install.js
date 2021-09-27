@@ -968,6 +968,8 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Display Per Page","25")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Display Type","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Gametype","0")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Players","0")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Playtime","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display Admin","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display Home","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display Login/Logout","true")`,

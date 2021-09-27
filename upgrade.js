@@ -71,7 +71,9 @@ async function updateSiteSettings(){
     const queries = [
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Mutators","true")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Time Limit","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Target Score","true")`
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Target Score","true")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Players","0")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Playtime","0")`,
     ];
 
     const reg = /^.+,"(.+?)","(.+?)",.+$/i;

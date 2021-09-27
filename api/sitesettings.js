@@ -185,11 +185,37 @@ class SiteSettings{
                 nameValues.push({"name": value, "value": parseInt(key)});
             }
 
+            const playersLimits = [];
+
+            for(let i = 2; i <= 32; i++){
+                playersLimits.push({"name": `${i} Players`, "value": i});
+            }
+
+            const timeLimits = [];
+
+            for(let i = 120, mins = 2; i <= 60 * 60; i+=60, mins++){
+
+                timeLimits.push({
+                    "name": `${mins} Minutes`,
+                    "value": i
+                });
+            }
+
             return {
                 "Default Display Type": this.defaultDiplayTypes,
                 "Default Gametype": nameValues,
                 "Default Display Per Page":
-                    this.defaultPerPageValues
+                    this.defaultPerPageValues,
+                "Minimum Players": [
+                    {"name": "No Limit", "value": 0},
+                    {"name": "1 Player", "value": 1},
+                    ...playersLimits
+                ],
+                "Minimum Playtime": [
+                    {"name": "No Limit", "value": 0},
+                    {"name": "1 Minute", "value": 60},
+                    ...timeLimits
+                ]
             };
 
         }catch(err){
