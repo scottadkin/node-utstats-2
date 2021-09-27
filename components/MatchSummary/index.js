@@ -4,7 +4,7 @@ import Playtime from '../Playtime/';
 import MatchResult from '../MatchResult/';
 
 
-const MatchSummary = ({info, server, gametype, map, image, bMonsterHunt}) =>{
+const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
 
     if(info === undefined){
 
@@ -15,43 +15,31 @@ const MatchSummary = ({info, server, gametype, map, image, bMonsterHunt}) =>{
 
     info = JSON.parse(info);
 
-
-    const motd = info.motd.split('\n');
-
     if(info.email === '') info.email = 'Not specified';
 
     let mutatorsElem = null;
 
-    if(info.mutators.length > 0){
-        mutatorsElem = <div>
-            <span className="yellow">Mutators: </span>
-            {info.mutators.replace(/,/ig, ', ')}
-        </div>
-    }
-
-    let motdElem = null;
-
-    if(motd.length > 0){
-
-        const motdStrings = [];
-
-        for(let i = 0; i < motd.length; i++){
-
-            if(motd[i] !== ""){
-                motdStrings.push(<div className={styles.motd} key={i}>"{motd[i]}"</div>);
-            }
-        }
-
-        if(motdStrings.length > 0){
-            motdElem = <div className={styles.motdw}>
-                <span className="yellow">MOTD</span>
-                {motdStrings}
+    if(settings["Display Mutators"] === "true"){
+        if(info.mutators.length > 0){
+            mutatorsElem = <div>
+                <span className="yellow">Mutators: </span>
+                {info.mutators.replace(/,/ig, ', ')}
             </div>
         }
     }
 
-    const targetScoreElem = (info.target_score !== 0) ? <div><span className="yellow">Target Score</span> {info.target_score}</div> : null;
-    const timeLimitElem = (info.time_limit !== 0) ? <div><span className="yellow">Time Limit</span> {info.time_limit}</div> : null;
+
+    let targetScoreElem = null;
+
+    if(settings["Display Target Score"] === "true"){
+        targetScoreElem = (info.target_score !== 0) ? <div><span className="yellow">Target Score</span> {info.target_score}</div> : null;
+    }
+
+    let timeLimitElem = null;
+
+    if(settings["Display Time Limit"] === "true"){
+        timeLimitElem = (info.time_limit !== 0) ? <div><span className="yellow">Time Limit</span> {info.time_limit} Minutes</div> : null;
+    }
 
     return (
         <div className={`${styles.wrapper} center`}>
@@ -59,9 +47,9 @@ const MatchSummary = ({info, server, gametype, map, image, bMonsterHunt}) =>{
                 <MatchResult teamGame={info.team_game} dmWinner={info.dm_winner} dmScore={info.dm_score} totalTeams={info.total_teams}
                 redScore={Math.floor(info.team_score_0)} blueScore={Math.floor(info.team_score_1)} greenScore={Math.floor(info.team_score_2)} 
                 yellowScore={Math.floor(info.team_score_3)} bMonsterHunt={bMonsterHunt} endReason={info.end_type}/>
-                <TimeStamp key={info.date} timestamp={info.date}/><br/>
-                <span className="yellow">{server}</span><br/>
-                <span className="yellow">{gametype} {(info.insta) ? '(Instagib)' : ''}</span> on <span className="yellow">{map}</span><br/>
+                <span className={styles.small}>{server}</span><br/>
+                {map}<br/>{gametype} {(info.insta) ? '(Instagib)' : ''}<br/>
+                <span className={styles.small}><TimeStamp key={info.date} timestamp={info.date}/></span><br/>
                 {targetScoreElem}
                 {timeLimitElem}
 
@@ -69,8 +57,6 @@ const MatchSummary = ({info, server, gametype, map, image, bMonsterHunt}) =>{
                 <span className="yellow">Players</span> {info.players}<br/>
 
                 {mutatorsElem}
-
-                {motdElem}
 
             </div>
         </div>

@@ -25,6 +25,7 @@ async function alterTable(table, column, datatype){
 }
 
 
+
 async function updateFTPTable(){
 
     const table = "nstats_ftp";
@@ -47,6 +48,52 @@ async function updateFTPTable(){
     }
 }
 
+
+async function updateSiteSettings(){
+
+    const query = "SELECT category, name FROM nstats_site_settings";
+
+    const result = await mysql.simpleFetch(query);
+
+    const currentSettings = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(currentSettings[r.category] === undefined){
+            currentSettings[r.category] = [];
+        }
+
+        currentSettings[r.category].push(r.name);
+    }
+
+    const queries = [
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Mutators","true")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Time Limit","true")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Target Score","true")`
+    ];
+
+    const reg = /^.+,"(.+?)","(.+?)",.+$/i;
+
+    for(let i = 0; i < queries.length; i++){
+
+        const q = queries[i];
+
+        const result = reg.exec(q);
+
+        if(result !== null){
+
+            if(currentSettings[result[1]].indexOf(result[2]) === -1){
+                await mysql.simpleUpdate(q);
+                new Message(`GerneralQuery ${i+1} of ${queries.length} completed.`,"pass");
+            }else{
+                new Message(`GerneralQuery ${i+1} of ${queries.length} did not need to be updated.`,"pass");
+            }
+        }
+    }
+}
+
 (async () =>{
 
     try{
@@ -54,6 +101,7 @@ async function updateFTPTable(){
         new Message("Database Upgrade", "note");
 
         await updateFTPTable();
+        await updateSiteSettings();
 
         process.exit(0);
 

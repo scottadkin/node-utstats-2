@@ -1,16 +1,15 @@
 .wrapper{
     color:white;
-    font-weight:300;
-    background-color:var(--color-1);
+    background-color:var(--color-3);
+    background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
     border:1px solid var(--border-color-1);
     max-width:1250px;
     width:var(--width-1);
 }
 
-.map{
-    
-    line-height:24px;
-    font-size:14px;
+.map{  
+    line-height:32px;
+    font-size:16px;
 }
 
 .mutators{
@@ -18,37 +17,8 @@
     line-height:14px;
 }
 
-.mimage{
-    max-width:50%;
-    border:1px solid var(--border-color-1);
-}
 
-.setting{
-    display:inline-block;
+.small{
     font-size:12px;
-    padding-right:5px;
-    background-color:var(--color-2);
-    border: 1px solid var(--border-color-1);
-    margin-left:-1px;
-    margin-top:-1px;
-    padding:5px;
-}
-
-.motdw{
-    padding:0px 25px;
-    line-height:20px;
-    background-color:var(--color-2);
-    border-top:1px solid var(--border-color-1);
-}
-
-.motd{
-    font-size:12px;
-    font-style:italic;
-    line-height:22px;
-    
-}
-
-.table td{
-    font-size:12px;
-    padding:0px 10px;
+    color:var(--color-6);
 }

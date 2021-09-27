@@ -1391,7 +1391,9 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
     if(pageSettings["Display Summary"] === "true"){
         elems.push(
-            <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image} bMonsterHunt={bMonsterHunt}/>
+            <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image} bMonsterHunt={bMonsterHunt} 
+                settings={pageSettings}
+            />
         );
     }
 
