@@ -48,7 +48,6 @@ class Matches{
 
             const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,?,0)";
 
-
             const vars = [
                 date, 
                 server, 
@@ -145,84 +144,88 @@ class Matches{
         });
     }
 
+    async getSettings(){
 
-    getRecent(page, perPage, gametype){
+        const query = "SELECT name,value FROM nstats_site_settings WHERE category='Matches Page'";
 
-        return new Promise((resolve, reject) =>{
+        const result = await mysql.simpleFetch(query);
 
-            page = parseInt(page);
-            perPage = parseInt(perPage);
-            gametype = parseInt(gametype);
+        const settings = {};
 
-            if(gametype !== gametype){
-                gametype = 0;
-            }
+        for(let i = 0; i < result.length; i++){
 
-            if(page !== page){
-                page = 0;
-            }
+            const r = result[i];
 
-            if(perPage !== perPage){
-                perPage = 10;
-            }
+            settings[r.name] = r.value;
+        }
 
-            const start = page * perPage;
+        return settings;
+    }
 
-            let query = `SELECT * FROM nstats_matches WHERE gametype=? ORDER BY date DESC, id DESC LIMIT ?, ?`;
-            let vars = [gametype, start, perPage];
+    async getRecent(page, perPage, gametype){
 
-            if(gametype === 0){
-                query = `SELECT * FROM nstats_matches ORDER BY date DESC, id DESC LIMIT ?, ?`;
-                vars = [ start, perPage];
-            }
+        page = parseInt(page);
+        perPage = parseInt(perPage);
+        gametype = parseInt(gametype);
 
-            mysql.query(query, vars, (err, result) =>{
+        if(page !== page) page = 0;
+        if(perPage !== perPage) perPage = 25;
+        if(gametype !== gametype) gametype = 0;
 
-                if(err) reject(err);
+        const start = page * perPage;
 
-                if(result !== undefined){
-                    resolve(result);
-                }
+        const defaultQuery = `SELECT * FROM nstats_matches WHERE playtime >= ? AND players >=? 
+        ORDER BY date DESC, id DESC LIMIT ?, ?`;
+        const gametypeQuery = `SELECT * FROM nstats_matches WHERE gametype=? AND playtime >=? AND players >=? 
+        ORDER BY date DESC, id DESC LIMIT ?, ?`;
 
-                resolve([]);
-            });
-        });
+        const settings = await this.getSettings();
+
+        const vars = [settings["Minimum Playtime"], settings["Minimum Players"], start, perPage];
+        let query = "";
+
+        if(gametype === 0){
+            
+            query = defaultQuery;
+
+        }else{
+
+            vars.unshift(gametype);
+            query = gametypeQuery;
+        }
+
+        return await mysql.simpleFetch(query, vars);
+
     }
 
 
-    getTotal(gametype){
+    async getTotal(gametype){
 
-        return new Promise((resolve, reject) =>{
+        if(gametype === undefined){
+            gametype = 0;
+        }else{
+            gametype = parseInt(gametype);
+            if(gametype !== gametype) gametype = 0;
+        }
+        
+        const defaultQuery = `SELECT COUNT(*) as total_matches FROM nstats_matches WHERE players>=? AND playtime>=?`;
+        const gametypeQuery = `SELECT COUNT(*) as total_matches FROM nstats_matches WHERE gametype=? AND players>=? AND playtime>=?`;
 
-            if(gametype === undefined){
-                gametype = 0;
-            }else{
-                gametype = parseInt(gametype);
+        const settings = await this.getSettings();
+        const vars = [settings["Minimum Players"], settings["Minimum Playtime"]];
 
-                if(gametype !== gametype){
-                    gametype = 0;
-                }
+        let query = "";
 
-            }
+        if(gametype !== 0){
+            query = gametypeQuery;
+            vars.unshift(gametype);
+        }else{
+            query = defaultQuery;
+        }
 
-            let query = "SELECT COUNT(*) as total_matches FROM nstats_matches";
-            let vars = [];
+        const result = await mysql.simpleFetch(query, vars);
 
-            if(gametype !== 0){
-                query = "SELECT COUNT(*) as total_matches FROM nstats_matches WHERE gametype=?";
-                vars = [gametype];
-            }
-
-            mysql.query(query, vars, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result[0].total_matches);
-                }
-                resolve(0);
-            });
-        });
+        return result[0].total_matches;
     }
 
     getServerNames(ids){
@@ -283,44 +286,34 @@ class Matches{
     }
 
 
-    getFirst(){
+    async getFirst(){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT MIN(date) as first_match FROM nstats_matches WHERE players>=? AND playtime>=?";
 
-            const query = "SELECT date FROM nstats_matches ORDER BY date ASC LIMIT 1";
+        const settings = await this.getSettings();
 
-            mysql.query(query, (err, result) =>{
+        const result = await mysql.simpleFetch(query, [settings["Minimum Players"], settings["Minimum Playtime"]]);
 
-                if(err) reject(err);
+        if(result.length > 0){
+            return result[0].first_match;
+        }
 
-                if(result !== undefined){
-                    if(result.length > 0){
-                        resolve(result[0].date);
-                    }
-                }   
-                resolve(0);
-            });
-        });
+        return 0;
+
     }
 
-    getLast(){
+    async getLast(){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT MAX(date) as last_match FROM nstats_matches WHERE players>=? AND playtime>=?";
 
-            const query = "SELECT date FROM nstats_matches ORDER BY date DESC LIMIT 1";
+        const settings = await this.getSettings();
+        const result = await mysql.simpleFetch(query, [settings["Minimum Players"], settings["Minimum Playtime"]]);
 
-            mysql.query(query, (err, result) =>{
+        if(result.length > 0){
+            return result[0].last_match;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0){
-                        resolve(result[0].date);
-                    }
-                }   
-                resolve(0);
-            });
-        });
+        return 0;
     }
 
     getDuplicates(){
