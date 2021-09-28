@@ -264,7 +264,7 @@ export async function getServerSideProps({req, query}) {
 
 	let gametypeStats = await playerManager.getPlayerGametypeWinStats(summary.name);
 	
-	const totalMatches = await playerManager.getTotalMatches(playerId);
+	const totalMatches = await playerManager.getTotalMatches(playerId, matchManager);
 
 	const gametypeIds = Functions.getUniqueValues(gametypeStats, 'gametype');
 
@@ -276,7 +276,7 @@ export async function getServerSideProps({req, query}) {
 	let recentMatches = [];
 
 	if(pageSettings["Display Recent Matches"] === "true"){
-		recentMatches = await playerManager.getRecentMatches(query.id, matchesPerPage, matchPage);
+		recentMatches = await playerManager.getRecentMatches(query.id, matchesPerPage, matchPage, matchManager);
 	}
 	
 	const matchPages = Math.ceil(totalMatches / matchesPerPage);

@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const Message = require('./message');
 const Functions = require('./functions');
 const CountriesManager = require('./countriesmanager');
@@ -18,12 +17,11 @@ const Voices = require('./voices');
 const WinRate = require('./winrate');
 const Sprees = require('./sprees');
 const MonsterHunt = require('./monsterhunt');
+const SiteSettings = require('./sitesettings');
 
 class Player{
 
-    constructor(){
-
-    }
+    constructor(){}
 
 
 
@@ -91,25 +89,25 @@ class Player{
 
 
 
-            let id = await this.getNameIdQuery(name, 0);
-            
-            
-            if(id === null){
+        let id = await this.getNameIdQuery(name, 0);
+        
+        
+        if(id === null){
 
-                id = await this.createNameIdQuery(name, 0);
+            id = await this.createNameIdQuery(name, 0);
 
-                //only need for gametype 0, otherwise player totals for gametype 0 is always 0
-                await this.setPlayerMasterId(name, 0, id.id);
-            }
+            //only need for gametype 0, otherwise player totals for gametype 0 is always 0
+            await this.setPlayerMasterId(name, 0, id.id);
+        }
 
-            let idGametype = await this.getNameIdQuery(name, gametype);
+        let idGametype = await this.getNameIdQuery(name, gametype);
 
-            if(idGametype === null){
-                idGametype = await this.createNameIdQuery(name, gametype, id.id);
-            }
+        if(idGametype === null){
+            idGametype = await this.createNameIdQuery(name, gametype, id.id);
+        }
 
 
-            return {"totalId": id.id, "gametypeId": idGametype.id};
+        return {"totalId": id.id, "gametypeId": idGametype.id};
 
     
     }
@@ -391,56 +389,89 @@ class Player{
     }
 
 
-    getRecentMatches(id, amount, page){
+    async getPlayedMatchIds(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT match_id FROM nstats_player_matches WHERE player_id=?";
 
-            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND playtime > 0 ORDER BY match_date DESC, id DESC LIMIT ?,?";
+        const result = await mysql.simpleFetch(query, [id]);
 
-            if(page === undefined){
-                page = 1;
-            }
+        const ids = [];
 
-            page--;
+        for(let i = 0; i < result.length; i++){
 
-            if(page < 0){
-                page = 0;
-            }
+            const r = result[i];
 
-            const start = amount * page;
+            ids.push(r.match_id);
+        }
 
-            mysql.query(query, [id, start, amount], (err, result) =>{
+        return ids;
 
-                if(err) reject(err);
+    }
 
-                if(result !== undefined){
-                    Functions.removeIps(result);
-                    resolve(result);
-                }
+    /**
+     * Only get player match ids if they have the min playtime and player count
+     */
+    async getOnlyValidPlayerMatchIds(playerId, minPlayers, minPlaytime, matchManager){
 
-                resolve([]);
-            });
-        });
+        const ids = await this.getPlayedMatchIds(playerId);
+
+        if(ids.length === 0) return [];
+
+        const validIds = await matchManager.getValidMatches(ids, minPlayers, minPlaytime);
+
+        return validIds;
+    }
+
+    async getRecentMatches(id, amount, page, matchManager){
+
+        amount = parseInt(amount);
+
+        if(amount !== amount) amount = 25;
+
+        if(page === undefined){
+            page = 1;
+        }else{
+            page = parseInt(page);
+            if(page !== page) page = 1;
+        }
+
+        page--;
+
+        const settings = await SiteSettings.getSettings("Matches Page");
+
+        const validMatchIds = await this.getOnlyValidPlayerMatchIds(id, settings["Minimum Players"], settings["Minimum Playtime"], matchManager);
+
+        if(validMatchIds.length === 0) return [];
+        
+        //const ignoreMatchIds = await this.getValidPlayedMatchIds(id, settings["Minimum Players"]);
+
+        const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id IN (?) AND playtime > 0 AND playtime >=? ORDER BY match_date DESC, id DESC LIMIT ?,?";
+        const start = amount * page;
+        const vars = [id, validMatchIds, settings["Minimum Playtime"], start, amount];
+        const result = await mysql.simpleFetch(query, vars);
+
+        Functions.removeIps(result);
+
+        return result;
+
     }
 
 
-    getTotalMatches(id){
+    async getTotalMatches(id, matchManager){
 
-        return new Promise((resolve, reject) =>{
+        const settings = await SiteSettings.getSettings("Matches Page");
 
-            const query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE player_id=? AND playtime > 0";
+        const validIds = await this.getOnlyValidPlayerMatchIds(id, settings["Minimum Players"], settings["Minimum Playtime"], matchManager);
 
-            mysql.query(query, [id], (err, result) =>{
+        if(validIds.length === 0) return 0;
 
-                if(err) reject(err);
-                
-                if(result !== undefined){
-                    resolve(result[0].total_matches);
-                }
+        const query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE player_id=? AND match_id IN(?) AND playtime > 0 AND playtime >=?";
+        const vars = [id, validIds, settings["Minimum Playtime"]];
 
-                resolve(0);
-            });
-        });
+        const result = await mysql.simpleFetch(query, vars);
+
+        return result[0].total_matches;
+
     }
 
 

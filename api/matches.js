@@ -20,6 +20,7 @@ const WinRates = require('./winrate');
 const Functions = require('./functions');
 const Logs = require('./logs');
 const MonsterHunt = require('./monsterhunt');
+const SiteSettings = require('./sitesettings');
 
 class Matches{
 
@@ -144,23 +145,6 @@ class Matches{
         });
     }
 
-    async getSettings(){
-
-        const query = "SELECT name,value FROM nstats_site_settings WHERE category='Matches Page'";
-
-        const result = await mysql.simpleFetch(query);
-
-        const settings = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            settings[r.name] = r.value;
-        }
-
-        return settings;
-    }
 
     async getRecent(page, perPage, gametype){
 
@@ -179,7 +163,7 @@ class Matches{
         const gametypeQuery = `SELECT * FROM nstats_matches WHERE gametype=? AND playtime >=? AND players >=? 
         ORDER BY date DESC, id DESC LIMIT ?, ?`;
 
-        const settings = await this.getSettings();
+        const settings = await SiteSettings.getSettings("Matches Page");
 
         const vars = [settings["Minimum Playtime"], settings["Minimum Players"], start, perPage];
         let query = "";
@@ -211,7 +195,7 @@ class Matches{
         const defaultQuery = `SELECT COUNT(*) as total_matches FROM nstats_matches WHERE players>=? AND playtime>=?`;
         const gametypeQuery = `SELECT COUNT(*) as total_matches FROM nstats_matches WHERE gametype=? AND players>=? AND playtime>=?`;
 
-        const settings = await this.getSettings();
+        const settings = await SiteSettings.getSettings("Matches Page");
         const vars = [settings["Minimum Players"], settings["Minimum Playtime"]];
 
         let query = "";
@@ -290,7 +274,7 @@ class Matches{
 
         const query = "SELECT MIN(date) as first_match FROM nstats_matches WHERE players>=? AND playtime>=?";
 
-        const settings = await this.getSettings();
+        const settings = await SiteSettings.getSettings("Matches Page");
 
         const result = await mysql.simpleFetch(query, [settings["Minimum Players"], settings["Minimum Playtime"]]);
 
@@ -306,7 +290,7 @@ class Matches{
 
         const query = "SELECT MAX(date) as last_match FROM nstats_matches WHERE players>=? AND playtime>=?";
 
-        const settings = await this.getSettings();
+        const settings = await SiteSettings.getSettings("Matches Page");
         const result = await mysql.simpleFetch(query, [settings["Minimum Players"], settings["Minimum Playtime"]]);
 
         if(result.length > 0){
@@ -1409,6 +1393,27 @@ class Matches{
         }
 
         return data;
+    }
+
+
+    async getValidMatches(ids, minPlayers, minPlaytime){
+
+        if(ids.length === 0) return [];
+
+        const query = "SELECT id FROM nstats_matches WHERE id IN (?) AND players>=? AND playtime>=?";
+        const vars = [ids, minPlayers, minPlaytime];
+
+        const result = await mysql.simpleFetch(query, vars);
+
+        const newIds = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            newIds.push(r.id);
+        }
+
+        return newIds;
     }
     
 }

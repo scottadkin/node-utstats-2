@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const Gametypes = require('../api/gametypes');
 
 class SiteSettings{
@@ -223,33 +222,43 @@ class SiteSettings{
         }
     }
 
-    getCategorySettings(cat){
+    async getCategorySettings(cat){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
 
-            const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
+        const result = await mysql.simpleFetch(query, [cat]);
 
-            mysql.query(query, [cat], (err, result) =>{
+        const settings = {};
 
-                if(err) reject(err);
+        for(let i = 0; i < result.length; i++){
 
-                if(result !== undefined){
-                    
-                    const data = {};
+            const r = result[i];
 
-                    for(let i = 0; i < result.length; i++){
+            settings[r.name] = r.value;
+        }
 
-                        data[result[i].name] = result[i].value;
-                    }
-
-                    resolve(data);
-
-                }
-
-                resolve({});
-            });
-        });
+        return settings;
     }
+
+    //lazy copy paste until I replace calls to the above function
+    static async getSettings(cat){
+
+        const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
+
+        const result = await mysql.simpleFetch(query, [cat]);
+
+        const settings = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            settings[r.name] = r.value;
+        }
+
+        return settings;
+    }
+
 }
 
 module.exports = SiteSettings;
