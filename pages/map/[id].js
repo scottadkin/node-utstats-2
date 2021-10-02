@@ -31,8 +31,6 @@ class Map extends React.Component{
 
         super(props);
 
-        console.log(props);
-        
     }
 
 
@@ -167,8 +165,8 @@ class Map extends React.Component{
 
                     {(this.props.pageSettings["Display Recent Matches"] === "false") ? null : 
                     <div>
-                        <div className="default-header">Recent Matches</div>
-                        <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`}/>
+                        <div className="default-header" id="recent-matches">Recent Matches</div>
+                        <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`} anchor={"#recent-matches"}/>
                         <div className={styles.recent}>
                             <MatchesTableView data={matches} image={image}/>
                         </div>
@@ -270,7 +268,7 @@ export async function getServerSideProps({req, query}){
         const settings = new SiteSettings();
         const navSettings = await settings.getCategorySettings("Navigation");
         const pageSettings = await settings.getCategorySettings("Map Pages");
-
+        const matchesSettings = await SiteSettings.getSettings("Matches Page");
 
         let mapId = 0;
 
@@ -297,7 +295,7 @@ export async function getServerSideProps({req, query}){
         }
 
         
-        const mapManager = new Maps();
+        const mapManager = new Maps(matchesSettings);
 
         let basicData = [];
 
@@ -437,6 +435,8 @@ export async function getServerSideProps({req, query}){
         }
 
         let pages = 1;
+        
+        basicData[0].matches = await mapManager.getTotalMatches(basicData[0].id);
 
         if(perPage !== 0 && basicData[0].matches !== 0){
 

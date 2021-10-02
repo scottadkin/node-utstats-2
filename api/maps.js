@@ -1,15 +1,16 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const Message = require('./message');
 const fs = require('fs');
 const Functions = require('./functions');
 
 class Maps{
     
-    constructor(){
+    constructor(settings){
 
-
-
+        if(settings !== undefined){
+            this.settings = settings;
+        }
+        
     }
 
     bExists(name){
@@ -425,48 +426,50 @@ class Maps{
     }
 
 
-    getLongestMatch(id){
+    async getLongestMatch(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT id,playtime FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY playtime DESC LIMIT 1`;
 
-            const query = "SELECT id,playtime FROM nstats_matches WHERE map=? ORDER BY playtime DESC LIMIT 1";
+        const settings = this.currentSettings();
 
-            mysql.query(query, [id], (err, result) =>{
+        const result = await mysql.simpleFetch(query, [id, settings.minPlaytime, settings.minPlayers]);
 
-                if(err) reject(err);
+        if(result.length > 0) return {"match": result[0].id, "playtime": result[0].playtime};
 
-                if(result !== undefined){
-                    if(result.length > 0){
-                        resolve({"match": result[0].id, "playtime": result[0].playtime});
-                    }
-                }
+        return {"match": -1, "playtime": -1};
+    }
 
-                resolve({"match": -1, "playtime": -1});
-            });
-        });
+    currentSettings(){
+
+        const minPlaytime = this.settings["Minimum Playtime"] || 0;
+        const minPlayers = this.settings["Minimum Players"] || 0;
+
+        return {
+            "minPlayers": minPlayers,
+            "minPlaytime": minPlaytime
+        };
     }
 
 
-    getRecent(id, page, perPage){
+    async getRecent(id, page, perPage){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC LIMIT ?, ?";
 
-            const query = "SELECT * FROM nstats_matches WHERE map=? ORDER BY date DESC LIMIT ?, ?";
+        const settings = this.currentSettings();
 
-            page = page - 1;
+        page = parseInt(page);
+        if(page !== page) page = 1;
+        page--;
 
-            let start = perPage * page;
+        perPage = parseInt(perPage);
+        if(perPage !== perPage) perPage = 25;
 
-            mysql.query(query, [id, start, perPage], (err, result) =>{
+        const start = page * perPage;
 
-                if(err) reject(err);
+        const vars = [id, settings.minPlaytime, settings.minPlayers, start, perPage];
 
-                if(result !== undefined){
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
+        return await mysql.simpleFetch(query, vars);
+
     }
 
     getMatchDates(map, limit){
@@ -953,6 +956,20 @@ class Maps{
         }
 
         return result[0];
+    }
+
+
+    async getTotalMatches(id){
+
+        const settings = this.currentSettings();
+
+        const query = "SELECT COUNT(*) as total_matches FROM nstats_matches WHERE map=? AND playtime>=? AND players>=?";
+
+        const vars = [id, settings.minPlaytime, settings.minPlayers];
+
+        const result = await mysql.simpleFetch(query, vars);
+
+        return result[0].total_matches;
     }
 }
 
