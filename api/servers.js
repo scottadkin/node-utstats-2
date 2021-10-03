@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 
 class Servers{
 
@@ -254,29 +253,23 @@ class Servers{
         });
     }
 
-    getNames(ids){
+    async getNames(ids){
 
-        return new Promise((resolve, reject) =>{
+        if(ids.length === 0) return [];
 
-            if(ids.length === 0) resolve([]);
+        const query = "SELECT id,name FROM nstats_servers WHERE id IN(?)";
+        const result = await mysql.simpleFetch(query, [ids]);
 
-            const query = "SELECT id,name FROM nstats_servers WHERE id IN(?)";
+        const data = {};
 
-            const data = {};
+        for(let i = 0; i < result.length; i++){
 
-            mysql.query(query, [ids], (err, result) =>{
+            const r = result[i];
 
-                if(err) reject(err);
+            data[r.id] = r.name;
+        }
 
-                if(result !== undefined){
-
-                    for(let i = 0; i < result.length; i++){
-                        data[result[i].id] = result[i].name;
-                    }
-                }
-                resolve(data);
-            });
-        });
+        return data;
     }
 
     getAllNames(){

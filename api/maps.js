@@ -238,33 +238,34 @@ class Maps{
     /**
      *  old get names by id function, use getNames instead
      * @param {*} ids 
+     * @param {*} bSimpleObject return an object instead of an array
      */
 
-    getNamesByIds(ids){
+    async getNamesByIds(ids, bSimpleObject){
 
-        return new Promise((resolve, reject) =>{
+        if(bSimpleObject === undefined) bSimpleObject = false;
 
-            if(ids === undefined) resolve([]);
-            if(ids.length === 0) resolve([]);
-            
-            const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
+        if(ids.length === 0) return {};
 
-            mysql.query(query, [ids], (err, result) =>{
+        const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
+        const result = await mysql.simpleFetch(query, [ids]);
 
-                if(err) reject(err);
+        const data = (bSimpleObject) ? {} : [];
 
-                const data = [];
+        for(let i = 0; i < result.length; i++){
 
-                if(result !== undefined){
-                    
-                    for(let i = 0; i < result.length; i++){             
-                        data.push({"id": result[i].id, "name": this.removeUnr(result[i].name)});
-                    }
-                }
+            const r = result[i];
 
-                resolve(data);
-            });
-        });
+            if(!bSimpleObject){
+                data.push({"id": r.id, "name": this.removeUnr(r.name)});
+            }else{
+
+                data[r.id] = this.removeUnr(r.name);
+            }
+        }
+
+        return data;
+
     }
 
     

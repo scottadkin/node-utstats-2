@@ -893,7 +893,7 @@ class Matches{
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
-            ?,?,?
+            ?,?,?,?
 
         )`;
 
@@ -901,7 +901,7 @@ class Matches{
 
         
 
-        //82
+        //87
 
         const vars = [
             data.match_id,
@@ -1003,7 +1003,8 @@ class Matches{
             data.boots,
             data.super_health,
             data.mh_kills,
-            data.mh_kills_best_life
+            data.mh_kills_best_life,
+            data.views
 
         ];
 
@@ -1137,7 +1138,7 @@ class Matches{
                 'k_distance_uber',       'headshots',              'shield_belt',
                 'amp',                   'amp_time',               'invisibility',
                 'invisibility_time',     'pads',                   'armor',
-                'boots',                 'super_health', 'mh_kills'
+                'boots',                 'super_health', 'mh_kills', 'views'
 
             ];
 
@@ -1414,6 +1415,17 @@ class Matches{
         }
 
         return newIds;
+    }
+
+
+    async getInvalidMatches(minPlayers, minPlaytime){
+
+
+        const query = "SELECT id,date,server,gametype,map,players,playtime FROM nstats_matches WHERE players<? OR playtime<? ORDER BY date DESC, id DESC";
+
+        const vars = [minPlayers, minPlaytime];
+
+        return await mysql.simpleFetch(query, vars);
     }
     
 }

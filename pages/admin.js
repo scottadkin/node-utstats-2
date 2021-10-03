@@ -38,7 +38,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 10, 
+            "mode": 4, 
             "files": [], 
             "mapFiles": JSON.parse(this.props.mapFiles),
             "gametypeNames": JSON.parse(this.props.gametypeNames),
@@ -679,7 +679,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 4) return null;
 
-        return <AdminMatchesManager duplicates={this.props.duplicateMatches} />;
+        return <AdminMatchesManager />;
     }
 
 
@@ -868,7 +868,6 @@ class Admin extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
-    const user = new User();
     const session = new Session(req);
     const settings = new SiteSettings();
     const faceManager = new Faces();
@@ -887,7 +886,6 @@ export async function getServerSideProps({req, query}){
     let userAccounts = [];
     let faceData = [];
     let faceFiles = [];
-    let duplicateMatches = [];
     let playerNames = [];
     let gametypeNames = [];
     let rankingEvents = [];
@@ -926,8 +924,6 @@ export async function getServerSideProps({req, query}){
         
         faceFiles = faceManager.getAllFiles();
 
-        duplicateMatches = await admin.getDuplicateMatches();
-
         const playerManager = new Players();
 
         playerNames = await playerManager.getAllNames();
@@ -965,7 +961,7 @@ export async function getServerSideProps({req, query}){
 
     }
     
-    const navSettings = await settings.getCategorySettings("Navigation");
+    const navSettings = await SiteSettings.getSettings("Navigation");
 
 
 
@@ -1002,7 +998,6 @@ export async function getServerSideProps({req, query}){
             "userAccounts": JSON.stringify(userAccounts),
             "faceData": JSON.stringify(faceData),
             "faceFiles": JSON.stringify(faceFiles),
-            "duplicateMatches": JSON.stringify(duplicateMatches),
             "playerNames": JSON.stringify(playerNames),
             "gametypeNames": JSON.stringify(gametypeNames),
             "rankingEvents": JSON.stringify(rankingEvents),

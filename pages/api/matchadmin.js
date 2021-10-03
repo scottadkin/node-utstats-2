@@ -10,7 +10,7 @@ export default async (req, res) =>{
 
         await session.load();
 
-        if(session.settings.bAdmin){
+        if(await session.bUserAdmin()){
 
             const matchManager = new Matches();
 

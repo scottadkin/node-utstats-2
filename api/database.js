@@ -161,10 +161,15 @@ Database.updateReturnAffectedRows = (query, vars) =>{
 
             Database.query(query, (err, result) =>{
 
-                if(err) reject(err);
+                if(err){
+                    console.trace(err);
+                    reject(err);
+                    return;
+                }
 
                 if(result !== undefined){
                     resolve(result.affectedRows);
+                    return;
                 }
 
                 resolve(0);
@@ -175,17 +180,69 @@ Database.updateReturnAffectedRows = (query, vars) =>{
 
             Database.query(query, vars, (err, result) =>{
 
-                if(err) reject(err);
+                if(err){
+                    console.trace(err);
+                    reject(err);
+                    return
+                }
 
                 if(result !== undefined){
                     resolve(result.affectedRows);
+                    return;
                 }
 
                 resolve(0);
             });
         }
     });
+}
 
+
+Database.simpleQuery = (query, vars) =>{
+
+    return new Promise((resolve, reject) =>{
+
+        if(vars === undefined){
+
+            Database.query(query, (err, result) =>{
+
+                if(err){
+                    console.trace(err);
+                    reject(err);
+                    return;
+                }
+
+                if(result !== undefined){
+                    resolve(result);
+                    return;
+                }
+
+                resolve([]);
+                return;
+            });
+        }else{
+
+            Database.query(query, vars, (err, result) =>{
+
+                if(err){
+                    console.trace(err);
+                    reject(err);
+                    return;
+                }
+
+                if(result !== undefined){
+                    resolve(result);
+                    return;
+                }
+
+                resolve([]);
+                return;
+
+            });
+        }
+
+    });
+    
 }
 
 module.exports = Database;

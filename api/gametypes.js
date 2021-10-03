@@ -1,4 +1,3 @@
-const Promise = require('promise');
 const mysql = require('./database');
 const Message = require('./message');
 const CTF = require('./ctf');
@@ -174,32 +173,25 @@ class Gametypes{
         });
     }
 
-    getNames(ids){
+    async getNames(ids){
 
-        return new Promise((resolve, reject) =>{
+        if(ids.length === 0) return {};
 
-            if(ids.length === 0) resolve({});
+        const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
 
-            const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
+        const result = await mysql.simpleFetch(query, [ids]);
 
-            mysql.query(query, [ids], (err, result) =>{
+        const data = {"0": "All"};
 
-                if(err) reject(err);
+        for(let i = 0; i < result.length; i++){
 
-                const data = {};
+            const r = result[i];
 
-                data['0'] = "All";
-                if(result !== undefined){
-                    
-                    for(let i = 0; i < result.length; i++){
-                       data[result[i].id] = result[i].name;
-                    }
-                    
-                }
+            data[r.id] = r.name;
+        }
 
-                resolve(data);
-            });
-        });
+        return data;
+
     }
 
 
