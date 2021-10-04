@@ -300,31 +300,27 @@ class Matches{
         return 0;
     }
 
-    getDuplicates(){
+    async getDuplicates(){
 
-        return new Promise((resolve, reject) =>{
 
-            const query = "SELECT name,COUNT(name) as found FROM nstats_logs GROUP BY name";
+        const query = `SELECT name, COUNT(*) as total_found, MAX(imported) as last_import, MIN(imported) as first_import,
+        MIN(match_id) as first_id, MAX(match_id) as last_id
+         FROM nstats_logs GROUP BY name`;
 
-            mysql.query(query, (err, result) =>{
+        const result = await mysql.simpleQuery(query);
 
-                if(err) reject(err);
+        const found = [];
 
-                if(result !== undefined){
+        for(let i = 0; i < result.length; i++){
 
-                    const found = [];
+            const r = result[i];
 
-                    for(let i = 0; i < result.length; i++){
+            if(r.total_found > 1){
+                found.push(r);
+            }
+        }
 
-                        if(result[i].found > 1) found.push(result[i]);
-                    }
-
-                    resolve(found);
-                }
-
-                resolve([]);
-            });
-        });     
+        return found;
     }
 
     getMatchLogFileNames(matchIds){
@@ -351,24 +347,22 @@ class Matches{
     }
 
 
-    getPreviousDuplicates(latestIds, logFileNames){
+    async getPreviousDuplicates(logFileName, latestId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT match_id FROM nstats_logs WHERE name=? AND match_id != ?";
 
-            const query = "SELECT match_id,name FROM nstats_logs WHERE name IN (?) AND match_id NOT IN(?)";
+        const vars = [logFileName, latestId];
 
-            mysql.query(query, [logFileNames, latestIds], (err, result) =>{
+        const result = await mysql.simpleQuery(query, vars);
 
-                if(err) reject(err);
+        const found = [];
 
-                if(result !== undefined){
+        for(let i = 0; i < result.length; i++){
 
-                    resolve(result);
-                }
+            found.push(result[i].match_id);
+        }
 
-                resolve([]);
-            });
-        });
+        return found;
     }
 
 

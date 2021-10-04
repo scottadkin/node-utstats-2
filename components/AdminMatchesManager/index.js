@@ -11,7 +11,7 @@ class AdminMatchesManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 1, 
+            "mode": 0, 
             "duplicateMatches": [], 
             "invalidMatches": [], 
             "errors": [], 
@@ -21,11 +21,97 @@ class AdminMatchesManager extends React.Component{
             "bothInvalid": 0,
             "actionInProgress": false,
             "actionProgress": 0,
-            "toDelete": 0
+            "toDelete": 0,
+            "duplicateMatches": []
         };
 
         this.changeMode = this.changeMode.bind(this);
         this.deleteInvalidMatches = this.deleteInvalidMatches.bind(this);
+        this.deleteDuplicateMatches = this.deleteDuplicateMatches.bind(this);
+
+    }
+
+
+
+    async deleteDuplicateMatches(){
+
+        try{
+
+
+            this.setState({"actionInProgess": true, "actionProgress": 0, "toDelete": this.state.duplicateMatches.length});
+
+            for(let i = 0; i < this.state.duplicateMatches.length; i++){
+
+                const d = this.state.duplicateMatches[i];
+
+                await this.deleteDuplicate(d.name, d.last_id);
+            }
+
+            if(this.state.actionProgress === this.state.duplicateMatches.length){
+                this.setState({"actionInProgress": false});
+                await this.loadDuplicateMatches();
+            }
+            
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async deleteDuplicate(fileName, latestId){
+
+        try{
+
+            console.log(`Delete matches with log ${fileName}, ignore ${latestId}`);
+
+            const req = await fetch("/api/adminmatches", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "deleteduplicate", "file": fileName, "latest": latestId})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+
+                const old = this.state.actionProgress;
+
+                this.setState({"actionProgress": old + 1});
+            }else{
+
+                throw new Error(req.error);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+
+    }
+
+    async loadDuplicateMatches(){
+
+        try{
+
+            const req = await fetch("/api/adminmatches", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "duplicates"})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+
+                this.setState({"duplicateMatches": res.data});
+            }else{
+
+                throw new Error(res.error);
+            }
+
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
 
@@ -99,6 +185,7 @@ class AdminMatchesManager extends React.Component{
         try{
 
             await this.loadSettings();
+            await this.loadDuplicateMatches();
             await this.loadInvalidMatches();
 
         }catch(err){
@@ -108,7 +195,7 @@ class AdminMatchesManager extends React.Component{
 
     changeMode(id){
 
-        this.setState({"mode": id});
+        this.setState({"mode": id, "actionInProgress": false});
     }
 
     async deleteMatch(id){
@@ -136,9 +223,6 @@ class AdminMatchesManager extends React.Component{
                 throw new Error(res.error);
             }
 
-
-
-            console.log(res);
 
         }catch(err){
             console.trace(err);
@@ -222,7 +306,7 @@ class AdminMatchesManager extends React.Component{
 
         if(rows.length === 0){
             rows.push(<tr key="i">
-                <td className="team-green" colSpan={6}>There are no matches found.</td>
+                <td className="team-green" colSpan={6}>There was no matches found.</td>
 
             </tr>);
         }
@@ -305,6 +389,60 @@ class AdminMatchesManager extends React.Component{
         </div>
     }
 
+    renderDuplicateMatches(){
+
+        if(this.state.mode !== 0) return null;
+
+        const rows = [];
+
+        for(let i = 0; i < this.state.duplicateMatches.length; i++){
+
+            const d = this.state.duplicateMatches[i];
+
+            rows.push(<tr key={i}>
+                <td>{d.name}</td>
+                <td><a href={`/match/${d.first_id}`} target="_blank">{Functions.convertTimestamp(d.first_import, true)}</a></td>
+                <td><a href={`/match/${d.last_id}`} target="_blank">{Functions.convertTimestamp(d.last_import, true)}</a></td>
+                <td>{d.total_found - 1}</td>
+            </tr>);
+        }
+
+        if(rows.length === 0){
+
+            rows.push(<tr key="i"><td  className="team-green" colSpan={4}>No duplicate matches found.</td></tr>);
+        }
+
+        return <div>
+            <div className="default-header">Duplicate Matches</div>
+            <div className="form m-bottom-25">
+                <div className="form-info">
+                    <div className="default-sub-header-alt">Information</div>
+                    Duplicate matches are logs that have been imported more than once, deleting them will remove the earlier imports and only keep the most recent import.
+                </div>
+                <div className="default-sub-header-alt">Actions</div>
+
+                    <input type="button" className="bigger-button team-red" value="Delete All Matches" onClick={(() =>{
+                        this.deleteDuplicateMatches();
+                    })}/>
+
+                    {this.renderProgress()}
+                
+            </div>
+            <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>Log Name</th>
+                        <th>First Imported</th>
+                        <th>Last Imported</th>
+                        <th>Found Duplicates</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+
+    }
+
     render(){
 
         return <div>
@@ -318,6 +456,7 @@ class AdminMatchesManager extends React.Component{
                 })}>Under Minimum Players/Playtime</div>
             </div>
             {this.renderInvalidMatches()}
+            {this.renderDuplicateMatches()}
             
         </div>
     }

@@ -92,15 +92,48 @@ export default async (req, res) => {
                             res.status(200).json({"error": "There was a problem deleting the match"})
                         }
 
-                        return;
-
-                            
+                        return;           
 
                     }else{
 
                         res.status(200).json({"error": "You have not specified a match to delete."});
                         return;
                     }
+
+                }else if(mode === "duplicates"){
+
+                    const dups = await matches.getDuplicates();
+                    
+                    res.status(200).json({"data": dups});
+                    return;
+
+                }else if(mode === "deleteduplicate"){
+
+                    let latestId = (req.body.latest) ? parseInt(req.body.latest) : -1;
+                    if(latestId !== latestId) latestId = -1;
+
+                    let fileName = (req.body.file) ? req.body.file : -1;
+
+                    if(latestId !== -1 && fileName !== -1){
+
+                        const matchesToDelete = await matches.getPreviousDuplicates(fileName, latestId);
+
+                        for(let i = 0; i < matchesToDelete.length; i++){
+
+                            const m = matchesToDelete[i];
+
+                            await matches.deleteMatch(m);
+                        }
+
+                        res.status(200).json({"message": "passed"});
+                        return;
+
+                    }else{
+
+                        res.status(200).json({"error": "FileName and or latestId are invalid."});
+                        return;
+                    }
+                    
                 }
 
             }
