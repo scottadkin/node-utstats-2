@@ -353,7 +353,7 @@ export async function getServerSideProps({req, query}) {
 
 		for(let i = 0; i < gametypeStats.length; i++){
 	
-			imageGametypeNames.push(gametypeStats[i].name.replace(/ /ig,'').toLowerCase());
+			imageGametypeNames.push(gametypeStats[i].name.replace(/ /ig,'').replace(/tournament/ig, '').toLowerCase());
 		}
 	
 		gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);

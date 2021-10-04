@@ -13,12 +13,15 @@ const HomeMostPlayedGametypes = ({data, images}) =>{
 
     let currentImage = "";
 
-
     for(let i = 0; i < data.length; i++){
 
         const d = data[i];
 
-        const currentName = d.name.replace(/ /ig, '').toLowerCase();
+        let currentName = d.name.toLowerCase();
+       
+        currentName = currentName.replace(/ /ig, '');
+        currentName = currentName.replace(/tournament/ig, '');
+      
 
 
         if(images[currentName] !== undefined){
@@ -26,6 +29,8 @@ const HomeMostPlayedGametypes = ({data, images}) =>{
         }else{
             currentImage = defaultImage;
         }
+
+        if(currentImage === null) currentImage = defaultImage;
 
         const originalLength = d.name.length;
 
