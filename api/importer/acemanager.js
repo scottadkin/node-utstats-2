@@ -98,7 +98,7 @@ class AceManager{
                     data.version = aceVersion;
                 }
 
-                let type = result[2].toLowerCase();
+                let type = result[2].toLowerCase().trim();
 
                 let currentValue = result[3];
 
@@ -127,7 +127,25 @@ class AceManager{
         if(data['packagepath'] === undefined) data['packagepath'] = "N/A";
         if(data['packagehash'] === undefined) data['packagehash'] = "N/A";
         if(data['packagever'] === undefined) data['packagever'] = "N/A";
-        if(data['packagesize'] === undefined) data['packagesize'] = 0;
+
+        if(data['packagesize'] === undefined){
+
+            data['packagesize'] = 0;
+
+        }else{
+
+            const cleanReg = /^(\d+) bytes$/i;
+            const cResult = cleanReg.exec(data['packagesize']);
+
+            if(cResult !== null){
+                data['packagesize'] = cResult[1];
+            }
+        }
+
+        if(data['kickreason'] === undefined) data['kickreason'] = "N/A";
+
+        if(data['filename'] === undefined) data['filename'] = "";
+        if(data['status'] === undefined) data['status'] = "";
 
         return data;
     }
@@ -144,7 +162,7 @@ class AceManager{
             data.country = country.country;
         }
 
-        if(data.kickreason){
+        if(data.packagename){
             await this.ace.insertKick(fileName, rawData, data);
         }else{
             await this.ace.insertScreenshotRequest(fileName, rawData, data);
