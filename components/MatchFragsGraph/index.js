@@ -1,5 +1,6 @@
 import React from 'react';
 import Graph from '../Graph';
+import Functions from '../../api/functions';
 
 class MatchFragsGraph extends React.Component{
 
@@ -7,7 +8,15 @@ class MatchFragsGraph extends React.Component{
 
         super(props);
 
-        this.state = {"kills": [], "deaths": [], "suicides": [], "finishedLoading": false};
+        this.state = {
+            "kills": [], 
+            "deaths": [], 
+            "suicides": [], 
+            "finishedLoading": false, 
+            "teamsKills": [], 
+            "teamsDeaths": [],
+            "teamsSuicides": []
+        };
     }
 
 
@@ -20,6 +29,11 @@ class MatchFragsGraph extends React.Component{
         const suicides = [];
         const indexes = [];
 
+        const teamsKills = [];
+        const teamsDeaths = [];
+        const teamsSuicides = [];
+
+
         for(const [key] of Object.entries(this.props.players)){
 
             indexes.push(parseInt(key));
@@ -28,12 +42,22 @@ class MatchFragsGraph extends React.Component{
             suicides.push([0]);
         }
 
+        for(let i = 0; i < this.props.teams; i++){
+
+            teamsKills.push([0]);
+            teamsDeaths.push([0]);
+            teamsSuicides.push([0]);
+        }
+
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
 
             const killerIndex = indexes.indexOf(d.killer);
             let victimIndex = indexes.indexOf(d.victim);
+
+            const killerTeam = d.killer_team;
+            const victimTeam = d.victim_team;
 
             if(victimIndex !== -1){
                 const previousKills = kills[killerIndex];
@@ -68,9 +92,40 @@ class MatchFragsGraph extends React.Component{
                 if(x !== victimIndex){
                     deaths[x].push(deaths[x][deaths[x].length - 1]);
                 }
+            }
 
+            if(this.props.teams > 1){
+                if(victimTeam !== -1){
+
+                    teamsKills[killerTeam].push(teamsKills[killerTeam][teamsKills[killerTeam].length - 1] + 1);
+                    teamsDeaths[killerTeam].push(teamsDeaths[killerTeam][teamsDeaths[killerTeam].length - 1]);
+
+                }else{
+
+                    teamsSuicides[killerTeam].push(teamsSuicides[killerTeam][teamsSuicides[killerTeam].length - 1] + 1);
+
+                    for(let x = 0; x < this.props.teams; x++){
+
+                        if(x !== killerTeam){
+                            teamsSuicides[x].push(teamsSuicides[x][teamsSuicides[x].length - 1]);
+                        }
+                    }
+                }
+
+                for(let x = 0; x < teamsKills.length; x++){
+
+                    if(x !== killerTeam || victimTeam === -1){
+                        teamsKills[x].push(teamsKills[x][teamsKills[x].length - 1]);
+                        
+                    }
+
+                    if(victimTeam !== -1 && x !== killerTeam){
+                        teamsDeaths[x].push(teamsDeaths[x][teamsDeaths[x].length - 1] + 1);
+                    } 
+                }
             }
         }
+
 
         const killsData = [];
         const deathsData = [];
@@ -87,6 +142,28 @@ class MatchFragsGraph extends React.Component{
             killsData.push(currentKills);
             deathsData.push(currentDeaths);
             suicidesData.push(currentSuicides);
+        }
+
+
+
+        const teamsKillsData = [];
+        const teamsDeathsData = [];
+        const teamsSuicideData = [];
+
+        if(this.props.teams > 1){
+
+            for(let i = 0; i < this.props.teams; i++){
+
+                const currentName = Functions.getTeamName(i);
+
+                const currentKills =  {"data": teamsKills[i], "name": currentName, "lastValue": teamsKills[i][teamsKills[i].length - 1]};
+                const currentDeaths =  {"data": teamsDeaths[i], "name": currentName, "lastValue": teamsDeaths[i][teamsDeaths[i].length - 1]};
+                const currentSuicides =  {"data": teamsSuicides[i], "name": currentName, "lastValue": teamsSuicides[i][teamsSuicides[i].length - 1]};
+
+                teamsKillsData.push(currentKills);
+                teamsDeathsData.push(currentDeaths);
+                teamsSuicideData.push(currentSuicides);
+            }
         }
 
         const byLastValue = (a, b) =>{
@@ -107,7 +184,14 @@ class MatchFragsGraph extends React.Component{
         deathsData.sort(byLastValue);
         suicidesData.sort(byLastValue);
         
-        this.setState({"kills": killsData, "deaths": deathsData, "suicides": suicidesData});
+        this.setState({
+            "kills": killsData, 
+            "deaths": deathsData, 
+            "suicides": suicidesData, 
+            "teamsKills": teamsKillsData, 
+            "teamsDeaths": teamsDeathsData,
+            "teamsSuicides": teamsSuicideData
+        });
         
     }
 
@@ -142,9 +226,26 @@ class MatchFragsGraph extends React.Component{
 
         if(!this.state.finishedLoading) return null;
 
+        const graphTitles = ["Kills", "Deaths", "Suicides",];
+        const graphData = [this.state.kills, this.state.deaths, this.state.suicides];
+
+
+        const teamsTitles = ["Team Total Kills", "Team Total Deaths", "Team Total Suicides"];
+        const teamsData = [this.state.teamsKills, this.state.teamsDeaths, this.state.teamsSuicides];
+
+        if(this.props.teams > 1){
+
+            graphTitles.push(...teamsTitles);
+            graphData.push(...teamsData);
+
+        }
+
         return <div>
             <div className="default-header">Frags Graph</div>
-            <Graph title={["Kills", "Deaths", "Suicides"]} data={JSON.stringify([this.state.kills, this.state.deaths, this.state.suicides])}/>
+            <Graph 
+                title={graphTitles} 
+                data={JSON.stringify(graphData)}
+            />
         </div>
     }
 }

@@ -1092,7 +1092,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
         if(!parsedInfo.mh){
 
-            elems.push(<MatchFragsGraph key="frag-graphs" matchId={parsedInfo.id} players={justPlayerNames}/>);
+            elems.push(<MatchFragsGraph key="frag-graphs" matchId={parsedInfo.id} players={justPlayerNames} teams={parsedInfo.total_teams}/>);
 
             /*const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
 

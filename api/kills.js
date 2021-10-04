@@ -155,7 +155,7 @@ class Kills{
 
     async getGraphData(matchId){
 
-        const query = "SELECT timestamp,killer,victim FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
+        const query = "SELECT timestamp,killer,victim,killer_team,victim_team FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
         
         return await mysql.simpleQuery(query, [matchId]);
     }
