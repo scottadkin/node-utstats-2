@@ -9,9 +9,6 @@ class GraphCanvas{
 
     constructor(canvas, title, data, text, minValue, maxValue){
 
-
-        console.log(title);
-        console.log(JSON.parse(data));
         
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
@@ -191,9 +188,11 @@ class GraphCanvas{
 
                 if(this.mouse.y > this.tabHeight){
                     
-                    this.canvas.requestFullscreen().catch((err) =>{
-                        console.log(err);
-                    });
+                    if(!this.bFullScreen){
+                        this.canvas.requestFullscreen().catch((err) =>{
+                            console.trace(err);
+                        });
+                    }
                     
                 }else{
                     
@@ -323,7 +322,13 @@ class GraphCanvas{
         for(let i = offsetX; i < width; i += tabWidth){
 
             if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
-        
+                console.log(`tabOffset = ${this.tabOffset}`);
+                
+                if(this.data[currentTab + this.tabOffset][0] === undefined){
+                    this.canvas.style.cssText = `cursor:no-drop;`;
+                    return;
+                }
+
                 if(this.data[currentTab + this.tabOffset][0].data.length < 2){
                     this.canvas.style.cssText = `cursor:no-drop;`;
                     return;
@@ -407,6 +412,10 @@ class GraphCanvas{
 
             if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
                 
+                if(this.data[currentTab][0] === undefined){
+                    return;
+                }
+
                 //we don't want to swap to tabs that have no data
                 if(this.data[currentTab][0].data.length < 2){
                     return;
@@ -584,6 +593,8 @@ class GraphCanvas{
 
     resize(){
 
+        //console.log(this.bFullScreen);
+
         if(!this.bFullScreen){
             this.canvas.height = this.defaultWidth * this.aspectRatio;
             this.canvas.width = this.defaultWidth;
@@ -676,7 +687,7 @@ class GraphCanvas{
             d = data[i];
 
             c.beginPath();
-            c.moveTo(startX,  startY - (offsetYBit * d.data[0]));
+            c.moveTo(startX,  startY - (offsetYBit * (d.data[0] - this.min)) - (blockSize * 0.5));
 
             for(let x = 0; x < d.data.length; x++){
 
@@ -834,7 +845,7 @@ class GraphCanvas{
 
         
         if(data[0] === undefined){
-            console.trace(`data[0] is undefined`);
+            console.log(`data[0] is undefined`);
             return;
         }
         //all data must have same length

@@ -46,6 +46,7 @@ import MonsterHunt from '../../api/monsterhunt';
 import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSummary/';
 import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonsterKills/';
 import Analytics from '../../api/analytics';
+import MatchFragsGraph from '../../components/MatchFragsGraph';
 
 
 const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -106,340 +107,6 @@ function getItemsIds(items){
 
     return ids;
 }
-
-
-class PlayerFragsGraphData{
-
-    constructor(kills, headshots, playerNames, totalTeams){
-
-        this.kills = kills;
-        this.headshots = headshots;
-        this.playerNames = playerNames;
-        this.totalTeams = totalTeams;
-
-        this.createData();
-        this.setData();
-        this.setNames();
-    }
-
-    createData(){
-
-        this.data = new Map();
-
-        let current = 0;
-
-        for(const [key, value] of Object.entries(this.playerNames)){
-
-            current = this.data.get(parseInt(key));
-
-            if(current === undefined){
-                this.data.set(parseInt(key), {"kills": [0], "deaths": [0], "suicides": [0], "teamKills": [0], "headshots": [0]})
-            }
-        }
-
-
-        this.teamData = [];
-
-        if(this.totalTeams > 0){
-            
-            for(let i = 0; i < this.totalTeams; i++){
-
-                this.teamData.push({
-                    "name": teamNames[i],
-                    "kills": [0], 
-                    "deaths": [0], 
-                    "suicides": [0], 
-                    "teamKills": [0],
-                    "headshots": [0]
-                });
-            }
-        }
-
-    }
-
-    updateOthers(ignore, type){
-
-
-        for(const [key, value] of this.data){
-
-            if(key !== ignore){
-
-                value[type].push(value[type][value[type].length - 1]);
-                this.data.set(key, {"kills": value.kills, "deaths": value.deaths, "suicides": value.suicides, "teamKills": value.teamKills, "headshots": value.headshots});
-            }
-        }
-    }
-
-    teamUpdateOthers(ignore, type){
-
-        for(let i = 0; i < this.teamData.length; i++){
-
-            if(i !== ignore){
-                this.teamData[i][type].push(this.teamData[i][type][this.teamData[i][type].length - 1]);
-            }
-        }
-    }
-
-    setData(){
-
-        let k = 0;
-
-        let currentKiller = 0;
-        let currentVictim = 0;
-
-        for(let i = 0; i < this.kills.length; i++){
-
-            k = this.kills[i];
-
-            if(k.victim_team === -1){
-
-               // console.log("suicide");
-
-                currentKiller = this.data.get(k.killer);
-
-                if(currentKiller === undefined) continue;
-
-                currentKiller.suicides.push(currentKiller.suicides[currentKiller.suicides.length - 1] + 1);
-                currentKiller.deaths.push(currentKiller.deaths[currentKiller.deaths.length - 1] + 1);
-
-
-                if(this.totalTeams > 0){
-                    this.teamData[k.killer_team].suicides.push(
-                        this.teamData[k.killer_team].suicides[this.teamData[k.killer_team].suicides.length - 1] + 1
-                    );
-
-                    this.teamData[k.killer_team].deaths.push(
-                        this.teamData[k.killer_team].deaths[this.teamData[k.killer_team].deaths.length - 1] + 1
-                    );
-                }
-
-                this.data.set(k.killer,{
-                    "kills": currentKiller.kills,
-                    "deaths": currentKiller.deaths,
-                    "suicides": currentKiller.suicides,
-                    "teamKills": currentKiller.teamKills,
-                    "headshots": currentKiller.headshots
-                });
-
-                this.updateOthers(k.killer, 'suicides');
-                this.updateOthers(k.killer, 'deaths');
-
-                if(this.totalTeams > 0){
-                    this.teamUpdateOthers(k.killer_team, 'suicides');
-                    this.teamUpdateOthers(k.killer_team, 'deaths');
-                }
-
-            }else if(k.killer_team === k.victim_team){
-
-                //console.log("team kill");
-
-                currentKiller = this.data.get(k.killer);
-                currentVictim = this.data.get(k.victim);
-
-                if(currentVictim === undefined) continue;
-                if(currentKiller === undefined) continue;
-
-                if(this.totalTeams > 0){
-                    currentKiller.teamKills.push(currentKiller.teamKills[currentKiller.teamKills.length - 1] + 1);
-                    this.updateOthers(k.killer, 'teamKills');
-                }else{
-
-                    currentKiller.kills.push(
-                        currentKiller.kills[currentKiller.kills.length - 1] + 1
-                        
-                    );
-                    this.updateOthers(k.killer, 'kills');
-                }
-                currentVictim.deaths.push(currentVictim.deaths[currentVictim.deaths.length - 1] + 1);
-
-                if(this.totalTeams > 0){
-                    
-                    this.teamData[k.killer_team].teamKills.push(
-                        this.teamData[k.killer_team].teamKills[this.teamData[k.killer_team].teamKills.length - 1] + 1
-                    );
-
-                    this.teamData[k.killer_team].deaths.push(
-                        this.teamData[k.killer_team].deaths[this.teamData[k.killer_team].deaths.length - 1] + 1
-                    );
-                }
-
-                
-                this.updateOthers(k.victim, 'deaths');
-
-                if(this.totalTeams > 0){
-                    this.teamUpdateOthers(k.killer_team, 'teamKills');
-                    this.teamUpdateOthers(k.killer_team, 'deaths');
-                }
-
-            }else{
-
-                currentKiller = this.data.get(k.killer);
-                currentVictim = this.data.get(k.victim);
-                
-                if(currentVictim === undefined) continue;
-                if(currentKiller === undefined) continue;
-
-                currentKiller.kills.push(
-                    currentKiller.kills[currentKiller.kills.length - 1] + 1
-                );
-
-                if(this.totalTeams > 0){
-
-                    this.teamData[k.killer_team].kills.push(
-                        this.teamData[k.killer_team].kills[this.teamData[k.killer_team].kills.length - 1] + 1
-                    );
-
-                    this.teamData[k.victim_team].deaths.push(
-                        this.teamData[k.victim_team].deaths[this.teamData[k.victim_team].deaths.length - 1] + 1
-                    );
-
-                }
-                currentVictim.deaths.push(
-                    currentVictim.deaths[currentVictim.deaths.length - 1] + 1 
-                );
-
-                this.data.set(k.killer,{
-                    "kills": currentKiller.kills,
-                    "deaths": currentKiller.deaths,
-                    "suicides": currentKiller.suicides,
-                    "teamKills": currentKiller.teamKills,
-                    "headshots": currentKiller.headshots
-                });
-
-                this.data.set(k.victim,{
-                    "kills": currentVictim.kills,
-                    "deaths": currentVictim.deaths,
-                    "suicides": currentVictim.suicides,
-                    "teamKills": currentVictim.teamKills,
-                    "headshots": currentVictim.headshots
-                });
-
-                this.updateOthers(k.killer, 'kills');
-                this.updateOthers(k.victim, 'deaths');
-
-                if(this.totalTeams > 0){
-
-                    this.teamUpdateOthers(k.killer_team, 'kills');
-                    this.teamUpdateOthers(k.victim_team, 'deaths');
-                }
-
-            }    
-        }
-
-
-        let h = 0;
-
-        for(let i = 0; i < this.headshots.length; i++){
-
-            h = this.headshots[i];
-
-            currentKiller = this.data.get(h.killer);
-
-            if(currentKiller !== undefined){
-
-                currentKiller.headshots.push(
-                    currentKiller.headshots[currentKiller.headshots.length - 1] + 1
-                );
-
-                this.data.set(h.killer, {
-                    "kills": currentKiller.kills,
-                    "deaths": currentKiller.deaths,
-                    "suicides": currentKiller.suicides,
-                    "teamKills": currentKiller.teamKills,
-                    "headshots": currentKiller.headshots
-                });
-
-                this.updateOthers(h.killer, 'headshots');
-
-                if(this.totalTeams > 0){
-
-                    this.teamData[h.killer_team].headshots.push(
-                        this.teamData[h.killer_team].headshots[this.teamData[h.killer_team].headshots.length - 1] + 1
-                    ); 
-
-                    this.teamUpdateOthers(h.killer_team, 'headshots');
-      
-                }
-            }        
-        }
-    }
-
-    setNames(){
-
-        const newData = new Map();
-
-        for(const [key, value] of this.data){
-
-            newData.set(this.playerNames[key], value);
-        }
-
-        this.data.clear();
-
-        this.data = newData;
-    }
-
-
-    get(type){
-
-        const data = [];
-
-        for(const [key, value] of this.data){
-
-            data.push({
-                "name": key,
-                "data": value[type]
-            });
-        }
-
-        data.sort((a, b) =>{
-
-            a = a.data[a.data.length - 1];
-            b = b.data[b.data.length - 1];
-
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
-            }
-
-            return 0;
-        });
-
-        return data;
-    }
-
-
-    getTeamData(type){
-
-
-        const data = [];
-
-        for(let i = 0; i < this.teamData.length; i++){
-
-            data.push({
-                "name": this.teamData[i].name,
-                "data": this.teamData[i][type]
-            });
-        }
-
-        /*data.sort((a, b) =>{
-
-            a = a.data[a.data.length - 1];
-            b = b.data[b.data.length - 1];
-
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
-            }
-
-            return 0;
-        });*/
-
-        return data;
-    }
-}
-
 
 
 class CTFEventData{
@@ -1421,11 +1088,13 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         }
     }
 
-    /*if(pageSettings["Display Frags Graphs"] === "true"){
+    if(pageSettings["Display Frags Graphs"] === "true"){
 
         if(!parsedInfo.mh){
 
-            const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
+            elems.push(<MatchFragsGraph key="frag-graphs" matchId={parsedInfo.id} players={justPlayerNames}/>);
+
+            /*const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
 
             const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
 
@@ -1437,9 +1106,9 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
                 playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
             
                 elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
-            }
+            }*/
         }
-    }*/
+    }
 
     if(bCTF(parsedPlayerData)){
 
