@@ -182,6 +182,7 @@ class MatchScreenshot{
         const gametype = this.gametype.replace(/\W/i,'');
         const date = this.matchData.date;
 
+
         const fileName = `sshot${map}-${gametype}-${date}.`;
 
         this.download.href = imagePNG;
@@ -391,7 +392,8 @@ class MatchScreenshot{
 
     getDate(){
 
-        let date = (!this.bClassic) ? this.matchData.date : Functions.utDate(this.matchData.time) * 1000;
+        let date = (!this.bClassic) ? this.matchData.date * 1000 : Functions.utDate(this.matchData.time) * 1000;
+
 
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "Novemeber", "December"];
@@ -409,7 +411,6 @@ class MatchScreenshot{
         if(minutes < 10){
             minutes = `0${minutes}`;
         }
-
 
         return `Played ${days[dayIndex]} ${day} ${months[monthIndex]} ${year} ${hours}:${minutes}`;
     }
