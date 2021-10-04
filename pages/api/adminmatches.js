@@ -74,6 +74,33 @@ export default async (req, res) => {
 
                     res.status(200).json({"data": settings});
                     return;
+
+                }else if(mode === "delete"){
+
+                    if(req.body.id !== undefined){
+
+                        const id = parseInt(req.body.id);
+
+                        if(id !== id){
+                            res.status(200).json({"error": "Match id must be a valid integer."});
+                            return;
+                        }
+
+                        if(await matches.deleteMatch(id)){
+                            res.status(200).json({"message": "passed"});
+                        }else{
+                            res.status(200).json({"error": "There was a problem deleting the match"})
+                        }
+
+                        return;
+
+                            
+
+                    }else{
+
+                        res.status(200).json({"error": "You have not specified a match to delete."});
+                        return;
+                    }
                 }
 
             }

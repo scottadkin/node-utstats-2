@@ -653,7 +653,6 @@ class Matches{
 
             console.log(`attempting to delete data for match id ${id}`);
 
-            const matchManager = new Matches();
             const match = new Match();
 
             const matchData = await match.get(id);
@@ -760,10 +759,12 @@ class Matches{
                // await winrateManager.deletePlayerFromMatch(playersData[i].player_id, id, matchData.gametype);
             //}
 
-            return matchData.gametype;
+           // return matchData.gametype;
+           return true;
 
         }catch(err){
             console.trace(err);
+            return false;
         }    
     }
 

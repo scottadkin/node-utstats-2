@@ -1008,13 +1008,12 @@ class Players{
 
         playerId = parseInt(playerId);
         
-
         const query = `UPDATE nstats_player_totals SET
             matches=matches-?,
             wins=wins-?,
             draws=draws-?,
             losses=losses-?,
-            winrate = IF(wins > 0, IF(losses > 0, (wins / matches) * 100 , 100), 0),
+            winrate = IF(matches > 0, IF(wins > 0, (wins / matches * 100), 0) ,0)
             playtime=playtime-?,
             first_bloods=first_bloods-?,
             frags=frags-?,

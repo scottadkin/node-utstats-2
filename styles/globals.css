@@ -479,7 +479,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	color:white;
 }
 
-.search-button{
+.search-button, .bigger-button{
 	display:block;
 	width:290px;
 	background-color:var(--color-1);
@@ -495,10 +495,16 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	user-select:none;
 }
 
-.search-button:hover{
+.search-button:hover, .bigger-button:hover{
 	background-color:var(--color-2);
 	cursor:pointer;
 }
+
+.bigger-button{
+	width:400px;
+}
+
+
 
 .default-radios{
 	font-size:12px;
