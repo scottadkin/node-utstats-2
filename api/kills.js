@@ -194,37 +194,40 @@ class Kills{
             const victimTeam = d.victim_team;
 
 
-            if(victimTeam !== -1){
+            if(teams > 1){
+                
+                if(victimTeam !== -1){
 
-                teamsKillsData[killerTeam].lastValue++;
-                teamsKillsData[killerTeam].data.push(teamsKillsData[killerTeam].lastValue);
+                    teamsKillsData[killerTeam].lastValue++;
+                    teamsKillsData[killerTeam].data.push(teamsKillsData[killerTeam].lastValue);
 
-                teamsDeathsData[victimTeam].lastValue++;
-                teamsDeathsData[victimTeam].data.push(teamsDeathsData[victimTeam].lastValue);
+                    teamsDeathsData[victimTeam].lastValue++;
+                    teamsDeathsData[victimTeam].data.push(teamsDeathsData[victimTeam].lastValue);
 
-                for(let x = 0; x < teams; x++){
+                    for(let x = 0; x < teams; x++){
 
-                    if(x !== killerTeam){
-                        teamsKillsData[x].data.push(teamsKillsData[x].lastValue);
+                        if(x !== killerTeam){
+                            teamsKillsData[x].data.push(teamsKillsData[x].lastValue);
+                        }
+
+                        if(x !== victimTeam){
+                            teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
+                        }
                     }
 
-                    if(x !== victimTeam){
-                        teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
-                    }
-                }
+                }else{
 
-            }else{
+                    teamsSuicidesData[killerTeam].lastValue++;
+                    teamsSuicidesData[killerTeam].data.push(teamsSuicidesData[killerTeam].lastValue);
+                    teamsDeathsData[killerTeam].lastValue++;
+                    teamsDeathsData[killerTeam].data.push(teamsDeathsData[killerTeam].lastValue);
 
-                teamsSuicidesData[killerTeam].lastValue++;
-                teamsSuicidesData[killerTeam].data.push(teamsSuicidesData[killerTeam].lastValue);
-                teamsDeathsData[killerTeam].lastValue++;
-                teamsDeathsData[killerTeam].data.push(teamsDeathsData[killerTeam].lastValue);
+                    for(let x = 0; x < teams; x++){
 
-                for(let x = 0; x < teams; x++){
-
-                    if(x !== killerTeam){
-                        teamsSuicidesData[x].data.push(teamsSuicidesData[x].lastValue);
-                        teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
+                        if(x !== killerTeam){
+                            teamsSuicidesData[x].data.push(teamsSuicidesData[x].lastValue);
+                            teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
+                        }
                     }
                 }
             }
@@ -280,9 +283,11 @@ class Kills{
         suicidesData = Functions.reduceGraphDataPoints(suicidesData, max);
         killsData = Functions.reduceGraphDataPoints(killsData, max);
 
-        teamsDeathsData = Functions.reduceGraphDataPoints(teamsDeathsData, max);
-        teamsSuicidesData = Functions.reduceGraphDataPoints(teamsSuicidesData, max);
-        teamsKillsData = Functions.reduceGraphDataPoints(teamsKillsData, max);
+        if(teams > 1){
+            teamsDeathsData = Functions.reduceGraphDataPoints(teamsDeathsData, max);
+            teamsSuicidesData = Functions.reduceGraphDataPoints(teamsSuicidesData, max);
+            teamsKillsData = Functions.reduceGraphDataPoints(teamsKillsData, max);
+        }
 
         const sortByLastValue = (a, b) =>{
 
