@@ -190,10 +190,155 @@ class CTF{
 
     async getMatchEvents(id){
 
-        return [];
         const query = "SELECT player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
         return await mysql.simpleQuery(query, [id]);
 
+    }
+
+    async getEventGraphData(id, players, teams){
+
+
+        const data = await this.getMatchEvents(id);
+
+        const playerIndexes = [];
+
+        let capData = [];
+        let grabData = [];
+        let pickupData = [];
+        let dropData = [];
+        let killData = [];
+        let assistData = [];
+        let coverData = [];
+        let returnData = [];
+        let saveData = [];
+        let sealData = [];
+
+        for(const [key, value] of Object.entries(players)){
+
+            playerIndexes.push(parseInt(key));
+
+            capData.push({"name": value, "data": [], "lastValue": 0});
+            grabData.push({"name": value, "data": [], "lastValue": 0});
+            pickupData.push({"name": value, "data": [], "lastValue": 0});
+            dropData.push({"name": value, "data": [], "lastValue": 0});
+            killData.push({"name": value, "data": [], "lastValue": 0});
+            assistData.push({"name": value, "data": [], "lastValue": 0});
+            coverData.push({"name": value, "data": [], "lastValue": 0});
+            returnData.push({"name": value, "data": [], "lastValue": 0});
+            saveData.push({"name": value, "data": [], "lastValue": 0});
+            sealData.push({"name": value, "data": [], "lastValue": 0});
+
+        }
+
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const playerIndex = playerIndexes.indexOf(d.player);
+
+            const event = d.event;
+
+            let current = null;
+            
+
+            if(event === "captured"){
+
+                current = capData;
+
+            }else if(event === "taken"){
+
+                current = grabData;
+
+            }else if(event === "pickedup"){
+
+                current = pickupData;
+
+            }else if(event === "dropped"){
+
+                current = dropData;
+
+            }else if(event === "kill"){
+
+                current = killData;
+
+            }else if(event === "assist"){
+
+                current = assistData;
+
+            }else if(event === "cover"){
+
+                current = coverData;
+
+            }else if(event === "returned"){
+
+                current = returnData;
+
+            }else if(event === "save"){
+
+                current = saveData;
+
+            }else if(event === "seal"){
+                current = sealData;
+            }
+
+            if(current !== null){
+
+                current[playerIndex].lastValue++;
+
+                for(let x = 0; x < playerIndexes.length; x++){
+
+                    current[x].data.push(current[x].lastValue);
+                }
+            }
+        }
+
+        const max = 50;
+
+        capData = Functions.reduceGraphDataPoints(capData, max);
+        grabData = Functions.reduceGraphDataPoints(grabData, max);
+        pickupData = Functions.reduceGraphDataPoints(pickupData, max);
+        dropData = Functions.reduceGraphDataPoints(dropData, max);
+        killData = Functions.reduceGraphDataPoints(killData, max);
+        assistData = Functions.reduceGraphDataPoints(assistData, max);
+        coverData = Functions.reduceGraphDataPoints(coverData, max);
+        returnData = Functions.reduceGraphDataPoints(returnData, max);
+        saveData = Functions.reduceGraphDataPoints(saveData, max);
+        sealData = Functions.reduceGraphDataPoints(sealData, max);
+        
+
+
+        const sortByLastValue = (a, b) =>{
+            a = a.lastValue;
+            b = b.lastValue;
+
+            return b-a;
+        }
+
+        capData.sort(sortByLastValue);
+        grabData.sort(sortByLastValue);
+        pickupData.sort(sortByLastValue);
+        dropData.sort(sortByLastValue);
+        killData.sort(sortByLastValue);
+        assistData.sort(sortByLastValue);
+        coverData.sort(sortByLastValue);
+        returnData.sort(sortByLastValue);
+        saveData.sort(sortByLastValue);
+        sealData.sort(sortByLastValue);
+
+
+        return {
+            "caps": capData,
+            "grabs": grabData,
+            "pickups": pickupData,
+            "drops": dropData,
+            "kills": killData,
+            "assists": assistData,
+            "covers": coverData,
+            "returns": returnData,
+            "saves": saveData,
+            "seals": sealData
+        };
     }
 
     bFlagLocationExists(map, team){

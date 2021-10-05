@@ -33,7 +33,10 @@ export default async (req, res) =>{
             return;
         }
 
-        const data = await ctfManager.getMatchEvents(matchId);
+        const players = req.body.players || {};
+        const teams = req.body.teams || 0;
+
+        const data = await ctfManager.getEventGraphData(matchId, players, teams);
 
         res.status(200).json({"data": data});
         return;

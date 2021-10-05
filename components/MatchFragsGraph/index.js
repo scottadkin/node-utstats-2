@@ -31,6 +31,7 @@ class MatchFragsGraph extends React.Component{
             const res = await req.json();
 
             if(res.error === undefined){
+
                 this.setState({"data": res.data});
              //   this.convertKillData(res.data);
             }
