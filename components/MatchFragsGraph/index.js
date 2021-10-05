@@ -20,6 +20,43 @@ class MatchFragsGraph extends React.Component{
     }
 
 
+    reduceTotalDataPoints(inputData){
+
+        const max = 50;
+        const totalDataPoints = inputData[0].data.length;
+        const increments = Math.ceil(totalDataPoints / max);
+
+
+        if(totalDataPoints <= max) return inputData;
+
+        const outputData = [];
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const current = inputData[i];
+
+            outputData.push({"name": current.name, "data": [0], "lastValue": 0});
+        }
+
+        for(let i = increments; i < totalDataPoints; i += increments){
+
+            for(let x = 0; x < inputData.length; x++){
+
+                const currentValue = inputData[x].data[i];
+
+                outputData[x].data.push(currentValue);
+            }
+        }
+
+        for(let i = 0; i < outputData.length; i++){
+
+            outputData[i].lastValue = outputData[i].data[max - 1];
+        }
+
+        return outputData;
+
+
+    }
 
 
     convertKillData(data){
@@ -127,9 +164,10 @@ class MatchFragsGraph extends React.Component{
         }
 
 
-        const killsData = [];
-        const deathsData = [];
-        const suicidesData = [];
+        let killsData = [];
+        let deathsData = [];
+        let suicidesData = [];
+        
 
         for(let i = 0; i < indexes.length; i++){
 
@@ -145,10 +183,14 @@ class MatchFragsGraph extends React.Component{
         }
 
 
+        killsData = this.reduceTotalDataPoints(killsData);
+        deathsData = this.reduceTotalDataPoints(deathsData);
+        suicidesData = this.reduceTotalDataPoints(suicidesData);
 
-        const teamsKillsData = [];
-        const teamsDeathsData = [];
-        const teamsSuicideData = [];
+
+        let teamsKillsData = [];
+        let teamsDeathsData = [];
+        let teamsSuicideData = [];
 
         if(this.props.teams > 1){
 
@@ -165,6 +207,10 @@ class MatchFragsGraph extends React.Component{
                 teamsSuicideData.push(currentSuicides);
             }
         }
+
+        teamsKillsData = this.reduceTotalDataPoints(teamsKillsData);
+        teamsDeathsData = this.reduceTotalDataPoints(teamsDeathsData);
+        teamsSuicideData = this.reduceTotalDataPoints(teamsSuicideData);
 
         const byLastValue = (a, b) =>{
 
