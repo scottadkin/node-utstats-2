@@ -154,34 +154,6 @@ class Kills{
         return data;
     }
 
-    reduceDataPoints(inputData){
-
-        const max = 50;
-        const totalDataPoints = inputData[0].data.length;
-        const increment = Math.ceil(totalDataPoints / 50);
-
-        if(totalDataPoints <= max) return inputData;
-
-        const outputData = [];
-
-        for(let i = 0; i < inputData.length; i++){
-
-            const current = inputData[i];
-
-            outputData.push({"name": current.name, data: [0], "lastValue":current.lastValue});
-        }
-
-
-        for(let i = increment; i < totalDataPoints; i += increment){
-
-            for(let x = 0; x < inputData.length; x++){
-
-                outputData[x].data.push(inputData[x].data[i]);
-            }
-        }
-
-        return outputData;
-    }
 
     reduceTotalDataPoints(data, players, teams){
 
@@ -301,22 +273,31 @@ class Kills{
                 }
             }
         }
-        
-        console.log(teamsDeathsData);
 
-        //sort scores by lastvalue
-        //sort scores by lastvalue
-        //sort scores by lastvalue
-        //sort scores by lastvalue
-        //sort scores by lastvalue
+        const max = 50;
 
-        deathsData = this.reduceDataPoints(deathsData);
-        suicidesData = this.reduceDataPoints(suicidesData);
-        killsData = this.reduceDataPoints(killsData);
+        deathsData = Functions.reduceGraphDataPoints(deathsData, max);
+        suicidesData = Functions.reduceGraphDataPoints(suicidesData, max);
+        killsData = Functions.reduceGraphDataPoints(killsData, max);
 
-        teamsDeathsData = this.reduceDataPoints(teamsDeathsData);
-        teamsSuicidesData = this.reduceDataPoints(teamsSuicidesData);
-        teamsKillsData = this.reduceDataPoints(teamsKillsData);
+        teamsDeathsData = Functions.reduceGraphDataPoints(teamsDeathsData, max);
+        teamsSuicidesData = Functions.reduceGraphDataPoints(teamsSuicidesData, max);
+        teamsKillsData = Functions.reduceGraphDataPoints(teamsKillsData, max);
+
+        const sortByLastValue = (a, b) =>{
+
+            a = a.lastValue;
+            b = b.lastValue;
+
+            if(a < b) return 1;
+            if(a > b) return -1;
+            return 0;
+        }
+
+        killsData.sort(sortByLastValue);
+        deathsData.sort(sortByLastValue);
+        suicidesData.sort(sortByLastValue);
+
         
         return {
             "deaths": deathsData, 

@@ -1,6 +1,5 @@
 import React from 'react';
 import Graph from '../Graph';
-import Functions from '../../api/functions';
 
 class MatchFragsGraph extends React.Component{
 
@@ -53,7 +52,6 @@ class MatchFragsGraph extends React.Component{
 
         const graphTitles = ["Kills", "Deaths", "Suicides",];
         const graphData = [this.state.data.kills, this.state.data.deaths, this.state.data.suicides];
-
 
         const teamsTitles = ["Team Total Kills", "Team Total Deaths", "Team Total Suicides"];
         const teamsData = [this.state.data.teamKills, this.state.data.teamDeaths, this.state.data.teamSuicides];
