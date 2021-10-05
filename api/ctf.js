@@ -213,6 +213,17 @@ class CTF{
         let saveData = [];
         let sealData = [];
 
+        let teamsCapData = [];
+        let teamsGrabData = [];
+        let teamsPickupData = [];
+        let teamsDropData = [];
+        let teamsKillData = [];
+        let teamsAssistData = [];
+        let teamsCoverData = [];
+        let teamsReturnData = [];
+        let teamsSaveData = [];
+        let teamsSealData = [];
+
         for(const [key, value] of Object.entries(players)){
 
             playerIndexes.push(parseInt(key));
@@ -230,6 +241,19 @@ class CTF{
 
         }
 
+        for(let i = 0; i < teams; i++){
+
+            teamsCapData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsGrabData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsPickupData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsDropData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsKillData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsAssistData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsCoverData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsReturnData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsSaveData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            teamsSealData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+        }
 
         for(let i = 0; i < data.length; i++){
 
@@ -240,46 +264,58 @@ class CTF{
             const event = d.event;
 
             let current = null;
+            let currentTeam = null;
             
 
             if(event === "captured"){
 
                 current = capData;
+                currentTeam = teamsCapData;
 
             }else if(event === "taken"){
 
                 current = grabData;
+                currentTeam = teamsGrabData;
 
             }else if(event === "pickedup"){
 
                 current = pickupData;
+                currentTeam = teamsPickupData;
 
             }else if(event === "dropped"){
 
                 current = dropData;
+                currentTeam = teamsDropData;
 
             }else if(event === "kill"){
 
                 current = killData;
+                currentTeam = teamsKillData;
 
             }else if(event === "assist"){
 
                 current = assistData;
+                currentTeam = teamsAssistData;
 
             }else if(event === "cover"){
 
                 current = coverData;
+                currentTeam = teamsCoverData;
 
             }else if(event === "returned"){
 
                 current = returnData;
+                currentTeam = teamsReturnData;
 
             }else if(event === "save"){
 
                 current = saveData;
+                currentTeam = teamsSaveData;
 
             }else if(event === "seal"){
+                
                 current = sealData;
+                currentTeam = teamsSealData;
             }
 
             if(current !== null){
@@ -287,8 +323,17 @@ class CTF{
                 current[playerIndex].lastValue++;
 
                 for(let x = 0; x < playerIndexes.length; x++){
-
                     current[x].data.push(current[x].lastValue);
+                }
+            }
+
+            if(currentTeam !== null){
+
+                currentTeam[d.team].lastValue++;
+
+                for(let x = 0; x < teams; x++){
+
+                    currentTeam[x].data.push(currentTeam[x].lastValue);
                 }
             }
         }
@@ -305,7 +350,16 @@ class CTF{
         returnData = Functions.reduceGraphDataPoints(returnData, max);
         saveData = Functions.reduceGraphDataPoints(saveData, max);
         sealData = Functions.reduceGraphDataPoints(sealData, max);
-        
+
+        teamsCapData = Functions.reduceGraphDataPoints(teamsCapData, max);
+        teamsPickupData = Functions.reduceGraphDataPoints(teamsPickupData, max);
+        teamsDropData = Functions.reduceGraphDataPoints(teamsDropData, max);
+        teamsKillData = Functions.reduceGraphDataPoints(teamsKillData, max);
+        teamsAssistData = Functions.reduceGraphDataPoints(teamsAssistData, max);
+        teamsCoverData = Functions.reduceGraphDataPoints(teamsCoverData, max);
+        teamsReturnData = Functions.reduceGraphDataPoints(teamsReturnData, max);
+        teamsSaveData = Functions.reduceGraphDataPoints(teamsSaveData, max);
+        teamsSealData = Functions.reduceGraphDataPoints(teamsSealData, max);
 
 
         const sortByLastValue = (a, b) =>{
@@ -326,7 +380,6 @@ class CTF{
         saveData.sort(sortByLastValue);
         sealData.sort(sortByLastValue);
 
-
         return {
             "caps": capData,
             "grabs": grabData,
@@ -337,7 +390,17 @@ class CTF{
             "covers": coverData,
             "returns": returnData,
             "saves": saveData,
-            "seals": sealData
+            "seals": sealData,
+            "teamCaps": teamsCapData,
+            "teamGrabs": teamsGrabData,
+            "teamPickups": teamsPickupData,
+            "teamDrops": teamsDropData,
+            "teamKills": teamsKillData,
+            "teamAssists": teamsAssistData,
+            "teamCovers": teamsCoverData,
+            "teamReturns": teamsReturnData,
+            "teamSaves": teamsSaveData,
+            "teamSeals": teamsSealData
         };
     }
 

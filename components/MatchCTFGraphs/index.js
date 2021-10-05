@@ -52,6 +52,16 @@ class MatchCTFGraphs extends React.Component{
             "Flag Returns",
             "Flag Close Saves",
             "Flag Drops",
+            "Team Flag Caps",
+            "Team Flag Assists",
+            "Team Flag Grabs",
+            "Team Flag Pickups",
+            "Team Flag Covers",
+            "Team Flag Seals",
+            "Team Flag Kills",
+            "Team Flag Returns",
+            "Team Flag Close Saves",
+            "Team Flag Drops"
         ];
 
         const data = [
@@ -64,7 +74,17 @@ class MatchCTFGraphs extends React.Component{
             this.state.data.kills,
             this.state.data.returns,
             this.state.data.saves,
-            this.state.data.drops
+            this.state.data.drops,
+            this.state.data.teamCaps,
+            this.state.data.teamAssists,
+            this.state.data.teamGrabs,
+            this.state.data.teamPickups,
+            this.state.data.teamCovers,
+            this.state.data.teamSeals,
+            this.state.data.teamKills,
+            this.state.data.teamReturns,
+            this.state.data.teamSaves,
+            this.state.data.teamDrops
         ];
 
         return <div>
