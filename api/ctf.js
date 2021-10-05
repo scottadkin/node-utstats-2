@@ -188,23 +188,12 @@ class CTF{
         });
     }
 
-    getMatchEvents(id){
+    async getMatchEvents(id){
 
-        return new Promise((resolve, reject) =>{
+        return [];
+        const query = "SELECT player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
+        return await mysql.simpleQuery(query, [id]);
 
-            const query = "SELECT timestamp,player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-                
-                resolve([]);
-            });
-        });
     }
 
     bFlagLocationExists(map, team){

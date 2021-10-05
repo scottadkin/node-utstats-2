@@ -20,7 +20,7 @@ class MatchFragsGraph extends React.Component{
     }
 
 
-    reduceTotalDataPoints(inputData){
+    /*reduceTotalDataPoints(inputData){
 
         const max = 50;
         const totalDataPoints = inputData[0].data.length;
@@ -239,7 +239,7 @@ class MatchFragsGraph extends React.Component{
             "teamsSuicides": teamsSuicideData
         });
         
-    }
+    }*/
 
     async loadKills(){
 
@@ -248,13 +248,14 @@ class MatchFragsGraph extends React.Component{
             const req = await fetch("/api/match", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"mode": "kills", "matchId": this.props.matchId})
+                "body": JSON.stringify({"mode": "kills", "matchId": this.props.matchId, "players": this.props.players})
             });
 
             const res = await req.json();
 
             if(res.error === undefined){
-                this.convertKillData(res.data);
+                this.setState({"data": res.data});
+             //   this.convertKillData(res.data);
             }
 
         }catch(err){
@@ -273,16 +274,16 @@ class MatchFragsGraph extends React.Component{
         if(!this.state.finishedLoading) return null;
 
         const graphTitles = ["Kills", "Deaths", "Suicides",];
-        const graphData = [this.state.kills, this.state.deaths, this.state.suicides];
+        const graphData = [this.state.data.kills, this.state.data.deaths, this.state.data.suicides];
 
 
-        const teamsTitles = ["Team Total Kills", "Team Total Deaths", "Team Total Suicides"];
-        const teamsData = [this.state.teamsKills, this.state.teamsDeaths, this.state.teamsSuicides];
+        //const teamsTitles = ["Team Total Kills", "Team Total Deaths", "Team Total Suicides"];
+        //const teamsData = [this.state.teamsKills, this.state.teamsDeaths, this.state.teamsSuicides];
 
         if(this.props.teams > 1){
 
-            graphTitles.push(...teamsTitles);
-            graphData.push(...teamsData);
+           //. graphTitles.push(...teamsTitles);
+           // graphData.push(...teamsData);
 
         }
 

@@ -153,11 +153,122 @@ class Kills{
         return data;
     }
 
-    async getGraphData(matchId){
+    reduceDataPoints(inputData){
+
+        const max = 50;
+        const totalDataPoints = inputData[0].data.length;
+        const increment = Math.ceil(totalDataPoints / 50);
+
+        if(totalDataPoints <= max) return inputData;
+
+        const outputData = [];
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const current = inputData[i];
+
+            outputData.push({"name": current.name, data: [0], "lastValue":current.lastValue});
+        }
+
+
+        for(let i = increment; i < totalDataPoints; i += increment){
+
+            for(let x = 0; x < inputData.length; x++){
+
+                outputData[x].data.push(inputData[x].data[i]);
+            }
+        }
+
+        return outputData;
+    }
+
+    reduceTotalDataPoints(data, players){
+
+        const playerIndexes = [];
+        let killsData = [];
+        let deathsData = [];
+        let suicidesData = [];
+
+        for(const [key, value] of Object.entries(players)){
+
+            playerIndexes.push(parseInt(key));
+
+            killsData.push({"name": value, "data": [0], "lastValue": 0});
+            deathsData.push({"name": value, "data": [0], "lastValue": 0});
+            suicidesData.push({"name": value, "data": [0], "lastValue": 0});
+        }
+
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const killerIndex = playerIndexes.indexOf(d.killer);
+            const victimIndex = playerIndexes.indexOf(d.victim);
+
+
+            const killerTeam = d.killer_team;
+            const victimTeam = d.victim_team;
+
+            //suicides
+            if(victimTeam === -1){
+
+                suicidesData[killerIndex].lastValue++;
+                deathsData[killerIndex].lastValue++;
+                suicidesData[killerIndex].data.push(suicidesData[killerIndex].lastValue);
+                deathsData[killerIndex].data.push(deathsData[killerIndex].lastValue);
+
+                for(let x = 0; x < playerIndexes.length; x++){
+
+                    if(x !== killerIndex){
+                        suicidesData[x].data.push(suicidesData[x].lastValue);
+                        deathsData[x].data.push(deathsData[x].lastValue);
+                    }
+                }
+
+            }else{
+
+                if(killerTeam !== victimTeam){
+
+                    killsData[killerIndex].lastValue++;
+                    killsData[killerIndex].data.push(killsData[killerIndex].lastValue);
+
+                    for(let x = 0; x < playerIndexes.length; x++){
+
+                        if(x !== killerIndex){
+                            killsData[x].data.push(killsData[x].lastValue);
+                        }
+                    }
+
+                }
+
+                deathsData[victimIndex].lastValue++;
+                deathsData[victimIndex].data.push(deathsData[victimIndex].lastValue);
+
+                for(let x = 0; x < playerIndexes.length; x++){
+
+                    if(x !== victimIndex){
+                        deathsData[x].data.push(deathsData[x].lastValue);
+                    }
+                }
+            }
+        }
+        
+
+        deathsData = this.reduceDataPoints(deathsData);
+        suicidesData = this.reduceDataPoints(suicidesData);
+        killsData = this.reduceDataPoints(killsData);
+        
+        return {"deaths": deathsData, "suicides": suicidesData, "kills": killsData};
+    }
+
+    async getGraphData(matchId, players){
 
         const query = "SELECT timestamp,killer,victim,killer_team,victim_team FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
         
-        return await mysql.simpleQuery(query, [matchId]);
+        const result =  await mysql.simpleQuery(query, [matchId]);
+
+        return this.reduceTotalDataPoints(result, players);
     }
 }
 
