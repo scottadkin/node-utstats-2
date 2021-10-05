@@ -14,10 +14,11 @@ export default async (req, res) =>{
         }
 
         const players = req.body.players || {};
+        const teams = req.body.teams || 0;
 
         const killManager = new Kills();
 
-        const data = await killManager.getGraphData(matchId, players);
+        const data = await killManager.getGraphData(matchId, players, teams);
 
 
         res.status(200).json({"data": data});

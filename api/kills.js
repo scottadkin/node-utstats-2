@@ -1,5 +1,6 @@
 const mysql = require('./database');
 const Promise = require('promise');
+const Functions = require('./functions');
 
 class Kills{
 
@@ -182,12 +183,16 @@ class Kills{
         return outputData;
     }
 
-    reduceTotalDataPoints(data, players){
+    reduceTotalDataPoints(data, players, teams){
 
         const playerIndexes = [];
         let killsData = [];
         let deathsData = [];
         let suicidesData = [];
+
+        let teamsKillsData = [];
+        let teamsDeathsData = [];
+        let teamsSuicidesData = [];
 
         for(const [key, value] of Object.entries(players)){
 
@@ -198,6 +203,13 @@ class Kills{
             suicidesData.push({"name": value, "data": [0], "lastValue": 0});
         }
 
+        for(let i = 0; i < teams; i++){
+
+            teamsKillsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
+            teamsDeathsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
+            teamsSuicidesData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
+        }
+
 
         for(let i = 0; i < data.length; i++){
 
@@ -206,9 +218,45 @@ class Kills{
             const killerIndex = playerIndexes.indexOf(d.killer);
             const victimIndex = playerIndexes.indexOf(d.victim);
 
-
             const killerTeam = d.killer_team;
             const victimTeam = d.victim_team;
+
+
+            if(victimTeam !== -1){
+
+                teamsKillsData[killerTeam].lastValue++;
+                teamsKillsData[killerTeam].data.push(teamsKillsData[killerTeam].lastValue);
+
+                teamsDeathsData[victimTeam].lastValue++;
+                teamsDeathsData[victimTeam].data.push(teamsDeathsData[victimTeam].lastValue);
+
+                for(let x = 0; x < teams; x++){
+
+                    if(x !== killerTeam){
+                        teamsKillsData[x].data.push(teamsKillsData[x].lastValue);
+                    }
+
+                    if(x !== victimTeam){
+                        teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
+                    }
+                }
+
+            }else{
+
+                teamsSuicidesData[killerTeam].lastValue++;
+                teamsSuicidesData[killerTeam].data.push(teamsSuicidesData[killerTeam].lastValue);
+                teamsDeathsData[killerTeam].lastValue++;
+                teamsDeathsData[killerTeam].data.push(teamsDeathsData[killerTeam].lastValue);
+
+                for(let x = 0; x < teams; x++){
+
+                    if(x !== killerTeam){
+                        teamsSuicidesData[x].data.push(teamsSuicidesData[x].lastValue);
+                        teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
+                    }
+                }
+            }
+
 
             //suicides
             if(victimTeam === -1){
@@ -254,21 +302,39 @@ class Kills{
             }
         }
         
+        console.log(teamsDeathsData);
+
+        //sort scores by lastvalue
+        //sort scores by lastvalue
+        //sort scores by lastvalue
+        //sort scores by lastvalue
+        //sort scores by lastvalue
 
         deathsData = this.reduceDataPoints(deathsData);
         suicidesData = this.reduceDataPoints(suicidesData);
         killsData = this.reduceDataPoints(killsData);
+
+        teamsDeathsData = this.reduceDataPoints(teamsDeathsData);
+        teamsSuicidesData = this.reduceDataPoints(teamsSuicidesData);
+        teamsKillsData = this.reduceDataPoints(teamsKillsData);
         
-        return {"deaths": deathsData, "suicides": suicidesData, "kills": killsData};
+        return {
+            "deaths": deathsData, 
+            "suicides": suicidesData, 
+            "kills": killsData, 
+            "teamDeaths": teamsDeathsData, 
+            "teamKills": teamsKillsData, 
+            "teamSuicides": teamsSuicidesData
+        };
     }
 
-    async getGraphData(matchId, players){
+    async getGraphData(matchId, players, totalTeams){
 
         const query = "SELECT timestamp,killer,victim,killer_team,victim_team FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
         
         const result =  await mysql.simpleQuery(query, [matchId]);
 
-        return this.reduceTotalDataPoints(result, players);
+        return this.reduceTotalDataPoints(result, players, totalTeams);
     }
 }
 
