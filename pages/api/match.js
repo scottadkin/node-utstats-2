@@ -41,6 +41,20 @@ export default async (req, res) =>{
         res.status(200).json({"data": data});
         return;
 
+    }else if(mode === "ctfcaps"){
+
+        const ctfManager = new CTF();
+
+        if(matchId !== matchId){
+            res.status(200).json({"error": "Match id must be a valid integer"});
+            return;
+        }
+
+        const data = await ctfManager.getMatchCaps(matchId);
+
+        res.status(200).json({"data": data});
+        return;
+
     }
 
     res.status(200).json({"message": "passed"});

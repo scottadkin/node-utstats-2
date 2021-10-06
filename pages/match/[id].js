@@ -26,7 +26,6 @@ import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
 import Graph from '../../components/Graph/';
-import Kills from '../../api/kills';
 //import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import MatchKillsMatchUpAlt from '../../components/MatchKillsMatchUpAlt/';
 import Functions from '../../api/functions';
@@ -47,9 +46,7 @@ import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonst
 import Analytics from '../../api/analytics';
 import MatchFragsGraph from '../../components/MatchFragsGraph';
 import MatchCTFGraphs from '../../components/MatchCTFGraphs';
-
-
-const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
+import MatchCTFCapsNew from '../../components/MatchCTFCapsNew';
 
 
 function bDomination(players){
@@ -783,25 +780,21 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     }
 
  
-            
-        if(pageSettings["Display Capture The Flag Summary"] === "true"){
-
-            elems.push(
-                <MatchCTFSummary key={`match_1`} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
-            );
-        }
-
-        if(pageSettings["Display Capture The Flag Graphs"] === "true"){
-
-            elems.push(<MatchCTFGraphs key="ctf-caps" matchId={parsedInfo.id} totalTeams={parsedInfo.total_teams} players={justPlayerNames}/>);
         
-        }
+    if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
-        /*elems.push(
-            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>
-        );*/
+        elems.push(
+            <MatchCTFSummary key={`match_1`} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
+        );
+    }
 
-    //}
+    if(pageSettings["Display Capture The Flag Graphs"] === "true"){
+
+        elems.push(<MatchCTFGraphs key="ctf-graphs" matchId={parsedInfo.id} totalTeams={parsedInfo.total_teams} players={justPlayerNames}/>);
+    
+    }
+
+    elems.push(<MatchCTFCapsNew key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
 
 
     if(bDomination(parsedPlayerData)){
@@ -1046,7 +1039,6 @@ export async function getServerSideProps({req, query}){
     const mapName = await map.getName(matchInfo.map);
     const image = await map.getImage(mapName);
     const playerManager = new Player();
-    const killManager = new Kills();
 
     let playerData = await playerManager.getAllInMatch(matchId);
 
@@ -1121,23 +1113,6 @@ export async function getServerSideProps({req, query}){
         }
     }
     
-
-    /*let ctfCaps = [];
-    let ctfEvents = [];
-
-    if(bCTF(playerData)){
-
-        const CTFManager = new CTF();
-        
-        if(pageSettings["Display Capture The Flag Caps"] === "true"){
-            ctfCaps = await CTFManager.getMatchCaps(matchId);
-        }
-
-        if(pageSettings["Display Capture The Flag Graphs"] === "true"){
-            ctfEvents = await CTFManager.getMatchEvents(matchId);
-        }
-        
-    }*/
 
     let assaultData = [];
 

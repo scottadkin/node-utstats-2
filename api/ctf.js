@@ -151,25 +151,13 @@ class CTF{
         });
     }
 
-    getMatchCaps(matchId){
+    async getMatchCaps(matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,
+        assist_carry_ids,cap,cap_time,travel_time 
+        FROM nstats_ctf_caps WHERE match_id=?`;
 
-            const query = `SELECT 
-            team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,assist_carry_ids,cap,cap_time,travel_time 
-            FROM nstats_ctf_caps WHERE match_id=?`;
-
-            mysql.query(query, [matchId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await mysql.simpleQuery(query, [matchId]);
     }
 
 
@@ -946,6 +934,7 @@ class CTF{
 
         return await mysql.simpleFetch(query, vars);
     }
+
 
 }
 

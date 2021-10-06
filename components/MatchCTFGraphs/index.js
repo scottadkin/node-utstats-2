@@ -25,7 +25,6 @@ class MatchCTFGraphs extends React.Component{
             if(res.error === undefined){
                 this.setState({"finishedLoading": true, "data": res.data});
             }
-            console.log(res);
             
         }catch(err){
             console.trace(err);
