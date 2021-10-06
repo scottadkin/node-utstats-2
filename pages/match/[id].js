@@ -14,8 +14,7 @@ import MatchWeaponSummary from '../../components/MatchWeaponSummary/';
 import MatchCTFSummary from '../../components/MatchCTFSummary/';
 import Domination from '../../api/domination';
 import MatchDominationSummary from '../../components/MatchDominationSummary/';
-import CTF from '../../api/ctf';
-import MatchCTFCaps from '../../components/MatchCTFCaps/';
+//import MatchCTFCaps from '../../components/MatchCTFCaps/';
 import Items from '../../api/items';
 import MatchItemPickups from '../../components/MatchItemPickups';
 import Assault from '../../api/assault';
@@ -27,7 +26,6 @@ import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
 import Graph from '../../components/Graph/';
-import Kills from '../../api/kills';
 //import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import MatchKillsMatchUpAlt from '../../components/MatchKillsMatchUpAlt/';
 import Functions from '../../api/functions';
@@ -47,30 +45,8 @@ import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSu
 import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonsterKills/';
 import Analytics from '../../api/analytics';
 import MatchFragsGraph from '../../components/MatchFragsGraph';
-
-
-const teamNames = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
-
-function bCTF(players){
-  
-    let p = 0;
-
-    const vars = ['assist', 'return', 'taken', 'dropped', 'capture', 'pickup', 'cover', 'kill', 'save'];
-
-    for(let i = 0; i < players.length; i++){
-
-        p = players[i];
-
-        for(let v = 0; v < vars.length; v++){
-
-            if(p[`flag_${vars[v]}`] > 0){
-                return true;
-            }
-        }  
-    }
-
-    return false;
-}
+import MatchCTFGraphs from '../../components/MatchCTFGraphs';
+import MatchCTFCapsNew from '../../components/MatchCTFCapsNew';
 
 
 function bDomination(players){
@@ -106,299 +82,6 @@ function getItemsIds(items){
     }
 
     return ids;
-}
-
-
-class CTFEventData{
-
-    constructor(events, totalTeams, playerNames, matchStart){
-
-        this.events = events;
-        this.totalTeams = totalTeams;
-        this.playerNames = playerNames;
-        this.data = [];
-        this.text = [];
-        this.timestamps = {};
-        this.playerData = [];
-        this.matchStart = matchStart;
-
-        this.typeStrings = {
-            "taken": "Took the flag.",
-            "dropped": "Dropped the flag.",
-            "returned": "Returned the flag.",
-            "captured": "Captured the flag.",
-            "kill": "Killed the flag carrier.",
-            "cover": "Covered the flag carrier.",
-            "pickedup": "Picked up the flag.",
-            "save": "Saved the flag from being capped.",
-            "seal": "Sealed off the base."
-        }
-
-        this.createDataObjects();
-        this.setTeamData();
-        this.setPlayerData();
-    }
-
-    createDataObjects(){
-
-        this.categories = ["taken", "kill", "cover", "captured", "returned", "dropped", "save", "pickedup", "assist", "seal"];
-
-        for(let i = 0; i < this.categories.length; i++){
-            this.timestamps[this.categories[i]] = [];
-        }
-
-        let e = 0;
-
-        for(let i = 0; i < this.events.length; i++){
-
-            e = this.events[i];
-
-            this.timestamps[e.event].push(e.timestamp);
-        }
-
-        for(let i = 0; i < this.totalTeams; i++){
-
-            this.data.push({"team": teamNames[i]});
-
-            for(let x = 0; x < this.categories.length; x++){
-
-                this.data[i][this.categories[x]] = [0];
-            }
-        }
-
-        this.playerPositions = [];
-
-        for(const [key, value] of Object.entries(this.playerNames)){
-
-            this.playerData.push({
-                "name": value,
-                "id": key
-            });
-
-            this.playerPositions.push(parseInt(key));
-
-            for(let i = 0; i < this.categories.length; i++){
-
-                this.playerData[this.playerData.length - 1][this.categories[i]] = [0];
-            }
-        }
-
-    }
-
-
-    updateOthers(ignore, type){
-
-        for(let i = 0; i < this.data.length; i++){
-
-            if(i !== ignore){
-
-                this.data[i][type].push(this.data[i][type][this.data[i][type].length - 1]);
-            }
-        }
-    }
-
-    setTeamData(){
-
-        let e = 0;
-
-        let currentValue = 0;
-
-        for(let i = 0; i < this.events.length; i++){
-
-            e = this.events[i];
-            currentValue = this.data[e.team][e.event][this.data[e.team][e.event].length - 1];
-            this.data[e.team][e.event].push(++currentValue);
-
-            this.updateOthers(e.team, e.event);
-           
-        }
-    }
-
-
-    get(type){
-
-        const data = [];
-        const text = [];
-
-        let d = 0;
-
-
-        for(let i = 0; i < this.data.length; i++){
-
-            d = this.data[i];
-
-            if(d[type] !== undefined){
-                data.push({
-                    "name": d.team,
-                    "data": d[type]
-                });
-            }
-        }
-
-        let currentName = "";
-        let currentString = "";
-        let currentTimestamp = 0;
-
-        for(let i = 0; i < this.data[0][type].length; i++){
-
-            currentName = this.getPlayerChangedValue(i, type);
-            currentTimestamp = Functions.MMSS(this.timestamps[type][i - 1]);
-
-            currentString = "";
-
-            if(this.typeStrings[type] !== undefined){
-                if(currentName !== null){
-                    currentString = `${currentTimestamp} ${currentName} ${this.typeStrings[type]}`;
-                }else{
-                    currentString = "Match Start";
-                }
-            }else{
-                if(currentName !== null){
-                    currentString = `${currentTimestamp} ${currentName} type the flag`;
-                }else{
-                    currentString = "Match Start";
-                }
-            }
-
-            text.push(currentString);
-        }
-
-        return {"data": data, "text": text};
-    }
-
-
-    updateOthersPlayer(ignore, type){
-
-        let currentValue = 0;
-
-        for(let i = 0; i < this.playerData.length; i++){
-
-            if(i !== ignore){
-
-                currentValue = this.playerData[i][type][this.playerData[i][type].length - 1];
-                this.playerData[i][type].push(currentValue);
-            }
-        }
-    }
-
-    setPlayerData(){
-
-        let e = 0;
-
-        let playerIndex = 0;
-
-        for(let i = 0; i < this.events.length; i++){
-
-            e = this.events[i];
-
-            playerIndex = this.playerPositions.indexOf(e.player);
-
-            if(playerIndex !== -1){
-
-                this.playerData[playerIndex][e.event].push(
-                    this.playerData[playerIndex][e.event][this.playerData[playerIndex][e.event].length - 1] + 1
-                );
-
-                this.updateOthersPlayer(playerIndex, e.event);
-            }      
-        }
-
-    }
-
-    getPlayerChangedValue(index, type){
-
-        const previous = [];
-        const current = [];
-
-        let p = 0;
-
-
-        for(let i = 0; i < this.playerData.length; i++){
-
-            p = this.playerData[i];
-
-            if(index > 0){
-                previous.push(p[type][index - 1]);
-                current.push(p[type][index]);
-            }else{
-
-                if(p[type][0] !== 0){
-                    return p.name;
-                }
-            }
-
-        }
-
-        for(let i = 0; i < previous.length; i++){
-
-            if(previous[i] !== current[i]){
-                return this.playerData[i].name;
-            }
-        }
-
-        return null;
-    }
-
-    getPlayerData(type){
-
-        const data = [];
-        const text = [];
-
-        let p = 0;
-
-        for(let i = 0; i < this.playerData.length; i++){
-
-            p = this.playerData[i];
-           
-            data.push({"name": p.name, "data": p[type]});
-        }
-
-
-        let currentString = 0;
-        let currentName = 0;
-        let currentTimestamp = 0;
-
-        for(let i = 0; i < this.playerData[0][type].length; i++){
-
-            currentName = this.getPlayerChangedValue(i, type)
-
-            currentTimestamp = Functions.MMSS(this.timestamps[type][i - 1]);
-
-            if(this.typeStrings[type] !== undefined){
-                if(currentName !== null){
-                    currentString = `${currentTimestamp} ${currentName} ${this.typeStrings[type]}`;
-                }else{
-                    currentString = "Match Start";
-                }
-            }else{
-                if(currentName !== null){
-                    currentString = `${currentTimestamp} ${currentName} type the flag`;
-                }else{
-                    currentString = "Match Start";
-                }
-            }
-
-            text.push(currentString);
-        }
-
-        data.sort((a, b) =>{
-
-            a = a.data[a.data.length - 1];
-            b = b.data[b.data.length - 1];
-
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
-            }
-            return 0;
-        });
-
-        return {"data": data, "text": text};
-    }
-
-
-
 }
 
 
@@ -1093,92 +776,25 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         if(!parsedInfo.mh){
 
             elems.push(<MatchFragsGraph key="frag-graphs" matchId={parsedInfo.id} players={justPlayerNames} teams={parsedInfo.total_teams}/>);
-
-            /*const playerKillData = new PlayerFragsGraphData(JSON.parse(killsData), JSON.parse(headshotData), justPlayerNames, parsedInfo.total_teams);
-
-            const killGraphData = [playerKillData.get('kills'), playerKillData.get('deaths'), playerKillData.get('suicides'), playerKillData.get('teamKills'), playerKillData.get('headshots')];
-
-            elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2" data={JSON.stringify(killGraphData)}/>);
-
-            if(parsedInfo.total_teams > 0){
-
-                const teamKillGraphData = [playerKillData.getTeamData('kills'), playerKillData.getTeamData('deaths'), playerKillData.getTeamData('suicides'),
-                playerKillData.getTeamData('teamKills'), playerKillData.getTeamData('headshots')];
-            
-                elems.push(<Graph title={["Kills", "Deaths", "Suicides", "Team Kills", "Headshots"]} key="g-2-t" data={JSON.stringify(teamKillGraphData)}/>);
-            }*/
         }
     }
 
-    if(bCTF(parsedPlayerData)){
-
-
-        const ctfEventData = new CTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams, justPlayerNames, parsedInfo.start);
-
-        const teamFlagGrabs = ctfEventData.get('taken');
-        const teamFlagCaps = ctfEventData.get('captured');
-        const teamFlagKills = ctfEventData.get('kill')
-        const teamFlagReturns = ctfEventData.get('returned')
-        const teamFlagCovers = ctfEventData.get('cover');
-        const teamFlagDrops = ctfEventData.get('dropped');
-        const teamFlagSaves = ctfEventData.get('save');
-        const teamFlagPickups = ctfEventData.get('pickedup');
-        const teamFlagSeals = ctfEventData.get('seal');
-
+ 
         
-        const ctfGraphData = [teamFlagGrabs.data, teamFlagCaps.data, teamFlagKills.data, 
-            teamFlagReturns.data, teamFlagCovers.data, teamFlagDrops.data, teamFlagSaves.data,
-            teamFlagPickups.data, teamFlagSeals.data];
-
-        const ctfGraphText = [teamFlagGrabs.text, teamFlagCaps.text, teamFlagKills.text, 
-            teamFlagReturns.text, teamFlagCovers.text, teamFlagDrops.text, teamFlagSaves.text,
-            teamFlagPickups.text, teamFlagSeals.text];
-
-        
-
-        const flagGrabs = ctfEventData.getPlayerData('taken');
-        const flagCaps = ctfEventData.getPlayerData('captured');
-        const flagKills = ctfEventData.getPlayerData('kill')
-        const flagReturns = ctfEventData.getPlayerData('returned')
-        const flagCovers = ctfEventData.getPlayerData('cover');
-        const flagDrops = ctfEventData.getPlayerData('dropped');
-        const flagSaves = ctfEventData.getPlayerData('save');
-        const flagPickups = ctfEventData.getPlayerData('pickedup');
-        const flagSeals = ctfEventData.getPlayerData('seal');
-
-        const ctfPlayerGraphData = [
-            flagGrabs.data, flagCaps.data,  flagKills.data,
-            flagReturns.data,  flagCovers.data,  flagDrops.data,
-            flagSaves.data, flagPickups.data, flagSeals.data
-        ];
-
-        const ctfPlayerGraphText = [
-            flagGrabs.text, flagCaps.text,  flagKills.text,
-            flagReturns.text,  flagCovers.text,  flagDrops.text,
-            flagSaves.text, flagPickups.text, flagSeals.text
-        ]
-            
-        if(pageSettings["Display Capture The Flag Summary"] === "true"){
-
-            elems.push(
-                <MatchCTFSummary key={`match_1`} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
-            );
-        }
-
-        if(pageSettings["Display Capture The Flag Graphs"] === "true"){
-        
-            elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-6"
-            data={JSON.stringify(ctfGraphData)} text={JSON.stringify(ctfGraphText)}/>);
-
-            elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-7" 
-            data={JSON.stringify(ctfPlayerGraphData)} text={JSON.stringify(ctfPlayerGraphText)}/>);
-        }
+    if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
         elems.push(
-            <MatchCTFCaps key={`match_1234`} players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>
+            <MatchCTFSummary key={`match_1`} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
         );
-
     }
+
+    if(pageSettings["Display Capture The Flag Graphs"] === "true"){
+
+        elems.push(<MatchCTFGraphs key="ctf-graphs" matchId={parsedInfo.id} totalTeams={parsedInfo.total_teams} players={justPlayerNames}/>);
+    
+    }
+
+    elems.push(<MatchCTFCapsNew key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
 
 
     if(bDomination(parsedPlayerData)){
@@ -1204,7 +820,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         domGraphData = [domPlayerScores.data, domData.playerCapData, domData.teamCapData, domData.controlPointData];
 
         if(pageSettings["Display Domination Graphs"] === "true"){
-            elems.push(<Graph title={["Domination Player Scores", "Domination Player Caps", "Domination Team Caps", "Domination Control Caps"]} 
+            elems.push(<Graph key="dom-graphs" title={["Domination Player Scores", "Domination Player Caps", "Domination Team Caps", "Domination Control Caps"]} 
             text={JSON.stringify([domPlayerScores.text, domData.text, domData.text, domData.text])} data={JSON.stringify(domGraphData)}/>);
         }
     }
@@ -1423,7 +1039,6 @@ export async function getServerSideProps({req, query}){
     const mapName = await map.getName(matchInfo.map);
     const image = await map.getImage(mapName);
     const playerManager = new Player();
-    const killManager = new Kills();
 
     let playerData = await playerManager.getAllInMatch(matchId);
 
@@ -1498,23 +1113,6 @@ export async function getServerSideProps({req, query}){
         }
     }
     
-
-    let ctfCaps = [];
-    let ctfEvents = [];
-
-    if(bCTF(playerData)){
-
-        const CTFManager = new CTF();
-        
-        if(pageSettings["Display Capture The Flag Caps"] === "true"){
-            ctfCaps = await CTFManager.getMatchCaps(matchId);
-        }
-
-        if(pageSettings["Display Capture The Flag Graphs"] === "true"){
-            ctfEvents = await CTFManager.getMatchEvents(matchId);
-        }
-        
-    }
 
     let assaultData = [];
 
@@ -1648,6 +1246,7 @@ export async function getServerSideProps({req, query}){
 
     }
 
+
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
@@ -1667,8 +1266,8 @@ export async function getServerSideProps({req, query}){
             "domControlPointNames": domControlPointNames,
             "domCapData": domCapData,
             "domPlayerScoreData": JSON.stringify(domPlayerScoreData),
-            "ctfCaps": JSON.stringify(ctfCaps),
-            "ctfEvents": JSON.stringify(ctfEvents),
+            //"ctfCaps": JSON.stringify(ctfCaps),
+            //"ctfEvents": JSON.stringify(ctfEvents),
             "assaultData": JSON.stringify(assaultData),
             "itemData": JSON.stringify(itemData),
             "itemNames": JSON.stringify(itemNames),

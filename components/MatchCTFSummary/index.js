@@ -15,6 +15,27 @@ class MatchCTFSummary extends React.Component{
         this.changeMode = this.changeMode.bind(this);
     }
 
+    bAnyCTFData(){
+
+
+        const reg = /flag/i;
+   
+        for(let i = 0; i < this.props.players.length; i++){
+
+            const p = this.props.players[i];
+
+            for(const [key, value] of Object.entries(p)){
+      
+                if(reg.test(key)){
+                    if(value !== 0) return true;
+                }
+            }
+        }
+
+
+        return false;
+    }
+
     componentDidMount(){
 
         const settings = this.props.session;
@@ -50,6 +71,8 @@ class MatchCTFSummary extends React.Component{
 
     render(){
 
+
+        if(!this.bAnyCTFData()) return null;
 
         const teams = [];
         let teamPlayers = [];

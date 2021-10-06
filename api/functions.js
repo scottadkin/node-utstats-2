@@ -568,6 +568,38 @@ class Functions{
 
         return seconds / (60 * 60)
     }
+
+    static reduceGraphDataPoints(inputData, max){
+
+        const totalDataPoints = inputData[0].data.length;
+
+        if(totalDataPoints <= max) return inputData;
+
+        const increment = totalDataPoints / max;
+
+        const outputData = [];
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const current = inputData[i];
+
+            outputData.push({"name": current.name, "data": [], "lastValue": current.lastValue});
+        }
+
+        for(let i = 0; i < max; i++){
+
+            for(let x = 0; x < inputData.length; x++){
+
+                outputData[x].data.push(inputData[x].data[Math.ceil(increment * i)]);
+
+                if(i === max - 1){
+                    outputData[x].data.push(inputData[x].lastValue);
+                }
+            }
+        }
+
+        return outputData;
+    }
 }
 
 module.exports = Functions;
