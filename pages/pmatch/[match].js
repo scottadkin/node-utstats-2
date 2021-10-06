@@ -393,7 +393,6 @@ export async function getServerSideProps({req, query}){
 
     const ctfManager = new CTF();
 
-    const ctfCaps = await ctfManager.getPlayerMatchCaps(matchId, playerId);
 
 
     const bCTF = ctfManager.bAnyCtfDataInMatch(playerMatchData);
@@ -481,7 +480,6 @@ export async function getServerSideProps({req, query}){
             "pingData": JSON.stringify(pingData),
             "connectionsData": JSON.stringify(connectionsData),
             "teamData": JSON.stringify(teamData),
-            "ctfCaps": JSON.stringify(ctfCaps),
             "domPointNames": JSON.stringify(domPointNames),
             "playerDomCaps": JSON.stringify(playerDomCaps),
             "bCTF": bCTF,
