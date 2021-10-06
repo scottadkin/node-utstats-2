@@ -87,6 +87,23 @@ class MatchCTFGraphs extends React.Component{
             this.state.data.teamDrops
         ];
 
+        let bAnyData = false;
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            for(let x = 0; x < d.length; x++){
+
+                if(d[x].data.length > 0){
+                    bAnyData = true;
+                    break;
+                }
+            }
+        }
+
+        if(!bAnyData) return null;
+
         return <div>
             <div className="default-header">Capture The Flag Graphs</div>
             <Graph title={titles} data={JSON.stringify(data)}/>

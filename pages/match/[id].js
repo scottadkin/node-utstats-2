@@ -782,53 +782,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         }
     }
 
-    //if(bCTF(parsedPlayerData)){
-
-
-        /*const ctfEventData = new CTFEventData(JSON.parse(ctfEvents), parsedInfo.total_teams, justPlayerNames, parsedInfo.start);
-
-        const teamFlagGrabs = ctfEventData.get('taken');
-        const teamFlagCaps = ctfEventData.get('captured');
-        const teamFlagKills = ctfEventData.get('kill')
-        const teamFlagReturns = ctfEventData.get('returned')
-        const teamFlagCovers = ctfEventData.get('cover');
-        const teamFlagDrops = ctfEventData.get('dropped');
-        const teamFlagSaves = ctfEventData.get('save');
-        const teamFlagPickups = ctfEventData.get('pickedup');
-        const teamFlagSeals = ctfEventData.get('seal');
-
-        
-        const ctfGraphData = [teamFlagGrabs.data, teamFlagCaps.data, teamFlagKills.data, 
-            teamFlagReturns.data, teamFlagCovers.data, teamFlagDrops.data, teamFlagSaves.data,
-            teamFlagPickups.data, teamFlagSeals.data];
-
-        const ctfGraphText = [teamFlagGrabs.text, teamFlagCaps.text, teamFlagKills.text, 
-            teamFlagReturns.text, teamFlagCovers.text, teamFlagDrops.text, teamFlagSaves.text,
-            teamFlagPickups.text, teamFlagSeals.text];
-
-        
-
-        const flagGrabs = ctfEventData.getPlayerData('taken');
-        const flagCaps = ctfEventData.getPlayerData('captured');
-        const flagKills = ctfEventData.getPlayerData('kill')
-        const flagReturns = ctfEventData.getPlayerData('returned')
-        const flagCovers = ctfEventData.getPlayerData('cover');
-        const flagDrops = ctfEventData.getPlayerData('dropped');
-        const flagSaves = ctfEventData.getPlayerData('save');
-        const flagPickups = ctfEventData.getPlayerData('pickedup');
-        const flagSeals = ctfEventData.getPlayerData('seal');
-
-        const ctfPlayerGraphData = [
-            flagGrabs.data, flagCaps.data,  flagKills.data,
-            flagReturns.data,  flagCovers.data,  flagDrops.data,
-            flagSaves.data, flagPickups.data, flagSeals.data
-        ];
-
-        const ctfPlayerGraphText = [
-            flagGrabs.text, flagCaps.text,  flagKills.text,
-            flagReturns.text,  flagCovers.text,  flagDrops.text,
-            flagSaves.text, flagPickups.text, flagSeals.text
-        ]*/
+ 
             
         if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
@@ -841,11 +795,6 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
             elems.push(<MatchCTFGraphs key="ctf-caps" matchId={parsedInfo.id} totalTeams={parsedInfo.total_teams} players={justPlayerNames}/>);
         
-            /*elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-6"
-            data={JSON.stringify(ctfGraphData)} text={JSON.stringify(ctfGraphText)}/>);
-
-            elems.push(<Graph title={["Flag Grabs", "Flag Captures", "Flag Kills", "Flag Returns", "Flag Covers", "Flag Drops", "Flag Saves", "Flag Pickups", "Flag Seals"]} key="g-1-7" 
-            data={JSON.stringify(ctfPlayerGraphData)} text={JSON.stringify(ctfPlayerGraphText)}/>);*/
         }
 
         /*elems.push(
@@ -878,7 +827,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         domGraphData = [domPlayerScores.data, domData.playerCapData, domData.teamCapData, domData.controlPointData];
 
         if(pageSettings["Display Domination Graphs"] === "true"){
-            elems.push(<Graph title={["Domination Player Scores", "Domination Player Caps", "Domination Team Caps", "Domination Control Caps"]} 
+            elems.push(<Graph key="dom-graphs" title={["Domination Player Scores", "Domination Player Caps", "Domination Team Caps", "Domination Control Caps"]} 
             text={JSON.stringify([domPlayerScores.text, domData.text, domData.text, domData.text])} data={JSON.stringify(domGraphData)}/>);
         }
     }
