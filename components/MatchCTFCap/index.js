@@ -13,7 +13,7 @@ const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime, coverPlaye
 
         const c = coverPlayers[i];
 
-        coverElems.push(<div>
+        coverElems.push(<div key={i}>
             <CountryFlag country={c.player.country}/>{c.player.name} <span className="yellow">x<b>{c.covers}</b></span>
         </div>);
     }
@@ -22,7 +22,7 @@ const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime, coverPlaye
 
         const c = assistPlayers[i];
 
-        assistElems.push(<div>
+        assistElems.push(<div key={i}>
             <CountryFlag country={c.country}/>{c.name}
         </div>);
     }

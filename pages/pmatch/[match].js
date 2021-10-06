@@ -111,6 +111,7 @@ class PlayerMatch extends React.Component{
                             map={this.props.map} 
                             image={this.props.mapImage}
                             bMonsterHunt={parsedInfo.mh}
+                            settings={this.props.pageSettings}
                         />
 
                         <Screenshot 
@@ -235,9 +236,10 @@ export async function getServerSideProps({req, query}){
 
     await session.load();
 
-    const settings = new Sitesettings();
+    //const settings = new Sitesettings();
 
-    const navSettings = await settings.getCategorySettings("Navigation");
+    const navSettings = await Sitesettings.getSettings("Navigation");
+    const pageSettings = await Sitesettings.getSettings("Match Pages");
 
     const matchManager = new Match();
 
@@ -454,6 +456,7 @@ export async function getServerSideProps({req, query}){
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
+            "pageSettings": JSON.stringify(pageSettings),
             "info": JSON.stringify(info),
             "server": serverName,
             "gametype": gametypeName,
