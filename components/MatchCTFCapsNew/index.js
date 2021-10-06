@@ -124,10 +124,19 @@ class MatchCTFCapsNew extends React.Component{
 
         const matchStart = this.props.start;
 
+        const teamScores = [0,0,0,0];
+
         for(let i = 0; i < this.state.data.length; i++){
 
 
             const d = this.state.data[i];
+
+            teamScores[d.team]++;
+
+            const redScore = teamScores[0];
+            const blueScore = teamScores[1];
+            const greenScore = teamScores[2];
+            const yellowScore = teamScores[3];
 
             const grabPlayer = Functions.getPlayer(players, d.grab);
             const capPlayer = Functions.getPlayer(players, d.cap);
@@ -159,11 +168,21 @@ class MatchCTFCapsNew extends React.Component{
                 travelTime={d.travel_time}
                 dropTime={d.travel_time - totalCarryTime}
                 assistPlayers={assistPlayers}
+                totalTeams={this.props.totalTeams}
+                teamScores={[redScore, blueScore, greenScore, yellowScore]}
+                
             />);
             
         }
 
         return <div>
+            <div className="default-header">Capture The Flag Caps</div>
+    
+            {elems}
+               
+        </div>
+
+       /* return <div>
             <div className="default-header">Capture The Flag Caps</div>
             <table className={`t-width-1 ${styles.table}`}>
                 <tbody>
@@ -178,7 +197,7 @@ class MatchCTFCapsNew extends React.Component{
                     {elems}
                 </tbody>
             </table>
-        </div>
+        </div>*/
     }
 }
 

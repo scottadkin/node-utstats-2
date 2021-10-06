@@ -1,7 +1,60 @@
+.wrapper{
+    display:inline-block;
+    background-color:var(--color-1);
+    width:400px;
+    margin-right:5px;
+    margin-bottom:10px;
+    height:285px;
+    position:relative;
+    overflow:hidden;
+}
 
+.title{
+    padding:10px;
+}
 
-.timestamp{
-    font-size:10px;
-    color:yellow;
+.grab{
     padding:5px;
+}
+
+.label{
+    color:yellow;
+    font-size:12px;
+    display:inline-block;
+}
+
+.ca{
+    height:120px;
+    display:grid;
+    grid-template-columns: 50% 50%;
+    overflow:hidden;
+    
+}
+
+.times{
+    display:grid;
+    grid-template-columns: 50% 50%;
+    height:50px;
+    position:absolute;
+    background-color:var(--color-3);
+    width:100%;
+    font-size:14px;
+}
+
+.pwrapper{
+    text-align:left;
+    padding-left:5px;
+}
+
+.player{
+    font-size:13px;
+    line-height:20px;
+}
+
+.p1:nth-child(1){
+    background:linear-gradient(to right, var(--color-3), var(--color-1));
+}
+
+.p1:nth-child(2){
+    background:linear-gradient(to left, var(--color-3), var(--color-1));
 }
