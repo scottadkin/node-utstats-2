@@ -8,7 +8,7 @@ class BasicPageSelect extends React.Component{
 
         super(props);
 
-        this.state = {"perPage": 25, "results": this.props.results};
+        this.state = {"perPage": (this.props.perPage !== undefined) ? this.props.perPage : 25, "results": this.props.results};
     }
 
     render(){

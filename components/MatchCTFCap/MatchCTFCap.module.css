@@ -1,54 +1,53 @@
 .wrapper{
     display:inline-block;
     background-color:var(--color-1);
-    width:400px;
+    width:var(--width-1);
+    max-width:var(--max-width-1);
     margin-right:5px;
     margin-bottom:10px;
-    height:285px;
     position:relative;
     overflow:hidden;
 }
 
 .title{
-    padding:10px;
+    padding:15px;
 }
 
 .grab{
-    padding:5px;
+    padding:10px;
 }
 
 .label{
     color:yellow;
-    font-size:12px;
     display:inline-block;
 }
 
+.label2{
+    padding:10px;
+    color:yellow;
+}
+
 .ca{
-    height:120px;
+    min-height:40px;
     display:grid;
     grid-template-columns: 50% 50%;
-    overflow:hidden;
     
 }
 
 .times{
     display:grid;
     grid-template-columns: 50% 50%;
-    height:50px;
-    position:absolute;
     background-color:var(--color-3);
-    width:100%;
-    font-size:14px;
+    padding-bottom:10px;
 }
 
 .pwrapper{
-    text-align:left;
+    padding:10px 0px;
     padding-left:5px;
 }
 
 .player{
-    font-size:13px;
-    line-height:20px;
+    line-height:32px;
 }
 
 .p1:nth-child(1){

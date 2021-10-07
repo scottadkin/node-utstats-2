@@ -2,14 +2,16 @@ import React from 'react';
 import styles from './MatchCTFCapsNew.module.css';
 import Functions from '../../api/functions';
 import MatchCTFCap from '../MatchCTFCap';
+import BasicPageSelect from '../BasicPageSelect';
 
 class MatchCTFCapsNew extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"data": [], "finishedLoading": false};
+        this.state = {"data": [], "finishedLoading": false, "page": 0, "perPage": 1};
 
+        this.changePage = this.changePage.bind(this);
     }
 
     async loadData(){
@@ -43,6 +45,14 @@ class MatchCTFCapsNew extends React.Component{
         await this.loadData();
     }
 
+
+    changePage(page){
+
+        if(page < 0) page = 0;
+        if(page > this.state.data.length - 1) page = this.state.data.length - 1;
+
+        this.setState({"page": page});
+    }
 
 
     createCoverData(covers, players){
@@ -138,6 +148,9 @@ class MatchCTFCapsNew extends React.Component{
             const greenScore = teamScores[2];
             const yellowScore = teamScores[3];
 
+            if(i !== this.state.page) continue;
+            if(i > this.state.page) return;
+
             const grabPlayer = Functions.getPlayer(players, d.grab);
             const capPlayer = Functions.getPlayer(players, d.cap);
 
@@ -177,27 +190,10 @@ class MatchCTFCapsNew extends React.Component{
 
         return <div>
             <div className="default-header">Capture The Flag Caps</div>
-    
+            <BasicPageSelect results={this.state.data.length} perPage={this.state.perPage} page={this.state.page} changePage={this.changePage}/>
             {elems}
                
-        </div>
-
-       /* return <div>
-            <div className="default-header">Capture The Flag Caps</div>
-            <table className={`t-width-1 ${styles.table}`}>
-                <tbody>
-                    <tr className="text-center">
-                        <th>Grabbed</th>
-                        <th>Covers</th>
-                        <th>Assists</th>
-                        <th>Capped</th>
-                        <th>Travel Time</th>
-                        <th>Time Dropped</th>
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>
-        </div>*/
+        </div>;
     }
 }
 

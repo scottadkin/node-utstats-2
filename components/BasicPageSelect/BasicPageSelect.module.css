@@ -12,6 +12,7 @@
 	height:40px;
 	line-height:40px;
 	transition: var(--transition-1);
+	user-select: none;
 }
 
 .button:hover{
