@@ -4,7 +4,7 @@ import Functions from '../../api/functions';
 import MatchResultSmall from '../MatchResultSmall';
 
 const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime, 
-    coverPlayers, dropTime, travelTime, assistPlayers, totalTeams, teamScores}) =>{
+    coverPlayers, dropTime, travelTime, carryTime, assistPlayers, totalTeams, teamScores}) =>{
 
     const coverElems = [];
     const assistElems = [];
@@ -15,29 +15,36 @@ const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime,
 
         const c = coverPlayers[i];
 
-        coverElems.push(<div key={i} className={styles.player}>
-            <CountryFlag country={c.player.country}/>{c.player.name} <span className="yellow">x<b>{c.covers}</b></span>
-        </div>);
+        coverElems.push(<tr key={i}>
+            <td><CountryFlag country={c.player.country}/>{c.player.name}</td> 
+            <td>{c.covers}</td>
+        </tr>);
     }
 
-    for(let i = 0; i < assistPlayers.length; i++){
+    for(let i = 0; i < assistPlayers.length - 1; i++){
 
         const c = assistPlayers[i];
 
-        assistElems.push(<div key={i} className={styles.player}>
-            <CountryFlag country={c.country}/>{c.name}
-        </div>);
+        const carryPercent = (c.carryTime > 0) ? (c.carryTime / carryTime) * 100 : 0;
+        
+        assistElems.push(<tr key={i}>
+            <td><CountryFlag country={c.player.country}/>{c.player.name}</td>
+            <td>{parseFloat(c.carryTime).toFixed(2)} Secs <span className={styles.carryp}>({carryPercent.toFixed(2)}%)</span></td>
+        </tr>);
     }
 
     dropTime = (dropTime > 0) ? `${dropTime.toFixed(2)} Seconds` : "None";
 
     if(assistElems.length === 0){
-        assistElems.push(<div key="an">None</div>);
+        assistElems.push(<tr key="an"><td colSpan="2">None</td></tr>);
     }
 
     if(coverElems.length === 0){
-        coverElems.push(<div key="cn">None</div>);
+        coverElems.push(<tr key="cn"><td colSpan="2">None</td></tr>);
     }
+
+    const capCarryTime = assistPlayers[assistPlayers.length - 1].carryTime;
+    const capCarryPercent = (parseFloat(capCarryTime) / carryTime) * 100;
 
     return <div className={styles.wrapper}>
         <div className={`${styles.title} ${Functions.getTeamColor(team)}`}>{Functions.getTeamName(team)} Scored!</div>
@@ -47,34 +54,48 @@ const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime,
             />
         </div>
         <div className={styles.grab}>
-            <div className={styles.label}>Taken By</div> <CountryFlag country={grabPlayer.country}/>{grabPlayer.name} at {Functions.MMSS(grabTime)}
+            <div className={styles.label}>Taken By</div> <CountryFlag country={grabPlayer.country}/>{grabPlayer.name} at <span className="yellow">
+                {Functions.MMSS(grabTime)}</span>
         </div>
         <div className={styles.ca}>
             <div className={styles.p1}>
                 <div className={styles.label2}>Covers</div>
                 <div className={styles.pwrapper}>
-                    {coverElems}
+                    <table className={styles.table}>
+                        <tbody>
+                            {coverElems}
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div className={styles.p1}>
                 <div className={styles.label2}>Assists</div>
                 <div className={styles.pwrapper}>
-                    {assistElems}
+                    <table className={styles.table}>
+                        <tbody>
+                            {assistElems}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
         <div className={styles.grab}>
-            <div className={styles.label}>Capped By </div> <CountryFlag country={capPlayer.country}/>{capPlayer.name} at {Functions.MMSS(capTime)}
+            <div className={styles.label}>Capped By </div> <CountryFlag country={capPlayer.country}/>{capPlayer.name} at <span className="yellow">{Functions.MMSS(capTime)}</span>
+            <br/><span className="yellow">Carrytime</span> {capCarryTime} Secs <span className={styles.carryp}>({capCarryPercent.toFixed(2)}%)</span>
 
         </div>
         <div className={styles.times}>
             <div>
                 <div className={styles.label2}>Travel Time</div>
                 {travelTime.toFixed(2)} Seconds
-
             </div>
             <div>
-            <div className={styles.label2}>Time Dropped</div>
+                <div className={styles.label2}>Carry Time</div>
+                {carryTime.toFixed(2)} Seconds
+            </div>
+            
+            <div>
+                <div className={styles.label2}>Time Dropped</div>
                 {dropTime}
             </div>
         </div>

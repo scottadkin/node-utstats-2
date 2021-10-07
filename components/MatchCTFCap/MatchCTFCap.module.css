@@ -15,6 +15,7 @@
 
 .grab{
     padding:10px;
+    line-height:32px;
 }
 
 .label{
@@ -36,7 +37,7 @@
 
 .times{
     display:grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 33.3% 33.4% 33.3%;
     background-color:var(--color-3);
     padding-bottom:10px;
 }
@@ -56,4 +57,14 @@
 
 .p1:nth-child(2){
     background:linear-gradient(to left, var(--color-3), var(--color-1));
+}
+
+.table{
+    width:100%;
+}
+
+.carryp{
+    font-size:12px;
+    font-style:italic;
+    color:yellow;
 }

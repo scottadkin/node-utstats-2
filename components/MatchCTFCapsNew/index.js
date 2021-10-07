@@ -97,28 +97,17 @@ class MatchCTFCapsNew extends React.Component{
 
     }
 
-    createAssistData(assists, players){
+    createAssistData(assists, assistTimes, players){
+
+        console.log(assistTimes);
 
         assists = assists.split(",");
-
-        const uniquePlayers = [];
-
-        for(let i = 0; i < assists.length; i++){
-
-            const c = parseInt(assists[i]);
-
-            if(c !== c) continue;
-
-            if(uniquePlayers.indexOf(c) === -1){
-                uniquePlayers.push(c);
-            }
-
-        }
+        assistTimes = assistTimes.split(",");
 
         const returnData = [];
 
-        for(let i = 0; i < uniquePlayers.length; i++){
-            returnData.push(Functions.getPlayer(players, uniquePlayers[i]));
+        for(let i = 0; i < assists.length; i++){
+            returnData.push({"player": Functions.getPlayer(players, parseInt(assists[i])), "carryTime": assistTimes[i]});
         }
 
         return returnData;
@@ -155,7 +144,7 @@ class MatchCTFCapsNew extends React.Component{
             const capPlayer = Functions.getPlayer(players, d.cap);
 
             const coverPlayers = this.createCoverData(d.covers, players);
-            const assistPlayers = this.createAssistData(d.assists, players);
+            const assistPlayers = this.createAssistData(d.assist_carry_ids, d.assist_carry_times, players);
         
             let totalCarryTime = 0;
 
@@ -180,6 +169,7 @@ class MatchCTFCapsNew extends React.Component{
                 coverPlayers={coverPlayers}
                 travelTime={d.travel_time}
                 dropTime={d.travel_time - totalCarryTime}
+                carryTime={totalCarryTime}
                 assistPlayers={assistPlayers}
                 totalTeams={this.props.totalTeams}
                 teamScores={[redScore, blueScore, greenScore, yellowScore]}
