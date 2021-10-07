@@ -99,8 +99,6 @@ class MatchCTFCapsNew extends React.Component{
 
     createAssistData(assists, assistTimes, players){
 
-        console.log(assistTimes);
-
         assists = assists.split(",");
         assistTimes = assistTimes.split(",");
 
@@ -112,6 +110,42 @@ class MatchCTFCapsNew extends React.Component{
 
         return returnData;
 
+    }
+
+
+    createSelfCoversData(playerIds, coversCount, players){
+
+        playerIds = playerIds.split(",");
+        coversCount = coversCount.split(",");
+
+        const playerIndexes = [];
+
+        const returnData = [];
+
+        for(let i = 0; i < playerIds.length; i++){
+
+            const p = parseInt(playerIds[i]);
+
+            if(p !== p) continue;
+
+            const covers = parseInt(coversCount[i]);
+
+            const currentPlayer = Functions.getPlayer(players, p);
+
+            let currentIndex = playerIndexes.indexOf(p);
+
+            if(currentIndex === -1){
+
+                playerIndexes.push(p);
+                returnData.push({"player": currentPlayer, "kills": 0});
+
+                currentIndex = playerIndexes.indexOf(p);
+            }
+
+            returnData[currentIndex].kills += covers;
+        }
+
+        return returnData;
     }
 
     render(){
@@ -145,7 +179,8 @@ class MatchCTFCapsNew extends React.Component{
 
             const coverPlayers = this.createCoverData(d.covers, players);
             const assistPlayers = this.createAssistData(d.assist_carry_ids, d.assist_carry_times, players);
-        
+
+            const selfCoverPlayers = this.createSelfCoversData(d.self_covers, d.self_covers_count, players);
             let totalCarryTime = 0;
 
             const assistTimes = d.assist_carry_times.split(",");
@@ -173,6 +208,7 @@ class MatchCTFCapsNew extends React.Component{
                 assistPlayers={assistPlayers}
                 totalTeams={this.props.totalTeams}
                 teamScores={[redScore, blueScore, greenScore, yellowScore]}
+                selfCovers={selfCoverPlayers}
                 
             />);
             

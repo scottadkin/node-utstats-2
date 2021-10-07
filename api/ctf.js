@@ -156,7 +156,7 @@ class CTF{
     async getMatchCaps(matchId){
 
         const query = `SELECT team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,
-        assist_carry_ids,cap,cap_time,travel_time 
+        assist_carry_ids,cap,cap_time,travel_time,self_covers,self_covers_count
         FROM nstats_ctf_caps WHERE match_id=?`;
 
         return await mysql.simpleQuery(query, [matchId]);

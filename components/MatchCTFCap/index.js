@@ -4,12 +4,12 @@ import Functions from '../../api/functions';
 import MatchResultSmall from '../MatchResultSmall';
 
 const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime, 
-    coverPlayers, dropTime, travelTime, carryTime, assistPlayers, totalTeams, teamScores}) =>{
+    coverPlayers, dropTime, travelTime, carryTime, assistPlayers, totalTeams, 
+    teamScores, selfCovers}) =>{
 
     const coverElems = [];
     const assistElems = [];
-
-    const teamColor = Functions.getTeamColor(team);
+    const selfCoverElems = [];
 
     for(let i = 0; i < coverPlayers.length; i++){
 
@@ -33,6 +33,16 @@ const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime,
         </tr>);
     }
 
+    for(let i = 0; i < selfCovers.length; i++){
+
+        const s = selfCovers[i];
+
+        selfCoverElems.push(<tr key={i}>
+            <td><CountryFlag country={s.player.country}/>{s.player.name}</td>
+            <td>{s.kills}</td>
+        </tr>);
+    }
+
     dropTime = (dropTime > 0) ? `${dropTime.toFixed(2)} Seconds` : "None";
 
     if(assistElems.length === 0){
@@ -46,18 +56,9 @@ const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime,
     const capCarryTime = assistPlayers[assistPlayers.length - 1].carryTime;
     const capCarryPercent = (parseFloat(capCarryTime) / carryTime) * 100;
 
-    return <div className={styles.wrapper}>
-        <div className={`${styles.title} ${Functions.getTeamColor(team)}`}>{Functions.getTeamName(team)} Scored!</div>
-        <div className={styles.scores}>
-            <MatchResultSmall totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
-                greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}
-            />
-        </div>
-        <div className={styles.grab}>
-            <div className={styles.label}>Taken By</div> <CountryFlag country={grabPlayer.country}/>{grabPlayer.name} at <span className="yellow">
-                {Functions.MMSS(grabTime)}</span>
-        </div>
-        <div className={styles.ca}>
+
+
+    const coverAssistsElem = <div className={styles.ca}>
             <div className={styles.p1}>
                 <div className={styles.label2}>Covers</div>
                 <div className={styles.pwrapper}>
@@ -78,7 +79,33 @@ const MatchCTFCap = ({team, grabPlayer, grabTime, capPlayer, capTime,
                     </table>
                 </div>
             </div>
+        </div>;
+  
+    const selfCoverElem = (selfCoverElems.length === 0) ? null : <div className={styles.scovers}>
+        <div className={styles.label2}>Kills While Carrying Flag</div>
+        <table className="t-width-2">
+            <tbody>
+                {selfCoverElems}
+            </tbody>
+        </table>
+    </div>;
+
+
+    return <div className={styles.wrapper}>
+        <div className={`${styles.title} ${Functions.getTeamColor(team)}`}>{Functions.getTeamName(team)} Scored!</div>
+        <div className={styles.scores}>
+            <MatchResultSmall totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
+                greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}
+            />
         </div>
+        <div className={styles.grab}>
+            <div className={styles.label}>Taken By</div> <CountryFlag country={grabPlayer.country}/>{grabPlayer.name} at <span className="yellow">
+                {Functions.MMSS(grabTime)}</span>
+        </div>
+        {coverAssistsElem}
+
+        {selfCoverElem}
+
         <div className={styles.grab}>
             <div className={styles.label}>Capped By </div> <CountryFlag country={capPlayer.country}/>{capPlayer.name} at <span className="yellow">{Functions.MMSS(capTime)}</span>
             <br/><span className="yellow">Carrytime</span> {capCarryTime} Secs <span className={styles.carryp}>({capCarryPercent.toFixed(2)}%)</span>

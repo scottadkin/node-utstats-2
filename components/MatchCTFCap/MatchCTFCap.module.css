@@ -66,3 +66,13 @@
     font-style:italic;
     color:yellow;
 }
+
+.scores div div{
+    padding:10px;
+    font-size:20px;
+}
+
+.scovers{
+    background:linear-gradient(to right, var(--color-3), var(--color-1));
+    padding-bottom:10px;
+}
