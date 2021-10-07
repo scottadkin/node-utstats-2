@@ -39,10 +39,10 @@ class CTFManager{
         return null;
     }
 
-    parseData(){
+    parseData(killManager){
         
         const reg = /^(\d+?\.\d+?)\tflag_(.+?)\t(\d+?)(|\t(\d+?)|\t(\d+?)\t(\d+?))$/i;
-        
+        this.killManager = killManager;
 
         let d = 0;
         let result = 0;
@@ -158,6 +158,32 @@ class CTFManager{
 
 
 
+    getSelfCovers(start, end){
+
+        const selfCovers = {};
+
+        for(let i = 0; i < this.carryTimeFrames.length; i++){
+
+            const c = this.carryTimeFrames[i];
+
+            if(c.end > end) break;
+
+            //if(!c.bFail){
+
+                if(c.start >= start && c.end <= end){    
+
+                    const current = this.killManager.getKillsBetween(c.start, c.end, c.player, true);
+                     
+                    if(current > 0){
+                        selfCovers[c.player] = current;
+                    }
+                }
+            //}
+        }
+
+        return selfCovers;
+
+    }
 
     createCapData(){
 
@@ -212,7 +238,8 @@ class CTFManager{
                     "pickupTimes": [],
                     "dropTimes": [],
                     "carryTimes": [],
-                    "carryIds": []
+                    "carryIds": [],
+                    "selfCovers": null
                 };
                 setCurrent(e.team, current);
                 //continue;
@@ -232,7 +259,8 @@ class CTFManager{
                     "pickupTimes": [],
                     "dropTimes": [],
                     "carryTimes": [],
-                    "carryIds": []
+                    "carryIds": [],
+                    "selfCovers": null
                 };
 
     
@@ -304,6 +332,8 @@ class CTFManager{
                 current.cap = e.player;
                 current.capTime = e.timestamp;
                 current.travelTime = (current.capTime - current.grabTime).toFixed(2);
+
+                current.selfCovers = this.getSelfCovers(current.grabTime, current.capTime);
 
                 this.setCoverSprees(current.covers);
 
@@ -531,6 +561,18 @@ class CTFManager{
                 currentPickups = [];
                 currentPickupTimes = [];
                 currentPickup = 0;
+                const currentSelfCovers = [];
+                const currentSelfCoversCount = [];
+                
+                for(const [key, value] of Object.entries(c.selfCovers)){
+
+                    const currentPlayer = this.playerManager.getOriginalConnectionById(parseInt(key));
+
+                    if(currentPlayer !== null){
+                        currentSelfCovers.push(currentPlayer.masterId);
+                        currentSelfCoversCount.push(value);
+                    }
+                }
 
                 for(let x = 0; x < c.dropTimes.length; x++){
 
@@ -587,7 +629,7 @@ class CTFManager{
 
                     await this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
                         currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, 
-                        currentCap.masterId, c.capTime, c.travelTime);
+                        currentCap.masterId, c.capTime, c.travelTime, currentSelfCovers, currentSelfCoversCount);
                 }else{
                     new Message(`CTFManager.insertCaps() currentCap is null`,"warning");
                 }
@@ -652,7 +694,7 @@ class CTFManager{
 
             c = this.carryTimeFrames[i];
 
-            currentKills =  killManager.getKillsBetween(c.start, c.end, c.player, true);
+            currentKills = killManager.getKillsBetween(c.start, c.end, c.player, true);
 
             currentPlayer = this.playerManager.getOriginalConnectionById(c.player);
 
@@ -740,6 +782,7 @@ class CTFManager{
             console.trace(err);
         }
     }
+
 }
 
 

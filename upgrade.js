@@ -54,7 +54,7 @@ async function updateCapsTable(){
     const table = "nstats_ctf_caps";
 
     const coverExists = await columnExists(table, "self_covers");
-    const coverTimesExists = await columnExists(table, "self_covers_times");
+    const coverTimesExists = await columnExists(table, "self_covers_count");
 
     if(coverExists && coverTimesExists){
 
@@ -67,7 +67,7 @@ async function updateCapsTable(){
         }
 
         if(!coverTimesExists){
-            await alterTable(table, "self_covers_times", "text NOT NULL");
+            await alterTable(table, "self_covers_count", "text NOT NULL");
         }
 
     }

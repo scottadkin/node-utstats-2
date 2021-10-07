@@ -61,7 +61,7 @@ const queries = [
         cap_time float NOT NULL,
         travel_time float NOT NULL,
         self_covers text NOT NULL,
-        self_covers_times text NOT NULL
+        self_covers_count text NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ctf_events (
         id int(11) NOT NULL AUTO_INCREMENT,
