@@ -49,6 +49,30 @@ async function updateFTPTable(){
 }
 
 
+async function updateCapsTable(){
+
+    const table = "nstats_ctf_caps";
+
+    const coverExists = await columnExists(table, "self_covers");
+    const coverTimesExists = await columnExists(table, "self_covers_times");
+
+    if(coverExists && coverTimesExists){
+
+        new Message(`TABLE ${table} does not need to be updated.`,"pass");
+
+    }else{
+
+        if(!coverExists){
+            await alterTable(table, "self_covers", "text NOT NULL");
+        }
+
+        if(!coverTimesExists){
+            await alterTable(table, "self_covers_times", "text NOT NULL");
+        }
+
+    }
+}
+
 async function updateSiteSettings(){
 
     const query = "SELECT category, name FROM nstats_site_settings";
@@ -103,6 +127,7 @@ async function updateSiteSettings(){
         new Message("Database Upgrade", "note");
 
         await updateFTPTable();
+        await updateCapsTable();
         await updateSiteSettings();
 
         process.exit(0);
