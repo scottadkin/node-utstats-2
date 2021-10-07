@@ -3,8 +3,6 @@
     background-color:var(--color-1);
     width:var(--width-1);
     max-width:var(--max-width-1);
-    margin-right:5px;
-    margin-bottom:10px;
     position:relative;
     overflow:hidden;
 }
