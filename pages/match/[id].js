@@ -795,8 +795,9 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     }
 
     const bDom = bDomination(parsedPlayerData);
+    const bAssaultGame = bAssault(gametype);
 
-    if(!bDom){
+    if(!bDom && !bAssaultGame){
         elems.push(<MatchCTFCapsNew key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
     }
 
@@ -828,7 +829,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         }
     }
 
-    if(bAssault(gametype)){
+    if(bAssaultGame){
 
         elems.push(
             <MatchAssaultSummary key={`assault_data`} players={playerData} data={assaultData} matchStart={parsedInfo.start} attackingTeam={parsedInfo.attacking_team}
