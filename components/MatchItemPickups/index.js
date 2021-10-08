@@ -148,7 +148,7 @@ class MatchItemPickups extends React.Component{
 
         if(elems.length > 0 && totalUses > 0){
 
-            return <table className={`t-width-1 ${styles.table} m-bottom-25`}>
+            return <table className={`t-width-1 m-bottom-25 player-td-1`}>
                 <tbody>
      
                     {elems}
@@ -166,7 +166,7 @@ class MatchItemPickups extends React.Component{
 
         if(tableElems === null) return null;
 
-        return <div className="special-table m-bottom-10">
+        return <div className="m-bottom-10">
             <div className="default-header">Pickup Summary</div>
             <div className={`${styles.buttons} center`}>
                 <div className={styles.previous} onClick={(() =>{

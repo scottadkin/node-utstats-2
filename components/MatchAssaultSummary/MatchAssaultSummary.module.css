@@ -2,7 +2,6 @@
     max-width:1000px;
     display:grid;
     grid-template-columns: 50% 50%;
-    font-weight:100;
     font-size:20px;
     width:80%;
 }
@@ -15,7 +14,6 @@
 
 .result{
     max-width:1000px;
-    font-weight:100;
     font-size:20px;
     padding:10px 0px;
     border:1px solid var(--border-color-1);

@@ -114,7 +114,7 @@ const MatchFragDistances = ({players, team, toDisplay, single, matchId}) =>{
             {(toDisplay.indexOf("k_distance_uber") !== -1) ? <TipHeader title="Uber Long Range Kills" content="Kills with a distance of 3072 and greater." /> : null}
         </tr>);
 
-        return <table className={`${styles.table} m-bottom-25 t-width-1`}>
+        return <table className={`${styles.table} m-bottom-25 t-width-1 player-td-1`}>
             <tbody>
                 {elems}
             </tbody>

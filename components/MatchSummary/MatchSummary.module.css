@@ -3,7 +3,7 @@
     background-color:var(--color-3);
     background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
     border:1px solid var(--border-color-1);
-    max-width:1250px;
+    max-width:var(--max-width-1);
     width:var(--width-1);
 }
 

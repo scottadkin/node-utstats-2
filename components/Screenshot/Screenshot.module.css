@@ -1,6 +1,6 @@
 .content canvas{
-    width:90%;
-    max-width:1250px;
+    width:var(--width-1);
+    max-width:var(--max-width-1);
 }
 
 #downloads a{

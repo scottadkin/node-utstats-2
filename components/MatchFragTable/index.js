@@ -114,7 +114,7 @@ const MatchFragTable = ({players, team, matchStart, toDisplay, matchId, single})
         </tr>);
     }
 
-    return (<table className={`${styles.table} center m-bottom-25 t-width-1`}>
+    return (<table className={`${styles.table} center m-bottom-25 t-width-1 player-td-1`}>
         <tbody>
             <tr className={bgColor}>
                 {(single) ? null : <th className="name-td">Player</th>}

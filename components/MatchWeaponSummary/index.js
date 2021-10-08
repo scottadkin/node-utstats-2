@@ -212,7 +212,7 @@ class MatchWeaponSummary extends React.Component{
             }
         }
 
-        return <table className={`t-width-1 ${styles.table}`}>
+        return <table className={`t-width-1 ${styles.table} player-td-1`}>
             <tbody>
                 <tr>
                     <th>Player</th>
@@ -386,8 +386,8 @@ class MatchWeaponSummary extends React.Component{
 
             tables.push(
                 <div key={i}>
-                    <div className="default-header">{currentWeapon.name}</div>
-                    <table className={`t-width-1 m-bottom-10 ${styles.table}`}>
+                    <div className="default-sub-header">{currentWeapon.name}</div>
+                    <table className={`t-width-1 m-bottom-25 ${styles.table} player-td-1`}>
                         <tbody>
                             <tr>
                                 <th>Player</th>

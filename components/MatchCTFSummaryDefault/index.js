@@ -104,7 +104,7 @@ const MatchCTFSummaryDefault = ({players, team, matchId}) =>{
     
     
 
-    return <table className={`m-bottom-25 t-width-1 td-1-150`}>
+    return <table className={`m-bottom-25 t-width-1 player-td-1`}>
         <tbody>
             <tr>
                 <th>Player</th>

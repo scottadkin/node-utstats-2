@@ -146,7 +146,7 @@ class MatchSpecialEvents extends React.Component{
             if(this.state.mode === 2){
 
                 elems.unshift(<tr key={`multi-2-h`}>
-                    {(this.props.single) ? null : <th className="text-left">Player</th>}
+                    {(this.props.single) ? null : <th>Player</th>}
                     <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
                     <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
                     <TipHeader title={"Mega Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
@@ -160,7 +160,7 @@ class MatchSpecialEvents extends React.Component{
             }else if(this.state.mode === 0){
 
                 elems.unshift(<tr key={`multi-0-h`}>
-                     {(this.props.single) ? null :<th className="text-left">Player</th>}
+                     {(this.props.single) ? null :<th>Player</th>}
                     <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
                     <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
                     <TipHeader title={"Ultra Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
@@ -171,7 +171,7 @@ class MatchSpecialEvents extends React.Component{
             }else if(this.state.mode === 3){
 
                 elems.unshift(<tr key={`multi-3-h`}>
-                     {(this.props.single) ? null :<th className="text-left">Player</th>}
+                     {(this.props.single) ? null :<th>Player</th>}
                     <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
                     <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
                     <TipHeader title={"Mega Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
@@ -183,7 +183,7 @@ class MatchSpecialEvents extends React.Component{
             }else if(this.state.mode === 1){
 
                 elems.unshift(<tr key={`multi-1-h`}>
-                     {(this.props.single) ? null :<th className="text-left">Player</th>}
+                     {(this.props.single) ? null :<th>Player</th>}
                     <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
                     <TipHeader title={"Triple Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
                     <TipHeader title={"Multi Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
@@ -198,7 +198,7 @@ class MatchSpecialEvents extends React.Component{
         if(elems.length > 0){
             return <div>
                 
-                <table className={`${styles.table} t-width-1 td-1-150`}>
+                <table className={`${styles.table} t-width-1 player-td-1`}>
                     <tbody>
                         {elems}
                     </tbody>
@@ -325,7 +325,7 @@ class MatchSpecialEvents extends React.Component{
 
                 elems.unshift(
                     <tr key={`spree-0-h`}>
-                         {(this.props.single) ? null :<th className="text-left">Player</th>}
+                         {(this.props.single) ? null :<th>Player</th>}
                         <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
                         <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
@@ -339,7 +339,7 @@ class MatchSpecialEvents extends React.Component{
 
                 elems.unshift(
                     <tr key={`spree-1-h`}>
-                         {(this.props.single) ? null :<th className="text-left">Player</th>}
+                         {(this.props.single) ? null :<th>Player</th>}
                         <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
                         <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
@@ -355,7 +355,7 @@ class MatchSpecialEvents extends React.Component{
 
                 elems.unshift(
                     <tr key={`spree-2-h`}>
-                         {(this.props.single) ? null :<th className="text-left">Player</th>}
+                         {(this.props.single) ? null :<th>Player</th>}
                         <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
                         <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
@@ -370,7 +370,7 @@ class MatchSpecialEvents extends React.Component{
 
                 elems.unshift(
                     <tr key={`spree-3-h`}>
-                         {(this.props.single) ? null :<th className="text-left">Player</th>}
+                         {(this.props.single) ? null :<th>Player</th>}
                         <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
                         <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
                         <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
@@ -383,7 +383,7 @@ class MatchSpecialEvents extends React.Component{
             }
 
             return <div>
-            <table className={`${styles.table} t-width-1 td-1-150`}>
+            <table className={`${styles.table} t-width-1 player-td-1`}>
                 <tbody>
                     {elems}
                 </tbody>

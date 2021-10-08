@@ -1,6 +1,6 @@
 .tabs{
     width:90%;
-    max-width:1248px;
+    max-width:var(--max-width-1);
     background-color:var(--color-3);
     height:40px;
     overflow:hidden;
@@ -41,12 +41,4 @@
     background-color:var(--color-2);
     color:yellow;
     cursor:pointer;
-}
-
-
-
-
-.table td:nth-child(1){
-    width:150px;
-    text-align:left;
 }

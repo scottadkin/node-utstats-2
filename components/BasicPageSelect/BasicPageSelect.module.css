@@ -1,7 +1,7 @@
 .wrapper{
 	background-color:var(--color-3);
 	height:40px;
-	max-width:1248px;
+	max-width:var(--max-width-1);
 	width:var(--width-1);
 	display:grid;
 	grid-template-columns: 25% 50% 25%;

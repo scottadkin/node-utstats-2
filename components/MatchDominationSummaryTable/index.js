@@ -143,7 +143,7 @@ const MatchDominationSummaryTable = ({team, players, controlPointNames, capData,
     
 
     return (<div className={`m-bottom-25 center`}>
-        <table className="t-width-1 td-1-150">
+        <table className="t-width-1 player-td-1">
             <tbody>
                 <tr>
                     <th>Player</th>

@@ -17,7 +17,7 @@
 	--border-color-2:rgba(255,255,255,0.125);
 	--transition-1:all 0.5s;
 	--width-1:90%;
-	--max-width-1:1250px;
+	--max-width-1:1400px;
 	--max-width-2:500px;
 }
 
@@ -101,8 +101,8 @@ footer{
 	font-weight:300;
 	padding-bottom:15px;
 	padding-top:15px;
-	width:90%;
-	max-width:1250px;
+	width:var(--width-1);
+	max-width:var(--max-width-1);
 	margin-left:auto;
 	margin-right:auto;
 	background-color:var(--color-3);
@@ -180,15 +180,15 @@ table{
 th{
 	font-weight:400;
 	color:yellow;
-	font-size:16px;
-	padding:20px 5px;
+	font-size:15px;
+	padding:15px 0px;
 	background-color:var(--color-3);
 	background:linear-gradient(to bottom, var(--color-1), var(--color-3));
 }
 
 td{
 	font-weight:400;
-	padding:15px 10px;
+	padding:15px 5px;
 	font-size:14px;
 }
 
@@ -592,6 +592,11 @@ input[type="range"]{
 	width:150px;
 }
 
+
+.player-td-1 td:nth-child(1){
+	width:200px;
+	text-align:left;
+}
 
 .ranking-icon{
 	height:14px;

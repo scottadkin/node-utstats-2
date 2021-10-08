@@ -1,7 +1,7 @@
 .buttons{
 
-    width:90%;
-    max-width:1248px;
+    width:var(--width-1);
+    max-width:var(--max-width-1);
     overflow:hidden;
     height:40px;
     background-color:var(--color-3);
@@ -41,12 +41,3 @@
     background-color:var(--color-2);
 }
 
-
-.table{
-    font-size:9px;
-}
-
-.table td:nth-child(1){
-    width:150px;
-    text-align:left;
-}
