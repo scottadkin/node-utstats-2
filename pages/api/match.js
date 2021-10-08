@@ -8,6 +8,7 @@ export default async (req, res) =>{
 
         const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
         const matchId = (req.body.matchId !== undefined) ? parseInt(req.body.matchId) : -1;
+        const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
 
         if(mode === "kills"){
 
@@ -67,7 +68,13 @@ export default async (req, res) =>{
 
             const spreeManager = new Sprees();
 
-            const data = await spreeManager.getMatchData(matchId);
+            let data = [];
+
+            if(playerId === -1){
+                data = await spreeManager.getMatchData(matchId);
+            }else{
+                data = await spreeManager.getPlayerMatchData(matchId, playerId);
+            }
 
             res.status(200).json({"data": data});
             return;

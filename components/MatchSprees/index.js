@@ -18,10 +18,12 @@ class MatchSprees extends React.Component{
 
         try{
 
+            const playerId = (this.props.playerId !== undefined) ? this.props.playerId : -1;
+
             const req = await fetch("/api/match", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"mode": "sprees", "matchId": this.props.matchId})
+                "body": JSON.stringify({"mode": "sprees", "matchId": this.props.matchId, "playerId": playerId})
             });
 
             const res = await req.json();
