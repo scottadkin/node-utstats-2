@@ -794,10 +794,13 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     
     }
 
-    elems.push(<MatchCTFCapsNew key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
+    const bDom = bDomination(parsedPlayerData);
 
+    if(!bDom){
+        elems.push(<MatchCTFCapsNew key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
+    }
 
-    if(bDomination(parsedPlayerData)){
+    if(bDom){
 
         if(pageSettings["Display Domination Summary"] === "true"){
             elems.push(
