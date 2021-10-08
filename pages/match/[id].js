@@ -38,7 +38,6 @@ import SiteSettings from '../../api/sitesettings';
 import Rankings from '../../api/rankings';
 import MatchRankingChanges from '../../components/MatchRankingChanges/';
 import AdminMatchControl from '../../components/AdminMatchControl/';
-import Sprees from '../../api/sprees';
 import MatchSprees from '../../components/MatchSprees/';
 import MonsterHunt from '../../api/monsterhunt';
 import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSummary/';
@@ -666,9 +665,8 @@ class PlayerGraphPingData{
 }
 
 function Match({navSettings, pageSettings, session, host, matchId, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
-    domPlayerScoreData, ctfCaps, ctfEvents,
-    assaultData, itemData, itemNames, connections, teams, faces, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
-    rankingPositions, spreesData, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
+    domPlayerScoreData, assaultData, itemData, itemNames, connections, teams, faces, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
+    rankingPositions, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
     //for default head open graph image
     const imageReg = /^.+\/(.+)\.jpg$/i;
@@ -852,9 +850,8 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     }
 
     if(pageSettings["Display Extended Sprees"] === "true"){
-        spreesData = JSON.parse(spreesData);
-    
-        elems.push(<MatchSprees key={"sprees"} data={spreesData} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
+
+        elems.push(<MatchSprees key={"sprees"} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
     }
 
 
@@ -1203,14 +1200,6 @@ export async function getServerSideProps({req, query}){
     }
 
 
-    let spreesData = [];
-
-    if(pageSettings["Display Extended Sprees"] === "true"){
-        const spreesManager = new Sprees();
-        spreesData = await spreesManager.getMatchData(matchId);
-    }
-
-
     let monsterHuntKills = [];
     let monsterHuntPlayerKillTotals = [];
     let monsterImages = [];
@@ -1285,7 +1274,6 @@ export async function getServerSideProps({req, query}){
             "rankingChanges": JSON.stringify(rankingChanges),
             "currentRankings": JSON.stringify(currentRankings),
             "rankingPositions": JSON.stringify(rankingPositions),
-            "spreesData": JSON.stringify(spreesData),
             "bMonsterHunt": matchInfo.mh,
             "monsterHuntPlayerKillTotals": JSON.stringify(monsterHuntPlayerKillTotals),
             "monsterImages": JSON.stringify(monsterImages),

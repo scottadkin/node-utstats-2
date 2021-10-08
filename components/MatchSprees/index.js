@@ -9,16 +9,45 @@ class MatchSprees extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"page": 0, "perPage": 25};
+        this.state = {"page": 0, "perPage": 10, "data": []};
 
         this.changePage = this.changePage.bind(this);
+    }
+
+    async loadData(){
+
+        try{
+
+            const req = await fetch("/api/match", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "sprees", "matchId": this.props.matchId})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+                this.setState({"data": res.data});
+            }else{
+
+                throw new Error(res.error);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async componentDidMount(){
+
+        await this.loadData();
     }
 
     changePage(page){
 
         if(page < 0) page = 0;
 
-        const maxPage = Math.ceil(this.props.data.length / this.state.perPage) - 1;
+        const maxPage = Math.ceil(this.state.data.length / this.state.perPage) - 1;
 
         if(page > maxPage){
             page = maxPage;
@@ -29,78 +58,82 @@ class MatchSprees extends React.Component{
 
     renderTable(){
 
-
         const rows = [];
 
-        const ms = this.props.matchStart;
+        const start = this.state.page * this.state.perPage;
 
-        let s = 0;
-        let player = 0;
-        let killer = 0;
-
-        let endReason = "";
-
-        let start = this.state.page * this.state.perPage;
-        let end = (this.state.page + 1) * this.state.perPage;
-
-        if(end > this.props.data.length){
-
-            end = this.props.data.length;
-        }
+        const end = (start + this.state.perPage > this.state.data.length) ? this.state.data.length : start + this.state.perPage;
 
         for(let i = start; i < end; i++){
 
-            s = this.props.data[i];
+            const d = this.state.data[i];
 
-            player = Functions.getPlayer(this.props.players, s.player);
+            const player = Functions.getPlayer(this.props.players, d.player);
+            const killer = (d.killer !== -1) ? Functions.getPlayer(this.props.players, d.killer) : null;
 
-            if(s.killer !== -1){
+            let killerElem = null;
 
-                if(s.killer !== s.player){
-                    killer = Functions.getPlayer(this.props.players, s.killer);
-                    endReason = <span>Killed by <Link href={`/pmatch/${this.props.matchId}?player=${s.killer}`}><a><CountryFlag country={killer.country}/>{killer.name}</a></Link></span>
-                }else{
-                    endReason = "Suicide";
-                }
+            if(killer !== null){
 
-
+                killerElem = <td className="red">
+                    Killed by <Link href={`/pmatch/${this.props.matchId}?player=${killer.id}`}>
+                        <a><CountryFlag country={killer.country}/><span className="yellow">{killer.name}</span></a>
+                    </Link>
+                </td>
             }else{
-                endReason = "Match ended.";
+
+                killerElem = <td>Match Ended!</td>;
             }
 
+
             rows.push(<tr key={i}>
-                <td className="text-left"><Link href={`/pmatch/${this.props.matchId}?player=${s.player}`}><a><CountryFlag country={player.country} />{player.name}</a></Link></td>
-                <td>{Functions.MMSS(s.start_timestamp - ms)}</td>
-                <td>{Functions.MMSS(s.end_timestamp - ms)}</td>
-                <td>{endReason}</td>
-                <td>{Functions.MMSS(s.total_time)}</td>
-                <td>{s.kills}</td>
+                <td>
+                    <Link href={`/pmatch/${this.props.matchId}?player=${player.id}`}>
+                        <a>
+                            <CountryFlag country={player.country}/>{player.name}
+                        </a>
+                    </Link>
+                </td>
+                <td>
+                    {Functions.MMSS(d.start_timestamp)}
+                </td>
+                <td>
+                    {Functions.MMSS(d.end_timestamp)}
+                </td>
+                <td>
+                    {Functions.MMSS(d.total_time)}
+                </td>
+                {killerElem}
+                <td>
+                    {d.kills}
+                </td>
             </tr>);
         }
 
-        return <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Player</th>
-                    <th>Started</th>
-                    <th>Ended</th>
-                    <th>End Reason</th>
-                    <th>Spree lifetime</th>
-                    <th>KIlls</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
-
+        return <div>
+            <table className="t-width-1 td-1-left">
+                <tbody>
+                    <tr>
+                        <th>Player</th>
+                        <th>Started</th>
+                        <th>Ended</th>
+                        <th>Spree Lifetime</th>
+                        <th>End Reason</th>
+                        <th>Total Kills</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
     }
 
     render(){
 
-        if(this.props.data.length === 0) return null;
+        if(this.state.data.length === 0) return null;
         
         return <div className="m-bottom-25">
             <div className="default-header">Extended Sprees Information</div>
-            <BasicPageSelect page={this.state.page} results={this.props.data.length} changePage={this.changePage}/>
+            <BasicPageSelect page={this.state.page} perPage={this.state.perPage} results={this.state.data.length} changePage={this.changePage}/>
             {this.renderTable()}
         </div>
     }

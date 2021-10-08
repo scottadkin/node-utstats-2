@@ -152,6 +152,8 @@ class MatchCTFCapsNew extends React.Component{
 
         if(!this.state.finishedLoading) return null;
 
+        if(this.state.data.length === 0) return null;
+
         const elems = [];
         const players = this.props.players;
 
