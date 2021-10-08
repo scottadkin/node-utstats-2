@@ -302,6 +302,8 @@ class User{
 
     async updateLastActive(user, ip){
 
+        console.log(`ip = ${ip}`);
+
         const query = "UPDATE nstats_users SET last_active=?,last_ip=? WHERE id=?";
 
         const now = Math.floor(Date.now() * 0.001);
@@ -336,6 +338,8 @@ class User{
     async bLoggedIn(cookies, ip){
 
         try{
+
+            if(ip === undefined) ip = "Unknown";
 
             if(cookies === undefined) return false;
             
