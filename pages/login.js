@@ -295,6 +295,9 @@ export async function getServerSideProps({query, req}){
 
     const navSettings = await settings.getCategorySettings("Navigation");
 
+    console.log("session.userIp");
+    console.log(session.userIp);
+
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
     
     return {

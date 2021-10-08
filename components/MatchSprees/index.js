@@ -77,11 +77,20 @@ class MatchSprees extends React.Component{
 
             if(killer !== null){
 
-                killerElem = <td className="red">
-                    Killed by <Link href={`/pmatch/${this.props.matchId}?player=${killer.id}`}>
-                        <a><CountryFlag country={killer.country}/><span className="yellow">{killer.name}</span></a>
-                    </Link>
-                </td>
+                if(player.id !== killer.id){
+
+                    killerElem = <td className="red">
+                        Killed by <Link href={`/pmatch/${this.props.matchId}?player=${killer.id}`}>
+                            <a><CountryFlag country={killer.country}/><span className="yellow">{killer.name}</span></a>
+                        </Link>
+                    </td>
+
+                }else{
+
+                    killerElem = <td className="red">
+                        Killed their own dumb self.
+                    </td>
+                }
             }else{
 
                 killerElem = <td>Match Ended!</td>;
