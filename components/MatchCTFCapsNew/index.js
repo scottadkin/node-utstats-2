@@ -196,6 +196,7 @@ class MatchCTFCapsNew extends React.Component{
 
             elems.push(<MatchCTFCap 
                 key={i} 
+                matchId={this.props.matchId}
                 team={d.team}
                 grabPlayer={grabPlayer} 
                 grabTime={d.grab_time - matchStart}
