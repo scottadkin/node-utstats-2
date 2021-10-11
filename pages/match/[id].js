@@ -19,8 +19,6 @@ import Items from '../../api/items';
 import MatchItemPickups from '../../components/MatchItemPickups';
 import Assault from '../../api/assault';
 import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
-import Connections from '../../api/connections';
-import ConnectionSummary from '../../components/ConnectionSummary/';
 import Teams from '../../api/teams';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
@@ -752,14 +750,14 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     }
     
 
-    if(pageSettings["Display Players Connected to Server Graph"] === "true"){
+    /*if(pageSettings["Display Players Connected to Server Graph"] === "true"){
         elems.push(
             <ConnectionSummary key={`connection-data`} data={JSON.parse(connections)} playerNames={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game} 
             totalTeams={parsedInfo.total_teams} matchStart={parsedInfo.start}
                 teamsData={JSON.parse(teams)}
             />
         );
-    }
+    }*/
 
     if(pageSettings["Display Team Changes"] === "true"){
 
@@ -978,10 +976,6 @@ export async function getServerSideProps({req, query}){
         itemNames = await itemsManager.getNamesByIds(itemIds);
     }
 
-    const connectionsManager = new Connections();
-    let connectionsData = await connectionsManager.getMatchData(matchId);
-    
-
     const teamsManager = new Teams();
 
     let teamsData = await teamsManager.getMatchData(matchId);
@@ -1086,7 +1080,6 @@ export async function getServerSideProps({req, query}){
             "assaultData": JSON.stringify(assaultData),
             "itemData": JSON.stringify(itemData),
             "itemNames": JSON.stringify(itemNames),
-            "connections": JSON.stringify(connectionsData),
             "teams": JSON.stringify(teamsData),
             "faces": JSON.stringify(pFaces),
             "pingData": JSON.stringify(pingData),
