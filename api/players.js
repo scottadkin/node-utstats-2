@@ -1290,6 +1290,93 @@ class Players{
         return data;
     }
 
+    createPlayerScoreHistory(inputData, playerNames){
+
+        const playerIndexes = [];
+        const data = [];
+
+        for(const [key, value] of Object.entries(playerNames)){
+
+            data.push({"name": value, "data": [0], "lastValue": 0});
+            playerIndexes.push(parseInt(key));
+
+        }
+
+        const timestamps = [];
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const t = inputData[i].timestamp;
+
+            if(timestamps.indexOf(t) === -1){
+
+                timestamps.push(t);
+            }
+        }
+
+        const updateOthers = (ignore) =>{
+
+            for(let i = 0; i < playerIndexes.length; i++){
+
+                const p = playerIndexes[i];
+
+                if(ignore.indexOf(p) === -1){
+
+                    data[i].data.push(data[i].lastValue);
+                }
+            }
+        }
+
+        let currentTimestamp = -1;
+
+        let updated = [];
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const d = inputData[i];
+            
+            if(d.timestamp !== currentTimestamp){
+
+                currentTimestamp = d.timestamp;
+                updateOthers(updated);
+                updated = [];
+            }
+
+            updated.push(d.player);
+
+            const currentIndex = playerIndexes.indexOf(d.player);
+
+            data[currentIndex].data.push(d.score);
+            data[currentIndex].lastValue = d.score;
+
+        }
+
+        updateOthers(updated);
+
+        return data;
+
+    }
+
+    async getScoreHistory(matchId, players){    
+        
+        const query = "SELECT timestamp,player,score FROM nstats_match_player_score WHERE match_id=? ORDER BY timestamp ASC";
+
+        const data = await mysql.simpleQuery(query, [matchId]);
+
+        const graphData = this.createPlayerScoreHistory(data, players);
+
+        graphData.sort((a, b) =>{
+
+            a = a.lastValue;
+            b = b.lastValue;
+
+            return b-a;
+        });
+       
+        return Functions.reduceGraphDataPoints(graphData, 50);
+
+    }
+
 }
 
 

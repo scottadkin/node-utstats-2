@@ -1,6 +1,7 @@
 import Kills from '../../api/kills';
 import CTF from '../../api/ctf';
 import Sprees from '../../api/sprees';
+import Players from '../../api/players';
 
 export default async (req, res) =>{
 
@@ -75,6 +76,22 @@ export default async (req, res) =>{
             }else{
                 data = await spreeManager.getPlayerMatchData(matchId, playerId);
             }
+
+            res.status(200).json({"data": data});
+            return;
+
+        }else if(mode === "scorehistory"){
+
+
+            if(matchId !== matchId){
+                res.status(200).json({"error": "Match id must be a valid integer"});
+                return;
+            }
+
+            const players = req.body.players || {};
+
+            const playerManager = new Players();
+            const data = await playerManager.getScoreHistory(matchId, players);
 
             res.status(200).json({"data": data});
             return;

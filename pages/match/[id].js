@@ -46,6 +46,7 @@ import Analytics from '../../api/analytics';
 import MatchFragsGraph from '../../components/MatchFragsGraph';
 import MatchCTFGraphs from '../../components/MatchCTFGraphs';
 import MatchCTFCapsNew from '../../components/MatchCTFCapsNew';
+import MatchPlayerScoreHistory from '../../components/MatchPlayerScoreHistory';
 
 
 function bDomination(players){
@@ -363,154 +364,6 @@ class DominationGraphData{
 }
 
 
-function createScoreHistoryGraph(score, playerNames, matchStart){
-
-    const data = new Map();
-    const text = [];
-
-    for(const [key, value] of Object.entries(playerNames)){
-       
-        data.set(parseInt(key), {"name": value, "data": [0]});
-
-    }
-
-
-    //Fix for Assault duplicate PlayerReplicationInfo 
-    const removeDuplicates = () =>{
-
-
-        score.sort((a, b) =>{
-
-            if(a.timestamp < b.timestamp){
-                return -1;
-            }else if(a.timestamp > b.timestamp){
-                return 1;
-            }else{
-
-                if(a.score > b.score){
-                    return -1;
-                }else if(a.score < b.score){
-                    return 1;
-                }
-            }
-
-            return 0;
-        });
-
-        const fixedData = [];
-
-        let currentPlayerIds = [];
-        let currentTimestamp = 0;
-
-        for(let i = 0; i < score.length; i++){
-
-            if(i === 0 || score[i].timestamp !== currentTimestamp){
-
-                currentTimestamp = score[i].timestamp;
-                currentPlayerIds = [];
-            }
-
-            if(currentPlayerIds.indexOf(score[i].player) === -1){
-
-                currentPlayerIds.push(score[i].player);
-                fixedData.push(score[i]);
-            }
-
-        }
-        
-
-        return fixedData;
-
-    }
-
-    score = removeDuplicates();
-
-    const updateOthers = (ignore) =>{
-        
-        let current = 0;
-
-        for(const [key, value] of data){
-        
-            if(ignore.indexOf(key) === -1){
-
-                current = value.data;
-                current.push(value.data[value.data.length - 1]);
-
-                data.set(key, {"name": value.name, "data": current})
-            }
-        }
-    }
-
-
-    let previousTimestamp = null;
-
-    let current = 0;
-    let updated = [];
-    let s = 0;
-
-    for(let i = 0; i < score.length; i++){
-
-        s = score[i];
-
-        if(i === 0) previousTimestamp = s.timestamp;
-
-        if(s.timestamp !== previousTimestamp){
-
-            previousTimestamp = s.timestamp;
-            //update others
-            updateOthers(updated);
-            updated = [];
-            text.push(`${Functions.MMSS(s.timestamp - matchStart)}`);    
-            
-        }
-
-        updated.push(s.player);
-        current = data.get(s.player);
-        if(current !== undefined){
-            current.data.push(s.score);
-            data.set(s.player, {"name": current.name, "data": current.data});
-        }
-        
-        //console.log(current);
-
-    }
-
-    updateOthers(updated);
-
-    if(score.length > 0){
-        text.push(`${Functions.MMSS(score[score.length - 1].timestamp)}`);
-    }
-
-
-    const arrayData = [];
-
-    for(const [key, value] of data){
-
-        arrayData.push({
-            "name": value.name,
-            "data": value.data
-        });
-    }
-
-
-    arrayData.sort((a, b) =>{
-
-        a = a.data[a.data.length - 1];
-        b = b.data[b.data.length - 1];
-
-        if(a > b){
-            return -1;
-        }else if(a < b){
-            return 1;
-        }
-
-        return 0;
-    });
-
-    return {"data": arrayData, "text": text};
-}
-
-
 class PlayerGraphPingData{
 
     constructor(pingEvents, playerNames, matchStart){
@@ -665,7 +518,7 @@ class PlayerGraphPingData{
 }
 
 function Match({navSettings, pageSettings, session, host, matchId, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
-    domPlayerScoreData, assaultData, itemData, itemNames, connections, teams, faces, scoreHistory, pingData, headshotData, rankingChanges, currentRankings,
+    domPlayerScoreData, assaultData, itemData, itemNames, connections, teams, faces, headshotData, rankingChanges, currentRankings,
     rankingPositions, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
     //for default head open graph image
@@ -710,8 +563,6 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     const parsedSession = JSON.parse(session);
 
     pageSettings = JSON.parse(pageSettings);
-
-    scoreHistory = JSON.parse(scoreHistory);
 
     let playerNames = [];
     const justPlayerNames = {};
@@ -896,35 +747,10 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     }
 
     if(pageSettings["Display Player Ping Graph"] === "true"){
-        const playerPingHistory = new PlayerGraphPingData(pingData, playerNames, parsedInfo.start);
-
-        const playerScoreHistoryGraph = createScoreHistoryGraph(scoreHistory, justPlayerNames, parsedInfo.start);
-
-        //if(playerScoreHistoryGraph.data[0].data.length > 2){
-            const playerHistoryData = [];
-            const playerHistoryDataText = [];
-            const playerhistoryDataTitles = [];
-
-            if(playerScoreHistoryGraph.data[0] !== undefined){
-
-                if(playerScoreHistoryGraph.data[0].data.length > 2){
-                    playerHistoryData.push(playerScoreHistoryGraph.data);
-                    playerHistoryDataText.push(playerScoreHistoryGraph.text);
-                    playerhistoryDataTitles.push("Player Score History");
-                }
-            }
-
-            if(playerPingHistory.data[0] !== undefined){
-                if(playerPingHistory.data[0].data.length > 0){
-                    playerHistoryData.push(playerPingHistory.data);
-                    playerHistoryDataText.push(playerPingHistory.text);
-                    playerhistoryDataTitles.push("Player Ping History");
-                }
-            }
-
-            elems.push(<Graph title={playerhistoryDataTitles} key={"scosococsocos-hihishis"} data={JSON.stringify(playerHistoryData)} 
-            text={JSON.stringify(playerHistoryDataText)} />);
+    
+        elems.push(<MatchPlayerScoreHistory key="score history" players={justPlayerNames} matchId={parsedInfo.id}/>);
     }
+    
 
     if(pageSettings["Display Players Connected to Server Graph"] === "true"){
         elems.push(
@@ -1167,8 +993,6 @@ export async function getServerSideProps({req, query}){
 
    // const killsData = await killManager.getMatchData(matchId);
 
-    const scoreHistory = await playerManager.getScoreHistory(matchId);
-
 
     const pingManager = new Pings();
 
@@ -1259,16 +1083,12 @@ export async function getServerSideProps({req, query}){
             "domControlPointNames": domControlPointNames,
             "domCapData": domCapData,
             "domPlayerScoreData": JSON.stringify(domPlayerScoreData),
-            //"ctfCaps": JSON.stringify(ctfCaps),
-            //"ctfEvents": JSON.stringify(ctfEvents),
             "assaultData": JSON.stringify(assaultData),
             "itemData": JSON.stringify(itemData),
             "itemNames": JSON.stringify(itemNames),
             "connections": JSON.stringify(connectionsData),
             "teams": JSON.stringify(teamsData),
             "faces": JSON.stringify(pFaces),
-            //"killsData": JSON.stringify(killsData),
-            "scoreHistory": JSON.stringify(scoreHistory),
             "pingData": JSON.stringify(pingData),
             "headshotData": JSON.stringify(headshotData),
             "rankingChanges": JSON.stringify(rankingChanges),

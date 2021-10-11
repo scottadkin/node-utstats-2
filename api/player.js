@@ -572,24 +572,6 @@ class Player{
         });
     }
 
-    getScoreHistory(matchId){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT timestamp,player,score FROM nstats_match_player_score WHERE match_id=? ORDER BY timestamp ASC";
-
-            mysql.query(query, [matchId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
-    }
-
     getMatchDatesAfter(timestamp, player){
 
         return new Promise((resolve, reject) =>{
