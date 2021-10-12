@@ -27,7 +27,6 @@ import Graph from '../../components/Graph/';
 //import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import MatchKillsMatchUpAlt from '../../components/MatchKillsMatchUpAlt/';
 import Functions from '../../api/functions';
-import Pings from '../../api/pings';
 import Headshots from '../../api/headshots';
 import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
 import MatchServerSettings from '../../components/MatchServerSettings/';
@@ -45,6 +44,7 @@ import MatchFragsGraph from '../../components/MatchFragsGraph';
 import MatchCTFGraphs from '../../components/MatchCTFGraphs';
 import MatchCTFCapsNew from '../../components/MatchCTFCapsNew';
 import MatchPlayerScoreHistory from '../../components/MatchPlayerScoreHistory';
+import MatchPlayerPingHistory from '../../components/MatchPlayerPingHistory'
 
 
 function bDomination(players){
@@ -362,161 +362,8 @@ class DominationGraphData{
 }
 
 
-class PlayerGraphPingData{
-
-    constructor(pingEvents, playerNames, matchStart){
-
-        this.pingEvents = JSON.parse(pingEvents);
-        this.playerNames = JSON.parse(playerNames);
-        this.matchStart = matchStart;
-
-        this.maxPing = 999;
-
-        this.createTimestamps();
-        this.createData();
-
-    }
-
-
-    createTimestamps(){
-
-        this.timestamps = [];
-        this.text = [];
-
-        let previous = null;
-
-        let p = 0;
-
-        for(let i = 0; i < this.pingEvents.length; i++){
-
-            p = this.pingEvents[i];
-
-            if(i === 0 || p.timestamp !== previous){
-                this.timestamps.push(p.timestamp);
-                previous = p.timestamp;
-                this.text.push(Functions.MMSS(p.timestamp - this.matchStart));
-            }
-        }
-    }
-
-
-    getTimestampData(timestamp){
-
-        const found = [];
-
-        let p = 0;
-
-        for(let i = 0; i < this.pingEvents.length; i++){
-
-            p = this.pingEvents[i];
-
-            if(p.timestamp > timestamp) break;
-
-            if(p.timestamp === timestamp){
-                found.push({"player": p.player, "ping": (p.ping < this.maxPing) ? p.ping : this.maxPing});
-            }
-        }
-
-        return found;
-    }
-
-    updateOthers(ignored){
-
-        let d = 0;
-
-        for(let i = 0; i < this.data.length; i++){
-
-            d = this.data[i];
-
-            if(ignored.indexOf(i) === -1){
-
-                if(d.data.length > 0){
-
-                    d.data.push(
-                        d.data[d.data.length - 1]
-                    );
-
-                }else{
-                    d.data.push(0);
-                }
-            }
-        }
-    }
-
-    getPlayerIndex(id){
-
-        let d = 0;
-
-        for(let i = 0; i < this.data.length; i++){
-
-            d = this.data[i];
-
-            if(d.id === id) return i;
-        }
-
-        return -1;
-    }
-
-    createData(){
-
-        this.data = [];
-        let p = 0;
-
-        for(let i = 0; i < this.playerNames.length; i++){
-
-            p = this.playerNames[i];   
-
-            this.data.push({"name": p.name, "data": [], "id": p.id, "max": 0});
-        }
-
-        let t = 0;
-        let currentData = [];
-        let currentPlayerIndex = 0;
-        let ignored = [];
-
-        for(let i = 0; i < this.timestamps.length; i++){
-
-            t = this.timestamps[i];
-            ignored = [];
-
-            currentData = this.getTimestampData(t);
-
-            for(let x = 0; x < currentData.length; x++){
-
-                currentPlayerIndex = this.getPlayerIndex(currentData[x].player);
-
-                if(currentPlayerIndex !== -1){
-
-                    this.data[currentPlayerIndex].data.push(currentData[x].ping);
-
-                    if(this.data[currentPlayerIndex].max < currentData[x].ping){
-                        this.data[currentPlayerIndex].max = currentData[x].ping;
-                    } 
-
-                    ignored.push(currentPlayerIndex);
-                }       
-            }    
-            this.updateOthers(ignored); 
-        }
-
-        this.data.sort((a, b) =>{
-
-            a = a.max;
-            b = b.max;
-
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
-            }
-            return 0;
-        });
-    }
-
-}
-
 function Match({navSettings, pageSettings, session, host, matchId, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
-    domPlayerScoreData, assaultData, itemData, itemNames, connections, teams, faces, headshotData, rankingChanges, currentRankings,
+    domPlayerScoreData, assaultData, itemData, itemNames, teams, faces, rankingChanges, currentRankings,
     rankingPositions, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
     //for default head open graph image
@@ -744,10 +591,19 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         />);
     }
 
-    if(pageSettings["Display Player Ping Graph"] === "true"){
-    
+    if(pageSettings["Display Player Score Graph"] === "true"){
+
         elems.push(<MatchPlayerScoreHistory key="score history" players={justPlayerNames} matchId={parsedInfo.id}/>);
     }
+
+    if(pageSettings["Display Player Ping Graph"] === "true"){
+        
+        elems.push(<MatchPlayerPingHistory key="ping history" players={justPlayerNames} matchId={parsedInfo.id}/>);
+        
+    }
+
+
+    
     
 
     /*if(pageSettings["Display Players Connected to Server Graph"] === "true"){
@@ -987,12 +843,6 @@ export async function getServerSideProps({req, query}){
 
    // const killsData = await killManager.getMatchData(matchId);
 
-
-    const pingManager = new Pings();
-
-    const pingData = await pingManager.getMatchData(matchId);
-
-
     const headshotsManager = new Headshots();
 
     const headshotData = await headshotsManager.getMatchData(matchId);
@@ -1082,7 +932,6 @@ export async function getServerSideProps({req, query}){
             "itemNames": JSON.stringify(itemNames),
             "teams": JSON.stringify(teamsData),
             "faces": JSON.stringify(pFaces),
-            "pingData": JSON.stringify(pingData),
             "headshotData": JSON.stringify(headshotData),
             "rankingChanges": JSON.stringify(rankingChanges),
             "currentRankings": JSON.stringify(currentRankings),

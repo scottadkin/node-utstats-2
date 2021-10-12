@@ -2,6 +2,7 @@ import Kills from '../../api/kills';
 import CTF from '../../api/ctf';
 import Sprees from '../../api/sprees';
 import Players from '../../api/players';
+import Pings from '../../api/pings';
 
 export default async (req, res) =>{
 
@@ -10,6 +11,7 @@ export default async (req, res) =>{
         const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
         const matchId = (req.body.matchId !== undefined) ? parseInt(req.body.matchId) : -1;
         const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
+        const players = (req.body.players !== undefined) ? req.body.players : {};
 
         if(mode === "kills"){
 
@@ -18,7 +20,6 @@ export default async (req, res) =>{
                 return;
             }
 
-            const players = req.body.players || {};
             const teams = req.body.teams || 0;
 
             const killManager = new Kills();
@@ -38,7 +39,6 @@ export default async (req, res) =>{
 
             const ctfManager = new CTF();
 
-            const players = req.body.players || {};
             const teams = req.body.teams || 0;
 
             const data = await ctfManager.getEventGraphData(matchId, players, teams);
@@ -88,10 +88,24 @@ export default async (req, res) =>{
                 return;
             }
 
-            const players = req.body.players || {};
+            
 
             const playerManager = new Players();
             const data = await playerManager.getScoreHistory(matchId, players);
+
+            res.status(200).json({"data": data});
+            return;
+
+        }else if(mode === "pings"){
+
+            if(matchId !== matchId){
+                res.status(200).json({"error": "Match id must be a valid integer"});
+                return;
+            }
+
+            const pingManager = new Pings();
+
+            const data = await pingManager.getMatchData(matchId, players);
 
             res.status(200).json({"data": data});
             return;

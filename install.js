@@ -967,6 +967,7 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Mutators","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Time Limit","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Target Score","true")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Player Score Graph","true")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Display Per Page","25")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Display Type","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Gametype","0")`,

@@ -1,6 +1,7 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
+const Functions = require('./functions');
 
 
 class Pings{
@@ -24,24 +25,68 @@ class Pings{
         });
     }
 
+    createMatchGraphData(inputData, players){
 
-    getMatchData(id){
+        const playerIndexes = [];
+        const data = [];
 
-        return new Promise((resolve, reject) =>{
+        for(const [key, value] of Object.entries(players)){
 
-            const query = "SELECT timestamp,player,ping FROM nstats_match_pings WHERE match_id=? ORDER BY timestamp ASC";
+            playerIndexes.push(parseInt(key));
+            data.push({"name": value, "data": [0], "lastValue": 0});
+        }
 
-            mysql.query(query, [id], (err, result) =>{
+        const updateOthers = (ignore) =>{
 
-                if(err) reject(err);
+            for(let i = 0; i < playerIndexes.length; i++){
 
-                if(result !== undefined){
-                    resolve(result);
+                const p = playerIndexes[i];
+
+                if(ignore.indexOf(p) === -1){
+
+                    data[i].data.push(data[i].lastValue);
                 }
-                
-                resolve([]);
-            });
-        });
+            }
+        }
+
+        let ignore = [];
+        let lastTimestamp = -1;
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const d = inputData[i];
+            const ping = d.ping;
+
+            if(d.timestamp !== lastTimestamp){
+
+                updateOthers(ignore);
+                ignore = [];
+                lastTimestamp = d.timestamp;
+            }
+            
+            const index = playerIndexes.indexOf(d.player);
+
+            if(index !== -1){
+
+                ignore.push(d.player);
+                data[index].data.push(ping);
+                data[index].lastValue = ping;
+
+            }   
+        }
+
+        return Functions.reduceGraphDataPoints(data, 50);
+        
+    }
+
+    async getMatchData(id, players){
+
+
+        const query = "SELECT timestamp,player,ping FROM nstats_match_pings WHERE match_id=? ORDER BY timestamp ASC";
+        const data = await mysql.simpleQuery(query, [id]);
+
+        return this.createMatchGraphData(data, players);
+
     }
 
     getPlayerHistoryAfter(player, limit){
