@@ -33,7 +33,7 @@ class Pings{
         for(const [key, value] of Object.entries(players)){
 
             playerIndexes.push(parseInt(key));
-            data.push({"name": value, "data": [0], "lastValue": 0});
+            data.push({"name": value, "data": [0], "lastValue": 0, "total": 0, "average": 0});
         }
 
         const updateOthers = (ignore) =>{
@@ -44,7 +44,7 @@ class Pings{
 
                 if(ignore.indexOf(p) === -1){
 
-                    data[i].data.push(data[i].lastValue);
+                    data[i].data.push(0);
                 }
             }
         }
@@ -72,8 +72,37 @@ class Pings{
                 data[index].data.push(ping);
                 data[index].lastValue = ping;
 
+                data[index].total += ping;
+
             }   
         }
+
+        updateOthers(ignore);
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(d.total > 0){
+
+                d.average = d.total / (d.data.length - 1);
+                
+            }
+        }
+
+        data.sort((a, b) =>{
+
+            a = a.average;
+            b = b.average;
+
+            if(a > b){
+                return -1;
+            }else if(a < b){
+                return 1;
+            }
+            return 0;
+        });
+
 
         return Functions.reduceGraphDataPoints(data, 50);
         
