@@ -13,7 +13,7 @@ import Weapons from '../../api/weapons';
 import MatchWeaponSummary from '../../components/MatchWeaponSummary/';
 import MatchCTFSummary from '../../components/MatchCTFSummary/';
 import Domination from '../../api/domination';
-import MatchDominationSummary from '../../components/MatchDominationSummary/';
+//import MatchDominationSummary from '../../components/MatchDominationSummary/';
 //import MatchCTFCaps from '../../components/MatchCTFCaps/';
 import Items from '../../api/items';
 import MatchItemPickups from '../../components/MatchItemPickups';
@@ -44,7 +44,8 @@ import MatchFragsGraph from '../../components/MatchFragsGraph';
 import MatchCTFGraphs from '../../components/MatchCTFGraphs';
 import MatchCTFCapsNew from '../../components/MatchCTFCapsNew';
 import MatchPlayerScoreHistory from '../../components/MatchPlayerScoreHistory';
-import MatchPlayerPingHistory from '../../components/MatchPlayerPingHistory'
+import MatchPlayerPingHistory from '../../components/MatchPlayerPingHistory';
+import MatchDominationSummaryNew from '../../components/MatchDominationSummaryNew';
 
 
 function bDomination(players){
@@ -83,287 +84,9 @@ function getItemsIds(items){
 }
 
 
-function createPlayerDomScoreData(events, totalPlayers, playerNames, matchStart){
 
-    const data = new Map();
-    const text = [];
-
-    if(events.length === 0){
-        return {"data": [], "text": []};
-    }
-    
-
-
-    for(const [key, value] of Object.entries(playerNames)){
-
-        data.set(key, [0]);
-    }
-
-    const timestamps = [];
-    const timestampsData = [];
-
-    let e = 0;
-    let currentIndex = 0;
-
-    for(let i = 0; i < events.length; i++){
-
-        e = events[i];
-
-        currentIndex = timestamps.indexOf(e.timestamp);
-
-        if(currentIndex === -1){
-
-            timestamps.push(e.timestamp);
-            timestampsData.push([{"player": e.player, "score": e.score}]);
-            text.push(`${Functions.MMSS(e.timestamp - matchStart)}`);
-        }else{
-            timestampsData[currentIndex].push({"player": e.player, "score": e.score});
-        }
-    }
-
-    text.push(`${Functions.MMSS(events[events.length - 1].timestamp - matchStart)}`);
-
-    const updateOthers = (ignore) =>{
-
-        let currentData = [];
-
-        for(const [key, value] of data){
-
-            if(ignore.indexOf(parseInt(key)) === -1){
-
-                currentData = data.get(`${key}`);
-                currentData.push(currentData.length - 1);
-                data.set(`${key}`, currentData);
-            }
-        }
-    }
-
-    let ignore = [];
-    let current = 0;
-
-    for(let i = 0; i < timestamps.length; i++){
-
-        ignore = [];
-
-        for(let x = 0; x < timestampsData[i].length; x++){
-
-            ignore.push(timestampsData[i][x].player);
-
-            current = data.get(`${timestampsData[i][x].player}`);
-
-            if(current !== undefined){
-                current.push(timestampsData[i][x].score);
-                data.set(`${timestampsData[i][x].player}`, current);
-            }
-        }
-
-        updateOthers(ignore);
-    }
-
-    let arrayData = [];
-
-    for(const [key, value] of data){
-
-        arrayData.push({"name": (playerNames[key] !== undefined) ? playerNames[key] :'Not Found', "data": value});
-    }
-
-    arrayData.sort((a, b) =>{
-
-        a = a.data[a.data.length - 1];
-        b = b.data[b.data.length - 1];
-
-        if(a > b){
-            return -1;
-        }else if(a < b){
-            return 1;
-        }
-
-        return 0;
-    });
-
-    return {"data": arrayData, "text": text};
-    
-}
-
-
-class DominationGraphData{
-
-    constructor(caps, totalTeams, matchStart, pointNames, playerNames){
-
-        this.caps = JSON.parse(caps);
-        this.totalTeams = totalTeams;
-        this.matchStart = matchStart;
-        this.pointNames = JSON.parse(pointNames);
-        this.playerNames = JSON.parse(playerNames);
-
-        this.teams = [];
-
-        this.text = [];
-        this.teamCapData = [];
-        this.controlPointData = [];
-        this.playerCapData = [];
-
-        this.createData();
-    }
-
-    getPointName(id){
-
-        for(let i = 0; i < this.pointNames.length; i++){
-
-            if(this.pointNames[i].id === id) return this.pointNames[i].name;
-        }
-        return 'Not Found';
-
-    }
-
-    getPointIndex(id){
-
-
-        for(let i = 0; i < this.pointNames.length; i++){
-
-            if(this.pointNames[i].id === id) return i;
-        }
-
-        return -1;
-    }
-
-    getPlayerIndex(id){
-
-        let p = 0;
-
-        for(let i = 0; i < this.playerCapData.length; i++){
-
-            p = this.playerCapData[i];
-
-            if(p.id === id){
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-
-    updateOtherTeamData(ignore){
-
-        let t = 0;
-
-        for(let i = 0; i < this.teamCapData.length; i++){
-
-            if(i !== ignore){
-
-                t = this.teamCapData[i];
-                t.data.push(t.data[t.data.length - 1]);
-            }
-        }
-    }
-
-
-    updateOtherPointData(ignore){
-
-        let c = 0;
-
-        for(let i = 0; i < this.controlPointData.length; i++){
-
-            if(i !== ignore){
-
-                c = this.controlPointData[i];
-                c.data.push(
-                    c.data[c.data.length - 1]
-                );
-            }
-        }
-    }
-
-    updateOtherPlayerData(ignore){
-
-        let p = 0;
-
-        for(let i = 0; i < this.playerCapData.length; i++){
-
-            if(i !== ignore){
-
-                p = this.playerCapData[i];
-
-                p.data.push(
-                    p.data[p.data.length - 1]
-                );
-            }
-        }
-    }
-
-    createData(){
-
-
-        for(let i = 0; i < this.totalTeams; i++){
-            this.teamCapData.push({"name": Functions.getTeamName(i), "data": [0]});
-        }
-
-        for(let i = 0; i < this.pointNames.length; i++){
-            this.controlPointData.push({"name": this.pointNames[i].name, "data": [0]});
-        }
-
-        for(let i = 0; i < this.playerNames.length; i++){
-
-            this.playerCapData.push({"name": this.playerNames[i].name, "data": [0], "id": this.playerNames[i].id});
-        }
-
-        let c = 0;
-        let currentPlayer = 0;
-        let currentPointIndex = 0;
-        let currentPlayerIndex = 0;
-
-        for(let i = 0; i < this.caps.length; i++){
-
-            c = this.caps[i];
-
-            currentPlayer = Functions.getPlayer(this.playerNames, c.player);
-
-            this.text.push(`${Functions.MMSS(c.time - this.matchStart)}: ${currentPlayer.name} capped ${this.getPointName(c.point)} for ${Functions.getTeamName(c.team)}`);
-
-            this.teamCapData[c.team].data.push(
-                this.teamCapData[c.team].data[this.teamCapData[c.team].data.length - 1] + 1
-            );
-
-            currentPointIndex = this.getPointIndex(c.point);
-
-            this.controlPointData[currentPointIndex].data.push(
-                this.controlPointData[currentPointIndex].data[this.controlPointData[currentPointIndex].data.length - 1] + 1
-            );
-
-            currentPlayerIndex = this.getPlayerIndex(c.player);
-            
-            if(currentPlayerIndex !== -1){
-                this.playerCapData[currentPlayerIndex].data.push(
-                    this.playerCapData[currentPlayerIndex].data[this.playerCapData[currentPlayerIndex].data.length - 1] + 1
-                );
-            }
-
-            this.updateOtherTeamData(c.team);
-            this.updateOtherPointData(currentPointIndex);
-            this.updateOtherPlayerData(currentPlayerIndex);
-        }
-
-
-        this.playerCapData.sort((a, b) =>{
-
-            a = a.data[a.data.length - 1];
-            b = b.data[b.data.length - 1];
-
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
-            }
-            return 0;
-        });
-
-    }
-}
-
-
-function Match({navSettings, pageSettings, session, host, matchId, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, domCapData, 
-    domPlayerScoreData, assaultData, itemData, itemNames, teams, faces, rankingChanges, currentRankings,
+function Match({navSettings, pageSettings, session, host, matchId, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, 
+    assaultData, itemData, itemNames, teams, faces, rankingChanges, currentRankings,
     rankingPositions, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
     //for default head open graph image
@@ -495,31 +218,18 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         elems.push(<MatchCTFCapsNew key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
     }
 
+
     if(bDom){
 
         if(pageSettings["Display Domination Summary"] === "true"){
-            elems.push(
+
+            elems.push(<MatchDominationSummaryNew key="dom-sum" matchId={parsedInfo.id} totalTeams={parsedInfo.total_teams} players={JSON.parse(playerNames)} pointNames={JSON.parse(domControlPointNames)}/>);
+            /*elems.push(
                 <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} 
                 capData={domCapData}
                 matchId={parsedInfo.id}
                 />
-            );
-        }
-
-        let domPlayerScores = [];
-        let domData = [];
-        let domGraphData = [];
-
-
-        domPlayerScores = createPlayerDomScoreData(JSON.parse(domPlayerScoreData), parsedInfo.players, justPlayerNames, parsedInfo.start);
-
-
-        domData = new DominationGraphData(domCapData, parsedInfo.total_teams, parsedInfo.start, domControlPointNames, playerNames);
-        domGraphData = [domPlayerScores.data, domData.playerCapData, domData.teamCapData, domData.controlPointData];
-
-        if(pageSettings["Display Domination Graphs"] === "true"){
-            elems.push(<Graph key="dom-graphs" title={["Domination Player Scores", "Domination Player Caps", "Domination Team Caps", "Domination Control Caps"]} 
-            text={JSON.stringify([domPlayerScores.text, domData.text, domData.text, domData.text])} data={JSON.stringify(domGraphData)}/>);
+            );*/
         }
     }
 
@@ -776,22 +486,13 @@ export async function getServerSideProps({req, query}){
     }
 
     let domControlPointNames = [];
-    let domCapData = [];
-    let domPlayerScoreData = [];
 
     if(bDomination(playerData)){
 
         const dom = new Domination();
 
         domControlPointNames = await dom.getControlPointNames(matchInfo.map);
-        
-        if(pageSettings["Display Domination Summary"] === "true" || pageSettings["Display Domination Graphs"]){
-            domCapData = await dom.getMatchCaps(matchId); 
-        }
 
-        if(pageSettings["Display Domination Graphs"] === "true"){
-            domPlayerScoreData = await dom.getMatchPlayerScoreData(matchId);
-        }
     }
     
 
@@ -805,7 +506,7 @@ export async function getServerSideProps({req, query}){
     }
 
     domControlPointNames = JSON.stringify(domControlPointNames);
-    domCapData = JSON.stringify(domCapData);
+
 
     playerData = JSON.stringify(playerData);
 
@@ -925,8 +626,6 @@ export async function getServerSideProps({req, query}){
             "playerData": playerData,
             "weaponData": weaponData,
             "domControlPointNames": domControlPointNames,
-            "domCapData": domCapData,
-            "domPlayerScoreData": JSON.stringify(domPlayerScoreData),
             "assaultData": JSON.stringify(assaultData),
             "itemData": JSON.stringify(itemData),
             "itemNames": JSON.stringify(itemNames),

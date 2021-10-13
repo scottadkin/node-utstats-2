@@ -3,6 +3,7 @@ import CTF from '../../api/ctf';
 import Sprees from '../../api/sprees';
 import Players from '../../api/players';
 import Pings from '../../api/pings';
+import Domination from '../../api/domination';
 
 export default async (req, res) =>{
 
@@ -88,8 +89,6 @@ export default async (req, res) =>{
                 return;
             }
 
-            
-
             const playerManager = new Players();
             const data = await playerManager.getScoreHistory(matchId, players);
 
@@ -108,6 +107,22 @@ export default async (req, res) =>{
             const data = await pingManager.getMatchData(matchId, players);
 
             res.status(200).json({"data": data});
+            return;
+
+        }else if(mode === "playerdomcaps"){
+
+            if(matchId !== matchId){
+                res.status(200).json({"error": "Match id must be a valid integer"});
+                return;
+            }
+
+            const domManager = new Domination();
+
+            const playerPointTotals = await domManager.getMatchPlayerCapTotals(matchId);
+            const pointsGraphData = await domManager.getPointsGraphData(matchId, req.body.pointNames || []);
+
+
+            res.status(200).json({"pointsGraph": pointsGraphData, "playerTotals": playerPointTotals});
             return;
 
         }

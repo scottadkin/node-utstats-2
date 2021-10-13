@@ -1,6 +1,7 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const Message = require('./message');
+const Functions = require('./functions');
 
 class Domination{
 
@@ -539,6 +540,75 @@ class Domination{
         const query = "SELECT time,point,team FROM nstats_dom_match_caps WHERE match_id=? AND player=?";
 
         return await mysql.simpleFetch(query, [matchId, playerId]);
+    }
+
+
+    async getMatchPlayerCapTotals(matchId){
+
+        const query = "SELECT player, point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? GROUP BY player, point";
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
+
+    createPointGraphData(inputData, pointNames){
+
+
+        const pointIndexes = [];
+
+        const points = [];
+
+        for(let i = 0; i < pointNames.length; i++){
+
+            const p = pointNames[i];
+
+            pointIndexes.push(p.id);
+
+            points.push({"name": p.name, "data": [0], "lastValue": 0});
+        }
+
+        const updateOthers = (ignore) =>{
+
+            for(let i = 0; i < points.length; i++){
+
+                const p = points[i];
+
+                if(pointIndexes[i] !== ignore){
+
+                    points[i].data.push(points[i].lastValue);
+                }
+            }
+
+        }
+
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const d = inputData[i];
+
+            const index = pointIndexes.indexOf(d.point);
+
+            if(index !== -1){
+
+                points[index].lastValue++;
+                points[index].data.push(points[index].lastValue);
+
+                updateOthers(d.point);
+            }
+        }
+
+        return Functions.reduceGraphDataPoints(points, 50);
+    }
+
+    async getPointsGraphData(matchId, pointNames){
+
+        const query = "SELECT player, point FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
+
+        const result = await mysql.simpleQuery(query, [matchId]);
+
+        return this.createPointGraphData(result, pointNames);
+
+        
     }
 }
 
