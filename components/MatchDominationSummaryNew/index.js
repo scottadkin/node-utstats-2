@@ -112,11 +112,15 @@ class MatchDominationSummaryNew extends React.Component{
             pointTotals.push(0);
         }
 
+        pointHeaders.push(<th key="totals">Total</th>);
+
+        let combinedTotal = 0;
 
         for(let i = 0; i < players.length; i++){
 
             const p = players[i];
             const columns = [];
+            let playerTotal = 0;
 
             for(let x = 0; x < this.props.pointNames.length; x++){
 
@@ -127,7 +131,13 @@ class MatchDominationSummaryNew extends React.Component{
                 columns.push(<td key={x}>{Functions.ignore0(totalCaps)}</td>);
 
                 pointTotals[x] += totalCaps;
+                playerTotal += totalCaps;
+                combinedTotal += totalCaps;
             }
+
+            columns.push(<td key={`${i} totals`}>
+                {Functions.ignore0(playerTotal)}
+            </td>);
 
             const currentPlayer = Functions.getPlayer(this.props.players, p);
 
@@ -153,6 +163,8 @@ class MatchDominationSummaryNew extends React.Component{
 
                 totalsColumns.push(<td key={i}>{Functions.ignore0(pointTotals[i])}</td>);
             }
+
+            totalsColumns.push(<td key="allTotals">{Functions.ignore0(combinedTotal)}</td>);
 
             rows.push(<tr key={`totals-${teamId}`}>
                 <td>Totals</td>
