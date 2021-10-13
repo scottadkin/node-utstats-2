@@ -121,8 +121,10 @@ export default async (req, res) =>{
             const playerPointTotals = await domManager.getMatchPlayerCapTotals(matchId);
             const pointsGraphData = await domManager.getPointsGraphData(matchId, req.body.pointNames || []);
 
+            const playerCaps = await domManager.getPlayerCapsGraphData(matchId, req.body.pointNames || [], players);
 
-            res.status(200).json({"pointsGraph": pointsGraphData, "playerTotals": playerPointTotals});
+
+            res.status(200).json({"pointsGraph": pointsGraphData, "playerTotals": playerPointTotals, "playerCaps": playerCaps});
             return;
 
         }
@@ -130,7 +132,7 @@ export default async (req, res) =>{
         res.status(200).json({"message": "passed"});
 
     }catch(err){
-
+        console.trace(err);
         res.status(200).json({"error": err.name});
 
     }

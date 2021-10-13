@@ -9,7 +9,7 @@ class MatchDominationSummaryNew extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"playerTotals": [], "pointsGraphData": [], "finishedLoading": false};
+        this.state = {"playerTotals": [], "pointsGraphData": [], "playerCaps": [], "finishedLoading": false};
     }
 
     async loadData(){
@@ -19,7 +19,12 @@ class MatchDominationSummaryNew extends React.Component{
             const req = await fetch("/api/match", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"mode": "playerdomcaps", "matchId": this.props.matchId, "pointNames": this.props.pointNames})
+                "body": JSON.stringify({
+                    "mode": "playerdomcaps", 
+                    "matchId": this.props.matchId, 
+                    "pointNames": this.props.pointNames,
+                    "players": this.props.playerNames
+                })
             });
 
             const res = await req.json();
@@ -29,6 +34,7 @@ class MatchDominationSummaryNew extends React.Component{
                 this.setState({
                     "playerTotals": res.playerTotals, 
                     "pointsGraphData": res.pointsGraph,
+                    "playerCaps": res.playerCaps,
                     "finishedLoading": true
                 });
 
@@ -163,10 +169,36 @@ class MatchDominationSummaryNew extends React.Component{
                 {rows}
             </tbody>
         </table>
-
-        
+      
     }
 
+    renderPlayerCapsGraph(){
+
+        const data = [];
+        const titles = [];
+
+        for(let i = 0; i < this.state.playerCaps.length; i++){
+
+            const p = this.state.playerCaps[i];
+
+            const current = [];
+
+            for(let x = 0; x < p.data.length; x++){
+        
+                current.push({"name": p.data[x].name, "data": p.data[x].data});
+            }
+
+            data.push(current);
+
+            if(p.point !== ""){
+                titles.push(`"${p.point}" Point Captrues`);
+            }else{
+                titles.push("All Caps");
+            }
+        }
+
+        return <Graph title={titles} data={JSON.stringify(data)}/>
+    }
 
     renderCapsTable(){
 
@@ -195,6 +227,7 @@ class MatchDominationSummaryNew extends React.Component{
         return <div>
             <div className="default-header">Domination Summary</div>
             {this.renderCapsTable()}
+            {this.renderPlayerCapsGraph()}
             <Graph title="Control Point Caps" data={JSON.stringify([this.state.pointsGraphData])}/>
         </div>
     }

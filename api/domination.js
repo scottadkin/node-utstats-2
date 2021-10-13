@@ -553,9 +553,7 @@ class Domination{
 
     createPointGraphData(inputData, pointNames){
 
-
         const pointIndexes = [];
-
         const points = [];
 
         for(let i = 0; i < pointNames.length; i++){
@@ -578,9 +576,7 @@ class Domination{
                     points[i].data.push(points[i].lastValue);
                 }
             }
-
         }
-
 
         for(let i = 0; i < inputData.length; i++){
 
@@ -600,6 +596,135 @@ class Domination{
         return Functions.reduceGraphDataPoints(points, 50);
     }
 
+
+
+    createSinglePointGraphData(inputData, pointId, playerIndexes){
+
+        const data = [];
+
+        for(let i = 0; i < playerIndexes.length; i++){
+
+            const p = playerIndexes[i];
+
+            data.push({"name": p, "data": [0], "lastValue": 0});
+        }
+
+        const updateOthers = (ignore) =>{
+
+            for(let i = 0; i < playerIndexes.length; i++){
+
+                if(playerIndexes[i] !== ignore){
+
+                    data[i].data.push(data[i].lastValue);
+                }
+            }
+        }
+      
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const d = inputData[i];
+
+            if(d.point === pointId || pointId === -9){
+
+                const playerIndex = playerIndexes.indexOf(d.player);
+
+                if(playerIndex !== -1){
+
+                    data[playerIndex].lastValue++;
+                    data[playerIndex].data.push(data[playerIndex].lastValue);
+
+                    updateOthers(d.player);
+                }
+            }
+        }
+
+
+        data.sort((a, b) =>{
+
+            a = a.lastValue;
+            b = b.lastValue;
+
+            if(a < b){
+                return 1;
+            }else if(a > b){
+                return -1;
+            }
+            return 0;
+        });
+        
+
+        return Functions.reduceGraphDataPoints(data, 50);
+
+    }
+
+    createPlayerGraphData(inputData, pointNames, playerNames){
+
+    
+        const data = [];
+        const playerIndexes = [];
+
+        for(const [key] of Object.entries(playerNames)){
+
+            playerIndexes.push(parseInt(key));
+        }
+
+
+        for(let i = 0; i <= pointNames.length; i++){
+
+            let p = pointNames[i];
+
+            if(p === undefined){
+                p = {"id": -9};
+            }
+
+            const current =  this.createSinglePointGraphData(inputData, p.id, playerIndexes);
+
+            for(let x = 0; x < current.length; x++){
+
+                current[x].name = playerNames[current[x].name];
+            }
+
+            if(i < pointNames.length){
+
+                data.push(
+                    {
+                        "point": p.name, 
+                        "data": current
+                    }
+                );
+
+            }else{
+
+                data.unshift(
+                    {
+                        "point": "", 
+                        "data": current
+                    }
+                );
+            }
+
+        }
+
+        return data;
+
+        
+    }
+
+    async getPlayerCapsGraphData(matchId, pointNames, playerNames){
+
+
+        const query = "SELECT player, point FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
+
+        const result = await mysql.simpleQuery(query, [matchId]);
+
+
+        
+        return this.createPlayerGraphData(result, pointNames, playerNames);
+        
+
+    }
+
     async getPointsGraphData(matchId, pointNames){
 
         const query = "SELECT player, point FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
@@ -607,8 +732,7 @@ class Domination{
         const result = await mysql.simpleQuery(query, [matchId]);
 
         return this.createPointGraphData(result, pointNames);
-
-        
+      
     }
 }
 

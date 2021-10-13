@@ -223,13 +223,15 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
         if(pageSettings["Display Domination Summary"] === "true"){
 
-            elems.push(<MatchDominationSummaryNew key="dom-sum" matchId={parsedInfo.id} totalTeams={parsedInfo.total_teams} players={JSON.parse(playerNames)} pointNames={JSON.parse(domControlPointNames)}/>);
-            /*elems.push(
-                <MatchDominationSummary key={`match_2`} players={playerData} totalTeams={parsedInfo.total_teams} controlPointNames={domControlPointNames} 
-                capData={domCapData}
-                matchId={parsedInfo.id}
+            elems.push(
+                <MatchDominationSummaryNew key="dom-sum" 
+                    matchId={parsedInfo.id} 
+                    totalTeams={parsedInfo.total_teams} 
+                    players={JSON.parse(playerNames)} 
+                    playerNames={justPlayerNames}
+                    pointNames={JSON.parse(domControlPointNames)}
                 />
-            );*/
+            );
         }
     }
 
