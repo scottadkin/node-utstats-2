@@ -7,7 +7,16 @@ class AdminMapManager extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"fullsize": [], "thumbs": [], "names": [], "expectedFileNames": [], "finishedLoading": false};
+        this.state = {
+            "fullsize": [], 
+            "thumbs": [], 
+            "names": [], 
+            "expectedFileNames": [], 
+            "finishedLoading": false,
+            "uploads": {}
+        };
+
+        this.uploadImage = this.uploadImage.bind(this);
     }
 
     async uploadImage(e){
@@ -17,6 +26,7 @@ class AdminMapManager extends React.Component{
             e.preventDefault();
 
             const name = e.target[0].name;
+            const fullName = e.target[1].name;
 
             const formData = new FormData();
 
@@ -26,7 +36,11 @@ class AdminMapManager extends React.Component{
                 return;
             }
 
-            console.log(e.target[0].files);
+            const currentUploads = Object.assign(this.state.uploads);
+
+            currentUploads[fullName] = {"finished": false, "errors": []}
+
+            this.setState({"uploads": currentUploads});
 
             formData.append(name, e.target[0].files[0]);
 
@@ -37,7 +51,25 @@ class AdminMapManager extends React.Component{
 
             const res = await req.json();
 
-            console.log(res);
+            const newUploads = Object.assign(this.state.uploads);
+
+            if(res.errors === undefined){
+    
+                newUploads[fullName] = {"finished": true, "errors": []};
+
+                const fullsize = Object.assign(this.state.fullsize);
+                const thumbsize = Object.assign(this.state.thumbs);
+
+                fullsize.push(name);
+                thumbsize.push(name);
+
+                this.setState({"fullsize": fullsize, "thumbs": thumbsize});
+
+            }else{
+                newUploads[fullName] = {"finished": true, "errors": res.errors};
+            }
+
+            this.setState({"uploads": newUploads});
 
         }catch(err){
             console.trace(err);
@@ -137,7 +169,7 @@ class AdminMapManager extends React.Component{
 
                     <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.uploadImage}>
                         <input type="file" name={expectedFile} accept=".jpg,.png,.bmp"/>
-                        <input type="submit" value="Upload"/>
+                        <input type="submit" value="Upload" name={n}/>
                     </form>
                 </td>
             </tr>);
@@ -159,10 +191,66 @@ class AdminMapManager extends React.Component{
         </div>
     }
 
+    renderUploadProgress(){
+
+        const rows = [];
+
+        for(const [key, value] of Object.entries(this.state.uploads)){
+
+            let colorClass = "";
+            let displayText = "";
+            const errors = [];
+           // const colorClass = (value.finished) ? (value.errors.length === 0) ? "team-green" : "team-red" : "team-yellow";
+
+            if(value.finished){
+
+                if(value.errors.length === 0){
+                    colorClass = "team-green";
+                    displayText = "Upload Successful";
+                }else{
+                    colorClass = "team-red";
+
+                    for(let i = 0; i < value.errors.length; i++){
+
+                        errors.push(<div key={i}><b>Error:</b> {value.errors[i]}</div>);
+                    }
+
+                    displayText = errors;
+                }
+            }else{
+
+                colorClass = "team-yellow";
+                displayText = "Uploading, please wait...";
+            }
+
+            rows.push(<tr key={rows.length}>
+                <td>{key}</td>
+                <td className={colorClass}>{displayText}</td>
+            </tr>);
+        }
+
+
+        if(rows.length === 0) return null;
+
+        return <div className="m-bottom-25">
+            <div className="default-sub-header">Uploads In Progress</div>
+            <table className="t-width-1">
+                <tbody>
+                    <tr>
+                        <th>File</th>
+                        <th>Status</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Map Manager</div>
+            {this.renderUploadProgress()}
             {this.renderFileTable()}
         </div>
     }

@@ -23,6 +23,8 @@ export default async (req, res) =>{
 
         const form = new formidable.IncomingForm();
 
+        const errors = [];
+
         form.uploadDir = "./uploads";
         //form.maxFileSize = (1024 * 1024) * 5;
 
@@ -33,6 +35,7 @@ export default async (req, res) =>{
         });
 
         form.on('file', async (name, file) => {
+            
 
             await Jimp.read(file.path)
             .then((file) =>{
@@ -41,8 +44,10 @@ export default async (req, res) =>{
                 .quality(85)
                 .resize(480, 270)
                 .write(`${THUMBS_DIR}${name}`)
+
             }).catch((err) =>{
                 console.trace(err);
+                errors.push(err);
             })
 
 
@@ -54,15 +59,27 @@ export default async (req, res) =>{
                 .write(`${FULLSIZE_DIR}${name}`)
 
             }).catch((err) =>{
+                errors.push(errors);
                 console.trace(err);
             }); 
 
-            fs.unlinkSync(file.path);
+            try{
+                fs.unlinkSync(file.path);
 
-            res.status(200).json({"message": "file uploaded"});
+            }catch(err){
+
+                console.trace(err);
+                errors.push(err);
+            }
+
+            if(errors.length === 0){
+                res.status(200).json({"message": "file uploaded"});
+            }else{
+                res.status(200).json({"errors": errors});
+            }
         });
 
     }else{
-        res.status(200).json({"error": "Access Denied"});
+        res.status(200).json({"errors": ["Access Denied"]});
     }
 }
