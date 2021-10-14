@@ -116,9 +116,6 @@ class Map extends React.Component{
                         </table>
                     </div>}
 
-                    {(!session.bUploadImages) ? null :
-                    <MapImageUploader name={Functions.cleanMapName(basic.name.toLowerCase())}/>}
-
                     {(this.props.pageSettings["Display Games Played"] === "false") ? null : 
                     <div>
                     <div className="default-header">
