@@ -162,11 +162,7 @@ class PlayerMatch extends React.Component{
 
                         <MatchSprees playerId={playerMatchData.player_id} matchId={parsedInfo.id} players={JSON.parse(this.props.playerNames)} matchStart={parsedInfo.start}/>
 
-                        <PlayerMatchKills
-                            data={JSON.parse(this.props.killsData)} 
-                            player={playerData}
-                            players={JSON.parse(this.props.playerNames)}
-                        />
+                     
 
                         <PlayerMatchPowerUps 
                             belt={playerMatchData.shield_belt} 
@@ -325,10 +321,6 @@ export async function getServerSideProps({req, query}){
     const faceManager = new Faces();
     const playerFaces = await faceManager.getFacesWithFileStatuses(playerFaceIds);
 
-    const killManager = new Kills();
-
-    const killsData = await killManager.getMatchKillsIncludingPlayer(matchId, playerId);
-
     const weaponManager = new Weapons();
 
     const playerWeaponData = await weaponManager.getPlayerMatchData(playerId, matchId);
@@ -462,7 +454,6 @@ export async function getServerSideProps({req, query}){
             "cleanMapImage": cleanMapImage,
             "players": JSON.stringify(players),
             "faces": JSON.stringify(playerFaces),
-            "killsData": JSON.stringify(killsData),
             "playerWeaponData": JSON.stringify(playerWeaponData),
             "weaponNames": JSON.stringify(weaponNames),
             "pickupData": JSON.stringify(pickupData),

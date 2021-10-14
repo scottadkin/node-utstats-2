@@ -730,23 +730,10 @@ class Maps{
     }
 
 
-    getAllNames(){
+    async getAllNames(){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT name FROM nstats_maps ORDER BY name ASC";
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT name FROM nstats_maps ORDER BY name ASC";
+        return await mysql.simpleQuery(query);
     }
 
     reduceMapTotals(id, playtime){
@@ -971,6 +958,18 @@ class Maps{
         const result = await mysql.simpleFetch(query, vars);
 
         return result[0].total_matches;
+    }
+
+
+    getAllUploadedImages(){
+
+        const fullSizeDir = "public/images/maps/";
+        const thumbsDir = "public/images/maps/thumbs/";
+
+        const fullSizeImages = fs.readdirSync(fullSizeDir);
+        const thumbImages = fs.readdirSync(thumbsDir);
+
+        return {"fullsize": fullSizeImages, "thumbs": thumbImages};
     }
 }
 

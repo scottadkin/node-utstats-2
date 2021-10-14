@@ -1,7 +1,7 @@
 import formidable from 'formidable';
 import fs from 'fs';
 import Session from '../../api/session';
-import Functions from '../../api/functions';
+import Jimp from 'jimp';
 
 export const config = {
     api: {
@@ -13,65 +13,55 @@ export default async (req, res) =>{
 
     const VALID_FILE_TYPES = [".jpg", ".jpeg"];
     const VALID_MIME_TYPES = ["image/jpg", "image/jpeg"];
+    const FULLSIZE_DIR = "./public/images/maps/";
+    const THUMBS_DIR = "./public/images/maps/thumbs/";
 
-    const form = new formidable.IncomingForm(/*{"maxFileSize": (1024 * 1024) * 5}*/);
 
     const session = new Session(req);
 
     if(await session.bUserAdmin()){
 
-        console.log("check");
+        const form = new formidable.IncomingForm();
 
-        form.uploadDir = "./uploads/";
-        form.keepExtensions = false;
+        form.uploadDir = "./uploads";
+        //form.maxFileSize = (1024 * 1024) * 5;
 
-        console.log("check2");
+        form.parse(req, (err, fields, files) =>{
 
 
-        form.parse(req, (err, fields, files) => {
 
-        
         });
 
+        form.on('file', async (name, file) => {
 
-        form.onPart = function (part){
+            await Jimp.read(file.path)
+            .then((file) =>{
 
-            if(part.filename){
+                return file
+                .quality(85)
+                .resize(480, 270)
+                .write(`${THUMBS_DIR}${name}`)
+            }).catch((err) =>{
+                console.trace(err);
+            })
 
-               // console.log("part.filename");
-                //console.log(part.filename);
 
-                if(VALID_MIME_TYPES.indexOf(part.mime) !== -1){
+            await Jimp.read(file.path)
+            .then((file) =>{
 
-                    console.log("VALID FILE TYPE");
-                
-                    form.handlePart(part);
-                    
-                }else{
-                    console.log("Not valid file type");
-                }
+                return file
+                .quality(85)
+                .write(`${FULLSIZE_DIR}${name}`)
 
-                
-            }else{
-                form.handlePart(part);
-            }
-        }
+            }).catch((err) =>{
+                console.trace(err);
+            }); 
 
-        form.on("file", (name, file) =>{
+            fs.unlinkSync(file.path);
 
-            fs.renameSync(file.path, `./public/images/maps/${file.name.toLowerCase()}`);
-        })
-        
+            res.status(200).json({"message": "file uploaded"});
+        });
 
-        /*form.on('progress', (bytesReceived, bytesExpected) => {
-
-            console.log(bytesReceived, bytesExpected);
-
-            res.status(200).json({"bytes": bytesReceived});
-
-        });*/
-
-        res.status(200).json({"bPassed": true});
     }else{
         res.status(200).json({"error": "Access Denied"});
     }
