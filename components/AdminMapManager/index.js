@@ -8,6 +8,7 @@ class AdminMapManager extends React.Component{
 
         super(props);
         this.state = {
+            "mode": 0,
             "fullsize": [], 
             "thumbs": [], 
             "names": [], 
@@ -17,6 +18,86 @@ class AdminMapManager extends React.Component{
         };
 
         this.uploadImage = this.uploadImage.bind(this);
+        this.bulkUploader = this.bulkUploader.bind(this);
+    }
+
+
+    async uploadSingle(fileName, formData){
+
+        try{
+
+
+            const req = await fetch("/api/mapimageupload", {
+                "method": "POST",
+                "body": formData
+            });
+
+            const res = await req.json();
+
+            const currentUploads = Object.assign(this.state.uploads);
+
+
+            if(res.errors === undefined){
+
+                currentUploads[fileName] = {"finished": true, "errors": []}
+
+                const fullsize = Object.assign(this.state.fullsize);
+                const thumbsize = Object.assign(this.state.thumbs);
+
+                fullsize.push(fileName);
+                thumbsize.push(fileName);
+
+                this.setState({"fullsize": fullsize, "thumbs": thumbsize});
+
+            }else{
+                currentUploads[fileName] = {"finished": true, "errors": res.errors}
+            }
+            
+            this.setState({"uploads": currentUploads});
+           
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async bulkUploader(e){
+
+        try{
+
+            e.preventDefault();
+
+            const files = e.target[0].files;
+
+            if(files.length === 0) return;
+
+            const currentUploads = Object.assign(this.state.uploads);
+
+            for(let i = 0; i < files.length; i++){
+
+                const f = files[i];
+                currentUploads[f.name] = {"finished": false, "errors": []}
+            }
+            
+            this.setState({"uploads": currentUploads});
+            
+
+            for(let i = 0; i < files.length; i++){
+
+                const f = files[i];
+
+                const formData = new FormData();
+
+                formData.append(f.name, files[i]);
+
+                await this.uploadSingle(f.name, formData);
+
+            }
+
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     async uploadImage(e){
@@ -176,6 +257,13 @@ class AdminMapManager extends React.Component{
         }
 
         return <div>
+            <div className="default-sub-header">Single Image Uploader</div>
+            <div className="form">
+                <div className="form-info">
+                    Image names are automatically set for single image uploads, thumbnails are generated on upload.
+                </div>
+  
+            </div>
             <table className="t-width-1 td-1-left">
                 <tbody>
                     <tr>
@@ -188,6 +276,24 @@ class AdminMapManager extends React.Component{
                     {rows}
                 </tbody>
             </table>
+        </div>
+    }
+
+    renderBulkUploader(){
+
+        return <div className="m-bottom-25">
+            <div className="default-sub-header">Bulk Image Uploader</div>
+            <div className="form">
+                <div className="form-info m-bottom-25">
+                    File names must be set before hand for bulk uploading.<br/>Valid map names are in all lowercase,
+                    without the gametype prefix, and without .unr.<br/>
+                    File types are converted to .jpg, you can upload .jpg, .bmp, and .bmp files.
+                </div>
+                <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.bulkUploader}>
+                    <input type="file" className="m-bottom-25" multiple accept=".jpg,.png,.bmp"/>
+                    <input type="submit" className="search-button" value="Upload Images"/>
+                </form>
+            </div>
         </div>
     }
 
@@ -251,6 +357,7 @@ class AdminMapManager extends React.Component{
         return <div>
             <div className="default-header">Map Manager</div>
             {this.renderUploadProgress()}
+            {this.renderBulkUploader()}
             {this.renderFileTable()}
         </div>
     }
