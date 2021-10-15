@@ -1,5 +1,4 @@
 import styles from './MatchResultBox.module.css';
-import Image from 'next/image';
 import MatchResult from '../MatchResult';
 import Functions from '../../api/functions';
 
@@ -32,7 +31,7 @@ const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, play
         <div className={styles.gametype}>{gametypeName}</div>
         <div className={styles.players}>{players} {(players !== 1) ? "Players" : "Player"}</div>
         <div className={styles.image}>
-            <Image src={`/images/maps/${mapImage}.jpg`} width={400} height={225}/>
+            <img src={`/images/maps/thumbs/${mapImage}.jpg`} alt="image" className="map-image"/>
         </div>
         <div className={`${styles.server} yellow`}>{serverName}</div>
         <div className={styles.date}>{date}</div>

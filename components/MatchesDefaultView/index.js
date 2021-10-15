@@ -16,12 +16,23 @@ class MatchesDefaultView extends React.Component{
         super(props);
 
         if(this.props.image !== undefined){
-            this.state = {"image": this.props.image};
+            this.state = {"image": this.props.image, "images": null};
         }else{
-            this.state = {"images": JSON.parse(this.props.images)};
+            this.state = {"images": JSON.parse(this.props.images), "image": null};
         }
 
         
+    }
+
+    componentDidUpdate(prevProps){
+
+        if(prevProps.images !== this.props.images){
+            this.setState({"images": JSON.parse(this.props.images)});
+        }
+
+        if(prevProps.image !== this.props.image){
+            this.setState({"image": this.props.image});
+        }
     }
 
 

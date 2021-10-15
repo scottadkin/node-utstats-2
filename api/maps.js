@@ -300,7 +300,7 @@ class Maps{
 
     async getImages(names){
 
-        const files = fs.readdirSync('public/images/maps/');
+        const files = fs.readdirSync('public/images/maps/thumbs/');
 
         const exists = [];
 

@@ -688,3 +688,9 @@ input[type="range"]{
 .error{
 	padding:5px;
 }
+
+
+.map-image{
+	width:382px;
+	height:216px;
+}
