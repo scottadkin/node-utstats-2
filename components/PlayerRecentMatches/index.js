@@ -3,7 +3,6 @@ import TimeStamp from '../TimeStamp/';
 import styles from './PlayerRecentMatches.module.css';
 import Pagination from '../Pagination/';
 import Functions from '../../api/functions';
-import Image from 'next/image';
 import MMSS from '../MMSS/';
 import MatchResult from '../MatchResult/';
 import Graph from '../Graph/';
@@ -30,10 +29,10 @@ function getMapImage(maps, name){
     const index = maps.indexOf(name);
 
     if(index !== -1){
-        return `/images/maps/${maps[index]}.jpg`;
+        return `/images/maps/thumbs/${maps[index]}.jpg`;
     }
 
-    return '/images/defaultmap.jpg';
+    return '/images/maps/thumbs/default.jpg';
 }
 
 function getServerName(servers, id){
@@ -318,7 +317,7 @@ class PlayerRecentMatches extends React.Component{
                             { currentResultString}
                         </div>
                         <div className={styles.image}>
-                            <Image width={384} height={216} src={mapImage} />
+                            <img src={mapImage} alt="image" className="map-image"/>
                         </div>
                         <div className={styles.info}>
                             <span className="yellow">{getServerName(serverNames, m.server)}</span><br/>
