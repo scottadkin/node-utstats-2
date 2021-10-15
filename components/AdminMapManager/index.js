@@ -1,6 +1,7 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import TrueFalse from '../TrueFalse';
+import styles from './AdminMapManager.module.css';
 
 class AdminMapManager extends React.Component{
 
@@ -340,7 +341,7 @@ class AdminMapManager extends React.Component{
 
         return <div className="m-bottom-25">
             <div className="default-sub-header">Uploads In Progress</div>
-            <table className="t-width-1">
+            <table className={`t-width-1`}>
                 <tbody>
                     <tr>
                         <th>File</th>

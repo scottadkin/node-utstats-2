@@ -9,77 +9,87 @@ export const config = {
     },
 };
 
-export default async (req, res) =>{
+export default (req, res) =>{
 
-    const VALID_FILE_TYPES = [".jpg", ".jpeg"];
-    const VALID_MIME_TYPES = ["image/jpg", "image/jpeg"];
-    const FULLSIZE_DIR = "./public/images/maps/";
-    const THUMBS_DIR = "./public/images/maps/thumbs/";
+    return new Promise(async (resolve, reject) =>{
 
-
-    const session = new Session(req);
-
-    if(await session.bUserAdmin()){
-
-        const form = new formidable.IncomingForm();
-
-        const errors = [];
-
-        form.uploadDir = "./uploads";
-        //form.maxFileSize = (1024 * 1024) * 5;
-
-        form.parse(req, (err, fields, files) =>{
+        const VALID_FILE_TYPES = [".jpg", ".jpeg"];
+        const VALID_MIME_TYPES = ["image/jpg", "image/jpeg"];
+        const FULLSIZE_DIR = "./public/images/maps/";
+        const THUMBS_DIR = "./public/images/maps/thumbs/";
 
 
+        const session = new Session(req);
 
-        });
+        await session.load();
 
-        form.on('file', async (name, file) => {
-            
+        if(await session.bUserAdmin()){
 
-            await Jimp.read(file.path)
-            .then((file) =>{
+            const form = new formidable.IncomingForm();
 
-                return file
-                .quality(85)
-                .resize(480, 270)
-                .write(`${THUMBS_DIR}${name}`)
+            const errors = [];
 
-            }).catch((err) =>{
-                console.trace(err);
-                errors.push(err);
-            })
+            form.uploadDir = "./uploads";
+            //form.maxFileSize = (1024 * 1024) * 5;
+
+            form.parse(req, (err, fields, files) =>{
 
 
-            await Jimp.read(file.path)
-            .then((file) =>{
 
-                return file
-                .quality(85)
-                .write(`${FULLSIZE_DIR}${name}`)
+            });
 
-            }).catch((err) =>{
-                errors.push(errors);
-                console.trace(err);
-            }); 
+            form.on('file', async (name, file) => {
+                
 
-            try{
-                fs.unlinkSync(file.path);
+                await Jimp.read(file.path)
+                .then((file) =>{
 
-            }catch(err){
+                    return file
+                    .quality(85)
+                    .resize(480, 270)
+                    .write(`${THUMBS_DIR}${name}`)
 
-                console.trace(err);
-                errors.push(err);
-            }
+                }).catch((err) =>{
+                    console.trace(err);
+                    errors.push(err);
+                })
 
-            if(errors.length === 0){
-                res.status(200).json({"message": "file uploaded"});
-            }else{
-                res.status(200).json({"errors": errors});
-            }
-        });
 
-    }else{
-        res.status(200).json({"errors": ["Access Denied"]});
-    }
+                await Jimp.read(file.path)
+                .then((file) =>{
+
+                    return file
+                    .quality(85)
+                    .write(`${FULLSIZE_DIR}${name}`)
+
+                }).catch((err) =>{
+                    errors.push(errors);
+                    console.trace(err);
+                }); 
+
+                try{
+                    fs.unlinkSync(file.path);
+
+                }catch(err){
+
+                    console.trace(err);
+                    errors.push(err);
+                }
+
+                if(errors.length === 0){
+                    res.status(200).json({"message": "file uploaded"});
+                }else{
+                    res.status(200).json({"errors": errors});
+                }
+
+                resolve();
+            });
+
+        }else{
+            res.status(200).json({"errors": ["Access Denied"]});
+            resolve();
+        }
+
+    });
+    
 }
