@@ -1,7 +1,6 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import TrueFalse from '../TrueFalse';
-import styles from './AdminMapManager.module.css';
 
 class AdminMapManager extends React.Component{
 
@@ -9,19 +8,30 @@ class AdminMapManager extends React.Component{
 
         super(props);
         this.state = {
-            "mode": 0,
+            "mode": 1,
             "fullsize": [], 
             "thumbs": [], 
             "names": [], 
             "expectedFileNames": [], 
             "finishedLoading": false,
-            "uploads": {}
+            "uploads": {},
+            "thumbsCompleted": 0,
+            "thumbsErrors": 0,
+            "missingThumbs": [],
+            "thumbsInProgress": false
         };
 
         this.uploadImage = this.uploadImage.bind(this);
         this.bulkUploader = this.bulkUploader.bind(this);
+        this.changeMode = this.changeMode.bind(this);
+        this.createMissingThumbnails = this.createMissingThumbnails.bind(this);
     }
 
+
+    changeMode(id){
+
+        this.setState({"mode": id});
+    }
 
     async uploadSingle(fileName, formData){
 
@@ -91,7 +101,7 @@ class AdminMapManager extends React.Component{
 
                 formData.append(f.name, files[i]);
 
-                await this.uploadSingle(f.name, formData);
+                this.uploadSingle(f.name, formData);
 
             }
 
@@ -220,15 +230,112 @@ class AdminMapManager extends React.Component{
         }   
     }
 
+    async loadMissingThumbnails(){
+
+        try{
+
+            this.setState({"thumbsInProgress": false});
+
+            this.setState({
+                "thumbsCompleted": 0,
+                "thumbsErrors": 0,
+                "thumbsInProgress": false
+            });
+
+            const req = await fetch("/api/thumbnailcreator", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "missingthumbnails"})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+
+                this.setState({"missingThumbs": res.data});
+
+            }else{
+                throw new Error(res.error);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async createMissingThumbnails(e){
+
+        try{
+
+            this.setState({"thumbsInProgress": true});
+
+            e.preventDefault();
+
+            for(let i = 0; i < this.state.missingThumbs.length; i++){
+
+                const t = this.state.missingThumbs[i];
+
+                if(await this.createMissingThumbnail(t)){
+
+                    const previousCompleted = this.state.thumbsCompleted;
+                    this.setState({"thumbsCompleted": previousCompleted + 1});
+
+                }else{
+
+                    const previousFailed = this.state.thumbsErrors;
+                    this.setState({"thumbsErrors": previousFailed + 1});
+                }
+            }
+
+            setTimeout(() =>{
+                this.loadMissingThumbnails();
+            }, 3000);
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async createMissingThumbnail(file){
+
+        try{
+
+            const req = await fetch("/api/thumbnailcreator", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "createmissingthumbnail", "file": file})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+                
+                return true;
+
+            }else{
+
+                throw new Error(res.error);
+            }
+
+
+        }catch(err){
+            console.trace(err);
+            return false;
+        }
+    }
+
     async componentDidMount(){
 
         await this.loadFileList();
         await this.loadMapNames();
+        await this.loadMissingThumbnails();
         this.setState({"finishedLoading": true});
     }
 
 
     renderFileTable(){
+
+        if(this.state.mode !== 0) return null;
 
         if(!this.state.finishedLoading) return null;
 
@@ -282,6 +389,8 @@ class AdminMapManager extends React.Component{
 
     renderBulkUploader(){
 
+        if(this.state.mode !== 0) return null;
+
         return <div className="m-bottom-25">
             <div className="default-sub-header">Bulk Image Uploader</div>
             <div className="form">
@@ -299,6 +408,8 @@ class AdminMapManager extends React.Component{
     }
 
     renderUploadProgress(){
+
+        if(this.state.mode !== 0) return null;
 
         const rows = [];
 
@@ -353,13 +464,58 @@ class AdminMapManager extends React.Component{
         </div>
     }
 
+    renderThumbnailProgress(){
+
+        if(!this.state.thumbsInProgress) return null;
+
+        return <div>
+            <div className="m-bottom-25">
+                In progress...<br/> {this.state.thumbsCompleted} / {this.state.missingThumbs.length} Complete<br/><br/>
+                <div className="red">{this.state.thumbsErrors} Errors</div>
+            </div>
+        </div>
+    }
+
+    renderCreateMissing(){
+
+        if(this.state.mode !== 1) return null;
+
+        return <div>
+            <div className="default-sub-header">Create Missing Thumbnails</div>
+            <div className="form">
+                <div className="form-info m-bottom-25">
+                    Create all missing thumbnails where there is a fullsize image.<br/><br/>
+                    Found <b>{this.state.missingThumbs.length}</b> missing thumbnails.<br/>
+                    <span className="red">{this.state.missingThumbs.join(", ")}</span>
+                </div>
+                {this.renderThumbnailProgress()}
+                <form action="/" method="POST" onSubmit={this.createMissingThumbnails}>
+                    <input type="submit" className="search-button" value="Create Missing Thumbnails" onClick={this.createThumbnails}/>
+                </form>
+            </div>
+        </div>
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Map Manager</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>
+                    Image Uploader
+                </div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}onClick={(() =>{
+                    this.changeMode(1);
+                })}>
+                    Thumbnail Creator
+                </div>
+            </div>
             {this.renderUploadProgress()}
             {this.renderBulkUploader()}
             {this.renderFileTable()}
+            {this.renderCreateMissing()}
         </div>
     }
 }

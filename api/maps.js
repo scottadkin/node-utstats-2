@@ -971,6 +971,29 @@ class Maps{
 
         return {"fullsize": fullSizeImages, "thumbs": thumbImages};
     }
+
+    getMissingThumbnails(){
+
+        const files = this.getAllUploadedImages();
+
+        const missing = [];
+
+        const ignore = "thumbs";
+
+        for(let i = 0; i < files.fullsize.length; i++){
+
+            const f = files.fullsize[i];
+
+            if(f === ignore) continue;
+            const index = files.thumbs.indexOf(f);
+
+            if(index === -1){
+                missing.push(f);
+            }
+        }
+
+        return missing;
+    }
 }
 
 
