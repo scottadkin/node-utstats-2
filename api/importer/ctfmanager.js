@@ -524,6 +524,64 @@ class CTFManager{
         }
     }
 
+    //temp fix for ctf4
+    tempCTF4Botch(c){
+
+
+        if(c.dropTimes === undefined){
+            c.dropTimes = [];
+            new Message(`c.dropTimes is undefined (CTF4)`,"warning");
+        }
+
+        if(c.pickupTimes === undefined){
+            c.pickupTimes = [];
+            new Message(`c.pickupTimes is undefined (CTF4)`,"warning");
+        }
+
+        if(c.coverTimes === undefined){
+            c.coverTimes = [];
+            new Message(`c.coverTimes is undefined (CTF4)`,"warning");
+        }
+
+        if(c.covers === undefined){
+            c.covers = [];
+            new Message(`c.covers is undefined (CTF4)`,"warning");
+        }
+
+        if(c.assists === undefined){
+            c.assists = [];
+            new Message(`c.assists is undefined (CTF4)`,"warning");
+        }
+
+        if(c.carryIds === undefined){
+            c.carryIds = [];
+            new Message(`c.carryIds is undefined (CTF4)`,"warning");
+        }
+
+        if(c.carryTimes === undefined){
+            c.carryTimes = [];
+            new Message(`c.carryTimes is undefined (CTF4)`,"warning");
+        }
+
+        if(c.team === undefined){
+            c.team = -1;
+            new Message(`c.team is undefined (CTF4)`,"warning");
+        }
+
+        if(c.grabTime === undefined){
+            c.grabTime = -1;
+            new Message(`c.grabTime is undefined (CTF4)`,"warning");
+        }
+
+
+        if(c.travelTime !== c.travelTime || c.travelTime === "NaN"){
+            c.travelTime = 0;
+            new Message(`c.travelTime is NaN (CTF4)`,"warning");
+        }
+        
+
+    }
+
     async insertCaps(matchId, mapId){
 
         try{
@@ -548,7 +606,13 @@ class CTFManager{
 
                 const c = this.capData[i];
 
+                this.tempCTF4Botch(c);
+
                 currentGrab = this.playerManager.getOriginalConnectionById(c.grab);
+
+                if(currentGrab === null){
+                    currentGrab = {"masterId": -1};
+                }
                 
                 currentCovers = [];
                 currentAssists = [];

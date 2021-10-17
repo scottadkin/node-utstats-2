@@ -254,6 +254,8 @@ class MatchManager{
                 await this.weaponsManager.update(this.matchId, this.gametype.currentMatchGametype, this.playerManager);
                 new Message(`Updated player weapon stats.`,'pass');
 
+            }else{
+                this.weaponsManager = new WeaponsManager();
             }
 
             this.itemsManager = new ItemsManager(this.itemLines);
