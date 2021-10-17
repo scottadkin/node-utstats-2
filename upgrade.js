@@ -1,13 +1,16 @@
 const mysql = require('./api/database');
 const Message = require('./api/message');
+const config = require('./config.json');
 
 
 async function columnExists(table, column){
 
     const query = `SELECT COUNT(*) as total_results FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME=? AND COLUMN_NAME=?`;
+    WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=?`;
 
-    const result = await mysql.simpleFetch(query, [table, column]);
+    const vars = [config.mysql.database, table, column];
+    
+    const result = await mysql.simpleFetch(query, vars);
 
     if(result.length > 0){
 
@@ -64,10 +67,12 @@ async function updateCapsTable(){
 
         if(!coverExists){
             await alterTable(table, "self_covers", "text NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "self_covers"`,"pass");
         }
 
         if(!coverTimesExists){
             await alterTable(table, "self_covers_count", "text NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "self_covers_count"`,"pass");
         }
 
     }
