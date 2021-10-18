@@ -52,10 +52,6 @@ class MatchesDefaultView extends React.Component{
 
             m = matches[i];
 
-            //if(i < 5){
-            //    console.log(m);
-            //}
-
             if(m.total_teams < 2){
 
                 result = m.dm_winner;

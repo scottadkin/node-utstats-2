@@ -45,7 +45,7 @@ export default (req, res) =>{
             if(mode === "missingthumbnails"){
 
                 const data = mapManager.getMissingThumbnails();
-
+                
                 res.status(200).json({"data": data});
                 resolve();
                 return;

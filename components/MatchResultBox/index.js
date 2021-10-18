@@ -25,7 +25,6 @@ const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, play
         serverName = `${shortenedName}...`;
     }
 
-
     return <div className={styles.wrapper}>
         <div className={styles.title}>{mapName}</div>
         <div className={styles.gametype}>{gametypeName}</div>

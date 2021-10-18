@@ -309,6 +309,12 @@ class AdminMapManager extends React.Component{
             const res = await req.json();
 
             if(res.error === undefined){
+
+                const previousThumbs = Object.assign(this.state.thumbs);
+
+                previousThumbs.push(file);
+
+                this.setState({"thumbs": previousThumbs});
                 
                 return true;
 
