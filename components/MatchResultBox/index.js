@@ -2,6 +2,7 @@ import styles from './MatchResultBox.module.css';
 import MatchResult from '../MatchResult';
 import Functions from '../../api/functions';
 
+
 const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, players, playtime, totalTeams, result, dmScore, monsterHunt, endReason}) =>{
 
 
