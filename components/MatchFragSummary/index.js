@@ -162,14 +162,16 @@ class MatchFragSummary extends React.Component{
         if(this.state.mode === 0){
 
             if(this.props.totalTeams < 2){
-                teamData.push(<MatchFragTable key={-1} single={single} players={this.getPlayersInTeam(-1)} toDisplay={toDisplay.default} team={-1} matchStart={this.props.matchStart}
+                teamData.push(<MatchFragTable key={-1} host={this.props.host} single={single} players={this.getPlayersInTeam(-1)} toDisplay={toDisplay.default} 
+                    team={-1} matchStart={this.props.matchStart}
                     matchId={this.props.matchId}
                 />);
             }else{
 
                 for(let i = 0; i < this.props.totalTeams; i++){
                    // teamData.push(this.getPlayersInTeam(i));
-                    teamData.push(<MatchFragTable key={i} single={single} players={this.getPlayersInTeam(i)} toDisplay={toDisplay.default} team={i} matchStart={this.props.matchStart}
+                    teamData.push(<MatchFragTable key={i} host={this.props.host} single={single} players={this.getPlayersInTeam(i)} toDisplay={toDisplay.default}
+                     team={i} matchStart={this.props.matchStart}
                         matchId={this.props.matchId}
                     />);
                 }
@@ -179,7 +181,8 @@ class MatchFragSummary extends React.Component{
 
             if(this.props.totalTeams < 2){
         
-                teamData.push(<MatchFragDistances key={-1} single={single} toDisplay={toDisplay.distances} players={this.getPlayersInTeam(-1)} team={-1}
+                teamData.push(<MatchFragDistances key={-1} host={this.props.host}
+                    single={single} toDisplay={toDisplay.distances} players={this.getPlayersInTeam(-1)} team={-1}
                     matchId={this.props.matchId}
                  />);
 
@@ -187,7 +190,8 @@ class MatchFragSummary extends React.Component{
 
                 for(let i = 0; i < this.props.totalTeams; i++){
 
-                    teamData.push(<MatchFragDistances key={i} single={single} toDisplay={toDisplay.distances} players={this.getPlayersInTeam(i)} team={i}
+                    teamData.push(<MatchFragDistances key={i} host={this.props.host}
+                     single={single} toDisplay={toDisplay.distances} players={this.getPlayersInTeam(i)} team={i}
                         matchId={this.props.matchId}  
                     />);
                 }

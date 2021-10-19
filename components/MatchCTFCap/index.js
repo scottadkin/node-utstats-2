@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const MatchCTFCap = ({matchId, team, grabPlayer, grabTime, capPlayer, capTime, 
     coverPlayers, dropTime, travelTime, carryTime, assistPlayers, totalTeams, 
-    teamScores, selfCovers}) =>{
+    teamScores, selfCovers, host}) =>{
 
     const coverElems = [];
     const assistElems = [];
@@ -17,7 +17,7 @@ const MatchCTFCap = ({matchId, team, grabPlayer, grabTime, capPlayer, capTime,
         const c = coverPlayers[i];
 
         coverElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${c.player.id}`}><a><CountryFlag country={c.player.country}/>{c.player.name}</a></Link></td> 
+            <td><Link href={`/pmatch/${matchId}?player=${c.player.id}`}><a><CountryFlag host={host} country={c.player.country}/>{c.player.name}</a></Link></td> 
             <td>{c.covers}</td>
         </tr>);
     }
@@ -29,7 +29,7 @@ const MatchCTFCap = ({matchId, team, grabPlayer, grabTime, capPlayer, capTime,
         const carryPercent = (c.carryTime > 0) ? (c.carryTime / carryTime) * 100 : 0;
         
         assistElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${c.player.id}`}><a><CountryFlag country={c.player.country}/>{c.player.name}</a></Link></td>
+            <td><Link href={`/pmatch/${matchId}?player=${c.player.id}`}><a><CountryFlag host={host} country={c.player.country}/>{c.player.name}</a></Link></td>
             <td>{parseFloat(c.carryTime).toFixed(2)} Secs <span className={styles.carryp}>({carryPercent.toFixed(2)}%)</span></td>
         </tr>);
     }
@@ -39,7 +39,7 @@ const MatchCTFCap = ({matchId, team, grabPlayer, grabTime, capPlayer, capTime,
         const s = selfCovers[i];
 
         selfCoverElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${s.player.id}`}><a><CountryFlag country={s.player.country}/>{s.player.name}</a></Link></td>
+            <td><Link href={`/pmatch/${matchId}?player=${s.player.id}`}><a><CountryFlag host={host} country={s.player.country}/>{s.player.name}</a></Link></td>
             <td>{s.kills}</td>
         </tr>);
     }
@@ -101,7 +101,7 @@ const MatchCTFCap = ({matchId, team, grabPlayer, grabTime, capPlayer, capTime,
         </div>
         <div className={styles.grab}>
             <div className={styles.label}>Taken By</div> <Link href={`/pmatch/${matchId}?player=${grabPlayer.id}`}>
-                <a><CountryFlag country={grabPlayer.country}/>{grabPlayer.name}</a></Link> at <span className="yellow">
+                <a><CountryFlag host={host} country={grabPlayer.country}/>{grabPlayer.name}</a></Link> at <span className="yellow">
                 {Functions.MMSS(grabTime)}</span>
         </div>
         {coverAssistsElem}
@@ -111,7 +111,7 @@ const MatchCTFCap = ({matchId, team, grabPlayer, grabTime, capPlayer, capTime,
         <div className={styles.grab}>
             <div className={styles.label}>Capped By </div> <Link href={`/pmatch/${matchId}?player=${capPlayer.id}`}>
                 <a>
-                    <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                    <CountryFlag host={host} country={capPlayer.country}/>{capPlayer.name}
                 </a>
                 </Link> at <span className="yellow">{Functions.MMSS(capTime)}</span>
             <br/><span className="yellow">Carrytime</span> {capCarryTime} Secs <span className={styles.carryp}>({capCarryPercent.toFixed(2)}%)</span>

@@ -23,7 +23,7 @@ const bAnyData = (data) =>{
     return false;
 }
 
-const MatchFragDistances = ({players, team, toDisplay, single, matchId}) =>{
+const MatchFragDistances = ({host, players, team, toDisplay, single, matchId}) =>{
 
     const elems = [];
 
@@ -71,7 +71,7 @@ const MatchFragDistances = ({players, team, toDisplay, single, matchId}) =>{
             elems.push(<tr key={i}>
                 {(single) ? null :
                 <td className={`text-left name-td ${bgColor}`}>
-                    <Link href={`/pmatch/${matchId}?player=${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link>
+                    <Link href={`/pmatch/${matchId}?player=${p.player_id}`}><a><CountryFlag host={host} country={p.country}/>{p.name}</a></Link>
                 </td>}
                 <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
                 <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>

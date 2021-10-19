@@ -197,6 +197,7 @@ class MatchCTFCapsNew extends React.Component{
             }
 
             elems.push(<MatchCTFCap 
+                host={this.props.host}
                 key={i} 
                 matchId={this.props.matchId}
                 team={d.team}

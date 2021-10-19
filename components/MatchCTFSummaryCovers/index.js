@@ -25,7 +25,7 @@ const bAnyData = (player) =>{
     return false;
 }
 
-const MatchCTFSummaryCovers = ({players, team, matchId}) =>{
+const MatchCTFSummaryCovers = ({host, players, team, matchId}) =>{
 
 
     const elems = [];
@@ -74,7 +74,8 @@ const MatchCTFSummaryCovers = ({players, team, matchId}) =>{
         if(p.flag_cover_best > totals.coverBest) totals.coverBest = p.flag_cover_best
 
         elems.push(<tr key={i}>
-            <td className={`text-left name-td ${Functions.getTeamColor(team)}`}><CountryFlag country={p.country} /><Link href={`/pmatch/${matchId}?player=${p.player_id}`}><a>{p.name}</a></Link></td>
+            <td className={`text-left name-td ${Functions.getTeamColor(team)}`}>
+                <CountryFlag host={host} country={p.country} /><Link href={`/pmatch/${matchId}?player=${p.player_id}`}><a>{p.name}</a></Link></td>
             <td>{Functions.ignore0(p.flag_cover)}</td>
             <td>{Functions.ignore0(p.flag_cover_pass)}</td>
             <td>{Functions.ignore0(p.flag_cover_fail)}</td>

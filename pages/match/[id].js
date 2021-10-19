@@ -89,6 +89,8 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     assaultData, itemData, itemNames, teams, faces, rankingChanges, currentRankings,
     rankingPositions, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
+    const imageHost = Functions.getImageHostAndPort(host);
+
     //for default head open graph image
     const imageReg = /^.+\/(.+)\.jpg$/i;
     const imageRegResult = imageReg.exec(image);
@@ -176,14 +178,14 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         if(!parsedInfo.mh){
 
             elems.push(
-                <MatchFragSummary key={`match_3`} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}
+                <MatchFragSummary key={`match_3`} host={imageHost} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}
                 matchId={parsedInfo.id}/>
             );
 
         }else{
 
             elems.push(
-                <MatchMonsterHuntFragSummary key={`mh-frags`} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>
+                <MatchMonsterHuntFragSummary key={`mh-frags`} host={imageHost} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>
             );
         }
     }
@@ -201,7 +203,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
         elems.push(
-            <MatchCTFSummary key={`match_1`} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
+            <MatchCTFSummary key={`match_1`} host={imageHost} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
         );
     }
 
@@ -215,7 +217,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     const bAssaultGame = bAssault(gametype);
 
     if(!bDom && !bAssaultGame){
-        elems.push(<MatchCTFCapsNew key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
+        elems.push(<MatchCTFCapsNew host={imageHost} key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
     }
 
 

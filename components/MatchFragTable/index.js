@@ -29,7 +29,7 @@ const bAnyData = (data) =>{
     return false;
 }
 
-const MatchFragTable = ({players, team, matchStart, toDisplay, matchId, single}) =>{
+const MatchFragTable = ({host, players, team, matchStart, toDisplay, matchId, single}) =>{
 
     if(players.length === 0) return null;
 
@@ -71,7 +71,7 @@ const MatchFragTable = ({players, team, matchStart, toDisplay, matchId, single})
             elems.push(<tr key={`frag_tr_${team}_${i}`} >
                 {(single) ? null : 
                 <td className={`text-left ${bgColor}`}>
-                    <CountryFlag key={`frag_country__${team}_${i}`} country={p.country} />
+                    <CountryFlag key={`frag_country__${team}_${i}`} host={host} country={p.country} />
                     <Link href={`/pmatch/${matchId}/?player=${p.player_id}`}><a>{p.name}</a></Link>
                 </td>}
                 <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime} /></td>
