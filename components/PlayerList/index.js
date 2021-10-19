@@ -1,10 +1,10 @@
 import PlayerListBox from '../PlayerListBox/'
 import styles from './PlayerList.module.css';
 import CountryFlag from '../CountryFlag/';
-import TimeStamp from '../TimeStamp/';
 import Link from 'next/link';
 import React from 'react';
 import Functions from '../../api/functions';
+
 
 function createOrderLink(terms, type, value){
 
@@ -165,11 +165,12 @@ class PlayersList extends React.Component{
                     accuracy={parseInt(p.accuracy)}
                     displayType={displayType}
                     recordsPercent={currentBarPercentages}
+                    host={this.props.host}
                 />);
 
             }else{
                 elems.push(<tr key={i}>
-                    <td><CountryFlag country={p.country}/> <Link href={`/player/${p.id}`}><a>{p.name}</a></Link></td>
+                    <td><CountryFlag country={p.country} host={this.props.host}/> <Link href={`/player/${p.id}`}><a>{p.name}</a></Link></td>
                     <td>{Functions.convertTimestamp(p.last, true)}</td>
                     <td>{p.score}</td>
                     <td>{p.kills}</td>

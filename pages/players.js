@@ -11,6 +11,7 @@ import React from 'react';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
 import Analytics from '../api/analytics';
+import Functions from '../api/functions';
 
 
 class Players extends React.Component{
@@ -146,6 +147,8 @@ class Players extends React.Component{
 
     render(){
 
+        const imageHost = Functions.getImageHostAndPort(this.props.host);
+
         let pages = Math.ceil(this.props.totalPlayers / this.props.perPage);
         if(pages === 0) pages = 1;
 
@@ -171,7 +174,7 @@ class Players extends React.Component{
         if(parsedPlayers.length > 0){
 
             pList = <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records} displayType={this.state.displayType}
-                        searchTerms={JSON.stringify(this.state)} changeSort={this.changeSortAlt}/>
+                        searchTerms={JSON.stringify(this.state)} changeSort={this.changeSortAlt} host={imageHost}/>
             paginationElem = <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>;
         }else{
 

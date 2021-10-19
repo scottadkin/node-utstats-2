@@ -1,0 +1,16 @@
+.wrapper{
+    display:inline-block;
+  
+}
+
+.mouse{
+    position:absolute;
+    background-color:var(--color-1);
+    margin-top:20px;
+    padding:10px;
+    border:1px solid var(--border-color-1);
+    text-align:center;
+    font-size:14px;
+    display:block;
+    min-width:100px;
+}
