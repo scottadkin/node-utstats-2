@@ -73,7 +73,7 @@ class Rankings extends React.Component{
 
             d = data[i];
 
-            elems.push(<RankingTable gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} key={i} mode={this.props.gametypeId}
+            elems.push(<RankingTable host={Functions.getImageHostAndPort(this.props.host)} gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} key={i} mode={this.props.gametypeId}
                 title={this.getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results} bDisplayPagination={(data.length > 1) ? false : true}/>);
         }
 

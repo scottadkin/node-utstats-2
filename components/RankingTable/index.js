@@ -5,7 +5,7 @@ import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
 import Pagination from '../../components/Pagination/';
 
-const RankingTable = ({gametypeId, title, data, page, perPage, results, bDisplayPagination, mode}) =>{
+const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bDisplayPagination, mode}) =>{
 
     const rows = [];
 
@@ -40,7 +40,7 @@ const RankingTable = ({gametypeId, title, data, page, perPage, results, bDisplay
 
         rows.push(<tr key={i}>
             <td>{position}{Functions.getOrdinal(position)}</td>
-            <td><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
+            <td><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country} host={host}/>{d.name}</a></Link></td>
             <td>{d.matches}</td>
             <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
             <td><img className={styles.icon} src={currentImage} alt="image"/><MouseHoverBox title={`Previous Match Ranking Change`} 

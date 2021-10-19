@@ -25,7 +25,7 @@ const BasicPlayers = ({title, players, faceFiles, host}) =>{
 
         elems.push(<Link key={i} href={`/player/${p.id}`}><a>
             <div className={`${styles.player} center`}>
-                <div className={styles.name}><CountryFlag country={p.country}/>{p.name}</div>
+                <div className={styles.name}><CountryFlag country={p.country} host={host}/>{p.name}</div>
                 <img className={`${styles.face} center`} src={`${host}images/faces/${currentFace.name}.png`} alt="face"/>
                 <div className={styles.info}>
                     <span className="yellow">Last Match</span> {Functions.convertTimestamp(p.last, true)}<br/>

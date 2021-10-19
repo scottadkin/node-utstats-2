@@ -400,7 +400,7 @@ class Records extends React.Component{
                         </div>
                         {paginationElem}
                         <div className="default-sub-header">Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
-                        <RecordsList mode={mode} type={this.state.type} title={title} data={currentRecords} page={page} perPage={perPage} record={record}/>
+                        <RecordsList host={Functions.getImageHostAndPort(this.props.host)} mode={mode} type={this.state.type} title={title} data={currentRecords} page={page} perPage={perPage} record={record}/>
                         {paginationElem}
                     </div>
                 </div>
