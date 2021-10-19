@@ -2,7 +2,7 @@ import Functions from '../../api/functions';
 import TimeStamp from '../TimeStamp/';
 import styles from './MostUsedFaces.module.css';
 
-const MostUsedFaces = ({data, images}) =>{
+const MostUsedFaces = ({data, images, host}) =>{
 
 
     data = JSON.parse(data);
@@ -22,7 +22,7 @@ const MostUsedFaces = ({data, images}) =>{
         if(currentImage === undefined) currentImage = {"name": "faceless"};
 
         elems.push(<div className={`${styles.wrapper} center`} key={i}>
-            <div className={styles.face}><img src={`/images/faces/${currentImage.name}.png`} alt="Image" /></div>
+            <div className={styles.face}><img src={`${host}images/faces/${currentImage.name}.png`} alt="Image" /></div>
             <div className={styles.inner}>
                 <div>
                     <span className="yellow">Used</span> {d.uses} times<br/>

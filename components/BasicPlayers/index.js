@@ -4,7 +4,7 @@ import styles from './AddictedPlayers.module.css';
 import TimeStamp from '../TimeStamp';
 import Functions from '../../api/functions';
 
-const BasicPlayers = ({title, players, faceFiles}) =>{
+const BasicPlayers = ({title, players, faceFiles, host}) =>{
 
     players = JSON.parse(players);
     faceFiles = JSON.parse(faceFiles);
@@ -26,7 +26,7 @@ const BasicPlayers = ({title, players, faceFiles}) =>{
         elems.push(<Link key={i} href={`/player/${p.id}`}><a>
             <div className={`${styles.player} center`}>
                 <div className={styles.name}><CountryFlag country={p.country}/>{p.name}</div>
-                <img className={`${styles.face} center`} src={`/images/faces/${currentFace.name}.png`} alt="face"/>
+                <img className={`${styles.face} center`} src={`${host}images/faces/${currentFace.name}.png`} alt="face"/>
                 <div className={styles.info}>
                     <span className="yellow">Last Match</span> {Functions.convertTimestamp(p.last, true)}<br/>
                     <span className="yellow">First Match</span> {Functions.convertTimestamp(p.first, true)}<br/>

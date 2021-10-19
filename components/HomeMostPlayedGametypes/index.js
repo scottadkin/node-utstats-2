@@ -1,9 +1,7 @@
-import TimeStamp from '../TimeStamp/';
 import styles from './HomeMostPlayedGametypes.module.css';
-import Image from 'next/image';
 import Functions from '../../api/functions';
 
-const HomeMostPlayedGametypes = ({data, images}) =>{
+const HomeMostPlayedGametypes = ({data, images, host}) =>{
     
     data = JSON.parse(data);
 
@@ -42,7 +40,7 @@ const HomeMostPlayedGametypes = ({data, images}) =>{
 
         elems.push(<div className={styles.box} key={i}>
             <div className={styles.name}>{d.name}</div>
-            <div className={styles.image}><Image src={`/images/gametypes/${currentImage}`} width="400" height="225"/></div>
+            <div className={styles.image}><img src={`${host}images/gametypes/${currentImage}`} width="400" height="225"/></div>
             <div className={styles.info}>
                 <span className="yellow">Playtime</span> {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
                 {d.matches} <span className="yellow">Matches</span><br/> 

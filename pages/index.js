@@ -81,6 +81,8 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 	pageSettings = JSON.parse(pageSettings);
 
+	const imageHost = Functions.getImageHostAndPort(host);
+
 	let message = [];
 
 	if(query.loggedin !== undefined){
@@ -114,8 +116,9 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 		if(pageSettings["Display Latest Match"] === "true"){
 			const latestMatch = JSON.parse(matchesData)[0];
 			
+			
 			elems.push(<Screenshot 
-				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} image={`/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
+				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} image={`${imageHost}/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
 				matchData={JSON.stringify(latestMatch)}
 				serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={latestFaces} bHome={true}
 			/>);
@@ -128,7 +131,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 				<div className="default-header">Recent Matches</div>
 			
-				{(pageSettings["Recent Matches Display Type"] === "0") ? <MatchesDefaultView images={mapImages} data={matchesData} /> : 
+				{(pageSettings["Recent Matches Display Type"] === "0") ? <MatchesDefaultView host={imageHost} images={mapImages} data={matchesData} /> : 
 				<MatchesTableView data={matchesData}/> }
 
 			</div>);
@@ -150,7 +153,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 	if(JSON.parse(gametypeStats).length > 0){
 		
 		if(pageSettings["Display Most Played Gametypes"] === "true"){
-			elems.push(<HomeMostPlayedGametypes key={"monstplayedgametypes"} data={gametypeStats} images={JSON.parse(gametypeImages)}/>);
+			elems.push(<HomeMostPlayedGametypes key={"monstplayedgametypes"} host={imageHost} data={gametypeStats} images={JSON.parse(gametypeImages)}/>);
 		}
 	}
 
@@ -159,28 +162,28 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 	if(JSON.parse(mostPlayedMaps).length > 0){
 
 		if(pageSettings["Display Most Played Maps"] === "true"){
-			elems.push(<HomeTopMaps key={"maps"} maps={mostPlayedMaps} images={mapImages}/>);
+			elems.push(<HomeTopMaps key={"maps"} host={imageHost} maps={mostPlayedMaps} images={mapImages}/>);
 		}
 	}
 
 	if(JSON.parse(recentPlayersData).length > 0){
 
 		if(pageSettings["Display Recent Players"] === "true"){
-			elems.push(<BasicPlayers key={"recent-players"} title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>);
+			elems.push(<BasicPlayers key={"recent-players"} host={imageHost} title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>);
 		}
 	}
 
 	if(JSON.parse(addictedPlayersData).length > 0){
 
 		if(pageSettings["Display Addicted Players"] === "true"){
-			elems.push(<BasicPlayers key={"addicted-players"} title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>);
+			elems.push(<BasicPlayers key={"addicted-players"} host={imageHost} title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>);
 		}
 	}
 
 	if(JSON.parse(mostUsedFaces).length > 0){
 
 		if(pageSettings["Display Most Used Faces"] === "true"){
-			elems.push(<MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles}/>);
+			elems.push(<MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles} host={imageHost}/>);
 		}
 	}
 
