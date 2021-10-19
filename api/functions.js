@@ -600,6 +600,26 @@ class Functions{
 
         return outputData;
     }
+
+    static getImageHostAndPort(host){
+
+        const hostReg = /^(.+):(\d+)$/im;
+        const hostResult = hostReg.exec(host);
+
+        let port = "";
+        
+        if(hostResult !== null){
+            port = `${parseInt(hostResult[2]) + 1}`;
+            host = hostResult[1];
+        }else{
+
+            return host;
+        }
+
+        return `http://${host}:${port}/`;
+       
+
+    }
 }
 
 module.exports = Functions;

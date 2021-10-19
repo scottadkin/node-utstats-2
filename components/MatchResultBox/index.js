@@ -3,7 +3,7 @@ import MatchResult from '../MatchResult';
 import Functions from '../../api/functions';
 
 
-const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, players, playtime, totalTeams, result, dmScore, monsterHunt, endReason}) =>{
+const MatchResultBox = ({host, serverName, gametypeName, mapName, mapImage, date, players, playtime, totalTeams, result, dmScore, monsterHunt, endReason}) =>{
 
 
     let dmWinner = ""; 
@@ -26,12 +26,14 @@ const MatchResultBox = ({serverName, gametypeName, mapName, mapImage, date, play
         serverName = `${shortenedName}...`;
     }
 
+    const imageHost =  Functions.getImageHostAndPort(host);
+
     return <div className={styles.wrapper}>
         <div className={styles.title}>{mapName}</div>
         <div className={styles.gametype}>{gametypeName}</div>
         <div className={styles.players}>{players} {(players !== 1) ? "Players" : "Player"}</div>
         <div className={styles.image}>
-            <img src={`/images/maps/thumbs/${mapImage}.jpg`} alt="image" className="map-image"/>
+            <img src={`${imageHost}images/maps/thumbs/${mapImage}.jpg`} alt="image" className="map-image"/>
         </div>
         <div className={`${styles.server} yellow`}>{serverName}</div>
         <div className={styles.date}>{date}</div>

@@ -77,7 +77,7 @@ class MatchesDefaultView extends React.Component{
             elems.push(
                 <Link key={i} href={`/match/${m.id}`}>
                     <a>
-                        <MatchResultBox serverName={m.serverName} gametypeName={m.gametypeName} mapName={m.mapName}
+                        <MatchResultBox host={this.props.host} serverName={m.serverName} gametypeName={m.gametypeName} mapName={m.mapName}
                         mapImage={image} date={Functions.convertTimestamp(m.date)} players={m.players} playtime={Functions.MMSS(m.playtime)}
                         result={result} dmScore={dmScore} totalTeams={m.total_teams} monsterHunt={m.mh} endReason={m.end_type}
                         />

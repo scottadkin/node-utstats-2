@@ -146,7 +146,7 @@ class Matches extends React.Component{
         if(this.state.displayType){
             matchElems = <MatchesTableView data={this.props.matches}/>
         }else{
-            matchElems = <MatchesDefaultView data={this.props.matches} images={this.props.images}/>
+            matchElems = <MatchesDefaultView data={this.props.matches} images={this.props.images} host={this.props.host}/>
         }
 
         const start = (this.props.page <= 1) ? 1 : this.props.page * this.props.perPage;
@@ -357,6 +357,8 @@ export async function getServerSideProps({req, query}){
     const mapImages = await mapManager.getImages(justMapNames);
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+
+    console.log(req.headers);
 
     return {
         "props": {
