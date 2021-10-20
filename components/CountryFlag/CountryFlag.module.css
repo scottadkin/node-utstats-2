@@ -13,4 +13,5 @@
     font-size:14px;
     display:block;
     min-width:100px;
+    z-index: 999999;
 }

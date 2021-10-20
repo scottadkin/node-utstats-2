@@ -17,7 +17,7 @@ function getName(objectives, id){
 
 
 
-const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore, blueScore, playerNames}) =>{
+const MatchAssaultSummary = ({host, players, data, matchStart, attackingTeam, redScore, blueScore, playerNames}) =>{
 
     players = JSON.parse(players);
     data = JSON.parse(data);
@@ -48,7 +48,7 @@ const MatchAssaultSummary = ({players, data, matchStart, attackingTeam, redScore
             <td className="text-left">{getName(data.objectives, d.obj_id)}</td>
             <td>{(d.bfinal) ? 'True' : ''}</td>
             <td><MMSS timestamp={d.timestamp - matchStart} /></td>
-            <td className={Functions.getTeamColor(currentPlayer.team)}><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</td>
+            <td className={Functions.getTeamColor(currentPlayer.team)}><CountryFlag host={host} country={currentPlayer.country}/>{currentPlayer.name}</td>
 
         </tr>);
     }

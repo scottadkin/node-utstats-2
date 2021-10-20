@@ -145,7 +145,7 @@ class MatchDominationSummaryNew extends React.Component{
                 <td className={`${teamColor}`}>
                     <Link href={`/pmatch/${this.props.matchId}?player=${currentPlayer.id}`}>
                         <a>
-                            <CountryFlag country={currentPlayer.country}/>
+                            <CountryFlag host={this.props.host} country={currentPlayer.country}/>
                             
                             {currentPlayer.name}
                         </a>

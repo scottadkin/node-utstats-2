@@ -227,6 +227,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
             elems.push(
                 <MatchDominationSummaryNew key="dom-sum" 
+                    host={imageHost}
                     matchId={parsedInfo.id} 
                     totalTeams={parsedInfo.total_teams} 
                     players={JSON.parse(playerNames)} 
@@ -240,7 +241,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     if(bAssaultGame){
 
         elems.push(
-            <MatchAssaultSummary key={`assault_data`} players={playerData} data={assaultData} matchStart={parsedInfo.start} attackingTeam={parsedInfo.attacking_team}
+            <MatchAssaultSummary host={imageHost} key={`assault_data`} players={playerData} data={assaultData} matchStart={parsedInfo.start} attackingTeam={parsedInfo.attacking_team}
                 redScore={parsedInfo.team_score_0} blueScore={parsedInfo.team_score_1} playerNames={playerNames}
             />
         );
@@ -249,19 +250,19 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
     if(parsedInfo.mh){
 
-        elems.push(<MatchMonsterHuntMonsterKills key={"mh-monsters"} images={JSON.parse(monsterImages)} monsterNames={JSON.parse(monsterNames)}
+        elems.push(<MatchMonsterHuntMonsterKills key={"mh-monsters"} host={imageHost} images={JSON.parse(monsterImages)} monsterNames={JSON.parse(monsterNames)}
         playerData={JSON.parse(playerData)} monsterKills={JSON.parse(monsterHuntPlayerKillTotals)} matchId={parsedInfo.id}/>);
     }
 
     if(pageSettings["Display Special Events"] === "true"){
         elems.push(
-            <MatchSpecialEvents key={`match_4`} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)} matchId={parsedInfo.id}/>
+            <MatchSpecialEvents key={`match_4`} host={imageHost} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)} matchId={parsedInfo.id}/>
         );
     }
 
     if(pageSettings["Display Extended Sprees"] === "true"){
 
-        elems.push(<MatchSprees key={"sprees"} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
+        elems.push(<MatchSprees key={"sprees"} host={imageHost} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
     }
 
 
@@ -270,15 +271,12 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         if(!parsedInfo.mh){
 
             elems.push(<MatchKillsMatchUpAlt key={`kills-matchup`} matchId={matchId} totalTeams={parsedInfo.total_teams} players={JSON.parse(playerNames)}/>);
-            /*elems.push(
-                <MatchKillsMatchup key={`match_kills_matchup`} data={killsData} playerNames={playerNames}/>
-            );*/
         }
     }
 
     if(pageSettings["Display Powerup Control"] === "true"){
         if(!parsedInfo.mh){
-            elems.push(<MatchPowerUpControl key={`match-power-control`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>);
+            elems.push(<MatchPowerUpControl host={imageHost} key={`match-power-control`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>);
         }
     }
 
@@ -287,21 +285,29 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
         if(!parsedInfo.mh){
             elems.push(
-                <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
+                <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} 
+                    totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}
+                    host={imageHost}
+                />
             );
         }
     }
 
     if(pageSettings["Display Pickup Summary"] === "true"){
         elems.push(
-            <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams}
-            matchId={parsedInfo.id} />
+            <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} 
+                totalTeams={parsedInfo.total_teams}
+                matchId={parsedInfo.id} 
+                host={imageHost}
+            />
         );
     }
     
     if(pageSettings["Display Rankings"] === "true"){
-        elems.push(<MatchRankingChanges key={"r-changes"} positions={rankingPositions} changes={rankingChanges} playerNames={playerNames} currentRankings={currentRankings}
-        matchId={parsedInfo.id}
+        elems.push(<MatchRankingChanges key={"r-changes"} positions={rankingPositions} changes={rankingChanges} playerNames={playerNames} 
+            currentRankings={currentRankings}
+            matchId={parsedInfo.id}
+            host={imageHost}
         />);
     }
 
@@ -317,24 +323,12 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     }
 
 
-    
-    
-
-    /*if(pageSettings["Display Players Connected to Server Graph"] === "true"){
-        elems.push(
-            <ConnectionSummary key={`connection-data`} data={JSON.parse(connections)} playerNames={JSON.parse(playerNames)} bTeamGame={parsedInfo.team_game} 
-            totalTeams={parsedInfo.total_teams} matchStart={parsedInfo.start}
-                teamsData={JSON.parse(teams)}
-            />
-        );
-    }*/
-
     if(pageSettings["Display Team Changes"] === "true"){
 
         if(!parsedInfo.mh){
             if(parsedInfo.team_game){
                 elems.push(
-                    <TeamsSummary key={`teams-data`} data={teams} playerNames={playerNames} matchId={parsedInfo.id}/>
+                    <TeamsSummary key={`teams-data`} host={imageHost} data={teams} playerNames={playerNames} matchId={parsedInfo.id}/>
                 );
             }
         }
@@ -354,7 +348,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
 
     if(parsedSession["bLoggedIn"]){
-        elems.push(<AdminMatchControl key={"a-c"} matchId={parsedInfo.id} players={playerNames} mapId={parsedInfo.map}/>);
+        elems.push(<AdminMatchControl key={"a-c"} host={imageHost} matchId={parsedInfo.id} players={playerNames} mapId={parsedInfo.map}/>);
     }
 
     return <div>

@@ -151,7 +151,7 @@ class MatchWeaponSummary extends React.Component{
                     <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : currentTeam)}>
                         <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}>
                             <a>
-                                <CountryFlag country={currentPlayer.country}/>{currentPlayer.name}
+                                <CountryFlag host={this.props.host} country={currentPlayer.country}/>{currentPlayer.name}
                             </a>
                         </Link>
                     </td>
@@ -320,7 +320,7 @@ class MatchWeaponSummary extends React.Component{
                     <tr key={x}>
                         <td className={Functions.getTeamColor((this.props.totalTeams < 2) ? 255 : currentTeam)}>
                             <Link href={`/pmatch/${this.props.matchId}?player=${currentPlayer.id}`}>
-                                <a><CountryFlag country={currentPlayer.country}/>{currentPlayer.name}</a>
+                                <a><CountryFlag host={this.props.host} country={currentPlayer.country}/>{currentPlayer.name}</a>
                             </Link>
                         </td>
                         <td>{Functions.ignore0(p.kills)}</td>

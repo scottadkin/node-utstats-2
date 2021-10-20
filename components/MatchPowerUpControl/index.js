@@ -94,7 +94,7 @@ class MatchPowerUpControl extends React.Component{
 
             let player = this.getTeamTopPlaytimePlayer(team);
 
-            return <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} />{player.name}</a></Link>
+            return <Link href={`/player/${player.id}`}><a><CountryFlag host={this.props.host} country={player.country} />{player.name}</a></Link>
 
         }else{
 
@@ -332,7 +332,7 @@ class MatchPowerUpControl extends React.Component{
             for(let i = 0; i < mostUsed.length; i++){
 
                 nameElems.push(<div key={i} className={Functions.getTeamColor(i)}>
-                    <Link href={`/player/${mostUsed[i].id}`}><a><CountryFlag country={mostUsed[i].country}/>{mostUsed[i].name}</a></Link>
+                    <Link href={`/player/${mostUsed[i].id}`}><a><CountryFlag host={this.props.host} country={mostUsed[i].country}/>{mostUsed[i].name}</a></Link>
                 </div>);
 
                 totalElems.push(<div key={i}>

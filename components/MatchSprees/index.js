@@ -81,7 +81,7 @@ class MatchSprees extends React.Component{
 
                     killerElem = <td className="red">
                         Killed by <Link href={`/pmatch/${this.props.matchId}?player=${killer.id}`}>
-                            <a><CountryFlag country={killer.country}/><span className="yellow">{killer.name}</span></a>
+                            <a><CountryFlag host={this.props.host} country={killer.country}/><span className="yellow">{killer.name}</span></a>
                         </Link>
                     </td>
 
@@ -101,7 +101,7 @@ class MatchSprees extends React.Component{
                 <td>
                     <Link href={`/pmatch/${this.props.matchId}?player=${player.id}`}>
                         <a>
-                            <CountryFlag country={player.country}/>{player.name}
+                            <CountryFlag host={this.props.host} country={player.country}/>{player.name}
                         </a>
                     </Link>
                 </td>

@@ -74,7 +74,7 @@ class MatchSpecialEvents extends React.Component{
 
             if(this.bAnyData(p, 'multi')){
 
-                countryFlag = <CountryFlag country={p.country}/>;
+                countryFlag = <CountryFlag host={this.props.host} country={p.country}/>;
                 playerName = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a>{p.name}</a></Link>
 
                 if(this.bTeamGame){
@@ -250,7 +250,7 @@ class MatchSpecialEvents extends React.Component{
             if(this.bAnyData(p, 'spree')){
 
                 playerName = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a>{p.name}</a></Link>
-                flag = <CountryFlag country={p.country}/>
+                flag = <CountryFlag host={this.props.host} country={p.country}/>
 
                 if(this.bTeamGame){
                     color = Functions.getTeamColor(p.team);
@@ -427,7 +427,7 @@ class MatchSpecialEvents extends React.Component{
             if(p.first_blood){
                 return <div className={styles.first}>
                     <div>First Blood</div>
-                    <div className={bgColor}><CountryFlag country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></div>
+                    <div className={bgColor}><CountryFlag host={this.props.host} country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></div>
                 </div>
             }
         }

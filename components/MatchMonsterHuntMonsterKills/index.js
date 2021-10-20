@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import styles from './MatchMonsterHuntMonsterKills.module.css';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
@@ -97,7 +96,7 @@ class MatchMonsterHuntMonsterKills extends React.Component{
             }
 
             rows.push(<tr key={i}>
-                <td><Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a><CountryFlag country={p.country}/>{p.name}</a></Link></td>
+                <td><Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a><CountryFlag host={this.props.host} country={p.country}/>{p.name}</a></Link></td>
                 <td>{Functions.ignore0(this.getPlayerMonsterKillCount(p.player_id, monsterId))}</td>
             </tr>);
         }
@@ -141,7 +140,7 @@ class MatchMonsterHuntMonsterKills extends React.Component{
                     <div className={styles.name}>
                         {this.getMonsterDisplayName(className)}
                     </div>
-                    <Image src={`/images/monsters/${fileUrl}`} width="150" height="150"/>
+                    <img src={`${this.props.host}images/monsters/${fileUrl}`} alt="monster" className="monster-image"/>
                     <div className={styles.deaths}>{totalDeaths} Death{(totalDeaths === 1) ? null : "s"}</div>
                     <table className={`${styles.table} td-1-left`}>
                         <tbody>

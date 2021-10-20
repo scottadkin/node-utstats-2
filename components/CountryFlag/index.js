@@ -30,7 +30,7 @@ class CountryFlag extends React.Component{
 
         const hiddenClass = (this.state.show) ? "" : "hidden";
 
-        const hoverElem = (this.state.show) ? <div className={`${styles.mouse} ${hiddenClass}`}>{flag.country}</div> : null;
+        const hoverElem = (this.state.show) ? <div className={`${styles.mouse} ${hiddenClass}`} onMouseOver={this.hide}>{flag.country}</div> : null;
 
         return <div className={styles.wrapper} onMouseOver={this.show} onMouseLeave={this.hide}>
             {hoverElem}

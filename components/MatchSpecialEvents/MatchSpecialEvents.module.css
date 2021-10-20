@@ -10,11 +10,9 @@
     grid-template-columns: 100px 200px;
     margin-left:auto;
     margin-right:auto;
+    line-height:32px;
 }
 
-.first div{
-    padding:5px;
-}
 
 
 .table{

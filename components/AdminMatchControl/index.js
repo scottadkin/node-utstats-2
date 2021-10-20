@@ -127,7 +127,7 @@ class AdminMatchControl extends React.Component{
             p = players[i];
 
             rows.push(<tr key={i}>
-                <td><CountryFlag country={p.country}/>{p.name}</td>
+                <td><CountryFlag host={this.props.host} country={p.country}/>{p.name}</td>
                 <td>
                     {createButton(p.id)}
                 </td>
