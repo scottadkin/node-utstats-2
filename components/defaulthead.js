@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import {useRouter} from 'next/router';
+import Functions from '../api/functions';
 
 const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
 
@@ -16,6 +17,8 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
     if(image === undefined) image = "defaultmap";
     if(imageType === undefined) imageType = "jpg";
 
+    const imageHost = Functions.getImageHostAndPort(host);
+
     // <meta property="og:image:secure_url" content={`https://${host}/images/${image}.jpg`} />
     return (
         <Head>
@@ -27,7 +30,7 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
             <meta property="og:description" content={`${description} Node UTStats 2.`} />
             <meta property="og:type" content="website" />
             <meta property="og:url" content={`https://${host}${router.asPath}`} />
-            <meta property="og:image" content={`http://${host}/images/${image}.${imageType}`} />
+            <meta property="og:image" content={`${imageHost}images/${image}.${imageType}`} />
             <meta property="og:site_name" content="Node UTStats 2" />
            
             <script src="../js/main.js"></script>

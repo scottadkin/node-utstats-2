@@ -118,9 +118,11 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 			
 			
 			elems.push(<Screenshot 
-				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} image={`${imageHost}/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
+				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} 
+				image={`${imageHost}/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
 				matchData={JSON.stringify(latestMatch)}
 				serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={latestFaces} bHome={true}
+				host={imageHost}
 			/>);
 		}
 		

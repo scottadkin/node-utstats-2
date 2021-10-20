@@ -6,15 +6,16 @@ import Functions from '../../api/functions';
 
 class MatchScreenshot{
 
-    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic){
+    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host){
         
+        try{
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
         this.download = download;
         this.downloadJPG = downloadJPG;
         this.downloadBMP = downloadBMP;
 
-
+        this.host = host;
 
         this.bHome = bHome;
 
@@ -88,6 +89,10 @@ class MatchScreenshot{
             this.bDisplayLoading = false;
 
         }   
+        }catch(err){
+            console.trace(err);
+        }
+    
     }
 
     renderLoading(){
@@ -171,6 +176,8 @@ class MatchScreenshot{
 
     setupDownload(){
 
+        return;
+
         if(this.bHome) return;
 
         const imagePNG = this.canvas.toDataURL("image/png");
@@ -235,7 +242,7 @@ class MatchScreenshot{
 
                     this.playerIcons[uniqueIcons[i]] = new Image();
 
-                    this.playerIcons[uniqueIcons[i]].src = `/images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
+                    this.playerIcons[uniqueIcons[i]].src = `${this.host}images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
 
                     this.playerIcons[uniqueIcons[i]].onload = () =>{
 
@@ -258,7 +265,7 @@ class MatchScreenshot{
 
                     this.playerIcons.push(new Image());
 
-                    this.playerIcons[i].src = `/images/faces/${this.faces[i]}`;
+                    this.playerIcons[i].src = `${this.host}images/faces/${this.faces[i]}`;
 
                     this.playerIcons[i].onload = () =>{
 
@@ -298,7 +305,7 @@ class MatchScreenshot{
             for(let i = 0; i < this.flagsToLoad; i++){
 
                 this.flags[uniqueFlags[i]] = new Image();
-                this.flags[uniqueFlags[i]].src = `/images/flags/${uniqueFlags[i].toLowerCase()}.svg`;
+                this.flags[uniqueFlags[i]].src = `${this.host}images/flags/${uniqueFlags[i].toLowerCase()}.svg`;
 
                 this.flags[uniqueFlags[i]].onload = () =>{
                     this.loadedFlags++;
@@ -328,7 +335,7 @@ class MatchScreenshot{
             for(let i = 0; i < files.length; i++){
 
                 this.icons[files[i]] = new Image();
-                this.icons[files[i]].src = `/images/${files[i]}.png`;
+                this.icons[files[i]].src = `${this.host}images/${files[i]}.png`;
                 this.icons[files[i]].onload = () =>{
 
                     this.iconsLoaded++;
@@ -1445,7 +1452,7 @@ class MatchScreenshot{
 
 
 
-const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome, bClassic}) =>{
+const Screenshot = ({host, map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome, bClassic}) =>{
 
     const sshot = useRef(null);
     const sshotDownload = useRef(null);
@@ -1471,7 +1478,8 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
             faces,
             highlight,
             bHome,
-            bClassic
+            bClassic,
+            host
         );
     });
 
@@ -1482,6 +1490,7 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
         </div>
         <div className={`${styles.content} center`}>
             <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-10" 
+                crossOrigin="anonymous"
                 data-match-data={matchData} 
                 data-map={map} 
                 data-image={image}
@@ -1489,13 +1498,6 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
                 data-players={players} 
                 width="1920" height="1080">
             </canvas>
-            {(bHome) ? null :
-                <div id={styles.downloads} className="m-bottom-25">
-                    <a id="sshot-download" href="#" ref={sshotDownload} download="testests.png">Download as PNG</a>
-                    <a id="sshot-download2" href="#" ref={sshotDownload2} download="testests.jpg">Download as JPG</a>
-                    <a id="sshot-download3" href="#" ref={sshotDownload3} download="testests.bmp">Download as BMP</a>
-                </div>
-            }
         </div>
     </div>);
 }

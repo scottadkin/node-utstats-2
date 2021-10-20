@@ -168,6 +168,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
     if(pageSettings["Display Screenshot"] === "true"){
         elems.push(<Screenshot 
+            host={imageHost}
             key={"match-sshot"} map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image} matchData={info}
             serverName={server} gametype={gametype} faces={faces}
         />);
