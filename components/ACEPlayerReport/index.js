@@ -351,7 +351,7 @@ class ACEPlayerReport extends React.Component{
             rows.push(<tr key={i}>
                 <td>{d.ace_version}</td>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
-                <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag country={d.country}/>{d.ip}</a></Link></td>
+                <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.ip}</a></Link></td>
                 <td>{d.os}</td>
                 <td>
                     <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID:</span> {d.hwid}</a></Link><br/>
@@ -401,7 +401,7 @@ class ACEPlayerReport extends React.Component{
             rows.push(<tr key={i}>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
                 <td>
-                    <Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag country={d.country}/>{d.ip}</a></Link>
+                    <Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.ip}</a></Link>
                 </td>
                 <td>
                     <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID:</span> {d.hwid}</a></Link><br/>
@@ -459,7 +459,7 @@ class ACEPlayerReport extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
-                <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag country={d.country}/>{d.ip}</a></Link></td>
+                <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.ip}</a></Link></td>
                 <td>
                     <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span> {d.hwid}</a></Link><br/>
                     <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span> {d.mac1}</a></Link><br/>
@@ -573,7 +573,7 @@ class ACEPlayerReport extends React.Component{
                     <td>
                     <Link href={`/ace/?mode=player&name=${d}`}>
                         <a>
-                            <CountryFlag country={"xx"}/>{d}
+                            <CountryFlag host={this.props.host} country={"xx"}/>{d}
                         </a>
                     </Link>
                     </td>
@@ -678,7 +678,7 @@ class ACEPlayerReport extends React.Component{
         for(const [key, value] of Object.entries(ips)){
 
             rows.push(<tr key={key}>
-                <td><Link href={`/ace?mode=players&ip=${key}`}><a><CountryFlag country={value.country}/>{key}</a></Link></td>
+                <td><Link href={`/ace?mode=players&ip=${key}`}><a><CountryFlag host={this.props.host} country={value.country}/>{key}</a></Link></td>
                 <td>{value.times_connected}</td>
                 <td>{Functions.convertTimestamp(value.first, true)}</td>
                 <td>{Functions.convertTimestamp(value.last, true)}</td>

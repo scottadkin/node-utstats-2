@@ -1,16 +1,16 @@
 import styles from './PlayerGeneral.module.css';
 import Timestamp from '../TimeStamp/';
 
-const PlayerGeneral = ({flag, country, face, first, last, matches, playtime, wins, losses, winRate}) =>{
+const PlayerGeneral = ({host,flag, country, face, first, last, matches, playtime, wins, losses, winRate}) =>{
 
 
     return <div className={`${styles.wrapper} m-bottom-10`}>
         <div className={styles.left}>
             <div className={styles.face}>
-                <img src={`/images/faces/${face}.png`} alt="image"/>
+                <img src={`${host}images/faces/${face}.png`} alt="image"/>
             </div>
             <div className={styles.flag}>
-                <img src={`/images/flags/${flag}.svg`} alt="image"/>
+                <img src={`${host}/images/flags/${flag}.svg`} alt="image"/>
             </div>
             <div className={styles.country}>
                 {country}

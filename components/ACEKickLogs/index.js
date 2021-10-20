@@ -73,7 +73,7 @@ class ACEKickLogs extends React.Component{
             const d = this.state.logs[i];
 
             rows.push(<tr key={i}>
-                <td><Link href={`/ace?mode=players&name=${d.name}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
+                <td><Link href={`/ace?mode=players&name=${d.name}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.name}</a></Link></td>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
                 <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a>{d.ip}</a></Link></td>
                 <td>

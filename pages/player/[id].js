@@ -3,7 +3,6 @@ import Nav from '../../components/Nav/';
 import Footer from '../../components/Footer/';
 import PlayerSummary from '../../components/PlayerSummary/';
 import Player from '../../api/player';
-import Link from 'next/link';
 import Countires from '../../api/countries';
 import Gametypes from '../../api/gametypes';
 import Maps from '../../api/maps';
@@ -30,6 +29,9 @@ import Analytics from '../../api/analytics';
 function Home({navSettings, pageSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, rankingsData, rankingPositions}) {
+
+
+	const imageHost = Functions.getImageHostAndPort(host);
 
 	//console.log(`servers`);
 	if(summary === undefined){
@@ -95,8 +97,18 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 								</div>
 
 
-								<PlayerSummary session={parsedSession} pageSettings={pageSettings} summary={summary} flag={country.code.toLowerCase()} country={country.country} gametypeStats={gametypeStats}
-									gametypeNames={gametypeNames} latestWinRate={latestWinRate} winRateHistory={winRateHistory} matchDates={matchDates}
+								<PlayerSummary 
+									host={imageHost}
+									session={parsedSession} 
+									pageSettings={pageSettings} 
+									summary={summary} 
+									flag={country.code.toLowerCase()} 
+									country={country.country} 
+									gametypeStats={gametypeStats}
+									gametypeNames={gametypeNames}
+									latestWinRate={latestWinRate} 
+									winRateHistory={winRateHistory} 
+									matchDates={matchDates}
 									faces={faces}
 								/>
 

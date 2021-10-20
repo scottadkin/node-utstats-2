@@ -33,7 +33,6 @@ class ACEScreenshots extends React.Component{
 
     async loadData(page){
 
-        console.log("DATA");
 
         const req = await fetch("/api/ace", {
             "headers": {"Content-type": "application/json"},
@@ -48,7 +47,6 @@ class ACEScreenshots extends React.Component{
             const pages = (res.results > 0) ? Math.ceil(res.results / 25) :1;
             this.setState({"data": res.data, "results": res.results, "pages": pages});
         }
-        console.log(res);
 
     }
 
@@ -61,7 +59,7 @@ class ACEScreenshots extends React.Component{
             const d = this.state.data[i];
 
             rows.push(<tr key={i}>
-                <td><Link href={`/ace/?mode=players&name=${d.player}`}><a><CountryFlag country={d.country}/>{d.player}</a></Link></td>
+                <td><Link href={`/ace/?mode=players&name=${d.player}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.player}</a></Link></td>
                 <td><Link href={`/ace/?mode=players&ip=${d.ip}`}><a>{d.ip}</a></Link></td>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
                 <td>

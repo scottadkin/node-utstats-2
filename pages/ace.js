@@ -14,6 +14,7 @@ import ACEKickLogs from '../components/ACEKickLogs';
 import ACEKickLog from '../components/ACEKickLog';
 import ACEScreenshots from '../components/ACEScreenshots';
 import ACEScreenshot from '../components/ACEScreenshot';
+import Functions from '../api/functions';
 
 
 const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPlayers, playerName,
@@ -30,20 +31,22 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
     let elems = [];
 
 
+    const imageHost = Functions.getImageHostAndPort(host);
+
     if(mode === ""){
-        elems = <ACEHome recentKicks={recentKicks} recentPlayers={recentPlayers} recentSShots={recentSShotRequests}/>
+        elems = <ACEHome host={imageHost} recentKicks={recentKicks} recentPlayers={recentPlayers} recentSShots={recentSShotRequests}/>
     }else if(mode === "players"){
-        elems = <ACEPlayers playerSearchMode={playerSearchMode} playerSearchValue={playerSearchValue}/>
+        elems = <ACEPlayers host={imageHost} playerSearchMode={playerSearchMode} playerSearchValue={playerSearchValue}/>
     }else if(mode === "player"){
-        elems = <ACEPlayerReport name={playerName}/>
+        elems = <ACEPlayerReport host={imageHost} name={playerName}/>
     }else if(mode === "kicks"){
-        elems = <ACEKickLogs logId={logId} page={page} perPage={25}/>
+        elems = <ACEKickLogs host={imageHost} logId={logId} page={page} perPage={25}/>
     }else if(mode === "kick"){
-        elems = <ACEKickLog id={logId}/>
+        elems = <ACEKickLog host={imageHost} id={logId}/>
     }else if(mode === "screenshots"){
-        elems = <ACEScreenshots page={page}/>
+        elems = <ACEScreenshots host={imageHost} page={page}/>
     }else if(mode === "screenshot"){
-        elems = <ACEScreenshot id={logId}/>
+        elems = <ACEScreenshot host={imageHost} id={logId}/>
     }
 
     return <div>

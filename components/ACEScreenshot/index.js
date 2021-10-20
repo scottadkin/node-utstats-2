@@ -40,9 +40,9 @@ class ACEScreenshot extends React.Component{
 
         const reg = /^.*\/(.+)$/i;
         const result = reg.exec(file);
-        let image = "/images/temp.jpg";
+        let image = `${this.props.host}images/temp.jpg`;
 
-        if(result !== null) image = `/images/ace/${result[1]}`;
+        if(result !== null) image = `${this.props.host}images/ace/${result[1]}`;
 
         return image;
     }

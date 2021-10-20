@@ -80,6 +80,8 @@ class Maps extends React.Component{
 
     render(){
 
+        const imageHost = Functions.getImageHostAndPort(this.props.host);
+
         let pages = Math.ceil(this.props.results / this.props.perPage);
 
         if(pages < 1) pages = 1;
@@ -143,7 +145,7 @@ class Maps extends React.Component{
                     </form>
                     {notFound}
                     {paginationElem}
-                    <MapList data={this.props.maps} images={this.props.images} displayType={this.state.displayType}/>
+                    <MapList host={imageHost} data={this.props.maps} images={this.props.images} displayType={this.state.displayType}/>
                     {paginationElem}
                     </div>
                 </div>

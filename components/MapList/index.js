@@ -44,7 +44,7 @@ class MapList extends React.Component{
         }else{
         
             for(let i = 0; i < maps.length; i++){
-                elems.push(<MapDefaultBox key={i} data={maps[i]} images={this.props.images}/>);
+                elems.push(<MapDefaultBox host={this.props.host} key={i} data={maps[i]} images={this.props.images}/>);
             }
 
             return (<div>

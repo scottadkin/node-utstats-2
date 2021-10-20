@@ -7,7 +7,7 @@ import PlayerADSummary from '../PlayerADSummary/';
 
 
 
-const PlayerSummary = ({session, pageSettings, summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
+const PlayerSummary = ({host, session, pageSettings, summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
     winRateHistory, faces}) =>{   
 
     summary = JSON.parse(summary);
@@ -23,6 +23,7 @@ const PlayerSummary = ({session, pageSettings, summary, flag, country, gametypeS
     if(pageSettings["Display Summary"] === "true"){
 
         elems.push(<PlayerGeneral key={1} country={country}
+            host={host}
             flag={flag}
             face={faces[faceId].name}
             first={summary.first}

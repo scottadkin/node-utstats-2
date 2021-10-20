@@ -94,7 +94,7 @@ class ACEKickLog extends React.Component{
                 <div className="default-sub-header"><span className="yellow">{d.name}</span> Kicked for <span className="yellow">{d.kick_reason}</span></div>
                 {this.renderTable()}
                 <div className="default-sub-header">Kick Screenshot</div>
-                <img src={`/images/ace/${sshotLoc}`} className="t-width-1 m-bottom-25" alt="image"/>
+                <img src={`${this.props.host}images/ace/${sshotLoc}`} className="t-width-1 m-bottom-25" alt="image"/>
                 {this.renderRawData(d.raw_data)}
             </div>
         }
@@ -120,7 +120,7 @@ class ACEKickLog extends React.Component{
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td><Link href={`/ace?mode=player&name=${d.name}`}><a><CountryFlag country={d.country}/>{d.name}</a></Link></td>
+                        <td><Link href={`/ace?mode=player&name=${d.name}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.name}</a></Link></td>
                     </tr>
                     <tr className="yellow">
                         <td>Kick Reason</td>

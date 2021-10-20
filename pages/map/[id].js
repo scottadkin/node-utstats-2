@@ -37,11 +37,20 @@ class Map extends React.Component{
     render(){
 
         const basic = JSON.parse(this.props.basic);
-        const image = this.props.image;
+        let image = this.props.image;
+
+        const imageResult = /^\/(.+)$/i.exec(image);
+
+        if(imageResult !== null){
+            image = imageResult[1];
+        }   
+
         const matches = this.props.matches;
 
         const session = JSON.parse(this.props.session);
         //console.log(session);
+
+        const imageHost = Functions.getImageHostAndPort(this.props.host);
 
         return <div>
         <DefaultHead host={this.props.host} 
@@ -65,7 +74,7 @@ class Map extends React.Component{
                         <img onClick={(() =>{
                             const elem = document.getElementById("main-image");
                             elem.requestFullscreen();
-                        })} className={styles.mimage} id="main-image" src={image} alt="image" />
+                        })} className={styles.mimage} id="main-image" src={`${imageHost}${image}`} alt="image" />
                         <table className={styles.ttop}>
                             <tbody>
                                 <tr>
@@ -148,7 +157,7 @@ class Map extends React.Component{
 
 
                     
-                    <MapAddictedPlayers players={this.props.addictedPlayers} playerNames={this.props.playerNames}/>
+                    <MapAddictedPlayers host={imageHost} players={this.props.addictedPlayers} playerNames={this.props.playerNames}/>
                     
 
                     {(this.props.pageSettings["Display Addicted Players"] === "false") ? null : 
