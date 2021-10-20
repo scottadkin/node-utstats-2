@@ -90,7 +90,7 @@ class MatchSpecialEvents extends React.Component{
                 if(this.state.mode === 2){
 
                     elems.push(<tr key={`multi-2-${i}`}>
-                        {(this.props.single) ? null :<td className={`${bgColor} text-left`}>{countryFlag}{playerName}</td>}
+                        {(this.props.single) ? null :<td className={bgColor}>{countryFlag}{playerName}</td>}
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -104,7 +104,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 0){
 
                     elems.push(<tr key={`multi-0-${i}`}>
-                         {(this.props.single) ? null :<td className={`${bgColor} text-left`}>{countryFlag}{playerName}</td>}
+                        {(this.props.single) ? null :<td className={bgColor}>{countryFlag}{playerName}</td>}
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -115,7 +115,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 3){
 
                     elems.push(<tr key={`multi-3-${i}`} >
-                        {(this.props.single) ? null : <td className={`${bgColor} text-left`}>{countryFlag}{playerName}</td>}
+                        {(this.props.single) ? null :<td className={bgColor}>{countryFlag}{playerName}</td>}
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -127,7 +127,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 1){
 
                     elems.push(<tr key={`multi-1-${i}`} className={bgColor}>
-                         {(this.props.single) ? null :<td className={`${bgColor} text-left`}>{countryFlag}{playerName}</td>}
+                        {(this.props.single) ? null :<td className={bgColor}>{countryFlag}{playerName}</td>}
                         <td>{this.displayValue(p.multi_1)}</td>
                         <td>{this.displayValue(p.multi_2)}</td>
                         <td>{this.displayValue(p.multi_3)}</td>
@@ -198,7 +198,7 @@ class MatchSpecialEvents extends React.Component{
         if(elems.length > 0){
             return <div>
                 
-                <table className={`${styles.table} t-width-1 player-td-1`}>
+                <table className={`${styles.table} t-width-1 ${(this.props.single) ? null : "player-td-1"}`}>
                     <tbody>
                         {elems}
                     </tbody>
@@ -237,14 +237,13 @@ class MatchSpecialEvents extends React.Component{
 
         const elems = [];
 
-        let p = 0;
         let playerName = 0;
         let flag = 0;
         let color = "team-none";
 
         for(let i = 0; i < this.props.players.length; i++){
 
-            p = this.props.players[i];
+            const p = this.props.players[i];
 
             
             if(this.bAnyData(p, 'spree')){
@@ -265,7 +264,7 @@ class MatchSpecialEvents extends React.Component{
                 if(this.state.mode === 0){
 
                     elems.push(<tr key={`spree-0-${i}`}>
-                         {(this.props.single) ? null :<td className={`${color} text-left`}>{flag}{playerName}</td>}
+                        {(this.props.single) ? null :<td className={color}>{flag}{playerName}</td>}
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -277,7 +276,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 1){
 
                     elems.push(<tr  key={`spree-1-${i}`} >
-                         {(this.props.single) ? null :<td className={`${color} text-left`}>{flag}{playerName}</td>}
+                        {(this.props.single) ? null :<td className={color}>{flag}{playerName}</td>}
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -291,7 +290,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 2){
 
                     elems.push(<tr  key={`spree-2-${i}`} className={color}>
-                         {(this.props.single) ? null :<td className={`${color} text-left`}>{flag}{playerName}</td>}
+                        {(this.props.single) ? null :<td className={color}>{flag}{playerName}</td>}
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -304,7 +303,7 @@ class MatchSpecialEvents extends React.Component{
                 }else if(this.state.mode === 3){
 
                     elems.push(<tr  key={`spree-3-${i}`} className={color}>
-                         {(this.props.single) ? null :<td className={`${color} text-left`}>{flag}{playerName}</td>}
+                        {(this.props.single) ? null :<td className={color}>{flag}{playerName}</td>}
                         <td>{this.displayValue(p.spree_1)}</td>
                         <td>{this.displayValue(p.spree_2)}</td>
                         <td>{this.displayValue(p.spree_3)}</td>
@@ -383,7 +382,7 @@ class MatchSpecialEvents extends React.Component{
             }
 
             return <div>
-            <table className={`${styles.table} t-width-1 player-td-1`}>
+            <table className={`${styles.table} t-width-1 ${(this.props.single) ? null : "player-td-1"}`}>
                 <tbody>
                     {elems}
                 </tbody>

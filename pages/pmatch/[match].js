@@ -85,6 +85,8 @@ class PlayerMatch extends React.Component{
 
         const domPointNames = JSON.parse(this.props.domPointNames);
         const playerDomCaps = JSON.parse(this.props.playerDomCaps);
+
+        const imageHost = Functions.getImageHostAndPort(this.props.host);
         
 
         return <div>
@@ -101,7 +103,7 @@ class PlayerMatch extends React.Component{
                     <div className="default">
                         <div className="default-header">{titleName} Match Report</div>
 
-                        <MatchPlayerViewProfile data={playerData} matchId={parsedInfo.id}/>
+                        <MatchPlayerViewProfile host={imageHost} data={playerData} matchId={parsedInfo.id}/>
 
                         <MatchSummary 
                             info={this.props.info} 
@@ -114,6 +116,7 @@ class PlayerMatch extends React.Component{
                         />
 
                         <Screenshot 
+                            host={imageHost}
                             map={this.props.map} 
                             totalTeams={parsedInfo.total_teams} 
                             players={this.props.players} 
@@ -160,7 +163,7 @@ class PlayerMatch extends React.Component{
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 
-                        <MatchSprees playerId={playerMatchData.player_id} matchId={parsedInfo.id} players={JSON.parse(this.props.playerNames)} matchStart={parsedInfo.start}/>
+                        <MatchSprees host={imageHost} playerId={playerMatchData.player_id} matchId={parsedInfo.id} players={JSON.parse(this.props.playerNames)} matchStart={parsedInfo.start}/>
 
                      
 
