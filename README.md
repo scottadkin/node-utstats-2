@@ -59,7 +59,7 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 - To run in production mode run the following commands in this order, **npm run build** this will create the production version of the website(will take a few seconds), once that has finished run the command **npm run start** to run the production website. 
 - Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 - If you have enabled classic mode you will find it [http://localhost:3000/classic](http://localhost:3000/classic)
-- Now run **node images** to start the image file server, if you see broken images on your site it's likeley you don't have this service running.
+- Now run **node images** to start the image file server, if you see broken images on your site it's likely you don't have this service running.
 
 # Creating an admin account
 - If there are no users in the database, create an account by going to the site's login page, then press the "Not a member? Register now!" button, the next created account will automatically set to admin, and will be activated.
