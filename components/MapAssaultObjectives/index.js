@@ -2,21 +2,18 @@ import Image from 'next/image';
 import styles from './MapAssaultObjectives.module.css';
 
 const getObjectImage = (images, mapName, name) =>{
-    console.log(`name = ${name}`);
 
-    /*name = name.toLowerCase();
-    name = name.replace(/\s/ig, '');*/
-    name = `/images/assault/${mapName}/${name}.jpg`
+    name = `images/assault/${mapName}/${name}.jpg`;
 
     for(let i = 0; i < images.length; i++){
 
-        if(images[i] === name) return name;
+        if(images[i] === `/${name}`) return name;
     }
 
-    return "/images/temp.jpg";
+    return "images/temp.jpg";
 }
 
-const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
+const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
 
     if(mapPrefix !== "as") return null;
 
@@ -33,8 +30,6 @@ const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
 
     let percent = 0;
 
-    console.log(mapName);
-
     for(let i = 0; i < objects.length; i++){
 
         o = objects[i];
@@ -45,7 +40,7 @@ const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
 
                 elems.push(<div key={"rook-1"} className={styles.box}>
                     <div>
-                        <Image src={getObjectImage(images, mapName, 1)} width="200" height="112" />
+                        <img className={styles.image} src={`${host}${getObjectImage(images, mapName, 1)}`} />
                     </div>
                     <div>
                         <span className={styles.name}>Gatehouse Chains</span><br/>
@@ -63,7 +58,7 @@ const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
         elems.push(<div key={i} className={styles.box}>
             <div className={styles.name}>{o.name}</div>
             <div>
-                <Image src={getObjectImage(images, mapName, o.obj_id)} width="400" height="225" />
+                <img className={styles.image} src={`${host}${getObjectImage(images, mapName, o.obj_id)}`} />
             </div>
             <div className={styles.info}>  
                 Taken {o.taken} Times<br/>
@@ -79,7 +74,7 @@ const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
 
                 elems.push(<div key={"rook-end"} className={styles.box}>
                     <div>
-                        <Image src={getObjectImage(images, mapName, 5)} width="200" height="112" />
+                        <img className={styles.image} src={`${host}${getObjectImage(images, mapName, 5)}`} />
                     </div>
                     <div>
                         <span className={styles.name}>End</span><br/>
@@ -90,7 +85,7 @@ const MapAssaultObjectives = ({objects, mapPrefix, mapName, images}) =>{
             }else if(mapName === "overlord"){
                 elems.push(<div key={"rook-end"} className={styles.box}>
                     <div>
-                        <Image src={getObjectImage(images, mapName, 3)} width="200" height="112" />
+                        <img className={styles.image} src={`${host}${getObjectImage(images, mapName, 3)}`} width="200" height="112" />
                     </div>
                     <div>
                         <span className={styles.name}>End</span><br/>

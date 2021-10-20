@@ -1,6 +1,5 @@
 .box{
-    background-color:var(--color-2);
-   
+    background-color:var(--color-3); 
     border:1px solid var(--border-color-1);
     margin-top:-1px;
     display:inline-block;
@@ -24,4 +23,8 @@
 .wrapper{
     max-width:1250px;
     width:90%;
+}
+.image{
+    width:400px;
+    height:224px;
 }
