@@ -1,0 +1,13 @@
+.add{
+    padding:10px 20px;
+    display:inline-block;
+    border: 1px solid var(--border-color-1);
+    user-select: none;
+    font-size:12px;
+    transition:all 0.5s;
+}
+
+.add:hover{
+    cursor: pointer;
+    color:yellow;
+}
