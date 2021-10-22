@@ -15,7 +15,7 @@ class TeamMates extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"selectedPlayers": [5451, 5447], "loadingInProgress": false, "data": [], "bLoadedData": false};
+        this.state = {"selectedPlayers": [5451, 5447], "selectedAliases": [], "loadingInProgress": false, "data": [], "bLoadedData": false};
 
         this.addPlayer = this.addPlayer.bind(this);
         this.deletePlayer = this.deletePlayer.bind(this);
