@@ -1,4 +1,3 @@
-const Promise = require('promise');
 const Player = require('./player');
 const mysql = require('./database');
 const Functions = require('./functions');
@@ -1375,6 +1374,47 @@ class Players{
        
         return Functions.reduceGraphDataPoints(graphData, 50);
 
+    }
+
+    async getTeamMatePlayedMatchIds(players){
+
+        if(players.length < 2) return [];
+
+        const query = "SELECT match_id, player_id, team FROM nstats_player_matches WHERE player_id IN (?) AND playtime>0";
+
+        const result = await mysql.simpleQuery(query, [players]);
+
+        const matchIds = {};
+
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(matchIds[r.match_id] === undefined){
+                matchIds[r.match_id] = {"players": 1, "teams": [r.team]};
+            }else{
+
+                matchIds[r.match_id].players++;
+
+                if(matchIds[r.match_id].teams.indexOf(r.team) === -1){
+                    matchIds[r.match_id].teams.push(r.team);
+                }
+            }
+        }
+
+        const bothPlayed = [];
+
+        for(const [key, value] of Object.entries(matchIds)){
+
+            if(value.players === players.length){
+                if(value.teams.length === 1){
+                    bothPlayed.push(parseInt(key));
+                }
+            }
+        }
+
+        return bothPlayed;
     }
 
 }

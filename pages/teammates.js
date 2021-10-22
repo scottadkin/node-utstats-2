@@ -8,23 +8,66 @@ import Footer from "../components/Footer";
 import Players from '../api/players';
 import PlayersDropDown from "../components/PlayersDropDown";
 import styles from '../styles/TeamMates.module.css';
+import MatchesTableView from "../components/MatchesTableView";
 
 class TeamMates extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"selectedPlayers": [-1]};
+        this.state = {"selectedPlayers": [5280, 5447], "loadingInProgress": false, "data": [], "bLoadedData": false};
 
         this.addPlayer = this.addPlayer.bind(this);
         this.deletePlayer = this.deletePlayer.bind(this);
         this.changeSelected = this.changeSelected.bind(this);
 
+        this.loadData = this.loadData.bind(this);
+
+    }
+
+    async loadData(e){
+
+        try{
+
+            e.preventDefault();
+
+            const playerIds = [];
+
+            for(let i = 0; i < e.target.length - 1; i++){
+
+                const value = e.target[i].value;
+
+                if(playerIds.indexOf(value) === -1){
+                    playerIds.push(value);
+                }
+            }
+
+            const req = await fetch("/api/teammates", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"players": playerIds})
+            });
+
+            const res = await req.json();
+
+            this.setState({
+                "data": 
+                {
+                    "matches": res.matches, 
+                    "servers": res.servers,
+                    "gametypes": res.gametypes,
+                    "maps": res.maps
+                }
+            });
+
+            console.log(res);
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     changeSelected(index, e){
-
-        console.log(e.target.value);
 
         const newValue = parseInt(e.target.value);
 
@@ -46,8 +89,6 @@ class TeamMates extends React.Component{
 
     deletePlayer(index){
 
-        console.log(`DELETE PLAYER ${index}`);
-
         const newPlayers = [];
 
         for(let i = 0; i < this.state.selectedPlayers.length; i++){
@@ -55,8 +96,6 @@ class TeamMates extends React.Component{
             if(i !== index) newPlayers.push(this.state.selectedPlayers[i])
         }
 
-        console.log(this.state.selectedPlayers);
-        console.log(newPlayers);
 
         this.setState({"selectedPlayers": newPlayers});
     }
@@ -87,6 +126,16 @@ class TeamMates extends React.Component{
         return elems;
     }
 
+    renderMatches(){
+
+        if(this.state.data.matches === undefined) return null;
+
+        return <div>
+            <div className="default-header">Recent Matches</div>
+            <MatchesTableView data={JSON.stringify(this.state.data.matches)}/>
+        </div>
+    }
+
     render(){
 
         const players = JSON.parse(this.props.players);
@@ -103,18 +152,23 @@ class TeamMates extends React.Component{
                     <div className="default">
                        <div className="default-header">Team Mates</div>
 
-                       <div className="form">
-                            <div className="default-sub-header-alt">Select Players</div>
-                            <div className="form-info m-bottom-10">
-                                View history of any combination of players when they have been on the same team as each other, see who are the most successful group of players.
-                            </div>
-                            <div className="m-bottom-25">
-                                {this.renderDropDowns(players)}
-                            </div>
-                           <div className={`${styles.add} team-green`} onClick={this.addPlayer}>Add Player</div>
-                           <div className="search-button m-top-25">Load results</div>
-                       </div>
+                        <div className="form">
+                            <form action="/" method="POST" onSubmit={this.loadData}>
+                                <div className="default-sub-header-alt">Select Players</div>
+                                <div className="form-info m-bottom-10">
+                                    View history of any combination of players when they have been on the same team as each other, see who are the most successful group of players.
+                                </div>
+                                <div className="m-bottom-25">
+                                    {this.renderDropDowns(players)}
+                                </div>
+                                <div className={`${styles.add} team-green`} onClick={this.addPlayer}>Add Player</div>
+                                <input type="submit" className={"search-button m-top-25"} value="Load Data"/>
+                            </form>
+                        </div>
+                        {this.renderMatches()}
                     </div>
+
+                    
                 </div>
                 <Footer session={this.props.session}/>
             </main>

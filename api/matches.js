@@ -1415,13 +1415,19 @@ class Matches{
 
     async getInvalidMatches(minPlayers, minPlaytime){
 
-
         const query = "SELECT id,date,server,gametype,map,players,playtime FROM nstats_matches WHERE players<? OR playtime<? ORDER BY date DESC, id DESC";
-
         const vars = [minPlayers, minPlaytime];
-
         return await mysql.simpleFetch(query, vars);
     }
-    
+
+    async getTeamMateMatches(ids){
+
+        if(ids.length === 0) return [];
+
+        const query = "SELECT * FROM nstats_matches WHERE id IN(?) AND team_game=1 ORDER BY date DESC";
+
+        return mysql.simpleQuery(query, [ids]);
+    }
+
 }
 module.exports = Matches;
