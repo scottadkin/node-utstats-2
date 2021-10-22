@@ -15,7 +15,7 @@ class TeamMates extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"selectedPlayers": [5280, 5447], "loadingInProgress": false, "data": [], "bLoadedData": false};
+        this.state = {"selectedPlayers": [5451, 5447], "loadingInProgress": false, "data": [], "bLoadedData": false};
 
         this.addPlayer = this.addPlayer.bind(this);
         this.deletePlayer = this.deletePlayer.bind(this);
@@ -136,6 +136,163 @@ class TeamMates extends React.Component{
         </div>
     }
 
+    getTeamResult(myTeamScore, red, blue, green, yellow){
+
+
+        const scores = [red, blue, green, yellow];
+        
+
+        scores.sort();
+
+        scores.reverse();
+        //draw
+        if(scores[0] === scores[1]){
+            if(myTeamScore === scores[0]){
+                return -1;
+            }
+        }
+
+        if(scores[0] === myTeamScore){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    renderGeneralStats(){
+
+        if(this.state.data.matches === undefined) return null;
+
+        let wins = 0;
+        let draws = 0;
+        let losses = 0;
+
+        let currentWinStreak = 0;
+        let currentDrawStreak = 0;
+        let currentLoseStreak = 0;
+
+        let maxWinStreak = 0;
+        let maxDrawStreak = 0;
+        let maxLoseStreak = 0;
+
+
+        const matches = [...this.state.data.matches];
+
+        matches.reverse();
+
+        for(let i = 0; i < matches.length; i++){
+
+            const m = matches[i];
+
+            const team = m.playersTeam;
+
+            const teamScore = (m[`team_score_${team}`] !== undefined) ? m[`team_score_${team}`] : -1
+
+            const teamResult = this.getTeamResult(teamScore, m.team_score_0, m.team_score_1, m.team_score_2, m.team_score_3);
+            
+            if(teamResult === 1){
+
+                currentWinStreak++;
+                currentDrawStreak = 0;
+                currentLoseStreak = 0;
+                wins++;
+
+            }else if(teamResult === 0){
+
+                currentWinStreak = 0;
+                currentDrawStreak = 0;
+                currentLoseStreak++;
+                losses++;
+
+
+            }else if(teamResult === -1){
+
+                currentWinStreak = 0;
+                currentDrawStreak++;
+                currentLoseStreak = 0;
+                draws++;
+            }
+            
+            if(currentWinStreak > maxWinStreak) maxWinStreak = currentWinStreak;
+            if(currentLoseStreak > maxLoseStreak) maxLoseStreak = currentLoseStreak;
+            if(currentDrawStreak > maxDrawStreak) maxDrawStreak = currentDrawStreak;
+
+        }
+
+        let winRate = 0;
+
+        if(wins > 0){
+            winRate = (wins / this.state.data.matches.length) * 100;
+        }
+
+        const colorClass = (winRate >= 50) ? "team-green" : "team-red";
+
+        let currentStreak = "None";
+
+        if(currentWinStreak > 0){
+            currentStreak = `${currentWinStreak} Wins`;
+        }
+
+        if(currentDrawStreak > 0){
+            currentStreak = `${currentDrawStreak} Draws`;
+        }
+
+        if(currentLoseStreak > 0){
+            currentStreak = `${currentLoseStreak} Losses`;
+        }
+
+        return <div>
+            <div className="default-header">General Statistics</div>
+            <table className="t-width-2 m-bottom-25">
+                <tbody>
+                    <tr>
+                        <th>Total Matches</th>
+                        <th>Total Wins</th>
+                        <th>Total Draws</th>
+                        <th>Total Losses</th>
+                        <th>Win Rate</th>
+                    </tr>
+
+                    <tr>
+                        <td>{wins + draws + losses}</td>
+                        <td>{wins}</td>
+                        <td>{draws}</td>
+                        <td>{losses}</td>
+                        <td className={colorClass}>{winRate.toFixed(2)}%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table className="t-width-2 m-bottom-25">
+                <tbody>
+                    <tr>
+                        <th>Longest Win Streak</th>
+                        <th>Longest Draw Streak</th>
+                        <th>Longest Loss Streak</th>
+                    </tr>
+
+                    <tr>
+                        <td>{maxWinStreak}</td>
+                        <td>{maxDrawStreak}</td>
+                        <td>{maxLoseStreak}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table className="t-width-2">
+                <tbody>
+                    <tr>
+                        <th>Current Streak</th>
+                    </tr>
+
+                    <tr>
+                        <td>{currentStreak}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         const players = JSON.parse(this.props.players);
@@ -165,6 +322,7 @@ class TeamMates extends React.Component{
                                 <input type="submit" className={"search-button m-top-25"} value="Load Data"/>
                             </form>
                         </div>
+                        {this.renderGeneralStats()}
                         {this.renderMatches()}
                     </div>
 

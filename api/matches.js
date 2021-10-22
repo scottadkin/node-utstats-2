@@ -1420,11 +1420,11 @@ class Matches{
         return await mysql.simpleFetch(query, vars);
     }
 
-    async getTeamMateMatches(ids){
+    async getTeamMateMatchesBasic(ids){
 
         if(ids.length === 0) return [];
 
-        const query = "SELECT * FROM nstats_matches WHERE id IN(?) AND team_game=1 ORDER BY date DESC";
+        const query = "SELECT id,date,server,gametype,map,playtime,total_teams,players,team_game,team_score_0,team_score_1,team_score_2,team_score_3 FROM nstats_matches WHERE id IN(?) AND team_game=1 ORDER BY date DESC";
 
         return mysql.simpleQuery(query, [ids]);
     }

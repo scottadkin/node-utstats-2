@@ -1404,17 +1404,23 @@ class Players{
         }
 
         const bothPlayed = [];
+        const bothPlayedTeams = {};
 
         for(const [key, value] of Object.entries(matchIds)){
 
             if(value.players === players.length){
+
                 if(value.teams.length === 1){
-                    bothPlayed.push(parseInt(key));
+
+                    const matchId = parseInt(key);
+
+                    bothPlayed.push(matchId);
+                    bothPlayedTeams[matchId] = value.teams[0];
                 }
             }
         }
 
-        return bothPlayed;
+        return {"matches": bothPlayed, "teams": bothPlayedTeams};
     }
 
 }

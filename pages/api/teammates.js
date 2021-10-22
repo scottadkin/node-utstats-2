@@ -33,7 +33,7 @@ async function getNames(matchesData){
 }
 
 
-function setNames(matchesData, servers, maps, gametypes){
+function setNames(matchesData, teams, servers, maps, gametypes){
 
     for(let i = 0; i < matchesData.length; i++){
 
@@ -42,6 +42,9 @@ function setNames(matchesData, servers, maps, gametypes){
         m.serverName = (servers[m.server] !== undefined) ? servers[m.server] : "Not Found";
         m.gametypeName = (gametypes[m.gametype] !== undefined) ? gametypes[m.gametype] : "Not Found";
         m.mapName = (maps[m.map] !== undefined) ? maps[m.map] : "Not Found";
+        m.dm_winner = "";
+        m.dm_score = "";
+        m.playersTeam = (teams[m.id] !== undefined) ? teams[m.id] : -1;
     }
 }
 
@@ -55,13 +58,12 @@ export default async (req, res) =>{
         const playerManager = new Players();
         
         const bothPlayed = await playerManager.getTeamMatePlayedMatchIds(playerList);
-        const matchesData = await matchManager.getTeamMateMatches(bothPlayed);
+
+        const matchesData = await matchManager.getTeamMateMatchesBasic(bothPlayed.matches);
 
         const names = await getNames(matchesData);
 
-        setNames(matchesData, names.serverNames, names.mapNames, names.gametypeNames);
-
-        console.log(matchesData);
+        setNames(matchesData, bothPlayed.teams, names.serverNames, names.mapNames, names.gametypeNames);
 
         res.status(200).json({
             "matches": matchesData
