@@ -41,6 +41,9 @@
     padding:5px;
     border:1px solid var(--border-color-1);
     transition:all 0.5s;
+    font-size:12px;
+    margin-bottom:10px;
+    display:inline-block;
 }
 
 .alias:hover{

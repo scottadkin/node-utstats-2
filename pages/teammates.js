@@ -15,7 +15,7 @@ class TeamMates extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"selectedPlayers": [5451, 5447], "selectedAliases": [], "loadingInProgress": false, "data": [], "bLoadedData": false};
+        this.state = {"selectedPlayers": [5995, 6039], "selectedAliases": [[],[]], "loadingInProgress": false, "data": [], "bLoadedData": false};
 
         this.addPlayer = this.addPlayer.bind(this);
         this.deletePlayer = this.deletePlayer.bind(this);
@@ -23,6 +23,98 @@ class TeamMates extends React.Component{
 
         this.loadData = this.loadData.bind(this);
 
+        this.addAlias = this.addAlias.bind(this);
+        this.deleteAlias = this.deleteAlias.bind(this);
+
+    }
+
+    deleteAlias(playerIndex, aliasId){
+
+        if(playerIndex !== -1){
+
+            if(this.state.selectedAliases[playerIndex] !== undefined){
+
+                const newList = [];
+
+                for(let i = 0; i < this.state.selectedAliases[playerIndex].length; i++){
+
+                    const a = this.state.selectedAliases[playerIndex][i];
+
+                    if(a !== aliasId) newList.push(a);
+                }
+
+
+                const newData = [];
+
+                for(let i = 0; i < this.state.selectedAliases.length; i++){
+
+                    const a = this.state.selectedAliases[i];
+
+                    if(i !== playerIndex){
+                        newData.push(a);
+                    }else{
+
+                        newData.push(newList);
+                    }
+                }
+
+                this.setState({"selectedAliases": newData});
+
+            }else{
+                console.trace(`this.state.selectedAliases[playerIndex] is undefined`);
+            }
+
+        }else{
+            console.log(`PlayerIndex is not valid`);
+        }
+    }
+
+    addAlias(playerIndex, aliasId){
+
+        if(playerIndex !== -1){
+
+            if(aliasId === this.state.selectedPlayers[playerIndex]){
+                console.log(`Player can not be an alias.`);
+                return;
+            }
+
+            const aliasesList = this.state.selectedAliases[playerIndex];
+
+            if(aliasesList !== undefined){
+
+                const newList = [...this.state.selectedAliases[playerIndex]];
+
+                if(newList.indexOf(aliasId) === -1){
+
+                    newList.push(aliasId);
+
+                    const newData = [];
+
+                    for(let i = 0; i < this.state.selectedAliases.length; i++){
+
+                        const a = this.state.selectedAliases[i];
+
+                        if(i !== playerIndex){
+                            newData.push(a);
+                        }else{
+                            newData.push(newList);
+                        }
+                    }
+
+                    this.setState({"selectedAliases": newData});
+
+                    
+                }else{
+                    console.log(`Already in alias list`);
+                }
+
+            }else{
+                console.trace(`AliasList is undefined`);
+            }
+
+        }else{
+            console.trace(`PlayerId is not in selected players.`);
+        }
     }
 
     async loadData(e){
@@ -96,17 +188,26 @@ class TeamMates extends React.Component{
             if(i !== index) newPlayers.push(this.state.selectedPlayers[i])
         }
 
+        const newAliases = [];
 
-        this.setState({"selectedPlayers": newPlayers});
+        for(let i = 0; i < this.state.selectedAliases.length; i++){
+
+            if(i !== index) newAliases.push(this.state.selectedAliases[i]);
+        }
+
+
+        this.setState({"selectedPlayers": newPlayers, "selectedAliases": newAliases});
     }
 
     addPlayer(){
 
         const previous = Object.assign(this.state.selectedPlayers);
+        const previousAliases = [...this.state.selectedAliases];
 
         previous.push(-1);
+        previousAliases.push([]);
 
-        this.setState({"selectedPlayers": previous});
+        this.setState({"selectedPlayers": previous, "selectedAliases": previousAliases});
     }
 
 
@@ -119,7 +220,8 @@ class TeamMates extends React.Component{
             const s = this.state.selectedPlayers[i];
 
             elems.push(<PlayersDropDown delete={this.deletePlayer} key={i} selected={s} players={players} id={i}
-                changeSelected={this.changeSelected}
+                changeSelected={this.changeSelected} addAlias={this.addAlias} aliases={this.state.selectedAliases[i]}
+                deleteAlias={this.deleteAlias}
             />);
         }
 

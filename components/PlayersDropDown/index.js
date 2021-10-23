@@ -7,37 +7,23 @@ class PlayersDropDown extends React.Component{
 
         super(props);
 
-        this.state = {"aliases": [], "playerCache": {}};
+        this.state = {"playerCache": {}};
 
         this.addAlias = this.addAlias.bind(this);
-    }
-
-    deleteAlias(id){
-
-        const newAliases = [];
-
-        for(let i = 0; i < this.state.aliases.length; i++){
-
-            const a = this.state.aliases[i];
-
-            if(a !== id){
-                newAliases.push(a);
-            }
-        }
-
-        this.setState({"aliases": newAliases});
     }
 
     addAlias(e){
 
         const id = parseInt(e.target.value);
 
-        const previousAliases = [...this.state.aliases];
+        /*const previousAliases = [...this.state.aliases];
 
         if(previousAliases.indexOf(id) === -1){
             previousAliases.push(id);
             this.setState({"aliases": previousAliases});
-        }
+        }*/
+
+        this.props.addAlias(this.props.id, id);
 
     }
 
@@ -79,12 +65,12 @@ class PlayersDropDown extends React.Component{
         
         const elems = [];
 
-        for(let i = 0; i < this.state.aliases.length; i++){
+        for(let i = 0; i < this.props.aliases.length; i++){
 
-            const a = this.state.aliases[i];
+            const a = this.props.aliases[i];
 
             elems.push(<span key={i} className={styles.alias} onClick={(() => {
-                this.deleteAlias(a);
+                this.props.deleteAlias(this.props.id, a);
             })}>{this.getPlayerName(a)}</span>);
         }
         return <>
