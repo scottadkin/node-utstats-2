@@ -15,7 +15,7 @@ class TeamMates extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"selectedPlayers": [5995, 6039], "selectedAliases": [[],[]], "loadingInProgress": false, "data": [], "bLoadedData": false};
+        this.state = {"selectedPlayers": [5981, 6039], "selectedAliases": [[],[]], "loadingInProgress": false, "data": [], "bLoadedData": false};
 
         this.addPlayer = this.addPlayer.bind(this);
         this.deletePlayer = this.deletePlayer.bind(this);
@@ -125,19 +125,25 @@ class TeamMates extends React.Component{
 
             const playerIds = [];
 
-            for(let i = 0; i < e.target.length - 1; i++){
+            for(let i = 0; i < this.state.selectedPlayers.length; i++){
 
-                const value = e.target[i].value;
-
-                if(playerIds.indexOf(value) === -1){
-                    playerIds.push(value);
-                }
+                const p = this.state.selectedPlayers[i];
+                playerIds.push(p);
             }
+
+            const playerAliases = [];
+
+            for(let i = 0; i < this.state.selectedAliases.length; i++){
+
+                const a = this.state.selectedAliases[i];
+                playerAliases.push(a);
+            }
+
 
             const req = await fetch("/api/teammates", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"players": playerIds})
+                "body": JSON.stringify({"players": playerIds, "aliases": playerAliases})
             });
 
             const res = await req.json();

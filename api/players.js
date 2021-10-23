@@ -1423,6 +1423,29 @@ class Players{
         return {"matches": bothPlayed, "teams": bothPlayedTeams};
     }
 
+
+    async getMuliplePlayersPlayedMatches(playerIds){
+
+        if(playerIds.length === 0) return [];
+
+        const query = "SELECT match_id FROM nstats_player_matches WHERE player_id IN (?)";
+
+        const result = await mysql.simpleQuery(query, [playerIds]);
+
+        const data = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const id = result[i].match_id;
+
+            if(data.indexOf(id) === -1){
+                data.push(id);
+            }
+        }
+
+        return data;
+    }
+    
 }
 
 

@@ -16,6 +16,8 @@ class PlayersDropDown extends React.Component{
 
         const id = parseInt(e.target.value);
 
+        if(id === -1) return;
+
         /*const previousAliases = [...this.state.aliases];
 
         if(previousAliases.indexOf(id) === -1){

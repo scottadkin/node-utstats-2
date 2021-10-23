@@ -1429,5 +1429,47 @@ class Matches{
         return mysql.simpleQuery(query, [ids]);
     }
 
+    async returnOnlyTeamGames(matchIds){
+
+
+        if(matchIds.length === 0) return [];
+
+        const query = "SELECT id FROM nstats_matches WHERE id IN (?) AND team_game=1";
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+
+        const data = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const id = result[i].id;
+
+            data.push(id);
+        }
+
+        return data;
+
+    }
+
+
+    async bAllPlayedOnSameTeam(matchId, playerIds){
+
+        if(playerIds.length === 0) return false;
+
+        const query = "SELECT DISTINCT team FROM nstats_player_matches WHERE match_id=? AND player_id IN (?) AND playtime>0";
+
+        const result = await mysql.simpleFetch(query, [matchId, playerIds]);
+
+        let bPlayedOnSameTeam = false;
+
+        if(result.length === 1) bPlayedOnSameTeam = true;
+        
+        if(result.length === 0){
+            return {"team": 255, "sameTeam": false};
+        }else{
+            return {"team": result[0].team, "sameTeam": bPlayedOnSameTeam};
+        }
+    }
+
 }
 module.exports = Matches;

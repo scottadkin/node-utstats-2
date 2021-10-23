@@ -48,16 +48,106 @@ function setNames(matchesData, teams, servers, maps, gametypes){
     }
 }
 
+function setPlayedCount(playedMatchIds){
+
+    const playedCount = {};
+   
+    for(const [key, value] of Object.entries(playedMatchIds)){
+
+        for(let i = 0; i < value.length; i++){
+
+            const v = value[i];
+
+            if(playedCount[v] === undefined){
+                playedCount[v] = 0;
+            }
+
+            playedCount[v]++;
+            
+        }   
+    }
+
+    return playedCount;
+
+}
+
+function removeNotPlayedTogether(playedMatches, minPlayersNeeded){
+
+    const allPlayed = [];
+
+    for(const [key, value] of Object.entries(playedMatches)){
+
+        if(value >= minPlayersNeeded){
+            allPlayed.push(parseInt(key));
+        }
+    }
+
+    return allPlayed;
+}
+
 export default async (req, res) =>{
 
     try{
 
         const playerList = (req.body.players !== undefined) ? req.body.players : [];
+        const playerAliases = (req.body.aliases !== undefined) ? req.body.aliases : {};
+
+        const allPlayers = [...playerList];
+
+        for(let i = 0; i < playerAliases.length; i++){
+
+            allPlayers.push(...playerAliases[i]);
+        }
 
         const matchManager = new Matches();
         const playerManager = new Players();
+
+        const playedMatchIds = {};
+
+        for(let i = 0; i < playerList.length; i++){
+
+            const currentMatches = await playerManager.getMuliplePlayersPlayedMatches([playerList[i], ...playerAliases[i]]);
+
+            playedMatchIds[playerList[i]] = await matchManager.returnOnlyTeamGames(currentMatches);
+
+        }
         
-        const bothPlayed = await playerManager.getTeamMatePlayedMatchIds(playerList);
+
+        const playedCount = setPlayedCount(playedMatchIds);
+
+        const allPlayed = removeNotPlayedTogether(playedCount, playerList.length);
+
+        const validMatches = [];
+        const validMatchesTeams = {};
+
+        for(let i = 0; i < allPlayed.length; i++){
+
+            const current = await matchManager.bAllPlayedOnSameTeam(allPlayed[i], allPlayers);
+
+            if(current.sameTeam){
+
+                validMatches.push(allPlayed[i]);
+
+                validMatchesTeams[allPlayed[i]] = current.team;
+            }
+        }
+
+
+        const matchesData = await matchManager.getTeamMateMatchesBasic(validMatches);
+
+        const names = await getNames(matchesData);
+
+        setNames(matchesData, validMatchesTeams, names.serverNames, names.mapNames, names.gametypeNames);
+
+        res.status(200).json({
+            "matches": matchesData
+        });
+
+        return;
+
+       // console.log(playedMatchIds);
+
+        /*const bothPlayed = await playerManager.getTeamMatePlayedMatchIds(playerList);
 
         const matchesData = await matchManager.getTeamMateMatchesBasic(bothPlayed.matches);
 
@@ -67,9 +157,13 @@ export default async (req, res) =>{
 
         res.status(200).json({
             "matches": matchesData
-        });
+        });*/
+
+        res.status(200).json({"error": "meow"});
 
     }catch(err){
+
+        console.trace(err);
 
         res.status(200).json({"error": err});
     }
