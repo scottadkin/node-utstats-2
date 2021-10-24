@@ -452,37 +452,82 @@ class TeamMates extends React.Component{
             const m = this.state.data.matches[i];
 
             if(mapsObject[m.mapName] === undefined){
-                mapsObject[m.mapName] = {"wins": 0, "draws": 0, "losses": 0};
+
+                mapsObject[m.mapName] = {
+                    "wins": 0, 
+                    "draws": 0, 
+                    "losses": 0, 
+                    "currentWinStreak": 0, 
+                    "currentDrawStreak": 0,
+                    "currentLoseStreak": 0,
+                    "maxWinStreak": 0,
+                    "maxDrawStreak": 0,
+                    "maxLoseStreak": 0
+                };
             }
 
             const current = mapsObject[m.mapName];
-
             const matchResult = this.getMatchResult(m);
 
             if(matchResult === 1){
-                current.wins++;
-            }else if(matchResult === 0){
-                current.losses++;
-            }else if(matchResult === -1){
-                current.draws++;
-            }   
-        }
 
+                current.wins++;
+                current.currentWinStreak++;
+                current.currentDrawStreak = 0;
+                current.currentLoseStreak = 0;
+
+            }else if(matchResult === 0){
+
+                current.losses++;
+                current.currentWinStreak = 0
+                current.currentDrawStreak = 0;
+                current.currentLoseStreak++;
+
+            }else if(matchResult === -1){
+
+                current.draws++;
+                current.currentWinStreak = 0;
+                current.currentDrawStreak++;
+                current.currentLoseStreak = 0;
+            }   
+
+            if(current.currentWinStreak > current.maxWinStreak){
+                current.maxWinStreak = current.currentWinStreak;
+            }
+
+            if(current.currentDrawStreak > current.maxDrawStreak){
+                current.maxDrawStreak = current.currentDrawStreak;
+            }
+
+            if(current.currentLoseStreak > current.maxLoseStreak){
+                current.maxLoseStreak = current.currentLoseStreak;
+            }
+        }
 
         const maps = [];
 
         for(const [key, value] of Object.entries(mapsObject)){
             
-
             const totalMatches = value.wins + value.draws + value.losses;
 
             if(totalMatches < this.state.minimumMatches) continue;
+
+            console.log(value);
+
+            let currentStreak = "None";
+
+            if(value.currentWinStreak > 0) currentStreak = `${value.currentWinStreak} Wins`;
+            if(value.currentDrawStreak > 0) currentStreak = `${value.currentDrawStreak} Draws`;
+            if(value.currentLoseStreak > 0) currentStreak = `${value.currentLoseStreak} Losses`;
+
             maps.push({
                 "name": key,
                 "wins": value.wins,
                 "draws": value.draws,
                 "losses": value.losses,
-                "winRate": (value.wins > 0) ? (value.wins /  totalMatches) * 100 : 0
+                "winRate": (value.wins > 0) ? (value.wins /  totalMatches) * 100 : 0,
+                "maxWinStreak": value.maxWinStreak,
+                "currentStreak": currentStreak
             });
         }
         
@@ -544,6 +589,8 @@ class TeamMates extends React.Component{
                 <td>{m.draws}</td>
                 <td>{m.losses}</td>
                 <td>{m.wins}</td>
+                <td>{m.maxWinStreak}</td>
+                <td>{m.currentStreak}</td>
                 <td>{winrate.toFixed(2)}%</td>
             </tr>);
         }
@@ -583,6 +630,8 @@ class TeamMates extends React.Component{
                         <th>Draws</th>
                         <th>Losses</th>
                         <th>Wins</th>
+                        <th>Best Win Streak</th>
+                        <th>Current Streak</th>
                         <th>Win Rate</th>
                     </tr>
                     {rows}
