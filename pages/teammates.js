@@ -401,6 +401,143 @@ class TeamMates extends React.Component{
         </div>
     }
 
+    getMatchResult(matchData){
+
+        const myTeamId = matchData.playersTeam;
+        const myTeamScore = matchData[`team_score_${myTeamId}`]
+
+        const scores = [];
+
+        for(let i = 0; i < matchData.total_teams; i++){
+
+            scores.push(matchData[`team_score_${i}`]);
+        }
+
+        scores.sort((a, b) =>{
+
+            if(a < b){
+                return 1;
+            }else if(a > b){
+                return -1;
+            }
+
+            return 0;
+        });
+
+        if(scores[0] === myTeamScore){
+
+            //-1 for draw
+            if(scores[1] === myTeamScore) return -1;
+            return 1;
+        }
+
+        return 0;
+      
+    }
+
+    renderMapStats(){
+
+        if(this.state.data.matches === undefined) return null;
+
+        const mapsObject = {};
+
+        for(let i = 0; i < this.state.data.matches.length; i++){
+
+            const m = this.state.data.matches[i];
+
+            if(mapsObject[m.mapName] === undefined){
+                mapsObject[m.mapName] = {"wins": 0, "draws": 0, "losses": 0};
+            }
+
+            const current = mapsObject[m.mapName];
+
+            const matchResult = this.getMatchResult(m);
+
+            if(matchResult === 1){
+                current.wins++;
+            }else if(matchResult === 0){
+                current.losses++;
+            }else if(matchResult === -1){
+                current.draws++;
+            }   
+        }
+
+
+        const maps = [];
+
+        for(const [key, value] of Object.entries(mapsObject)){
+
+            maps.push({
+                "name": key,
+                "wins": value.wins,
+                "draws": value.draws,
+                "losses": value.losses,
+            });
+        }
+        
+
+        maps.sort((a, b) =>{
+
+
+            if(a.wins < b.wins){
+                
+                return 1;
+
+            }else if(a.wins > b.wins){
+
+                return -1;
+
+            }else{
+
+                if(a.draws < b.draws){
+                    return 1;
+                }else if(a.draws > b.draws){
+                    return -1;
+                }else{
+
+                    if(a.losses > b.losses){
+                        return 1;
+                    }else if(a.losses < b.losses){
+                        return -1;
+                    }
+                }
+            }
+
+            return 0;
+        });
+
+        const rows = [];
+
+        for(let i = 0; i < maps.length; i++){
+
+            const m = maps[i];
+
+            rows.push(<tr key={i}>
+                <td>{m.name}</td>
+                <td>{m.wins + m.losses + m.draws}</td>
+                <td>{m.draws}</td>
+                <td>{m.losses}</td>
+                <td>{m.wins}</td>
+            </tr>);
+        }
+
+        return <div>
+            <div className="default-header">Map Statistics</div>
+            <table className="t-width-2 td-1-left">
+                <tbody>
+                    <tr>
+                        <th>Map</th>
+                        <th>Matches</th>
+                        <th>Draws</th>
+                        <th>Losses</th>
+                        <th>Wins</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         const players = JSON.parse(this.props.players);
@@ -431,6 +568,7 @@ class TeamMates extends React.Component{
                             </form>
                         </div>
                         {this.renderGeneralStats()}
+                        {this.renderMapStats()}
                         {this.renderMatches()}
                     </div>
 
