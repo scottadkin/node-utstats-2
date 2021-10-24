@@ -15,7 +15,7 @@ class TeamMates extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"selectedPlayers": [5981, 6039], "selectedAliases": [[],[]], "loadingInProgress": false, "data": [], "bLoadedData": false};
+        this.state = {"selectedPlayers": [5981, 6039], "selectedAliases": [[],[]], "loadingInProgress": false, "data": [], "bLoadedData": false, "minimumMatches": 5};
 
         this.addPlayer = this.addPlayer.bind(this);
         this.deletePlayer = this.deletePlayer.bind(this);
@@ -25,7 +25,13 @@ class TeamMates extends React.Component{
 
         this.addAlias = this.addAlias.bind(this);
         this.deleteAlias = this.deleteAlias.bind(this);
+        this.changeMinMatches = this.changeMinMatches.bind(this);
 
+    }
+
+    changeMinMatches(e){
+
+        this.setState({"minimumMatches": parseInt(e.target.value)});
     }
 
     deleteAlias(playerIndex, aliasId){
@@ -466,12 +472,17 @@ class TeamMates extends React.Component{
         const maps = [];
 
         for(const [key, value] of Object.entries(mapsObject)){
+            
 
+            const totalMatches = value.wins + value.draws + value.losses;
+
+            if(totalMatches < this.state.minimumMatches) continue;
             maps.push({
                 "name": key,
                 "wins": value.wins,
                 "draws": value.draws,
                 "losses": value.losses,
+                "winRate": (value.wins > 0) ? (value.wins /  totalMatches) * 100 : 0
             });
         }
         
@@ -479,26 +490,32 @@ class TeamMates extends React.Component{
         maps.sort((a, b) =>{
 
 
-            if(a.wins < b.wins){
+            if(a.winRate < b.winRate){
                 
                 return 1;
 
-            }else if(a.wins > b.wins){
+            }else if(a.winRate > b.winRate){
 
                 return -1;
 
             }else{
 
-                if(a.draws < b.draws){
-                    return 1;
-                }else if(a.draws > b.draws){
+                if(a.wins > b.wins){
                     return -1;
+                }else if(a.wins < b.wins){
+                    return 1;
                 }else{
-
-                    if(a.losses > b.losses){
+                    if(a.draws < b.draws){
                         return 1;
-                    }else if(a.losses < b.losses){
+                    }else if(a.draws > b.draws){
                         return -1;
+                    }else{
+
+                        if(a.losses > b.losses){
+                            return 1;
+                        }else if(a.losses < b.losses){
+                            return -1;
+                        }
                     }
                 }
             }
@@ -512,18 +529,53 @@ class TeamMates extends React.Component{
 
             const m = maps[i];
 
+            const totalMatches = m.wins + m.losses + m.draws;
+
+            let winrate = 0;
+
+            if(m.wins > 0){
+
+                winrate = (m.wins / totalMatches) * 100;
+            }
+
             rows.push(<tr key={i}>
                 <td>{m.name}</td>
-                <td>{m.wins + m.losses + m.draws}</td>
+                <td>{totalMatches}</td>
                 <td>{m.draws}</td>
                 <td>{m.losses}</td>
                 <td>{m.wins}</td>
+                <td>{winrate.toFixed(2)}%</td>
+            </tr>);
+        }
+
+        if(rows.length === 0){
+
+            rows.push(<tr key="-1">
+                <td colSpan="6" style={{"textAlign": "center"}}>No Data Matching Requirements</td>
             </tr>);
         }
 
         return <div>
             <div className="default-header">Map Statistics</div>
-            <table className="t-width-2 td-1-left">
+            <div className="form m-bottom-10">
+                <div className="select-row">
+                    <div className="select-label">
+                        Minimum Matches
+                    </div>
+                    <div>
+                        <select className="default-select" value={this.state.minimumMatches} onChange={this.changeMinMatches}>
+                            <option value="0">0</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <table className="t-width-1 td-1-left">
                 <tbody>
                     <tr>
                         <th>Map</th>
@@ -531,6 +583,7 @@ class TeamMates extends React.Component{
                         <th>Draws</th>
                         <th>Losses</th>
                         <th>Wins</th>
+                        <th>Win Rate</th>
                     </tr>
                     {rows}
                 </tbody>
