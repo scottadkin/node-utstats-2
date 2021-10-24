@@ -15,7 +15,14 @@ class TeamMates extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"selectedPlayers": [5981, 6039], "selectedAliases": [[],[]], "loadingInProgress": false, "data": [], "bLoadedData": false, "minimumMatches": 5};
+        this.state = {
+            "selectedPlayers": [5981, 6039], 
+            "selectedAliases": [[],[]], 
+            "loadingInProgress": false, 
+            "data": [], 
+            "bLoadedData": false, 
+            "minimumMatches": 5
+        };
 
         this.addPlayer = this.addPlayer.bind(this);
         this.deletePlayer = this.deletePlayer.bind(this);
@@ -441,6 +448,65 @@ class TeamMates extends React.Component{
       
     }
 
+    sortByWinRate(a, b){
+
+
+        if(a.winRate < b.winRate){
+            
+            return 1;
+
+        }else if(a.winRate > b.winRate){
+
+            return -1;
+
+        }else{
+
+            if(a.wins > b.wins){
+                return -1;
+            }else if(a.wins < b.wins){
+                return 1;
+            }else{
+                if(a.draws < b.draws){
+                    return 1;
+                }else if(a.draws > b.draws){
+                    return -1;
+                }else{
+
+                    if(a.losses > b.losses){
+                        return 1;
+                    }else if(a.losses < b.losses){
+                        return -1;
+                    }
+                }
+            }
+        }
+
+        return 0;
+        
+    }
+
+    renderMinimumMatches(){
+
+        return <div className="form m-bottom-10">
+            <div className="select-row">
+                <div className="select-label">
+                    Minimum Matches
+                </div>
+                <div>
+                    <select className="default-select" value={this.state.minimumMatches} onChange={this.changeMinMatches}>
+                        <option value="0">0</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    }
+
     renderMapStats(){
 
         if(this.state.data.matches === undefined) return null;
@@ -512,8 +578,6 @@ class TeamMates extends React.Component{
 
             if(totalMatches < this.state.minimumMatches) continue;
 
-            console.log(value);
-
             let currentStreak = "None";
 
             if(value.currentWinStreak > 0) currentStreak = `${value.currentWinStreak} Wins`;
@@ -532,41 +596,7 @@ class TeamMates extends React.Component{
         }
         
 
-        maps.sort((a, b) =>{
-
-
-            if(a.winRate < b.winRate){
-                
-                return 1;
-
-            }else if(a.winRate > b.winRate){
-
-                return -1;
-
-            }else{
-
-                if(a.wins > b.wins){
-                    return -1;
-                }else if(a.wins < b.wins){
-                    return 1;
-                }else{
-                    if(a.draws < b.draws){
-                        return 1;
-                    }else if(a.draws > b.draws){
-                        return -1;
-                    }else{
-
-                        if(a.losses > b.losses){
-                            return 1;
-                        }else if(a.losses < b.losses){
-                            return -1;
-                        }
-                    }
-                }
-            }
-
-            return 0;
-        });
+        maps.sort(this.sortByWinRate);
 
         const rows = [];
 
@@ -598,34 +628,148 @@ class TeamMates extends React.Component{
         if(rows.length === 0){
 
             rows.push(<tr key="-1">
-                <td colSpan="6" style={{"textAlign": "center"}}>No Data Matching Requirements</td>
+                <td colSpan="8" style={{"textAlign": "center"}}>No Data Matching Requirements</td>
             </tr>);
         }
 
         return <div>
             <div className="default-header">Map Statistics</div>
-            <div className="form m-bottom-10">
-                <div className="select-row">
-                    <div className="select-label">
-                        Minimum Matches
-                    </div>
-                    <div>
-                        <select className="default-select" value={this.state.minimumMatches} onChange={this.changeMinMatches}>
-                            <option value="0">0</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+            {this.renderMinimumMatches()}
             <table className="t-width-1 td-1-left">
                 <tbody>
                     <tr>
                         <th>Map</th>
+                        <th>Matches</th>
+                        <th>Draws</th>
+                        <th>Losses</th>
+                        <th>Wins</th>
+                        <th>Best Win Streak</th>
+                        <th>Current Streak</th>
+                        <th>Win Rate</th>
+                    </tr>
+                    {rows}
+                </tbody>
+            </table>
+        </div>
+    }
+
+    renderGametypeStats(){
+
+        if(this.state.data.length === 0) return null;
+
+        const gametypesObject = {};
+
+        for(let i = 0; i < this.state.data.matches.length; i++){
+
+            const d = this.state.data.matches[i];
+            
+            if(gametypesObject[d.gametypeName] === undefined){
+
+                gametypesObject[d.gametypeName] = {
+                    "matches": 0,
+                    "wins": 0,
+                    "draws": 0,
+                    "losses": 0,
+                    "maxWinStreak": 0,
+                    "maxDrawStreak": 0,
+                    "maxLoseStreak": 0,
+                    "currentWinStreak": 0,
+                    "currentLoseStreak": 0,
+                    "currentDrawStreak": 0
+                };
+            }
+
+            const matchResult = this.getMatchResult(d);
+
+            const current = gametypesObject[d.gametypeName];
+
+            current.matches++;
+            
+            if(matchResult === 0){
+
+                current.losses++;
+                current.currentLoseStreak++;
+                current.currentWinStreak = 0;
+                current.currentDrawStreak = 0;
+
+            }else if(matchResult === 1){
+
+                current.wins++
+                current.currentLoseStreak = 0;
+                current.currentWinStreak++;
+                current.currentDrawStreak = 0;
+
+            }else if(matchResult === -1){
+
+                current.draws++;
+                current.currentLoseStreak = 0;
+                current.currentWinStreak = 0;
+                current.currentDrawStreak++;
+            }
+
+            if(current.currentWinStreak > current.maxWinStreak) current.maxWinStreak = current.currentWinStreak;
+            if(current.currentDrawStreak > current.maxDrawStreak) current.maxDrawStreak = current.currentDrawStreak;
+            if(current.currentLoseStreak > current.maxLoseStreak) current.maxLoseStreak = current.currentLoseStreak;
+        }
+
+        const gametypes = [];
+
+        for(const [key, value] of Object.entries(gametypesObject)){
+
+            let currentStreak = "None";
+
+            if(value.currentWinStreak > 0) currentStreak = `${value.currentWinStreak} Wins`;
+            if(value.currentDrawStreak > 0) currentStreak = `${value.currentDrawStreak} Draws`;
+            if(value.currentLoseStreak > 0) currentStreak = `${value.currentLoseStreak} Losses`;
+
+            gametypes.push({
+                "name": key,
+                "matches": value.matches,
+                "wins": value.wins,
+                "draws": value.draws,
+                "losses": value.losses,
+                "bestWinSteak": value.maxWinStreak,
+                "currentStreak": currentStreak,
+                "winRate": (value.wins > 0) ? (value.wins / value.matches) * 100 : 0
+            });
+        }
+
+        gametypes.sort(this.sortByWinRate);
+
+        const rows = [];
+
+        for(let i = 0; i < gametypes.length; i++){
+
+            const g = gametypes[i];
+
+            if(g.matches < this.state.minimumMatches) continue;
+
+            rows.push(<tr key={i}>
+                <td>{g.name}</td>
+                <td>{g.matches}</td>
+                <td>{g.draws}</td>
+                <td>{g.losses}</td>
+                <td>{g.wins}</td>
+                <td>{g.bestWinSteak}</td>
+                <td>{g.currentStreak}</td>
+                <td>{g.winRate.toFixed(2)}%</td>
+            </tr>);
+        }
+
+        if(rows.length === 0){
+
+            rows.push(<tr key="-1">
+                <td colSpan="8" style={{"textAlign": "center"}}>No Data Matching Requirements</td>
+            </tr>);
+        }
+
+        return <div>
+            <div className="default-header">Gametype Statistics</div>
+            {this.renderMinimumMatches()}
+            <table className="t-width-1 td-1-left">
+                <tbody>
+                    <tr>
+                        <th>Gametype</th>
                         <th>Matches</th>
                         <th>Draws</th>
                         <th>Losses</th>
@@ -670,6 +814,7 @@ class TeamMates extends React.Component{
                             </form>
                         </div>
                         {this.renderGeneralStats()}
+                        {this.renderGametypeStats()}
                         {this.renderMapStats()}
                         {this.renderMatches()}
                     </div>
