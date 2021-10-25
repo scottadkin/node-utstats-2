@@ -11,20 +11,66 @@ class MatchesTableView extends React.Component{
     }
 
 
+    getMatchResult(matchData){
+
+        const scores = [];
+        const myScore = matchData[`team_score_${matchData.playersTeam}`]
+
+        for(let i = 0; i < matchData.total_teams; i++){
+
+            scores.push(matchData[`team_score_${i}`]);
+        }
+
+        scores.sort((a, b) =>{
+
+            if(a > b) return -1;
+            else if(a < b) return 1;
+            return 0;
+        });
+
+        console.log(scores);
+
+        //draws
+        if(scores[0] === scores[1]){
+            if(scores[0] === myScore) return -1;
+        }
+
+        if(scores[0] > myScore) return 0;
+
+        return 1;
+
+    }
+
+
     createRows(matches){
 
         const rows = [];    
 
-        let m = 0;
-
-        let url = "";
-
-
         for(let i = 0; i < matches.length; i++){
 
-            m = matches[i];
+            const m = matches[i];
 
-            url = `/match/${m.id}`;
+            const url = `/match/${m.id}`;
+
+            let resultElem = null;
+
+            if(m.playersTeam !== undefined){
+
+                const result = this.getMatchResult(m);
+
+                let string = "Lost the Match!";
+                let colorClass = "team-red";
+
+                if(result === 1){
+                    string = "Won the Match!";
+                    colorClass = "team-green";
+                }else if(result === -1){
+                    string = "Drew the match!";
+                    colorClass = "team-yellow";
+                } 
+
+                resultElem = <td className={colorClass}>{string}</td>;
+            }
 
             // <td><Link href={url}><a>{m.serverName}</a></Link></td>
             rows.push(<tr key={`matches-row-${i}`}>
@@ -46,6 +92,7 @@ class MatchesTableView extends React.Component{
                     endReason={m.end_type}
                     />
                 </td>
+                {resultElem}
             </tr>);
 
         }
@@ -58,7 +105,6 @@ class MatchesTableView extends React.Component{
         const matches = JSON.parse(this.props.data);
 
         const rows = this.createRows(matches);
-
 
         if(matches.length === 0){
             return null;//;(<div className="not-found">There are no matches meeting your search requirements.</div>);
@@ -76,6 +122,7 @@ class MatchesTableView extends React.Component{
                             <th>Players</th>
                             <th>Playtime</th>
                             <th>Result</th>
+                            {(matches[0].playersTeam !== undefined) ? <th>Players Result</th> : null}
                         </tr>
                         {rows}
                     </tbody>
