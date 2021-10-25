@@ -1445,6 +1445,87 @@ class Players{
 
         return data;
     }
+
+    createTeamsDataObject(){
+
+        return {
+            "matches": 0,
+            "playtime": 0,
+            "kills": 0,
+            "score": 0,
+            "frags": 0,
+            "deaths": 0,
+            "suicides": 0,
+            "teamKills": 0,
+            "spawnKills": 0,
+            "spreeBest": 0,
+            "multiBest": 0,
+            "firstBloods": 0
+        };
+    }
+
+    updateTeamsDataObject(obj, data){
+
+        obj.matches++;
+        obj.playtime += data.playtime;
+        obj.kills += data.kills;
+        obj.score += data.score;
+        obj.frags += data.frags;
+        obj.deaths += data.deaths;
+        obj.suicides += data.suicides;
+        obj.teamKills += data.team_kills;
+        obj.spawnKills += data.spawn_kills;
+        obj.firstBloods += data.first_blood;
+        
+        if(data.multi_best > obj.multiBest){
+            obj.multiBest = data.multi_best;
+        }
+
+        if(data.spree_best > obj.spreeBest){
+            obj.spreeBest = data.spree_best;
+        }
+
+    }
+
+    async getTeamsMatchesTotals(playerIds, matchIds){
+
+        if(playerIds.length === 0 || matchIds.length === 0) return [];
+
+        const query = `SELECT match_id,map_id,player_id,gametype,playtime,first_blood,
+        frags,score,kills,team_kills,deaths,suicides,spawn_kills,spree_best,multi_best,
+        ping_average
+        FROM nstats_player_matches WHERE match_id IN (?) AND player_id IN (?)`;
+
+        const result = await mysql.simpleQuery(query, [matchIds, playerIds]);
+
+        const maps = {};
+        const gametypes = {};
+        const totals = this.createTeamsDataObject();
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(maps[r.map_id] === undefined){
+                maps[r.map_id] = this.createTeamsDataObject();
+            }
+
+            if(gametypes[r.gametype] === undefined){
+                gametypes[r.gametype] = this.createTeamsDataObject();
+            }
+
+            const currentMap = maps[r.map_id];
+            const currentGametype = gametypes[r.gametype];
+
+            this.updateTeamsDataObject(currentMap, r);
+            this.updateTeamsDataObject(currentGametype, r);
+            this.updateTeamsDataObject(totals, r);
+            
+        }
+        
+        return {"totals": totals, "gametypes": gametypes, "maps": maps};
+        
+    }
     
 }
 

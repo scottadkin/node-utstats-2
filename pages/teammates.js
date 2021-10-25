@@ -167,11 +167,11 @@ class TeamMates extends React.Component{
                     "matches": res.matches, 
                     "servers": res.servers,
                     "gametypes": res.gametypes,
-                    "maps": res.maps
+                    "maps": res.maps,
+                    "totals": res.totals
                 }
             });
 
-            console.log(res);
 
         }catch(err){
             console.trace(err);
@@ -262,7 +262,6 @@ class TeamMates extends React.Component{
 
         const scores = [red, blue, green, yellow];
         
-
         scores.sort();
 
         scores.reverse();
@@ -364,7 +363,7 @@ class TeamMates extends React.Component{
 
         return <div>
             <div className="default-header">General Statistics</div>
-            <table className="t-width-2 m-bottom-25">
+            <table className="t-width-1 m-bottom-25">
                 <tbody>
                     <tr>
                         <th>Total Matches</th>
@@ -384,29 +383,19 @@ class TeamMates extends React.Component{
                 </tbody>
             </table>
 
-            <table className="t-width-2 m-bottom-25">
+            <table className="t-width-1 m-bottom-25">
                 <tbody>
                     <tr>
                         <th>Longest Win Streak</th>
                         <th>Longest Draw Streak</th>
                         <th>Longest Loss Streak</th>
+                        <th>Current Streak</th>
                     </tr>
 
                     <tr>
                         <td>{maxWinStreak}</td>
                         <td>{maxDrawStreak}</td>
                         <td>{maxLoseStreak}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table className="t-width-2">
-                <tbody>
-                    <tr>
-                        <th>Current Streak</th>
-                    </tr>
-
-                    <tr>
                         <td>{currentStreak}</td>
                     </tr>
                 </tbody>

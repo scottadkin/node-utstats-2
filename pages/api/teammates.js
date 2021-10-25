@@ -112,10 +112,10 @@ export default async (req, res) =>{
 
         }
         
-
         const playedCount = setPlayedCount(playedMatchIds);
 
         const allPlayed = removeNotPlayedTogether(playedCount, playerList.length);
+
 
         const validMatches = [];
         const validMatchesTeams = {};
@@ -132,15 +132,18 @@ export default async (req, res) =>{
             }
         }
 
-
         const matchesData = await matchManager.getTeamMateMatchesBasic(validMatches);
 
         const names = await getNames(matchesData);
 
         setNames(matchesData, validMatchesTeams, names.serverNames, names.mapNames, names.gametypeNames);
 
+
+        const totals = await playerManager.getTeamsMatchesTotals(allPlayers, validMatches);
+
         res.status(200).json({
-            "matches": matchesData
+            "matches": matchesData,
+            "totals": totals
         });
 
         return;

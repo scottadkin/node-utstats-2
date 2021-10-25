@@ -1,8 +1,4 @@
-.wrapper{
-    border:1px solid var(--border-color-2);
-    background-color:var(--color-3);
-    margin-top:-1px;
-}
+
 
 .delete{
     background-color:rgb(120,0,0);
@@ -37,7 +33,7 @@
 
 .alias{
     margin-right:10px;
-    background-color:black;
+    background-color:var(--color-2);
     padding:5px;
     border:1px solid var(--border-color-1);
     transition:all 0.5s;
