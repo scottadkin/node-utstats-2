@@ -9,6 +9,8 @@ import Players from '../api/players';
 import PlayersDropDown from "../components/PlayersDropDown";
 import styles from '../styles/TeamMates.module.css';
 import MatchesTableView from "../components/MatchesTableView";
+import Functions from "../api/functions";
+import CountryFlag from '../components/CountryFlag';
 
 class TeamMates extends React.Component{
 
@@ -21,7 +23,8 @@ class TeamMates extends React.Component{
             "loadingInProgress": false, 
             "data": [], 
             "bLoadedData": false, 
-            "minimumMatches": 5
+            "minimumMatches": 5,
+            "players": JSON.parse(this.props.players)
         };
 
         this.addPlayer = this.addPlayer.bind(this);
@@ -34,6 +37,18 @@ class TeamMates extends React.Component{
         this.deleteAlias = this.deleteAlias.bind(this);
         this.changeMinMatches = this.changeMinMatches.bind(this);
 
+    }
+
+    getPlayer(id){
+
+        for(let i = 0; i < this.state.players.length; i++){
+
+            const p = this.state.players[i];
+
+            if(p.id === id) return p;
+        }
+
+        return {"id": -1, "name": "Not Found", "country": "xx"};
     }
 
     changeMinMatches(e){
@@ -279,7 +294,7 @@ class TeamMates extends React.Component{
         }
     }
 
-    renderGeneralStats(){
+    renderWinRateStats(){
 
         if(this.state.data.matches === undefined) return null;
 
@@ -362,7 +377,7 @@ class TeamMates extends React.Component{
         }
 
         return <div>
-            <div className="default-header">General Statistics</div>
+            <div className="default-header">Winrate Statistics</div>
             <table className="t-width-1 m-bottom-25">
                 <tbody>
                     <tr>
@@ -773,6 +788,89 @@ class TeamMates extends React.Component{
         </div>
     }
 
+    renderGeneralStats(){
+        
+        if(this.state.data.length === 0) return null;
+
+        const playerRows = [];
+
+        for(const [id, data] of Object.entries(this.state.data.totals.players)){
+
+            let eff = 0;
+
+            if(data.kills > 0){
+
+                if(data.deaths === 0){
+                    eff = 100;
+                }else{
+                    eff = data.kills / (data.kills + data.deaths);
+                    eff = (eff * 100).toFixed(2);
+                }
+            }
+
+            const player = this.getPlayer(parseInt(id));
+
+            playerRows.push(<tr key={id}>
+                <td><CountryFlag host={this.props.host} country={player.country}/>{player.name}</td>
+                <td>{data.score}</td>
+                <td>{data.frags}</td>
+                <td>{data.kills}</td>
+                <td>{data.deaths}</td>
+                <td>{data.suicides}</td>
+                <td>{data.teamKills}</td>
+                <td>{data.spawnKills}</td>
+                <td>{eff}%</td>
+            </tr>);
+        }
+
+        const totals = this.state.data.totals.totals;
+
+        let totalEff = 0;
+        if(totals.kills > 0){
+
+            if(totals.deaths === 0){
+                totalEff = 100;
+            }else{
+                totalEff = totals.kills / (totals.kills + totals.deaths);
+                totalEff = (totalEff * 100).toFixed(2);
+            }
+        }
+
+        playerRows.push(<tr key={"totals"}>
+            <td>Totals</td>
+            <td>{totals.score}</td>
+            <td>{totals.frags}</td>
+            <td>{totals.kills}</td>
+            <td>{totals.deaths}</td>
+            <td>{totals.suicides}</td>
+            <td>{totals.teamKills}</td>
+            <td>{totals.spawnKills}</td>
+            <td>{totalEff}%</td>
+        </tr>);
+        
+
+        return <div>
+            <div className="default-header">General Statistics</div>
+            <table className="t-width-1 player-td-1">
+                <tbody>
+                    <tr>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Frags</th>
+                        <th>Kills</th>
+                        <th>Deaths</th>
+                        <th>Suicides</th>
+                        <th>Team Kills</th>
+                        <th>Spawn Kills</th>
+                        <th>Efficiency</th>
+           
+                    </tr>
+                    {playerRows}
+                </tbody>
+            </table>
+        </div>
+    }
+
     render(){
 
         const players = JSON.parse(this.props.players);
@@ -803,6 +901,7 @@ class TeamMates extends React.Component{
                             </form>
                         </div>
                         {this.renderGeneralStats()}
+                        {this.renderWinRateStats()}
                         {this.renderGametypeStats()}
                         {this.renderMapStats()}
                         {this.renderMatches()}
@@ -832,10 +931,10 @@ export async function getServerSideProps({req, res}){
 
     return {
         "props":{
-            "host": req.headers.host,
+            "host": Functions.getImageHostAndPort(req.headers.host),
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "players": JSON.stringify(playerList)
+            "players": JSON.stringify(playerList),
             
         }
     }

@@ -1449,6 +1449,8 @@ class Players{
     createTeamsDataObject(){
 
         return {
+            /*"first": 0,
+            "last": 0,*/
             "matches": 0,
             "playtime": 0,
             "kills": 0,
@@ -1485,6 +1487,17 @@ class Players{
             obj.spreeBest = data.spree_best;
         }
 
+        /*if(obj.first === 0) obj.first = data.match_date;
+        if(obj.last === 0) obj.last = data.match_date;
+
+        if(obj.first > data.match_date){
+            obj.first = data.match_date;
+        }
+
+        if(obj.last < data.match_date){
+            obj.last = data.match_date;
+        }*/
+
     }
 
     async getTeamsMatchesTotals(playerIds, matchIds){
@@ -1501,6 +1514,7 @@ class Players{
         const maps = {};
         const gametypes = {};
         const totals = this.createTeamsDataObject();
+        const players = {};
 
         for(let i = 0; i < result.length; i++){
 
@@ -1514,16 +1528,22 @@ class Players{
                 gametypes[r.gametype] = this.createTeamsDataObject();
             }
 
+            if(players[r.player_id] === undefined){
+                players[r.player_id] = this.createTeamsDataObject();
+            }
+
             const currentMap = maps[r.map_id];
             const currentGametype = gametypes[r.gametype];
+            const currentPlayer = players[r.player_id];
 
             this.updateTeamsDataObject(currentMap, r);
             this.updateTeamsDataObject(currentGametype, r);
             this.updateTeamsDataObject(totals, r);
+            this.updateTeamsDataObject(currentPlayer, r);
             
         }
-        
-        return {"totals": totals, "gametypes": gametypes, "maps": maps};
+
+        return {"totals": totals, "gametypes": gametypes, "maps": maps, "players": players};
         
     }
     
