@@ -1063,19 +1063,25 @@ class TeamMates extends React.Component{
         if(ctfMode === 0){
 
             data = this.state.data.totals.players;
+            data = this.orderByMatches(data);
 
         }else if(ctfMode === 1){
 
             data = this.state.data.totals.gametypes;
+            data = this.orderByMatches(data);
 
         }else if(ctfMode === 2){
+
             data = this.state.data.totals.maps;
+            data = this.orderByMatches(data);
         }
 
 
         let totalMatches = 0;
 
-        for(const [key, value] of Object.entries(data)){
+        for(let i = 0; i < data.length; i++){
+
+            const value = data[i];
 
             let player = null;
             let nameElem = null;
@@ -1084,7 +1090,7 @@ class TeamMates extends React.Component{
 
             if(ctfMode === 0){
 
-                player = this.getPlayer(parseInt(key));
+                player = this.getPlayer(parseInt(value.key));
 
                 nameElem = <Link href={`/player/${player.id}`}>
                     <a>
@@ -1096,7 +1102,7 @@ class TeamMates extends React.Component{
 
                 if(!this.bAnyCTFEvents(value)) continue;
 
-                const gametypeName = this.getGametype(key);
+                const gametypeName = this.getGametype(value.key);
 
                 totalMatches += value.matches;
                 matchesElem = <td>{value.matches}</td>;
@@ -1109,7 +1115,7 @@ class TeamMates extends React.Component{
 
                 if(!this.bAnyCTFEvents(value)) continue;
 
-                const mapName = this.getMap(key);
+                const mapName = this.getMap(value.key);
 
                 nameElem = <>{mapName}</>;
                 matchesElem = <td>{value.matches}</td>;
@@ -1128,7 +1134,7 @@ class TeamMates extends React.Component{
             let flagReturn = value.flagReturn;
             let flagSave = value.flagSave;
 
-            rows.push(<tr key={key}>
+            rows.push(<tr key={value.key}>
                 <td>
                     {nameElem}
                 </td>
@@ -1195,6 +1201,33 @@ class TeamMates extends React.Component{
         </table>
     }
 
+    orderByMatches(data){
+
+        const objects = [];
+
+        for(const [key, value] of Object.entries(data)){
+
+            value.key = key;
+            objects.push(value);
+        }
+
+        objects.sort((a, b) =>{
+
+            a = a.matches;
+            b = b.matches;
+
+            if(a > b){
+                return -1;
+            }else if(a < b){
+                return 1;
+            }
+
+            return 0;
+        });
+
+        return objects;
+    }
+
     renderCTFCovers(){
 
         if(this.state.data.length === 0) return null;
@@ -1209,18 +1242,23 @@ class TeamMates extends React.Component{
         if(ctfMode === 0){
 
             data = this.state.data.totals.players;
+            data = this.orderByMatches(data);
 
         }else if(ctfMode === 1){
 
             data = this.state.data.totals.gametypes;
+            data = this.orderByMatches(data);
 
         }else if(ctfMode === 2){
             data = this.state.data.totals.maps;
+            data = this.orderByMatches(data);
         }
 
         let totalMatches = 0;
 
-        for(const [key, value] of Object.entries(data)){
+        for(let i = 0; i < data.length; i++){
+
+            const value = data[i];
       
             let covers = value.flagCover;
             let coversPass = value.flagCoverPass;
@@ -1237,7 +1275,7 @@ class TeamMates extends React.Component{
 
             if(ctfMode === 0){
 
-                const player = this.getPlayer(parseInt(key));
+                const player = this.getPlayer(parseInt(value.key));
 
                 nameElem = <Link href={`/player/${player.id}`}>
                     <a>
@@ -1249,7 +1287,7 @@ class TeamMates extends React.Component{
 
                 if(!this.bAnyCTFEvents(value)) continue;
 
-                const gametypeName = this.getGametype(key);
+                const gametypeName = this.getGametype(value.key);
 
                 totalMatches += value.matches;
 
@@ -1261,14 +1299,14 @@ class TeamMates extends React.Component{
 
                 if(!this.bAnyCTFEvents(value)) continue;
 
-                const mapName = this.getMap(key);
+                const mapName = this.getMap(value.key);
                 totalMatches += value.matches;
 
                 nameElem = <>{mapName}</>;
 
             }
 
-            rows.push(<tr key={key}>
+            rows.push(<tr key={value.key}>
                 <td>
                     {nameElem}
                 </td>
@@ -1291,7 +1329,6 @@ class TeamMates extends React.Component{
 
             const totals = this.state.data.totals.totals;
             
-            console.log(totals);
             const totalCoversEff = (totals.flagCover > 0 && totals.flagCoverPass > 0) ? (totals.flagCoverPass / totals.flagCover) * 100 : 0;
             const tc = "team-none";
 
@@ -1340,6 +1377,8 @@ class TeamMates extends React.Component{
     }
 
     renderCTF(){
+
+        if(this.state.data.length === 0) return null;
 
         return <div>
             <div className="default-header">Capture The Flag Statistics</div>
