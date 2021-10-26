@@ -26,7 +26,8 @@ class TeamMates extends React.Component{
             "bLoadedData": false, 
             "minimumMatches": 5,
             "players": JSON.parse(this.props.players),
-            "generalMode": 0
+            "generalMode": 0,
+            "winrateMode": 0
         };
 
         this.addPlayer = this.addPlayer.bind(this);
@@ -39,7 +40,13 @@ class TeamMates extends React.Component{
         this.deleteAlias = this.deleteAlias.bind(this);
         this.changeMinMatches = this.changeMinMatches.bind(this);
         this.changeGeneralMode = this.changeGeneralMode.bind(this);
+        this.changeWinrateMode = this.changeWinrateMode.bind(this);
 
+    }
+
+    changeWinrateMode(id){
+
+        this.setState({"winrateMode": id});
     }
 
     changeGeneralMode(id){
@@ -302,9 +309,11 @@ class TeamMates extends React.Component{
         }
     }
 
-    renderWinRateStats(){
+    renderTotalWinRateStats(){
 
+        if(this.state.winrateMode !== 0) return null;
         if(this.state.data.matches === undefined) return null;
+
 
         let wins = 0;
         let draws = 0;
@@ -385,7 +394,6 @@ class TeamMates extends React.Component{
         }
 
         return <div>
-            <div className="default-header">Winrate Statistics</div>
             <table className="t-width-1 m-bottom-25">
                 <tbody>
                     <tr>
@@ -519,8 +527,9 @@ class TeamMates extends React.Component{
         </div>
     }
 
-    renderMapStats(){
+    renderMapWinRates(){
 
+        if(this.state.winrateMode !== 2) return null;
         if(this.state.data.matches === undefined) return null;
 
         const mapsObject = {};
@@ -645,7 +654,6 @@ class TeamMates extends React.Component{
         }
 
         return <div>
-            <div className="default-header">Map Statistics</div>
             {this.renderMinimumMatches()}
             <table className="t-width-1 td-1-left">
                 <tbody>
@@ -665,8 +673,9 @@ class TeamMates extends React.Component{
         </div>
     }
 
-    renderGametypeStats(){
+    renderGametypeWinRates(){
 
+        if(this.state.winrateMode !== 1) return null;
         if(this.state.data.length === 0) return null;
 
         const gametypesObject = {};
@@ -776,7 +785,6 @@ class TeamMates extends React.Component{
         }
 
         return <div>
-            <div className="default-header">Gametype Statistics</div>
             {this.renderMinimumMatches()}
             <table className="t-width-1 td-1-left">
                 <tbody>
@@ -957,6 +965,29 @@ class TeamMates extends React.Component{
         </div>
     }
 
+    renderWinRates(){
+
+        if(this.state.data.length === 0) return null;
+
+        return <div>
+            <div className="default-header">Winrate Statistics</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.winrateMode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeWinrateMode(0);
+                })}>Combined</div>
+                <div className={`tab ${(this.state.winrateMode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeWinrateMode(1);
+                })}>Gametypes</div>
+                <div className={`tab ${(this.state.winrateMode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeWinrateMode(2);
+                })}>Maps</div>
+            </div>
+            {this.renderTotalWinRateStats()}
+            {this.renderGametypeWinRates()}
+            {this.renderMapWinRates()}
+        </div>
+    }
+
     render(){
 
         const players = JSON.parse(this.props.players);
@@ -987,9 +1018,7 @@ class TeamMates extends React.Component{
                             </form>
                         </div>
                         {this.renderGeneralStats()}
-                        {this.renderWinRateStats()}
-                        {this.renderGametypeStats()}
-                        {this.renderMapStats()}
+                        {this.renderWinRates()}
                         {this.renderMatches()}
                     </div>
 
