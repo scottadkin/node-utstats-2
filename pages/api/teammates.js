@@ -139,11 +139,14 @@ export default async (req, res) =>{
         setNames(matchesData, validMatchesTeams, names.serverNames, names.mapNames, names.gametypeNames);
 
 
+     
         const totals = await playerManager.getTeamsMatchesTotals(allPlayers, validMatches);
 
         res.status(200).json({
             "matches": matchesData,
-            "totals": totals
+            "totals": totals,
+            "mapNames": names.mapNames,
+            "gametypes": names.gametypeNames
         });
 
         return;

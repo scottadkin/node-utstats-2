@@ -31,7 +31,8 @@ class TeamMates extends React.Component{
             "winrateMode": 0,
             "ctfMode": 0,
             "ctfSubMode": 0,
-            "gametypes": JSON.parse(this.props.gametypes)
+            "gametypes": {},
+            "maps": {}
         };
 
         this.addPlayer = this.addPlayer.bind(this);
@@ -72,7 +73,21 @@ class TeamMates extends React.Component{
 
         id = parseInt(id);
 
-        for(const [key, value] of Object.entries(this.state.gametypes)){
+        for(const [key, value] of Object.entries(this.state.data.gametypes)){
+
+            if(parseInt(key) === id){
+                return value;
+            }
+        }
+
+        return "Not Found";
+    }
+
+    getMap(id){
+
+        id = parseInt(id);
+
+        for(const [key, value] of Object.entries(this.state.data.maps)){
 
             if(parseInt(key) === id){
                 return value;
@@ -219,13 +234,15 @@ class TeamMates extends React.Component{
 
             const res = await req.json();
 
+            console.log(res);
+
             this.setState({
                 "data": 
                 {
                     "matches": res.matches, 
                     "servers": res.servers,
                     "gametypes": res.gametypes,
-                    "maps": res.maps,
+                    "maps": res.mapNames,
                     "totals": res.totals
                 }
             });
@@ -1044,17 +1061,26 @@ class TeamMates extends React.Component{
         const ctfMode = this.state.ctfMode;
 
         if(ctfMode === 0){
+
             data = this.state.data.totals.players;
 
         }else if(ctfMode === 1){
+
             data = this.state.data.totals.gametypes;
+
+        }else if(ctfMode === 2){
+            data = this.state.data.totals.maps;
         }
 
+
+        let totalMatches = 0;
 
         for(const [key, value] of Object.entries(data)){
 
             let player = null;
             let nameElem = null;
+
+            let matchesElem = null;
 
             if(ctfMode === 0){
 
@@ -1071,9 +1097,24 @@ class TeamMates extends React.Component{
                 if(!this.bAnyCTFEvents(value)) continue;
 
                 const gametypeName = this.getGametype(key);
+
+                totalMatches += value.matches;
+                matchesElem = <td>{value.matches}</td>;
+
                 nameElem = <>
                     {gametypeName}
                 </>
+
+            }else if(ctfMode === 2){
+
+                if(!this.bAnyCTFEvents(value)) continue;
+
+                const mapName = this.getMap(key);
+
+                nameElem = <>{mapName}</>;
+                matchesElem = <td>{value.matches}</td>;
+
+                totalMatches += value.matches;
             }
 
             let flagTaken = value.flagTaken;
@@ -1091,6 +1132,7 @@ class TeamMates extends React.Component{
                 <td>
                     {nameElem}
                 </td>
+                {matchesElem}
                 <td>{flagTaken}</td>
                 <td>{flagPickup}</td>
                 <td>{flagDropped}</td>
@@ -1105,6 +1147,7 @@ class TeamMates extends React.Component{
         }
 
         if(rows.length > 1){
+
             const totals = this.state.data.totals.totals;
             const tc = "team-none";
 
@@ -1112,6 +1155,7 @@ class TeamMates extends React.Component{
                 <td className={tc}>
                     Totals
                 </td>
+                {(ctfMode !== 0) ? <td className={tc}>{totalMatches}</td>: null}
                 <td className={tc}>{totals.flagTaken}</td>
                 <td className={tc}>{totals.flagPickup}</td>
                 <td className={tc}>{totals.flagDropped}</td>
@@ -1125,10 +1169,16 @@ class TeamMates extends React.Component{
             </tr>);
         }
 
+        let title = "Player";
+
+        if(ctfMode === 1) title = "Gametype";
+        if(ctfMode === 2) title = "Map";
+
         return <table className="t-width-1 player-td-1">
             <tbody>
                 <tr>
-                    <th>Player</th>
+                    <th>{title}</th>
+                    {(ctfMode !== 0) ? <th>Matches</th> : null}
                     <th>Taken</th>
                     <th>Pickup</th>
                     <th>Dropped</th>
@@ -1157,15 +1207,21 @@ class TeamMates extends React.Component{
         let data = [];
 
         if(ctfMode === 0){
+
             data = this.state.data.totals.players;
 
         }else if(ctfMode === 1){
+
             data = this.state.data.totals.gametypes;
+
+        }else if(ctfMode === 2){
+            data = this.state.data.totals.maps;
         }
 
-        for(const [key, value] of Object.entries(data)){
+        let totalMatches = 0;
 
-            
+        for(const [key, value] of Object.entries(data)){
+      
             let covers = value.flagCover;
             let coversPass = value.flagCoverPass;
             let coversFail = value.flagCoverFail;
@@ -1189,21 +1245,34 @@ class TeamMates extends React.Component{
                     </a>
                 </Link>;
 
-            }else{
+            }else if(ctfMode === 1){
 
                 if(!this.bAnyCTFEvents(value)) continue;
 
                 const gametypeName = this.getGametype(key);
 
+                totalMatches += value.matches;
+
                 nameElem = <>
                     {gametypeName}
-                </>
+                </>;
+
+            }else if(ctfMode === 2){
+
+                if(!this.bAnyCTFEvents(value)) continue;
+
+                const mapName = this.getMap(key);
+                totalMatches += value.matches;
+
+                nameElem = <>{mapName}</>;
+
             }
 
             rows.push(<tr key={key}>
                 <td>
                     {nameElem}
                 </td>
+                {(ctfMode > 0) ? <td>{value.matches}</td> : null}
                 <td>{covers}</td>
                 <td>{coversPass}</td>
                 <td>{coversFail}</td>
@@ -1221,17 +1290,20 @@ class TeamMates extends React.Component{
         if(rows.length > 1){
 
             const totals = this.state.data.totals.totals;
-            const totalCoversEff = (totals.flagCovers > 0 && totals.flagCoversPass > 0) ? (totals.flagCoversPass / totals.flagCovers) * 100 : 0;
+            
+            console.log(totals);
+            const totalCoversEff = (totals.flagCover > 0 && totals.flagCoverPass > 0) ? (totals.flagCoverPass / totals.flagCover) * 100 : 0;
             const tc = "team-none";
 
             rows.push(<tr key={-1}>
                 <td className={tc}>
                     Totals
                 </td>
+                {(ctfMode > 0) ? <td className={tc}>{totalMatches}</td> : null}
                 <td className={tc}>{totals.flagCover}</td>
                 <td className={tc}>{totals.flagCoverPass}</td>
                 <td className={tc}>{totals.flagCoverFail}</td>
-                <td className={tc}>{totalCoversEff}%</td>
+                <td className={tc}>{totalCoversEff.toFixed(2)}%</td>
                 <td className={tc}>{totals.flagMultiCover}</td>
                 <td className={tc}>{totals.flagSpreeCover}</td>
                 <td className={tc}>{totals.flagCoverBest}</td>
@@ -1241,14 +1313,20 @@ class TeamMates extends React.Component{
             </tr>);
         }
 
+        let title = "Player";
+
+        if(ctfMode === 1) title = "Gametype";
+        if(ctfMode === 2) title = "Map";
+
         return <table className="t-width-1 player-td-1">
             <tbody>
                 <tr>
-                    <th>Player</th>
+                    <th>{title}</th>
+                    {(ctfMode > 0) ? <th>Matches</th> : null}
                     <th>Cover</th>
                     <th>Cover Pass</th>
                     <th>Cover Fail</th>
-                    <th>Cover Efficiency</th>
+                    <th>Cover Eff</th>
                     <th>Multi Cover</th>
                     <th>Cover Spree</th>
                     <th>Best Covers</th>
@@ -1346,9 +1424,6 @@ export async function getServerSideProps({req, res}){
 
     const playerList = await playerManager.getAllNames();
 
-    const gametypeManager = new Gametypes();
-
-    const gametypeNames = await gametypeManager.getAllNames();
 
     return {
         "props":{
@@ -1356,7 +1431,6 @@ export async function getServerSideProps({req, res}){
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "players": JSON.stringify(playerList),
-            "gametypes": JSON.stringify(gametypeNames)
             
         }
     }
