@@ -1449,8 +1449,6 @@ class Players{
     createTeamsDataObject(){
 
         return {
-            /*"first": 0,
-            "last": 0,*/
             "matches": 0,
             "playtime": 0,
             "kills": 0,
@@ -1462,11 +1460,53 @@ class Players{
             "spawnKills": 0,
             "spreeBest": 0,
             "multiBest": 0,
-            "firstBloods": 0
+            "firstBloods": 0,
+            "flagAssist": 0,
+            "flagReturn": 0,
+            "flagTaken": 0,
+            "flagDropped": 0,
+            "flagCapture": 0,
+            "flagPickup": 0,
+            "flagSeal": 0,
+            "flagCover": 0,
+            "flagCoverPass": 0,
+            "flagCoverFail": 0,
+            "flagSelfCover": 0,
+            "flagSelfCoverPass": 0,
+            "flagSelfCoverFail": 0,
+            "flagMultiCover": 0,
+            "flagSpreeCover": 0,
+            "flagCoverBest": 0,
+            "flagSelfCoverBest": 0,
+            "flagKill": 0,
+            "flagSave": 0,
+            "flagCarryTime": 0
         };
     }
 
     updateTeamsDataObject(obj, data){
+
+        obj.flagAssist += data.flag_assist;
+        obj.flagReturn += data.flag_return;
+        obj.flagTaken += data.flag_taken;
+        obj.flagDropped += data.flag_dropped;
+        obj.flagCapture += data.flag_capture;
+        obj.flagPickup += data.flag_pickup;
+        obj.flagSeal += data.flag_seal;
+        obj.flagCover += data.flag_cover;
+        obj.flagCoverPass += data.flag_cover_pass;
+        obj.flagCoverFail += data.flag_cover_fail;
+        obj.flagSelfCover += data.flag_self_cover;
+        obj.flagSelfCoverPass += data.flag_self_cover_pass;
+        obj.flagSelfCoverFail += data.flag_self_cover_fail;
+        obj.flagMultiCover += data.flag_multi_cover;
+        obj.flagSpreeCover += data.flag_spree_cover;
+
+        if(obj.flagCoverBest < data.flag_cover_best) obj.flagCoverBest = data.flag_cover_best;
+        if(obj.flagSelfCoverBest < data.flag_self_cover_best) obj.flagSelfCoverBest = data.flag_self_cover_best;
+
+        obj.flagKill += data.flag_kill;
+        obj.flagSave += data.flag_save;
 
         obj.matches++;
         obj.playtime += data.playtime;
@@ -1486,18 +1526,6 @@ class Players{
         if(data.spree_best > obj.spreeBest){
             obj.spreeBest = data.spree_best;
         }
-
-        /*if(obj.first === 0) obj.first = data.match_date;
-        if(obj.last === 0) obj.last = data.match_date;
-
-        if(obj.first > data.match_date){
-            obj.first = data.match_date;
-        }
-
-        if(obj.last < data.match_date){
-            obj.last = data.match_date;
-        }*/
-
     }
 
     async getTeamsMatchesTotals(playerIds, matchIds){
@@ -1506,7 +1534,11 @@ class Players{
 
         const query = `SELECT match_id,map_id,player_id,gametype,playtime,first_blood,
         frags,score,kills,team_kills,deaths,suicides,spawn_kills,spree_best,multi_best,
-        ping_average
+        ping_average,
+        flag_assist,flag_return,flag_taken,flag_dropped,flag_capture,flag_pickup,
+        flag_seal,flag_cover,flag_cover_pass,flag_cover_fail,flag_self_cover,flag_self_cover_pass,
+        flag_self_cover_fail,flag_multi_cover,flag_spree_cover,flag_cover_best,flag_self_cover_best,
+        flag_kill,flag_save,flag_carry_time
         FROM nstats_player_matches WHERE match_id IN (?) AND player_id IN (?)`;
 
         const result = await mysql.simpleQuery(query, [matchIds, playerIds]);

@@ -148,22 +148,6 @@ export default async (req, res) =>{
 
         return;
 
-       // console.log(playedMatchIds);
-
-        /*const bothPlayed = await playerManager.getTeamMatePlayedMatchIds(playerList);
-
-        const matchesData = await matchManager.getTeamMateMatchesBasic(bothPlayed.matches);
-
-        const names = await getNames(matchesData);
-
-        setNames(matchesData, bothPlayed.teams, names.serverNames, names.mapNames, names.gametypeNames);
-
-        res.status(200).json({
-            "matches": matchesData
-        });*/
-
-        res.status(200).json({"error": "meow"});
-
     }catch(err){
 
         console.trace(err);
