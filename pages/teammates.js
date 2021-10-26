@@ -11,6 +11,7 @@ import styles from '../styles/TeamMates.module.css';
 import MatchesTableView from "../components/MatchesTableView";
 import Functions from "../api/functions";
 import CountryFlag from '../components/CountryFlag';
+import Link from 'next/link';
 
 class TeamMates extends React.Component{
 
@@ -24,7 +25,8 @@ class TeamMates extends React.Component{
             "data": [], 
             "bLoadedData": false, 
             "minimumMatches": 5,
-            "players": JSON.parse(this.props.players)
+            "players": JSON.parse(this.props.players),
+            "generalMode": 0
         };
 
         this.addPlayer = this.addPlayer.bind(this);
@@ -36,7 +38,13 @@ class TeamMates extends React.Component{
         this.addAlias = this.addAlias.bind(this);
         this.deleteAlias = this.deleteAlias.bind(this);
         this.changeMinMatches = this.changeMinMatches.bind(this);
+        this.changeGeneralMode = this.changeGeneralMode.bind(this);
 
+    }
+
+    changeGeneralMode(id){
+
+        this.setState({"generalMode": id});
     }
 
     getPlayer(id){
@@ -794,6 +802,18 @@ class TeamMates extends React.Component{
 
         const playerRows = [];
 
+        const tn = "team-none";
+
+        const mode = this.state.generalMode;
+
+        let totalScore = 0;
+        let totalFrags = 0;
+        let totalKills = 0;
+        let totalDeaths = 0;
+        let totalSuicides = 0;
+        let totalTeamKills = 0;
+        let totalSpawnKills = 0;
+
         for(const [id, data] of Object.entries(this.state.data.totals.players)){
 
             let eff = 0;
@@ -810,16 +830,61 @@ class TeamMates extends React.Component{
 
             const player = this.getPlayer(parseInt(id));
 
+            let score, frags, kills, deaths, suicides, teamKills, spawnKills = 0;
+            const matches = data.matches;
+            const playtime = data.playtime / 600;
+
+            score = data.score;
+            frags = data.frags;
+            kills = data.kills;
+            deaths = data.deaths;
+            suicides = data.suicides;
+            teamKills = data.teamKills;
+            spawnKills = data.spawnKills;
+
+            if(mode === 1){
+
+                score = (score > 0) ? (score / matches).toFixed(2) : 0;
+                frags = (frags > 0) ? (frags / matches).toFixed(2) : 0;
+                kills = (kills > 0) ? (kills / matches).toFixed(2) : 0;
+                deaths = (deaths > 0) ? (deaths / matches).toFixed(2) : 0;
+                suicides = (suicides > 0) ? (suicides / matches).toFixed(2) : 0;
+                teamKills = (teamKills > 0) ? (teamKills / matches).toFixed(2) : 0;
+                spawnKills = (spawnKills > 0) ? (spawnKills / matches).toFixed(2) : 0;
+
+            }else if(mode === 2){
+
+                score = (score > 0 && playtime > 0) ? (score / playtime).toFixed(2) : 0;
+                frags = (frags > 0 && playtime > 0) ? (frags / playtime).toFixed(2) : 0;
+                kills = (kills > 0 && playtime > 0) ? (kills / playtime).toFixed(2) : 0;
+                deaths = (deaths > 0 && playtime > 0) ? (deaths / playtime).toFixed(2) : 0;
+                suicides = (suicides > 0 && playtime > 0) ? (suicides / playtime).toFixed(2) : 0;
+                teamKills = (teamKills > 0 && playtime > 0) ? (teamKills / playtime).toFixed(2) : 0;
+                spawnKills = (spawnKills > 0 && playtime > 0) ? (spawnKills / playtime).toFixed(2) : 0;
+
+            }
+
+
+            totalScore += parseFloat(score);
+            totalFrags += parseFloat(frags);
+            totalKills += parseFloat(kills);
+            totalDeaths += parseFloat(deaths);
+            totalSuicides += parseFloat(suicides);
+            totalTeamKills += parseFloat(teamKills);
+            totalSpawnKills += parseFloat(spawnKills);
+
+            const effElem = (mode === 0) ? <td>{eff}%</td> : null;
+
             playerRows.push(<tr key={id}>
-                <td><CountryFlag host={this.props.host} country={player.country}/>{player.name}</td>
-                <td>{data.score}</td>
-                <td>{data.frags}</td>
-                <td>{data.kills}</td>
-                <td>{data.deaths}</td>
-                <td>{data.suicides}</td>
-                <td>{data.teamKills}</td>
-                <td>{data.spawnKills}</td>
-                <td>{eff}%</td>
+                <td><Link href={`/player/${player.id}`}><a><CountryFlag host={this.props.host} country={player.country}/>{player.name}</a></Link></td>
+                <td>{score}</td>
+                <td>{frags}</td>
+                <td>{kills}</td>
+                <td>{deaths}</td>
+                <td>{suicides}</td>
+                <td>{teamKills}</td>
+                <td>{spawnKills}</td>
+                {effElem}
             </tr>);
         }
 
@@ -836,21 +901,42 @@ class TeamMates extends React.Component{
             }
         }
 
+        const totalEffElem = (mode === 0) ? <td className={tn}>{totalEff}%</td> : null; 
+
         playerRows.push(<tr key={"totals"}>
-            <td>Totals</td>
-            <td>{totals.score}</td>
-            <td>{totals.frags}</td>
-            <td>{totals.kills}</td>
-            <td>{totals.deaths}</td>
-            <td>{totals.suicides}</td>
-            <td>{totals.teamKills}</td>
-            <td>{totals.spawnKills}</td>
-            <td>{totalEff}%</td>
+            <td className={tn}>Totals</td>
+            <td className={tn}>{totalScore}</td>
+            <td className={tn}>{totalFrags}</td>
+            <td className={tn}>{totalKills}</td>
+            <td className={tn}>{totalDeaths}</td>
+            <td className={tn}>{totalSuicides}</td>
+            <td className={tn}>{totalTeamKills}</td>
+            <td className={tn}>{totalSpawnKills}</td>
+            {totalEffElem}
         </tr>);
         
 
+        const effHeader = (mode === 0) ? <th>Efficiency</th> : null;
+
         return <div>
             <div className="default-header">General Statistics</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.generalMode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeGeneralMode(0);
+                })}>
+                    Totals
+                </div>
+                <div className={`tab ${(this.state.generalMode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeGeneralMode(1);
+                })}>
+                    Per Match Average
+                </div>
+                <div className={`tab ${(this.state.generalMode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeGeneralMode(2);
+                })}>
+                    Average per 10 Minutes
+                </div>
+            </div>
             <table className="t-width-1 player-td-1">
                 <tbody>
                     <tr>
@@ -862,7 +948,7 @@ class TeamMates extends React.Component{
                         <th>Suicides</th>
                         <th>Team Kills</th>
                         <th>Spawn Kills</th>
-                        <th>Efficiency</th>
+                        {effHeader}
            
                     </tr>
                     {playerRows}
