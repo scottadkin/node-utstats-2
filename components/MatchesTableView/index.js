@@ -28,8 +28,6 @@ class MatchesTableView extends React.Component{
             return 0;
         });
 
-        console.log(scores);
-
         //draws
         if(scores[0] === scores[1]){
             if(scores[0] === myScore) return -1;

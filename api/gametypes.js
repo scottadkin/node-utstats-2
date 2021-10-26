@@ -195,27 +195,20 @@ class Gametypes{
     }
 
 
-    getAllNames(){
+    async getAllNames(){
 
-        return new Promise((resolve, reject) =>{
 
-            const data = {};
+        const query = "SELECT id,name FROM nstats_gametypes ORDER BY name ASC";
+        const result = await mysql.simpleQuery(query);
+        
+        const data = {};
 
-            const query = "SELECT id,name FROM nstats_gametypes ORDER BY name ASC";
+        for(let i = 0; i < result.length; i++){
 
-            mysql.query(query, (err, result) =>{
+            data[result[i].id] = result[i].name
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    for(let i = 0; i < result.length; i++){
-                        data[result[i].id] = result[i].name;
-                    }
-                }
-                resolve(data);
-            });
-        });
+        return data;
     }
 
 

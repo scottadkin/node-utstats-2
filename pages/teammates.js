@@ -12,6 +12,7 @@ import MatchesTableView from "../components/MatchesTableView";
 import Functions from "../api/functions";
 import CountryFlag from '../components/CountryFlag';
 import Link from 'next/link';
+import Gametypes from '../api/gametypes';
 
 class TeamMates extends React.Component{
 
@@ -29,7 +30,8 @@ class TeamMates extends React.Component{
             "generalMode": 0,
             "winrateMode": 0,
             "ctfMode": 0,
-            "ctfSubMode": 0
+            "ctfSubMode": 0,
+            "gametypes": JSON.parse(this.props.gametypes)
         };
 
         this.addPlayer = this.addPlayer.bind(this);
@@ -64,6 +66,20 @@ class TeamMates extends React.Component{
     changeGeneralMode(id){
 
         this.setState({"generalMode": id});
+    }
+
+    getGametype(id){
+
+        id = parseInt(id);
+
+        for(const [key, value] of Object.entries(this.state.gametypes)){
+
+            if(parseInt(key) === id){
+                return value;
+            }
+        }
+
+        return "Not Found";
     }
 
     getPlayer(id){
@@ -1000,15 +1016,65 @@ class TeamMates extends React.Component{
         </div>
     }
 
+    bAnyCTFEvents(data){
+
+
+        const reg = /flag/i;
+
+        for(const [key, value] of Object.entries(data)){
+
+            if(reg.test(key)){
+
+                if(value > 0) return true;
+            }
+
+        }
+
+        return false;
+    }
+
     renderCTFGeneral(){
 
         if(this.state.data.length === 0) return null;
         if(this.state.ctfSubMode !== 0) return null;
         const rows = [];
 
-        for(const [key, value] of Object.entries(this.state.data.totals.players)){
+        let data = [];
 
-            const player = this.getPlayer(parseInt(key));
+        const ctfMode = this.state.ctfMode;
+
+        if(ctfMode === 0){
+            data = this.state.data.totals.players;
+
+        }else if(ctfMode === 1){
+            data = this.state.data.totals.gametypes;
+        }
+
+
+        for(const [key, value] of Object.entries(data)){
+
+            let player = null;
+            let nameElem = null;
+
+            if(ctfMode === 0){
+
+                player = this.getPlayer(parseInt(key));
+
+                nameElem = <Link href={`/player/${player.id}`}>
+                    <a>
+                        <CountryFlag country={player.country} host={this.props.host}/>{player.name}
+                    </a>
+                </Link>;
+
+            }else if(ctfMode === 1){
+
+                if(!this.bAnyCTFEvents(value)) continue;
+
+                const gametypeName = this.getGametype(key);
+                nameElem = <>
+                    {gametypeName}
+                </>
+            }
 
             let flagTaken = value.flagTaken;
             let flagPickup = value.flagPickup;
@@ -1023,11 +1089,7 @@ class TeamMates extends React.Component{
 
             rows.push(<tr key={key}>
                 <td>
-                    <Link href={`/player/${player.id}`}>
-                        <a>
-                            <CountryFlag country={player.country} host={this.props.host}/>{player.name}
-                        </a>
-                    </Link>
+                    {nameElem}
                 </td>
                 <td>{flagTaken}</td>
                 <td>{flagPickup}</td>
@@ -1042,24 +1104,26 @@ class TeamMates extends React.Component{
             </tr>);
         }
 
-        const totals = this.state.data.totals.totals;
-        const tc = "team-none";
+        if(rows.length > 1){
+            const totals = this.state.data.totals.totals;
+            const tc = "team-none";
 
-        rows.push(<tr key={-1}>
-            <td className={tc}>
-                Totals
-            </td>
-            <td className={tc}>{totals.flagTaken}</td>
-            <td className={tc}>{totals.flagPickup}</td>
-            <td className={tc}>{totals.flagDropped}</td>
-            <td className={tc}>{totals.flagAssist}</td>
-            <td className={tc}>{totals.flagCover}</td>
-            <td className={tc}>{totals.flagSeal}</td>
-            <td className={tc}>{totals.flagCapture}</td>
-            <td className={tc}>{totals.flagKill}</td>
-            <td className={tc}>{totals.flagReturn}</td>
-            <td className={tc}>{totals.flagSave}</td>
-        </tr>);
+            rows.push(<tr key={-1}>
+                <td className={tc}>
+                    Totals
+                </td>
+                <td className={tc}>{totals.flagTaken}</td>
+                <td className={tc}>{totals.flagPickup}</td>
+                <td className={tc}>{totals.flagDropped}</td>
+                <td className={tc}>{totals.flagAssist}</td>
+                <td className={tc}>{totals.flagCover}</td>
+                <td className={tc}>{totals.flagSeal}</td>
+                <td className={tc}>{totals.flagCapture}</td>
+                <td className={tc}>{totals.flagKill}</td>
+                <td className={tc}>{totals.flagReturn}</td>
+                <td className={tc}>{totals.flagSave}</td>
+            </tr>);
+        }
 
         return <table className="t-width-1 player-td-1">
             <tbody>
@@ -1085,12 +1149,23 @@ class TeamMates extends React.Component{
 
         if(this.state.data.length === 0) return null;
         if(this.state.ctfSubMode !== 1) return null;
+
         const rows = [];
 
-        for(const [key, value] of Object.entries(this.state.data.totals.players)){
+        const ctfMode = this.state.ctfMode;
 
-            const player = this.getPlayer(parseInt(key));
+        let data = [];
 
+        if(ctfMode === 0){
+            data = this.state.data.totals.players;
+
+        }else if(ctfMode === 1){
+            data = this.state.data.totals.gametypes;
+        }
+
+        for(const [key, value] of Object.entries(data)){
+
+            
             let covers = value.flagCover;
             let coversPass = value.flagCoverPass;
             let coversFail = value.flagCoverFail;
@@ -1102,14 +1177,32 @@ class TeamMates extends React.Component{
             let selfCoversPass = value.flagSelfCoverPass;
             let selfCoversFail = value.flagSelfCoverFail;
 
+            let nameElem = null;
+
+            if(ctfMode === 0){
+
+                const player = this.getPlayer(parseInt(key));
+
+                nameElem = <Link href={`/player/${player.id}`}>
+                    <a>
+                        <CountryFlag country={player.country} host={this.props.host}/>{player.name}
+                    </a>
+                </Link>;
+
+            }else{
+
+                if(!this.bAnyCTFEvents(value)) continue;
+
+                const gametypeName = this.getGametype(key);
+
+                nameElem = <>
+                    {gametypeName}
+                </>
+            }
 
             rows.push(<tr key={key}>
                 <td>
-                    <Link href={`/player/${player.id}`}>
-                        <a>
-                            <CountryFlag country={player.country} host={this.props.host}/>{player.name}
-                        </a>
-                    </Link>
+                    {nameElem}
                 </td>
                 <td>{covers}</td>
                 <td>{coversPass}</td>
@@ -1125,25 +1218,28 @@ class TeamMates extends React.Component{
             </tr>);
         }
 
-        const totals = this.state.data.totals.totals;
-        const totalCoversEff = (totals.flagCovers > 0 && totals.flagCoversPass > 0) ? (totals.flagCoversPass / totals.flagCovers) * 100 : 0;
-        const tc = "team-none";
+        if(rows.length > 1){
 
-        rows.push(<tr key={-1}>
-            <td className={tc}>
-                Totals
-            </td>
-            <td className={tc}>{totals.flagCover}</td>
-            <td className={tc}>{totals.flagCoverPass}</td>
-            <td className={tc}>{totals.flagCoverFail}</td>
-            <td className={tc}>{totalCoversEff}%</td>
-            <td className={tc}>{totals.flagMultiCover}</td>
-            <td className={tc}>{totals.flagSpreeCover}</td>
-            <td className={tc}>{totals.flagCoverBest}</td>
-            <td className={tc}>{totals.flagSelfCover}</td>
-            <td className={tc}>{totals.flagSelfCoverPass}</td>
-            <td className={tc}>{totals.flagSelfCoverFail}</td>
-        </tr>);
+            const totals = this.state.data.totals.totals;
+            const totalCoversEff = (totals.flagCovers > 0 && totals.flagCoversPass > 0) ? (totals.flagCoversPass / totals.flagCovers) * 100 : 0;
+            const tc = "team-none";
+
+            rows.push(<tr key={-1}>
+                <td className={tc}>
+                    Totals
+                </td>
+                <td className={tc}>{totals.flagCover}</td>
+                <td className={tc}>{totals.flagCoverPass}</td>
+                <td className={tc}>{totals.flagCoverFail}</td>
+                <td className={tc}>{totalCoversEff}%</td>
+                <td className={tc}>{totals.flagMultiCover}</td>
+                <td className={tc}>{totals.flagSpreeCover}</td>
+                <td className={tc}>{totals.flagCoverBest}</td>
+                <td className={tc}>{totals.flagSelfCover}</td>
+                <td className={tc}>{totals.flagSelfCoverPass}</td>
+                <td className={tc}>{totals.flagSelfCoverFail}</td>
+            </tr>);
+        }
 
         return <table className="t-width-1 player-td-1">
             <tbody>
@@ -1250,12 +1346,17 @@ export async function getServerSideProps({req, res}){
 
     const playerList = await playerManager.getAllNames();
 
+    const gametypeManager = new Gametypes();
+
+    const gametypeNames = await gametypeManager.getAllNames();
+
     return {
         "props":{
             "host": Functions.getImageHostAndPort(req.headers.host),
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "players": JSON.stringify(playerList),
+            "gametypes": JSON.stringify(gametypeNames)
             
         }
     }
