@@ -679,6 +679,8 @@ class TeamMates extends React.Component{
                 winrate = (m.wins / totalMatches) * 100;
             }
 
+            const colorClass = (winrate >= 50) ? "team-green" : "team-red";
+
             rows.push(<tr key={i}>
                 <td>{m.name}</td>
                 <td>{totalMatches}</td>
@@ -687,7 +689,7 @@ class TeamMates extends React.Component{
                 <td>{m.wins}</td>
                 <td>{m.maxWinStreak}</td>
                 <td>{m.currentStreak}</td>
-                <td>{winrate.toFixed(2)}%</td>
+                <td className={colorClass}>{winrate.toFixed(2)}%</td>
             </tr>);
         }
 
@@ -810,6 +812,8 @@ class TeamMates extends React.Component{
 
             if(g.matches < this.state.minimumMatches) continue;
 
+            const colorClass = (g.winRate >= 50) ? "team-green" : "team-red";
+
             rows.push(<tr key={i}>
                 <td>{g.name}</td>
                 <td>{g.matches}</td>
@@ -818,7 +822,7 @@ class TeamMates extends React.Component{
                 <td>{g.wins}</td>
                 <td>{g.bestWinSteak}</td>
                 <td>{g.currentStreak}</td>
-                <td>{g.winRate.toFixed(2)}%</td>
+                <td className={colorClass}>{g.winRate.toFixed(2)}%</td>
             </tr>);
         }
 
