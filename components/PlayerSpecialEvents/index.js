@@ -1,5 +1,6 @@
 import React from 'react';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 class PlayerSpecialEvents extends React.Component{
 
@@ -136,16 +137,14 @@ class PlayerSpecialEvents extends React.Component{
         headers.push(<th key="b">Best Multi</th>);
         cols.push(<td key="b">{this.props.data.multi_best} Kills</td>);
 
-        return <table className="t-width-1 m-bottom-10">
-            <tbody>
-                <tr>
-                    {headers}
-                </tr>
-                <tr>
-                    {cols}
-                </tr>
-            </tbody>
-        </table>
+        return <Table2 width={1}>
+            <tr>
+                {headers}
+            </tr>
+            <tr>
+                {cols}
+            </tr>
+        </Table2>
     }
 
 
@@ -226,16 +225,14 @@ class PlayerSpecialEvents extends React.Component{
         headers.push(<th key="end">Best Spree</th>);
         cols.push(<td key="end">{this.props.data.spree_best} Kills</td>);
 
-        return <table className="t-width-1">
-            <tbody>
-                <tr>
-                    {headers}
-                </tr>
-                <tr>
-                    {cols}
-                </tr>
-            </tbody>
-        </table>
+        return <Table2 width={1}>
+            <tr>
+                {headers}
+            </tr>
+            <tr>
+                {cols}
+            </tr>
+        </Table2>
     }
 
     render(){

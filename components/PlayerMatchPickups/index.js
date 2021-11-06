@@ -1,4 +1,5 @@
 import React from 'react';
+import Table2 from '../Table2';
 
 
 class PlayerMatchPickups extends React.Component{
@@ -86,16 +87,14 @@ class PlayerMatchPickups extends React.Component{
 
         return <div className="m-bottom-25">
             <div className="default-header">Pickups Summary</div>
-            <table className="t-width-2">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Uses</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={2}>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Uses</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 }

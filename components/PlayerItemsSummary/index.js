@@ -1,5 +1,6 @@
 import React from 'react';
 import TimeStamp from '../TimeStamp/';
+import Table2 from '../Table2';
 
 
 class PlayerItemsSummary extends React.Component{
@@ -111,19 +112,17 @@ class PlayerItemsSummary extends React.Component{
 
         if(elems.length > 0){
 
-            return <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>First</th>
-                        <th>Last</th>
-                        <th>Matches</th>
-                        <th>Used</th>
-                        <th>Average Usage per Match</th>
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>
+            return <Table2 width={1}>
+                <tr>
+                    <th>Name</th>
+                    <th>First</th>
+                    <th>Last</th>
+                    <th>Matches</th>
+                    <th>Used</th>
+                    <th>Average Usage per Match</th>
+                </tr>
+                {elems}
+            </Table2>
         }
 
         return null;
@@ -175,7 +174,7 @@ class PlayerItemsSummary extends React.Component{
 
         if(this.state.mode === null) return null;
         
-        return <div className="special-table">
+        return <div>
             <div className="default-header">Pickup History</div>
             {this.displayTabs()}
             {this.displayType()}

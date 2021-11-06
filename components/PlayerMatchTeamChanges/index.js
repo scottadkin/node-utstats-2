@@ -1,4 +1,5 @@
 import Functions from "../../api/functions";
+import Table2 from "../Table2";
 
 const PlayerMatchTeamChanges = ({data, matchStart}) =>{
 
@@ -17,15 +18,13 @@ const PlayerMatchTeamChanges = ({data, matchStart}) =>{
     return <div className="m-bottom-25">
         <div className="default-header">Team Summary</div>
 
-        <table className="t-width-2">
-            <tbody>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Team Joined</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={2}>
+            <tr>
+                <th>Timestamp</th>
+                <th>Team Joined</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 

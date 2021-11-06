@@ -1,6 +1,7 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import TipHeader from '../TipHeader';
+import Table2 from '../Table2';
 
 
 class PlayerMatchCTF extends React.Component{
@@ -37,25 +38,23 @@ class PlayerMatchCTF extends React.Component{
         }
 
         return <div className="m-bottom-25">
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Taken</th>
-                        <th>Pickup</th>
-                        <th>Dropped</th>
-                        <th>Assist</th>
-                        <th>Cover</th>
-                        <th>Seal</th>
-                        <th>Capture</th>
-                        <th>Kill</th>
-                        <th>Return</th>
-                        <th>Close Return</th>
-                    </tr>
-                    <tr>
-                        {cols}
-                    </tr>
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Taken</th>
+                    <th>Pickup</th>
+                    <th>Dropped</th>
+                    <th>Assist</th>
+                    <th>Cover</th>
+                    <th>Seal</th>
+                    <th>Capture</th>
+                    <th>Kill</th>
+                    <th>Return</th>
+                    <th>Close Return</th>
+                </tr>
+                <tr>
+                    {cols}
+                </tr>
+            </Table2>
         </div>
     }
 
@@ -96,8 +95,7 @@ class PlayerMatchCTF extends React.Component{
         }
 
         return <div className="m-bottom-25">
-            <table className="t-width-1">
-                <tbody>
+            <Table2 width={1} players={1}>
                     <tr>
                         <TipHeader title="Cover" content="Covered the Flag Carrier"/>
                         <TipHeader title="Cover Pass" content="Covered the flag carrier with the flag later being capped."/>
@@ -113,8 +111,7 @@ class PlayerMatchCTF extends React.Component{
                     <tr>
                         {cols}
                     </tr>
-                </tbody>
-            </table>
+            </Table2>
         </div>
     }
 

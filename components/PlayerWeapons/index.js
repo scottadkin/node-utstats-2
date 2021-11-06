@@ -3,6 +3,7 @@ import styles from './PlayerWeapons.module.css';
 import PlayerWeapon from '../PlayerWeapon/';
 import React from 'react';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 
 
@@ -168,8 +169,7 @@ class PlayerWeapons extends React.Component{
 
             //if(elems.length > 0){
 
-                elems = <table className="t-width-1 td-1-left">
-                    <tbody>
+                elems = <Table2 width={1} players={1}>
                         <tr>
                             <th>Weapon</th>
                             <th>Kills</th>
@@ -182,8 +182,7 @@ class PlayerWeapons extends React.Component{
                             <th>Matches</th>
                         </tr>
                         {elems}
-                    </tbody>
-                </table>
+                </Table2>
             //}
         }
 

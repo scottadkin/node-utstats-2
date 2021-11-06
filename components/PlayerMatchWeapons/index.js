@@ -1,7 +1,7 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import CleanDamage from '../CleanDamage';
-
+import Table2 from '../Table2';
 
 class PlayerMatchWeapons extends React.Component{
 
@@ -89,8 +89,7 @@ class PlayerMatchWeapons extends React.Component{
 
         return <div className="m-bottom-25">
             <div className="default-header">Weapon Statistics</div>
-            <table className="t-width-1">
-                <tbody>
+            <Table2 width={1}>
                 <tr>
                     <th>Weapon</th>
                     <th>Kills</th>
@@ -102,8 +101,7 @@ class PlayerMatchWeapons extends React.Component{
                     <th>Damage</th>
                 </tr>
                 {rows}
-                </tbody>
-            </table>
+            </Table2>
         </div>
     }
 }

@@ -8,6 +8,7 @@ import MatchResult from '../MatchResult/';
 import Graph from '../Graph/';
 import React from 'react';
 import MatchResultSmall from '../MatchResultSmall';
+import Table2 from '../Table2';
 
 const getMatchScores = (scores, id) =>{
     
@@ -357,8 +358,7 @@ class PlayerRecentMatches extends React.Component{
 
         if(this.state.mode === 1){
 
-            elems = <table className="t-width-1">
-                <tbody>
+            elems = <Table2 width={1}>
                 <tr>
                     <th>Date</th>
                     <th>Gametype</th>
@@ -369,8 +369,7 @@ class PlayerRecentMatches extends React.Component{
                     <th>Result</th>
                 </tr>
                 {elems}
-                </tbody>
-            </table>
+            </Table2>
         }
 
 

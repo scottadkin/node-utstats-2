@@ -1,6 +1,7 @@
 import TipHeader from '../TipHeader';
 import React from 'react';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 
 class PlayerCTFSummary extends React.Component{
@@ -32,36 +33,34 @@ class PlayerCTFSummary extends React.Component{
 
         if(this.state.mode !== 0) return null
 
-        return <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <TipHeader title="Flag Grab" content="Player grabbed the enemy flag from the enemy base."/>
-                    <TipHeader title="Flag Pickup" content="Player picked up the enemy flag that was dropped by a team mate."/>
-                    <TipHeader title="Flag Dropped" content="Player dropped the enemy flag."/>
-                    <TipHeader title="Flag Capture" content="Player captured the enemy flag and scored a point for their team."/>
-                    <TipHeader title="Flag Assist" content="Player had contact with a flag that was later captured without being returned."/>
-                    <TipHeader title="Flag Cover" content="Player killed an enemy that was close to their team mate that had the enemy flag."/>
-                    <TipHeader title="Flag Seal" content="Player sealed off the base while the flag was taken."/>
-                    <TipHeader title="Flag Kill" content="Player killed the enemy flag carrier."/>
-                    <TipHeader title="Flag Return" content="Player returned their flag that was dropped by an enemy."/>
-                    <TipHeader title="Flag Close Save" content="Player return their flag that was close to the enemy flag base."/>
-                </tr>
-                <tr>
-                    <td>{Functions.ignore0(this.props.data.flag_taken)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_pickup)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_dropped)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_capture)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_assist)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_cover)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_seal)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_kill)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_return)}</td>
-                    <td>{Functions.ignore0(this.props.data.flag_save)}</td>
+        return <Table2 width={1}>
+            <tr>
+                <TipHeader title="Flag Grab" content="Player grabbed the enemy flag from the enemy base."/>
+                <TipHeader title="Flag Pickup" content="Player picked up the enemy flag that was dropped by a team mate."/>
+                <TipHeader title="Flag Dropped" content="Player dropped the enemy flag."/>
+                <TipHeader title="Flag Capture" content="Player captured the enemy flag and scored a point for their team."/>
+                <TipHeader title="Flag Assist" content="Player had contact with a flag that was later captured without being returned."/>
+                <TipHeader title="Flag Cover" content="Player killed an enemy that was close to their team mate that had the enemy flag."/>
+                <TipHeader title="Flag Seal" content="Player sealed off the base while the flag was taken."/>
+                <TipHeader title="Flag Kill" content="Player killed the enemy flag carrier."/>
+                <TipHeader title="Flag Return" content="Player returned their flag that was dropped by an enemy."/>
+                <TipHeader title="Flag Close Save" content="Player return their flag that was close to the enemy flag base."/>
+            </tr>
+            <tr>
+                <td>{Functions.ignore0(this.props.data.flag_taken)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_pickup)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_dropped)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_capture)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_assist)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_cover)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_seal)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_kill)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_return)}</td>
+                <td>{Functions.ignore0(this.props.data.flag_save)}</td>
 
-            
-                </tr>
-            </tbody>
-        </table>
+        
+            </tr>
+        </Table2>
     }
 
     displayCovers(){
@@ -82,8 +81,7 @@ class PlayerCTFSummary extends React.Component{
             }
         }
 
-        return <table className="t-width-1">
-            <tbody>
+        return <Table2 width={1}>
             <tr>
                 <TipHeader title="Covers" content="Player killed enemy close to their teams flag carrier."/>
                 <TipHeader title="Multi Covers" content="Player got 3 covers during the enemy flag was taken."/>
@@ -102,8 +100,7 @@ class PlayerCTFSummary extends React.Component{
                 <td>{this.props.data.flag_cover_fail}</td>
                 <td>{eff.toFixed(2)}%</td>
             </tr>
-            </tbody>
-        </table>
+        </Table2>
     }
 
 
@@ -126,8 +123,7 @@ class PlayerCTFSummary extends React.Component{
             }
         }
 
-        return <table className="t-width-1">
-            <tbody>
+        return <Table2 width={1}>
             <tr>
                 <TipHeader title="Flag Carry Time" content="Total time the player has spent with the flag."/>
                 <TipHeader title="Kills With Flag" content="How many kills the player has gotten while carrying the flag."/>
@@ -144,8 +140,7 @@ class PlayerCTFSummary extends React.Component{
                 <td>{this.props.data.flag_self_cover_fail}</td>
                 <td>{eff.toFixed(2)}%</td>
             </tr>
-            </tbody>
-        </table>
+        </Table2>
     }
 
 

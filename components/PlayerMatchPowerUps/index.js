@@ -1,5 +1,6 @@
 import React from 'react';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 
 class PlayerMatchPowerUps extends React.Component{
@@ -76,16 +77,14 @@ class PlayerMatchPowerUps extends React.Component{
 
         return <div className="m-bottom-25">
             <div className="default-header">Power Ups Summary</div>
-            <table className="t-width-2">
-                <tbody>
-                    <tr>
-                        <th>Item</th>
-                        <th>Times Used</th>
-                        <th>Total Time</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={2}>
+                <tr>
+                    <th>Item</th>
+                    <th>Times Used</th>
+                    <th>Total Time</th>
+                </tr>
+                {rows}
+            </Table2>
             
         </div>
     }

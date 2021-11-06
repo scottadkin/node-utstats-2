@@ -3,6 +3,7 @@ import React from 'react';
 import Functions from '../../api/functions';
 import TimeStamp from '../TimeStamp/';
 import Graph from '../Graph/';
+import Table2 from '../Table2';
 
 
 class PlayerGametypeStats extends React.Component{
@@ -134,20 +135,18 @@ class PlayerGametypeStats extends React.Component{
 
         </tr>);
 
-        return <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Gametype</th>
-                        <th>Last Accuracy</th>
-                        <th>Wins</th>
-                        <th>Win Rate</th>
-                        <th>Matches</th>
-                        <th>Playtime</th>
-                        <th>Last</th>
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>
+        return <Table2 width={1}>
+                <tr>
+                    <th>Gametype</th>
+                    <th>Last Accuracy</th>
+                    <th>Wins</th>
+                    <th>Win Rate</th>
+                    <th>Matches</th>
+                    <th>Playtime</th>
+                    <th>Last</th>
+                </tr>
+                {elems}
+            </Table2>
        
     }
 
@@ -215,24 +214,22 @@ class PlayerGametypeStats extends React.Component{
 
         
         return <div>
-            <table className="t-width-1 m-bottom-10">
-                <tbody>
-                    <tr>
-                        <th>Gametype</th>
-                        <th>Matches</th>
-                        <th>Wins</th>
-                        <th>Draws</th>
-                        <th>Losses</th>
-                        <th>Win Rate</th>
-                        <th>Longest Win Streak</th>
-                        <th>Longest Draw Streak</th>
-                        <th>Longest Losing Streak</th>
-                        <th>Current Streak</th>
-                    </tr>
-                    {elems}
-                    {last}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Gametype</th>
+                    <th>Matches</th>
+                    <th>Wins</th>
+                    <th>Draws</th>
+                    <th>Losses</th>
+                    <th>Win Rate</th>
+                    <th>Longest Win Streak</th>
+                    <th>Longest Draw Streak</th>
+                    <th>Longest Losing Streak</th>
+                    <th>Current Streak</th>
+                </tr>
+                {elems}
+                {last}
+            </Table2>
             <div className="default-header">Winrate History</div>
             <Graph title="Latest Win Rate History" data={JSON.stringify(winRateHistory.data)} text={JSON.stringify(winRateHistory.text)} title={winRateHistory.titles} maxValue={100} minValue={0}/>
         </div>

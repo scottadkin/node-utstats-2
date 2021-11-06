@@ -1,4 +1,5 @@
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 const getObjectiveName = (objs, id) =>{
 
@@ -28,16 +29,14 @@ const PlayerMatchAssault = ({pointNames, caps}) =>{
 
     return <div className="m-bottom-25">
         <div className="default-header">Assault Objectives Summary</div>
-        <table className="t-width-2">
-            <tbody>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Objective Name</th>
-                    <th>Final Objective</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={2}>
+            <tr>
+                <th>Timestamp</th>
+                <th>Objective Name</th>
+                <th>Final Objective</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 

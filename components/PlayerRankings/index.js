@@ -1,5 +1,6 @@
 import MouseHoverBox from '../MouseHoverBox/';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 const PlayerRankings = ({data, gametypeNames, positions}) =>{
 
@@ -50,17 +51,15 @@ const PlayerRankings = ({data, gametypeNames, positions}) =>{
 
     return <div>
         <div className="default-header">Rankings</div>
-        <table className="t-width-1 td-1-left">
-            <tbody>
-                <tr>
-                    <th>Gametype</th>
-                    <th>Matches</th>
-                    <th>Playtime</th>
-                    <th>Ranking</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={1} players={true}>
+            <tr>
+                <th>Gametype</th>
+                <th>Matches</th>
+                <th>Playtime</th>
+                <th>Ranking</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 

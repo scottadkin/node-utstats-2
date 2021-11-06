@@ -1,6 +1,7 @@
 import styles from '../PlayerSummary/PlayerSummary.module.css';
 import React from 'react';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 class PlayerFragSummary extends React.Component{
 
@@ -30,54 +31,50 @@ class PlayerFragSummary extends React.Component{
 
     displayGeneral(){
 
-        return <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Score</th>
-                    <th>Frags</th>
-                    <th>Suicides</th>
-                    <th>Team Kills</th>
-                    <th>Kills</th>
-                    <th>Deaths</th>  
-                    <th>Efficiency</th>
-                    <th>Last Accuracy</th>
-                </tr>
-                <tr>
-                    <td>{Functions.ignore0(this.props.score)}</td>
-                    <td>{Functions.ignore0(this.props.frags)}</td>
-                    <td>{Functions.ignore0(this.props.suicides)}</td>
-                    <td>{Functions.ignore0(this.props.teamKills)}</td>
-                    <td>{Functions.ignore0(this.props.kills)}</td>
-                    <td>{Functions.ignore0(this.props.deaths)}</td>  
-                    <td>{this.props.efficiency.toFixed(2)}%</td>
-                    <td>{this.props.accuracy.toFixed(2)}%</td>
-                </tr>
-            </tbody>
-        </table>      
+        return <Table2 width={1}>
+            <tr>
+                <th>Score</th>
+                <th>Frags</th>
+                <th>Suicides</th>
+                <th>Team Kills</th>
+                <th>Kills</th>
+                <th>Deaths</th>  
+                <th>Efficiency</th>
+                <th>Last Accuracy</th>
+            </tr>
+            <tr>
+                <td>{Functions.ignore0(this.props.score)}</td>
+                <td>{Functions.ignore0(this.props.frags)}</td>
+                <td>{Functions.ignore0(this.props.suicides)}</td>
+                <td>{Functions.ignore0(this.props.teamKills)}</td>
+                <td>{Functions.ignore0(this.props.kills)}</td>
+                <td>{Functions.ignore0(this.props.deaths)}</td>  
+                <td>{this.props.efficiency.toFixed(2)}%</td>
+                <td>{this.props.accuracy.toFixed(2)}%</td>
+            </tr>
+        </Table2>      
     }
 
     displayExtended(){
 
-        return <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Headshots</th>
-                    <th>Spawn Kills</th>
-                    <th>Best Spawn Kill Spree</th>
-                    <th>Close Range Kills</th>
-                    <th>Long Range Kills</th>
-                    <th>Uber Long Range kills</th>
-                </tr>
-                <tr>
-                    <td>{Functions.ignore0(this.props.headshots)}</td>
-                    <td>{Functions.ignore0(this.props.spawnKills)}</td>
-                    <td>{Functions.ignore0(this.props.spawnKillSpree)} Kills</td>
-                    <td>{Functions.ignore0(this.props.close)}</td>
-                    <td>{Functions.ignore0(this.props.long)}</td>
-                    <td>{Functions.ignore0(this.props.uber)}</td>
-                </tr>
-            </tbody>
-        </table>
+        return <Table2 width={1}>
+            <tr>
+                <th>Headshots</th>
+                <th>Spawn Kills</th>
+                <th>Best Spawn Kill Spree</th>
+                <th>Close Range Kills</th>
+                <th>Long Range Kills</th>
+                <th>Uber Long Range kills</th>
+            </tr>
+            <tr>
+                <td>{Functions.ignore0(this.props.headshots)}</td>
+                <td>{Functions.ignore0(this.props.spawnKills)}</td>
+                <td>{Functions.ignore0(this.props.spawnKillSpree)} Kills</td>
+                <td>{Functions.ignore0(this.props.close)}</td>
+                <td>{Functions.ignore0(this.props.long)}</td>
+                <td>{Functions.ignore0(this.props.uber)}</td>
+            </tr>
+        </Table2>
     }
 
     render(){

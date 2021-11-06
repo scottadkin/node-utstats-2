@@ -1,4 +1,5 @@
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 const PlayerMatchConnections = ({data, matchStart}) =>{
 
@@ -14,15 +15,13 @@ const PlayerMatchConnections = ({data, matchStart}) =>{
 
     return <div className="m-bottom-25">
         <div className="default-header">Connection Summary</div>
-        <table className="t-width-2">
-            <tbody>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Event</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={2}>
+            <tr>
+                <th>Timestamp</th>
+                <th>Event</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 

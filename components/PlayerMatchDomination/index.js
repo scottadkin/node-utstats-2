@@ -1,4 +1,5 @@
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 const getTotalPointCaps = (id, data) =>{
 
@@ -31,14 +32,14 @@ const PlayerMatchDomination = ({data, pointNames}) =>{
 
     return <div className="m-bottom-25">
         <div className="default-header">Domination Control Points Caps</div>
-        <table className="t-width-2">
+        <Table2 width={2}>
             <tr>
                 {headers}
             </tr>
             <tr>
                 {cols}
             </tr>
-        </table>
+        </Table2>
     </div>
 }
 
