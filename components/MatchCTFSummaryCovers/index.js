@@ -2,6 +2,7 @@ import TipHeader from '../TipHeader/';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 const bAnyData = (player) =>{
 
@@ -118,9 +119,8 @@ const MatchCTFSummaryCovers = ({host, players, team, matchId}) =>{
         </tr>);
 
 
-    return <table className="m-bottom-25 t-width-1 player-td-1">
-        <tbody>
-            <tr>
+    return <Table2 width={1} players={true}>
+                <tr>
                 <th>Player</th>
                 <TipHeader title="Cover" content="Player killed an enemy close to their flag carrier."/>
                 <TipHeader title="Cover Pass" content="Player killed an enemy close to their flag carrier, where the team later capped the flag."/>
@@ -133,9 +133,8 @@ const MatchCTFSummaryCovers = ({host, players, team, matchId}) =>{
                 <TipHeader title="Self Covers Pass" content="How many people the player killed while carrying the flag, where the team capped the flag."/>
                 <TipHeader title="Self Covers Fail" content="How many people the player killed while carrying the flag, where the enemy team returned the flag."/>
             </tr>
-            {elems}
-        </tbody>
-    </table>
+        {elems}
+    </Table2>
 }
 
 export default MatchCTFSummaryCovers;

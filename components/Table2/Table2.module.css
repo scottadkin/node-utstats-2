@@ -13,4 +13,6 @@
 
 .wrapper table th{
     padding:15px 5px;
+    max-width:100px;
+    word-wrap: break-word;
 }

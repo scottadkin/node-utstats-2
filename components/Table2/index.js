@@ -21,7 +21,7 @@ class Table2 extends React.Component{
             widthClass = "t-width-2";
         }
 
-        const playerClass = (this.props.players !== undefined)  ? "player-td-1" : "" ;
+        const playerClass = (this.props.players !== undefined) ? (this.props.players) ? "player-td-1" : "" : "" ;
 
         return <div className={`${styles.wrapper}`}>
             <table className={`${widthClass} ${playerClass}`}>

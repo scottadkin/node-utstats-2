@@ -3,6 +3,7 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import BasicPageSelect from '../BasicPageSelect';
+import Table2 from '../Table2';
 
 class MatchSprees extends React.Component{
 
@@ -122,19 +123,17 @@ class MatchSprees extends React.Component{
         }
 
         return <div>
-            <table className="t-width-1 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Player</th>
-                        <th>Started</th>
-                        <th>Ended</th>
-                        <th>Spree Lifetime</th>
-                        <th>End Reason</th>
-                        <th>Total Kills</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1} players={true}>
+                <tr>
+                    <th>Player</th>
+                    <th>Started</th>
+                    <th>Ended</th>
+                    <th>Spree Lifetime</th>
+                    <th>End Reason</th>
+                    <th>Total Kills</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 

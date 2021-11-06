@@ -2,6 +2,7 @@ import TipHeader from '../TipHeader/';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 const bAnyData = (player) =>{
 
@@ -104,8 +105,7 @@ const MatchCTFSummaryDefault = ({host, players, team, matchId}) =>{
     
     
 
-    return <table className={`m-bottom-25 t-width-1 player-td-1`}>
-        <tbody>
+    return <Table2 width={1} players={1}>
             <tr>
                 <th>Player</th>
                 <TipHeader title="Taken" content="Player took the flag from the enemy team's flag stand." />
@@ -120,8 +120,7 @@ const MatchCTFSummaryDefault = ({host, players, team, matchId}) =>{
                 <TipHeader title="Close Return" content="Player returned their flag that was dropped by an enemy, that was close to being capped." />
             </tr>
             {elems}
-        </tbody>
-    </table>
+    </Table2>
 }
 
 export default MatchCTFSummaryDefault;

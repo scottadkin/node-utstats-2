@@ -3,6 +3,7 @@ import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import TipHeader from '../TipHeader/';
 import styles from '../MatchFragTable/MatchFragTable.module.css';
+import Table2 from '../Table2';
 
 const bAnyData = (data) =>{
     
@@ -114,11 +115,9 @@ const MatchFragDistances = ({host, players, team, toDisplay, single, matchId}) =
             {(toDisplay.indexOf("k_distance_uber") !== -1) ? <TipHeader title="Uber Long Range Kills" content="Kills with a distance of 3072 and greater." /> : null}
         </tr>);
 
-        return <table className={`${styles.table} m-bottom-25 t-width-1 player-td-1`}>
-            <tbody>
-                {elems}
-            </tbody>
-        </table>
+        return <Table2 width={1} players={true}>
+            {elems}
+        </Table2>
     }
 
     return null;

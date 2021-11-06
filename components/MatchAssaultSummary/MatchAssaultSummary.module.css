@@ -1,9 +1,7 @@
 .attacking{
-    max-width:1000px;
     display:grid;
     grid-template-columns: 50% 50%;
     font-size:20px;
-    width:80%;
 }
 
 .attacking div{
@@ -13,15 +11,8 @@
 }
 
 .result{
-    max-width:1000px;
     font-size:20px;
     padding:10px 0px;
     border:1px solid var(--border-color-1);
     margin-top:-1px;
-    width:80%;
-}
-
-.table{
-    max-width:1000px;
-    width:80%;
 }

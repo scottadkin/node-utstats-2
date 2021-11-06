@@ -2,6 +2,7 @@ import styles from './MatchAssaultSummary.module.css';
 import MMSS from '../MMSS/';
 import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 function getName(objectives, id){
 
@@ -99,26 +100,24 @@ const MatchAssaultSummary = ({host, players, data, matchStart, attackingTeam, re
                 Assault Summary
             </div>
 
-            <div className={`${styles.attacking} center`}>
+            <div className={`${styles.attacking} t-width-1 center`}>
                 <div className="team-red">{(attackingTeam === 0) ? 'Attacking' : 'Defending'}</div>
                 <div className="team-blue">{(attackingTeam === 1) ? 'Attacking' : 'Defending'}</div>
             </div>
-            <div className={`${resultColor} ${styles.result} center`}>
+            <div className={`${resultColor} ${styles.result} t-width-1 center`}>
                 {resultTitle}
             </div>
             {(elems.length === 0) ? null :
-            <table className={styles.table}>
-                <tbody>
-                    <tr>
-                        <th>Objective</th>
-                        <th>Final Objective</th>
-                        <th>Captured Time</th>
-                        <th>Captured By</th>
-                        
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>}
+            <Table2 width={1}>
+                <tr>
+                    <th>Objective</th>
+                    <th>Final Objective</th>
+                    <th>Captured Time</th>
+                    <th>Captured By</th>
+                    
+                </tr>
+                {elems}
+            </Table2>}
         </div>
     );
 }

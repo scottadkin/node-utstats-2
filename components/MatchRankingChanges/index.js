@@ -2,6 +2,7 @@ import Link from 'next/link';
 import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
 import MouseHoverBox from '../../components/MouseHoverBox';
+import Table2 from '../Table2';
 
 function getCurrentRankings(rankings, player){
 
@@ -91,19 +92,17 @@ const MatchRankingChanges = ({host, changes, currentRankings, playerNames, posit
         <div className="default-header">
             Match Ranking Changes
         </div>
-        <table className="t-width-1 td-1-left">
-            <tbody>
-                <tr>
-                    <th>Player</th>
-                    <th>Previous Ranking</th>
-                    <th>Ranking After Match</th>
-                    <th>Ranking Change</th>
-                    <th>Match Ranking</th>
-                    <th>Current Ranking</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={1} players={true}>
+            <tr>
+                <th>Player</th>
+                <th>Previous Ranking</th>
+                <th>Ranking After Match</th>
+                <th>Ranking Change</th>
+                <th>Match Ranking</th>
+                <th>Current Ranking</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 

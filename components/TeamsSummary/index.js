@@ -3,6 +3,7 @@ import Functions from '../../api/functions';
 import MMSS from '../MMSS/';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 
 function getPreviousTeam(data, timestamp, player){
@@ -62,21 +63,20 @@ const TeamsSummary = ({host, data, playerNames, matchId}) =>{
     }
 
 
-    return (<div className={`center ${styles.table}`}>
+    return (<div className={`center`}>
         <div className="default-header">
             Team Changes Summary
         </div>
-        <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Player</th>
-                    <th>Old Team</th>
-                    <th>New Team</th>
-                </tr>
-                {elems}
-            </tbody>
-        </table>
+        <Table2 width={1}>
+            <tr>
+                <th>Timestamp</th>
+                <th>Player</th>
+                <th>Old Team</th>
+                <th>New Team</th>
+            </tr>
+            {elems}
+    
+        </Table2>
     </div>);
 }
 

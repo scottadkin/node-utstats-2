@@ -3,6 +3,7 @@ import Functions from '../../api/functions';
 import React from 'react';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 class MatchItemPickups extends React.Component{
 
@@ -150,12 +151,9 @@ class MatchItemPickups extends React.Component{
 
         if(elems.length > 0 && totalUses > 0){
 
-            return <table className={`t-width-1 m-bottom-25 player-td-1`}>
-                <tbody>
-     
-                    {elems}
-                </tbody>
-            </table>
+            return <Table2 width={1} players={true}>
+                {elems}
+            </Table2>
         }
 
         return null;

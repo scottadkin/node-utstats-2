@@ -5,6 +5,7 @@ import CleanDamage from '../CleanDamage/';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 class MatchWeaponSummary extends React.Component{
 
@@ -212,21 +213,19 @@ class MatchWeaponSummary extends React.Component{
             }
         }
 
-        return <table className={`t-width-1 ${styles.table} player-td-1`}>
-            <tbody>
-                <tr>
-                    <th>Player</th>
-                    <th>Kills</th>
-                    <th>Deaths</th>
-                    <th>Efficiency</th>
-                    <th>Shots</th>
-                    <th>Hits</th>
-                    <th>Accuracy</th>
-                    <th>Damage</th>
-                </tr>
-                {elems}
-            </tbody>
-        </table>;
+        return <Table2 width={1} players={true}>
+            <tr>
+                <th>Player</th>
+                <th>Kills</th>
+                <th>Deaths</th>
+                <th>Efficiency</th>
+                <th>Shots</th>
+                <th>Hits</th>
+                <th>Accuracy</th>
+                <th>Damage</th>
+            </tr>
+            {elems}
+        </Table2>;
     }
 
     displayAllData(){
@@ -387,8 +386,7 @@ class MatchWeaponSummary extends React.Component{
             tables.push(
                 <div key={i}>
                     <div className="default-sub-header">{currentWeapon.name}</div>
-                    <table className={`t-width-1 m-bottom-25 ${styles.table} player-td-1`}>
-                        <tbody>
+                    <Table2 width={1} players={true}>
                             <tr>
                                 <th>Player</th>
                                 <th>Kills</th>
@@ -400,8 +398,7 @@ class MatchWeaponSummary extends React.Component{
                                 <th>Damage</th>
                             </tr>
                             {currentPlayers}
-                        </tbody>
-                    </table>
+                    </Table2>
                 </div>
             );
         }

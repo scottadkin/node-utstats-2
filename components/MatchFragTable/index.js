@@ -4,6 +4,7 @@ import Link from 'next/link';
 import MMSS from '../MMSS/';
 import Functions from '../../api/functions';
 import React from 'react';
+import Table2 from '../Table2';
 
 
 const bAnyData = (data) =>{
@@ -114,24 +115,23 @@ const MatchFragTable = ({host, players, team, matchStart, toDisplay, matchId, si
         </tr>);
     }
 
-    return (<table className={`${styles.table} center m-bottom-25 t-width-1 player-td-1`}>
-        <tbody>
-            <tr className={bgColor}>
-                {(single) ? null : <th className="name-td">Player</th>}
-                <th>Playtime</th>
-                <th>Score</th>
-                <th>Frags</th>
-                <th>Kills</th>
-                <th>Deaths</th>
-                {(toDisplay.indexOf('suicides') !== -1) ? <th>Suicides</th> : null}
-                {(toDisplay.indexOf('team_kills') !== -1) ? <th>Team Kills</th> : null}
-                {(toDisplay.indexOf('headshots') !== -1) ? <th>Headshots</th> : null}
-                {(toDisplay.indexOf('spawn_kills') !== -1) ? <th>Spawn Kills</th> : null}
-                <th>Efficiency</th>     
-            </tr>
-            {elems}
-        </tbody>
-    </table>);
+    return (<Table2 width={1} players={true}>
+
+        <tr className={bgColor}>
+            {(single) ? null : <th className="name-td">Player</th>}
+            <th>Playtime</th>
+            <th>Score</th>
+            <th>Frags</th>
+            <th>Kills</th>
+            <th>Deaths</th>
+            {(toDisplay.indexOf('suicides') !== -1) ? <th>Suicides</th> : null}
+            {(toDisplay.indexOf('team_kills') !== -1) ? <th>Team Kills</th> : null}
+            {(toDisplay.indexOf('headshots') !== -1) ? <th>Headshots</th> : null}
+            {(toDisplay.indexOf('spawn_kills') !== -1) ? <th>Spawn Kills</th> : null}
+            <th>Efficiency</th>     
+        </tr>
+        {elems}
+    </Table2>);
 }
 
 

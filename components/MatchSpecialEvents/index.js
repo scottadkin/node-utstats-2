@@ -4,6 +4,7 @@ import styles from './MatchSpecialEvents.module.css';
 import React from 'react';
 import Functions from '../../api/functions';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 
 class MatchSpecialEvents extends React.Component{
@@ -198,11 +199,9 @@ class MatchSpecialEvents extends React.Component{
         if(elems.length > 0){
             return <div>
                 
-                <table className={`${styles.table} t-width-1 ${(this.props.single) ? null : "player-td-1"}`}>
-                    <tbody>
-                        {elems}
-                    </tbody>
-                </table>
+                <Table2 width={1} players={(this.props.single) ? false : true}>
+                    {elems}
+                </Table2>
             </div>
 
         }else{
@@ -382,11 +381,9 @@ class MatchSpecialEvents extends React.Component{
             }
 
             return <div>
-            <table className={`${styles.table} t-width-1 ${(this.props.single) ? null : "player-td-1"}`}>
-                <tbody>
-                    {elems}
-                </tbody>
-            </table>
+            <Table2 width={1} players={(this.props.single) ? false : true}>
+                {elems}
+            </Table2>
             </div>
         }
 

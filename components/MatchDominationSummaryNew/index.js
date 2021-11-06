@@ -3,6 +3,7 @@ import Graph from '../Graph';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 class MatchDominationSummaryNew extends React.Component{
 
@@ -172,15 +173,13 @@ class MatchDominationSummaryNew extends React.Component{
             </tr>);
         }
 
-        return <table className="t-width-1 m-bottom-25 player-td-1" key={teamId}>
-            <tbody>
-                <tr>
-                    <th>Player</th>
-                    {pointHeaders}
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        return <Table2 width={1} players={true} key={teamId}>
+            <tr>
+                <th>Player</th>
+                {pointHeaders}
+            </tr>
+            {rows}
+        </Table2>
       
     }
 

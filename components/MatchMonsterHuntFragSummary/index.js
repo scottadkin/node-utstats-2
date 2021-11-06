@@ -2,6 +2,7 @@ import React from 'react';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 
 
@@ -38,20 +39,18 @@ class MatchMonsterHuntFragSummary extends React.Component{
             </tr>);
         }
 
-        return <table className="t-width-1 td-1-150">
-            <tbody>
-                <tr>
-                    {(this.props.single !== undefined) ? null : <th>Player</th>}
-                    <th>Playtime</th>
-                    <th>Team Kills</th>
-                    <th>Deaths</th>
-                    <th>Monster Kills</th>
-                    <th>Most Kills In a Life</th>
-                    <th>Score</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        return <Table2 width={1} players={1}>
+            <tr>
+                {(this.props.single !== undefined) ? null : <th>Player</th>}
+                <th>Playtime</th>
+                <th>Team Kills</th>
+                <th>Deaths</th>
+                <th>Monster Kills</th>
+                <th>Most Kills In a Life</th>
+                <th>Score</th>
+            </tr>
+            {rows}
+        </Table2>
     }
 
     render(){
