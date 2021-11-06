@@ -13,7 +13,7 @@ import Functions from "../api/functions";
 import CountryFlag from '../components/CountryFlag';
 import Link from 'next/link';
 import Gametypes from '../api/gametypes';
-import Table from '../components/table';
+import Table2 from '../components/table2';
 
 class TeamMates extends React.Component{
 
@@ -440,7 +440,7 @@ class TeamMates extends React.Component{
         }
 
         return <div>
-            <Table width={1}>
+            <Table2 width={1}>
                 <tr>
                     <th>Total Matches</th>
                     <th>Total Wins</th>
@@ -456,9 +456,9 @@ class TeamMates extends React.Component{
                     <td>{losses}</td>
                     <td className={colorClass}>{winRate.toFixed(2)}%</td>
                 </tr>
-            </Table>
+            </Table2>
 
-            <Table width={1}>
+            <Table2 width={1}>
                 <tr>
                     <th>Longest Win Streak</th>
                     <th>Longest Draw Streak</th>
@@ -472,7 +472,7 @@ class TeamMates extends React.Component{
                     <td>{maxLoseStreak}</td>
                     <td>{currentStreak}</td>
                 </tr>
-            </Table>
+            </Table2>
         </div>
     }
 
@@ -699,7 +699,7 @@ class TeamMates extends React.Component{
 
         return <div>
             {this.renderMinimumMatches()}
-            <Table width={1} players={1}>
+            <Table2 width={1} players={1}>
                 <tr>
                     <th>Map</th>
                     <th>Matches</th>
@@ -711,7 +711,7 @@ class TeamMates extends React.Component{
                     <th>Win Rate</th>
                 </tr>
                 {rows}   
-            </Table>
+            </Table2>
         </div>
     }
 
@@ -830,7 +830,7 @@ class TeamMates extends React.Component{
 
         return <div>
             {this.renderMinimumMatches()}
-            <Table width={1}>
+            <Table2 width={1}>
                 <tr>
                     <th>Gametype</th>
                     <th>Matches</th>
@@ -842,7 +842,7 @@ class TeamMates extends React.Component{
                     <th>Win Rate</th>
                 </tr>
                 {rows}
-            </Table>
+            </Table2>
         </div>
     }
 
@@ -987,7 +987,7 @@ class TeamMates extends React.Component{
                     Average per 10 Minutes
                 </div>
             </div>
-            <Table width={1} players={true}>
+            <Table2 width={1} players={true}>
                 <tr>
                     <th>Player</th>
                     <th>Score</th>
@@ -1001,7 +1001,7 @@ class TeamMates extends React.Component{
         
                 </tr>
                 {playerRows}
-            </Table>
+            </Table2>
         </div>
     }
 
@@ -1176,7 +1176,7 @@ class TeamMates extends React.Component{
         if(ctfMode === 2) title = "Map";
 
         return <>
-            <Table width={1} players={1}>
+            <Table2 width={1} players={1}>
                 <tr>
                     <th>{title}</th>
                     {(ctfMode !== 0) ? <th>Matches</th> : null}
@@ -1192,7 +1192,7 @@ class TeamMates extends React.Component{
                     <th>Close Return</th>
                 </tr>
                 {rows}
-            </Table>
+            </Table2>
             <div className="default-sub-header">Flag Carry Time</div>
         </>
     }
@@ -1351,7 +1351,7 @@ class TeamMates extends React.Component{
         if(ctfMode === 1) title = "Gametype";
         if(ctfMode === 2) title = "Map";
 
-        return <Table width={1} players={1}>
+        return <Table2 width={1} players={1}>
             <tr>
                 <th>{title}</th>
                 {(ctfMode > 0) ? <th>Matches</th> : null}
@@ -1367,7 +1367,7 @@ class TeamMates extends React.Component{
                 <th>Self Covers Fail</th>
             </tr>
             {rows}
-        </Table>
+        </Table2>
     }
 
     renderCTF(){

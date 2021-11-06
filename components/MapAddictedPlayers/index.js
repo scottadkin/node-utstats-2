@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 const MapAddictedPlayers = ({host, players, playerNames}) =>{
 
@@ -42,18 +43,16 @@ const MapAddictedPlayers = ({host, players, playerNames}) =>{
                     Addicted Players
                 </div>
                 <div className="m-bottom-10 center">  
-                    <table className="t-width-1 td-1-150">
-                        <tbody>
-                            <tr>
-                                <th>Name</th>
-                                <th>First</th>
-                                <th>Last</th>
-                                <th>Matches</th>
-                                <th>Playtime</th>
-                            </tr>
-                            {elems}
-                        </tbody>
-                    </table>
+                    <Table2 width={1} players={true}>
+                        <tr>
+                            <th>Name</th>
+                            <th>First</th>
+                            <th>Last</th>
+                            <th>Matches</th>
+                            <th>Playtime</th>
+                        </tr>
+                        {elems}
+                    </Table2>
                 </div>
             </div>
         }

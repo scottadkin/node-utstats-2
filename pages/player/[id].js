@@ -55,88 +55,86 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 
 	summary = JSON.parse(summary);
 	
-		const flag = summary.country;
+	const flag = summary.country;
 
-		const name = summary.name;
-		summary = JSON.stringify(summary);
+	const name = summary.name;
+	summary = JSON.stringify(summary);
 
-		const country = Countires(flag);
+	const country = Countires(flag);
 
-		let titleName = name;
+	let titleName = name;
 
-		if(titleName[titleName.length - 1].toLowerCase() !== 's'){
-			titleName = `${name}'s`;
-		}else{
-			titleName = `${name}'`;
-		}
+	if(titleName[titleName.length - 1].toLowerCase() !== 's'){
+		titleName = `${name}'s`;
+	}else{
+		titleName = `${name}'`;
+	}
 
-		// /<img className="title-flag" src={`../images/flags/${country.code.toLowerCase()}.svg`} alt="flag"/>
+	pingGraphData = JSON.parse(pingGraphData);
 
-		pingGraphData = JSON.parse(pingGraphData);
+	const parsedInfo = JSON.parse(summary);
 
-		const parsedInfo = JSON.parse(summary);
+	pageSettings = JSON.parse(pageSettings);
 
-		pageSettings = JSON.parse(pageSettings);
+	const parsedSession = JSON.parse(session);
 
-		const parsedSession = JSON.parse(session);
-
-		return (
-				<div>
-					<DefaultHead host={host} title={`${titleName} Career Profile`} 
-						description={`View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedInfo.last)},
-						played ${parsedInfo.matches} matches with a winrate of ${parsedInfo.winrate.toFixed(2)}% and has played for a total of ${(parsedInfo.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedInfo.first)}.`} 
-						keywords={`career,profile,${name},${country.country}`}
-						image={ogImage} imageType="png"
-					/>
-					<main>
-						<Nav settings={navSettings} session={session}/>
-						<div id="content">
-							<div className="default">
-								<div className="default-header">
-									 {titleName} Career Profile
-								</div>
-
-
-								<PlayerSummary 
-									host={imageHost}
-									session={parsedSession} 
-									pageSettings={pageSettings} 
-									summary={summary} 
-									flag={country.code.toLowerCase()} 
-									country={country.country} 
-									gametypeStats={gametypeStats}
-									gametypeNames={gametypeNames}
-									latestWinRate={latestWinRate} 
-									winRateHistory={winRateHistory} 
-									matchDates={matchDates}
-									faces={faces}
-								/>
-
-								{(pageSettings["Display Rankings"] === "false") ? null :
-								<PlayerRankings data={rankingsData} gametypeNames={gametypeNames} positions={rankingPositions}/>}
-
-								{(pageSettings["Display Weapon Stats"] !== "true") ? null :
-								<PlayerWeapons session={parsedSession} pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
-
-								<PlayerItemsSummary data={itemData} names={itemNames}/>
-								<PlayerAliases data={aliases} faces={faces} masterName={name}/>
-
-								
-								{(pageSettings["Display Ping History Graph"] !== "true") ? null :
-								<div><div className="default-header">Ping History</div>
-								<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/></div>}
-
-								
-								<PlayerRecentMatches session={parsedSession} pageSettings={pageSettings} playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
-								totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
-								serverNames={serverNames} matchDates={matchDates}
-								/>
-
+	return (
+			<div>
+				<DefaultHead host={host} title={`${titleName} Career Profile`} 
+					description={`View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedInfo.last)},
+					played ${parsedInfo.matches} matches with a winrate of ${parsedInfo.winrate.toFixed(2)}% and has played for a total of ${(parsedInfo.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedInfo.first)}.`} 
+					keywords={`career,profile,${name},${country.country}`}
+					image={ogImage} imageType="png"
+				/>
+				<main>
+					<Nav settings={navSettings} session={session}/>
+					<div id="content">
+						<div className="default">
+							<div className="default-header">
+									{titleName} Career Profile
 							</div>
+
+
+							<PlayerSummary 
+								host={imageHost}
+								session={parsedSession} 
+								pageSettings={pageSettings} 
+								summary={summary} 
+								flag={country.code.toLowerCase()} 
+								country={country.country} 
+								gametypeStats={gametypeStats}
+								gametypeNames={gametypeNames}
+								latestWinRate={latestWinRate} 
+								winRateHistory={winRateHistory} 
+								matchDates={matchDates}
+								faces={faces}
+							/>
+
+							{(pageSettings["Display Rankings"] === "false") ? null :
+							<PlayerRankings data={rankingsData} gametypeNames={gametypeNames} positions={rankingPositions}/>}
+
+							{(pageSettings["Display Weapon Stats"] !== "true") ? null :
+							<PlayerWeapons session={parsedSession} pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
+
+							<PlayerItemsSummary data={itemData} names={itemNames}/>
+							<PlayerAliases data={aliases} faces={faces} masterName={name} host={imageHost}/>
+
+							
+							{(pageSettings["Display Ping History Graph"] !== "true") ? null :
+							<div><div className="default-header">Ping History</div>
+							<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/></div>}
+
+							
+							<PlayerRecentMatches session={parsedSession} pageSettings={pageSettings} playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
+							totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
+							serverNames={serverNames} matchDates={matchDates}
+							/>
+
 						</div>
-						<Footer session={session}/>
-					</main>   
-				</div>
+					</div>
+					<Footer session={session}/>
+				</main>   
+			</div>
 	)
 }
 

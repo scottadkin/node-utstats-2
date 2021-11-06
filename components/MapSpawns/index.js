@@ -1,5 +1,5 @@
 import Functions from '../../api/functions';
-import styles from './MapSpawns.module.css'
+import Table2 from '../../components/Table2';
 
 function setDistancesToFlag(spawns, flags, totalDistanceToFlag){
 
@@ -83,19 +83,17 @@ const MapSpawns = ({spawns, flagLocations}) =>{
     }
 
     if(elems.length > 0){
-        elems = <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Name</th>
-                    <th>Position X</th>
-                    <th>Position Y</th>
-                    <th>Position Z</th>
-                    <th>Spawns</th>
-                    {(flags.length > 0) ? <th>Distance To Flag</th> : null}
-                </tr>
-                {elems}
-            </tbody>
-        </table>
+        elems = <Table2 width={1}>
+            <tr>
+                <th>Name</th>
+                <th>Position X</th>
+                <th>Position Y</th>
+                <th>Position Z</th>
+                <th>Spawns</th>
+                {(flags.length > 0) ? <th>Distance To Flag</th> : null}
+            </tr>
+            {elems}
+        </Table2>
     }
 
 
@@ -140,18 +138,16 @@ const MapSpawns = ({spawns, flagLocations}) =>{
         flagsTable = <div>    
             <div className="default-header m-top-10">Spawn Distances to Flag</div>
             
-                <table className="t-width-1">
-                    <tbody>
-                        <tr>
-                            <th>Team</th>
-                            <th>Spawn Points</th>
-                            <th>Total Distance</th>
-                            <th>Average Distance</th>
-                            <th>Disadvantage</th>
-                        </tr>
-                        {averageDistanceElem}
-                    </tbody>
-                </table>
+                <Table2 width={1}>
+                    <tr>
+                        <th>Team</th>
+                        <th>Spawn Points</th>
+                        <th>Total Distance</th>
+                        <th>Average Distance</th>
+                        <th>Disadvantage</th>
+                    </tr>
+                    {averageDistanceElem}
+                </Table2>
                 
                
         </div>;

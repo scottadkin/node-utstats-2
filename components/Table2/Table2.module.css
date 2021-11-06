@@ -1,0 +1,16 @@
+.wrapper{
+    overflow: auto;
+    margin-left:auto;
+    margin-right:auto;
+    width:100%;
+    min-width:100%;
+}
+
+.wrapper table{
+    margin-bottom:25px;
+}
+
+
+.wrapper table th{
+    padding:15px 5px;
+}

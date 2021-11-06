@@ -3,6 +3,7 @@ import TimeStamp from '../TimeStamp/';
 import MMSS from '../MMSS/';
 import MatchResultSmall from '../MatchResultSmall/';
 import React from 'react';
+import Table2 from '../Table2/';
 
 class MatchesTableView extends React.Component{
 
@@ -109,24 +110,18 @@ class MatchesTableView extends React.Component{
         }
 
 
-        return (
-            <div className="center">
-                <table className="t-width-1">
-                    <tbody>
-                        <tr>
-                            <th>Date</th>
-                            <th>Gametype</th>
-                            <th>Map</th>               
-                            <th>Players</th>
-                            <th>Playtime</th>
-                            <th>Result</th>
-                            {(matches[0].playersTeam !== undefined) ? <th>Players Result</th> : null}
-                        </tr>
-                        {rows}
-                    </tbody>
-                </table>
-            </div>
-        );
+        return <Table2 width={1}>
+                <tr>
+                    <th>Date</th>
+                    <th>Gametype</th>
+                    <th>Map</th>               
+                    <th>Players</th>
+                    <th>Playtime</th>
+                    <th>Result</th>
+                    {(matches[0].playersTeam !== undefined) ? <th>Players Result</th> : null}
+                </tr>
+                {rows}
+            </Table2>
     }
 }
 

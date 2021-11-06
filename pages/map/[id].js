@@ -24,6 +24,7 @@ import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 import MapImageUploader from '../../components/MapImageUploader/';
 import Analytics from '../../api/analytics';
+import Table2 from '../../components/Table2';
 
 class Map extends React.Component{
 
@@ -75,54 +76,52 @@ class Map extends React.Component{
                             const elem = document.getElementById("main-image");
                             elem.requestFullscreen();
                         })} className={styles.mimage} id="main-image" src={`${imageHost}${image}`} alt="image" />
-                        <table className={styles.ttop}>
-                            <tbody>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>{Functions.removeUnr(basic.name)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Title</td>
-                                    <td>{basic.title}</td>
-                                </tr>
-                                <tr>
-                                    <td>Author</td>
-                                    <td>{basic.author}</td>
-                                </tr>
-                                <tr>
-                                    <td>Ideal Player Count</td>
-                                    <td>{basic.ideal_player_count}</td>
-                                </tr>
-                                <tr>
-                                    <td>Level Enter Text</td>
-                                    <td>{basic.level_enter_text}</td>
-                                </tr>
-                                <tr>
-                                    <td>Total Matches</td>
-                                    <td>{basic.matches}</td>
-                                </tr>
-                                <tr>
-                                    <td>Total Playtime</td>
-                                    <td>{parseFloat(basic.playtime / (60 * 60)).toFixed(2)} Hours</td>
-                                </tr>
-                                <tr>
-                                    <td>Longest Match</td>
-                                    <td><Link href={`/match/${basic.longestId}`}><a>{Functions.MMSS(basic.longest)}</a></Link></td>
-                                </tr>
-                                <tr>
-                                    <td>First Match</td>
-                                    <td><Timestamp timestamp={basic.first} /></td>
-                                </tr>
-                                <tr>
-                                    <td>Last Match</td>
-                                    <td><Timestamp timestamp={basic.last} /></td>
-                                </tr>
-                                <tr>
-                                    <td>Spawn Points</td>
-                                    <td>{JSON.parse(this.props.spawns).length}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <Table2 width={1}>
+                            <tr>
+                                <td>Name</td>
+                                <td>{Functions.removeUnr(basic.name)}</td>
+                            </tr>
+                            <tr>
+                                <td>Title</td>
+                                <td>{basic.title}</td>
+                            </tr>
+                            <tr>
+                                <td>Author</td>
+                                <td>{basic.author}</td>
+                            </tr>
+                            <tr>
+                                <td>Ideal Player Count</td>
+                                <td>{basic.ideal_player_count}</td>
+                            </tr>
+                            <tr>
+                                <td>Level Enter Text</td>
+                                <td>{basic.level_enter_text}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Matches</td>
+                                <td>{basic.matches}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Playtime</td>
+                                <td>{parseFloat(basic.playtime / (60 * 60)).toFixed(2)} Hours</td>
+                            </tr>
+                            <tr>
+                                <td>Longest Match</td>
+                                <td><Link href={`/match/${basic.longestId}`}><a>{Functions.MMSS(basic.longest)}</a></Link></td>
+                            </tr>
+                            <tr>
+                                <td>First Match</td>
+                                <td><Timestamp timestamp={basic.first} /></td>
+                            </tr>
+                            <tr>
+                                <td>Last Match</td>
+                                <td><Timestamp timestamp={basic.last} /></td>
+                            </tr>
+                            <tr>
+                                <td>Spawn Points</td>
+                                <td>{JSON.parse(this.props.spawns).length}</td>
+                            </tr>
+                        </Table2>
                     </div>}
 
                     {(this.props.pageSettings["Display Games Played"] === "false") ? null : 
@@ -173,9 +172,9 @@ class Map extends React.Component{
                     <div>
                         <div className="default-header" id="recent-matches">Recent Matches</div>
                         <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`} anchor={"#recent-matches"}/>
-                        <div className={styles.recent}>
-                            <MatchesTableView data={matches} image={image}/>
-                        </div>
+        
+                        <MatchesTableView data={matches} image={image}/>
+                       
                     </div>}
 
                 </div>

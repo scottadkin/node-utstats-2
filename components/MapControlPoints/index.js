@@ -1,4 +1,5 @@
 import styles from './MapControlPoints.module.css';
+import Table2 from '../Table2';
 
 const MapControlPoints = ({points, mapPrefix}) =>{
     
@@ -29,8 +30,7 @@ const MapControlPoints = ({points, mapPrefix}) =>{
 
         return <div className="m-bottom-10">
             <div className="default-header">Domination Control Points</div>
-            <table className="t-width-1">
-                <tbody>
+            <Table2 width={1}>
                     <tr>
                         <th>Name</th>
                         <th>Position X</th>
@@ -40,8 +40,7 @@ const MapControlPoints = ({points, mapPrefix}) =>{
                         <th>Average Caps</th>
                     </tr>
                     {elems}
-                </tbody>
-            </table>
+            </Table2>
             
         </div>
     }
