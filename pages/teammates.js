@@ -13,6 +13,7 @@ import Functions from "../api/functions";
 import CountryFlag from '../components/CountryFlag';
 import Link from 'next/link';
 import Gametypes from '../api/gametypes';
+import Table from '../components/table';
 
 class TeamMates extends React.Component{
 
@@ -439,43 +440,39 @@ class TeamMates extends React.Component{
         }
 
         return <div>
-            <table className="t-width-1 m-bottom-25">
-                <tbody>
-                    <tr>
-                        <th>Total Matches</th>
-                        <th>Total Wins</th>
-                        <th>Total Draws</th>
-                        <th>Total Losses</th>
-                        <th>Win Rate</th>
-                    </tr>
+            <Table width={1}>
+                <tr>
+                    <th>Total Matches</th>
+                    <th>Total Wins</th>
+                    <th>Total Draws</th>
+                    <th>Total Losses</th>
+                    <th>Win Rate</th>
+                </tr>
 
-                    <tr>
-                        <td>{wins + draws + losses}</td>
-                        <td>{wins}</td>
-                        <td>{draws}</td>
-                        <td>{losses}</td>
-                        <td className={colorClass}>{winRate.toFixed(2)}%</td>
-                    </tr>
-                </tbody>
-            </table>
+                <tr>
+                    <td>{wins + draws + losses}</td>
+                    <td>{wins}</td>
+                    <td>{draws}</td>
+                    <td>{losses}</td>
+                    <td className={colorClass}>{winRate.toFixed(2)}%</td>
+                </tr>
+            </Table>
 
-            <table className="t-width-1 m-bottom-25">
-                <tbody>
-                    <tr>
-                        <th>Longest Win Streak</th>
-                        <th>Longest Draw Streak</th>
-                        <th>Longest Loss Streak</th>
-                        <th>Current Streak</th>
-                    </tr>
+            <Table width={1}>
+                <tr>
+                    <th>Longest Win Streak</th>
+                    <th>Longest Draw Streak</th>
+                    <th>Longest Loss Streak</th>
+                    <th>Current Streak</th>
+                </tr>
 
-                    <tr>
-                        <td>{maxWinStreak}</td>
-                        <td>{maxDrawStreak}</td>
-                        <td>{maxLoseStreak}</td>
-                        <td>{currentStreak}</td>
-                    </tr>
-                </tbody>
-            </table>
+                <tr>
+                    <td>{maxWinStreak}</td>
+                    <td>{maxDrawStreak}</td>
+                    <td>{maxLoseStreak}</td>
+                    <td>{currentStreak}</td>
+                </tr>
+            </Table>
         </div>
     }
 
@@ -702,21 +699,19 @@ class TeamMates extends React.Component{
 
         return <div>
             {this.renderMinimumMatches()}
-            <table className="t-width-1 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Map</th>
-                        <th>Matches</th>
-                        <th>Draws</th>
-                        <th>Losses</th>
-                        <th>Wins</th>
-                        <th>Best Win Streak</th>
-                        <th>Current Streak</th>
-                        <th>Win Rate</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table width={1} players={1}>
+                <tr>
+                    <th>Map</th>
+                    <th>Matches</th>
+                    <th>Draws</th>
+                    <th>Losses</th>
+                    <th>Wins</th>
+                    <th>Best Win Streak</th>
+                    <th>Current Streak</th>
+                    <th>Win Rate</th>
+                </tr>
+                {rows}   
+            </Table>
         </div>
     }
 
@@ -835,21 +830,19 @@ class TeamMates extends React.Component{
 
         return <div>
             {this.renderMinimumMatches()}
-            <table className="t-width-1 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Gametype</th>
-                        <th>Matches</th>
-                        <th>Draws</th>
-                        <th>Losses</th>
-                        <th>Wins</th>
-                        <th>Best Win Streak</th>
-                        <th>Current Streak</th>
-                        <th>Win Rate</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table width={1}>
+                <tr>
+                    <th>Gametype</th>
+                    <th>Matches</th>
+                    <th>Draws</th>
+                    <th>Losses</th>
+                    <th>Wins</th>
+                    <th>Best Win Streak</th>
+                    <th>Current Streak</th>
+                    <th>Win Rate</th>
+                </tr>
+                {rows}
+            </Table>
         </div>
     }
 
@@ -994,23 +987,21 @@ class TeamMates extends React.Component{
                     Average per 10 Minutes
                 </div>
             </div>
-            <table className="t-width-1 player-td-1">
-                <tbody>
-                    <tr>
-                        <th>Player</th>
-                        <th>Score</th>
-                        <th>Frags</th>
-                        <th>Kills</th>
-                        <th>Deaths</th>
-                        <th>Suicides</th>
-                        <th>Team Kills</th>
-                        <th>Spawn Kills</th>
-                        {effHeader}
-           
-                    </tr>
-                    {playerRows}
-                </tbody>
-            </table>
+            <Table width={1} players={true}>
+                <tr>
+                    <th>Player</th>
+                    <th>Score</th>
+                    <th>Frags</th>
+                    <th>Kills</th>
+                    <th>Deaths</th>
+                    <th>Suicides</th>
+                    <th>Team Kills</th>
+                    <th>Spawn Kills</th>
+                    {effHeader}
+        
+                </tr>
+                {playerRows}
+            </Table>
         </div>
     }
 
@@ -1184,8 +1175,8 @@ class TeamMates extends React.Component{
         if(ctfMode === 1) title = "Gametype";
         if(ctfMode === 2) title = "Map";
 
-        return <table className="t-width-1 player-td-1">
-            <tbody>
+        return <>
+            <Table width={1} players={1}>
                 <tr>
                     <th>{title}</th>
                     {(ctfMode !== 0) ? <th>Matches</th> : null}
@@ -1201,8 +1192,9 @@ class TeamMates extends React.Component{
                     <th>Close Return</th>
                 </tr>
                 {rows}
-            </tbody>
-        </table>
+            </Table>
+            <div className="default-sub-header">Flag Carry Time</div>
+        </>
     }
 
     orderByMatches(data){
@@ -1359,25 +1351,23 @@ class TeamMates extends React.Component{
         if(ctfMode === 1) title = "Gametype";
         if(ctfMode === 2) title = "Map";
 
-        return <table className="t-width-1 player-td-1">
-            <tbody>
-                <tr>
-                    <th>{title}</th>
-                    {(ctfMode > 0) ? <th>Matches</th> : null}
-                    <th>Cover</th>
-                    <th>Cover Pass</th>
-                    <th>Cover Fail</th>
-                    <th>Cover Eff</th>
-                    <th>Multi Cover</th>
-                    <th>Cover Spree</th>
-                    <th>Best Covers</th>
-                    <th>Self Covers</th>
-                    <th>Self Covers Pass</th>
-                    <th>Self Covers Fail</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        return <Table width={1} players={1}>
+            <tr>
+                <th>{title}</th>
+                {(ctfMode > 0) ? <th>Matches</th> : null}
+                <th>Cover</th>
+                <th>Cover Pass</th>
+                <th>Cover Fail</th>
+                <th>Cover Eff</th>
+                <th>Multi Cover</th>
+                <th>Cover Spree</th>
+                <th>Best Covers</th>
+                <th>Self Covers</th>
+                <th>Self Covers Pass</th>
+                <th>Self Covers Fail</th>
+            </tr>
+            {rows}
+        </Table>
     }
 
     renderCTF(){

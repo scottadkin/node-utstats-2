@@ -386,19 +386,16 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .t-width-1{
 	width:90%;
 	max-width:var(--max-width-1);
-	overflow:hidden;
 }
 
 .t-width-2{
 	width:90%;
 	max-width:500px;
-	overflow:hidden;
 }
 
 .t-width-3{
 	width:90%;
 	max-width:250px;
-	overflow:hidden;
 }
 
 .form{

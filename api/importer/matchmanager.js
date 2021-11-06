@@ -457,7 +457,6 @@ class MatchManager{
 
         for(let i = 0; i < this.lines.length; i++){
 
-
             typeResult = typeReg.exec(this.lines[i]);
 
             if(typeResult !== null){

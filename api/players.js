@@ -1480,7 +1480,8 @@ class Players{
             "flagSelfCoverBest": 0,
             "flagKill": 0,
             "flagSave": 0,
-            "flagCarryTime": 0
+            "flagCarryTime": 0,
+            "flagCarryTimeBest": 0
         };
     }
 
@@ -1501,6 +1502,9 @@ class Players{
         obj.flagSelfCoverFail += data.flag_self_cover_fail;
         obj.flagMultiCover += data.flag_multi_cover;
         obj.flagSpreeCover += data.flag_spree_cover;
+        obj.flagCarryTime += data.flag_carry_time;
+      
+        if(data.flag_carry_time > obj.flagCarryTimeBest) obj.flagCarryTimeBest = data.flag_carry_time;
 
         if(obj.flagCoverBest < data.flag_cover_best) obj.flagCoverBest = data.flag_cover_best;
         if(obj.flagSelfCoverBest < data.flag_self_cover_best) obj.flagSelfCoverBest = data.flag_self_cover_best;
