@@ -1,5 +1,6 @@
 const mysql = require('./database');
 const Gametypes = require('../api/gametypes');
+const Message = require('../api/message');
 
 class SiteSettings{
 
@@ -21,24 +22,11 @@ class SiteSettings{
     }
 
 
-    debugGetAllSettings(){
+    async debugGetAllSettings(){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_site_settings ORDER BY category ASC, name ASC";
+        return await mysql.simpleQuery(query);
 
-            const query = "SELECT * FROM nstats_site_settings ORDER BY category ASC, name ASC";
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-
-        });
     }
 
 
@@ -257,6 +245,44 @@ class SiteSettings{
         }
 
         return settings;
+    }
+
+
+    async getDuplicates(){
+
+        const query = "SELECT DISTINCT category,name,COUNT(*) as total_found, MAX(id) as last_id FROM nstats_site_settings GROUP BY category,name";
+        const result = await mysql.simpleQuery(query);
+
+        const found = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(r.total_found > 1) found.push(r);
+        }
+
+        return found;
+    }
+
+
+    async deleteDuplicates(){
+
+        const dups = await this.getDuplicates();
+
+        const query = "DELETE FROM nstats_site_settings WHERE category=? AND name=? AND id!=?";
+
+        if(dups.length === 0){
+            new Message(`No duplicate settings found`, "pass");
+        }
+    
+        for(let i = 0; i < dups.length; i++){
+
+            const d = dups[i];
+            await mysql.simpleQuery(query, [d.category, d.name, d.last_id]);
+            new Message(`Deleted duplicate site setting entry ${d.category}, ${d.name} with id not equal to ${d.last_id}`,"pass");
+            
+        }
     }
 
 }
