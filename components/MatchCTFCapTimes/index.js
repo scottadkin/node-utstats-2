@@ -43,6 +43,13 @@ class MatchCTFCapTimes extends React.Component{
         await this.loadData();
     }
 
+    async componentDidUpdate(prevProps){
+
+        if(this.props !== prevProps){
+            await this.loadData();
+        }
+    }
+
 
     getPlayer(id){
 
@@ -70,15 +77,87 @@ class MatchCTFCapTimes extends React.Component{
 
         if(this.state.data === null) return null;
 
+        let soloElem = null;
+        let assistElem = null;
+
+        if(this.state.data.recordCaps.solo !== null){
+            
+            const cap = this.state.data.recordCaps.solo;
+            const player = this.getPlayer(cap.cap);
+
+            soloElem = <tr>
+                <td><Link href={`/match/${cap.match_id}`}><a>Solo Cap</a></Link></td>
+                <td>
+                    <Link href={`/player/${player.id}`}>
+                        <a>
+                            <CountryFlag host={this.props.host} country={player.country}/>
+                            {player.name}
+                        </a>
+                    </Link>
+                </td>
+                <td className="purple">{cap.travel_time.toFixed(2)} Seconds</td>
+            </tr>
+
+        }else{
+            soloElem = <tr>
+                <td colSpan={4}>No Record</td>
+            </tr>
+        }
+
+        if(this.state.data.recordCaps.assist !== null){
+
+            const cap = this.state.data.recordCaps.assist;
+
+            const playerElems = [];
+
+            const playerIds = [cap.cap];
+
+            for(let i = 0; i < cap.assists.length; i++){
+
+                const id = parseInt(cap.assists[i]);
+
+                if(id === id){
+                    if(playerIds.indexOf(id) === -1) playerIds.push(id);
+                }
+            }
+
+            for(let i = 0; i < playerIds.length; i++){
+
+                const p = this.getPlayer(playerIds[i]);
+
+                playerElems.push(<React.Fragment key={i}>
+                    <Link href={`/player/${p.id}`}><a><CountryFlag host={this.props.host} country={p.country}/>{p.name}</a></Link>
+                    {(i < playerIds.length - 1) ? ", " : ""}
+                </React.Fragment>);
+            }
+
+            assistElem = <tr>
+                <td><Link href={`/match/${cap.match_id}`}><a>Assisted Cap</a></Link></td>
+                <td>
+                    {playerElems}
+                </td>
+                <td className="purple">{cap.travel_time.toFixed(2)} Seconds</td>
+            </tr>
+
+        }
+
+
+        return <Table2 width={1}>
+            <tr>
+                <th>Record</th>
+                <th>Capped By</th>
+                <th>Time</th>
+            </tr>
+            {soloElem}
+            {assistElem}
+        </Table2>
+
     }
 
     renderMatchCaps(){
 
         if(this.state.data === null) return null;
         const rows = [];
-
-        console.log(this.state.data);
-
 
         const soloRecord = this.state.data.recordCaps.solo.travel_time;
         const assistRecord = this.state.data.recordCaps.assist.travel_time;
