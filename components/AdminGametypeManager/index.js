@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import styles from './AdminGametypeManager.module.css';
+import Table2 from '../Table2';
 
 class AdminGametypeManager extends React.Component{
 
@@ -880,16 +881,14 @@ class AdminGametypeManager extends React.Component{
             </form>
             {this.renderSingleProgress()}
             {(rows.length === 0) ? null :
-                <table className="t-width-1">
-                    <tbody>
-                        <tr>
-                            <th>Gametype Name</th>
-                            <th>File Status</th>
-                            <th>Upload</th>
-                        </tr>
-                        {rows}
-                    </tbody>
-                </table>
+                <Table2 width={1}>
+                    <tr>
+                        <th>Gametype Name</th>
+                        <th>File Status</th>
+                        <th>Upload</th>
+                    </tr>
+                    {rows}
+                </Table2>
                 }       
 
             {this.renderImageDirectory()}

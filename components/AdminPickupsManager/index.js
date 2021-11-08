@@ -1,4 +1,5 @@
 import React from 'react';
+import Table2 from '../Table2';
 
 
 class AdminPickupsManager extends React.Component{
@@ -209,18 +210,16 @@ class AdminPickupsManager extends React.Component{
         }
 
         return <div>
-            <table className="t-width-1 m-bottom-25">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Display Name</th>
-                        <th>Matches</th>
-                        <th>Uses</th>
-                        <th>Change Type</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Name</th>
+                    <th>Display Name</th>
+                    <th>Matches</th>
+                    <th>Uses</th>
+                    <th>Change Type</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 

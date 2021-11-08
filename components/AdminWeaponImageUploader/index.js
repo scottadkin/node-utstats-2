@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Table2 from '../Table2';
 
 class AdminWeaponImageUploader extends React.Component{
 
@@ -199,16 +199,14 @@ class AdminWeaponImageUploader extends React.Component{
 
         return <div>
             <div className="default-header">Single Uploads</div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Weapon Name</th>
-                        <th>Status</th>
-                        <th>Upload</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Weapon Name</th>
+                    <th>Status</th>
+                    <th>Upload</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 

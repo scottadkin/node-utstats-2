@@ -1,18 +1,18 @@
-.table{
+.table table{
     margin-bottom:25px;
 }
 
-.table td:nth-child(1){
+.table table td:nth-child(1){
     text-align:left;
 }
 
-.table td:nth-child(2){
+.table table td:nth-child(2){
     max-width:150px;
     min-width:150px;
     width:150px;
 }
 
-.table td:nth-child(3){
+.table table td:nth-child(3){
     max-width:150px;
     min-width:150px;
     width:150px;

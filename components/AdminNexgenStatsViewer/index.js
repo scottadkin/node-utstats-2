@@ -1,6 +1,7 @@
 import React from 'react';
 import OnOff from '../OnOff';
 import styles from './AdminNexgenStatsViewer.module.css';
+import Table2 from '../Table2';
 
 class AdminNexgenStatsViewer extends React.Component{
 
@@ -291,20 +292,18 @@ class AdminNexgenStatsViewer extends React.Component{
             rows.push(<tr key="none"><td colSpan="7">There are currently no lists created</td></tr>);
         }
 
-        return <table className="t-width-1 m-bottom-25">
-            <tbody>
-                <tr>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Gametype</th>
-                    <th>To Display</th>
-                    <th>Enabled</th>
-                    <th>Position</th>
-                    <th>Delete</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        return <Table2 width={1}>
+            <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Gametype</th>
+                <th>To Display</th>
+                <th>Enabled</th>
+                <th>Position</th>
+                <th>Delete</th>
+            </tr>
+            {rows}
+        </Table2>
     }
 
     renderUnsavedChanges(){

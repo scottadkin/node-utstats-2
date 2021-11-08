@@ -1,4 +1,5 @@
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 const AnalyticsHitsByIp = ({data}) =>{
 
@@ -20,17 +21,15 @@ const AnalyticsHitsByIp = ({data}) =>{
 
     return <div>
         <div className="default-header">Hits By Ip</div>
-        <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Ip</th>
-                    <th>First</th>
-                    <th>Last</th>
-                    <th>Hits</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={1}>
+            <tr>
+                <th>Ip</th>
+                <th>First</th>
+                <th>Last</th>
+                <th>Hits</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 

@@ -1,23 +1,22 @@
+import Table2 from "../Table2";
 
 const Box = ({hits, unique, returning}) =>{
 
     return <div>
-        <table className="t-width-2 td-1-left">
-            <tbody>
-                <tr>
-                    <td>Site Hits</td>
-                    <td>{hits}</td>
-                </tr>
-                <tr>
-                    <td>Unique Visitors</td>
-                    <td>{unique}</td>
-                </tr>
-                <tr>
-                    <td>Returning Visitors</td>
-                    <td>{returning}</td>
-                </tr>
-            </tbody>
-        </table>
+        <Table2 width={2}>
+            <tr>
+                <td>Site Hits</td>
+                <td>{hits}</td>
+            </tr>
+            <tr>
+                <td>Unique Visitors</td>
+                <td>{unique}</td>
+            </tr>
+            <tr>
+                <td>Returning Visitors</td>
+                <td>{returning}</td>
+            </tr>
+        </Table2>
     </div>
 }
 

@@ -1,4 +1,5 @@
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 const AnalyticsUserAgents = ({data}) =>{
 
@@ -22,18 +23,16 @@ const AnalyticsUserAgents = ({data}) =>{
     return <div>
         <div className="default-header">User Agents</div>
 
-        <table className="t-width-1 td-1-left">
-            <tbody>
-                <tr>
-                    <th>System</th>
-                    <th>Browser</th>
-                    <th>First</th>
-                    <th>Last</th>
-                    <th>Total</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={1}>
+            <tr>
+                <th>System</th>
+                <th>Browser</th>
+                <th>First</th>
+                <th>Last</th>
+                <th>Total</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 

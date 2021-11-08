@@ -1,5 +1,6 @@
 import React from 'react';
 import TrueFalse from '../TrueFalse';
+import Table2 from '../Table2';
 
 
 class AdminMonsterHunt extends React.Component{
@@ -293,19 +294,17 @@ class AdminMonsterHunt extends React.Component{
 
         return <div>
             {this.renderSingleProgress()}
-            <table className="t-width-1 m-bottom-25">
-                <tbody>
-                    <tr>
-                        <th>Class Name</th>
-                        <th>Display Name</th>
-                        <th>Matches Seen</th>
-                        <th>Total Deaths</th>
-                        <th>Image Status</th>
-                        <th>Upload</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Class Name</th>
+                    <th>Display Name</th>
+                    <th>Matches Seen</th>
+                    <th>Total Deaths</th>
+                    <th>Image Status</th>
+                    <th>Upload</th>
+                </tr>
+                {rows}
+            </Table2>
             {this.renderSingleProgress()}
         </div>
     }

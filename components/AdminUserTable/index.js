@@ -3,6 +3,7 @@ import TimeStamp from '../TimeStamp/';
 import Functions from '../../api/functions';
 import styles from './AdminUserTable.module.css';
 import TrueFalse from '../TrueFalse/';
+import Table2 from '../Table2';
 
 class AdminUserTable extends React.Component{
 
@@ -211,23 +212,21 @@ class AdminUserTable extends React.Component{
 
         return <div>
             <div className="default-header">All Users</div>
-            <table className="t-width-1 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Joined</th>
-                        <th>Activated</th>
-                        <th>Admin</th>
-                        <th>Banned</th>
-                        <th>Upload Images</th>
-                        <th>Times Logged In</th>
-                        <th>Last Login</th>
-                        <th>Last Active</th>
-                        <th>Last IP</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1} players={true}>
+                <tr>
+                    <th>Name</th>
+                    <th>Joined</th>
+                    <th>Activated</th>
+                    <th>Admin</th>
+                    <th>Banned</th>
+                    <th>Upload Images</th>
+                    <th>Times Logged In</th>
+                    <th>Last Login</th>
+                    <th>Last Active</th>
+                    <th>Last IP</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -271,17 +270,15 @@ class AdminUserTable extends React.Component{
 
         return <div>
             <div className="default-header">Activate Users</div>
-            <table className="t-width-1 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Joined</th>
-                        <th>IP</th>
-                        <th>Update Account</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1} players={true}>
+                <tr>
+                    <th>Name</th>
+                    <th>Joined</th>
+                    <th>IP</th>
+                    <th>Update Account</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -344,18 +341,16 @@ class AdminUserTable extends React.Component{
 
         return <div>
             <div className="default-header">User Permissions</div>
-            <table className="t-width-1 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Admin</th>
-                        <th>Upload Images</th>
-                        <th>Change Admin</th>
-                        <th>Change Images</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1} players={true}>
+                <tr>
+                    <th>Name</th>
+                    <th>Admin</th>
+                    <th>Upload Images</th>
+                    <th>Change Admin</th>
+                    <th>Change Images</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -402,16 +397,14 @@ class AdminUserTable extends React.Component{
 
         return <div>
             <div className="default-header">Ban Users</div>
-            <table className="t-width-2 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Banned</th>
-                        <th>Update</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={2} players={true}>
+                <tr>
+                    <th>Name</th>
+                    <th>Banned</th>
+                    <th>Update</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 

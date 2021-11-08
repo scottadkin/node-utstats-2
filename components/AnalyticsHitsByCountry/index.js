@@ -1,5 +1,6 @@
 import CountryFlag from '../CountryFlag';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 const AnalyticsHitsByCountry = ({data}) =>{
 
@@ -46,17 +47,15 @@ const AnalyticsHitsByCountry = ({data}) =>{
     return <div>
         <div className="default-header">Hits By Country</div>
 
-        <table className="t-width-1 td-1-left">
-            <tbody>
-                <tr>
-                    <th>Country</th>
-                    <th>First Hit</th>
-                    <th>Last Hit</th>
-                    <th>Hits</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={1}>
+            <tr>
+                <th>Country</th>
+                <th>First Hit</th>
+                <th>Last Hit</th>
+                <th>Hits</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 

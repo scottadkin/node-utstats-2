@@ -3,6 +3,7 @@ import Functions from '../../api/functions';
 import styles from './AdminMatchesManager.module.css';
 import Link from 'next/link';
 import ProgressBar from '../ProgressBar';
+import Table2 from '../Table2';
 
 class AdminMatchesManager extends React.Component{
 
@@ -349,19 +350,17 @@ class AdminMatchesManager extends React.Component{
                         {this.renderProgress()}
                 </div>
             </div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Match Id</th>
-                        <th>Date</th>
-                        <th>Server</th>
-                        <th>Map</th>
-                        <th>Playtime</th>
-                        <th>Players</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Match Id</th>
+                    <th>Date</th>
+                    <th>Server</th>
+                    <th>Map</th>
+                    <th>Playtime</th>
+                    <th>Players</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -428,17 +427,15 @@ class AdminMatchesManager extends React.Component{
                     {this.renderProgress()}
                 
             </div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Log Name</th>
-                        <th>First Imported</th>
-                        <th>Last Imported</th>
-                        <th>Found Duplicates</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Log Name</th>
+                    <th>First Imported</th>
+                    <th>Last Imported</th>
+                    <th>Found Duplicates</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
 
     }

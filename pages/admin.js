@@ -553,13 +553,6 @@ class Admin extends React.Component{
         />;
     }
 
-    displayACEManager(){
-
-        if(this.state.mode !== 14) return null;
-
-        return <ACEManager />;
-    }
-
     displayMapManager(){
 
         if(this.state.mode !== 1) return null;

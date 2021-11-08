@@ -1,4 +1,5 @@
 import React from 'react';
+import Table2 from '../Table2';
 
 
 class AdminRankingManager extends React.Component{
@@ -38,10 +39,6 @@ class AdminRankingManager extends React.Component{
         const value = e.target.value;
 
         if(result !== null){
-
-            console.log(result);
-
-            console.log(`set description of ${result[2]} to ${value}`);
 
             const eventId = parseInt(result[2]);
 
@@ -344,14 +341,7 @@ class AdminRankingManager extends React.Component{
 
             this.setState({"saveInProgress": true});
 
-     
-
             const changedData = this.getChangedValues();
-
-            console.table(changedData);
-            
-            
-
 
             const req = await fetch("/api/rankingadmin", {
                 "headers": {"Content-Type": "application/json"},
@@ -445,16 +435,14 @@ class AdminRankingManager extends React.Component{
             </div>
             {this.renderUnsavedChanges()}
             <div className="default-header">Change Ranking Event values</div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Event</th>
-                        <th>Description</th>
-                        <th>Points Per Event</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Event</th>
+                    <th>Description</th>
+                    <th>Points Per Event</th>
+                </tr>
+                {rows}
+            </Table2>
             {this.renderUnsavedChanges()}
         </div>
     }

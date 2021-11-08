@@ -1,5 +1,6 @@
 import React from 'react';
 import Functions from '../../api/functions';
+import Table2 from '../Table2';
 
 
 class AdminFaces extends React.Component{
@@ -20,10 +21,6 @@ class AdminFaces extends React.Component{
         try{
 
             e.preventDefault();
-
-            console.log(e.target);
-
-            console.log(e.target.files.files);
 
             const formData = new FormData();
 
@@ -66,9 +63,6 @@ class AdminFaces extends React.Component{
 
             let fileName = e.target[0].value;
             let file = e.target[1].files[0];
-
-            console.log(fileName);
-            console.log(file);
 
             const formData = new FormData();
 
@@ -147,20 +141,18 @@ class AdminFaces extends React.Component{
             </tr>);
         }
 
-        return <table className="table-width-1 td-1-left">
-            <tbody>
-                <tr>
-                    <th>Displayed</th>
-                    <th>Name</th>
-                    <th>First Used</th>
-                    <th>Last Used</th>
-                    <th>Total Uses</th>
-                    <th>Status</th>
-                    <th>Upload</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>;
+        return <Table2 width={1}>
+            <tr>
+                <th>Displayed</th>
+                <th>Name</th>
+                <th>First Used</th>
+                <th>Last Used</th>
+                <th>Total Uses</th>
+                <th>Status</th>
+                <th>Upload</th>
+            </tr>
+            {rows}
+        </Table2>;
     }
 
     render(){

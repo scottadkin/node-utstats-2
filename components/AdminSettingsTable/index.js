@@ -1,5 +1,6 @@
 import styles from './AdminSettingsTable.module.css';
 import React from 'react';
+import Table2 from '../Table2';
 
 class AdminSettingsTable extends React.Component{
 
@@ -236,20 +237,18 @@ class AdminSettingsTable extends React.Component{
 
         
 
-        return <div>
+        return <div className={styles.table}>
             <div className="default-header">
                 {this.props.title} Settings
             </div>
             <form action="/" onSubmit={this.saveSettings} method="POST">
-                <table className={`t-width-1 ${styles.table}`}>
-                    <tbody>
-                        <tr>
-                            <th>Name</th>
-                            <th>Value</th>
-                        </tr>
-                        {this.renderRows()}
-                    </tbody>
-                </table>
+                <Table2 width={1}>
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                    </tr>
+                    {this.renderRows()}
+                </Table2>
                 {this.renderUnsavedSettings()}
                 <input type="submit" className="search-button" name="submit" value="Save Changes"/>
             </form>
