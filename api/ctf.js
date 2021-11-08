@@ -939,9 +939,16 @@ class CTF{
 
     async getFastestMatchCaps(matchId){
 
-        const query = "SELECT team,grab,cap,assists,travel_time FROM nstats_ctf_caps WHERE match_id=? ORDER BY travel_time ASC";
+        const query = "SELECT team,grab,cap,assists,travel_time,cap_time FROM nstats_ctf_caps WHERE match_id=? ORDER BY travel_time ASC";
 
-        return await mysql.simpleQuery(query, [matchId]);
+        const result = await mysql.simpleQuery(query, [matchId]);
+
+        for(let i = 0; i < result.length; i++){
+
+            result[i].assists = result[i].assists.split(",");
+        }
+
+        return result;
     }
 
     async getMapFastestSoloCap(mapId){

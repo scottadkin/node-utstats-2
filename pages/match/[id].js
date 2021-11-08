@@ -209,7 +209,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         );
     }
 
-    elems.push(<MatchCTFCapTimes key={`match-ctf-caps`} players={JSON.parse(playerNames)} matchId={parsedInfo.id} mapId={parsedInfo.map} host={imageHost}/>);
+    elems.push(<MatchCTFCapTimes key={`match-ctf-caps`} players={JSON.parse(playerNames)} matchId={parsedInfo.id} mapId={parsedInfo.map} host={imageHost} matchStart={parsedInfo.start}/>);
 
     if(pageSettings["Display Capture The Flag Graphs"] === "true"){
 
