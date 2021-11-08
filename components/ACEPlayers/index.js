@@ -2,6 +2,7 @@ import React from 'react';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 class ACEPlayers extends React.Component{
 
@@ -268,19 +269,17 @@ class ACEPlayers extends React.Component{
 
         return <div>
             <div className="default-sub-header">Search Result</div>
-            <table className="t-width-1 m-bottom-25">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>IP</th>
-                        <th>Hardware Info</th>
-                        <th>Dates</th>
-                        <th>Times Connected</th>
-                        <th>Kicks</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Name</th>
+                    <th>IP</th>
+                    <th>Hardware Info</th>
+                    <th>Dates</th>
+                    <th>Times Connected</th>
+                    <th>Kicks</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 

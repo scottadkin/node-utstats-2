@@ -30,3 +30,8 @@
 .line div:nth-child(2){
     padding-left:10px;
 }
+
+
+.table table td{
+    text-align:left;
+}

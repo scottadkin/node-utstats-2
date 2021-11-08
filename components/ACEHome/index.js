@@ -2,6 +2,7 @@ import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from 'next/link';
 import ACE from '../../api/ace';
+import Table2 from "../Table2";
 
 const KickTable = ({host, kicks}) =>{
 
@@ -24,18 +25,16 @@ const KickTable = ({host, kicks}) =>{
 
     return <div className="m-bottom-25">
         <div className="default-sub-header">Recent Kicks</div>
-        <table className="t-width-1">
-            <tbody>
-                <tr>
-                    <th>Date</th>
-                    <th>Player</th>
-                    <th>Kick Reason</th>
-                    <th>Package Name</th>
-                    <th>Package Version</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={1}>
+            <tr>
+                <th>Date</th>
+                <th>Player</th>
+                <th>Kick Reason</th>
+                <th>Package Name</th>
+                <th>Package Version</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 
@@ -60,18 +59,16 @@ const PlayersTable = ({host, players}) =>{
 
     return <div className="m-bottom-25">
         <div className="default-sub-header">Recent Players</div>
-        <table className="t-width-1 td-1-left">
-            <tbody>
-                <tr>
-                    <th>Name</th>
-                    <th>HWID</th>
-                    <th>First</th>
-                    <th>Last</th>
-                    <th>Times Connected</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+        <Table2 width={1} players={1}>
+            <tr>
+                <th>Name</th>
+                <th>HWID</th>
+                <th>First</th>
+                <th>Last</th>
+                <th>Times Connected</th>
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 
@@ -99,18 +96,16 @@ const ScreenShotsTable = ({host, data}) =>{
 
     return <div>
         <div className="default-sub-header">Recent Screenshot Requests</div>
-        <table className="t-width-1">
-        <tbody>
-                <tr>
-                    <th>Date</th>
-                    <th>IP</th>
-                    <th>Hardware Info</th>
-                    <th>Requested By</th>
-                    <th>Screenshot</th>
-                </tr>
-                {rows}
-            </tbody>
-        </table>    
+        <Table2 width={1}>
+            <tr>
+                <th>Date</th>
+                <th>IP</th>
+                <th>Hardware Info</th>
+                <th>Requested By</th>
+                <th>Screenshot</th>
+            </tr>
+            {rows}
+        </Table2>    
     </div>
 }
 

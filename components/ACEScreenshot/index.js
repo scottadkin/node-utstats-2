@@ -1,6 +1,7 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import styles from '../ACEKickLog/ACEKickLog.module.css';
+import Table2 from '../Table2';
 
 
 class ACEScreenshot extends React.Component{
@@ -15,8 +16,6 @@ class ACEScreenshot extends React.Component{
 
         try{
 
-            console.log(this.props);
-
             const req = await fetch("/api/ace", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
@@ -29,7 +28,6 @@ class ACEScreenshot extends React.Component{
 
                 this.setState({"data": res.data});
             }
-            console.log(res);
 
         }catch(err){
             console.trace(err);
@@ -81,18 +79,16 @@ class ACEScreenshot extends React.Component{
         return <div>
             <div className="default-header m-bottom-25">{d.file}</div>
 
-            <table className="t-width-2 td-1-left m-bottom-25">
-                <tbody>
-                    <tr>
-                        <td className="yellow">Date</td>
-                        <td>{Functions.convertTimestamp(d.timestamp)}</td>
-                    </tr>
-                    <tr>
-                        <td className="yellow">Requested By</td>
-                        <td>{d.admin_name}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <Table2 width={2} players={true}>
+                <tr>
+                    <td className="yellow">Date</td>
+                    <td>{Functions.convertTimestamp(d.timestamp)}</td>
+                </tr>
+                <tr>
+                    <td className="yellow">Requested By</td>
+                    <td>{d.admin_name}</td>
+                </tr>
+            </Table2>
 
             <div className="default-sub-header">Screenshot</div>
             <a href={image} target="_blank"><img src={image} className="t-width-1 m-bottom-25" alt="image"/></a>

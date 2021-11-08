@@ -3,6 +3,7 @@ import ACE from '../../api/ace';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 class ACEPlayerReport extends React.Component{
 
@@ -325,18 +326,16 @@ class ACEPlayerReport extends React.Component{
         return <div className="m-bottom-25">
             <div className="default-sub-header">Basic Summary</div>
 
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Hardware Info</th>
-                        <th>Unique IPs</th>
-                        <th>Dates</th>
-                        <th>Times Connected</th>
-                        <th>Times Kicked</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Hardware Info</th>
+                    <th>Unique IPs</th>
+                    <th>Dates</th>
+                    <th>Times Connected</th>
+                    <th>Times Kicked</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -375,18 +374,16 @@ class ACEPlayerReport extends React.Component{
                 </div>
                 <div onClick={this.next}>Next</div>
             </div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>ACE</th>
-                        <th>Date</th>
-                        <th>IP</th>
-                        <th>OS</th>
-                        <th>Hardware Info</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>ACE</th>
+                    <th>Date</th>
+                    <th>IP</th>
+                    <th>OS</th>
+                    <th>Hardware Info</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -433,19 +430,17 @@ class ACEPlayerReport extends React.Component{
                 </div>
                 <div onClick={this.nextKicks}>Next</div>
             </div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Date</th>
-                        <th>IP</th>
-                        <th>Hardware Info</th>
-                        <th>Kick Reason</th>
-                        <th>Package Info</th>
-                        <th>Screenshot</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Date</th>
+                    <th>IP</th>
+                    <th>Hardware Info</th>
+                    <th>Kick Reason</th>
+                    <th>Package Info</th>
+                    <th>Screenshot</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -484,18 +479,16 @@ class ACEPlayerReport extends React.Component{
                 </div>
                 <div onClick={this.nextSShots}>Next</div>
             </div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Date</th>
-                        <th>IP</th>
-                        <th>Hardware Info</th>
-                        <th>Requested By</th>
-                        <th>Screenshot</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>Date</th>
+                    <th>IP</th>
+                    <th>Hardware Info</th>
+                    <th>Requested By</th>
+                    <th>Screenshot</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -633,14 +626,12 @@ class ACEPlayerReport extends React.Component{
                 </div>
             </div>
      
-            <table className="t-width-3 m-top-25 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={3} players={true}>
+                <tr>
+                    <th>Name</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
@@ -688,18 +679,16 @@ class ACEPlayerReport extends React.Component{
 
         return <div className="m-bottom-25">
             <div className="default-sub-header">Used IPS</div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>IP</th>
-                        <th>Times Connected</th>
-                        <th>First Used</th>
-                        <th>Last Used</th>
-                        <th>Times Kicked</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1}>
+                <tr>
+                    <th>IP</th>
+                    <th>Times Connected</th>
+                    <th>First Used</th>
+                    <th>Last Used</th>
+                    <th>Times Kicked</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 

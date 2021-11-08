@@ -3,6 +3,7 @@ import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import Functions from '../../api/functions';
 import SimplePaginationLinks from '../SImplePaginationLinks';
+import Table2 from '../Table2';
 
 class ACEKickLogs extends React.Component{
 
@@ -66,8 +67,6 @@ class ACEKickLogs extends React.Component{
 
         const rows = [];
 
-        console.log(this.state.logs);
-
         for(let i = 0; i < this.state.logs.length; i++){
 
             const d = this.state.logs[i];
@@ -93,19 +92,17 @@ class ACEKickLogs extends React.Component{
         }
 
         return <div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Date</th>
-                        <th>IP</th>
-                        <th>Hardware Info</th>
-                        <th>Kick Info</th>
-                        <th>View Log</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1} players={true}>
+                <tr>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>IP</th>
+                    <th>Hardware Info</th>
+                    <th>Kick Info</th>
+                    <th>View Log</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 

@@ -3,6 +3,7 @@ import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
 import Link from 'next/link';
 import SimplePaginationLinks from "../SImplePaginationLinks";
+import Table2 from "../Table2";
 
 class ACEScreenshots extends React.Component{
 
@@ -73,19 +74,17 @@ class ACEScreenshots extends React.Component{
         }
 
         return <div>
-            <table className="t-width-1">
-                <tbody>
-                    <tr>
-                        <th>Player</th>
-                        <th>IP</th>
-                        <th>Date</th>
-                        <th>Hardware Info</th>
-                        <th>Requested By</th>
-                        <th>Actions</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
+            <Table2 width={1} players={true}>
+                <tr>
+                    <th>Player</th>
+                    <th>IP</th>
+                    <th>Date</th>
+                    <th>Hardware Info</th>
+                    <th>Requested By</th>
+                    <th>Actions</th>
+                </tr>
+                {rows}
+            </Table2>
         </div>
     }
 
