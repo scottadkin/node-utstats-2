@@ -952,7 +952,7 @@ class CTF{
 
         if(data.length > 0) return data[0];
 
-        return [];
+        return null;
     }
 
     async getMapFastestAssistCap(mapId){
@@ -961,18 +961,50 @@ class CTF{
 
         const data = await mysql.simpleQuery(query, [mapId]);
 
-        if(data.length > 0) return data[0];
+        if(data.length > 0){
+            data[0].assists = data[0].assists.split(",");
+            return data[0];
+        }
 
-        return [];
+        return null;
 
     }
 
-    async getFastestMapCaps(mapId){
+    async getFastestMapCaps(mapId, playerManager){
 
         const soloCap = await this.getMapFastestSoloCap(mapId);
         const assistCap = await this.getMapFastestAssistCap(mapId);
 
-        return {"solo": soloCap, "assist": assistCap};
+        const playerIds = [];
+
+        if(soloCap !== null) playerIds.push(soloCap.cap);
+
+        if(assistCap !== null){
+
+            if(playerIds.indexOf(assistCap.cap) === -1){
+                playerIds.push(assistCap.cap);
+            }
+
+            const assistIds = assistCap.assists;
+
+            for(let i = 0; i < assistIds.length; i++){
+
+                const a = parseInt(assistIds[i]);
+
+                if(a === a){
+
+                    if(playerIds.indexOf(a) === -1){
+                        playerIds.push(a);
+                    }       
+                }
+            }
+        }
+
+        const playerNames = await playerManager.getNamesByIds(playerIds);
+
+        console.log(assistCap);
+
+        return {"solo": soloCap, "assist": assistCap, "playerNames": playerNames};
     }
 }
 

@@ -696,3 +696,7 @@ input[type="range"]{
 	width:150px;
 	height:150px;
 }
+
+.purple{
+	background-color:rgb(66,13,131)
+}

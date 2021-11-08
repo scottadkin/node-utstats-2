@@ -136,14 +136,15 @@ export default async (req, res) =>{
             }
 
             const ctfManager = new CTF();
+            const playerManager = new Players();
 
             const data = await ctfManager.getFastestMatchCaps(matchId);
-
-            const recordCaps = await ctfManager.getFastestMapCaps(mapId);
+            const recordCaps = await ctfManager.getFastestMapCaps(mapId, playerManager);
 
             res.status(200).json({"data": {
                 "matchCaps": data,
-                "recordCaps": recordCaps
+                "recordCaps": recordCaps,
+                "players": recordCaps.playerNames
             }});
             
             return;
