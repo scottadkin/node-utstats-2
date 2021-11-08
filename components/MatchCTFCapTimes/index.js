@@ -217,6 +217,15 @@ class MatchCTFCapTimes extends React.Component{
 
     render(){
 
+        if(this.state.data === null) return null;
+
+
+        const d = this.state.data;
+
+        if(d.matchCaps.length === 0 && d.players.length === 0 && d.recordCaps.solo === null && d.recordCaps.assist === null){
+            return null;
+        }
+
         return <>
             <div className="default-header">Fastest Flag Captures</div>
             {this.renderRecordTimes()}
