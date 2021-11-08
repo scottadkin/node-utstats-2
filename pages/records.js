@@ -361,7 +361,7 @@ class Records extends React.Component{
                                     Player
                                 </div></a></Link>
 
-                                <Link  href={`/records?mode=1&perPage=${parseInt(this.state.perPage)}&type=${type}&page=`}><a><div onClick={(() =>{
+                                <Link href={`/records?mode=1&perPage=${parseInt(this.state.perPage)}&type=${type}&page=`}><a><div onClick={(() =>{
                                     this.changeMode(1);
                                 })}style={{"width": "30%", "maxWidth": "100px"}} 
                                 className={`big-tab text-center ${(this.props.mode === 1) ? "tab-selected" : ""}`}>

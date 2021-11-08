@@ -2,6 +2,7 @@ import styles from './RecordsList.module.css';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
 const RecordsList = ({host, mode, type, title, data, page, perPage, record}) =>{
 
@@ -153,15 +154,13 @@ const RecordsList = ({host, mode, type, title, data, page, perPage, record}) =>{
         </th>);
     }
     
-    return <div className="special-table m-bottom-25">
-        <table className={`${styles.table} t-width-1`}>
-            <tbody>
-                <tr>
-                    {headers}
-                </tr>
-                {rows}
-            </tbody>
-        </table>
+    return <div className={styles.table}>
+        <Table2 width={1}>
+            <tr>
+                {headers}
+            </tr>
+            {rows}
+        </Table2>
     </div>
 }
 
