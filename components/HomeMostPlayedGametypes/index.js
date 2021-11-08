@@ -51,7 +51,7 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
     }
 
 
-    return <div className="special-table center">
+    return <div className="center">
         <div className="default-header">Most Played Gametypes</div>
         {elems}
     </div>

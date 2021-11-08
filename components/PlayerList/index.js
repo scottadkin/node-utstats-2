@@ -4,7 +4,7 @@ import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import React from 'react';
 import Functions from '../../api/functions';
-
+import Table2 from '../Table2';
 
 function createOrderLink(terms, type, value){
 
@@ -191,12 +191,10 @@ class PlayersList extends React.Component{
             );
         }else{
 
-            return <div>
-                <table className={`${styles.table} t-width-1 td-1-left`}>
-                    <tbody>
-                        {elems}
-                    </tbody>
-                </table>
+            return <div className={styles.table}>
+                <Table2 width={1}>   
+                    {elems}      
+                </Table2>
             </div>;
         }
     }

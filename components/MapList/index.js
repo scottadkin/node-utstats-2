@@ -1,7 +1,7 @@
 import MapDefaultBox from '../MapDefaultBox/';
 import MapTableRow from '../MapTableRow/';
-import styles from './MapList.module.css';
 import React from 'react';
+import Table2 from '../Table2';
 
 class MapList extends React.Component{
 
@@ -26,9 +26,8 @@ class MapList extends React.Component{
                 elems.push(<MapTableRow key={i} data={maps[i]}/>);
             }
 
-            return (<div className="special-table">
-                <table className={`${styles.table} t-width-1`}>
-                    <tbody>
+            return <div>
+                <Table2 width={1} players={true}>
                         <tr>
                             <th>Name</th>
                             <th>First</th>
@@ -37,9 +36,8 @@ class MapList extends React.Component{
                             <th>Matches</th>
                         </tr>
                         {elems}
-                    </tbody>
-                </table>
-            </div>);
+                </Table2>
+            </div>;
 
         }else{
         
