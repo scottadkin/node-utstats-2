@@ -937,7 +937,43 @@ class CTF{
         return await mysql.simpleFetch(query, vars);
     }
 
+    async getFastestMatchCaps(matchId){
 
+        const query = "SELECT team,grab,cap,assists,travel_time FROM nstats_ctf_caps WHERE match_id=? ORDER BY travel_time ASC";
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
+    async getMapFastestSoloCap(mapId){
+
+        const query = "SELECT match_id,cap,travel_time FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
+
+        const data = await mysql.simpleQuery(query, [mapId]);
+
+        if(data.length > 0) return data[0];
+
+        return [];
+    }
+
+    async getMapFastestAssistCap(mapId){
+
+        const query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
+
+        const data = await mysql.simpleQuery(query, [mapId]);
+
+        if(data.length > 0) return data[0];
+
+        return [];
+
+    }
+
+    async getFastestMapCaps(mapId){
+
+        const soloCap = await this.getMapFastestSoloCap(mapId);
+        const assistCap = await this.getMapFastestAssistCap(mapId);
+
+        return {"solo": soloCap, "assist": assistCap};
+    }
 }
 
 

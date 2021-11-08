@@ -11,6 +11,7 @@ export default async (req, res) =>{
 
         const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
         const matchId = (req.body.matchId !== undefined) ? parseInt(req.body.matchId) : -1;
+        const mapId = (req.body.mapId !== undefined) ? parseInt(req.body.mapId) : -1;
         const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
         const players = (req.body.players !== undefined) ? req.body.players : {};
 
@@ -125,6 +126,26 @@ export default async (req, res) =>{
 
 
             res.status(200).json({"pointsGraph": pointsGraphData, "playerTotals": playerPointTotals, "playerCaps": playerCaps});
+            return;
+
+        }else if(mode === "fastestcaps"){
+
+            if(matchId !== matchId){
+                res.status(200).json({"error": "Match id must be a valid integer"});
+                return;
+            }
+
+            const ctfManager = new CTF();
+
+            const data = await ctfManager.getFastestMatchCaps(matchId);
+
+            const recordCaps = await ctfManager.getFastestMapCaps(mapId);
+
+            res.status(200).json({"data": {
+                "matchCaps": data,
+                "recordCaps": recordCaps
+            }});
+            
             return;
 
         }

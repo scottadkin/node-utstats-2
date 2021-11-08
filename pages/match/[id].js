@@ -46,6 +46,7 @@ import MatchCTFCapsNew from '../../components/MatchCTFCapsNew';
 import MatchPlayerScoreHistory from '../../components/MatchPlayerScoreHistory';
 import MatchPlayerPingHistory from '../../components/MatchPlayerPingHistory';
 import MatchDominationSummaryNew from '../../components/MatchDominationSummaryNew';
+import MatchCTFCapTimes from '../../components/MatchCTFCapTimes'
 
 
 function bDomination(players){
@@ -207,6 +208,8 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
             <MatchCTFSummary key={`match_1`} host={imageHost} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
         );
     }
+
+    elems.push(<MatchCTFCapTimes key={`match-ctf-caps`} players={JSON.parse(playerNames)} matchId={parsedInfo.id} mapId={parsedInfo.map}/>);
 
     if(pageSettings["Display Capture The Flag Graphs"] === "true"){
 
