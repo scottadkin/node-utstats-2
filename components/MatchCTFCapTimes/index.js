@@ -11,7 +11,13 @@ class MatchCTFCapTimes extends React.Component{
 
         super(props);
 
-        this.state = {"data": null}
+        this.state = {"data": null, "mode": 0};
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
     async loadData(){
@@ -31,10 +37,16 @@ class MatchCTFCapTimes extends React.Component{
                 this.setState({"data": res.data});
             }
 
-            console.log(res);
 
         }catch(err){
             console.trace(err);
+        }
+    }
+
+    componentDidUpdate(prevProps){
+
+        if(prevProps !== this.props){
+            this.setState({"mode": 0})
         }
     }
 
@@ -86,7 +98,7 @@ class MatchCTFCapTimes extends React.Component{
             const player = this.getPlayer(cap.cap);
 
             soloElem = <tr>
-                <td><Link href={`/match/${cap.match_id}`}><a>Solo Cap</a></Link></td>
+                <td><Link href={`/match/${cap.match_id}#fastest-caps`}><a>Solo Cap</a></Link></td>
                 <td>
                     <Link href={`/player/${player.id}`}>
                         <a>
@@ -132,7 +144,7 @@ class MatchCTFCapTimes extends React.Component{
             }
 
             assistElem = <tr>
-                <td><Link href={`/match/${cap.match_id}`}><a>Assisted Cap</a></Link></td>
+                <td><Link href={`/match/${cap.match_id}#fastest-caps`}><a>Assisted Cap</a></Link></td>
                 <td>
                     {playerElems}
                 </td>
@@ -162,6 +174,8 @@ class MatchCTFCapTimes extends React.Component{
         const soloRecord = this.state.data.recordCaps.solo.travel_time;
         const assistRecord = this.state.data.recordCaps.assist.travel_time;
 
+        let fastest = null;
+
         for(let i = 0; i < this.state.data.matchCaps.length; i++){
 
             const m = this.state.data.matchCaps[i];
@@ -177,42 +191,75 @@ class MatchCTFCapTimes extends React.Component{
                 }
             }
             
+            if(this.state.mode === 0){
+                if(!bSolo) continue; 
+            }
 
-            let delta = Math.abs(((bSolo) ? soloRecord : assistRecord) - m.travel_time);
+            if(this.state.mode === 1){
+                if(bSolo) continue; 
+            }
+
+            if(fastest === null){
+                fastest = m.travel_time;
+            }
+
+            let recordDelta = Math.abs(((bSolo) ? soloRecord : assistRecord) - m.travel_time);
+            let delta = Math.abs(fastest - m.travel_time);
 
             let deltaClass = "team-red";
             
-            if(delta === 0){
+            if(recordDelta === 0){
                 deltaClass = "purple";
-                delta = "";
-            }else if(i === 0){
+                delta = "Map Record";
+            }else if(rows.length === 0){
+
                 deltaClass = "team-green";
-                delta = `+${delta.toFixed(2)}`;
+                if(delta !== 0){
+                    delta = `+${delta.toFixed(2)}`;
+                }else{
+                    delta = "";
+                }
+
             }else{
                 delta = `+${delta.toFixed(2)}`;
             }
 
-
-
             rows.push(<tr key={i}>
                 <td>{Functions.MMSS(m.cap_time - this.props.matchStart)}</td>
                 <td><Link href={`/player/${capPlayer.id}`}><a><CountryFlag host={this.props.host} country={capPlayer.country}/>{capPlayer.name}</a></Link></td>
-                <TrueFalse bTable={true} value={bSolo} tDisplay={"Solo"} fDisplay={"Assisted"}/>
+                {(this.state.mode === 2) ? <TrueFalse bTable={true} value={bSolo} tDisplay={"Solo"} fDisplay={"Assisted"}/> : null}
                 <td>{m.travel_time.toFixed(2)} Seconds</td>
                 <td className={deltaClass}>{delta}</td>
             </tr>);
         }
 
-        return <Table2 width={1}>
-            <tr>
-                <th>Timestamp</th>
-                <th>Capped By</th>
-                <th>Cap Type</th>
-                <th>Travel Time</th>
-                <th>Delta(Type Record)</th>
-            </tr>
-            {rows}
-        </Table2>
+        if(rows.length === 0){
+
+            rows.push(<tr key={-1}>
+                <td colSpan={5}>No Events Found</td>
+            </tr>);
+        }
+
+        return <div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Solo Caps</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Assisted Caps</div>
+            </div>
+            <Table2 width={1}>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Capped By</th>
+                    {(this.state.mode === 2) ? <th>Cap Type</th> : null}
+                    <th>Travel Time</th>
+                    <th>Offset</th>
+                </tr>
+                {rows}
+            </Table2>
+        </div>
     }
 
     render(){
@@ -227,7 +274,7 @@ class MatchCTFCapTimes extends React.Component{
         }
 
         return <>
-            <div className="default-header">Fastest Flag Captures</div>
+            <div className="default-header" id="fastest-caps">Fastest Flag Captures</div>
             {this.renderRecordTimes()}
             {this.renderMatchCaps()}
         </>
