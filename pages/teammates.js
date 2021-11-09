@@ -13,7 +13,7 @@ import Functions from "../api/functions";
 import CountryFlag from '../components/CountryFlag';
 import Link from 'next/link';
 import Gametypes from '../api/gametypes';
-import Table2 from '../components/table2';
+import Table2 from '../components/Table2';
 
 class TeamMates extends React.Component{
 
