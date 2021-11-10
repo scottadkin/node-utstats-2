@@ -175,7 +175,38 @@ class Players{
     }
 
 
-    async getNamesByIds(ids){
+    async getNamesByIds(ids, bReturnObject){
+
+        if(ids === undefined) resolve([]);
+        if(ids.length === 0) resolve([]);
+        if(bReturnObject === undefined) bReturnObject = false;
+
+        const query = "SELECT id,name,country,face FROM nstats_player_totals WHERE id IN (?)";
+
+        const data = await mysql.simpleQuery(query, ids);
+
+        if(bReturnObject){
+
+            const obj = {};
+
+            for(let i = 0; i < data.length; i++){
+
+                const d = data[i];
+
+                obj[d.id] = {
+                    "name": d.name,
+                    "country": d.country,
+                    "face": d.face,
+                    "id": d.id
+                }
+            }
+
+            return obj;
+
+        }else{
+
+            return data;
+        }
 
         return new Promise((resolve, reject) =>{
 

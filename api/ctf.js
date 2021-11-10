@@ -1009,9 +1009,30 @@ class CTF{
 
         const playerNames = await playerManager.getNamesByIds(playerIds);
 
-        console.log(assistCap);
-
         return {"solo": soloCap, "assist": assistCap, "playerNames": playerNames};
+    }
+
+
+    async getMapCaps(mapId, page, perPage){
+
+        let start = perPage * page;
+
+        if(start === start){
+
+            if(start < 0) start = 0;
+
+            const query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? ORDER BY travel_time ASC LIMIT ?, ?";
+
+            const vars = [mapId, start, perPage];
+
+            return await mysql.simpleQuery(query, vars);
+
+        }else{
+            console.log(`Start is NaN`);
+        }
+
+        return [];
+
     }
 }
 

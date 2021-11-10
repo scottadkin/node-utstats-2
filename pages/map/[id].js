@@ -25,6 +25,7 @@ import SiteSettings from '../../api/sitesettings';
 import MapImageUploader from '../../components/MapImageUploader/';
 import Analytics from '../../api/analytics';
 import Table2 from '../../components/Table2';
+import MapFastestCaps from '../../components/MapFastestCaps';
 
 class Map extends React.Component{
 
@@ -149,6 +150,8 @@ class Map extends React.Component{
                     </div>}
 
                     <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
+
+                    <MapFastestCaps host={imageHost} mapId={basic.id}/>
 
                     <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
 
@@ -282,7 +285,7 @@ export async function getServerSideProps({req, query}){
             mapId = parseInt(query.id);
 
             if(mapId !== mapId){
-                mapid = 0;
+                mapId = 0;
             }
         }
 
@@ -458,7 +461,6 @@ export async function getServerSideProps({req, query}){
         }
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
-
         return {
             props: {
                 "host": req.headers.host,
