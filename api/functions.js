@@ -603,6 +603,8 @@ class Functions{
 
     static getImageHostAndPort(host){
 
+
+
         const hostReg = /^(.+):(\d+)$/im;
         const hostResult = hostReg.exec(host);
 
@@ -613,7 +615,7 @@ class Functions{
             host = hostResult[1];
         }else{
 
-            return host;
+            return `${host}:3001/`;
         }
 
         return `http://${host}:${port}/`;
