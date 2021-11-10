@@ -720,9 +720,6 @@ class CTF{
                 }
             }
 
-
-            console.log(`Got ${data.length} caps to process`);
-
             let d = 0;
 
             let currentDrops = [];
@@ -1013,7 +1010,7 @@ class CTF{
     }
 
 
-    async getMapCaps(mapId, page, perPage){
+    async getMapCaps(mapId, page, perPage, type){
 
         let start = perPage * page;
 
@@ -1021,7 +1018,13 @@ class CTF{
 
             if(start < 0) start = 0;
 
-            const query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? ORDER BY travel_time ASC LIMIT ?, ?";
+            let query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? ORDER BY travel_time ASC LIMIT ?, ?";
+
+            if(type === "solo"){
+                query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time ASC LIMIT ?, ?";
+            }else if(type === "assists"){
+                query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time ASC LIMIT ?, ?";
+            }
 
             const vars = [mapId, start, perPage];
 

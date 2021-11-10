@@ -4,6 +4,7 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import BasicPageSelect from '../BasicPageSelect';
+import styles from './MapFastestCaps.module.css';
 
 
 class MapFastestCaps extends React.Component{
@@ -24,6 +25,13 @@ class MapFastestCaps extends React.Component{
         };
 
         this.changePage = this.changePage.bind(this);
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+    async changeMode(id){
+
+        this.setState({"mode": id, "page": 0});
+        this.loadData(0, id);
     }
 
     async changePage(page){
@@ -42,20 +50,27 @@ class MapFastestCaps extends React.Component{
         if(page > max) page = max;
         this.setState({"page": page});
 
-        await this.loadData(page);
+        await this.loadData(page, this.state.mode);
 
     }
 
-    async loadData(page){
+    async loadData(page, type){
 
         try{
 
-            console.log(`load data for page ${page}`);
+            if(type === 1) type = "solo";
+            else if(type === 2) type = "assists";
 
             const req = await fetch("/api/ctf", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"mode": "fastestcaps", "mapId": this.props.mapId, "page": page, "perPage": this.state.perPage})
+                "body": JSON.stringify({
+                    "mode": "fastestcaps", 
+                    "mapId": this.props.mapId, 
+                    "page": page, 
+                    "perPage": this.state.perPage,
+                    "type": type
+                })
             });
 
             const res = await req.json();
@@ -71,8 +86,6 @@ class MapFastestCaps extends React.Component{
                 });
             }
 
-            console.log(res);
-
         }catch(err){
             console.trace(err);
         }
@@ -80,7 +93,7 @@ class MapFastestCaps extends React.Component{
 
     async componentDidMount(){
 
-        await this.loadData(0);
+        await this.loadData(0, this.state.mode);
 
     }
 
@@ -118,9 +131,13 @@ class MapFastestCaps extends React.Component{
 
             let offset = 0;
 
-            if(this.state.records.solo !== null){
+            if(this.state.records.solo !== null && this.state.mode < 2){
 
                 offset = Math.abs(this.state.records.solo.travel_time - d.travel_time);
+            }
+
+            if(this.state.records.assist !== null && this.state.mode === 2){
+                offset = Math.abs(this.state.records.assist.travel_time - d.travel_time);
             }
 
             let offsetClass = "team-red";
@@ -134,10 +151,41 @@ class MapFastestCaps extends React.Component{
 
             const timestamp = this.getDate(d.match_id);
 
+            const assistElems = [];
+
+            const assists = d.assists.split(",");
+
+            for(let x = 0; x < assists.length; x++){
+
+                const a = parseInt(assists[x]);
+
+                const currentPlayer = this.getPlayer(a);
+
+                if(a === a){
+
+                    assistElems.push(<React.Fragment key={i}>
+                        <Link href={`/player/${currentPlayer.id}`}>
+                            <a>
+                                <CountryFlag host={this.props.host} country={currentPlayer.country}/>{currentPlayer.name}
+                            </a>
+                        </Link>
+                        {(x < assists.length - 1) ? ", " : ""}
+                    </React.Fragment>);
+
+                }
+            }
+
+            if(this.state.mode !== 1){
+
+                if(assistElems.length === 0){
+                    assistElems = <>None</>
+                }
+            }
+
             rows.push(<tr key={i}>
                 <td>{place}{Functions.getOrdinal(place)}</td>
                 <td>{Functions.convertTimestamp(timestamp, true)}</td>
-                <td></td>
+                {(this.state.mode !== 1) ? <td>{assistElems}</td> : null}
                 <td>
                     <Link href={`/player/${d.cap}`}>
                         <a>
@@ -155,7 +203,7 @@ class MapFastestCaps extends React.Component{
             <tr>
                 <th>#</th>
                 <th>Date</th>
-                <th>Assists</th>
+                {(this.state.mode !== 1) ? <th>Assists</th> : null }
                 <th>Capped</th>
                 <th>Travel Time</th>
                 <th>Offset</th>
@@ -166,16 +214,22 @@ class MapFastestCaps extends React.Component{
 
     render(){
 
-        return <>
+        return <div className={styles.table}>
             <div className="default-header">Map Fastest Caps</div>
             <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>All Caps</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Solo Caps</div>
-                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`}>Assisted Caps</div>
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>All Caps</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Solo Caps</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(2);
+                })}>Assisted Caps</div>
             </div>
             <BasicPageSelect changePage={this.changePage} page={this.state.page} results={this.state.totalCaps} perPage={this.state.perPage}/>
             {this.renderTable()}
-        </>
+        </div>
     }
 }
 

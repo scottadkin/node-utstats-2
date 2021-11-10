@@ -62,7 +62,6 @@ export default (req, res) =>{
 
         const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
 
-        console.log(`mode = ${mode}`);
 
         if(mode === "fastestcaps"){
 
@@ -78,7 +77,7 @@ export default (req, res) =>{
 
                 if(mapId > 0){
 
-                    const data = await ctfManager.getMapCaps(mapId, page, perPage);
+                    const data = await ctfManager.getMapCaps(mapId, page, perPage, type);
                     const playerIds = getUniquePlayers(data);
                     const playerNames = await playerManager.getNamesByIds(playerIds, true);
 

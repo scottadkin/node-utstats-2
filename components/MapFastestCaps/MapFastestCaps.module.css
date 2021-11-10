@@ -1,0 +1,6 @@
+.table table td:nth-child(1){
+    color:yellow;
+    width:50px;
+    font-style:italic;
+    font-size:12px;
+}
