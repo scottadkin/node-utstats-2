@@ -183,7 +183,7 @@ class Players{
 
         const query = "SELECT id,name,country,face FROM nstats_player_totals WHERE id IN (?)";
 
-        const data = await mysql.simpleQuery(query, ids);
+        const data = await mysql.simpleQuery(query, [ids]);
 
         if(bReturnObject){
 
@@ -204,28 +204,8 @@ class Players{
             return obj;
 
         }else{
-
             return data;
         }
-
-        return new Promise((resolve, reject) =>{
-
-            if(ids === undefined) resolve([]);
-            if(ids.length === 0) resolve([]);
-
-            const query = "SELECT id,name,country,face FROM nstats_player_totals WHERE id IN (?)";
-
-            mysql.query(query, [ids], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
 

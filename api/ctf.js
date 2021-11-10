@@ -1032,7 +1032,25 @@ class CTF{
         }
 
         return [];
+    }
 
+    async getMapTotalCaps(mapId, type){
+
+        if(type === undefined) type = "";
+
+        let query = "SELECT COUNT(*) as total_caps FROM nstats_ctf_caps WHERE map=?";
+
+        if(type === "solo"){
+            query = "SELECT COUNT(*) as total_caps FROM nstats_ctf_caps WHERE map=? AND assists=''";
+        }else if(type === "assists"){
+            query = "SELECT COUNT(*) as total_caps FROM nstats_ctf_caps WHERE map=? AND assists!=''";
+        }
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        if(result.length > 0) return result[0].total_caps;
+
+        return -1;
     }
 }
 

@@ -1,5 +1,6 @@
 import CTF from '../../api/ctf';
 import Players from '../../api/players';
+import Matches from '../../api/matches';
 
 function getUniquePlayers(data){
 
@@ -34,6 +35,22 @@ function getUniquePlayers(data){
     return playerIds;
 }
 
+function getUniqueMatchIds(data){
+
+    const matchIds = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        if(matchIds.indexOf(d.match_id) === -1){
+            matchIds.push(d.match_id);
+        }
+    }
+
+    return matchIds;
+}
+
 
 export default (req, res) =>{
 
@@ -41,6 +58,7 @@ export default (req, res) =>{
 
         const ctfManager = new CTF();
         const playerManager = new Players();
+        const matchManager = new Matches();
 
         const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
 
@@ -49,18 +67,35 @@ export default (req, res) =>{
         if(mode === "fastestcaps"){
 
             const mapId = (req.body.mapId !== undefined) ? parseInt(req.body.mapId) : -1;
+            const perPage = (req.body.perPage !== undefined) ? parseInt(req.body.perPage) : 5;
+            const page = (req.body.page !== undefined) ? parseInt(req.body.page) : 0;
+            const type = (req.body.type !== undefined) ? req.body.type : "";
+
+            if(page !== page) page = 0;
+            if(perPage !== perPage) perPage = 5;
 
             if(mapId === mapId){
 
                 if(mapId > 0){
 
-                    const data = await ctfManager.getMapCaps(mapId, 0, 5);
+                    const data = await ctfManager.getMapCaps(mapId, page, perPage);
                     const playerIds = getUniquePlayers(data);
                     const playerNames = await playerManager.getNamesByIds(playerIds, true);
 
+                    const matchIds = getUniqueMatchIds(data);
+                    const matchDates = await matchManager.getDates(matchIds);
+
+                    const totalCaps = await ctfManager.getMapTotalCaps(mapId, type);
+
                     const records = await ctfManager.getFastestMapCaps(mapId, playerManager);
 
-                    res.status(200).json({"data": data, "players": playerNames, "records": records});
+                    res.status(200).json({
+                        "data": data, 
+                        "players": playerNames, 
+                        "records": records, 
+                        "matchDates": matchDates,
+                        "totalCaps": totalCaps
+                    });
                     resolve();
                     return;
 

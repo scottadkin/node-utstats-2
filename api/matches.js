@@ -1471,5 +1471,24 @@ class Matches{
         }
     }
 
+    async getDates(matchIds){
+
+        if(matchIds.length === 0) return {};
+
+        const query = "SELECT id,date FROM nstats_matches WHERE id IN (?)";
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+
+        const obj = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            obj[r.id] = r.date;
+        }
+
+        return obj;
+    }
 }
 module.exports = Matches;

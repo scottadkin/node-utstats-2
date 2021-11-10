@@ -3,7 +3,7 @@ import Table2 from '../Table2';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
-import SimplePaginationLinks from '../SimplePaginationLinks';
+import BasicPageSelect from '../BasicPageSelect';
 
 
 class MapFastestCaps extends React.Component{
@@ -12,24 +12,63 @@ class MapFastestCaps extends React.Component{
 
         super(props);
 
-        this.state = {"perPage": 5, "page": 0, "data": [], "players": [], "records": {}, "mode": 0};
+        this.state = {
+            "perPage": 10, 
+            "page": 0, 
+            "data": [], 
+            "players": [], 
+            "records": {}, 
+            "mode": 0, 
+            "matchDates": {},
+            "totalCaps": 0
+        };
+
+        this.changePage = this.changePage.bind(this);
     }
 
-    async loadData(){
+    async changePage(page){
+
+        if(page < 0) page = 0;
+
+
+        let max = 0;
+
+        if(this.state.totalCaps > 0 && this.state.perPage > 0){
+
+            max = Math.ceil(this.state.totalCaps / this.state.perPage) - 1;
+            
+        }
+
+        if(page > max) page = max;
+        this.setState({"page": page});
+
+        await this.loadData(page);
+
+    }
+
+    async loadData(page){
 
         try{
+
+            console.log(`load data for page ${page}`);
 
             const req = await fetch("/api/ctf", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"mode": "fastestcaps", "mapId": this.props.mapId})
+                "body": JSON.stringify({"mode": "fastestcaps", "mapId": this.props.mapId, "page": page, "perPage": this.state.perPage})
             });
 
             const res = await req.json();
 
             if(res.error === undefined){
 
-                this.setState({"data": res.data, "players": res.players, "records": res.records});
+                this.setState({
+                    "data": res.data,
+                    "players": res.players, 
+                    "records": res.records,
+                    "matchDates": res.matchDates,
+                    "totalCaps": res.totalCaps
+                });
             }
 
             console.log(res);
@@ -41,7 +80,7 @@ class MapFastestCaps extends React.Component{
 
     async componentDidMount(){
 
-        await this.loadData();
+        await this.loadData(0);
 
     }
 
@@ -52,6 +91,15 @@ class MapFastestCaps extends React.Component{
         }
 
         return {"name": "Not Found", "id": -1, "country": "xx"};
+    }
+
+    getDate(matchId){
+
+        if(this.state.matchDates[matchId] !== undefined){
+            return this.state.matchDates[matchId];
+        }
+
+        return 0;
     }
 
     renderTable(){
@@ -84,9 +132,11 @@ class MapFastestCaps extends React.Component{
                 offset = `+ ${offset.toFixed(2)}`
             }
 
+            const timestamp = this.getDate(d.match_id);
+
             rows.push(<tr key={i}>
                 <td>{place}{Functions.getOrdinal(place)}</td>
-                <td></td>
+                <td>{Functions.convertTimestamp(timestamp, true)}</td>
                 <td></td>
                 <td>
                     <Link href={`/player/${d.cap}`}>
@@ -123,7 +173,7 @@ class MapFastestCaps extends React.Component{
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Solo Caps</div>
                 <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`}>Assisted Caps</div>
             </div>
-            <SimplePaginationLinks url={`/map/${this.props.mapId}?caps=`} page={this.state.page + 1}/>
+            <BasicPageSelect changePage={this.changePage} page={this.state.page} results={this.state.totalCaps} perPage={this.state.perPage}/>
             {this.renderTable()}
         </>
     }
