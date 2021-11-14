@@ -1,3 +1,5 @@
+const config = require('../config.json');
+
 class Functions{
 
     static firstCharLowerCase(input){
@@ -603,6 +605,7 @@ class Functions{
 
     static getImageHostAndPort(host){
 
+        if(!config.bUseImageServer) return `http://${host}/`;
 
 
         const hostReg = /^(.+):(\d+)$/im;
