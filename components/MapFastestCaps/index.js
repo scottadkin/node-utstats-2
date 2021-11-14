@@ -97,6 +97,15 @@ class MapFastestCaps extends React.Component{
 
     }
 
+    async componentDidUpdate(prevProps){
+
+        if(prevProps.mapId !== this.props.mapId){
+            console.log("update");
+            console.log(this.state);
+            await this.loadData(this.props.mapId, this.state.mode);
+        }
+    }
+
     getPlayer(id){
 
         if(this.state.players[id] !== undefined){

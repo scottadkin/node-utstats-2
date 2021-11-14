@@ -346,7 +346,10 @@ class Records extends React.Component{
                 <div id="content">
                     <div className="default">
                         <div className="default-header">Records</div>
-                    
+                        <div className="big-tabs">
+                            <div className="big-tab tab-selected">General Records</div>
+                            <Link href={`/ctfcaps`}><a><div className="big-tab">CTF Map Cap Records</div></a></Link>
+                        </div>
                         <div className="default-sub-header">Choose a record type</div>
                         <div className="form m-bottom-25">
                                 <div className="select-row">

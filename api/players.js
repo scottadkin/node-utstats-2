@@ -177,8 +177,8 @@ class Players{
 
     async getNamesByIds(ids, bReturnObject){
 
-        if(ids === undefined) resolve([]);
-        if(ids.length === 0) resolve([]);
+        if(ids === undefined) return [];
+        if(ids.length === 0) return [];
         if(bReturnObject === undefined) bReturnObject = false;
 
         const query = "SELECT id,name,country,face FROM nstats_player_totals WHERE id IN (?)";

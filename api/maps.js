@@ -247,7 +247,7 @@ class Maps{
 
         if(ids.length === 0) return {};
 
-        const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
+        const query = "SELECT id,name FROM nstats_maps WHERE id IN(?) ORDER BY name ASC";
         const result = await mysql.simpleFetch(query, [ids]);
 
         const data = (bSimpleObject) ? {} : [];

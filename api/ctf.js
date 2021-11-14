@@ -1055,6 +1055,69 @@ class CTF{
 
         return -1;
     }
+
+
+    async getAllMapsWithCaps(){
+
+        const query = "SELECT DISTINCT map FROM nstats_ctf_caps";
+
+        const result = await mysql.simpleQuery(query);
+
+        const maps = [];
+
+        for(let i = 0; i < result.length; i++){
+            maps.push(result[i].map);
+        }
+        return maps;
+    }
+
+    async getMapAssistedCapRecord(mapId){
+
+        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time DESC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
+
+    async getMapSoloCapRecord(mapId){
+
+        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time DESC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+
+    }
+
+    async getMapCapRecords(id){
+
+        return {
+            "solo": await this.getMapSoloCapRecord(id),
+            "assisted": await this.getMapAssistedCapRecord(id)
+        };
+    }
+
+    async getMapsCapRecords(mapIds){
+
+        if(mapIds.length === 0) return {};
+
+        const records = {};
+
+        for(let i = 0; i < mapIds.length; i++){
+
+            const m = mapIds[i];
+
+            records[m] = await this.getMapCapRecords(m);
+        }
+
+        return records;
+
+    }
 }
 
 
