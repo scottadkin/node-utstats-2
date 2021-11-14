@@ -171,8 +171,11 @@ class MatchCTFCapTimes extends React.Component{
         if(this.state.data === null) return null;
         const rows = [];
 
-        const soloRecord = this.state.data.recordCaps.solo.travel_time;
-        const assistRecord = this.state.data.recordCaps.assist.travel_time;
+
+        const recordCaps = this.state.data.recordCaps;
+
+        const soloRecord = (recordCaps.solo !== null) ? recordCaps.solo.travel_time : 0;
+        const assistRecord = (recordCaps.assist !== null) ? recordCaps.assist.travel_time : 0;
 
         let fastest = null;
 
