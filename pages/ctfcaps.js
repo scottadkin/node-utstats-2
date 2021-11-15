@@ -15,11 +15,11 @@ class CTFCaps extends React.Component{
 
         super(props);
 
-        let selected = -1;
+        let selected = this.props.mapId;
 
         const maps = JSON.parse(this.props.maps);
 
-        if(maps.length > 0){
+        if(maps.length > 0 && selected === -1){
             selected = maps[0].id;
         }
 
@@ -30,7 +30,8 @@ class CTFCaps extends React.Component{
 
     changeSelected(e){
 
-        this.setState({"selectedMap": e.target.value});
+        //this.setState({"selectedMap": e.target.value});
+        window.location = `/ctfcaps?map=${e.target.value}`
     }
 
     async componentDidMount(){
@@ -76,15 +77,46 @@ class CTFCaps extends React.Component{
         </div>
     }
 
+    getMapName(id){
+
+        id = parseInt(id);
+        const maps = JSON.parse(this.props.maps);
+
+        for(let i = 0; i < maps.length; i++){
+
+            const m = maps[i];
+
+            console.log(m.id === id);
+            console.log(m.id,id);
+
+            if(m.id === id) return m.name;
+        }
+
+        return "Not Found";
+    }
+
     render(){
 
-        const title = "CTF Cap Records";
+        let mapName = "";
+        let desc = `View the fastest CTF caps for each map.`;
+
+        if(this.state.selectedMap !== -1){
+
+            mapName = this.getMapName(this.state.selectedMap);
+            desc = `View the fastest CTF caps for ${mapName}`
+        }
+        
+
+        const title = `${mapName} CTF Cap Records`;
+        
+
+    
 
         return <div>
             <DefaultHead title={`${title}`} 
-                description={`desc.`} 
+                description={desc} 
                 host={this.props.host}
-                keywords={``}
+                keywords={`ctf,cap,records${(mapName !== "") ? `,${mapName}` : "" }`}
             />
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
@@ -110,6 +142,8 @@ export default CTFCaps;
 
 export async function getServerSideProps({req, query}){
 
+    const mapId = query.map ?? -1;
+
     const session = new Session(req);
 
     await session.load();
@@ -126,6 +160,8 @@ export async function getServerSideProps({req, query}){
 
     const mapNames = await mapManager.getNamesByIds(validMaps);
 
+
+    console.log(query);
     
 
     return {
@@ -133,7 +169,8 @@ export async function getServerSideProps({req, query}){
             "host":  req.headers.host,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "maps": JSON.stringify(mapNames)
+            "maps": JSON.stringify(mapNames),
+            "mapId": mapId
         }
     }
 }

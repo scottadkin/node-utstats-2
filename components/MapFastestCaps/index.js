@@ -132,7 +132,7 @@ class MapFastestCaps extends React.Component{
 
     renderTable(){
 
-        if(this.state.data.length === 0) return null;
+        if(this.state.data.length === 0) return <Table2 width={1}><tr><td>No Data</td></tr></Table2>
 
         //if(!this.state.finishedLoading) return null;
 
@@ -180,7 +180,7 @@ class MapFastestCaps extends React.Component{
 
                 if(a === a){
 
-                    assistElems.push(<React.Fragment key={i}>
+                    assistElems.push(<React.Fragment key={`${i}_${Math.floor(Math.random() * 999999)}`}>
                         <Link href={`/player/${currentPlayer.id}`}>
                             <a>
                                 <CountryFlag host={this.props.host} country={currentPlayer.country}/>{currentPlayer.name}
@@ -214,7 +214,6 @@ class MapFastestCaps extends React.Component{
                 <td className={offsetClass}>{offset}</td>
             </tr>);
         }
-
 
         return <Table2 width={1}>
             <tr>

@@ -13,13 +13,17 @@ class BasicPageSelect extends React.Component{
 
     render(){
 
+        let totalPages = Math.ceil(this.props.results / this.state.perPage);
+
+        if(totalPages < 1) totalPages = 1;
+
         return <div className={`${styles.wrapper} center`}>
 
             <div className={styles.button} onClick={(() =>{
                 this.props.changePage(this.props.page - 1);
             })}>Previous</div>
 
-            <div className={styles.info}>Displaying page {this.props.page + 1} of {Math.ceil(this.props.results / this.state.perPage)}</div>
+            <div className={styles.info}>Displaying page {this.props.page + 1} of {totalPages}</div>
             <div className={styles.button} onClick={(() =>{
                 this.props.changePage(this.props.page + 1);
             })}>Next</div>

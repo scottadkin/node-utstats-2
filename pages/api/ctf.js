@@ -56,7 +56,7 @@ export default (req, res) =>{
 
     return new Promise(async (resolve, reject) =>{
 
-        try{
+      
         const ctfManager = new CTF();
         const playerManager = new Players();
         const matchManager = new Matches();
@@ -73,8 +73,6 @@ export default (req, res) =>{
             if(page !== page) page = 0;
             if(perPage !== perPage) perPage = 5;
 
-            console.log(type);
-
             if(mapId === mapId){
 
                 if(mapId > 0){
@@ -89,8 +87,6 @@ export default (req, res) =>{
                     const totalCaps = await ctfManager.getMapTotalCaps(mapId, type);
 
                     const records = await ctfManager.getFastestMapCaps(mapId, playerManager);
-
-                    console.log(records);
 
                     res.status(200).json({
                         "data": data, 
@@ -116,8 +112,6 @@ export default (req, res) =>{
         res.status(200).json({"error": "Unknown Command"});
 
         resolve();
-    }catch(err){
-        console.trace(err);
-    }
+
     });
 }
