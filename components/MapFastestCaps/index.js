@@ -134,7 +134,7 @@ class MapFastestCaps extends React.Component{
 
         if(this.state.data.length === 0) return null;
 
-        if(!this.state.finishedLoading) return null;
+        //if(!this.state.finishedLoading) return null;
 
         const rows = [];
 
