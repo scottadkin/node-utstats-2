@@ -24,20 +24,23 @@ class CTFCaps extends React.Component{
             selected = maps[0].id;
         }
 
-        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "type": 0};
+        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "type": 0, "newMapId": -1};
 
         this.changeSelected = this.changeSelected.bind(this);
     }
 
     changeSelected(e){
 
-        this.setState({"selectedMap": e.target.value});
-        window.history.pushState({}, "", `/ctfcaps?map=${e.target.value}`);
+        this.setState({"newMapId": e.target.value});
+        //window.history.pushState({"map": e.target.value}, "", `/ctfcaps?map=${e.target.value}`);
+       // window.location = `/ctfcaps?map=${e.target.value}`;
     }
 
-    async componentDidMount(){
+    async componentDidUpdate(prevProps){
 
-        //await this.loadData(this.state.selectedMap);
+        if(prevProps.mapId !== this.props.mapId){
+            this.setState({"selectedMap": this.props.mapId});
+        }
     }
 
 
@@ -74,6 +77,7 @@ class CTFCaps extends React.Component{
                         </select>
                     </div>
                 </div>
+                <Link href={`/ctfcaps?map=${this.state.newMapId}`}><a><div className="search-button">Load Data</div></a></Link>
             </div>
         </div>
     }
@@ -121,6 +125,10 @@ class CTFCaps extends React.Component{
                 <div id="content">
                     <div className="default">
                         <div className="default-header">Capture The Flag Cap Records</div>
+                        <div className="big-tabs">
+                            <Link href={`/records`}><a><div className="big-tab">General Records</div></a></Link>
+                            <div className="big-tab tab-selected">CTF Map Cap Records</div>
+                        </div>
                         {this.renderMapsForm()}
                         <MapFastestCaps 
                             host={Functions.getImageHostAndPort(this.props.host)} 
