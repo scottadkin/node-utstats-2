@@ -1,13 +1,13 @@
 import React from "react";
-import Session from "../../api/session";
-import DefaultHead from "../../components/defaulthead";
-import Footer from "../../components/Footer";
-import Nav from "../../components/Nav";
-import SiteSettings from "../../api/sitesettings";
-import CTF from "../../api/ctf";
-import Maps from "../../api/maps";
-import MapFastestCaps from "../../components/MapFastestCaps";
-import Functions from "../../api/functions";
+import Session from "../api/session";
+import DefaultHead from "../components/defaulthead";
+import Footer from "../components/Footer";
+import Nav from "../components/Nav";
+import SiteSettings from "../api/sitesettings";
+import CTF from "../api/ctf";
+import Maps from "../api/maps";
+import MapFastestCaps from "../components/MapFastestCaps";
+import Functions from "../api/functions";
 
 class CTFCaps extends React.Component{
 
@@ -32,45 +32,6 @@ class CTFCaps extends React.Component{
 
         this.setState({"selectedMap": e.target.value});
     }
-
-    /*async loadData(mapId){
-
-        try{
-
-            return;
-            console.log(`load data for map ${mapId}`);
-
-            let typeName = "all";
-
-            if(this.state.type !== 0){
-
-                if(this.state.type === 1){
-                    typeName = "solo";
-                }else if(this.state.type === 2){
-                    typeName = "assists";
-                }
-            }
-
-            const req = await fetch("/api/ctf", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "fastestcaps", 
-                    "perPage": this.state.perPage, 
-                    "page": this.state.page,
-                    "type": typeName,
-                    "mapId": mapId
-                })
-            });
-
-            const res = await req.json();
-
-            console.log(res);
-
-        }catch(err){
-            console.trace(err);
-        }
-    }*/
 
     async componentDidMount(){
 
@@ -131,7 +92,11 @@ class CTFCaps extends React.Component{
                     <div className="default">
                         <div className="default-header">Capture The Flag Cap Records</div>
                         {this.renderMapsForm()}
-                        <MapFastestCaps host={Functions.getImageHostAndPort(this.props.host)} mapId={this.state.selectedMap}/>
+                        <MapFastestCaps 
+                            host={Functions.getImageHostAndPort(this.props.host)} 
+                            mapId={parseInt(this.state.selectedMap)}
+                            perPage={this.state.perPage}
+                        />
                     </div>
                 </div>
             </main>

@@ -14,14 +14,15 @@ class MapFastestCaps extends React.Component{
         super(props);
 
         this.state = {
-            "perPage": 10, 
+            "perPage": this.props.perPage ?? 10, 
             "page": 0, 
             "data": [], 
             "players": [], 
             "records": {}, 
             "mode": 0, 
             "matchDates": {},
-            "totalCaps": 0
+            "totalCaps": 0,
+            "finishedLoading": false
         };
 
         this.changePage = this.changePage.bind(this);
@@ -29,6 +30,8 @@ class MapFastestCaps extends React.Component{
     }
 
     async changeMode(id){
+
+       // if(id === this.state.mode) return;
 
         this.setState({"mode": id, "page": 0});
         this.loadData(0, id);
@@ -61,6 +64,8 @@ class MapFastestCaps extends React.Component{
             if(type === 1) type = "solo";
             else if(type === 2) type = "assists";
 
+            this.setState({"finishedLoading": false});
+
             const req = await fetch("/api/ctf", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
@@ -82,7 +87,8 @@ class MapFastestCaps extends React.Component{
                     "players": res.players, 
                     "records": res.records,
                     "matchDates": res.matchDates,
-                    "totalCaps": res.totalCaps
+                    "totalCaps": res.totalCaps,
+                    "finishedLoading": true
                 });
             }
 
@@ -100,10 +106,10 @@ class MapFastestCaps extends React.Component{
     async componentDidUpdate(prevProps){
 
         if(prevProps.mapId !== this.props.mapId){
-            console.log("update");
-            console.log(this.state);
-            await this.loadData(this.props.mapId, this.state.mode);
+            this.changeMode(this.state.mode);
         }
+
+
     }
 
     getPlayer(id){
@@ -127,6 +133,8 @@ class MapFastestCaps extends React.Component{
     renderTable(){
 
         if(this.state.data.length === 0) return null;
+
+        if(!this.state.finishedLoading) return null;
 
         const rows = [];
 
