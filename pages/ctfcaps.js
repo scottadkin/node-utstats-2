@@ -8,6 +8,7 @@ import CTF from "../api/ctf";
 import Maps from "../api/maps";
 import MapFastestCaps from "../components/MapFastestCaps";
 import Functions from "../api/functions";
+import Link from 'next/link';
 
 class CTFCaps extends React.Component{
 
@@ -30,8 +31,8 @@ class CTFCaps extends React.Component{
 
     changeSelected(e){
 
-        //this.setState({"selectedMap": e.target.value});
-        window.location = `/ctfcaps?map=${e.target.value}`
+        this.setState({"selectedMap": e.target.value});
+        window.history.pushState({}, "", `/ctfcaps?map=${e.target.value}`);
     }
 
     async componentDidMount(){
@@ -85,9 +86,6 @@ class CTFCaps extends React.Component{
         for(let i = 0; i < maps.length; i++){
 
             const m = maps[i];
-
-            console.log(m.id === id);
-            console.log(m.id,id);
 
             if(m.id === id) return m.name;
         }
@@ -159,10 +157,6 @@ export async function getServerSideProps({req, query}){
     const mapManager = new Maps();
 
     const mapNames = await mapManager.getNamesByIds(validMaps);
-
-
-    console.log(query);
-    
 
     return {
         "props": {
