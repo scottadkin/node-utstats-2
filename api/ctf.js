@@ -184,6 +184,8 @@ class CTF{
 
     async updateCapRecord(matchId, mapId, type, cap, date){
 
+        if(cap === null) return;
+        
         const bMapHaveRecord = await this.bMapHaveRecord(mapId, type);
 
         if(!bMapHaveRecord){
