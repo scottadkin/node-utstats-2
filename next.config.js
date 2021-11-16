@@ -39,6 +39,11 @@ module.exports = {
                 source: '/map',
                 destination: "/maps/",
                 permanent: true,
+            },
+            {
+                source: '/recent',
+                destination: "/matches/",
+                permanent: true,
             }
 
         ]
