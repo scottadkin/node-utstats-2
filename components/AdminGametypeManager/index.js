@@ -85,7 +85,7 @@ class AdminGametypeManager extends React.Component{
                     errors.push(result.message);
                 }else{
 
-                    const images = Object.assign(this.props.images);
+                    const images = Object.assign({}, this.props.images);
 
                     for(let i = 0; i < fileNames.length; i++){
 
@@ -164,7 +164,7 @@ class AdminGametypeManager extends React.Component{
 
                 }else{
 
-                    const images = Object.assign(this.props.images);
+                    const images = Object.assign({}, this.props.images);
                     images.push(`${e.target[0].value}.jpg`);
                     this.props.updateImages(images);
                 }

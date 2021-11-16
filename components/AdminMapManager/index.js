@@ -45,15 +45,15 @@ class AdminMapManager extends React.Component{
 
             const res = await req.json();
 
-            const currentUploads = Object.assign(this.state.uploads);
+            const currentUploads = Object.assign({}, this.state.uploads);
 
 
             if(res.errors === undefined){
 
                 currentUploads[fileName] = {"finished": true, "errors": []}
 
-                const fullsize = Object.assign(this.state.fullsize);
-                const thumbsize = Object.assign(this.state.thumbs);
+                const fullsize = Object.assign({}, this.state.fullsize);
+                const thumbsize = Object.assign({}, this.state.thumbs);
 
                 fullsize.push(fileName);
                 thumbsize.push(fileName);
@@ -82,7 +82,7 @@ class AdminMapManager extends React.Component{
 
             if(files.length === 0) return;
 
-            const currentUploads = Object.assign(this.state.uploads);
+            const currentUploads = Object.assign({}, this.state.uploads);
 
             for(let i = 0; i < files.length; i++){
 
@@ -128,7 +128,7 @@ class AdminMapManager extends React.Component{
                 return;
             }
 
-            const currentUploads = Object.assign(this.state.uploads);
+            const currentUploads = Object.assign({}, this.state.uploads);
 
             currentUploads[fullName] = {"finished": false, "errors": []}
 
@@ -143,14 +143,14 @@ class AdminMapManager extends React.Component{
 
             const res = await req.json();
 
-            const newUploads = Object.assign(this.state.uploads);
+            const newUploads = Object.assign({}, this.state.uploads);
 
             if(res.errors === undefined){
     
                 newUploads[fullName] = {"finished": true, "errors": []};
 
-                const fullsize = Object.assign(this.state.fullsize);
-                const thumbsize = Object.assign(this.state.thumbs);
+                const fullsize = Object.assign({}, this.state.fullsize);
+                const thumbsize = Object.assign({}, this.state.thumbs);
 
                 fullsize.push(name);
                 thumbsize.push(name);
@@ -310,7 +310,7 @@ class AdminMapManager extends React.Component{
 
             if(res.error === undefined){
 
-                const previousThumbs = Object.assign(this.state.thumbs);
+                const previousThumbs = Object.assign({}, this.state.thumbs);
 
                 previousThumbs.push(file);
 

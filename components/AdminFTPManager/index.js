@@ -351,7 +351,7 @@ class AdminFTPManager extends React.Component{
                
                 if(res.message.toLowerCase() === "passed"){
 
-                    const servers = Object.assign(this.state.servers);
+                    const servers = Object.assign({}, this.state.servers);
 
                     e.target.reset();
 
@@ -611,7 +611,7 @@ class AdminFTPManager extends React.Component{
 
     updateSelectedValue(e){
 
-        const data = Object.assign(this.state.selectedValues);
+        const data = Object.assign({}, this.state.selectedValues);
 
         let value = e.target.value;
         const name = e.target.name;

@@ -70,7 +70,7 @@ class AdminNexgenStatsViewer extends React.Component{
                 return;
             }
 
-            const newList = Object.assign(this.props.settings);
+            const newList = Object.assign({}, this.props.settings);
 
             const first = {
                 "id": this.props.settings[currentIndex.position].id,
@@ -119,7 +119,7 @@ class AdminNexgenStatsViewer extends React.Component{
                 return;
             }
 
-            const newList = Object.assign(this.props.settings);
+            const newList = Object.assign({}, this.props.settings);
 
             const first = {
                 "id": this.props.settings[currentIndex.position].id,
