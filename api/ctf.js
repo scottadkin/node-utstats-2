@@ -185,7 +185,7 @@ class CTF{
     async updateCapRecord(matchId, mapId, type, cap, date){
 
         if(cap === null) return;
-        
+
         const bMapHaveRecord = await this.bMapHaveRecord(mapId, type);
 
         if(!bMapHaveRecord){
@@ -211,8 +211,8 @@ class CTF{
 
         const query = "INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?,?)";
 
-        const vars = [matchId, date, mapId, cap.team, cap.grab, cap.assists.toString(), cap.cap, cap.travelTime, type];
-
+        const vars = [matchId, date, mapId, cap.team, cap.grab, cap.assists.toString(), cap.cap, cap.travelTime ?? cap.travel_time, type];
+        //console.log(vars);
         await mysql.simpleQuery(query, vars);
     }
 
@@ -1174,13 +1174,19 @@ class CTF{
         for(let i = 0; i < mapIds.length; i++){
 
             const m = mapIds[i];
-
             records[m] = await this.getMapCapRecords(m);
         }
 
         return records;
-
     }
+
+
+    async clearRecords(){
+
+        const query = "DELETE FROM nstats_ctf_cap_records";
+        await mysql.simpleQuery(query);
+    }
+
 }
 
 

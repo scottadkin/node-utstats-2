@@ -614,20 +614,20 @@ class CTFManager{
                 if(c.assists.length === 0){
 
                     if(fastestSolo === null){
-                        fastestSolo = c;
+                        fastestSolo = Object.assign({}, c);
                     }else{
                         if(fastestSolo.travelTime > c.travelTime){
-                            fastestSolo = c;
+                            fastestSolo = Object.assign({}, c);
                         }
                     }
 
                 }else{
 
                     if(fastestAssist === null){
-                        fastestAssist = c;
+                        fastestAssist = Object.assign({}, c);
                     }else{
                         if(fastestAssist.travelTime > c.travelTime){
-                            fastestAssist = c;
+                            fastestAssist = Object.assign({}, c);
                         }
                     }
                 }
@@ -739,9 +739,54 @@ class CTFManager{
 
             });
 
-            //solo
+
+            if(fastestSolo !== null){
+
+                const grabPlayer = this.playerManager.getOriginalConnectionById(fastestSolo.grab);
+                const capPlayer = this.playerManager.getOriginalConnectionById(fastestSolo.cap);
+
+                if(grabPlayer !== null){
+                    fastestSolo.grab = grabPlayer.masterId;
+                }
+
+                if(capPlayer !== null){
+                    fastestSolo.cap = capPlayer.masterId;
+                }
+            }
+
             await this.ctf.updateCapRecord(matchId, mapId, 0, fastestSolo, matchDate);
-            //assist
+   
+
+            if(fastestAssist !== null){
+
+                const grabPlayer = this.playerManager.getOriginalConnectionById(fastestAssist.grab);
+                const capPlayer = this.playerManager.getOriginalConnectionById(fastestAssist.cap);
+                
+
+                if(grabPlayer !== null){
+                    fastestAssist.grab = grabPlayer.masterId;
+                }
+
+                if(capPlayer !== null){
+                    fastestAssist.cap = capPlayer.masterId;
+                }
+
+                const assistPlayers = [];
+                
+                for(let i = 0; i < fastestAssist.assists.length; i++){
+
+                    const assist = fastestAssist.assists[i];
+
+                    const currentAssistPlayer = this.playerManager.getOriginalConnectionById(assist);
+
+                    if(currentAssistPlayer !== null){
+                        assistPlayers.push(currentAssistPlayer.masterId);
+                    }
+                }
+
+                fastestAssist.assists = assistPlayers;
+            }
+            
             await this.ctf.updateCapRecord(matchId, mapId, 1, fastestAssist, matchDate);
 
 
