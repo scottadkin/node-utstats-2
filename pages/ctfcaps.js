@@ -24,7 +24,7 @@ class CTFCaps extends React.Component{
             selected = maps[0].id;
         }
 
-        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "type": 0, "newMapId": -1};
+        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "type": 0, "newMapId": -1, "mode": 0};
 
         this.changeSelected = this.changeSelected.bind(this);
     }
@@ -128,6 +128,10 @@ class CTFCaps extends React.Component{
                         <div className="big-tabs">
                             <Link href={`/records`}><a><div className="big-tab">General Records</div></a></Link>
                             <div className="big-tab tab-selected">CTF Map Cap Records</div>
+                        </div>
+                        <div className="tabs">
+                            <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>Map Records</div>
+                            <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Player Records</div>
                         </div>
                         {this.renderMapsForm()}
                         <MapFastestCaps 
