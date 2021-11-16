@@ -861,16 +861,17 @@ const queries = [
          'Reduce the player\\'s score to a percentage of it\\'s original value',
           0.05)`,
 
-    `CREATE TABLE IF NOT EXISTS nstats_ctf_cap_records(
-          id int(11) NOT NULL AUTO_INCREMENT,
-          match_id INT(11) NOT NULL,
-          match_date INT(11) NOT NULL,
-          map_id INT(11) NOT NULL,
-          team INT(1) NOT NULL,
-          grab INT(11) NOT NULL,
-          assists VARCHAR(500) NOT NULL,
-          cap INT(11) NOT NULL,
-          travel_time DECIMAL(10,2) NOT NULL,
+          `CREATE TABLE IF NOT EXISTS nstats_ctf_cap_records(
+            id int(11) NOT NULL AUTO_INCREMENT,
+            match_id INT(11) NOT NULL,
+            match_date INT(11) NOT NULL,
+            map_id INT(11) NOT NULL,
+            team INT(1) NOT NULL,
+            grab INT(11) NOT NULL,
+            assists VARCHAR(500) NOT NULL,
+            cap INT(11) NOT NULL,
+            travel_time DECIMAL(10,2) NOT NULL,
+            type INT(1) NOT NULL,
     PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     
     

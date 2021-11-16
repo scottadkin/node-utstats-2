@@ -141,6 +141,7 @@ async function createNewTables(){
                 assists VARCHAR(500) NOT NULL,
                 cap INT(11) NOT NULL,
                 travel_time DECIMAL(10,2) NOT NULL,
+                type INT(1) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
         ];
 

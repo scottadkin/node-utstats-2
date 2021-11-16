@@ -133,24 +133,85 @@ class CTF{
         });
     }
 
-    insertCap(matchId, mapId, team, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, assistsTimes, carryIds, cap, 
+    async insertCap(matchId, matchDate, mapId, team, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, assistsTimes, carryIds, cap, 
         capTime, travelTime, selfCovers, selfCoversCount){
 
-        return new Promise((resolve, reject) =>{
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const vars = [matchId, mapId, team, grabTime, grab, drops.toString(), dropTimes.toString(), pickups.toString(), pickupTimes.toString(), 
+            covers.toString(), coverTimes.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime,
+            selfCovers.toString(), selfCoversCount.toString()];
 
-            const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        let type = 0;
 
-            const vars = [matchId, mapId, team, grabTime, grab, drops.toString(), dropTimes.toString(), pickups.toString(), pickupTimes.toString(), 
-                covers.toString(), coverTimes.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime,
-                selfCovers.toString(), selfCoversCount.toString()];
+        if(assists.length !== 0){
+            type = 1;
+        }
+        
+        await mysql.simpleQuery(query, vars);
 
-            mysql.query(query, vars, (err) =>{
+    }
 
-                if(err) reject(err);
+    async bMapHaveRecord(mapId, type){
 
-                resolve();
-            });
-        });
+        if(type === undefined) type = 0;
+
+        let query = `SELECT COUNT(*) as total_results FROM nstats_ctf_cap_records WHERE map_id=? AND type=?`;
+
+        const result = await mysql.simpleQuery(query, [mapId, type]);
+
+        if(result.length === 0) return false;
+
+        if(result[0].total_results > 0){
+            return true;
+        }
+
+        return false;
+    }
+
+    async getMapRecord(mapId, type){
+
+        const query = "SELECT travel_time FROM nstats_ctf_cap_records WHERE map_id=? AND type=?";
+
+        const result = await mysql.simpleQuery(query, [mapId, type]);
+
+        if(result.length > 0){
+            return result[0].travel_time;
+        }
+
+        return -1;
+
+    }
+
+    async updateCapRecord(matchId, mapId, type, cap, date){
+
+        const bMapHaveRecord = await this.bMapHaveRecord(mapId, type);
+
+        if(!bMapHaveRecord){
+            await this.insertCapRecord(matchId, mapId, type, cap, date);
+        }else{
+
+            const currentRecord = await this.getMapRecord(mapId, type);
+
+                if(currentRecord < 0 || currentRecord > cap.travelTime){
+                
+                const query = `UPDATE nstats_ctf_cap_records SET match_id=?,match_date=?,team=?,grab=?,assists=?,cap=?,travel_time=? WHERE map_id=? AND type=?`;
+                const vars = [matchId, date, cap.team, cap.grab, cap.assists.toString(), cap.cap, cap.travelTime, mapId, type];
+                await mysql.simpleQuery(query, vars);
+
+            }else{
+                new Message(`Current Record is less than 0`,"warning");
+            }
+
+        }
+    }
+
+    async insertCapRecord(matchId, mapId, type, cap, date){
+
+        const query = "INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?,?)";
+
+        const vars = [matchId, date, mapId, cap.team, cap.grab, cap.assists.toString(), cap.cap, cap.travelTime, type];
+
+        await mysql.simpleQuery(query, vars);
     }
 
     async getMatchCaps(matchId){

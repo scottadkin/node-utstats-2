@@ -331,7 +331,7 @@ class CTFManager{
 
                 current.cap = e.player;
                 current.capTime = e.timestamp;
-                current.travelTime = (current.capTime - current.grabTime).toFixed(2);
+                current.travelTime = parseFloat((current.capTime - current.grabTime).toFixed(2));
 
                 current.selfCovers = this.getSelfCovers(current.grabTime, current.capTime);
 
@@ -582,7 +582,7 @@ class CTFManager{
 
     }
 
-    async insertCaps(matchId, mapId){
+    async insertCaps(matchId, mapId, matchDate){
 
         try{
 
@@ -602,11 +602,35 @@ class CTFManager{
             let currentPickupTimes = [];
             let currentPickup = 0;
 
+            let fastestSolo = null;
+            let fastestAssist = null;
+
             for(let i = 0; i < this.capData.length; i++){
 
                 const c = this.capData[i];
 
                 this.tempCTF4Botch(c);
+
+                if(c.assists.length === 0){
+
+                    if(fastestSolo === null){
+                        fastestSolo = c;
+                    }else{
+                        if(fastestSolo.travelTime > c.travelTime){
+                            fastestSolo = c;
+                        }
+                    }
+
+                }else{
+
+                    if(fastestAssist === null){
+                        fastestAssist = c;
+                    }else{
+                        if(fastestAssist.travelTime > c.travelTime){
+                            fastestAssist = c;
+                        }
+                    }
+                }
 
                 currentGrab = this.playerManager.getOriginalConnectionById(c.grab);
 
@@ -691,13 +715,34 @@ class CTFManager{
 
                 if(currentCap !== null){
 
-                    await this.ctf.insertCap(matchId, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
+                    await this.ctf.insertCap(matchId, matchDate, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
                         currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, 
                         currentCap.masterId, c.capTime, c.travelTime, currentSelfCovers, currentSelfCoversCount);
                 }else{
                     new Message(`CTFManager.insertCaps() currentCap is null`,"warning");
                 }
             }
+
+
+            this.capData.sort((a, b) =>{
+
+                a = a.travelTime;
+                b = b.travelTime;
+
+                if(a > b){
+                    return 1;
+                }else if(a < b){
+                    return -1;
+                }
+
+                return 0;
+
+            });
+
+            //solo
+            await this.ctf.updateCapRecord(matchId, mapId, 0, fastestSolo, matchDate);
+            //assist
+            await this.ctf.updateCapRecord(matchId, mapId, 1, fastestAssist, matchDate);
 
 
             for(let i = 0; i < this.playerManager.players.length; i++){
