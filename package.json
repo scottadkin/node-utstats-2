@@ -10,9 +10,9 @@
   "dependencies": {
     "cookie": "^0.4.1",
     "express": "^4.17.1",
-    "formidable": "^1.2.2",
+    "formidable": "^1.2.6",
     "ftp": "^0.3.10",
-    "geoip-country": "^4.0.90",
+    "geoip-country": "^4.0.94",
     "geoip-lite": "^1.4.2",
     "i18n-iso-countries": "^6.8.0",
     "jimp": "^0.16.1",
