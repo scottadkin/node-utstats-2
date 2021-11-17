@@ -148,7 +148,19 @@ class MapFastestCaps extends React.Component{
 
             let offset = 0;
 
-            if(this.state.records.solo !== null && this.state.mode < 2){
+            if(this.state.records.solo !== null && this.state.records.assist !== null){
+
+                if(this.state.mode === 0){
+
+                    if(this.state.records.solo.travel_time <= this.state.records.assist.travel_time){
+                        offset = Math.abs(this.state.records.solo.travel_time - d.travel_time);
+                    }else{
+                        offset = Math.abs(this.state.records.assist.travel_time - d.travel_time);
+                    }
+                }
+            }
+
+            if(this.state.records.solo !== null && this.state.mode === 1){
 
                 offset = Math.abs(this.state.records.solo.travel_time - d.travel_time);
             }
