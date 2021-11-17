@@ -1,13 +1,23 @@
 import React from 'react';
 import Table2 from '../Table2';
 import Functions from '../../api/functions';
+import styles from './CTFMapRecords.module.css';
+import Link from 'next/link';
+import CountryFlag from '../CountryFlag';
 
 class CTFMapRecords extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"mode": 0, "mapIds": [], "caps": {}, "matchDates": {}, "finishedLoading": false};
+        this.state = {
+            "mode": 0, 
+            "mapIds": [], 
+            "caps": {}, 
+            "matchDates": {}, 
+            "finishedLoading": false,
+            "playerNames": {}
+        };
         this.changeMode = this.changeMode.bind(this);
  
     }
@@ -30,7 +40,7 @@ class CTFMapRecords extends React.Component{
 
             if(res.error === undefined){
 
-                this.setState({"caps": res.data, "matchDates": res.matchDates });
+                this.setState({"caps": res.data, "matchDates": res.matchDates, "playerNames": res.playerNames});
             }
             console.log(res);
 
@@ -58,6 +68,24 @@ class CTFMapRecords extends React.Component{
     changeMode(id){
 
         this.setState({"mode": id});
+    }
+
+    getDate(matchId){
+
+        if(this.state.matchDates[matchId] !== undefined){
+            return this.state.matchDates[matchId];
+        }
+
+        return 0;
+    }
+
+    getPlayer(playerId){
+        
+        if(this.state.playerNames[playerId] !== undefined){
+            return this.state.playerNames[playerId];
+        }
+
+        return {"name": "Not Found", "country": "xx", "id": -1};
     }
 
     renderData(){
@@ -91,25 +119,35 @@ class CTFMapRecords extends React.Component{
 
             if(data === null) continue;
 
+            const capPlayer = this.getPlayer(data.cap);
+
             rows.push(<tr key={i}>
                 <td className="text-left">{m.name}</td>
-                <td></td>
+                <td>{Functions.convertTimestamp(this.getDate(data.match_id), true)}</td>
                 {(this.state.mode === 1) ? <td></td> : null }
-                <td></td>
-                <td className="purple">{Functions.capTime(data.travel_time)}</td>
+                <td>
+                    <Link href={`/player/${capPlayer.id}`}>
+                        <a>
+                            <CountryFlag host={this.props.host} country={capPlayer.country}/>{capPlayer.name}
+                        </a>
+                    </Link>
+                </td>
+                <td>{Functions.capTime(data.travel_time)}</td>
             </tr>);
         }
 
-        return <Table2 width={1}>
-            <tr>
-                <th>Map</th>
-                <th>Date</th>
-                {(this.state.mode === 1) ? <th>Assists</th> : null }
-                <th>Cap</th>
-                <th>Record</th>
-            </tr>
-            {rows}
-        </Table2>
+        return <div className={styles.table}>
+                <Table2 width={1}>
+                <tr>
+                    <th>Map</th>
+                    <th>Date</th>
+                    {(this.state.mode === 1) ? <th>Assists</th> : null }
+                    <th>Cap</th>
+                    <th>Record</th>
+                </tr>
+                {rows}
+            </Table2>
+        </div>
     }
 
     render(){

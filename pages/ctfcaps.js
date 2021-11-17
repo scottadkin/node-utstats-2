@@ -123,7 +123,7 @@ class CTFCaps extends React.Component{
 
         if(this.state.mode !== 1) return null;
 
-        return <CTFMapRecords maps={JSON.parse(this.props.maps)}/>
+        return <CTFMapRecords host={Functions.getImageHostAndPort(this.props.host)} maps={JSON.parse(this.props.maps)}/>
     }
 
     render(){

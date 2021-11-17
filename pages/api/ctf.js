@@ -35,6 +35,44 @@ function getUniquePlayers(data){
     return playerIds;
 }
 
+function getUniquePlayersAlt(data){
+
+    const playerIds = [];
+
+    for(const [key, value] of Object.entries(data)){
+
+        const solo = value.solo;
+        const assisted = value.assisted;
+
+        if(solo !== null){
+
+            if(playerIds.indexOf(solo.cap) === -1){
+                playerIds.push(solo.cap);
+            }
+        }
+
+        if(assisted !== null){
+
+            if(playerIds.indexOf(assisted.cap) === -1){
+                playerIds.push(assisted.cap);
+            }
+
+            const assists = assisted.assists.split(",");
+
+            for(let i = 0; i < assists.length; i++){
+
+                const assist = parseInt(assists[i]);
+
+                if(playerIds.indexOf(assist) === -1){
+                    playerIds.push(assist);
+                }
+            }
+        }
+    }
+
+    return playerIds;
+}
+
 function getUniqueMatchIds(data, bMapRecords){
 
     const matchIds = [];
@@ -138,11 +176,13 @@ export default (req, res) =>{
 
             const data = await ctfManager.getMapsCapRecords(mapIds);
 
-
             const matchIds = getUniqueMatchIds(data, true);
             const matchDates = await matchManager.getDates(matchIds);
 
-            res.status(200).json({"data": data, "matchDates": matchDates});
+            const playerIds = getUniquePlayersAlt(data);
+            const playerNames = await playerManager.getNamesByIds(playerIds, true);
+
+            res.status(200).json({"data": data, "matchDates": matchDates, "playerNames": playerNames});
             resolve();
             return;
         }
