@@ -9,6 +9,7 @@ import Maps from "../api/maps";
 import MapFastestCaps from "../components/MapFastestCaps";
 import Functions from "../api/functions";
 import Link from 'next/link';
+import CTFMapRecords from '../components/CTFMapRecords';
 
 class CTFCaps extends React.Component{
 
@@ -24,9 +25,15 @@ class CTFCaps extends React.Component{
             selected = maps[0].id;
         }
 
-        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "type": 0, "newMapId": -1, "mode": 0};
+        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "type": 0, "newMapId": -1, "mode": 1};
 
         this.changeSelected = this.changeSelected.bind(this);
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
     changeSelected(e){
@@ -97,6 +104,28 @@ class CTFCaps extends React.Component{
         return "Not Found";
     }
 
+    renderMapCaps(){
+
+        if(this.state.mode !== 0) return null;
+
+        return <>
+            {this.renderMapsForm()}
+            <MapFastestCaps 
+                host={Functions.getImageHostAndPort(this.props.host)} 
+                mapId={parseInt(this.state.selectedMap)}
+                perPage={this.state.perPage}
+            />
+        </>
+    }
+
+    
+    renderAllMapRecords(){
+
+        if(this.state.mode !== 1) return null;
+
+        return <CTFMapRecords maps={JSON.parse(this.props.maps)}/>
+    }
+
     render(){
 
         let mapName = "";
@@ -127,18 +156,18 @@ class CTFCaps extends React.Component{
                         <div className="default-header">Capture The Flag Cap Records</div>
                         <div className="big-tabs">
                             <Link href={`/records`}><a><div className="big-tab">General Records</div></a></Link>
-                            <div className="big-tab tab-selected">CTF Map Cap Records</div>
+                            <div className="big-tab tab-selected">CTF Cap Records</div>
                         </div>
                         <div className="tabs">
-                            <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>Map Records</div>
-                            <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Player Records</div>
+                            <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(0);
+                            })}>Map Caps</div>
+                            <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}  onClick={(() =>{
+                                this.changeMode(1);
+                            })}>Map Records</div>
                         </div>
-                        {this.renderMapsForm()}
-                        <MapFastestCaps 
-                            host={Functions.getImageHostAndPort(this.props.host)} 
-                            mapId={parseInt(this.state.selectedMap)}
-                            perPage={this.state.perPage}
-                        />
+                        {this.renderMapCaps()}
+                        {this.renderAllMapRecords()}
                     </div>
                 </div>
             </main>

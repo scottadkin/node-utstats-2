@@ -625,6 +625,36 @@ class Functions{
        
 
     }
+
+    static capTime(input){
+
+        const ms = Math.floor(((input % 1) * 100));
+
+        let seconds = Math.floor(input % 60);
+        let minutes = Math.floor(input / 60);
+        let hours = Math.floor(input / (60 * 60));
+
+        if(seconds < 10){
+            seconds = `0${seconds}`;
+        }
+
+        if(minutes === 0){
+            minutes = "0";
+        }
+      
+
+        if(hours === 0){
+            hours = "";
+        }else{
+            hours = `${hours}:`
+        }
+
+       // console.log(ms);
+
+       // console.log(`${hours}${minutes}:${seconds}.${ms}`);
+
+        return `${hours}${minutes}:${seconds}.${ms}`;
+    }
 }
 
 module.exports = Functions;

@@ -1187,6 +1187,14 @@ class CTF{
         await mysql.simpleQuery(query);
     }
 
+
+    async getCapRecords(){
+
+        const mapIds = await this.getAllMapsWithCaps();
+        console.log(mapIds);
+        
+    }
+
 }
 
 
