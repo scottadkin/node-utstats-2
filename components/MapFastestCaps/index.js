@@ -19,7 +19,7 @@ class MapFastestCaps extends React.Component{
             "data": [], 
             "players": [], 
             "records": {}, 
-            "mode": 0, 
+            "mode": this.props.mode, 
             "matchDates": {},
             "totalCaps": 0,
             "finishedLoading": false
@@ -105,11 +105,9 @@ class MapFastestCaps extends React.Component{
 
     async componentDidUpdate(prevProps){
 
-        if(prevProps.mapId !== this.props.mapId){
-            this.changeMode(this.state.mode);
+        if(prevProps.mapId !== this.props.mapId || prevProps.mode !== this.props.mode){
+            this.changeMode(this.props.mode);
         }
-
-
     }
 
     getPlayer(id){
@@ -242,10 +240,8 @@ class MapFastestCaps extends React.Component{
 
     render(){
 
-        return <div className={styles.table}>
-            <div className="default-header">Map Fastest Caps</div>
-            <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+        /*
+        <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(0);
                 })}>All Caps</div>
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
@@ -254,6 +250,26 @@ class MapFastestCaps extends React.Component{
                 <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(2);
                 })}>Assisted Caps</div>
+        */
+
+        return <div className={styles.table}>
+            <div className="default-header">Map Fastest Caps</div>
+            <div className="tabs">
+            <Link href={`/ctfcaps?map=${this.props.mapId}&submode=0`}>
+                <a>
+                    <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`} >All Caps</div>
+                </a>
+            </Link>
+            <Link href={`/ctfcaps?map=${this.props.mapId}&submode=1`}>
+                <a>
+                    <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`} >Solo Caps</div>
+                </a>
+            </Link>
+            <Link href={`/ctfcaps?map=${this.props.mapId}&submode=2`}>
+                <a>
+                    <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`} >Assisted Caps</div>
+                </a>
+            </Link>
             </div>
             <BasicPageSelect changePage={this.changePage} page={this.state.page} results={this.state.totalCaps} perPage={this.state.perPage}/>
             {this.renderTable()}

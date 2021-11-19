@@ -8,7 +8,7 @@ function Nav({session, settings}){
 
     session = JSON.parse(session);
 
-    console.log(session);
+    //console.log(session);
 
     let displayName = "NOT FOUND";
 

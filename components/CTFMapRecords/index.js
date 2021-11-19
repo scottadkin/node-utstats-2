@@ -11,7 +11,7 @@ class CTFMapRecords extends React.Component{
 
         super(props);
         this.state = {
-            "mode": 0, 
+            "mode": this.props.mode, 
             "mapIds": [], 
             "caps": {}, 
             "matchDates": {}, 

@@ -25,15 +25,10 @@ class CTFCaps extends React.Component{
             selected = maps[0].id;
         }
 
-        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "type": 0, "newMapId": -1, "mode": 1};
+        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "newMapId": -1};
 
         this.changeSelected = this.changeSelected.bind(this);
-        this.changeMode = this.changeMode.bind(this);
-    }
 
-    changeMode(id){
-
-        this.setState({"mode": id});
     }
 
     changeSelected(e){
@@ -45,8 +40,24 @@ class CTFCaps extends React.Component{
 
     async componentDidUpdate(prevProps){
 
+
+
         if(prevProps.mapId !== this.props.mapId){
             this.setState({"selectedMap": this.props.mapId});
+        }
+
+        if(this.props.mapId === -1 && prevProps.mapId === -1 && this.state.selectedMap === -1){
+
+
+            let selected = this.props.mapId;
+
+            const maps = JSON.parse(this.props.maps);
+
+            if(maps.length > 0 && selected === -1){
+                selected = maps[0].id;
+            }
+
+            this.setState({"selectedMap": selected});
         }
     }
 
@@ -106,7 +117,7 @@ class CTFCaps extends React.Component{
 
     renderMapCaps(){
 
-        if(this.state.mode !== 0) return null;
+        if(this.props.mode !== 0) return null;
 
         return <>
             {this.renderMapsForm()}
@@ -114,6 +125,7 @@ class CTFCaps extends React.Component{
                 host={Functions.getImageHostAndPort(this.props.host)} 
                 mapId={parseInt(this.state.selectedMap)}
                 perPage={this.state.perPage}
+                mode={this.props.subMode}
             />
         </>
     }
@@ -121,9 +133,13 @@ class CTFCaps extends React.Component{
     
     renderAllMapRecords(){
 
-        if(this.state.mode !== 1) return null;
+        if(this.props.mode !== 1) return null;
 
-        return <CTFMapRecords host={Functions.getImageHostAndPort(this.props.host)} maps={JSON.parse(this.props.maps)}/>
+        return <CTFMapRecords 
+            host={Functions.getImageHostAndPort(this.props.host)} 
+            maps={JSON.parse(this.props.maps)}
+            mode={this.props.subMode}
+        />
     }
 
     render(){
@@ -131,17 +147,32 @@ class CTFCaps extends React.Component{
         let mapName = "";
         let desc = `View the fastest CTF caps for each map.`;
 
-        if(this.state.selectedMap !== -1){
+        let title = "";
 
-            mapName = this.getMapName(this.state.selectedMap);
-            desc = `View the fastest CTF caps for ${mapName}`
+        if(this.props.mode === 0){
+
+            if(this.state.selectedMap !== -1){
+
+                mapName = this.getMapName(this.state.selectedMap);
+                desc = `View the fastest CTF caps for ${mapName}`
+
+            }
+
+            let subString = "";
+
+            if(this.props.subMode === 1){
+                subString = "Solo ";
+            }else if(this.props.subMode === 2){
+                subString = "Assisted ";
+            }
+
+            title = `${mapName} ${subString}Cap Records`;
+
+        }else if(this.props.mode === 1){
+
+            desc = `View all the current map ctf cap records.`;
+            title = `CTF Map Records`;
         }
-        
-
-        const title = `${mapName} CTF Cap Records`;
-        
-
-    
 
         return <div>
             <DefaultHead title={`${title}`} 
@@ -159,12 +190,16 @@ class CTFCaps extends React.Component{
                             <div className="big-tab tab-selected">CTF Cap Records</div>
                         </div>
                         <div className="tabs">
-                            <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                                this.changeMode(0);
-                            })}>Map Caps</div>
-                            <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}  onClick={(() =>{
-                                this.changeMode(1);
-                            })}>Map Records</div>
+                            <Link href={`/ctfcaps/?mode=0`}>
+                                <a>
+                                    <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`} >Map Caps</div>
+                                </a>
+                            </Link>
+                            <Link href={`/ctfcaps/?mode=1`}>
+                                <a>
+                                    <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}  >Map Records</div>
+                                </a>
+                            </Link>
                         </div>
                         {this.renderMapCaps()}
                         {this.renderAllMapRecords()}
@@ -182,6 +217,14 @@ export default CTFCaps;
 export async function getServerSideProps({req, query}){
 
     const mapId = query.map ?? -1;
+    let mode = query.mode ?? 0;
+    let subMode = query.submode ?? 0;
+
+    mode = parseInt(mode);
+    if(mode !== mode) mode = 0;
+
+    subMode = parseInt(subMode);
+    if(subMode !== subMode) subMode = 0;
 
     const session = new Session(req);
 
@@ -191,13 +234,12 @@ export async function getServerSideProps({req, query}){
 
     const ctfManager = new CTF();
     const validMaps = await ctfManager.getAllMapsWithCaps();
-    // const records = await ctfManager.getMapsCapRecords(validMaps);
-
-    //console.log(records);
 
     const mapManager = new Maps();
 
     const mapNames = await mapManager.getNamesByIds(validMaps);
+
+    console.log(`submode is ${subMode}`);
 
     return {
         "props": {
@@ -205,7 +247,9 @@ export async function getServerSideProps({req, query}){
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "maps": JSON.stringify(mapNames),
-            "mapId": mapId
+            "mapId": mapId,
+            "mode": mode,
+            "subMode": subMode
         }
     }
 }
