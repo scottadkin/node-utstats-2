@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import Functions from '../../api/functions';
-import SimplePaginationLinks from '../SImplePaginationLinks';
+import SimplePaginationLinks from '../SimplePaginationLinks';
 import Table2 from '../Table2';
 
 class ACEKickLogs extends React.Component{
