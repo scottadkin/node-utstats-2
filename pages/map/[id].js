@@ -151,7 +151,7 @@ class Map extends React.Component{
 
                     <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
 
-                    <MapFastestCaps host={imageHost} mapId={basic.id}/>
+                    
 
                     <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
 

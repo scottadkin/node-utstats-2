@@ -130,8 +130,8 @@ export default (req, res) =>{
         if(mode === "fastestcaps"){
 
             const mapId = (req.body.mapId !== undefined) ? parseInt(req.body.mapId) : -1;
-            const perPage = (req.body.perPage !== undefined) ? parseInt(req.body.perPage) : 5;
-            const page = (req.body.page !== undefined) ? parseInt(req.body.page) : 0;
+            let perPage = (req.body.perPage !== undefined) ? parseInt(req.body.perPage) : 5;
+            let page = (req.body.page !== undefined) ? parseInt(req.body.page) : 0;
             const type = (req.body.type !== undefined) ? req.body.type : "";
 
             if(page !== page) page = 0;
