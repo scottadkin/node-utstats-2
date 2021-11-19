@@ -17,15 +17,7 @@ class CTFCaps extends React.Component{
 
         super(props);
 
-        let selected = this.props.mapId;
-
-        const maps = JSON.parse(this.props.maps);
-
-        if(maps.length > 0 && selected === -1){
-            selected = maps[0].id;
-        }
-
-        this.state = {"selectedMap": selected, "perPage": 25, "page": 0, "newMapId": -1};
+        this.state = {"selectedMap": -1, "perPage": 25, "page": 0, "newMapId": -1};
 
         this.changeSelected = this.changeSelected.bind(this);
 
@@ -38,11 +30,60 @@ class CTFCaps extends React.Component{
        // window.location = `/ctfcaps?map=${e.target.value}`;
     }
 
-    async componentDidUpdate(prevProps){
+    async componentDidMount(){
 
+        let selected = this.props.mapId;
 
+        const maps = JSON.parse(this.props.maps);
+
+        if(maps.length > 0 && selected === -1){
+            selected = maps[0].id;
+        }
+
+        this.setState({"selectedMap": selected});
+    }
+
+    async componentDidUpdate(prevProps, prevState){
+
+        let selected = this.props.mapId;
+
+        const maps = JSON.parse(this.props.maps);
+
+        if(maps.length > 0 && selected === -1){
+            selected = maps[0].id;
+        }
 
         if(prevProps.mapId !== this.props.mapId){
+            this.setState({"selectedMap": this.props.mapId});
+            return;
+        }
+
+        if(this.state.selectedMap === -1){
+
+            if(maps.length > 0){
+                this.setState({"selectedMap": selected});
+            }
+        }
+
+        /*return;
+
+        console.log(this.props.mapId, prevProps.mapId,this.state.selectedMap);
+
+
+        let selected = this.props.mapId;
+
+        const maps = JSON.parse(this.props.maps);
+
+        if(maps.length > 0 && selected === -1){
+            selected = maps[0].id;
+        }
+
+        if(this.props.mapId){
+
+        }*/
+
+
+        /*if(prevProps.mapId !== this.props.mapId){
             this.setState({"selectedMap": this.props.mapId});
         }
 
@@ -58,7 +99,7 @@ class CTFCaps extends React.Component{
             }
 
             this.setState({"selectedMap": selected});
-        }
+        }*/
     }
 
 
@@ -126,6 +167,8 @@ class CTFCaps extends React.Component{
                 mapId={parseInt(this.state.selectedMap)}
                 perPage={this.state.perPage}
                 mode={this.props.subMode}
+                page={this.props.page}
+                
             />
         </>
     }
@@ -219,12 +262,16 @@ export async function getServerSideProps({req, query}){
     const mapId = query.map ?? -1;
     let mode = query.mode ?? 0;
     let subMode = query.submode ?? 0;
+    let page = query.page ?? 1;
 
     mode = parseInt(mode);
     if(mode !== mode) mode = 0;
 
     subMode = parseInt(subMode);
     if(subMode !== subMode) subMode = 0;
+
+    page = parseInt(page);
+    if(page !== page) page = 1;
 
     const session = new Session(req);
 
@@ -239,8 +286,6 @@ export async function getServerSideProps({req, query}){
 
     const mapNames = await mapManager.getNamesByIds(validMaps);
 
-    console.log(`submode is ${subMode}`);
-
     return {
         "props": {
             "host":  req.headers.host,
@@ -249,7 +294,8 @@ export async function getServerSideProps({req, query}){
             "maps": JSON.stringify(mapNames),
             "mapId": mapId,
             "mode": mode,
-            "subMode": subMode
+            "subMode": subMode,
+            "page": page
         }
     }
 }

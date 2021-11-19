@@ -5,6 +5,7 @@ import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import BasicPageSelect from '../BasicPageSelect';
 import styles from './MapFastestCaps.module.css';
+import SimplePaginationLinks from '../SimplePaginationLinks';
 
 
 class MapFastestCaps extends React.Component{
@@ -15,7 +16,6 @@ class MapFastestCaps extends React.Component{
 
         this.state = {
             "perPage": this.props.perPage ?? 10, 
-            "page": 0, 
             "data": [], 
             "players": [], 
             "records": {}, 
@@ -33,12 +33,13 @@ class MapFastestCaps extends React.Component{
 
        // if(id === this.state.mode) return;
 
-        this.setState({"mode": id, "page": 0});
-        this.loadData(0, id);
+        this.setState({"mode": id});
+        this.loadData(this.props.page, id);
     }
 
     async changePage(page){
 
+        page--;
         if(page < 0) page = 0;
 
 
@@ -51,7 +52,6 @@ class MapFastestCaps extends React.Component{
         }
 
         if(page > max) page = max;
-        this.setState({"page": page});
 
         await this.loadData(page, this.state.mode);
 
@@ -60,6 +60,8 @@ class MapFastestCaps extends React.Component{
     async loadData(page, type){
 
         try{
+
+            if(this.props.mapId === -1) return;
 
             if(type === 1) type = "solo";
             else if(type === 2) type = "assists";
@@ -72,7 +74,7 @@ class MapFastestCaps extends React.Component{
                 "body": JSON.stringify({
                     "mode": "fastestcaps", 
                     "mapId": this.props.mapId, 
-                    "page": page, 
+                    "page": page - 1, 
                     "perPage": this.state.perPage,
                     "type": type
                 })
@@ -92,6 +94,7 @@ class MapFastestCaps extends React.Component{
                 });
             }
 
+
         }catch(err){
             console.trace(err);
         }
@@ -99,13 +102,13 @@ class MapFastestCaps extends React.Component{
 
     async componentDidMount(){
 
-        await this.loadData(0, this.state.mode);
+        await this.loadData(this.props.page - 1, this.state.mode);
 
     }
 
     async componentDidUpdate(prevProps){
 
-        if(prevProps.mapId !== this.props.mapId || prevProps.mode !== this.props.mode){
+        if(prevProps.mapId !== this.props.mapId || prevProps.mode !== this.props.mode || prevProps.page !== this.props.page){
             this.changeMode(this.props.mode);
         }
     }
@@ -140,7 +143,7 @@ class MapFastestCaps extends React.Component{
 
             const d = this.state.data[i];
 
-            const place = i + (this.state.perPage * this.state.page) + 1;
+            const place = i + (this.props.perPage * (this.props.page - 1)) + 1;
 
             const player = this.getPlayer(d.cap);
 
@@ -240,17 +243,12 @@ class MapFastestCaps extends React.Component{
 
     render(){
 
-        /*
-        <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(0);
-                })}>All Caps</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(1);
-                })}>Solo Caps</div>
-                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(2);
-                })}>Assisted Caps</div>
-        */
+        let totalPages = 1;
+
+        if(this.state.totalCaps > 0){
+
+            totalPages = Math.floor(this.state.totalCaps / this.props.perPage);
+        }
 
         return <div className={styles.table}>
             <div className="default-header">Map Fastest Caps</div>
@@ -271,7 +269,12 @@ class MapFastestCaps extends React.Component{
                 </a>
             </Link>
             </div>
-            <BasicPageSelect changePage={this.changePage} page={this.state.page} results={this.state.totalCaps} perPage={this.state.perPage}/>
+            <SimplePaginationLinks 
+                url={`/ctfcaps/?mode=0&map=${this.props.mapId}&submode=&page=`} 
+                page={this.props.page} 
+                totalPages={totalPages} 
+                totalResults={this.state.totalCaps}
+            />
             {this.renderTable()}
         </div>
     }

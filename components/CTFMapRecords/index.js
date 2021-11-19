@@ -56,7 +56,6 @@ class CTFMapRecords extends React.Component{
         for(let i = 0; i < this.props.maps.length; i++){
 
             const m = this.props.maps[i].id;
-
             mapIds.push(m)
         }
 
