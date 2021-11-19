@@ -2,7 +2,7 @@ import React from "react";
 import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
 import Link from 'next/link';
-import SimplePaginationLinks from "../SImplePaginationLinks";
+import SimplePaginationLinks from "../SimplePaginationLinks";
 import Table2 from "../Table2";
 
 class ACEScreenshots extends React.Component{
