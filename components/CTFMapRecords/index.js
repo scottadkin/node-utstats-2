@@ -120,10 +120,39 @@ class CTFMapRecords extends React.Component{
 
             const capPlayer = this.getPlayer(data.cap);
 
+            let assistElems = [];
+
+            if(data.assists !== ""){
+
+                const assists = data.assists.split(",");
+
+                for(let x = 0; x < assists.length; x++){
+
+                    const playerId = parseInt(assists[x]);
+
+                    if(playerId === playerId){
+
+                        const player = this.getPlayer(playerId);
+
+                        assistElems.push(<React.Fragment key={x}>
+                            <Link href={`/player/${player.id}`}>
+                                <a target="_blank">
+                                    <CountryFlag host={this.props.host} country={player.country}/>{player.name}
+                                </a>
+                            </Link>
+                        </React.Fragment>);
+
+                        if(x < assists.length - 1){
+                            assistElems.push(<React.Fragment key={`${x}-end`}>, </React.Fragment>);
+                        }
+                    }
+                }
+            }
+
             rows.push(<tr key={i}>
-                <td className="text-left">{m.name}</td>
-                <td>{Functions.convertTimestamp(this.getDate(data.match_id), true)}</td>
-                {(this.state.mode === 1) ? <td></td> : null }
+                <td className="text-left"><Link href={`/map/${data.map}`}><a>{m.name}</a></Link></td>
+                <td><Link href={`/match/${data.match_id}`}><a>{Functions.convertTimestamp(this.getDate(data.match_id), true)}</a></Link></td>
+                {(this.state.mode === 1) ? <td>{assistElems}</td> : null }
                 <td>
                     <Link href={`/player/${capPlayer.id}`}>
                         <a>

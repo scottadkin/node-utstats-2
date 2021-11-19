@@ -64,42 +64,6 @@ class CTFCaps extends React.Component{
                 this.setState({"selectedMap": selected});
             }
         }
-
-        /*return;
-
-        console.log(this.props.mapId, prevProps.mapId,this.state.selectedMap);
-
-
-        let selected = this.props.mapId;
-
-        const maps = JSON.parse(this.props.maps);
-
-        if(maps.length > 0 && selected === -1){
-            selected = maps[0].id;
-        }
-
-        if(this.props.mapId){
-
-        }*/
-
-
-        /*if(prevProps.mapId !== this.props.mapId){
-            this.setState({"selectedMap": this.props.mapId});
-        }
-
-        if(this.props.mapId === -1 && prevProps.mapId === -1 && this.state.selectedMap === -1){
-
-
-            let selected = this.props.mapId;
-
-            const maps = JSON.parse(this.props.maps);
-
-            if(maps.length > 0 && selected === -1){
-                selected = maps[0].id;
-            }
-
-            this.setState({"selectedMap": selected});
-        }*/
     }
 
 
