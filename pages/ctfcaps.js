@@ -17,7 +17,7 @@ class CTFCaps extends React.Component{
 
         super(props);
 
-        this.state = {"selectedMap": -1, "perPage": 25, "page": 0, "newMapId": -1};
+        this.state = {"selectedMap": this.props.mapId, "perPage": 25, "page": 0, "newMapId": -1};
 
         this.changeSelected = this.changeSelected.bind(this);
 
@@ -186,6 +186,7 @@ class CTFCaps extends React.Component{
                 description={desc} 
                 host={this.props.host}
                 keywords={`ctf,cap,records${(mapName !== "") ? `,${mapName}` : "" }`}
+                image={this.props.image}
             />
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
@@ -250,6 +251,35 @@ export async function getServerSideProps({req, query}){
 
     const mapNames = await mapManager.getNamesByIds(validMaps);
 
+    let image = null;
+
+
+    if(mapId !== -1){
+        
+        for(let i = 0; i < mapNames.length; i++){
+
+            const m = mapNames[i];
+
+            console.log(m.id, parseInt(mapId));
+
+            if(m.id === parseInt(mapId)){
+                image = await mapManager.getImage(mapManager.removeUnr(m.name));
+
+                const reg = /^.+\/(.+).jpg$/i;
+                const result = reg.exec(image);
+                
+                if(result !== null){
+                    image = `maps/${result[1]}`;
+                }
+                
+                break;
+            }
+        }
+        //image = await mapManager.getImage(mapManager.removeUnr(basicData[0].name));
+    }else{
+        image = "temp";
+    }
+
     return {
         "props": {
             "host":  req.headers.host,
@@ -259,7 +289,8 @@ export async function getServerSideProps({req, query}){
             "mapId": mapId,
             "mode": mode,
             "subMode": subMode,
-            "page": page
+            "page": page,
+            "image": image
         }
     }
 }
