@@ -32,6 +32,6 @@
         "deleteLogsAfterImport": true,
         "deleteScreenshotsAfterImport": true
     }, 
-    "bUseImageServer": true
+    "bUseImageServer": false
 
 }
