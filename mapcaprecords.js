@@ -47,6 +47,9 @@ function getMatchIds(mapFastestCaps){
     const matchIds = getMatchIds(mapFastestCaps);
     const matchDates = await matchManager.getDates(matchIds);
 
+    let soloUpdated = 0;
+    let assistedUpdated = 0;
+
     for(const [mapId, data] of Object.entries(mapFastestCaps)){
 
         if(data.solo !== null){
@@ -54,6 +57,12 @@ function getMatchIds(mapFastestCaps){
             const soloMatchDate = (matchDates[data.solo.match_id] !== undefined) ? matchDates[data.solo.match_id] : -1;
 
             await ctfManager.insertCapRecord(data.solo.match_id, mapId, 0, data.solo, soloMatchDate);
+
+            new Message(`Inserted Solo Cap Record for map id ${mapId}`,"pass");
+            soloUpdated++;
+
+        }else{
+            new Message(`There is no Solo Cap Record for map id ${mapId}`,"note");
         }
 
         if(data.assisted !== null){
@@ -61,8 +70,19 @@ function getMatchIds(mapFastestCaps){
             const assistedMatchDate = (matchDates[data.assisted.match_id] !== undefined) ? matchDates[data.assisted.match_id] : -1;
 
             await ctfManager.insertCapRecord(data.assisted.match_id, mapId, 1, data.assisted, assistedMatchDate);
+            new Message(`Inserted Assisted Cap Record for map id ${mapId}`,"pass");
+            assistedUpdated++;
+
+        }else{
+            new Message(`There is no Assisted Cap Record for map id ${mapId}`,"note");
         }
     }
+
+    new Message(`Updated ${soloUpdated} solo cap records.`, "note");
+    new Message(`Updated ${assistedUpdated} assisted cap records.`, "note");
+    new Message(`Process complete.`, "note");
+
+    process.exit(0);
 
 })();
 
