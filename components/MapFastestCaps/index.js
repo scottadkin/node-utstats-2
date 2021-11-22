@@ -3,7 +3,6 @@ import Table2 from '../Table2';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
-import BasicPageSelect from '../BasicPageSelect';
 import styles from './MapFastestCaps.module.css';
 import SimplePaginationLinks from '../SimplePaginationLinks';
 
@@ -93,7 +92,6 @@ class MapFastestCaps extends React.Component{
                     "finishedLoading": true
                 });
             }
-
 
         }catch(err){
             console.trace(err);
@@ -251,7 +249,7 @@ class MapFastestCaps extends React.Component{
         }
 
         return <div className={styles.table}>
-            <div className="default-header">Map Fastest Caps</div>
+            <div className="default-header">{this.props.mapName} Fastest Caps</div>
             <div className="tabs">
             <Link href={`/ctfcaps?map=${this.props.mapId}&submode=0`}>
                 <a>

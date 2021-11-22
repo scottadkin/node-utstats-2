@@ -124,6 +124,14 @@ class CTFCaps extends React.Component{
 
         if(this.props.mode !== 0) return null;
 
+        const maps = JSON.parse(this.props.maps);
+
+        if(maps.length === 0){
+            return <>
+                <div className="default-header">No Data Found</div>
+            </>;
+        }
+
         return <>
             {this.renderMapsForm()}
             <MapFastestCaps 
@@ -132,6 +140,7 @@ class CTFCaps extends React.Component{
                 perPage={this.state.perPage}
                 mode={this.props.subMode}
                 page={this.props.page}
+                mapName={this.getMapName(parseInt(this.state.selectedMap))}
                 
             />
         </>
@@ -141,6 +150,14 @@ class CTFCaps extends React.Component{
     renderAllMapRecords(){
 
         if(this.props.mode !== 1) return null;
+
+        const maps = JSON.parse(this.props.maps);
+
+        if(maps.length === 0){
+            return <>
+                <div className="default-header">No Data Found</div>
+            </>;
+        }
 
         return <CTFMapRecords 
             host={Functions.getImageHostAndPort(this.props.host)} 
@@ -260,9 +277,8 @@ export async function getServerSideProps({req, query}){
 
             const m = mapNames[i];
 
-            console.log(m.id, parseInt(mapId));
-
             if(m.id === parseInt(mapId)){
+                
                 image = await mapManager.getImage(mapManager.removeUnr(m.name));
 
                 const reg = /^.+\/(.+).jpg$/i;
