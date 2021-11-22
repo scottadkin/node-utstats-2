@@ -116,6 +116,45 @@ function getUniqueMatchIds(data, bMapRecords){
 }
 
 
+function setCapDetails(caps, players, dates, records){
+
+
+    for(let i = 0; i < caps.length; i++){
+
+        const c = caps[i];
+
+        c.matchDate = dates[c.match_id] ?? 0;
+        c.capPlayer = players[c.cap] ?? {"name": "Not Found", "country": "xx"};
+
+        let offset = 0;
+
+
+        if(c.assists === ""){
+            offset = records.solo.travel_time - c.travel_time;
+        }else{
+            offset = records.assist.travel_time - c.travel_time;
+        }
+
+        c.offset = Math.abs(offset);
+
+        const assists = c.assists.split(",");
+        c.assistPlayers = [];
+
+        if(assists.length > 0){
+
+            for(let x = 0; x < assists.length; x++){
+
+                const assist = parseInt(assists[x]);
+
+                if(assist === assist){
+
+                    c.assistPlayers.push(players[assist] ?? {"name": "Not Found", "country": "xx"});
+                }
+            }
+        }        
+    }
+}
+
 export default (req, res) =>{
 
     return new Promise(async (resolve, reject) =>{
@@ -127,12 +166,15 @@ export default (req, res) =>{
 
         const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
 
+        const mapId = (req.body.mapId !== undefined) ? parseInt(req.body.mapId) : -1;
+        let perPage = (req.body.perPage !== undefined) ? parseInt(req.body.perPage) : 5;
+        let page = (req.body.page !== undefined) ? parseInt(req.body.page) : 0;
+        const type = (req.body.type !== undefined) ? req.body.type : "";
+
+        const setDetails = req.body.setDetails ?? false;
+
         if(mode === "fastestcaps"){
 
-            const mapId = (req.body.mapId !== undefined) ? parseInt(req.body.mapId) : -1;
-            let perPage = (req.body.perPage !== undefined) ? parseInt(req.body.perPage) : 5;
-            let page = (req.body.page !== undefined) ? parseInt(req.body.page) : 0;
-            const type = (req.body.type !== undefined) ? req.body.type : "";
 
             if(page !== page) page = 0;
             if(perPage !== perPage) perPage = 5;
@@ -144,13 +186,16 @@ export default (req, res) =>{
                     const data = await ctfManager.getMapCaps(mapId, page, perPage, type);
                     const playerIds = getUniquePlayers(data);
                     const playerNames = await playerManager.getNamesByIds(playerIds, true);
-
                     const matchIds = getUniqueMatchIds(data, false);
                     const matchDates = await matchManager.getDates(matchIds);
-
                     const totalCaps = await ctfManager.getMapTotalCaps(mapId, type);
-
                     const records = await ctfManager.getFastestMapCaps(mapId, playerManager);
+
+                    if(setDetails){
+
+                        setCapDetails(data, playerNames, matchDates, records);
+                    }
+
 
                     res.status(200).json({
                         "data": data, 
@@ -185,6 +230,28 @@ export default (req, res) =>{
             res.status(200).json({"data": data, "matchDates": matchDates, "playerNames": playerNames});
             resolve();
             return;
+
+        }else if(mode === "totalcaps"){
+
+            if(mapId === -1){
+                res.status(200).json({"error": "MapId Must be a positive integer"});
+                resolve();
+                return;
+            }
+
+            const totalSoloCaps = await ctfManager.getMapTotalCaps(mapId, "solo");
+            const totalAssistedCaps = await ctfManager.getMapTotalCaps(mapId, "assists");
+
+            res.status(200).json({
+                "data": {
+                    "solo": totalSoloCaps,
+                    "assisted": totalAssistedCaps,
+                    "total": totalSoloCaps + totalAssistedCaps
+                }
+            });
+            resolve();
+            return;
+
         }
 
 

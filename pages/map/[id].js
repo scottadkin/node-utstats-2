@@ -25,7 +25,7 @@ import SiteSettings from '../../api/sitesettings';
 import MapImageUploader from '../../components/MapImageUploader/';
 import Analytics from '../../api/analytics';
 import Table2 from '../../components/Table2';
-import MapFastestCaps from '../../components/MapFastestCaps';
+import MapCTFCaps from '../../components/MapCTFCaps';
 
 class Map extends React.Component{
 
@@ -151,14 +151,12 @@ class Map extends React.Component{
 
                     <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
 
-                    
+                    <MapCTFCaps mapId={basic.id} page={this.props.capPage} mode={this.props.capMode} perPage={10} host={Functions.getImageHostAndPort(this.props.host)}/>
 
                     <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
 
                     <MapAssaultObjectives host={imageHost} images={this.props.assaultImages} mapName={Functions.cleanMapName(basic.name)} objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
-
-
-                    
+       
                     <MapAddictedPlayers host={imageHost} players={this.props.addictedPlayers} playerNames={this.props.playerNames}/>
                     
 
@@ -300,6 +298,25 @@ export async function getServerSideProps({req, query}){
             if(page !== page){
                 page = 1;
             }
+        }
+
+
+        let capPage = 1;
+
+        if(query.capPage !== undefined){
+
+            capPage = parseInt(query.capPage);
+
+            if(capPage !== capPage) capPage = 1;
+        }
+
+        let capMode = 0;
+
+        if(query.capMode !== undefined){
+
+            capMode = parseInt(query.capMode);
+
+            if(capMode !== capMode) capMode = 0;
         }
 
         
@@ -459,7 +476,6 @@ export async function getServerSideProps({req, query}){
         if(ogImageResult !== null){
             ogImage = `maps/${ogImageResult[1]}`;
         }
-
         
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
         return {
@@ -484,7 +500,9 @@ export async function getServerSideProps({req, query}){
                 "ogImage": ogImage,
                 "session": JSON.stringify(session.settings),
                 "navSettings": JSON.stringify(navSettings),
-                "pageSettings": JSON.stringify(pageSettings)
+                "pageSettings": JSON.stringify(pageSettings),
+                "capPage": capPage,
+                "capMode": capMode
             }
         };
     }catch(err){

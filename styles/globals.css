@@ -700,3 +700,10 @@ input[type="range"]{
 .purple{
 	background-color:rgb(66,13,131);
 }
+
+
+.place{
+	color:yellow;
+	font-style:italic;
+	font-size:12px;
+}
