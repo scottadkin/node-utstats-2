@@ -268,7 +268,7 @@ class MapFastestCaps extends React.Component{
             </Link>
             </div>
             <SimplePaginationLinks 
-                url={`/ctfcaps/?mode=0&map=${this.props.mapId}&submode=&page=`} 
+                url={`/ctfcaps/?mode=0&map=${this.props.mapId}&submode=${this.props.mode}&page=`} 
                 page={this.props.page} 
                 totalPages={totalPages} 
                 totalResults={this.state.totalCaps}
