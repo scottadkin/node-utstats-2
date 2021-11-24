@@ -31,7 +31,7 @@
         "screenshotPrefix": "[ACE]",
         "deleteLogsAfterImport": true,
         "deleteScreenshotsAfterImport": true
-    }, 
+    },
     "bUseImageServer": false
 
 }

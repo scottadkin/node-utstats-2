@@ -1,3 +1,4 @@
+@@ -1,97 +0,0 @@
 # Node UTStats 2
 Unreal Tournament stats tracking website using node.js and mysql.
 
@@ -94,4 +95,3 @@ To add this feature to your server add the following entries in IpToCountry.ini 
 - QueryServerHost **127.0.0.1**(The ip you host node utstats on)
 - QueryServerFilePath **/api/iptocountry**
 - QueryServerPort **3000**(The port node ustats site uses)
-
