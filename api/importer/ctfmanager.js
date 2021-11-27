@@ -24,13 +24,11 @@ class CTFManager{
     getLatestTimeframe(player, timestamp){
 
 
-        let c = 0;
-
         for(let i = this.carryTimeFrames.length - 1; i >= 0; i--){
 
-            c = this.carryTimeFrames[i];
+            const c = this.carryTimeFrames[i];
 
-            if(c.start < timestamp && c.player === player && c.end === undefined){
+            if(c.start < timestamp && c.player === player && c.end === null){
                 return c;
             }
         }
@@ -46,7 +44,6 @@ class CTFManager{
 
         this.killManager = killManager;
 
-        let currentTimeframe = [];
 
         for(let i = 0; i < this.data.length; i++){
 
@@ -64,6 +61,32 @@ class CTFManager{
                         type = "save";
                     }else if(type !== "taken" && type !== "pickedup" && type !== "captured" && type !== "assist" && !type !== "dropped"){
                         type = "return";
+                    }
+
+                    if(type === "taken" || type === "pickedup"){
+
+                        this.carryTimeFrames.push(
+                            {
+                                "start": timestamp,
+                                "player": parseInt(result[3]),
+                                "bFail": true,
+                                "end": null
+                            }
+                        );
+
+                    }else if(type === "captured" || type === "dropped"){
+
+                        const currentTimeFrame = this.getLatestTimeframe(parseInt(result[3]), timestamp);
+
+                        if(currentTimeFrame !== null){
+
+                            currentTimeFrame.end = timestamp;      
+                            if(type === "captured") currentTimeFrame.bFail = false;
+
+                        }else{
+                            new Message(`CTFManager.parseData() currentTimeframe is null`,'warning');
+                        }
+
                     }
 
                     this.events.push(
@@ -123,7 +146,7 @@ class CTFManager{
 
         }
 
-        console.log(this.events);
+        console.log(this.carryTimeFrames);
 
         const locationReg = /^\d+?\.\d+?\tnstats\tflag_location\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
 
@@ -180,9 +203,8 @@ class CTFManager{
 
     }
 
-    resetCurrentCapData(team){
+    resetCurrentCapData(){
         return {
-            "flagTeam": team,
             "dropped": false,
             "taken": false,
             "takenTimestamp": null,
@@ -207,137 +229,17 @@ class CTFManager{
     createCapData(){
 
         const flags = [
-            this.resetCurrentCapData(0),
-            this.resetCurrentCapData(1),
-            this.resetCurrentCapData(2),
-            this.resetCurrentCapData(3),
+            this.resetCurrentCapData(),
+            this.resetCurrentCapData(),
+            this.resetCurrentCapData(),
+            this.resetCurrentCapData()
         ];
-
-        const scores = [0,0,0,0];
-
-        //console.log(flags);
-
-        //support for CTF4, gametype only logs 1 cap instead of multiple
-        const capFlags = (player, timestamp) =>{
-
-            for(let i = 0; i < flags.length; i++){
-
-                let f = flags[i];
-
-                if(f.carriedBy === player){
-
-                    //console.log(f);
-
-                    //console.log(f.carriedBy, player);
-
-                    if(f.takenTimestamp !== null){
-                        f.travelTime = timestamp - f.takenTimestamp;
-                    }
-
-                    f.cap = player;
-                    f.capTimestamp = timestamp;
-
-                    const capTeam = this.playerManager.getPlayerTeamAt(player, timestamp);
-                    f.capTeam = capTeam;
-
-                    scores[capTeam]++;
-
-                    if(capTeam === i){
-                        console.log(`NOT A CAP ITS A RETURN`);
-                    }
-
-                    caps.push(Object.assign({}, f));
-
-                    f = Object.assign({}, this.resetCurrentCapData(f.flagTeam));
-
-                   // console.log(`${timestamp} player ${player} capped flag ${f.flagTeam}`);
-
-                    //ADD CHECK TO IGNORE OWN TEAM CAPS(carry flags back enabled)
-                }
-            }
-        }
-
-        const dropFlags = (player) =>{
-
-            //console.log(`*********************`);
-            console.log(`DROP FLAGS`);
-            //console.log(`*********************`);
-
-            for(let i = 0; i < flags.length; i++){
-
-                const f = flags[i];
-
-                if(f.carriedBy === player){
-
-                    if(f.assists.indexOf(player) === -1){
-                        f.assists.push(player);
-                    }
-                    
-                    f.carriedBy = null;
-                    f.dropped = true;
-             
-                }
-            }
-        }
 
         const caps = [];
 
-        for(let i = 0; i < this.events.length; i++){
+        console.log(flags);
 
-            const e = this.events[i];
-
-            const type = e.type.toLowerCase();
-            const team = e.team;
-            const player = e.player;
-            const time = e.timestamp;
-
-            const currentFlag = flags[team];
-
-            
-            if(type === "taken" || type === "pickedup"){
-
-                if(type === "taken"){
-
-                    //console.log(e);
-
-                    currentFlag.takenTimestamp = time;
-                    currentFlag.grab = player;
-
-                }else{
-
-                    currentFlag.pickups.push(player);
-                    currentFlag.pickupTimes.push(time);
-                }
-
-                currentFlag.taken = true;
-                currentFlag.dropped = false;
-                currentFlag.carriedBy = player;
-
-            }else if(type === "dropped"){
-
-                dropFlags(player);
-                
-            }else if(type === "returned" || type === "saved"){
-                
-                flags[team] = Object.assign({}, this.resetCurrentCapData(team));
-                
-            }else if(type === "captured"){
-
-                //console.log(e);
-
-                capFlags(player, time);
-
-            }
-        }
-
-        
-
-        console.log(`***********************`);
-        console.log(caps);
-        console.log(`Total caps ${caps.length}`);
-        console.log(scores);
-
-        this.capData = caps;
+        //this.capData = caps;
         //this.events 
     }
 
