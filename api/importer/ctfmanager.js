@@ -1,4 +1,3 @@
-const Promise = require('promise');
 const Message = require('../message');
 const CTF = require('../ctf');
 
@@ -42,95 +41,52 @@ class CTFManager{
     parseData(killManager){
         
         const reg = /^(\d+?\.\d+?)\tflag_(.+?)\t(\d+?)(|\t(\d+?)|\t(\d+?)\t(\d+?))$/i;
+
+        const returnReg = /return/i;
+
         this.killManager = killManager;
-
-        let d = 0;
-        let result = 0;
-        let type = 0;
-
-        const ignored = [];
 
         let currentTimeframe = [];
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
+            const result = reg.exec(d);
 
-            //console.log(d);
+            if(result !== null){
+                
+                const timestamp = parseFloat(result[1]);
+                let type = result[2].toLowerCase();
 
-            result = reg.exec(d);
+                if(returnReg.test(type) || type === "taken" || type === "pickedup" || type === "captured" || type === "assist"){
+                    
+                    if(type === "return_closesave"){
+                        type = "save";
+                    }else if(type !== "taken" && type !== "pickedup" && type !== "captured" && type !== "assist"){
+                        type = "return";
+                    }
+
+                    this.events.push(
+                        {
+                            "time": timestamp,
+                            "type": type,
+                            "player": parseInt(result[3]),
+                            "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp),
+                            "flagTeam": parseInt(result[5])
+                        }
+                    );
+
+                }else if(type === "cover"){
+                    console.log(result);
+                }
+
+            }
 
             //console.log(result);
 
-            if(result != null){
-
-                type = result[2].toLowerCase();
-
-                if(type === 'kill'){
-
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": type,
-                        "player": parseInt(result[3]),
-                        "team": this.playerManager.getPlayerTeamAt(parseInt(result[3]), result[1])
-                    });
-                    
-                }else if(type === 'assist' || type === 'returned'|| type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'){
-
-                    if(type === 'taken' || type === 'pickedup'){
-
-                        this.carryTimeFrames.push({"start": parseFloat(result[1]), "player": parseInt(result[3]), "bFail": true});
-
-                    }else if(type === 'dropped' || type === 'captured'){
-
-                        currentTimeframe = this.getLatestTimeframe(parseInt(result[3]), parseFloat(result[1]));
-      
-                        if(currentTimeframe !== null){
-                            currentTimeframe.end = parseFloat(result[1]);
-                            currentTimeframe.bFail = (type === 'dropped') ? true : false
-                        }else{
-                            new Message(`CTFManager.parseData() currentTimeframe is null`,'warning');
-                        }
-                    }
-
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": type,
-                        "player": parseInt(result[3]),
-                        "team": parseInt(result[5])
-                    });
-
-                }else if(type === 'cover'){
-
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": type,
-                        "player": parseInt(result[3]),
-                        "team": parseInt(result[7])
-                    });
-
-                }else if(type === 'return_closesave'){
-
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": "save",
-                        "player": parseInt(result[3]),
-                        "team": parseInt(result[5])
-                    });
-
-                }else if(type === 'seal'){
-
-                    // KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team
-              
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": "seal",
-                        "player": parseInt(result[3]),
-                        "team": parseInt(result[7])
-                    });
-                }
-            } 
         }
+
+        //console.log(this.events);
 
         const locationReg = /^\d+?\.\d+?\tnstats\tflag_location\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
 
@@ -138,7 +94,7 @@ class CTFManager{
 
         for(let i = 0; i < this.flagLines.length; i++){
 
-            result = locationReg.exec(this.flagLines[i]);
+            const result = locationReg.exec(this.flagLines[i]);
 
             if(result !== null){
 
@@ -196,8 +152,18 @@ class CTFManager{
             "grab": null,
             "cap": null,
             "capTimestamp": null,
+            "capTeam": null,
             "carriedBy": null,
-            "travelTime": -1
+            "travelTime": -1,
+            "carryIds": [],
+            "assists": [],
+            "assistsTimes": [],
+            "pickups": [],
+            "pickupTimes": [],
+            "selfCovers": [],
+            "covers": [],
+            "coverTimes": [],
+            "dropTimes": []
         };
     }
 
@@ -210,6 +176,8 @@ class CTFManager{
             this.resetCurrentCapData(3),
         ];
 
+        const scores = [0,0,0,0];
+
         //console.log(flags);
 
         //support for CTF4, gametype only logs 1 cap instead of multiple
@@ -221,7 +189,9 @@ class CTFManager{
 
                 if(f.carriedBy === player){
 
-                    console.log(f.carriedBy, player);
+                    //console.log(f);
+
+                    //console.log(f.carriedBy, player);
 
                     if(f.takenTimestamp !== null){
                         f.travelTime = timestamp - f.takenTimestamp;
@@ -230,17 +200,20 @@ class CTFManager{
                     f.cap = player;
                     f.capTimestamp = timestamp;
 
-                    const carryPlayerTeam = this.playerManager.getPlayerTeamAt(f.carriedBy, timestamp);
+                    const capTeam = this.playerManager.getPlayerTeamAt(player, timestamp);
+                    f.capTeam = capTeam;
 
-                    if(carryPlayerTeam === i){
+                    scores[capTeam]++;
+
+                    if(capTeam === i){
                         console.log(`NOT A CAP ITS A RETURN`);
                     }
 
-                    caps.push(Object.assign(f, {}));
+                    caps.push(Object.assign({}, f));
 
-                    f = this.resetCurrentCapData(f.flagTeam);
+                    f = Object.assign({}, this.resetCurrentCapData(f.flagTeam));
 
-                    console.log(`${timestamp} player ${player} capped flag ${i}`);
+                   // console.log(`${timestamp} player ${player} capped flag ${f.flagTeam}`);
 
                     //ADD CHECK TO IGNORE OWN TEAM CAPS(carry flags back enabled)
                 }
@@ -249,18 +222,23 @@ class CTFManager{
 
         const dropFlags = (player) =>{
 
-            console.log(`*********************`);
+            //console.log(`*********************`);
             console.log(`DROP FLAGS`);
-            console.log(`*********************`);
+            //console.log(`*********************`);
 
             for(let i = 0; i < flags.length; i++){
 
                 const f = flags[i];
 
                 if(f.carriedBy === player){
-                    console.log("DROPPPED A FLAG");
+
+                    if(f.assists.indexOf(player) === -1){
+                        f.assists.push(player);
+                    }
+                    
                     f.carriedBy = null;
                     f.dropped = true;
+             
                 }
             }
         }
@@ -270,9 +248,6 @@ class CTFManager{
         for(let i = 0; i < this.events.length; i++){
 
             const e = this.events[i];
-
-            //console.log(e);
-
 
             const type = e.type.toLowerCase();
             const team = e.team;
@@ -285,8 +260,16 @@ class CTFManager{
             if(type === "taken" || type === "pickedup"){
 
                 if(type === "taken"){
+
+                    //console.log(e);
+
                     currentFlag.takenTimestamp = time;
                     currentFlag.grab = player;
+
+                }else{
+
+                    currentFlag.pickups.push(player);
+                    currentFlag.pickupTimes.push(time);
                 }
 
                 currentFlag.taken = true;
@@ -299,35 +282,25 @@ class CTFManager{
                 
             }else if(type === "returned" || type === "saved"){
                 
-                flags[team] = this.resetCurrentCapData(team);
+                flags[team] = Object.assign({}, this.resetCurrentCapData(team));
                 
             }else if(type === "captured"){
 
+                //console.log(e);
 
                 capFlags(player, time);
-
-                /*currentFlag.cap = player;
-                currentFlag.capTimestamp = time;
-
-                console.log(player, `${time} Captured The ${currentFlag.flagTeam} Flag`);
-
-                if(currentFlag.takenTimestamp !== null){
-
-                    currentFlag.travelTime = currentFlag.capTimestamp - currentFlag.takenTimestamp;
-
-                }else{
-                    new Message(`currentFlag.takenTimestamp is null`,"warning");
-                }
-
-                caps.push(Object.assign(currentFlag, {}));
-
-                flags[team] = this.resetCurrentCapData(team);*/
 
             }
         }
 
+        
+
+        console.log(`***********************`);
         console.log(caps);
         console.log(`Total caps ${caps.length}`);
+        console.log(scores);
+
+        this.capData = caps;
         //this.events 
     }
 
@@ -448,6 +421,7 @@ class CTFManager{
     //temp fix for ctf4
     tempCTF4Botch(c){
 
+        return;
 
         if(c.dropTimes === undefined){
             c.dropTimes = [];
@@ -638,7 +612,7 @@ class CTFManager{
 
                     await this.ctf.insertCap(matchId, matchDate, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
                         currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, 
-                        currentCap.masterId, c.capTime, c.travelTime, currentSelfCovers, currentSelfCoversCount);
+                        currentCap.masterId, c.capTimestamp, c.travelTime, currentSelfCovers, currentSelfCoversCount);
                 }else{
                     new Message(`CTFManager.insertCaps() currentCap is null`,"warning");
                 }
