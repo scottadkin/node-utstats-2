@@ -21,14 +21,14 @@ class CTFManager{
     }
 
 
-    getLatestTimeframe(player, timestamp, flagTeam){
+    getLatestTimeframe(player, timestamp/*, flagTeam*/){
 
 
         for(let i = this.carryTimeFrames.length - 1; i >= 0; i--){
 
             const c = this.carryTimeFrames[i];
 
-            if(c.start < timestamp && c.player === player && c.end === null && c.flagTeam === flagTeam){
+            if(c.start < timestamp && c.player === player && c.end === null /*&& c.flagTeam === flagTeam*/){
                 return c;
             }
         }
@@ -54,6 +54,8 @@ class CTFManager{
                 
                 const timestamp = parseFloat(result[1]);
                 let type = result[2].toLowerCase();
+                
+                const playerId = parseInt(result[3]);
 
                 if(returnReg.test(type) || type === "taken" || type === "pickedup" || type === "captured" || type === "assist" || type === "dropped"){
                     
@@ -68,16 +70,16 @@ class CTFManager{
                         this.carryTimeFrames.push(
                             {
                                 "start": timestamp,
-                                "player": parseInt(result[3]),
+                                "player": playerId,
                                 "bFail": true,
                                 "end": null,
-                                "flagTeam": parseInt(result[5])
+                                /*"flagTeam": parseInt(result[5])*/
                             }
                         );
 
                     }else if(type === "captured" || type === "dropped"){
 
-                        const currentTimeFrame = this.getLatestTimeframe(parseInt(result[3]), timestamp, parseInt(result[5]));
+                        const currentTimeFrame = this.getLatestTimeframe(playerId, timestamp, /*parseInt(result[5])*/);
 
                         if(currentTimeFrame !== null){
 
@@ -92,11 +94,12 @@ class CTFManager{
 
                     this.events.push(
                         {
-                            "time": timestamp,
+                            "timestamp": timestamp,
                             "type": type,
-                            "player": parseInt(result[3]),
-                            "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp),
-                            "flagTeam": parseInt(result[5])
+                            "playerId":playerId,
+                            "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                            "flagTeam": parseInt(result[5]),
+                            "player": this.playerManager.getOriginalConnectionById(playerId)
                         }
                     );
 
@@ -107,10 +110,11 @@ class CTFManager{
 
                     this.events.push(
                         {
-                            "time": timestamp,
+                            "timestamp": timestamp,
                             "type": type,
-                            "player": parseInt(result[3]),
-                            "playerTeam": parseInt(result[7])
+                            "playerId":playerId,
+                            "playerTeam": parseInt(result[7]),
+                            "player": this.playerManager.getOriginalConnectionById(playerId)
                         }
                     );
 
@@ -120,10 +124,11 @@ class CTFManager{
                     
                     this.events.push(
                         {
-                            "time": timestamp,
+                            "timestamp": timestamp,
                             "type": type,
-                            "player": parseInt(result[3]),
-                            "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp)
+                            "playerId": playerId,
+                            "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                            "player": this.playerManager.getOriginalConnectionById(playerId)
                         }
                     );
 
@@ -134,20 +139,15 @@ class CTFManager{
                     //"flag_seal", KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team
 
                     this.events.push({
-                        "time": timestamp,
+                        "timestamp": timestamp,
                         "type": type,
-                        "player": parseInt(result[3]),
-                        "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp)
+                        "playerId": playerId,
+                        "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp),
+                        "player": this.playerManager.getOriginalConnectionById(playerId)
                     });
                 }
-
             }
-
-            //console.log(result);
-
         }
-
-        console.log(this.carryTimeFrames);
 
         const locationReg = /^\d+?\.\d+?\tnstats\tflag_location\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
 
@@ -264,44 +264,40 @@ class CTFManager{
     }
 
     setPlayerStats(){
-
-        let e = 0;
-        let player = 0;
         
-
         for(let i = 0; i < this.events.length; i++){
 
-            e = this.events[i];
-
-            player = this.playerManager.getPlayerById(e.player);
+            const {type, player, timestamp} = this.events[i];
 
             if(player !== null){
 
-                if(e.type !== 'captured' && e.type !== 'returned' && e.type !== 'pickedup'){
+                if(type !== "captured" && type !== "returned" && type !== "pickedup"){
 
-                    if(e.type === "taken"){
-                        player.stats.ctf.pickupTime = e.timestamp;
-                    }else if(e.type === 'dropped'){
-                        this.updateCarryTime(e.timestamp, player);
+                    if(type === "taken"){
+                        player.stats.ctf.pickupTime = timestamp;
+                    }else if(type === "dropped"){
+                        this.updateCarryTime(timestamp, player);
                     }
 
-                    player.stats.ctf[e.type]++;
+                    player.stats.ctf[type]++;
+
                 }else{
 
-                    if(e.type === 'captured'){
+                    if(type === "captured"){
                         player.stats.ctf.capture++
-                        this.updateCarryTime(e.timestamp, player);
-                    }else if(e.type === 'returned'){
+                        this.updateCarryTime(timestamp, player);
+                    }else if(type === "returned"){
                         player.stats.ctf.return++;
-                    }else if(e.type === 'pickedup'){
+                    }else if(type === "pickedup"){
                         player.stats.ctf.pickup++;
-                        player.stats.ctf.pickupTime = e.timestamp;
+                        player.stats.ctf.pickupTime = timestamp;
                     }
                 }
 
             }else{
-                new Message(`Could not find a player with id ${e.player}`,'warning');
+                new Message(`CTFManager.setPlayerStats() Player is null`,"warning");
             }
+            
         }
     }
 
@@ -644,14 +640,11 @@ class CTFManager{
 
         try{
 
-            let e = 0;
-            let currentPlayer = 0;
-
             for(let i = 0; i < this.events.length; i++){
 
-                e = this.events[i];
+                const e = this.events[i];
 
-                currentPlayer = this.playerManager.getOriginalConnectionById(e.player);
+                const currentPlayer = e.player;
 
                 if(currentPlayer !== null){
 
@@ -659,7 +652,7 @@ class CTFManager{
                         if(currentPlayer.bBot) continue;
                     }
 
-                    await this.ctf.insertEvent(matchId, e.timestamp, currentPlayer.masterId, e.type, e.team);
+                    await this.ctf.insertEvent(matchId, e.timestamp, currentPlayer.masterId, e.type, e.playerTeam);
                    
                 }else{
                     new Message(`CTFManager.insertEvent() currentPlayer is null`,'warning');
