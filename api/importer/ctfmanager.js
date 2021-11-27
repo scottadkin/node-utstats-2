@@ -56,6 +56,8 @@ class CTFManager{
 
             d = this.data[i];
 
+            //console.log(d);
+
             result = reg.exec(d);
 
             //console.log(result);
@@ -95,7 +97,7 @@ class CTFManager{
                         "timestamp": parseFloat(result[1]),
                         "type": type,
                         "player": parseInt(result[3]),
-                        "team": this.playerManager.getPlayerTeamAt(parseInt(result[3]), result[1])
+                        "team": parseInt(result[5])
                     });
 
                 }else if(type === 'cover'){
@@ -185,229 +187,148 @@ class CTFManager{
 
     }
 
+    resetCurrentCapData(team){
+        return {
+            "flagTeam": team,
+            "dropped": false,
+            "taken": false,
+            "takenTimestamp": null,
+            "grab": null,
+            "cap": null,
+            "capTimestamp": null,
+            "carriedBy": null,
+            "travelTime": -1
+        };
+    }
+
     createCapData(){
 
+        const flags = [
+            this.resetCurrentCapData(0),
+            this.resetCurrentCapData(1),
+            this.resetCurrentCapData(2),
+            this.resetCurrentCapData(3),
+        ];
+
+        //console.log(flags);
+
+        //support for CTF4, gametype only logs 1 cap instead of multiple
+        const capFlags = (player, timestamp) =>{
+
+            for(let i = 0; i < flags.length; i++){
+
+                let f = flags[i];
+
+                if(f.carriedBy === player){
+
+                    console.log(f.carriedBy, player);
+
+                    if(f.takenTimestamp !== null){
+                        f.travelTime = timestamp - f.takenTimestamp;
+                    }
+
+                    f.cap = player;
+                    f.capTimestamp = timestamp;
+
+                    const carryPlayerTeam = this.playerManager.getPlayerTeamAt(f.carriedBy, timestamp);
+
+                    if(carryPlayerTeam === i){
+                        console.log(`NOT A CAP ITS A RETURN`);
+                    }
+
+                    caps.push(Object.assign(f, {}));
+
+                    f = this.resetCurrentCapData(f.flagTeam);
+
+                    console.log(`${timestamp} player ${player} capped flag ${i}`);
+
+                    //ADD CHECK TO IGNORE OWN TEAM CAPS(carry flags back enabled)
+                }
+            }
+        }
+
+        const dropFlags = (player) =>{
+
+            console.log(`*********************`);
+            console.log(`DROP FLAGS`);
+            console.log(`*********************`);
+
+            for(let i = 0; i < flags.length; i++){
+
+                const f = flags[i];
+
+                if(f.carriedBy === player){
+                    console.log("DROPPPED A FLAG");
+                    f.carriedBy = null;
+                    f.dropped = true;
+                }
+            }
+        }
+
         const caps = [];
-
-        let current = [];
-        let currentRed = [];
-        let currentBlue = [];
-        let currentGreen = [];
-        let currentYellow = [];
-        let matchingPickup = 0;
-
-
-        const getCurrent = (team) =>{
-
-            switch(team){
-                case 0: {   return currentRed; } 
-                case 1: {   return currentBlue; } 
-                case 2: {   return currentGreen; } 
-                case 3: {   return currentYellow; } 
-            }
-        }
-
-        const setCurrent = (team, data) =>{
-
-            switch(team){
-                case 0: {    currentRed = data; } break;
-                case 1: {    currentBlue = data; }  break;
-                case 2: {    currentGreen = data; } break;
-                case 3: {    currentYellow = data; } break;
-            }
-        }
-
-        //console.log(this.events);
 
         for(let i = 0; i < this.events.length; i++){
 
             const e = this.events[i];
 
-            current = getCurrent(e.team);
+            //console.log(e);
 
-            if(current === undefined && e.type !== "taken"){
-                new Message(`CTFManager.createCapData() current is undefined. Type = ${e.type}`, "warning");
 
-                current = {
-                    "team": e.team,
-                    "grabTime": 0,
-                    "grab": 0,
-                    "covers": [],
-                    "coverTimes": [],
-                    "assists": [],
-                    "pickupTimes": [],
-                    "dropTimes": [],
-                    "carryTimes": [],
-                    "carryIds": [],
-                    "selfCovers": null
-                };
-                setCurrent(e.team, current);
-                //continue;
-            }
+            const type = e.type.toLowerCase();
+            const team = e.team;
+            const player = e.player;
+            const time = e.timestamp;
 
-            if(e.type === 'taken'){
+            const currentFlag = flags[team];
 
-                matchingPickup = 0;
+            
+            if(type === "taken" || type === "pickedup"){
 
-                current = {
-                    "team": e.team,
-                    "grabTime": e.timestamp,
-                    "grab": e.player,
-                    "covers": [],
-                    "coverTimes": [],
-                    "assists": [],
-                    "pickupTimes": [],
-                    "dropTimes": [],
-                    "carryTimes": [],
-                    "carryIds": [],
-                    "selfCovers": null
-                };
-
-    
-                setCurrent(e.team, current);
-                current = getCurrent(e.team);
-
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (taken)`, "warning");
-                    continue;
+                if(type === "taken"){
+                    currentFlag.takenTimestamp = time;
+                    currentFlag.grab = player;
                 }
+
+                currentFlag.taken = true;
+                currentFlag.dropped = false;
+                currentFlag.carriedBy = player;
+
+            }else if(type === "dropped"){
+
+                dropFlags(player);
                 
-
-            }else if(e.type === 'pickedup'){
-
-                if(current.pickupTimes !== undefined){
-                    current.pickupTimes.push({"timestamp":e.timestamp,"player": e.player});
-                }
+            }else if(type === "returned" || type === "saved"){
                 
-            }else if(e.type === 'dropped'){
-
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (DROPPED)`);
-                    continue;
-                }
-                //console.log(current);
-                if(current.dropTimes !== undefined){
-                    current.dropTimes.push({"timestamp":e.timestamp,"player": e.player});
-                }
+                flags[team] = this.resetCurrentCapData(team);
                 
-            }else if(e.type === 'cover'){
+            }else if(type === "captured"){
 
 
-                if(current.covers !== undefined && current.coverTimes !== undefined){
+                capFlags(player, time);
 
-                    current.covers.push(e.player);
-                    current.coverTimes.push(e.timestamp);
-                    
-                }/*else{
+                /*currentFlag.cap = player;
+                currentFlag.capTimestamp = time;
 
-                    switch(e.team){
-                        case 1: {   current = currentRed; } break;
-                        case 0: {   current = currentBlue; } break;
-                    }
+                console.log(player, `${time} Captured The ${currentFlag.flagTeam} Flag`);
 
-                    if(current.covers !== undefined && current.coverTimes !== undefined){
-                        current.covers.push(e.player);
-                        current.coverTimes.push(e.timestamp);
-                    }
-                }*/
-                
-            }else if(e.type === 'assist'){
+                if(currentFlag.takenTimestamp !== null){
 
-     
-                //work around for players that have changed teams
-                if(current.assists !== undefined){
-                    current.assists.push(e.player);
-                }else{
-                    switch(e.team){
-                        case 1: {   current = currentRed; } break;
-                        case 0: {   current = currentBlue; } break;
-                    }
-                    current.assists.push(e.player);
-                }
-
-                //(current.assists);
-
-            }else if(e.type === 'captured'){
-
-                current.cap = e.player;
-                current.capTime = e.timestamp;
-                current.travelTime = parseFloat((current.capTime - current.grabTime).toFixed(2));
-
-                current.selfCovers = this.getSelfCovers(current.grabTime, current.capTime);
-
-                this.setCoverSprees(current.covers);
-
-                if(current.dropTimes !== undefined){
-
-                    for(let x = current.dropTimes.length - 1; x >= 0; x--){
-
-                        //first drop will always be the grab player
-                        if(current.dropTimes[x].player === current.grab && x === 0){
-
-                            current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - current.grabTime).toFixed(2)));
-                            current.carryIds.push(current.dropTimes[x].player);
-
-                        }else{
-    
-                            matchingPickup = this.getMatchingPickupId(current.pickupTimes, current.dropTimes[x].player, current.dropTimes[x].timestamp);
-
-                            if(matchingPickup !== null){
-                                current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
-                                current.carryIds.push(current.dropTimes[x].player);
-                            }else{
-                                new Message(`CTFManager.createCapData() matchingPickup is null`,'warning');
-                            }      
-                        }    
-                    }
-                }
-
-                if(current.carryTimes !== undefined && current.carryIds !== undefined){
-                    current.carryTimes.reverse();
-                    current.carryIds.reverse();
-                }else{
-                    new Message(`CTFManager.createCapData() carryTimes or carryIDs is undefined`,"warning");
-                }
-
-                
-                if(current.pickupTimes !== undefined){
-                    //dont forget cap carry time
-                    if(current.pickupTimes.length > 0){
-
-                        if(current.pickupTimes[current.pickupTimes.length - 1].player === current.cap){
-
-                            if(current.carryIds !== undefined && current.carryTimes !== undefined){
-
-                                current.carryIds.push(current.cap);
-                                current.carryTimes.push(parseFloat(parseFloat(current.capTime - current.pickupTimes[current.pickupTimes.length - 1].timestamp).toFixed(2)));
-
-                            }else{
-                                new Message(`CTFManager.createCapData() carryIds or carryTimes is undefined`,"warning");
-                            }                        
-                        }
-                    }
+                    currentFlag.travelTime = currentFlag.capTimestamp - currentFlag.takenTimestamp;
 
                 }else{
-                    new Message(`CTFManager.createCapData() pickupTimes is undefined`,"warning");
+                    new Message(`currentFlag.takenTimestamp is null`,"warning");
                 }
 
-                
-               // console.log(current);
+                caps.push(Object.assign(currentFlag, {}));
 
-                //check for solo caps
-                if(current.grab === current.cap){
-                    if(current.pickupTimes.length === 0){
-                        current.carryIds.push(current.cap);
-                        current.carryTimes.push(current.travelTime);
-                    }
-                }
+                flags[team] = this.resetCurrentCapData(team);*/
 
-                this.capData.push(current);
-                
-            }else if(e.type === 'returned'){
-
-                this.setCoverSprees(current.covers);
             }
         }
+
+        console.log(caps);
+        console.log(`Total caps ${caps.length}`);
+        //this.events 
     }
 
     getMatchingPickupId(pickups, player, timestamp){
