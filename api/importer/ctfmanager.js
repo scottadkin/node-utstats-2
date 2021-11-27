@@ -21,14 +21,14 @@ class CTFManager{
     }
 
 
-    getLatestTimeframe(player, timestamp){
+    getLatestTimeframe(player, timestamp, flagTeam){
 
 
         for(let i = this.carryTimeFrames.length - 1; i >= 0; i--){
 
             const c = this.carryTimeFrames[i];
 
-            if(c.start < timestamp && c.player === player && c.end === null){
+            if(c.start < timestamp && c.player === player && c.end === null && c.flagTeam === flagTeam){
                 return c;
             }
         }
@@ -70,13 +70,14 @@ class CTFManager{
                                 "start": timestamp,
                                 "player": parseInt(result[3]),
                                 "bFail": true,
-                                "end": null
+                                "end": null,
+                                "flagTeam": parseInt(result[5])
                             }
                         );
 
                     }else if(type === "captured" || type === "dropped"){
 
-                        const currentTimeFrame = this.getLatestTimeframe(parseInt(result[3]), timestamp);
+                        const currentTimeFrame = this.getLatestTimeframe(parseInt(result[3]), timestamp, parseInt(result[5]));
 
                         if(currentTimeFrame !== null){
 
