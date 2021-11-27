@@ -58,11 +58,11 @@ class CTFManager{
                 const timestamp = parseFloat(result[1]);
                 let type = result[2].toLowerCase();
 
-                if(returnReg.test(type) || type === "taken" || type === "pickedup" || type === "captured" || type === "assist"){
+                if(returnReg.test(type) || type === "taken" || type === "pickedup" || type === "captured" || type === "assist" || type === "dropped"){
                     
                     if(type === "return_closesave"){
                         type = "save";
-                    }else if(type !== "taken" && type !== "pickedup" && type !== "captured" && type !== "assist"){
+                    }else if(type !== "taken" && type !== "pickedup" && type !== "captured" && type !== "assist" && !type !== "dropped"){
                         type = "return";
                     }
 
@@ -77,7 +77,44 @@ class CTFManager{
                     );
 
                 }else if(type === "cover"){
-                    console.log(result);
+
+                    //"flag_cover", KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team 
+                   // console.log(result);
+
+                    this.events.push(
+                        {
+                            "time": timestamp,
+                            "type": type,
+                            "player": parseInt(result[3]),
+                            "playerTeam": parseInt(result[7])
+                        }
+                    );
+
+                }else if(type === "kill"){
+
+                    //"flag_kill", KillerPRI.PlayerID
+                    
+                    this.events.push(
+                        {
+                            "time": timestamp,
+                            "type": type,
+                            "player": parseInt(result[3]),
+                            "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp)
+                        }
+                    );
+
+                }else if(type === "seal"){
+
+                   // console.log(result);
+
+                    //"flag_seal", KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team
+
+                    this.events.push({
+                        "time": timestamp,
+                        "type": type,
+                        "player": parseInt(result[3]),
+                        "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp)
+                    });
                 }
 
             }
@@ -86,7 +123,7 @@ class CTFManager{
 
         }
 
-        //console.log(this.events);
+        console.log(this.events);
 
         const locationReg = /^\d+?\.\d+?\tnstats\tflag_location\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
 
