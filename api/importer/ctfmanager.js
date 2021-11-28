@@ -61,7 +61,7 @@ class CTFManager{
                     
                     if(type === "return_closesave"){
                         type = "save";
-                    }else if(type !== "taken" && type !== "pickedup" && type !== "captured" && type !== "assist" && !type !== "dropped"){
+                    }else if(type !== "taken" && type !== "pickedup" && type !== "captured" && type !== "assist" && type !== "dropped"){
                         type = "return";
                     }
 
@@ -170,6 +170,8 @@ class CTFManager{
             }
         }
 
+        this.setSelfCovers(killManager);
+
         //console.log(this.events);
         this.createCapData();
         
@@ -227,6 +229,72 @@ class CTFManager{
         };
     }
 
+    dropFlags(playerId, flags){
+
+        for(let i = 0; i < flags.length; i++){
+
+            const f = flags[i];
+
+            if(f.carriedBy === playerId){
+                console.log(`Player ${playerId} dropped the ${i} flag`);
+                f.dropped = true;
+                f.carriedBy = null;
+            }
+        }
+    }
+
+    capFlags(playerId, timestamp, flags){
+
+        let totalCapped = 0;
+
+        for(let i = 0; i < flags.length; i++){
+
+            const f = flags[i];
+
+            if(f.carriedBy === playerId){
+
+                const playerTeam = this.playerManager.getPlayerTeamAt(playerId, timestamp);
+
+                console.log(`Player ${playerId} capped the ${i} flag`);
+
+
+                f.capTimestamp = timestamp;
+                f.cap = playerId;
+
+                let travelTime = 0;
+
+                if(f.takenTimestamp !== null){    
+                    travelTime = timestamp - f.takenTimestamp;
+                }
+
+                this.capData.push({
+                    "team": playerTeam,
+                    "flagTeam": i,
+                    "grabTime": f.takenTimestamp,
+                    "grab": f.grab,
+                    "covers": [],
+                    "coverTimes": [],
+                    "assists": [],
+                    "pickupTimes": [],
+                    "dropTimes": [],
+                    "carryTimes": [],
+                    "carryIds": [],
+                    "selfCovers": null,
+                    "cap": playerId,
+                    "capTime": timestamp,
+                    "travelTime": travelTime
+
+                });
+
+                flags[i] = this.resetCurrentCapData();
+                totalCapped++;
+            }
+        }
+
+        console.log(`player = ${playerId} capped ${totalCapped} FLAGS`);
+    }
+
+
     createCapData(){
 
         const flags = [
@@ -236,12 +304,46 @@ class CTFManager{
             this.resetCurrentCapData()
         ];
 
-        const caps = [];
+        for(let i = 0; i < this.events.length; i++){
 
-        console.log(flags);
+            const e = this.events[i];
 
-        //this.capData = caps;
-        //this.events 
+            const type = e.type;
+            const timestamp = e.timestamp;
+
+            //console.log(e.type);
+
+            if(type === "taken" || type === "pickedup"){
+
+                const flag = flags[e.flagTeam];
+
+                if(type === "taken"){
+
+                    flag.grab = e.playerId;
+                    flag.takenTimestamp = timestamp;
+                }
+
+                flag.taken = true;
+                flag.dropped = false;
+                flag.carriedBy = e.playerId;
+                
+            }else if(type === "dropped"){
+
+                this.dropFlags(e.playerId, flags);
+
+            }else if(type === "captured"){
+
+                this.capFlags(e.playerId, timestamp, flags);
+
+            }else if(type === "return" || type === "save"){
+
+                flags[e.flagTeam] = this.resetCurrentCapData();
+
+            }
+        }
+
+        //console.log(flags);
+        console.log(this.capData);
     }
 
     getMatchingPickupId(pickups, player, timestamp){
@@ -667,18 +769,12 @@ class CTFManager{
 
     setSelfCovers(killManager){
 
-        let c = 0;
-
-        let currentKills = 0;
-        let currentPlayer = 0;
 
         for(let i = 0; i < this.carryTimeFrames.length; i++){
 
-            c = this.carryTimeFrames[i];
-
-            currentKills = killManager.getKillsBetween(c.start, c.end, c.player, true);
-
-            currentPlayer = this.playerManager.getOriginalConnectionById(c.player);
+            const c = this.carryTimeFrames[i];
+            const currentKills = killManager.getKillsBetween(c.start, c.end, c.player, true);
+            const currentPlayer = this.playerManager.getOriginalConnectionById(c.player);
 
             if(currentPlayer !== null){
 
