@@ -37,7 +37,7 @@ async function setMatchValues(matches, mapManager, serverManager, gametypeManage
     
 }
 
-export default async (req, res) => {
+export default async function handler(req, res){
 
     try{
 

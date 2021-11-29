@@ -38,7 +38,7 @@ export default function ServerBox(props){
                         {d.name}
                     </div>
                     <div className={styles.image}>
-                        <img src="images/temp.jpg" />
+                        <img src="images/temp.jpg" alt="image"/>
                     </div>
                     <div className={styles.info}>
                         Matches {d.matches}<br/>

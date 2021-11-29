@@ -85,7 +85,7 @@ function removeNotPlayedTogether(playedMatches, minPlayersNeeded){
     return allPlayed;
 }
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
 

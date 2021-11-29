@@ -231,7 +231,7 @@ class PlayerGametypeStats extends React.Component{
                 {last}
             </Table2>
             <div className="default-header">Winrate History</div>
-            <Graph title="Latest Win Rate History" data={JSON.stringify(winRateHistory.data)} text={JSON.stringify(winRateHistory.text)} title={winRateHistory.titles} maxValue={100} minValue={0}/>
+            <Graph data={JSON.stringify(winRateHistory.data)} text={JSON.stringify(winRateHistory.text)} title={winRateHistory.titles} maxValue={100} minValue={0}/>
         </div>
     }
 

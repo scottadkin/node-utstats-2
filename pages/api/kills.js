@@ -1,6 +1,6 @@
 import Kills from '../../api/kills';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     const body = (req.body !== undefined) ? req.body : null;
 

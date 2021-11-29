@@ -89,7 +89,7 @@ const ScreenShotsTable = ({host, data}) =>{
                 <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2: </span> {d.mac2}</a></Link>
             </td>
             <td>{d.admin_name}</td>
-            <td><a href={ACE.cleanImageURL(d.screenshot_file)} target="_blank">View</a></td>
+            <td><a href={ACE.cleanImageURL(d.screenshot_file)} rel="noreferrer" target="_blank">View</a></td>
         </tr>);
 
     }

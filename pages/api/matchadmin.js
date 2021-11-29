@@ -2,7 +2,7 @@ import Session from '../../api/session';
 import Matches from '../../api/matches';
 import Player from '../../api/player';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
 

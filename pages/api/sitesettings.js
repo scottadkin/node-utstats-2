@@ -1,7 +1,7 @@
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     const s = new Session(req);
 

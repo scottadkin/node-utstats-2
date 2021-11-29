@@ -20,7 +20,7 @@ function createMOTDElem(data){
         for(let i = 0; i < motdStrings.length; i++){
 
             if(motdStrings[i] !== ""){
-                motdElems.push(<div key={i} className={styles.motd} key={i}>"{motdStrings[i]}"</div>);
+                motdElems.push(<div key={i} className={styles.motd}>&quot;{motdStrings[i]}&quot;</div>);
             }
         }
 

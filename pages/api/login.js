@@ -1,7 +1,7 @@
 import cookie from 'cookie';
 import UserManager from '../../api/user';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     const MAX_COOKIE_AGE = ((60 * 60) * 24) * 365;
     const user = new UserManager();

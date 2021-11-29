@@ -501,7 +501,7 @@ class AdminGametypeManager extends React.Component{
             <form className="form" action="/" method="POST" onSubmit={this.renameGametype}>
 
                 <div className="form-info">
-                    Change the name of a gametype, you can't rename to a name that already exists, you can however merge the two gametypes instead.
+                    Change the name of a gametype, you can&apos;t rename to a name that already exists, you can however merge the two gametypes instead.
                 </div>
 
                 {this.renderRenameErrors()}
@@ -512,7 +512,7 @@ class AdminGametypeManager extends React.Component{
                     <div>{this.createDropDown("oldname")}</div>
                 </div>
                 <div className="select-row">
-                    <div className="select-label">Gametype's new name</div>
+                    <div className="select-label">Gametype&apos;s new name</div>
                     <div>
                         <input type="text" name="newname" className="default-textbox" placeholder="new name...."/>
                     </div>
@@ -576,7 +576,7 @@ class AdminGametypeManager extends React.Component{
             <div className="default-header">Merge Gamtypes</div>
             <form className="form" method="POST" action="/" onSubmit={this.mergeGametype}>
                 <div className="form-info">
-                    Merge gametypes into one single gametype taking the second selected option's name.
+                    Merge gametypes into one single gametype taking the second selected option&apos;s name.
                 </div>
                 {this.renderMergeErrors()}
                 {this.renderMergePass()}
@@ -818,7 +818,7 @@ class AdminGametypeManager extends React.Component{
 
             images.push(<div key={i} className={styles.image}>
                 <div className={styles.name}>{this.props.images[i]}</div>
-                <Image src={`/images/gametypes/${this.props.images[i]}`} width="384" height="216"/>
+                <Image src={`/images/gametypes/${this.props.images[i]}`} alt="image" width="384" height="216"/>
             </div>);
         }
 

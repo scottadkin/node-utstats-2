@@ -312,7 +312,7 @@ class PlayerRecentMatches extends React.Component{
 
                 mapImage = getMapImage(mapImages, m.mapName);
 
-                elems.push(<Link key={i} href={`/match/${m.match_id}`} key={m.id}><a>
+                elems.push(<Link href={`/match/${m.match_id}`} key={m.id}><a>
                     <div className={styles.wrapper}>
                         <div className={`${styles.title} ${currentWinnerClass}`}> 
                             { currentResultString}

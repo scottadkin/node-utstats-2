@@ -400,8 +400,8 @@ class AdminMatchesManager extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{d.name}</td>
-                <td><a href={`/match/${d.first_id}`} target="_blank">{Functions.convertTimestamp(d.first_import, true)}</a></td>
-                <td><a href={`/match/${d.last_id}`} target="_blank">{Functions.convertTimestamp(d.last_import, true)}</a></td>
+                <td><a href={`/match/${d.first_id}`} rel="noreferrer" target="_blank">{Functions.convertTimestamp(d.first_import, true)}</a></td>
+                <td><a href={`/match/${d.last_id}`} rel="noreferrer" target="_blank">{Functions.convertTimestamp(d.last_import, true)}</a></td>
                 <td>{d.total_found - 1}</td>
             </tr>);
         }

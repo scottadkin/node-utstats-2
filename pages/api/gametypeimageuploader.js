@@ -9,7 +9,7 @@ export const config = {
     },
 };
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
 
