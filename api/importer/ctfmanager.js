@@ -217,19 +217,20 @@ class CTFManager{
             "capTeam": null,
             "carriedBy": null,
             "travelTime": -1,
-            "carryIds": [],
             "assists": [],
             "assistsTimes": [],
             "pickups": [],
             "pickupTimes": [],
+            "pickupIds": [],
             "selfCovers": [],
             "covers": [],
             "coverTimes": [],
-            "dropTimes": []
+            "dropTimes": [],
+            "dropIds": []
         };
     }
 
-    dropFlags(playerId, flags){
+    dropFlags(playerId, timestamp, flags){
 
         for(let i = 0; i < flags.length; i++){
 
@@ -237,8 +238,13 @@ class CTFManager{
 
             if(f.carriedBy === playerId){
                 console.log(`Player ${playerId} dropped the ${i} flag`);
+
+                f.dropTimes.push(timestamp);
+                f.dropIds.push(playerId);
                 f.dropped = true;
                 f.carriedBy = null;
+
+                console.log();
             }
         }
     }
@@ -272,13 +278,13 @@ class CTFManager{
                     "flagTeam": i,
                     "grabTime": f.takenTimestamp,
                     "grab": f.grab,
-                    "covers": [],
-                    "coverTimes": [],
-                    "assists": [],
-                    "pickupTimes": [],
-                    "dropTimes": [],
-                    "carryTimes": [],
-                    "carryIds": [],
+                    "covers": f.covers,
+                    "coverTimes": f.coverTimes,
+                    "assists": f.dropIds,
+                    "pickupIds": f.pickupIds,
+                    "pickupTimes": f.pickupTimes,
+                    "dropTimes": f.dropTimes,
+                    "dropIds": f.dropIds,
                     "selfCovers": null,
                     "cap": playerId,
                     "capTime": timestamp,
@@ -311,7 +317,7 @@ class CTFManager{
             const type = e.type;
             const timestamp = e.timestamp;
 
-            //console.log(e.type);
+            console.log(type);
 
             if(type === "taken" || type === "pickedup"){
 
@@ -321,6 +327,11 @@ class CTFManager{
 
                     flag.grab = e.playerId;
                     flag.takenTimestamp = timestamp;
+
+                }else{
+
+                    flag.pickupTimes.push(timestamp);
+                    flag.pickupIds.push(e.playerId);
                 }
 
                 flag.taken = true;
@@ -329,7 +340,7 @@ class CTFManager{
                 
             }else if(type === "dropped"){
 
-                this.dropFlags(e.playerId, flags);
+                this.dropFlags(e.playerId, timestamp, flags);
 
             }else if(type === "captured"){
 
@@ -338,6 +349,17 @@ class CTFManager{
             }else if(type === "return" || type === "save"){
 
                 flags[e.flagTeam] = this.resetCurrentCapData();
+
+            }else if(type === "cover"){
+
+                const flag = flags[e.playerTeam];
+
+                if(flag !== undefined){
+                    flag.covers.push(e.playerId);
+                    flag.coverTimes.push(timestamp);
+                }else{
+                    new Message(`Flag is undefined (cover)`,"warning");
+                }
 
             }
         }
