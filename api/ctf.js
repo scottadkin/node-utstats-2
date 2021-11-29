@@ -134,12 +134,12 @@ class CTF{
     }
 
     async insertCap(matchId, matchDate, mapId, team, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, assistsTimes, carryIds, cap, 
-        capTime, travelTime, selfCovers, selfCoversCount){
+        capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes){
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
         const vars = [matchId, mapId, team, grabTime, grab, drops.toString(), dropTimes.toString(), pickups.toString(), pickupTimes.toString(), 
             covers.toString(), coverTimes.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime,
-            selfCovers.toString(), selfCoversCount.toString()];
+            selfCovers.toString(), selfCoversCount.toString(), seals.toString(), sealTimes.toString()];
 
         let type = 0;
 

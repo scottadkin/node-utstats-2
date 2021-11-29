@@ -58,8 +58,10 @@ async function updateCapsTable(){
 
     const coverExists = await columnExists(table, "self_covers");
     const coverTimesExists = await columnExists(table, "self_covers_count");
+    const sealsExists = await columnExists(table, "seals");
+    const sealTimesExists = await columnExists(table, "seal_times");
 
-    if(coverExists && coverTimesExists){
+    if(coverExists && coverTimesExists && sealsExists && sealTimesExists){
 
         new Message(`TABLE ${table} does not need to be updated.`,"pass");
 
@@ -73,6 +75,16 @@ async function updateCapsTable(){
         if(!coverTimesExists){
             await alterTable(table, "self_covers_count", "text NOT NULL");
             new Message(`Updated table nstats_ctf_caps, add column "self_covers_count"`,"pass");
+        }
+
+        if(!sealsExists){  
+            await alterTable(table, "seals", "text NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "seals"`,"pass");
+        }
+
+        if(!sealTimesExists){  
+            await alterTable(table, "seal_times", "text NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "seal_times"`,"pass");
         }
 
     }
