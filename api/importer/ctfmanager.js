@@ -491,279 +491,42 @@ class CTFManager{
         }
     }
 
-    //temp fix for ctf4
-    tempCTF4Botch(c){
 
-        return;
-
-        if(c.dropTimes === undefined){
-            c.dropTimes = [];
-            new Message(`c.dropTimes is undefined (CTF4)`,"warning");
-        }
-
-        if(c.pickupTimes === undefined){
-            c.pickupTimes = [];
-            new Message(`c.pickupTimes is undefined (CTF4)`,"warning");
-        }
-
-        if(c.coverTimes === undefined){
-            c.coverTimes = [];
-            new Message(`c.coverTimes is undefined (CTF4)`,"warning");
-        }
-
-        if(c.covers === undefined){
-            c.covers = [];
-            new Message(`c.covers is undefined (CTF4)`,"warning");
-        }
-
-        if(c.assists === undefined){
-            c.assists = [];
-            new Message(`c.assists is undefined (CTF4)`,"warning");
-        }
-
-        if(c.carryIds === undefined){
-            c.carryIds = [];
-            new Message(`c.carryIds is undefined (CTF4)`,"warning");
-        }
-
-        if(c.carryTimes === undefined){
-            c.carryTimes = [];
-            new Message(`c.carryTimes is undefined (CTF4)`,"warning");
-        }
-
-        if(c.team === undefined){
-            c.team = -1;
-            new Message(`c.team is undefined (CTF4)`,"warning");
-        }
-
-        if(c.grabTime === undefined){
-            c.grabTime = -1;
-            new Message(`c.grabTime is undefined (CTF4)`,"warning");
-        }
-
-
-        if(c.travelTime !== c.travelTime || c.travelTime === "NaN"){
-            c.travelTime = 0;
-            new Message(`c.travelTime is NaN (CTF4)`,"warning");
-        }
-        
-
-    }
+    
 
     async insertCaps(matchId, mapId, matchDate){
 
         try{
 
-            let currentCover = 0;
-            let currentCovers = [];
-            let currentAssist = [];
-            let currentAssists = [];
-            let currentGrab = 0;
-            let currentCap = 0;
-            let currentCarryTimes = [];
-            let currentCarryIds = [];
-            let currentCarry = 0;
-            let currentDrop = 0;
-            let currentDrops = [];
-            let currentDropTimes = [];
-            let currentPickups = [];
-            let currentPickupTimes = [];
-            let currentPickup = 0;
-
-            let fastestSolo = null;
-            let fastestAssist = null;
-
             for(let i = 0; i < this.capData.length; i++){
 
                 const c = this.capData[i];
 
-                this.tempCTF4Botch(c);
+                const {team, flagTeam, grab, grabTime, cap, capTime} = c;
 
-                if(c.assists.length === 0){
+                console.log(c);
 
-                    if(fastestSolo === null){
-                        fastestSolo = Object.assign({}, c);
-                    }else{
-                        if(fastestSolo.travelTime > c.travelTime){
-                            fastestSolo = Object.assign({}, c);
-                        }
-                    }
-
-                }else{
-
-                    if(fastestAssist === null){
-                        fastestAssist = Object.assign({}, c);
-                    }else{
-                        if(fastestAssist.travelTime > c.travelTime){
-                            fastestAssist = Object.assign({}, c);
-                        }
-                    }
-                }
-
-                currentGrab = this.playerManager.getOriginalConnectionById(c.grab);
-
-                if(currentGrab === null){
-                    currentGrab = {"masterId": -1};
-                }
+                const grabPlayer = this.playerManager.getOriginalConnectionById(grab);
+                const capPlayer = this.playerManager.getOriginalConnectionById(cap);
                 
-                currentCovers = [];
-                currentAssists = [];
-                currentCarryTimes = [];
-                currentCarryIds = [];
-                currentDrops = [];
-                currentDropTimes = [];
-                currentCarry = 0;
-                currentDrop = 0;
-                currentPickups = [];
-                currentPickupTimes = [];
-                currentPickup = 0;
-                const currentSelfCovers = [];
-                const currentSelfCoversCount = [];
-                
-                for(const [key, value] of Object.entries(c.selfCovers)){
+                let grabPlayerId = -1;
+                let capPlayerId = -1;
 
-                    const currentPlayer = this.playerManager.getOriginalConnectionById(parseInt(key));
-
-                    if(currentPlayer !== null){
-                        currentSelfCovers.push(currentPlayer.masterId);
-                        currentSelfCoversCount.push(value);
-                    }
-                }
-
-                for(let x = 0; x < c.dropTimes.length; x++){
-
-                    currentDrop = this.playerManager.getOriginalConnectionById(c.dropTimes[x].player);
-
-                    if(currentDrop !== null){
-                        currentDrops.push(currentDrop.masterId);
-                        currentDropTimes.push(c.dropTimes[x].timestamp);
-                    }
-                }
-
-                for(let x = 0; x < c.pickupTimes.length; x++){
-
-                    currentPickup = this.playerManager.getOriginalConnectionById(c.pickupTimes[x].player);
-
-                    if(currentPickup !== null){
-                        currentPickups.push(currentPickup.masterId);
-                        currentPickupTimes.push(c.pickupTimes[x].timestamp);
-                    }
-                }
+                if(grabPlayer !== null) grabPlayerId = grabPlayer.masterId;
+                if(capPlayer !== null) capPlayerId = capPlayer.masterId;
 
 
-                for(let x = 0; x < c.covers.length; x++){
-
-                    currentCover = this.playerManager.getOriginalConnectionById(c.covers[x]);
-
-                    if(currentCover !== null){
-                        currentCover.stats.ctf.coverPass++;
-                        currentCovers.push(currentCover.masterId);
-                    }
-                }
-
-                for(let x = 0; x < c.assists.length; x++){
-
-                    currentAssist = this.playerManager.getOriginalConnectionById(c.assists[x]);
-
-                    if(currentAssist !== null){
-                        currentAssists.push(currentAssist.masterId);
-                    }
-                }
-
-                for(let x = 0; x < c.carryIds.length; x++){     
-
-                    currentCarry = this.playerManager.getOriginalConnectionById(c.carryIds[x]);
-                    if(currentCarry !== null){
-                        currentCarryIds.push(currentCarry.masterId);
-                    }
-                }
-
-
-                currentCap = this.playerManager.getOriginalConnectionById(c.cap);
-
-                if(currentCap !== null){
-
-                    await this.ctf.insertCap(matchId, matchDate, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
-                        currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, 
-                        currentCap.masterId, c.capTimestamp, c.travelTime, currentSelfCovers, currentSelfCoversCount, c.seals, c.sealTimes);
-                }else{
-                    new Message(`CTFManager.insertCaps() currentCap is null`,"warning");
-                }
-            }
-
-
-            this.capData.sort((a, b) =>{
-
-                a = a.travelTime;
-                b = b.travelTime;
-
-                if(a > b){
-                    return 1;
-                }else if(a < b){
-                    return -1;
-                }
-
-                return 0;
-
-            });
-
-
-            if(fastestSolo !== null){
-
-                const grabPlayer = this.playerManager.getOriginalConnectionById(fastestSolo.grab);
-                const capPlayer = this.playerManager.getOriginalConnectionById(fastestSolo.cap);
-
-                if(grabPlayer !== null){
-                    fastestSolo.grab = grabPlayer.masterId;
-                }
-
-                if(capPlayer !== null){
-                    fastestSolo.cap = capPlayer.masterId;
-                }
-            }
-
-            await this.ctf.updateCapRecord(matchId, mapId, 0, fastestSolo, matchDate);
-   
-
-            if(fastestAssist !== null){
-
-                const grabPlayer = this.playerManager.getOriginalConnectionById(fastestAssist.grab);
-                const capPlayer = this.playerManager.getOriginalConnectionById(fastestAssist.cap);
+                const dropIds = this.playerManager.toMasterIds(c.dropIds);
+                const assistIds = this.playerManager.toMasterIds(c.assists);
+                const coverIds = this.playerManager.toMasterIds(c.covers);
+                const pickupIds = this.playerManager.toMasterIds(c.pickupIds);
+                const sealIds = this.playerManager.toMasterIds(c.seals);
                 
 
-                if(grabPlayer !== null){
-                    fastestAssist.grab = grabPlayer.masterId;
-                }
+                //insertCap(matchId, matchDate, mapId, c.team, grabTime, grabPlayer, dropIds, dropTimes, pickupIds,
+                // pickupTimes, coverIds, coverTimes, assistIds, assistsTimes, carryIds, capPlayer, 
+                //capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes)
 
-                if(capPlayer !== null){
-                    fastestAssist.cap = capPlayer.masterId;
-                }
-
-                const assistPlayers = [];
-                
-                for(let i = 0; i < fastestAssist.assists.length; i++){
-
-                    const assist = fastestAssist.assists[i];
-
-                    const currentAssistPlayer = this.playerManager.getOriginalConnectionById(assist);
-
-                    if(currentAssistPlayer !== null){
-                        assistPlayers.push(currentAssistPlayer.masterId);
-                    }
-                }
-
-                fastestAssist.assists = assistPlayers;
-            }
-            
-            await this.ctf.updateCapRecord(matchId, mapId, 1, fastestAssist, matchDate);
-
-
-            for(let i = 0; i < this.playerManager.players.length; i++){
-
-                const p = this.playerManager.players[i];
-
-                p.stats.ctf.coverFail = p.stats.ctf.cover - p.stats.ctf.coverPass;
-                
             }
 
         }catch(err){
