@@ -143,6 +143,7 @@ class CTFManager{
                         "type": type,
                         "playerId": playerId,
                         "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp),
+                        "team": parseInt(result[7]),
                         "player": this.playerManager.getOriginalConnectionById(playerId)
                     });
                 }
@@ -218,7 +219,7 @@ class CTFManager{
             "carriedBy": null,
             "travelTime": -1,
             "assists": [],
-            "assistsTimes": [],
+            "assistTimes": [],
             "pickups": [],
             "pickupTimes": [],
             "pickupIds": [],
@@ -228,7 +229,7 @@ class CTFManager{
             "dropTimes": [],
             "dropIds": [],
             "seals": [],
-            "sealTimestamps": []
+            "sealTimes": []
         };
     }
 
@@ -245,6 +246,20 @@ class CTFManager{
                 f.dropIds.push(playerId);
                 f.dropped = true;
                 f.carriedBy = null;
+
+                let pickupTime = 0;
+
+                if(f.pickupTimes.length === 0){
+                    pickupTime = f.takenTimestamp;
+                }else{
+                    pickupTime = f.pickupTimes[f.pickupTimes.length - 1];
+                }
+
+                const carryTime = (timestamp - pickupTime).toFixed(2);
+
+                //console.log(`pickupTime = ${pickupTime} drop time ${timestamp} carryTime ${carryTime}`);
+
+                f.assistTimes.push(carryTime);
 
             }
         }
@@ -282,6 +297,7 @@ class CTFManager{
                     "covers": f.covers,
                     "coverTimes": f.coverTimes,
                     "assists": f.dropIds,
+                    "assistTimes": f.assistTimes,
                     "pickupIds": f.pickupIds,
                     "pickupTimes": f.pickupTimes,
                     "dropTimes": f.dropTimes,
@@ -291,7 +307,7 @@ class CTFManager{
                     "capTime": timestamp,
                     "travelTime": travelTime,
                     "seals": f.seals,
-                    "sealTimestamp": f.sealTimestamps
+                    "sealTimes": f.sealTimes
 
                 });
 
@@ -303,6 +319,7 @@ class CTFManager{
         //console.log(`player = ${playerId} capped ${totalCapped} FLAGS`);
     }
 
+    FLAG SEALS AND COVERS ARE WRONG
 
     createCapData(){
 
@@ -364,12 +381,26 @@ class CTFManager{
 
             }else if(type === "seal"){
 
+                console.log(`SEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAALLLLLLLLLLLLL`);
+
+                console.log("=====================================================");
+                console.log(flags);
+                console.log("=====================================================");
+
+
                 const flag = flags[e.playerTeam];
 
+                //console.log(`***************************`);
+                //console.log(e);
+                //console.log(`***************************`);
+
+                
                 if(flag !== undefined){
 
                     flag.seals.push(e.playerId);
-                    flag.sealTimestamps.push(timestamp);
+                    flag.sealTimes.push(timestamp);
+
+                    console.log(flag);
 
                 }else{
                     new Message(`Flag is undefined (seal)`,"warning");
@@ -377,8 +408,9 @@ class CTFManager{
             }
         }
 
-        //console.log(flags);
-        console.log(this.capData);
+        //..console.log(flags);
+        //console.log(flags.length);
+        //console.log(this.capData);
     }
 
     getMatchingPickupId(pickups, player, timestamp){
@@ -504,16 +536,10 @@ class CTFManager{
 
                 const {team, flagTeam, grab, grabTime, cap, capTime} = c;
 
-                console.log(c);
+                //console.log(c);
 
-                const grabPlayer = this.playerManager.getOriginalConnectionById(grab);
-                const capPlayer = this.playerManager.getOriginalConnectionById(cap);
-                
-                let grabPlayerId = -1;
-                let capPlayerId = -1;
-
-                if(grabPlayer !== null) grabPlayerId = grabPlayer.masterId;
-                if(capPlayer !== null) capPlayerId = capPlayer.masterId;
+                const grabPlayer = this.playerManager.getOriginalConnectionMasterId(grab);
+                const capPlayer = this.playerManager.getOriginalConnectionMasterId(cap);
 
 
                 const dropIds = this.playerManager.toMasterIds(c.dropIds);
@@ -521,11 +547,24 @@ class CTFManager{
                 const coverIds = this.playerManager.toMasterIds(c.covers);
                 const pickupIds = this.playerManager.toMasterIds(c.pickupIds);
                 const sealIds = this.playerManager.toMasterIds(c.seals);
+                const travelTime = c.travelTime.toFixed(2);
                 
+                //console.log(c);
 
-                //insertCap(matchId, matchDate, mapId, c.team, grabTime, grabPlayer, dropIds, dropTimes, pickupIds,
-                // pickupTimes, coverIds, coverTimes, assistIds, assistsTimes, carryIds, capPlayer, 
-                //capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes)
+                const uniqueAssistIds = [];
+
+                for(let x = 0; x < assistIds.length; x++){
+
+                    const a = assistIds[x];
+
+                    if(uniqueAssistIds.indexOf(a) === -1){
+                        uniqueAssistIds.push(a);
+                    }
+                }
+
+                this.ctf.insertCap(matchId, matchDate, mapId, c.team, grabTime, grabPlayer, dropIds, c.dropTimes, pickupIds,
+                c.pickupTimes, coverIds, c.coverTimes, uniqueAssistIds, c.assistTimes, assistIds, capPlayer, 
+                capTime, travelTime, []/*selfCovers*/, []/*selfCoversCount*/, sealIds, c.sealTimes);
 
             }
 
