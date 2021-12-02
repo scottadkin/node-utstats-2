@@ -27,6 +27,13 @@ async function alterTable(table, column, datatype){
     await mysql.simpleUpdate(query);
 }
 
+async function changeColumnName(table, oldName, newName){
+
+    //RENAME COLUMN old_column_name TO new_column_name;
+    const query = `ALTER TABLE ${table} RENAME COLUMN ${oldName} TO ${newName}`;
+
+    await mysql.simpleQuery(query);
+}
 
 
 async function updateFTPTable(){
@@ -57,7 +64,8 @@ async function updateCapsTable(){
     const table = "nstats_ctf_caps";
 
     const coverExists = await columnExists(table, "self_covers");
-    const coverTimesExists = await columnExists(table, "self_covers_count");
+    const coverCountExists = await columnExists(table, "self_covers_count");
+    const coverTimesExists = await columnExists(table, "self_covers_times");
     const sealsExists = await columnExists(table, "seals");
     const sealTimesExists = await columnExists(table, "seal_times");
 
@@ -72,9 +80,9 @@ async function updateCapsTable(){
             new Message(`Updated table nstats_ctf_caps, add column "self_covers"`,"pass");
         }
 
-        if(!coverTimesExists){
+        if(!coverCountExists && !coverTimesExists){
             await alterTable(table, "self_covers_count", "text NOT NULL");
-            new Message(`Updated table nstats_ctf_caps, add column "self_covers_count"`,"pass");
+            new Message(`Updated table nstats_ctf_caps, add column "self_covers_times"`,"pass");
         }
 
         if(!sealsExists){  
@@ -183,6 +191,10 @@ async function createNewTables(){
         await updateFTPTable();
         await updateCapsTable();
         await updateSiteSettings();
+
+        if(await columnExists("nstats_ctf_caps", "self_covers_count")){
+            await mysql.simpleQuery("ALTER TABLE nstats_ctf_caps CHANGE self_covers_count self_covers_times TEXT(1000)");
+        }
 
         process.exit(0);
 

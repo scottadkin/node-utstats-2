@@ -61,7 +61,7 @@ const queries = [
         cap_time float NOT NULL,
         travel_time float NOT NULL,
         self_covers text NOT NULL,
-        self_covers_count text NOT NULL,
+        self_covers_times text NOT NULL,
         seals text NOT NULL,
         seal_times text NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
