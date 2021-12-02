@@ -67,13 +67,15 @@ class CTFManager{
 
                     if(type === "taken" || type === "pickedup"){
 
+                        //console.log(result);
+
                         this.carryTimeFrames.push(
                             {
                                 "start": timestamp,
                                 "player": playerId,
                                 "bFail": true,
                                 "end": null,
-                                /*"flagTeam": parseInt(result[5])*/
+                                "flagTeam": parseInt(result[5])
                             }
                         );
 
@@ -143,7 +145,7 @@ class CTFManager{
                         "type": type,
                         "playerId": playerId,
                         "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp),
-                        "team": parseInt(result[7]),
+                        //"team": parseInt(result[7]),
                         "player": this.playerManager.getOriginalConnectionById(playerId)
                     });
                 }
@@ -173,6 +175,7 @@ class CTFManager{
 
         this.setSelfCovers(killManager);
 
+        //console.table(this.events);
         //console.log(this.events);
         this.createCapData();
         
@@ -207,6 +210,24 @@ class CTFManager{
 
     }
 
+    getSelfCoversBetween(playerId, start, end){
+
+        const kills = this.killManager.getKillsBetween(start, end, playerId);
+
+        const timestamps = [];
+
+        for(let i = 0; i < kills.length; i++){
+
+            const k = kills[i];
+
+            timestamps.push(k.timestamp);
+            
+        }
+
+        return timestamps
+
+    }
+
     resetCurrentCapData(){
         return {
             "dropped": false,
@@ -217,6 +238,7 @@ class CTFManager{
             "capTimestamp": null,
             "capTeam": null,
             "carriedBy": null,
+            "carryTeam": null,
             "travelTime": -1,
             "assists": [],
             "assistTimes": [],
@@ -224,6 +246,7 @@ class CTFManager{
             "pickupTimes": [],
             "pickupIds": [],
             "selfCovers": [],
+            "selfCoverTimes": [],
             "covers": [],
             "coverTimes": [],
             "dropTimes": [],
@@ -235,6 +258,7 @@ class CTFManager{
 
     dropFlags(playerId, timestamp, flags){
 
+
         for(let i = 0; i < flags.length; i++){
 
             const f = flags[i];
@@ -242,10 +266,14 @@ class CTFManager{
             if(f.carriedBy === playerId){
                 //console.log(`Player ${playerId} dropped the ${i} flag`);
 
+                //console.log(this.getSelfCovers());
+
+                
                 f.dropTimes.push(timestamp);
                 f.dropIds.push(playerId);
                 f.dropped = true;
                 f.carriedBy = null;
+                f.carryTeam = null;
 
                 let pickupTime = 0;
 
@@ -256,6 +284,14 @@ class CTFManager{
                 }
 
                 const carryTime = (timestamp - pickupTime).toFixed(2);
+
+                const selfCoverTimes = this.getSelfCoversBetween(playerId, pickupTime, timestamp);
+
+                for(let i = 0; i < selfCoverTimes.length; i++){
+                    f.selfCovers.push(playerId);
+                }
+
+                f.selfCoverTimes.push(...selfCoverTimes);
 
                 //console.log(`pickupTime = ${pickupTime} drop time ${timestamp} carryTime ${carryTime}`);
 
@@ -279,7 +315,6 @@ class CTFManager{
 
                 //console.log(`Player ${playerId} capped the ${i} flag`);
 
-
                 f.capTimestamp = timestamp;
                 f.cap = playerId;
 
@@ -302,7 +337,8 @@ class CTFManager{
                     "pickupTimes": f.pickupTimes,
                     "dropTimes": f.dropTimes,
                     "dropIds": f.dropIds,
-                    "selfCovers": null,
+                    "selfCovers": f.selfCovers,
+                    "selfCoverTimes": f.selfCoverTimes,
                     "cap": playerId,
                     "capTime": timestamp,
                     "travelTime": travelTime,
@@ -319,7 +355,28 @@ class CTFManager{
         //console.log(`player = ${playerId} capped ${totalCapped} FLAGS`);
     }
 
-    FLAG SEALS AND COVERS ARE WRONG
+
+    coverFlag(playerId, playerTeam, timestamp, flags, bSeal){
+
+        for(let i = 0; i < flags.length; i++){
+
+            const f = flags[i];
+
+            if(f.carryTeam === playerTeam){
+
+                
+                if(!bSeal){
+                    console.log(`${timestamp} player ${playerId} covered the ${i} flag`);
+                    f.covers.push(playerId);
+                    f.coverTimes.push(timestamp);
+                }else{
+                    console.log(`${timestamp} player ${playerId} sealed for the ${i} flag`);
+                    f.seals.push(playerId);
+                    f.sealTimes.push(timestamp);
+                }
+            }
+        }
+    }
 
     createCapData(){
 
@@ -355,6 +412,8 @@ class CTFManager{
                 flag.taken = true;
                 flag.dropped = false;
                 flag.carriedBy = e.playerId;
+
+                flag.carryTeam = e.playerTeam;
                 
             }else if(type === "dropped"){
 
@@ -370,47 +429,18 @@ class CTFManager{
 
             }else if(type === "cover"){
 
-                const flag = flags[e.playerTeam];
-
-                if(flag !== undefined){
-                    flag.covers.push(e.playerId);
-                    flag.coverTimes.push(timestamp);
-                }else{
-                    new Message(`Flag is undefined (cover)`,"warning");
-                }
+                this.coverFlag(e.playerId, e.playerTeam, timestamp, flags, false);
 
             }else if(type === "seal"){
 
-                console.log(`SEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAALLLLLLLLLLLLL`);
-
-                console.log("=====================================================");
-                console.log(flags);
-                console.log("=====================================================");
-
-
-                const flag = flags[e.playerTeam];
-
-                //console.log(`***************************`);
-                //console.log(e);
-                //console.log(`***************************`);
-
-                
-                if(flag !== undefined){
-
-                    flag.seals.push(e.playerId);
-                    flag.sealTimes.push(timestamp);
-
-                    console.log(flag);
-
-                }else{
-                    new Message(`Flag is undefined (seal)`,"warning");
-                }
+                this.coverFlag(e.playerId, e.playerTeam, timestamp, flags, true);
             }
         }
 
-        //..console.log(flags);
+        //console.log(flags);
         //console.log(flags.length);
-        //console.log(this.capData);
+        console.log(this.capData);
+        console.log(this.capData.length);
     }
 
     getMatchingPickupId(pickups, player, timestamp){
