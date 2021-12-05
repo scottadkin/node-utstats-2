@@ -1,65 +1,53 @@
 .wrapper{
-    display:inline-block;
-    background-color:var(--color-1);
     width:var(--width-1);
     max-width:var(--max-width-1);
-    position:relative;
-    overflow:hidden;
+    background-color:var(--color-1);
+    margin-left:auto;
+    margin-right:auto;
 }
 
-.title{
-    padding:15px;
-}
-
-.grab{
+.smessage{
+    font-size:16px;
     padding:10px;
-    line-height:32px;
-}
-
-.label{
-    color:yellow;
-    display:inline-block;
-}
-
-.label2{
-    padding:10px;
-    color:yellow;
-    background-color:var(--color-3);
-}
-
-.ca{
-    display:grid;
-    grid-template-columns: 50% 50%;
-    
-}
-
-.times{
-    display:grid;
-    grid-template-columns: 33.3% 33.4% 33.3%;
-    background-color:var(--color-3);
-    padding-bottom:10px;
-}
-
-.player{
-    line-height:32px;
-}
-
-
-.table{
-    width:100%;
-}
-
-.carryp{
-    font-size:12px;
-    font-style:italic;
-    color:yellow;
 }
 
 .scores div div{
-    padding:10px;
-    font-size:20px;
+    font-size:16px;
+    padding:5px;
 }
 
-.scovers{
-    padding-bottom:10px;
+.event{
+    font-size:16px;
+    padding:10px;
+}
+
+.time{
+    color:yellow;
+    font-style: italic;
+    font-size:14px;
+    
+}
+
+
+.travel{
+    padding:10px;
+    line-height:24px;
+}
+
+.wrapper table{
+    margin-bottom:0px;
+}
+
+
+.wrapper table td{
+    padding:5px;
+}
+
+.wrapper table td:nth-child(1){
+    text-align:right;
+    width:75px;
+}
+
+.wrapper table td:nth-child(2){
+    text-align:left;
 }

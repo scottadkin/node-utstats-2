@@ -295,7 +295,7 @@ class CTFManager{
 
                 //console.log(`pickupTime = ${pickupTime} drop time ${timestamp} carryTime ${carryTime}`);
 
-                f.assistTimes.push(carryTime);
+                f.assistTimes.push(parseFloat(carryTime.toString(2)));
 
             }
         }
@@ -341,7 +341,7 @@ class CTFManager{
                     "selfCoverTimes": f.selfCoverTimes,
                     "cap": playerId,
                     "capTime": timestamp,
-                    "travelTime": travelTime,
+                    "travelTime": parseFloat(travelTime.toFixed(3)),
                     "seals": f.seals,
                     "sealTimes": f.sealTimes
 
@@ -578,6 +578,8 @@ class CTFManager{
                 const pickupIds = this.playerManager.toMasterIds(c.pickupIds);
                 const sealIds = this.playerManager.toMasterIds(c.seals);
                 const travelTime = c.travelTime.toFixed(2);
+
+                const selfCovers = this.playerManager.toMasterIds(c.selfCovers);
                 
                 //console.log(c);
 
@@ -594,7 +596,7 @@ class CTFManager{
 
                 this.ctf.insertCap(matchId, matchDate, mapId, c.team, grabTime, grabPlayer, dropIds, c.dropTimes, pickupIds,
                 c.pickupTimes, coverIds, c.coverTimes, uniqueAssistIds, c.assistTimes, assistIds, capPlayer, 
-                capTime, travelTime, []/*selfCovers*/, []/*selfCoversCount*/, sealIds, c.sealTimes);
+                capTime, travelTime, selfCovers, c.selfCoverTimes, sealIds, c.sealTimes);
 
             }
 

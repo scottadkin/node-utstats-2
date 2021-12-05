@@ -3,136 +3,125 @@ import CountryFlag from '../CountryFlag';
 import Functions from '../../api/functions';
 import MatchResultSmall from '../MatchResultSmall';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
-const MatchCTFCap = ({matchId, team, grabPlayer, grabTime, capPlayer, capTime, 
-    coverPlayers, dropTime, travelTime, carryTime, assistPlayers, totalTeams, 
-    teamScores, selfCovers, host}) =>{
+function getDisplayText(type){
 
-    const coverElems = [];
-    const assistElems = [];
-    const selfCoverElems = [];
+    const text = {
+        "grab": "Grabbed the Flag",
+        "cap": "Capped the Flag",
+        "cover": "Covered the Flag Carrier",
+        "drop": "Dropped the Flag",
+        "self_cover": "Killed while carrying the Flag",
+        "pickup": "Picked up the Flag"
+    };
 
-    for(let i = 0; i < coverPlayers.length; i++){
+    if(text[type] !== undefined) return text[type];
 
-        const c = coverPlayers[i];
+    return "Not Found!";
 
-        coverElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${c.player.id}`}><a><CountryFlag host={host} country={c.player.country}/>{c.player.name}</a></Link></td> 
-            <td>{c.covers}</td>
+}
+
+function createEventRows(events, host){
+
+    const rows = [];
+
+    for(let i = 1; i < events.length - 1; i++){
+
+        const e = events[i];
+        const player = e.player;
+
+        rows.push(<tr>
+            <td className={styles.time}>{Functions.MMSS(e.timestamp)}</td>
+            <td>
+                <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} host={host}/><b>{player.name}</b></a></Link> {getDisplayText(e.type)}.
+            </td>
         </tr>);
     }
 
-    for(let i = 0; i < assistPlayers.length - 1; i++){
+    return rows;
+}
 
-        const c = assistPlayers[i];
+const MatchCTFCap = ({matchId, team, carryTime, totalTeams, 
+    teamScores, host, events}) =>{
 
-        const carryPercent = (c.carryTime > 0) ? (c.carryTime / carryTime) * 100 : 0;
+
+    const grabPlayer = events[0].player;
+    const grabTime = events[0].timestamp;
+    const capPlayer = events[events.length - 1].player;
+    const capTime = events[events.length - 1].timestamp;
+
+    const rows = createEventRows(events, host);
+
+    const travelTime = events[events.length - 1].timestamp - events[0].timestamp;
+
+    let elems = null;
+
+    if(events.length === 2){
+        elems = <div className={styles.event}>
+            Solo Cap by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/player/${capPlayer.id}`}><a>{capPlayer.name}</a></Link><br/><br/>
+            Grabbed at <span className={styles.time}>{Functions.MMSS(grabTime)}</span>, capped at <span className={styles.time}>{Functions.MMSS(capTime)}</span>
+        </div>
+    }else{
+
+        elems = <>
+            <div className={styles.event}>
+                Flag Taken by <CountryFlag country={grabPlayer.country} host={host}/><Link href={`/player/${grabPlayer.id}`}><a>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
+            </div>
+            <Table2 width={1}>
+                {rows}
+            </Table2>
+            <div className={styles.event}>
+                Flag Capped by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/player/${capPlayer.id}`}><a>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
+            </div>
+        </>
+    }
+
+    return <div className={styles.wrapper}>
+        <div className={`${styles.smessage} ${Functions.getTeamColor(team)}`}>
+            {Functions.getTeamName(team)} Scored!
+        </div>
+        <div className={styles.scores}>
+            <MatchResultSmall totalTeams={totalTeams} totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
+                greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}/>
+        </div>
         
-        assistElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${c.player.id}`}><a><CountryFlag host={host} country={c.player.country}/>{c.player.name}</a></Link></td>
-            <td>{parseFloat(c.carryTime).toFixed(2)} Secs <span className={styles.carryp}>({carryPercent.toFixed(2)}%)</span></td>
-        </tr>);
-    }
 
-    for(let i = 0; i < selfCovers.length; i++){
+        {elems}
+        <div className={styles.event}>
+            Flag Travel Time <span className={styles.time}>{travelTime.toFixed(2)} Seconds</span>
+        </div>
 
-        const s = selfCovers[i];
+    </div>
 
-        selfCoverElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${s.player.id}`}><a><CountryFlag host={host} country={s.player.country}/>{s.player.name}</a></Link></td>
-            <td>{s.kills}</td>
-        </tr>);
-    }
+    /*
 
-    dropTime = (dropTime > 0) ? `${dropTime.toFixed(2)} Seconds` : "None";
-
-    if(assistElems.length === 0){
-        assistElems.push(<tr key="an"><td colSpan="2">None</td></tr>);
-    }
-
-    if(coverElems.length === 0){
-        coverElems.push(<tr key="cn"><td colSpan="2">None</td></tr>);
-    }
-
-    const capCarryTime = assistPlayers[assistPlayers.length - 1].carryTime;
-    const capCarryPercent = (parseFloat(capCarryTime) / carryTime) * 100;
-
-
-
-    const coverAssistsElem = <div className={styles.ca}>
-            <div className={styles.p1}>
-                <div className={styles.label2}>Covers</div>
-                <div className={styles.pwrapper}>
-                    <table className={styles.table}>
-                        <tbody>
-                            {coverElems}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div className={styles.p1}>
-                <div className={styles.label2}>Assists</div>
-                <div className={styles.pwrapper}>
-                    <table className={styles.table}>
-                        <tbody>
-                            {assistElems}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>;
-  
-    const selfCoverElem = (selfCoverElems.length === 0) ? null : <div className={styles.scovers}>
-        <div className={styles.label2}>Kills While Carrying Flag</div>
-        <table className="t-width-2">
-            <tbody>
-                {selfCoverElems}
-            </tbody>
-        </table>
-    </div>;
+    const flagDropTimeElem = (dropTime === 0) ? null : <>
+        , Flag Drop Time <span className={styles.time}>{dropTime.toFixed(2)} Seconds</span>
+    </>;
 
 
     return <div className={styles.wrapper}>
-        <div className={`${styles.title} ${Functions.getTeamColor(team)}`}>{Functions.getTeamName(team)} Scored!</div>
+
+        <div className={`${styles.smessage} ${Functions.getTeamColor(team)}`}>
+            {Functions.getTeamName(team)} Scored!
+        </div>
         <div className={styles.scores}>
-            <MatchResultSmall totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
-                greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}
-            />
+            <MatchResultSmall totalTeams={totalTeams} totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
+                greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}/>
         </div>
-        <div className={styles.grab}>
-            <div className={styles.label}>Taken By</div> <Link href={`/pmatch/${matchId}?player=${grabPlayer.id}`}>
-                <a><CountryFlag host={host} country={grabPlayer.country}/>{grabPlayer.name}</a></Link> at <span className="yellow">
-                {Functions.MMSS(grabTime)}</span>
+        <div className={styles.event}>
+            Flag Taken by <CountryFlag country={grabPlayer.country} host={host}/><Link href={`/player/${grabPlayer.id}`}><a>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
         </div>
-        {coverAssistsElem}
-
-        {selfCoverElem}
-
-        <div className={styles.grab}>
-            <div className={styles.label}>Capped By </div> <Link href={`/pmatch/${matchId}?player=${capPlayer.id}`}>
-                <a>
-                    <CountryFlag host={host} country={capPlayer.country}/>{capPlayer.name}
-                </a>
-                </Link> at <span className="yellow">{Functions.MMSS(capTime)}</span>
-            <br/><span className="yellow">Carrytime</span> {capCarryTime} Secs <span className={styles.carryp}>({capCarryPercent.toFixed(2)}%)</span>
-
+        <div className={styles.event}>
+            Flag Capped by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/player/${capPlayer.id}`}><a>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
         </div>
-        <div className={styles.times}>
-            <div>
-                <div className={styles.label2}>Travel Time</div>
-                {travelTime.toFixed(2)} Seconds
-            </div>
-            <div>
-                <div className={styles.label2}>Carry Time</div>
-                {carryTime.toFixed(2)} Seconds
-            </div>
-            
-            <div>
-                <div className={styles.label2}>Time Dropped</div>
-                {dropTime}
-            </div>
+        <div className={styles.travel}>
+            Flag Travel Time <span className={styles.time}>{travelTime.toFixed(2)} Seconds</span>,
+            Flag Carry Time <span className={styles.time}>{carryTime.toFixed(2)} Seconds</span>
+            {flagDropTimeElem}
         </div>
-    </div>
+    </div>*/
 
 
 }
