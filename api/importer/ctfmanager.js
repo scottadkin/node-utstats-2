@@ -594,7 +594,7 @@ class CTFManager{
                     }
                 }
 
-                this.ctf.insertCap(matchId, matchDate, mapId, c.team, grabTime, grabPlayer, dropIds, c.dropTimes, pickupIds,
+                this.ctf.insertCap(matchId, matchDate, mapId, c.team, flagTeam, grabTime, grabPlayer, dropIds, c.dropTimes, pickupIds,
                 c.pickupTimes, coverIds, c.coverTimes, uniqueAssistIds, c.assistTimes, assistIds, capPlayer, 
                 capTime, travelTime, selfCovers, c.selfCoverTimes, sealIds, c.sealTimes);
 

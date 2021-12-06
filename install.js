@@ -63,7 +63,8 @@ const queries = [
         self_covers text NOT NULL,
         self_covers_times text NOT NULL,
         seals text NOT NULL,
-        seal_times text NOT NULL
+        seal_times text NOT NULL,
+        flag_team INT(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ctf_events (
         id int(11) NOT NULL AUTO_INCREMENT,
