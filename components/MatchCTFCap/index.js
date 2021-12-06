@@ -31,7 +31,7 @@ function createEventRows(events, host){
         const e = events[i];
         const player = e.player;
 
-        rows.push(<tr>
+        rows.push(<tr key={i}>
             <td className={styles.time}>{Functions.MMSS(e.timestamp)}</td>
             <td>
                 <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} host={host}/><b>{player.name}</b></a></Link> {getDisplayText(e.type)}.
@@ -43,7 +43,7 @@ function createEventRows(events, host){
 }
 
 const MatchCTFCap = ({matchId, team, carryTime, totalTeams, 
-    teamScores, host, events}) =>{
+    teamScores, host, events, timeDropped}) =>{
 
 
     const grabPlayer = events[0].player;
@@ -56,6 +56,15 @@ const MatchCTFCap = ({matchId, team, carryTime, totalTeams,
     const travelTime = events[events.length - 1].timestamp - events[0].timestamp;
 
     let elems = null;
+
+    const flagDroppedTime = null;
+
+    if(timeDropped > 0){
+
+        flagDroppedTime = <div className={styles.event}>
+            Flag Was Dropped for <span className={styles.time}>{timeDropped.toFixed(2)} Seconds.</span>
+        </div>
+    }
 
     if(events.length === 2){
         elems = <div className={styles.event}>
@@ -89,40 +98,11 @@ const MatchCTFCap = ({matchId, team, carryTime, totalTeams,
 
         {elems}
         <div className={styles.event}>
-            Flag Travel Time <span className={styles.time}>{travelTime.toFixed(2)} Seconds</span>
+            Flag Travel Time <span className={styles.time}>{travelTime.toFixed(2)} Seconds.</span>
         </div>
+        {flagDroppedTime}
 
     </div>
-
-    /*
-
-    const flagDropTimeElem = (dropTime === 0) ? null : <>
-        , Flag Drop Time <span className={styles.time}>{dropTime.toFixed(2)} Seconds</span>
-    </>;
-
-
-    return <div className={styles.wrapper}>
-
-        <div className={`${styles.smessage} ${Functions.getTeamColor(team)}`}>
-            {Functions.getTeamName(team)} Scored!
-        </div>
-        <div className={styles.scores}>
-            <MatchResultSmall totalTeams={totalTeams} totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
-                greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}/>
-        </div>
-        <div className={styles.event}>
-            Flag Taken by <CountryFlag country={grabPlayer.country} host={host}/><Link href={`/player/${grabPlayer.id}`}><a>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
-        </div>
-        <div className={styles.event}>
-            Flag Capped by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/player/${capPlayer.id}`}><a>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
-        </div>
-        <div className={styles.travel}>
-            Flag Travel Time <span className={styles.time}>{travelTime.toFixed(2)} Seconds</span>,
-            Flag Carry Time <span className={styles.time}>{carryTime.toFixed(2)} Seconds</span>
-            {flagDropTimeElem}
-        </div>
-    </div>*/
-
 
 }
 

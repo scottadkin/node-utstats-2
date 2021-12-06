@@ -150,14 +150,9 @@ class MatchCTFCapsNew extends React.Component{
 
     createEvents(type, times, playerIds, capEvents, players){
 
-        //console.log(arguments);
-        console.log("########################################################################");
-
         const pIds = playerIds.split(",");
         const timestamps = times.split(",");
 
-        console.log(timestamps);
-        //console.log(players);
 
         for(let i = 0; i < timestamps.length; i++){
 
@@ -165,8 +160,6 @@ class MatchCTFCapsNew extends React.Component{
             const p = parseInt(pIds[i]);
 
             if(t !== t || p !== p) continue;
-
-           //console.log(t);
 
             capEvents.push({
                 "type": type,
@@ -190,17 +183,11 @@ class MatchCTFCapsNew extends React.Component{
 
         const teamScores = [0,0,0,0];
 
-        console.log(this.state.data);
-
         for(let i = 0; i < this.state.data.length; i++){
 
 
             const d = this.state.data[i];
             
-
-            //console.log(i);
-            //console.log(d);
-
             teamScores[d.team]++;
 
             const redScore = teamScores[0];
@@ -254,18 +241,7 @@ class MatchCTFCapsNew extends React.Component{
                 return 0;
             });
 
-            console.table(capEvents);
 
-
-           // console.log(grabPlayer);
-
-            /*const grabPlayer = Functions.getPlayer(players, d.grab);
-            const capPlayer = Functions.getPlayer(players, d.cap);
-
-            const coverPlayers = this.createCoverData(d.covers, players);*/
-            const assistPlayers = this.createAssistData(d.assist_carry_ids, d.assist_carry_times, players);
-
-           // const selfCoverPlayers = this.createSelfCoversData(d.self_covers, d.self_covers_times, players);
             let totalCarryTime = 0;
 
             const assistTimes = d.assist_carry_times.split(",");
@@ -279,6 +255,25 @@ class MatchCTFCapsNew extends React.Component{
                 }
             }
 
+            let timeDropped = 0;
+
+
+            const dropTimes = d.drop_times.split(",");
+            const pickupTimes = d.pickup_times.split(",");
+
+            for(let x = 0; x < dropTimes.length; x++){
+
+                const dropTime = parseFloat(dropTimes[x]);
+                const pickupTime = parseFloat(pickupTimes[x]);
+
+                if(dropTime === dropTime && pickupTime === pickupTime){
+
+                    timeDropped += pickupTime - dropTime;
+                }
+
+                
+            }
+
             elems.push(<MatchCTFCap 
                 host={this.props.host}
                 key={i} 
@@ -288,6 +283,7 @@ class MatchCTFCapsNew extends React.Component{
                 teamScores={[redScore, blueScore, greenScore, yellowScore]}
                 events={capEvents}
                 carryTime={totalCarryTime}
+                timeDropped={timeDropped}
                 
             />);
             
