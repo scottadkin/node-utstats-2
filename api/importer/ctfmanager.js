@@ -566,7 +566,6 @@ class CTFManager{
 
                 const {team, flagTeam, grab, grabTime, cap, capTime} = c;
 
-                //console.log(c);
 
                 const grabPlayer = this.playerManager.getOriginalConnectionMasterId(grab);
                 const capPlayer = this.playerManager.getOriginalConnectionMasterId(cap);

@@ -22,7 +22,7 @@ function getDisplayText(type){
 
 }
 
-function createEventRows(events, host){
+function createEventRows(events, host, playerCovers){
 
     const rows = [];
 
@@ -31,10 +31,30 @@ function createEventRows(events, host){
         const e = events[i];
         const player = e.player;
 
+        if(e.type === "cover"){
+
+            if(playerCovers[player.id] === undefined) playerCovers[player.id] = 0;
+
+            playerCovers[player.id]++;
+        }
+
+        let rewardElem = null;
+
+        if(e.type === "cover"){
+
+            if(playerCovers[player.id] === 3){
+
+                rewardElem = <span className="yellow">(Multi Cover)</span>;
+
+            }else if(playerCovers[player.id] === 4){
+                rewardElem = <span className="yellow">(Cover Spree)</span>;
+            }
+        }
+
         rows.push(<tr key={i}>
             <td className={styles.time}>{Functions.MMSS(e.timestamp)}</td>
             <td>
-                <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} host={host}/><b>{player.name}</b></a></Link> {getDisplayText(e.type)}.
+                <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} host={host}/><b>{player.name}</b></a></Link> {getDisplayText(e.type)}. {rewardElem}
             </td>
         </tr>);
     }
@@ -43,7 +63,7 @@ function createEventRows(events, host){
 }
 
 const MatchCTFCap = ({matchId, team, carryTime, totalTeams, 
-    teamScores, host, events, timeDropped}) =>{
+    teamScores, host, events, timeDropped, flagTeam}) =>{
 
 
     const grabPlayer = events[0].player;
@@ -51,7 +71,11 @@ const MatchCTFCap = ({matchId, team, carryTime, totalTeams,
     const capPlayer = events[events.length - 1].player;
     const capTime = events[events.length - 1].timestamp;
 
-    const rows = createEventRows(events, host);
+    const playerCovers = {};
+
+    const rows = createEventRows(events, host, playerCovers);
+
+    console.log(playerCovers);
 
     const travelTime = events[events.length - 1].timestamp - events[0].timestamp;
 
@@ -88,7 +112,7 @@ const MatchCTFCap = ({matchId, team, carryTime, totalTeams,
 
     return <div className={styles.wrapper}>
         <div className={`${styles.smessage} ${Functions.getTeamColor(team)}`}>
-            {Functions.getTeamName(team)} Scored!
+            {Functions.getTeamName(team)} {(totalTeams <= 2) ? "Scored" : <>Capped the {Functions.getTeamColorName(flagTeam)} Flag</>}
         </div>
         <div className={styles.scores}>
             <MatchResultSmall totalTeams={totalTeams} totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}

@@ -3,13 +3,14 @@ import styles from './MatchCTFCapsNew.module.css';
 import Functions from '../../api/functions';
 import MatchCTFCap from '../MatchCTFCap';
 import BasicPageSelect from '../BasicPageSelect';
+import MatchCTFCapSimple from '../MatchCTFCapSimple';
 
 class MatchCTFCapsNew extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"data": [], "finishedLoading": false, "page": 0, "perPage": 1};
+        this.state = {"data": [], "finishedLoading": false, "page": 0, "perPage": 1, "mode": 0};
 
         this.changePage = this.changePage.bind(this);
     }
@@ -187,7 +188,7 @@ class MatchCTFCapsNew extends React.Component{
 
 
             const d = this.state.data[i];
-            
+                 
             teamScores[d.team]++;
 
             const redScore = teamScores[0];
@@ -198,65 +199,7 @@ class MatchCTFCapsNew extends React.Component{
             if(i !== this.state.page) continue;
             if(i > this.state.page) return;
 
-            const capEvents = [];
-
-            const grabPlayer = Functions.getPlayer(players, d.grab);
-
-            capEvents.push(
-                {
-                    "type": "grab",
-                    "timestamp": d.grab_time,
-                    "player": grabPlayer
-                }
-            );
-
-
-            const capPlayer = Functions.getPlayer(players, d.cap);
-
-            capEvents.push(
-                {
-                    "type": "cap",
-                    "timestamp": d.cap_time,
-                    "player": capPlayer
-                }
-            );
-
-            this.createEvents("drop", d.drop_times, d.drops, capEvents, players);
-            this.createEvents("pickup", d.pickup_times, d.pickups, capEvents, players);
-            this.createEvents("cover", d.cover_times, d.covers, capEvents, players);
-            this.createEvents("self_cover", d.self_covers_times, d.self_covers, capEvents, players);
-
-
-            capEvents.sort((a, b) =>{
-
-                a = a.timestamp;
-                b = b.timestamp;
-
-                if(a < b){
-                    return -1;
-                }else if(a > b){
-                    return 1;
-                }
-
-                return 0;
-            });
-
-
-            let totalCarryTime = 0;
-
-            const assistTimes = d.assist_carry_times.split(",");
-
-            for(let x = 0; x < assistTimes.length; x++){
-
-                if(assistTimes[x] !== ""){
-
-                    totalCarryTime += parseFloat(assistTimes[x]);
-     
-                }
-            }
-
             let timeDropped = 0;
-
 
             const dropTimes = d.drop_times.split(",");
             const pickupTimes = d.pickup_times.split(",");
@@ -269,28 +212,131 @@ class MatchCTFCapsNew extends React.Component{
                 if(dropTime === dropTime && pickupTime === pickupTime){
 
                     timeDropped += pickupTime - dropTime;
-                }
-
-                
+                }      
             }
 
-            elems.push(<MatchCTFCap 
-                host={this.props.host}
-                key={i} 
-                matchId={this.props.matchId}
-                team={d.team}
-                totalTeams={this.props.totalTeams}
-                teamScores={[redScore, blueScore, greenScore, yellowScore]}
-                events={capEvents}
-                carryTime={totalCarryTime}
-                timeDropped={timeDropped}
-                
-            />);
+            const capEvents = [];
+
+            const grabPlayer = Functions.getPlayer(players, d.grab);
+            const capPlayer = Functions.getPlayer(players, d.cap);
+
+            let totalCarryTime = 0;
+
+            const assistTimes = d.assist_carry_times.split(",");
+
+            for(let x = 0; x < assistTimes.length; x++){
+
+                if(assistTimes[x] !== ""){
+
+                    totalCarryTime += parseFloat(assistTimes[x]);
+    
+                }
+            }
+
+            //solo caps
+            if(totalCarryTime === 0){
+
+                totalCarryTime = (parseFloat(d.cap_time) - parseFloat(d.grab_time)).toFixed(2);
+            }
+
+            if(this.state.mode === 1){
+
+                capEvents.push(
+                    {
+                        "type": "grab",
+                        "timestamp": d.grab_time,
+                        "player": grabPlayer
+                    }
+                );
+
+                capEvents.push(
+                    {
+                        "type": "cap",
+                        "timestamp": d.cap_time,
+                        "player": capPlayer
+                    }
+                );
+
+                this.createEvents("drop", d.drop_times, d.drops, capEvents, players);
+                this.createEvents("pickup", d.pickup_times, d.pickups, capEvents, players);
+                this.createEvents("cover", d.cover_times, d.covers, capEvents, players);
+                this.createEvents("self_cover", d.self_covers_times, d.self_covers, capEvents, players);
+
+
+                capEvents.sort((a, b) =>{
+
+                    a = a.timestamp;
+                    b = b.timestamp;
+
+                    if(a < b){
+                        return -1;
+                    }else if(a > b){
+                        return 1;
+                    }
+
+                    return 0;
+                });
+
+
+
+                elems.push(<MatchCTFCap 
+                    host={this.props.host}
+                    key={i} 
+                    matchId={this.props.matchId}
+                    team={d.team}
+                    totalTeams={this.props.totalTeams}
+                    teamScores={[redScore, blueScore, greenScore, yellowScore]}
+                    events={capEvents}
+                    carryTime={totalCarryTime}
+                    timeDropped={timeDropped}
+                    flagTeam={d.flag_team}
+                    
+                />);
+
+            }else{
+
+                let totalCovers = 0;
+                let totalDrops = 0;
+                let totalSelfCovers = 0;
+
+                const covers = d.covers.split(",");
+                const drops = d.drops.split(",");
+                const selfCovers = d.self_covers.split(",");
+
+                if(covers[0] !== ""){
+                    totalCovers = covers.length;
+                }
+
+                if(drops[0] !== ""){
+                    totalDrops = drops.length;
+                }
+
+                if(selfCovers[0] !== ""){
+                    totalSelfCovers = selfCovers.length;
+                }
+
+
+                elems.push(<MatchCTFCapSimple 
+                    key={i} 
+                    covers={totalCovers} 
+                    drops={totalDrops} 
+                    selfCovers={totalSelfCovers} 
+                    carryTime={totalCarryTime}
+                    grabPlayer={grabPlayer}
+                    capPlayer={capPlayer}
+                    host={this.props.host}
+                    dropTime={d.travel_time - timeDropped}
+                />);
+            }
             
         }
 
         return <div>
             <div className="default-header">Capture The Flag Caps</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>Simple</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Detailed</div>
+            </div>
             <BasicPageSelect results={this.state.data.length} perPage={this.state.perPage} page={this.state.page} changePage={this.changePage}/>
             {elems}
                
