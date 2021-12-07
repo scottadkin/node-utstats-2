@@ -287,9 +287,14 @@ class CTFManager{
 
                 const selfCoverTimes = this.getSelfCoversBetween(playerId, pickupTime, timestamp);
 
+                //console.log(pickupTime, timestamp);
+                //console.log(selfCoverTimes);
+
+
                 for(let i = 0; i < selfCoverTimes.length; i++){
                     f.selfCovers.push(playerId);
                 }
+
 
                 f.selfCoverTimes.push(...selfCoverTimes);
 
@@ -313,8 +318,6 @@ class CTFManager{
 
                 const playerTeam = this.playerManager.getPlayerTeamAt(playerId, timestamp);
 
-                //console.log(`Player ${playerId} capped the ${i} flag`);
-
                 f.capTimestamp = timestamp;
                 f.cap = playerId;
 
@@ -323,6 +326,22 @@ class CTFManager{
                 if(f.takenTimestamp !== null){    
                     travelTime = timestamp - f.takenTimestamp;
                 }
+
+                let pickupTime = f.takenTimestamp;
+
+                if(f.pickupTimes.length > 0){
+
+                    pickupTime = f.pickupTimes[f.pickupTimes.length - 1];
+                }
+
+                const selfCoverTimes = this.getSelfCoversBetween(playerId, pickupTime, timestamp);
+
+                for(let x = 0; x < selfCoverTimes.length; x++){
+
+                    f.selfCovers.push(playerId);
+                }
+
+                f.selfCoverTimes.push(...selfCoverTimes);
 
                 this.capData.push({
                     "team": playerTeam,
@@ -366,11 +385,11 @@ class CTFManager{
 
                 
                 if(!bSeal){
-                    console.log(`${timestamp} player ${playerId} covered the ${i} flag`);
+                    //console.log(`${timestamp} player ${playerId} covered the ${i} flag`);
                     f.covers.push(playerId);
                     f.coverTimes.push(timestamp);
                 }else{
-                    console.log(`${timestamp} player ${playerId} sealed for the ${i} flag`);
+                    //console.log(`${timestamp} player ${playerId} sealed for the ${i} flag`);
                     f.seals.push(playerId);
                     f.sealTimes.push(timestamp);
                 }
@@ -417,7 +436,7 @@ class CTFManager{
                 
             }else if(type === "dropped"){
 
-                this.dropFlags(e.playerId, timestamp, flags);
+                this.dropFlags(e.playerId, timestamp, flags, e.player.name);
 
             }else if(type === "captured"){
 
@@ -439,8 +458,8 @@ class CTFManager{
 
         //console.log(flags);
         //console.log(flags.length);
-        console.log(this.capData);
-        console.log(this.capData.length);
+        //console.log(this.capData);
+        //console.log(this.capData.length);
     }
 
     getMatchingPickupId(pickups, player, timestamp){
