@@ -323,9 +323,12 @@ class MatchCTFCapsNew extends React.Component{
                     selfCovers={totalSelfCovers} 
                     carryTime={totalCarryTime}
                     grabPlayer={grabPlayer}
+                    grabTime={d.grab_time}
                     capPlayer={capPlayer}
+                    capTime={d.cap_time}
                     host={this.props.host}
-                    dropTime={d.travel_time - timeDropped}
+                    dropTime={timeDropped}
+                    travelTime={d.travel_time}
                 />);
             }
             
