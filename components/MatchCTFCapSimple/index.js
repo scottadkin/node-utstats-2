@@ -3,7 +3,27 @@ import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import Functions from '../../api/functions';
 
-const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlayer, host, dropTime, travelTime, grabTime, capTime}) =>{
+function createAssistElem(assists, host){
+
+    if(assists.length === 0) return null;
+
+    const elems = [];
+
+    for(let i = 0; i < assists.length; i++){
+
+        const a = assists[i];
+
+        elems.push(<span key={i}><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</span>);
+    }
+
+    return <div className={styles.assists}>
+        Assisted by {elems}
+    </div>
+
+}
+
+const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlayer, host, 
+    dropTime, travelTime, grabTime, capTime, assistPlayers}) =>{
 
 
     let coversElem = null;
@@ -84,6 +104,7 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
         <div className={styles.event}>
             Flag Captured by <Link href={`/player/${capPlayer.id}`}><a><CountryFlag country={capPlayer.country} host={host}/>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
         </div>
+        {createAssistElem(assistPlayers, host)}
     </div>
 }
 

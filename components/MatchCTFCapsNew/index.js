@@ -184,8 +184,9 @@ class MatchCTFCapsNew extends React.Component{
 
         const teamScores = [0,0,0,0];
 
-        for(let i = 0; i < this.state.data.length; i++){
+        console.log(this.state.data);
 
+        for(let i = 0; i < this.state.data.length; i++){
 
             const d = this.state.data[i];
                  
@@ -201,6 +202,8 @@ class MatchCTFCapsNew extends React.Component{
 
             let timeDropped = 0;
 
+            const travelTime = d.travel_time;
+
             const dropTimes = d.drop_times.split(",");
             const pickupTimes = d.pickup_times.split(",");
 
@@ -212,7 +215,7 @@ class MatchCTFCapsNew extends React.Component{
                 if(dropTime === dropTime && pickupTime === pickupTime){
 
                     timeDropped += pickupTime - dropTime;
-                }      
+                }    
             }
 
             const capEvents = [];
@@ -220,24 +223,8 @@ class MatchCTFCapsNew extends React.Component{
             const grabPlayer = Functions.getPlayer(players, d.grab);
             const capPlayer = Functions.getPlayer(players, d.cap);
 
-            let totalCarryTime = 0;
+            let totalCarryTime = (travelTime - timeDropped).toFixed(2);
 
-            const assistTimes = d.assist_carry_times.split(",");
-
-            for(let x = 0; x < assistTimes.length; x++){
-
-                if(assistTimes[x] !== ""){
-
-                    totalCarryTime += parseFloat(assistTimes[x]);
-    
-                }
-            }
-
-            //solo caps
-            if(totalCarryTime === 0){
-
-                totalCarryTime = (parseFloat(d.cap_time) - parseFloat(d.grab_time)).toFixed(2);
-            }
 
             if(this.state.mode === 1){
 
@@ -316,6 +303,21 @@ class MatchCTFCapsNew extends React.Component{
                 }
 
 
+                const assistPlayerIds = d.assists.split(",");
+
+                console.log(assistPlayerIds);
+
+                const assistPlayers = [];
+
+                for(let x = 0; x < assistPlayerIds.length; x++){
+
+                    const pid = parseInt(assistPlayerIds[x]);
+
+                    if(pid === pid){
+                        assistPlayers.push(Functions.getPlayer(players, pid));
+                    }
+                }
+
                 elems.push(<MatchCTFCapSimple 
                     key={i} 
                     covers={totalCovers} 
@@ -329,6 +331,7 @@ class MatchCTFCapsNew extends React.Component{
                     host={this.props.host}
                     dropTime={timeDropped}
                     travelTime={d.travel_time}
+                    assistPlayers={assistPlayers}
                 />);
             }
             

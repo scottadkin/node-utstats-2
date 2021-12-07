@@ -12,7 +12,7 @@
     display:inline-block;
     padding:10px 0px;
     width:100%;
-    width:250px;
+    width:200px;
     background-color:var(--color-3);
     border:1px solid var(--border-color-2);
     margin-left:5px;
@@ -26,7 +26,7 @@
 }
 
 .image{
-    width:248px;
+    width:198px;
     height:160px;
     background-color:black;
     background:linear-gradient(to bottom right, black, rgba(155, 66, 0, 0.5));
