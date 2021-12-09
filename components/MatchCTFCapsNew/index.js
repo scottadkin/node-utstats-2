@@ -13,6 +13,12 @@ class MatchCTFCapsNew extends React.Component{
         this.state = {"data": [], "finishedLoading": false, "page": 0, "perPage": 1, "mode": 0};
 
         this.changePage = this.changePage.bind(this);
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
     async loadData(){
@@ -304,9 +310,6 @@ class MatchCTFCapsNew extends React.Component{
 
 
                 const assistPlayerIds = d.assists.split(",");
-
-                console.log(assistPlayerIds);
-
                 const assistPlayers = [];
 
                 for(let x = 0; x < assistPlayerIds.length; x++){
@@ -332,6 +335,10 @@ class MatchCTFCapsNew extends React.Component{
                     dropTime={timeDropped}
                     travelTime={d.travel_time}
                     assistPlayers={assistPlayers}
+                    totalTeams={this.props.totalTeams}
+                    teamScores={[redScore, blueScore, greenScore, yellowScore]}
+                    flagTeam={d.flag_team}
+                    team={d.team}
                 />);
             }
             
@@ -340,8 +347,12 @@ class MatchCTFCapsNew extends React.Component{
         return <div>
             <div className="default-header">Capture The Flag Caps</div>
             <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>Simple</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Detailed</div>
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Simple</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Detailed</div>
             </div>
             <BasicPageSelect results={this.state.data.length} perPage={this.state.perPage} page={this.state.page} changePage={this.changePage}/>
             {elems}

@@ -2,6 +2,7 @@ import styles from './MatchCTFCapSimple.module.css';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import Functions from '../../api/functions';
+import MatchResultSmall from '../MatchResultSmall';
 
 function createAssistElem(assists, host){
 
@@ -23,7 +24,7 @@ function createAssistElem(assists, host){
 }
 
 const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlayer, host, 
-    dropTime, travelTime, grabTime, capTime, assistPlayers}) =>{
+    dropTime, travelTime, grabTime, capTime, assistPlayers, totalTeams, teamScores, flagTeam, team}) =>{
 
 
     let coversElem = null;
@@ -76,6 +77,13 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
     }
 
     return <div className={styles.wrapper}>
+        <div className={`${styles.smessage} ${Functions.getTeamColor(team)}`}>
+            {Functions.getTeamName(team)} {(totalTeams <= 2) ? "Scored" : <>Capped the {Functions.getTeamColorName(flagTeam)} Flag</>}
+        </div>
+        <div className={styles.scores}>
+            <MatchResultSmall totalTeams={totalTeams} totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
+            greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}/>
+        </div>
         <div className={styles.event}>
             Flag Taken by <Link href={`/player/${grabPlayer.id}`}><a><CountryFlag country={grabPlayer.country} host={host}/>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
         </div>
