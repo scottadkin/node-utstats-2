@@ -75,10 +75,13 @@ async function updateCapsTable(){
     const totalCoversExists = await columnExists(table, "total_covers");
     const totalSelfCoversExists = await columnExists(table, "total_self_covers");
 
-    const totalPickupsExists = await columnExists(table, "total_pickups")
-    const totalAssistsExists = await columnExists(table, "total_assists")
-    const totalUniqueAssistsExists = await columnExists(table, "total_unique_assists")
-    const totalSealsExists = await columnExists(table, "total_seals")
+    const totalPickupsExists = await columnExists(table, "total_pickups");
+    const totalAssistsExists = await columnExists(table, "total_assists");
+    const totalUniqueAssistsExists = await columnExists(table, "total_unique_assists");
+    const totalSealsExists = await columnExists(table, "total_seals");
+
+    const timeDroppedExists = await columnExists(table, "time_dropped");
+    const carryTimeExists = await columnExists(table, "carry_time");
 
     const exists = [
         coverExists,
@@ -92,7 +95,9 @@ async function updateCapsTable(){
         totalPickupsExists,
         totalAssistsExists,
         totalUniqueAssistsExists,
-        totalSealsExists
+        totalSealsExists,
+        timeDroppedExists,
+        carryTimeExists
     ];
 
 
@@ -167,6 +172,18 @@ async function updateCapsTable(){
 
             await alterTable(table, "total_seals", "int(11) NOT NULL");
             new Message(`Updated table nstats_ctf_caps, add column "total_seals"`,"pass");
+        }
+
+        if(!timeDroppedExists){
+
+            await alterTable(table, "time_dropped", "DECIMAL(9,2) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "time_dropped"`,"pass");
+        }
+
+        if(!carryTimeExists){
+
+            await alterTable(table, "carry_time", "DECIMAL(9,2) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "carry_time"`,"pass");
         }
 
     }

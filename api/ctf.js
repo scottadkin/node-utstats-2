@@ -133,6 +133,22 @@ class CTF{
         });
     }
 
+    calculateTimeDropped(dropTimes, pickupTimes){
+
+        let timeDropped = 0;
+
+        if(dropTimes.length === 0) return 0;
+
+        for(let i = 0; i < pickupTimes.length; i++){
+
+            timeDropped += pickupTimes[i] - dropTimes[i];
+
+        }
+
+
+        return parseFloat(timeDropped.toFixed(2));
+    }
+
     async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
         assistsTimes, carryIds, cap, 
         capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes){
@@ -145,12 +161,15 @@ class CTF{
         const totalAssists = carryIds.length;
         const totalUniqueAssists = assists.length;
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const timeDropped = this.calculateTimeDropped(dropTimes, pickupTimes);
+        const carryTime = parseFloat(travelTime) - timeDropped;
+
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [matchId, mapId, team, grabTime, grab, drops.toString(), dropTimes.toString(), pickups.toString(), pickupTimes.toString(), 
             covers.toString(), coverTimes.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime,
             selfCovers.toString(), selfCoversCount.toString(), seals.toString(), sealTimes.toString(), flagTeam, totalDrops, totalCovers, 
-            totalSelfCovers, totalPickups, totalAssists, totalUniqueAssists, totalSeals];
+            totalSelfCovers, totalPickups, totalAssists, totalUniqueAssists, totalSeals, timeDropped, carryTime];
 
         let type = 0;
 
@@ -230,7 +249,8 @@ class CTF{
     async getMatchCaps(matchId){
 
         const query = `SELECT team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,
-        assist_carry_ids,cap,cap_time,travel_time,self_covers,self_covers_times,flag_team
+        assist_carry_ids,cap,cap_time,travel_time,self_covers,self_covers_times,flag_team,total_drops,total_covers,total_self_covers,
+        total_pickups,total_assists,total_unique_assists,total_seals
         FROM nstats_ctf_caps WHERE match_id=? ORDER BY grab_time ASC`;
 
         return await mysql.simpleQuery(query, [matchId]);
