@@ -13,7 +13,8 @@ function getDisplayText(type){
         "cover": "Covered the Flag Carrier",
         "drop": "Dropped the Flag",
         "self_cover": "Killed while carrying the Flag",
-        "pickup": "Picked up the Flag"
+        "pickup": "Picked up the Flag",
+        "seal": "Sealed off the Base"
     };
 
     if(text[type] !== undefined) return text[type];

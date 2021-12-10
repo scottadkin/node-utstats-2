@@ -190,7 +190,6 @@ class MatchCTFCapsNew extends React.Component{
 
         const teamScores = [0,0,0,0];
 
-        console.log(this.state.data);
 
         for(let i = 0; i < this.state.data.length; i++){
 
@@ -206,30 +205,13 @@ class MatchCTFCapsNew extends React.Component{
             if(i !== this.state.page) continue;
             if(i > this.state.page) return;
 
-            let timeDropped = 0;
-
-            const travelTime = d.travel_time;
-
-            const dropTimes = d.drop_times.split(",");
-            const pickupTimes = d.pickup_times.split(",");
-
-            for(let x = 0; x < dropTimes.length; x++){
-
-                const dropTime = parseFloat(dropTimes[x]);
-                const pickupTime = parseFloat(pickupTimes[x]);
-
-                if(dropTime === dropTime && pickupTime === pickupTime){
-
-                    timeDropped += pickupTime - dropTime;
-                }    
-            }
+            const timeDropped = d.time_dropped;
 
             const capEvents = [];
 
             const grabPlayer = Functions.getPlayer(players, d.grab);
             const capPlayer = Functions.getPlayer(players, d.cap);
 
-            let totalCarryTime = (travelTime - timeDropped).toFixed(2);
 
 
             if(this.state.mode === 1){
@@ -254,6 +236,7 @@ class MatchCTFCapsNew extends React.Component{
                 this.createEvents("pickup", d.pickup_times, d.pickups, capEvents, players);
                 this.createEvents("cover", d.cover_times, d.covers, capEvents, players);
                 this.createEvents("self_cover", d.self_covers_times, d.self_covers, capEvents, players);
+                this.createEvents("seal", d.seal_times, d.seals, capEvents, players);
 
 
                 capEvents.sort((a, b) =>{
@@ -280,34 +263,13 @@ class MatchCTFCapsNew extends React.Component{
                     totalTeams={this.props.totalTeams}
                     teamScores={[redScore, blueScore, greenScore, yellowScore]}
                     events={capEvents}
-                    carryTime={totalCarryTime}
+                    carryTime={d.carry_time}
                     timeDropped={timeDropped}
                     flagTeam={d.flag_team}
                     
                 />);
 
             }else{
-
-                let totalCovers = 0;
-                let totalDrops = 0;
-                let totalSelfCovers = 0;
-
-                const covers = d.covers.split(",");
-                const drops = d.drops.split(",");
-                const selfCovers = d.self_covers.split(",");
-
-                if(covers[0] !== ""){
-                    totalCovers = covers.length;
-                }
-
-                if(drops[0] !== ""){
-                    totalDrops = drops.length;
-                }
-
-                if(selfCovers[0] !== ""){
-                    totalSelfCovers = selfCovers.length;
-                }
-
 
                 const assistPlayerIds = d.assists.split(",");
                 const assistPlayers = [];
@@ -323,10 +285,10 @@ class MatchCTFCapsNew extends React.Component{
 
                 elems.push(<MatchCTFCapSimple 
                     key={i} 
-                    covers={totalCovers} 
-                    drops={totalDrops} 
-                    selfCovers={totalSelfCovers} 
-                    carryTime={totalCarryTime}
+                    covers={d.total_covers} 
+                    drops={d.total_drops} 
+                    selfCovers={d.total_self_covers} 
+                    carryTime={d.carry_time}
                     grabPlayer={grabPlayer}
                     grabTime={d.grab_time}
                     capPlayer={capPlayer}
@@ -339,6 +301,7 @@ class MatchCTFCapsNew extends React.Component{
                     teamScores={[redScore, blueScore, greenScore, yellowScore]}
                     flagTeam={d.flag_team}
                     team={d.team}
+                    seals={d.total_seals}
                 />);
             }
             

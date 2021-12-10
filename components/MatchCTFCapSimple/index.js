@@ -24,7 +24,8 @@ function createAssistElem(assists, host){
 }
 
 const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlayer, host, 
-    dropTime, travelTime, grabTime, capTime, assistPlayers, totalTeams, teamScores, flagTeam, team}) =>{
+    dropTime, travelTime, grabTime, capTime, assistPlayers, totalTeams, teamScores, flagTeam, 
+    team, seals}) =>{
 
 
     let coversElem = null;
@@ -73,6 +74,18 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
                 <img src="/images/flagdroppedtime.png" alt="image"/>
             </div>
             <div className={styles.value}>{dropTime.toFixed(2)} Seconds</div>
+        </div>
+    }
+
+
+    if(seals > 0){
+
+        timeDroppedElem = <div className={styles.box}>
+            <div className={styles.title}>Seals</div>
+            <div className={styles.image}>
+                <img src="/images/flagseal.png" alt="image"/>
+            </div>
+            <div className={styles.value}>{seals}</div>
         </div>
     }
 

@@ -250,7 +250,7 @@ class CTF{
 
         const query = `SELECT team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,
         assist_carry_ids,cap,cap_time,travel_time,self_covers,self_covers_times,flag_team,total_drops,total_covers,total_self_covers,
-        total_pickups,total_assists,total_unique_assists,total_seals
+        total_pickups,total_assists,total_unique_assists,total_seals,time_dropped,carry_time,seals,seal_times
         FROM nstats_ctf_caps WHERE match_id=? ORDER BY grab_time ASC`;
 
         return await mysql.simpleQuery(query, [matchId]);
