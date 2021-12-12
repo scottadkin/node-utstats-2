@@ -50,3 +50,7 @@
 .wrapper table td:nth-child(2){
     text-align:left;
 }
+
+.carry{
+    color:rgb(100,255,100);
+}

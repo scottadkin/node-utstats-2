@@ -8,13 +8,14 @@ function createAssistElem(assists, host){
 
     if(assists.length === 0) return null;
 
+
     const elems = [];
 
     for(let i = 0; i < assists.length; i++){
 
         const a = assists[i];
 
-        elems.push(<span key={i}><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</span>);
+        elems.push(<span key={i}><Link href={`/player/${a.id}`}><a><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</a></Link></span>);
     }
 
     return <div className={styles.assists}>

@@ -27,10 +27,13 @@ function createEventRows(events, host, playerCovers){
 
     const rows = [];
 
-    for(let i = 1; i < events.length - 1; i++){
+    const lastFlagContact = {};
+
+    for(let i = 0; i < events.length; i++){
 
         const e = events[i];
         const player = e.player;
+        
 
         if(e.type === "cover"){
 
@@ -52,10 +55,35 @@ function createEventRows(events, host, playerCovers){
             }
         }
 
+        console.log(e);
+
+
+        if(e.type === "grab" || e.type === "pickup"){
+
+            if(lastFlagContact[e.player_id] === undefined){
+                lastFlagContact[e.player_id] = e.timestamp;
+            }else{
+                lastFlagContact[e.player_id] = e.timestamp;
+            }
+        }
+
+        let flagCarryTime = 0;
+
+        let carryPercentElem = null;
+
+        if(e.type === "drop" || e.type === "cap"){
+
+            flagCarryTime = e.timestamp - lastFlagContact[e.player_id];
+
+            carryPercentElem = <span className={styles.carry}>{flagCarryTime.toFixed(2)} Second Assist.</span>
+        }
+
+        
+
         rows.push(<tr key={i}>
             <td className={styles.time}>{Functions.MMSS(e.timestamp)}</td>
             <td>
-                <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} host={host}/><b>{player.name}</b></a></Link> {getDisplayText(e.type)}. {rewardElem}
+                <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} host={host}/><b>{player.name}</b></a></Link> {getDisplayText(e.type)}. {rewardElem}{carryPercentElem}
             </td>
         </tr>);
     }
