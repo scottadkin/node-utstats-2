@@ -39,11 +39,11 @@
 
 
 .wrapper table td{
-    padding:5px;
+    padding:8px;
 }
 
 .wrapper table td:nth-child(1){
-    text-align:right;
+    text-align:center;
     width:75px;
 }
 

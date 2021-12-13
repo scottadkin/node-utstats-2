@@ -75,10 +75,11 @@ function createEventRows(events, host, playerCovers){
 
             flagCarryTime = e.timestamp - lastFlagContact[e.player_id];
 
-            carryPercentElem = <span className={styles.carry}>{flagCarryTime.toFixed(2)} Second Assist.</span>
+            carryPercentElem = <span className={styles.carry}>{flagCarryTime.toFixed(2)} seconds carry time.</span>
         }
 
         
+        if(i === 0) continue;
 
         rows.push(<tr key={i}>
             <td className={styles.time}>{Functions.MMSS(e.timestamp)}</td>

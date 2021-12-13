@@ -13,6 +13,10 @@ class CTFManager{
 
         this.carryTimeFrames = []; 
 
+        this.ctf4Data = {
+            
+        };
+
         this.ctf = new CTF();
     }
 
@@ -264,10 +268,6 @@ class CTFManager{
             const f = flags[i];
 
             if(f.carriedBy === playerId){
-                //console.log(`Player ${playerId} dropped the ${i} flag`);
-
-                //console.log(this.getSelfCovers());
-
                 
                 f.dropTimes.push(timestamp);
                 f.dropIds.push(playerId);
@@ -304,6 +304,20 @@ class CTFManager{
 
             }
         }
+    }
+
+    updateCTF4Data(playerId, type, value){
+
+        if(this.ctf4Data[playerId] === undefined){
+
+            this.ctf4Data[playerId] = {
+                "caps": 0,
+                "assists": 0
+            };
+        }
+
+        this.ctf4Data[playerId][type] += value;
+
     }
 
     capFlags(playerId, timestamp, flags){
@@ -343,6 +357,23 @@ class CTFManager{
 
                 f.selfCoverTimes.push(...selfCoverTimes);
 
+                //Don't duplicate data for normal ctf as assist events are logged correctly
+                if(this.totalTeams > 2){
+
+                    for(let x = 0; x < f.dropIds.length; x++){
+
+                        if(f.dropIds[x] !== f.cap){
+
+                            const player = this.playerManager.getOriginalConnectionById(f.dropIds[x]);
+
+                            if(player !== null){
+
+                                this.updateCTF4Data(f.dropIds[x], "assists", 1);
+                            }
+                        }
+                    }
+                }
+
                 this.capData.push({
                     "team": playerTeam,
                     "flagTeam": i,
@@ -371,7 +402,13 @@ class CTFManager{
             }
         }
 
-        //console.log(`player = ${playerId} capped ${totalCapped} FLAGS`);
+        
+        if(totalCapped > 1){
+
+            this.updateCTF4Data(playerId, "caps", totalCapped - 1)
+
+        }
+
     }
 
 
@@ -741,6 +778,35 @@ class CTFManager{
 
                 f = this.flagLocations[i];
                 await this.ctf.insertFlagLocation(mapId, f.team, f.position);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+
+    async addCTF4Data(){
+
+        try{
+
+            console.log(this.ctf4Data);
+
+            for(const [playerId, data] of Object.entries(this.ctf4Data)){
+
+                const player = this.playerManager.getOriginalConnectionById(playerId);
+
+                //console.log(player);
+
+                if(player !== null){
+
+                    player.stats.ctf.capture += data.caps;
+                    player.stats.ctf.assist += data.assists;
+
+
+                }else{
+                    new Message("Player is null CTFManager.addCTF4Data()", "warning");
+                }
             }
 
         }catch(err){

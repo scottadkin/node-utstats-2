@@ -123,6 +123,7 @@ class MatchManager{
             
             if(this.CTFManager !== undefined){
 
+                this.CTFManager.totalTeams = this.gameInfo.totalTeams;
                 this.CTFManager.playerManager = this.playerManager;
                 this.CTFManager.bIgnoreBots = this.bIgnoreBots;
 
@@ -134,6 +135,7 @@ class MatchManager{
                     this.CTFManager.setPlayerStats();
                     await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
                     await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
+                    await this.CTFManager.addCTF4Data();
                    
 
                     new Message(`Capture The Flag stats update complete.`,'pass');
@@ -225,6 +227,7 @@ class MatchManager{
             }
 
             if(this.CTFManager !== undefined){
+
 
                 this.CTFManager.setSelfCovers(this.killManager);
                 await this.CTFManager.updatePlayersMatchStats();
