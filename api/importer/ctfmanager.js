@@ -139,10 +139,11 @@ class CTFManager{
 
                         
 
-                        //if(affectedFlags.length > 1){
+                        if(type === "capture"){
 
                             for(let x = 0; x < affectedFlags.length; x++){
 
+                                //dont cap the one that will be processed below twice
                                 if(x !== parseInt(result[5])){
                         
                                     this.events.push(
@@ -157,11 +158,11 @@ class CTFManager{
                                     );
                                 }
                             }
-                        //}
+                        }
                         
                     }
 
-                    if(type !== "captured" && type !== "dropped"){
+                   // if(type === "dropped"){
                         this.events.push(
                             {
                                 "timestamp": timestamp,
@@ -172,7 +173,7 @@ class CTFManager{
                                 "player": this.playerManager.getOriginalConnectionById(playerId)
                             }
                         );
-                    }
+                    //}
                     
 
                 }else if(type === "cover"){
