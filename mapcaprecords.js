@@ -40,7 +40,7 @@ function getMatchIds(mapFastestCaps){
     const mapIds = await ctfManager.getAllMapsWithCaps(); 
     new Message(`Found a total of ${mapIds.length} maps with ctf caps.`, "pass");
 
-    const mapFastestCaps = await ctfManager.getMapsCapRecords(mapIds);
+    const mapFastestCaps = await ctfManager.getAllMapFastestCaps(mapIds);
 
     const matchManager = new Matches();
 

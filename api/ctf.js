@@ -1199,6 +1199,66 @@ class CTF{
         };
     }
 
+
+    /**
+     * Fastest solo cap from ctf_caps not ctf_cap_records
+     */
+    async getMapFastestSoloCapALT(id){
+
+        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [id]);
+        
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
+    }
+
+    /**
+     * Fastest assist cap from ctf_caps not ctf_cap_records
+     */
+     async getMapFastestAssistCapALT(id){
+
+        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [id]);
+        
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
+    }
+
+    /**
+     * Get fastest times from ctf_caps instead ctf_cap_records
+     * used for getMapCapRecords.js
+     */
+    async getMapFastestCaps(id){
+
+        return {"solo": await this.getMapFastestSoloCapALT(id), "assisted": await this.getMapFastestAssistCapALT(id)};
+    }
+
+    /**
+     * Get fastest times from ctf_caps instead ctf_cap_records
+     * used for getMapCapRecords.js
+     */
+    async getAllMapFastestCaps(mapIds){
+
+        const records = {};
+
+        for(let i = 0; i < mapIds.length; i++){
+
+            const m = mapIds[i];
+
+            records[m] = await this.getMapFastestCaps(m);
+        }
+
+        return records;
+    }
+
     async getMapsCapRecords(mapIds){
 
         if(mapIds.length === 0) return {};
