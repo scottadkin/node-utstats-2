@@ -1047,7 +1047,7 @@ class CTF{
 
     async getMapFastestSoloCap(mapId){
 
-        const query = "SELECT match_id,cap,travel_time FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
+        const query = "SELECT match_id,cap,travel_time FROM nstats_ctf_cap_records WHERE map_id=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
 
         const data = await mysql.simpleQuery(query, [mapId]);
 
@@ -1058,7 +1058,7 @@ class CTF{
 
     async getMapFastestAssistCap(mapId){
 
-        const query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
+        const query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_cap_records WHERE map_id=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
 
         const data = await mysql.simpleQuery(query, [mapId]);
 
