@@ -13,6 +13,8 @@ class CTFManager{
 
         this.carryTimeFrames = []; 
 
+        this.currentFlagHolders = [null, null, null, null];
+
         this.ctf4Data = {
             
         };
@@ -39,6 +41,38 @@ class CTFManager{
 
         return null;
     }
+
+    resetCurrentFlags(playerId){
+
+        const affected = [];
+
+        for(let i = 0; i < this.currentFlagHolders.length; i++){
+
+            const current = this.currentFlagHolders[i];
+
+            if(current === playerId){
+                affected.push(i);
+                this.currentFlagHolders[i] = null;
+            }
+        }
+
+        return affected;
+       // console.log(this.currentFlagHolders);
+    }
+    
+    /*dropCurrentFlags(playerId){
+
+        for(let i = 0; i < this.currentFlagHolders.length; i++){
+
+            const current = this.currentFlagHolders[i];
+
+            if(current === playerId){
+                this.currentFlagHolders[i] = null;
+            }
+        }
+
+       //console.log(this.currentFlagHolders);
+    }*/
 
     parseData(killManager){
         
@@ -73,6 +107,8 @@ class CTFManager{
 
                         //console.log(result);
 
+                        this.currentFlagHolders[parseInt(result[5])] = playerId;
+
                         this.carryTimeFrames.push(
                             {
                                 "start": timestamp,
@@ -96,18 +132,48 @@ class CTFManager{
                             new Message(`CTFManager.parseData() currentTimeframe is null`,'warning');
                         }
 
+
+                        //if(type === "captured"){
+
+                        const affectedFlags = this.resetCurrentFlags(playerId);
+
+                        
+
+                        //if(affectedFlags.length > 1){
+
+                            for(let x = 0; x < affectedFlags.length; x++){
+
+                                if(x !== parseInt(result[5])){
+                        
+                                    this.events.push(
+                                        {
+                                            "timestamp": timestamp,
+                                            "type": type,
+                                            "playerId":playerId,
+                                            "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                            "flagTeam": x,
+                                            "player": this.playerManager.getOriginalConnectionById(playerId)
+                                        }
+                                    );
+                                }
+                            }
+                        //}
+                        
                     }
 
-                    this.events.push(
-                        {
-                            "timestamp": timestamp,
-                            "type": type,
-                            "playerId":playerId,
-                            "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
-                            "flagTeam": parseInt(result[5]),
-                            "player": this.playerManager.getOriginalConnectionById(playerId)
-                        }
-                    );
+                    if(type !== "captured" && type !== "dropped"){
+                        this.events.push(
+                            {
+                                "timestamp": timestamp,
+                                "type": type,
+                                "playerId":playerId,
+                                "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                "flagTeam": parseInt(result[5]),
+                                "player": this.playerManager.getOriginalConnectionById(playerId)
+                            }
+                        );
+                    }
+                    
 
                 }else if(type === "cover"){
 
@@ -181,6 +247,7 @@ class CTFManager{
 
         //console.table(this.events);
         //console.log(this.events);
+
         
     }
 
@@ -363,6 +430,11 @@ class CTFManager{
                     travelTime = timestamp - f.takenTimestamp;
                 }
 
+               // console.log(travelTime);
+                if(travelTime < 0){
+                   // console.log(f);
+                }
+
                 let pickupTime = f.takenTimestamp;
 
                 if(f.pickupTimes.length > 0){
@@ -394,7 +466,7 @@ class CTFManager{
                                 this.updateCTF4Data(f.dropIds[x], "assists", 1);
 
                                 ////add missing assist events
-                                this.events.push(
+                                /*this.events.push(
                                     {
                                         "timestamp": timestamp,
                                         "type": "assist",
@@ -403,14 +475,14 @@ class CTFManager{
                                         "flagTeam": i,
                                         "player": this.playerManager.getOriginalConnectionById(playerId)
                                     }
-                                );
+                                );*/
                             }
                         }
                     }
 
                     //add missing cap events
 
-                    if(!this.eventExists(timestamp, "captured", playerId, i)){
+                    /*if(!this.eventExists(timestamp, "captured", playerId, i)){
 
                         this.events.push(
                             {
@@ -422,7 +494,7 @@ class CTFManager{
                                 "player": this.playerManager.getOriginalConnectionById(playerId)
                             }
                         );
-                    }
+                    }*/
                 }
 
 
@@ -886,6 +958,8 @@ class CTFManager{
     }
 
     async updateMapCapRecords(mapId, matchId, date){
+
+        //console.log(this.capData);
 
         this.sortCapDataByTravelTime();
 
