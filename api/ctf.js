@@ -237,6 +237,7 @@ class CTF{
         }
     }
 
+
     async insertCapRecord(matchId, mapId, type, cap, date){
 
         const query = "INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?,?)";
@@ -327,16 +328,18 @@ class CTF{
 
         for(let i = 0; i < teams; i++){
 
-            teamsCapData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsGrabData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsPickupData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsDropData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsKillData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsAssistData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsCoverData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsReturnData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsSaveData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsSealData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            const teamName = Functions.getTeamName(i);
+
+            teamsCapData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsGrabData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsPickupData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsDropData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsKillData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsAssistData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsCoverData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsReturnData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsSaveData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsSealData.push({"name": teamName, "data": [], "lastValue": 0});
         }
 
         for(let i = 0; i < data.length; i++){
@@ -1167,7 +1170,7 @@ class CTF{
 
     async getMapAssistedCapRecord(mapId){
 
-        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time DESC LIMIT 1";
+        const query = "SELECT * FROM nstats_ctf_cap_records WHERE map_id=? AND assists!='' ORDER BY travel_time DESC LIMIT 1";
 
         const result = await mysql.simpleQuery(query, [mapId]);
 
@@ -1178,7 +1181,7 @@ class CTF{
 
     async getMapSoloCapRecord(mapId){
 
-        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time DESC LIMIT 1";
+        const query = "SELECT * FROM nstats_ctf_cap_records WHERE map_id=? AND assists='' ORDER BY travel_time DESC LIMIT 1";
 
         const result = await mysql.simpleQuery(query, [mapId]);
 

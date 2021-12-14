@@ -1676,6 +1676,7 @@ class PlayerManager{
 
         const masterIds = this.getOriginalMasterIds(playerIds);
 
+        
         const correctPlayerIds = [];
 
         for(let i = 0; i < playerIds.length; i++){

@@ -549,26 +549,7 @@ class CTFManager{
         //console.log(flags);
         //console.log(flags.length);
         //console.log(this.capData);
-        //console.log(this.capData.length);
-
-        let fastestSolo = null;
-        let fastestAssist = null;
-
-        this.capData.sort((a, b) =>{
-
-            a = a.travelTime;
-            b = b.travelTime;
-
-            if(a < b){
-                return -1;
-            }else if(a > b){
-                return 1;
-            }
-
-            return 0;
-        });
-
-        
+        //console.log(this.capData.length);        
     }
 
     getMatchingPickupId(pickups, player, timestamp){
@@ -886,6 +867,75 @@ class CTFManager{
         }
     }
 
+    sortCapDataByTravelTime(){
+
+        this.capData.sort((a, b) =>{
+
+            a = a.travelTime;
+            b = b.travelTime;
+
+            if(a < b){
+                return -1;
+            }else if(a > b){
+                return 1;
+            }
+
+            return 0;
+        });
+
+    }
+
+    async updateMapCapRecords(mapId, matchId, date){
+
+        this.sortCapDataByTravelTime();
+
+        let bestSoloCap = null;
+        let bestAssistCap = null;
+
+        for(let i = 0; i < this.capData.length; i++){
+
+            const c = this.capData[i];
+
+            if(c.assists.length === 0){
+
+                if(bestSoloCap === null || bestSoloCap.travelTime > c.travelTime){
+
+                    bestSoloCap = c;
+                }
+
+            }else{
+
+                if(bestAssistCap === null || bestAssistCap.travelTime > c.travelTime){
+                    bestAssistCap = c;
+                }
+            }
+        }
+
+        if(bestSoloCap !== null){
+
+            const capPlayer = this.playerManager.toMasterIds([bestSoloCap.cap]);
+            const grabPlayer = this.playerManager.toMasterIds([bestSoloCap.grab]);
+        
+            bestSoloCap.cap = capPlayer[0];
+            bestSoloCap.grab = grabPlayer[0];
+            
+            await this.ctf.updateCapRecord(matchId, mapId, 0, bestSoloCap, date);
+            
+        }
+
+        if(bestAssistCap !== null){
+
+            const capPlayer = this.playerManager.toMasterIds([bestAssistCap.cap]);
+            const grabPlayer = this.playerManager.toMasterIds([bestAssistCap.grab]);
+            const assistPlayers = this.playerManager.toMasterIds(bestAssistCap.assists);
+        
+            bestAssistCap.cap = capPlayer[0];
+            bestAssistCap.grab = grabPlayer[0];
+            bestAssistCap.assists = assistPlayers;
+            
+            await this.ctf.updateCapRecord(matchId, mapId, 1, bestAssistCap, date);
+        }
+    }
 }
 
 
