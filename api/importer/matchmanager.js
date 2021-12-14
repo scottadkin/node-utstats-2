@@ -132,6 +132,7 @@ class MatchManager{
                     // console.table(this.CTFManager.data);
                     
                     this.CTFManager.parseData(this.killManager);
+                    this.CTFManager.createCapData();
                     this.CTFManager.setPlayerStats();
                     await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
                     await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);

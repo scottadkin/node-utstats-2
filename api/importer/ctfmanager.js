@@ -181,7 +181,6 @@ class CTFManager{
 
         //console.table(this.events);
         //console.log(this.events);
-        this.createCapData();
         
     }
 
@@ -262,6 +261,7 @@ class CTFManager{
 
     dropFlags(playerId, timestamp, flags){
 
+        let totalDropped = 0;
 
         for(let i = 0; i < flags.length; i++){
 
@@ -287,23 +287,24 @@ class CTFManager{
 
                 const selfCoverTimes = this.getSelfCoversBetween(playerId, pickupTime, timestamp);
 
-                //console.log(pickupTime, timestamp);
-                //console.log(selfCoverTimes);
-
-
                 for(let i = 0; i < selfCoverTimes.length; i++){
                     f.selfCovers.push(playerId);
                 }
 
-
                 f.selfCoverTimes.push(...selfCoverTimes);
-
-                //console.log(`pickupTime = ${pickupTime} drop time ${timestamp} carryTime ${carryTime}`);
 
                 f.assistTimes.push(parseFloat(carryTime.toString(2)));
 
+                totalDropped++;
+
             }
         }
+
+        /*if(totalDropped > 1){
+
+            this.updateCTF4Data(playerId, "drops", totalDropped - 1);
+        }*/
+
     }
 
     updateCTF4Data(playerId, type, value){
@@ -312,12 +313,33 @@ class CTFManager{
 
             this.ctf4Data[playerId] = {
                 "caps": 0,
-                "assists": 0
+                "assists": 0,
+                "drops": 0
             };
         }
 
         this.ctf4Data[playerId][type] += value;
 
+    }
+
+
+    eventExists(timestamp, type, playerId, flagTeam){
+
+        for(let i = 0; i < this.events.length; i++){
+
+            const e = this.events[i];
+
+            if(e.timestamp > timestamp) return false;
+
+            if(e.type === type){
+                
+                if(e.flagTeam === flagTeam && e.playerId === playerId){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     capFlags(playerId, timestamp, flags){
@@ -360,6 +382,7 @@ class CTFManager{
                 //Don't duplicate data for normal ctf as assist events are logged correctly
                 if(this.totalTeams > 2){
 
+                    //count multiple assists
                     for(let x = 0; x < f.dropIds.length; x++){
 
                         if(f.dropIds[x] !== f.cap){
@@ -369,10 +392,40 @@ class CTFManager{
                             if(player !== null){
 
                                 this.updateCTF4Data(f.dropIds[x], "assists", 1);
+
+                                ////add missing assist events
+                                this.events.push(
+                                    {
+                                        "timestamp": timestamp,
+                                        "type": "assist",
+                                        "playerId": playerId,
+                                        "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                        "flagTeam": i,
+                                        "player": this.playerManager.getOriginalConnectionById(playerId)
+                                    }
+                                );
                             }
                         }
                     }
+
+                    //add missing cap events
+
+                    if(!this.eventExists(timestamp, "captured", playerId, i)){
+
+                        this.events.push(
+                            {
+                                "timestamp": timestamp,
+                                "type": "captured",
+                                "playerId": playerId,
+                                "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                "flagTeam": i,
+                                "player": this.playerManager.getOriginalConnectionById(playerId)
+                            }
+                        );
+                    }
                 }
+
+
 
                 this.capData.push({
                     "team": playerTeam,
@@ -497,6 +550,25 @@ class CTFManager{
         //console.log(flags.length);
         //console.log(this.capData);
         //console.log(this.capData.length);
+
+        let fastestSolo = null;
+        let fastestAssist = null;
+
+        this.capData.sort((a, b) =>{
+
+            a = a.travelTime;
+            b = b.travelTime;
+
+            if(a < b){
+                return -1;
+            }else if(a > b){
+                return 1;
+            }
+
+            return 0;
+        });
+
+        
     }
 
     getMatchingPickupId(pickups, player, timestamp){
@@ -790,7 +862,6 @@ class CTFManager{
 
         try{
 
-            console.log(this.ctf4Data);
 
             for(const [playerId, data] of Object.entries(this.ctf4Data)){
 
@@ -802,6 +873,7 @@ class CTFManager{
 
                     player.stats.ctf.capture += data.caps;
                     player.stats.ctf.assist += data.assists;
+                    //player.stats.ctf.dropped += data.drops;
 
 
                 }else{
