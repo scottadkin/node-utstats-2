@@ -1,7 +1,6 @@
 import styles from './MatchFragTable.module.css';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
-import MMSS from '../MMSS/';
 import Functions from '../../api/functions';
 import React from 'react';
 import Table2 from '../Table2';
@@ -75,7 +74,7 @@ const MatchFragTable = ({host, players, team, matchStart, toDisplay, matchId, si
                     <CountryFlag key={`frag_country__${team}_${i}`} host={host} country={p.country} />
                     <Link href={`/pmatch/${matchId}/?player=${p.player_id}`}><a>{p.name}</a></Link>
                 </td>}
-                <td><MMSS key={`frag_playtime__${team}_${i}`} timestamp={p.playtime} /></td>
+                <td style={(single) ? {textAlign: "center"} : {} }>{Functions.MMSS(p.playtime)}</td>
                 <td>{Functions.ignore0(p.score)}</td>
                 <td>{Functions.ignore0(p.frags)}</td>
                 <td>{Functions.ignore0(p.kills)}</td>
@@ -100,7 +99,7 @@ const MatchFragTable = ({host, players, team, matchStart, toDisplay, matchId, si
     if(!single){
         elems.push(<tr key={`frag_tr_total__${team}`} className={`${styles.totals}`}>
             <td className="text-left">Totals</td>
-            <td><MMSS key={`frag_country__${team}_total`} timestamp={totalPlaytime} /></td>
+            <td>{Functions.MMSS(totalPlaytime)}</td>
             <td>{Functions.ignore0(totalScore)}</td>
             <td>{Functions.ignore0(totalFrags)}</td>
             <td>{Functions.ignore0(totalKills)}</td>

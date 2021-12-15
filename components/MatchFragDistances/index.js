@@ -74,7 +74,7 @@ const MatchFragDistances = ({host, players, team, toDisplay, single, matchId}) =
                 <td className={`text-left name-td ${bgColor}`}>
                     <Link href={`/pmatch/${matchId}?player=${p.player_id}`}><a><CountryFlag host={host} country={p.country}/>{p.name}</a></Link>
                 </td>}
-                <td>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
+                <td style={(single) ? {textAlign: "center"} : {} }>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
                 <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>
                 <td>{Functions.ignore0(p.longest_kill_distance.toFixed(2))}</td>
                 {(toDisplay.indexOf("k_distance_normal") !== -1) ?  <td>{Functions.ignore0(p.k_distance_normal)}</td> : null }

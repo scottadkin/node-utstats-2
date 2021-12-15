@@ -55,8 +55,6 @@ function createEventRows(events, host, playerCovers, matchId){
             }
         }
 
-        console.log(e);
-
 
         if(e.type === "grab" || e.type === "pickup"){
 
@@ -97,7 +95,7 @@ function createEventRows(events, host, playerCovers, matchId){
 }
 
 const MatchCTFCap = ({matchId, team, carryTime, totalTeams, 
-    teamScores, host, events, timeDropped, flagTeam, matchId}) =>{
+    teamScores, host, events, timeDropped, flagTeam}) =>{
 
 
     const grabPlayer = events[0].player;
