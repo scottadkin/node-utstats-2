@@ -23,7 +23,7 @@ import Teams from '../../api/teams';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
-import Graph from '../../components/Graph/';
+//import Graph from '../../components/Graph/';
 //import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import MatchKillsMatchUpAlt from '../../components/MatchKillsMatchUpAlt/';
 import Functions from '../../api/functions';
@@ -210,7 +210,9 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     }
 
     if(pageSettings["Display Capture The Flag Times"] === "true"){
-        elems.push(<MatchCTFCapTimes key={`match-ctf-caps`} players={JSON.parse(playerNames)} matchId={parsedInfo.id} mapId={parsedInfo.map} host={imageHost} matchStart={parsedInfo.start}/>);
+        elems.push(<MatchCTFCapTimes key={`match-ctf-caps`} players={JSON.parse(playerNames)} matchId={parsedInfo.id} mapId={parsedInfo.map} 
+            host={imageHost} matchStart={parsedInfo.start}
+        />);
     }
 
     if(pageSettings["Display Capture The Flag Graphs"] === "true"){
@@ -223,7 +225,9 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     const bAssaultGame = bAssault(gametype);
 
     if(!bDom && !bAssaultGame){
-        elems.push(<MatchCTFCapsNew host={imageHost} key="ctf-caps" players={JSON.parse(playerNames)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}/>);
+        elems.push(<MatchCTFCapsNew host={imageHost} key="ctf-caps" players={JSON.parse(playerNames)} 
+            totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}
+        />);
     }
 
 

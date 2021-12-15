@@ -302,6 +302,7 @@ class MatchCTFCapsNew extends React.Component{
                     flagTeam={d.flag_team}
                     team={d.team}
                     seals={d.total_seals}
+                    matchId={this.props.matchId}
                 />);
             }
             

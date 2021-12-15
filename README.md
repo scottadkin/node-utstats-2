@@ -10,6 +10,7 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Ranking system
 - Records system
 - Maps system
+- Cap records for ctf maps
 - User Accounts (in future builds you will be able to save matches, players to your favourites for easy tracking)
 - Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images.
 - **Classic Support** You can now connect to classic utstats databases.
@@ -22,6 +23,7 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Assault
 - Last Man Standing
 - MonsterHunt
+- CTF4
 
 ## Thanks to
 - Many thanks to the original creators of the UTStats mutators **azazel, )°DoE°(-AnthraX and toa**

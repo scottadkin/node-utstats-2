@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Functions from '../../api/functions';
 import MatchResultSmall from '../MatchResultSmall';
 
-function createAssistElem(assists, host){
+function createAssistElem(assists, host, matchId){
 
     if(assists.length === 0) return null;
 
@@ -15,7 +15,9 @@ function createAssistElem(assists, host){
 
         const a = assists[i];
 
-        elems.push(<span key={i}><Link href={`/player/${a.id}`}><a><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</a></Link></span>);
+        elems.push(<span key={i}>
+            <Link href={`/pmatch/${matchId}?player=${a.id}`}><a><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</a></Link>
+        </span>);
     }
 
     return <div className={styles.assists}>
@@ -26,7 +28,7 @@ function createAssistElem(assists, host){
 
 const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlayer, host, 
     dropTime, travelTime, grabTime, capTime, assistPlayers, totalTeams, teamScores, flagTeam, 
-    team, seals}) =>{
+    team, seals, matchId}) =>{
 
 
     let coversElem = null;
@@ -99,7 +101,7 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
             greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}/>
         </div>
         <div className={styles.event}>
-            Flag Taken by <Link href={`/player/${grabPlayer.id}`}><a><CountryFlag country={grabPlayer.country} host={host}/>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
+            Flag Taken by <Link href={`/pmatch/${matchId}?player=${grabPlayer.id}`}><a><CountryFlag country={grabPlayer.country} host={host}/>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
         </div>
 
         <div className={styles.box}>
@@ -124,9 +126,9 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
         {selfCoversElem}
         {timesDroppedElem}
         <div className={styles.event}>
-            Flag Captured by <Link href={`/player/${capPlayer.id}`}><a><CountryFlag country={capPlayer.country} host={host}/>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
+            Flag Captured by <Link href={`/pmatch/${matchId}?player=${capPlayer.id}`}><a><CountryFlag country={capPlayer.country} host={host}/>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
         </div>
-        {createAssistElem(assistPlayers, host)}
+        {createAssistElem(assistPlayers, host, matchId)}
     </div>
 }
 

@@ -229,7 +229,7 @@ class MatchCTFCapTimes extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{Functions.MMSS(m.cap_time - this.props.matchStart)}</td>
-                <td><Link href={`/player/${capPlayer.id}`}><a><CountryFlag host={this.props.host} country={capPlayer.country}/>{capPlayer.name}</a></Link></td>
+                <td><Link href={`/pmatch/${this.props.matchId}?player=${capPlayer.id}`}><a><CountryFlag host={this.props.host} country={capPlayer.country}/>{capPlayer.name}</a></Link></td>
                 {(this.state.mode === 2) ? <TrueFalse bTable={true} value={bSolo} tDisplay={"Solo"} fDisplay={"Assisted"}/> : null}
                 <td>{m.travel_time.toFixed(2)} Seconds</td>
                 <td className={deltaClass}>{delta}</td>

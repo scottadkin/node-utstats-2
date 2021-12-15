@@ -23,7 +23,7 @@ function getDisplayText(type){
 
 }
 
-function createEventRows(events, host, playerCovers){
+function createEventRows(events, host, playerCovers, matchId){
 
     const rows = [];
 
@@ -84,7 +84,11 @@ function createEventRows(events, host, playerCovers){
         rows.push(<tr key={i}>
             <td className={styles.time}>{Functions.MMSS(e.timestamp)}</td>
             <td>
-                <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} host={host}/><b>{player.name}</b></a></Link> {getDisplayText(e.type)}. {rewardElem}{carryPercentElem}
+                <Link href={`/pmatch/${matchId}?player=${player.id}`}>
+                    <a>
+                        <CountryFlag country={player.country} host={host}/><b>{player.name}</b>
+                    </a>
+                </Link> {getDisplayText(e.type)}. {rewardElem}{carryPercentElem}
             </td>
         </tr>);
     }
@@ -93,7 +97,7 @@ function createEventRows(events, host, playerCovers){
 }
 
 const MatchCTFCap = ({matchId, team, carryTime, totalTeams, 
-    teamScores, host, events, timeDropped, flagTeam}) =>{
+    teamScores, host, events, timeDropped, flagTeam, matchId}) =>{
 
 
     const grabPlayer = events[0].player;
@@ -103,9 +107,7 @@ const MatchCTFCap = ({matchId, team, carryTime, totalTeams,
 
     const playerCovers = {};
 
-    const rows = createEventRows(events, host, playerCovers);
-
-    console.log(playerCovers);
+    const rows = createEventRows(events, host, playerCovers, matchId);
 
     const travelTime = events[events.length - 1].timestamp - events[0].timestamp;
 
@@ -122,7 +124,7 @@ const MatchCTFCap = ({matchId, team, carryTime, totalTeams,
 
     if(events.length === 2){
         elems = <div className={styles.event}>
-            Solo Cap by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/player/${capPlayer.id}`}><a>{capPlayer.name}</a></Link><br/><br/>
+            Solo Cap by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/pmatch/${matchId}?player=${capPlayer.id}`}><a>{capPlayer.name}</a></Link><br/><br/>
             Grabbed at <span className={styles.time}>{Functions.MMSS(grabTime)}</span>, capped at <span className={styles.time}>{Functions.MMSS(capTime)}</span>
         </div>
     }else{
