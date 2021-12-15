@@ -42,7 +42,6 @@ class CTFMapRecords extends React.Component{
 
                 this.setState({"caps": res.data, "matchDates": res.matchDates, "playerNames": res.playerNames});
             }
-            console.log(res);
 
         }catch(err){
             console.trace(err);
@@ -150,7 +149,7 @@ class CTFMapRecords extends React.Component{
             }
 
             rows.push(<tr key={i}>
-                <td className="text-left"><Link href={`/map/${data.map}`}><a>{m.name}</a></Link></td>
+                <td className="text-left"><Link href={`/map/${data.map_id}`}><a>{m.name}</a></Link></td>
                 <td><Link href={`/match/${data.match_id}`}><a>{Functions.convertTimestamp(this.getDate(data.match_id), true)}</a></Link></td>
                 {(this.state.mode === 1) ? <td>{assistElems}</td> : null }
                 <td>
