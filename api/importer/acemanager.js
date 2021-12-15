@@ -2,6 +2,7 @@ const ACE = require('../ace');
 const fs = require('fs');
 const config = require('../../config.json');
 const geoip = require('geoip-lite');
+const Message = require('../message');
 
 
 class AceManager{
@@ -22,6 +23,9 @@ class AceManager{
     }
 
     async importPlayerJoins(fileName, lines){
+
+        console.log(fileName);
+        console.log(lines);
 
         const joins = this.parseJoinLog(lines);
 
@@ -46,7 +50,7 @@ class AceManager{
 
     parseJoinLog(lines){
 
-        const reg = /^\[(.+?)\]: \[(.+?)\]: \[(.+)\](.+?)$/i;
+        const reg = /^\[(.+?)\]: \[(.+?)\]: \[(.+?)\](.+)$/i;
 
         const joins = [];
 
@@ -63,15 +67,20 @@ class AceManager{
             
                 const current = joins[joins.length - 1];
 
-                let currentData = result[4].trim();
+                if(current !== undefined){
 
-                if(type === "time"){
-             
-                    currentData = this.ace.convertTimeStamp(currentData);
+                    let currentData = result[4].trim();
 
+                    if(type === "time"){    
+                        currentData = this.ace.convertTimeStamp(currentData);
+                    }
+
+                    current[type] = currentData;
+                    
+                }else{
+
+                    new Message(`current is NULL acemanager.parsejoinlog()`,"warning");
                 }
-    
-                current[type] = currentData;
             }
         }
         return joins;
