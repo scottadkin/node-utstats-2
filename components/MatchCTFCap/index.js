@@ -3,137 +3,160 @@ import CountryFlag from '../CountryFlag';
 import Functions from '../../api/functions';
 import MatchResultSmall from '../MatchResultSmall';
 import Link from 'next/link';
+import Table2 from '../Table2';
 
-const MatchCTFCap = ({matchId, team, grabPlayer, grabTime, capPlayer, capTime, 
-    coverPlayers, dropTime, travelTime, carryTime, assistPlayers, totalTeams, 
-    teamScores, selfCovers, host}) =>{
+function getDisplayText(type){
 
-    const coverElems = [];
-    const assistElems = [];
-    const selfCoverElems = [];
+    const text = {
+        "grab": "Grabbed the Flag",
+        "cap": "Capped the Flag",
+        "cover": "Covered the Flag Carrier",
+        "drop": "Dropped the Flag",
+        "self_cover": "Killed while carrying the Flag",
+        "pickup": "Picked up the Flag",
+        "seal": "Sealed off the Base"
+    };
 
-    for(let i = 0; i < coverPlayers.length; i++){
+    if(text[type] !== undefined) return text[type];
 
-        const c = coverPlayers[i];
+    return "Not Found!";
 
-        coverElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${c.player.id}`}><a><CountryFlag host={host} country={c.player.country}/>{c.player.name}</a></Link></td> 
-            <td>{c.covers}</td>
-        </tr>);
-    }
+}
 
-    for(let i = 0; i < assistPlayers.length - 1; i++){
+function createEventRows(events, host, playerCovers){
 
-        const c = assistPlayers[i];
+    const rows = [];
 
-        const carryPercent = (c.carryTime > 0) ? (c.carryTime / carryTime) * 100 : 0;
+    const lastFlagContact = {};
+
+    for(let i = 0; i < events.length; i++){
+
+        const e = events[i];
+        const player = e.player;
         
-        assistElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${c.player.id}`}><a><CountryFlag host={host} country={c.player.country}/>{c.player.name}</a></Link></td>
-            <td>{parseFloat(c.carryTime).toFixed(2)} Secs <span className={styles.carryp}>({carryPercent.toFixed(2)}%)</span></td>
+
+        if(e.type === "cover"){
+
+            if(playerCovers[player.id] === undefined) playerCovers[player.id] = 0;
+
+            playerCovers[player.id]++;
+        }
+
+        let rewardElem = null;
+
+        if(e.type === "cover"){
+
+            if(playerCovers[player.id] === 3){
+
+                rewardElem = <span className="yellow">(Multi Cover)</span>;
+
+            }else if(playerCovers[player.id] === 4){
+                rewardElem = <span className="yellow">(Cover Spree)</span>;
+            }
+        }
+
+        console.log(e);
+
+
+        if(e.type === "grab" || e.type === "pickup"){
+
+            if(lastFlagContact[e.player_id] === undefined){
+                lastFlagContact[e.player_id] = e.timestamp;
+            }else{
+                lastFlagContact[e.player_id] = e.timestamp;
+            }
+        }
+
+        let flagCarryTime = 0;
+
+        let carryPercentElem = null;
+
+        if(e.type === "drop" || e.type === "cap"){
+
+            flagCarryTime = e.timestamp - lastFlagContact[e.player_id];
+
+            carryPercentElem = <span className={styles.carry}>{flagCarryTime.toFixed(2)} seconds carry time.</span>
+        }
+
+        
+        if(i === 0) continue;
+
+        rows.push(<tr key={i}>
+            <td className={styles.time}>{Functions.MMSS(e.timestamp)}</td>
+            <td>
+                <Link href={`/player/${player.id}`}><a><CountryFlag country={player.country} host={host}/><b>{player.name}</b></a></Link> {getDisplayText(e.type)}. {rewardElem}{carryPercentElem}
+            </td>
         </tr>);
     }
 
-    for(let i = 0; i < selfCovers.length; i++){
+    return rows;
+}
 
-        const s = selfCovers[i];
+const MatchCTFCap = ({matchId, team, carryTime, totalTeams, 
+    teamScores, host, events, timeDropped, flagTeam}) =>{
 
-        selfCoverElems.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${s.player.id}`}><a><CountryFlag host={host} country={s.player.country}/>{s.player.name}</a></Link></td>
-            <td>{s.kills}</td>
-        </tr>);
+
+    const grabPlayer = events[0].player;
+    const grabTime = events[0].timestamp;
+    const capPlayer = events[events.length - 1].player;
+    const capTime = events[events.length - 1].timestamp;
+
+    const playerCovers = {};
+
+    const rows = createEventRows(events, host, playerCovers);
+
+    console.log(playerCovers);
+
+    const travelTime = events[events.length - 1].timestamp - events[0].timestamp;
+
+    let elems = null;
+
+    const flagDroppedTime = null;
+
+    if(timeDropped > 0){
+
+        flagDroppedTime = <div className={styles.event}>
+            Flag Was Dropped for <span className={styles.time}>{timeDropped.toFixed(2)} Seconds.</span>
+        </div>
     }
 
-    dropTime = (dropTime > 0) ? `${dropTime.toFixed(2)} Seconds` : "None";
+    if(events.length === 2){
+        elems = <div className={styles.event}>
+            Solo Cap by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/player/${capPlayer.id}`}><a>{capPlayer.name}</a></Link><br/><br/>
+            Grabbed at <span className={styles.time}>{Functions.MMSS(grabTime)}</span>, capped at <span className={styles.time}>{Functions.MMSS(capTime)}</span>
+        </div>
+    }else{
 
-    if(assistElems.length === 0){
-        assistElems.push(<tr key="an"><td colSpan="2">None</td></tr>);
-    }
-
-    if(coverElems.length === 0){
-        coverElems.push(<tr key="cn"><td colSpan="2">None</td></tr>);
-    }
-
-    const capCarryTime = assistPlayers[assistPlayers.length - 1].carryTime;
-    const capCarryPercent = (parseFloat(capCarryTime) / carryTime) * 100;
-
-
-
-    const coverAssistsElem = <div className={styles.ca}>
-            <div className={styles.p1}>
-                <div className={styles.label2}>Covers</div>
-                <div className={styles.pwrapper}>
-                    <table className={styles.table}>
-                        <tbody>
-                            {coverElems}
-                        </tbody>
-                    </table>
-                </div>
+        elems = <>
+            <div className={styles.event}>
+                Flag Taken by <CountryFlag country={grabPlayer.country} host={host}/><Link href={`/player/${grabPlayer.id}`}><a>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
             </div>
-            <div className={styles.p1}>
-                <div className={styles.label2}>Assists</div>
-                <div className={styles.pwrapper}>
-                    <table className={styles.table}>
-                        <tbody>
-                            {assistElems}
-                        </tbody>
-                    </table>
-                </div>
+            <Table2 width={1}>
+                {rows}
+            </Table2>
+            <div className={styles.event}>
+                Flag Capped by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/player/${capPlayer.id}`}><a>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
             </div>
-        </div>;
-  
-    const selfCoverElem = (selfCoverElems.length === 0) ? null : <div className={styles.scovers}>
-        <div className={styles.label2}>Kills While Carrying Flag</div>
-        <table className="t-width-2">
-            <tbody>
-                {selfCoverElems}
-            </tbody>
-        </table>
-    </div>;
-
+        </>
+    }
 
     return <div className={styles.wrapper}>
-        <div className={`${styles.title} ${Functions.getTeamColor(team)}`}>{Functions.getTeamName(team)} Scored!</div>
+        <div className={`${styles.smessage} ${Functions.getTeamColor(team)}`}>
+            {Functions.getTeamName(team)} {(totalTeams <= 2) ? "Scored" : <>Capped the {Functions.getTeamColorName(flagTeam)} Flag</>}
+        </div>
         <div className={styles.scores}>
-            <MatchResultSmall totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
-                greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}
-            />
+            <MatchResultSmall totalTeams={totalTeams} totalTeams={totalTeams} redScore={teamScores[0]} blueScore={teamScores[1]}
+                greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}/>
         </div>
-        <div className={styles.grab}>
-            <div className={styles.label}>Taken By</div> <Link href={`/pmatch/${matchId}?player=${grabPlayer.id}`}>
-                <a><CountryFlag host={host} country={grabPlayer.country}/>{grabPlayer.name}</a></Link> at <span className="yellow">
-                {Functions.MMSS(grabTime)}</span>
-        </div>
-        {coverAssistsElem}
+        
 
-        {selfCoverElem}
-
-        <div className={styles.grab}>
-            <div className={styles.label}>Capped By </div> <Link href={`/pmatch/${matchId}?player=${capPlayer.id}`}>
-                <a>
-                    <CountryFlag host={host} country={capPlayer.country}/>{capPlayer.name}
-                </a>
-                </Link> at <span className="yellow">{Functions.MMSS(capTime)}</span>
-            <br/><span className="yellow">Carrytime</span> {capCarryTime} Secs <span className={styles.carryp}>({capCarryPercent.toFixed(2)}%)</span>
-
+        {elems}
+        <div className={styles.event}>
+            Flag Travel Time <span className={styles.time}>{travelTime.toFixed(2)} Seconds.</span>
         </div>
-        <div className={styles.times}>
-            <div>
-                <div className={styles.label2}>Travel Time</div>
-                {travelTime.toFixed(2)} Seconds
-            </div>
-            <div>
-                <div className={styles.label2}>Carry Time</div>
-                {carryTime.toFixed(2)} Seconds
-            </div>
-            
-            <div>
-                <div className={styles.label2}>Time Dropped</div>
-                {dropTime}
-            </div>
-        </div>
+        {flagDroppedTime}
+
     </div>
-
 
 }
 

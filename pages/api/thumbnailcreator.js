@@ -21,7 +21,7 @@ const createThumbnail = (url, fileName) =>{
     });
 }
 
-export default (req, res) =>{
+export default function handler(req, res){
 
     return new Promise(async (resolve, reject) =>{
 

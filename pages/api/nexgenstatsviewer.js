@@ -1,7 +1,7 @@
 import Promise from 'promise';
 import NexgenStatsViewer from '../../api/nexgenstatsviewer';
 
-export default (req, res) =>{
+export default function handler(req, res){
 
 
     return new Promise(async (resolve, reject) =>{

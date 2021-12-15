@@ -133,13 +133,43 @@ class CTF{
         });
     }
 
-    async insertCap(matchId, matchDate, mapId, team, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, assistsTimes, carryIds, cap, 
-        capTime, travelTime, selfCovers, selfCoversCount){
+    calculateTimeDropped(dropTimes, pickupTimes){
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        let timeDropped = 0;
+
+        if(dropTimes.length === 0) return 0;
+
+        for(let i = 0; i < pickupTimes.length; i++){
+
+            timeDropped += pickupTimes[i] - dropTimes[i];
+
+        }
+
+
+        return parseFloat(timeDropped.toFixed(2));
+    }
+
+    async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
+        assistsTimes, carryIds, cap, 
+        capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes){
+
+        const totalDrops = drops.length;
+        const totalCovers = covers.length;
+        const totalSelfCovers = selfCovers.length;
+        const totalSeals = seals.length;
+        const totalPickups = pickups.length;
+        const totalAssists = carryIds.length;
+        const totalUniqueAssists = assists.length;
+
+        const timeDropped = this.calculateTimeDropped(dropTimes, pickupTimes);
+        const carryTime = parseFloat(travelTime) - timeDropped;
+
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
         const vars = [matchId, mapId, team, grabTime, grab, drops.toString(), dropTimes.toString(), pickups.toString(), pickupTimes.toString(), 
             covers.toString(), coverTimes.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime,
-            selfCovers.toString(), selfCoversCount.toString()];
+            selfCovers.toString(), selfCoversCount.toString(), seals.toString(), sealTimes.toString(), flagTeam, totalDrops, totalCovers, 
+            totalSelfCovers, totalPickups, totalAssists, totalUniqueAssists, totalSeals, timeDropped, carryTime];
 
         let type = 0;
 
@@ -207,6 +237,7 @@ class CTF{
         }
     }
 
+
     async insertCapRecord(matchId, mapId, type, cap, date){
 
         const query = "INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?,?)";
@@ -219,8 +250,9 @@ class CTF{
     async getMatchCaps(matchId){
 
         const query = `SELECT team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,
-        assist_carry_ids,cap,cap_time,travel_time,self_covers,self_covers_count
-        FROM nstats_ctf_caps WHERE match_id=?`;
+        assist_carry_ids,cap,cap_time,travel_time,self_covers,self_covers_times,flag_team,total_drops,total_covers,total_self_covers,
+        total_pickups,total_assists,total_unique_assists,total_seals,time_dropped,carry_time,seals,seal_times
+        FROM nstats_ctf_caps WHERE match_id=? ORDER BY grab_time ASC`;
 
         return await mysql.simpleQuery(query, [matchId]);
     }
@@ -296,16 +328,18 @@ class CTF{
 
         for(let i = 0; i < teams; i++){
 
-            teamsCapData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsGrabData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsPickupData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsDropData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsKillData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsAssistData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsCoverData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsReturnData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsSaveData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
-            teamsSealData.push({"name": Functions.getTeamName(i), "data": [], "lastValue": 0});
+            const teamName = Functions.getTeamName(i);
+
+            teamsCapData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsGrabData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsPickupData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsDropData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsKillData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsAssistData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsCoverData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsReturnData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsSaveData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsSealData.push({"name": teamName, "data": [], "lastValue": 0});
         }
 
         for(let i = 0; i < data.length; i++){
@@ -1013,7 +1047,7 @@ class CTF{
 
     async getMapFastestSoloCap(mapId){
 
-        const query = "SELECT match_id,cap,travel_time FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
+        const query = "SELECT match_id,cap,travel_time FROM nstats_ctf_cap_records WHERE map_id=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
 
         const data = await mysql.simpleQuery(query, [mapId]);
 
@@ -1024,7 +1058,7 @@ class CTF{
 
     async getMapFastestAssistCap(mapId){
 
-        const query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
+        const query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_cap_records WHERE map_id=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
 
         const data = await mysql.simpleQuery(query, [mapId]);
 
@@ -1136,7 +1170,7 @@ class CTF{
 
     async getMapAssistedCapRecord(mapId){
 
-        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time DESC LIMIT 1";
+        const query = "SELECT * FROM nstats_ctf_cap_records WHERE map_id=? AND assists!='' ORDER BY travel_time DESC LIMIT 1";
 
         const result = await mysql.simpleQuery(query, [mapId]);
 
@@ -1147,7 +1181,7 @@ class CTF{
 
     async getMapSoloCapRecord(mapId){
 
-        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time DESC LIMIT 1";
+        const query = "SELECT * FROM nstats_ctf_cap_records WHERE map_id=? AND assists='' ORDER BY travel_time DESC LIMIT 1";
 
         const result = await mysql.simpleQuery(query, [mapId]);
 
@@ -1163,6 +1197,66 @@ class CTF{
             "solo": await this.getMapSoloCapRecord(id),
             "assisted": await this.getMapAssistedCapRecord(id)
         };
+    }
+
+
+    /**
+     * Fastest solo cap from ctf_caps not ctf_cap_records
+     */
+    async getMapFastestSoloCapALT(id){
+
+        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [id]);
+        
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
+    }
+
+    /**
+     * Fastest assist cap from ctf_caps not ctf_cap_records
+     */
+     async getMapFastestAssistCapALT(id){
+
+        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [id]);
+        
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
+    }
+
+    /**
+     * Get fastest times from ctf_caps instead ctf_cap_records
+     * used for getMapCapRecords.js
+     */
+    async getMapFastestCaps(id){
+
+        return {"solo": await this.getMapFastestSoloCapALT(id), "assisted": await this.getMapFastestAssistCapALT(id)};
+    }
+
+    /**
+     * Get fastest times from ctf_caps instead ctf_cap_records
+     * used for getMapCapRecords.js
+     */
+    async getAllMapFastestCaps(mapIds){
+
+        const records = {};
+
+        for(let i = 0; i < mapIds.length; i++){
+
+            const m = mapIds[i];
+
+            records[m] = await this.getMapFastestCaps(m);
+        }
+
+        return records;
     }
 
     async getMapsCapRecords(mapIds){

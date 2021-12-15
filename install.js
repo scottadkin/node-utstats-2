@@ -61,7 +61,19 @@ const queries = [
         cap_time float NOT NULL,
         travel_time float NOT NULL,
         self_covers text NOT NULL,
-        self_covers_count text NOT NULL
+        self_covers_times text NOT NULL,
+        seals text NOT NULL,
+        seal_times text NOT NULL,
+        flag_team INT(1) NOT NULL,
+        total_drops INT(11) NOT NULL,
+        total_covers INT(11) NOT NULL,
+        total_self_covers INT(11) NOT NULL,
+        total_pickups INT(11) NOT NULL,
+        total_assists INT(11) NOT NULL,
+        total_unique_assists INT(11) NOT NULL,
+        total_seals INT(11) NOT NULL,
+        time_dropped DECIMAL(9,2) NOT NULL,
+        carry_time DECIMAL(9,2) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ctf_events (
         id int(11) NOT NULL AUTO_INCREMENT,

@@ -1608,11 +1608,9 @@ class PlayerManager{
 
     setSpreeMasterIds(){
 
-        let s = 0;
-
         for(let i = 0; i < this.sprees.currentSprees.length; i++){
 
-            s = this.sprees.currentSprees[i];
+            const s = this.sprees.currentSprees[i];
 
             s.player = this.getOriginalConnectionMasterId(s.player);
 
@@ -1651,6 +1649,44 @@ class PlayerManager{
 
         return total;
 
+    }
+
+    getOriginalMasterIds(playerIds){
+
+        if(playerIds.length === 0) return {};
+
+        const players = {};
+
+        for(let i = 0; i < playerIds.length; i++){
+
+            const p = playerIds[i];
+            const masterId = this.getOriginalConnectionMasterId(p);
+
+            if(players[p] === undefined){
+                players[p] = masterId;
+            }
+        }
+
+        return players;
+    }
+
+    toMasterIds(playerIds){
+
+        if(playerIds.length === 0) return [];
+
+        const masterIds = this.getOriginalMasterIds(playerIds);
+
+        
+        const correctPlayerIds = [];
+
+        for(let i = 0; i < playerIds.length; i++){
+
+            const p = playerIds[i];
+
+            correctPlayerIds.push(masterIds[p]);
+        }
+
+        return correctPlayerIds;
     }
 }
 

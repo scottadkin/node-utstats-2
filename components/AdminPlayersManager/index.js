@@ -262,7 +262,7 @@ class AdminPlayersManager extends React.Component{
 
                 <div className="form-info m-bottom-25">
                     Rename an existing player to a new name.<br/>
-                    You can't rename a player to a name that is already taken, you can however merge existing players together.
+                    You can&apos;t rename a player to a name that is already taken, you can however merge existing players together.
                 </div>
 
                 {this.renderNameErrors()}
@@ -350,7 +350,7 @@ class AdminPlayersManager extends React.Component{
             <div className="default-header">Merge Players</div>
             <form className="form" method="POST" action="/" onSubmit={this.mergePlayers}>
                 <div className="form-info m-bottom-25">
-                    Select a player to merge with another player, the first player will be merged into the second player taking the second player's name.
+                    Select a player to merge with another player, the first player will be merged into the second player taking the second player&apos;s name.
                 </div>
                 <div className="select-row">
                     <div className="select-label">First Player</div>

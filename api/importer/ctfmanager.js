@@ -1,4 +1,3 @@
-const Promise = require('promise');
 const Message = require('../message');
 const CTF = require('../ctf');
 
@@ -14,6 +13,12 @@ class CTFManager{
 
         this.carryTimeFrames = []; 
 
+        this.currentFlagHolders = [null, null, null, null];
+
+        this.ctf4Data = {
+            
+        };
+
         this.ctf = new CTF();
     }
 
@@ -22,16 +27,14 @@ class CTFManager{
     }
 
 
-    getLatestTimeframe(player, timestamp){
+    getLatestTimeframe(player, timestamp/*, flagTeam*/){
 
-
-        let c = 0;
 
         for(let i = this.carryTimeFrames.length - 1; i >= 0; i--){
 
-            c = this.carryTimeFrames[i];
+            const c = this.carryTimeFrames[i];
 
-            if(c.start < timestamp && c.player === player && c.end === undefined){
+            if(c.start < timestamp && c.player === player && c.end === null /*&& c.flagTeam === flagTeam*/){
                 return c;
             }
         }
@@ -39,95 +42,185 @@ class CTFManager{
         return null;
     }
 
+    resetCurrentFlags(playerId){
+
+        const affected = [];
+
+        for(let i = 0; i < this.currentFlagHolders.length; i++){
+
+            const current = this.currentFlagHolders[i];
+
+            if(current === playerId){
+                affected.push(i);
+                this.currentFlagHolders[i] = null;
+            }
+        }
+
+        return affected;
+       // console.log(this.currentFlagHolders);
+    }
+    
+    /*dropCurrentFlags(playerId){
+
+        for(let i = 0; i < this.currentFlagHolders.length; i++){
+
+            const current = this.currentFlagHolders[i];
+
+            if(current === playerId){
+                this.currentFlagHolders[i] = null;
+            }
+        }
+
+       //console.log(this.currentFlagHolders);
+    }*/
+
     parseData(killManager){
         
         const reg = /^(\d+?\.\d+?)\tflag_(.+?)\t(\d+?)(|\t(\d+?)|\t(\d+?)\t(\d+?))$/i;
+
+        const returnReg = /return/i;
+
         this.killManager = killManager;
 
-        let d = 0;
-        let result = 0;
-        let type = 0;
-
-        const ignored = [];
-
-        let currentTimeframe = [];
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
+            const result = reg.exec(d);
 
-            result = reg.exec(d);
+            if(result !== null){
+                
+                const timestamp = parseFloat(result[1]);
+                let type = result[2].toLowerCase();
+                
+                const playerId = parseInt(result[3]);
 
-            //console.log(result);
-
-            if(result != null){
-
-                type = result[2].toLowerCase();
-
-                if(type === 'kill'){
-
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": type,
-                        "player": parseInt(result[3]),
-                        "team": this.playerManager.getPlayerTeamAt(parseInt(result[3]), result[1])
-                    });
+                if(returnReg.test(type) || type === "taken" || type === "pickedup" || type === "captured" || type === "assist" || type === "dropped"){
                     
-                }else if(type === 'assist' || type === 'returned'|| type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'){
+                    if(type === "return_closesave"){
+                        type = "save";
+                    }else if(type !== "taken" && type !== "pickedup" && type !== "captured" && type !== "assist" && type !== "dropped"){
+                        type = "return";
+                    }
 
-                    if(type === 'taken' || type === 'pickedup'){
+                    if(type === "taken" || type === "pickedup"){
 
-                        this.carryTimeFrames.push({"start": parseFloat(result[1]), "player": parseInt(result[3]), "bFail": true});
+                        //console.log(result);
 
-                    }else if(type === 'dropped' || type === 'captured'){
+                        this.currentFlagHolders[parseInt(result[5])] = playerId;
 
-                        currentTimeframe = this.getLatestTimeframe(parseInt(result[3]), parseFloat(result[1]));
-      
-                        if(currentTimeframe !== null){
-                            currentTimeframe.end = parseFloat(result[1]);
-                            currentTimeframe.bFail = (type === 'dropped') ? true : false
+                        this.carryTimeFrames.push(
+                            {
+                                "start": timestamp,
+                                "player": playerId,
+                                "bFail": true,
+                                "end": null,
+                                "flagTeam": parseInt(result[5])
+                            }
+                        );
+
+                    }else if(type === "captured" || type === "dropped"){
+
+                        const currentTimeFrame = this.getLatestTimeframe(playerId, timestamp, /*parseInt(result[5])*/);
+
+                        if(currentTimeFrame !== null){
+
+                            currentTimeFrame.end = timestamp;      
+                            if(type === "captured") currentTimeFrame.bFail = false;
+
                         }else{
                             new Message(`CTFManager.parseData() currentTimeframe is null`,'warning');
                         }
+
+
+                        //if(type === "captured"){
+
+                        const affectedFlags = this.resetCurrentFlags(playerId);
+
+                        
+
+                        if(type === "capture"){
+
+                            for(let x = 0; x < affectedFlags.length; x++){
+
+                                //dont cap the one that will be processed below twice
+                                if(x !== parseInt(result[5])){
+                        
+                                    this.events.push(
+                                        {
+                                            "timestamp": timestamp,
+                                            "type": type,
+                                            "playerId":playerId,
+                                            "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                            "flagTeam": x,
+                                            "player": this.playerManager.getOriginalConnectionById(playerId)
+                                        }
+                                    );
+                                }
+                            }
+                        }
+                        
                     }
 
+                   // if(type === "dropped"){
+                        this.events.push(
+                            {
+                                "timestamp": timestamp,
+                                "type": type,
+                                "playerId":playerId,
+                                "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                "flagTeam": parseInt(result[5]),
+                                "player": this.playerManager.getOriginalConnectionById(playerId)
+                            }
+                        );
+                    //}
+                    
+
+                }else if(type === "cover"){
+
+                    //"flag_cover", KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team 
+                   // console.log(result);
+
+                    this.events.push(
+                        {
+                            "timestamp": timestamp,
+                            "type": type,
+                            "playerId":playerId,
+                            "playerTeam": parseInt(result[7]),
+                            "player": this.playerManager.getOriginalConnectionById(playerId)
+                        }
+                    );
+
+                }else if(type === "kill"){
+
+                    //"flag_kill", KillerPRI.PlayerID
+                    
+                    this.events.push(
+                        {
+                            "timestamp": timestamp,
+                            "type": type,
+                            "playerId": playerId,
+                            "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                            "player": this.playerManager.getOriginalConnectionById(playerId)
+                        }
+                    );
+
+                }else if(type === "seal"){
+
+                   // console.log(result);
+
+                    //"flag_seal", KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team
+
                     this.events.push({
-                        "timestamp": parseFloat(result[1]),
+                        "timestamp": timestamp,
                         "type": type,
-                        "player": parseInt(result[3]),
-                        "team": this.playerManager.getPlayerTeamAt(parseInt(result[3]), result[1])
-                    });
-
-                }else if(type === 'cover'){
-
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": type,
-                        "player": parseInt(result[3]),
-                        "team": parseInt(result[7])
-                    });
-
-                }else if(type === 'return_closesave'){
-
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": "save",
-                        "player": parseInt(result[3]),
-                        "team": parseInt(result[5])
-                    });
-
-                }else if(type === 'seal'){
-
-                    // KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team
-              
-                    this.events.push({
-                        "timestamp": parseFloat(result[1]),
-                        "type": "seal",
-                        "player": parseInt(result[3]),
-                        "team": parseInt(result[7])
+                        "playerId": playerId,
+                        "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp),
+                        //"team": parseInt(result[7]),
+                        "player": this.playerManager.getOriginalConnectionById(playerId)
                     });
                 }
-            } 
+            }
         }
 
         const locationReg = /^\d+?\.\d+?\tnstats\tflag_location\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
@@ -136,7 +229,7 @@ class CTFManager{
 
         for(let i = 0; i < this.flagLines.length; i++){
 
-            result = locationReg.exec(this.flagLines[i]);
+            const result = locationReg.exec(this.flagLines[i]);
 
             if(result !== null){
 
@@ -151,8 +244,11 @@ class CTFManager{
             }
         }
 
+        this.setSelfCovers(killManager);
+
+        //console.table(this.events);
         //console.log(this.events);
-        this.createCapData();
+
         
     }
 
@@ -185,229 +281,348 @@ class CTFManager{
 
     }
 
-    createCapData(){
+    getSelfCoversBetween(playerId, start, end){
 
-        const caps = [];
+        const kills = this.killManager.getKillsBetween(start, end, playerId);
 
-        let current = [];
-        let currentRed = [];
-        let currentBlue = [];
-        let currentGreen = [];
-        let currentYellow = [];
-        let matchingPickup = 0;
+        const timestamps = [];
 
+        for(let i = 0; i < kills.length; i++){
 
-        const getCurrent = (team) =>{
+            const k = kills[i];
 
-            switch(team){
-                case 0: {   return currentRed; } 
-                case 1: {   return currentBlue; } 
-                case 2: {   return currentGreen; } 
-                case 3: {   return currentYellow; } 
+            timestamps.push(k.timestamp);
+            
+        }
+
+        return timestamps
+
+    }
+
+    resetCurrentCapData(){
+        return {
+            "dropped": false,
+            "taken": false,
+            "takenTimestamp": null,
+            "grab": null,
+            "cap": null,
+            "capTimestamp": null,
+            "capTeam": null,
+            "carriedBy": null,
+            "carryTeam": null,
+            "travelTime": -1,
+            "assists": [],
+            "assistTimes": [],
+            "pickups": [],
+            "pickupTimes": [],
+            "pickupIds": [],
+            "selfCovers": [],
+            "selfCoverTimes": [],
+            "covers": [],
+            "coverTimes": [],
+            "dropTimes": [],
+            "dropIds": [],
+            "seals": [],
+            "sealTimes": []
+        };
+    }
+
+    dropFlags(playerId, timestamp, flags){
+
+        let totalDropped = 0;
+
+        for(let i = 0; i < flags.length; i++){
+
+            const f = flags[i];
+
+            if(f.carriedBy === playerId){
+                
+                f.dropTimes.push(timestamp);
+                f.dropIds.push(playerId);
+                f.dropped = true;
+                f.carriedBy = null;
+                f.carryTeam = null;
+
+                let pickupTime = 0;
+
+                if(f.pickupTimes.length === 0){
+                    pickupTime = f.takenTimestamp;
+                }else{
+                    pickupTime = f.pickupTimes[f.pickupTimes.length - 1];
+                }
+
+                const carryTime = (timestamp - pickupTime).toFixed(2);
+
+                const selfCoverTimes = this.getSelfCoversBetween(playerId, pickupTime, timestamp);
+
+                for(let i = 0; i < selfCoverTimes.length; i++){
+                    f.selfCovers.push(playerId);
+                }
+
+                f.selfCoverTimes.push(...selfCoverTimes);
+
+                f.assistTimes.push(parseFloat(carryTime.toString(2)));
+
+                totalDropped++;
+
             }
         }
 
-        const setCurrent = (team, data) =>{
+        /*if(totalDropped > 1){
 
-            switch(team){
-                case 0: {    currentRed = data; } break;
-                case 1: {    currentBlue = data; }  break;
-                case 2: {    currentGreen = data; } break;
-                case 3: {    currentYellow = data; } break;
-            }
+            this.updateCTF4Data(playerId, "drops", totalDropped - 1);
+        }*/
+
+    }
+
+    updateCTF4Data(playerId, type, value){
+
+        if(this.ctf4Data[playerId] === undefined){
+
+            this.ctf4Data[playerId] = {
+                "caps": 0,
+                "assists": 0,
+                "drops": 0
+            };
         }
 
-        //console.log(this.events);
+        this.ctf4Data[playerId][type] += value;
+
+    }
+
+
+    eventExists(timestamp, type, playerId, flagTeam){
 
         for(let i = 0; i < this.events.length; i++){
 
             const e = this.events[i];
 
-            current = getCurrent(e.team);
+            if(e.timestamp > timestamp) return false;
 
-            if(current === undefined && e.type !== "taken"){
-                new Message(`CTFManager.createCapData() current is undefined. Type = ${e.type}`, "warning");
-
-                current = {
-                    "team": e.team,
-                    "grabTime": 0,
-                    "grab": 0,
-                    "covers": [],
-                    "coverTimes": [],
-                    "assists": [],
-                    "pickupTimes": [],
-                    "dropTimes": [],
-                    "carryTimes": [],
-                    "carryIds": [],
-                    "selfCovers": null
-                };
-                setCurrent(e.team, current);
-                //continue;
+            if(e.type === type){
+                
+                if(e.flagTeam === flagTeam && e.playerId === playerId){
+                    return true;
+                }
             }
+        }
 
-            if(e.type === 'taken'){
+        return false;
+    }
 
-                matchingPickup = 0;
+    capFlags(playerId, timestamp, flags){
 
-                current = {
-                    "team": e.team,
-                    "grabTime": e.timestamp,
-                    "grab": e.player,
-                    "covers": [],
-                    "coverTimes": [],
-                    "assists": [],
-                    "pickupTimes": [],
-                    "dropTimes": [],
-                    "carryTimes": [],
-                    "carryIds": [],
-                    "selfCovers": null
-                };
+        let totalCapped = 0;
 
-    
-                setCurrent(e.team, current);
-                current = getCurrent(e.team);
+        for(let i = 0; i < flags.length; i++){
 
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (taken)`, "warning");
-                    continue;
-                }
-                
+            const f = flags[i];
 
-            }else if(e.type === 'pickedup'){
+            if(f.carriedBy === playerId){
 
-                if(current.pickupTimes !== undefined){
-                    current.pickupTimes.push({"timestamp":e.timestamp,"player": e.player});
-                }
-                
-            }else if(e.type === 'dropped'){
+                const playerTeam = this.playerManager.getPlayerTeamAt(playerId, timestamp);
 
-                if(current === undefined){
-                    new Message(`CTFManager.createCapData() current is undefined (DROPPED)`);
-                    continue;
-                }
-                //console.log(current);
-                if(current.dropTimes !== undefined){
-                    current.dropTimes.push({"timestamp":e.timestamp,"player": e.player});
-                }
-                
-            }else if(e.type === 'cover'){
+                f.capTimestamp = timestamp;
+                f.cap = playerId;
 
+                let travelTime = 0;
 
-                if(current.covers !== undefined && current.coverTimes !== undefined){
-
-                    current.covers.push(e.player);
-                    current.coverTimes.push(e.timestamp);
-                    
-                }/*else{
-
-                    switch(e.team){
-                        case 1: {   current = currentRed; } break;
-                        case 0: {   current = currentBlue; } break;
-                    }
-
-                    if(current.covers !== undefined && current.coverTimes !== undefined){
-                        current.covers.push(e.player);
-                        current.coverTimes.push(e.timestamp);
-                    }
-                }*/
-                
-            }else if(e.type === 'assist'){
-
-     
-                //work around for players that have changed teams
-                if(current.assists !== undefined){
-                    current.assists.push(e.player);
-                }else{
-                    switch(e.team){
-                        case 1: {   current = currentRed; } break;
-                        case 0: {   current = currentBlue; } break;
-                    }
-                    current.assists.push(e.player);
+                if(f.takenTimestamp !== null){    
+                    travelTime = timestamp - f.takenTimestamp;
                 }
 
-                //(current.assists);
-
-            }else if(e.type === 'captured'){
-
-                current.cap = e.player;
-                current.capTime = e.timestamp;
-                current.travelTime = parseFloat((current.capTime - current.grabTime).toFixed(2));
-
-                current.selfCovers = this.getSelfCovers(current.grabTime, current.capTime);
-
-                this.setCoverSprees(current.covers);
-
-                if(current.dropTimes !== undefined){
-
-                    for(let x = current.dropTimes.length - 1; x >= 0; x--){
-
-                        //first drop will always be the grab player
-                        if(current.dropTimes[x].player === current.grab && x === 0){
-
-                            current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - current.grabTime).toFixed(2)));
-                            current.carryIds.push(current.dropTimes[x].player);
-
-                        }else{
-    
-                            matchingPickup = this.getMatchingPickupId(current.pickupTimes, current.dropTimes[x].player, current.dropTimes[x].timestamp);
-
-                            if(matchingPickup !== null){
-                                current.carryTimes.push(parseFloat(parseFloat(current.dropTimes[x].timestamp - matchingPickup.timestamp).toFixed(2)));
-                                current.carryIds.push(current.dropTimes[x].player);
-                            }else{
-                                new Message(`CTFManager.createCapData() matchingPickup is null`,'warning');
-                            }      
-                        }    
-                    }
+               // console.log(travelTime);
+                if(travelTime < 0){
+                   // console.log(f);
                 }
 
-                if(current.carryTimes !== undefined && current.carryIds !== undefined){
-                    current.carryTimes.reverse();
-                    current.carryIds.reverse();
-                }else{
-                    new Message(`CTFManager.createCapData() carryTimes or carryIDs is undefined`,"warning");
+                let pickupTime = f.takenTimestamp;
+
+                if(f.pickupTimes.length > 0){
+
+                    pickupTime = f.pickupTimes[f.pickupTimes.length - 1];
                 }
 
-                
-                if(current.pickupTimes !== undefined){
-                    //dont forget cap carry time
-                    if(current.pickupTimes.length > 0){
+                const selfCoverTimes = this.getSelfCoversBetween(playerId, pickupTime, timestamp);
 
-                        if(current.pickupTimes[current.pickupTimes.length - 1].player === current.cap){
+                for(let x = 0; x < selfCoverTimes.length; x++){
 
-                            if(current.carryIds !== undefined && current.carryTimes !== undefined){
+                    f.selfCovers.push(playerId);
+                }
 
-                                current.carryIds.push(current.cap);
-                                current.carryTimes.push(parseFloat(parseFloat(current.capTime - current.pickupTimes[current.pickupTimes.length - 1].timestamp).toFixed(2)));
+                f.selfCoverTimes.push(...selfCoverTimes);
 
-                            }else{
-                                new Message(`CTFManager.createCapData() carryIds or carryTimes is undefined`,"warning");
-                            }                        
+                //Don't duplicate data for normal ctf as assist events are logged correctly
+                if(this.totalTeams > 2){
+
+                    //count multiple assists
+                    for(let x = 0; x < f.dropIds.length; x++){
+
+                        if(f.dropIds[x] !== f.cap){
+
+                            const player = this.playerManager.getOriginalConnectionById(f.dropIds[x]);
+
+                            if(player !== null){
+
+                                this.updateCTF4Data(f.dropIds[x], "assists", 1);
+
+                                ////add missing assist events
+                                /*this.events.push(
+                                    {
+                                        "timestamp": timestamp,
+                                        "type": "assist",
+                                        "playerId": playerId,
+                                        "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                        "flagTeam": i,
+                                        "player": this.playerManager.getOriginalConnectionById(playerId)
+                                    }
+                                );*/
+                            }
                         }
                     }
 
-                }else{
-                    new Message(`CTFManager.createCapData() pickupTimes is undefined`,"warning");
+                    //add missing cap events
+
+                    /*if(!this.eventExists(timestamp, "captured", playerId, i)){
+
+                        this.events.push(
+                            {
+                                "timestamp": timestamp,
+                                "type": "captured",
+                                "playerId": playerId,
+                                "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                "flagTeam": i,
+                                "player": this.playerManager.getOriginalConnectionById(playerId)
+                            }
+                        );
+                    }*/
                 }
 
-                
-               // console.log(current);
 
-                //check for solo caps
-                if(current.grab === current.cap){
-                    if(current.pickupTimes.length === 0){
-                        current.carryIds.push(current.cap);
-                        current.carryTimes.push(current.travelTime);
-                    }
-                }
 
-                this.capData.push(current);
-                
-            }else if(e.type === 'returned'){
+                this.capData.push({
+                    "team": playerTeam,
+                    "flagTeam": i,
+                    "grabTime": f.takenTimestamp,
+                    "grab": f.grab,
+                    "covers": f.covers,
+                    "coverTimes": f.coverTimes,
+                    "assists": f.dropIds,
+                    "assistTimes": f.assistTimes,
+                    "pickupIds": f.pickupIds,
+                    "pickupTimes": f.pickupTimes,
+                    "dropTimes": f.dropTimes,
+                    "dropIds": f.dropIds,
+                    "selfCovers": f.selfCovers,
+                    "selfCoverTimes": f.selfCoverTimes,
+                    "cap": playerId,
+                    "capTime": timestamp,
+                    "travelTime": parseFloat(travelTime.toFixed(3)),
+                    "seals": f.seals,
+                    "sealTimes": f.sealTimes
 
-                this.setCoverSprees(current.covers);
+                });
+
+                flags[i] = this.resetCurrentCapData();
+                totalCapped++;
             }
         }
+
+        
+        if(totalCapped > 1){
+
+            this.updateCTF4Data(playerId, "caps", totalCapped - 1)
+
+        }
+
+    }
+
+
+    coverFlag(playerId, playerTeam, timestamp, flags, bSeal){
+
+        for(let i = 0; i < flags.length; i++){
+
+            const f = flags[i];
+
+            if(f.carryTeam === playerTeam){
+
+                
+                if(!bSeal){
+                    //console.log(`${timestamp} player ${playerId} covered the ${i} flag`);
+                    f.covers.push(playerId);
+                    f.coverTimes.push(timestamp);
+                }else{
+                    //console.log(`${timestamp} player ${playerId} sealed for the ${i} flag`);
+                    f.seals.push(playerId);
+                    f.sealTimes.push(timestamp);
+                }
+            }
+        }
+    }
+
+    createCapData(){
+
+        const flags = [
+            this.resetCurrentCapData(),
+            this.resetCurrentCapData(),
+            this.resetCurrentCapData(),
+            this.resetCurrentCapData()
+        ];
+
+        for(let i = 0; i < this.events.length; i++){
+
+            const e = this.events[i];
+
+            const type = e.type;
+            const timestamp = e.timestamp;
+
+            if(type === "taken" || type === "pickedup"){
+
+                const flag = flags[e.flagTeam];
+
+                if(type === "taken"){
+
+                    flag.grab = e.playerId;
+                    flag.takenTimestamp = timestamp;
+
+                }else{
+
+                    flag.pickupTimes.push(timestamp);
+                    flag.pickupIds.push(e.playerId);
+                }
+
+                flag.taken = true;
+                flag.dropped = false;
+                flag.carriedBy = e.playerId;
+
+                flag.carryTeam = e.playerTeam;
+                
+            }else if(type === "dropped"){
+
+                this.dropFlags(e.playerId, timestamp, flags, e.player.name);
+
+            }else if(type === "captured"){
+
+                this.capFlags(e.playerId, timestamp, flags);
+
+            }else if(type === "return" || type === "save"){
+
+                flags[e.flagTeam] = this.resetCurrentCapData();
+
+            }else if(type === "cover"){
+
+                this.coverFlag(e.playerId, e.playerTeam, timestamp, flags, false);
+
+            }else if(type === "seal"){
+
+                this.coverFlag(e.playerId, e.playerTeam, timestamp, flags, true);
+            }
+        }
+
+        //console.log(flags);
+        //console.log(flags.length);
+        //console.log(this.capData);
+        //console.log(this.capData.length);        
     }
 
     getMatchingPickupId(pickups, player, timestamp){
@@ -430,44 +645,40 @@ class CTFManager{
     }
 
     setPlayerStats(){
-
-        let e = 0;
-        let player = 0;
         
-
         for(let i = 0; i < this.events.length; i++){
 
-            e = this.events[i];
-
-            player = this.playerManager.getPlayerById(e.player);
+            const {type, player, timestamp} = this.events[i];
 
             if(player !== null){
 
-                if(e.type !== 'captured' && e.type !== 'returned' && e.type !== 'pickedup'){
+                if(type !== "captured" && type !== "returned" && type !== "pickedup"){
 
-                    if(e.type === "taken"){
-                        player.stats.ctf.pickupTime = e.timestamp;
-                    }else if(e.type === 'dropped'){
-                        this.updateCarryTime(e.timestamp, player);
+                    if(type === "taken"){
+                        player.stats.ctf.pickupTime = timestamp;
+                    }else if(type === "dropped"){
+                        this.updateCarryTime(timestamp, player);
                     }
 
-                    player.stats.ctf[e.type]++;
+                    player.stats.ctf[type]++;
+
                 }else{
 
-                    if(e.type === 'captured'){
+                    if(type === "captured"){
                         player.stats.ctf.capture++
-                        this.updateCarryTime(e.timestamp, player);
-                    }else if(e.type === 'returned'){
+                        this.updateCarryTime(timestamp, player);
+                    }else if(type === "returned"){
                         player.stats.ctf.return++;
-                    }else if(e.type === 'pickedup'){
+                    }else if(type === "pickedup"){
                         player.stats.ctf.pickup++;
-                        player.stats.ctf.pickupTime = e.timestamp;
+                        player.stats.ctf.pickupTime = timestamp;
                     }
                 }
 
             }else{
-                new Message(`Could not find a player with id ${e.player}`,'warning');
+                new Message(`CTFManager.setPlayerStats() Player is null`,"warning");
             }
+            
         }
     }
 
@@ -524,278 +735,50 @@ class CTFManager{
         }
     }
 
-    //temp fix for ctf4
-    tempCTF4Botch(c){
 
-
-        if(c.dropTimes === undefined){
-            c.dropTimes = [];
-            new Message(`c.dropTimes is undefined (CTF4)`,"warning");
-        }
-
-        if(c.pickupTimes === undefined){
-            c.pickupTimes = [];
-            new Message(`c.pickupTimes is undefined (CTF4)`,"warning");
-        }
-
-        if(c.coverTimes === undefined){
-            c.coverTimes = [];
-            new Message(`c.coverTimes is undefined (CTF4)`,"warning");
-        }
-
-        if(c.covers === undefined){
-            c.covers = [];
-            new Message(`c.covers is undefined (CTF4)`,"warning");
-        }
-
-        if(c.assists === undefined){
-            c.assists = [];
-            new Message(`c.assists is undefined (CTF4)`,"warning");
-        }
-
-        if(c.carryIds === undefined){
-            c.carryIds = [];
-            new Message(`c.carryIds is undefined (CTF4)`,"warning");
-        }
-
-        if(c.carryTimes === undefined){
-            c.carryTimes = [];
-            new Message(`c.carryTimes is undefined (CTF4)`,"warning");
-        }
-
-        if(c.team === undefined){
-            c.team = -1;
-            new Message(`c.team is undefined (CTF4)`,"warning");
-        }
-
-        if(c.grabTime === undefined){
-            c.grabTime = -1;
-            new Message(`c.grabTime is undefined (CTF4)`,"warning");
-        }
-
-
-        if(c.travelTime !== c.travelTime || c.travelTime === "NaN"){
-            c.travelTime = 0;
-            new Message(`c.travelTime is NaN (CTF4)`,"warning");
-        }
-        
-
-    }
+    
 
     async insertCaps(matchId, mapId, matchDate){
 
         try{
 
-            let currentCover = 0;
-            let currentCovers = [];
-            let currentAssist = [];
-            let currentAssists = [];
-            let currentGrab = 0;
-            let currentCap = 0;
-            let currentCarryTimes = [];
-            let currentCarryIds = [];
-            let currentCarry = 0;
-            let currentDrop = 0;
-            let currentDrops = [];
-            let currentDropTimes = [];
-            let currentPickups = [];
-            let currentPickupTimes = [];
-            let currentPickup = 0;
-
-            let fastestSolo = null;
-            let fastestAssist = null;
-
             for(let i = 0; i < this.capData.length; i++){
 
                 const c = this.capData[i];
 
-                this.tempCTF4Botch(c);
+                const {team, flagTeam, grab, grabTime, cap, capTime} = c;
 
-                if(c.assists.length === 0){
 
-                    if(fastestSolo === null){
-                        fastestSolo = Object.assign({}, c);
-                    }else{
-                        if(fastestSolo.travelTime > c.travelTime){
-                            fastestSolo = Object.assign({}, c);
-                        }
-                    }
+                const grabPlayer = this.playerManager.getOriginalConnectionMasterId(grab);
+                const capPlayer = this.playerManager.getOriginalConnectionMasterId(cap);
 
-                }else{
 
-                    if(fastestAssist === null){
-                        fastestAssist = Object.assign({}, c);
-                    }else{
-                        if(fastestAssist.travelTime > c.travelTime){
-                            fastestAssist = Object.assign({}, c);
-                        }
-                    }
-                }
+                const dropIds = this.playerManager.toMasterIds(c.dropIds);
+                const assistIds = this.playerManager.toMasterIds(c.assists);
+                const coverIds = this.playerManager.toMasterIds(c.covers);
+                const pickupIds = this.playerManager.toMasterIds(c.pickupIds);
+                const sealIds = this.playerManager.toMasterIds(c.seals);
+                const travelTime = c.travelTime.toFixed(2);
 
-                currentGrab = this.playerManager.getOriginalConnectionById(c.grab);
-
-                if(currentGrab === null){
-                    currentGrab = {"masterId": -1};
-                }
+                const selfCovers = this.playerManager.toMasterIds(c.selfCovers);
                 
-                currentCovers = [];
-                currentAssists = [];
-                currentCarryTimes = [];
-                currentCarryIds = [];
-                currentDrops = [];
-                currentDropTimes = [];
-                currentCarry = 0;
-                currentDrop = 0;
-                currentPickups = [];
-                currentPickupTimes = [];
-                currentPickup = 0;
-                const currentSelfCovers = [];
-                const currentSelfCoversCount = [];
-                
-                for(const [key, value] of Object.entries(c.selfCovers)){
+                //console.log(c);
 
-                    const currentPlayer = this.playerManager.getOriginalConnectionById(parseInt(key));
+                const uniqueAssistIds = [];
 
-                    if(currentPlayer !== null){
-                        currentSelfCovers.push(currentPlayer.masterId);
-                        currentSelfCoversCount.push(value);
+                for(let x = 0; x < assistIds.length; x++){
+
+                    const a = assistIds[x];
+
+                    if(uniqueAssistIds.indexOf(a) === -1){
+                        uniqueAssistIds.push(a);
                     }
                 }
 
-                for(let x = 0; x < c.dropTimes.length; x++){
+                this.ctf.insertCap(matchId, matchDate, mapId, c.team, flagTeam, grabTime, grabPlayer, dropIds, c.dropTimes, pickupIds,
+                c.pickupTimes, coverIds, c.coverTimes, uniqueAssistIds, c.assistTimes, assistIds, capPlayer, 
+                capTime, travelTime, selfCovers, c.selfCoverTimes, sealIds, c.sealTimes);
 
-                    currentDrop = this.playerManager.getOriginalConnectionById(c.dropTimes[x].player);
-
-                    if(currentDrop !== null){
-                        currentDrops.push(currentDrop.masterId);
-                        currentDropTimes.push(c.dropTimes[x].timestamp);
-                    }
-                }
-
-                for(let x = 0; x < c.pickupTimes.length; x++){
-
-                    currentPickup = this.playerManager.getOriginalConnectionById(c.pickupTimes[x].player);
-
-                    if(currentPickup !== null){
-                        currentPickups.push(currentPickup.masterId);
-                        currentPickupTimes.push(c.pickupTimes[x].timestamp);
-                    }
-                }
-
-
-                for(let x = 0; x < c.covers.length; x++){
-
-                    currentCover = this.playerManager.getOriginalConnectionById(c.covers[x]);
-
-                    if(currentCover !== null){
-                        currentCover.stats.ctf.coverPass++;
-                        currentCovers.push(currentCover.masterId);
-                    }
-                }
-
-                for(let x = 0; x < c.assists.length; x++){
-
-                    currentAssist = this.playerManager.getOriginalConnectionById(c.assists[x]);
-
-                    if(currentAssist !== null){
-                        currentAssists.push(currentAssist.masterId);
-                    }
-                }
-
-                for(let x = 0; x < c.carryIds.length; x++){     
-
-                    currentCarry = this.playerManager.getOriginalConnectionById(c.carryIds[x]);
-                    if(currentCarry !== null){
-                        currentCarryIds.push(currentCarry.masterId);
-                    }
-                }
-
-
-                currentCap = this.playerManager.getOriginalConnectionById(c.cap);
-
-                if(currentCap !== null){
-
-                    await this.ctf.insertCap(matchId, matchDate, mapId, c.team, c.grabTime, currentGrab.masterId, currentDrops, currentDropTimes,
-                        currentPickups, currentPickupTimes, currentCovers, c.coverTimes, currentAssists, c.carryTimes, currentCarryIds, 
-                        currentCap.masterId, c.capTime, c.travelTime, currentSelfCovers, currentSelfCoversCount);
-                }else{
-                    new Message(`CTFManager.insertCaps() currentCap is null`,"warning");
-                }
-            }
-
-
-            this.capData.sort((a, b) =>{
-
-                a = a.travelTime;
-                b = b.travelTime;
-
-                if(a > b){
-                    return 1;
-                }else if(a < b){
-                    return -1;
-                }
-
-                return 0;
-
-            });
-
-
-            if(fastestSolo !== null){
-
-                const grabPlayer = this.playerManager.getOriginalConnectionById(fastestSolo.grab);
-                const capPlayer = this.playerManager.getOriginalConnectionById(fastestSolo.cap);
-
-                if(grabPlayer !== null){
-                    fastestSolo.grab = grabPlayer.masterId;
-                }
-
-                if(capPlayer !== null){
-                    fastestSolo.cap = capPlayer.masterId;
-                }
-            }
-
-            await this.ctf.updateCapRecord(matchId, mapId, 0, fastestSolo, matchDate);
-   
-
-            if(fastestAssist !== null){
-
-                const grabPlayer = this.playerManager.getOriginalConnectionById(fastestAssist.grab);
-                const capPlayer = this.playerManager.getOriginalConnectionById(fastestAssist.cap);
-                
-
-                if(grabPlayer !== null){
-                    fastestAssist.grab = grabPlayer.masterId;
-                }
-
-                if(capPlayer !== null){
-                    fastestAssist.cap = capPlayer.masterId;
-                }
-
-                const assistPlayers = [];
-                
-                for(let i = 0; i < fastestAssist.assists.length; i++){
-
-                    const assist = fastestAssist.assists[i];
-
-                    const currentAssistPlayer = this.playerManager.getOriginalConnectionById(assist);
-
-                    if(currentAssistPlayer !== null){
-                        assistPlayers.push(currentAssistPlayer.masterId);
-                    }
-                }
-
-                fastestAssist.assists = assistPlayers;
-            }
-            
-            await this.ctf.updateCapRecord(matchId, mapId, 1, fastestAssist, matchDate);
-
-
-            for(let i = 0; i < this.playerManager.players.length; i++){
-
-                const p = this.playerManager.players[i];
-
-                p.stats.ctf.coverFail = p.stats.ctf.cover - p.stats.ctf.coverPass;
-                
             }
 
         }catch(err){
@@ -809,14 +792,11 @@ class CTFManager{
 
         try{
 
-            let e = 0;
-            let currentPlayer = 0;
-
             for(let i = 0; i < this.events.length; i++){
 
-                e = this.events[i];
+                const e = this.events[i];
 
-                currentPlayer = this.playerManager.getOriginalConnectionById(e.player);
+                const currentPlayer = e.player;
 
                 if(currentPlayer !== null){
 
@@ -824,7 +804,7 @@ class CTFManager{
                         if(currentPlayer.bBot) continue;
                     }
 
-                    await this.ctf.insertEvent(matchId, e.timestamp, currentPlayer.masterId, e.type, e.team);
+                    await this.ctf.insertEvent(matchId, e.timestamp, currentPlayer.masterId, e.type, e.playerTeam);
                    
                 }else{
                     new Message(`CTFManager.insertEvent() currentPlayer is null`,'warning');
@@ -839,18 +819,12 @@ class CTFManager{
 
     setSelfCovers(killManager){
 
-        let c = 0;
-
-        let currentKills = 0;
-        let currentPlayer = 0;
 
         for(let i = 0; i < this.carryTimeFrames.length; i++){
 
-            c = this.carryTimeFrames[i];
-
-            currentKills = killManager.getKillsBetween(c.start, c.end, c.player, true);
-
-            currentPlayer = this.playerManager.getOriginalConnectionById(c.player);
+            const c = this.carryTimeFrames[i];
+            const currentKills = killManager.getKillsBetween(c.start, c.end, c.player, true);
+            const currentPlayer = this.playerManager.getOriginalConnectionById(c.player);
 
             if(currentPlayer !== null){
 
@@ -937,6 +911,106 @@ class CTFManager{
         }
     }
 
+
+    async addCTF4Data(){
+
+        try{
+
+
+            for(const [playerId, data] of Object.entries(this.ctf4Data)){
+
+                const player = this.playerManager.getOriginalConnectionById(playerId);
+
+                //console.log(player);
+
+                if(player !== null){
+
+                    player.stats.ctf.capture += data.caps;
+                    player.stats.ctf.assist += data.assists;
+                    //player.stats.ctf.dropped += data.drops;
+
+
+                }else{
+                    new Message("Player is null CTFManager.addCTF4Data()", "warning");
+                }
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    sortCapDataByTravelTime(){
+
+        this.capData.sort((a, b) =>{
+
+            a = a.travelTime;
+            b = b.travelTime;
+
+            if(a < b){
+                return -1;
+            }else if(a > b){
+                return 1;
+            }
+
+            return 0;
+        });
+
+    }
+
+    async updateMapCapRecords(mapId, matchId, date){
+
+        //console.log(this.capData);
+
+        this.sortCapDataByTravelTime();
+
+        let bestSoloCap = null;
+        let bestAssistCap = null;
+
+        for(let i = 0; i < this.capData.length; i++){
+
+            const c = this.capData[i];
+
+            if(c.assists.length === 0){
+
+                if(bestSoloCap === null || bestSoloCap.travelTime > c.travelTime){
+
+                    bestSoloCap = c;
+                }
+
+            }else{
+
+                if(bestAssistCap === null || bestAssistCap.travelTime > c.travelTime){
+                    bestAssistCap = c;
+                }
+            }
+        }
+
+        if(bestSoloCap !== null){
+
+            const capPlayer = this.playerManager.toMasterIds([bestSoloCap.cap]);
+            const grabPlayer = this.playerManager.toMasterIds([bestSoloCap.grab]);
+        
+            bestSoloCap.cap = capPlayer[0];
+            bestSoloCap.grab = grabPlayer[0];
+            
+            await this.ctf.updateCapRecord(matchId, mapId, 0, bestSoloCap, date);
+            
+        }
+
+        if(bestAssistCap !== null){
+
+            const capPlayer = this.playerManager.toMasterIds([bestAssistCap.cap]);
+            const grabPlayer = this.playerManager.toMasterIds([bestAssistCap.grab]);
+            const assistPlayers = this.playerManager.toMasterIds(bestAssistCap.assists);
+        
+            bestAssistCap.cap = capPlayer[0];
+            bestAssistCap.grab = grabPlayer[0];
+            bestAssistCap.assists = assistPlayers;
+            
+            await this.ctf.updateCapRecord(matchId, mapId, 1, bestAssistCap, date);
+        }
+    }
 }
 
 

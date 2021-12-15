@@ -1,7 +1,7 @@
 import Session from '../../api/session';
 import Admin from '../../api/admin';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
         const session = new Session(req);

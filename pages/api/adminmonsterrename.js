@@ -1,7 +1,7 @@
 import Session from '../../api/session';
 import MonsterHunt from '../../api/monsterhunt';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
 

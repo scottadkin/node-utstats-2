@@ -2,7 +2,7 @@
 import cookie from "cookie";
 import User from '../../api/user';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     let bPassed = false;
     let cookies = [];

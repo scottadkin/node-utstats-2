@@ -27,6 +27,13 @@ async function alterTable(table, column, datatype){
     await mysql.simpleUpdate(query);
 }
 
+async function changeColumnName(table, oldName, newName){
+
+    //RENAME COLUMN old_column_name TO new_column_name;
+    const query = `ALTER TABLE ${table} RENAME COLUMN ${oldName} TO ${newName}`;
+
+    await mysql.simpleQuery(query);
+}
 
 
 async function updateFTPTable(){
@@ -57,9 +64,44 @@ async function updateCapsTable(){
     const table = "nstats_ctf_caps";
 
     const coverExists = await columnExists(table, "self_covers");
-    const coverTimesExists = await columnExists(table, "self_covers_count");
+    const coverCountExists = await columnExists(table, "self_covers_count");
+    const coverTimesExists = await columnExists(table, "self_covers_times");
+    const sealsExists = await columnExists(table, "seals");
+    const sealTimesExists = await columnExists(table, "seal_times");
 
-    if(coverExists && coverTimesExists){
+    const flagTeamExists = await columnExists(table, "flag_team");
+
+    const totalDropsExists = await columnExists(table, "total_drops");
+    const totalCoversExists = await columnExists(table, "total_covers");
+    const totalSelfCoversExists = await columnExists(table, "total_self_covers");
+
+    const totalPickupsExists = await columnExists(table, "total_pickups");
+    const totalAssistsExists = await columnExists(table, "total_assists");
+    const totalUniqueAssistsExists = await columnExists(table, "total_unique_assists");
+    const totalSealsExists = await columnExists(table, "total_seals");
+
+    const timeDroppedExists = await columnExists(table, "time_dropped");
+    const carryTimeExists = await columnExists(table, "carry_time");
+
+    const exists = [
+        coverExists,
+        coverTimesExists,
+        sealsExists,
+        sealTimesExists,
+        flagTeamExists,
+        totalDropsExists,
+        totalCoversExists,
+        totalSelfCoversExists,
+        totalPickupsExists,
+        totalAssistsExists,
+        totalUniqueAssistsExists,
+        totalSealsExists,
+        timeDroppedExists,
+        carryTimeExists
+    ];
+
+
+    if(exists.every(x => x === true)){
 
         new Message(`TABLE ${table} does not need to be updated.`,"pass");
 
@@ -70,9 +112,78 @@ async function updateCapsTable(){
             new Message(`Updated table nstats_ctf_caps, add column "self_covers"`,"pass");
         }
 
-        if(!coverTimesExists){
+        if(!coverCountExists && !coverTimesExists){
             await alterTable(table, "self_covers_count", "text NOT NULL");
-            new Message(`Updated table nstats_ctf_caps, add column "self_covers_count"`,"pass");
+            new Message(`Updated table nstats_ctf_caps, add column "self_covers_times"`,"pass");
+        }
+
+        if(!sealsExists){  
+            await alterTable(table, "seals", "text NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "seals"`,"pass");
+        }
+
+        if(!sealTimesExists){  
+            await alterTable(table, "seal_times", "text NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "seal_times"`,"pass");
+        }
+
+        if(!flagTeamExists){
+            await alterTable(table, "flag_team", "int(1) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "flag_team"`,"pass");
+        }
+
+        if(!totalDropsExists){
+
+            await alterTable(table, "total_drops", "int(11) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "total_drops"`,"pass");
+        }
+
+        if(!totalCoversExists){
+
+            await alterTable(table, "total_covers", "int(11) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "total_covers"`,"pass");
+        }
+
+        if(!totalSelfCoversExists){
+
+            await alterTable(table, "total_self_covers", "int(11) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "total_self_covers"`,"pass");
+        }
+
+        if(!totalPickupsExists){
+
+            await alterTable(table, "total_pickups", "int(11) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "total_pickups"`,"pass");
+        }
+
+        if(!totalAssistsExists){
+
+            await alterTable(table, "total_assists", "int(11) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "total_assists"`,"pass");
+        }
+
+        if(!totalUniqueAssistsExists){
+
+            await alterTable(table, "total_unique_assists", "int(11) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "total_assists"`,"pass");
+        }
+
+        if(!totalSealsExists){
+
+            await alterTable(table, "total_seals", "int(11) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "total_seals"`,"pass");
+        }
+
+        if(!timeDroppedExists){
+
+            await alterTable(table, "time_dropped", "DECIMAL(9,2) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "time_dropped"`,"pass");
+        }
+
+        if(!carryTimeExists){
+
+            await alterTable(table, "carry_time", "DECIMAL(9,2) NOT NULL");
+            new Message(`Updated table nstats_ctf_caps, add column "carry_time"`,"pass");
         }
 
     }
@@ -171,6 +282,10 @@ async function createNewTables(){
         await updateFTPTable();
         await updateCapsTable();
         await updateSiteSettings();
+
+        if(await columnExists("nstats_ctf_caps", "self_covers_count")){
+            await mysql.simpleQuery("ALTER TABLE nstats_ctf_caps CHANGE self_covers_count self_covers_times TEXT(1000) NOT NULL");
+        }
 
         process.exit(0);
 

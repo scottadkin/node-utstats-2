@@ -1,7 +1,7 @@
 import Session from '../../api/session';
 import Items from '../../api/items';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
 
     const session = new Session(req);

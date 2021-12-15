@@ -10,7 +10,7 @@ const HomeLastMatch = ({data}) =>{
 
         <div className={`${styles.wrapper} center`}>
             <div className={styles.image}>
-                <Image src={`/images/maps/deck16.jpg`} width={480} height={270}/>
+                <Image src={`/images/maps/deck16.jpg`} alt="image" width={480} height={270}/>
             </div>
         </div>
     </div>

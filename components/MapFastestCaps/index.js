@@ -212,7 +212,7 @@ class MapFastestCaps extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{place}{Functions.getOrdinal(place)}</td>
-                <td>{Functions.convertTimestamp(timestamp, true)}</td>
+                <td><Link href={`/match/${d.match_id}`}><a>{Functions.convertTimestamp(timestamp, true)}</a></Link></td>
                 {(this.state.mode !== 1) ? <td>{assistElems}</td> : null}
                 <td>
                     <Link href={`/player/${d.cap}`}>

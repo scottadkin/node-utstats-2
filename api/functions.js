@@ -661,6 +661,15 @@ class Functions{
 
         return `${hours}${minutes}:${seconds}.${ms}`;
     }
+
+
+    static getTeamColorName(id){
+
+        if(id === 0) return "Red";
+        if(id === 1) return "Blue";
+        if(id === 2) return "Green";
+        if(id === 3) return "Yellow";
+    }
 }
 
 module.exports = Functions;
