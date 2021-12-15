@@ -232,6 +232,7 @@ class GraphCanvas{
         for(let i = 0; i < this.hideKeys.length; i++){
 
             if(this.data[i] !== undefined){
+                
                 for(let x = 0; x < this.data[i].length; x++){
 
                     this.hideKeys[i].push((x < 8) ? false : true);

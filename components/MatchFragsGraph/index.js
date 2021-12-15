@@ -14,7 +14,8 @@ class MatchFragsGraph extends React.Component{
             "finishedLoading": false, 
             "teamsKills": [], 
             "teamsDeaths": [],
-            "teamsSuicides": []
+            "teamsSuicides": [],
+            "data": null
         };
     }
 
@@ -50,6 +51,8 @@ class MatchFragsGraph extends React.Component{
     render(){
 
         if(!this.state.finishedLoading) return null;
+
+        if(this.state.data === null) return null;
 
         const graphTitles = ["Kills", "Deaths", "Suicides",];
         const graphData = [this.state.data.kills, this.state.data.deaths, this.state.data.suicides];
