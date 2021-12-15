@@ -1,7 +1,7 @@
 import Session from '../../api/session';
 import Maps from '../../api/maps';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
 

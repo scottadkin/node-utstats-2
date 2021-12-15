@@ -91,7 +91,7 @@ class ACEScreenshot extends React.Component{
             </Table2>
 
             <div className="default-sub-header">Screenshot</div>
-            <a href={image} target="_blank"><img src={image} className="t-width-1 m-bottom-25" alt="image"/></a>
+            <a href={image} rel="noreferrer" target="_blank"><img src={image} className="t-width-1 m-bottom-25" alt="image"/></a>
 
             {this.renderRawLog()}
         </div>

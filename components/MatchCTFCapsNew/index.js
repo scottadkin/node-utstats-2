@@ -3,15 +3,22 @@ import styles from './MatchCTFCapsNew.module.css';
 import Functions from '../../api/functions';
 import MatchCTFCap from '../MatchCTFCap';
 import BasicPageSelect from '../BasicPageSelect';
+import MatchCTFCapSimple from '../MatchCTFCapSimple';
 
 class MatchCTFCapsNew extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"data": [], "finishedLoading": false, "page": 0, "perPage": 1};
+        this.state = {"data": [], "finishedLoading": false, "page": 0, "perPage": 1, "mode": 0};
 
         this.changePage = this.changePage.bind(this);
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
     async loadData(){
@@ -148,6 +155,28 @@ class MatchCTFCapsNew extends React.Component{
         return returnData;
     }
 
+    createEvents(type, times, playerIds, capEvents, players){
+
+        const pIds = playerIds.split(",");
+        const timestamps = times.split(",");
+
+
+        for(let i = 0; i < timestamps.length; i++){
+
+            const t = parseFloat(timestamps[i]);
+            const p = parseInt(pIds[i]);
+
+            if(t !== t || p !== p) continue;
+
+            capEvents.push({
+                "type": type,
+                "timestamp": t,
+                "player": Functions.getPlayer(players, p)
+            });
+        }
+
+    }
+
     render(){
 
         if(!this.state.finishedLoading) return null;
@@ -161,11 +190,11 @@ class MatchCTFCapsNew extends React.Component{
 
         const teamScores = [0,0,0,0];
 
+
         for(let i = 0; i < this.state.data.length; i++){
 
-
             const d = this.state.data[i];
-
+                 
             teamScores[d.team]++;
 
             const redScore = teamScores[0];
@@ -176,50 +205,118 @@ class MatchCTFCapsNew extends React.Component{
             if(i !== this.state.page) continue;
             if(i > this.state.page) return;
 
+            const timeDropped = d.time_dropped;
+
+            const capEvents = [];
+
             const grabPlayer = Functions.getPlayer(players, d.grab);
             const capPlayer = Functions.getPlayer(players, d.cap);
 
-            const coverPlayers = this.createCoverData(d.covers, players);
-            const assistPlayers = this.createAssistData(d.assist_carry_ids, d.assist_carry_times, players);
 
-            const selfCoverPlayers = this.createSelfCoversData(d.self_covers, d.self_covers_count, players);
-            let totalCarryTime = 0;
 
-            const assistTimes = d.assist_carry_times.split(",");
+            if(this.state.mode === 1){
 
-            for(let x = 0; x < assistTimes.length; x++){
+                capEvents.push(
+                    {
+                        "type": "grab",
+                        "timestamp": d.grab_time,
+                        "player": grabPlayer
+                    }
+                );
 
-                if(assistTimes[x] !== ""){
+                capEvents.push(
+                    {
+                        "type": "cap",
+                        "timestamp": d.cap_time,
+                        "player": capPlayer
+                    }
+                );
 
-                    totalCarryTime += parseFloat(assistTimes[x]);
-     
+                this.createEvents("drop", d.drop_times, d.drops, capEvents, players);
+                this.createEvents("pickup", d.pickup_times, d.pickups, capEvents, players);
+                this.createEvents("cover", d.cover_times, d.covers, capEvents, players);
+                this.createEvents("self_cover", d.self_covers_times, d.self_covers, capEvents, players);
+                this.createEvents("seal", d.seal_times, d.seals, capEvents, players);
+
+
+                capEvents.sort((a, b) =>{
+
+                    a = a.timestamp;
+                    b = b.timestamp;
+
+                    if(a < b){
+                        return -1;
+                    }else if(a > b){
+                        return 1;
+                    }
+
+                    return 0;
+                });
+
+
+
+                elems.push(<MatchCTFCap 
+                    host={this.props.host}
+                    key={i} 
+                    matchId={this.props.matchId}
+                    team={d.team}
+                    totalTeams={this.props.totalTeams}
+                    teamScores={[redScore, blueScore, greenScore, yellowScore]}
+                    events={capEvents}
+                    carryTime={d.carry_time}
+                    timeDropped={timeDropped}
+                    flagTeam={d.flag_team}
+                    
+                />);
+
+            }else{
+
+                const assistPlayerIds = d.assists.split(",");
+                const assistPlayers = [];
+
+                for(let x = 0; x < assistPlayerIds.length; x++){
+
+                    const pid = parseInt(assistPlayerIds[x]);
+
+                    if(pid === pid){
+                        assistPlayers.push(Functions.getPlayer(players, pid));
+                    }
                 }
-            }
 
-            elems.push(<MatchCTFCap 
-                host={this.props.host}
-                key={i} 
-                matchId={this.props.matchId}
-                team={d.team}
-                grabPlayer={grabPlayer} 
-                grabTime={d.grab_time - matchStart}
-                capPlayer={capPlayer}
-                capTime={d.cap_time - matchStart}
-                coverPlayers={coverPlayers}
-                travelTime={d.travel_time}
-                dropTime={d.travel_time - totalCarryTime}
-                carryTime={totalCarryTime}
-                assistPlayers={assistPlayers}
-                totalTeams={this.props.totalTeams}
-                teamScores={[redScore, blueScore, greenScore, yellowScore]}
-                selfCovers={selfCoverPlayers}
-                
-            />);
+                elems.push(<MatchCTFCapSimple 
+                    key={i} 
+                    covers={d.total_covers} 
+                    drops={d.total_drops} 
+                    selfCovers={d.total_self_covers} 
+                    carryTime={d.carry_time}
+                    grabPlayer={grabPlayer}
+                    grabTime={d.grab_time}
+                    capPlayer={capPlayer}
+                    capTime={d.cap_time}
+                    host={this.props.host}
+                    dropTime={timeDropped}
+                    travelTime={d.travel_time}
+                    assistPlayers={assistPlayers}
+                    totalTeams={this.props.totalTeams}
+                    teamScores={[redScore, blueScore, greenScore, yellowScore]}
+                    flagTeam={d.flag_team}
+                    team={d.team}
+                    seals={d.total_seals}
+                />);
+            }
             
         }
 
         return <div>
             <div className="default-header">Capture The Flag Caps</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Simple</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Detailed</div>
+            </div>
             <BasicPageSelect results={this.state.data.length} perPage={this.state.perPage} page={this.state.page} changePage={this.changePage}/>
             {elems}
                

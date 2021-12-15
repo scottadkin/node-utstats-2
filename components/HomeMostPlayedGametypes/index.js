@@ -40,7 +40,7 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
 
         elems.push(<div className={styles.box} key={i}>
             <div className={styles.name}>{d.name}</div>
-            <div className={styles.image}><img src={`${host}images/gametypes/${currentImage}`} width="400" height="225"/></div>
+            <div className={styles.image}><img src={`${host}images/gametypes/${currentImage}`} alt="image" width="400" height="225"/></div>
             <div className={styles.info}>
                 <span className="yellow">Playtime</span> {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
                 {d.matches} <span className="yellow">Matches</span><br/> 

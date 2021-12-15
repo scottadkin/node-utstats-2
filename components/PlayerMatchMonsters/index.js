@@ -76,7 +76,7 @@ class PlayerMatchMonsters extends React.Component{
             elems.push(
                 <div key={i} className={styles.box}>
                     <div className={styles.name}>{m.display_name}</div>
-                    <Image src={`/images/monsters/${currentImage}`} width="200" height="200"/>
+                    <Image src={`/images/monsters/${currentImage}`} alt="image" width="200" height="200"/>
                     <div className={styles.kills}>
                         {currentKills} Kill{(currentKills === 1) ? null : "s"}
                     </div>

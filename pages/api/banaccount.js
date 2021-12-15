@@ -1,7 +1,7 @@
 import Session from '../../api/session';
 import User from '../../api/user';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
 

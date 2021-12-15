@@ -5,7 +5,7 @@ import Players from '../../api/players';
 import Pings from '../../api/pings';
 import Domination from '../../api/domination';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
 

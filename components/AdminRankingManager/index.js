@@ -250,7 +250,7 @@ class AdminRankingManager extends React.Component{
             <form className="form" action="/" method="POST" onSubmit={this.performAction}>
                 <div className="form-info">
                     Recalculate rankings will set all player rankings for that gametype to 0 then go through all match data for players of that gametype and set them to their correct values.<br/>
-                    Delete all rankings will delete all player rankings for that gametype, effectively starting that gametype's rankings again.
+                    Delete all rankings will delete all player rankings for that gametype, effectively starting that gametype&apos;s rankings again.
                 </div>
 
                 {this.renderErrors()}

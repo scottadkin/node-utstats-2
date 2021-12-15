@@ -141,7 +141,7 @@ const MatchKillsMatchup = ({data, playerNames}) =>{
                         hide();
                     })}
 
-                className={styles.suicides} key={`kills-row-${i}-${x}`}>
+                className={styles.suicides}>
 
                     {currentKills}
                 </td>);

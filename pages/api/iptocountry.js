@@ -4,7 +4,7 @@ import geoip from 'geoip-lite';
 import Countries from '../../api/countries';
 import i18nCountries from 'i18n-iso-countries';
 
-export default (req, res) =>{
+export default async function handler(req, res){
 
 
     const createHostNameString = (ip) =>{

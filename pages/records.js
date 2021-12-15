@@ -253,8 +253,6 @@ class Records extends React.Component{
         const settings = JSON.parse(this.props.pageSettings);
         const session = JSON.parse(this.props.session);
 
-        console.log(settings);
-        console.log(session);
 
         if(settings["Default Per Page"] !== undefined){
 

@@ -6,7 +6,7 @@ import Matches from '../../api/matches';
 import Players from '../../api/players';
 import CountriesManager from '../../api/countriesmanager';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
   

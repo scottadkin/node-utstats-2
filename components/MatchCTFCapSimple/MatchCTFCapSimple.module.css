@@ -1,0 +1,68 @@
+.wrapper{
+    width:var(--width-1);
+    max-width:var(--max-width-1);
+    background-color:var(--color-1);
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.box{
+    display:inline-block;
+    padding:10px 0px;
+    width:100%;
+    width:200px;
+    background-color:var(--color-3);
+    border:1px solid var(--border-color-2);
+    margin-left:5px;
+    margin-bottom:5px;
+}
+
+.title{
+    font-size:16px;
+    padding:5px;
+    padding-bottom:10px;
+}
+
+.image{
+    width:198px;
+    height:160px;
+    background-color:black;
+    background:linear-gradient(to bottom right, black, rgba(155, 66, 0, 0.5));
+    padding-top:10px;
+    margin-bottom:10px;
+}
+
+.image img{
+    width:100px;
+}
+
+.value{
+    font-size:14px;
+    color:yellow;
+}
+
+.event{
+    font-size:16px;
+    padding:10px;
+}
+
+.time{
+    color:yellow;
+    font-style:italic;
+}
+
+.assists{
+    background-color:var(--color-3);
+    padding:5px;
+    font-size:14px;
+}
+
+.smessage{
+    font-size:16px;
+    padding:10px;
+}
+
+.scores div div{
+    font-size:16px;
+    padding:5px;
+}

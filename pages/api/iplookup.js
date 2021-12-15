@@ -1,7 +1,7 @@
 import geo from 'geoip-lite';
 import countries from '../../api/countries';
 
-export default async (req, res) =>{
+export default async function handler(req, res){
 
     try{
 

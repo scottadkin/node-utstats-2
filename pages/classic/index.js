@@ -49,7 +49,7 @@ const HomePage = ({host, session, matchData, playerData, faces, image, recentMat
                         <div className="default-header">Welcome to Node UTStats 2 <span className="yellow">Classic Mode</span></div>
                         <div id="welcome-text">
                             Here you can look up information for UT matches, players, and maps from original utstats databases.<br/>
-                            Not all features from the main site are available because the original utstats database don't have the required data.
+                            Not all features from the main site are available because the original utstats database don&apos;t have the required data.
                         </div>
                         {screenshotElem}      
                         <HomeRecentMatches data={recentMatches}/>  

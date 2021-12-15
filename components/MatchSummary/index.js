@@ -9,7 +9,7 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
     if(info === undefined){
 
         return (<div className="default-header">
-            Match doesn't exist.
+            Match doesn&apos;t exist.
         </div>);
     }
 

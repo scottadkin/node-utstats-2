@@ -388,7 +388,7 @@ class AdminMonsterHunt extends React.Component{
             <form className="form m-bottom-25" action="/" method="POST" onSubmit={this.bulkUpload}>
                 <div className="form-info">
                     Image format must be .png.<br/>
-                    File name must the the monster's classname in lowercase.<br/>
+                    File name must the the monster&apos;s classname in lowercase.<br/>
                     Bulk image uploads do not auto set there names.<br/>
                     Single image upload automatically sets their names.<br/>
                 </div>
