@@ -10,7 +10,7 @@ class KillManager{
         this.data = data;
         this.kills = [];
         this.headshots = [];
-        this.bIgnoreBots = this.bIgnoreBots;
+        this.bIgnoreBots = bIgnoreBots;
 
         this.playerManager = playerManager;
 
@@ -180,7 +180,7 @@ class KillManager{
             for(let i = 0; i < this.kills.length; i++){
 
                 k = this.kills[i];
-                //make a cache of playerIds 
+
                 currentKiller = this.playerManager.getOriginalConnectionById(k.killerId);
                 currentVictim = this.playerManager.getOriginalConnectionById(k.victimId);
 
