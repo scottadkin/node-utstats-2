@@ -11,7 +11,7 @@
 .title{
     font-size:16px;
     padding:10px;
-    background-color:black;
+    background-color:rgb(12,12,12);
 }
 
 .image{
@@ -29,6 +29,6 @@
 .value{
     font-size:14px;
     color:yellow;
-    background-color:black;
+    background-color:rgb(12,12,12);
     padding:5px;
 }

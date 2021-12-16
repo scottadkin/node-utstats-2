@@ -183,7 +183,7 @@ class KillManager{
 
                 currentKiller = this.playerManager.getOriginalConnectionById(k.killerId);
                 currentVictim = this.playerManager.getOriginalConnectionById(k.victimId);
-
+                
                 if(this.bIgnoreBots){
 
                     if(currentKiller !== null){
@@ -194,6 +194,7 @@ class KillManager{
                         if(currentVictim.bBot) continue;
                     }
                 }
+                
 
                 currentKillerTeam = this.playerManager.getPlayerTeamAt(k.killerId, k.timestamp);
                 currentVictimTeam =  this.playerManager.getPlayerTeamAt(k.victimId, k.timestamp);

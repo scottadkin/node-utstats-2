@@ -24,8 +24,6 @@ class AceManager{
 
     async importPlayerJoins(fileName, lines){
 
-        console.log(fileName);
-        console.log(lines);
 
         const joins = this.parseJoinLog(lines);
 

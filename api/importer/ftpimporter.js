@@ -249,7 +249,7 @@ class FTPImporter{
                 }
             }
 
-            new Message("Finished downloading of ACE player join logs.","pass");
+            new Message("Finished downloading ACE player join logs.","pass");
             new Message("Starting download of ACE logs.","note");
 
             for(let i = 0; i < this.aceLogsFound.length; i++){
@@ -263,7 +263,7 @@ class FTPImporter{
 
             }
 
-            new Message("Finished downloading of ACE logs.","pass");
+            new Message("Finished downloading ACE logs.","pass");
             new Message("Starting download of ACE screenshots.","note");
 
             for(let i = 0; i < this.aceScreenshotsFound.length; i++){
@@ -277,7 +277,7 @@ class FTPImporter{
 
             }
 
-            new Message("Finished downloading of ACE screenshots.","pass");
+            new Message("Finished downloading ACE screenshots.","pass");
 
 
         }catch(err){
