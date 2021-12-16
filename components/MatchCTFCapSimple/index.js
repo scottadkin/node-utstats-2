@@ -15,14 +15,34 @@ function createAssistElem(assists, host, matchId){
 
         const a = assists[i];
 
-        elems.push(<span key={i}>
-            <Link href={`/pmatch/${matchId}?player=${a.id}`}><a><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</a></Link>
-        </span>);
+        if(a.id === undefined){
+            elems.push(<span key={i} className="deleted">Deleted Player{(i < assists.length - 1) ? ", " : ""}</span>);
+        }else{
+            elems.push(<span key={i}>
+                <Link href={`/pmatch/${matchId}?player=${a.id}`}><a><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</a></Link>
+            </span>);
+        }
     }
 
     return <div className={styles.assists}>
         Assisted by {elems}
     </div>
+
+}
+
+function renderPlayer(player, matchId, host){
+
+    if(player.id === undefined){
+
+        return <span className="deleted">Deleted Player</span>
+    }
+
+    return <Link href={`/pmatch/${matchId}?player=${player.id}`}>
+            <a>
+                <CountryFlag country={player.country} host={host}/>
+                {player.name}
+            </a>
+        </Link>;
 
 }
 
@@ -101,7 +121,7 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
             greenScore={teamScores[2]} yellowScore={teamScores[3]} dmWinner="" bMonsterHunt={false}/>
         </div>
         <div className={styles.event}>
-            Flag Taken by <Link href={`/pmatch/${matchId}?player=${grabPlayer.id}`}><a><CountryFlag country={grabPlayer.country} host={host}/>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
+            Flag Taken by {renderPlayer(grabPlayer, matchId, host)} @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
         </div>
 
         <div className={styles.box}>
@@ -126,7 +146,7 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
         {selfCoversElem}
         {timesDroppedElem}
         <div className={styles.event}>
-            Flag Captured by <Link href={`/pmatch/${matchId}?player=${capPlayer.id}`}><a><CountryFlag country={capPlayer.country} host={host}/>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
+            Flag Captured by {renderPlayer(capPlayer, matchId, host)} @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
         </div>
         {createAssistElem(assistPlayers, host, matchId)}
     </div>

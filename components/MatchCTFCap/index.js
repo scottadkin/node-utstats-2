@@ -79,19 +79,50 @@ function createEventRows(events, host, playerCovers, matchId){
         
         if(i === 0) continue;
 
+        let playerElem = null;
+        
+
+        if(player.id === undefined){
+
+            playerElem = <Link href={`/pmatch/${matchId}?player=${player.id}`}>
+                <span className="deleted">Deleted Player</span>
+            </Link>
+
+        }else{
+
+            playerElem = <Link href={`/pmatch/${matchId}?player=${player.id}`}>
+                <a>
+                    <CountryFlag country={player.country} host={host}/><b>{player.name}</b>
+                </a>
+            </Link>;
+        }
+
         rows.push(<tr key={i}>
             <td className={styles.time}>{Functions.MMSS(e.timestamp)}</td>
             <td>
-                <Link href={`/pmatch/${matchId}?player=${player.id}`}>
-                    <a>
-                        <CountryFlag country={player.country} host={host}/><b>{player.name}</b>
-                    </a>
-                </Link> {getDisplayText(e.type)}. {rewardElem}{carryPercentElem}
+                {playerElem} {getDisplayText(e.type)}. {rewardElem}{carryPercentElem}
             </td>
         </tr>);
     }
 
     return rows;
+}
+
+
+function renderPlayer(player, matchId, host){
+
+    if(player.id === undefined){
+
+        return <span className="deleted">Deleted Player</span>
+    }
+
+    return <Link href={`/pmatch/${matchId}?player=${player.id}`}>
+            <a>
+                <CountryFlag country={player.country} host={host}/>
+                {player.name}
+            </a>
+        </Link>;
+
 }
 
 const MatchCTFCap = ({matchId, team, carryTime, totalTeams, 
@@ -122,20 +153,20 @@ const MatchCTFCap = ({matchId, team, carryTime, totalTeams,
 
     if(events.length === 2){
         elems = <div className={styles.event}>
-            Solo Cap by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/pmatch/${matchId}?player=${capPlayer.id}`}><a>{capPlayer.name}</a></Link><br/><br/>
+            Solo Cap by {renderPlayer(capPlayer, matchId, host)}<br/><br/>
             Grabbed at <span className={styles.time}>{Functions.MMSS(grabTime)}</span>, capped at <span className={styles.time}>{Functions.MMSS(capTime)}</span>
         </div>
     }else{
 
         elems = <>
             <div className={styles.event}>
-                Flag Taken by <CountryFlag country={grabPlayer.country} host={host}/><Link href={`/player/${grabPlayer.id}`}><a>{grabPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
+                Flag Taken by {renderPlayer(grabPlayer, matchId, host)} @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
             </div>
             <Table2 width={1}>
                 {rows}
             </Table2>
             <div className={styles.event}>
-                Flag Capped by <CountryFlag country={capPlayer.country} host={host}/><Link href={`/player/${capPlayer.id}`}><a>{capPlayer.name}</a></Link> @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
+                Flag Capped by {renderPlayer(capPlayer, matchId, host)} @ <span className={styles.time}>{Functions.MMSS(capTime)}</span>
             </div>
         </>
     }
