@@ -3,6 +3,7 @@ import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import Functions from '../../api/functions';
 import MatchResultSmall from '../MatchResultSmall';
+import MatchCTFCapBox from '../MatchCTFCapBox';
 
 function createAssistElem(assists, host, matchId){
 
@@ -58,58 +59,28 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
 
     if(covers > 0){
 
-       coversElem = <div className={styles.box}>
-            <div className={styles.title}>Covers</div>
-            <div className={styles.image}>
-                <img src="/images/flagcover.png" alt="image"/>
-            </div>
-            <div className={styles.value}>{covers}</div>
-        </div>
+       coversElem = <MatchCTFCapBox title="Covers" image="flagcover.png" value={covers}/>;
     }
 
     if(selfCovers > 0){
 
-        selfCoversElem = <div className={styles.box}>
-            <div className={styles.title}>Kills Carrying Flag</div>
-            <div className={styles.image}>
-                <img src="/images/playerwithflag.png" alt="image"/>
-            </div>
-            <div className={styles.value}>{selfCovers}</div>
-        </div>
+        selfCoversElem = <MatchCTFCapBox title="Kills Carrying Flag" image="playerwithflag.png" value={selfCovers}/>;       
      }
      
     if(drops > 0){
 
-        timesDroppedElem = <div className={styles.box}>
-            <div className={styles.title}>Times Dropped</div>
-            <div className={styles.image}>
-                <img src="/images/flagdropped.png" alt="image"/>
-            </div>
-            <div className={styles.value}>{drops}</div>
-        </div>
+        timesDroppedElem = <MatchCTFCapBox title="Times Dropped" image="flagdropped.png" value={drops}/>;
     }
 
     if(dropTime > 0){
 
-        timeDroppedElem = <div className={styles.box}>
-            <div className={styles.title}>Time Dropped</div>
-            <div className={styles.image}>
-                <img src="/images/flagdroppedtime.png" alt="image"/>
-            </div>
-            <div className={styles.value}>{dropTime.toFixed(2)} Seconds</div>
-        </div>
+        timeDroppedElem = <MatchCTFCapBox title="Time Dropped" image="flagdroppedtime.png" value={`${dropTime.toFixed(2)} Seconds`}/>; 
     }
 
 
     if(seals > 0){
 
-        timeDroppedElem = <div className={styles.box}>
-            <div className={styles.title}>Seals</div>
-            <div className={styles.image}>
-                <img src="/images/flagseal.png" alt="image"/>
-            </div>
-            <div className={styles.value}>{seals}</div>
-        </div>
+        timeDroppedElem = <MatchCTFCapBox title="Seals" image="flagseal.png" value={seals}/>;
     }
 
     return <div className={styles.wrapper}>
@@ -124,22 +95,9 @@ const MatchCTFCap = ({covers, drops, selfCovers, carryTime, grabPlayer, capPlaye
             Flag Taken by {renderPlayer(grabPlayer, matchId, host)} @ <span className={styles.time}>{Functions.MMSS(grabTime)}</span>
         </div>
 
-        <div className={styles.box}>
-            <div className={styles.title}>Travel Time</div>
-            <div className={styles.image}>
-                <img src="/images/flagtravel.png" alt="image"/>
-            </div>
-            <div className={styles.value}>{travelTime} Seconds</div>
-        </div>
+        <MatchCTFCapBox title="Travel Time" image="flagtravel.png" value={`${travelTime} Seconds`}/>
+        <MatchCTFCapBox title="Time Carried" image="playerwithflagclock.png" value={`${carryTime} Seconds`}/>
 
-
-        <div className={styles.box}>
-            <div className={styles.title}>Time Carried</div>
-            <div className={styles.image}>
-                <img src="/images/playerwithflagclock.png" alt="image"/>
-            </div>
-            <div className={styles.value}>{carryTime} Seconds</div>
-        </div>
         {timeDroppedElem}
         {coversElem}
        
