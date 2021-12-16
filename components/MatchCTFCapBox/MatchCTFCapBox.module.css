@@ -1,6 +1,5 @@
 .box{
     display:inline-block;
-    padding:10px 0px;
     width:100%;
     width:200px;
     background-color:var(--color-3);
@@ -11,8 +10,8 @@
 
 .title{
     font-size:16px;
-    padding:5px;
-    padding-bottom:10px;
+    padding:10px;
+    background-color:black;
 }
 
 .image{
@@ -21,7 +20,6 @@
     background-color:black;
     background:linear-gradient(to bottom right, black, rgba(155, 66, 0, 0.5));
     padding-top:10px;
-    margin-bottom:10px;
 }
 
 .image img{
@@ -31,4 +29,6 @@
 .value{
     font-size:14px;
     color:yellow;
+    background-color:black;
+    padding:5px;
 }

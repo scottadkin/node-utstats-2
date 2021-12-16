@@ -224,7 +224,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     const bDom = bDomination(parsedPlayerData);
     const bAssaultGame = bAssault(gametype);
 
-    if(!bDom && !bAssaultGame){
+    if(!bDom && !bAssaultGame && pageSettings["Display Capture The Flag Caps"] === "true"){
         elems.push(<MatchCTFCapsNew host={imageHost} key="ctf-caps" players={JSON.parse(playerNames)} 
             totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}
         />);
