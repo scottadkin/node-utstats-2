@@ -15,9 +15,9 @@ class CTFManager{
 
         this.currentFlagHolders = [null, null, null, null];
 
-        this.ctf4Data = {
-            
-        };
+        this.ctf4Data = {};
+
+        this.flagKills = [];
 
         this.ctf = new CTF();
     }
@@ -158,8 +158,7 @@ class CTFManager{
                                     );
                                 }
                             }
-                        }
-                        
+                        }              
                     }
 
                    // if(type === "dropped"){

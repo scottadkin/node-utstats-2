@@ -225,6 +225,11 @@ class CTFCaps extends React.Component{
                                     <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}  >Map Records</div>
                                 </a>
                             </Link>
+                            <Link href={`/ctfcaps/?mode=2`}>
+                                <a>
+                                    <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`}  >Player Records</div>
+                                </a>
+                            </Link>
                         </div>
                         {this.renderMapCaps()}
                         {this.renderAllMapRecords()}
@@ -268,8 +273,13 @@ export async function getServerSideProps({req, query}){
 
     const mapNames = await mapManager.getNamesByIds(validMaps);
 
-    let image = null;
+    const playerSoloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords();
 
+    const playerAssitsCapRecords = await ctfManager.getPlayerTotalAssistCapRecords();
+
+    console.log(playerAssitsCapRecords);
+
+    let image = null;
 
     if(mapId !== -1){
         

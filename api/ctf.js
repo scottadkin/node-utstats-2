@@ -1289,6 +1289,59 @@ class CTF{
         
     }
 
+
+    async getPlayerTotalSoloCapRecords(){
+
+        const query = "SELECT cap,COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE type=0 GROUP BY cap ORDER BY total_records DESC";
+
+        return await mysql.simpleQuery(query);
+
+    }
+
+
+    async getPlayerTotalAssistCapRecords(){
+
+        const query = "SELECT cap,assists,grab FROM nstats_ctf_cap_records WHERE type=1";
+
+        const result = await mysql.simpleQuery(query);
+
+        const caps = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            const currentPlayers = [];
+
+            const assists = r.assists.split(",");
+
+            currentPlayers.push(r.grab);
+            
+            for(let x = 0; x < assists.length; x++){
+
+                const a = parseInt(assists[x]);
+
+                if(currentPlayers.indexOf(a) === -1){
+                    currentPlayers.push(a);
+                }
+            }
+
+            if(currentPlayers.indexOf(r.cap) === -1){
+                currentPlayers.push(r.cap);
+            }
+
+
+            for(let x = 0; x < currentPlayers.length; x++){
+
+                const p = currentPlayers[x];
+
+                if(caps[p] === undefined) caps[p] = 0;
+
+                caps[p]++;
+            }
+        }
+
+        return caps;
+    }
 }
 
 
