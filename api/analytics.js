@@ -1,5 +1,7 @@
 const mysql = require('./database');
 const Message = require('./message');
+const geo = require('geoip-lite');
+const countries = require('./countries');
 
 class Analytics{
 
@@ -177,35 +179,23 @@ class Analytics{
 
         const now = Math.floor(Date.now() * 0.001);
 
-       // console.log(geo.lookup(ip));
-
-        //ip = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-
         await mysql.simpleInsert(query, [ip, now]);
 
         await this.updateVisitorHistory(ip, now);
-
         
+        const iplookup = geo.lookup(ip);
 
-        const req = await fetch(`http://${host}/api/iplookup`, {
+        if(iplookup !== null){
 
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "method": "POST",
-            "body": JSON.stringify({"ip": ip})
+            const countryData = countries(iplookup.country);
 
-        });
+            await this.updateVisitorCountryHistory(countryData, now);
 
-        const result = await req.json();
+        }else{
 
-
-        if(result.error === undefined){
-
-            await this.updateVisitorCountryHistory(result, now)
+            await this.updateVisitorCountryHistory({"country": "Unknown", "code": "XX"}, now);
         }
-
-        // this.updateVisitorCountryHistory(geo.lookup(ip), now);
+        
     }
 
 
