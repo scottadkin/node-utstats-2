@@ -74,14 +74,20 @@ class Importer{
                 
                 const log = new MatchManager(logData, f, this.bIgnoreBots, this.minPlayers, this.minPlaytime);
 
-                const currentData = await log.import();
+                if(!log.bLinesNull){
 
-                fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
-                
-                this.updateCurrentUpdatedStats(currentData);
+                    const currentData = await log.import();
 
-                await this.updateImportStats();
+                    fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
+                    
+                    this.updateCurrentUpdatedStats(currentData);
+
+                    await this.updateImportStats();
                 
+                }else{
+                    fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
+                    new Message("log.bLinesNull = true, skipping log import. File moved to Log/imported/","error");
+                }
 
             }
 

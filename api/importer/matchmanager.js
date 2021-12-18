@@ -32,6 +32,8 @@ class MatchManager{
         this.minPlayers = minPlayers;
         this.minPlaytime = minPlaytime;
 
+        this.bLinesNull = false;
+
         new Message(`Starting import of log file ${fileName}`,'note');
 
         this.convertFileToLines();
@@ -406,6 +408,12 @@ class MatchManager{
         const monsterReg = /monsterkill\t(\d+?)\t(.+)$/i
         this.lines = this.data.match(reg);
 
+        if(this.lines === null){
+            this.bLinesNull = true;
+            new Message("matchmanager.ConvertFileToLines() this.lines is null","error");
+            return;
+        }
+
         this.serverLines = [];
         this.mapLines = [];
         this.gameLines = [];
@@ -467,7 +475,6 @@ class MatchManager{
             if(typeResult !== null){
 
                 currentType = typeResult[1].toLowerCase();
-
 
                 if(currentType == 'info'){
 
