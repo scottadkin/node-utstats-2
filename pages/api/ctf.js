@@ -252,6 +252,13 @@ export default async function handler(req, res){
             resolve();
             return;
 
+        }else if(mode === "caprecordsplayers"){
+
+            const soloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords();
+            const assistCapRecords = await ctfManager.getPlayerTotalAssistCapRecords();
+
+            console.log(soloCapRecords);
+            console.log(assistCapRecords);
         }
 
 

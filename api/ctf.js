@@ -1294,7 +1294,18 @@ class CTF{
 
         const query = "SELECT cap,COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE type=0 GROUP BY cap ORDER BY total_records DESC";
 
-        return await mysql.simpleQuery(query);
+        const result = await mysql.simpleQuery(query);
+
+        const data = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            data.push({"player": r.cap, "caps": r.total_records});
+
+        }
+
+        return data;
 
     }
 
@@ -1340,7 +1351,28 @@ class CTF{
             }
         }
 
-        return caps;
+        const returnData = [];
+
+        for(const [playerId, totalCaps] of Object.entries(caps)){
+
+            returnData.push({"player": parseInt(playerId), "caps": totalCaps});
+        }
+
+        returnData.sort((a,b) =>{
+
+            a = a.caps;
+            b = b.caps;
+
+            if(a > b){
+                return -1;
+            }else if(a < b){
+                return 1;
+            }
+
+            return 0;
+        });
+
+        return returnData;
     }
 }
 

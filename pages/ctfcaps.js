@@ -10,6 +10,7 @@ import MapFastestCaps from "../components/MapFastestCaps";
 import Functions from "../api/functions";
 import Link from 'next/link';
 import CTFMapRecords from '../components/CTFMapRecords';
+import CTFCapRecordsPlayers from "../components/CTFCapRecordsPlayers";
 
 class CTFCaps extends React.Component{
 
@@ -166,6 +167,13 @@ class CTFCaps extends React.Component{
         />
     }
 
+    renderPlayerCapRecords(){
+
+        if(this.props.mode !== 2) return null;
+
+        return <CTFCapRecordsPlayers />;
+    }
+
     render(){
 
         let mapName = "";
@@ -196,6 +204,11 @@ class CTFCaps extends React.Component{
 
             desc = `View all the current map ctf cap records.`;
             title = `CTF Map Records`;
+
+        }else if(this.props.mode === 2){
+            
+            desc = "View a list of players with the most cap records.";
+            title = "Player CTF Cap Records";
         }
 
         return <div>
@@ -233,6 +246,7 @@ class CTFCaps extends React.Component{
                         </div>
                         {this.renderMapCaps()}
                         {this.renderAllMapRecords()}
+                        {this.renderPlayerCapRecords()}
                     </div>
                 </div>
             </main>
@@ -273,11 +287,9 @@ export async function getServerSideProps({req, query}){
 
     const mapNames = await mapManager.getNamesByIds(validMaps);
 
-    const playerSoloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords();
+    //const playerSoloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords();
+    //const playerAssitsCapRecords = await ctfManager.getPlayerTotalAssistCapRecords();
 
-    const playerAssitsCapRecords = await ctfManager.getPlayerTotalAssistCapRecords();
-
-    console.log(playerAssitsCapRecords);
 
     let image = null;
 
