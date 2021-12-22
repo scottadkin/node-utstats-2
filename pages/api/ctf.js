@@ -155,6 +155,20 @@ function setCapDetails(caps, players, dates, records){
     }
 }
 
+function getPlayerIds(data){
+
+    const playerIds = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        playerIds.push(d.player);
+    }
+
+    return playerIds;
+}
+
 export default async function handler(req, res){
 
     return new Promise(async (resolve, reject) =>{
@@ -257,8 +271,18 @@ export default async function handler(req, res){
             const soloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords();
             const assistCapRecords = await ctfManager.getPlayerTotalAssistCapRecords();
 
-            console.log(soloCapRecords);
-            console.log(assistCapRecords);
+            let playerIds = [...getPlayerIds(soloCapRecords), ...getPlayerIds(assistCapRecords)];
+
+            playerIds = playerIds.filter((element, index, array) =>{
+                return array.indexOf(element) === index
+            })
+
+            const playerNames = await playerManager.getNamesByIds(playerIds);
+
+            res.status(200).json({"players": playerNames, "soloCaps": soloCapRecords, "assistCaps": assistCapRecords});
+
+            resolve();
+            return;
         }
 
 

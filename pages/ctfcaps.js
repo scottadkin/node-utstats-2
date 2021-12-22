@@ -171,7 +171,7 @@ class CTFCaps extends React.Component{
 
         if(this.props.mode !== 2) return null;
 
-        return <CTFCapRecordsPlayers />;
+        return <CTFCapRecordsPlayers mode={this.props.subMode}/>;
     }
 
     render(){
