@@ -19,6 +19,19 @@ class SiteSettings{
             {"name": "Default", "value": 0},
             {"name": "Table", "value": 1}
         ];
+
+
+        this.genericNumberRange = [
+            {"name": "1", "value": 1},
+            {"name": "2", "value": 2},
+            {"name": "3", "value": 3},
+            {"name": "4", "value": 4},
+            {"name": "5", "value": 5},
+            {"name": "10", "value": 10},
+            {"name": "15", "value": 15},
+            {"name": "20", "value": 20},
+            {"name": "25", "value": 25}
+        ]
     }
 
 
@@ -96,17 +109,7 @@ class SiteSettings{
 
         return {
             "Recent Matches Display Type": this.defaultDiplayTypes,
-            "Recent Matches To Display": [
-                {"name": "1", "value": 1},
-                {"name": "2", "value": 2},
-                {"name": "3", "value": 3},
-                {"name": "4", "value": 4},
-                {"name": "5", "value": 5},
-                {"name": "10", "value": 10},
-                {"name": "15", "value": 15},
-                {"name": "20", "value": 20},
-                {"name": "25", "value": 25}
-            ]
+            "Recent Matches To Display": this.genericNumberRange
         };
     }
 
@@ -117,7 +120,11 @@ class SiteSettings{
             "Default Record Type": [
                 {"name": "Player", "value": "0"},
                 {"name": "Match", "value": "1"},
-            ]
+            ],
+            "Maximum Assisted Caps To Display": this.defaultPerPageValues,
+            "Maximum Solo Caps To Display": this.defaultPerPageValues,
+            "Minimum Assisted Caps Before Displayed": this.genericNumberRange,
+            "Minimum Solo Caps Before Displayed": this.genericNumberRange,
         }
     }
 

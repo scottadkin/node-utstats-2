@@ -216,6 +216,10 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Playtime","0")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Player Score Graph","true")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Capture The Flag Times","true")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Solo Caps Before Displayed","1")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50")`,
     ];
 
     const reg = /^.+,"(.+?)","(.+?)",.+$/i;

@@ -27,7 +27,6 @@ import MonsterHunt from '../api/monsterhunt';
 import AdminMonsterHunt from '../components/AdminMonsterHunt';
 import Analytics from '../api/analytics';
 import SiteAnalytics from '../components/SiteAnalytics';
-import ACEManager from '../components/ACEManager';
 import AdminMapManager from '../components/AdminMapManager';
 
 class Admin extends React.Component{
@@ -404,7 +403,7 @@ class Admin extends React.Component{
                             "value": s.value
                             }
                         ]
-                    };
+                };
             }
         }
 

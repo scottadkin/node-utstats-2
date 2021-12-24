@@ -1030,7 +1030,11 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Rankings Per Gametype (Main)","10")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Rankings Per Page (Individual)","100")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Per Page","25")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Record Type","0")`
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Record Type","0")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Solo Caps Before Displayed","1")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50")`,
 
 ];
 
