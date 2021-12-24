@@ -18,10 +18,18 @@ class CTFCapRecordsPlayers extends React.Component{
 
         try{
 
+            const settings = JSON.parse(this.props.settings);
+
             const req = await fetch("/api/ctf", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"mode": "caprecordsplayers"})
+                "body": JSON.stringify({
+                    "mode": "caprecordsplayers",
+                    "maxSoloCaps": settings["Maximum Solo Caps To Display"],
+                    "maxAssistCaps": settings["Maximum Assisted Caps To Display"],
+                    "minSoloCaps": settings["Minimum Solo Caps Before Displayed"],
+                    "minAssistCaps": settings["Minimum Assisted Caps Before Displayed"],
+                })
             });
 
             const res = await req.json();
@@ -73,6 +81,14 @@ class CTFCapRecordsPlayers extends React.Component{
                     </Link>
                 </td>
                 <td>{d.caps}</td>
+            </tr>);
+        }
+
+        if(rows.length === 0){
+            rows.push(<tr key={0}>
+                <td colSpan={3}>
+                    No Data
+                </td>
             </tr>);
         }
 

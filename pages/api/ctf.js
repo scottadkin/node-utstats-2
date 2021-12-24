@@ -278,8 +278,13 @@ export default async function handler(req, res){
 
         }else if(mode === "caprecordsplayers"){
 
-            const soloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords();
-            const assistCapRecords = await ctfManager.getPlayerTotalAssistCapRecords();
+            const minSolo = (req.body.minSoloCaps !== undefined) ? parseInt(req.body.minSoloCaps) : 1;
+            const minAssisted = (req.body.minAssistCaps !== undefined) ? parseInt(req.body.minAssistCaps) : 1;
+            const maxSoloCaps = (req.body.maxSoloCaps !== undefined) ? parseInt(req.body.maxSoloCaps) : 50;
+            const maxAssistCaps = (req.body.maxAssistCaps !== undefined) ? parseInt(req.body.maxAssistCaps) : 50;
+
+            const soloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords(minSolo, maxSoloCaps);
+            const assistCapRecords = await ctfManager.getPlayerTotalAssistCapRecords(minAssisted, maxAssistCaps);
 
             let playerIds = [...getPlayerIds(soloCapRecords), ...getPlayerIds(assistCapRecords)];
 

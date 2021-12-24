@@ -1290,18 +1290,22 @@ class CTF{
     }
 
 
-    async getPlayerTotalSoloCapRecords(){
+    async getPlayerTotalSoloCapRecords(minCaps, maxResults){
 
-        const query = "SELECT cap,COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE type=0 GROUP BY cap ORDER BY total_records DESC";
+        const query = `SELECT cap,COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE type=0
+        GROUP BY cap 
+        ORDER BY total_records DESC LIMIT ?`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await mysql.simpleQuery(query, [maxResults]);
 
         const data = [];
 
         for(let i = 0; i < result.length; i++){
 
             const r = result[i];
-            data.push({"player": r.cap, "caps": r.total_records});
+            if(r.total_records >= minCaps){
+                data.push({"player": r.cap, "caps": r.total_records});
+            }
 
         }
 
@@ -1310,7 +1314,7 @@ class CTF{
     }
 
 
-    async getPlayerTotalAssistCapRecords(){
+    async getPlayerTotalAssistCapRecords(minCaps, maxResults){
 
         const query = "SELECT cap,assists,grab FROM nstats_ctf_cap_records WHERE type=1";
 
@@ -1351,9 +1355,11 @@ class CTF{
             }
         }
 
-        const returnData = [];
+        let returnData = [];
 
         for(const [playerId, totalCaps] of Object.entries(caps)){
+
+            if(totalCaps < minCaps) continue;
 
             returnData.push({"player": parseInt(playerId), "caps": totalCaps});
         }
@@ -1371,6 +1377,8 @@ class CTF{
 
             return 0;
         });
+
+        returnData = returnData.slice(0, maxResults);
 
         return returnData;
     }

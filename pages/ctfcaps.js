@@ -171,7 +171,7 @@ class CTFCaps extends React.Component{
 
         if(this.props.mode !== 2) return null;
 
-        return <CTFCapRecordsPlayers mode={this.props.subMode} host={Functions.getImageHostAndPort(this.props.host)}/>;
+        return <CTFCapRecordsPlayers mode={this.props.subMode} host={Functions.getImageHostAndPort(this.props.host)} settings={this.props.pageSettings}/>;
     }
 
     render(){
@@ -285,6 +285,8 @@ export async function getServerSideProps({req, query}){
     await session.load();
 
     const navSettings = await SiteSettings.getSettings("Navigation");
+    const pageSettings = await SiteSettings.getSettings("Records Page");
+
 
     const ctfManager = new CTF();
     const validMaps = await ctfManager.getAllMapsWithCaps();
@@ -292,10 +294,6 @@ export async function getServerSideProps({req, query}){
     const mapManager = new Maps();
 
     const mapNames = await mapManager.getNamesByIds(validMaps);
-
-    //const playerSoloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords();
-    //const playerAssitsCapRecords = await ctfManager.getPlayerTotalAssistCapRecords();
-
 
     let image = null;
 
@@ -329,6 +327,7 @@ export async function getServerSideProps({req, query}){
             "host":  req.headers.host,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
+            "pageSettings": JSON.stringify(pageSettings),
             "maps": JSON.stringify(mapNames),
             "mapId": mapId,
             "mode": mode,
