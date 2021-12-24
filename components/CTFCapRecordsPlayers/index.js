@@ -1,5 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
+import Table2 from '../Table2';
+import Functions from '../../api/functions';
+import CountryFlag from '../CountryFlag';
 
 
 class CTFCapRecordsPlayers extends React.Component{
@@ -32,7 +35,7 @@ class CTFCapRecordsPlayers extends React.Component{
                     "finishedLoading": true
                 });
             }
-            
+
         }catch(err){
             console.trace(err);
         }
@@ -41,6 +44,48 @@ class CTFCapRecordsPlayers extends React.Component{
     componentDidMount(){
 
         this.loadData();
+    }
+
+    renderRecords(){
+
+        const rows = [];
+
+        let data = [];
+
+        if(this.props.mode === 0){
+            data = this.state.soloCaps;
+        }else{
+            data = this.state.assistCaps;
+        }
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            rows.push(<tr key={i}>
+                <td>{i + 1}{Functions.getOrdinal(i + 1)}</td>
+                <td>
+                    <Link href={`/player/${d.player.id}`}>
+                        <a>
+                            <CountryFlag country={d.player.country} host={this.props.host}/>
+                            {d.player.name}
+                        </a>
+                    </Link>
+                </td>
+                <td>{d.caps}</td>
+            </tr>);
+        }
+
+        return <>
+            <Table2 width={2}>
+                <tr>
+                    <th>Place</th>
+                    <th>Player</th>
+                    <th>Total Records</th>
+                </tr>
+                {rows}
+            </Table2>
+        </>
     }
 
     render(){
@@ -59,6 +104,7 @@ class CTFCapRecordsPlayers extends React.Component{
                     </a>
                 </Link>
             </div>
+            {this.renderRecords()}
         </div>
     }
 }

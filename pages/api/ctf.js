@@ -1,6 +1,7 @@
 import CTF from '../../api/ctf';
 import Players from '../../api/players';
 import Matches from '../../api/matches';
+import Functions from '../../api/functions';
 
 function getUniquePlayers(data){
 
@@ -169,6 +170,15 @@ function getPlayerIds(data){
     return playerIds;
 }
 
+function setPlayerRecordNames(data, players){
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        d.player = Functions.getPlayer(players, d.player);
+    }
+}
+
 export default async function handler(req, res){
 
     return new Promise(async (resolve, reject) =>{
@@ -279,7 +289,10 @@ export default async function handler(req, res){
 
             const playerNames = await playerManager.getNamesByIds(playerIds);
 
-            res.status(200).json({"players": playerNames, "soloCaps": soloCapRecords, "assistCaps": assistCapRecords});
+            setPlayerRecordNames(soloCapRecords, playerNames);
+            setPlayerRecordNames(assistCapRecords, playerNames);
+
+            res.status(200).json({"soloCaps": soloCapRecords, "assistCaps": assistCapRecords});
 
             resolve();
             return;

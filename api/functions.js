@@ -44,7 +44,7 @@ class Functions{
             }
         }
     
-        return {"name": "not found", "country": "xx", "team": 0}
+        return {"name": "not found", "country": "xx", "team": 0, "id": -1}
     }
 
 
