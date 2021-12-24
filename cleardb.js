@@ -10,6 +10,7 @@ const tables = [
     "countries",
     "ctf_caps",
     "ctf_events",
+    "ctf_cap_records",
     "dom_control_points",
     "dom_match_caps",
     "dom_match_control_points",
