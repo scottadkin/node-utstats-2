@@ -207,8 +207,14 @@ class CTFCaps extends React.Component{
 
         }else if(this.props.mode === 2){
             
-            desc = "View a list of players with the most cap records.";
-            title = "Player CTF Cap Records";
+            let recordSubstring = "Solo";
+            
+            if(this.props.subMode === 1){
+                recordSubstring = "Assisted";
+            }
+
+            desc = `View a list of players with the most ${recordSubstring} CTF cap records.`;
+            title = `Player ${recordSubstring} CTF Cap Records`;
         }
 
         return <div>
