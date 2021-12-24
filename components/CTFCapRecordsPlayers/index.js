@@ -71,7 +71,7 @@ class CTFCapRecordsPlayers extends React.Component{
             const d = data[i];
 
             rows.push(<tr key={i}>
-                <td>{i + 1}{Functions.getOrdinal(i + 1)}</td>
+                <td className="place">{i + 1}{Functions.getOrdinal(i + 1)}</td>
                 <td>
                     <Link href={`/player/${d.player.id}`}>
                         <a>
@@ -107,7 +107,7 @@ class CTFCapRecordsPlayers extends React.Component{
     render(){
 
         return <div>
-            <div className="default-header">Player CTF Cap Records</div>
+            <div className="default-header">Player Cap Records</div>
             <div className="tabs">
                 <Link href={`/ctfcaps?mode=2&submode=0`}>
                     <a>
