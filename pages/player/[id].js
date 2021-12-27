@@ -37,16 +37,21 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 	if(summary === undefined){
 
 		return (<div>
-					<DefaultHead />
+					<DefaultHead host={host} title={`Player Not Found`} 
+						description={`Player not found.`} 
+						keywords={`career,profile,not,found`}
+					/>
 			
 					<main>
 						<Nav settings={navSettings} session={session}/>
 						<div id="content">
-						<div className="default">
-							<div className="default-header">
-								There is no player with that id.
+							<div className="default">
+								<div className="default-header">
+									There is no player with that id.
+								</div>
+								<img src="/images/temp.jpg" alt="Horse"/>
+								<img src="/images/temp2.jpg" alt="Another Horse"/>
 							</div>
-						</div>
 						</div>
 						<Footer session={session}/>
 					</main>   
@@ -260,6 +265,10 @@ export async function getServerSideProps({req, query}) {
 	const weaponsManager = new Weapons();
 	const serverManager = new Servers();
 
+	const session = new Session(req);
+
+	await session.load();
+
 	if(query.id === undefined) query.id = 0;
 
 	const playerId = query.id;
@@ -268,7 +277,9 @@ export async function getServerSideProps({req, query}) {
 	
 	if(summary === undefined){
 		return {
-			props: {}
+			props: {
+				"session": JSON.stringify(session.settings)
+			}
 		};
 	}
 
@@ -416,9 +427,6 @@ export async function getServerSideProps({req, query}) {
 		itemNames = await itemManager.getNamesByIds(uniqueItemIds);
 	}
 
-	const session = new Session(req);
-
-	await session.load();
 
 
 	let rankingData = [];
