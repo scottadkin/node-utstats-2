@@ -194,6 +194,7 @@ export default async function handler(req, res){
         let perPage = (req.body.perPage !== undefined) ? parseInt(req.body.perPage) : 5;
         let page = (req.body.page !== undefined) ? parseInt(req.body.page) : 0;
         const type = (req.body.type !== undefined) ? req.body.type : "";
+        const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
 
         const setDetails = req.body.setDetails ?? false;
 
@@ -301,6 +302,11 @@ export default async function handler(req, res){
 
             resolve();
             return;
+
+        }else if(mode === "singleplayercaprecords"){
+
+            console.log(playerId);
+            const data = await ctfManager.getPlayerCapRecords(playerId);
         }
 
 

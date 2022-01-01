@@ -1,5 +1,5 @@
 .wrapper{
-    overflow: auto;
+    overflow:auto;
     margin-left:auto;
     margin-right:auto;
     width:100%;
@@ -10,6 +10,27 @@
     margin-bottom:25px;
 }
 
+@media only screen and (max-width: 800px) {
+    .wrapper table td, .wrapper table th{
+        font-size:12px;
+        padding:10px 2px;
+    }
+
+    .wrapper table td img{
+        display:none;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .wrapper table td, .wrapper table th{
+        font-size:10px;
+        padding:10px 1px;
+    }
+
+    .wrapper table td img{
+        display:none;
+    }
+}
 
 .wrapper table th{
     padding:15px 5px;

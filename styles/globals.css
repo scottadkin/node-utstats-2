@@ -18,7 +18,7 @@
 	--border-color-2:rgba(255,255,255,0.125);
 	--transition-1:all 0.5s;
 	--width-1:90%;
-	--max-width-1:1400px;
+	--max-width-1:1600px;
 	--max-width-2:500px;
 }
 
@@ -85,11 +85,11 @@ footer{
 
 .default-header{
 	text-align:center;
-	font-size:24px;
+	font-size:26px;
 	color:white;
 	font-weight:300;
-	padding-bottom:20px;
-	padding-top:20px;
+	padding-bottom:25px;
+	padding-top:25px;
 	background-color:var(--color-3);
 	background:linear-gradient(to bottom, var(--color-1a), var(--color-3a));
 	margin-left:auto;
@@ -103,8 +103,8 @@ footer{
 	font-size:18px;
 	color:white;
 	font-weight:300;
-	padding-bottom:15px;
-	padding-top:15px;
+	padding-bottom:20px;
+	padding-top:20px;
 	width:var(--width-1);
 	max-width:var(--max-width-1);
 	margin-left:auto;
@@ -195,7 +195,7 @@ th{
 td{
 	font-weight:400;
 	padding:15px 5px;
-	font-size:14px;
+	font-size:15px;
 }
 
 tr{

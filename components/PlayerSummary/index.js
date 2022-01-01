@@ -4,11 +4,12 @@ import PlayerGeneral from '../PlayerGeneral/';
 import PlayerGametypeStats from '../PlayerGametypeStats/';
 import PlayerSpecialEvents from '../PlayerSpecialEvents/';
 import PlayerADSummary from '../PlayerADSummary/';
+import PlayerCapRecords from '../../components/PlayerCapRecords';
 
 
 
 const PlayerSummary = ({host, session, pageSettings, summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
-    winRateHistory, faces}) =>{   
+    winRateHistory, faces, playerId}) =>{   
 
     summary = JSON.parse(summary);
 
@@ -18,7 +19,6 @@ const PlayerSummary = ({host, session, pageSettings, summary, flag, country, gam
 
     const elems = [];
 
-    console.log(pageSettings);
 
     if(pageSettings["Display Summary"] === "true"){
 
@@ -47,6 +47,8 @@ const PlayerSummary = ({host, session, pageSettings, summary, flag, country, gam
 
         elems.push(<PlayerCTFSummary key={3} session={session} data={summary} />);
     }
+
+    elems.push(<PlayerCapRecords key="3a" playerId={playerId}/>);
 
     if(pageSettings["Display Assault & Domination"] === "true"){
 

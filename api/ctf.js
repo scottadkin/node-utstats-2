@@ -1382,6 +1382,21 @@ class CTF{
 
         return returnData;
     }
+
+
+    async getPlayerSoloCapRecords(playerId){
+
+        const query = "SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE cap=? AND type=0";
+
+        return await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async getPlayerCapRecords(playerId){
+
+        const soloRecords = await this.getPlayerSoloCapRecords(playerId);
+
+        console.log(soloRecords);
+    }
 }
 
 

@@ -113,6 +113,7 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 								winRateHistory={winRateHistory} 
 								matchDates={matchDates}
 								faces={faces}
+								playerId={playerId}
 							/>
 
 							{(pageSettings["Display Rankings"] === "false") ? null :

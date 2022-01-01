@@ -1034,8 +1034,7 @@ class Player{
 
                 await matchManager.reducePlayerCount(matchId, 1);
 
-                console.log(matchData.name);
-
+                
                 currentDMWinner = await matchManager.getDmWinner(matchId);
 
                 
@@ -1050,6 +1049,17 @@ class Player{
         }catch(err){
             console.trace(err);
         }
+    }
+
+
+    async getPlayerCapRecords(playerId){
+
+        const query = "SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE cap=?";
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        console.log(result);
+
     }
 
 }
