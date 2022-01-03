@@ -1387,15 +1387,34 @@ class CTF{
     async getPlayerSoloCapRecords(playerId){
 
         const query = "SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE cap=? AND type=0";
-
         return await mysql.simpleQuery(query, [playerId]);
+
+    }
+
+    async getPlayerAssistCapRecords(playerId){
+
+
+        /*const query = `SELECT match_id,match_date,map_id,cap,grab,assists FROM nstats_ctf_cap_records WHERE 
+        assists=? || 
+        assists LIKE ? || 
+        assists LIKE ?`;*/
+
+        const query = `SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE 
+        assists=? || 
+        assists LIKE ? || 
+        assists LIKE ?`;
+
+        return await mysql.simpleQuery(query, [playerId, `%${playerId},%`, `%,${playerId}%`]);
+
     }
 
     async getPlayerCapRecords(playerId){
 
         const soloRecords = await this.getPlayerSoloCapRecords(playerId);
 
-        console.log(soloRecords);
+        const assistedRecords = await this.getPlayerAssistCapRecords(playerId);
+
+        return {"soloCaps": soloRecords, "assistedCaps": assistedRecords};
     }
 }
 

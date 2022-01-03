@@ -2,6 +2,7 @@ import CTF from '../../api/ctf';
 import Players from '../../api/players';
 import Matches from '../../api/matches';
 import Functions from '../../api/functions';
+import Maps from '../../api/maps';
 
 function getUniquePlayers(data){
 
@@ -15,18 +16,28 @@ function getUniquePlayers(data){
             playerIds.push(d.cap);
         }
 
-        if(d.assists !== ""){
+        if(d.grab !== undefined){
 
-            const assists = d.assists.split(",");
+            if(playerIds.indexOf(d.grab) === -1){
+                playerIds.push(d.grab);
+            }
+        }
 
-            for(let i = 0; i < assists.length; i++){
+        if(d.assists !== undefined){
 
-                const assist = parseInt(assists[i]);
+            if(d.assists !== ""){
 
-                if(assist === assist){
+                const assists = d.assists.split(",");
 
-                    if(playerIds.indexOf(assist) === -1){
-                        playerIds.push(assist);
+                for(let i = 0; i < assists.length; i++){
+
+                    const assist = parseInt(assists[i]);
+
+                    if(assist === assist){
+
+                        if(playerIds.indexOf(assist) === -1){
+                            playerIds.push(assist);
+                        }
                     }
                 }
             }
@@ -179,6 +190,42 @@ function setPlayerRecordNames(data, players){
     }
 }
 
+async function getUniqueMapIds(data, mapManager){
+
+    const maps = [];
+
+    for(let i = 0; i < data.soloCaps.length; i++){
+
+        const m = data.soloCaps[i].map_id;
+
+        if(maps.indexOf(m) === -1){
+            maps.push(m);
+        }
+    }
+
+    for(let i = 0; i < data.assistedCaps.length; i++){
+
+        const m = data.assistedCaps[i].map_id;
+
+        if(maps.indexOf(m) === -1){
+            maps.push(m);
+        }
+    }
+
+    return await mapManager.getNamesByIds(maps, true);
+
+}
+
+function setMapName(data, mapNames){
+
+    if(mapNames[data.map_id] !== undefined){
+        data.mapName = mapNames[data.map_id];
+    }else{
+        data.mapName = "Not Found";
+    }
+
+}
+
 export default async function handler(req, res){
 
     return new Promise(async (resolve, reject) =>{
@@ -305,8 +352,30 @@ export default async function handler(req, res){
 
         }else if(mode === "singleplayercaprecords"){
 
-            console.log(playerId);
+            //console.log(playerId);
+
+            const mapManager = new Maps();
             const data = await ctfManager.getPlayerCapRecords(playerId);
+
+            const mapNames = await getUniqueMapIds(data, mapManager);
+
+            for(let i = 0; i < data.soloCaps.length; i++){
+
+                const d = data.soloCaps[i];
+                setMapName(d, mapNames);
+            }
+
+            for(let i = 0; i < data.assistedCaps.length; i++){
+
+                const d = data.assistedCaps[i];
+                setMapName(d, mapNames);
+
+            }
+
+            res.status(200).json({"data": data});
+            resolve();
+            return;
+          
         }
 
 
