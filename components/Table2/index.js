@@ -21,6 +21,8 @@ class Table2 extends React.Component{
             widthClass = "t-width-2";
         }else if(widthId === 3){
             widthClass = "t-width-3";
+        }else if(widthId === 4){
+            widthClass = "t-width-4";
         }
 
         const playerClass = (this.props.players !== undefined) ? (this.props.players) ? "player-td-1" : "" : "" ;

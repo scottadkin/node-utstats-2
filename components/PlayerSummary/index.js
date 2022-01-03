@@ -9,7 +9,7 @@ import PlayerCapRecords from '../../components/PlayerCapRecords';
 
 
 const PlayerSummary = ({host, session, pageSettings, summary, flag, country, gametypeStats, gametypeNames, latestWinRate,
-    winRateHistory, faces, playerId}) =>{   
+    winRateHistory, faces, playerId, capRecordsMode}) =>{   
 
     summary = JSON.parse(summary);
 
@@ -48,7 +48,7 @@ const PlayerSummary = ({host, session, pageSettings, summary, flag, country, gam
         elems.push(<PlayerCTFSummary key={3} session={session} data={summary} />);
     }
 
-    elems.push(<PlayerCapRecords key="3a" playerId={playerId}/>);
+    elems.push(<PlayerCapRecords key="3a" playerId={playerId} mode={capRecordsMode}/>);
 
     if(pageSettings["Display Assault & Domination"] === "true"){
 

@@ -28,7 +28,8 @@ import Analytics from '../../api/analytics';
 
 function Home({navSettings, pageSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
-	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, rankingsData, rankingPositions}) {
+	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
+	rankingsData, rankingPositions, capRecordsMode}) {
 
 
 	const imageHost = Functions.getImageHostAndPort(host);
@@ -114,6 +115,7 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 								matchDates={matchDates}
 								faces={faces}
 								playerId={playerId}
+								capRecordsMode={capRecordsMode}
 							/>
 
 							{(pageSettings["Display Rankings"] === "false") ? null :
@@ -271,6 +273,8 @@ export async function getServerSideProps({req, query}) {
 	await session.load();
 
 	if(query.id === undefined) query.id = 0;
+
+	const capRecordsMode = (query.capRecordsMode !== undefined) ? parseInt(query.capRecordsMode) : 0;
 
 	const playerId = query.id;
 		
@@ -483,7 +487,8 @@ export async function getServerSideProps({req, query}) {
 			"itemNames": JSON.stringify(itemNames),
 			"ogImage": ogImage,
 			"rankingsData": JSON.stringify(rankingData),
-			"rankingPositions": JSON.stringify(rankingPositions)
+			"rankingPositions": JSON.stringify(rankingPositions),
+			"capRecordsMode": capRecordsMode
 			
 		}
 	}

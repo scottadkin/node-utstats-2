@@ -404,6 +404,11 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	max-width:250px;
 }
 
+.t-width-4{
+	width:90%;
+	max-width:800px;
+}
+
 .form{
 	background-color:var(--color-3);
 	background:linear-gradient(to bottom, var(--color-1a), var(--color-3a));
@@ -531,11 +536,9 @@ input[type="range"]{
 .tabs, .big-tabs, .view-profile{
 	text-align:center;
 	margin-bottom:10px;
-	max-width:var(--max-width-1);
 	margin-left:auto;
 	margin-right:auto;
 	background-color:var(--color-3a);
-	width:90%;
 }
 .view-profile{
 	padding:5px;

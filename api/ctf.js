@@ -1386,7 +1386,7 @@ class CTF{
 
     async getPlayerSoloCapRecords(playerId){
 
-        const query = "SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE cap=? AND type=0";
+        const query = "SELECT match_id,match_date,map_id,travel_time FROM nstats_ctf_cap_records WHERE cap=? AND type=0";
         return await mysql.simpleQuery(query, [playerId]);
 
     }
@@ -1399,7 +1399,7 @@ class CTF{
         assists LIKE ? || 
         assists LIKE ?`;*/
 
-        const query = `SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE 
+        const query = `SELECT match_id,match_date,map_id,travel_time FROM nstats_ctf_cap_records WHERE 
         assists=? || 
         assists LIKE ? || 
         assists LIKE ?`;
