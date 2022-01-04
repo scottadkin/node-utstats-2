@@ -9,10 +9,10 @@
   },
   "dependencies": {
     "cookie": "^0.4.1",
-    "express": "^4.17.1",
+    "express": "^4.17.2",
     "formidable": "^2.0.1",
     "ftp": "^0.3.10",
-    "geoip-country": "^4.0.99",
+    "geoip-country": "^4.0.101",
     "geoip-lite": "^1.4.2",
     "i18n-iso-countries": "^7.2.0",
     "jimp": "^0.16.1",
