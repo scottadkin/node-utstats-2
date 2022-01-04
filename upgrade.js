@@ -220,8 +220,9 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true")`,
     ];
-
+    
     const reg = /^.+,"(.+?)","(.+?)",.+$/i;
 
     for(let i = 0; i < queries.length; i++){

@@ -48,7 +48,9 @@ const PlayerSummary = ({host, session, pageSettings, summary, flag, country, gam
         elems.push(<PlayerCTFSummary key={3} session={session} data={summary} />);
     }
 
-    elems.push(<PlayerCapRecords key="3a" playerId={playerId} mode={capRecordsMode}/>);
+    if(pageSettings["Display Capture The Flag Cap Records"] === "true"){
+        elems.push(<PlayerCapRecords key="3a" playerId={playerId} mode={capRecordsMode}/>);
+    }
 
     if(pageSettings["Display Assault & Domination"] === "true"){
 
