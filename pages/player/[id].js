@@ -252,6 +252,17 @@ function createPingGraphData(history){
 	return {"data": data, "text": text};
 }
 
+
+function getOGImage(faceFiles, faceId){
+
+	if(faceFiles[faceId] !== undefined){
+		return `faces/${faceFiles[faceId].name}`;
+	}
+
+	return "faces/faceless";
+
+}
+
 export async function getServerSideProps({req, query}) {
 
 	const settings = new SiteSettings();
@@ -289,14 +300,9 @@ export async function getServerSideProps({req, query}) {
 	}
 
 	let gametypeStats = await playerManager.getPlayerGametypeWinStats(summary.name);
-	
 	const totalMatches = await playerManager.getTotalMatches(playerId, matchManager);
-
 	const gametypeIds = Functions.getUniqueValues(gametypeStats, 'gametype');
-
 	let gametypeNames = await gametypes.getNames(gametypeIds);
-
-
 	const matchPage = (query.matchpage !== undefined) ? (parseInt(query.matchpage) === parseInt(query.matchpage) ? query.matchpage : 1) : 1;
 
 	let recentMatches = [];
@@ -407,14 +413,7 @@ export async function getServerSideProps({req, query}) {
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(usedFaces);
 
-	let ogImage = "faces/faceless";
-
-	for(const [key, value] of Object.entries(faceFiles)){
-
-		ogImage = `faces/${value.name}`;
-		break;
-	}
-
+	const ogImage = getOGImage(faceFiles, summary.face);
 
 	const itemManager = new Items();
 

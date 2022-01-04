@@ -14,18 +14,14 @@ const PlayerSummary = ({host, session, pageSettings, summary, flag, country, gam
     summary = JSON.parse(summary);
 
     faces = JSON.parse(faces);
-
-    let faceId = Object.keys(faces)[0];
-
     const elems = [];
-
 
     if(pageSettings["Display Summary"] === "true"){
 
         elems.push(<PlayerGeneral key={1} country={country}
             host={host}
             flag={flag}
-            face={faces[faceId].name}
+            face={faces[summary.face].name}
             first={summary.first}
             last={summary.last}
             matches={summary.matches}
