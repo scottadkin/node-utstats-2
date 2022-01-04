@@ -1,5 +1,5 @@
 import React from 'react';
-//import Link from 'next/link';
+import Link from 'next/link';
 import Table2 from '../Table2';
 import Functions from '../../api/functions';
 
@@ -52,16 +52,42 @@ class PlayerCapRecords extends React.Component{
 
         const rows = [];
 
-        const records = (mode === 0) ? this.state.soloCaps : this.state.assistedCaps ;
+        const records = (mode === 0) ? this.state.soloCaps : this.state.assistedCaps;
+
+        records.sort((a, b) =>{
+
+            a = a.mapName;
+            b = b.mapName;
+
+            if(a > b){  
+                return 1;
+            }else if(a < b){
+                return -1;
+            }
+
+            return 0;
+        });
 
         for(let i = 0; i < records.length; i++){
 
             const r = records[i];
 
             rows.push(<tr key={i}>
-                <td>{r.mapName}</td>
-                <td>{Functions.convertTimestamp(r.match_date, true)}</td>
-                <td className="purple">{Functions.MMSS(r.travel_time)}</td>
+                <td>
+                    <Link href={`/map/${r.map_id}`}>
+                        <a>
+                            {r.mapName}
+                        </a>
+                    </Link>
+                </td>
+                <td>
+                    <Link href={`/match/${r.match_id}`}>
+                        <a>
+                            {Functions.convertTimestamp(r.match_date, true)}
+                        </a>
+                    </Link>
+                </td>
+                <td className="purple">{r.travel_time.toFixed(2)} Seconds</td>
             </tr>);
         }
 

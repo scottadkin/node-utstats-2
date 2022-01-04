@@ -196,18 +196,19 @@ class PlayerWeapons extends React.Component{
         return (
             <div>
                 <div className="default-header">Weapon Stats</div>
-                <div className={`${styles.main} m-bottom-10`}>
+               
                     
-                    <div className="tabs">
-                        <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                            this.changeMode(0);
-                        })}>Default View</div>
-                        <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}
-                        onClick={(() =>{
-                            this.changeMode(1);
-                        })}>Compressed View</div>
-                    </div>
-                    {elems}
+                        <div className="tabs">
+                            <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(0);
+                            })}>Default View</div>
+                            <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}
+                            onClick={(() =>{
+                                this.changeMode(1);
+                            })}>Compressed View</div>
+                        </div>
+                    <div className={`${styles.main} m-bottom-10`}>
+                        {elems}
                 </div>
             </div>
         );
