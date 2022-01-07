@@ -9,6 +9,7 @@ import Graph from '../Graph/';
 import React from 'react';
 import MatchResultSmall from '../MatchResultSmall';
 import Table2 from '../Table2';
+import MatchResultDisplay from '../MatchResultDisplay';
 
 const getMatchScores = (scores, id) =>{
     
@@ -312,27 +313,24 @@ class PlayerRecentMatches extends React.Component{
 
                 mapImage = getMapImage(mapImages, m.mapName);
 
-                elems.push(<Link href={`/match/${m.match_id}`} key={m.id}><a>
-                    <div className={styles.wrapper}>
-                        <div className={`${styles.title} ${currentWinnerClass}`}> 
-                            { currentResultString}
-                        </div>
-                        <div className={styles.image}>
-                            <img src={mapImage} alt="image" className="map-image"/>
-                        </div>
-                        <div className={styles.info}>
-                            <span className="yellow">{getServerName(serverNames, m.server)}</span><br/>
-                            <span className="yellow">{currentGametype}</span> on <span className="yellow">{m.mapName}</span><br/>
-                            <TimeStamp timestamp={m.match_date} /><br/>
-                            Playtime <span className="yellow"><MMSS timestamp={m.playtime}/></span><br/>
-                            Players <span className="yellow">{m.players}</span>
-                        </div>
-                        <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
-                        redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3} 
+                elems.push(<MatchResultDisplay 
+                    key={`${m.id}b`}
+                    url={`/match/${m.match_id}`}
+                    mode="player"
+                    playerResult={currentResultString}
+                    mapImage={mapImage}
+                    serverName={getServerName(serverNames, m.server)}
+                    gametypeName={currentGametype}
+                    date={Functions.convertTimestamp(m.match_date)}
+                    playtime={Functions.MMSS(m.playtime)}
+                    players={m.players}>
+
+                    <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
+                        redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} 
+                        yellowScore={currentScore.team_score_3} 
                         bMonsterHunt={currentScore.mh} endReason={currentScore.end_type}
-                        />
-                    </div>
-                </a></Link>);
+                    />
+                </MatchResultDisplay>);
 
             }else{
 
