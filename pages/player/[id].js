@@ -84,11 +84,13 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 
 	const parsedSession = JSON.parse(session);
 
+	let description = `View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedInfo.last)},`;
+	description += `played ${parsedInfo.matches} matches with a winrate of ${parsedInfo.winrate.toFixed(2)}% and has played for a total of ${(parsedInfo.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedInfo.first)}.` ;
+
 	return (
 			<div>
 				<DefaultHead host={host} title={`${titleName} Career Profile`} 
-					description={`View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedInfo.last)},
-					played ${parsedInfo.matches} matches with a winrate of ${parsedInfo.winrate.toFixed(2)}% and has played for a total of ${(parsedInfo.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedInfo.first)}.`} 
+					description={description}
 					keywords={`career,profile,${name},${country.country}`}
 					image={ogImage} imageType="png"
 				/>

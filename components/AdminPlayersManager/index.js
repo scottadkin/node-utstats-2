@@ -419,7 +419,7 @@ class AdminPlayersManager extends React.Component{
     render(){
 
         return <div>
-            <div className="default-header">Manage Uses</div>
+            <div className="default-header">Manage Users</div>
 
             <div className="tabs">
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
