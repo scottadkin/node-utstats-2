@@ -42,13 +42,41 @@ class MatchResultDisplay extends React.Component{
             <div className={styles.sinfo}>
                 {this.props.serverName}<br/>
             </div>
+            <div className={styles.mapn}>
+                {this.props.mapName}
+            </div>
             <div className={styles.minfo}>
                 {this.props.gametypeName}<br/>
                 {this.props.date}<br/>
                 Playtime {this.props.playtime}<br/>
                 {this.props.players} Players
             </div>
-        </div>
+        </div>;
+
+    }
+
+    renderRecentResult(){
+
+        if(this.props.mode !== "recent") return null;
+
+        return <div>
+            <div className={styles.mapt}>
+                {this.props.mapName}
+            </div>
+            <div className={styles.mapi}>
+                <Image src={this.props.mapImage} width={400} height={225}/>
+            </div>
+            <div className={styles.sinfo}>
+                {this.props.serverName}<br/>
+            </div>
+            <div className={styles.minfo}>
+                {this.props.gametypeName}<br/>
+                {this.props.date}<br/>
+                Playtime {this.props.playtime}<br/>
+                {this.props.players} Players
+            </div>
+        </div>;
+
     }
 
     render(){
@@ -57,6 +85,7 @@ class MatchResultDisplay extends React.Component{
             <a>
                 <div className={styles.wrapper}>
                     {this.renderPlayerResult()}
+                    {this.renderRecentResult()}
                     {this.props.children}
                 </div>
             </a>

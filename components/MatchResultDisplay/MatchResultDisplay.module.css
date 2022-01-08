@@ -2,7 +2,6 @@
     background-color:var(--color-3a);
     background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
     width:400px;
-    height:435px;
     border:1px solid var(--border-color-3);
     overflow:hidden;
     display:inline-block;
@@ -26,4 +25,8 @@
     color:rgb(160,160,160);
     line-height:24px;
     padding-bottom:5px;
+}
+
+.mapt{
+    padding:10px;
 }

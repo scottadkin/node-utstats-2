@@ -1,13 +1,8 @@
 import styles from './MatchesDefaultView.module.css';
-import MMSS from '../MMSS/';
-import TimeStamp from '../TimeStamp/';
-import MatchResult from '../MatchResult/';
-import Link from 'next/link';
-import Image from 'next/image';
 import Functions from '../../api/functions'
 import React from 'react';
-
-import MatchResultBox from '../MatchResultBox';
+import MatchResultDisplay from '../MatchResultDisplay';
+import MatchResult from '../MatchResult';
 
 class MatchesDefaultView extends React.Component{
 
@@ -36,54 +31,54 @@ class MatchesDefaultView extends React.Component{
     }
 
 
+    getMapImage(name){
+
+        name = Functions.cleanMapName(name).toLowerCase();
+
+        const index = this.state.images.indexOf(name);
+        
+        if(index === -1) return "default";
+
+        return this.state.images[index];
+    }
+
     render(){
 
         const matches = JSON.parse(this.props.data);
 
         const elems = [];
-
-        let m = 0;
-        let image = "";
-        let imageIndex = 0;
-        let result = 0;
-        let dmScore = 0;
+        
 
         for(let i = 0; i < matches.length; i++){
 
-            m = matches[i];
+            const m = matches[i];
 
-            if(m.total_teams < 2){
+            elems.push(<MatchResultDisplay 
+                key={i}
+                mode="recent"
+                url={`/match/${m.id}`}
+                mapImage={`/images/maps/${this.getMapImage(m.mapName)}.jpg`}
+                mapName={m.mapName}
+                serverName={m.serverName}
+                date={Functions.convertTimestamp(m.date)}
+                players={m.players}
+                playtime={Functions.MMSS(m.playtime)}
+                gametypeName={m.gametypeName}
+            >
+                <MatchResult 
+                    dmWinner={m.dm_winner}
+                    dmScore={m.dm_score}
+                    totalTeams={m.total_teams}
+                    redScore={m.team_score_0}
+                    blueScore={m.team_score_1}
+                    greenScore={m.team_score_2}
+                    yellowScore={m.team_score_3}
+                    endReason={m.end_reason}
+                    bMonsterHunt={m.mh}
+                />
+            </MatchResultDisplay>);
 
-                result = m.dm_winner;
-                dmScore = m.dm_score;
-            }else{
-
-                result = [];
-                dmScore = null;
-
-                for(let x = 0; x < m.total_teams; x++){
-                    result.push(m[`team_score_${x}`]);
-                }
-            }
-
-            imageIndex = this.state.images.indexOf(Functions.cleanMapName(m.mapName).toLowerCase());
-
-            if(imageIndex === -1){
-                image = "default";
-            }else{
-                image = this.state.images[imageIndex];
-            }
-
-            elems.push(
-                <Link key={i} href={`/match/${m.id}`}>
-                    <a>
-                        <MatchResultBox host={this.props.host} serverName={m.serverName} gametypeName={m.gametypeName} mapName={m.mapName}
-                        mapImage={image} date={Functions.convertTimestamp(m.date)} players={m.players} playtime={Functions.MMSS(m.playtime)}
-                        result={result} dmScore={dmScore} totalTeams={m.total_teams} monsterHunt={m.mh} endReason={m.end_type}
-                        />
-                    </a>
-                </Link>
-            );
+        
         }
 
         return <div>{elems}</div>

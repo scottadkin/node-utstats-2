@@ -255,7 +255,6 @@ class PlayerRecentMatches extends React.Component{
         let currentWinnerClass = "";
         let currentGametype = 0;
         let mapImage = 0;
-        let currentServerName = "";
 
         let currentResultString = "";
 
@@ -266,10 +265,6 @@ class PlayerRecentMatches extends React.Component{
             currentScore = getMatchScores(scores, m.match_id);
 
             if(currentScore === null) continue;
-
-            //(m.winner) ? "Won the Match" : (m.draw) ? "Drew the Match" : "Lost the Match"
-
-            //currentWinnerClass = (m.winner) ? "green" : (m.draw) ? "draw" : "red";
 
             if(m.winner){
 
@@ -319,6 +314,7 @@ class PlayerRecentMatches extends React.Component{
                     mode="player"
                     playerResult={currentResultString}
                     mapImage={mapImage}
+                    mapName={m.mapName}
                     serverName={getServerName(serverNames, m.server)}
                     gametypeName={currentGametype}
                     date={Functions.convertTimestamp(m.match_date)}

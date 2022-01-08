@@ -66,9 +66,6 @@ class Matches extends React.Component{
             this.setState({"displayType": parseInt(session["matchesDisplay"])});
         }
 
-
-        
-        console.log(session);
     }
 
 
@@ -357,8 +354,6 @@ export async function getServerSideProps({req, query}){
     const mapImages = await mapManager.getImages(justMapNames);
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
-
-    console.log(req.headers);
 
     return {
         "props": {
