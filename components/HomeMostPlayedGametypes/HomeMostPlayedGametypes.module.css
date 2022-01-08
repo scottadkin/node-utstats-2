@@ -1,10 +1,12 @@
 .box{
     background-color:var(--color-1);
-    background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
+    background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
+    border:1px solid var(--border-color-3);
     width:400px;
     display:inline-block;
-    margin-right:10px;
-    margin-bottom:10px;
+    margin-right:5px;
+    margin-bottom:5px;
+    
 }
 
 .name{
@@ -13,6 +15,8 @@
 }
 
 .info{
-    font-size:12px;
+    font-size:14px;
     line-height:24px;
+    color:rgb(160,160,160);
+    padding-bottom:5px;
 }

@@ -1,19 +1,21 @@
 .wrapper{
     background-color:var(--color-1);
-    background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
+    background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
     display:inline-block;
     width:400px;
-    margin-right:10px;
-    margin-bottom:10px;
+    margin-right:5px;
+    margin-bottom:5px;
 }
 
 .name{
     font-size:16px;
     padding:10px;
-    background-color:var(--color-3);
 }
 
 .info{
-    font-size:12px;
+    font-size:14px;
     line-height:24px;
+    color:rgb(160,160,160);
+    padding-bottom:5px;
+
 }

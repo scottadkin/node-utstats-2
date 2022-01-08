@@ -1,6 +1,7 @@
 import Functions from '../../api/functions';
 import Link from 'next/link';
 import styles from './HomeTopMaps.module.css';
+import Image from 'next/image';
 
 const HomeTopMaps = ({maps, images, classic, host}) =>{
 
@@ -39,12 +40,12 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
         elems.push(<Link key={i} href={`${(classic) ? "/classic" : "" }/map/${id}`}><a>
             <div className={styles.wrapper}>
                 <div className={styles.name}>{Functions.removeUnr(m.name)} </div> 
-                <img src={`${host}images/maps/thumbs/${currentImage}.jpg`} alt="image" className="map-image"/>
+                <Image src={`/images/maps/thumbs/${currentImage}.jpg`} height={225} width={400} alt="image" />
                 <div className={styles.info}>
-                    <span className="yellow">Playtime</span> {hours.toFixed(2)} Hours<br/>
-                    {matches} <span className="yellow">Matches</span><br/>
-                    <span className="yellow">First Match</span> {Functions.convertTimestamp(first, true)}<br/>
-                    <span className="yellow">Last Match</span> {Functions.convertTimestamp(last, true)}<br/>
+                    Playtime {hours.toFixed(2)} Hours<br/>
+                    {matches} Matches<br/>
+                    First Match {Functions.convertTimestamp(first, true)}<br/>
+                    Last Match {Functions.convertTimestamp(last, true)}<br/>
                 </div>
             </div>    
         </a></Link>);

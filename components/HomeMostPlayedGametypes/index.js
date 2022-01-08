@@ -42,10 +42,10 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
             <div className={styles.name}>{d.name}</div>
             <div className={styles.image}><img src={`${host}images/gametypes/${currentImage}`} alt="image" width="400" height="225"/></div>
             <div className={styles.info}>
-                <span className="yellow">Playtime</span> {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
-                {d.matches} <span className="yellow">Matches</span><br/> 
-                <span className="yellow">First Match</span> {Functions.convertTimestamp(d.first, true)}<br/>
-                <span className="yellow">Last Match</span> {Functions.convertTimestamp(d.last, true)}<br/>
+                Playtime {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
+                {d.matches} Matches<br/> 
+                First Match {Functions.convertTimestamp(d.first, true)}<br/>
+                Last Match {Functions.convertTimestamp(d.last, true)}<br/>
             </div>
         </div>);
     }
