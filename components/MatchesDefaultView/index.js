@@ -73,7 +73,7 @@ class MatchesDefaultView extends React.Component{
                     blueScore={m.team_score_1}
                     greenScore={m.team_score_2}
                     yellowScore={m.team_score_3}
-                    endReason={m.end_reason}
+                    endReason={m.end_type}
                     bMonsterHunt={m.mh}
                 />
             </MatchResultDisplay>);
