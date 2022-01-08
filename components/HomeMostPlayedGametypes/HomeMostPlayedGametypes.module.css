@@ -17,6 +17,6 @@
 .info{
     font-size:14px;
     line-height:24px;
-    color:rgb(160,160,160);
+    color:var(--color-7);
     padding-bottom:5px;
 }

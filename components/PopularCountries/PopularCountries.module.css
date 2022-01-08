@@ -1,3 +1,5 @@
+
+
 .wrapper img{
     height:100px;
 }
@@ -5,28 +7,22 @@
 .country{
     display:inline-block;
     background-color:var(--color-3);
-    background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
+    background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
     margin-right:10px;
     margin-bottom:10px;
     min-width:200px;
+    border:1px solid var(--border-color-3);
 
 }
 
-.country div:nth-child(2){
-    padding:0px 10px;
-}
 
-.country div:nth-child(1){
-    font-size:16px;
+.name{
     padding:10px;
 }
 
-.country div:nth-child(3){
-    font-size:14px;
-    padding:5px 0px;
-}
-
 .info{
-    font-size:12px;
     line-height:24px;
+    color:var(--color-6);
+    font-size:14px;
+    padding:5px;
 }

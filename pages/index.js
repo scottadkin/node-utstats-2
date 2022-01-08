@@ -9,8 +9,6 @@ import Gametypes from '../api/gametypes';
 import Servers from '../api/servers';
 import PopularCountries from '../components/PopularCountries/';
 import CountryManager from '../api/countriesmanager';
-import Countries from '../api/countries';
-//import GeneralStatistics from '../components/GeneralStatistics/';
 import Players from '../api/players';
 import React from 'react';
 import Graph from '../components/Graph/';

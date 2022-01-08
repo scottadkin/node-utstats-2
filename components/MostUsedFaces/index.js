@@ -25,9 +25,9 @@ const MostUsedFaces = ({data, images, host}) =>{
             <div className={styles.face}><img src={`${host}images/faces/${currentImage.name}.png`} alt="Image" /></div>
             <div className={styles.inner}>
                 <div>
-                    <span className="yellow">Used</span> {d.uses} times<br/>
-                    <span className="yellow">First Used</span> {Functions.convertTimestamp(d.first, true)}<br/>
-                    <span className="yellow">Last Used</span> {Functions.convertTimestamp(d.last, true)}<br/>
+                    Used {d.uses} times<br/>
+                    First Used {Functions.convertTimestamp(d.first, true)}<br/>
+                    Last Used {Functions.convertTimestamp(d.last, true)}<br/>
                 </div>
             </div>
         </div>);
