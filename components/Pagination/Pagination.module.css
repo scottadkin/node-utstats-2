@@ -6,17 +6,17 @@
 
 .button{
     display:inline-block;
-    padding:10px;
+    padding:5px 10px;
     background-color:var(--color-1);
-    border:1px solid var(--border-color-1);
+    background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
+    border:1px solid var(--border-color-3);
     margin-right:5px;
-    font-weight:bold;
-    font-size:20px;
+    font-size:16px;
 }
 
 .abutton{
     display:inline-block;
-    padding:10px;
+    padding:5px 10px;
     background-color:var(--color-3);
     border:1px solid yellow;
     color:yellow;
@@ -26,13 +26,12 @@
 }
 
 .header{
-    font-weight:300;
-    padding:8px;
-    font-size:16px;
+    padding:5px;
+    font-size:14px;
 }
 
 .result{
-    font-size:12px;
+    font-size:10px;
     color:yellow;
     margin-bottom:10px;
 }
