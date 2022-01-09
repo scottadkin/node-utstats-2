@@ -97,25 +97,34 @@ class Items{
         });
     }
 
-    getNamesByIds(ids){
+    async getNamesByIds(ids, bReturnSimpleObject){
 
-        return new Promise((resolve, reject) =>{
+        if(ids.length === 0) return [];
 
-            if(ids.length === 0) resolve([]);
+        if(bReturnSimpleObject === undefined) bReturnSimpleObject = false;
 
-            const query = "SELECT id,name,display_name,type FROM nstats_items WHERE id IN(?) ORDER BY name ASC";
+        const query = "SELECT id,name,display_name,type FROM nstats_items WHERE id IN(?) ORDER BY name ASC";
 
-            mysql.query(query, [ids], (err, result) =>{
+        const result = await mysql.simpleQuery(query, [ids]);
 
-                if(err) reject(err);
+        if(!bReturnSimpleObject){
+            return result;
+        }
 
-                if(result !== undefined){
-                    resolve(result);
-                }
-                resolve([]);
-            });
+        const obj = {};
 
-        });
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            obj[r.id] = {
+                "name": r.name,
+                "displayName": r.display_name,
+                "type": r.type
+            };
+        }
+
+        return obj;
     }
 
     insertPlayerMatchItem(matchId, playerId, item, uses){
@@ -202,23 +211,11 @@ class Items{
         }
     }
 
-    getMatchData(matchId){
+    async getMatchData(matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT player_id,item,uses FROM nstats_items_match WHERE match_id=?";
+        return await mysql.simpleQuery(query, [matchId]);
 
-            const query = "SELECT player_id,item,uses FROM nstats_items_match WHERE match_id =?";
-
-            mysql.query(query, [matchId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
     getPlayerTotalData(player){
@@ -708,6 +705,22 @@ class Items{
 
         const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
         return await mysql.simpleFetch(query, [matchId, playerId]);
+    }
+
+    returnUniqueIds(data){
+
+        const unique = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(unique.indexOf(d.item) === -1){
+                unique.push(d.item);
+            }
+        }
+
+        return unique;
     }
 }
 

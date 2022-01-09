@@ -284,9 +284,18 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         }
     }
 
+
     if(pageSettings["Display Powerup Control"] === "true"){
+
         if(!parsedInfo.mh){
-            elems.push(<MatchPowerUpControl host={imageHost} key={`match-power-control`} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams}/>);
+
+            elems.push(<MatchPowerUpControl 
+                host={imageHost} key={`match-power-control`} 
+                players={JSON.parse(playerData)} 
+                totalTeams={parsedInfo.total_teams}
+                matchId={parsedInfo.id}
+                players={JSON.parse(playerNames)}
+            />);
         }
     }
 
@@ -550,13 +559,8 @@ export async function getServerSideProps({req, query}){
 
     let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
 
-   // const killsData = await killManager.getMatchData(matchId);
-
     const headshotsManager = new Headshots();
-
     const headshotData = await headshotsManager.getMatchData(matchId);
-
-    
 
     const rankingsManager = new Rankings();
 
@@ -611,11 +615,7 @@ export async function getServerSideProps({req, query}){
         }
 
         monsterImages = monsterHuntManager.getImages(monsterClasses);
-
-        //console.log(monsterNames);
-
     }
-
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 

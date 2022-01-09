@@ -438,9 +438,9 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .default-select{
-	background-color:var(--color-2);
+	background-color:var(--color-3a);
 	color:white;
-	border:1px solid rgb(255,255,255,0.25);
+	border:1px solid var(--border-color-3);
 	font-size:14px;
 	font-weight:300;
 	padding:5px;
@@ -448,6 +448,11 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	height:32px;
 	line-height:14px;
 	max-width:300px;
+	position:relative;
+}
+
+.default-select option{
+	background-color:var(--color-3);
 }
 
 .select-label{
@@ -462,13 +467,14 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .default-textbox{
 	max-width:290px;
 	width:90%;
-	background-color:var(--color-1);
+	background-color:var(--color-3a);
 	font-size:18px;
 	font-weight:300;
 	padding:5px;
-	border:1px solid var(--border-color-1);
+	border:1px solid var(--border-color-3);
 	color:white;
 }
+
 
 .default-number{
 	background-color:var(--color-1);
@@ -492,9 +498,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .search-button, .bigger-button{
 	display:block;
 	width:290px;
-	background-color:var(--color-1);
+	background-color:var(--color-3);
+	background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
 	color:white;
-	border:1px solid var(--border-color-1);
+	border:1px solid var(--border-color-3);
 	padding:5px;
 	margin-left:auto;
 	margin-right:auto;
