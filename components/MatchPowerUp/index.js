@@ -1,6 +1,7 @@
 import React from "react";
 import styles from './MatchPowerUp.module.css';
 import Image from "next/image";
+import Functions from '../../api/functions';
 
 
 class MatchPowerUp extends React.Component{
@@ -8,6 +9,61 @@ class MatchPowerUp extends React.Component{
     constructor(props){
 
         super(props);
+
+        console.log(this.props);
+    }
+
+
+    renderTeamPart(teamId){
+        
+        let totalPercent =  this.props.teamUses[teamId] / this.props.totalUses;
+
+        const parsed = parseInt(totalPercent);
+        if(parsed !== parsed) totalPercent = 0;
+
+        totalPercent *= 100;
+
+        return <div key={teamId} className={`${styles.bari} ${Functions.getTeamColor(teamId)}`} style={{"width": `${totalPercent}%`}}></div>
+    }
+
+    renderMainBar(){
+
+        const elems = [];
+
+        for(let i = 0; i < this.props.totalTeams; i++){
+
+            const elem = this.renderTeamPart(i);
+            elems.push(elem);
+        }
+
+        return <div className={styles.bar}>
+            {elems}
+        </div>
+
+    }
+
+    renderTeamValue(teamId){
+
+        const percent = 100 / this.props.totalTeams;
+
+        return <div key={teamId} className={`${styles.tvalue} ${Functions.getTeamColor(teamId)}`} style={{"width" :`${percent}%`}}>{this.props.teamUses[teamId]}</div>
+    }
+
+    renderTValues(){
+
+        const elems = [];
+        
+
+        for(let i = 0; i < this.props.totalTeams; i++){
+
+            const current = this.renderTeamValue(i);
+            elems.push(current);
+        }
+
+        return <div className={styles.tvalues}>
+            {elems}
+        </div>
+
     }
 
     render(){
@@ -23,16 +79,7 @@ class MatchPowerUp extends React.Component{
                 Used {this.props.totalUses} Time{(this.props.totalUses === 1) ? "" : "s"}
             </div>
             <div className={styles.bwrapper}>
-                <div className={styles.bar}>
-                    <div className={`${styles.bari} team-red`} style={{"width": "40%"}}>
-                    </div>
-                    <div className={`${styles.bari} team-blue`} style={{"width": "60%"}}>
-                    </div>
-                </div>
-                <div className={styles.tvalues}>
-                    <div className={styles.tvalue} style={{"width" :"50%"}}>40%</div>
-                    <div className={styles.tvalue} style={{"width" :"50%"}}>60%</div>
-                </div>
+                {this.renderTValues()}
             </div>
         </div>
     }

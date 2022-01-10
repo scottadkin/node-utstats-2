@@ -916,7 +916,7 @@ const queries = [
     `INSERT INTO nstats_items VALUES(NULL,"Shield Belt","Shield Belt",0,0,0,0,4)`,
     `INSERT INTO nstats_items VALUES(NULL,"Shock Rifle","Shock Rifle",0,0,0,0,1)`,
     `INSERT INTO nstats_items VALUES(NULL,"Sniper Rifle","Sniper Rifle",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Super Health Pack","Super Health Pack",0,0,0,0,3)`,
+    `INSERT INTO nstats_items VALUES(NULL,"Super Health Pack","Super Health Pack",0,0,0,0,4)`,
     `INSERT INTO nstats_items VALUES(NULL,"Thigh Pads","Thigh Pads",0,0,0,0,3)`,
     `INSERT INTO nstats_items VALUES(NULL,"Ammor Percing Slugs Pads","Armor Percing Slugs",0,0,0,0,2)`,
     `INSERT INTO nstats_items VALUES(NULL,"AP CAS12","AP CAS12s",0,0,0,0,1)`,

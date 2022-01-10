@@ -218,6 +218,22 @@ class Items{
 
     }
 
+    async getMatchTotals(matchId){
+
+        const query = "SELECT item,SUM(uses) as total_uses FROM nstats_items_match WHERE match_id=? GROUP BY item";
+        const result =  await mysql.simpleQuery(query, [matchId]);
+
+        const obj = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            obj[r.item] = r.total_uses;
+        }
+
+        return obj;
+    }
+
     getPlayerTotalData(player){
 
         return new Promise((resolve, reject) =>{

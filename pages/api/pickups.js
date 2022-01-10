@@ -15,8 +15,9 @@ export default async function handler(req, res){
             const uniqueItems = itemsManager.returnUniqueIds(data);
 
             const itemNames = await itemsManager.getNamesByIds(uniqueItems);
+            const itemTotals = await itemsManager.getMatchTotals(matchId);
 
-            res.status(200).json({"playerUses": data, "itemNames": itemNames});
+            res.status(200).json({"playerUses": data, "itemNames": itemNames, "itemTotals": itemTotals});
             return;
         }
 

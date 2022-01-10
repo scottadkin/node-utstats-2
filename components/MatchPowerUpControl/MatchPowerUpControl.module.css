@@ -1,0 +1,6 @@
+.wrapper{
+    width:var(--width-1);
+    max-width:var(--max-width-1);
+    margin-left:auto;
+    margin-right:auto;
+}

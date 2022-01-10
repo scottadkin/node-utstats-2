@@ -10,10 +10,8 @@ class MatchPowerUpControl extends React.Component{
     constructor(props){
 
         super(props);
-
-        console.log(this.props.players);
         this.state = {"bFinishedLoading": false, "bFailed": false, "playerTeams": [[],[],[],[]]};
-        //console.log(this.props.itemNames);
+
     }
 
     async loadData(){
@@ -34,7 +32,12 @@ class MatchPowerUpControl extends React.Component{
                 this.setState({"bFailed": true});
             }else{
 
-                this.setState({"itemNames": res.itemNames, "playerUses": res.playerUses, "bFinishedLoading": true});
+                this.setState({
+                    "itemNames": res.itemNames, 
+                    "playerUses": res.playerUses, 
+                    "itemTotals": res.itemTotals, 
+                    "bFinishedLoading": true
+                });
             }
 
         }catch(err){
@@ -68,13 +71,40 @@ class MatchPowerUpControl extends React.Component{
 
     getItemTotalUsage(itemId){
 
-        let total = 0;
+        if(this.state.itemTotals[itemId] !== undefined) return this.state.itemTotals[itemId];
+        
+        return 0;
+    }
+
+    getPlayerTeam(playerId){
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            const p = this.props.players[i];
+
+            if(p.id === playerId) return p.team;
+        }
+
+        return -1;
+    }
+
+    getTeamsItemUsage(itemId){
+
+        if(this.props.totalTeams < 2) return [];
+
+        let total = [];
+
+        for(let i = 0; i < this.props.totalTeams; i++) total.push(0);
 
         for(let i = 0; i < this.state.playerUses.length; i++){
 
             const p = this.state.playerUses[i];
+        
+            if(p.item === itemId){
 
-            if(p.item === itemId) total++;
+                const playerTeam = this.getPlayerTeam(p.player_id);
+                total[playerTeam] += p.uses;
+            }
         }
 
         return total;
@@ -90,7 +120,9 @@ class MatchPowerUpControl extends React.Component{
 
             const item = this.state.itemNames[i];
 
-            if(item.type < 3) continue;
+            if(item.type < 0) continue;
+
+            const teamUses = this.getTeamsItemUsage(item.id);
 
             if(item.type === 3){
 
@@ -98,14 +130,18 @@ class MatchPowerUpControl extends React.Component{
                     key={i}
                     title={item.display_name}  
                     totalUses={this.getItemTotalUsage(item.id)}
+                    totalTeams={this.props.totalTeams}
+                    teamUses={teamUses}
                 />);
                 
-            }else{
+            }else if(item.type === 4){
 
                 powerUps.push(<MatchPowerUp
                     key={i}
                     title={item.display_name}  
                     totalUses={this.getItemTotalUsage(item.id)}
+                    totalTeams={this.props.totalTeams}
+                    teamUses={teamUses}
                 />);
             }
             
@@ -119,22 +155,31 @@ class MatchPowerUpControl extends React.Component{
     render(){
 
 
-        let inner = <>Loading Please Wait...</>;
 
+        if(!this.state.bFinishedLoading){
 
-        if(this.state.bFinishedLoading){
-
-            const elems = this.createElems();
-
-            inner = [elems.health, elems.powerUps];
+            return <div>
+                <div className="default-header">Item Stats</div>
+                Loading Please Wait...
+            </div>
 
         }
+
+        const elems = this.createElems();
             
         return <div>
             <div className="default-header">
                 Power Up Control
             </div>
-            {inner}
+            <div className={styles.wrapper}>
+                {elems.powerUps}
+            </div>
+            <div className="default-header">
+                Health/Armour Control
+            </div>
+            <div className={styles.wrapper}>
+                {elems.health}
+            </div>
         </div>
         
   
