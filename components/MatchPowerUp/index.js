@@ -73,7 +73,7 @@ class MatchPowerUp extends React.Component{
                 {this.props.title}
             </div>
             <div className={styles.iwrapper}>
-                <Image src={`/images/temp2.jpg`} width={200} height={200}/>
+                <Image src={`/images/pickups/shieldbelt.png`} width={200} height={200}/>
             </div>
             <div className={styles.tusages}>
                 Used {this.props.totalUses} Time{(this.props.totalUses === 1) ? "" : "s"}

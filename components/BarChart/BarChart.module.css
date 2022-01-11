@@ -1,0 +1,103 @@
+.wrapper{
+    display:inline-block;
+    background-color:var(--color-3a);
+    width:var(--width-1);
+    max-width:var(--max-width-3);
+}
+
+.title{
+    padding:10px;
+}
+
+.barm{
+    min-height:20px;
+    display:grid;
+    grid-template-columns: 25% 65%;
+    font-size:14px;
+    line-height:22px;
+    margin-bottom:10px;
+}
+
+.label{
+    background-color:var(--color-3);
+}
+
+.bars{
+    background-color:black;
+}
+
+.bar{
+    height:21px;
+    background-color:green;
+    border:1px solid var(--border-color-3);
+}
+
+.keys{
+    margin-top:10px;
+    width:214px;
+    padding:5px;
+    margin-left:auto;
+    margin-right:auto;
+    background-color:rgb(32,32,32);
+    font-size:14px;
+    line-height:22px;
+}
+
+.key{
+    display:grid;
+    grid-template-columns: 22px 192px;
+}
+
+.color{
+    height:22px;
+}
+
+.kname{
+    text-align:left;
+    padding-left:5px;
+}
+
+.hl{
+    height:2px;
+    background-color:white;
+    width:100%;
+}
+
+.vls{
+    height:10px;
+    background-color:orange;
+    text-align:left;
+    padding:0px;
+}
+
+.vempty{
+    background-color:red;
+    width:25%;
+    height:10px;
+}
+
+.vl{
+    width:2px;
+    height:10px;
+    background-color:blue;
+    margin-top:-10px;
+}
+
+.values{
+    height:30px;
+    font-size:14px;
+    line-height:22px;
+    background-color:green;
+    text-align:left;
+    position:relative;
+}
+
+
+.value{
+    display:inline-block;
+    width:16.25%;
+    background-color:red;
+    position:absolute;
+    text-align:center;
+    
+}

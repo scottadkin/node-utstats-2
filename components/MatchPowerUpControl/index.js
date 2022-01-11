@@ -4,6 +4,7 @@ import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import Functions from '../../api/functions';
 import MatchPowerUp from '../MatchPowerUp';
+import BarChart from '../BarChart';
 
 class MatchPowerUpControl extends React.Component{
 
@@ -119,6 +120,7 @@ class MatchPowerUpControl extends React.Component{
         for(let i = 0; i < this.state.itemNames.length; i++){
 
             const item = this.state.itemNames[i];
+            
 
             if(item.type < 0) continue;
 
@@ -154,6 +156,15 @@ class MatchPowerUpControl extends React.Component{
 
     render(){
 
+
+
+
+        return <div>
+            <div className="default-header">BARCHART TEST</div>
+            <BarChart 
+                title="Test title"
+                
+            /></div>;
 
 
         if(!this.state.bFinishedLoading){
