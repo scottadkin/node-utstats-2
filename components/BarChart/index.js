@@ -7,6 +7,74 @@ class BarChart extends React.Component{
     constructor(props){
 
         super(props);
+        this.state = {"minValue": 0, "maxValue": 0, "range": 0};
+
+    }
+
+    componentDidMount(){
+
+        //const range = this.props.minValue ?? 0 - this.props.maxValue;
+
+        let minValue = this.props.minValue ?? 0;
+        let maxValue = null;
+
+        for(let i = 0; i < this.props.values.length; i++){
+
+            const v = this.props.values[i];
+
+            if(minValue === null || v < minValue){
+                minValue = v;
+            }
+
+            if(maxValue === null || v > maxValue){
+                maxValue = v;
+            }
+        }
+
+        console.log("minValue", minValue, "maxValue", maxValue, "range", maxValue - minValue);
+
+        this.setState({"minValue": minValue, "maxValue": maxValue, "range": maxValue - minValue});
+   
+    }
+
+    renderBar(id, name, value){
+
+        const bit = 100 / this.state.range;
+
+        const percent = bit * value;
+
+
+        return <div key={id} className={`${styles.bar} ${Functions.getTeamColor(id)}`} style={{"width": `${percent}%`}}></div>;
+    }
+
+    renderBars(label, names, values, maxValue){
+
+
+        const bars = [];
+
+       
+        for(let i = 0; i < this.props.values.length; i++){
+
+            const v = this.props.values[i];
+            bars.push(this.renderBar(i, "rtest", v));
+
+        }
+
+        /*
+        <div className={`${styles.bar} ${Functions.getTeamColor(1)}`} style={{"width": "2%"}}></div>
+                <div className={`${styles.bar} ${Functions.getTeamColor(2)}`} style={{"width": "99%"}}></div>
+                <div className={`${styles.bar} ${Functions.getTeamColor(3)}`} style={{"width": "33%"}}></div>
+        */
+
+        return <div className={styles.barm}>
+            <div className={styles.label}>
+                {label}
+            </div>
+            <div className={styles.bars}>
+                {bars}
+                
+            </div>
+        </div>;
     }
 
     render(){
@@ -16,29 +84,7 @@ class BarChart extends React.Component{
                 {this.props.title}
             </div>
 
-            <div className={styles.barm}>
-                <div className={styles.label}>
-                    Kills
-                </div>
-                <div className={styles.bars}>
-                    <div className={`${styles.bar} ${Functions.getTeamColor(0)}`} style={{"width": "72%"}}></div>
-                    <div className={`${styles.bar} ${Functions.getTeamColor(1)}`} style={{"width": "2%"}}></div>
-                    <div className={`${styles.bar} ${Functions.getTeamColor(2)}`} style={{"width": "99%"}}></div>
-                    <div className={`${styles.bar} ${Functions.getTeamColor(3)}`} style={{"width": "33%"}}></div>
-                </div>
-            </div>
-
-            <div className={styles.barm}>
-                <div className={styles.label}>
-                    Deaths
-                </div>
-                <div className={styles.bars}>
-                    <div className={`${styles.bar} ${Functions.getTeamColor(0)}`} style={{"width": "22%"}}></div>
-                    <div className={`${styles.bar} ${Functions.getTeamColor(1)}`} style={{"width": "52%"}}></div>
-                    <div className={`${styles.bar} ${Functions.getTeamColor(2)}`} style={{"width": "59%"}}></div>
-                    <div className={`${styles.bar} ${Functions.getTeamColor(3)}`} style={{"width": "13%"}}></div>
-                </div>
-            </div>
+            {this.renderBars(this.props.label)}
 
             <div className={styles.hl}></div>
             <div className={styles.vls}>
@@ -50,10 +96,10 @@ class BarChart extends React.Component{
             </div>
             <div className={styles.values}>
                 <div className={styles.value} style={{"marginLeft": "16.875%"}}>0</div>
-                <div className={styles.value} style={{"marginLeft": "33.125%"}}>125</div>
-                <div className={styles.value} style={{"marginLeft": "49.375%"}}>350</div>
-                <div className={styles.value} style={{"marginLeft": "65.625%"}}>675</div>
-                <div className={styles.value} style={{"marginLeft": "81.875%"}}>7100</div>
+                <div className={styles.value} style={{"marginLeft": "33.125%"}}>{this.state.range * 0.25}</div>
+                <div className={styles.value} style={{"marginLeft": "49.375%"}}>{this.state.range * 0.5}</div>
+                <div className={styles.value} style={{"marginLeft": "65.625%"}}>{this.state.range * 0.75}</div>
+                <div className={styles.value} style={{"marginLeft": "81.875%"}}>{this.state.maxValue}</div>
             </div>
 
 

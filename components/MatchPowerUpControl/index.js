@@ -117,6 +117,7 @@ class MatchPowerUpControl extends React.Component{
         const health = [];
         const powerUps = [];
 
+
         for(let i = 0; i < this.state.itemNames.length; i++){
 
             const item = this.state.itemNames[i];
@@ -128,23 +129,33 @@ class MatchPowerUpControl extends React.Component{
 
             if(item.type === 3){
 
-                health.push(<MatchPowerUp
+                /*health.push(<MatchPowerUp
                     key={i}
                     title={item.display_name}  
                     totalUses={this.getItemTotalUsage(item.id)}
                     totalTeams={this.props.totalTeams}
                     teamUses={teamUses}
-                />);
+                />);*/
                 
             }else if(item.type === 4){
 
-                powerUps.push(<MatchPowerUp
+                //powerUpLabels.push(item.display_name);
+                powerUps.push(
+                    <BarChart 
+                        key={i}
+                        title={item.display_name} 
+                        label="Taken" 
+                        values={teamUses}
+                        
+                />);
+
+                /*powerUps.push(<MatchPowerUp
                     key={i}
                     title={item.display_name}  
                     totalUses={this.getItemTotalUsage(item.id)}
                     totalTeams={this.props.totalTeams}
                     teamUses={teamUses}
-                />);
+                />);*/
             }
             
         }
@@ -159,12 +170,12 @@ class MatchPowerUpControl extends React.Component{
 
 
 
-        return <div>
+        /*return <div>
             <div className="default-header">BARCHART TEST</div>
             <BarChart 
                 title="Test title"
                 
-            /></div>;
+            /></div>;*/
 
 
         if(!this.state.bFinishedLoading){
