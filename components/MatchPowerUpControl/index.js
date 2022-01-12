@@ -112,30 +112,44 @@ class MatchPowerUpControl extends React.Component{
     }
 
 
+    getTeamNames(){
+
+        const names = [];
+
+        for(let i = 0; i < this.props.totalTeams; i++){
+
+            names.push(Functions.getTeamName(i));
+        }
+
+        return names;
+    }
+
     createElems(){
 
         const health = [];
         const powerUps = [];
 
+        const names = this.getTeamNames();
 
         for(let i = 0; i < this.state.itemNames.length; i++){
 
             const item = this.state.itemNames[i];
             
-
             if(item.type < 0) continue;
 
             const teamUses = this.getTeamsItemUsage(item.id);
 
             if(item.type === 3){
 
-                /*health.push(<MatchPowerUp
-                    key={i}
-                    title={item.display_name}  
-                    totalUses={this.getItemTotalUsage(item.id)}
-                    totalTeams={this.props.totalTeams}
-                    teamUses={teamUses}
-                />);*/
+                health.push(
+                    <BarChart 
+                        key={i}
+                        title={item.display_name} 
+                        label="Taken" 
+                        values={teamUses}
+                        names={names}        
+                    />
+                );
                 
             }else if(item.type === 4){
 
@@ -146,8 +160,9 @@ class MatchPowerUpControl extends React.Component{
                         title={item.display_name} 
                         label="Taken" 
                         values={teamUses}
-                        
-                />);
+                        names={names}        
+                    />
+                );
 
                 /*powerUps.push(<MatchPowerUp
                     key={i}

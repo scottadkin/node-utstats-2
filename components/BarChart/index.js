@@ -9,6 +9,8 @@ class BarChart extends React.Component{
         super(props);
         this.state = {"minValue": 0, "maxValue": 0, "range": 0};
 
+        this.colors = ["red", "blue", "green", "yellow", "orange", "pink", "white", "grey"];
+
     }
 
     componentDidMount(){
@@ -31,8 +33,6 @@ class BarChart extends React.Component{
             }
         }
 
-        console.log("minValue", minValue, "maxValue", maxValue, "range", maxValue - minValue);
-
         this.setState({"minValue": minValue, "maxValue": maxValue, "range": maxValue - minValue});
    
     }
@@ -44,7 +44,7 @@ class BarChart extends React.Component{
         const percent = bit * value;
 
 
-        return <div key={id} className={`${styles.bar} ${Functions.getTeamColor(id)}`} style={{"width": `${percent}%`}}></div>;
+        return <div key={id} className={`${styles.bar}`} style={{"width": `${percent}%`, "backgroundColor": this.colors[id]}}></div>;
     }
 
     renderBars(label, names, values, maxValue){
@@ -54,20 +54,13 @@ class BarChart extends React.Component{
 
        
         for(let i = 0; i < this.props.values.length; i++){
-
             const v = this.props.values[i];
-            bars.push(this.renderBar(i, "rtest", v));
-
+            bars.push(this.renderBar(i, this.props.names[i] ?? "Unknown", v));
         }
 
-        /*
-        <div className={`${styles.bar} ${Functions.getTeamColor(1)}`} style={{"width": "2%"}}></div>
-                <div className={`${styles.bar} ${Functions.getTeamColor(2)}`} style={{"width": "99%"}}></div>
-                <div className={`${styles.bar} ${Functions.getTeamColor(3)}`} style={{"width": "33%"}}></div>
-        */
 
         return <div className={styles.barm}>
-            <div className={styles.label}>
+            <div className={styles.label} style={{"padding": `${5 * this.props.names.length}px`}}>
                 {label}
             </div>
             <div className={styles.bars}>
@@ -75,6 +68,29 @@ class BarChart extends React.Component{
                 
             </div>
         </div>;
+    }
+
+    renderKey(name, id){
+
+        return <div className={styles.key} key={name}>
+            <div className={`${styles.color}`} style={{"backgroundColor": this.colors[id]}}></div>
+            <div className={styles.kname}>{name}</div>
+        </div>
+    }
+
+    renderKeys(){
+
+        const keys = [];
+
+        for(let i = 0; i < this.props.names.length; i++){
+
+            const n = this.props.names[i];
+            keys.push(this.renderKey(n, i));
+        }
+
+        return <div className={styles.keys}>
+            {keys}
+        </div>
     }
 
     render(){
@@ -103,24 +119,7 @@ class BarChart extends React.Component{
             </div>
 
 
-            <div className={styles.keys}>
-                <div className={styles.key}>
-                    <div className={`${styles.color} ${Functions.getTeamColor(0)}`}></div>
-                    <div className={styles.kname}>Red Team</div>
-                </div>
-                <div className={styles.key}>
-                    <div className={`${styles.color} ${Functions.getTeamColor(1)}`}></div>
-                    <div className={styles.kname}>Blue Team</div>
-                </div>
-                <div className={styles.key}>
-                    <div className={`${styles.color} ${Functions.getTeamColor(2)}`}></div>
-                    <div className={styles.kname}>Green Team</div>
-                </div>
-                <div className={styles.key}>
-                    <div className={`${styles.color} ${Functions.getTeamColor(3)}`}></div>
-                    <div className={styles.kname}>Yellow Team</div>
-                </div>
-            </div>
+            {this.renderKeys()}
   
         </div>
     }
