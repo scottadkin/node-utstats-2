@@ -27,11 +27,11 @@ class MatchPowerUpControl extends React.Component{
 
             const res = await req.json();
 
-            console.log(res);
-
             if(res.error !== undefined){
                 this.setState({"bFailed": true});
             }else{
+
+                console.log(res.playerUses);
 
                 this.setState({
                     "itemNames": res.itemNames, 
@@ -124,6 +124,51 @@ class MatchPowerUpControl extends React.Component{
         return names;
     }
 
+    getPlayerItemUsage(item, playerId){
+
+        for(let i = 0; i < this.state.playerUses.length; i++){
+
+            const p = this.state.playerUses[i];
+
+            if(p.player_id === playerId){
+
+                if(p.item === item){
+                    return p.uses;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    getPlayersItemUsage(itemId){
+
+        const uses = [];
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            const p = this.props.players[i];
+
+            uses.push(this.getPlayerItemUsage(itemId, p.id));
+        }
+
+        return uses;
+    }
+
+    getPlayerNames(){
+
+        const names = [];
+
+        for(let i = 0; i < this.props.players.length; i++){
+
+            const p = this.props.players[i];
+
+            names.push(p.name);
+        }
+
+        return names;
+    }
+
     createElems(){
 
         const health = [];
@@ -131,7 +176,13 @@ class MatchPowerUpControl extends React.Component{
         const weapons = [];
         const ammo = [];
 
-        const names = this.getTeamNames();
+        let names = [];
+
+        if(this.props.totalTeams >= 2){
+            names = this.getTeamNames();
+        }else{
+            names = this.getPlayerNames();
+        }
 
         for(let i = 0; i < this.state.itemNames.length; i++){
 
@@ -139,7 +190,16 @@ class MatchPowerUpControl extends React.Component{
             
             if(item.type < 0) continue;
 
-            const teamUses = this.getTeamsItemUsage(item.id);
+            let uses = [];
+
+            if(this.props.totalTeams >= 2){
+
+                uses = this.getTeamsItemUsage(item.id);
+
+            }else{
+
+                uses = this.getPlayersItemUsage(item.id);
+            }
 
             let targetArray = null;
 
@@ -166,7 +226,7 @@ class MatchPowerUpControl extends React.Component{
                     key={i}
                     title={item.display_name} 
                     label="Taken" 
-                    values={teamUses}
+                    values={uses}
                     names={names}        
                 />);
             }
@@ -189,8 +249,13 @@ class MatchPowerUpControl extends React.Component{
 
         }
 
-        const elems = this.createElems();
-            
+        let elems = null;
+
+        elems = this.createElems();
+   
+
+        if(elems === null) return null;
+
         return <div>
             <div className="default-header">
                 Power Up Control

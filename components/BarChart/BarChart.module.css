@@ -32,10 +32,12 @@
 
 .bars{
     background-color:black;
+    position:relative;
 }
 
 .bar{
     height:16px;
+    position:relative;
 }
 
 .keys{
@@ -118,6 +120,7 @@
     position:absolute;
     text-align:left;
     border:1px solid var(--border-color-3);
+    z-index: 99999;
 }
 
 .mouset{

@@ -18,7 +18,32 @@ class BarChart extends React.Component{
             "mousePosition": {"x": 0, "y": 0}
         };
 
-        this.colors = ["red", "rgb(50,50,200)", "green", "yellow", "orange", "pink", "white", "grey"];
+        this.colors = [
+            "red", 
+            "rgb(50,50,200)", 
+            "green", 
+            "yellow", 
+            "orange", 
+            "pink", 
+            "white", 
+            "grey",
+            "#7FFFD4",
+            "#A52A2A",
+            "#DC143C",
+            "#B8860B",
+            "#E9967A",
+            "#9400D3",
+            "#228B22",
+            "#ADD8E6",
+            "#FAF0E6",
+            "#98FB98",
+            "#F4A460",
+            "#87CEEB",
+            "#D8BFD8",
+            "#40E0D0",
+            "#9ACD32",
+            "#D2B48C"
+        ];
 
     }
 
@@ -59,24 +84,28 @@ class BarChart extends React.Component{
             style={{"width": `${percent}%`, "backgroundColor": this.colors[id]}}>
             </div>
             <div className={`${styles.bar}`} style={{"width": "100%", "backgroundColor": "transparent", "marginTop":"-16px"}}
-                onMouseMove={((e) =>{
+                onMouseOver={((e) =>{
 
-                    const bounds = e.target.getBoundingClientRect();
+                    /*const bounds = e.target.getBoundingClientRect();
+
+                    console.log(e);
+
 
                     const startX = bounds.x;
                     const startY = bounds.y;
 
                     const offsetX = e.clientX - startX;
-                    const offsetY = e.clientY - startY;
+                    //const offsetY = e.clientY - startY;
+                    const offsetY = e.clientY - bounds.top;
 
-                    const paddingX = bounds.width * 0.125;
+                    const paddingX = bounds.width * 0.125;*/
 
                     this.setState({
                         "mouseTitle": name, 
                         "mouseContent": 
                         `Value: ${value}`, 
                         "bDisplayMouse": true, 
-                        "mousePosition": {"x": offsetX + paddingX, "y": offsetY}
+                        "mousePosition": {"x": 0, "y": 0}
                     });
                 })}
                 onMouseOut={(() =>{
@@ -136,7 +165,7 @@ class BarChart extends React.Component{
 
         if(!this.state.bDisplayMouse) return null;
 
-        return <div className={styles.mouse} style={{"marginLeft": this.state.mousePosition.x, "marginRight": this.state.mousePosition.y}}>
+        return <div className={styles.mouse} style={{"marginLeft": this.state.mousePosition.x, "marginTop": this.state.mousePosition.y}}>
             <div className={styles.mouset}>{this.state.mouseTitle}</div>
             <div className={styles.mousec}>{this.state.mouseContent}</div>
         </div>
