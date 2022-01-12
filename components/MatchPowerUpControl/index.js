@@ -128,6 +128,8 @@ class MatchPowerUpControl extends React.Component{
 
         const health = [];
         const powerUps = [];
+        const weapons = [];
+        const ammo = [];
 
         const names = this.getTeamNames();
 
@@ -139,50 +141,44 @@ class MatchPowerUpControl extends React.Component{
 
             const teamUses = this.getTeamsItemUsage(item.id);
 
-            if(item.type === 3){
+            let targetArray = null;
 
-                health.push(
-                    <BarChart 
-                        key={i}
-                        title={item.display_name} 
-                        label="Taken" 
-                        values={teamUses}
-                        names={names}        
-                    />
-                );
+            if(item.type === 1){
+
+                targetArray = weapons;
+                
+            }else if(item.type === 2){
+                
+                targetArray = ammo;
+
+            }else if(item.type === 3){
+
+                targetArray = health;
                 
             }else if(item.type === 4){
 
-                powerUps.push(
-                    <BarChart 
-                        key={i}
-                        title={item.display_name} 
-                        label="Taken" 
-                        values={teamUses}
-                        names={names}        
-                    />
-                );
+                targetArray = powerUps;
+            }
+
+            if(targetArray !== null){
+
+                targetArray.push(<BarChart 
+                    key={i}
+                    title={item.display_name} 
+                    label="Taken" 
+                    values={teamUses}
+                    names={names}        
+                />);
             }
             
         }
 
-        return {"health": health, "powerUps": powerUps};
+        return {"health": health, "powerUps": powerUps, "weapons": weapons, "ammo": ammo};
 
     }
 
 
     render(){
-
-
-
-
-        /*return <div>
-            <div className="default-header">BARCHART TEST</div>
-            <BarChart 
-                title="Test title"
-                
-            /></div>;*/
-
 
         if(!this.state.bFinishedLoading){
 
@@ -207,6 +203,18 @@ class MatchPowerUpControl extends React.Component{
             </div>
             <div className={styles.wrapper}>
                 {elems.health}
+            </div>
+            <div className="default-header">
+                Weapons Control
+            </div>
+            <div className={styles.wrapper}>
+                {elems.weapons}
+            </div>
+            <div className="default-header">
+                Ammo Control
+            </div>
+            <div className={styles.wrapper}>
+                {elems.ammo}
             </div>
         </div>
         

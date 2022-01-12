@@ -60,8 +60,6 @@ class BarChart extends React.Component{
             </div>
             <div className={`${styles.bar}`} style={{"width": "100%", "backgroundColor": "transparent", "marginTop":"-16px"}}
                 onMouseMove={((e) =>{
-                    
-                    //console.log(e.target.getBoundingClientRect());
 
                     const bounds = e.target.getBoundingClientRect();
 
@@ -89,7 +87,7 @@ class BarChart extends React.Component{
         </React.Fragment>;
     }
 
-    renderBars(label, names, values, maxValue){
+    renderBars(label){
 
 
         const bars = [];
@@ -102,12 +100,11 @@ class BarChart extends React.Component{
 
 
         return <div className={styles.barm}>
-            <div className={styles.label} /*style={{"padding": `${4 * this.props.names.length}px`}}*/>
+            <div className={styles.label}>
                 {label}
             </div>
             <div className={styles.bars}>
-                {bars}
-                
+                {bars}         
             </div>
         </div>;
     }
