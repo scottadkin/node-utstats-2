@@ -121,10 +121,13 @@
     text-align:left;
     border:1px solid var(--border-color-3);
     z-index: 99999;
+    max-width:150px;
+    width:150px;
+    overflow:hidden;
 }
 
 .mouset{
-    padding:5px;
+    padding:3px;
     font-size:14px;
     text-align:center;
 }

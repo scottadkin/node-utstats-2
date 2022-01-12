@@ -890,7 +890,7 @@ const queries = [
     "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_hour_multiplier','Sub 1 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.2)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_2hour_multiplier','Sub 2 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.5)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_3hour_multiplier','Sub 3 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.75)",
-    `INSERT INTO nstats_items VALUES(NULL,"AntiGrav Boots","Jump Boots",0,0,0,0,5)`,
+    `INSERT INTO nstats_items VALUES(NULL,"AntiGrav Boots","Jump Boots",0,0,0,0,4)`,
     `INSERT INTO nstats_items VALUES(NULL,"Body Armor","Body Armor",0,0,0,0,3)`,
     `INSERT INTO nstats_items VALUES(NULL,"Chainsaw","Chainsaw",0,0,0,0,1)`,
     `INSERT INTO nstats_items VALUES(NULL,"Damage Amplifier","Damage Amplifier",0,0,0,0,4)`,
