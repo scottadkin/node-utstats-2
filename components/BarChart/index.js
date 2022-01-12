@@ -15,10 +15,10 @@ class BarChart extends React.Component{
             "mouseTitle": "Title", 
             "mouseContent": "content", 
             "bDisplayMouse": false, 
-            "MousePosition": {"x": 0, "y": 0}
+            "mousePosition": {"x": 0, "y": 0}
         };
 
-        this.colors = ["red", "blue", "green", "yellow", "orange", "pink", "white", "grey"];
+        this.colors = ["red", "rgb(50,50,200)", "green", "yellow", "orange", "pink", "white", "grey"];
 
     }
 
@@ -60,13 +60,25 @@ class BarChart extends React.Component{
             </div>
             <div className={`${styles.bar}`} style={{"width": "100%", "backgroundColor": "transparent", "marginTop":"-16px"}}
                 onMouseMove={((e) =>{
-                    console.log(e.clientX, e.clientY);
+                    
+                    //console.log(e.target.getBoundingClientRect());
+
+                    const bounds = e.target.getBoundingClientRect();
+
+                    const startX = bounds.x;
+                    const startY = bounds.y;
+
+                    const offsetX = e.clientX - startX;
+                    const offsetY = e.clientY - startY;
+
+                    const paddingX = bounds.width * 0.125;
+
                     this.setState({
                         "mouseTitle": name, 
                         "mouseContent": 
                         `Value: ${value}`, 
                         "bDisplayMouse": true, 
-                        "mousePosition": {"x": e.clientX, "y": e.clientY}
+                        "mousePosition": {"x": offsetX + paddingX, "y": offsetY}
                     });
                 })}
                 onMouseOut={(() =>{
@@ -90,7 +102,7 @@ class BarChart extends React.Component{
 
 
         return <div className={styles.barm}>
-            <div className={styles.label} style={{"padding": `${5 * this.props.names.length}px`}}>
+            <div className={styles.label} /*style={{"padding": `${4 * this.props.names.length}px`}}*/>
                 {label}
             </div>
             <div className={styles.bars}>

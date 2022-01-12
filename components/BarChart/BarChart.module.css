@@ -16,14 +16,19 @@
 }
 
 .barm{
-    min-height:20px;
     display:grid;
-    grid-template-columns: 25% 65%;
-    font-size:14px;
-    line-height:22px;
+    grid-template-columns: 25% 65%;  
     margin-bottom:10px;
 }
 
+
+.label{
+    font-size:14px;
+    height:32px;
+    line-height:32px;
+    overflow:hidden;
+    padding-left:5px;
+}
 
 .bars{
     background-color:black;
@@ -31,7 +36,6 @@
 
 .bar{
     height:16px;
-    border:1px solid var(--border-color-3);
 }
 
 .keys{
@@ -112,13 +116,14 @@
     background-color:var(--color-2);
     display:inline-block;
     position:absolute;
-    text-align:center;
+    text-align:left;
     border:1px solid var(--border-color-3);
 }
 
 .mouset{
     padding:5px;
     font-size:14px;
+    text-align:center;
 }
 
 .mousec{
