@@ -153,7 +153,6 @@ class MatchPowerUpControl extends React.Component{
                 
             }else if(item.type === 4){
 
-                //powerUpLabels.push(item.display_name);
                 powerUps.push(
                     <BarChart 
                         key={i}
@@ -163,14 +162,6 @@ class MatchPowerUpControl extends React.Component{
                         names={names}        
                     />
                 );
-
-                /*powerUps.push(<MatchPowerUp
-                    key={i}
-                    title={item.display_name}  
-                    totalUses={this.getItemTotalUsage(item.id)}
-                    totalTeams={this.props.totalTeams}
-                    teamUses={teamUses}
-                />);*/
             }
             
         }

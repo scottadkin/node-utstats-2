@@ -2,14 +2,17 @@
     display:inline-block;
     background-color:var(--color-3a);
     width:var(--width-1);
-    max-width:var(--max-width-3);
+    max-width:600px;
     margin-bottom:10px;
     margin-right:10px;
     border:1px solid var(--border-color-3);
+    user-select: none;
+    text-align:left;
 }
 
 .title{
     padding:10px;
+    text-align:center;
 }
 
 .barm{
@@ -39,11 +42,12 @@
     background-color:rgb(32,32,32);
     font-size:14px;
     line-height:22px;
+    text-align:center;
 }
 
 .key{
     display:inline-block;
-    height:22px;
+    height:18px;
 }
 
 .color{
@@ -56,8 +60,9 @@
     text-align:left;
     margin-left:5px;
     display:inline-block;
-    height:22px;
+    height:18px;
     margin-right:5px;
+    font-size:12px;
 }
 
 .hl{
@@ -100,4 +105,23 @@
     text-align:center;
     font-size:12px;
     
+}
+
+
+.mouse{
+    background-color:var(--color-2);
+    display:inline-block;
+    position:absolute;
+    text-align:center;
+    border:1px solid var(--border-color-3);
+}
+
+.mouset{
+    padding:5px;
+    font-size:14px;
+}
+
+.mousec{
+    padding:5px;
+    font-size:12px;
 }

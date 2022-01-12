@@ -7,7 +7,16 @@ class BarChart extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"minValue": 0, "maxValue": 0, "range": 0};
+
+        this.state = {
+            "minValue": 0, 
+            "maxValue": 0, 
+            "range": 0, 
+            "mouseTitle": "Title", 
+            "mouseContent": "content", 
+            "bDisplayMouse": false, 
+            "MousePosition": {"x": 0, "y": 0}
+        };
 
         this.colors = ["red", "blue", "green", "yellow", "orange", "pink", "white", "grey"];
 
@@ -44,7 +53,28 @@ class BarChart extends React.Component{
         const percent = bit * value;
 
 
-        return <div key={id} className={`${styles.bar}`} style={{"width": `${percent}%`, "backgroundColor": this.colors[id]}}></div>;
+        return <React.Fragment key={id}>
+            <div 
+            className={`${styles.bar}`} 
+            style={{"width": `${percent}%`, "backgroundColor": this.colors[id]}}>
+            </div>
+            <div className={`${styles.bar}`} style={{"width": "100%", "backgroundColor": "transparent", "marginTop":"-16px"}}
+                onMouseMove={((e) =>{
+                    console.log(e.clientX, e.clientY);
+                    this.setState({
+                        "mouseTitle": name, 
+                        "mouseContent": 
+                        `Value: ${value}`, 
+                        "bDisplayMouse": true, 
+                        "mousePosition": {"x": e.clientX, "y": e.clientY}
+                    });
+                })}
+                onMouseOut={(() =>{
+                    this.setState({"bDisplayMouse": false});
+                })}
+            ></div>
+           
+        </React.Fragment>;
     }
 
     renderBars(label, names, values, maxValue){
@@ -93,9 +123,20 @@ class BarChart extends React.Component{
         </div>
     }
 
+    renderMouseOver(){
+
+        if(!this.state.bDisplayMouse) return null;
+
+        return <div className={styles.mouse} style={{"marginLeft": this.state.mousePosition.x, "marginRight": this.state.mousePosition.y}}>
+            <div className={styles.mouset}>{this.state.mouseTitle}</div>
+            <div className={styles.mousec}>{this.state.mouseContent}</div>
+        </div>
+    }
+
     render(){
 
         return <div className={styles.wrapper}>
+            {this.renderMouseOver()}
             <div className={styles.title}>
                 {this.props.title}
             </div>
@@ -118,9 +159,7 @@ class BarChart extends React.Component{
                 <div className={styles.value} style={{"marginLeft": "81.875%"}}>{this.state.maxValue}</div>
             </div>
 
-
-            {this.renderKeys()}
-  
+            {this.renderKeys()} 
         </div>
     }
 }
