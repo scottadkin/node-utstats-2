@@ -313,7 +313,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         }
     }
 
-    if(pageSettings["Display Pickup Summary"] === "true"){
+    /*if(pageSettings["Display Pickup Summary"] === "true"){
         elems.push(
             <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} 
                 totalTeams={parsedInfo.total_teams}
@@ -321,7 +321,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
                 host={imageHost}
             />
         );
-    }
+    }*/
     
     if(pageSettings["Display Rankings"] === "true"){
         elems.push(<MatchRankingChanges key={"r-changes"} positions={rankingPositions} changes={rankingChanges} playerNames={playerNames} 
