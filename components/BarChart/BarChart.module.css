@@ -24,7 +24,7 @@
 
 .label{
     font-size:14px;
-    height:32px;
+    height:27px;
     line-height:32px;
     overflow:hidden;
     padding-left:5px;
@@ -36,8 +36,7 @@
 }
 
 .bar{
-    height:12px;
-    position:relative;
+    height:13px;
 }
 
 .keys{

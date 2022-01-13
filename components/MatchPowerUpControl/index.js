@@ -8,8 +8,21 @@ class MatchPowerUpControl extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"bFinishedLoading": false, "bFailed": false, "playerTeams": [[],[],[],[]], "bAllDisabled": false};
+        this.state = {
+            "bFinishedLoading": false, 
+            "bFailed": false, 
+            "playerTeams": [[],[],[],[]], 
+            "bAllDisabled": false,
+            "mode": 0
+        };
 
+        this.changeMode = this.changeMode.bind(this);
+
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
     bAllDisabled(){
@@ -198,10 +211,11 @@ class MatchPowerUpControl extends React.Component{
 
         let names = [];
 
-        if(this.props.totalTeams >= 2){
-            names = this.getTeamNames();
-        }else{
+        if(this.props.totalTeams < 2 || this.state.mode === 1){
             names = this.getPlayerNames();
+
+        }else{
+            names = this.getTeamNames();    
         }
 
         for(let i = 0; i < this.state.itemNames.length; i++){
@@ -212,13 +226,10 @@ class MatchPowerUpControl extends React.Component{
 
             let uses = [];
 
-            if(this.props.totalTeams >= 2){
-
-                uses = this.getTeamsItemUsage(item.id);
-
+            if(this.props.totalTeams < 2 || this.state.mode === 1){
+                uses = this.getPlayersItemUsage(item.id);             
             }else{
-
-                uses = this.getPlayersItemUsage(item.id);
+                uses = this.getTeamsItemUsage(item.id);
             }
 
             let targetArray = null;
@@ -270,10 +281,29 @@ class MatchPowerUpControl extends React.Component{
 
         if(elems.length === 0) return null;
 
+        let tabs = null;
+
+        if(this.props.totalTeams >= 2){
+
+            tabs = <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>
+                    Team Totals
+                </div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>
+                    Player Totals
+                </div>
+            </div>
+        }
+
         return <>
             <div className="default-header">
                 {title}
             </div>
+            {tabs}
             <div className={styles.wrapper}>
                 {elems}
             </div>

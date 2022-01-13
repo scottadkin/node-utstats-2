@@ -46,9 +46,16 @@ class BarChart extends React.Component{
 
     }
 
-    componentDidMount(){
 
-        //const range = this.props.minValue ?? 0 - this.props.maxValue;
+    componentDidUpdate(prevProps){
+
+        if(prevProps.names !== this.props.names || prevProps.values !== this.props.values){
+            this.setDataRange();
+        }
+    }
+
+
+    setDataRange(){
 
         let minValue = this.props.minValue ?? 0;
         let maxValue = null;
@@ -67,6 +74,12 @@ class BarChart extends React.Component{
         }
 
         this.setState({"minValue": minValue, "maxValue": maxValue, "range": maxValue - minValue});
+
+    }
+
+    componentDidMount(){
+
+        this.setDataRange();
    
     }
 
@@ -82,7 +95,7 @@ class BarChart extends React.Component{
             className={`${styles.bar}`} 
             style={{"width": `${percent}%`, "backgroundColor": this.colors[id]}}>
             </div>
-            <div className={`${styles.bar}`} style={{"width": "100%", "backgroundColor": "transparent", "marginTop":"-12px"}}
+            <div className={`${styles.bar}`} style={{"width": "100%","position": "absolute", "backgroundColor": "transparent", "marginTop":"-13px"}}
                 onMouseMove={((e) =>{
 
                     const bounds = e.target.getBoundingClientRect();
