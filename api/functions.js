@@ -573,6 +573,8 @@ class Functions{
 
     static reduceGraphDataPoints(inputData, max){
 
+        if(inputData.length === 0) return [];
+
         const totalDataPoints = inputData[0].data.length;
 
         if(totalDataPoints <= max) return inputData;
