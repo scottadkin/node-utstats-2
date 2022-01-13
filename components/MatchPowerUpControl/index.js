@@ -1,9 +1,6 @@
 import React from 'react';
 import styles from './MatchPowerUpControl.module.css';
-import CountryFlag from '../CountryFlag/';
-import Link from 'next/link';
 import Functions from '../../api/functions';
-import MatchPowerUp from '../MatchPowerUp';
 import BarChart from '../BarChart';
 
 class MatchPowerUpControl extends React.Component{
@@ -11,13 +8,39 @@ class MatchPowerUpControl extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"bFinishedLoading": false, "bFailed": false, "playerTeams": [[],[],[],[]]};
+        this.state = {"bFinishedLoading": false, "bFailed": false, "playerTeams": [[],[],[],[]], "bAllDisabled": false};
 
+    }
+
+    bAllDisabled(){
+
+        const needed = [
+            "Display Weapons Control",
+            "Display Powerup Control",
+            "Display Ammo Control",
+            "Display Health/Armour Control"
+        ];
+
+        for(let i = 0; i < needed.length; i++){
+
+            const n = needed[i];
+
+            if(this.props.settings[n] === "true"){
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     async loadData(){
 
         try{
+
+            if(this.bAllDisabled()){
+                this.setState({"bAllDisabled": true});
+                return;
+            }
 
             const req = await fetch("/api/pickups", {
                 "headers": {"content-type": "application/json"},
@@ -30,9 +53,6 @@ class MatchPowerUpControl extends React.Component{
             if(res.error !== undefined){
                 this.setState({"bFailed": true});
             }else{
-
-                console.log(res.playerUses);
-
                 this.setState({
                     "itemNames": res.itemNames, 
                     "playerUses": res.playerUses, 
@@ -205,19 +225,27 @@ class MatchPowerUpControl extends React.Component{
 
             if(item.type === 1){
 
-                targetArray = weapons;
+                if(this.props.settings["Display Weapons Control"] === "true"){
+                    targetArray = weapons;
+                }
                 
             }else if(item.type === 2){
                 
-                targetArray = ammo;
+                if(this.props.settings["Display Ammo Control"] === "true"){
+                    targetArray = ammo;
+                }
 
             }else if(item.type === 3){
 
-                targetArray = health;
+                if(this.props.settings["Display Health/Armour Control"] === "true"){
+                    targetArray = health;
+                }
                 
             }else if(item.type === 4){
 
-                targetArray = powerUps;
+                if(this.props.settings["Display Powerup Control"] === "true"){
+                    targetArray = powerUps;
+                }
             }
 
             if(targetArray !== null){
@@ -238,7 +266,23 @@ class MatchPowerUpControl extends React.Component{
     }
 
 
+    renderCategory(title, elems){
+
+        if(elems.length === 0) return null;
+
+        return <>
+            <div className="default-header">
+                {title}
+            </div>
+            <div className={styles.wrapper}>
+                {elems}
+            </div>
+        </>
+    }
+
     render(){
+
+        if(this.state.bAllDisabled) return null;
 
         if(!this.state.bFinishedLoading){
 
@@ -253,35 +297,14 @@ class MatchPowerUpControl extends React.Component{
 
         elems = this.createElems();
    
-
         if(elems === null) return null;
 
         return <div>
-            <div className="default-header">
-                Power Up Control
+                {this.renderCategory("Power Up Control", elems.powerUps)}
+                {this.renderCategory("Health/Armour Control", elems.health)}
+                {this.renderCategory("Weapons Control", elems.weapons)}
+                {this.renderCategory("Ammo Control", elems.ammo)}
             </div>
-            <div className={styles.wrapper}>
-                {elems.powerUps}
-            </div>
-            <div className="default-header">
-                Health/Armour Control
-            </div>
-            <div className={styles.wrapper}>
-                {elems.health}
-            </div>
-            <div className="default-header">
-                Weapons Control
-            </div>
-            <div className={styles.wrapper}>
-                {elems.weapons}
-            </div>
-            <div className="default-header">
-                Ammo Control
-            </div>
-            <div className={styles.wrapper}>
-                {elems.ammo}
-            </div>
-        </div>
         
   
     }

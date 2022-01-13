@@ -285,7 +285,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     }
 
 
-    if(pageSettings["Display Powerup Control"] === "true"){
+    //if(pageSettings["Display Powerup Control"] === "true"){
 
         if(!parsedInfo.mh){
 
@@ -295,9 +295,10 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
                 totalTeams={parsedInfo.total_teams}
                 matchId={parsedInfo.id}
                 players={JSON.parse(playerNames)}
+                settings={pageSettings}
             />);
         }
-    }
+    //}
 
 
     if(pageSettings["Display Weapon Statistics"] === "true"){

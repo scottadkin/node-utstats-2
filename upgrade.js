@@ -221,6 +221,9 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Health/Armour Control","true")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapons Control","true")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Ammo Control","true")`
     ];
     
     const reg = /^.+,"(.+?)","(.+?)",.+$/i;

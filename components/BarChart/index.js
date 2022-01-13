@@ -1,6 +1,5 @@
 import React from "react";
 import styles from './BarChart.module.css';
-import Functions from "../../api/functions";
 
 class BarChart extends React.Component{
 
@@ -83,18 +82,11 @@ class BarChart extends React.Component{
             className={`${styles.bar}`} 
             style={{"width": `${percent}%`, "backgroundColor": this.colors[id]}}>
             </div>
-            <div className={`${styles.bar}`} style={{"width": "100%", "backgroundColor": "transparent", "marginTop":"-16px"}}
+            <div className={`${styles.bar}`} style={{"width": "100%", "backgroundColor": "transparent", "marginTop":"-12px"}}
                 onMouseMove={((e) =>{
 
                     const bounds = e.target.getBoundingClientRect();
-
                     const startX = bounds.x;
-                    //const startY = bounds.y;
-
-                    //const offsetX = e.clientX - startX;
-                    //const offsetY = e.clientY - startY;
-                    //const offsetY = e.clientY - bounds.top;
-
                     const paddingX = bounds.width * 0.25;
 
                     this.setState({
