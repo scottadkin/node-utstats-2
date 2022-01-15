@@ -13,18 +13,12 @@ import Weapons from '../../api/weapons';
 import MatchWeaponSummary from '../../components/MatchWeaponSummary/';
 import MatchCTFSummary from '../../components/MatchCTFSummary/';
 import Domination from '../../api/domination';
-//import MatchDominationSummary from '../../components/MatchDominationSummary/';
-//import MatchCTFCaps from '../../components/MatchCTFCaps/';
-import Items from '../../api/items';
-import MatchItemPickups from '../../components/MatchItemPickups';
 import Assault from '../../api/assault';
 import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
 import Teams from '../../api/teams';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
-//import Graph from '../../components/Graph/';
-//import MatchKillsMatchup from '../../components/MatchKillsMatchup/';
 import MatchKillsMatchUpAlt from '../../components/MatchKillsMatchUpAlt/';
 import Functions from '../../api/functions';
 import Headshots from '../../api/headshots';
@@ -70,24 +64,9 @@ function bAssault(gametype){
 
 }
 
-function getItemsIds(items){
-
-    const ids = [];
-
-    for(let i = 0; i < items.length; i++){
-
-        if(ids.indexOf(items[i].item) === -1){
-            ids.push(items[i].item);
-        }
-    }
-
-    return ids;
-}
-
-
 
 function Match({navSettings, pageSettings, session, host, matchId, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, 
-    assaultData, itemData, itemNames, teams, faces, rankingChanges, currentRankings,
+    assaultData,  teams, faces, rankingChanges, currentRankings,
     rankingPositions, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
     const imageHost = Functions.getImageHostAndPort(host);
@@ -290,8 +269,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         if(!parsedInfo.mh){
 
             elems.push(<MatchPowerUpControl 
-                host={imageHost} key={`match-power-control`} 
-                players={JSON.parse(playerData)} 
+                host={imageHost} key={`match-power-control`}        
                 totalTeams={parsedInfo.total_teams}
                 matchId={parsedInfo.id}
                 players={JSON.parse(playerNames)}
@@ -537,20 +515,6 @@ export async function getServerSideProps({req, query}){
 
     weaponData = JSON.stringify(weaponData);
 
-    const itemsManager = new Items();
-
-    let itemData = await itemsManager.getMatchData(matchId);
-    //console.log(itemData);
-
-    let itemNames = [];
-
-    const itemIds = getItemsIds(itemData);
-
-    if(itemIds.length > 0){
-
-        itemNames = await itemsManager.getNamesByIds(itemIds);
-    }
-
     const teamsManager = new Teams();
 
     let teamsData = await teamsManager.getMatchData(matchId);
@@ -636,8 +600,6 @@ export async function getServerSideProps({req, query}){
             "weaponData": weaponData,
             "domControlPointNames": domControlPointNames,
             "assaultData": JSON.stringify(assaultData),
-            "itemData": JSON.stringify(itemData),
-            "itemNames": JSON.stringify(itemNames),
             "teams": JSON.stringify(teamsData),
             "faces": JSON.stringify(pFaces),
             "headshotData": JSON.stringify(headshotData),
