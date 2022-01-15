@@ -4,7 +4,6 @@ import DefaultHead from '../components/defaulthead';
 import Nav from '../components/Nav/';
 import Footer from '../components/Footer';
 import SiteSettings from '../api/sitesettings';
-import AdminSettingsTable from '../components/AdminSettingsTable/';
 import AdminManager from '../api/admin';
 import AdminUserTable from '../components/AdminUserTable/';
 import Faces from '../api/faces';
@@ -28,6 +27,7 @@ import AdminMonsterHunt from '../components/AdminMonsterHunt';
 import Analytics from '../api/analytics';
 import SiteAnalytics from '../components/SiteAnalytics';
 import AdminMapManager from '../components/AdminMapManager';
+import AdminSiteSettings from '../components/AdminSiteSettings';
 
 class Admin extends React.Component{
 
@@ -36,7 +36,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 1, 
+            "mode": 0, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "rankingEvents": JSON.parse(this.props.rankingEvents),
@@ -374,74 +374,9 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 0) return null;
 
-        const settings = JSON.parse(this.props.siteSettings);
-        const validSettings = JSON.parse(this.props.validSiteSettings);
+        return <AdminSiteSettings />;
+      
 
-        const categories = {};
-
-        let s = 0;
-
-        for(let i = 0; i < settings.length; i++){
-
-            s = settings[i];
-            //if(categories.indexOf(settings[i].category) === -1) categories.push(settings[i].category);
-
-            if(categories[s.category] !== undefined){
-                
-                categories[s.category].data.push({
-                    "name": s.name,
-                    "value": s.value
-                });
-
-            }else{
-
-                categories[s.category] = {
-                    "data":
-                        [
-                            {
-                            "name": s.name,
-                            "value": s.value
-                            }
-                        ]
-                };
-            }
-        }
-
-
-        const elems = [];
-
-        let currentValidSettings = [];
-
-        let fixedKey = "";
-
-        for(const [key, value] of Object.entries(categories)){
-
-            currentValidSettings = [];
-
-            fixedKey = key.toLowerCase();
-
-            if(fixedKey === "players page"){
-                currentValidSettings = validSettings.playersPage;
-            }else if(fixedKey === "matches page"){
-                currentValidSettings = validSettings.matchesPage;
-            }else if(fixedKey === "home"){
-                currentValidSettings = validSettings.home;
-            }else if(fixedKey === "records page"){
-                currentValidSettings = validSettings.recordsPage;
-            }else if(fixedKey === "maps page"){
-                currentValidSettings = validSettings.mapsPage;
-            }else if(fixedKey === "player pages"){
-                currentValidSettings = validSettings.playerPages;
-            }else if(fixedKey === "rankings"){
-                currentValidSettings = validSettings.rankings;
-            }else if(fixedKey === "map pages"){
-                currentValidSettings = validSettings.mapPages;
-            }
-
-            elems.push(<AdminSettingsTable key={key} title={key} data={value.data} validSettings={currentValidSettings}/>);
-        }
-
-        return <div>{elems}</div>
     }
     
 
@@ -663,9 +598,6 @@ export async function getServerSideProps({req, query}){
 
     const bUserAdmin = await session.bUserAdmin();
 
-    let currentSiteSettings = [];
-    let validSiteSettings = {};
-
     let userAccounts = [];
     let faceData = [];
     let faceFiles = [];
@@ -687,20 +619,7 @@ export async function getServerSideProps({req, query}){
 
     if(bUserAdmin){
 
-        currentSiteSettings = await settings.debugGetAllSettings();
-
-
-        validSiteSettings.playersPage = settings.getPlayersPageValidSettings();
-        validSiteSettings.matchesPage = await settings.getMatchesPageValidSettings();
-        validSiteSettings.home = settings.getHomePageValidSettings();
-        validSiteSettings.recordsPage = settings.getRecordsPageValidSettings();
-        validSiteSettings.mapsPage = settings.getMapsPageValidSettings();
-        validSiteSettings.playerPages = settings.getPlayerPagesValidSettings();
-        validSiteSettings.rankings = settings.getRankingsValidSettings();
-        validSiteSettings.mapPages = settings.getMapPagesValidSettings();
-
         const admin = new AdminManager();
-
 
         userAccounts = await admin.getAllUsers();
         faceData = await faceManager.getAll();
@@ -775,8 +694,6 @@ export async function getServerSideProps({req, query}){
             "navSettings": JSON.stringify(navSettings),
             "session": JSON.stringify(session.settings),
             "bUserAdmin": bUserAdmin,
-            "siteSettings": JSON.stringify(currentSiteSettings),
-            "validSiteSettings": JSON.stringify(validSiteSettings),
             "userAccounts": JSON.stringify(userAccounts),
             "faceData": JSON.stringify(faceData),
             "faceFiles": JSON.stringify(faceFiles),

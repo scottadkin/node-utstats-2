@@ -292,6 +292,30 @@ class SiteSettings{
         }
     }
 
+
+    async getCategoryNames(){
+
+        const query = "SELECT DISTINCT category FROM nstats_site_settings ORDER BY category ASC";
+
+        const result = await mysql.simpleQuery(query);
+
+        const names = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            names.push(result[i].category);
+        }
+
+        return names;
+    }
+
+
+    async getCategory(category){
+
+        const query = "SELECT * FROM nstats_site_settings WHERE category=? ORDER BY page_order ASC";
+
+        return await mysql.simpleQuery(query, [category]);
+    }
 }
 
 module.exports = SiteSettings;
