@@ -105,8 +105,6 @@ class CTFManager{
 
                     if(type === "taken" || type === "pickedup"){
 
-                        //console.log(result);
-
                         this.currentFlagHolders[parseInt(result[5])] = playerId;
 
                         this.carryTimeFrames.push(
@@ -574,6 +572,13 @@ class CTFManager{
 
             const type = e.type;
             const timestamp = e.timestamp;
+
+            //console.log(e);
+
+            if(e.flagTeam !== e.flagTeam){
+                new Message("this.events[id].flagTeam is NaN, skipping event.(FlagDomination?) (CTFManager.createCapData())","warning");
+                continue;
+            }
 
             if(type === "taken" || type === "pickedup"){
 
