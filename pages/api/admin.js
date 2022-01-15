@@ -16,8 +16,6 @@ export default async function handler(req, res){
         const mode = req.body.mode ?? "";
         const catName = req.body.cat ?? "";
 
-        console.log(`mode = ${mode}`);
-
         if(mode === "settingCategories"){
 
             const data = await siteSettingsManager.getCategoryNames();
@@ -29,7 +27,9 @@ export default async function handler(req, res){
 
             const data = await siteSettingsManager.getCategory(catName);
 
-            res.status(200).json({"data": data});
+            const validSettings = await siteSettingsManager.getValidSettings(catName);
+
+            res.status(200).json({"data": data, "valid": validSettings});
             return;
 
         }

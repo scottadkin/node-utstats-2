@@ -163,6 +163,34 @@ class SiteSettings{
         }
     }
 
+
+    async getValidSettings(category){
+
+        if(category === "Home"){
+            return this.getHomePageValidSettings();
+        }else if(category === "Map Pages"){
+            return this.getMapPagesValidSettings();
+        }else if(category === "Maps Page"){
+            return this.getMapsPageValidSettings();
+        }else if(category === "Match Pages"){
+            return {};
+        }else if(category === "Matches Page"){
+            return await this.getMatchesPageValidSettings();
+        }else if(category === "Navigation"){
+            return {};
+        }else if(category === "Player Pages"){
+            return this.getPlayerPagesValidSettings();
+        }else if(category === "Players Page"){
+            return this.getPlayersPageValidSettings();
+        }else if(category === "Rankings"){
+            return this.getRankingsValidSettings();
+        }else if(category === "Records Page"){
+            return this.getRecordsPageValidSettings();
+        }
+
+        return {};
+    }
+
     async getMatchesPageValidSettings(){
 
         try{
@@ -214,6 +242,7 @@ class SiteSettings{
 
         }catch(err){
             console.trace(err);
+            return {};
         }
     }
 

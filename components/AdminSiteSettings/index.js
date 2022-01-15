@@ -1,4 +1,6 @@
 import React from 'react';
+import Table2 from '../Table2';
+import TrueFalse from '../TrueFalse';
 
 
 class AdminSiteSettings extends React.Component{
@@ -6,7 +8,7 @@ class AdminSiteSettings extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"categories": null, "mode": 0};
+        this.state = {"categories": null, "mode": 0, "settings": null, "validSettings": null};
         this.changeMode = this.changeMode.bind(this);
     }
 
@@ -46,8 +48,13 @@ class AdminSiteSettings extends React.Component{
                 "body": JSON.stringify({"mode": "loadSettingsCategory", "cat": this.state.categories[this.state.mode]})
             });
 
+            console.log(this.state.categories[this.state.mode]);
+
             const res = await req.json();
 
+            if(res.error === undefined){
+                this.setState({"settings": res.data, "validSettings": res.valid});
+            }
             console.log(res);
 
         }catch(err){
@@ -92,11 +99,70 @@ class AdminSiteSettings extends React.Component{
         </div>
     }
 
+    renderDropDown(name){
+
+        const options = [];
+
+        if(this.state.validSettings[name] !== undefined){
+
+            for(let i = 0; i < this.state.validSettings[name].length; i++){
+
+                const setting = this.state.validSettings[name][i];
+
+                options.push(<option key={i} value={setting.value}>{setting.name}</option>);
+            }
+        }
+        
+        return <select className="default-select">
+            {options}
+        </select>
+    }
+
+    renderSettings(){
+
+        if(this.state.settings === null) return null;
+
+        const rows = [];
+
+        for(let i = 0; i < this.state.settings.length; i++){
+
+            const s = this.state.settings[i];
+
+            let valueElem = null;
+
+            if(s.value === "true" || s.value === "false"){
+
+                valueElem = <TrueFalse bTable={true} value={s.value} tDisplay="Enabled" fDisplay="Disabled"/>
+            }else{
+
+                valueElem = <td>{this.renderDropDown(s.name)}</td>
+            }
+
+            rows.push(<tr key={i}>
+                <td className="text-left">{s.name}</td>
+                {valueElem}
+                <td></td>
+            </tr>);
+        }
+
+        return <div>
+            <Table2 width={1}>
+                <tr>
+                    <th>Setting</th>
+                    <th>Value</th>
+                    <th>Change Position</th>
+                </tr>
+                {rows}
+            </Table2>
+        </div>
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Site Settings</div>
             {this.renderTabs()}
+            {this.renderSettings()}
         </div>
     }
 }
