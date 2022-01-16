@@ -1,6 +1,5 @@
 import React from 'react';
 import Table2 from '../Table2';
-import TrueFalse from '../TrueFalse';
 
 
 class AdminSiteSettings extends React.Component{
@@ -10,6 +9,80 @@ class AdminSiteSettings extends React.Component{
         super(props);
         this.state = {"categories": null, "mode": 0, "settings": null, "validSettings": null};
         this.changeMode = this.changeMode.bind(this);
+        this.changeTrueFalse = this.changeTrueFalse.bind(this);
+    }
+
+    async updateSetting(type, newValue){
+
+        try{
+
+            const req = await fetch("/api/admin", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({
+                    "mode": "changeSetting",
+                    "settingCategory": this.state.categories[this.state.mode],
+                    "settingType": type, 
+                    "value": newValue
+                })
+            });
+
+            const res = await req.json();
+
+            console.log(res);
+
+            
+            if(res.error === undefined){
+                if(res.message === "passed"){
+                    return true;
+                }
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+
+        return false;
+    }
+
+    async updateCurrentSettings(toEdit, newValue){
+
+        const oldSettings = JSON.parse(JSON.stringify(this.state.settings));
+
+        const newSettings = [];
+
+        for(let i = 0; i < oldSettings.length; i++){
+
+            const o = oldSettings[i];
+
+            if(o.name === toEdit){
+
+                o.value = newValue;
+                newSettings.push(o);
+
+            }else{
+                newSettings.push(o);
+            }
+        }
+
+        if(await this.updateSetting(toEdit, newValue)){
+
+            this.setState({"settings": newSettings});
+
+        }
+
+        
+    }
+
+    async changeTrueFalse(type, value){
+
+        if(value === "true"){
+            value = "false";
+        }else{
+            value = "true";
+        }
+
+        await this.updateCurrentSettings(type, value);
     }
 
     async changeMode(id){
@@ -132,7 +205,23 @@ class AdminSiteSettings extends React.Component{
 
             if(s.value === "true" || s.value === "false"){
 
-                valueElem = <TrueFalse bTable={true} value={s.value} tDisplay="Enabled" fDisplay="Disabled"/>
+                let valueText = "";
+                let colorClass = "";
+
+                if(s.value === "true"){
+                    valueText = "Enabled";
+                    colorClass = "team-green";
+                }else{
+                    valueText = "Disabled";
+                    colorClass = "team-red";
+                }
+
+                valueElem = <td className={`${colorClass} no-select hover-cursor`} onClick={(async () =>{
+                    await this.changeTrueFalse(s.name, s.value);
+                })}>
+                    {valueText}
+                </td>
+
             }else{
 
                 valueElem = <td>{this.renderDropDown(s.name)}</td>
@@ -146,7 +235,7 @@ class AdminSiteSettings extends React.Component{
         }
 
         return <div>
-            <Table2 width={1}>
+            <Table2 width={4}>
                 <tr>
                     <th>Setting</th>
                     <th>Value</th>

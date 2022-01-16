@@ -14,7 +14,7 @@ export default async function handler(req, res){
         const siteSettingsManager = new SiteSettings();
 
         const mode = req.body.mode ?? "";
-        const catName = req.body.cat ?? "";
+        
 
         if(mode === "settingCategories"){
 
@@ -25,12 +25,51 @@ export default async function handler(req, res){
 
         }else if(mode === "loadSettingsCategory"){
 
+            const catName = req.body.cat ?? "";
             const data = await siteSettingsManager.getCategory(catName);
 
             const validSettings = await siteSettingsManager.getValidSettings(catName);
 
             res.status(200).json({"data": data, "valid": validSettings});
             return;
+
+        }else if(mode === "changeSetting"){
+
+            const settingType = req.body.settingType ?? "";
+
+            if(settingType === ""){
+
+                res.status(200).json({"error": "Setting supplied was blank"});
+                return;
+            }
+
+            const settingValue = req.body.value ?? "";
+
+            if(settingValue === ""){
+
+                res.status(200).json({"error": "Setting Value supplied was blank"});
+                return;
+            }
+
+            const settingCategory = req.body.settingCategory ?? "";
+
+            if(settingCategory === ""){
+
+                res.status(200).json({"error": "Setting Category supplied was blank"});
+                return;
+            }
+
+            
+            
+            if(await siteSettingsManager.updateSetting(settingCategory, settingType, settingValue)){
+
+                res.status(200).json({"message": "passed"});
+                return;
+            }else{
+                res.status(200).json({"error": "No rows in the database where changed."});
+                return;
+            }
+
 
         }
 

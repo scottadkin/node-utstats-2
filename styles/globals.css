@@ -727,3 +727,11 @@ input[type="range"]{
     font-style:italic;
     font-size:12px;
 }
+
+.no-select{
+	user-select: none;
+}
+
+.hover-cursor:hover{
+	cursor:pointer;
+}

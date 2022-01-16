@@ -345,6 +345,19 @@ class SiteSettings{
 
         return await mysql.simpleQuery(query, [category]);
     }
+
+
+    async updateSetting(category, type, newValue){
+
+
+        const query = "UPDATE nstats_site_settings SET value=? WHERE category=? AND name=?";
+
+        const result = await mysql.updateReturnAffectedRows(query, [newValue, category, type]);
+
+        if(result >= 1) return true;
+
+        return false;
+    }
 }
 
 module.exports = SiteSettings;
