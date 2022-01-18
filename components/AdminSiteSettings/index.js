@@ -20,9 +20,81 @@ class AdminSiteSettings extends React.Component{
             "messageMode": null,
             "displayUntil": 0
         };
+
         this.changeMode = this.changeMode.bind(this);
         this.changeTrueFalse = this.changeTrueFalse.bind(this);
         this.changeDropDownValue = this.changeDropDownValue.bind(this);
+        this.changePosition = this.changePosition.bind(this);
+
+    }
+
+    async changePosition(bUp, name){
+
+        console.log(`Move ${name} ${bUp}`);
+
+        const current = JSON.parse(JSON.stringify(this.state.settings));
+
+        let currentPosition = null;
+        let target = null;
+
+        for(let i = 0; i < current.length; i++){
+
+            const c = current[i];
+
+            if(c.name === name){
+                currentPosition = i;
+                target = c;
+                break;
+            }
+        }
+
+        let newPosition = 0;
+
+        if(bUp){
+
+            newPosition = currentPosition - 1;
+            //cant be lower than 0
+            if(newPosition < 0) return;
+
+        }else{
+
+            newPosition = currentPosition + 1;
+        }
+        
+
+        const newOrder = [];
+
+
+        for(let i = 0; i < current.length; i++){
+
+            const c = current[i];
+
+            if(c.name === target.name) continue;
+
+            if(i === newPosition){
+                newOrder.push(target);
+            }
+
+            newOrder.push(c);
+        
+        }
+
+
+        const result = [];
+
+
+        for(let i = 0; i < newOrder.length; i++){
+
+            const n = newOrder[i];
+
+            n.page_order = i;
+
+        }
+
+        console.log(newOrder);
+        this.setState({"settings": newOrder});
+
+        console.log(`currentPosition is ${currentPosition}`);
     }
 
     async changeDropDownValue(e){
@@ -285,8 +357,12 @@ class AdminSiteSettings extends React.Component{
                 <td>
                     {(bDropDown) ? null :
                         <>
-                            <img src="/images/up.png" className={styles.button} alt="up"/>
-                            <img src="/images/down.png" className={styles.button} alt="down"/>
+                            <img src="/images/up.png" className={styles.button} alt="up" onClick={(() =>{
+                                this.changePosition(true, s.name);
+                            })}/>
+                            <img src="/images/down.png" className={styles.button} alt="down" onClick={(() =>{
+                                this.changePosition(false, s.name);
+                            })}/>
                         </>
                     }
                 </td>

@@ -343,7 +343,24 @@ class SiteSettings{
 
         const query = "SELECT * FROM nstats_site_settings WHERE category=? ORDER BY page_order ASC";
 
-        return await mysql.simpleQuery(query, [category]);
+        const result =  await mysql.simpleQuery(query, [category]);
+
+        let currentOrder = 0;
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(r.value === "true" || r.value === "false"){
+                r.page_order = currentOrder;
+                currentOrder++;
+                
+            }else{
+                r.page_order = 999999;
+            }
+        }
+
+        return result;
     }
 
 

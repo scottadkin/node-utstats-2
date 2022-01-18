@@ -27,7 +27,7 @@ export default async function handler(req, res){
 
             const catName = req.body.cat ?? "";
             const data = await siteSettingsManager.getCategory(catName);
-
+            
             const validSettings = await siteSettingsManager.getValidSettings(catName);
 
             res.status(200).json({"data": data, "valid": validSettings});
