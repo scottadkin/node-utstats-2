@@ -139,6 +139,7 @@ class AdminSiteSettings extends React.Component{
         for(let i = 0; i < newOrder.length; i++){
 
             const n = newOrder[i];
+            
             if(n.value === "true" || n.value === "false"){
                 n.page_order = i;
             }else{

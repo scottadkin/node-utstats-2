@@ -69,7 +69,7 @@ function createDatesGraphData(data){
 
 
 
-function Home({navSettings, pageSettings, session, host, matchesData, countriesData, mapImages, matchDates,
+function Home({navSettings, pageSettings, pageOrder, session, host, matchesData, countriesData, mapImages, matchDates,
 	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query, gametypeImages, 
 	latestMatchPlayers, latestMatchImage, latestFaces, totalPlayers}) {
 
@@ -78,6 +78,9 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 	const graphData = createDatesGraphData(matchDates);
 
 	pageSettings = JSON.parse(pageSettings);
+	pageOrder = JSON.parse(pageOrder);
+
+	console.log(pageSettings);
 
 	const imageHost = Functions.getImageHostAndPort(host);
 
@@ -108,48 +111,58 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 
 	const elems = [];
 
+	const totalElems = Object.entries(pageOrder).length;
 
+	for(let i = 0; i < totalElems; i++){
+		elems.push(null);
+	}
+
+	console.log(pageOrder);
+	
+
+	
 	if(JSON.parse(matchesData).length > 0){
 
 		if(pageSettings["Display Latest Match"] === "true"){
+
 			const latestMatch = JSON.parse(matchesData)[0];
 			
-			
-			elems.push(<Screenshot 
+			elems[pageOrder["Display Latest Match"]] = <Screenshot 
 				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} 
 				image={`${imageHost}/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
 				matchData={JSON.stringify(latestMatch)}
 				serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={latestFaces} bHome={true}
 				host={imageHost}
-			/>);
+			/>;
 		}
 		
 
 		if(pageSettings["Display Recent Matches"] === "true"){
 
-			elems.push(<div key={"recent-matches"}>
+			elems[pageOrder["Display Recent Matches"]] = <div key={"recent-matches"}>
 
 				<div className="default-header">Recent Matches</div>
-			
 				{(pageSettings["Recent Matches Display Type"] === "0") ? <MatchesDefaultView host={host} images={mapImages} data={matchesData} /> : 
 				<MatchesTableView data={matchesData}/> }
 
-			</div>);
+			</div>;
 		}
 	}
+
 
 	if(graphData !== null){
 
-		if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
-			elems.push(
-				<div key={"matches-graph"}>
-					<div className="default-header">Recent Matches &amp; Player Stats</div>
-					<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
-				</div>
-			);
+		if(pageSettings["Display Recent Matches & Player Stats"] === "trdgsdue"){
+
+			elems[pageOrder["Display Recent Matches & Player Stats"]] = <div key={"matches-graph"}>
+				<div className="default-header">Recent Matches &amp; Player Stats</div>
+				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
+			</div>;
+			
 		}
 	}
 
+	/*
 	if(JSON.parse(gametypeStats).length > 0){
 		
 		if(pageSettings["Display Most Played Gametypes"] === "true"){
@@ -195,7 +208,7 @@ function Home({navSettings, pageSettings, session, host, matchesData, countriesD
 			elems.push(<PopularCountries key={"countries"} data={countriesData} totalPlayers={totalPlayers}/>);
 		}
 
-	}
+	}*/
 
 	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
@@ -232,8 +245,12 @@ export async function getServerSideProps({req, query}) {
 	const siteSettings = new SiteSettings();
 
 	const pageSettings = await siteSettings.getCategorySettings("Home");
+	const pageOrder = await siteSettings.getCategoryOrder("Home");
 	const navSettings = await siteSettings.getCategorySettings("Navigation");
 
+	console.log("***************************************************");
+	console.log(pageOrder);
+	console.log("***************************************************");
 
 	const matchManager = new Matches();
 	const mapManager = new Maps();
@@ -397,6 +414,7 @@ export async function getServerSideProps({req, query}) {
 
 	return { props: { 
 			"pageSettings": JSON.stringify(pageSettings),
+			"pageOrder": JSON.stringify(pageOrder),
 			"navSettings": JSON.stringify(navSettings),
 			"session": JSON.stringify(session.settings),
 			"host": req.headers.host,

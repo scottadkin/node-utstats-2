@@ -401,6 +401,27 @@ class SiteSettings{
 
         return errors;
     }
+
+    async getCategoryOrder(categoryName){
+
+        //const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? ORDER BY page_order ASC";
+        const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? AND (value ='true' OR value='false') ORDER BY page_order ASC";
+
+        const result = await mysql.simpleQuery(query, [categoryName]);
+
+        const dataObject = {};
+
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            dataObject[r.name] = i;
+   
+        }
+
+        return dataObject;
+
+    }
 }
 
 module.exports = SiteSettings;
