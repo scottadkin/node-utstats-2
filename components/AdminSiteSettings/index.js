@@ -10,6 +10,15 @@ class AdminSiteSettings extends React.Component{
         this.state = {"categories": null, "mode": 0, "settings": null, "validSettings": null};
         this.changeMode = this.changeMode.bind(this);
         this.changeTrueFalse = this.changeTrueFalse.bind(this);
+        this.changeDropDownValue = this.changeDropDownValue.bind(this);
+    }
+
+    async changeDropDownValue(e){
+
+        const name = e.target.name;
+        const value = e.target.value;
+
+        await this.updateCurrentSettings(name, value);
     }
 
     async updateSetting(type, newValue){
@@ -172,6 +181,20 @@ class AdminSiteSettings extends React.Component{
         </div>
     }
 
+    getCurrentValue(name){
+
+        for(let i = 0; i < this.state.settings.length; i++){
+
+            const s = this.state.settings[i];
+
+            if(s.name === name){
+                return s.value;
+            }
+        }
+
+        return "";
+    }
+
     renderDropDown(name){
 
         const options = [];
@@ -185,8 +208,10 @@ class AdminSiteSettings extends React.Component{
                 options.push(<option key={i} value={setting.value}>{setting.name}</option>);
             }
         }
+
+        const currentSetting = this.getCurrentValue(name);
         
-        return <select className="default-select">
+        return <select className="default-select" name={name} value={currentSetting} onChange={this.changeDropDownValue}>
             {options}
         </select>
     }
