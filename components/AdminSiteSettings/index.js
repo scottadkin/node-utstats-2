@@ -1,6 +1,7 @@
 import React from 'react';
 import Table2 from '../Table2';
 import Notification from '../Notification';
+import styles from './AdminSiteSettings.module.css';
 
 
 class AdminSiteSettings extends React.Component{
@@ -243,11 +244,14 @@ class AdminSiteSettings extends React.Component{
 
         const rows = [];
 
+        const dropDownRows = [];
+
         for(let i = 0; i < this.state.settings.length; i++){
 
             const s = this.state.settings[i];
 
             let valueElem = null;
+            let bDropDown = false;
 
             if(s.value === "true" || s.value === "false"){
 
@@ -269,14 +273,23 @@ class AdminSiteSettings extends React.Component{
                 </td>
 
             }else{
-
+                bDropDown = true;
                 valueElem = <td>{this.renderDropDown(s.name)}</td>
             }
 
-            rows.push(<tr key={i}>
+            const elems = (bDropDown) ? dropDownRows : rows;
+
+            elems.push(<tr key={i}>
                 <td className="text-left">{s.name}</td>
                 {valueElem}
-                <td></td>
+                <td>
+                    {(bDropDown) ? null :
+                        <>
+                            <img src="/images/up.png" className={styles.button} alt="up"/>
+                            <img src="/images/down.png" className={styles.button} alt="down"/>
+                        </>
+                    }
+                </td>
             </tr>);
         }
 
@@ -287,7 +300,9 @@ class AdminSiteSettings extends React.Component{
                     <th>Value</th>
                     <th>Change Position</th>
                 </tr>
+                {dropDownRows}
                 {rows}
+                
             </Table2>
         </div>
     }
