@@ -375,6 +375,32 @@ class SiteSettings{
 
         return false;
     }
+
+    async updateSettingOrder(id, position){
+
+        const query = "UPDATE nstats_site_settings SET page_order=? WHERE id=?";
+
+        return await mysql.updateReturnAffectedRows(query, [position, id]);
+    }
+
+    async updateSettingsOrder(newIds){
+
+
+        const errors = [];
+
+        for(let i = 0; i < newIds.length; i++){
+
+            const n = newIds[i];
+
+            const result = await this.updateSettingOrder(n.id, n.order);
+
+            if(result === 0){
+                errors.push(n.id);
+            }
+        }
+
+        return errors;
+    }
 }
 
 module.exports = SiteSettings;

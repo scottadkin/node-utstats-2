@@ -28,23 +28,75 @@ class AdminSiteSettings extends React.Component{
 
     }
 
-    async changePosition(bUp, name){
+    async changeOrder(newOrder){
 
-        console.log(`Move ${name} ${bUp}`);
+        try{
+
+            this.setState({
+                "bUpdateInProgress": true, 
+                "messageMode": "warning", 
+                "message": "Updating settings order please wait...",
+                "displayUntil": Math.floor(Date.now() * 0.001) + 50
+            });
+
+            const idOrder = [];
+
+            for(let i = 0; i < newOrder.length; i++){
+
+                const n = newOrder[i];
+                idOrder.push({"id": n.id, "order": n.page_order});
+            }
+
+            const req = await fetch("/api/admin", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "settingsUpdateOrder", "data": idOrder})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+
+                this.setState({
+                    "bUpdateInProgress": false, 
+                    "messageMode": "pass", 
+                    "message": res.message,
+                    "displayUntil": Math.floor(Date.now() * 0.001) + 3
+                });
+
+            }else{
+                this.setState({
+                    "bUpdateInProgress": false, 
+                    "messageMode": "error", 
+                    "message": res.error,
+                    "displayUntil": Math.floor(Date.now() * 0.001) + 3
+                });
+            }
+
+        }catch(err){
+            console.trace(err);
+        }   
+    }
+
+    async changePosition(bUp, name){
 
         const current = JSON.parse(JSON.stringify(this.state.settings));
 
         let currentPosition = null;
         let target = null;
+        let totalOptions = 0;
 
         for(let i = 0; i < current.length; i++){
 
             const c = current[i];
 
+            if(c.value === "true" || c.value === "false"){
+                totalOptions++;
+            }
+
             if(c.name === name){
                 currentPosition = i;
                 target = c;
-                break;
             }
         }
 
@@ -59,11 +111,10 @@ class AdminSiteSettings extends React.Component{
         }else{
 
             newPosition = currentPosition + 1;
+           if(newPosition > totalOptions) newPosition = totalOptions -1;
         }
-        
-
+    
         const newOrder = [];
-
 
         for(let i = 0; i < current.length; i++){
 
@@ -71,30 +122,34 @@ class AdminSiteSettings extends React.Component{
 
             if(c.name === target.name) continue;
 
+            if(!bUp){
+                newOrder.push(c);
+            }
+
             if(i === newPosition){
                 newOrder.push(target);
             }
 
-            newOrder.push(c);
+            if(bUp){
+                newOrder.push(c);
+            }
         
         }
-
-
-        const result = [];
-
 
         for(let i = 0; i < newOrder.length; i++){
 
             const n = newOrder[i];
-
-            n.page_order = i;
+            if(n.value === "true" || n.value === "false"){
+                n.page_order = i;
+            }else{
+                n.page_order = 99999;
+            }
 
         }
 
-        console.log(newOrder);
         this.setState({"settings": newOrder});
+        await this.changeOrder(newOrder);
 
-        console.log(`currentPosition is ${currentPosition}`);
     }
 
     async changeDropDownValue(e){
@@ -114,7 +169,7 @@ class AdminSiteSettings extends React.Component{
                 "error": null, 
                 "messageMode": "warning", 
                 "message": "Updating setting...",
-                "displayUntil": Math.floor(Date.now() * 0.001) + 3
+                "displayUntil": Math.floor(Date.now() * 0.001) + 50
             });
 
             const req = await fetch("/api/admin", {

@@ -71,6 +71,40 @@ export default async function handler(req, res){
             }
 
 
+        }else if(mode === "settingsUpdateOrder"){
+
+            const newIds = req.body.data ?? [];
+
+            if(newIds.length !== 0){
+
+                const result = await siteSettingsManager.updateSettingsOrder(newIds);
+
+                if(result.length === 0){
+
+                    res.status(200).json({"message": "Site settings category order updated successfully."});
+                    return;
+
+                }else{
+
+                    let resultString = "";
+
+                    for(let i = 0; i < result.length; i++){
+
+                        resultString += ` ${result[i]}`;
+
+                        if(i < result.length - 1) resultString += `,`;
+
+                    }
+
+                    res.status(200).json({"error": `Some rows did not update. Rows with Ids ${resultString} failed to update.`});
+                    return;
+                }
+                
+            }else{
+                
+                res.status(200).json({"error": "There where no rows to update."});
+                return;
+            }
         }
 
      

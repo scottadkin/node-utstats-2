@@ -1,6 +1,7 @@
 .button{
     width:20px;
     height:20px;
+    user-select: none;
 }
 
 .button:hover{
