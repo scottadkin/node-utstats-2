@@ -6,6 +6,7 @@
 	--linear-gradient-1:linear-gradient(to bottom, rgb(22,22,22), rgb(33,33,33));
 	--linear-gradient-2:linear-gradient(to bottom, rgb(44,44,44), rgb(55,55,55));
 	--linear-gradient-3:linear-gradient(to bottom right, rgb(24,24,24), rgb(46,46,46), rgb(24,24,24));
+	--linear-gradient-4:linear-gradient(to bottom, rgb(0, 96, 175), rgb(18, 50, 156));
 	--color-2:rgb(38,38,38);
 	--color-3:rgb(16,16,16);
 	--color-3a:rgba(16,16,16,0.7);
@@ -90,7 +91,7 @@ footer{
 	text-align:center;
 	font-size:26px;
 	color:white;
-	font-weight:300;
+	font-weight:400;
 	padding-bottom:25px;
 	padding-top:25px;
 	background-color:var(--color-3);
@@ -105,7 +106,7 @@ footer{
 	text-align:center;
 	font-size:18px;
 	color:white;
-	font-weight:300;
+	font-weight:400;
 	padding-bottom:20px;
 	padding-top:20px;
 	width:var(--width-1);
@@ -197,7 +198,7 @@ th{
 
 td{
 	font-weight:400;
-	padding:15px 5px;
+	padding:12px 5px;
 	font-size:15px;
 }
 

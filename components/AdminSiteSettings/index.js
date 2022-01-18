@@ -1,5 +1,6 @@
 import React from 'react';
 import Table2 from '../Table2';
+import Notification from '../Notification';
 
 
 class AdminSiteSettings extends React.Component{
@@ -7,7 +8,17 @@ class AdminSiteSettings extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"categories": null, "mode": 0, "settings": null, "validSettings": null};
+        this.state = {
+            "categories": null, 
+            "mode": 0, 
+            "settings": null, 
+            "validSettings": null, 
+            "bUpdateInProgress": false, 
+            "error": null,
+            "message": null,
+            "messageMode": null,
+            "displayUntil": 0
+        };
         this.changeMode = this.changeMode.bind(this);
         this.changeTrueFalse = this.changeTrueFalse.bind(this);
         this.changeDropDownValue = this.changeDropDownValue.bind(this);
@@ -25,6 +36,14 @@ class AdminSiteSettings extends React.Component{
 
         try{
 
+            this.setState({
+                "bUpdateInProgress": true, 
+                "error": null, 
+                "messageMode": "warning", 
+                "message": "Updating setting...",
+                "displayUntil": Math.floor(Date.now() * 0.001) + 3
+            });
+
             const req = await fetch("/api/admin", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
@@ -38,14 +57,19 @@ class AdminSiteSettings extends React.Component{
 
             const res = await req.json();
 
-            console.log(res);
-
             
             if(res.error === undefined){
+
                 if(res.message === "passed"){
+                    this.setState({"messageMode": "pass", "message": "Setting updated successfully","displayUntil": Math.floor(Date.now() * 0.001) + 3});
                     return true;
                 }
+
+            }else{
+                this.setState({"error": res.error, "messageMode": "error", "message": res.error,"displayUntil": Math.floor(Date.now() * 0.001) + 3});
             }
+
+            this.setState({"bUpdateInProgress": false});
 
         }catch(err){
             console.trace(err);
@@ -96,7 +120,7 @@ class AdminSiteSettings extends React.Component{
 
     async changeMode(id){
 
-        this.setState({"mode": id});
+        this.setState({"mode": id, "displayUntil": 0, "message": null});
     }
 
     async loadCategoryNames(){
@@ -130,14 +154,11 @@ class AdminSiteSettings extends React.Component{
                 "body": JSON.stringify({"mode": "loadSettingsCategory", "cat": this.state.categories[this.state.mode]})
             });
 
-            console.log(this.state.categories[this.state.mode]);
-
             const res = await req.json();
 
             if(res.error === undefined){
                 this.setState({"settings": res.data, "validSettings": res.valid});
             }
-            console.log(res);
 
         }catch(err){
             console.trace(err);
@@ -271,12 +292,21 @@ class AdminSiteSettings extends React.Component{
         </div>
     }
 
+    renderNotification(){
+        if(this.state.messageMode === null) return null;
+
+        return <Notification type={this.state.messageMode} displayUntil={this.state.displayUntil}>
+            {this.state.message}
+        </Notification>;
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Site Settings</div>
             {this.renderTabs()}
             {this.renderSettings()}
+            {this.renderNotification()}
         </div>
     }
 }
