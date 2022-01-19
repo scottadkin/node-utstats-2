@@ -152,7 +152,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 
 	if(graphData !== null){
 
-		if(pageSettings["Display Recent Matches & Player Stats"] === "trdgsdue"){
+		if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
 
 			elems[pageOrder["Display Recent Matches & Player Stats"]] = <div key={"matches-graph"}>
 				<div className="default-header">Recent Matches &amp; Player Stats</div>
@@ -162,11 +162,17 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 		}
 	}
 
-	/*
+	
 	if(JSON.parse(gametypeStats).length > 0){
 		
 		if(pageSettings["Display Most Played Gametypes"] === "true"){
-			elems.push(<HomeMostPlayedGametypes key={"monstplayedgametypes"} host={imageHost} data={gametypeStats} images={JSON.parse(gametypeImages)}/>);
+
+			elems[pageOrder["Display Most Played Gametypes"]] = <HomeMostPlayedGametypes 
+				key={"monstplayedgametypes"} 
+				host={imageHost} 
+				data={gametypeStats} 
+				images={JSON.parse(gametypeImages)}
+			/>;
 		}
 	}
 
@@ -175,28 +181,40 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 	if(JSON.parse(mostPlayedMaps).length > 0){
 
 		if(pageSettings["Display Most Played Maps"] === "true"){
-			elems.push(<HomeTopMaps key={"maps"} host={imageHost} maps={mostPlayedMaps} images={mapImages}/>);
+			elems[pageOrder["Display Most Played Maps"]] = <HomeTopMaps key={"maps"} host={imageHost} maps={mostPlayedMaps} images={mapImages}/>;
 		}
 	}
 
 	if(JSON.parse(recentPlayersData).length > 0){
 
 		if(pageSettings["Display Recent Players"] === "true"){
-			elems.push(<BasicPlayers key={"recent-players"} host={imageHost} title="Recent Players" players={recentPlayersData} faceFiles={faceFiles}/>);
+
+			elems[pageOrder["Display Recent Players"]] = <BasicPlayers key={"recent-players"} 
+				host={imageHost} 
+				title="Recent Players" 
+				players={recentPlayersData} 
+				faceFiles={faceFiles}
+			/>;
 		}
 	}
 
 	if(JSON.parse(addictedPlayersData).length > 0){
 
 		if(pageSettings["Display Addicted Players"] === "true"){
-			elems.push(<BasicPlayers key={"addicted-players"} host={imageHost} title="Addicted Players" players={addictedPlayersData} faceFiles={faceFiles}/>);
+
+			elems[pageOrder["Display Addicted Players"]] = <BasicPlayers key={"addicted-players"} 
+				host={imageHost} 
+				title="Addicted Players" 
+				players={addictedPlayersData} 
+				faceFiles={faceFiles}
+			/>;
 		}
 	}
 
 	if(JSON.parse(mostUsedFaces).length > 0){
 
 		if(pageSettings["Display Most Used Faces"] === "true"){
-			elems.push(<MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles} host={imageHost}/>);
+			elems[pageOrder["Display Most Used Faces"]] = <MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles} host={imageHost}/>;
 		}
 	}
 
@@ -205,10 +223,10 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 
 		if(pageSettings["Display Most Popular Countries"] === "true"){
 
-			elems.push(<PopularCountries key={"countries"} data={countriesData} totalPlayers={totalPlayers}/>);
+			elems[pageOrder["Display Most Popular Countries"]] = <PopularCountries key={"countries"} data={countriesData} totalPlayers={totalPlayers}/>;
 		}
 
-	}*/
+	}
 
 	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (

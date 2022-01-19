@@ -191,8 +191,17 @@ async function updateCapsTable(){
 
 async function updateSiteSettings(){
 
-    const query = "SELECT category, name FROM nstats_site_settings";
+    
 
+    const orderExists = await columnExists("nstats_site_settings", "page_order");
+
+    if(!orderExists){
+
+        await alterTable("nstats_site_settings", "page_order", "INT(11) NOT NULL");
+        new Message(`Updated table nstats_site_settings, add column "page_order"`,"pass");
+    }
+    
+    const query = "SELECT category, name FROM nstats_site_settings";
     const result = await mysql.simpleFetch(query);
 
     const currentSettings = {};
@@ -209,24 +218,25 @@ async function updateSiteSettings(){
     }
 
     const queries = [
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Mutators","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Time Limit","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Target Score","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Players","0")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Playtime","0")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Player Score Graph","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Capture The Flag Times","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Solo Caps Before Displayed","1")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Health/Armour Control","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapons Control","true")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Ammo Control","true")`
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Mutators","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Time Limit","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Target Score","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Players","0",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Playtime","0",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Player Score Graph","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Capture The Flag Times","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Solo Caps Before Displayed","1",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Health/Armour Control","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapons Control","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Ammo Control","true",0)`
     ];
+
     
-    const reg = /^.+,"(.+?)","(.+?)",.+$/i;
+    const reg = /^.+NULL,"(.+?)","(.+?)",.+$/i;
 
     for(let i = 0; i < queries.length; i++){
 
