@@ -459,7 +459,7 @@ class AdminMatchesManager extends React.Component{
                 })}>Under Minimum Players/Playtime</div>
                 <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : "null"}`} onClick={(() =>{
                     this.changeMode(2);
-                })}>Delete Orphaned Data</div>
+                })}>Delete Failed Imports</div>
             </div>
             {this.renderInvalidMatches()}
             {this.renderDuplicateMatches()}

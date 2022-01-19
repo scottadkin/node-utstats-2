@@ -158,14 +158,13 @@ export default async function handler(req, res){
                     const logIds = await Logs.getAllMatchIds();
                     const matchIds = await matches.getAllIds();
 
-                    console.log(matchIds.length, logIds.length);
-
                     const failedIds = getFailedIds(logIds, matchIds);
 
                     const basicData = await matches.getBasicByIds(failedIds);
 
-                    console.log(basicData);
-
+                    
+                    res.status(200).json({"data": basicData});
+                    return;
 
                 }
 
