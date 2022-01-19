@@ -1,9 +1,9 @@
 import React from 'react';
 import Functions from '../../api/functions';
-import styles from './AdminMatchesManager.module.css';
 import Link from 'next/link';
 import ProgressBar from '../ProgressBar';
 import Table2 from '../Table2';
+import AdminOrphanedData from '../AdminOrphanedData';
 
 class AdminMatchesManager extends React.Component{
 
@@ -440,6 +440,12 @@ class AdminMatchesManager extends React.Component{
 
     }
 
+    renderOrphanedData(){
+
+        if(this.state.mode !== 2) return null;
+
+        return <AdminOrphanedData />;
+    }
     render(){
 
         return <div>
@@ -451,9 +457,13 @@ class AdminMatchesManager extends React.Component{
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "null"}`} onClick={(() =>{
                     this.changeMode(1);
                 })}>Under Minimum Players/Playtime</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : "null"}`} onClick={(() =>{
+                    this.changeMode(2);
+                })}>Delete Orphaned Data</div>
             </div>
             {this.renderInvalidMatches()}
             {this.renderDuplicateMatches()}
+            {this.renderOrphanedData()}
             
         </div>
     }

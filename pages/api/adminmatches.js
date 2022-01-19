@@ -4,6 +4,7 @@ import SiteSettings from '../../api/sitesettings';
 import Maps from '../../api/maps';
 import Servers from '../../api/servers';
 import Gametypes from '../../api/gametypes';
+import Logs from '../../api/logs';
 
 async function setMatchValues(matches, mapManager, serverManager, gametypeManager){
 
@@ -35,6 +36,22 @@ async function setMatchValues(matches, mapManager, serverManager, gametypeManage
         m.gametype = (gametypeNames[m.gametype] !== undefined) ? gametypeNames[m.gametype] : "Not Found";
     }
     
+}
+
+
+function getFailedIds(logIds, matchIds){
+
+
+    function isInBoth(num){
+
+        if(logIds.indexOf(num) === -1){
+            return num;
+        }
+        return false;
+    }
+
+    return matchIds.filter(isInBoth);
+
 }
 
 export default async function handler(req, res){
@@ -125,6 +142,8 @@ export default async function handler(req, res){
                             await matches.deleteMatch(m);
                         }
 
+                        await Logs.deleteAllZeroLogIds();
+
                         res.status(200).json({"message": "passed"});
                         return;
 
@@ -134,6 +153,20 @@ export default async function handler(req, res){
                         return;
                     }
                     
+                }else if(mode === "orphanedids"){
+
+                    const logIds = await Logs.getAllMatchIds();
+                    const matchIds = await matches.getAllIds();
+
+                    console.log(matchIds.length, logIds.length);
+
+                    const failedIds = getFailedIds(logIds, matchIds);
+
+                    const basicData = await matches.getBasicByIds(failedIds);
+
+                    console.log(basicData);
+
+
                 }
 
             }

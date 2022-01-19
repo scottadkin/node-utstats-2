@@ -1490,5 +1490,54 @@ class Matches{
 
         return obj;
     }
+
+    async getAllIds(){
+
+        const query = "SELECT id FROM nstats_matches ORDER BY id ASC";
+
+        const result = await mysql.simpleQuery(query);
+
+        const ids = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i].id;
+
+            ids.push(r);
+        }
+
+        return ids;
+    }
+
+
+    async getBasicByIds(ids){
+
+        if(ids.length === 0) return [];
+
+        const query = "SELECT id,date,server,gametype,map,playtime,total_teams,players FROM nstats_matches WHERE id IN(?) ORDER BY date ASC";
+
+        const result =  await mysql.simpleQuery(query, [ids]);
+
+        const uniqueServers = Functions.getUniqueValues(result, "server");
+        const uniqueGametypes = Functions.getUniqueValues(result, "gametype");
+        const uniqueMaps = Functions.getUniqueValues(result, "map");
+
+        const serverManager = new Servers();
+        const serverNames = await serverManager.getNames(uniqueServers);
+
+        const gametypeManager = new Gametypes();
+        const gametypeNames = await gametypeManager.getNames(uniqueGametypes);
+
+        const mapManager = new Maps();
+        const mapNames = await mapManager.getNames(uniqueMaps);
+
+        Functions.setIdNames(result, serverNames, "server", "serverName");
+        Functions.setIdNames(result, gametypeNames, "gametype", "gametypeName");
+        Functions.setIdNames(result, mapNames, "map", "mapName");
+
+        return result;
+
+
+    }
 }
 module.exports = Matches;

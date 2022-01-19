@@ -89,6 +89,36 @@ class Logs{
         await mysql.simpleDelete("DELETE FROM nstats_logs WHERE match_id IN (?)", [ids]);
     }
 
+    static async getZeroIdLogs(){
+
+        const query = "SELECT * FROM nstats_logs WHERE match_id=0";
+
+        return await mysql.simpleQuery(query);
+
+    }
+
+    static async deleteAllZeroLogIds(){
+
+        const query = "DELETE FROM nstats_logs WHERE match_id=0";
+        return await mysql.simpleQuery(query);
+    }
+
+    static async getAllMatchIds(){
+
+        const query = "SELECT match_id FROM nstats_logs ORDER BY match_id ASC";
+
+        const result = await mysql.simpleQuery(query);
+
+        const ids = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            ids.push(r.match_id);
+        }
+
+        return ids;
+    }
 }
 
 
