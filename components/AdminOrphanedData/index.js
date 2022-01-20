@@ -1,13 +1,83 @@
 import React from 'react';
 import Table2 from '../Table2';
 import Functions from '../../api/functions';
+import ProgressBarAdvanced from '../ProgressBarAdvanced';
 
 class AdminOrphanedData extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"data": [], "bFinishedLoading": true};
+
+        this.state = {
+            "data": [], 
+            "bFinishedLoading": true, 
+            "bDeleteInProgress": false, 
+            "toDelete": 0, 
+            "deleted": 0, 
+            "failed": 0, 
+            "passed": 0
+        };
+
+        this.deleteData = this.deleteData.bind(this);
+    }
+
+    async deleteData(){
+
+        try{
+
+            if(!this.state.bFinishedLoading){
+                alert("Data not finished loading yet");
+                return;
+            }
+
+            this.setState({"bDeleteInProgress": true});
+
+            let failed = 0;
+            let passed = 0;
+
+            for(let i = 0; i < this.state.data.length; i++){
+
+                const d = this.state.data[i];
+
+                if(await this.deleteMatch(d.id)){
+                    passed++;
+                }else{
+                    failed++;
+                }
+
+                this.setState({"failed": failed, "passed": passed, "deleted": i + 1});
+
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async deleteMatch(id){
+
+        try{
+
+            const req = await fetch("/api/adminmatches", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "delete", "id": id})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+                return true;
+            }else{
+                throw new Error(res.error);
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+
+        return false;
     }
 
     async loadData(){
@@ -64,6 +134,8 @@ class AdminOrphanedData extends React.Component{
             </tr>);
         }
 
+        if(rows.length === 0) rows.push(<tr key={"d"}><td colSpan={7}>No Data Found</td></tr>);
+
         return <Table2 width={1}>
             <tr>
                 <th>Id</th>
@@ -78,6 +150,20 @@ class AdminOrphanedData extends React.Component{
         </Table2>
     }
 
+    renderProgress(){
+
+        if(!this.state.bDeleteInProgress) return null;
+
+        return <ProgressBarAdvanced total={this.state.data.length} passed={this.state.passed} failed={this.state.failed}/>;
+    }
+
+    renderButton(){
+
+        if(this.state.bDeleteInProgress || this.state.data.length === 0) return null;
+
+        return <input type="button" className="bigger-button" value="Delete Data" onClick={this.deleteData}/>;
+    }
+
     render(){
 
         return <div>
@@ -89,9 +175,8 @@ class AdminOrphanedData extends React.Component{
                     The main reason to use this tool is if you still find duplicate matches on your site even after 
                     you used the delete duplicate matches tool.
                 </div>
-                <input type="button" className="bigger-button" value="Delete Data" onClick={(() =>{
-                    alert("Horse noise");
-                })}/>
+                {this.renderButton()}
+                {this.renderProgress()}
             </div>
             {this.renderTable()}
         </div>

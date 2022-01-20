@@ -1,0 +1,33 @@
+.wrapper{
+    width:var(--width-1);
+    max-width:500px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.obar{
+    background-color:black;
+    height:32px;
+    text-align:left;
+}
+
+
+.pass{
+    background-color:green;
+    height:32px;
+    display:inline-block;
+    transition:all 0.5s;
+}
+
+.fail{
+    background-color:red;
+    height:32px;
+    display:inline-block;
+    transition:all 0.5s;
+}
+
+.value{
+    height:32px;
+    margin-top:-32px;
+    line-height:32px;
+}
