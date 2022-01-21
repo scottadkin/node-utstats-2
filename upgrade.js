@@ -229,14 +229,14 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50",0)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true",4)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Health/Armour Control","true",26)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapons Control","true",25)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Ammo Control","true",27)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display CTF Caps","true",3)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display MonsterHunt Kills","true",6)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Items Summary","true",0)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Aliases","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Items Summary","true",9)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Aliases","true",14)`,
     ];
 
     

@@ -209,6 +209,15 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 		</div>
 	}
 
+	if(pageSettings["Display Recent Matches"] === "true"){
+
+		elems[pageOrder["Display Recent Matches"]] = <PlayerRecentMatches key={"prm"} 
+			session={parsedSession} pageSettings={pageSettings} playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
+			totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
+			serverNames={serverNames} matchDates={matchDates}
+		/>
+	}
+
 	return (
 			<div>
 				<DefaultHead host={host} title={`${titleName} Career Profile`} 
@@ -225,14 +234,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 							</div>
 
 							{elems}
-
-					
-
-							
-							<PlayerRecentMatches session={parsedSession} pageSettings={pageSettings} playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
-							totalMatches={totalMatches} matchPages={matchPages} currentMatchPage={matchPage} matchesPerPage={matchesPerPage} mapImages={mapImages}
-							serverNames={serverNames} matchDates={matchDates}
-							/>
 
 						</div>
 					</div>

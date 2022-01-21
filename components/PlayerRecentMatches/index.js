@@ -365,31 +365,10 @@ class PlayerRecentMatches extends React.Component{
                 {elems}
             </Table2>
         }
-
-
-        const datesData = createDatesData(matchDates, gametypes);
         
         return (
             <div  id="recent-matches">
             
-            {(this.props.pageSettings["Display Recent Activity Graph"] !== "true") ? null :
-            <div>
-                <div className="default-header" >
-                    Recent Activity
-                </div>
-                <Graph title={["Past 24 Hours", "Past 7 Days", "Past 28 Days"]} data={
-                    JSON.stringify(
-                        [
-                            datesData.data.hours,
-                            datesData.data.days,
-                            datesData.data.month,
-                        ]
-                    )
-                    }
-
-                    text={JSON.stringify(datesData.text)}
-
-            /></div>}
 
             
             
