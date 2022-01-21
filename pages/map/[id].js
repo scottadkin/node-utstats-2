@@ -1,11 +1,8 @@
-import styles from '../../styles/Map.module.css';
 import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/';
 import Footer from '../../components/Footer/';
 import Maps from '../../api/maps';
 import Functions from '../../api/functions';
-import Timestamp from '../../components/TimeStamp';
-import Link from 'next/link';
 import MatchesTableView from '../../components/MatchesTableView/';
 import Servers from '../../api/servers';
 import Gametypes from '../../api/gametypes';
@@ -22,10 +19,36 @@ import MapAssaultObjectives from '../../components/MapAssaultObjectives/';
 import MapAddictedPlayers from '../../components/MapAddictedPlayers/';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
-import MapImageUploader from '../../components/MapImageUploader/';
 import Analytics from '../../api/analytics';
-import Table2 from '../../components/Table2';
 import MapCTFCaps from '../../components/MapCTFCaps';
+import MapSummary from '../../components/MapSummary';
+
+
+const PlayedGraph = ({dates}) =>{
+
+    return <div>
+        <div className="default-header">
+            Games Played
+        </div>
+        <Graph title={["Last 24 Hours", "Last 7 Days", "Last 28 Days", "Last 365 Days"]} data={JSON.stringify(
+            [
+                [{"name": "Matches", "data": dates.day.data}],
+                [{"name": "Matches", "data": dates.week.data}],
+                [{"name": "Matches", "data": dates.month.data}],
+                [{"name": "Matches", "data": dates.year.data}],
+            ])}
+            
+            text={
+                JSON.stringify([
+                    dates.day.text,
+                    dates.week.text,
+                    dates.month.text,
+                    dates.year.text,
+                ])
+            }
+        />
+    </div>;
+}
 
 class Map extends React.Component{
 
@@ -49,10 +72,102 @@ class Map extends React.Component{
 
         const matches = this.props.matches;
 
-        const session = JSON.parse(this.props.session);
-        //console.log(session);
-
         const imageHost = Functions.getImageHostAndPort(this.props.host);
+
+        const pageOrder = JSON.parse(this.props.pageOrder);
+        const pageSettings = JSON.parse(this.props.pageSettings);
+
+        const elems = [];
+
+        if(pageSettings["Display Summary"] === "true"){
+
+            elems[pageOrder["Display Summary"]] = <MapSummary 
+                key={pageOrder["Display Summary"]} 
+                basic={basic} 
+                spawns={this.props.spawns} 
+                imageHost={imageHost} 
+                image={image}
+            />; 
+        }
+
+        if(pageSettings["Display Games Played"] === "true"){
+            elems[pageOrder["Display Games Played"]] = <PlayedGraph key={pageOrder["Display Games Played"]} dates={this.props.dates}/>
+        }
+
+        if(pageSettings["Display Spawn Points"] === "true"){
+
+            elems[pageOrder["Display Spawn Points"]] = <MapSpawns 
+                key={pageOrder["Display Spawn Points"]} 
+                spawns={this.props.spawns} 
+                mapPrefix={this.props.mapPrefix} 
+                flagLocations={this.props.flagLocations}
+            />;
+        }
+
+        if(pageSettings["Display CTF Caps"] === "true"){
+
+            elems[pageOrder["Display CTF Caps"]] = <MapCTFCaps
+                key={pageOrder["Display CTF Caps"]}
+                mapId={basic.id} 
+                page={this.props.capPage} 
+                mode={this.props.capMode}
+                perPage={10} 
+                host={Functions.getImageHostAndPort(this.props.host)}
+            />;
+        }
+
+        if(pageSettings["Display Control Points (Domination)"] === "true"){
+
+            elems[pageOrder["Display Control Points (Domination)"]] = <MapControlPoints 
+                key={pageOrder["Display Control Points (Domination)"]} 
+                points={this.props.domControlPointLocations} 
+                mapPrefix={this.props.mapPrefix}
+            />;
+        }
+
+        if(pageSettings["Display Map Objectives (Assault)"] === "true"){
+
+            elems[pageOrder["Display Map Objectives (Assault)"]] = <MapAssaultObjectives host={imageHost} 
+                key={pageOrder["Display Map Objectives (Assault)"]}
+                images={this.props.assaultImages} 
+                mapName={Functions.cleanMapName(basic.name)} 
+                objects={this.props.assaultObjectives} 
+                mapPrefix={this.props.mapPrefix}
+            />
+        }
+
+        if(pageSettings["Display Addicted Players"] === "true"){
+
+            elems[pageOrder["Display Addicted Players"]] = <MapAddictedPlayers 
+                key={pageOrder["Display Addicted Players"]}
+                host={imageHost} 
+                players={this.props.addictedPlayers} 
+                playerNames={this.props.playerNames}
+            />;
+        }
+
+
+        if(pageSettings["Display Longest Matches"] === "true"){
+
+            elems[pageOrder["Display Longest Matches"]] = <div key={pageOrder["Display Longest Matches"]}>
+                <div className="default-header">
+                    Longest Matches
+                </div>
+                <MatchesTableView data={this.props.longestMatches} image={image}/>
+            </div>
+        }
+
+
+        if(pageSettings["Display Recent Matches"] === "true"){
+
+            elems[pageOrder["Display Recent Matches"]] = <div key={pageOrder["Display Recent Matches"]}>
+                <div className="default-header" id="recent-matches">Recent Matches</div>
+                <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`} anchor={"#recent-matches"}/>
+
+                <MatchesTableView data={matches} image={image}/>
+            
+            </div>
+        }
 
         return <div>
         <DefaultHead host={this.props.host} 
@@ -71,112 +186,7 @@ class Map extends React.Component{
                         {Functions.removeUnr(basic.name)}
                     </div>
     
-                    {(this.props.pageSettings["Display Summary"] === "false") ? null :
-                    <div className={`${styles.top} m-bottom-10`}>
-                        <img onClick={(() =>{
-                            const elem = document.getElementById("main-image");
-                            elem.requestFullscreen();
-                        })} className={styles.mimage} id="main-image" src={`${imageHost}${image}`} alt="image" />
-                        <Table2 width={1}>
-                            <tr>
-                                <td>Name</td>
-                                <td>{Functions.removeUnr(basic.name)}</td>
-                            </tr>
-                            <tr>
-                                <td>Title</td>
-                                <td>{basic.title}</td>
-                            </tr>
-                            <tr>
-                                <td>Author</td>
-                                <td>{basic.author}</td>
-                            </tr>
-                            <tr>
-                                <td>Ideal Player Count</td>
-                                <td>{basic.ideal_player_count}</td>
-                            </tr>
-                            <tr>
-                                <td>Level Enter Text</td>
-                                <td>{basic.level_enter_text}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Matches</td>
-                                <td>{basic.matches}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Playtime</td>
-                                <td>{parseFloat(basic.playtime / (60 * 60)).toFixed(2)} Hours</td>
-                            </tr>
-                            <tr>
-                                <td>Longest Match</td>
-                                <td><Link href={`/match/${basic.longestId}`}><a>{Functions.MMSS(basic.longest)}</a></Link></td>
-                            </tr>
-                            <tr>
-                                <td>First Match</td>
-                                <td><Timestamp timestamp={basic.first} /></td>
-                            </tr>
-                            <tr>
-                                <td>Last Match</td>
-                                <td><Timestamp timestamp={basic.last} /></td>
-                            </tr>
-                            <tr>
-                                <td>Spawn Points</td>
-                                <td>{JSON.parse(this.props.spawns).length}</td>
-                            </tr>
-                        </Table2>
-                    </div>}
-
-                    {(this.props.pageSettings["Display Games Played"] === "false") ? null : 
-                    <div>
-                    <div className="default-header">
-                        Games Played
-                    </div>
-                    <Graph title={["Last 24 Hours", "Last 7 Days", "Last 28 Days", "Last 365 Days"]} data={JSON.stringify(
-                        [
-                            [{"name": "Matches", "data": this.props.dates.day.data}],
-                            [{"name": "Matches", "data": this.props.dates.week.data}],
-                            [{"name": "Matches", "data": this.props.dates.month.data}],
-                            [{"name": "Matches", "data": this.props.dates.year.data}],
-                        ])}
-                        
-                        text={
-                            JSON.stringify([
-                                this.props.dates.day.text,
-                                this.props.dates.week.text,
-                                this.props.dates.month.text,
-                                this.props.dates.year.text,
-                            ])
-                        }
-                    />
-                    </div>}
-
-                    <MapSpawns spawns={this.props.spawns} mapPrefix={this.props.mapPrefix} flagLocations={this.props.flagLocations}/>
-
-                    <MapCTFCaps mapId={basic.id} page={this.props.capPage} mode={this.props.capMode} perPage={10} host={Functions.getImageHostAndPort(this.props.host)}/>
-
-                    <MapControlPoints points={this.props.domControlPointLocations} mapPrefix={this.props.mapPrefix}/>
-
-                    <MapAssaultObjectives host={imageHost} images={this.props.assaultImages} mapName={Functions.cleanMapName(basic.name)} objects={this.props.assaultObjectives} mapPrefix={this.props.mapPrefix}/>
-       
-                    <MapAddictedPlayers host={imageHost} players={this.props.addictedPlayers} playerNames={this.props.playerNames}/>
-                    
-
-                    {(this.props.pageSettings["Display Addicted Players"] === "false") ? null : 
-                    <div>
-                        <div className="default-header">
-                            Longest Matches
-                        </div>
-                        <MatchesTableView data={this.props.longestMatches} image={image}/>
-                    </div>}
-
-
-                    {(this.props.pageSettings["Display Recent Matches"] === "false") ? null : 
-                    <div>
-                        <div className="default-header" id="recent-matches">Recent Matches</div>
-                        <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`} anchor={"#recent-matches"}/>
-        
-                        <MatchesTableView data={matches} image={image}/>
-                       
-                    </div>}
+                    {elems}
 
                 </div>
             </div>
@@ -274,6 +284,7 @@ export async function getServerSideProps({req, query}){
         const settings = new SiteSettings();
         const navSettings = await settings.getCategorySettings("Navigation");
         const pageSettings = await settings.getCategorySettings("Map Pages");
+        const pageOrder = await settings.getCategoryOrder("Map Pages");
         const matchesSettings = await SiteSettings.getSettings("Matches Page");
 
         let mapId = 0;
@@ -501,6 +512,7 @@ export async function getServerSideProps({req, query}){
                 "session": JSON.stringify(session.settings),
                 "navSettings": JSON.stringify(navSettings),
                 "pageSettings": JSON.stringify(pageSettings),
+                "pageOrder": JSON.stringify(pageOrder),
                 "capPage": capPage,
                 "capMode": capMode
             }

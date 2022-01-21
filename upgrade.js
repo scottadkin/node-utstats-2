@@ -232,7 +232,8 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Health/Armour Control","true",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapons Control","true",0)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Ammo Control","true",0)`
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Ammo Control","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display CTF Caps","true", 3)`,
     ];
 
     
