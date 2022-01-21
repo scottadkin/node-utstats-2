@@ -50,6 +50,8 @@ class AdminOrphanedData extends React.Component{
 
             }
 
+            await this.loadData();
+
         }catch(err){
             console.trace(err);
         }
@@ -101,7 +103,6 @@ class AdminOrphanedData extends React.Component{
 
             this.setState({"bFinishedLoading": true});
 
-            console.log(res);
 
         }catch(err){
             console.trace(err);
@@ -152,7 +153,7 @@ class AdminOrphanedData extends React.Component{
 
     renderProgress(){
 
-        if(!this.state.bDeleteInProgress) return null;
+        if(!this.state.bDeleteInProgress || this.state.data.length === 0) return null;
 
         return <ProgressBarAdvanced total={this.state.data.length} passed={this.state.passed} failed={this.state.failed}/>;
     }

@@ -1,9 +1,9 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import Link from 'next/link';
-import ProgressBar from '../ProgressBar';
 import Table2 from '../Table2';
 import AdminOrphanedData from '../AdminOrphanedData';
+import ProgressBarAdvanced from '../ProgressBarAdvanced';
 
 class AdminMatchesManager extends React.Component{
 
@@ -23,7 +23,10 @@ class AdminMatchesManager extends React.Component{
             "actionInProgress": false,
             "actionProgress": 0,
             "toDelete": 0,
-            "duplicateMatches": []
+            "duplicateMatches": [],
+            "failed": 0,
+            "passed": 0,
+            "matchesDeleted": 0
         };
 
         this.changeMode = this.changeMode.bind(this);
@@ -48,7 +51,12 @@ class AdminMatchesManager extends React.Component{
                 await this.deleteDuplicate(d.name, d.last_id);
             }
 
-            if(this.state.actionProgress === this.state.duplicateMatches.length){
+            /*if(this.state.actionProgress === this.state.duplicateMatches.length){
+                this.setState({"actionInProgress": false});
+                await this.loadDuplicateMatches();
+            }*/
+
+            if(this.state.passed + this.state.failed === this.state.duplicateMatches.length){
                 this.setState({"actionInProgress": false});
                 await this.loadDuplicateMatches();
             }
@@ -73,11 +81,16 @@ class AdminMatchesManager extends React.Component{
 
             const res = await req.json();
 
+
             if(res.error === undefined){
 
-                const old = this.state.actionProgress;
+                //const old = this.state.actionProgress;
 
-                this.setState({"actionProgress": old + 1});
+               // this.setState({"actionProgress": old + 1});
+
+               const old = this.state.passed;
+
+               this.setState({"passed": old + 1});
             }else{
 
                 throw new Error(req.error);
@@ -85,6 +98,9 @@ class AdminMatchesManager extends React.Component{
 
         }catch(err){
             console.trace(err);
+            const old = this.state.failed;
+
+            this.setState({"failed": old + 1})
         }
 
     }
@@ -203,6 +219,7 @@ class AdminMatchesManager extends React.Component{
 
         try{
 
+
             const req = await fetch("/api/adminmatches", {
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
@@ -215,12 +232,18 @@ class AdminMatchesManager extends React.Component{
 
                 if(res.message === "passed"){
 
-                    const old = this.state.actionProgress;
+                   // const old = this.state.actionProgress;
 
-                    this.setState({"actionProgress": old + 1});
+                    //this.setState({"actionProgress": old + 1});
+                    const old = this.state.passed;
+
+                    this.setState({"passed": old + 1});
                 }
 
             }else{
+                const old = this.state.failed;
+
+                this.setState({"failed": old + 1});
                 throw new Error(res.error);
             }
 
@@ -368,7 +391,7 @@ class AdminMatchesManager extends React.Component{
 
         if(!this.state.actionProgress && this.state.toDelete === 0) return null;
 
-        let percent = 100;
+        /*let percent = 100;
 
         const toDelete = this.state.toDelete;
         const deleted = this.state.actionProgress;
@@ -379,12 +402,11 @@ class AdminMatchesManager extends React.Component{
             }else{
                 percent = (deleted / toDelete) * 100
             }
-        }
-
+        }*/
 
         return <div>
             <div className="default-sub-header-alt">Action In Progress</div>
-            <ProgressBar percent={percent}/>
+            <ProgressBarAdvanced total={this.state.toDelete} passed={this.state.passed} failed={this.state.failed}/>
         </div>
     }
 

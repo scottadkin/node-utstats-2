@@ -356,7 +356,7 @@ class Matches{
         const result = await mysql.simpleQuery(query, vars);
 
         const found = [];
-
+        
         for(let i = 0; i < result.length; i++){
 
             found.push(result[i].match_id);

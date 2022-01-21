@@ -139,7 +139,14 @@ export default async function handler(req, res){
 
                             const m = matchesToDelete[i];
 
-                            await matches.deleteMatch(m);
+                            if(await matches.deleteMatch(m)){
+
+                                console.log(`Match with id ${m} deleted successfully`);
+
+                            }else{
+
+                                console.log(`Match with id ${m} delete FAILED`);
+                            }
                         }
 
                         await Logs.deleteAllZeroLogIds();
