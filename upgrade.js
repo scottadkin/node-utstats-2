@@ -259,6 +259,7 @@ async function updateSiteSettings(){
             }
         }
     }
+
 }
 
 async function createNewTables(){
