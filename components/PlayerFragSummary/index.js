@@ -1,4 +1,3 @@
-import styles from '../PlayerSummary/PlayerSummary.module.css';
 import React from 'react';
 import Functions from '../../api/functions';
 import Table2 from '../Table2';

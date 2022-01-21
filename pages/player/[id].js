@@ -1,7 +1,6 @@
 import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/';
 import Footer from '../../components/Footer/';
-import PlayerSummary from '../../components/PlayerSummary/';
 import Player from '../../api/player';
 import Countires from '../../api/countries';
 import Gametypes from '../../api/gametypes';
@@ -24,9 +23,16 @@ import SiteSettings from '../../api/sitesettings';
 import Rankings from '../../api/rankings';
 import PlayerRankings from '../../components/PlayerRankings/';
 import Analytics from '../../api/analytics';
+import PlayerGeneral from '../../components/PlayerGeneral';
+import PlayerGametypeStats from '../../components/PlayerGametypeStats';
+import PlayerCTFSummary from '../../components/PlayerCTFSummary';
+import PlayerCapRecords from '../../components/PlayerCapRecords';
+import PlayerADSummary from '../../components/PlayerADSummary';
+import PlayerFragSummary from '../../components/PlayerFragSummary';
+import PlayerSpecialEvents from '../../components/PlayerSpecialEvents';
 
 
-function Home({navSettings, pageSettings, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
+function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
 	rankingsData, rankingPositions, capRecordsMode}) {
@@ -81,11 +87,127 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 	const parsedInfo = JSON.parse(summary);
 
 	pageSettings = JSON.parse(pageSettings);
+	pageOrder = JSON.parse(pageOrder);
 
 	const parsedSession = JSON.parse(session);
 
 	let description = `View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedInfo.last)},`;
 	description += `played ${parsedInfo.matches} matches with a winrate of ${parsedInfo.winrate.toFixed(2)}% and has played for a total of ${(parsedInfo.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedInfo.first)}.` ;
+
+	const parsedFaces = JSON.parse(faces);
+
+
+	const elems = [];
+
+	if(pageSettings["Display Summary"] === "true"){
+
+		elems[pageOrder["Display Summary"]] = <PlayerGeneral key={1} country={country.country}
+            host={host}
+            flag={flag}
+            face={parsedFaces[parsedInfo.face].name}
+            first={parsedInfo.first}
+            last={parsedInfo.last}
+            matches={parsedInfo.matches}
+            playtime={parsedInfo.playtime}
+            winRate={parsedInfo.winrate}
+            wins={parsedInfo.wins}
+            losses={parsedInfo.losses}
+            draws={parsedInfo.draws}     
+        />;
+    }
+
+	if(pageSettings["Display Gametype Stats"] === "true"){
+
+		elems[pageOrder["Display Gametype Stats"]] = <PlayerGametypeStats 
+			key={2} 
+			session={session} 
+			data={gametypeStats} 
+			names={gametypeNames} 
+			latestWinRate={latestWinRate} 
+			winRateHistory={winRateHistory}
+		/>;
+    }
+
+	if(pageSettings["Display Capture The Flag Summary"] === "true"){
+
+		elems[pageOrder["Display Capture The Flag Summary"]] = <PlayerCTFSummary key={3} session={session} data={summary} />;
+    }
+
+	if(pageSettings["Display Capture The Flag Cap Records"] === "true"){
+
+		elems[pageOrder["Display Capture The Flag Cap Records"]] = <PlayerCapRecords key="3a" playerId={playerId} mode={capRecordsMode}/>;
+    }
+
+	if(pageSettings["Display Assault & Domination"] === "true"){
+
+		elems[pageOrder["Display Assault & Domination"]] = <PlayerADSummary 
+			key={4} 
+			dom={summary.dom_caps} 
+			domBest={summary.dom_caps_best} 
+			domBestLife={summary.dom_caps_best_life} 
+			assault={summary.assault_objectives}
+		/>;
+    }
+
+	if(pageSettings["Display Frag Summary"] === "true"){
+
+		elems[pageOrder["Display Frag Summary"]] = <PlayerFragSummary key={5}
+            session={session}
+            score={parsedInfo.score}
+            frags={parsedInfo.frags}
+            kills={parsedInfo.kills}
+            deaths={parsedInfo.deaths}
+            suicides={parsedInfo.suicides}
+            teamKills={parsedInfo.team_kills}
+            spawnKills={parsedInfo.spawn_kills}
+            efficiency={parsedInfo.efficiency}
+            firstBlood={parsedInfo.first_bloods}
+            accuracy={parsedInfo.accuracy}
+            close={parsedInfo.k_distance_normal}
+            long={parsedInfo.k_distance_long}
+            uber={parsedInfo.k_distance_uber}
+            headshots={parsedInfo.headshots}
+            spawnKillSpree={parsedInfo.best_spawn_kill_spree}
+        />;
+    }
+
+	if(pageSettings["Display Special Events"] === "true"){
+
+		elems[pageOrder["Display Special Events"]] = <PlayerSpecialEvents session={session} key={6}
+            data={parsedInfo}
+        />;
+    }
+
+	if(pageSettings["Display Rankings"] === "true"){
+
+		elems[pageOrder["Display Rankings"]] = <PlayerRankings key={"pr"} data={rankingsData} gametypeNames={gametypeNames} positions={rankingPositions}/>;
+	}
+
+	if(pageSettings["Display Weapon Stats"] === "true"){
+
+		elems[pageOrder["Display Weapon Stats"]] = <PlayerWeapons key={"pw"} session={parsedSession} pageSettings={pageSettings} 
+			weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />;
+
+	}
+
+	if(pageSettings["Display Items Summary"] === "true"){
+
+		elems[pageOrder["Display Items Summary"]] = <PlayerItemsSummary key={"pi"} data={itemData} names={itemNames}/>;
+	}
+
+	if(pageSettings["Display Aliases"] === "true"){
+
+		elems[pageOrder["Display Aliases"]] = <PlayerAliases key={"pa"} data={aliases} faces={faces} masterName={name} host={imageHost}/>;
+	}
+
+
+	if(pageSettings["Display Ping History Graph"] === "true"){
+
+		elems[pageOrder["Display Ping History Graph"]] = <div key={"ppg"}>
+			<div className="default-header">Ping History</div>
+			<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/>
+		</div>
+	}
 
 	return (
 			<div>
@@ -102,37 +224,9 @@ function Home({navSettings, pageSettings, session, host, playerId, summary, game
 									{titleName} Career Profile
 							</div>
 
+							{elems}
 
-							<PlayerSummary 
-								host={imageHost}
-								session={parsedSession} 
-								pageSettings={pageSettings} 
-								summary={summary} 
-								flag={country.code.toLowerCase()} 
-								country={country.country} 
-								gametypeStats={gametypeStats}
-								gametypeNames={gametypeNames}
-								latestWinRate={latestWinRate} 
-								winRateHistory={winRateHistory} 
-								matchDates={matchDates}
-								faces={faces}
-								playerId={playerId}
-								capRecordsMode={capRecordsMode}
-							/>
-
-							{(pageSettings["Display Rankings"] === "false") ? null :
-							<PlayerRankings data={rankingsData} gametypeNames={gametypeNames} positions={rankingPositions}/>}
-
-							{(pageSettings["Display Weapon Stats"] !== "true") ? null :
-							<PlayerWeapons session={parsedSession} pageSettings={pageSettings} weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />}
-
-							<PlayerItemsSummary data={itemData} names={itemNames}/>
-							<PlayerAliases data={aliases} faces={faces} masterName={name} host={imageHost}/>
-
-							
-							{(pageSettings["Display Ping History Graph"] !== "true") ? null :
-							<div><div className="default-header">Ping History</div>
-							<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/></div>}
+					
 
 							
 							<PlayerRecentMatches session={parsedSession} pageSettings={pageSettings} playerId={playerId} matches={recentMatches} scores={matchScores} gametypes={gametypeNames} 
@@ -271,6 +365,7 @@ export async function getServerSideProps({req, query}) {
 
 	const navSettings = await settings.getCategorySettings("Navigation");
 	const pageSettings = await settings.getCategorySettings("Player Pages");
+	const pageOrder = await settings.getCategoryOrder("Player Pages");
 
 	const matchesPerPage = parseInt(pageSettings["Recent Matches Per Page"]);
 		
@@ -460,6 +555,7 @@ export async function getServerSideProps({req, query}) {
 		props: {
 			"navSettings": JSON.stringify(navSettings),
 			"pageSettings": JSON.stringify(pageSettings),
+			"pageOrder": JSON.stringify(pageOrder),
 			"session": JSON.stringify(session.settings),
 			"host": req.headers.host,
 			"playerId": playerId,

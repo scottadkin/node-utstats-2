@@ -218,23 +218,25 @@ async function updateSiteSettings(){
     }
 
     const queries = [
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Mutators',  'true',  15)",
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Time Limit',  'true',  17)",
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Target Score',  'true',  16)",
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Mutators","true",15)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Time Limit","true",17)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Target Score","true",16)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Players","0",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Playtime","0",0)`,
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Player Score Graph',  'true',  18)",
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Capture The Flag Times',  'true',  10)",
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Player Score Graph","true",18)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Capture The Flag Times","true",10)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Solo Caps Before Displayed","1",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true",0)`,
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Health/Armour Control',  'true',  26)",
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Weapons Control',  'true',  25)",
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Ammo Control',  'true',  27)",
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display CTF Caps","true", 3)`,
-        "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display MonsterHunt Kills',  'true',  6)",
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Health/Armour Control","true",26)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapons Control","true",25)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Ammo Control","true",27)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display CTF Caps","true",3)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display MonsterHunt Kills","true",6)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Items Summary","true",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Aliases","true",0)`,
     ];
 
     
@@ -245,6 +247,7 @@ async function updateSiteSettings(){
         const q = queries[i];
 
         const result = reg.exec(q);
+
 
         if(result !== null){
 
