@@ -329,11 +329,15 @@ class MatchPowerUpControl extends React.Component{
    
         if(elems === null) return null;
 
+        const finalElems = [];
+
+        finalElems[this.props.order["Display Power Up Control"]] = this.renderCategory("Power Up Control", elems.powerUps);
+        finalElems[this.props.order["Display Health/Armour Control"]] = this.renderCategory("Health/Armour Control", elems.health);
+        finalElems[this.props.order["Display Weapons Control"]] = this.renderCategory("Weapons Control", elems.weapons);
+        finalElems[this.props.order["Display Ammo Control"]] = this.renderCategory("Ammo Control", elems.ammo);
+  
         return <div>
-                {this.renderCategory("Power Up Control", elems.powerUps)}
-                {this.renderCategory("Health/Armour Control", elems.health)}
-                {this.renderCategory("Weapons Control", elems.weapons)}
-                {this.renderCategory("Ammo Control", elems.ammo)}
+                {finalElems}
             </div>
         
   

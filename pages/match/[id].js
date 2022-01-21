@@ -65,7 +65,34 @@ function bAssault(gametype){
 }
 
 
-function Match({navSettings, pageSettings, session, host, matchId, info, server, gametype, map, image, playerData, weaponData, domControlPointNames, 
+function createBasicPlayerData(players){
+
+    const playerNames = [];
+    const justPlayerNames = {};
+    
+    for(let i = 0; i < players.length; i++){
+
+        const p = players[i];
+
+        playerNames.push({
+            "id": p.player_id, 
+            "name": p.name, 
+            "country": p.country,
+            "team": p.team,
+            "spectator": p.spectator,
+            "played": p.played
+        });
+
+        justPlayerNames[players[i].player_id] = players[i].name;
+    }
+
+
+    return {"playerNames": playerNames, "justPlayerNames": justPlayerNames};
+}
+
+
+function Match({navSettings, pageSettings, pageOrder, session, host, matchId, info, server, gametype,
+    map, image, playerData, weaponData, domControlPointNames, 
     assaultData,  teams, faces, rankingChanges, currentRankings,
     rankingPositions, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
 
@@ -107,31 +134,13 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
 
     const parsedInfo = JSON.parse(info);
-
     const parsedPlayerData = JSON.parse(playerData);
-
     const parsedSession = JSON.parse(session);
 
     pageSettings = JSON.parse(pageSettings);
+    pageOrder = JSON.parse(pageOrder);
 
-    let playerNames = [];
-    const justPlayerNames = {};
-    
-    for(let i = 0; i < parsedPlayerData.length; i++){
-
-        const p = parsedPlayerData[i];
-
-        playerNames.push({
-            "id": p.player_id, 
-            "name": p.name, 
-            "country": p.country,
-            "team": p.team,
-            "spectator": p.spectator,
-            "played": p.played
-        });
-
-        justPlayerNames[parsedPlayerData[i].player_id] = parsedPlayerData[i].name;
-    }
+    let {playerNames, justPlayerNames} = createBasicPlayerData(parsedPlayerData);
 
     playerNames = JSON.stringify(playerNames);
 
@@ -139,35 +148,56 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
 
     if(pageSettings["Display Summary"] === "true"){
-        elems.push(
-            <MatchSummary key={`match_0`} info={info} server={server} gametype={gametype} map={map} image={image} bMonsterHunt={bMonsterHunt} 
-                settings={pageSettings}
-            />
-        );
+
+        elems[pageOrder["Display Summary"]] = <MatchSummary key={pageOrder["Display Summary"]} 
+            info={info} server={server} 
+            gametype={gametype} 
+            map={map} 
+            image={image} 
+            bMonsterHunt={bMonsterHunt} 
+            settings={pageSettings}
+        />
+            
+        
     }
 
     if(pageSettings["Display Screenshot"] === "true"){
-        elems.push(<Screenshot 
+
+        elems[pageOrder["Display Screenshot"]] = <Screenshot 
             host={imageHost}
-            key={"match-sshot"} map={map} totalTeams={parsedInfo.total_teams} players={playerData} image={image} matchData={info}
-            serverName={server} gametype={gametype} faces={faces}
-        />);
+            key={"match-sshot"} map={map} 
+            totalTeams={parsedInfo.total_teams} 
+            players={playerData} 
+            image={image} 
+            matchData={info}
+            serverName={server} 
+            gametype={gametype} 
+            faces={faces}
+        />
     }
 
     if(pageSettings["Display Frag Summary"] === "true"){
 
         if(!parsedInfo.mh){
 
-            elems.push(
-                <MatchFragSummary key={`match_3`} host={imageHost} totalTeams={parsedInfo.total_teams} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start}
-                matchId={parsedInfo.id}/>
-            );
+            elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key={`match_3`} 
+                host={imageHost} 
+                totalTeams={parsedInfo.total_teams} 
+                playerData={JSON.parse(playerData)} 
+                matchStart={parsedInfo.start}
+                matchId={parsedInfo.id}
+            />
+          
 
         }else{
 
-            elems.push(
-                <MatchMonsterHuntFragSummary key={`mh-frags`} host={imageHost} playerData={JSON.parse(playerData)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>
-            );
+            elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key={`mh-frags`} 
+                host={imageHost} 
+                playerData={JSON.parse(playerData)} 
+                matchStart={parsedInfo.start} 
+                matchId={parsedInfo.id
+            }/>
+           
         }
     }
 
@@ -175,7 +205,12 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
         if(!parsedInfo.mh){
 
-            elems.push(<MatchFragsGraph key="frag-graphs" matchId={parsedInfo.id} players={justPlayerNames} teams={parsedInfo.total_teams}/>);
+            elems[pageOrder["Display Frag Graph"]] = <MatchFragsGraph 
+                key="frag-graphs" 
+                matchId={parsedInfo.id} 
+                players={justPlayerNames} 
+                teams={parsedInfo.total_teams}
+            />;
         }
     }
 
@@ -183,20 +218,38 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
         
     if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
-        elems.push(
-            <MatchCTFSummary key={`match_1`} host={imageHost} session={session} players={JSON.parse(playerData)} totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}/>
-        );
+        elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary 
+            key={`match_1`} 
+            host={imageHost} 
+            session={session} 
+            players={JSON.parse(playerData)} 
+            totalTeams={parsedInfo.total_teams} 
+            matchId={parsedInfo.id}
+        />;
+        
     }
 
     if(pageSettings["Display Capture The Flag Times"] === "true"){
-        elems.push(<MatchCTFCapTimes key={`match-ctf-caps`} players={JSON.parse(playerNames)} matchId={parsedInfo.id} mapId={parsedInfo.map} 
-            host={imageHost} matchStart={parsedInfo.start}
-        />);
+
+        elems[pageOrder["Display Capture The Flag Times"]] = <MatchCTFCapTimes 
+            key={`match-ctf-caps`} 
+            players={JSON.parse(playerNames)} 
+            matchId={parsedInfo.id} 
+            mapId={parsedInfo.map} 
+            host={imageHost} 
+            matchStart={parsedInfo.start}
+        />;
+        
     }
 
     if(pageSettings["Display Capture The Flag Graphs"] === "true"){
 
-        elems.push(<MatchCTFGraphs key="ctf-graphs" matchId={parsedInfo.id} totalTeams={parsedInfo.total_teams} players={justPlayerNames}/>);
+        elems[pageOrder["Display Capture The Flag Graphs"]] = <MatchCTFGraphs 
+            key="ctf-graphs" 
+            matchId={parsedInfo.id} 
+            totalTeams={parsedInfo.total_teams} 
+            players={justPlayerNames}
+        />;
     
     }
 
@@ -204,9 +257,15 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     const bAssaultGame = bAssault(gametype);
 
     if(!bDom && !bAssaultGame && pageSettings["Display Capture The Flag Caps"] === "true"){
-        elems.push(<MatchCTFCapsNew host={imageHost} key="ctf-caps" players={JSON.parse(playerNames)} 
-            totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id} start={parsedInfo.start}
-        />);
+
+        elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCapsNew 
+            host={imageHost} 
+            key="ctf-caps" 
+            players={JSON.parse(playerNames)} 
+            totalTeams={parsedInfo.total_teams} 
+            matchId={parsedInfo.id} 
+            start={parsedInfo.start}
+        />;
     }
 
 
@@ -214,52 +273,83 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
 
         if(pageSettings["Display Domination Summary"] === "true"){
 
-            elems.push(
-                <MatchDominationSummaryNew key="dom-sum" 
-                    host={imageHost}
-                    matchId={parsedInfo.id} 
-                    totalTeams={parsedInfo.total_teams} 
-                    players={JSON.parse(playerNames)} 
-                    playerNames={justPlayerNames}
-                    pointNames={JSON.parse(domControlPointNames)}
-                />
-            );
+            elems[pageOrder["Display Domination Summary"]] = <MatchDominationSummaryNew key="dom-sum" 
+                host={imageHost}
+                matchId={parsedInfo.id} 
+                totalTeams={parsedInfo.total_teams} 
+                players={JSON.parse(playerNames)} 
+                playerNames={justPlayerNames}
+                pointNames={JSON.parse(domControlPointNames)}
+            />;
+            
         }
     }
 
     if(bAssaultGame){
 
-        elems.push(
-            <MatchAssaultSummary host={imageHost} key={`assault_data`} players={playerData} data={assaultData} matchStart={parsedInfo.start} attackingTeam={parsedInfo.attacking_team}
-                redScore={parsedInfo.team_score_0} blueScore={parsedInfo.team_score_1} playerNames={playerNames}
-            />
-        );
+        if(pageSettings["Display Assault Summary"] === "true"){
+            elems[pageOrder["Display Assault Summary"]] = <MatchAssaultSummary 
+                host={imageHost} 
+                key={`assault_data`} 
+                players={playerData} 
+                data={assaultData} 
+                matchStart={parsedInfo.start} 
+                attackingTeam={parsedInfo.attacking_team}
+                redScore={parsedInfo.team_score_0} 
+                blueScore={parsedInfo.team_score_1} 
+                playerNames={playerNames}
+            />;
+        }
+        
 
     }
 
     if(parsedInfo.mh){
 
-        elems.push(<MatchMonsterHuntMonsterKills key={"mh-monsters"} host={imageHost} images={JSON.parse(monsterImages)} monsterNames={JSON.parse(monsterNames)}
-        playerData={JSON.parse(playerData)} monsterKills={JSON.parse(monsterHuntPlayerKillTotals)} matchId={parsedInfo.id}/>);
+        elems[pageOrder["Display MonsterHunt Kills"]] = <MatchMonsterHuntMonsterKills 
+            key={"mh-monsters"} 
+            host={imageHost} 
+            images={JSON.parse(monsterImages)} 
+            monsterNames={JSON.parse(monsterNames)}
+            playerData={JSON.parse(playerData)} 
+            monsterKills={JSON.parse(monsterHuntPlayerKillTotals)} 
+            matchId={parsedInfo.id}
+        />;
     }
 
     if(pageSettings["Display Special Events"] === "true"){
-        elems.push(
-            <MatchSpecialEvents key={`match_4`} host={imageHost} bTeamGame={parsedInfo.team_game} players={JSON.parse(playerData)} matchId={parsedInfo.id}/>
-        );
+
+        elems[pageOrder["Display Special Events"]] = <MatchSpecialEvents 
+            key={`match_4`} 
+            host={imageHost} 
+            bTeamGame={parsedInfo.team_game} 
+            players={JSON.parse(playerData)} 
+            matchId={parsedInfo.id}
+        />
+ 
     }
 
     if(pageSettings["Display Extended Sprees"] === "true"){
 
-        elems.push(<MatchSprees key={"sprees"} host={imageHost} players={JSON.parse(playerNames)} matchStart={parsedInfo.start} matchId={parsedInfo.id}/>);
+        elems[pageOrder["Display Extended Sprees"]] = <MatchSprees 
+            key={"sprees"} 
+            host={imageHost} 
+            players={JSON.parse(playerNames)} 
+            matchStart={parsedInfo.start} 
+            matchId={parsedInfo.id}
+        />;
     }
 
 
     if(pageSettings["Display Kills Match Up"] === "true"){
 
         if(!parsedInfo.mh){
-
-            elems.push(<MatchKillsMatchUpAlt key={`kills-matchup`} matchId={matchId} totalTeams={parsedInfo.total_teams} players={JSON.parse(playerNames)}/>);
+            elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUpAlt 
+                key={`kills-matchup`} 
+                matchId={matchId} 
+                totalTeams={parsedInfo.total_teams}
+                 players={JSON.parse(playerNames)}
+            />;
         }
     }
 
@@ -274,6 +364,7 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
                 matchId={parsedInfo.id}
                 players={JSON.parse(playerNames)}
                 settings={pageSettings}
+                order={pageOrder}
             />);
         }
     //}
@@ -282,41 +373,48 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     if(pageSettings["Display Weapon Statistics"] === "true"){
 
         if(!parsedInfo.mh){
-            elems.push(
-                <MatchWeaponSummary key={`match_5`} data={JSON.parse(weaponData)} players={JSON.parse(playerNames)} 
-                    totalTeams={parsedInfo.total_teams} matchId={parsedInfo.id}
-                    host={imageHost}
-                />
-            );
-        }
-    }
 
-    /*if(pageSettings["Display Pickup Summary"] === "true"){
-        elems.push(
-            <MatchItemPickups key={`item-data`} data={JSON.parse(itemData)} names={JSON.parse(itemNames)} players={JSON.parse(playerNames)} 
-                totalTeams={parsedInfo.total_teams}
-                matchId={parsedInfo.id} 
+            elems[pageOrder["Display Weapon Statistics"]] = <MatchWeaponSummary 
+                key={`match_5`} 
+                data={JSON.parse(weaponData)} 
+                players={JSON.parse(playerNames)} 
+                totalTeams={parsedInfo.total_teams} 
+                matchId={parsedInfo.id}
                 host={imageHost}
             />
-        );
-    }*/
+            
+        }
+    }
     
     if(pageSettings["Display Rankings"] === "true"){
-        elems.push(<MatchRankingChanges key={"r-changes"} positions={rankingPositions} changes={rankingChanges} playerNames={playerNames} 
+
+        elems[pageOrder["Display Rankings"]] = <MatchRankingChanges 
+            key={"r-changes"} 
+            positions={rankingPositions} 
+            changes={rankingChanges} 
+            playerNames={playerNames} 
             currentRankings={currentRankings}
             matchId={parsedInfo.id}
             host={imageHost}
-        />);
+        />;
     }
 
     if(pageSettings["Display Player Score Graph"] === "true"){
 
-        elems.push(<MatchPlayerScoreHistory key="score history" players={justPlayerNames} matchId={parsedInfo.id}/>);
+        elems[pageOrder["Display Player Score Graph"]] = <MatchPlayerScoreHistory 
+            key="score history" 
+            players={justPlayerNames} 
+            matchId={parsedInfo.id}
+        />;
     }
 
     if(pageSettings["Display Player Ping Graph"] === "true"){
         
-        elems.push(<MatchPlayerPingHistory key="ping history" players={justPlayerNames} matchId={parsedInfo.id}/>);
+        elems[pageOrder["Display Player Ping Graph"]] = <MatchPlayerPingHistory 
+            key="ping history" 
+            players={justPlayerNames} 
+            matchId={parsedInfo.id}
+        />;
         
     }
 
@@ -324,16 +422,24 @@ function Match({navSettings, pageSettings, session, host, matchId, info, server,
     if(pageSettings["Display Team Changes"] === "true"){
 
         if(!parsedInfo.mh){
+
             if(parsedInfo.team_game){
-                elems.push(
-                    <TeamsSummary key={`teams-data`} host={imageHost} data={teams} playerNames={playerNames} matchId={parsedInfo.id}/>
-                );
+
+                elems[pageOrder["Display Team Changes"]] = <TeamsSummary 
+                    key={`teams-data`} 
+                    host={imageHost} 
+                    data={teams} 
+                    playerNames={playerNames} 
+                    matchId={parsedInfo.id}
+                />
+                
             }
         }
     }
 
     if(pageSettings["Display Server Settings"] === "true"){
-        elems.push(<MatchServerSettings key={"server-settings"} info={JSON.parse(info)}/>);
+
+        elems[pageOrder["Display Server Settings"]] = <MatchServerSettings key={"server-settings"} info={JSON.parse(info)}/>;
     }
     
 
@@ -387,6 +493,7 @@ export async function getServerSideProps({req, query}){
 
     const settings = new SiteSettings();
     const pageSettings = await settings.getCategorySettings("Match Pages");
+    const pageOrder = await settings.getCategoryOrder("Match Pages");
     const navSettings = await settings.getCategorySettings("Navigation");
 
    // console.log(pageSettings);
@@ -545,8 +652,6 @@ export async function getServerSideProps({req, query}){
         }
     }
 
-
-    let monsterHuntKills = [];
     let monsterHuntPlayerKillTotals = [];
     let monsterImages = [];
     let monsterNames = [];
@@ -588,6 +693,7 @@ export async function getServerSideProps({req, query}){
         props: {
             "navSettings": JSON.stringify(navSettings),
             "pageSettings": JSON.stringify(pageSettings),
+            "pageOrder": JSON.stringify(pageOrder),
             "session": JSON.stringify(session.settings),
             "host": req.headers.host,
             "matchId": matchId,
