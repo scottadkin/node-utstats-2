@@ -114,6 +114,8 @@ function Nav({session, settings}){
 
     for(let i = 0; i < links.length; i++){
 
+        if(links[i] === undefined) continue;
+        
         bCurrent = false;
 
         if(pathName === links[i].url.toLowerCase()){
