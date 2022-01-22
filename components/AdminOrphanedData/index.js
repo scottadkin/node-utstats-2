@@ -125,7 +125,7 @@ class AdminOrphanedData extends React.Component{
             const d = this.state.data[i];
 
             rows.push(<tr key={i}>
-                <td><a href={`/match/${d.id}`} target="_blank">{d.id}</a></td>
+                <td><a href={`/match/${d.id}`} target="_blank" rel="noreferrer">{d.id}</a></td>
                 <td>{Functions.convertTimestamp(d.date, true)}</td>
                 <td>{d.serverName}</td>
                 <td>{d.gametypeName}</td>
