@@ -86,6 +86,7 @@ class AdminSiteSettings extends React.Component{
         let target = null;
         let totalOptions = 0;
 
+
         for(let i = 0; i < current.length; i++){
 
             const c = current[i];
@@ -140,11 +141,11 @@ class AdminSiteSettings extends React.Component{
 
             const n = newOrder[i];
             
-            if(n.value === "true" || n.value === "false"){
+            //if(n.value === "true" || n.value === "false"){
                 n.page_order = i;
-            }else{
-                n.page_order = 99999;
-            }
+            //}else{
+            //    n.page_order = 99999;
+           // }
 
         }
 
