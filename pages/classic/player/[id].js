@@ -150,7 +150,7 @@ export async function getServerSideProps({req, query}) {
 
         const g = playerGametypeData[i];
 
-        const currentName = gametypeNames[g.gid];
+        let currentName = gametypeNames[g.gid];
 
         if(currentName === undefined) currentName = "Not Found";
 

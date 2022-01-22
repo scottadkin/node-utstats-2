@@ -76,7 +76,7 @@ const queries = [
     `UPDATE nstats_site_settings SET page_order=3 WHERE category="Player Pages" AND name="Display Capture The Flag Summary"`,
     `UPDATE nstats_site_settings SET page_order=2 WHERE category="Player Pages" AND name="Display Frag Summary"`,
     `UPDATE nstats_site_settings SET page_order=1 WHERE category="Player Pages" AND name="Display Gametype Stats"`,
-    `UPDATE nstats_site_settings SET page_order=0 WHERE category="Player Pages" AND name="Display Summary"`
+    `UPDATE nstats_site_settings SET page_order=0 WHERE category="Player Pages" AND name="Display Summary"`,
     `UPDATE nstats_site_settings SET page_order=8 WHERE category="Navigation" AND name="Display Login/Logout"`,
     `UPDATE nstats_site_settings SET page_order=7 WHERE category="Navigation" AND name="Display Admin"`,
     `UPDATE nstats_site_settings SET page_order=6 WHERE category="Navigation" AND name="Display ACE"`,

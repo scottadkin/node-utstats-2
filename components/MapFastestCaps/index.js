@@ -179,7 +179,7 @@ class MapFastestCaps extends React.Component{
 
             const timestamp = this.getDate(d.match_id);
 
-            const assistElems = [];
+            let assistElems = [];
 
             const assists = d.assists.split(",");
 

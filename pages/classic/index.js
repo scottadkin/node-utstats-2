@@ -78,7 +78,7 @@ export async function getServerSideProps({req, query}) {
 
     const matchManager = new Matches();
 
-    const matchData = await matchManager.getLatestMatch();
+    let matchData = await matchManager.getLatestMatch();
 
     const playerManager = new Players();
 
