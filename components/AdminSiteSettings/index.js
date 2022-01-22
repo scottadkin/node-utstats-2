@@ -374,6 +374,12 @@ class AdminSiteSettings extends React.Component{
 
         const dropDownRows = [];
 
+        let ignoreOrder = [];
+
+        if(this.state.categories[this.state.mode] === "Match Pages"){
+            ignoreOrder = ["Display Match Report Title", "Display Mutators", "Display Target Score", "Display Time Limit"];
+        }
+
         for(let i = 0; i < this.state.settings.length; i++){
 
             const s = this.state.settings[i];
@@ -405,13 +411,13 @@ class AdminSiteSettings extends React.Component{
                 valueElem = <td>{this.renderDropDown(s.name)}</td>
             }
 
-            const elems = (bDropDown) ? dropDownRows : rows;
+            const elems = (bDropDown || ignoreOrder.indexOf(s.name) !== -1) ? dropDownRows : rows;
 
             elems.push(<tr key={i}>
                 <td className="text-left">{s.name}</td>
                 {valueElem}
                 <td>
-                    {(bDropDown) ? null :
+                    {(bDropDown || ignoreOrder.indexOf(s.name) !== -1) ? null :
                         <>
                             <img src="/images/up.png" className={styles.button} alt="up" onClick={(() =>{
                                 this.changePosition(true, s.name);

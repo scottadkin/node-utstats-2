@@ -15,10 +15,16 @@ function Nav({session, settings}){
     if(session.displayName !== undefined){
         displayName = session.displayName;
     }
+
+    let order = [];
     
     if(settings !== undefined){
 
-        settings = JSON.parse(settings);
+        const parsedSettings = JSON.parse(settings);
+
+        settings = parsedSettings.settings;
+        order = parsedSettings.order;
+
 
     }else{
         settings = {
@@ -32,6 +38,18 @@ function Nav({session, settings}){
             "Display Admin": "true",
             "Display ACE": "true",
         };
+
+        order = {
+            'Display Home': 0,
+            'Display Matches': 1,
+            'Display Players': 2,
+            'Display Rankings': 3,
+            'Display Records': 4,
+            'Display Maps': 5,
+            'Display ACE': 6,
+            'Display Admin': 7,
+            'Display Login/Logout': 8
+        }
     }
 
     const urls = {
@@ -58,14 +76,14 @@ function Nav({session, settings}){
             if(key === "Display Login/Logout"){
 
                 if(session.bLoggedIn === undefined){
-                    links.push({"url": `/login`, "text": "Login/Register"});
+                    links[order[key]] = {"url": `/login`, "text": "Login/Register"};
                 }else{
             
                     if(session.bLoggedIn){
             
-                        links.push({"url": `/login`, "text": `Logout ${displayName}`});
+                        links[order[key]] = {"url": `/login`, "text": `Logout ${displayName}`};
                     }else{
-                        links.push({"url": `/login`, "text": "Login/Register"});
+                        links[order[key]] = {"url": `/login`, "text": "Login/Register"};
                     }
                 }
 
@@ -73,24 +91,23 @@ function Nav({session, settings}){
 
                 if(session.bAdmin && session.bLoggedIn){
 
-                    links.push({
+                    links[order[key]] = {
                         "url": value.url,
                         "text": value.text,
                         "alt": value.alt
-                    });
+                    };
                 }
 
             }else{
 
-                links.push({
+                links[order[key]] = {
                     "url": value.url,
                     "text": value.text,
                     "alt": value.alt
-                });
+                };
             }
         }
     }
-
 
     let bCurrent = false;
     const elems = [];

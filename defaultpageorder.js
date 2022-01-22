@@ -77,6 +77,15 @@ const queries = [
     `UPDATE nstats_site_settings SET page_order=2 WHERE category="Player Pages" AND name="Display Frag Summary"`,
     `UPDATE nstats_site_settings SET page_order=1 WHERE category="Player Pages" AND name="Display Gametype Stats"`,
     `UPDATE nstats_site_settings SET page_order=0 WHERE category="Player Pages" AND name="Display Summary"`
+    `UPDATE nstats_site_settings SET page_order=8 WHERE category="Navigation" AND name="Display Login/Logout"`,
+    `UPDATE nstats_site_settings SET page_order=7 WHERE category="Navigation" AND name="Display Admin"`,
+    `UPDATE nstats_site_settings SET page_order=6 WHERE category="Navigation" AND name="Display ACE"`,
+    `UPDATE nstats_site_settings SET page_order=5 WHERE category="Navigation" AND name="Display Maps"`,
+    `UPDATE nstats_site_settings SET page_order=4 WHERE category="Navigation" AND name="Display Records"`,
+    `UPDATE nstats_site_settings SET page_order=3 WHERE category="Navigation" AND name="Display Rankings"`,
+    `UPDATE nstats_site_settings SET page_order=2 WHERE category="Navigation" AND name="Display Players"`,
+    `UPDATE nstats_site_settings SET page_order=1 WHERE category="Navigation" AND name="Display Matches"`,
+    `UPDATE nstats_site_settings SET page_order=0 WHERE category="Navigation" AND name="Display Home"`,
 ];
 
 (async () =>{

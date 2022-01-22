@@ -234,10 +234,10 @@ export async function getServerSideProps({req, query}){
 
     await session.load();
 
-    //const settings = new Sitesettings();
+    const settings = new Sitesettings();
 
-    const navSettings = await Sitesettings.getSettings("Navigation");
-    const pageSettings = await Sitesettings.getSettings("Match Pages");
+    const navSettings = await settings.getCategorySettings("Navigation");
+    const pageSettings = await settings.getCategorySettings("Match Pages");
 
     const matchManager = new Match();
 

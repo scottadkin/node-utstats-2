@@ -266,10 +266,6 @@ export async function getServerSideProps({req, query}) {
 	const pageOrder = await siteSettings.getCategoryOrder("Home");
 	const navSettings = await siteSettings.getCategorySettings("Navigation");
 
-	console.log("***************************************************");
-	console.log(pageOrder);
-	console.log("***************************************************");
-
 	const matchManager = new Matches();
 	const mapManager = new Maps();
 	const gametypeManager = new Gametypes();

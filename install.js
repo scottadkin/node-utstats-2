@@ -977,7 +977,6 @@ const queries = [
   "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Health/Armour Control',  'true',  26)",
   "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Weapons Control',  'true',  25)",
   "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Powerup Control',  'true',  24)",
-  "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Power Up Control',  'true',  23)",
   "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Pickup Summary',  'true',  22)",
   "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Kills Match Up',  'true',  21)",
   "INSERT INTO nstats_site_settings VALUES(NULL,  'Match Pages',  'Display Rankings',  'true',  20)",

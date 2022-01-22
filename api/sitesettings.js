@@ -261,6 +261,13 @@ class SiteSettings{
             settings[r.name] = r.value;
         }
 
+        if(cat === "Navigation"){
+
+            const order = await this.getCategoryOrder(cat);
+
+            return {"settings": settings, "order": order};
+        }
+
         return settings;
     }
 
@@ -279,6 +286,7 @@ class SiteSettings{
 
             settings[r.name] = r.value;
         }
+        
 
         return settings;
     }

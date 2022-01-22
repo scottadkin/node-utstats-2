@@ -663,7 +663,7 @@ export async function getServerSideProps({req, query}){
 
     }
     
-    const navSettings = await SiteSettings.getSettings("Navigation");
+    const navSettings = await settings.getCategorySettings("Navigation");
 
 
 
