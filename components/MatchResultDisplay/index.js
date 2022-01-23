@@ -26,6 +26,20 @@ class MatchResultDisplay extends React.Component{
 
     }
 
+    reduceNameLength(name){
+
+        const maxLength = 60;
+
+        if(name.length > maxLength){
+
+            const shortName = name.slice(0,maxLength);
+
+            return `${shortName}...`;
+        }
+
+        return name;
+    }
+
     renderPlayerResult(){
 
         if(this.props.mode !== "player") return null;
@@ -40,7 +54,7 @@ class MatchResultDisplay extends React.Component{
                 <Image src={this.props.mapImage} width={400} height={225}/>
             </div>
             <div className={styles.sinfo}>
-                {this.props.serverName}<br/>
+                {this.reduceNameLength(this.props.serverName)}<br/>
             </div>
             <div className={styles.mapn}>
                 {this.props.mapName}
@@ -67,7 +81,7 @@ class MatchResultDisplay extends React.Component{
                 <Image src={this.props.mapImage} width={400} height={225}/>
             </div>
             <div className={styles.sinfo}>
-                {this.props.serverName}<br/>
+                {this.reduceNameLength(this.props.serverName)}<br/>
             </div>
             <div className={styles.minfo}>
                 {this.props.gametypeName}<br/>
