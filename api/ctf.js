@@ -141,12 +141,15 @@ class CTF{
 
         for(let i = 0; i < pickupTimes.length; i++){
 
-            timeDropped += pickupTimes[i] - dropTimes[i];
+            //I forgot that there is no drops after the final pickup for caps 2iq move :(
+            if(dropTimes[i] !== undefined){
+                timeDropped += pickupTimes[i] - dropTimes[i];
+            }
 
         }
 
 
-        return parseFloat(timeDropped.toFixed(2));
+        return timeDropped;
     }
 
     async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
@@ -162,7 +165,8 @@ class CTF{
         const totalUniqueAssists = assists.length;
 
         const timeDropped = this.calculateTimeDropped(dropTimes, pickupTimes);
-        const carryTime = parseFloat(travelTime) - timeDropped;
+        let carryTime = parseFloat(travelTime) - timeDropped;
+        if(carryTime !== carryTime) carryTime = -1;
 
         const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
@@ -1285,7 +1289,7 @@ class CTF{
     async getCapRecords(){
 
         const mapIds = await this.getAllMapsWithCaps();
-        console.log(mapIds);
+       // console.log(mapIds);
         
     }
 

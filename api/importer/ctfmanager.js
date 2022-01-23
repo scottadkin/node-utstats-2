@@ -750,8 +750,16 @@ class CTFManager{
 
                 const c = this.capData[i];
 
-                const {team, flagTeam, grab, grabTime, cap, capTime} = c;
+                let {team, flagTeam, grab, grabTime, cap, capTime} = c;
 
+                if(grabTime === null){
+                    new Message(`ctfManager.insertCaps() grabTime is null`,"warning");
+                    grabTime = -1;
+                }
+                if(grab === null){
+                    new Message(`ctfManager.insertCaps() grab is null`,"warning");
+                    grab = -1;
+                }
 
                 const grabPlayer = this.playerManager.getOriginalConnectionMasterId(grab);
                 const capPlayer = this.playerManager.getOriginalConnectionMasterId(cap);
@@ -779,7 +787,7 @@ class CTFManager{
                     }
                 }
 
-                this.ctf.insertCap(matchId, matchDate, mapId, c.team, flagTeam, grabTime, grabPlayer, dropIds, c.dropTimes, pickupIds,
+                await this.ctf.insertCap(matchId, matchDate, mapId, c.team, flagTeam, grabTime, grabPlayer, dropIds, c.dropTimes, pickupIds,
                 c.pickupTimes, coverIds, c.coverTimes, uniqueAssistIds, c.assistTimes, assistIds, capPlayer, 
                 capTime, travelTime, selfCovers, c.selfCoverTimes, sealIds, c.sealTimes);
 
