@@ -314,6 +314,8 @@ async function createNewTables(){
             await mysql.simpleQuery("ALTER TABLE nstats_ctf_caps CHANGE self_covers_count self_covers_times TEXT(1000) NOT NULL");
         }
 
+        await mysql.simpleQuery("ALTER TABLE nstats_ace_joins MODIFY os VARCHAR(250) NOT NULL");
+
         process.exit(0);
 
     }catch(err){

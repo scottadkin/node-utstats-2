@@ -743,7 +743,7 @@ const queries = [
         player varchar(30) NOT NULL,
         ip varchar(50) NOT NULL,
         country varchar(2) NOT NULL,
-        os varchar(32) NOT NULL,
+        os varchar(250) NOT NULL,
         mac1 varchar(32) NOT NULL,
         mac2 varchar(32) NOT NULL,
         hwid varchar(32) NOT NULL
