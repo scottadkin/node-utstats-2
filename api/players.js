@@ -45,52 +45,52 @@ class Players{
         });
     }
 
-    getTotalPlayers(name){
+    async getTotalPlayers(name){
 
-        return new Promise((resolve, reject) =>{
+        let query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND playtime>0";
+        let vars = [];
 
-            let query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND playtime>0";
-            let vars = [];
+        if(name !== undefined){
 
-            if(name !== undefined){
-                query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND playtime>0 AND name LIKE(?) ";
-                vars = [`%${name}%`]
-            }
+            query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND playtime>0 AND name LIKE(?) ";
+            vars = [`%${name}%`];
+        }
 
-            if(name === undefined){
+        let result = 0;
 
-                mysql.query(query, (err, result) =>{
+        if(name === undefined){
+            result = await mysql.simpleQuery(query);
+        }else{
+            result = await mysql.simpleQuery(query, vars);
+        }
 
-                    if(err) reject(err);
+        return result[0].total_players;
 
-                    if(result !== undefined){
+    }
 
-                        if(result.length > 0){
-                            resolve(result[0].total_players);
-                        }
-                    }
 
-                    resolve(0);
-                });
+    async getTotalUniqueIps(name){
 
-            }else{
+        let query = "SELECT COUNT(DISTINCT ip) as unique_ips FROM nstats_player_totals WHERE gametype=0";
+        let vars = [];
 
-                mysql.query(query, vars, (err, result) =>{
+        if(name !== undefined){
 
-                    if(err) reject(err);
+            query = "SELECT COUNT(DISTINCT ip) as unique_ips FROM nstats_player_totals WHERE gametype=0 AND name=?";
+            vars = [name];
+        }
 
-                    if(result !== undefined){
-                        
-                        if(result.length > 0){
-                            resolve(result[0].total_players);
-                        }
-                    }
+        let result = 0;
 
-                    resolve(0);
-                });
+        if(name === undefined){
+            result = await mysql.simpleQuery(query);
+        }else{
+            result = await mysql.simpleQuery(query, vars);
+        }
 
-            }
-        });
+        return result[0].unique_ips;
+
+
     }
 
     async getMaxValues(types){
@@ -463,9 +463,23 @@ class Players{
         }
     }
 
-    async getAllNames(){
+    async getAllNames(bOnlyNames){
 
-        return await mysql.simpleFetch("SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC");
+        if(bOnlyNames === undefined) bOnlyNames = false;
+
+        if(!bOnlyNames){
+            return await mysql.simpleFetch("SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC");
+        }
+
+        const result = await mysql.simpleQuery("SELECT name FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC");
+
+        const names = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            names.push(result[i].name);
+        }
+        return names;
     }
     
     async renamePlayer(oldName, newName){
@@ -1590,10 +1604,21 @@ class Players{
             
         }
 
-        return {"totals": totals, "gametypes": gametypes, "maps": maps, "players": players};
-        
+        return {"totals": totals, "gametypes": gametypes, "maps": maps, "players": players};       
     }
-    
+
+    async getPlayersAfter(start, maxPlayers, bAdmin){
+
+        if(bAdmin === undefined) bAdmin = false;
+
+        const query = `SELECT name,player_id,first,last,country${(bAdmin) ? ",ip" : ""} 
+        FROM nstats_player_totals WHERE gametype=0 AND last>=? ORDER BY last DESC LIMIT ?`;
+
+        const vars = [start, maxPlayers];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
 }
 
 

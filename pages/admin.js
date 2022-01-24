@@ -36,7 +36,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 0, 
+            "mode": 5, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "rankingEvents": JSON.parse(this.props.rankingEvents),
@@ -414,7 +414,7 @@ class Admin extends React.Component{
     displayPlayersManager(){
 
         if(this.state.mode !== 5) return null
-        return <AdminPlayersManager playerNames={this.props.playerNames}/>
+        return <AdminPlayersManager />
     }
 
     displayGametypeManager(){
@@ -601,7 +601,6 @@ export async function getServerSideProps({req, query}){
     let userAccounts = [];
     let faceData = [];
     let faceFiles = [];
-    let playerNames = [];
     let gametypeNames = [];
     let rankingEvents = [];
     let itemList = [];
@@ -627,9 +626,6 @@ export async function getServerSideProps({req, query}){
         faceFiles = faceManager.getAllFiles();
 
         const playerManager = new Players();
-
-        playerNames = await playerManager.getAllNames();
-
 
         const gametypeManager = new Gametypes();
 
@@ -697,7 +693,6 @@ export async function getServerSideProps({req, query}){
             "userAccounts": JSON.stringify(userAccounts),
             "faceData": JSON.stringify(faceData),
             "faceFiles": JSON.stringify(faceFiles),
-            "playerNames": JSON.stringify(playerNames),
             "gametypeNames": JSON.stringify(gametypeNames),
             "rankingEvents": JSON.stringify(rankingEvents),
             "itemList": JSON.stringify(itemList),
