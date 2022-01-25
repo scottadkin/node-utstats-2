@@ -1,7 +1,6 @@
 import React from 'react';
 import Loading from '../Loading';
 import AdminPlayerRename from '../AdminPlayerRename';
-
 import BasicUIBox from '../BasicUIBox';
 
 class AdminPlayersManager extends React.Component{
@@ -11,7 +10,8 @@ class AdminPlayersManager extends React.Component{
         super(props);
         this.state = {
             "mode": 2, 
-            "names": [], 
+            "players": [], 
+            "names": [],
             "bFinishedLoadingNames": false, 
             "bFinishedLoadingGeneral": false, 
             "general": null, 
@@ -63,7 +63,16 @@ class AdminPlayersManager extends React.Component{
             const res = await req.json();
 
             if(res.error === undefined){
-                this.setState({"bFinishedLoadingNames": true, "names": res.names});
+
+                const justNames = [];
+
+                for(let i = 0; i < res.names.length; i++){
+
+                    justNames.push(res.names[i].name.toLowerCase());
+
+                }
+
+                this.setState({"bFinishedLoadingNames": true, "players": res.names, "names": justNames});
             }
 
             console.log(res);
@@ -114,7 +123,7 @@ class AdminPlayersManager extends React.Component{
             return <Loading />;
         }
 
-        return <AdminPlayerRename players={this.state.names}/>;
+        return <AdminPlayerRename players={this.state.players} names={this.state.names}/>;
     }
 
     render(){
