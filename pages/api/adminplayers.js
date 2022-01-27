@@ -79,7 +79,7 @@ export default async function handler (req, res){
 
                 if(await playerManager.renamePlayer(oldName, newName)){
 
-                    res.status(200).json({"message": `Rename ${oldName} to ${newName} successfully`});
+                    res.status(200).json({"message": `Renamed ${oldName} to ${newName} successfully`});
                     return;
 
                 }else{

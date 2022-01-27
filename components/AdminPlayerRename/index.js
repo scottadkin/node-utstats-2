@@ -1,7 +1,7 @@
 import React from "react";
 import Functions from '../../api/functions';
-import Loading from '../Loading';
 import Notification from '../Notification';
+import Loading from "../Loading";
 
 
 class AdminPlayerRename extends React.Component{
@@ -9,8 +9,56 @@ class AdminPlayerRename extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"error": null, "bInProgress": false, "bPassed": false, "notification": null,"displayUntil": 0};
+        this.state = {
+            "error": null, 
+            "bInProgress": false, 
+            "bPassed": false, 
+            "notification": null,
+            "displayUntil": 0,
+            "bFinishedLoadingNames": false,
+            "players": [],
+            "names": []
+        };
         this.changeName = this.changeName.bind(this);
+    }
+
+
+    async componentDidMount(){
+
+        await this.loadNames();
+        
+    }
+
+    async loadNames(){
+
+        try{
+
+            this.setState({"bFinishedLoadingNames": false});
+
+            const req = await fetch("/api/adminplayers", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "allnames"})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+
+                const justNames = [];
+
+                for(let i = 0; i < res.names.length; i++){
+
+                    justNames.push(res.names[i].name.toLowerCase());
+
+                }
+
+                this.setState({"bFinishedLoadingNames": true, "players": res.names, "names": justNames});
+            }
+
+        }catch(err){
+            console.trace(err);
+        }   
     }
 
     getDisplayUntil(seconds){
@@ -44,8 +92,8 @@ class AdminPlayerRename extends React.Component{
             this.setState({"error": "The new name can not be blank.","displayUntil": this.getDisplayUntil(5)});
             return;
         }
-        
-        const currentPlayer = Functions.getPlayer(this.props.players, currentId);
+
+        const currentPlayer = Functions.getPlayer(this.state.players, currentId);
         const bNameInUse = this.bNameInUse(newName);
 
         if(bNameInUse){
@@ -65,11 +113,7 @@ class AdminPlayerRename extends React.Component{
 
             if(res.error === undefined){
                 this.setState({"bInProgress": false, "bPassed": true, "notification": res.message,"displayUntil": this.getDisplayUntil(5)});
-
-                setTimeout(async () =>{
-                    await this.props.reloadPlayers();
-                }, 1500);
-                
+                await this.loadNames();
                 return;
             }else{
                 this.setState({"bInProgress": false, "bPassed": false, "notification": res.error,"displayUntil": this.getDisplayUntil(5)});
@@ -84,9 +128,9 @@ class AdminPlayerRename extends React.Component{
 
         const options = [];
 
-        for(let i = 0; i < this.props.players.length; i++){
+        for(let i = 0; i < this.state.players.length; i++){
 
-            const p = this.props.players[i];
+            const p = this.state.players[i];
             options.push(<option key={i} value={p.id}>{p.name}</option>);
 
         }
@@ -99,7 +143,7 @@ class AdminPlayerRename extends React.Component{
 
     bNameInUse(name){
 
-        if(this.props.names.indexOf(name.toLowerCase()) === -1){
+        if(this.state.names.indexOf(name.toLowerCase()) === -1){
             return false;
         }
 
@@ -122,11 +166,11 @@ class AdminPlayerRename extends React.Component{
 
     render(){
 
-        return <div>
-            <div className="default-header">Rename Player</div>
-            
+        let elems = <Loading />;
 
-            <div className="form">
+        if(this.state.bFinishedLoadingNames){
+
+            elems = <div className="form">
                 <div className="form-info m-bottom-25">Change a player&apos;s name to another one.<br/>You can&apos;t rename a player to a name that already exists
                 you must merge the players instead.</div>
 
@@ -148,6 +192,13 @@ class AdminPlayerRename extends React.Component{
                     <input type="submit" className="search-button" value="Change Name"/>
                 </form>
             </div>
+
+        }
+
+        return <div>
+            <div className="default-header">Rename Player</div>
+            
+            {elems}
             {this.renderNotifcation()}
         </div>
     }

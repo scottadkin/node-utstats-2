@@ -12,24 +12,16 @@ class AdminPlayersManager extends React.Component{
             "mode": 2, 
             "players": [], 
             "names": [],
-            "bFinishedLoadingNames": false, 
             "bFinishedLoadingGeneral": false, 
             "general": null, 
             "generalError": null
         };
 
         this.changeMode = this.changeMode.bind(this);
-        this.reloadPlayers = this.reloadPlayers.bind(this);
     }
 
     changeMode(id){
         this.setState({"mode": id});
-    }
-
-    reloadPlayers(){
-        
-        this.loadNames();
-
     }
 
     async loadGeneral(){
@@ -57,43 +49,9 @@ class AdminPlayersManager extends React.Component{
         }
     }
 
-    async loadNames(){
-
-        try{
-
-            this.setState({"bFinishedLoadingNames": false});
-
-            const req = await fetch("/api/adminplayers", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "allnames"})
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-
-                const justNames = [];
-
-                for(let i = 0; i < res.names.length; i++){
-
-                    justNames.push(res.names[i].name.toLowerCase());
-
-                }
-
-                this.setState({"bFinishedLoadingNames": true, "players": res.names, "names": justNames});
-            }
-
-            console.log(res);
-
-        }catch(err){
-            console.trace(err);
-        }   
-    }
-
     async componentDidMount(){
 
-        await this.loadNames();
+        //await this.loadNames();
         await this.loadGeneral();
     }
 
@@ -127,12 +85,7 @@ class AdminPlayersManager extends React.Component{
 
         if(this.state.mode !== 2) return null;
 
-        if(!this.state.bFinishedLoadingNames){
-
-            return <Loading />;
-        }
-
-        return <AdminPlayerRename players={this.state.players} names={this.state.names} reloadPlayers={this.reloadPlayers}/>;
+        return <AdminPlayerRename />;
     }
 
     render(){
