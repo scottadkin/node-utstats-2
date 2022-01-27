@@ -491,10 +491,12 @@ class Players{
             const matchManager = new Matches();
 
             await matchManager.renameDmWinner(oldName, newName);
+            return true;
 
 
         }catch(err){
             console.trace(err);
+            return false;
         }
     }
 

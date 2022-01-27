@@ -12,6 +12,11 @@
 /.next/
 /out/
 
+# https
+server.js
+ooper_ddns_net.der
+ooper_ddns_net.pem
+
 # production
 /build
 

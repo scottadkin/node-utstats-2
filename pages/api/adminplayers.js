@@ -1,6 +1,7 @@
 import Session from "../../api/session";
 import Players from "../../api/players";
 
+
 export default async function handler (req, res){
 
     try{
@@ -51,6 +52,41 @@ export default async function handler (req, res){
                 res.status(200).json({"names": names});
                 return;
 
+            }else if(mode === "rename"){
+
+                const oldName = req.body.oldName ?? null;
+                const newName = req.body.newName ?? null;
+
+                if(oldName === null){
+                    res.status(200).json({"error": `oldName is null.`});
+                    return;
+                }
+
+                if(newName === null){
+                    res.status(200).json({"error": `newName is null.`});
+                    return;
+                }
+
+                if(newName.length < 1){
+                    res.status(200).json({"error": `newName's length can not be 0.`});
+                    return;
+                }
+
+                if(newName.length >= 30){
+                    res.status(200).json({"error": `newName's length must be less than 30 characters long.`});
+                    return;
+                }
+
+                if(await playerManager.renamePlayer(oldName, newName)){
+
+                    res.status(200).json({"message": `Rename ${oldName} to ${newName} successfully`});
+                    return;
+
+                }else{
+
+                    res.status(200).json({"error": `There was a problem renaming the player.`});
+                    return;
+                }
             }
 
             res.status(200).json({"error": "Unknown mode"});

@@ -19,10 +19,17 @@ class AdminPlayersManager extends React.Component{
         };
 
         this.changeMode = this.changeMode.bind(this);
+        this.reloadPlayers = this.reloadPlayers.bind(this);
     }
 
     changeMode(id){
         this.setState({"mode": id});
+    }
+
+    reloadPlayers(){
+        
+        this.loadNames();
+
     }
 
     async loadGeneral(){
@@ -53,6 +60,8 @@ class AdminPlayersManager extends React.Component{
     async loadNames(){
 
         try{
+
+            this.setState({"bFinishedLoadingNames": false});
 
             const req = await fetch("/api/adminplayers", {
                 "headers": {"Content-type": "application/json"},
@@ -123,7 +132,7 @@ class AdminPlayersManager extends React.Component{
             return <Loading />;
         }
 
-        return <AdminPlayerRename players={this.state.players} names={this.state.names}/>;
+        return <AdminPlayerRename players={this.state.players} names={this.state.names} reloadPlayers={this.reloadPlayers}/>;
     }
 
     render(){

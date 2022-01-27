@@ -16,18 +16,24 @@ class Notification extends React.Component{
 
     }
 
+    componentWillUnmount(){
+
+        clearInterval(this.timer);
+    }
+
     startTimer(){
 
-        const timer = setInterval(() =>{
+        this.timer = setInterval(() =>{
 
             const now = Math.floor(Date.now() * 0.001);
 
             if(now >= this.props.displayUntil){
                 this.setState({"bDisplay": false});
-                clearInterval(timer);
+                clearInterval(this.timer);
             }
 
         }, 100);
+
     }
 
     componentDidUpdate(prevProps){
