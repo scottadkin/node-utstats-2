@@ -11,6 +11,8 @@ class PlayerCTFSummary extends React.Component{
         super(props);
         this.state = {"mode": 0};
 
+        console.log(props);
+
         this.changeMode = this.changeMode.bind(this);
     }
 
@@ -31,7 +33,9 @@ class PlayerCTFSummary extends React.Component{
 
     displayGeneral(){
 
-        if(this.state.mode !== 0) return null
+        if(this.state.mode !== 0) return null;
+
+        const data = JSON.parse(this.props.data);
 
         return <Table2 width={1}>
             <tr>
@@ -47,16 +51,16 @@ class PlayerCTFSummary extends React.Component{
                 <TipHeader title="Flag Close Save" content="Player return their flag that was close to the enemy flag base."/>
             </tr>
             <tr>
-                <td>{Functions.ignore0(this.props.data.flag_taken)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_pickup)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_dropped)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_capture)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_assist)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_cover)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_seal)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_kill)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_return)}</td>
-                <td>{Functions.ignore0(this.props.data.flag_save)}</td>
+                <td>{Functions.ignore0(data.flag_taken)}</td>
+                <td>{Functions.ignore0(data.flag_pickup)}</td>
+                <td>{Functions.ignore0(data.flag_dropped)}</td>
+                <td>{Functions.ignore0(data.flag_capture)}</td>
+                <td>{Functions.ignore0(data.flag_assist)}</td>
+                <td>{Functions.ignore0(data.flag_cover)}</td>
+                <td>{Functions.ignore0(data.flag_seal)}</td>
+                <td>{Functions.ignore0(data.flag_kill)}</td>
+                <td>{Functions.ignore0(data.flag_return)}</td>
+                <td>{Functions.ignore0(data.flag_save)}</td>
 
         
             </tr>
@@ -69,12 +73,14 @@ class PlayerCTFSummary extends React.Component{
 
         let eff = 0;
 
-        if(this.props.data.flag_cover > 0){
+        const data = JSON.parse(this.props.data);
 
-            if(this.props.data.flag_cover_pass > 0){
+        if(data.flag_cover > 0){
 
-                if(this.props.data.flag_cover_fail > 0){
-                    eff = (this.props.data.flag_cover_pass / this.props.data.flag_cover) * 100;
+            if(data.flag_cover_pass > 0){
+
+                if(data.flag_cover_fail > 0){
+                    eff = (data.flag_cover_pass / data.flag_cover) * 100;
                 }else{
                     eff = 100;
                 }
@@ -92,12 +98,12 @@ class PlayerCTFSummary extends React.Component{
                 <TipHeader title="Cover Efficiency" content="How successful the players covers are in regards of flags being capped."/>       
             </tr>
             <tr>
-                <td>{this.props.data.flag_cover}</td>
-                <td>{this.props.data.flag_multi_cover}</td>
-                <td>{this.props.data.flag_spree_cover}</td>
-                <td>{this.props.data.flag_cover_best}</td>
-                <td>{this.props.data.flag_cover_pass}</td>
-                <td>{this.props.data.flag_cover_fail}</td>
+                <td>{data.flag_cover}</td>
+                <td>{data.flag_multi_cover}</td>
+                <td>{data.flag_spree_cover}</td>
+                <td>{data.flag_cover_best}</td>
+                <td>{data.flag_cover_pass}</td>
+                <td>{data.flag_cover_fail}</td>
                 <td>{eff.toFixed(2)}%</td>
             </tr>
         </Table2>
@@ -110,15 +116,17 @@ class PlayerCTFSummary extends React.Component{
 
         let eff = 0;
 
-        if(this.props.data.flag_self_cover > 0){
+        const data = JSON.parse(this.props.data);
 
-            if(this.props.data.flag_self_cover_pass > 0){
+        if(data.flag_self_cover > 0){
 
-                if(this.props.data.flag_self_cover_fail === 0){
+            if(data.flag_self_cover_pass > 0){
+
+                if(data.flag_self_cover_fail === 0){
                     eff = 100;
                 }else{
 
-                    eff = (this.props.data.flag_self_cover_pass / this.props.data.flag_self_cover) * 100;
+                    eff = (data.flag_self_cover_pass / data.flag_self_cover) * 100;
                 }
             }
         }
@@ -133,11 +141,11 @@ class PlayerCTFSummary extends React.Component{
                 <TipHeader title="Kills With Flag Efficiency" content="How successful the player's kills are in regard to capping the flag."/>
             </tr>
             <tr>
-                <td>{(this.props.data.flag_carry_time / (60 * 60)).toFixed(2)} Hours</td>
-                <td>{this.props.data.flag_self_cover}</td>
-                <td>{this.props.data.flag_self_cover_best}</td>
-                <td>{this.props.data.flag_self_cover_pass}</td>
-                <td>{this.props.data.flag_self_cover_fail}</td>
+                <td>{(data.flag_carry_time / (60 * 60)).toFixed(2)} Hours</td>
+                <td>{data.flag_self_cover}</td>
+                <td>{data.flag_self_cover_best}</td>
+                <td>{data.flag_self_cover_pass}</td>
+                <td>{data.flag_self_cover_fail}</td>
                 <td>{eff.toFixed(2)}%</td>
             </tr>
         </Table2>
