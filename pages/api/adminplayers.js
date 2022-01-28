@@ -129,6 +129,11 @@ export default async function handler (req, res){
                     return;
                 }
                 //mergePlayers(first, second, matchManager)
+
+            }else if(mode === "namesearch"){
+
+                const name = req.body.name ?? null;
+
             }
 
             res.status(200).json({"error": "Unknown mode"});

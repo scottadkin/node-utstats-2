@@ -299,7 +299,7 @@ class MatchPowerUpControl extends React.Component{
             </div>
         }
 
-        return <>
+        return <React.Fragment key={title}>
             <div className="default-header">
                 {title}
             </div>
@@ -307,7 +307,7 @@ class MatchPowerUpControl extends React.Component{
             <div className={styles.wrapper}>
                 {elems}
             </div>
-        </>
+        </React.Fragment>
     }
 
     render(){

@@ -4,6 +4,7 @@ import AdminPlayerRename from '../AdminPlayerRename';
 import AdminDeletePlayer from '../AdminDeletePlayer';
 import BasicUIBox from '../BasicUIBox';
 import AdminPlayerMerge from '../AdminPlayerMerge';
+import AdminPlayerSearch from '../AdminPlayerSearch';
 
 class AdminPlayersManager extends React.Component{
 
@@ -11,7 +12,7 @@ class AdminPlayersManager extends React.Component{
 
         super(props);
         this.state = {
-            "mode": 3, 
+            "mode": 1, 
             "players": [], 
             "names": [],
             "bFinishedLoadingGeneral": false, 
@@ -104,6 +105,13 @@ class AdminPlayersManager extends React.Component{
         return <AdminPlayerMerge />;
     }
 
+    renderSearch(){
+
+        if(this.state.mode !== 1) return null;
+
+        return <AdminPlayerSearch />;
+    }
+
     render(){
 
         return <div>
@@ -126,7 +134,7 @@ class AdminPlayersManager extends React.Component{
                 })}>Delete Player</div>
             </div>
             {this.renderGeneral()}
-
+            {this.renderSearch()}
             {this.renderRename()}
             {this.renderMerge()}
             {this.renderDelete()}

@@ -1629,6 +1629,16 @@ class Players{
         return await mysql.simpleQuery(query, vars);
     }
 
+
+    async nameSearch(name){
+
+        const query = "SELECT id,name,ip FROM nstats_player_totals WHERE name LIKE ?";
+
+        const result = await mysql.simpleQuery(query, [`%${$name}%`]);
+
+        console.log(result);
+    }
+
 }
 
 

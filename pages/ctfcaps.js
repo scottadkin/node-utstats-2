@@ -284,8 +284,11 @@ export async function getServerSideProps({req, query}){
 
     await session.load();
 
-    const navSettings = await SiteSettings.getSettings("Navigation");
-    const pageSettings = await SiteSettings.getSettings("Records Page");
+    const settingsManager = new SiteSettings();
+
+    const navSettings = await settingsManager.getCategorySettings("Navigation");
+
+    const pageSettings = await settingsManager.getCategorySettings("Records Page");
 
 
     const ctfManager = new CTF();
