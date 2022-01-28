@@ -1,6 +1,7 @@
 import React from 'react';
 import Loading from '../Loading';
 import AdminPlayerRename from '../AdminPlayerRename';
+import AdminDeletePlayer from '../AdminDeletePlayer';
 import BasicUIBox from '../BasicUIBox';
 
 class AdminPlayersManager extends React.Component{
@@ -9,7 +10,7 @@ class AdminPlayersManager extends React.Component{
 
         super(props);
         this.state = {
-            "mode": 2, 
+            "mode": 4, 
             "players": [], 
             "names": [],
             "bFinishedLoadingGeneral": false, 
@@ -88,6 +89,13 @@ class AdminPlayersManager extends React.Component{
         return <AdminPlayerRename />;
     }
 
+    renderDelete(){
+
+        if(this.state.mode !== 4) return null;
+
+        return <AdminDeletePlayer />;
+    }
+
     render(){
 
         return <div>
@@ -112,6 +120,7 @@ class AdminPlayersManager extends React.Component{
             {this.renderGeneral()}
 
             {this.renderRename()}
+            {this.renderDelete()}
         </div>
     }
 }

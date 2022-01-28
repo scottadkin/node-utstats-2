@@ -1,5 +1,6 @@
 import Session from "../../api/session";
 import Players from "../../api/players";
+import Matches from "../../api/matches";
 
 
 export default async function handler (req, res){
@@ -47,7 +48,7 @@ export default async function handler (req, res){
 
             }else if(mode === "allnames"){
 
-                const names = await playerManager.getAllNames();
+                const names = await playerManager.getNameIdPairs();
 
                 res.status(200).json({"names": names});
                 return;
@@ -85,6 +86,28 @@ export default async function handler (req, res){
                 }else{
 
                     res.status(200).json({"error": `There was a problem renaming the player.`});
+                    return;
+                }
+
+            }else if(mode === "delete"){
+
+                const matchManager = new Matches();
+
+                const playerId = req.body.playerId ?? null;
+
+                if(playerId === null){
+                    res.status(200).json({"error": `PlayerId was null.`});
+                    return;
+                }
+
+                if(await playerManager.deletePlayer(playerId ,matchManager)){
+
+                    res.status(200).json({"message": `Player was deleted successfully`});
+                    return;
+
+                }else{
+
+                    res.status(200).json({"error": `There was a problem deleting the player.`});
                     return;
                 }
             }

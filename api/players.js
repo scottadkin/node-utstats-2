@@ -481,6 +481,13 @@ class Players{
         }
         return names;
     }
+
+    async getNameIdPairs(){
+
+        const query = "SELECT id,name FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC";
+
+        return await mysql.simpleQuery(query);
+    }
     
     async renamePlayer(oldName, newName){
 
@@ -932,9 +939,6 @@ class Players{
 
             const matches = await matchManager.getAllPlayerMatches(playerId);
 
-            //console.log(matches);
-
-
             const countriesManager = new CountriesManager();
 
             await countriesManager.deletePlayerViaMatchData(matches);
@@ -1020,8 +1024,11 @@ class Players{
 
             await this.deletePlayerTotals(playerId);
 
+            return true;
+
         }catch(err){    
             console.trace(err);
+            return false;
         }
     }
 
