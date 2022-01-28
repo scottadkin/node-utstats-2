@@ -70,6 +70,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	const flag = summary.country;
 
 	const name = summary.name;
+	const parsedSummary = summary;
 	summary = JSON.stringify(summary);
 
 	const country = Countires(flag);
@@ -142,10 +143,10 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 		elems[pageOrder["Display Assault & Domination"]] = <PlayerADSummary 
 			key={4} 
-			dom={summary.dom_caps} 
-			domBest={summary.dom_caps_best} 
-			domBestLife={summary.dom_caps_best_life} 
-			assault={summary.assault_objectives}
+			dom={parsedSummary.dom_caps} 
+			domBest={parsedSummary.dom_caps_best} 
+			domBestLife={parsedSummary.dom_caps_best_life} 
+			assault={parsedSummary.assault_objectives}
 		/>;
     }
 

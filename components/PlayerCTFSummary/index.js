@@ -10,9 +10,6 @@ class PlayerCTFSummary extends React.Component{
 
         super(props);
         this.state = {"mode": 0};
-
-        console.log(props);
-
         this.changeMode = this.changeMode.bind(this);
     }
 

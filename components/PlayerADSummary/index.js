@@ -5,7 +5,7 @@ const PlayerADSummary = ({dom, domBest, domBestLife, assault}) =>{
     if(dom === 0 && assault === 0) return null;
 
     return <div className="special-table">
-            <div className="default-header">Assault & Domination</div>
+            <div className="default-header">Assault &amp; Domination</div>
             <Table2 width={1}>
                 <tr>
                     <th>Assault Objectives Captured</th>
