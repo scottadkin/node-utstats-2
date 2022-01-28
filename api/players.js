@@ -882,13 +882,14 @@ class Players{
 
                 await spreeManager.changePlayerIds(first.id, second.id);
 
-
+                return true;
             }else{
                 throw new Error("Only found 1 player out of 2, can't merge players.");
             }
 
         }catch(err){
             console.trace(err);
+            return false;
         }
     }
 

@@ -110,6 +110,25 @@ export default async function handler (req, res){
                     res.status(200).json({"error": `There was a problem deleting the player.`});
                     return;
                 }
+
+            }else if(mode === "merge"){
+
+                const matchManager = new Matches();
+
+                const player1 = req.body.player1 ?? null;
+                const player2 = req.body.player2 ?? null;
+
+                if(await playerManager.mergePlayers(player1, player2, matchManager)){
+
+                    res.status(200).json({"message": "Merged players successfully"});
+                    return;
+
+                }else{
+
+                    res.status(200).json({"error": "There was a problem merging the players."});
+                    return;
+                }
+                //mergePlayers(first, second, matchManager)
             }
 
             res.status(200).json({"error": "Unknown mode"});

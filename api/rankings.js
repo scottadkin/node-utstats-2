@@ -114,8 +114,8 @@ class Rankings{
 
             const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?,?,?,?)";
 
-            if(matchScore !== matchScore) matchScore = 0;
-            if(matchChange !== matchChange) matchChange = 0;
+            if(matchScore !== matchScore || matchScore === Infinity) matchScore = 0;
+            if(matchChange !== matchChange || matchChange === Infinity) matchChange = 0;
 
             if(ranking !== ranking) ranking = 0;
             if(rankingChange !== rankingChange) rankingChange = 0;
