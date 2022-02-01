@@ -1630,13 +1630,99 @@ class Players{
     }
 
 
-    async nameSearch(name){
+    async adminTotalsSearchFor(columnName, value){
 
-        const query = "SELECT id,name,ip FROM nstats_player_totals WHERE name LIKE ?";
+        columnName = columnName.toLowerCase();
 
-        const result = await mysql.simpleQuery(query, [`%${$name}%`]);
+        const valid = ["name", "ip"];
 
-        console.log(result);
+        if(valid.indexOf(columnName) === -1) return [];
+
+        const query = `SELECT player_id,name,ip,country,first,last,playtime FROM nstats_player_totals WHERE ${columnName} LIKE ? AND gametype=0`;
+
+        const result = await mysql.simpleQuery(query, [`%${value}%`]);
+
+        return result;
+    }
+
+    async ipSearch(ip){
+
+        const query = `SELECT player_id, MIN(match_date) as first_match, MAX(match_date) as last_match, SUM(playtime) as playtime,
+            COUNT(*) as total_matches
+            FROM nstats_player_matches
+            WHERE ip LIKE ? GROUP BY ip`;
+
+        return await mysql.simpleQuery(query, [`${ip}`]);
+    }
+
+    async bulkIpSearch(ips){
+
+        const data = {};
+
+        for(let i = 0; i < ips.length; i++){
+
+            const ip = ips[i];
+            data[ip] = await this.ipSearch(ip);
+        }
+
+        return data;
+    }
+
+    async adminSearch(name, ip){
+
+        let nameTotalsResult = [];
+        let ipTotalsResult = [];
+
+        const totalsResult = [];
+        const usedIps = [];
+        const playerIds = [];
+        const playerNames = [];
+
+        if(name !== null && name !== ""){
+
+            nameTotalsResult = await this.adminTotalsSearchFor("name", name);
+
+            totalsResult.push(...nameTotalsResult);
+
+            for(let i = 0; i < nameTotalsResult.length; i++){
+
+                const n = nameTotalsResult[i];
+
+                if(usedIps.indexOf(n.ip) === -1) usedIps.push(n.ip);
+                if(playerIds.indexOf(n.player_id) === -1) playerIds.push(n.player_id);
+                if(playerNames.indexOf(n.name) === -1) playerNames.push(n.name);
+            }
+
+        }
+
+        if(ip !== null && ip !== ""){
+
+            ipTotalsResult = await this.adminTotalsSearchFor("ip", ip);
+            totalsResult.push(...ipTotalsResult);
+
+            for(let i = 0; i < ipTotalsResult.length; i++){
+
+                const n = ipTotalsResult[i];
+
+                if(usedIps.indexOf(n.ip) === -1) usedIps.push(n.ip);
+                if(playerIds.indexOf(n.player_id) === -1) playerIds.push(n.player_id);
+                if(playerNames.indexOf(n.name) === -1) playerNames.push(n.name);
+            }
+        }
+
+     
+        console.log(await this.bulkIpSearch(usedIps));
+
+
+        return
+        return {
+            "nameResult": nameTotalsResult,
+            "ipResult": ipTotalsResult,
+            "names": playerNames,
+            "ids": playerIds,
+            "ips": usedIps,
+        };
+
     }
 
 }

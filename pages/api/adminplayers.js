@@ -134,6 +134,17 @@ export default async function handler (req, res){
 
                 const name = req.body.name ?? null;
 
+                if(name === null || name === ""){
+
+                    res.status(200).json({"error": "Name for user search was null or blank."});
+                    return;
+                }
+
+                const totalsResult = await playerManager.adminSearch(name, null);
+
+                console.log(totalsResult);
+
+
             }
 
             res.status(200).json({"error": "Unknown mode"});

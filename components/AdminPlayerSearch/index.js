@@ -23,6 +23,8 @@ class AdminPlayerSearch extends React.Component{
                 "body": JSON.stringify({"mode": "namesearch", "name": name})
             });
 
+            
+
         }catch(err){
             console.trace(err);
         }
