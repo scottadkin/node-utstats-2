@@ -1652,7 +1652,7 @@ class Players{
             SUM(playtime) as playtime, country,
             COUNT(*) as total_matches, ip
             FROM nstats_player_matches
-            WHERE ip LIKE ? GROUP BY ip`;
+            WHERE ip LIKE ? GROUP BY player_id, ip`;
 
         return await mysql.simpleQuery(query, [`%${ip}%`]);
 
