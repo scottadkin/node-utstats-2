@@ -2,14 +2,15 @@
 
 :root{
 	--color-1:rgb(22,22,22);
-	--color-1a:rgba(22,22,22,0.7);
+	--color-1a:rgba(22,22,22,0.8);
 	--linear-gradient-1:linear-gradient(to bottom, rgb(22,22,22), rgb(33,33,33));
 	--linear-gradient-2:linear-gradient(to bottom, rgb(44,44,44), rgb(55,55,55));
 	--linear-gradient-3:linear-gradient(to bottom right, rgb(24,24,24), rgb(46,46,46), rgb(24,24,24));
 	--linear-gradient-4:linear-gradient(to bottom, rgb(0, 96, 175), rgb(18, 50, 156));
 	--color-2:rgb(38,38,38);
+	--color-2a:rgb(38,38,38, 0.8);
 	--color-3:rgb(16,16,16);
-	--color-3a:rgba(16,16,16,0.7);
+	--color-3a:rgba(16,16,16,0.8);
 	--color-4:rgb(54,54,54);
 	--color-5:rgb(46,46,46);
 	--color-6:rgb(200,200,200);
@@ -180,7 +181,6 @@ table{
 	text-align: center;
 	margin-left:auto;
 	margin-right:auto;
-	background-color:var(--color-1);
 	margin-left:auto;
 	margin-right:auto;
 	max-width:1250px;
@@ -190,16 +190,15 @@ table{
 th{
 	font-weight:400;
 	color:yellow;
-	font-size:15px;
-	padding:15px 0px;
-	background-color:var(--color-3);
-	background:linear-gradient(to bottom, var(--color-1), var(--color-3));
+	font-size:14px;
+	padding:20px 0px;
+	background-color:rgba(0,0,0,0.25);
 }
 
 td{
 	font-weight:400;
 	padding:12px 5px;
-	font-size:15px;
+	font-size:14px;
 }
 
 tr{
@@ -207,18 +206,15 @@ tr{
 }
 
 tr:nth-child(odd){
-	background-color:var(--color-1);
-	background:var(--linear-gradient-1);
+	background-color:var(--color-1a);
 }
 
 tr:nth-child(even){
-	background-color:var(--color-2);
-	background:var(--linear-gradient-2);
+	background-color:var(--color-2a);
 }
 
 tr:nth-child(odd):hover, tr:nth-child(even):hover{
-	background-color:var(--color-4);
-	background:linear-gradient(to bottom, rgb(11,11,11), rgb(22,22,22));
+	background-color:var(--color-3a);
 	color:yellow;
 }
 
@@ -278,38 +274,29 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .team-none{
-	background-color:rgb(32,32,32);
-	/*background:linear-gradient(to bottom, rgb(16,16,16), rgb(24,24,24));*/
-	background:linear-gradient(to bottom, rgb(12,12,12), rgb(32,32,32));
+	background-color:rgba(0,0,0, 0.25);
+	
 }
 
 
 .duo div:nth-child(1), .trio div:nth-child(1), .quad div:nth-child(1), .team-red{
-	background-color:rgb(89,0,0);
-	background:linear-gradient(to bottom, rgb(89,0,0), rgb(69,0,0));
-	/*background:linear-gradient(to bottom right, rgb(79,0,0), rgb(129,0,0));*/
+	background-color:rgba(89,0,0,0.75);
 }
 
 
 
 .duo div:nth-child(2), .trio div:nth-child(2), .quad div:nth-child(2), .team-blue{
-	background-color:rgb(20,61,116);
-	background:linear-gradient(to bottom, rgb(20,61,116), rgb(0,41,96));
-	/*background:linear-gradient(to bottom right, rgb(0,41,96), rgb(21,61,116));*/
+	background-color:rgba(20,61,116,0.75);
 }
 
 
 .duo div:nth-child(3), .trio div:nth-child(3), .quad div:nth-child(3), .team-green{
-	background-color:rgb(0,66,0);
-	background:linear-gradient(to bottom, rgb(0,66,0), rgb(0,46,0));
-	/*background:linear-gradient(to bottom right, rgb(0,46,0), rgb(20,66,20));*/
+	background-color:rgba(0,66,0,0.75);
 }
 
 
 .duo div:nth-child(4), .trio div:nth-child(4), .quad div:nth-child(4), .team-yellow{
-	background-color:rgb(91,91,0);
-	background:linear-gradient(to bottom, rgb(91,91,0), rgb(71,71,0));
-	/*background:linear-gradient(to bottom right, rgb(71,71,0), rgb(91,91,20));*/
+	background-color:rgba(91,91,0, 0.75);
 }
 
 
