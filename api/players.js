@@ -1638,7 +1638,8 @@ class Players{
 
         if(valid.indexOf(columnName) === -1) return [];
 
-        const query = `SELECT player_id,name,ip,country,first,last,playtime FROM nstats_player_totals WHERE ${columnName} LIKE ? AND gametype=0`;
+        const query = `SELECT player_id,name,ip,country,first,last,playtime,matches as total_matches
+        FROM nstats_player_totals WHERE ${columnName} LIKE ? AND gametype=0 ORDER BY ${columnName} ASC`;
 
         const result = await mysql.simpleQuery(query, [`%${value}%`]);
 
@@ -1648,22 +1649,57 @@ class Players{
     async ipSearch(ip){
 
         const query = `SELECT player_id, MIN(match_date) as first_match, MAX(match_date) as last_match, SUM(playtime) as playtime,
-            COUNT(*) as total_matches
+            COUNT(*) as total_matches, ip
             FROM nstats_player_matches
             WHERE ip LIKE ? GROUP BY ip`;
 
-        return await mysql.simpleQuery(query, [`${ip}`]);
+        const result = await mysql.simpleQuery(query, [`${ip}`]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
     }
 
     async bulkIpSearch(ips){
 
-        const data = {};
+        const data = [];
+        const playerIds = [];
 
         for(let i = 0; i < ips.length; i++){
 
             const ip = ips[i];
-            data[ip] = await this.ipSearch(ip);
+
+            const result = await this.ipSearch(ip)
+
+            if(result === null) continue;
+
+            if(playerIds.indexOf(result.player_id) === -1){
+                playerIds.push(result.player_id);
+            }
+            
+
+            data.push(result);
         }
+
+        const playerNames = await this.getJustNamesByIds(playerIds);
+
+
+        Functions.setIdNames(data, playerNames, "player_id", "name");
+
+        data.sort((a, b) =>{
+
+            a = a.total_matches;
+            b = b.total_matches;
+
+            if(a < b){
+                return 1;
+            }else if(a > b){
+                return -1;
+            }
+            return 0;
+        });
 
         return data;
     }
@@ -1711,16 +1747,17 @@ class Players{
         }
 
      
-        console.log(await this.bulkIpSearch(usedIps));
+        const ipStats = await this.bulkIpSearch(usedIps);
 
+        //console.log(ipStats);
 
-        return
+        //console.log(ipTotalsResult);
+
+        //return
         return {
             "nameResult": nameTotalsResult,
-            "ipResult": ipTotalsResult,
-            "names": playerNames,
-            "ids": playerIds,
-            "ips": usedIps,
+           // "ipResult": ipTotalsResult,
+            "ipDetails": ipStats 
         };
 
     }

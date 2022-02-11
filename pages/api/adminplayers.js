@@ -26,6 +26,8 @@ export default async function handler (req, res){
             const playerManager = new Players();
 
 
+            console.log(mode);
+
             if(mode === "general"){
 
                 const totalPlayers = await playerManager.getTotalPlayers();
@@ -140,9 +142,14 @@ export default async function handler (req, res){
                     return;
                 }
 
-                const totalsResult = await playerManager.adminSearch(name, null);
+                const result = await playerManager.adminTotalsSearchFor("name", name);
 
-                console.log(totalsResult);
+                res.status(200).json({"names": result});
+                return;
+                //const totalsResult = await playerManager.adminSearch(name, null);
+
+
+                //console.log(totalsResult);
 
 
             }

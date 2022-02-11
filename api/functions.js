@@ -568,7 +568,7 @@ class Functions{
 
         if(seconds === 0) return 0;
 
-        return seconds / (60 * 60)
+        return (seconds / (60 * 60)).toFixed(2);
     }
 
     static reduceGraphDataPoints(inputData, max){
