@@ -1648,18 +1648,15 @@ class Players{
 
     async ipSearch(ip){
 
-        const query = `SELECT player_id, MIN(match_date) as first_match, MAX(match_date) as last_match, SUM(playtime) as playtime,
+        const query = `SELECT player_id, MIN(match_date) as first_match, MAX(match_date) as last_match, 
+            SUM(playtime) as playtime, country,
             COUNT(*) as total_matches, ip
             FROM nstats_player_matches
             WHERE ip LIKE ? GROUP BY ip`;
 
-        const result = await mysql.simpleQuery(query, [`${ip}`]);
+        return await mysql.simpleQuery(query, [`%${ip}%`]);
 
-        if(result.length > 0){
-            return result[0];
-        }
-
-        return null;
+   
     }
 
     async bulkIpSearch(ips){
@@ -1673,18 +1670,30 @@ class Players{
 
             const result = await this.ipSearch(ip)
 
-            if(result === null) continue;
+            /*if(result === null) continue;
 
             if(playerIds.indexOf(result.player_id) === -1){
                 playerIds.push(result.player_id);
+            }*/
+
+            if(result.length === 0) continue;
+
+            for(let x = 0; x < result.length; x++){
+
+                const r = result[x];
+
+                if(playerIds.indexOf(r.player_id) === -1){
+                    playerIds.push(r.player_id);
+                }
             }
             
 
-            data.push(result);
+            data.push(...result);
         }
 
         const playerNames = await this.getJustNamesByIds(playerIds);
 
+        console.log(playerNames);
 
         Functions.setIdNames(data, playerNames, "player_id", "name");
 

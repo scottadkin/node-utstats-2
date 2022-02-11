@@ -157,13 +157,35 @@ export default async function handler (req, res){
                     return;
                 }
 
-                const result = await playerManager.adminTotalsSearchFor("ip", ip);
+                const result = await playerManager.bulkIpSearch([ip]);
 
                 console.log(result);
 
                 res.status(200).json({"ips": result});
                 return;
 
+            }else if(mode === "nameip"){
+
+                const ip = req.body.ip ?? null;
+                const name = req.body.name ?? null;
+
+
+                let ipResult = [];
+
+                if(ip !== null && ip !== ""){
+                    ipResult = await playerManager.adminTotalsSearchFor("ip", ip);
+                }
+
+                let nameResult = [];
+
+                if(name !== null && name !== ""){
+                    nameResult = await playerManager.adminTotalsSearchFor("name", name);
+                }
+
+
+
+                res.status(200).json({"ips": ipResult, "names": nameResult});
+                return;
             }
 
             res.status(200).json({"error": "Unknown mode"});

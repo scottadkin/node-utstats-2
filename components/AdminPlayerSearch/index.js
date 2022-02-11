@@ -191,8 +191,8 @@ class AdminPlayerSearch extends React.Component{
                 names.push(<tr key={i}>
                     <td className="text-left"><Link href={`/player/${r.player_id}`}><a>{r.name}</a></Link></td>
                     <td>{r.ip} <CountryFlag country={r.country}/></td>
-                    <td>{Functions.convertTimestamp(r.first, true)}</td>
-                    <td>{Functions.convertTimestamp(r.last, true)}</td>
+                    <td>{Functions.convertTimestamp(r.first ?? r.first_match, true)}</td>
+                    <td>{Functions.convertTimestamp(r.last ?? r.last_match, true)}</td>
                     <td>{Functions.toHours(r.playtime)} Hours</td>
                     <td>{r.total_matches}</td>
                 </tr>);
