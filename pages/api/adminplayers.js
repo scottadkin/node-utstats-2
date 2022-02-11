@@ -146,11 +146,23 @@ export default async function handler (req, res){
 
                 res.status(200).json({"names": result});
                 return;
-                //const totalsResult = await playerManager.adminSearch(name, null);
 
+            }else if(mode === "ipsearch"){
 
-                //console.log(totalsResult);
+                const ip = req.body.ip ?? null;
 
+                if(ip === null || ip === ""){
+
+                    res.status(200).json({"error": "ip for user search was null or blank."});
+                    return;
+                }
+
+                const result = await playerManager.adminTotalsSearchFor("ip", ip);
+
+                console.log(result);
+
+                res.status(200).json({"ips": result});
+                return;
 
             }
 

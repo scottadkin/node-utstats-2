@@ -12,12 +12,14 @@ class AdminPlayerSearch extends React.Component{
         super(props);
 
         this.state = {
+            "bSearched": false,
             "nameResults": [],
             "ipResults": [],
             "bLoading": false,
             "error": null,
             "nameSearch": "",
             "ipSearch": "",
+            "bExactNameSearch": false
 
         };
         this.search = this.search.bind(this);
@@ -38,7 +40,8 @@ class AdminPlayerSearch extends React.Component{
                 "nameSearch": name,
                 "ipSearch": ip,
                 "error": null,
-                "bLoading": true
+                "bLoading": true,
+                "bSearched": true
             });
 
             const body = {};
@@ -74,11 +77,13 @@ class AdminPlayerSearch extends React.Component{
 
             const res = await req.json();
 
+            console.log(res);
+
             if(res.error === undefined){
 
                 this.setState({
                     "nameResults": res.names ?? [], 
-                    "ipResult": res.ips ?? [], 
+                    "ipResults": res.ips ?? [], 
                     "bLoading": false,
                     "error": null
                 });
@@ -108,14 +113,12 @@ class AdminPlayerSearch extends React.Component{
 
     renderNameSearch(){
 
+        if(!this.state.bSearched || this.state.nameSearch === "") return null;
+
         let elems = null;
 
-
-        if(this.state.bLoading){
-
-            elems = <Loading />;
-        }
-
+        if(this.state.bLoading) return <Loading />;
+        
         if(this.state.error !== null){
 
             elems = <div>
@@ -157,7 +160,61 @@ class AdminPlayerSearch extends React.Component{
 
 
         return <div>
-            <div className="default-header">Name Search Result for "{this.state.nameSearch}"</div>
+            <div className="default-header">Names Matching "{this.state.nameSearch}"</div>
+            {elems}
+        </div>
+    }
+
+    renderIPSearch(){
+
+        if(!this.state.bSearched || this.state.ipSearch === "") return null;
+
+        let elems = null;
+
+        if(this.state.bLoading) return <Loading />;
+        
+        if(this.state.error !== null){
+
+            elems = <div>
+                {this.state.error}
+            </div>
+        }
+
+        if(this.state.ipResults.length > 0){
+
+            const names = [];
+
+            for(let i = 0; i < this.state.ipResults.length; i++){
+
+                const r = this.state.ipResults[i];
+
+                names.push(<tr key={i}>
+                    <td className="text-left"><Link href={`/player/${r.player_id}`}><a>{r.name}</a></Link></td>
+                    <td>{r.ip} <CountryFlag country={r.country}/></td>
+                    <td>{Functions.convertTimestamp(r.first, true)}</td>
+                    <td>{Functions.convertTimestamp(r.last, true)}</td>
+                    <td>{Functions.toHours(r.playtime)} Hours</td>
+                    <td>{r.total_matches}</td>
+                </tr>);
+            }
+
+            elems = <Table2 width={1}>
+                <tr>
+                    <th>Name</th>
+                    <th>IP</th>
+                    <th>First</th>
+                    <th>Last</th>
+                    <th>Playtime</th>
+                    <th>Matches</th>
+                </tr>
+                {names}
+            </Table2>
+
+        }
+
+
+        return <div>
+            <div className="default-header">IPS Matching "{this.state.ipSearch}"</div>
             {elems}
         </div>
     }
@@ -187,7 +244,9 @@ class AdminPlayerSearch extends React.Component{
                     <input type="submit" className="search-button" value="Search"/>
                 </form>
             </div>
+            {this.renderIPSearch()}
             {this.renderNameSearch()}
+
         </div>
     }
 }
