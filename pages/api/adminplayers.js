@@ -169,7 +169,6 @@ export default async function handler (req, res){
                 const ip = req.body.ip ?? null;
                 const name = req.body.name ?? null;
 
-
                 let ipResult = [];
 
                 if(ip !== null && ip !== ""){
@@ -182,10 +181,23 @@ export default async function handler (req, res){
                     nameResult = await playerManager.adminTotalsSearchFor("name", name);
                 }
 
-
-
                 res.status(200).json({"ips": ipResult, "names": nameResult});
                 return;
+
+            }else if(mode === "iphistory"){
+
+                const ip = req.body.ip ?? null;
+
+                if(ip === null){
+                    res.status(200).json({"error": "You have not entered an IP address."});
+                    return;
+                }
+
+                const result = await playerManager.getFullIPHistory(ip);
+                
+                res.status(200).json({"matchData": result.matchData, "playerNames": result.playerNames});
+                return;
+
             }
 
             res.status(200).json({"error": "Unknown mode"});

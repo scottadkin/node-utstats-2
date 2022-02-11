@@ -1771,6 +1771,22 @@ class Players{
 
     }
 
+    async getFullIPHistory(ip){
+
+        const query = "SELECT match_id,player_id,country,match_date FROM nstats_player_matches WHERE ip=? ORDER BY match_id DESC";
+
+        const result = await mysql.simpleQuery(query, [ip]);
+
+        const uniquePlayerIds = Functions.getUniqueValues(result, "player_id");
+
+        const playerNames = await this.getJustNamesByIds(uniquePlayerIds);
+
+
+        //Functions.setIdNames(result, playerNames, "player_id", "name");
+
+        return {"matchData": result, "playerNames": playerNames};
+    }
+
 }
 
 
