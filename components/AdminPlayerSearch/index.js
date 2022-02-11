@@ -5,6 +5,7 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import Notification from '../Notification';
+import BasicPageSelect from '../BasicPageSelect';
 
 class AdminPlayerSearch extends React.Component{
 
@@ -24,13 +25,15 @@ class AdminPlayerSearch extends React.Component{
             "bExactNameSearch": false,
             "ipHistory": null,
             "ipHistoryError": null,
-            "ipHistoryErrorDisplayUntil": 0
+            "ipHistoryErrorDisplayUntil": 0,
+            "ipHistoryPage": 0
 
         };
 
         this.search = this.search.bind(this);
         this.changeMode = this.changeMode.bind(this);
         this.ipHistory = this.ipHistory.bind(this);
+        this.changeIpHistoryPage = this.changeIpHistoryPage.bind(this);
     }
 
     changeMode(id){
@@ -341,16 +344,41 @@ class AdminPlayerSearch extends React.Component{
 
     }
 
+    changeIpHistoryPage(page){
+
+        if(page < 0) return;
+
+        if(page > Math.floor(this.state.ipHistory.matchData.length / 10)){
+
+            return;
+        }
+
+        this.setState({"ipHistoryPage": page});
+    }
+
     renderIPHistoryList(){
 
         const rows = [];
 
-        for(let i = 0; i < this.state.ipHistory.matchData.length; i++){
+        const perPage = 10;
+
+        const start = this.state.ipHistoryPage * perPage; 
+
+        let end = this.state.ipHistory.matchData.length;
+
+        if(start + perPage < end){
+            end = start + perPage;
+        }
+
+        console.log(start, end);
+
+
+        for(let i = start; i < end; i++){
 
             const m = this.state.ipHistory.matchData[i];
 
             rows.push(<tr key={i}>
-                <td>{m.match_id}</td>
+                <td><Link href={`/match/${m.match_id}`}><a>{m.match_id}</a></Link></td>
                 <td>{Functions.convertTimestamp(m.match_date, true)}</td>
                 <td>{this.state.ipHistory.playerNames[m.player_id] ?? "Not Found"}</td>
             </tr>);
@@ -358,6 +386,9 @@ class AdminPlayerSearch extends React.Component{
 
         return <div>
             <div className="default-header">IP History</div>
+            <BasicPageSelect results={this.state.ipHistory.matchData.length} perPage={perPage} changePage={this.changeIpHistoryPage}
+                page={this.state.ipHistoryPage} width={2}
+            />
             <Table2 width={2}>
                 <tr>
                     <th>Match ID</th>

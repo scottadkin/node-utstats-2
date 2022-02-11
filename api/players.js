@@ -1773,7 +1773,7 @@ class Players{
 
     async getFullIPHistory(ip){
 
-        const query = "SELECT match_id,player_id,country,match_date FROM nstats_player_matches WHERE ip=? ORDER BY match_id DESC";
+        const query = "SELECT match_id,player_id,country,match_date FROM nstats_player_matches WHERE ip=? ORDER BY match_date DESC";
 
         const result = await mysql.simpleQuery(query, [ip]);
 

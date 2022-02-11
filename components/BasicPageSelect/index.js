@@ -17,7 +17,13 @@ class BasicPageSelect extends React.Component{
 
         if(totalPages < 1) totalPages = 1;
 
-        return <div className={`${styles.wrapper} center`}>
+        const width = this.props.width ?? 1;
+
+        let widthClass = `var(--max-width-${width})`;
+
+    
+
+        return <div className={`${styles.wrapper} center`} style={{"maxWidth": widthClass}}>
 
             <div className={styles.button} onClick={(() =>{
                 this.props.changePage(this.props.page - 1);

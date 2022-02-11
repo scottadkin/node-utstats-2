@@ -1,22 +1,22 @@
 .wrapper{
-	background-color:var(--color-3);
+	background-color:var(--color-3a);
 	height:40px;
-	max-width:var(--max-width-1);
 	width:var(--width-1);
 	display:grid;
 	grid-template-columns: 25% 50% 25%;
 }
 
 .button{
-	background-color:var(--color-4);
+	background-color:var(--color-4a);
 	height:40px;
 	line-height:40px;
 	transition: var(--transition-1);
 	user-select: none;
+	font-size:14px;
 }
 
 .button:hover{
-	background-color:var(--color-2);
+	background-color:var(--color-2a);
 	cursor: pointer;
 	color:yellow;
 }
