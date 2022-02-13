@@ -571,7 +571,7 @@ class AdminPlayerSearch extends React.Component{
                 <td>{Functions.convertTimestamp(a.first_match, true)}</td>
                 <td>{Functions.convertTimestamp(a.last_match, true)}</td>
                 <td>{a.total_matches}</td>
-                <td>{Functions.toHours(a.total_playtime)}</td>
+                <td>{Functions.toHours(a.total_playtime)} Hours</td>
             </tr>);
         }
 
@@ -589,6 +589,43 @@ class AdminPlayerSearch extends React.Component{
                     <th>First Seen</th>
                     <th>Last Seen</th>
                     <th>Matches</th>
+                    <th>Playtime</th>
+                </tr>
+                {rows}
+            </Table2>
+        </div>
+    }
+
+    renderPlayerHistoryIps(){
+
+        const rows = [];
+
+        for(let i = 0; i < this.state.playerHistory.usedIps.data.length; i++){
+
+            const d = this.state.playerHistory.usedIps.data[i];
+
+            rows.push(<tr key={i}>
+                <td>{d.ip}</td>
+                <td>{Functions.convertTimestamp(d.first_match, true)}</td>
+                <td>{Functions.convertTimestamp(d.last_match, true)}</td>
+                <td>{d.total_matches}</td>
+                <td>{Functions.toHours(d.total_playtime)} Hours</td>
+            </tr>);
+        }
+
+        return <div key="ips">
+            <div className="default-header">Used IPS</div>
+            <div className="form m-bottom-25">
+                <div className="form-info">
+                    IPs used by the player's profile.
+                </div>
+            </div>
+            <Table2 width={1}>
+                <tr>
+                    <th>IP Address</th>
+                    <th>First Used</th>
+                    <th>Last Used</th>
+                    <th>Total Matches</th>
                     <th>Playtime</th>
                 </tr>
                 {rows}
@@ -621,9 +658,7 @@ class AdminPlayerSearch extends React.Component{
 
                 elems.push(this.renderAliases());
 
-                elems.push(<div key="ips">
-                    <div className="default-header">Used IPS</div>
-                </div>);
+                elems.push(this.renderPlayerHistoryIps());
             }
         }
 

@@ -1786,7 +1786,8 @@ class Players{
 
     async getUsedIps(playerId){
 
-        const query = `SELECT ip, MIN(match_date) as first_match, MAX(match_date) as last_match, COUNT(*) as total_matches 
+        const query = `SELECT ip, MIN(match_date) as first_match, MAX(match_date) as last_match, COUNT(*) as total_matches,
+        SUM(playtime) as total_playtime
         FROM nstats_player_matches WHERE player_id=? GROUP BY(ip)`;
 
         const result = await mysql.simpleQuery(query, [playerId]);
