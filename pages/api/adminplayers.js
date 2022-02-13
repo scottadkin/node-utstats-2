@@ -198,6 +198,19 @@ export default async function handler (req, res){
                 res.status(200).json({"matchData": result.matchData, "playerNames": result.playerNames});
                 return;
 
+            }else if(mode === "playerhistory"){
+
+                const playerId = req.body.playerId ?? -1;
+
+                if(playerId === -1){
+                    res.status(200).json({"error": "You have not selected a player."});
+                    return;
+                }
+
+                const result = await playerManager.getFullHistory(playerId);
+
+                res.status(200).json(result);
+                return;
             }
 
             res.status(200).json({"error": "Unknown mode"});

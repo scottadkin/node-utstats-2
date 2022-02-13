@@ -1781,10 +1781,72 @@ class Players{
 
         const playerNames = await this.getJustNamesByIds(uniquePlayerIds);
 
-
-        //Functions.setIdNames(result, playerNames, "player_id", "name");
-
         return {"matchData": result, "playerNames": playerNames};
+    }
+
+    async getUsedIps(playerId){
+
+        const query = `SELECT ip, MIN(match_date) as first_match, MAX(match_date) as last_match, COUNT(*) as total_matches 
+        FROM nstats_player_matches WHERE player_id=? GROUP BY(ip)`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        const ips = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            ips.push(result[i].ip);
+
+        }
+
+        return {"ips": ips, "data": result}
+
+    }
+
+    async getAliasesByIPs(ips){
+
+        if(ips.length === 0) return [];
+
+        const query = `SELECT player_id, MIN(match_date) as first_match, MAX(match_date) as last_match, 
+        COUNT(*) as total_matches, SUM(playtime) as total_playtime
+        FROM nstats_player_matches WHERE ip IN(?) GROUP BY(player_id)`;
+
+        const result = await mysql.simpleQuery(query, [ips]);
+
+        const playerIds = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            playerIds.push(result[i].player_id);
+        }
+
+        const playerDetails = await this.getNamesByIds(playerIds, true);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(playerDetails[r.player_id] !== undefined){
+
+                r.name = playerDetails[r.player_id].name;
+                r.country = playerDetails[r.player_id].country;
+
+            }else{
+                r.name = "Not Found";
+                r.country = "xx";
+            }
+        }
+        
+        return result;
+    }
+
+    async getFullHistory(playerId){
+
+        const usedIps = await this.getUsedIps(playerId);
+        const aliases = await this.getAliasesByIPs(usedIps.ips);
+
+        return {"usedIps": usedIps, "aliases": aliases};
+        
     }
 
 }

@@ -14,7 +14,7 @@ class AdminPlayerSearch extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 2,
+            "mode": 1,
             "bSearched": false,
             "nameResults": [],
             "ipResults": [],
@@ -26,7 +26,13 @@ class AdminPlayerSearch extends React.Component{
             "ipHistory": null,
             "ipHistoryError": null,
             "ipHistoryErrorDisplayUntil": 0,
-            "ipHistoryPage": 0
+            "ipHistoryPage": 0,
+            "bLoadingNameList": true,
+            "nameList": [],
+            "playerHistory": null,
+            "bLoadingPlayerHistory": false,
+            "playerHistoryError": null,
+            "playerHistoryErrorDisplayUntil": 0
 
         };
 
@@ -34,6 +40,79 @@ class AdminPlayerSearch extends React.Component{
         this.changeMode = this.changeMode.bind(this);
         this.ipHistory = this.ipHistory.bind(this);
         this.changeIpHistoryPage = this.changeIpHistoryPage.bind(this);
+        this.loadPlayerHistory = this.loadPlayerHistory.bind(this);
+    }
+
+
+    async loadPlayerHistory(e){
+
+        try{
+
+            e.preventDefault();
+
+            this.setState({
+                "bLoadingPlayerHistory": true, 
+                "playerHistory": null, 
+                "playerHistoryError": null,
+                "playerHistoryErrorDisplayUntil": 0
+            });
+
+            const playerId = parseInt(e.target[0].value);
+
+            const req = await fetch("/api/adminplayers",{
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "playerhistory", "playerId": playerId})
+            });
+
+            const res = await req.json();
+
+            console.log(res);
+
+            if(res.error === undefined){
+
+                this.setState({"bLoadingPlayerHistory": false, "playerHistory": res, "playerHistoryError": null});
+
+            }else{
+
+                this.setState({
+                    "bLoadingPlayerHistory": false, 
+                    "playerHistory": null, 
+                    "playerHistoryError": res.error,
+                    "playerHistoryErrorDisplayUntil": Math.ceil(Date.now() * 0.001) + 5
+                });
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async loadNameList(){
+
+        try{
+
+            const req = await fetch("/api/adminplayers", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "allnames"})
+            });
+
+            const res = await req.json();
+
+            if(res.error === undefined){
+
+                this.setState({"bLoadingNameList": false, "nameList": res.names});
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    async componentDidMount(){
+
+        await this.loadNameList();
     }
 
     changeMode(id){
@@ -49,7 +128,12 @@ class AdminPlayerSearch extends React.Component{
             "bExactNameSearch": false,
             "ipHistory": null,
             "ipHistoryError": null,
-            "ipHistoryErrorDisplayUntil": 0
+            "ipHistoryErrorDisplayUntil": 0,
+            "ipHistoryPage": 0,
+            "playerHistory": null,
+            "bLoadingPlayerHistory": false,
+            "playerHistoryError": null,
+            "playerHistoryErrorDisplayUntil": 0
         });
     }
 
@@ -324,6 +408,8 @@ class AdminPlayerSearch extends React.Component{
 
     renderAssociatedNames(){
 
+        if(this.state.ipHistory.playerNames === undefined) return null;
+
         const names = [];
 
         for(const [id, name] of Object.entries(this.state.ipHistory.playerNames)){
@@ -358,6 +444,7 @@ class AdminPlayerSearch extends React.Component{
 
     renderIPHistoryList(){
 
+        if(this.state.ipHistory.playerNames === undefined) return null;
         const rows = [];
 
         const perPage = 10;
@@ -370,9 +457,6 @@ class AdminPlayerSearch extends React.Component{
             end = start + perPage;
         }
 
-        console.log(start, end);
-
-
         for(let i = start; i < end; i++){
 
             const m = this.state.ipHistory.matchData[i];
@@ -384,7 +468,7 @@ class AdminPlayerSearch extends React.Component{
             </tr>);
         }
 
-        return <div>
+        return <div key="ips">
             <div className="default-header">IP History</div>
             <BasicPageSelect results={this.state.ipHistory.matchData.length} perPage={perPage} changePage={this.changeIpHistoryPage}
                 page={this.state.ipHistoryPage} width={2}
@@ -446,6 +530,122 @@ class AdminPlayerSearch extends React.Component{
         </>;
     }
 
+    renderPlayerDropDown(){
+
+        const options = [];
+
+        if(this.state.nameList !== null){
+
+            for(let i = 0; i < this.state.nameList.length; i++){
+
+                const n = this.state.nameList[i];
+
+                options.push(<option key={i} value={n.id}>{n.name}</option>);
+            }
+        }
+
+        return <select className="default-select">
+            <option value="-1">Select a Player...</option>
+            {options}
+        </select>
+    }
+
+
+    renderAliases(){
+
+        const rows = [];
+
+        for(let i = 0; i < this.state.playerHistory.aliases.length; i++){
+
+            const a = this.state.playerHistory.aliases[i];
+
+            rows.push(<tr key={i}>
+                <td>
+                    <Link href={`/player/${a.player_id}`}>
+                        <a>
+                            <CountryFlag country={a.country}/>
+                            {a.name}
+                        </a>
+                    </Link>
+                </td>
+                <td>{Functions.convertTimestamp(a.first_match, true)}</td>
+                <td>{Functions.convertTimestamp(a.last_match, true)}</td>
+                <td>{a.total_matches}</td>
+                <td>{Functions.toHours(a.total_playtime)}</td>
+            </tr>);
+        }
+
+        return <div key="aliases">
+            <div className="default-header">Possible Aliases</div>
+            <div className="form m-bottom-25">
+                <div className="form-info">
+                    Aliases based by ip matches, stats below only include stats from matches where a common ip was used and not the player profile stats.
+                </div>
+            </div>
+
+            <Table2 width={1} players={true}>
+                <tr>
+                    <th>Player</th>
+                    <th>First Seen</th>
+                    <th>Last Seen</th>
+                    <th>Matches</th>
+                    <th>Playtime</th>
+                </tr>
+                {rows}
+            </Table2>
+        </div>
+    }
+
+    renderPlayerHistory(){
+
+        if(this.state.mode !== 1) return null;
+
+        const loading = (this.state.bLoadingNameList) ? <Loading /> : null;
+
+        const elems = [];
+
+        if(this.state.bLoadingPlayerHistory){
+
+            elems.push(<Loading key={-1}/>);
+        }
+
+        let notification = null;
+
+        if(this.state.playerHistoryError !== null){
+
+            notification = <Notification type="error" displayUntil={this.state.playerHistoryErrorDisplayUntil}>{this.state.playerHistoryError}</Notification>;
+
+        }else{
+
+            if(this.state.playerHistory !== null){
+
+                elems.push(this.renderAliases());
+
+                elems.push(<div key="ips">
+                    <div className="default-header">Used IPS</div>
+                </div>);
+            }
+        }
+
+        return <>
+            <div className="form">
+                <div className="form-info m-bottom-25">
+                    Search a player's full history.
+                </div>
+                {loading}
+                <form action="/" method="POST" onSubmit={this.loadPlayerHistory}>
+                    <div className="select-row">
+                        <div className="select-label">Player</div>
+                        <div>{this.renderPlayerDropDown()}</div>
+                    </div>
+                    <input type="submit" className="search-button" value="Load Data"/>
+                </form>
+            </div>
+            {elems}
+            {notification}
+        </>
+    }
+
     render(){
 
         return <div>
@@ -462,6 +662,7 @@ class AdminPlayerSearch extends React.Component{
                 })}>IP History</div>
             </div>
             {this.renderGeneralSearch()}
+            {this.renderPlayerHistory()}
             {this.renderIPHistory()}
 
         </div>
