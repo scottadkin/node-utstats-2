@@ -316,7 +316,7 @@ class AdminPlayerSearch extends React.Component{
 
 
         return <div>
-            <div className="default-header">Names Matching "{this.state.nameSearch}"</div>
+            <div className="default-header">Names Matching &quot;{this.state.nameSearch}&quot;</div>
             {elems}
         </div>
     }
@@ -369,7 +369,7 @@ class AdminPlayerSearch extends React.Component{
         }
 
         return <div>
-            <div className="default-header">IPS Matching "{this.state.ipSearch}"</div>
+            <div className="default-header">IPS Matching &quot;{this.state.ipSearch}&quot;</div>
             {elems}
         </div>
     }
@@ -617,7 +617,7 @@ class AdminPlayerSearch extends React.Component{
             <div className="default-header">Used IPS</div>
             <div className="form m-bottom-25">
                 <div className="form-info">
-                    IPs used by the player's profile.
+                    IPs used by the player&apos;s profile.
                 </div>
             </div>
             <Table2 width={1}>
@@ -665,7 +665,7 @@ class AdminPlayerSearch extends React.Component{
         return <>
             <div className="form">
                 <div className="form-info m-bottom-25">
-                    Search a player's full history.
+                    Search a player&apos;s full history.
                 </div>
                 {loading}
                 <form action="/" method="POST" onSubmit={this.loadPlayerHistory}>

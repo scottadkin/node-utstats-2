@@ -154,7 +154,7 @@ class AdminPlayerMerge extends React.Component{
     renderForm(){
 
         return <div className="form">
-            <div className="form-info m-bottom-25">Merge Players.<br/>Merge two players into one, taking player 2's name.</div>
+            <div className="form-info m-bottom-25">Merge Players.<br/>Merge two players into one, taking player 2&apos;s name.</div>
             <form action="/" method="POST" onSubmit={this.merge}>
                 <div className="select-row">
                     <div className="select-label">Player 1</div>
