@@ -32,7 +32,8 @@ class AdminPlayerSearch extends React.Component{
             "playerHistory": null,
             "bLoadingPlayerHistory": false,
             "playerHistoryError": null,
-            "playerHistoryErrorDisplayUntil": 0
+            "playerHistoryErrorDisplayUntil": 0,
+            "selectedName": null
 
         };
 
@@ -58,6 +59,10 @@ class AdminPlayerSearch extends React.Component{
             });
 
             const playerId = parseInt(e.target[0].value);
+
+            if(e.target[0].value !== -1){
+                this.setState({"selectedName": this.state.nameList[e.target[0].selectedIndex -1].name});
+            }
 
             const req = await fetch("/api/adminplayers",{
                 "headers": {"Content-type": "application/json"},
@@ -133,7 +138,8 @@ class AdminPlayerSearch extends React.Component{
             "playerHistory": null,
             "bLoadingPlayerHistory": false,
             "playerHistoryError": null,
-            "playerHistoryErrorDisplayUntil": 0
+            "playerHistoryErrorDisplayUntil": 0,
+            "selectedName": null
         });
     }
 
@@ -617,7 +623,7 @@ class AdminPlayerSearch extends React.Component{
             <div className="default-header">Used IPS</div>
             <div className="form m-bottom-25">
                 <div className="form-info">
-                    IPs used by the player&apos;s profile.
+                    IPs used by the profile <b>{this.state.selectedName}</b>.
                 </div>
             </div>
             <Table2 width={1}>
