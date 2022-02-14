@@ -225,8 +225,11 @@ export default async function handler (req, res){
                 }
 
                 const result = await playerManager.getConnectionsById(playerId, page, perPage);
+                const totalConnections = await playerManager.getTotalConnectionsById(playerId);
 
-                res.status(200).json({"data": result});
+                console.log(totalConnections);
+
+                res.status(200).json({"data": result, "totalConnections": totalConnections});
                 return;
 
             }

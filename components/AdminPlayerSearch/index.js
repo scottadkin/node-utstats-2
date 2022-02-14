@@ -49,7 +49,21 @@ class AdminPlayerSearch extends React.Component{
         this.changeIpHistoryPage = this.changeIpHistoryPage.bind(this);
         this.loadPlayerHistory = this.loadPlayerHistory.bind(this);
         this.changeAliasPage = this.changeAliasPage.bind(this);
+        this.changeConnectionPage = this.changeConnectionPage.bind(this);
 
+    }
+
+    changeConnectionPage(page){
+
+        if(page < 0) return;
+
+        const perPage = 10;
+
+        const totalPages = Math.floor(this.state.connectionHistory.totalConnections / perPage); 
+
+        if(page > totalPages) return;
+
+        this.setState({"connectionPage": page});
     }
 
     async componentDidUpdate(prevProps, prevState){
@@ -80,7 +94,7 @@ class AdminPlayerSearch extends React.Component{
                 "body": JSON.stringify({
                     "mode": "connections",
                     "playerId": this.state.selectedId, 
-                    "perPage": 25, 
+                    "perPage": 10, 
                     "page": this.state.connectionPage
                 })
             });
@@ -93,7 +107,7 @@ class AdminPlayerSearch extends React.Component{
 
                 this.setState({
                     "bLoadingConnections": false,
-                    "connectionHistory": res.data,     
+                    "connectionHistory": {"data": res.data, "totalConnections": res.totalConnections}     
                 });
 
             }else{
@@ -205,7 +219,7 @@ class AdminPlayerSearch extends React.Component{
     changeMode(id){
 
         this.setState({"mode": id, 
-            "bSearched": false,
+            /*"bSearched": false,
             "nameResults": [],
             "ipResults": [],
             "bLoading": false,
@@ -227,7 +241,7 @@ class AdminPlayerSearch extends React.Component{
             "bLoadingConnections": false,
             "connectionHistory": null,
             "connectionError": false,
-            "connectionErrorDisplayUntil": 0
+            "connectionErrorDisplayUntil": 0*/
         });
     }
 
@@ -788,6 +802,8 @@ class AdminPlayerSearch extends React.Component{
 
     renderConnectionHistory(){
 
+        if(this.state.mode !== 1 || this.state.selectedId === null) return null;
+
         const loading = (this.state.bLoadingConnections) ? <Loading/> : null;
 
         const notification = (this.state.connectionError === null) ? null :
@@ -799,9 +815,9 @@ class AdminPlayerSearch extends React.Component{
 
             const rows = [];
 
-            for(let i = 0; i < this.state.connectionHistory.length; i++){
+            for(let i = 0; i < this.state.connectionHistory.data.length; i++){
 
-                const c = this.state.connectionHistory[i];
+                const c = this.state.connectionHistory.data[i];
 
                 rows.push(<tr key={i}>
                     <td><Link href={`/match/${c.match_id}`}><a>{c.match_id}</a></Link></td>
@@ -818,6 +834,9 @@ class AdminPlayerSearch extends React.Component{
                         Connection history for the profile <b>{this.state.selectedName}</b>
                     </div>
                 </div>
+                <BasicPageSelect width={1} results={this.state.connectionHistory.totalConnections ?? 0}
+                    perPage={10} page={this.state.connectionPage} changePage={this.changeConnectionPage}
+                />
                 <Table2 width={1}>
                     <tr>
                         <th>Match ID</th>

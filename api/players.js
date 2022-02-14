@@ -1693,7 +1693,6 @@ class Players{
 
         const playerNames = await this.getJustNamesByIds(playerIds);
 
-        console.log(playerNames);
 
         Functions.setIdNames(data, playerNames, "player_id", "name");
 
@@ -1874,6 +1873,16 @@ class Players{
 
         return await mysql.simpleQuery(query, [playerId, start, perPage]);
 
+    }
+
+
+    async getTotalConnectionsById(playerId){
+
+        const query = "SELECT COUNT(*) as total_connections FROM nstats_player_matches WHERE player_id=?";
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        return result[0].total_connections;
     }
 
 }
