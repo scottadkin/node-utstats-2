@@ -99,7 +99,7 @@ const RecordsList = ({host, mode, type, title, data, page, perPage, record}) =>{
 
             rows.push(<tr key={i}>
                 <td>{place}{Functions.getOrdinal(place)}</td>
-                <td><Link href={`/player/${d.id}`}><a><CountryFlag host={host} country={d.country}/>{d.name}</a></Link></td>
+                <td><Link href={`/player/${d.id}`}><a><CountryFlag host={host} country={d.country}/> {d.name}</a></Link></td>
                 <td>{d.matches}</td>
                 {(type !== "playtime") ? <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td> : null}
                 <td>{currentValue}</td>
@@ -110,7 +110,7 @@ const RecordsList = ({host, mode, type, title, data, page, perPage, record}) =>{
 
             rows.push(<tr key={i}>
                 <td>{place}{Functions.getOrdinal(place)}</td>
-                <td><Link href={`/player/${d.player_id}`}><a><CountryFlag host={host} country={d.country}/>{d.name}</a></Link></td>
+                <td><Link href={`/player/${d.player_id}`}><a><CountryFlag host={host} country={d.country}/> {d.name}</a></Link></td>
                 <td><Link href={`/match/${d.match_id}`}><a>{d.map}</a></Link></td>
                 {(type !== "playtime") ? <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td> : null}
                 <td>{currentValue}</td>

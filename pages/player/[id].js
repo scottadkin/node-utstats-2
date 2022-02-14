@@ -30,6 +30,7 @@ import PlayerCapRecords from '../../components/PlayerCapRecords';
 import PlayerADSummary from '../../components/PlayerADSummary';
 import PlayerFragSummary from '../../components/PlayerFragSummary';
 import PlayerSpecialEvents from '../../components/PlayerSpecialEvents';
+import Image from 'next/image';
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
@@ -56,8 +57,8 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 								<div className="default-header">
 									There is no player with that id.
 								</div>
-								<img src="/images/temp.jpg" alt="Horse"/>
-								<img src="/images/temp2.jpg" alt="Another Horse"/>
+								<Image src="/images/temp.jpg" width="512" height="512" alt="Horse"/>
+								<Image src="/images/temp2.jpg" width="512" height="512" alt="Another Horse"/>
 							</div>
 						</div>
 						<Footer session={session}/>

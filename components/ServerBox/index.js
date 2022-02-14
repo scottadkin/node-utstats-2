@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import styles from './ServerBox.module.css'
+import styles from './ServerBox.module.css';
+import Image from 'next/image';
 
 
 
@@ -38,7 +39,7 @@ export default function ServerBox(props){
                         {d.name}
                     </div>
                     <div className={styles.image}>
-                        <img src="images/temp.jpg" alt="image"/>
+                        <Image src="images/temp.jpg" width={640} height={640} alt="image"/>
                     </div>
                     <div className={styles.info}>
                         Matches {d.matches}<br/>

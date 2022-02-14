@@ -4,6 +4,7 @@ import CountryFlag from '../CountryFlag';
 import styles from './ACEKickLog.module.css';
 import Link from 'next/link';
 import Table2 from '../Table2';
+import Image from 'next/image';
 
 class ACEKickLog extends React.Component{
 
@@ -95,7 +96,7 @@ class ACEKickLog extends React.Component{
                 <div className="default-sub-header"><span className="yellow">{d.name}</span> Kicked for <span className="yellow">{d.kick_reason}</span></div>
                 {this.renderTable()}
                 <div className="default-sub-header">Kick Screenshot</div>
-                <img src={`${this.props.host}images/ace/${sshotLoc}`} className="t-width-1 m-bottom-25" alt="image"/>
+                <Image src={`${this.props.host}images/ace/${sshotLoc}`} width={1920} height={1080} className="t-width-1 m-bottom-25" alt="image"/>
                 {this.renderRawData(d.raw_data)}
             </div>
         }

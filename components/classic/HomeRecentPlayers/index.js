@@ -1,6 +1,7 @@
 import styles from './HomeRecentPlayers.module.css';
 import CountryFlag from '../../CountryFlag';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const HomeRecentPlayers = ({data, faces}) =>{
 
@@ -19,7 +20,7 @@ const HomeRecentPlayers = ({data, faces}) =>{
                     <div className={styles.outter}>
                         <div className={styles.inner} >      
                             <div className={styles.left}>
-                                <img src={face} alt="face"/><br/>
+                                <Image width={64} height={64} src={face} alt="face"/><br/>
                                 <CountryFlag country={v.country}/>
                             </div>
                             <div className={styles.right}>

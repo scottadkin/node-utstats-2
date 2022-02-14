@@ -4,6 +4,7 @@ import Link from 'next/link';
 import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
 import Pagination from '../../components/Pagination/';
+import Image from 'next/image';
 
 const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bDisplayPagination, mode}) =>{
 
@@ -40,10 +41,10 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
 
         rows.push(<tr key={i}>
             <td>{position}{Functions.getOrdinal(position)}</td>
-            <td><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country} host={host}/>{d.name}</a></Link></td>
+            <td><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country} host={host}/> {d.name}</a></Link></td>
             <td>{d.matches}</td>
             <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
-            <td><img className={styles.icon} src={currentImage} alt="image"/><MouseHoverBox title={`Previous Match Ranking Change`} 
+            <td><Image className={styles.icon} src={currentImage} width={12} height={12} alt="image"/> <MouseHoverBox title={`Previous Match Ranking Change`} 
                     content={changeString} 
                     display={d.ranking.toFixed(2)} />
             </td>
@@ -68,7 +69,7 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
         </table>
         {(bDisplayPagination) ? <Pagination currentPage={page + 1} perPage={perPage} results={results} pages={pages} url={`/rankings/${gametypeId}?page=`}/> : 
         <Link href={`/rankings/${gametypeId}`}><a><div className={`${styles.viewall} center`}>
-            <img className={styles.icon} src="/images/up.png" alt="image"/>View all {results} players<img src="/images/down.png" className={`${styles.icon} ${styles.mleft5}`} alt="image"/>
+            <Image className={styles.icon} src="/images/up.png" width={16} height={16} alt="image"/> View all {results} players <Image src="/images/down.png" width={16} height={16} className={`${styles.icon} ${styles.mleft5}`} alt="image"/>
         </div></a></Link>
         }
     </div>

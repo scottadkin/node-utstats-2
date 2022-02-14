@@ -9,6 +9,7 @@ import styles from '../../../styles/Records.module.css';
 import Link from 'next/link';
 import Pagination from '../../../components/Pagination';
 import Analytics from '../../../api/analytics';
+import Image from 'next/image';
 
 const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
 
@@ -88,7 +89,7 @@ const RecordsPage = ({host, session, data, page, perPage, pages, mode}) =>{
             showAllElem = <Link href={`/classic/records/${d.id}?mode=${mode}`}>
                 <a>
                     <div className={`${styles.viewall} center`}>
-                        <img className={styles.icon} src="/images/up.png" alt="image"/>View all {d.totalResults} Results<img src="/images/down.png" className={`${styles.icon} ${styles.mleft5}`} alt="image"/>
+                        <Image className={styles.icon} src="/images/up.png" width={14} height={14} alt="image"/>View all {d.totalResults} Results <Image width={14} height={14} src="/images/down.png" className={`${styles.icon} ${styles.mleft5}`} alt="image"/>
                     </div>
                 </a>
             </Link>

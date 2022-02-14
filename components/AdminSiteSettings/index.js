@@ -2,6 +2,7 @@ import React from 'react';
 import Table2 from '../Table2';
 import Notification from '../Notification';
 import styles from './AdminSiteSettings.module.css';
+import Image from 'next/image';
 
 
 class AdminSiteSettings extends React.Component{
@@ -420,10 +421,10 @@ class AdminSiteSettings extends React.Component{
                 <td>
                     {(bDropDown || ignoreOrder.indexOf(s.name) !== -1) ? null :
                         <>
-                            <img src="/images/up.png" className={styles.button} alt="up" onClick={(() =>{
+                            <Image src="/images/up.png" width={32} height={32} className={styles.button} alt="up" onClick={(() =>{
                                 this.changePosition(true, s.name);
                             })}/>
-                            <img src="/images/down.png" className={styles.button} alt="down" onClick={(() =>{
+                            <Image src="/images/down.png" width={32} height={32} className={styles.button} alt="down" onClick={(() =>{
                                 this.changePosition(false, s.name);
                             })}/>
                         </>

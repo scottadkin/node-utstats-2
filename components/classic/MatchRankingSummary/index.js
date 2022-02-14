@@ -2,6 +2,7 @@ import CountryFlag from '../../CountryFlag';
 import Link from 'next/link';
 import Functions from '../../../api/functions';
 import MouseHoverBox from '../../MouseHoverBox';
+import Image from 'next/image';
 
 const MatchRankingSummary = ({data, players, teams, matchId}) =>{
 
@@ -69,7 +70,7 @@ const MatchRankingSummary = ({data, players, teams, matchId}) =>{
             <td>{playtime.toFixed(2)} Hours</td>
             <td>{d.matches}</td>
             <td>
-                <img className="ranking-icon" src={`/images/${d.change}.png`} alt="icon"/>
+                <Image width={14} height={14} className="ranking-icon" src={`/images/${d.change}.png`} alt="icon"/>
                 <MouseHoverBox title="Ranking Change" content={rankingString} display={d.rank.toFixed(2)}/>
             
             </td>

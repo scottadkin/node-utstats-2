@@ -2,6 +2,7 @@ import React from 'react';
 import Functions from '../../api/functions';
 import styles from '../ACEKickLog/ACEKickLog.module.css';
 import Table2 from '../Table2';
+import Image from 'next/image';
 
 
 class ACEScreenshot extends React.Component{
@@ -91,7 +92,7 @@ class ACEScreenshot extends React.Component{
             </Table2>
 
             <div className="default-sub-header">Screenshot</div>
-            <a href={image} rel="noreferrer" target="_blank"><img src={image} className="t-width-1 m-bottom-25" alt="image"/></a>
+            <a href={image} rel="noreferrer" target="_blank"><Image width={1920} height={1080} src={image} className="t-width-1 m-bottom-25" alt="image"/></a>
 
             {this.renderRawLog()}
         </div>

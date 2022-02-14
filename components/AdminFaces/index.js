@@ -1,6 +1,7 @@
 import React from 'react';
 import Functions from '../../api/functions';
 import Table2 from '../Table2';
+import Image from 'next/image';
 
 
 class AdminFaces extends React.Component{
@@ -125,7 +126,7 @@ class AdminFaces extends React.Component{
             currentIndex = files.indexOf(`${d.name.toLowerCase()}.png`);
 
             rows.push(<tr key={i}>
-                <td><img src={`/images/faces/${(currentIndex !== -1) ? d.name.toLowerCase() : "faceless" }.png`} alt="face" /></td>
+                <td><Image width={64} height={64} src={`/images/faces/${(currentIndex !== -1) ? d.name.toLowerCase() : "faceless" }.png`} alt="face" /></td>
                 <td>{d.name.toLowerCase()}</td>
                 <td>{Functions.convertTimestamp(d.first, true, true)}</td>
                 <td>{Functions.convertTimestamp(d.last, true, true)}</td>

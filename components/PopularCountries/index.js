@@ -1,5 +1,6 @@
 import Functions from '../../api/functions';
 import styles from './PopularCountries.module.css';
+import Image from 'next/image';
 
 const PopularCountries = ({data, totalPlayers, classic}) =>{
 
@@ -23,7 +24,7 @@ const PopularCountries = ({data, totalPlayers, classic}) =>{
 
         elems.push(<div key={i} className={styles.country}>
             <div className={styles.name}>{d.countryName}</div>
-            <div><img src={`/images/flags/${d.country.toLowerCase()}.svg`} alt={d.country} /></div>
+            <div><Image src={`/images/flags/${d.country.toLowerCase()}.svg`} alt={d.country} width={190} height={100}/></div>
             <div className={styles.info}>
                 {d.total_uses} Players<br/>
                 {percent.toFixed(2)}% of all Players<br/>

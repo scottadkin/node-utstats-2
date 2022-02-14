@@ -2,6 +2,7 @@ import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import styles from './AddictedPlayers.module.css';
 import Functions from '../../api/functions';
+import Image from 'next/image';
 
 const BasicPlayers = ({title, players, faceFiles, host}) =>{
 
@@ -24,8 +25,8 @@ const BasicPlayers = ({title, players, faceFiles, host}) =>{
 
         elems.push(<Link key={i} href={`/player/${p.id}`}><a>
             <div className={`${styles.player} center`}>
-                <div className={styles.name}><CountryFlag country={p.country} host={host}/>{p.name}</div>
-                <img className={`${styles.face} center`} src={`${host}images/faces/${currentFace.name}.png`} alt="face"/>
+                <div className={styles.name}><CountryFlag country={p.country} host={host}/> {p.name}</div>
+                <Image className={`${styles.face} center`} width={64} height={64} src={`/images/faces/${currentFace.name}.png`} alt="face"/>
                 <div className={styles.info}>
                     Last Match {Functions.convertTimestamp(p.last, true)}<br/>
                     First Match {Functions.convertTimestamp(p.first, true)}<br/>

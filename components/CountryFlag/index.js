@@ -1,6 +1,7 @@
 import Countries from '../../api/countries';
 import React from 'react';
 import styles from './CountryFlag.module.css';
+import Image from 'next/image';
 
 class CountryFlag extends React.Component{
 
@@ -34,7 +35,7 @@ class CountryFlag extends React.Component{
 
         return <div className={styles.wrapper} onMouseOver={this.show} onMouseLeave={this.hide}>
             {hoverElem}
-            <img className="country-flag" src={`/images/flags/${flag.code.toLowerCase()}.svg`} alt="flag"/>
+            <Image className="country-flag" width={16} height={10} src={`/images/flags/${flag.code.toLowerCase()}.svg`} alt="flag"/>
         </div>;
 
     }

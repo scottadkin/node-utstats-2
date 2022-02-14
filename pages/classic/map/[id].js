@@ -8,6 +8,7 @@ import Functions from '../../../api/functions';
 import React from 'react';
 import MapRecentMatches from '../../../components/classic/MapRecentMatches';
 import Analytics from '../../../api/analytics';
+import Image from 'next/image';
 
 
 const MapPage = ({session, host, page, perPage, pages, title, image, generalStats, matches, totalMatches}) =>{
@@ -57,7 +58,7 @@ const MapPage = ({session, host, page, perPage, pages, title, image, generalStat
                 <div className="default">
                     <div className="default-header">{title}</div>
                  
-                    <img className="t-width-2" src={image} alt="image" 
+                    <Image className="t-width-2" width={1920} height={1080} src={image} alt="image" 
                     
                         onClick={(e) =>{
                             e.target.requestFullscreen();

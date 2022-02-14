@@ -8,7 +8,7 @@ const BasicUIBox = ({title, value, image}) =>{
     return <div className={styles.wrapper}>
 
         <div className={styles.title}>{title}</div>
-        <Image src={image} width={80} height={80}/>
+        <Image src={image} width={80} height={80} alt="icon"/>
         <div className={styles.value} style={valueColor}>
             {(value !== "") ? value : `_`}
         </div>

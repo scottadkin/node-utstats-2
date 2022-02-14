@@ -4,6 +4,7 @@ import Link from 'next/link';
 import styles from './RankingTable.module.css';
 import MouseHoverBox from '../../MouseHoverBox';
 import Pagination from '../../Pagination';
+import Image from "next/image";
 
 const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllButton, totalResults, pages}) =>{
 
@@ -51,7 +52,7 @@ const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllB
                 </Link>
             </td>
             <td>
-                <img className="ranking-icon" src={`/images/${icon}.png`} alt="icon"/> 
+                <Image className="ranking-icon" width={20} height={14} src={`/images/${icon}.png`} alt="icon"/> 
                 <MouseHoverBox title="Ranking Change" content={rankingString} display={d.rank.toFixed(2)}/>
             </td>
         </tr>);
@@ -68,8 +69,8 @@ const RankingTable = ({gametypeId, title, data, page, perPage, players, showAllB
         showAllElem = <Link href={`/classic/rankings/${gametypeId}`}>
             <a>
                 <div className={styles.viewall}>
-                    <img className="ranking-icon" src="/images/up.png" alt="image"/>
-                    Show all {totalResults} Results <img className="ranking-icon" src="/images/down.png" alt="image"/>
+                    <Image className="ranking-icon" width={20} height={14} src="/images/up.png" alt="image"/>
+                    Show all {totalResults} Results <Image className="ranking-icon" width={20} height={14} src="/images/down.png" alt="image"/>
                 </div>
             </a>
         </Link>;
