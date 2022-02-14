@@ -3,6 +3,7 @@ import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
 import MouseHoverBox from '../../components/MouseHoverBox';
 import Table2 from '../Table2';
+import Image from 'next/image';
 
 function getCurrentRankings(rankings, player){
 
@@ -81,10 +82,10 @@ const MatchRankingChanges = ({host, changes, currentRankings, playerNames, posit
         rows.push(<tr key={i}>
             <td><Link href={`/pmatch/${matchId}?player=${c.player_id}`}><a><CountryFlag host={host} country={player.country}/>{player.name}</a></Link></td>
             <td>{previousRanking.toFixed(2)}</td>
-            <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.ranking.toFixed(2)}</td>
-            <td><img className="ranking-icon" src={icon3} alt="icon"/>{c.match_ranking_change.toFixed(2)}</td>
+            <td><Image width={14} height={14} className="ranking-icon" src={icon3} alt="icon"/> {c.ranking.toFixed(2)}</td>
+            <td><Image width={14} height={14} className="ranking-icon" src={icon3} alt="icon"/> {c.match_ranking_change.toFixed(2)}</td>
             <td>{c.match_ranking.toFixed(2)}</td>
-            <td><span className="ranking-position">({positions[c.player_id]}{Functions.getOrdinal(positions[c.player_id])})</span><img className="ranking-icon" src={icon2} alt="icon"/><MouseHoverBox title="Ranking Change" content={rankingString} display={currentRanking.ranking.toFixed(2)}/></td>
+            <td><span className="ranking-position">({positions[c.player_id]}{Functions.getOrdinal(positions[c.player_id])})</span><Image width={14} height={14} className="ranking-icon" src={icon2} alt="icon"/> <MouseHoverBox title="Ranking Change" content={rankingString} display={currentRanking.ranking.toFixed(2)}/></td>
         </tr>);
     }
 

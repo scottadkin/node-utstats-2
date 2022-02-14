@@ -3,6 +3,7 @@ import styles from './MatchMonsterHuntMonsterKills.module.css';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import Functions from '../../api/functions';
+import Image from 'next/image';
 
 class MatchMonsterHuntMonsterKills extends React.Component{
 
@@ -25,7 +26,6 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         })};
 
-        console.log(this.props.monsterKills);
 
     }
 
@@ -140,7 +140,7 @@ class MatchMonsterHuntMonsterKills extends React.Component{
                     <div className={styles.name}>
                         {this.getMonsterDisplayName(className)}
                     </div>
-                    <img src={`${this.props.host}images/monsters/${fileUrl}`} alt="monster" className="monster-image"/>
+                    <Image src={`/images/monsters/${fileUrl}`} width={150} height={150} alt="monster" className="monster-image"/>
                     <div className={styles.deaths}>{totalDeaths} Death{(totalDeaths === 1) ? null : "s"}</div>
                     <table className={`${styles.table} td-1-left`}>
                         <tbody>

@@ -2,6 +2,7 @@ import styles from './PlayerListBox.module.css';
 import Countries from '../../api/countries';
 import Link from 'next/link';
 import TimeStamp from '../TimeStamp/';
+import Image from 'next/image';
 
 
 
@@ -57,13 +58,13 @@ function PlayerListBox({
         <a>
             <div className={`${styles.wrapper} center`}>
                 <div className={styles.name}> 
-                    <img src={`${host}images/flags/${countryData.code.toLowerCase()}.svg`} alt="flag"/> 
-                    {name}
+                    <Image src={`/images/flags/${countryData.code.toLowerCase()}.svg`} height={20} width={32} alt="flag"/> 
+                    &nbsp;{name}
                     <span className={styles.countryName}>{countryData.country}</span>
                     <span className={styles.playtime}>{playtime} Hours</span>
                 </div>
                 <div className={styles.face}>
-                    <img src={`${host}images/faces/${face}.png`} alt="face"/>
+                    <Image src={`/images/faces/${face}.png`} alt="face" width={64} height={64}/>
                 </div>
                 <div className={styles.right}>
                     <div className={styles.info}>

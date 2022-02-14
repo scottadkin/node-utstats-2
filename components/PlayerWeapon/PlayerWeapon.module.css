@@ -24,14 +24,7 @@
     background-color:black;
 }
 
-.image img{
-    width:200px;
-    max-height:150px;
-    position:absolute;
-    margin-left:-75px;
-    bottom:0;
-    
-}
+
 
 .stats{
     background-color:var(--color-2);

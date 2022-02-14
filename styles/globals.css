@@ -253,6 +253,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	line-height:22px;
 }
 
+.white{
+	color:white;
+}
+
 .yellow{
 	color:yellow;
 }

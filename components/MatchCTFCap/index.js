@@ -85,7 +85,9 @@ function createEventRows(events, host, playerCovers, matchId){
         if(player.id === undefined){
 
             playerElem = <Link href={`/pmatch/${matchId}?player=${player.id}`}>
-                <span className="deleted">Deleted Player</span>
+                <a>
+                    <span className="deleted">Deleted Player</span>
+                </a>
             </Link>
 
         }else{

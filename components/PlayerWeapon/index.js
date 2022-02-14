@@ -1,13 +1,14 @@
 import styles from './PlayerWeapon.module.css';
 import PlayerWeaponStat from '../PlayerWeaponStat/';
 import Functions from '../../api/functions';
+import Image from 'next/image';
 
 const PlayerWeapon = ({name, image, stats, maxValues}) =>{
 
     return <div className={styles.wrapper}>
         <div className={styles.name}>{name}</div>
         <div className={styles.image}>
-            <img src={`/images/weapons/${image}`} alt="image" />
+            <Image src={`/images/weapons/${image}`} width={250} height={150} alt="image" />
         </div>
         <div className={styles.stats}>
             <PlayerWeaponStat name="Matches" display={stats.matches} value={stats.matches} max={maxValues.matches}/>

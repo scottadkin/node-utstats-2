@@ -1,6 +1,7 @@
 import MouseHoverBox from '../MouseHoverBox/';
 import Functions from '../../api/functions';
 import Table2 from '../Table2';
+import Image from 'next/image';
 
 const PlayerRankings = ({data, gametypeNames, positions}) =>{
 
@@ -40,9 +41,10 @@ const PlayerRankings = ({data, gametypeNames, positions}) =>{
             <td>{currentName}</td>
             <td>{d.matches}</td>
             <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
-            <td><span className="ranking-position">({position}{Functions.getOrdinal(position)})</span><img className="ranking-icon" src={icon} alt="image"/>
+            <td><span className="ranking-position">({position}{Functions.getOrdinal(position)})</span>
+            <Image width={14} height={14} className="ranking-icon" src={icon} alt="image"/>
             
-            <MouseHoverBox title={`Previous Match Ranking Change`} 
+            &nbsp;<MouseHoverBox title={`Previous Match Ranking Change`} 
                     content={rankingString} 
                     display={d.ranking.toFixed(2)} />
             </td>

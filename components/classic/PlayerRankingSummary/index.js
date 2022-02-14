@@ -1,5 +1,6 @@
 import Functions from '../../../api/functions';
 import MouseHoverBox from '../../MouseHoverBox';
+import Image from 'next/image';
 
 const PlayerRankingSummary = ({data, playerName}) =>{
 
@@ -35,7 +36,7 @@ const PlayerRankingSummary = ({data, playerName}) =>{
             <td>{d.matches}</td>
             <td>
                 <span className="ranking-position"><i>({d.position}{Functions.getOrdinal(d.position)}) </i></span>
-                <img className="ranking-icon" src={`/images/${icon}.png`} alt="icon"/>
+                <Image width={16} height={16} className="ranking-icon" src={`/images/${icon}.png`} alt="icon"/>
                 <MouseHoverBox title={"Ranking change in latest match"} content={hoverContent} display={d.rank.toFixed(2)}/>
             </td>
             <td>

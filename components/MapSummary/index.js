@@ -3,15 +3,16 @@ import styles from './MapSummary.module.css';
 import Table2 from '../Table2';
 import Functions from '../../api/functions';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const MapSummary = ({basic, spawns, imageHost, image}) =>{
 
     return <div className={`${styles.top} m-bottom-10`}>
-        <img onClick={(() =>{
+        <Image onClick={(() =>{
             const elem = document.getElementById("main-image");
             elem.requestFullscreen();
-        })} className={styles.mimage} id="main-image" src={`${imageHost}${image}`} alt="image" />
-        <Table2 width={1}>
+        })} className={styles.mimage} id="main-image" src={`/${image}`} alt="image" width={1920} height={1080}/>
+        <Table2 width={2}>
             <tr>
                 <td>Name</td>
                 <td>{Functions.removeUnr(basic.name)}</td>

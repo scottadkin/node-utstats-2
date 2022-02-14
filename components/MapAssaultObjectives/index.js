@@ -40,7 +40,7 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
 
                 elems.push(<div key={"rook-1"} className={styles.box}>
                     <div>
-                        <img className={styles.image} alt="image" src={`${host}${getObjectImage(images, mapName, 1)}`} />
+                        <Image className={styles.image}  width="200" height="112" alt="image" src={`/${getObjectImage(images, mapName, 1)}`} />
                     </div>
                     <div>
                         <span className={styles.name}>Gatehouse Chains</span><br/>
@@ -58,7 +58,7 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
         elems.push(<div key={i} className={styles.box}>
             <div className={styles.name}>{o.name}</div>
             <div>
-                <img className={styles.image} alt="image" src={`${host}${getObjectImage(images, mapName, o.obj_id)}`} />
+                <Image className={styles.image}  width="200" height="112"  alt="image" src={`/${getObjectImage(images, mapName, o.obj_id)}`} />
             </div>
             <div className={styles.info}>  
                 Taken {o.taken} Times<br/>
@@ -74,7 +74,7 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
 
                 elems.push(<div key={"rook-end"} className={styles.box}>
                     <div>
-                        <img className={styles.image} alt="image" src={`${host}${getObjectImage(images, mapName, 5)}`} />
+                        <Image className={styles.image}  width="200" height="112" alt="image" src={`/${getObjectImage(images, mapName, 5)}`} />
                     </div>
                     <div>
                         <span className={styles.name}>End</span><br/>
@@ -85,7 +85,7 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
             }else if(mapName === "overlord"){
                 elems.push(<div key={"rook-end"} className={styles.box}>
                     <div>
-                        <img className={styles.image} alt="image" src={`${host}${getObjectImage(images, mapName, 3)}`} width="200" height="112" />
+                        <Image className={styles.image}  alt="image" src={`/${getObjectImage(images, mapName, 3)}`} width="200" height="112" />
                     </div>
                     <div>
                         <span className={styles.name}>End</span><br/>

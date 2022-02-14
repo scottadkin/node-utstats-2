@@ -1,15 +1,16 @@
 import Functions from '../../api/functions';
 import Table2 from '../Table2';
+import Image from 'next/image';
 
 const getIcon = (value) =>{
 
     if(value > 0){
-        return <img className="ranking-icon" src="/images/up.png" alt="icon"/>;
+        return <Image width={12} height={12} className="ranking-icon" src="/images/up.png" alt="icon"/>;
     }else if(value < 0){
-        return <img className="ranking-icon" src="/images/down.png" alt="icon"/>;
+        return <Image width={12} height={12} className="ranking-icon" src="/images/down.png" alt="icon"/>;
     }
 
-    return <img className="ranking-icon" src="/images/nochange.png" alt="icon"/>;
+    return <Image width={12} height={12} className="ranking-icon" src="/images/nochange.png" alt="icon"/>;
 }
 
 const PlayerMatchRankings = ({data, current, currentPosition}) =>{
@@ -29,7 +30,7 @@ const PlayerMatchRankings = ({data, current, currentPosition}) =>{
                 <td>{data[0].match_ranking}</td>
                 <td>{getIcon(data[0].ranking_change.toFixed(2))}{data[0].ranking_change.toFixed(2)}</td>
                 <td>{getIcon(data[0].ranking_change)}{data[0].ranking}</td>
-                <td><i className="yellow">({currentPosition}{Functions.getOrdinal(currentPosition)})</i> {getIcon(current[0].ranking_change)}{current[0].ranking}</td>
+                <td><i className="yellow">({currentPosition}{Functions.getOrdinal(currentPosition)})</i> {getIcon(current[0].ranking_change)} {current[0].ranking}</td>
             </tr>
  
         </Table2>

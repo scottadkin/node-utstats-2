@@ -1,6 +1,6 @@
 import styles from './MatchResultBox.module.css';
 import MatchResult from '../MatchResult';
-import Functions from '../../api/functions';
+import Image from 'next/image';
 
 
 const MatchResultBox = ({host, serverName, gametypeName, mapName, mapImage, date, players, playtime, totalTeams, result, dmScore, monsterHunt, endReason}) =>{
@@ -26,14 +26,12 @@ const MatchResultBox = ({host, serverName, gametypeName, mapName, mapImage, date
         serverName = `${shortenedName}...`;
     }
 
-    const imageHost =  Functions.getImageHostAndPort(host);
-
     return <div className={styles.wrapper}>
         <div className={styles.title}>{mapName}</div>
         <div className={styles.gametype}>{gametypeName}</div>
         <div className={styles.players}>{players} {(players !== 1) ? "Players" : "Player"}</div>
         <div className={styles.image}>
-            <img src={`${imageHost}images/maps/thumbs/${mapImage}.jpg`} alt="image" className="map-image"/>
+            <Image src={`/images/maps/${mapImage}.jpg`} alt="image" className="map-image" width={1920} height={1080}/>
         </div>
         <div className={`${styles.server} yellow`}>{serverName}</div>
         <div className={styles.date}>{date}</div>

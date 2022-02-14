@@ -3,6 +3,7 @@ import Functions from '../../api/functions';
 import TimeStamp from '../TimeStamp/';
 import Link from 'next/link';
 import React from 'react';
+import Image from 'next/image';
 
 class MapDefaultBox extends React.Component{
 
@@ -20,10 +21,10 @@ class MapDefaultBox extends React.Component{
         
 
         if(index !== -1){
-            return `${this.props.host}images/maps/thumbs/${images[index]}.jpg`;
+            return `/images/maps/thumbs/${images[index]}.jpg`;
         }
 
-        return `${this.props.host}images/defaultmap.jpg`;
+        return `/images/defaultmap.jpg`;
     }
 
     render(){
@@ -36,18 +37,18 @@ class MapDefaultBox extends React.Component{
                 </div>
                 <div className={styles.enter}>
                     {(this.props.data.ideal_player_count !== '') ? "Ideal Player Count " : ""}
-                    {(this.props.data.ideal_player_count !== '') ? <span className="yellow">{this.props.data.ideal_player_count}</span> : ""}<br/>
+                    {(this.props.data.ideal_player_count !== '') ? this.props.data.ideal_player_count : ""}<br/>
 
                     <span className={styles.levelenter}>{(this.props.data.level_enter_text !== "") ? `"${this.props.data.level_enter_text}"` : ""}</span>
                 </div>
             </div>
-            <img src={this.getImage()} className="map-image" alt="image"/>
+            <Image src={this.getImage()} width={480} height={270} className="map-image" alt="image"/>
             <div className={styles.info}>
                 
-                <span className="yellow">Matches</span> {this.props.data.matches}<br/>
-                <span className="yellow">Playtime</span> {parseFloat(this.props.data.playtime / (60 * 60)).toFixed(2)} Hours<br/>
-                <span className="yellow">First</span> <TimeStamp timestamp={this.props.data.first}/><br/>
-                <span className="yellow">Last</span> <TimeStamp timestamp={this.props.data.last}/><br/>
+                {this.props.data.matches} Matches<br/>
+                Playtime {parseFloat(this.props.data.playtime / (60 * 60)).toFixed(2)} Hours<br/>
+                First <TimeStamp timestamp={this.props.data.first}/><br/>
+                Last <TimeStamp timestamp={this.props.data.last}/><br/>
             </div>
         </div></a></Link>);
     }

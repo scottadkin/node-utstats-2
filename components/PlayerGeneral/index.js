@@ -5,6 +5,8 @@ import BasicUIBox from '../BasicUIBox';
 
 const PlayerGeneral = ({host,flag, country, face, first, last, matches, playtime, wins, losses, winRate}) =>{
 
+    if(flag === "") flag = "xx";
+
     return <div className={styles.wrapper}>
         <BasicUIBox title={"From"} value={country} image={`/images/flags/${flag}.svg`} />
         <BasicUIBox title={"Recent Face"} value={""} image={`/images/faces/${face}.png`} />
