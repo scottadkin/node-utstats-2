@@ -23,6 +23,7 @@ class AdminPlayerSearch extends React.Component{
             "nameSearch": "",
             "ipSearch": "",
             "bExactNameSearch": false,
+            "ipHistorySearch": "",
             "ipHistory": null,
             "ipHistoryError": null,
             "ipHistoryErrorDisplayUntil": 0,
@@ -251,9 +252,11 @@ class AdminPlayerSearch extends React.Component{
 
             e.preventDefault();
 
-            this.setState({"bLoading": true, "ipHistoryError": null, "ipHistory": []});
-
             const ip = e.target[0].value;
+
+            this.setState({"bLoading": true, "ipHistoryError": null, "ipHistory": [], "ipHistorySearch": ip});
+
+            
 
             const reg = /(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/i;
 
@@ -341,7 +344,6 @@ class AdminPlayerSearch extends React.Component{
 
             const res = await req.json();
 
-            console.log(res);
 
             if(res.error === undefined){
 
@@ -361,12 +363,6 @@ class AdminPlayerSearch extends React.Component{
                     "error": res.error
                 });
             }
-
-
-            
-
-            console.log(res);
-            
             
 
         }catch(err){
@@ -495,13 +491,13 @@ class AdminPlayerSearch extends React.Component{
                     <div className="select-row">
                         <div className="select-label">Name</div>
                         <div>
-                            <input type="textbox" className="default-textbox" placeholder="Name..."/>
+                            <input type="textbox" className="default-textbox" placeholder="Name..." defaultValue={this.state.nameSearch}/>
                         </div>
                     </div>
                     <div className="select-row">
                         <div className="select-label">IP</div>
                         <div>
-                            <input type="textbox" className="default-textbox" placeholder="IP..."/>
+                            <input type="textbox" className="default-textbox" placeholder="IP..." defaultValue={this.state.ipSearch}/>
                         </div>
                     </div>
                     <input type="submit" className="search-button" value="Search"/>
@@ -525,6 +521,10 @@ class AdminPlayerSearch extends React.Component{
             names.push(<tr key={id}><td>{name}</td></tr>);
         }
 
+        if(names.length === 0){
+
+            names.push(<tr key="0"><td>No data</td></tr>);
+        }
 
         return <div key="names">
             <div className="default-header">Players Associated With IP</div>
@@ -574,6 +574,11 @@ class AdminPlayerSearch extends React.Component{
                 <td>{Functions.convertTimestamp(m.match_date, true)}</td>
                 <td>{this.state.ipHistory.playerNames[m.player_id] ?? "Not Found"}</td>
             </tr>);
+        }
+
+        if(rows.length === 0){
+
+            rows.push(<tr key="0"><td colSpan="3">No data</td></tr>);
         }
 
         return <div key="ips">
@@ -626,7 +631,7 @@ class AdminPlayerSearch extends React.Component{
                             IP
                         </div>
                         <div>
-                            <input type="text" className="default-textbox" placeholder="192.168.56.1"/>
+                            <input type="text" className="default-textbox" placeholder="192.168.56.1" defaultValue={this.state.ipHistorySearch}/>
                         </div>
                     </div>
                     <input type="submit" className="search-button" value="Search"/>
@@ -652,7 +657,7 @@ class AdminPlayerSearch extends React.Component{
             }
         }
 
-        return <select className="default-select">
+        return <select className="default-select" defaultValue={(this.state.selectedId !== -1) ? this.state.selectedId : -1}>
             <option value="-1">Select a Player...</option>
             {options}
         </select>

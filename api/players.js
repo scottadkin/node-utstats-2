@@ -1757,9 +1757,6 @@ class Players{
      
         const ipStats = await this.bulkIpSearch(usedIps);
 
-        //console.log(ipStats);
-
-        //console.log(ipTotalsResult);
 
         //return
         return {
