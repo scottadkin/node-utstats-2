@@ -1863,6 +1863,19 @@ class Players{
         
     }
 
+    async getConnectionsById(playerId, page, perPage){
+
+        const query = "SELECT match_id,ip,country,playtime,match_date FROM nstats_player_matches WHERE player_id=? ORDER BY match_date DESC LIMIT ?, ?";
+
+        if(page < 0) page = 0;
+        if(perPage <= 0) perPage = 25;
+
+        const start = perPage * page;
+
+        return await mysql.simpleQuery(query, [playerId, start, perPage]);
+
+    }
+
 }
 
 

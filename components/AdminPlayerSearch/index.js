@@ -34,8 +34,13 @@ class AdminPlayerSearch extends React.Component{
             "playerHistoryError": null,
             "playerHistoryErrorDisplayUntil": 0,
             "selectedName": null,
-            "aliasPage": 0
-
+            "selectedId": null,
+            "aliasPage": 0,
+            "connectionPage": 0,
+            "bLoadingConnections": false,
+            "connectionHistory": null,
+            "connectionError": null,
+            "connectionErrorDisplayUntil": 0
         };
 
         this.search = this.search.bind(this);
@@ -45,6 +50,65 @@ class AdminPlayerSearch extends React.Component{
         this.loadPlayerHistory = this.loadPlayerHistory.bind(this);
         this.changeAliasPage = this.changeAliasPage.bind(this);
 
+    }
+
+    async componentDidUpdate(prevProps, prevState){
+
+        if(prevState.connectionPage !== this.state.connectionPage || prevState.selectedId !== this.state.selectedId){
+
+            if(this.state.selectedId !== null){
+                await this.loadConnections();
+            }
+        }
+
+    }
+
+    async loadConnections(){
+
+        try{
+
+            this.setState({
+                "bLoadingConnections": true,
+                "connectionHistory": null,        
+                "connectionError": null,
+                "connectionErrorDisplayUntil": 0
+            });
+
+            const req = await fetch("/api/adminplayers", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({
+                    "mode": "connections",
+                    "playerId": this.state.selectedId, 
+                    "perPage": 25, 
+                    "page": this.state.connectionPage
+                })
+            });
+
+            const res = await req.json();
+
+            
+
+            if(res.error === undefined){
+
+                this.setState({
+                    "bLoadingConnections": false,
+                    "connectionHistory": res.data,     
+                });
+
+            }else{
+
+                this.setState({
+                    "bLoadingConnections": false,
+                    "connectionHistory": null,        
+                    "connectionError": `There was a problem loading player connection history. ${res.error}`,
+                    "connectionErrorDisplayUntil": Math.ceil(Date.now() * 0.001) + 5
+                });
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
     }
 
     changeAliasPage(page){
@@ -76,8 +140,12 @@ class AdminPlayerSearch extends React.Component{
 
             const playerId = parseInt(e.target[0].value);
 
+
             if(e.target[0].value !== -1){
-                this.setState({"selectedName": this.state.nameList[e.target[0].selectedIndex -1].name});
+                this.setState({
+                    "selectedName": this.state.nameList[e.target[0].selectedIndex -1].name,
+                    "selectedId": this.state.nameList[e.target[0].selectedIndex -1].id
+                });
             }
 
             const req = await fetch("/api/adminplayers",{
@@ -87,8 +155,6 @@ class AdminPlayerSearch extends React.Component{
             });
 
             const res = await req.json();
-
-            console.log(res);
 
             if(res.error === undefined){
 
@@ -156,7 +222,12 @@ class AdminPlayerSearch extends React.Component{
             "playerHistoryError": null,
             "playerHistoryErrorDisplayUntil": 0,
             "selectedName": null,
-            "aliasPage": 0
+            "selectedId": null,
+            "aliasPage": 0,
+            "bLoadingConnections": false,
+            "connectionHistory": null,
+            "connectionError": false,
+            "connectionErrorDisplayUntil": 0
         });
     }
 
@@ -715,6 +786,60 @@ class AdminPlayerSearch extends React.Component{
         </>
     }
 
+    renderConnectionHistory(){
+
+        const loading = (this.state.bLoadingConnections) ? <Loading/> : null;
+
+        const notification = (this.state.connectionError === null) ? null :
+        <Notification type="error" displayUntil={this.state.connectionErrorDisplayUntil}>{this.state.connectionError}</Notification>
+
+        let elems = [];
+
+        if(this.state.connectionHistory !== null){
+
+            const rows = [];
+
+            for(let i = 0; i < this.state.connectionHistory.length; i++){
+
+                const c = this.state.connectionHistory[i];
+
+                rows.push(<tr key={i}>
+                    <td><Link href={`/match/${c.match_id}`}><a>{c.match_id}</a></Link></td>
+                    <td>{Functions.convertTimestamp(c.match_date, true)}</td>
+                    <td>{c.ip}</td>
+                    <td>{Functions.toHours(c.playtime)} Hours</td>
+                </tr>);
+
+            }
+
+            elems = <>
+                <div className="form m-bottom-25">
+                    <div className="form-info">
+                        Connection history for the profile <b>{this.state.selectedName}</b>
+                    </div>
+                </div>
+                <Table2 width={1}>
+                    <tr>
+                        <th>Match ID</th>
+                        <th>Date</th>
+                        <th>IP</th>
+                        <th>Playtime</th>
+                    </tr>
+                    {rows}
+                </Table2>
+            </>
+        }
+
+        return <>
+            <div className="default-header">
+                Connection History
+            </div>
+            {loading}
+            {elems}
+            {notification}
+        </>
+    }
+
     render(){
 
         return <div>
@@ -733,6 +858,7 @@ class AdminPlayerSearch extends React.Component{
             {this.renderGeneralSearch()}
             {this.renderPlayerHistory()}
             {this.renderIPHistory()}
+            {this.renderConnectionHistory()}
 
         </div>
     }

@@ -211,6 +211,24 @@ export default async function handler (req, res){
 
                 res.status(200).json(result);
                 return;
+
+            }else if(mode === "connections"){
+
+                const playerId = req.body.playerId ?? -1;
+                const perPage = req.body.perPage ?? -1;
+                const page = req.body.page ?? -1;
+
+                if(playerId === -1){
+
+                    res.status(200).json({"error": "No player selected."});
+                    return;
+                }
+
+                const result = await playerManager.getConnectionsById(playerId, page, perPage);
+
+                res.status(200).json({"data": result});
+                return;
+
             }
 
             res.status(200).json({"error": "Unknown mode"});
