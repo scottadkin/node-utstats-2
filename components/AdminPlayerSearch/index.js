@@ -14,7 +14,7 @@ class AdminPlayerSearch extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 1,
+            "mode": 0,
             "bSearched": false,
             "nameResults": [],
             "ipResults": [],
@@ -386,9 +386,11 @@ class AdminPlayerSearch extends React.Component{
             </div>
         }
 
+        const names = [];
+
         if(this.state.nameResults.length > 0){
 
-            const names = [];
+            
 
             for(let i = 0; i < this.state.nameResults.length; i++){
 
@@ -403,20 +405,24 @@ class AdminPlayerSearch extends React.Component{
                     <td>{r.total_matches}</td>
                 </tr>);
             }
-
-            elems = <Table2 width={1}>
-                <tr>
-                    <th>Name</th>
-                    <th>IP</th>
-                    <th>First</th>
-                    <th>Last</th>
-                    <th>Playtime</th>
-                    <th>Matches</th>
-                </tr>
-                {names}
-            </Table2>
-
         }
+
+        if(names.length === 0){
+
+            names.push(<tr key="0"><td colSpan="6">No data</td></tr>);
+        }
+
+        elems = <Table2 width={1}>
+            <tr>
+                <th>Name</th>
+                <th>IP</th>
+                <th>First</th>
+                <th>Last</th>
+                <th>Playtime</th>
+                <th>Matches</th>
+            </tr>
+            {names}
+        </Table2>
 
 
         return <div>
@@ -440,9 +446,9 @@ class AdminPlayerSearch extends React.Component{
             </div>
         }
 
-        if(this.state.ipResults.length > 0){
+        const names = [];
 
-            const names = [];
+        if(this.state.ipResults.length > 0){
 
             for(let i = 0; i < this.state.ipResults.length; i++){
 
@@ -458,19 +464,23 @@ class AdminPlayerSearch extends React.Component{
                 </tr>);
             }
 
-            elems = <Table2 width={1}>
-                <tr>
-                    <th>Name</th>
-                    <th>IP</th>
-                    <th>First</th>
-                    <th>Last</th>
-                    <th>Playtime</th>
-                    <th>Matches</th>
-                </tr>
-                {names}
-            </Table2>
-
         }
+
+        if(names.length === 0){
+            names.push(<tr key="0"><td colSpan="6">No data</td></tr>);
+        }
+
+        elems = <Table2 width={1}>
+            <tr>
+                <th>Name</th>
+                <th>IP</th>
+                <th>First</th>
+                <th>Last</th>
+                <th>Playtime</th>
+                <th>Matches</th>
+            </tr>
+            {names}
+        </Table2>
 
         return <div>
             <div className="default-header">IPS Matching &quot;{this.state.ipSearch}&quot;</div>

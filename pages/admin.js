@@ -554,9 +554,6 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 12) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(12);
                             })}>MonsterHunt</div>
-                            <div className={`big-tab ${(this.state.mode === 14) ? "tab-selected" : ""}`} onClick={(() =>{
-                                this.changeMode(14);
-                            })}>ACE</div>
 
                             
                         </div>
