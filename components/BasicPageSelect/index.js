@@ -17,6 +17,8 @@ class BasicPageSelect extends React.Component{
 
         if(totalPages < 1) totalPages = 1;
 
+        if(totalPages === 1) return null;
+
         const width = this.props.width ?? 1;
 
         let widthClass = `var(--max-width-${width})`;

@@ -33,7 +33,8 @@ class AdminPlayerSearch extends React.Component{
             "bLoadingPlayerHistory": false,
             "playerHistoryError": null,
             "playerHistoryErrorDisplayUntil": 0,
-            "selectedName": null
+            "selectedName": null,
+            "aliasPage": 0
 
         };
 
@@ -42,6 +43,20 @@ class AdminPlayerSearch extends React.Component{
         this.ipHistory = this.ipHistory.bind(this);
         this.changeIpHistoryPage = this.changeIpHistoryPage.bind(this);
         this.loadPlayerHistory = this.loadPlayerHistory.bind(this);
+        this.changeAliasPage = this.changeAliasPage.bind(this);
+
+    }
+
+    changeAliasPage(page){
+
+        const perPage = 10;
+
+        if(page < 0) return;
+
+        if(page > Math.floor(this.state.playerHistory.aliases.length / perPage)) return;
+
+        this.setState({"aliasPage": page});
+
     }
 
 
@@ -55,7 +70,8 @@ class AdminPlayerSearch extends React.Component{
                 "bLoadingPlayerHistory": true, 
                 "playerHistory": null, 
                 "playerHistoryError": null,
-                "playerHistoryErrorDisplayUntil": 0
+                "playerHistoryErrorDisplayUntil": 0,
+                "aliasPage": 0
             });
 
             const playerId = parseInt(e.target[0].value);
@@ -139,7 +155,8 @@ class AdminPlayerSearch extends React.Component{
             "bLoadingPlayerHistory": false,
             "playerHistoryError": null,
             "playerHistoryErrorDisplayUntil": 0,
-            "selectedName": null
+            "selectedName": null,
+            "aliasPage": 0
         });
     }
 
@@ -561,7 +578,14 @@ class AdminPlayerSearch extends React.Component{
 
         const rows = [];
 
-        for(let i = 0; i < this.state.playerHistory.aliases.length; i++){
+        const perPage = 10;
+
+        const totalAliases = this.state.playerHistory.aliases.length;
+
+        const start = perPage * this.state.aliasPage;
+        const end = (start + perPage > totalAliases) ? totalAliases : start + perPage;
+
+        for(let i = start; i < end; i++){
 
             const a = this.state.playerHistory.aliases[i];
 
@@ -579,7 +603,9 @@ class AdminPlayerSearch extends React.Component{
                 <td>{a.total_matches}</td>
                 <td>{Functions.toHours(a.total_playtime)} Hours</td>
             </tr>);
+
         }
+
 
         return <div key="aliases">
             <div className="default-header">Possible Aliases</div>
@@ -588,7 +614,9 @@ class AdminPlayerSearch extends React.Component{
                     Aliases based by ip matches, stats below only include stats from matches where a common ip was used and not the player profile stats.
                 </div>
             </div>
-
+            <BasicPageSelect results={this.state.playerHistory.aliases.length} perPage={perPage} changePage={this.changeAliasPage}
+                page={this.state.aliasPage} width={1}
+            />
             <Table2 width={1} players={true}>
                 <tr>
                     <th>Player</th>
