@@ -1,7 +1,7 @@
 .wrapper{
-    color:white;
-    background-color:var(--color-3);
-    background:linear-gradient(to bottom right, var(--color-3), var(--color-1));
+    color:var(--color-7);
+    background-color:var(--color-3a);
+    background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
     border:1px solid var(--border-color-1);
     max-width:var(--max-width-1);
     width:var(--width-1);
@@ -14,11 +14,12 @@
 
 .mutators{
     font-size:12px;
-    line-height:14px;
+    line-height:20px;
+    padding:5px;
 }
 
 
 .small{
-    font-size:12px;
+    font-size:14px;
     color:var(--color-6);
 }
