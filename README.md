@@ -13,6 +13,7 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Cap records for ctf maps
 - User Accounts (in future builds you will be able to save matches, players to your favourites for easy tracking)
 - Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images.
+- ACE support
 - **Classic Support** You can now connect to classic utstats databases.
 
 # Current Supported Gametypes
@@ -98,3 +99,15 @@ To add this feature to your server add the following entries in IpToCountry.ini 
 - QueryServerHost **127.0.0.1**(The ip you host node utstats on)
 - QueryServerFilePath **/api/iptocountry**
 - QueryServerPort **3000**(The port node ustats site uses)
+
+# Setting up ACE
+
+- By default ACE doesn't save player information to log files, to get the most out of this module you will have to change a few lines in UnrealTournament.ini so ACE will save player information that will help admins ban trouble makers.
+- Find the ACE section in UnrealTournament.ini [ACEvXXX_S.ACEActor].
+- Now find the following lines and change them to the following
+```
+bExternalLog=true
+bExternalLogJoins=true
+JoinLogPath=../Logs/
+JoinLogPrefix=ACE_JOIN
+```
