@@ -64,7 +64,7 @@ class AdminPlayerSearch extends React.Component{
 
     async changeNameSearch(name, playerId){
 
-        this.setState({"mode": 1, "nameSearch": name, "selectedName": name, "connectionPage": 0});
+        this.setState({"mode": 1, "selectedName": name, "connectionPage": 0});
 
         await this.loadPlayerHistory(null, playerId);
     }
@@ -566,7 +566,9 @@ class AdminPlayerSearch extends React.Component{
 
         for(const [id, name] of Object.entries(this.state.ipHistory.playerNames)){
 
-            names.push(<tr key={id}><td>{name}</td></tr>);
+            names.push(<tr key={id}><td className="pointer" onClick={(() =>{
+                this.changeNameSearch(name, id);
+            })}>{name}</td></tr>);
         }
 
         if(names.length === 0){

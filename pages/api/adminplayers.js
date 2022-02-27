@@ -200,8 +200,6 @@ export default async function handler (req, res){
 
             }else if(mode === "playerhistory"){
 
-                console.log(req.body);
-
                 const playerId = req.body.playerId ?? -1;
 
                 if(playerId === -1){
