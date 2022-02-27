@@ -13,7 +13,7 @@ export default async function handler (req, res){
 
         if(await session.bUserAdmin()){
 
-            console.log('ok');
+           // console.log('ok');
 
             const mode = req.body.mode ?? "";
 
@@ -26,7 +26,7 @@ export default async function handler (req, res){
             const playerManager = new Players();
 
 
-            console.log(mode);
+            //console.log(mode);
 
             if(mode === "general"){
 
@@ -159,7 +159,6 @@ export default async function handler (req, res){
 
                 const result = await playerManager.bulkIpSearch([ip]);
 
-                console.log(result);
 
                 res.status(200).json({"ips": result});
                 return;

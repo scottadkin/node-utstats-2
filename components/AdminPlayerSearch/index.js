@@ -884,6 +884,7 @@ class AdminPlayerSearch extends React.Component{
 
         const loading = (this.state.bLoadingConnections) ? <Loading/> : null;
         
+        if(loading === null && this.state.connectionError === null && this.state.connectionHistory === null) return null;
 
         const notification = (this.state.connectionError === null) ? null :
         <Notification type="error" displayUntil={this.state.connectionErrorDisplayUntil}>{this.state.connectionError}</Notification>
