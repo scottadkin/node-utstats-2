@@ -73,7 +73,7 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 - FTP accounts require read, write, and delete privileges. 
 - To add FTP servers to node utstats 2, go to the admin area of the website, then "FTP manager", then finally "Add Server", there is no limit in the amount of servers you can add.
 - Target Folder must link to your UnrealTournament main folder(CASE SENSITIVE), e.g /Servers/UnrealTournament/ for an FTP user with entry point of C:/
-![alt text](https://i.imgur.com/aMJUxCm.png "ftp image")
+![alt text](https://i.imgur.com/wFRYFzZ.png "ftp image")
 - You can later edit settings if required.
 
 # Running the importer
