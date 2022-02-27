@@ -728,3 +728,7 @@ input[type="range"]{
 .hover-cursor:hover{
 	cursor:pointer;
 }
+
+.pointer:hover{
+	cursor:pointer;
+}

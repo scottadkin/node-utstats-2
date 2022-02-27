@@ -35,7 +35,7 @@ class AdminPlayerSearch extends React.Component{
             "playerHistoryError": null,
             "playerHistoryErrorDisplayUntil": 0,
             "selectedName": null,
-            "selectedId": null,
+            "selectedId": -1,
             "aliasPage": 0,
             "connectionPage": 0,
             "bLoadingConnections": false,
@@ -51,7 +51,22 @@ class AdminPlayerSearch extends React.Component{
         this.loadPlayerHistory = this.loadPlayerHistory.bind(this);
         this.changeAliasPage = this.changeAliasPage.bind(this);
         this.changeConnectionPage = this.changeConnectionPage.bind(this);
+        this.changeNameSearch = this.changeNameSearch.bind(this);
+        this.updateDropDown = this.updateDropDown.bind(this);
 
+    }
+
+    async updateDropDown(e){
+
+        this.setState({"selectedId": e.target.value, "selectedName": e.target.options[e.target.selectedIndex].text});
+        await this.loadPlayerHistory(null, e.target.value);
+    }
+
+    async changeNameSearch(name, playerId){
+
+        this.setState({"mode": 1, "nameSearch": name, "selectedName": name, "connectionPage": 0});
+
+        await this.loadPlayerHistory(null, playerId);
     }
 
     changeConnectionPage(page){
@@ -139,11 +154,14 @@ class AdminPlayerSearch extends React.Component{
     }
 
 
-    async loadPlayerHistory(e){
+    async loadPlayerHistory(e, selectedId){
 
         try{
 
-            e.preventDefault();
+
+            if(e !== null){
+                e.preventDefault();
+            }
 
             this.setState({
                 "bLoadingPlayerHistory": true, 
@@ -153,15 +171,31 @@ class AdminPlayerSearch extends React.Component{
                 "aliasPage": 0
             });
 
-            const playerId = parseInt(e.target[0].value);
 
+            //const playerId = parseInt(e.target[0].value) ?? this.state.selectedId;
 
-            if(e.target[0].value !== -1){
-                this.setState({
-                    "selectedName": this.state.nameList[e.target[0].selectedIndex -1].name,
-                    "selectedId": this.state.nameList[e.target[0].selectedIndex -1].id
-                });
-            }
+            const playerId = selectedId ?? this.state.selectedId;
+
+            this.setState({"selectedId": playerId});
+
+            /*if(e !== null){
+                playerId = parseInt(e.target[0].value);
+            }else{
+                playerId = selectedId;
+            }*/
+
+            /*if(e !== null){
+
+                if(e.target[0].value !== -1){
+                    this.setState({
+                        "selectedName": this.state.nameList[e.target[0].selectedIndex -1].name,
+                        "selectedId": this.state.nameList[e.target[0].selectedIndex -1].id
+                    });
+                }
+                
+            }else{
+                this.setState({"selectedId": playerId});
+            }*/
 
             const req = await fetch("/api/adminplayers",{
                 "headers": {"Content-type": "application/json"},
@@ -397,7 +431,9 @@ class AdminPlayerSearch extends React.Component{
                 const r = this.state.nameResults[i];
 
                 names.push(<tr key={i}>
-                    <td className="text-left"><Link href={`/player/${r.player_id}`}><a>{r.name}</a></Link></td>
+                    <td className="text-left pointer" onClick={(() =>{
+                        this.changeNameSearch(r.name, r.player_id);
+                    })}>{r.name}</td>
                     <td>{r.ip} <CountryFlag country={r.country}/></td>
                     <td>{Functions.convertTimestamp(r.first, true)}</td>
                     <td>{Functions.convertTimestamp(r.last, true)}</td>
@@ -455,7 +491,9 @@ class AdminPlayerSearch extends React.Component{
                 const r = this.state.ipResults[i];
 
                 names.push(<tr key={i}>
-                    <td className="text-left"><Link href={`/player/${r.player_id}`}><a>{r.name}</a></Link></td>
+                    <td className="text-left pointer"  onClick={(() =>{
+                        this.changeNameSearch(r.name, r.player_id);
+                    })}>{r.name}</td>
                     <td>{r.ip} <CountryFlag country={r.country}/></td>
                     <td>{Functions.convertTimestamp(r.first ?? r.first_match, true)}</td>
                     <td>{Functions.convertTimestamp(r.last ?? r.last_match, true)}</td>
@@ -667,7 +705,7 @@ class AdminPlayerSearch extends React.Component{
             }
         }
 
-        return <select className="default-select" defaultValue={(this.state.selectedId !== -1) ? this.state.selectedId : -1}>
+        return <select className="default-select" value={(this.state.selectedId !== -1) ? this.state.selectedId : -1} onChange={this.updateDropDown}>
             <option value="-1">Select a Player...</option>
             {options}
         </select>
@@ -690,13 +728,13 @@ class AdminPlayerSearch extends React.Component{
             const a = this.state.playerHistory.aliases[i];
 
             rows.push(<tr key={i}>
-                <td>
-                    <Link href={`/player/${a.player_id}`}>
-                        <a>
-                            <CountryFlag country={a.country}/>
-                            {a.name}
-                        </a>
-                    </Link>
+                <td className="pointer" onClick={(() =>{
+                        this.changeNameSearch(a.name, a.player_id);
+                    })}>
+                    
+                        <CountryFlag country={a.country}/>
+                        {a.name}
+                        
                 </td>
                 <td>{Functions.convertTimestamp(a.first_match, true)}</td>
                 <td>{Functions.convertTimestamp(a.last_match, true)}</td>
@@ -802,12 +840,12 @@ class AdminPlayerSearch extends React.Component{
                     Search a player&apos;s full history.
                 </div>
                 {loading}
-                <form action="/" method="POST" onSubmit={this.loadPlayerHistory}>
+                <form action="/" method="POST">
                     <div className="select-row">
                         <div className="select-label">Player</div>
                         <div>{this.renderPlayerDropDown()}</div>
                     </div>
-                    <input type="submit" className="search-button" value="Load Data"/>
+                   
                 </form>
             </div>
             {elems}
@@ -817,9 +855,10 @@ class AdminPlayerSearch extends React.Component{
 
     renderConnectionHistory(){
 
-        if(this.state.mode !== 1 || this.state.selectedId === null) return null;
+        if(this.state.mode !== 1) return null;
 
         const loading = (this.state.bLoadingConnections) ? <Loading/> : null;
+        
 
         const notification = (this.state.connectionError === null) ? null :
         <Notification type="error" displayUntil={this.state.connectionErrorDisplayUntil}>{this.state.connectionError}</Notification>
