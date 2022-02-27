@@ -53,7 +53,20 @@ class AdminPlayerSearch extends React.Component{
         this.changeConnectionPage = this.changeConnectionPage.bind(this);
         this.changeNameSearch = this.changeNameSearch.bind(this);
         this.updateDropDown = this.updateDropDown.bind(this);
+        this.changeIpSearch = this.changeIpSearch.bind(this);
+        this.updateIpHistory = this.updateIpHistory.bind(this);
 
+    }
+
+    updateIpHistory(e){
+
+        this.setState({"ipHistorySearch": e.target.value});
+    }
+
+    async changeIpSearch(ip){
+
+        this.setState({"mode": 2});
+        await this.ipHistory(null, ip);
     }
 
     async updateDropDown(e){
@@ -280,13 +293,15 @@ class AdminPlayerSearch extends React.Component{
         });
     }
 
-    async ipHistory(e){
+    async ipHistory(e, altIP){
 
         try{
 
-            e.preventDefault();
+            if(e !== null){
+                e.preventDefault();
+            }
 
-            const ip = e.target[0].value;
+            const ip = altIP ?? e.target[0].value;
 
             this.setState({"bLoading": true, "ipHistoryError": null, "ipHistory": [], "ipHistorySearch": ip});
 
@@ -434,7 +449,9 @@ class AdminPlayerSearch extends React.Component{
                     <td className="text-left pointer" onClick={(() =>{
                         this.changeNameSearch(r.name, r.player_id);
                     })}>{r.name}</td>
-                    <td>{r.ip} <CountryFlag country={r.country}/></td>
+                    <td className="pointer" onClick={(() =>{
+                        this.changeIpSearch(r.ip)
+                    })}>{r.ip} <CountryFlag country={r.country}/></td>
                     <td>{Functions.convertTimestamp(r.first, true)}</td>
                     <td>{Functions.convertTimestamp(r.last, true)}</td>
                     <td>{Functions.toHours(r.playtime)} Hours</td>
@@ -494,7 +511,9 @@ class AdminPlayerSearch extends React.Component{
                     <td className="text-left pointer"  onClick={(() =>{
                         this.changeNameSearch(r.name, r.player_id);
                     })}>{r.name}</td>
-                    <td>{r.ip} <CountryFlag country={r.country}/></td>
+                    <td className="pointer" onClick={(() =>{
+                        this.changeIpSearch(r.ip)
+                    })}>{r.ip} <CountryFlag country={r.country}/></td>
                     <td>{Functions.convertTimestamp(r.first ?? r.first_match, true)}</td>
                     <td>{Functions.convertTimestamp(r.last ?? r.last_match, true)}</td>
                     <td>{Functions.toHours(r.playtime)} Hours</td>
@@ -681,7 +700,7 @@ class AdminPlayerSearch extends React.Component{
                             IP
                         </div>
                         <div>
-                            <input type="text" className="default-textbox" placeholder="192.168.56.1" defaultValue={this.state.ipHistorySearch}/>
+                            <input type="text" className="default-textbox" placeholder="192.168.56.1" value={this.state.ipHistorySearch} onChange={this.updateIpHistory}/>
                         </div>
                     </div>
                     <input type="submit" className="search-button" value="Search"/>
@@ -779,7 +798,9 @@ class AdminPlayerSearch extends React.Component{
             const d = this.state.playerHistory.usedIps.data[i];
 
             rows.push(<tr key={i}>
-                <td>{d.ip}</td>
+                <td className="pointer" onClick={(() =>{
+                        this.changeIpSearch(d.ip)
+                    })}>{d.ip}</td>
                 <td>{Functions.convertTimestamp(d.first_match, true)}</td>
                 <td>{Functions.convertTimestamp(d.last_match, true)}</td>
                 <td>{d.total_matches}</td>
@@ -878,7 +899,9 @@ class AdminPlayerSearch extends React.Component{
                 rows.push(<tr key={i}>
                     <td><Link href={`/match/${c.match_id}`}><a>{c.match_id}</a></Link></td>
                     <td>{Functions.convertTimestamp(c.match_date, true)}</td>
-                    <td>{c.ip}</td>
+                    <td className="pointer" onClick={(() =>{
+                        this.changeIpSearch(c.ip)
+                    })}>{c.ip}</td>
                     <td>{Functions.toHours(c.playtime)} Hours</td>
                 </tr>);
 
