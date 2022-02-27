@@ -65,6 +65,7 @@ class AdminPlayerSearch extends React.Component{
 
     async changeIpSearch(ip){
 
+        window.scrollTo(0,200);
         this.setState({"mode": 2});
         await this.ipHistory(null, ip);
     }
@@ -77,6 +78,7 @@ class AdminPlayerSearch extends React.Component{
 
     async changeNameSearch(name, playerId){
 
+        window.scrollTo(0,200);
         this.setState({"mode": 1, "selectedName": name, "connectionPage": 0});
 
         await this.loadPlayerHistory(null, playerId);
@@ -941,7 +943,7 @@ class AdminPlayerSearch extends React.Component{
     render(){
 
         return <div>
-            <div className="default-header">Player Search</div>
+            <div className="default-header" id="player-search">Player Search</div>
             <div className="tabs">
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : null }`} onClick={(() =>{
                     this.changeMode(0);
