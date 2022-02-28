@@ -242,7 +242,7 @@ class MatchScreenshot{
 
                     this.playerIcons[uniqueIcons[i]] = new Image();
 
-                    this.playerIcons[uniqueIcons[i]].src = `${this.host}images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
+                    this.playerIcons[uniqueIcons[i]].src = `/images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
 
                     this.playerIcons[uniqueIcons[i]].onload = () =>{
 
@@ -265,7 +265,7 @@ class MatchScreenshot{
 
                     this.playerIcons.push(new Image());
 
-                    this.playerIcons[i].src = `${this.host}images/faces/${this.faces[i]}`;
+                    this.playerIcons[i].src = `/images/faces/${this.faces[i]}`;
 
                     this.playerIcons[i].onload = () =>{
 
@@ -305,7 +305,7 @@ class MatchScreenshot{
             for(let i = 0; i < this.flagsToLoad; i++){
 
                 this.flags[uniqueFlags[i]] = new Image();
-                this.flags[uniqueFlags[i]].src = `${this.host}images/flags/${uniqueFlags[i].toLowerCase()}.svg`;
+                this.flags[uniqueFlags[i]].src = `/images/flags/${uniqueFlags[i].toLowerCase()}.svg`;
 
                 this.flags[uniqueFlags[i]].onload = () =>{
                     this.loadedFlags++;
@@ -335,7 +335,7 @@ class MatchScreenshot{
             for(let i = 0; i < files.length; i++){
 
                 this.icons[files[i]] = new Image();
-                this.icons[files[i]].src = `${this.host}images/${files[i]}.png`;
+                this.icons[files[i]].src = `/images/${files[i]}.png`;
                 this.icons[files[i]].onload = () =>{
 
                     this.iconsLoaded++;
