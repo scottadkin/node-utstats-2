@@ -1,6 +1,5 @@
 const mysql = require('./database');
 const Match = require('./match');
-const Players = require('./players');
 const Assault = require('./assault');
 const CountriesManager = require('./countriesmanager');
 const CTF = require('./ctf');
@@ -641,7 +640,7 @@ class Matches{
         });
     }
 
-    async deleteMatch(id){
+    async deleteMatch(id, players){
 
         try{
 
@@ -652,8 +651,6 @@ class Matches{
             const matchData = await match.get(id);
             
             if(matchData === undefined) return;
-
-            const players = new Players();
 
             const playersData = await players.player.getAllInMatch(id);
 

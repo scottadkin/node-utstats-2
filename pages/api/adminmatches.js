@@ -5,6 +5,7 @@ import Maps from '../../api/maps';
 import Servers from '../../api/servers';
 import Gametypes from '../../api/gametypes';
 import Logs from '../../api/logs';
+import Players from '../../api/players';
 
 async function setMatchValues(matches, mapManager, serverManager, gametypeManager){
 
@@ -103,7 +104,9 @@ export default async function handler(req, res){
                             return;
                         }
 
-                        if(await matches.deleteMatch(id)){
+                        const players = new Players();
+
+                        if(await matches.deleteMatch(id, players)){
                             res.status(200).json({"message": "passed"});
                         }else{
                             res.status(200).json({"error": "There was a problem deleting the match"})
@@ -138,8 +141,9 @@ export default async function handler(req, res){
                         for(let i = 0; i < matchesToDelete.length; i++){
 
                             const m = matchesToDelete[i];
+                            const players = new Players();
 
-                            if(await matches.deleteMatch(m)){
+                            if(await matches.deleteMatch(m, players)){
 
                                 console.log(`Match with id ${m} deleted successfully`);
 
