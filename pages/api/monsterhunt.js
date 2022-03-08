@@ -29,8 +29,21 @@ export default async function handler(req, res){
             const monsterIds = getMonsterIds(matchMonsterTotals);
             const monsterNames = await mhManager.getMonsterNames(monsterIds);
 
+            const justMonsterNames = [];
+
+            for(const [key, value] of Object.entries(monsterNames)){
+                justMonsterNames.push(value.className);
+            }
+
+            const monsterImages = mhManager.getImages(justMonsterNames);
             const playerKills = await mhManager.getPlayerMatchKillTotals(matchId);
-            res.status(200).json({"monsterNames": monsterNames, "monsterTotals": matchMonsterTotals, "playerKills": playerKills});
+
+            res.status(200).json({
+                "monsterNames": monsterNames, 
+                "monsterTotals": matchMonsterTotals, 
+                "playerKills": playerKills,
+                "monsterImages": monsterImages
+            });
 
             return;
         }

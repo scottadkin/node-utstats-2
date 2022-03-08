@@ -6,6 +6,7 @@ import Functions from '../../api/functions';
 import Image from 'next/image';
 import Loading from '../Loading';
 import Notifcation from '../Notification';
+import MonsterHuntMonster from '../MonsterHuntMonster';
 
 class MatchMonsterHuntMonsterKills extends React.Component{
 
@@ -19,7 +20,8 @@ class MatchMonsterHuntMonsterKills extends React.Component{
             "displayErrorUntil": 0,
             "monsterNames": {}, 
             "monsterTotals": [],
-            "playerKills": []
+            "playerKills": [],
+            "monsterImages": []
         };
 
 
@@ -42,8 +44,9 @@ class MatchMonsterHuntMonsterKills extends React.Component{
                 this.setState({
                     "bLoading": false,
                     "monsterNames": res.monsterNames,
-                    "monstersTotals": res.monsterTotals,
-                    "playerKills": res.playerKills
+                    "monsterTotals": res.monsterTotals,
+                    "playerKills": res.playerKills,
+                    "monsterImages": res.monsterImages
                 });
 
             }else{
@@ -64,11 +67,47 @@ class MatchMonsterHuntMonsterKills extends React.Component{
         
     }
 
+    getMonsterName(id, bClassName){
+
+        if(bClassName === undefined) bClassName = false;
+
+        if(this.state.monsterNames[id] !== undefined){
+
+            if(!bClassName){
+                return this.state.monsterNames[id].displayName;
+            }else{
+                return this.state.monsterNames[id].className;
+            }
+        }
+
+        return "Not Found!";
+    }
+
+    renderMonsters(){
+
+        const monsters = [];
+
+        for(let i = 0; i < this.state.monsterTotals.length; i++){
+
+            const m = this.state.monsterTotals[i];
+
+            const monsterImage = this.state.monsterImages[this.getMonsterName(m.monster, true)];
+
+            monsters.push(<MonsterHuntMonster key={i} name={this.getMonsterName(m.monster)} image={monsterImage}/>);
+        }
+
+        return monsters;
+    }
+
     render(){
 
         let elems = <Loading />;
 
-        if(!this.state.bLoading) elems = [];
+        if(!this.state.bLoading){
+
+            elems = this.renderMonsters();
+
+        } 
 
         let notification = (this.state.error !== null) ? 
         <Notifcation type="error" displayUntil={this.state.displayErrorUntil}>{this.state.error}</Notifcation> 
@@ -80,7 +119,9 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         return <>
             <div className="default-header">Monster Stats</div>
-            {elems}
+            <div className={styles.wrapper}>
+                {elems}
+            </div>
             {notification}
         </>
     }

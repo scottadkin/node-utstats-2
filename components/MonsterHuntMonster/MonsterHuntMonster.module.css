@@ -1,0 +1,12 @@
+.wrapper{
+    background-color:var(--color-3a);
+    display:inline-block;
+    width:300px;
+    margin-right:5px;
+    margin-bottom:5px;
+}
+
+.name{
+    font-size:18px;
+    padding:10px;
+}

@@ -590,15 +590,12 @@ class MonsterHunt{
             
             const name = result[1].toLowerCase();
 
-
             for(let i = 0; i < monsterNames.length; i++){
 
                 if(name.includes(monsterNames[i])){
                     return i;
                 }
             }
-
-
         }
 
         return null;
