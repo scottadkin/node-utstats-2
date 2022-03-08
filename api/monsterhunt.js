@@ -568,7 +568,17 @@ class MonsterHunt{
 
         if(ids.length === 0) return [];
 
-        return await mysql.simpleFetch("SELECT id,class_name,display_name FROM nstats_monsters WHERE id IN(?)",[ids]);
+        const result =  await mysql.simpleFetch("SELECT id,class_name,display_name FROM nstats_monsters WHERE id IN(?)",[ids]);
+
+        const objData = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            objData[r.id] = {"className": r.class_name, "displayName": r.display_name};
+        }
+
+        return objData;
     }
 
     getSimilarImage(monsterNames, className){

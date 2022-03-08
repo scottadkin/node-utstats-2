@@ -308,11 +308,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
         elems[pageOrder["Display MonsterHunt Kills"]] = <MatchMonsterHuntMonsterKills 
             key={"mh-monsters"} 
-            host={imageHost} 
-            images={JSON.parse(monsterImages)} 
-            monsterNames={JSON.parse(monsterNames)}
             playerData={JSON.parse(playerData)} 
-            monsterKills={JSON.parse(monsterHuntPlayerKillTotals)} 
             matchId={parsedInfo.id}
         />;
     }
@@ -653,8 +649,6 @@ export async function getServerSideProps({req, query}){
     }
 
     let monsterHuntPlayerKillTotals = [];
-    let monsterImages = [];
-    let monsterNames = [];
 
     if(matchInfo.mh){
 
@@ -662,29 +656,6 @@ export async function getServerSideProps({req, query}){
 
         monsterHuntPlayerKillTotals = await monsterHuntManager.getPlayerMatchKillTotals(matchId);
 
-        const monsterIds = [];
-
-        for(let i = 0; i < monsterHuntPlayerKillTotals.length; i++){
-
-            if(monsterIds.indexOf(monsterHuntPlayerKillTotals[i].monster) === -1){
-
-                monsterIds.push(monsterHuntPlayerKillTotals[i].monster);
-            }
-        }
-
-        monsterNames = await monsterHuntManager.getMonsterNames(monsterIds);
-
-        const monsterClasses = [];
-
-        for(let i = 0; i < monsterNames.length; i++){
-
-            if(monsterClasses.indexOf(monsterNames[i].class_name) === -1){
-
-                monsterClasses.push(monsterNames[i].class_name);
-            }
-        }
-
-        monsterImages = monsterHuntManager.getImages(monsterClasses);
     }
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
@@ -713,9 +684,6 @@ export async function getServerSideProps({req, query}){
             "currentRankings": JSON.stringify(currentRankings),
             "rankingPositions": JSON.stringify(rankingPositions),
             "bMonsterHunt": matchInfo.mh,
-            "monsterHuntPlayerKillTotals": JSON.stringify(monsterHuntPlayerKillTotals),
-            "monsterImages": JSON.stringify(monsterImages),
-            "monsterNames": JSON.stringify(monsterNames)
         }
     };
 

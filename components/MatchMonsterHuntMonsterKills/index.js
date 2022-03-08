@@ -4,6 +4,8 @@ import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import Functions from '../../api/functions';
 import Image from 'next/image';
+import Loading from '../Loading';
+import Notifcation from '../Notification';
 
 class MatchMonsterHuntMonsterKills extends React.Component{
 
@@ -11,158 +13,76 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         super(props);
 
-        this.state = {"playerData": this.props.playerData.sort((a, b) => {
-
-            a = a.mh_kills;
-            b = b.mh_kills;
-
-            if(a < b){
-                return 1;
-            }else if(a > b){
-                return -1;
-            }
-
-            return 0;
-
-        })};
+        this.state = {
+            "bLoading": true, 
+            "error": null, 
+            "displayErrorUntil": 0,
+            "monsterNames": {}, 
+            "monsterTotals": [],
+            "playerKills": []
+        };
 
 
     }
 
-    getMonsterId(className){
+    async loadData(){
 
-        let m = 0;
+        try{
 
-        for(let i = 0; i < this.props.monsterNames.length; i++){
+            const req = await fetch("/api/monsterhunt", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "fullmatch", "matchId": this.props.matchId})
+            });
 
-            m = this.props.monsterNames[i];
+            const res = await req.json();
 
-            if(m.class_name === className){
-                return m.id;
+            if(res.error === undefined){
+
+                this.setState({
+                    "bLoading": false,
+                    "monsterNames": res.monsterNames,
+                    "monstersTotals": res.monsterTotals,
+                    "playerKills": res.playerKills
+                });
+
+            }else{
+
+                this.setState({"error": res.error, "displayErrorUntil": Math.floor(Date.now() * 0.001) + 5});
             }
+
+        }catch(err){
+            console.trace(err);
         }
 
-        return null;
     }
 
-    getMonsterDisplayName(className){
-
-        let m = 0;
-
-        for(let i = 0; i < this.props.monsterNames.length; i++){
-
-            m = this.props.monsterNames[i];
-
-            if(m.class_name === className){
-                return m.display_name;
-            }
-        }
-
-        return "Not Found";
-    }
+    async componentDidMount(){
 
 
-    getPlayerMonsterKillCount(playerId, monsterId){
-
-        let m = 0;
-
-        for(let i = 0; i < this.props.monsterKills.length; i++){
-
-            m = this.props.monsterKills[i];
-
-            if(m.player === playerId && m.monster === monsterId){
-                return m.kills;
-            }
-        }
-
-        return 0;
-    }
-
-
-    createMonsterPlayerStats(monsterId){
-
-        if(monsterId === null) return null;
-
-        const rows = [];
-
-        let p = 0;
-
-        for(let i = 0; i < this.state.playerData.length; i++){
-
-            p = this.state.playerData[i];
-
-            if(!p.played){
-                continue;
-            }
-
-            rows.push(<tr key={i}>
-                <td><Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a><CountryFlag host={this.props.host} country={p.country}/>{p.name}</a></Link></td>
-                <td>{Functions.ignore0(this.getPlayerMonsterKillCount(p.player_id, monsterId))}</td>
-            </tr>);
-        }
-
-        return rows;
-    }
-
-    getTotalMonsterDeaths(id){
-
-        let total = 0;
-
-        let m = 0;
-
-        for(let i = 0; i < this.props.monsterKills.length; i++){
-
-            m = this.props.monsterKills[i];
-
-            if(m.monster === id){
-                total += m.kills;
-            }
-        }
-
-        return total;
+        await this.loadData();
+        
     }
 
     render(){
 
-        const images = [];
+        let elems = <Loading />;
 
-        let monsterId = 0;
-        let totalDeaths = 0;
+        if(!this.state.bLoading) elems = [];
 
-
-        for(const [className, fileUrl] of Object.entries(this.props.images)){
-
-            monsterId = this.getMonsterId(className);
-            totalDeaths = this.getTotalMonsterDeaths(monsterId);
-
-            images.push(
-                <div className={styles.box} key={images.length}>
-                    <div className={styles.name}>
-                        {this.getMonsterDisplayName(className)}
-                    </div>
-                    <Image src={`/images/monsters/${fileUrl}`} width={150} height={150} alt="monster" className="monster-image"/>
-                    <div className={styles.deaths}>{totalDeaths} Death{(totalDeaths === 1) ? null : "s"}</div>
-                    <table className={`${styles.table} td-1-left`}>
-                        <tbody>
-                            <tr>
-                                <th>Player</th>
-                                <th>Kills</th>
-                            </tr>
-                            {this.createMonsterPlayerStats(monsterId)}
-                        </tbody>
-                    </table>
-                </div>
-            );
-        }
+        let notification = (this.state.error !== null) ? 
+        <Notifcation type="error" displayUntil={this.state.displayErrorUntil}>{this.state.error}</Notifcation> 
+        : 
+        null;
 
 
 
-        return <div className="m-bottom-25">
+
+        return <>
             <div className="default-header">Monster Stats</div>
-            <div className={`${styles.wrapper} center`}>
-                {images}
-            </div>
-        </div>
+            {elems}
+            {notification}
+        </>
     }
 }
 
