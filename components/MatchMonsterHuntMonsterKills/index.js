@@ -1,9 +1,5 @@
 import React from 'react';
 import styles from './MatchMonsterHuntMonsterKills.module.css';
-import CountryFlag from '../CountryFlag';
-import Link from 'next/link';
-import Functions from '../../api/functions';
-import Image from 'next/image';
 import Loading from '../Loading';
 import Notifcation from '../Notification';
 import MonsterHuntMonster from '../MonsterHuntMonster';
@@ -21,7 +17,8 @@ class MatchMonsterHuntMonsterKills extends React.Component{
             "monsterNames": {}, 
             "monsterTotals": [],
             "playerKills": [],
-            "monsterImages": []
+            "monsterImages": [],
+            "playerNames": {}
         };
 
 
@@ -62,8 +59,19 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
     async componentDidMount(){
 
-
         await this.loadData();
+
+        const playerNames = {};
+
+        for(let i = 0; i < this.props.playerData.length; i++){
+
+            const p = this.props.playerData[i];
+
+            playerNames[p.player_id] = {"name": p.name, "country": "xx"};
+
+        }
+
+        this.setState({"playerNames": playerNames});
         
     }
 
@@ -83,6 +91,30 @@ class MatchMonsterHuntMonsterKills extends React.Component{
         return "Not Found!";
     }
 
+    getPlayerMonsterKills(monsterId){
+
+        const found = [];
+
+        for(let i = 0; i < this.state.playerKills.length; i++){
+
+            const p = this.state.playerKills[i];
+
+            if(p.monster === monsterId){
+
+                const player = this.state.playerNames[p.player] ?? null;
+
+                if(player !== null){
+                    p.playerName = player.name;
+                    p.country = player.country;
+                }
+
+                found.push(p);
+            }
+        }
+
+        return found;
+    }
+
     renderMonsters(){
 
         const monsters = [];
@@ -93,7 +125,16 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
             const monsterImage = this.state.monsterImages[this.getMonsterName(m.monster, true)];
 
-            monsters.push(<MonsterHuntMonster key={i} name={this.getMonsterName(m.monster)} image={monsterImage}/>);
+            monsters.push(
+                <MonsterHuntMonster 
+                    key={i} 
+                    name={this.getMonsterName(m.monster)} 
+                    image={monsterImage} 
+                    playerNames={this.state.playerNames}
+                    data={this.getPlayerMonsterKills(m.monster)}
+                    matchId={this.props.matchId}
+                />
+            );
         }
 
         return monsters;

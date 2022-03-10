@@ -385,6 +385,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	padding-right:5px;
 }
 
+.t-width-0{
+	width:100%;
+}
+
 .t-width-1{
 	width:90%;
 	max-width:var(--max-width-1);

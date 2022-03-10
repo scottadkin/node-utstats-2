@@ -260,6 +260,10 @@ const Countires = (code) =>{
         "ZW": "Zimbabwe"
     }
 
+    const defaultObj = {"code": "XX", "country": 'Unknown'};
+
+    if(code === undefined) return defaultObj;
+
     code = code.toUpperCase();
 
     if(code === 'ALL'){
@@ -267,7 +271,7 @@ const Countires = (code) =>{
     }
 
     if(flags[code] === undefined){
-        return {"code": "XX", "country": 'Unknown'};
+        return defaultObj;
     }
 
     return {"code": code, "country": flags[code]};

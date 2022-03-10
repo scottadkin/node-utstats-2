@@ -11,24 +11,18 @@ class Table2 extends React.Component{
 
     render(){
 
-        let widthClass = "";
+        const widthId = (this.props.width !== undefined) ? this.props.width : 0;
 
-        const widthId = (this.props.width !== undefined) ? this.props.width : -1;
+        const widthClass = `t-width-${widthId}`;
 
-        if(widthId === 1){
-            widthClass = "t-width-1";
-        }else if(widthId === 2){
-            widthClass = "t-width-2";
-        }else if(widthId === 3){
-            widthClass = "t-width-3";
-        }else if(widthId === 4){
-            widthClass = "t-width-4";
-        }
+        const playerClass = (this.props.players !== undefined) ? (this.props.players) ? "player-td-1" : "" : "";
 
-        const playerClass = (this.props.players !== undefined) ? (this.props.players) ? "player-td-1" : "" : "" ;
+        const noBottomMargin = (this.props.noBottomMargin !== undefined) ? true : false;
 
-        return <div className={`${styles.wrapper}`}>
-            <table className={`${widthClass} ${playerClass}`}>
+        const bCompressed = (this.props.compressed !== undefined) ? true : false;
+
+        return <div className={`${styles.wrapper}`} style={{"marginBottom": `${(noBottomMargin) ? 0 : 25}px`}}>
+            <table className={`${widthClass} ${playerClass}`} style={(bCompressed) ? {"lineHeight": "10px"} : {}}>
                 <tbody>
                     {this.props.children}
                 </tbody>

@@ -6,9 +6,6 @@
     min-width:100%;
 }
 
-.wrapper table{
-    margin-bottom:25px;
-}
 
 @media only screen and (max-width: 800px) {
     .wrapper table td, .wrapper table th{
