@@ -53,23 +53,25 @@ class MonsterHuntMonster extends React.Component{
             </tr>);
         }
 
-        for(const [key, value] of Object.entries(this.props.playerNames)){
+        if(!this.props.bHide0Kills){
+            
+            for(const [key, value] of Object.entries(this.props.playerNames)){
 
-            if(usedNames.indexOf(value.name) === -1){
+                if(usedNames.indexOf(value.name) === -1){
 
-                rows.push(<tr key={value.name}>
-                    <td>
-                        <Link href={`/pmatch/${this.props.matchId}?player=${key}`}>
-                            <a>
-                                <CountryFlag country={value.country}/>
-                                {value.name}
-                            </a>
-                        </Link>
-                    </td>
-                    <td></td>
-                </tr>);
+                    rows.push(<tr key={value.name}>
+                        <td>
+                            <Link href={`/pmatch/${this.props.matchId}?player=${key}`}>
+                                <a>
+                                    <CountryFlag country={value.country}/>
+                                    {value.name}
+                                </a>
+                            </Link>
+                        </td>
+                        <td></td>
+                    </tr>);
+                }
             }
-
         }
 
         return rows;

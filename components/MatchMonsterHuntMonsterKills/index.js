@@ -165,6 +165,7 @@ class MatchMonsterHuntMonsterKills extends React.Component{
                     playerNames={this.state.playerNames}
                     data={this.getPlayerMonsterKills(m.monster)}
                     matchId={this.props.matchId}
+                    bHide0Kills={this.state.mode === 0}
                 />
             );
         }
@@ -178,16 +179,41 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         const tabs = [];
 
+        const monsterNames = [];
+
         for(const [key, value] of Object.entries(this.state.monsterNames)){
 
+            value.id = parseInt(key);
+            monsterNames.push(value);
+        }
+
+        monsterNames.sort((a, b) =>{
+
+            a = a.displayName.toLowerCase();
+            b = b.displayName.toLowerCase();
+
+            if(a < b){
+                return -1;
+            }else if(a > b){
+                return 1;
+            }
+            return 0;
+        });
+
+
+        for(let i = 0; i < monsterNames.length; i++){
+
+            const m = monsterNames[i];
+
             tabs.push(
-                <div key={key} className={`tab ${(this.state.currentMonster === parseInt(key)) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMonster(parseInt(key));
+                <div key={i} className={`tab ${(this.state.currentMonster === parseInt(m.id)) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMonster(m.id);
                 })}>
-                    {value.displayName}
+                    {m.displayName}
                 </div>
             );
         }
+        
 
         return <div className="tabs">
             {tabs}
