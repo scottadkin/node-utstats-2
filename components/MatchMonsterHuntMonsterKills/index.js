@@ -18,10 +18,33 @@ class MatchMonsterHuntMonsterKills extends React.Component{
             "monsterTotals": [],
             "playerKills": [],
             "monsterImages": [],
-            "playerNames": {}
+            "playerNames": {},
+            "currentMonster": 0,
+            "mode": 0
         };
 
+        this.changeMonster = this.changeMonster.bind(this);
+        this.changeMode = this.changeMode.bind(this);
 
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
+    }
+
+    changeMonster(monster){
+
+        this.setState({"currentMonster": monster});
+    }
+
+    setFirstMonster(){
+
+        const keys = Object.keys(this.state.monsterNames);
+
+        if(keys.length === 0) return;
+
+        this.setState({"currentMonster": parseInt(keys[0])});
     }
 
     async loadData(){
@@ -45,6 +68,10 @@ class MatchMonsterHuntMonsterKills extends React.Component{
                     "playerKills": res.playerKills,
                     "monsterImages": res.monsterImages
                 });
+
+                this.setFirstMonster();
+
+                
 
             }else{
 
@@ -123,6 +150,11 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
             const m = this.state.monsterTotals[i];
 
+            if(this.state.mode === 0){
+
+                if(m.monster !== this.state.currentMonster) continue;
+            }
+
             const monsterImage = this.state.monsterImages[this.getMonsterName(m.monster, true)];
 
             monsters.push(
@@ -138,6 +170,28 @@ class MatchMonsterHuntMonsterKills extends React.Component{
         }
 
         return monsters;
+    }
+
+    renderMonsterTabs(){
+
+        if(this.state.mode !== 0) return null;
+
+        const tabs = [];
+
+        for(const [key, value] of Object.entries(this.state.monsterNames)){
+
+            tabs.push(
+                <div key={key} className={`tab ${(this.state.currentMonster === parseInt(key)) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMonster(parseInt(key));
+                })}>
+                    {value.displayName}
+                </div>
+            );
+        }
+
+        return <div className="tabs">
+            {tabs}
+        </div>
     }
 
     render(){
@@ -160,6 +214,15 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         return <>
             <div className="default-header">Monster Stats</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Single Display</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Display All</div>
+            </div>
+            {this.renderMonsterTabs()}
             <div className={styles.wrapper}>
                 {elems}
             </div>
