@@ -50,6 +50,11 @@ class Importer{
 
     updateCurrentUpdatedStats(currentData){
 
+        if(currentData === undefined){
+            new Message(`Importer.updateCurrentUpdatedStats() currentData is undefined`,"warning");
+            return;
+        }
+
         if(currentData !== null){
             this.addUpdatedPlayers(currentData.updatedPlayers);
             this.addUpdatedGametype(currentData.updatedGametype);

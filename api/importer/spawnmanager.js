@@ -20,19 +20,26 @@ class SpawnManager{
 
         const result = reg.exec(string);
 
-        this.spawnPoints.push(
-            {
-                "id": (id === undefined) ? this.spawnPoints.length : parseInt(id),
-                "name": name,
-                "team": parseInt(result[1]),
-                "position": {
-                    "x": parseFloat(result[2]),
-                    "y": parseFloat(result[3]),
-                    "z": parseFloat(result[4])
-                },
-                "totalSpawns": 0
-            }
-        );
+        if(result !== null){
+
+            this.spawnPoints.push(
+                {
+                    "id": (id === undefined) ? this.spawnPoints.length : parseInt(id),
+                    "name": name,
+                    "team": parseInt(result[1]),
+                    "position": {
+                        "x": parseFloat(result[2]),
+                        "y": parseFloat(result[3]),
+                        "z": parseFloat(result[4])
+                    },
+                    "totalSpawns": 0
+                }
+            );
+
+        }else{
+
+            new Message(`SpawnManager.addSpawnPoint() result is null`,"warning");
+        }
 
     }
 
