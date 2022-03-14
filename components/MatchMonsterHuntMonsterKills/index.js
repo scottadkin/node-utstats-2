@@ -40,11 +40,12 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
     setFirstMonster(){
 
-        const keys = Object.keys(this.state.monsterNames);
+        const monsterNames = this.monstersOrderedByName();
 
-        if(keys.length === 0) return;
+        if(monsterNames.length > 0){
 
-        this.setState({"currentMonster": parseInt(keys[0])});
+            this.setState({"currentMonster": monsterNames[0].id});
+        }
     }
 
     async loadData(){
@@ -173,11 +174,7 @@ class MatchMonsterHuntMonsterKills extends React.Component{
         return monsters;
     }
 
-    renderMonsterTabs(){
-
-        if(this.state.mode !== 0) return null;
-
-        const tabs = [];
+    monstersOrderedByName(){
 
         const monsterNames = [];
 
@@ -199,6 +196,18 @@ class MatchMonsterHuntMonsterKills extends React.Component{
             }
             return 0;
         });
+
+        return monsterNames;
+
+    }
+
+    renderMonsterTabs(){
+
+        if(this.state.mode !== 0) return null;
+
+        const tabs = [];
+
+        const monsterNames = this.monstersOrderedByName();
 
 
         for(let i = 0; i < monsterNames.length; i++){

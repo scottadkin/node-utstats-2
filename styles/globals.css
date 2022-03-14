@@ -546,6 +546,7 @@ input[type="range"]{
 	margin-left:auto;
 	margin-right:auto;
 	background-color:var(--color-3a);
+	user-select: none;
 }
 .view-profile{
 	padding:5px;
