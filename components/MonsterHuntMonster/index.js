@@ -41,9 +41,18 @@ class MonsterHuntMonster extends React.Component{
 
             usedNames.push(d.playerName);
 
+            let url = null;
+
+            if(!this.props.bPlayerMatch){
+
+                url = `/pmatch/${this.props.matchId}?player=${d.player}`;
+            }else{
+                url = `/player/${d.player}`;
+            }
+
             rows.push(<tr key={i}>
                 <td>
-                    <Link href={`/pmatch/${this.props.matchId}?player=${d.player}`}>
+                    <Link href={url}>
                         <a>
                             <CountryFlag country={d.country}/>
                             {d.playerName}
@@ -60,9 +69,18 @@ class MonsterHuntMonster extends React.Component{
 
                 if(usedNames.indexOf(value.name) === -1){
 
+                    let url = null;
+
+                    if(!this.props.bPlayerMatch === undefined){
+
+                        url = `/pmatch/${this.props.matchId}?player=${key}`;
+                    }else{
+                        url = `/player/${key}`;
+                    }
+
                     rows.push(<tr key={value.name}>
                         <td>
-                            <Link href={`/pmatch/${this.props.matchId}?player=${key}`}>
+                            <Link href={url}>
                                 <a>
                                     <CountryFlag country={value.country}/>
                                     {value.name}
@@ -73,6 +91,11 @@ class MonsterHuntMonster extends React.Component{
                     </tr>);
                 }
             }
+        }
+
+        if(rows.length === 0){
+
+            rows.push(<tr key="1"><td colSpan="2" style={{"textAlign": "center"}}>No Kills</td></tr>);
         }
 
         return rows;

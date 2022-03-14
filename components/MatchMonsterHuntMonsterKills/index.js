@@ -183,6 +183,7 @@ class MatchMonsterHuntMonsterKills extends React.Component{
                     data={this.getPlayerMonsterKills(m.monster)}
                     matchId={this.props.matchId}
                     bHide0Kills={this.state.mode === 0}
+                    bPlayerMatch={this.props.playerId !== undefined}
                 />
             );
         }

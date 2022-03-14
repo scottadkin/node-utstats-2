@@ -22,7 +22,7 @@ class MatchResultDisplay extends React.Component{
             return "red";
         }
 
-        return "yellow;"
+        return "yellow"
 
     }
 
