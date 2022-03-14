@@ -91,11 +91,19 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         const playerNames = {};
 
-        for(let i = 0; i < this.props.playerData.length; i++){
+        if(this.props.playerId === undefined){
 
-            const p = this.props.playerData[i];
+            for(let i = 0; i < this.props.playerData.length; i++){
 
-            playerNames[p.player_id] = {"name": p.name, "country": "xx"};
+                const p = this.props.playerData[i];
+
+                playerNames[p.player_id] = {"name": p.name, "country": "xx"};
+
+            }
+
+        }else{
+
+            playerNames[this.props.playerId] = this.props.playerData;
 
         }
 
@@ -123,6 +131,8 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         const found = [];
 
+        const playerId = this.props.playerId ?? null;
+
         for(let i = 0; i < this.state.playerKills.length; i++){
 
             const p = this.state.playerKills[i];
@@ -131,12 +141,18 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
                 const player = this.state.playerNames[p.player] ?? null;
 
+                if(playerId !== null && p.player !== playerId){
+                    continue;
+                }
+                
                 if(player !== null){
                     p.playerName = player.name;
                     p.country = player.country;
                 }
 
+               
                 found.push(p);
+
             }
         }
 

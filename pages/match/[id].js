@@ -94,7 +94,7 @@ function createBasicPlayerData(players){
 function Match({navSettings, pageSettings, pageOrder, session, host, matchId, info, server, gametype,
     map, image, playerData, weaponData, domControlPointNames, 
     assaultData,  teams, faces, rankingChanges, currentRankings,
-    rankingPositions, bMonsterHunt, monsterHuntPlayerKillTotals, monsterImages, monsterNames}){
+    rankingPositions, bMonsterHunt}){
 
     const imageHost = Functions.getImageHostAndPort(host);
 
