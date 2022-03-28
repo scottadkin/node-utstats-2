@@ -29,7 +29,8 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
             <meta property="og:title" content={`${title} - Node UTStats 2`} />
             <meta property="og:description" content={`${description} Node UTStats 2.`} />
             <meta property="og:type" content="website" />
-            <meta property="og:url" content={`https://${host}${router.asPath}`} />
+            <meta property="og:url" content={`http://${host}${router.asPath}`} />
+            <meta property="og:image:secure_url" content={`https://${host}${router.asPath}`} />
             <meta property="og:image" content={`${imageHost}images/${image}.${imageType}`} />
             <meta property="og:site_name" content="Node UTStats 2" />
         </Head>    

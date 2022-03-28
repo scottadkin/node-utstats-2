@@ -839,19 +839,23 @@ class MatchScreenshot{
         c.fillText((this.bLMS()) ? "Lives" : "Frags", row2X, titleY);
         c.fillText("Deaths", row3X, titleY);
 
+        let playerIndex = 0;
+
 
         for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
             c.font = this.y(2)+"px Arial";
 
-            if(!p.played) continue;
+            if(!p.played || p.playtime === 0) continue;
 
             if(!this.bClassic){
-                this.renderStandardPlayer(c, i, p.name, p.score, p.deaths, p.ping_average, p.playtime, p.country);
+                this.renderStandardPlayer(c, playerIndex, p.name, p.score, p.deaths, p.ping_average, p.playtime, p.country);
             }else{
-                this.renderStandardPlayer(c, i, p.name, p.gamescore, p.deaths, p.avgping, p.gametime, p.country);
+                this.renderStandardPlayer(c, playerIndex, p.name, p.gamescore, p.deaths, p.avgping, p.gametime, p.country);
             }
+
+            playerIndex++;
         }
 
         this.renderFooter(c);
