@@ -31,6 +31,7 @@ import PlayerADSummary from '../../components/PlayerADSummary';
 import PlayerFragSummary from '../../components/PlayerFragSummary';
 import PlayerSpecialEvents from '../../components/PlayerSpecialEvents';
 import Image from 'next/image';
+import PlayerMonsterHuntStats from '../../components/PlayerMonsterHuntStats';
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
@@ -67,6 +68,8 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	}
 
 	summary = JSON.parse(summary);
+
+	console.log(summary);
 	
 	const flag = summary.country;
 
@@ -86,15 +89,13 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	pingGraphData = JSON.parse(pingGraphData);
 
-	const parsedInfo = JSON.parse(summary);
-
 	pageSettings = JSON.parse(pageSettings);
 	pageOrder = JSON.parse(pageOrder);
 
 	const parsedSession = JSON.parse(session);
 
-	let description = `View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedInfo.last)},`;
-	description += `played ${parsedInfo.matches} matches with a winrate of ${parsedInfo.winrate.toFixed(2)}% and has played for a total of ${(parsedInfo.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedInfo.first)}.` ;
+	let description = `View ${titleName} career profile, ${name} is from ${country.country}, last seen ${Functions.convertTimestamp(parsedSummary.last)},`;
+	description += `played ${parsedSummary.matches} matches with a winrate of ${parsedSummary.winrate.toFixed(2)}% and has played for a total of ${(parsedSummary.playtime / (60 * 60)).toFixed(2)} hours since ${Functions.convertTimestamp(parsedSummary.first)}.` ;
 
 	const parsedFaces = JSON.parse(faces);
 
@@ -106,15 +107,15 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 		elems[pageOrder["Display Summary"]] = <PlayerGeneral key={1} country={country.country}
             host={host}
             flag={flag}
-            face={parsedFaces[parsedInfo.face].name}
-            first={parsedInfo.first}
-            last={parsedInfo.last}
-            matches={parsedInfo.matches}
-            playtime={parsedInfo.playtime}
-            winRate={parsedInfo.winrate}
-            wins={parsedInfo.wins}
-            losses={parsedInfo.losses}
-            draws={parsedInfo.draws}     
+            face={parsedFaces[parsedSummary.face].name}
+            first={parsedSummary.first}
+            last={parsedSummary.last}
+            matches={parsedSummary.matches}
+            playtime={parsedSummary.playtime}
+            winRate={parsedSummary.winrate}
+            wins={parsedSummary.wins}
+            losses={parsedSummary.losses}
+            draws={parsedSummary.draws}     
         />;
     }
 
@@ -155,28 +156,28 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 		elems[pageOrder["Display Frag Summary"]] = <PlayerFragSummary key={5}
             session={session}
-            score={parsedInfo.score}
-            frags={parsedInfo.frags}
-            kills={parsedInfo.kills}
-            deaths={parsedInfo.deaths}
-            suicides={parsedInfo.suicides}
-            teamKills={parsedInfo.team_kills}
-            spawnKills={parsedInfo.spawn_kills}
-            efficiency={parsedInfo.efficiency}
-            firstBlood={parsedInfo.first_bloods}
-            accuracy={parsedInfo.accuracy}
-            close={parsedInfo.k_distance_normal}
-            long={parsedInfo.k_distance_long}
-            uber={parsedInfo.k_distance_uber}
-            headshots={parsedInfo.headshots}
-            spawnKillSpree={parsedInfo.best_spawn_kill_spree}
+            score={parsedSummary.score}
+            frags={parsedSummary.frags}
+            kills={parsedSummary.kills}
+            deaths={parsedSummary.deaths}
+            suicides={parsedSummary.suicides}
+            teamKills={parsedSummary.team_kills}
+            spawnKills={parsedSummary.spawn_kills}
+            efficiency={parsedSummary.efficiency}
+            firstBlood={parsedSummary.first_bloods}
+            accuracy={parsedSummary.accuracy}
+            close={parsedSummary.k_distance_normal}
+            long={parsedSummary.k_distance_long}
+            uber={parsedSummary.k_distance_uber}
+            headshots={parsedSummary.headshots}
+            spawnKillSpree={parsedSummary.best_spawn_kill_spree}
         />;
     }
 
 	if(pageSettings["Display Special Events"] === "true"){
 
 		elems[pageOrder["Display Special Events"]] = <PlayerSpecialEvents session={session} key={6}
-            data={parsedInfo}
+            data={parsedSummary}
         />;
     }
 
@@ -220,6 +221,8 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 		/>
 	}
 
+
+
 	return (
 			<div>
 				<DefaultHead host={host} title={`${titleName} Career Profile`} 
@@ -235,6 +238,13 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 									{titleName} Career Profile
 							</div>
 
+							<PlayerMonsterHuntStats 
+								key="player-monsters" 
+								playerId={0} 
+								kills={parsedSummary.mh_kills} 
+								bestKillsLife={parsedSummary.mh_kills_best_life}
+								bestKills={parsedSummary.mh_kills_best}
+							/>
 							{elems}
 
 						</div>
@@ -417,9 +427,7 @@ export async function getServerSideProps({req, query}) {
 	const matchIds = Functions.getUniqueValues(recentMatches, 'match_id');
 
 	let mapData = await maps.getNames(uniqueMaps);
-
 	let matchScores = await matchManager.getWinners(matchIds);
-
 	let matchPlayerCount = await matchManager.getPlayerCount(matchIds);
 
 
@@ -442,16 +450,11 @@ export async function getServerSideProps({req, query}) {
 	}
 
 
-
 	let mapImages = await maps.getImages(justMapNames);
-	
 
 	Functions.setIdNames(recentMatches, mapData, 'map_id', 'mapName');
 
 	const serverNames = await serverManager.getAllNames();
-
-	
-
 	const serverIds = await matchManager.getServerNames(matchIds);
 
 	Functions.setIdNames(recentMatches, serverIds, 'match_id', 'server');
@@ -460,31 +463,22 @@ export async function getServerSideProps({req, query}) {
 
 	const faceManager = new Faces();
 
-	
-
 	const winRateManager = new WinRate();
 	let latestWinRate = await winRateManager.getPlayerLatest(playerId);
 	Functions.setIdNames(latestWinRate, gametypeNames, 'gametype', 'gametypeName');
 
 	gametypeIds.unshift(0);
 	let winRateHistory = await winRateManager.getPlayerWinrateHistory(playerId, gametypeIds, 50);
-	//Functions.setIdNames(winRateHistory, gametypeNames, 'gametype', 'gametypeName');
 
 	
 	winRateHistory = createWinRateData(winRateHistory, gametypeNames);
-
-	//console.log(winRateHistory);
 
 	let now = new Date();
 	now = Math.floor(now * 0.001);
 
 	const month = ((60 * 60) * 24) * 28;
 
-	
-
 	const matchDates = await playerManager.getMatchDatesAfter(now - month, playerId);
-
-	//console.log(playerManager.getMatchDatesAfter());
 
 	let pingHistory = [];
 	let pingGraphData = [];
@@ -576,7 +570,6 @@ export async function getServerSideProps({req, query}) {
 			"weaponImages": JSON.stringify(weaponImages),
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames),
-			//"face": currentFace[summary.face].name,
 			"latestWinRate": JSON.stringify(latestWinRate),
 			"winRateHistory": JSON.stringify(winRateHistory),
 			"matchDates": JSON.stringify(matchDates),

@@ -21,7 +21,6 @@ export default async function handler(req, res){
         const mode = req.body.mode.toLowerCase() ?? null;
         const matchId = parseInt(req.body.matchId) ?? null;
 
-        console.log(`mode is ${mode}`);
 
         if(mode === "fullmatch"){
 

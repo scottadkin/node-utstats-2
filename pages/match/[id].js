@@ -354,14 +354,14 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
         if(!parsedInfo.mh){
 
-            elems.push(<MatchPowerUpControl 
+            elems[pageOrder["Display Powerup Control"]] = <MatchPowerUpControl 
                 host={imageHost} key={`match-power-control`}        
                 totalTeams={parsedInfo.total_teams}
                 matchId={parsedInfo.id}
                 players={JSON.parse(playerNames)}
                 settings={pageSettings}
                 order={pageOrder}
-            />);
+            />
         }
     //}
 
@@ -448,7 +448,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
 
     if(parsedSession["bLoggedIn"]){
-        elems.push(<AdminMatchControl key={"a-c"} host={imageHost} matchId={parsedInfo.id} players={playerNames} mapId={parsedInfo.map}/>);
+        elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={parsedInfo.id} players={playerNames} mapId={parsedInfo.map}/>;
     }
 
     return <div>
