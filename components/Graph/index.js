@@ -31,8 +31,6 @@ class GraphCanvas{
 
         this.data = JSON.parse(data);
 
-        console.log(this.title);
-
         this.text = null;
 
         if(text !== undefined){
@@ -77,12 +75,6 @@ class GraphCanvas{
 
         this.maxDataDisplay = 8;
         this.maxDataDisplayFullscreen = 16;
-        /*this.data = [
-            {"name": "test 1", "data": [0,1,2,3,4,5,6]},
-            {"name": "DogFood Test", "data": [5,1,2,6,4,15,6]},
-            {"name": "test 3", "data": [2,1,2,0,0,0,6]},
-            {"name": "test 7564754754", "data": [32,41,2,10,20,10,36]},
-        ];*/
 
 
         this.colors = [
@@ -509,6 +501,13 @@ class GraphCanvas{
 
             for(let x = 0; x < d.data.length; x++){
 
+                console.log(`d.data[x] = ${d.data[x]}`);
+
+                if(d.data[x] === null){
+                    //Bug that happens with pho' setup using yard-v2 map
+                    continue;
+                }
+
                 currentValueLength = d.data[x].toString().length;
 
                 if(currentValueLength > this.longestValueLength){
@@ -519,6 +518,7 @@ class GraphCanvas{
         }
 
         if(text !== null){
+
             for(let i = 0; i < text.length; i++){
 
                 if(text[i].length > this.longestTextLength){
