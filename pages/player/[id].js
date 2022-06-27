@@ -32,6 +32,7 @@ import PlayerFragSummary from '../../components/PlayerFragSummary';
 import PlayerSpecialEvents from '../../components/PlayerSpecialEvents';
 import Image from 'next/image';
 import PlayerMonsterHuntStats from '../../components/PlayerMonsterHuntStats';
+import PlayerMonsters from '../../components/PlayerMonsters';
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
@@ -68,8 +69,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	}
 
 	summary = JSON.parse(summary);
-
-	console.log(summary);
 	
 	const flag = summary.country;
 
@@ -234,17 +233,18 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 					<Nav settings={navSettings} session={session}/>
 					<div id="content">
 						<div className="default">
+						<PlayerMonsters playerId={playerId}/>
+
+						<PlayerMonsterHuntStats 
+							key="player-monsters"
+							kills={parsedSummary.mh_kills} 
+							bestKillsLife={parsedSummary.mh_kills_best_life}
+							bestKills={parsedSummary.mh_kills_best}
+						/>
 							<div className="default-header">
 									{titleName} Career Profile
 							</div>
 
-							<PlayerMonsterHuntStats 
-								key="player-monsters" 
-								playerId={0} 
-								kills={parsedSummary.mh_kills} 
-								bestKillsLife={parsedSummary.mh_kills_best_life}
-								bestKills={parsedSummary.mh_kills_best}
-							/>
 							{elems}
 
 						</div>

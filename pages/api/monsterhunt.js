@@ -20,6 +20,9 @@ export default async function handler(req, res){
 
         const mode = req.body.mode.toLowerCase() ?? null;
         const matchId = parseInt(req.body.matchId) ?? null;
+        const playerId = parseInt(req.body.playerId) ?? null;
+
+        console.log(req.body);
 
 
         if(mode === "fullmatch"){
@@ -44,6 +47,19 @@ export default async function handler(req, res){
                 "monsterImages": monsterImages
             });
 
+            return;
+        }
+
+        if(mode === "playertotals"){
+
+            const playerMonsterTotals = await mhManager.getPlayerMonsterTotals(playerId);
+            const monsterIds = getMonsterIds(playerMonsterTotals);
+            const monsterNames = await mhManager.getMonsterNames(monsterIds);
+
+            res.status(200).json({
+                "totals": playerMonsterTotals,
+                "monsterNames": monsterNames
+            })
             return;
         }
 

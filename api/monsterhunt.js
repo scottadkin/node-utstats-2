@@ -238,13 +238,6 @@ class MonsterHunt{
         }
     }
 
-    async getPlayerMonsterTotals(id){
-
-        const query = "SELECT monster,matches,kills FROM nstats_monsters_player_totals WHERE player=?";
-
-        return await mysql.simpleFetch(query, [id]);
-    }
-
     async deletePlayerMonsterTotals(id){
 
         const query = "DELETE FROM nstats_monsters_player_totals WHERE player=?";
@@ -353,7 +346,7 @@ class MonsterHunt{
 
     async getPlayerMonsterTotals(id){
 
-        const query = "SELECT monster,kills FROM nstats_monsters_player_totals WHERE player=?";
+        const query = "SELECT monster,kills,matches FROM nstats_monsters_player_totals WHERE player=?";
 
         return await mysql.simpleFetch(query, [id]);
     }
