@@ -295,7 +295,40 @@ async function createNewTables(){
     }catch(err){
         new Message(`createNewTables Query ${i+1} ${err}`, "error");
     }
+}
 
+async function updateMonsterTables(){
+
+    try{
+
+
+        if(!await columnExists("nstats_monsters", "kills")){
+
+            await alterTable("nstats_monsters", "kills", "INT NOT NULL");
+            new Message(`Updated table nstats_monsters, add column "kills"`,"pass");
+        }
+
+        if(!await columnExists("nstats_monsters_match", "kills")){
+
+            await alterTable("nstats_monsters_match", "kills", "INT NOT NULL");
+            new Message(`Updated table nstats_monsters_match, add column "kills"`,"pass");
+        }
+
+        if(!await columnExists("nstats_monsters_player_match", "deaths")){
+
+            await alterTable("nstats_monsters_player_match", "deaths", "INT NOT NULL");
+            new Message(`Updated table nstats_monsters_player_match, add column "deaths"`,"pass");
+        }
+
+        if(!await columnExists("nstats_monsters_player_totals", "deaths")){
+
+            await alterTable("nstats_monsters_player_totals", "deaths", "INT NOT NULL");
+            new Message(`Updated table nstats_monsters_player_totals, add column "deaths"`,"pass");
+        }
+
+    }catch(err){
+        new Message(`updateMonsterTables Query ${err}`, "error");
+    }
 
 }
 
@@ -315,6 +348,11 @@ async function createNewTables(){
         }
 
         await mysql.simpleQuery("ALTER TABLE nstats_ace_joins MODIFY os VARCHAR(250) NOT NULL");
+
+
+        await updateMonsterTables();
+
+
 
         process.exit(0);
 

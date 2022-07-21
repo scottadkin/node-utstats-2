@@ -49,7 +49,7 @@ class MonsterHunt{
         }
         
 
-        const query = "INSERT INTO nstats_monsters VALUES(NULL,?,?,0,0)";
+        const query = "INSERT INTO nstats_monsters VALUES(NULL,?,?,0,0,0)";
 
         return await mysql.insertReturnInsertId(query, [className, displayName]);
     }
@@ -124,11 +124,11 @@ class MonsterHunt{
         await mysql.simpleUpdate(query, [deaths, id]);
     }
 
-    async insertMonsterMatchTotals(matchId, monsterId, deaths){
+    async insertMonsterMatchTotals(matchId, monsterId, deaths, kills){
 
-        const query = "INSERT INTO nstats_monsters_match VALUES(NULL,?,?,?)";
+        const query = "INSERT INTO nstats_monsters_match VALUES(NULL,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [matchId, monsterId, deaths]);
+        await mysql.simpleInsert(query, [matchId, monsterId, deaths, kills]);
     }
 
     async insertKill(matchId, timestamp, monsterId, killer){
@@ -138,11 +138,11 @@ class MonsterHunt{
         await mysql.simpleInsert(query, [matchId, timestamp, monsterId, killer]);
     }
 
-    async insertPlayerMatchTotals(matchId, player, monster, kills){
+    async insertPlayerMatchTotals(matchId, player, monster, kills, deaths){
 
-        const query = "INSERT INTO nstats_monsters_player_match VALUES(NULL,?,?,?,?)";
+        const query = "INSERT INTO nstats_monsters_player_match VALUES(NULL,?,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [matchId, player, monster, kills]);
+        await mysql.simpleInsert(query, [matchId, player, monster, kills, deaths]);
     }
 
     async changeKillsPlayerIds(oldId, newId){
@@ -301,13 +301,13 @@ class MonsterHunt{
     }
 
 
-    async insertNewPlayerMonsterTotals(player, monster, kills, matches){
+    async insertNewPlayerMonsterTotals(player, monster, kills, matches, deaths){
 
         if(matches === undefined) matches = 1;
 
-        const query = "INSERT INTO nstats_monsters_player_totals VALUES(NULL,?,?,?,?)";
+        const query = "INSERT INTO nstats_monsters_player_totals VALUES(NULL,?,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [player, monster, matches, kills]);
+        await mysql.simpleInsert(query, [player, monster, matches, kills, deaths]);
     }
 
     async updatePlayerMonsterTotals(player, monster, kills){

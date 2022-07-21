@@ -314,27 +314,31 @@ const queries = [
         class_name varchar(150) COLLATE utf8_unicode_ci NOT NULL,
         display_name varchar(50) COLLATE utf8_unicode_ci NOT NULL,
         matches int(11) NOT NULL,
-        deaths int(11) NOT NULL
+        deaths int(11) NOT NULL,
+        kills int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_monsters_match (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         monster int(11) NOT NULL,
-        deaths int(11) NOT NULL
+        deaths int(11) NOT NULL,
+        kills int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_monsters_player_match (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         player int(11) NOT NULL,
         monster int(11) NOT NULL,
-        kills int(11) NOT NULL
+        kills int(11) NOT NULL,
+        deaths int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_monsters_player_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
         player int(11) NOT NULL,
         monster int(11) NOT NULL,
         matches int(11) NOT NULL,
-        kills int(11) NOT NULL
+        kills int(11) NOT NULL,
+        deaths int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_monster_kills (
         id int(11) NOT NULL AUTO_INCREMENT,

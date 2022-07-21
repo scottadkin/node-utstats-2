@@ -11,11 +11,14 @@ class MonsterHuntManager{
         this.monsterStats = {};
         this.playerTotals = {};
         this.kills = [];
+        //kills be monster pawns
+        this.monsterKills = [];
     }
 
     parseData(playerManager, killManager){
         
         const killReg = /^(\d+\.\d+?)\tnstats\tmonsterkill\t(.+?)\t(.+)$/i;
+        const deathReg = /^(\d+\.\d+?)\tnstats\tmk\t(.+?)\t(.+)$/i;
 
         let result = 0;
         let monsterName = "";
@@ -38,7 +41,6 @@ class MonsterHuntManager{
                 monsterName = result[3].toLowerCase();
 
                 
-
                 if(this.monsterStats[monsterName] === undefined){
 
                     this.monsterStats[monsterName] = {
@@ -75,7 +77,38 @@ class MonsterHuntManager{
 
                 }
             }
+
+            if(deathReg.test(d)){
+
+                const result = deathReg.exec(d);
+
+                const timestamp = parseFloat(result[1]);
+                const monsterClass = result[2].toLowerCase();
+
+                //ignore monsters that are logged as None
+                if(monsterClass === "none") continue;
+
+                const playerId = parseInt(result[3]);
+
+                const currentVictim = playerManager.getOriginalConnectionById(playerId);
+                
+                if(currentVictim !== null){
+
+                    this.monsterKills.push(
+                        {
+                            "timestamp": timestamp,
+                            "monsterClass": monsterClass,
+                            "playerId": currentVictim.masterId
+                        }
+                    );
+
+                }else{
+                    new Message(`MonsterHuntManager.parseData() Current Victim is null.`,"warn");
+                }
+            }
         }
+
+        console.table(this.monsterKills);
 
     }
 

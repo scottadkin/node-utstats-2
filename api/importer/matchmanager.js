@@ -406,6 +406,7 @@ class MatchManager{
         const typeReg = /^\d+\.\d+?\t(.+?)(\t.+|)$/i;
         const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
         const monsterReg = /monsterkill\t(\d+?)\t(.+)$/i
+        const monsterKilledPlayerReg = /mk\t(.+?)\t(.+)/;
         this.lines = this.data.match(reg);
 
         if(this.lines === null){
@@ -532,7 +533,7 @@ class MatchManager{
 
                         }else{
 
-                            if(monsterReg.test(this.lines[i])){
+                            if(monsterReg.test(this.lines[i]) || monsterKilledPlayerReg.test(this.lines[i])){
 
                                 if(this.monsterHuntManager === undefined){
 
