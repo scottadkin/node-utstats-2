@@ -117,11 +117,11 @@ class MonsterHunt{
 
     }
 
-    async updateMonsterTotals(id, deaths){
+    async updateMonsterTotals(id, deaths, kills){
 
-        const query = "UPDATE nstats_monsters SET deaths=deaths+?,matches=matches+1 WHERE id=?";
+        const query = "UPDATE nstats_monsters SET deaths=deaths+?,matches=matches+1,kills=kills+? WHERE id=?";
 
-        await mysql.simpleUpdate(query, [deaths, id]);
+        await mysql.simpleUpdate(query, [deaths, kills, id]);
     }
 
     async insertMonsterMatchTotals(matchId, monsterId, deaths, kills){
@@ -274,7 +274,7 @@ class MonsterHunt{
 
         for(const [monster, stats] of Object.entries(newData)){
 
-            await this.insertNewPlayerMonsterTotals(newId, monster, stats.matches, stats.kills);
+            await this.insertNewPlayerMonsterTotals(newId, monster, stats.matches, stats.kills, stats.deaths);
         }
 
     }
@@ -300,8 +300,9 @@ class MonsterHunt{
         }
     }
 
+    //newId, monster, stats.matches, stats.kills, stats.deaths
 
-    async insertNewPlayerMonsterTotals(player, monster, kills, matches, deaths){
+    async insertNewPlayerMonsterTotals(player, monster, matches, kills, deaths){
 
         if(matches === undefined) matches = 1;
 
@@ -310,15 +311,15 @@ class MonsterHunt{
         await mysql.simpleInsert(query, [player, monster, matches, kills, deaths]);
     }
 
-    async updatePlayerMonsterTotals(player, monster, kills){
+    async updatePlayerMonsterTotals(player, monster, kills, deaths){
 
-        const query = "UPDATE nstats_monsters_player_totals SET kills=kills+?,matches=matches+1 WHERE player=? AND monster=?";
+        const query = "UPDATE nstats_monsters_player_totals SET kills=kills+?,deaths=deaths+?,matches=matches+1 WHERE player=? AND monster=?";
 
-        const result = await mysql.updateReturnAffectedRows(query, [kills, player, monster]);
+        const result = await mysql.updateReturnAffectedRows(query, [kills, deaths, player, monster]);
 
         if(result === 0){
 
-            await this.insertNewPlayerMonsterTotals(player, monster, kills);
+            await this.insertNewPlayerMonsterTotals(player, monster, 1, kills, deaths);
         }
     }
 
