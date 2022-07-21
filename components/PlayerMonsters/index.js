@@ -1,6 +1,8 @@
 import React from 'react';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
+import PlayerMonster from '../PlayerMonster';
+import styles from "./PlayerMonsters.module.css";
 
 class PlayerMonsters extends React.Component{
 
@@ -26,9 +28,7 @@ class PlayerMonsters extends React.Component{
             });
 
             const res = await req.json();
-
-            console.log(res);
-
+            
             if(res.error === undefined){
 
                 this.setState({"data": res});
@@ -50,6 +50,20 @@ class PlayerMonsters extends React.Component{
         await this.loadData();
     }
 
+    getMonsterKills(id){
+
+        for(let i = 0; i < this.state.data.totals.length; i++){
+
+            const d = this.state.data.totals[i];
+
+            if(d.monster === id){
+                return {"kills": d.kills, "matches": d.matches};
+            }
+        }
+
+        return {"kills": 0, "matches": 0};
+    }
+
     render(){
 
         const elems = [];
@@ -64,6 +78,45 @@ class PlayerMonsters extends React.Component{
 
                 const errorText = this.state.error;
                 elems.push(<ErrorMessage key="error" title={"Monster Stats"} text={errorText}/>);
+
+            }
+
+            if(this.state.data !== null){
+
+                const orderedMonsterByNames = [];
+
+                for(const [key, value] of Object.entries(this.state.data.monsterNames)){
+
+                    const data = value;
+                    data.id = parseInt(key);
+
+                    orderedMonsterByNames.push(data);
+                }
+
+                orderedMonsterByNames.sort((a, b) =>{
+
+                    a = a.displayName.toLowerCase();
+                    b = b.displayName.toLowerCase();
+
+                    if(a < b) return -1;
+                    if(a > b) return 1;
+                    return 0;
+
+                });
+
+                const monsterElems = [];
+
+                for(let i = 0; i < orderedMonsterByNames.length; i++){
+
+                    const m = orderedMonsterByNames[i];
+                    const monsterStats = this.getMonsterKills(m.id);
+
+                    monsterElems.push(<PlayerMonster key={i} stats={monsterStats} name={m.displayName} monsterClass={m.className}/>);
+                }
+
+                elems.push(
+                    <div key="mw" className={styles.monsters}>{monsterElems}</div>);
+
             }
 
         }
