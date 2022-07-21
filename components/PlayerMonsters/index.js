@@ -1,5 +1,6 @@
 import React from 'react';
 import Loading from '../Loading';
+import ErrorMessage from '../ErrorMessage';
 
 class PlayerMonsters extends React.Component{
 
@@ -9,7 +10,8 @@ class PlayerMonsters extends React.Component{
 
         this.state = {
             "bLoading": true,
-            "data": null
+            "data": null,
+            "error": null
         };
     }
 
@@ -25,6 +27,18 @@ class PlayerMonsters extends React.Component{
 
             const res = await req.json();
 
+            console.log(res);
+
+            if(res.error === undefined){
+
+                this.setState({"data": res});
+
+            }else{
+
+                this.setState({"error": res.error});
+            }
+
+            this.setState({"bLoading": false});
 
         }catch(err){
             console.trace(err);
@@ -42,11 +56,19 @@ class PlayerMonsters extends React.Component{
 
         if(this.state.bLoading){
 
-            elems.push(<Loading />);
+            elems.push(<Loading key="loading"/>);
 
         }else{
 
+            if(this.state.error !== null){
+
+                const errorText = this.state.error;
+                elems.push(<ErrorMessage key="error" title={"Monster Stats"} text={errorText}/>);
+            }
+
         }
+
+       
 
         return <>
             <div className="default-header">Monster Stats</div>

@@ -1,0 +1,17 @@
+.wrapper{
+    background-color:rgba(200,0,0,0.75);
+    max-width:var(--max-width-3);
+    width:var(--width-1);
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.title{
+    padding:10px;
+    font-size:18px;
+}
+
+.text{
+    background-color:rgba(0,0,0,0.25);
+    padding:15px;
+}

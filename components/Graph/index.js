@@ -501,7 +501,7 @@ class GraphCanvas{
 
             for(let x = 0; x < d.data.length; x++){
 
-                console.log(`d.data[x] = ${d.data[x]}`);
+                //console.log(`d.data[x] = ${d.data[x]}`);
 
                 if(d.data[x] === null){
                     //Bug that happens with pho' setup using yard-v2 map
