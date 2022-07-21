@@ -147,10 +147,7 @@ function Nav({session, settings}){
                 <div id="mouse-over-content"></div>
             </div>
         <header className={styles.header}>
-            <div id="beta-message">
-                This is an early beta build, there may be problems at first, they will be fixed once reported <a className="yellow" href="https://github.com/scottadkin/node-utstats-2/issues">Here.</a> Build v2.5.0 27th February 2022
-            </div>
-            <h1 className={styles.h1}>Node UTStats 2</h1>
+            <h1 className={styles.h1} style={{"display": "none"}}>Node UTStats 2</h1>
             <nav className={styles.nav}>
                 {elems}
             </nav>         

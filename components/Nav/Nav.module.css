@@ -3,16 +3,18 @@
 	top:0;
 	width:100%;
 	z-index: 999999;
+	border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
 .header{
-	background-color:var(--color-1);
+	background-color:var(--color-3);
+	background:linear-gradient(to bottom, var(--color-1a), var(--color-1a));
 	color:white;
 }
 
 .h1{
 	font-weight:300;
-	font-size:12px;
+	font-size:14px;
     margin-top:5px;
 	margin-bottom:5px;
 	text-align:center;
@@ -21,8 +23,8 @@
 .nl{
 	display:inline-block;
 	font-weight:400;
-	font-size:14px;
-	padding:5px 5px;
+	font-size:16px;
+	padding:10px 10px;
 }
 
 .nl:hover{
