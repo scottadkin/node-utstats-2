@@ -28,7 +28,7 @@ class PlayerMonsters extends React.Component{
             });
 
             const res = await req.json();
-            
+
             if(res.error === undefined){
 
                 this.setState({"data": res});
@@ -57,11 +57,11 @@ class PlayerMonsters extends React.Component{
             const d = this.state.data.totals[i];
 
             if(d.monster === id){
-                return {"kills": d.kills, "matches": d.matches};
+                return {"kills": d.kills, "matches": d.matches, "deaths": d.deaths};
             }
         }
 
-        return {"kills": 0, "matches": 0};
+        return {"kills": 0, "matches": 0, "deaths": 0};
     }
 
     render(){
