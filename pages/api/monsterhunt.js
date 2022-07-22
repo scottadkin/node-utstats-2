@@ -12,6 +12,21 @@ function getMonsterIds(data){
     return monsterIds;
 }
 
+function setMonsterImagesNames(monsterNames, monsterHuntManager){
+
+    const monsterClassNames = [];
+
+    for(const value of Object.values(monsterNames)){
+
+        monsterClassNames.push(value.className);
+    }
+
+    const images = monsterHuntManager.getImages(monsterClassNames);
+
+    return images;
+
+}
+
 export default async function handler(req, res){
 
     try{
@@ -31,20 +46,15 @@ export default async function handler(req, res){
             const monsterIds = getMonsterIds(matchMonsterTotals);
             const monsterNames = await mhManager.getMonsterNames(monsterIds);
 
-            const justMonsterNames = [];
+            const images = setMonsterImagesNames(monsterNames, mhManager);
 
-            for(const [key, value] of Object.entries(monsterNames)){
-                justMonsterNames.push(value.className);
-            }
-
-            const monsterImages = mhManager.getImages(justMonsterNames);
             const playerKills = await mhManager.getPlayerMatchKillTotals(matchId);
 
             res.status(200).json({
                 "monsterNames": monsterNames, 
                 "monsterTotals": matchMonsterTotals, 
                 "playerKills": playerKills,
-                "monsterImages": monsterImages
+                "monsterImages": images
             });
 
             return;
@@ -56,9 +66,15 @@ export default async function handler(req, res){
             const monsterIds = getMonsterIds(playerMonsterTotals);
             const monsterNames = await mhManager.getMonsterNames(monsterIds);
 
+            const images = setMonsterImagesNames(monsterNames, mhManager);
+
+
+            console.log(images);
+
             res.status(200).json({
                 "totals": playerMonsterTotals,
-                "monsterNames": monsterNames
+                "monsterNames": monsterNames,
+                "monsterImages": images
             })
             return;
         }

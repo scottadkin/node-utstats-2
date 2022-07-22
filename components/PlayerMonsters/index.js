@@ -64,6 +64,15 @@ class PlayerMonsters extends React.Component{
         return {"kills": 0, "matches": 0, "deaths": 0};
     }
 
+    getImage(className){
+
+        if(this.state.data.monsterImages[className] !== undefined){
+            return this.state.data.monsterImages[className];
+        }
+
+        return "default.png";
+    }
+
     render(){
 
         const elems = [];
@@ -111,7 +120,9 @@ class PlayerMonsters extends React.Component{
                     const m = orderedMonsterByNames[i];
                     const monsterStats = this.getMonsterKills(m.id);
 
-                    monsterElems.push(<PlayerMonster key={i} stats={monsterStats} name={m.displayName} monsterClass={m.className}/>);
+                    monsterElems.push(<PlayerMonster key={i} stats={monsterStats} image={this.getImage(m.className)} 
+                        name={m.displayName}
+                    />);
                 }
 
                 elems.push(
