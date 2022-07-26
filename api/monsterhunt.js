@@ -20,7 +20,8 @@ class MonsterHunt{
             mh_kills=mh_kills+?,
             mh_kills_best_life = IF(mh_kills_best_life < ?, ?, mh_kills_best_life),
             mh_kills_best = IF(mh_kills_best < ?, ?, mh_kills_best),
-            mh_deaths = mh_deaths + ?
+            mh_deaths = mh_deaths + ?,
+            mh_deaths_worst = IF(mh_deaths_worst < ?, ?, mh_deaths_worst)
             WHERE player_id=? AND gametype IN (0,?)`;
 
         const vars = [
@@ -30,10 +31,12 @@ class MonsterHunt{
             kills,
             kills,
             monsterDeaths,
+            monsterDeaths,
+            monsterDeaths,
             playerId,
             gametypeId
         ];
-        
+
         await mysql.simpleUpdate(query, vars);
     
     }
