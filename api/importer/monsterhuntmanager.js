@@ -169,9 +169,15 @@ class MonsterHuntManager{
 
                 p = players[i];
 
-                if(p.bDUplicate === undefined){
-
-                    await this.monsterHunt.updatePlayerTotals(gametypeId, p.masterId, p.stats.monsterHunt.kills, p.stats.monsterHunt.bestKillsInLife);
+                if(p.bDuplicate === undefined){
+                    
+                    await this.monsterHunt.updatePlayerTotals(
+                        gametypeId, 
+                        p.masterId, 
+                        p.stats.monsterHunt.kills, 
+                        p.stats.monsterHunt.bestKillsInLife,
+                        p.stats.monsterHunt.deaths
+                    );
                 }
             }
 

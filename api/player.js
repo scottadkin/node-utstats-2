@@ -65,7 +65,7 @@ class Player{
 
             const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,'',0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             ,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
             mysql.query(query, [name, masterPlayerId, gametype], (err, result) =>{
 
@@ -848,7 +848,8 @@ class Player{
             armor = armor - ?,
             boots = boots - ?,
             super_health = super_health - ?,
-            mh_kills = mh_kills - ?
+            mh_kills = mh_kills - ?,
+            mh_deaths = mh_deaths - ?
 
 
             WHERE name=? AND gametype IN(?)
@@ -919,6 +920,7 @@ class Player{
                 player.boots,
                 player.super_health,
                 player.mh_kills,
+                player.mh_deaths,
 
                 player.name,
                 gametypes
@@ -1057,8 +1059,6 @@ class Player{
         const query = "SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE cap=?";
 
         const result = await mysql.simpleQuery(query, [playerId]);
-
-        console.log(result);
 
     }
 

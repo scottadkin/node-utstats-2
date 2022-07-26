@@ -332,6 +332,12 @@ async function updateMonsterTables(){
             new Message(`Updated table nstats_player_matches, add column "mh_deaths"`,"pass");
         }
 
+        if(!await columnExists("nstats_player_totals", "mh_deaths")){
+
+            await alterTable("nstats_player_totals", "mh_deaths", "INT NOT NULL");
+            new Message(`Updated table nstats_player_totals, add column "mh_deaths"`,"pass");
+        }
+
     }catch(err){
         new Message(`updateMonsterTables Query ${err}`, "error");
     }

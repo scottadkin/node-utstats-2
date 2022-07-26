@@ -68,9 +68,6 @@ export default async function handler(req, res){
 
             const images = setMonsterImagesNames(monsterNames, mhManager);
 
-
-            console.log(images);
-
             res.status(200).json({
                 "totals": playerMonsterTotals,
                 "monsterNames": monsterNames,
