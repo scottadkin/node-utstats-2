@@ -7,11 +7,11 @@ class MonsterHunt{
 
     }
 
-    async updatePlayerMatchData(matchId, playerId, kills, bestKillsInLife){
+    async updatePlayerMatchData(matchId, playerId, kills, bestKillsInLife, monsterDeaths){
 
-        const query = "UPDATE nstats_player_matches SET mh_kills=?,mh_kills_best_life=? WHERE match_id=? AND player_id=?";
+        const query = "UPDATE nstats_player_matches SET mh_kills=?,mh_kills_best_life=?,mh_deaths=? WHERE match_id=? AND player_id=?";
 
-        await mysql.simpleUpdate(query, [kills, bestKillsInLife, matchId, playerId]);
+        await mysql.simpleUpdate(query, [kills, bestKillsInLife, monsterDeaths, matchId, playerId]);
     }
 
     async updatePlayerTotals(gametypeId, playerId, kills, bestKillsInLife){

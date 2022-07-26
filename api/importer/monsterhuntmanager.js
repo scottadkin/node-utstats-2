@@ -111,6 +111,8 @@ class MonsterHuntManager{
 
                     this.updateMonsterStats(monsterName, 0, 1);
 
+                    currentVictim.diedToMonster();
+
                     this.monsterKills.push(
                         {
                             "timestamp": timestamp,
@@ -140,7 +142,14 @@ class MonsterHuntManager{
                 p = players[i];
 
                 if(p.bDuplicate === undefined){
-                    await this.monsterHunt.updatePlayerMatchData(matchId, p.masterId, p.stats.monsterHunt.kills, p.stats.monsterHunt.bestKillsInLife);
+
+                    await this.monsterHunt.updatePlayerMatchData(
+                        matchId, 
+                        p.masterId, 
+                        p.stats.monsterHunt.kills, 
+                        p.stats.monsterHunt.bestKillsInLife,
+                        p.stats.monsterHunt.deaths
+                    );
                 }
             }
 

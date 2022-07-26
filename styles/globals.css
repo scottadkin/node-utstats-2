@@ -109,8 +109,8 @@ footer{
 	font-size:16px;
 	color:white;
 	font-weight:400;
-	padding-bottom:10px;
-	padding-top:10px;
+	padding-bottom:15px;
+	padding-top:15px;
 	width:var(--width-1);
 	max-width:var(--max-width-1);
 	margin-left:auto;
@@ -439,18 +439,19 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	background-color:var(--color-3a);
 	color:white;
 	border:1px solid var(--border-color-3);
-	font-size:14px;
+	font-size:16px;
 	font-weight:300;
 	padding:5px;
 	width:95%;
-	height:32px;
-	line-height:14px;
+	height:36px;
+	line-height:24px;
 	max-width:300px;
 	position:relative;
 }
 
 .default-select option{
 	background-color:var(--color-3);
+
 }
 
 .select-label{

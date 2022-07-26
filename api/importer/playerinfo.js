@@ -103,7 +103,8 @@ class PlayerInfo{
                 "kills": 0,
                 "bestKillsInLife": 0,
                 "currentKills": 0,
-                "lastKill": 0
+                "lastKill": 0,
+                "deaths": 0
             },
             "time_on_server": 0
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
@@ -487,6 +488,10 @@ class PlayerInfo{
         this.stats.monsterHunt.currentKills++;
         this.stats.monsterHunt.lastKill = timestamp;
     }
+
+    diedToMonster(){
+        this.stats.monsterHunt.deaths++;
+    }   
 }
 
 

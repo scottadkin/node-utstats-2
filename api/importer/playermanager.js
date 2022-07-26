@@ -765,6 +765,7 @@ class PlayerManager{
         }
 
         master.stats.monsterHunt.kills += duplicate.stats.monsterHunt.kills;
+        master.stats.monsterHunt.deaths += duplicate.stats.monsterHunt.deaths;
 
         if(master.stats.monsterHunt.bestKillsInLife < duplicate.stats.monsterHunt.bestKillsInLife){
             master.stats.monsterHunt.bestKillsInLife = duplicate.stats.monsterHunt.bestKillsInLife;
