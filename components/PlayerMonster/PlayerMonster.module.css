@@ -15,6 +15,7 @@
     font-size:16px;
     padding:10px;
     text-align:center;
+    color:white;
 }
 
 .split{
@@ -33,7 +34,11 @@
 }
 
 .text{
-    font-size:14px;
+    font-size:13px;
     line-height:26px;
     color:var(--color-7);
+}
+
+.value{
+    color:white;
 }

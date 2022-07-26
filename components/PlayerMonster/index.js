@@ -37,11 +37,11 @@ class PlayerMonster extends React.Component{
                     <Image src={`/images/monsters/${this.props.image ?? "default.png"}`} width="130" height="130"/>
                 </div>
                 <div className={styles.text}>
-                    <span className={styles.info}>Seen in {matches} match{(matches !== 1) ? "es" : ""}</span><br/>
-                    {kills} Killed<br/>
-                    <span className={styles.info}>{average} kills per match</span><br/>
-                    {this.props.stats.deaths} Deaths<br/>
-                    {averageDeaths} Deaths per match
+                  Seen in <span className={styles.value}>{matches}</span> match{(matches !== 1) ? "es" : ""}<br/>
+                    <span className={styles.value}>{kills}</span> Killed<br/>
+                    <span className={styles.value}>{average}</span> kills per match<br/>
+                    <span className={styles.value}>{this.props.stats.deaths}</span> Deaths<br/>
+                    <span className={styles.value}>{averageDeaths}</span> Deaths per match
 
                 </div>
             </div>

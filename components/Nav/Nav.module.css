@@ -23,8 +23,9 @@
 .nl{
 	display:inline-block;
 	font-weight:400;
-	font-size:16px;
+	font-size:14px;
 	padding:10px 10px;
+	transition:color 0.25s;
 }
 
 .nl:hover{
@@ -33,4 +34,8 @@
 
 .nav{
     color:white;
+}
+
+.selected{
+	color:pink;
 }
