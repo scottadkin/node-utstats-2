@@ -3,7 +3,7 @@
 	top:0;
 	width:100%;
 	z-index: 999999;
-	border-bottom:1px solid rgba(255,255,255,0.1);
+	border-bottom:1px solid rgba(255,255,255,0.05);
 }
 
 .header{
@@ -37,5 +37,5 @@
 }
 
 .selected{
-	color:rgb(120,120,120);
+	color:yellow;
 }

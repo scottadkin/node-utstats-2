@@ -72,8 +72,6 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
                 this.setFirstMonster();
 
-                
-
             }else{
 
                 this.setState({"error": res.error, "displayErrorUntil": Math.floor(Date.now() * 0.001) + 5});

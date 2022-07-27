@@ -33,6 +33,7 @@ class MatchMonsterHuntFragSummary extends React.Component{
                 <td>{Functions.MMSS(p.playtime - this.props.matchStart)}</td>
                 <td>{Functions.ignore0(p.team_kills)}</td>
                 <td>{Functions.ignore0(p.deaths + p.suicides)}</td>
+                <td>{Functions.ignore0(p.mh_deaths)}</td>
                 <td>{Functions.ignore0(p.mh_kills)}</td>
                 <td>{Functions.ignore0(p.mh_kills_best_life)}</td>
                 <td>{Functions.ignore0(p.score)}</td>
@@ -45,6 +46,7 @@ class MatchMonsterHuntFragSummary extends React.Component{
                 <th>Playtime</th>
                 <th>Team Kills</th>
                 <th>Deaths</th>
+                <th>Deaths by Monster</th>
                 <th>Monster Kills</th>
                 <th>Most Kills In a Life</th>
                 <th>Score</th>

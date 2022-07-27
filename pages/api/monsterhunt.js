@@ -43,6 +43,7 @@ export default async function handler(req, res){
         if(mode === "fullmatch"){
 
             const matchMonsterTotals = await mhManager.getMatchMonsterTotals(matchId);
+
             const monsterIds = getMonsterIds(matchMonsterTotals);
             const monsterNames = await mhManager.getMonsterNames(monsterIds);
 

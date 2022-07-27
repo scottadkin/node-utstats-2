@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Table2 from '../Table2';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
+import Functions from '../../api/functions';
 
 class MonsterHuntMonster extends React.Component{
 
@@ -24,14 +25,20 @@ class MonsterHuntMonster extends React.Component{
 
         data.sort((a, b) =>{
 
-            a = a.kills;
-            b = b.kills;
 
-            if(a < b){
+            if(a.kills < b.kills){
                 return 1;
-            }else if(a > b){
+            }else if(a.kills > b.kills){
                 return -1;
             }
+
+            if(a.deaths > b.deaths){
+                return 1;
+            }else if(a.deaths < b.deaths){
+                return -1;
+            }
+
+            
             return 0;
         });
 
@@ -59,7 +66,8 @@ class MonsterHuntMonster extends React.Component{
                         </a>
                     </Link>
                 </td>
-                <td>{d.kills}</td>
+                <td>{Functions.ignore0(d.kills)}</td>
+                <td>{Functions.ignore0(d.deaths)}</td>
             </tr>);
         }
 
@@ -87,6 +95,7 @@ class MonsterHuntMonster extends React.Component{
                                 </a>
                             </Link>
                         </td>
+                        <td></td>
                         <td></td>
                     </tr>);
                 }
@@ -117,6 +126,7 @@ class MonsterHuntMonster extends React.Component{
                 <tr>
                     <th>Player</th>
                     <th>Kills</th>
+                    <th>Deaths</th>
                 </tr>
                 {rows}
             </Table2>
