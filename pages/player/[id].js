@@ -35,6 +35,7 @@ import PlayerMonsterHuntStats from '../../components/PlayerMonsterHuntStats';
 import PlayerMonsters from '../../components/PlayerMonsters';
 
 
+
 function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
 	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
@@ -221,6 +222,23 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	}
 
 
+	if(pageSettings["Display Monsterhunt Basic Stats"] === "true"){
+
+		elems[pageOrder["Display Monsterhunt Basic Stats"]] = <PlayerMonsterHuntStats 
+			key="player-monsters"
+			kills={parsedSummary.mh_kills} 
+			bestKillsLife={parsedSummary.mh_kills_best_life}
+			bestKills={parsedSummary.mh_kills_best}
+			totalDeaths={parsedSummary.mh_deaths}
+			mostDeaths={parsedSummary.mh_deaths_worst}
+		/>
+	}
+
+	if(pageSettings["Display Monsterhunt Monster Stats"] === "true"){
+
+		elems[pageOrder["Display Monsterhunt Monster Stats"]] = <PlayerMonsters playerId={playerId}/>;
+	}
+
 
 	return (
 			<div>
@@ -233,14 +251,9 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 					<Nav settings={navSettings} session={session}/>
 					<div id="content">
 						<div className="default">
-						<PlayerMonsters playerId={playerId}/>
 
-						<PlayerMonsterHuntStats 
-							key="player-monsters"
-							kills={parsedSummary.mh_kills} 
-							bestKillsLife={parsedSummary.mh_kills_best_life}
-							bestKills={parsedSummary.mh_kills_best}
-						/>
+						
+						
 							<div className="default-header">
 									{titleName} Career Profile
 							</div>
