@@ -48,6 +48,8 @@ class SFTPImporter{
     async import(){
 
         await this.getAllLogFileNames();
+        await this.downloadLogFiles();
+        await this.deleteDownloadedLogsFromSFTP();
     }
 
     async getAllLogFileNames(){
@@ -64,9 +66,6 @@ class SFTPImporter{
                 this.logsToDownload.push(f);
             }
         }
-
-        await this.downloadLogFiles();
-
     }
 
     downloadFile(dir, fileName){
@@ -113,6 +112,42 @@ class SFTPImporter{
         }
 
         new Message(`Downloading of log files completed, ${passed} logs downloaded, ${failed} logs failed to download.`,"note");
+    }
+
+    async deleteFile(fileName){
+
+        try{
+
+            await this.client.delete(fileName);
+            new Message(`Deleted file ${fileName} from sftp server successfully.`,"pass");
+            return true;
+
+        }catch(err){
+            //console.trace(err);
+            new Message(`Failed to delete file ${fileName} from sftp server. ${err}`,"error");
+            return false;
+        }
+    }
+
+    async deleteDownloadedLogsFromSFTP(){
+
+        new Message(`Attempting to delete ${this.logsToDownload.length} log files from sftp server.`, "note");
+
+        let passed = 0;
+        let failed = 0;
+
+        for(let i = 0; i < this.logsToDownload.length; i++){
+
+            const file = this.logsToDownload[i];
+
+            if(await this.deleteFile(`./UnrealTournament/Logs/${file.name}`)){
+                passed++;
+            }else{
+                failed++;
+            }
+        }
+
+        new Message(`Deleted ${passed} out of ${this.logsToDownload.length} log files from sftp server.`,"Note");
     }
 }
 
