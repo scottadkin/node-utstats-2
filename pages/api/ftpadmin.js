@@ -3,7 +3,6 @@ import Admin from '../../api/admin';
 
 export default async function handler(req, res){
 
-
     const session = new Session(req);
 
     await session.load();

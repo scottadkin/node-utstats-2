@@ -3,8 +3,9 @@ const config = require("../../config.json");
 const Message = require("../message");
 const fs = require("fs");
 
-class SFTPImporter{
+const DELETELOGFILES = false;
 
+class SFTPImporter{
 
     constructor(host, port, user, password){
 
@@ -16,8 +17,6 @@ class SFTPImporter{
         new Message(`Attempting to connect to sftp server sftp://${host}:${port}.`,"note");
 
         this.client = new Client();
-
-        
 
         this.connect();
     }
@@ -49,7 +48,9 @@ class SFTPImporter{
 
         await this.getAllLogFileNames();
         await this.downloadLogFiles();
-        await this.deleteDownloadedLogsFromSFTP();
+        if(DELETELOGFILES){
+            await this.deleteDownloadedLogsFromSFTP();
+        }
     }
 
     async getAllLogFileNames(){

@@ -199,7 +199,12 @@ class AdminFTPManager extends React.Component{
 
             const s = this.state.servers[i];
 
+            const secureString = (s.sftp) ? "Secure FTP(SFTP)" : "Standard FTP" ;
+
             elems.push(<div key={i} className={styles.server}>
+                <div className={styles.secure}>
+                    {secureString}
+                </div>
                 <div className={styles.name}>
                     {s.name}
                 </div>
@@ -395,6 +400,10 @@ class AdminFTPManager extends React.Component{
         return <div>
             <div className="default-header">Add New FTP Server</div>
             <form className="form" method="POST" action="" onSubmit={this.addServer}>
+                <div className="form-info m-bottom-25">
+                    <div className="default-sub-header-alt">Information</div>
+                    Add a SFTP or FTP server to the import list.
+                </div>
                 <div className="select-row">
                     <div className="select-label">Server Name</div>
                     <div><input type="text" className="default-textbox" placeholder="Server name"/></div>

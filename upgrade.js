@@ -370,6 +370,10 @@ async function updateMonsterTables(){
 
         await updateMonsterTables();
 
+        if(!await columnExists("nstats_ftp", "sftp")){
+            await alterTable("nstats_ftp","sftp", "INT(1) NOT NULL");
+        }
+
 
 
         process.exit(0);

@@ -139,7 +139,7 @@ class Admin{
     }
 
     async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, ignoreBots, ignoreDuplicates,
-        minPlayers, minPlaytime){
+        minPlayers, minPlaytime, bSecureFTP){
 
         const query = `UPDATE nstats_ftp SET
             name=?,
@@ -153,8 +153,11 @@ class Admin{
             ignore_bots=?,
             ignore_duplicates=?,
             min_players=?,
-            min_playtime=?
+            min_playtime=?,
+            sftp=?
             WHERE id=?`;
+        
+        bSecureFTP = bSecureFTP ?? 0;
 
         const vars = [
             name,
@@ -169,6 +172,7 @@ class Admin{
             ignoreDuplicates,
             minPlayers,
             minPlaytime,
+            bSecureFTP,
             id
         ];
 
@@ -176,11 +180,29 @@ class Admin{
     }
 
 
-    async addFTPServer(name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, ignoreBots, ignoreDuplicates, minPlayers, minPlaytime){
+    async addFTPServer(name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, 
+        ignoreBots, ignoreDuplicates, minPlayers, minPlaytime, bSecureFTP){
 
-        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?)";
+        
+        bSecureFTP = bSecureFTP ?? 0;
 
-        const vars = [name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, ignoreBots, ignoreDuplicates, minPlayers, minPlaytime];
+        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?)";
+
+        const vars = [
+            name, 
+            host, 
+            port, 
+            user, 
+            password, 
+            folder, 
+            deleteAfterImport, 
+            deleteTmpFiles, 
+            ignoreBots, 
+            ignoreDuplicates, 
+            minPlayers, 
+            minPlaytime, 
+            bSecureFTP
+        ];
 
         return await mysql.insertReturnInsertId(query, vars);
     }

@@ -32,8 +32,6 @@ async function setFTPSettings(){
 
 function startNewImport(ftpServer){
 
-    
-
     return new Promise((resolve, reject) =>{
 
         const f = ftpServer;
