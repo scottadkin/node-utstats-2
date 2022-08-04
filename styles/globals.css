@@ -93,7 +93,7 @@ footer{
 	text-align:center;
 	font-size:20px;
 	color:white;
-	font-weight:400;
+	font-weight:bold;
 	padding-bottom:18px;
 	padding-top:18px;
 	background-color:var(--color-3);
@@ -108,7 +108,7 @@ footer{
 	text-align:center;
 	font-size:16px;
 	color:white;
-	font-weight:400;
+	font-weight:bold;
 	padding-bottom:15px;
 	padding-top:15px;
 	width:var(--width-1);
@@ -153,7 +153,7 @@ footer{
 #content{
 	padding-bottom:150px;
 	padding-top:25px;
-	background-color:rgba(50,50,50,0.9);
+	background-color:rgba(46,46,46,0.9);
 	min-height:100vh;
 }
 
@@ -188,7 +188,7 @@ table{
 
 
 th{
-	font-weight:400;
+	font-weight:bold;
 	color:yellow;
 	font-size:14px;
 	padding:20px 0px;

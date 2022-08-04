@@ -7,12 +7,13 @@ const DELETELOGFILES = false;
 
 class SFTPImporter{
 
-    constructor(host, port, user, password){
+    constructor(host, port, user, password, entryPoint){
 
         this.host = host;
         this.port = port;
         this.user = user;
         this.password = password;
+        this.entryPoint = entryPoint;
 
         new Message(`Attempting to connect to sftp server sftp://${host}:${port}.`,"note");
 
@@ -48,14 +49,20 @@ class SFTPImporter{
 
         await this.getAllLogFileNames();
         await this.downloadLogFiles();
+
+        //ace stuff
+        await this.downloadAceScreenshots();
+
         if(DELETELOGFILES){
             await this.deleteDownloadedLogsFromSFTP();
         }
+
+
     }
 
     async getAllLogFileNames(){
 
-        const fileNames = await this.client.list("./UnrealTournament/Logs");
+        const fileNames = await this.client.list(`${this.entryPoint}/Logs`);
 
         this.logsToDownload = [];
 
@@ -75,7 +82,7 @@ class SFTPImporter{
 
             try{
 
-                const destination = fs.createWriteStream(`./TestDownloadFolder/${fileName}`);
+                const destination = fs.createWriteStream(`${config.importedLogsFolder}/${fileName}`);
     
                 const file = await this.client.get(`${dir}${fileName}`, destination);
     

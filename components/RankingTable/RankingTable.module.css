@@ -3,32 +3,12 @@
     margin-right:5px;
 }
 
-.table{
-    width:50%;
-    max-width:750px;
-}
-
-.table td:nth-child(1), .table th:nth-child(1){
-    max-width:60px;
-    width:60px;
-    font-size:12px;
-
-}
-
-.table td:nth-child(2){
-    text-align:left;
-    min-width:150px;
-
-}
-
-
 .viewall{
-    background-color:var(--color-1);
-    border: 1px solid var(--border-color-1);
-    padding:5px 10px;
+    background-color:var(--color-3);
+    padding:10px 15px;
     display:inline-block;
     transition:all 0.5s;
-    font-size:12px;
+    font-size:14px;
     line-height:14px;
 }
 
