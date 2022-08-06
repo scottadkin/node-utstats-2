@@ -225,6 +225,7 @@ class SFTPImporter{
         const files = await this.client.list(dir);
 
         const prefix = config.ace.kickLogPrefix.toLowerCase();
+        const prefix2 = config.ace.playerJoinLogPrefix.toLowerCase();
         const extension = ".log";
 
         this.aceLogsToDelete = [];
@@ -237,7 +238,7 @@ class SFTPImporter{
 
             const name = f.name.toLowerCase();
 
-            if(name.startsWith(prefix) && name.endsWith(extension)){
+            if((name.startsWith(prefix) || name.startsWith(prefix2)) && name.endsWith(extension)){
 
                 if(await this.downloadFile(`${dir}/`, f.name, config.importedLogsFolder)){
                     this.aceLogsToDelete.push(f.name);
