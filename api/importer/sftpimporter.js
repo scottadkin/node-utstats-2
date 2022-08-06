@@ -5,6 +5,7 @@ const fs = require("fs");
 
 const DELETELOGFILES = false;
 const DELETEACESCREENSHOTS = false;
+const DELETEACELOGS = false;
 
 class SFTPImporter{
 
@@ -51,6 +52,7 @@ class SFTPImporter{
         await this.getAllLogFileNames();
         await this.downloadLogFiles();
 
+        await this.downloadAceLogs();
         await this.downloadAceScreenshots();
     }
 
@@ -166,8 +168,6 @@ class SFTPImporter{
 
         this.aceScreenshots = files;
 
-        new Message(`Found ${files.length} ACE screenshots to download.`,"pass");
-
         const prefix = config.ace.screenshotPrefix.toLowerCase();
         const extension = config.ace.screenshotExtensionType.toLowerCase();
         const dir = config.ace.screenshotsDir;
@@ -216,6 +216,61 @@ class SFTPImporter{
         }
 
         new Message(`Deleted ${passed} out of ${this.aceScreenshots.length} ACE screenshots.`,"note");
+    }
+
+    async downloadAceLogs(){
+
+        const dir = `${this.entryPoint}/${config.ace.logDir}`;
+
+        const files = await this.client.list(dir);
+
+        const prefix = config.ace.kickLogPrefix.toLowerCase();
+        const extension = ".log";
+
+        this.aceLogsToDelete = [];
+
+        let passed = 0;
+
+        for(let i = 0; i < files.length; i++){
+
+            const f = files[i];
+
+            const name = f.name.toLowerCase();
+
+            if(name.startsWith(prefix) && name.endsWith(extension)){
+
+                if(await this.downloadFile(`${dir}/`, f.name, config.importedLogsFolder)){
+                    this.aceLogsToDelete.push(f.name);
+                    passed++;
+                }
+            }
+        }
+
+        new Message(`Downloaded ${passed} ACE logs.`,"note");
+
+        if(DELETEACELOGS){
+            await this.deleteAceLogsFromSFTP();
+        }
+    }
+
+    async deleteAceLogsFromSFTP(){
+
+        if(this.aceLogsToDelete.length === 0) return;
+
+        new Message(`Starting to delete ACE logs from sftp server.`, "note");
+
+        let passed = 0;
+
+        for(let i = 0; i < this.aceLogsToDelete.length; i++){
+
+            const log = this.aceLogsToDelete[i];
+
+            if(await this.deleteFile(`${this.entryPoint}/Logs/${log}`)){
+                passed++;
+            }
+        }
+
+        new Message(`Deleted ${passed} ACE logs out of ${this.aceLogsToDelete.length}.`, "note");
     }
 }
 
