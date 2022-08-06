@@ -4,6 +4,7 @@ const Message = require("../message");
 const fs = require("fs");
 
 const DELETELOGFILES = false;
+const DELETEACESCREENSHOTS = false;
 
 class SFTPImporter{
 
@@ -51,12 +52,6 @@ class SFTPImporter{
         await this.downloadLogFiles();
 
         await this.downloadAceScreenshots();
-
-        if(DELETELOGFILES){
-            await this.deleteDownloadedLogsFromSFTP();
-        }
-
-
     }
 
     async getAllLogFileNames(){
@@ -124,6 +119,10 @@ class SFTPImporter{
         }
 
         new Message(`Downloading of log files completed, ${passed} logs downloaded, ${failed} logs failed to download.`,"note");
+
+        if(DELETELOGFILES){
+            await this.deleteDownloadedLogsFromSFTP();
+        }
     }
 
     async deleteFile(fileName){
@@ -151,7 +150,7 @@ class SFTPImporter{
 
             const file = this.logsToDownload[i];
 
-            if(await this.deleteFile(`./UnrealTournament/Logs/${file.name}`)){
+            if(await this.deleteFile(`${this.entryPoint}/Logs/${file.name}`)){
                 passed++;
             }
         }
@@ -164,6 +163,8 @@ class SFTPImporter{
         new Message(`Starting download of ACE screenshots.`,"note");
 
         const files = await this.client.list(`${this.entryPoint}/${config.ace.screenshotsDir}`);
+
+        this.aceScreenshots = files;
 
         new Message(`Found ${files.length} ACE screenshots to download.`,"pass");
 
@@ -191,6 +192,30 @@ class SFTPImporter{
         }
 
         new Message(`Downloaded ${passed} out of ${files.length} ACE screenshots.`,"note");
+
+        if(DELETEACESCREENSHOTS){
+            await this.deleteACEScreenshotsFromSFTP();
+        }
+    }
+
+    async deleteACEScreenshotsFromSFTP(){
+
+        if(this.aceScreenshots.length === 0) return;
+
+        new Message(`Starting deletion of ACE screenshots for sftp server.`, "note");
+        
+        let passed = 0;
+
+        for(let i = 0; i < this.aceScreenshots.length; i++){
+
+            const shot = this.aceScreenshots[i];
+
+            if(await this.deleteFile(`${this.entryPoint}/${config.ace.screenshotsDir}/${shot.name}`)){
+                passed++;
+            }
+        }
+
+        new Message(`Deleted ${passed} out of ${this.aceScreenshots.length} ACE screenshots.`,"note");
     }
 }
 
