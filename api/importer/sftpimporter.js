@@ -50,7 +50,6 @@ class SFTPImporter{
         await this.getAllLogFileNames();
         await this.downloadLogFiles();
 
-        //ace stuff
         await this.downloadAceScreenshots();
 
         if(DELETELOGFILES){
@@ -70,31 +69,36 @@ class SFTPImporter{
 
             const f = fileNames[i];
 
-            if(f.name.toLowerCase().startsWith(config.logFilePrefix.toLowerCase())){
-                this.logsToDownload.push(f);
+            const name = f.name.toLowerCase();
+
+            if(name.startsWith(config.logFilePrefix)){
+
+                if(name.endsWith(".log")){
+                    this.logsToDownload.push(f);
+                }
             }
         }
     }
 
-    downloadFile(dir, fileName){
+    downloadFile(fileDirectory, fileName, destinationFolder){
 
         return new Promise(async (resolve, reject) =>{
 
             try{
 
-                const destination = fs.createWriteStream(`${config.importedLogsFolder}/${fileName}`);
+                const destination = fs.createWriteStream(`${destinationFolder}/${fileName}`);
     
-                const file = await this.client.get(`${dir}${fileName}`, destination);
+                const file = await this.client.get(`${fileDirectory}${fileName}`, destination);
     
                 file.on("close", () =>{
     
-                    new Message(`Downloaded file ${dir}${fileName}.`,"pass");
+                    new Message(`Downloaded file ${fileDirectory}${fileName}.`,"pass");
                     resolve(true);
                 });
              
             }catch(err){
     
-                new Message(`Failed to download ${dir}${fileName}. ${err}`,"error");
+                new Message(`Failed to download ${fileDirectory}${fileName}. ${err}`,"error");
                 resolve(false);
     
             }
@@ -112,7 +116,7 @@ class SFTPImporter{
 
             const log = this.logsToDownload[i];
 
-            if(await this.downloadFile("./UnrealTournament/Logs/", log.name)){
+            if(await this.downloadFile(`${this.entryPoint}/Logs/`, log.name, config.importedLogsFolder)){
                 passed++;
             }else{
                 failed++;
@@ -142,7 +146,6 @@ class SFTPImporter{
         new Message(`Attempting to delete ${this.logsToDownload.length} log files from sftp server.`, "note");
 
         let passed = 0;
-        let failed = 0;
 
         for(let i = 0; i < this.logsToDownload.length; i++){
 
@@ -150,12 +153,44 @@ class SFTPImporter{
 
             if(await this.deleteFile(`./UnrealTournament/Logs/${file.name}`)){
                 passed++;
-            }else{
-                failed++;
             }
         }
 
         new Message(`Deleted ${passed} out of ${this.logsToDownload.length} log files from sftp server.`,"Note");
+    }
+
+    async downloadAceScreenshots(){
+
+        new Message(`Starting download of ACE screenshots.`,"note");
+
+        const files = await this.client.list(`${this.entryPoint}/${config.ace.screenshotsDir}`);
+
+        new Message(`Found ${files.length} ACE screenshots to download.`,"pass");
+
+        const prefix = config.ace.screenshotPrefix.toLowerCase();
+        const extension = config.ace.screenshotExtensionType.toLowerCase();
+        const dir = config.ace.screenshotsDir;
+
+        let passed = 0;
+
+        for(let i = 0; i < files.length; i++){
+
+            const f = files[i];
+
+            const name = f.name.toLowerCase();
+
+            if(name.startsWith(prefix)){
+
+                if(name.endsWith(extension)){
+
+                    if(await this.downloadFile(`${this.entryPoint}/${dir}/`, f.name, dir)){
+                        passed++;
+                    }
+                }
+            }
+        }
+
+        new Message(`Downloaded ${passed} out of ${files.length} ACE screenshots.`,"note");
     }
 }
 
