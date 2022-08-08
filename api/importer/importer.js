@@ -6,16 +6,22 @@ const MatchManager = require('./matchmanager');
 const EventEmitter = require('events');
 const AceManager = require('./acemanager');
 const mysql = require('../database');
+const SFTPImporter = require("./sftpimporter");
 
 
 class MyEventEmitter extends EventEmitter{};
 
 class Importer{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSkipFTP){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bSkipFTP){
 
         if(bSkipFTP === undefined){
-            this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates);
+
+            if(!bSFTP){
+                this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates);
+            }else{
+                this.ftpImporter = new SFTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates);
+            }
         }
 
         this.aceManager = new AceManager();
@@ -35,6 +41,7 @@ class Importer{
         this.aceLogsToImport = [];
         this.minPlayers = minPlayers;
         this.minPlaytime = minPlaytime;
+        this.bSFTP = bSFTP;
 
         this.myEmitter = new MyEventEmitter();
 

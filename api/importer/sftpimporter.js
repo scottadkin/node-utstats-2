@@ -2,6 +2,9 @@ const Client =  require("ssh2-sftp-client");
 const config = require("../../config.json");
 const Message = require("../message");
 const fs = require("fs");
+const EventEmitter = require('events');
+
+class MyEventEmitter extends EventEmitter {}
 
 const DELETELOGFILES = false;
 const DELETEACESCREENSHOTS = false;
@@ -16,6 +19,8 @@ class SFTPImporter{
         this.user = user;
         this.password = password;
         this.entryPoint = entryPoint;
+
+        this.events = new MyEventEmitter();
 
         new Message(`Attempting to connect to sftp server sftp://${host}:${port}.`,"note");
 
@@ -41,6 +46,7 @@ class SFTPImporter{
 
             this.client.end();
             new Message(`Disconnected from sftp server sftp://${this.host}:${this.port} successfully.`,"pass");
+            this.events.emit("finished");
 
         }catch(err){
             console.trace(err);
@@ -49,7 +55,6 @@ class SFTPImporter{
 
     async import(){
 
-        await this.getAllLogFileNames();
         await this.downloadLogFiles();
 
         await this.downloadAceLogs();
@@ -104,7 +109,9 @@ class SFTPImporter{
 
     async downloadLogFiles(){
 
-        new Message(`Attempting to download log files, found ${this.logsToDownload.length} log files.`,"note");
+        await this.getAllLogFileNames();
+
+        new Message(`Attempting to download stats log files, found ${this.logsToDownload.length} log files.`,"note");
 
         let passed = 0;
         let failed = 0;
@@ -120,7 +127,7 @@ class SFTPImporter{
             }
         }
 
-        new Message(`Downloading of log files completed, ${passed} logs downloaded, ${failed} logs failed to download.`,"note");
+        new Message(`Downloading of stats log files completed, ${passed} logs downloaded, ${failed} logs failed to download.`,"note");
 
         if(DELETELOGFILES){
             await this.deleteDownloadedLogsFromSFTP();
@@ -220,6 +227,8 @@ class SFTPImporter{
 
     async downloadAceLogs(){
 
+        new Message(`Attempting to download ACE join, and kick logs.`,"note");
+
         const dir = `${this.entryPoint}/${config.ace.logDir}`;
 
         const files = await this.client.list(dir);
@@ -230,7 +239,8 @@ class SFTPImporter{
 
         this.aceLogsToDelete = [];
 
-        let passed = 0;
+        let kickPasses = 0;
+        let joinPasses = 0;
 
         for(let i = 0; i < files.length; i++){
 
@@ -238,16 +248,25 @@ class SFTPImporter{
 
             const name = f.name.toLowerCase();
 
-            if((name.startsWith(prefix) || name.startsWith(prefix2)) && name.endsWith(extension)){
+            const bPrefix1 = name.startsWith(prefix);
+            const bPrefix2 = name.startsWith(prefix2);
+
+            if((bPrefix1 || bPrefix2) && name.endsWith(extension)){
 
                 if(await this.downloadFile(`${dir}/`, f.name, config.importedLogsFolder)){
+
                     this.aceLogsToDelete.push(f.name);
-                    passed++;
+
+                    if(bPrefix1){
+                        kickPasses++;
+                    }else if(bPrefix2){
+                        joinPasses++;
+                    }
                 }
             }
         }
 
-        new Message(`Downloaded ${passed} ACE logs.`,"note");
+        new Message(`Downloaded ${kickPasses} ACE kick logs, and ${joinPasses} ACE player join logs.`,"note");
 
         if(DELETEACELOGS){
             await this.deleteAceLogsFromSFTP();

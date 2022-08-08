@@ -1,7 +1,6 @@
 const Importer =  require('./api/importer/importer');
 const Message =  require('./api/message');
 const mysql = require('./api/database');
-const fs = require('fs');
 const config = require('./config.json');
 
 new Message('Node UTStats 2 Importer module started.','note');
@@ -39,9 +38,22 @@ function startNewImport(ftpServer){
         let I = 0;
 
         if(ftpServer !== null){
-            I = new Importer(f.host, f.port, f.user, f.password, f.target_folder, f.delete_after_import, f.delete_tmp_files, f.ignore_bots, f.ignore_duplicates, f.min_players, f.min_playtime);
+            I = new Importer(
+                f.host, 
+                f.port, 
+                f.user, 
+                f.password, 
+                f.target_folder, 
+                f.delete_after_import, 
+                f.delete_tmp_files, 
+                f.ignore_bots, 
+                f.ignore_duplicates, 
+                f.min_players, 
+                f.min_playtime, 
+                f.sftp
+            );
         }else{
-            I = new Importer(null, null, null, null, null, null, null, null, null, 0, 0, true);
+            I = new Importer(null, null, null, null, null, null, null, null, null, 0, 0, false, true);
         }
 
         I.myEmitter.on("passed", () =>{
