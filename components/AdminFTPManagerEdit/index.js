@@ -64,6 +64,12 @@ class AdminFTPManagerEdit extends React.Component{
 
         return <>
             <div className="select-row">
+                <div className="select-label">Name</div>
+                <div>
+                    <input className="default-textbox" type="text" name="server-name" value={data.name}/>
+                </div>
+            </div>
+            <div className="select-row">
                 <div className="select-label">Secure FTP</div>
                 <div>
                     <FormCheckBox inputName={"bSecure"} valueName="sftp" value={data.sftp} updateValue={this.updateValue}/>
@@ -71,44 +77,37 @@ class AdminFTPManagerEdit extends React.Component{
             </div>
 
             <div className="select-row">
-                <div className="select-label">Name</div>
-                <div>
-                    <input className="default-textbox" type="text" name="server-name"/>
-                </div>
-            </div>
-
-            <div className="select-row">
                 <div className="select-label">Host</div>
                 <div>
-                    <input className="default-textbox" type="text" name="server-host"/>
+                    <input className="default-textbox" type="text" value={data.host} name="server-host"/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Port</div>
                 <div>
-                    <input className="default-textbox" type="number" name="server-port" min={0} max={65535}/>
+                    <input className="default-textbox" type="number" value={data.port} name="server-port" min={0} max={65535}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">User</div>
                 <div>
-                    <input className="default-textbox" type="text" name="server-user"/>
+                    <input className="default-textbox" type="text" value={data.user} name="server-user"/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Password</div>
                 <div>
-                    <input className="default-textbox" type="password" name="server-password"/>
+                    <input className="default-textbox" type="password" value={data.password} name="server-password"/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Target Folder</div>
                 <div>
-                    <input className="default-textbox" type="text" name="server-folder"/>
+                    <input className="default-textbox" type="text" value={data.target_folder} name="server-folder"/>
                 </div>
             </div>
 
@@ -116,42 +115,42 @@ class AdminFTPManagerEdit extends React.Component{
             <div className="select-row">
                 <div className="select-label">Delete Files From FTP Server After Import</div>
                 <div>
-                    <FormCheckBox inputName={"bDeleteAfter"} valueName="delete_after_import"  value={false} updateValue={this.updateValue}/>
+                    <FormCheckBox inputName={"bDeleteAfter"} valueName="delete_after_import"  value={data.delete_after_import} updateValue={this.updateValue}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Delete .TMP Files From FTP Server</div>
                 <div>
-                    <FormCheckBox inputName={"bDeleteTMP"} valueName="delete_tmp_files"  value={false} updateValue={this.updateValue}/>
+                    <FormCheckBox inputName={"bDeleteTMP"} valueName="delete_tmp_files"  value={data.delete_tmp_files} updateValue={this.updateValue}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Ignore Bots</div>
                 <div>
-                    <FormCheckBox inputName={"bIgnoreBots"} valueName="ignore_bots" value={false} updateValue={this.updateValue}/>
+                    <FormCheckBox inputName={"bIgnoreBots"} valueName="ignore_bots" value={data.ignore_bots} updateValue={this.updateValue}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Ignore Duplicate Logs</div>
                 <div>
-                    <FormCheckBox inputName={"bIgnoreDuplicates"} valueName="ignore_duplicates" value={false} updateValue={this.updateValue}/>
+                    <FormCheckBox inputName={"bIgnoreDuplicates"} valueName="ignore_duplicates" value={data.ignore_duplicates} updateValue={this.updateValue}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Minimum Players</div>
                 <div>
-                    <input className="default-textbox" type="number" name="server-players" min={0}/>
+                    <input className="default-textbox" type="number" value={data.min_players} name="server-players" min={0}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Minimum Playtime(in seconds)</div>
                 <div>
-                    <input className="default-textbox" type="number" name="server-playtime" min={0} />
+                    <input className="default-textbox" type="number" value={data.min_playtime} name="server-playtime" min={0} />
                 </div>
             </div>
             
