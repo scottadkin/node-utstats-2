@@ -10,9 +10,17 @@ class AdminFTPManager extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 1, "selected": -1, "data": null};
-        this.changeMode = this.changeMode.bind(this);
+        this.state = {"mode": 2, "selected": -1, "data": null};
 
+        this.changeMode = this.changeMode.bind(this);
+        this.changeSelected = this.changeSelected.bind(this);
+
+    }
+
+    changeSelected(e){
+
+        console.log(e.target.value);
+        this.setState({"selected": e.target.value});
     }
 
     changeMode(mode){
@@ -53,7 +61,7 @@ class AdminFTPManager extends React.Component{
 
         if(this.state.mode !== 2) return;
 
-        return <AdminFTPManagerEdit />;
+        return <AdminFTPManagerEdit data={this.state.data} selectedId={this.state.selected} changeSelected={this.changeSelected}/>;
     }
 
     render(){
