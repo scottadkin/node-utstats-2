@@ -10,17 +10,62 @@ class AdminFTPManager extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 2, "selected": -1, "data": null};
+        this.state = {"mode": 2, "selectedId": -1, "data": null};
 
         this.changeMode = this.changeMode.bind(this);
         this.changeSelected = this.changeSelected.bind(this);
+        this.updateServerValue = this.updateServerValue.bind(this);
 
+    }
+
+    getServerData(id){
+
+        id = parseInt(id);
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const d = this.state.data[i];
+
+            console.log(d.id, id);
+
+            if(d.id === id) return d;
+        }
+
+        return null;
+    }
+
+    updateServerValue(type, value){
+
+
+        const data = this.getServerData(this.state.selectedId);
+
+        if(data === null){
+            console.trace("data is null");
+            return;
+        }
+
+        data[type] = value;
+
+        const updatedData = [];
+
+        for(let i = 0; i < this.state.data.length; i++){
+            
+            const d = this.state.data[i];
+
+            if(d.id !== data.id){
+                updatedData.push(d);
+            }else{
+                updatedData.push(data);
+            }
+        }
+
+        this.setState({"data": updatedData});
     }
 
     changeSelected(e){
 
         console.log(e.target.value);
-        this.setState({"selected": e.target.value});
+        this.setState({"selectedId": e.target.value});
     }
 
     changeMode(mode){
@@ -61,7 +106,12 @@ class AdminFTPManager extends React.Component{
 
         if(this.state.mode !== 2) return;
 
-        return <AdminFTPManagerEdit data={this.state.data} selectedId={this.state.selected} changeSelected={this.changeSelected}/>;
+        return <AdminFTPManagerEdit 
+            data={this.state.data} 
+            selectedId={this.state.selectedId} 
+            changeSelected={this.changeSelected}
+            updateValue={this.updateServerValue}
+        />;
     }
 
     render(){

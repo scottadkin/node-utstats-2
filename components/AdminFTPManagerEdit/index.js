@@ -13,7 +13,8 @@ class AdminFTPManagerEdit extends React.Component{
 
     updateValue(type, value){
 
-        console.log(type,value);
+        this.props.updateValue(type, value);
+
     }
 
     update(e){
@@ -66,7 +67,9 @@ class AdminFTPManagerEdit extends React.Component{
             <div className="select-row">
                 <div className="select-label">Name</div>
                 <div>
-                    <input className="default-textbox" type="text" name="server-name" value={data.name}/>
+                    <input className="default-textbox" type="text" name="server-name" value={data.name} onChange={(e) =>{
+                        this.props.updateValue("name", e.target.value);
+                    }}/>
                 </div>
             </div>
             <div className="select-row">
@@ -79,35 +82,45 @@ class AdminFTPManagerEdit extends React.Component{
             <div className="select-row">
                 <div className="select-label">Host</div>
                 <div>
-                    <input className="default-textbox" type="text" value={data.host} name="server-host"/>
+                    <input className="default-textbox" type="text" value={data.host} name="server-host" onChange={(e) =>{
+                        this.props.updateValue("host", e.target.value);
+                    }}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Port</div>
                 <div>
-                    <input className="default-textbox" type="number" value={data.port} name="server-port" min={0} max={65535}/>
+                    <input className="default-textbox" type="number" value={data.port} name="server-port" min={0} max={65535} onChange={(e) =>{
+                        this.props.updateValue("port", e.target.value);
+                    }}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">User</div>
                 <div>
-                    <input className="default-textbox" type="text" value={data.user} name="server-user"/>
+                    <input className="default-textbox" type="text" value={data.user} name="server-user" onChange={(e) =>{
+                        this.props.updateValue("user", e.target.value);
+                    }}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Password</div>
                 <div>
-                    <input className="default-textbox" type="password" value={data.password} name="server-password"/>
+                    <input className="default-textbox" type="password" value={data.password} name="server-password" onChange={(e) =>{
+                        this.props.updateValue("password", e.target.value);
+                    }}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Target Folder</div>
                 <div>
-                    <input className="default-textbox" type="text" value={data.target_folder} name="server-folder"/>
+                    <input className="default-textbox" type="text" value={data.target_folder} name="server-folder" onChange={(e) =>{
+                        this.props.updateValue("target_folder", e.target.value);
+                    }}/>
                 </div>
             </div>
 
@@ -143,14 +156,18 @@ class AdminFTPManagerEdit extends React.Component{
             <div className="select-row">
                 <div className="select-label">Minimum Players</div>
                 <div>
-                    <input className="default-textbox" type="number" value={data.min_players} name="server-players" min={0}/>
+                    <input className="default-textbox" type="number" value={data.min_players} name="server-players" min={0} onChange={(e) =>{
+                        this.props.updateValue("min_players", e.target.value);
+                    }}/>
                 </div>
             </div>
 
             <div className="select-row">
                 <div className="select-label">Minimum Playtime(in seconds)</div>
                 <div>
-                    <input className="default-textbox" type="number" value={data.min_playtime} name="server-playtime" min={0} />
+                    <input className="default-textbox" type="number" value={data.min_playtime} name="server-playtime" min={0} onChange={(e) =>{
+                        this.props.updateValue("min_playtime", e.target.value);
+                    }}/>
                 </div>
             </div>
             
