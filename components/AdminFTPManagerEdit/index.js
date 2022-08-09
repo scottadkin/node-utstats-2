@@ -1,5 +1,6 @@
 import React from "react";
 import FormCheckBox from "../FormCheckBox";
+import Notification from "../Notification"
 
 class AdminFTPManagerEdit extends React.Component{
 
@@ -17,10 +18,6 @@ class AdminFTPManagerEdit extends React.Component{
 
     }
 
-    update(e){
-
-        e.preventDefault();
-    }
 
     renderSelectList(){
 
@@ -172,9 +169,18 @@ class AdminFTPManagerEdit extends React.Component{
             </div>
             
 
-            <input type="submit" className="search-button" value="Update Server"/>
+            <input type="submit" className="search-button" value="Save Changes"/>
         </>;
 
+    }
+
+    renderNotifcation(){
+
+        if(this.props.bUnsavedChanges){
+            return <Notification type="warning">
+                    You have unsaved changes.
+            </Notification>
+        }
     }
 
     render(){
@@ -190,7 +196,7 @@ class AdminFTPManagerEdit extends React.Component{
                     Edit FTP settings of servers currently added to the import list.<br/>
                     Default port for ftp is 21, default port for sftp is 22.
                 </div>
-                <form action="/" method="POST" onSubmit={this.update}>
+                <form action="/" method="POST" onSubmit={this.props.saveChanges}>
                     <div className="select-row">
                         <div className="select-label">Selected Server</div>
                         <div>
@@ -200,7 +206,9 @@ class AdminFTPManagerEdit extends React.Component{
 
                     {this.renderFormElems(currentData)}
                 </form>
+                
             </div>
+            {this.renderNotifcation()}
         </div>
     }
 }

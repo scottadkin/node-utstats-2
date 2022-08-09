@@ -18,17 +18,17 @@
 
 
 .default{
-    background-color:rgb(32,32,32);
+    background-color:rgba(32,32,32,0.9);
 }
 
 .pass{
-    background-color:rgb(17, 133, 17);
+    background-color:rgba(17, 133, 17,0.9);
 }
 
 .warning{
-    background-color:rgb(150,150, 0);
+    background-color:rgba(150,150, 0,0.9);
 }
 
 .error{
-    background-color:rgb(200,50,50);
+    background-color:rgba(200,50,50,0.9);
 }
