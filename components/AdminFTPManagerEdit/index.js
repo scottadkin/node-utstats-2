@@ -1,6 +1,5 @@
 import React from "react";
 import FormCheckBox from "../FormCheckBox";
-import Notification from "../Notification"
 
 class AdminFTPManagerEdit extends React.Component{
 
@@ -174,20 +173,9 @@ class AdminFTPManagerEdit extends React.Component{
 
     }
 
-    renderNotifcation(){
-
-        if(this.props.bUnsavedChanges){
-            return <Notification type="warning">
-                    You have unsaved changes.
-            </Notification>
-        }
-    }
-
     render(){
 
         const currentData = this.getSelectedData();
-
-        console.log(currentData);
 
         return <div>          
             <div className="default-header">Edit Servers</div>
@@ -208,7 +196,6 @@ class AdminFTPManagerEdit extends React.Component{
                 </form>
                 
             </div>
-            {this.renderNotifcation()}
         </div>
     }
 }

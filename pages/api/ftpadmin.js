@@ -58,19 +58,19 @@ export default async function handler(req, res){
             if(errors.length === 0){
 
                 const result = await admin.addFTPServer(
-                        body.server, 
-                        body.ip, 
-                        body.port, 
-                        body.user, 
-                        body.password, 
-                        body.folder, 
-                        body.deleteLogs, 
-                        body.deleteTmp, 
-                        body.ignoreBots, 
-                        body.ignoreDuplicates, 
-                        body.minPlayers, 
-                        body.minPlaytime
-                    );
+                    body.server, 
+                    body.ip, 
+                    body.port, 
+                    body.user, 
+                    body.password, 
+                    body.folder, 
+                    body.deleteLogs, 
+                    body.deleteTmp, 
+                    body.ignoreBots, 
+                    body.ignoreDuplicates, 
+                    body.minPlayers, 
+                    body.minPlaytime
+                );
 
                 res.status(200).json({"message": "Passed", "id": result});
                 return;
@@ -92,9 +92,8 @@ export default async function handler(req, res){
 
         }else if(mode === "edit"){
 
-
             const result = await admin.updateFTPServer(body.id, body.server, body.ip, body.port, body.user, body.password, body.folder, body.deleteLogs, 
-                body.deleteTmp, body.ignoreBots, body.ignoreDuplicates, body.minPlayers, body.minPlaytime);
+                body.deleteTmp, body.ignoreBots, body.ignoreDuplicates, body.minPlayers, body.minPlaytime, body.bSecure);
             
             if(result > 0){
 

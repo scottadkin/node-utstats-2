@@ -1,7 +1,7 @@
 import React from 'react';
-import styles from './AdminFTPManager.module.css';
 import AdminFTPManagerList from '../AdminFTPManagerList';
 import AdminFTPManagerEdit from '../AdminFTPManagerEdit';
+import Notification from "../Notification";
 
 
 class AdminFTPManager extends React.Component{
@@ -16,6 +16,7 @@ class AdminFTPManager extends React.Component{
         this.changeSelected = this.changeSelected.bind(this);
         this.updateServerValue = this.updateServerValue.bind(this);
         this.saveChanges = this.saveChanges.bind(this);
+        this.saveAllChanges = this.saveAllChanges.bind(this);
 
     }
 
@@ -47,8 +48,6 @@ class AdminFTPManager extends React.Component{
             const savedD = this.state.lastSavedData[i];
 
             for(const key of Object.keys(d)){
-
-                console.log(d[key], savedD[key]);
 
                 if(d[key] !== savedD[key]) return true;
             }
@@ -102,7 +101,6 @@ class AdminFTPManager extends React.Component{
 
     changeSelected(e){
 
-        console.log(e.target.value);
         this.setState({"selectedId": e.target.value});
     }
 
@@ -126,23 +124,161 @@ class AdminFTPManager extends React.Component{
 
         if(this.state.mode !== 2) return;
 
-        const bUnsavedChanges = this.bAnyChangesNotSaved();
-
-        console.log(bUnsavedChanges);
-
         return <AdminFTPManagerEdit 
             data={this.state.data} 
             selectedId={this.state.selectedId} 
             changeSelected={this.changeSelected}
             updateValue={this.updateServerValue}
-            bUnsavedChanges={bUnsavedChanges}
             saveChanges={this.saveChanges}
         />;
     }
 
-    saveChanges(e){
-        e.preventDefault();
-        this.setState({"lastSavedData": this.state.data});
+    getChangedSettings(){
+
+        if(this.state.data === null) return [];
+
+        const changed = [];
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const d = this.state.data[i];
+            const savedD = this.state.lastSavedData[i];
+
+            for(const key of Object.keys(d)){
+
+                if(d[key] !== savedD[key]){
+                    changed.push(d.id);
+                    break;
+                }
+            }
+        }
+
+        return changed;
+    }
+
+    async saveAllChanges(e){
+
+        await this.saveChanges(e, true);
+    }
+
+    async replaceServerItem(data){
+
+        const newData = [];
+
+        for(let i = 0; i < this.state.lastSavedData.length; i++){
+
+            const d = this.state.lastSavedData[i];
+
+            if(d.id === data.id){
+                newData.push(data);
+            }else{
+                newData.push(d);
+            }
+        }
+        
+
+        this.setState({
+            "lastSavedData": newData,
+            "lastSavedData": JSON.parse(JSON.stringify(newData))
+        });
+    }
+
+    async saveChange(data){
+
+        const req = await fetch("/api/ftpadmin", {
+            "headers": {"Content-Type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "edit",
+                "id": data.id,
+                "server": data.name,
+                "ip": data.host,
+                "port": data.port,
+                "user": data.user,
+                "password": data.password,
+                "folder": data.target_folder,
+                "deleteLogs": data.delete_after_import,
+                "deleteTmp": data.delete_tmp_files,
+                "ignoreBots": data.ignore_bots,
+                "ignoreDuplicates": data.ignore_duplicates,
+                "minPlayers": data.min_players,
+                "minPlaytime": data.min_playtime,
+                "bSecure": data.sftp,
+            })
+        });
+
+        const res = await req.json();
+        
+        if(res.error === undefined){
+
+            this.replaceServerItem(data);
+
+        }
+    }
+
+    async saveChanges(e, bSaveAll){
+
+        try{
+
+            if(bSaveAll === undefined) bSaveAll = false;
+
+            e.preventDefault();
+
+            const changes = this.getChangedSettings();
+
+            if(changes.length === 0) return;
+
+            if(bSaveAll){
+
+                for(let i = 0; i < changes.length; i++){
+
+                    const data = this.getServerData(changes[i]);
+                    await this.saveChange(data);
+                    
+                }
+
+            }else{
+
+                const targetId = this.state.selectedId;
+
+                const data = this.getServerData(targetId);
+
+                if(data !== null){
+
+                    await this.saveChange(data);
+                }
+
+            }
+
+        }catch(err){
+            console.trace(err);
+        }
+    }
+
+    renderNotifcation(){
+
+        if(this.bAnyChangesNotSaved()){
+
+            const messages = [];
+
+            const changedSettingIds = this.getChangedSettings();
+
+            if(changedSettingIds.length > 0){
+
+                for(let i = 0; i < changedSettingIds.length; i++){
+
+                    const c = changedSettingIds[i];
+                    const data = this.getServerData(c);
+
+                    messages.push(<div key={i}>You have unsaved changes to server <span className="yellow"><b>{data.name}</b> {data.host}:{data.port}</span></div>);
+                }
+            }
+
+            return <Notification type="warning">
+                {messages}
+                <div className="search-button m-top-25" onClick={this.saveAllChanges}>Save all changes</div>
+            </Notification>
+        }
     }
 
     render(){
@@ -158,13 +294,14 @@ class AdminFTPManager extends React.Component{
                 })}>Add Server</div>
                 <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(2);
-                })}>Edit Server</div>
+                })}>Edit Servers</div>
                 <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(3);
                 })}>Delete Server</div>
             </div>
             {this.renderList()}
             {this.renderEdit()}
+            {this.renderNotifcation()}
 
         </div>
     }

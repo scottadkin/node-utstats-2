@@ -181,7 +181,6 @@ class Admin extends React.Component{
 
             if(errors.length > 0){
 
-                console.log("THERE WHERE EREROREOREOROOS");
                 console.table(errors);
 
                 this.setState({

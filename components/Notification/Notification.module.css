@@ -3,32 +3,17 @@
     bottom:0;
     width:100%;
     z-index: 999999;
+    background-color:rgb(32,32,32);
+    border-top:1px solid rgba(255,255,255,0.1);
 }
 
 .header{
     padding:10px;
-    font-size:18px;
+    font-size:20px;
     font-weight:bold;
 }
 
 .content{
-    font-size:16px;
-    padding:20px;
-}
-
-
-.default{
-    background-color:rgba(32,32,32,0.9);
-}
-
-.pass{
-    background-color:rgba(17, 133, 17,0.9);
-}
-
-.warning{
-    background-color:rgba(150,150, 0,0.9);
-}
-
-.error{
-    background-color:rgba(200,50,50,0.9);
+    font-size:14px;
+    padding:10px;
 }

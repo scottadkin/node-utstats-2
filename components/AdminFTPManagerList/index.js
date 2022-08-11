@@ -27,6 +27,7 @@ class AdminFTPManagerList extends React.Component{
 
             rows.push(<tr key={i}>
                 <TrueFalse bTable={true} value={d.sftp}/>
+                <td>{d.name}</td>
                 <td>{d.host}:{d.port}</td>
                 <td>{d.user}</td>
                 <td>{d.target_folder}</td>
@@ -40,6 +41,7 @@ class AdminFTPManagerList extends React.Component{
         return <Table2 width={1}>
             <tr>
                 <th>Secure FTP</th>
+                <th>Name</th>
                 <th>Host</th>
                 <th>User</th>
                 <th>Entry Point</th>
