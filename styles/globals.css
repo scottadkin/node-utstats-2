@@ -123,7 +123,7 @@ footer{
 	text-align:center;
 	font-size:18px;
 	color:white;
-	font-weight:300;
+	font-weight:bold;
 	padding-bottom:15px;
 	width:90%;
 	max-width:1250px;
@@ -552,7 +552,7 @@ input[type="range"]{
 	padding:5px;
 }
 
-.tab{
+.tab, .big-tab{
 	
 	display:inline-block;
 	font-size:14px;
@@ -561,13 +561,13 @@ input[type="range"]{
 
 }
 
-.big-tab{
-	font-size:16px;
+/*.big-tab{
+	font-size:14px;
 	display:inline-block;
 	color:white;
-	padding:10px 10px;
+	padding:10px 8px;
 	transition:background-color 0.5s;
-}
+}*/
 
 
 .tab:hover, .big-tab:hover{
@@ -578,6 +578,8 @@ input[type="range"]{
 
 .tab-selected{
 	background-color:rgb(64,0,0);
+	color:yellow;
+	font-weight:bold;
 }
 
 .tab-selected:hover{

@@ -2,6 +2,7 @@ import React from 'react';
 import AdminFTPManagerList from '../AdminFTPManagerList';
 import AdminFTPManagerEdit from '../AdminFTPManagerEdit';
 import Notification from "../Notification";
+import AdminFTPManagerCreate from '../AdminFTPManagerCreate';
 
 
 class AdminFTPManager extends React.Component{
@@ -10,7 +11,7 @@ class AdminFTPManager extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 2, "selectedId": -1, "data": null, "lastSavedData": null};
+        this.state = {"mode": 1, "selectedId": -1, "data": null, "lastSavedData": null};
 
         this.changeMode = this.changeMode.bind(this);
         this.changeSelected = this.changeSelected.bind(this);
@@ -281,6 +282,13 @@ class AdminFTPManager extends React.Component{
         }
     }
 
+    renderCreate(){
+
+        if(this.state.mode !== 1) return null;
+
+        return <AdminFTPManagerCreate />;
+    }
+
     render(){
 
         return <div>
@@ -301,6 +309,7 @@ class AdminFTPManager extends React.Component{
             </div>
             {this.renderList()}
             {this.renderEdit()}
+            {this.renderCreate()}
             {this.renderNotifcation()}
 
         </div>
