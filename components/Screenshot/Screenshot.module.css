@@ -1,6 +1,10 @@
 .content canvas{
     width:var(--width-1);
-    max-width:var(--max-width-1);
+    max-width:1000px;
+}
+
+.content canvas:hover{
+  cursor: pointer;
 }
 
 #downloads a{

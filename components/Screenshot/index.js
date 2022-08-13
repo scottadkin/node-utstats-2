@@ -1490,7 +1490,7 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
 
     return (<div className={`${styles.wrapper} center`}>
         <div className="default-header">
-            {(!bHome) ? "Match Screenshot" : "Latest Match"}
+            {(!bHome) ? "Match Screenshot" : "Latest Match Screenshot"}
         </div>
         <div className={`${styles.content} center`}>
             <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-10" 
