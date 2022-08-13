@@ -96,8 +96,7 @@ footer{
 	font-weight:bold;
 	padding-bottom:18px;
 	padding-top:18px;
-	background-color:var(--color-3);
-	background:linear-gradient(to bottom, var(--color-1a), var(--color-1a));
+	background-color:var(--color-1);
 	margin-left:auto;
 	margin-right:auto;
 	margin-bottom:35px;
@@ -152,8 +151,8 @@ footer{
 
 #content{
 	padding-bottom:150px;
-	padding-top:25px;
-	background-color:rgba(46,46,46,0.9);
+	padding-top:18px;
+	background-color:rgba(40,40,40,0.95);
 	min-height:100vh;
 }
 

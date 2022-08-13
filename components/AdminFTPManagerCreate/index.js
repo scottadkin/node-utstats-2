@@ -1,5 +1,6 @@
 import React from "react";
 import FormCheckBox from "../FormCheckBox";
+import Notification from "../Notification";
 
 class AdminFTPManagerCreate extends React.Component{
 
@@ -21,9 +22,11 @@ class AdminFTPManagerCreate extends React.Component{
             "minPlayers": 0,
             "minPlaytime": 0,
             "bSecure": false,
+            "errors": null
         };
 
         this.updateValue = this.updateValue.bind(this);
+        this.createServer = this.createServer.bind(this);
     }
 
     updateValue(name, value){
@@ -35,7 +38,74 @@ class AdminFTPManagerCreate extends React.Component{
 
         e.preventDefault();
 
-        console.log(e.target);
+        const name = e.target[0].value;
+        const bSecure = e.target[1].value;
+        const host = e.target[2].value;
+        const port = e.target[3].value;
+        const user = e.target[4].value;
+        const password = e.target[5].value;
+        const targetFolder = e.target[6].value;
+        const bDeleteAfterImport = e.target[7].value;
+        const bDeleteTMPFiles = e.target[8].value;
+        const bIgnoreBots = e.target[9].value;
+        const bIgnoreDuplicates = e.target[10].value;
+        const minPlayers = e.target[11].value;
+        const minPlaytime = e.target[12].value;
+
+        const data = {
+            "mode": "create",
+            "server": name,
+            "ip": host,
+            "port": port,
+            "user": user,
+            "password": password,
+            "folder": targetFolder,
+            "deleteLogs": bDeleteAfterImport,
+            "deleteTmp": bDeleteTMPFiles,
+            "ignoreBots": bIgnoreBots,
+            "ignoreDuplicates": bIgnoreDuplicates,
+            "minPlayers": minPlayers,
+            "minPlaytime": minPlaytime,
+            "bSecure": bSecure
+        };
+
+        const req = await fetch("/api/ftpadmin", {
+            "headers": {"Content-Type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify(data)
+        });
+
+        const res = await req.json();
+
+        if(res.error === undefined){
+
+            await this.props.loadList();
+            e.target.reset();
+        }
+        
+        if(res.error === undefined) this.setState({"errors": null});
+        if(res.error !== undefined) this.setState({"errors": res.error});
+
+    }
+
+    renderNotification(){
+
+        if(this.state.errors === null) return null;
+
+        const errors = [];
+
+        for(let i = 0; i < this.state.errors.length; i++){
+
+            const e = this.state.errors[i];
+
+            errors.push(<div key={i}>{e}</div>);
+        }
+
+        console.log(errors);
+
+        return <Notification type="error">
+            {errors}
+        </Notification>
     }
 
     render(){
@@ -153,6 +223,7 @@ class AdminFTPManagerCreate extends React.Component{
                 </div>
                 <input type="submit" className="search-button" value="Add FTP Server"/>
             </form>
+            {this.renderNotification()}
         </div>;
     }
 }

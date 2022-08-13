@@ -18,10 +18,13 @@ class AdminFTPManager extends React.Component{
         this.updateServerValue = this.updateServerValue.bind(this);
         this.saveChanges = this.saveChanges.bind(this);
         this.saveAllChanges = this.saveAllChanges.bind(this);
+        this.loadList = this.loadList.bind(this);
 
     }
 
     async loadList(){
+
+        console.log("LOAD LIST");
 
         const req = await fetch("/api/ftpadmin", {
             "headers": {"Content-type": "application/json"},
@@ -286,7 +289,7 @@ class AdminFTPManager extends React.Component{
 
         if(this.state.mode !== 1) return null;
 
-        return <AdminFTPManagerCreate />;
+        return <AdminFTPManagerCreate loadList={this.loadList}/>;
     }
 
     render(){

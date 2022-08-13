@@ -56,7 +56,7 @@ export default async function handler(req, res){
             }
 
             if(errors.length === 0){
-
+                
                 const result = await admin.addFTPServer(
                     body.server, 
                     body.ip, 
@@ -69,7 +69,8 @@ export default async function handler(req, res){
                     body.ignoreBots, 
                     body.ignoreDuplicates, 
                     body.minPlayers, 
-                    body.minPlaytime
+                    body.minPlaytime,
+                    body.bSecure
                 );
 
                 res.status(200).json({"message": "Passed", "id": result});
@@ -106,8 +107,11 @@ export default async function handler(req, res){
             }
         }
 
-
-        res.status(200).json({"error": ["Unknown command", ...errors]});
+        if(errors.length === 0){
+            res.status(200).json({"error": ["Unknown command"]});
+        }else{
+            res.status(200).json({"error": [...errors]});
+        }
         return;
     }
 

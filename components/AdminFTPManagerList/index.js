@@ -32,8 +32,8 @@ class AdminFTPManagerList extends React.Component{
                 <td>{d.user}</td>
                 <td>{d.target_folder}</td>
                 <td>{d.total_imports}</td>
-                <td>{Functions.convertTimestamp(d.first, true)}</td>
-                <td>{Functions.convertTimestamp(d.last, true)}</td>
+                <td>{(d.first === 0) ? "N/A" : Functions.convertTimestamp(d.first, true)}</td>
+                <td>{(d.last === 0) ? "N/A" : Functions.convertTimestamp(d.last, true)}</td>
             </tr>);
 
         }

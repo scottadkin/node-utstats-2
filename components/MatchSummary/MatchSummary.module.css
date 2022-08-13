@@ -1,8 +1,6 @@
 .wrapper{
-    color:var(--color-7);
-    background-color:var(--color-3a);
+    background-color:var(--color-3);
     background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
-    border:1px solid var(--border-color-1);
     max-width:var(--max-width-1);
     width:var(--width-1);
 }

@@ -186,6 +186,12 @@ class Admin{
         
         bSecureFTP = bSecureFTP ?? 0;
 
+        deleteAfterImport = (deleteAfterImport === "true") ? 1 : 0 ;
+        deleteTmpFiles = (deleteTmpFiles === "true") ? 1 : 0 ;
+        ignoreBots = (ignoreBots === "true") ? 1 : 0 ;
+        ignoreDuplicates = (ignoreDuplicates === "true") ? 1 : 0 ;
+        bSecureFTP = (bSecureFTP === "true") ? 1 : 0 ;
+      
         const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?)";
 
         const vars = [
