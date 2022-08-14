@@ -33,7 +33,7 @@ export default async function handler(req, res){
             }
 
             if(body.ip !== undefined){
-                if(body.ip.length === 0) errors.push("You have not specified an ip");
+                if(body.ip.length === 0) errors.push("You have not specified an ip, or host.");
             }else{
                 errors.push("Ip is undefined");
             }

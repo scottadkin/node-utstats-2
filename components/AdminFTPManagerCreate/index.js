@@ -22,7 +22,8 @@ class AdminFTPManagerCreate extends React.Component{
             "minPlayers": 0,
             "minPlaytime": 0,
             "bSecure": false,
-            "errors": null
+            "errors": null,
+            "bSaved": false
         };
 
         this.updateValue = this.updateValue.bind(this);
@@ -31,7 +32,7 @@ class AdminFTPManagerCreate extends React.Component{
 
     updateValue(name, value){
 
-        this.setState({[name]: value});   
+        this.setState({[name]: value, "bSaved": false});   
     }
 
     async createServer(e){
@@ -80,15 +81,23 @@ class AdminFTPManagerCreate extends React.Component{
         if(res.error === undefined){
 
             await this.props.loadList();
-            e.target.reset();
+            //e.target.reset();
         }
         
-        if(res.error === undefined) this.setState({"errors": null});
-        if(res.error !== undefined) this.setState({"errors": res.error});
+        if(res.error === undefined) this.setState({"errors": null, "bSaved": true});
+        if(res.error !== undefined) this.setState({"errors": res.error, "bSaved": false});
 
     }
 
     renderNotification(){
+
+        if(this.state.bSaved){
+
+            return <Notification type="pass">
+                Server added successfully.
+            </Notification>
+            //return;
+        }
 
         if(this.state.errors === null) return null;
 
@@ -100,8 +109,6 @@ class AdminFTPManagerCreate extends React.Component{
 
             errors.push(<div key={i}>{e}</div>);
         }
-
-        console.log(errors);
 
         return <Notification type="error">
             {errors}
@@ -119,7 +126,9 @@ class AdminFTPManagerCreate extends React.Component{
                 <div className="select-row">
                     <div className="select-label">Name</div>
                     <div>
-                        <input className="default-textbox" type="text" name="server-name" />
+                        <input className="default-textbox" type="text" valueName="server" name="server-name"  onChange={(e) =>{
+                            this.updateValue("name", e.target.value);
+                        }}/>
                     </div>
                 </div>
                 <div className="select-row">
