@@ -3,6 +3,7 @@ import AdminFTPManagerList from '../AdminFTPManagerList';
 import AdminFTPManagerEdit from '../AdminFTPManagerEdit';
 import Notification from "../Notification";
 import AdminFTPManagerCreate from '../AdminFTPManagerCreate';
+import AdminFTPManagerDelete from '../AdminFTPManagerDelete';
 
 
 class AdminFTPManager extends React.Component{
@@ -11,7 +12,7 @@ class AdminFTPManager extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 1, "selectedId": -1, "data": null, "lastSavedData": null};
+        this.state = {"mode": 3, "selectedId": -1, "data": null, "lastSavedData": null};
 
         this.changeMode = this.changeMode.bind(this);
         this.changeSelected = this.changeSelected.bind(this);
@@ -292,6 +293,13 @@ class AdminFTPManager extends React.Component{
         return <AdminFTPManagerCreate loadList={this.loadList}/>;
     }
 
+    renderDelete(){
+
+        if(this.state.mode !== 3) return null;
+
+        return <AdminFTPManagerDelete data={this.state.data} loadList={this.loadList}/>;
+    }
+
     render(){
 
         return <div>
@@ -308,11 +316,12 @@ class AdminFTPManager extends React.Component{
                 })}>Edit Servers</div>
                 <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(3);
-                })}>Delete Server</div>
+                })}>Delete Servers</div>
             </div>
             {this.renderList()}
             {this.renderEdit()}
             {this.renderCreate()}
+            {this.renderDelete()}
             {this.renderNotifcation()}
 
         </div>

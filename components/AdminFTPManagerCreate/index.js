@@ -126,7 +126,7 @@ class AdminFTPManagerCreate extends React.Component{
                 <div className="select-row">
                     <div className="select-label">Name</div>
                     <div>
-                        <input className="default-textbox" type="text" valueName="server" name="server-name"  onChange={(e) =>{
+                        <input className="default-textbox" type="text" name="server-name"  onChange={(e) =>{
                             this.updateValue("name", e.target.value);
                         }}/>
                     </div>

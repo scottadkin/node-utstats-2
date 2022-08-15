@@ -24,8 +24,6 @@ export default async function handler(req, res){
 
         }else if(mode === "create"){
 
-            console.log(body);
-
             if(body.server !== undefined){
                 if(body.server.length === 0) errors.push("Server name must be at least 1 character long");
             }else{
