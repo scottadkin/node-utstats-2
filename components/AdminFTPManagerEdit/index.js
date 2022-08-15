@@ -31,7 +31,7 @@ class AdminFTPManagerEdit extends React.Component{
             }
         }
 
-        return <select className="default-select" onChange={this.props.changeSelected}>
+        return <select className="default-select" value={this.props.selectedId} onChange={this.props.changeSelected}>
             <option value="-1">Please select a server to edit</option>
             {options}
         </select>
