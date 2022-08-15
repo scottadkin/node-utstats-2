@@ -647,10 +647,11 @@ input[type="range"]{
 .button{
 	padding:5px;
 	border:1px solid var(--border-color-1);
-	background-color:var(--color-1);
+	background-color:var(--color-3);
 	user-select: none;
 	transition:all 0.5s;
 	color:white;
+	font-size:inherit;
 }
 
 .button:hover{

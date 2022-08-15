@@ -25,8 +25,6 @@ class AdminFTPManager extends React.Component{
 
     async loadList(){
 
-        console.log("LOAD LIST");
-
         const req = await fetch("/api/ftpadmin", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
@@ -104,9 +102,16 @@ class AdminFTPManager extends React.Component{
         this.setState({"data": updatedData});
     }
 
-    changeSelected(e){
+    changeSelected(e, bFormEvent){
 
-        this.setState({"selectedId": e.target.value});
+        bFormEvent = (bFormEvent === undefined) ? true : bFormEvent;
+
+        if(bFormEvent){
+            this.setState({"selectedId": e.target.value});
+        }else{
+            this.setState({"selectedId": e});
+        }
+       
     }
 
     changeMode(mode){
@@ -122,7 +127,7 @@ class AdminFTPManager extends React.Component{
 
         if(this.state.mode !== 0) return;
 
-        return <AdminFTPManagerList data={this.state.data}/>
+        return <AdminFTPManagerList data={this.state.data} changeSelected={this.changeSelected} changeMode={this.changeMode}/>
     }
 
     renderEdit(){
@@ -297,7 +302,12 @@ class AdminFTPManager extends React.Component{
 
         if(this.state.mode !== 3) return null;
 
-        return <AdminFTPManagerDelete data={this.state.data} loadList={this.loadList}/>;
+        return <AdminFTPManagerDelete 
+            data={this.state.data} 
+            loadList={this.loadList} 
+            changeSelected={this.changeSelected}
+            selected={this.state.selectedId}
+        />;
     }
 
     render(){

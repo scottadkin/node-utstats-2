@@ -61,7 +61,9 @@ class AdminFTPManagerDelete extends React.Component{
         }
 
 
-        return <select className="default-select">
+        return <select className="default-select" value={this.props.selected} onChange={((e) =>{
+            this.props.changeSelected(e);
+        })}>
             {options}
         </select>
 

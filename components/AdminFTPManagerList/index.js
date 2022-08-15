@@ -34,6 +34,16 @@ class AdminFTPManagerList extends React.Component{
                 <td>{d.total_imports}</td>
                 <td>{(d.first === 0) ? "N/A" : Functions.convertTimestamp(d.first, true)}</td>
                 <td>{(d.last === 0) ? "N/A" : Functions.convertTimestamp(d.last, true)}</td>
+                <td>
+                    <input type="button" className="button" value="Edit" onClick={(() => {
+                        this.props.changeSelected(d.id, false);
+                        this.props.changeMode(2);
+                    })} />
+                    <input type="button" className="button" value="Delete" onClick={(() => {
+                        this.props.changeSelected(d.id, false);
+                        this.props.changeMode(3);
+                    })} />
+                </td>
             </tr>);
 
         }
@@ -48,6 +58,7 @@ class AdminFTPManagerList extends React.Component{
                 <th>Total Imports</th>
                 <th>First Import</th>
                 <th>Last Import</th>
+                <th>Actions</th>
             </tr>
             {rows}
         </Table2>
