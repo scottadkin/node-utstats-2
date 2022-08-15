@@ -3,22 +3,25 @@ const config = require("../../config.json");
 const Message = require("../message");
 const fs = require("fs");
 const EventEmitter = require('events');
+const Logs = require("../logs");
 
 class MyEventEmitter extends EventEmitter {}
 
-const DELETELOGFILES = false;
 const DELETEACESCREENSHOTS = false;
 const DELETEACELOGS = false;
 
 class SFTPImporter{
 
-    constructor(host, port, user, password, entryPoint){
+    constructor(host, port, user, password, entryPoint, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates){
 
         this.host = host;
         this.port = port;
         this.user = user;
         this.password = password;
         this.entryPoint = entryPoint;
+        this.bDeleteAfter = bDeleteAfter;
+        this.bDeleteTmpFiles = bDeleteTmpFiles;
+        this.bIgnoreDuplicates = bIgnoreDuplicates;
 
         this.events = new MyEventEmitter();
 
@@ -57,6 +60,7 @@ class SFTPImporter{
     async import(){
 
         await this.downloadLogFiles();
+        await this.deleteTMPFiles();
 
         await this.downloadAceLogs();
         await this.downloadAceScreenshots();
@@ -67,6 +71,7 @@ class SFTPImporter{
         const fileNames = await this.client.list(`${this.entryPoint}/Logs`);
 
         this.logsToDownload = [];
+        this.tmpFiles = [];
 
         for(let i = 0; i < fileNames.length; i++){
 
@@ -78,6 +83,8 @@ class SFTPImporter{
 
                 if(name.endsWith(".log")){
                     this.logsToDownload.push(f);
+                }else if(name.endsWith(".tmp")){
+                    this.tmpFiles.push(f);
                 }
             }
         }
@@ -116,10 +123,18 @@ class SFTPImporter{
 
         let passed = 0;
         let failed = 0;
+        let duplicates = 0;
 
         for(let i = 0; i < this.logsToDownload.length; i++){
 
             const log = this.logsToDownload[i];
+
+            if(await Logs.bExists(log.name) && this.bIgnoreDuplicates){
+
+                new Message(`${log.name} has already been imported, skipping.`,"warning");
+                duplicates++;
+                continue;
+            }
 
             if(await this.downloadFile(`${this.entryPoint}/Logs/`, log.name, config.importedLogsFolder)){
                 passed++;
@@ -128,9 +143,9 @@ class SFTPImporter{
             }
         }
 
-        new Message(`Downloading of stats log files completed, ${passed} logs downloaded, ${failed} logs failed to download.`,"note");
+        new Message(`Downloading of stats log files completed, ${passed} logs downloaded, ${duplicates} duplicate log files skipped, ${failed} logs failed to download.`,"note");
 
-        if(DELETELOGFILES){
+        if(this.bDeleteAfter){
             await this.deleteDownloadedLogsFromSFTP();
         }
     }
@@ -292,6 +307,21 @@ class SFTPImporter{
         }
 
         new Message(`Deleted ${passed} ACE logs out of ${this.aceLogsToDelete.length}.`, "note");
+    }
+
+
+    async deleteTMPFiles(){
+
+        new Message(`Found ${this.tmpFiles.length} tmp files in logs folder.`, "note");
+
+        if(this.bDeleteTmpFiles){
+
+            for(let i = 0; i < this.tmpFiles.length; i++){
+
+                const f = this.tmpFiles[i];
+                await this.deleteFile(`${this.entryPoint}/Logs/${f.name}`);
+            }
+        }
     }
 }
 

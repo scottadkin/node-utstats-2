@@ -73,6 +73,7 @@ class Importer{
         try{
 
             await this.checkLogsFolder();
+            await this.updateTotalImports();
 
             const totalLogs = this.logsToImport.length;
 
@@ -204,7 +205,7 @@ class Importer{
 
                         this.logsToImport.push(f);
 
-                        new Message(`${f} is a log file.`,'pass');
+                        //new Message(`${f} is a log file.`,'pass');
 
                     }else{
 
@@ -259,7 +260,7 @@ class Importer{
         const now = Math.floor(Date.now() / 1000);
 
         const query = `UPDATE nstats_ftp 
-        SET total_imports = total_imports + 1,
+        SET total_logs_imported = total_logs_imported + 1,
         first = IF (first > ?, ?, IF(first=0, ?, first)),
         last = IF (last < ?, ?, last)
         WHERE host=? AND port=?`;
@@ -267,6 +268,12 @@ class Importer{
         await mysql.simpleInsert(query, [now, now, now, now, now, this.host, this.port]);
     }
 
+    async updateTotalImports(){
+
+        const query = `UPDATE nstats_ftp SET total_imports=total_imports+1 WHERE host=? AND port=?`;
+
+        await mysql.simpleQuery(query, [this.host, this.port]);
+    }
 
 }
 
