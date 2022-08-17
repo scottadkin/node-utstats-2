@@ -19,6 +19,8 @@ class AdminFTPManagerCreate extends React.Component{
             "deleteTmp": false,
             "ignoreBots": false,
             "ignoreDuplicates": false,
+            "deleteAceLogs": false,
+            "deleteAceScreenshots": false,
             "minPlayers": 0,
             "minPlaytime": 0,
             "bSecure": false,
@@ -48,10 +50,14 @@ class AdminFTPManagerCreate extends React.Component{
         const targetFolder = e.target[6].value;
         const bDeleteAfterImport = e.target[7].value;
         const bDeleteTMPFiles = e.target[8].value;
-        const bIgnoreBots = e.target[9].value;
-        const bIgnoreDuplicates = e.target[10].value;
-        const minPlayers = e.target[11].value;
-        const minPlaytime = e.target[12].value;
+
+        const bDeleteAceLogs = e.target[9].value;
+        const bDeleteAceScreenshots = e.target[10].value;
+
+        const bIgnoreBots = e.target[11].value;
+        const bIgnoreDuplicates = e.target[12].value;
+        const minPlayers = e.target[13].value;
+        const minPlaytime = e.target[14].value;
 
         const data = {
             "mode": "create",
@@ -67,7 +73,9 @@ class AdminFTPManagerCreate extends React.Component{
             "ignoreDuplicates": bIgnoreDuplicates,
             "minPlayers": minPlayers,
             "minPlaytime": minPlaytime,
-            "bSecure": bSecure
+            "bSecure": bSecure,
+            "deleteAceLogs": bDeleteAceLogs,
+            "deleteAceScreenshots": bDeleteAceScreenshots,
         };
 
         const req = await fetch("/api/ftpadmin", {
@@ -192,9 +200,23 @@ class AdminFTPManagerCreate extends React.Component{
                 </div>
 
                 <div className="select-row">
-                    <div className="select-label">Delete .TMP Files From FTP Server</div>
+                    <div className="select-label">Delete .TMP Files from FTP Server</div>
                     <div>
                         <FormCheckBox inputName={"bDeleteTMP"} valueName="deleteTmp"  updateValue={this.updateValue} value={this.state.deleteTmp}/>
+                    </div>
+                </div>
+
+                <div className="select-row">
+                    <div className="select-label">Delete ACE Logs from FTP Server</div>
+                    <div>
+                        <FormCheckBox inputName={"bDeleteAceLogs"} valueName="deleteAceLogs"  updateValue={this.updateValue} value={this.state.deleteAceLogs}/>
+                    </div>
+                </div>
+
+                <div className="select-row">
+                    <div className="select-label">Delete ACE Screenshots from FTP Server</div>
+                    <div>
+                        <FormCheckBox inputName={"bDeleteAceScreenhots"} valueName="deleteAceScreenhots"  updateValue={this.updateValue} value={this.state.deleteAceScreenshots}/>
                     </div>
                 </div>
 

@@ -374,6 +374,13 @@ async function updateMonsterTables(){
             await alterTable("nstats_ftp","sftp", "INT(1) NOT NULL");
         }
 
+        if(!await columnExists("nstats_ftp", "delete_ace_logs")){
+            await alterTable("nstats_ftp","delete_ace_logs", "INT(1) NOT NULL");
+        }
+
+        if(!await columnExists("nstats_ftp", "delete_ace_screenshots")){
+            await alterTable("nstats_ftp","delete_ace_screenshots", "INT(1) NOT NULL");
+        }
 
 
         process.exit(0);

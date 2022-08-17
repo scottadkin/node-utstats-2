@@ -140,7 +140,9 @@ const queries = [
         ignore_duplicates int(1) NOT NULL,
         min_players int(2) NOT NULL,
         min_playtime int(11) NOT NULL,
-        sftp int(1) NOT NULL
+        sftp int(1) NOT NULL,
+        delete_ace_logs int(1) NOT NULL,
+        delete_ace_screenshots int(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_gametypes (
         id int(11) NOT NULL AUTO_INCREMENT,

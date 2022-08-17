@@ -139,7 +139,7 @@ class Admin{
     }
 
     async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, ignoreBots, ignoreDuplicates,
-        minPlayers, minPlaytime, bSecureFTP){
+        minPlayers, minPlaytime, bSecureFTP, deleteAceLogs, deleteAceScreenshots){
 
         const query = `UPDATE nstats_ftp SET
             name=?,
@@ -154,7 +154,9 @@ class Admin{
             ignore_duplicates=?,
             min_players=?,
             min_playtime=?,
-            sftp=?
+            sftp=?,
+            delete_ace_logs=?,
+            delete_ace_screenshots=?
             WHERE id=?`;
         
         bSecureFTP = bSecureFTP ?? 0;
@@ -173,15 +175,18 @@ class Admin{
             minPlayers,
             minPlaytime,
             bSecureFTP,
+            deleteAceLogs,
+            deleteAceScreenshots,
             id
         ];
+
 
         return await mysql.updateReturnAffectedRows(query, vars);
     }
 
 
     async addFTPServer(name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, 
-        ignoreBots, ignoreDuplicates, minPlayers, minPlaytime, bSecureFTP){
+        ignoreBots, ignoreDuplicates, minPlayers, minPlaytime, bSecureFTP, deleteAceLogs, deleteAceScreenshots){
 
         
         bSecureFTP = bSecureFTP ?? 0;
@@ -191,8 +196,11 @@ class Admin{
         ignoreBots = (ignoreBots === "true") ? 1 : 0 ;
         ignoreDuplicates = (ignoreDuplicates === "true") ? 1 : 0 ;
         bSecureFTP = (bSecureFTP === "true") ? 1 : 0 ;
+        deleteAceLogs = (deleteAceLogs === "true") ? 1 : 0 ;
+        deleteAceScreenshots = (deleteAceScreenshots === "true") ? 1 : 0 ;
+
       
-        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?)";
 
         const vars = [
             name, 
@@ -207,7 +215,9 @@ class Admin{
             ignoreDuplicates, 
             minPlayers, 
             minPlaytime, 
-            bSecureFTP
+            bSecureFTP,
+            deleteAceLogs,
+            deleteAceScreenshots
         ];
 
         return await mysql.insertReturnInsertId(query, vars);

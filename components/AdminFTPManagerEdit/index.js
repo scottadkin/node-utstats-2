@@ -136,6 +136,20 @@ class AdminFTPManagerEdit extends React.Component{
             </div>
 
             <div className="select-row">
+                    <div className="select-label">Delete ACE Logs from FTP Server</div>
+                    <div>
+                        <FormCheckBox inputName={"bDeleteAceLogs"} valueName="delete_ace_logs"  updateValue={this.updateValue} value={data.delete_ace_logs}/>
+                    </div>
+                </div>
+
+                <div className="select-row">
+                    <div className="select-label">Delete ACE Screenshots from FTP Server</div>
+                    <div>
+                        <FormCheckBox inputName={"bDeleteAceScreenhots"} valueName="delete_ace_screenshots"  updateValue={this.updateValue} value={data.delete_ace_screenshots}/>
+                    </div>
+                </div>
+
+            <div className="select-row">
                 <div className="select-label">Ignore Bots</div>
                 <div>
                     <FormCheckBox inputName={"bIgnoreBots"} valueName="ignore_bots" value={data.ignore_bots} updateValue={this.updateValue}/>
