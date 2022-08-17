@@ -198,6 +198,7 @@ class SFTPImporter{
         const dir = config.ace.screenshotsDir;
 
         let passed = 0;
+        let duplicates = 0;
 
         for(let i = 0; i < files.length; i++){
 
@@ -209,14 +210,24 @@ class SFTPImporter{
 
                 if(name.endsWith(extension)){
 
+                    if(this.bIgnoreDuplicates){
+
+                        if(await this.ace.bScreenshotImported(f.name)){
+                            duplicates++;
+                            continue;
+                        }
+                    }
+
                     if(await this.downloadFile(`${this.entryPoint}/${dir}/`, f.name, dir)){
+
+                        await this.ace.updateScreenshotTable(f.name);
                         passed++;
                     }
                 }
             }
         }
 
-        new Message(`Downloaded ${passed} out of ${files.length} ACE screenshots.`,"note");
+        new Message(`Downloaded ${passed} out of ${files.length} ACE screenshots, ${duplicates} duplicates ignored.`,"note");
 
         if(this.bDeleteAceScreenshots){
             await this.deleteACEScreenshotsFromSFTP();

@@ -39,6 +39,27 @@ class ACE{
 
     }
 
+    async bScreenshotImported(name){
+
+        const query = "SELECT COUNT(*) as total_screenshots FROM nstats_ace_screenshots WHERE name=?";
+
+        const result = await mysql.simpleQuery(query, [name]);
+
+        if(result[0].total_screenshots > 0) return true;
+        
+        return false;
+    }
+
+    async updateScreenshotTable(name){
+
+        const now = Math.floor(new Date() * 0.001);
+
+        const query = "INSERT INTO nstats_ace_screenshots VALUES(NULL,?,?)";
+
+        await mysql.simpleQuery(query, [name, now]);
+
+    }
+
     convertTimeStamp(string){
 
         const dateReg = /^(\d\d)-(\d\d)-(\d\d\d\d) \/ (\d\d):(\d\d):(\d\d)$/i;
