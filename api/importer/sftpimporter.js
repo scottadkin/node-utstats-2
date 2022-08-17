@@ -4,15 +4,13 @@ const Message = require("../message");
 const fs = require("fs");
 const EventEmitter = require('events');
 const Logs = require("../logs");
+const Ace = require("../ace");
 
 class MyEventEmitter extends EventEmitter {}
 
-const DELETEACESCREENSHOTS = false;
-const DELETEACELOGS = false;
-
 class SFTPImporter{
 
-    constructor(host, port, user, password, entryPoint, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates){
+    constructor(host, port, user, password, entryPoint, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bDeleteAceLogs, bDeleteAceScreenshots){
 
         this.host = host;
         this.port = port;
@@ -22,6 +20,10 @@ class SFTPImporter{
         this.bDeleteAfter = bDeleteAfter;
         this.bDeleteTmpFiles = bDeleteTmpFiles;
         this.bIgnoreDuplicates = bIgnoreDuplicates;
+        this.bDeleteAceLogs = bDeleteAceLogs;
+        this.bDeleteAceScreenshots = bDeleteAceScreenshots;
+
+        this.ace = new Ace();
 
         this.events = new MyEventEmitter();
 
@@ -216,7 +218,7 @@ class SFTPImporter{
 
         new Message(`Downloaded ${passed} out of ${files.length} ACE screenshots.`,"note");
 
-        if(DELETEACESCREENSHOTS){
+        if(this.bDeleteAceScreenshots){
             await this.deleteACEScreenshotsFromSFTP();
         }
     }
@@ -257,6 +259,8 @@ class SFTPImporter{
 
         let kickPasses = 0;
         let joinPasses = 0;
+        let duplicateKicks = 0;
+        let duplicateJoins = 0;
 
         for(let i = 0; i < files.length; i++){
 
@@ -268,6 +272,29 @@ class SFTPImporter{
             const bPrefix2 = name.startsWith(prefix2);
 
             if((bPrefix1 || bPrefix2) && name.endsWith(extension)){
+
+                if(prefix){
+
+                    if(this.bIgnoreDuplicates){
+
+                        if(await this.ace.bKickLogImported(name)){
+                            duplicateKicks++;
+                            continue;
+                        }
+                    }
+                }
+
+                if(prefix2){
+
+                    if(this.bIgnoreDuplicates){
+
+                        if(await this.ace.bJoinLogImported(name)){
+                            duplicateJoins++;
+                            continue;
+                        }
+                    }
+
+                }
 
                 if(await this.downloadFile(`${dir}/`, f.name, config.importedLogsFolder)){
 
@@ -282,9 +309,10 @@ class SFTPImporter{
             }
         }
 
-        new Message(`Downloaded ${kickPasses} ACE kick logs, and ${joinPasses} ACE player join logs.`,"note");
+        new Message(`Downloaded ${kickPasses} ACE kick logs, ${duplicateKicks} duplicate logs ignored.`,"note");
+        new Message(`Downloaded ${joinPasses} ACE player join logs, ${duplicateJoins} duplicate logs ignored.`,"note");
 
-        if(DELETEACELOGS){
+        if(this.bDeleteAceLogs){
             await this.deleteAceLogsFromSFTP();
         }
     }

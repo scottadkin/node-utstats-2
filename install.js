@@ -829,6 +829,12 @@ const queries = [
           screenshot_status varchar(50) NOT NULL,
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
+          `CREATE TABLE IF NOT EXISTS nstats_ace_screenshots (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            name varchar(255) NOT NULL,
+            date_downloaded int(11) NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
 
     "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Kill','Player Killed an enemy',300)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'deaths','Death','Player died',-150)",

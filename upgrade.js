@@ -280,7 +280,12 @@ async function createNewTables(){
                 cap INT(11) NOT NULL,
                 travel_time DECIMAL(10,2) NOT NULL,
                 type INT(1) NOT NULL,
-        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+        `CREATE TABLE IF NOT EXISTS nstats_ace_screenshots (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            name varchar(255) NOT NULL,
+            date_downloaded int(11) NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
         ];
 
         for(let i = 0; i < queries.length; i++){

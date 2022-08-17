@@ -13,14 +13,16 @@ class MyEventEmitter extends EventEmitter{};
 
 class Importer{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bSkipFTP){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, 
+        bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bDeleteAceLogs, bDeleteAceScreenshots, bSkipFTP){
 
         if(bSkipFTP === undefined){
 
             if(!bSFTP){
                 this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates);
             }else{
-                this.ftpImporter = new SFTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates);
+                this.ftpImporter = new SFTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates,
+                    bDeleteAceLogs, bDeleteAceScreenshots);
             }
         }
 

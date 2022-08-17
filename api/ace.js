@@ -5,6 +5,40 @@ class ACE{
 
     constructor(){}
 
+    async bMatchingLog(name, type){
+
+        let query = "";
+
+        if(type === "kick"){
+
+            query = "SELECT COUNT(*) as matching_logs FROM nstats_ace_kicks WHERE file=?";
+
+        }else if(type === "join"){
+
+            query = "SELECT COUNT(*) as matching_logs FROM nstats_ace_joins WHERE log_file=?";
+
+        }
+
+        const result = await mysql.simpleQuery(query, [name]);
+
+        if(result[0].matching_logs > 0) return true;
+        
+        return false;
+
+    }
+
+    async bKickLogImported(name){
+
+        return await this.bMatchingLog(name, "kick");
+      
+    }
+
+    async bJoinLogImported(name){
+
+        return await this.bMatchingLog(name, "join");
+
+    }
+
     convertTimeStamp(string){
 
         const dateReg = /^(\d\d)-(\d\d)-(\d\d\d\d) \/ (\d\d):(\d\d):(\d\d)$/i;
