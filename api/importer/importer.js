@@ -14,14 +14,16 @@ class MyEventEmitter extends EventEmitter{};
 class Importer{
 
     constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, 
-        bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bDeleteAceLogs, bDeleteAceScreenshots, bSkipFTP){
+        bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bImportAce,
+        bDeleteAceLogs, bDeleteAceScreenshots, bSkipFTP){
 
         if(bSkipFTP === undefined){
 
             if(!bSFTP){
-                this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates);
+                this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce,
+                    bDeleteAceLogs, bDeleteAceScreenshots);
             }else{
-                this.ftpImporter = new SFTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates,
+                this.ftpImporter = new SFTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce,
                     bDeleteAceLogs, bDeleteAceScreenshots);
             }
         }
@@ -207,25 +209,10 @@ class Importer{
 
                         this.logsToImport.push(f);
 
-                        //new Message(`${f} is a log file.`,'pass');
-
                     }else{
-
-                        const bKickLog = fileName.startsWith(config.ace.kickLogPrefix.toLowerCase());
-                        const bJoinLog = fileName.startsWith(config.ace.playerJoinLogPrefix.toLowerCase());
-
-                        if(!bKickLog && !bJoinLog){
-
-                            new Message(`${f} does not have the prefix ${config.logFilePrefix}.`, 'pass');
-
-                        }else{
-
-                            if(config.ace.importLogs){
-                                this.aceLogsToImport.push(f);
-                            }else{
-                                new Message(`ACE log found but importing is disabled`, "note");
-                            }
-                        }
+                       
+                        this.aceLogsToImport.push(f);
+                        
                     }
                 }
             }

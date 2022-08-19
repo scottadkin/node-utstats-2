@@ -4,12 +4,13 @@ const fs = require('fs');
 const EventEmitter = require('events');
 const Message = require('../message');
 const Logs = require('../logs');
+const Ace = require("../ace");
 
 class MyEmitter extends EventEmitter {}
 
 class FTPImporter{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates){
+    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce, bDeleteAceLogs, bDeleteAceScreenshots){
 
         this.events = new MyEmitter();
 
@@ -24,11 +25,17 @@ class FTPImporter{
 
         this.bIgnoreDuplicates = bIgnoreDuplicates;
 
+        this.bImportAce = bImportAce;
+        this.bDeleteAceLogs = bDeleteAceLogs;
+        this.bDeleteAceScreenshots = bDeleteAceScreenshots;
+
         this.logsFound = [];
 
         this.aceLogsFound = [];
         this.acePlayerLogsFound = [];
         this.aceScreenshotsFound = [];
+
+        this.ace = new Ace();
 
         this.createClient();
     }
@@ -46,11 +53,14 @@ class FTPImporter{
 
             await this.checkForLogFiles();
 
-            if(config.ace.importLogs){
+            if(this.bImportAce){
                 await this.checkForAceScreenshots();
                 await this.checkForACELogs();
                 await this.downloadACEFiles();
+            }else{
+                new Message(`ACE importing is disabled, skipping.`, "note");
             }
+            
 
             this.client.end();
         });
@@ -149,11 +159,6 @@ class FTPImporter{
                         new Message(`${f.name} has already been imported, skipping.`,'note');
                     }
 
-                }else{
-
-                    if(!name.startsWith(config.ace.logFilePrefix) && !name.startsWith(config.ace.kickLogPrefix)){
-                        new Message(`${f.name} does not have the required prefix of ${logFilePrefix}`, 'warning');
-                    }
                 }
 
             }else if(tmpReg.test(f.name)){
@@ -171,16 +176,13 @@ class FTPImporter{
 
     }
 
-    downloadFile(target, destination, bSkipDelete){
+    downloadFile(target, destination){
 
         return new Promise((resolve, reject) =>{
-
-            if(bSkipDelete === undefined) bSkipDelete = false;
 
             this.client.get(target, (err, stream) =>{
 
                 if(err) reject(err);
-
 
                 stream.pipe(fs.createWriteStream(destination));
                 // why did i not add this here before?
@@ -189,25 +191,7 @@ class FTPImporter{
 
                     new Message(`Downloaded ${this.host}:${this.port}${target}`, "pass");
 
-                    if(bSkipDelete){
-                        resolve();
-                        return;
-                    }
-
-                    if(this.bDeleteAfter){
-
-                        this.client.delete(target, (err) =>{
-
-                            if(err) reject(err);
-
-                            new Message(`Deleted ${target} from ftp server.`, 'pass');
-
-                            resolve();
-                        });
-
-                    }else{
-                        resolve();
-                    }
+                    resolve();
 
                 });               
             });
@@ -237,53 +221,126 @@ class FTPImporter{
 
         try{
 
-            new Message("Starting download of ACE player join logs.","note");
-
-            for(let i = 0; i < this.acePlayerLogsFound.length; i++){
-
-                const f = this.acePlayerLogsFound[i];
-                await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`, true);
-
-                if(config.ace.deleteLogsAfterImport){
-                    await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
-                }
-            }
-
-            new Message("Finished downloading ACE player join logs.","pass");
-            new Message("Starting download of ACE logs.","note");
-
-            for(let i = 0; i < this.aceLogsFound.length; i++){
-
-                const f = this.aceLogsFound[i];
-                await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`, true);
-
-                if(config.ace.deleteLogsAfterImport){
-                    await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
-                }
-
-            }
-
-            new Message("Finished downloading ACE logs.","pass");
-            new Message("Starting download of ACE screenshots.","note");
-
-            for(let i = 0; i < this.aceScreenshotsFound.length; i++){
-
-                const f = this.aceScreenshotsFound[i];
-                await this.downloadFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`, `${config.ace.importedScreenshotsDir}/${f}`);
-
-                if(config.ace.deleteScreenshotsAfterImport){
-                    await this.deleteFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`);
-                }
-
-            }
-
-            new Message("Finished downloading ACE screenshots.","pass");
-
+            await this.downloadACELogs();
+            await this.downloadACEJoinLogs();    
+            await this.downloadAceScreenshots();
 
         }catch(err){
             new Message(err, "error");
             console.trace(err);
         }
+    }
+
+    async downloadACELogs(){
+
+        new Message("Starting download of ACE logs.","note");
+
+        let passed = 0;
+        let duplicates = 0;
+
+        for(let i = 0; i < this.aceLogsFound.length; i++){
+
+            const f = this.aceLogsFound[i];
+
+            if(this.bIgnoreDuplicates){
+
+                if(await this.ace.bKickLogImported(f)){
+
+                    duplicates++;
+
+                    if(this.bDeleteAceLogs){
+                        await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
+                    }
+                    continue;
+                }
+            }
+
+            await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`);
+            passed++;
+
+            if(this.bDeleteAceLogs){
+                await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
+            }
+
+        }
+   
+        new Message(`Finished downloading ACE logs, ${passed} downloaded, ${duplicates} duplicates ignored.`,"pass");
+    }
+
+    async downloadACEJoinLogs(){
+
+        new Message("Starting download of ACE player join logs.","note");
+
+        let passed = 0;
+        let duplicates = 0;
+
+        for(let i = 0; i < this.acePlayerLogsFound.length; i++){
+
+            const f = this.acePlayerLogsFound[i];
+
+            if(this.bIgnoreDuplicates){
+
+                if(await this.ace.bJoinLogImported(f)){
+
+                    duplicates++;
+
+                    if(this.bDeleteAceLogs){
+                        await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
+                    }
+
+                    continue;
+                }
+            }
+
+            await this.downloadFile(`${this.targetDir}${config.ace.logDir}/${f}`, `${config.importedLogsFolder}/${f}`);
+
+            passed++;
+
+            if(this.bDeleteAceLogs){
+                await this.deleteFile(`${this.targetDir}${config.ace.logDir}/${f}`);
+            }
+        }
+
+        new Message(`Finished downloading ACE join logs, ${passed} downloaded, ${duplicates} duplicates ignored.`,"pass");
+    }
+
+    async downloadAceScreenshots(){
+
+        new Message("Starting download of ACE screenshots.","note");
+
+        let duplicates = 0;
+        let downloaded = 0;
+
+        for(let i = 0; i < this.aceScreenshotsFound.length; i++){
+
+            const f = this.aceScreenshotsFound[i];
+
+            if(this.bIgnoreDuplicates){
+
+                if(await this.ace.bScreenshotImported(f)){
+
+                    duplicates++;
+
+                    if(this.bDeleteAceScreenshots){
+                        await this.deleteFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`);
+                    }
+
+                    continue;
+                }
+            }
+
+            await this.downloadFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`, `${config.ace.importedScreenshotsDir}/${f}`);
+            await this.ace.updateScreenshotTable(f);
+
+            downloaded++;
+
+            if(this.bDeleteAceScreenshots){
+                await this.deleteFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`);
+            }
+
+        }
+
+        new Message(`Downloaded ${downloaded} ACE screenshots, ${duplicates} duplicates ignored.`,"pass");
     }
 
     checkForAceScreenshots(){

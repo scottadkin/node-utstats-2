@@ -379,6 +379,10 @@ async function updateMonsterTables(){
             await alterTable("nstats_ftp","sftp", "INT(1) NOT NULL");
         }
 
+        if(!await columnExists("nstats_ftp", "import_ace")){
+            await alterTable("nstats_ftp","import_ace", "INT(1) NOT NULL");
+        }
+
         if(!await columnExists("nstats_ftp", "delete_ace_logs")){
             await alterTable("nstats_ftp","delete_ace_logs", "INT(1) NOT NULL");
         }

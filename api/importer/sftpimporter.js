@@ -10,7 +10,7 @@ class MyEventEmitter extends EventEmitter {}
 
 class SFTPImporter{
 
-    constructor(host, port, user, password, entryPoint, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bDeleteAceLogs, bDeleteAceScreenshots){
+    constructor(host, port, user, password, entryPoint, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce, bDeleteAceLogs, bDeleteAceScreenshots){
 
         this.host = host;
         this.port = port;
@@ -20,6 +20,7 @@ class SFTPImporter{
         this.bDeleteAfter = bDeleteAfter;
         this.bDeleteTmpFiles = bDeleteTmpFiles;
         this.bIgnoreDuplicates = bIgnoreDuplicates;
+        this.bImportAce = bImportAce;
         this.bDeleteAceLogs = bDeleteAceLogs;
         this.bDeleteAceScreenshots = bDeleteAceScreenshots;
 
@@ -64,8 +65,12 @@ class SFTPImporter{
         await this.downloadLogFiles();
         await this.deleteTMPFiles();
 
-        await this.downloadAceLogs();
-        await this.downloadAceScreenshots();
+        if(this.bImportAce){
+            await this.downloadAceLogs();
+            await this.downloadAceScreenshots();
+        }else{
+            new Message(`ACE importing is disabled, skipping.`, "note");
+        }
     }
 
     async getAllLogFileNames(){
@@ -290,6 +295,7 @@ class SFTPImporter{
 
                         if(await this.ace.bKickLogImported(name)){
                             duplicateKicks++;
+                            this.aceLogsToDelete.push(f.name);
                             continue;
                         }
                     }
@@ -301,6 +307,7 @@ class SFTPImporter{
 
                         if(await this.ace.bJoinLogImported(name)){
                             duplicateJoins++;
+                            this.aceLogsToDelete.push(f.name);
                             continue;
                         }
                     }
