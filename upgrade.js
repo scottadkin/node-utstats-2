@@ -35,7 +35,6 @@ async function changeColumnName(table, oldName, newName){
     await mysql.simpleQuery(query);
 }
 
-
 async function updateFTPTable(){
 
     const table = "nstats_ftp";
@@ -281,11 +280,26 @@ async function createNewTables(){
                 travel_time DECIMAL(10,2) NOT NULL,
                 type INT(1) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
         `CREATE TABLE IF NOT EXISTS nstats_ace_screenshots (
             id int(11) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
             date_downloaded int(11) NOT NULL,
-            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+            `CREATE TABLE IF NOT EXISTS nstats_logs_folder (
+                id int(11) NOT NULL AUTO_INCREMENT,
+                name varchar(100) NOT NULL,
+                first int(11) NOT NULL,
+                last int(11) NOT NULL,
+                total_imports int(11) NOT NULL,
+                total_logs_imported int(11) NOT NULL,
+                ignore_bots int(1) NOT NULL,
+                ignore_duplicates int(1) NOT NULL,
+                min_players int(2) NOT NULL,
+                min_playtime int(11) NOT NULL,
+                import_ace INT(1) NOT NULL
+              ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
         ];
 
         for(let i = 0; i < queries.length; i++){
@@ -352,6 +366,19 @@ async function updateMonsterTables(){
     }catch(err){
         new Message(`updateMonsterTables Query ${err}`, "error");
     }
+}
+
+async function insertLogsFolderSettings(){
+
+
+    const existsQuery = "SELECT COUNT(*) as total_rows FROM nstats_logs_folder";
+    const totalRows = await mysql.simpleQuery(existsQuery);
+    
+    if(totalRows[0].total_rows > 0) return;
+
+    const query = "INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',0,0,0,0,0,0,0,0,0)";
+
+    await mysql.simpleQuery(query);
 
 }
 
@@ -391,6 +418,8 @@ async function updateMonsterTables(){
             await alterTable("nstats_ftp","delete_ace_screenshots", "INT(1) NOT NULL");
         }
 
+
+        await insertLogsFolderSettings();
 
         process.exit(0);
 
