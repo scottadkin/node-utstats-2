@@ -19,6 +19,7 @@ class AdminFTPManagerCreate extends React.Component{
             "deleteTmp": false,
             "ignoreBots": false,
             "ignoreDuplicates": false,
+            "importAce": false,
             "deleteAceLogs": false,
             "deleteAceScreenshots": false,
             "minPlayers": 0,
@@ -51,13 +52,14 @@ class AdminFTPManagerCreate extends React.Component{
         const bDeleteAfterImport = e.target[7].value;
         const bDeleteTMPFiles = e.target[8].value;
 
-        const bDeleteAceLogs = e.target[9].value;
-        const bDeleteAceScreenshots = e.target[10].value;
+        const bImportAce = e.target[9].value;
+        const bDeleteAceLogs = e.target[10].value;
+        const bDeleteAceScreenshots = e.target[11].value;
 
-        const bIgnoreBots = e.target[11].value;
-        const bIgnoreDuplicates = e.target[12].value;
-        const minPlayers = e.target[13].value;
-        const minPlaytime = e.target[14].value;
+        const bIgnoreBots = e.target[12].value;
+        const bIgnoreDuplicates = e.target[13].value;
+        const minPlayers = e.target[14].value;
+        const minPlaytime = e.target[15].value;
 
         const data = {
             "mode": "create",
@@ -74,6 +76,7 @@ class AdminFTPManagerCreate extends React.Component{
             "minPlayers": minPlayers,
             "minPlaytime": minPlaytime,
             "bSecure": bSecure,
+            "importAce": bImportAce,
             "deleteAceLogs": bDeleteAceLogs,
             "deleteAceScreenshots": bDeleteAceScreenshots,
         };
@@ -203,6 +206,13 @@ class AdminFTPManagerCreate extends React.Component{
                     <div className="select-label">Delete .TMP Files from FTP Server</div>
                     <div>
                         <FormCheckBox inputName={"bDeleteTMP"} valueName="deleteTmp"  updateValue={this.updateValue} value={this.state.deleteTmp}/>
+                    </div>
+                </div>
+
+                <div className="select-row">
+                    <div className="select-label">Import ACE Files</div>
+                    <div>
+                        <FormCheckBox inputName={"importAce"} valueName="importAce"  updateValue={this.updateValue} value={this.state.importAce}/>
                     </div>
                 </div>
 

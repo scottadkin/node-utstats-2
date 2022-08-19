@@ -21,8 +21,6 @@ async function setFTPSettings(){
             ftpServers.push(result[i]);
         }
 
-        console.log(ftpServers);
-
 
     }catch(err){
         console.trace(err);
@@ -39,13 +37,7 @@ function startNewImport(ftpServer){
 
         let I = 0;
 
-        
-
         if(ftpServer !== null){
-
-            if(!f.sftp){resolve();
-        
-                return;}
 
             I = new Importer(
                 f.host, 
@@ -60,12 +52,13 @@ function startNewImport(ftpServer){
                 f.min_players, 
                 f.min_playtime, 
                 f.sftp,
+                f.import_ace,
                 f.delete_ace_logs,
                 f.delete_ace_screenshots
             );
 
         }else{
-            I = new Importer(null, null, null, null, null, null, null, null, null, 0, 0, false, false , false , true);
+            I = new Importer(null, null, null, null, null, null, null, null, null, 0, 0, false, false, false , false , true);
         }
 
         I.myEmitter.on("passed", () =>{

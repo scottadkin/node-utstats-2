@@ -139,7 +139,7 @@ class Admin{
     }
 
     async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, ignoreBots, ignoreDuplicates,
-        minPlayers, minPlaytime, bSecureFTP, deleteAceLogs, deleteAceScreenshots){
+        minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots){
 
         const query = `UPDATE nstats_ftp SET
             name=?,
@@ -155,6 +155,7 @@ class Admin{
             min_players=?,
             min_playtime=?,
             sftp=?,
+            import_ace=?,
             delete_ace_logs=?,
             delete_ace_screenshots=?
             WHERE id=?`;
@@ -175,6 +176,7 @@ class Admin{
             minPlayers,
             minPlaytime,
             bSecureFTP,
+            importAce,
             deleteAceLogs,
             deleteAceScreenshots,
             id
@@ -186,7 +188,7 @@ class Admin{
 
 
     async addFTPServer(name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, 
-        ignoreBots, ignoreDuplicates, minPlayers, minPlaytime, bSecureFTP, deleteAceLogs, deleteAceScreenshots){
+        ignoreBots, ignoreDuplicates, minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots){
 
         
         bSecureFTP = bSecureFTP ?? 0;
@@ -196,11 +198,12 @@ class Admin{
         ignoreBots = (ignoreBots === "true") ? 1 : 0 ;
         ignoreDuplicates = (ignoreDuplicates === "true") ? 1 : 0 ;
         bSecureFTP = (bSecureFTP === "true") ? 1 : 0 ;
+        importAce = (importAce === "true") ? 1 : 0 ;
         deleteAceLogs = (deleteAceLogs === "true") ? 1 : 0 ;
         deleteAceScreenshots = (deleteAceScreenshots === "true") ? 1 : 0 ;
 
       
-        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?,?)";
 
         const vars = [
             name, 
@@ -216,6 +219,7 @@ class Admin{
             minPlayers, 
             minPlaytime, 
             bSecureFTP,
+            importAce,
             deleteAceLogs,
             deleteAceScreenshots
         ];
