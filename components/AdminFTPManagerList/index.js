@@ -68,7 +68,7 @@ class AdminFTPManagerList extends React.Component{
     render(){
 
         return <div>
-            <div className="default-header">Current Servers</div>
+            <div className="default-header">Current FTP Servers</div>
             {this.renderList()}
         </div>
     }

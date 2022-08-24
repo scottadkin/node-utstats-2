@@ -94,7 +94,7 @@ class AdminFTPManagerDelete extends React.Component{
     render(){
 
         return <div>
-            <div className="default-header">Delete Servers</div>
+            <div className="default-header">Delete FTP Servers</div>
             <div className="form">
                 <div className="default-sub-header-alt">Information</div>
                 <div className="form-info m-bottom-10">

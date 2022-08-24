@@ -4,6 +4,7 @@ import AdminFTPManagerEdit from '../AdminFTPManagerEdit';
 import Notification from "../Notification";
 import AdminFTPManagerCreate from '../AdminFTPManagerCreate';
 import AdminFTPManagerDelete from '../AdminFTPManagerDelete';
+import AdminImporterSettings from '../AdminImporterSettings';
 
 
 class AdminFTPManager extends React.Component{
@@ -127,7 +128,12 @@ class AdminFTPManager extends React.Component{
 
         if(this.state.mode !== 0) return;
 
-        return <AdminFTPManagerList data={this.state.data} changeSelected={this.changeSelected} changeMode={this.changeMode}/>
+        const elems = [
+            <AdminImporterSettings key="folders"/>,
+            <AdminFTPManagerList key="list" data={this.state.data} changeSelected={this.changeSelected} changeMode={this.changeMode}/>
+        ];
+
+        return elems;
     }
 
     renderEdit(){
@@ -316,20 +322,20 @@ class AdminFTPManager extends React.Component{
     render(){
 
         return <div>
-            <div className="default-header">FTP Manager</div>
+            <div className="default-header">Importer Manager</div>
             <div className="tabs">
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(0);
                 })}>Current Servers</div>
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(1);
-                })}>Add Server</div>
+                })}>Add FTP Server</div>
                 <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(2);
-                })}>Edit Servers</div>
+                })}>Edit FTP Servers</div>
                 <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(3);
-                })}>Delete Servers</div>
+                })}>Delete FTP Servers</div>
             </div>
             {this.renderList()}
             {this.renderEdit()}

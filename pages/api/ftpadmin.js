@@ -22,6 +22,13 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
 
+        }else if(mode === "logsfolder"){
+
+            const data = await admin.getLogsFolderSettings();
+
+            res.status(200).json({"data": data});
+            return;
+            
         }else if(mode === "create"){
 
             if(body.server !== undefined){

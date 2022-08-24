@@ -519,7 +519,7 @@ class Admin extends React.Component{
                             })}>Site Analytics</div>
                             <div className={`big-tab ${(this.state.mode === 10) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(10);
-                            })}>FTP Manager</div>
+                            })}>Importer Manager</div>
                             <div className={`big-tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(2);
                             })}>Manage User Accounts</div>

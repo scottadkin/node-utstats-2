@@ -199,7 +199,7 @@ class AdminFTPManagerEdit extends React.Component{
         const currentData = this.getSelectedData();
 
         return <div>          
-            <div className="default-header">Edit Servers</div>
+            <div className="default-header">Edit FTP Servers</div>
             <div className="form">
                 <div className="default-sub-header-alt">Information</div>
                 <div className="form-info m-bottom-10">

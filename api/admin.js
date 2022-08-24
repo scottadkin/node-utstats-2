@@ -234,6 +234,14 @@ class Admin{
         return await mysql.updateReturnAffectedRows(query, [id]);
     }
 
+
+    async getLogsFolderSettings(){
+
+        const query = "SELECT * FROM nstats_logs_folder";
+
+        return await mysql.simpleQuery(query);
+    }
+
 }
 
 
