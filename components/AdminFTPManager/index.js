@@ -5,6 +5,7 @@ import Notification from "../Notification";
 import AdminFTPManagerCreate from '../AdminFTPManagerCreate';
 import AdminFTPManagerDelete from '../AdminFTPManagerDelete';
 import AdminImporterSettings from '../AdminImporterSettings';
+import AdminLogsFolderEdit from '../AdminLogsFolderEdit';
 
 
 class AdminFTPManager extends React.Component{
@@ -13,7 +14,15 @@ class AdminFTPManager extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0, "selectedId": -1, "data": null, "lastSavedData": null};
+        this.state = {
+            "mode": 4, 
+            "selectedId": -1, 
+            "data": null, 
+            "lastSavedData": null, 
+            "logsFolder": null, 
+            "lastSavedLogsFolder": null, 
+            "logsError": null
+        };
 
         this.changeMode = this.changeMode.bind(this);
         this.changeSelected = this.changeSelected.bind(this);
@@ -21,6 +30,43 @@ class AdminFTPManager extends React.Component{
         this.saveChanges = this.saveChanges.bind(this);
         this.saveAllChanges = this.saveAllChanges.bind(this);
         this.loadList = this.loadList.bind(this);
+        this.updateLogsFolder = this.updateLogsFolder.bind(this);
+        this.saveLogsFolder = this.saveLogsFolder.bind(this);
+
+    }
+
+    async saveLogsFolder(){
+
+        console.log("save");
+    }
+
+    async updateLogsFolder(name, value){
+
+        const newData = JSON.parse(JSON.stringify(this.state.logsFolder));
+
+        newData[name] = value;
+
+        this.setState({"logsFolder": newData});
+    }
+
+    async loadLogsFolderSettings(){
+
+        const req = await fetch("/api/ftpadmin",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "logsfolder"})
+        });
+
+        const response = await req.json();
+
+        if(response.error === undefined){
+
+            this.setState({"logsFolder": response.data[0], "lastSavedLogsFolder": response.data[0]});
+
+        }else{
+
+            this.setState({"logsError": response.error});
+        }
 
     }
 
@@ -121,6 +167,7 @@ class AdminFTPManager extends React.Component{
 
     async componentDidMount(){
 
+        await this.loadLogsFolderSettings();
         await this.loadList();
     }
 
@@ -129,7 +176,7 @@ class AdminFTPManager extends React.Component{
         if(this.state.mode !== 0) return;
 
         const elems = [
-            <AdminImporterSettings key="folders"/>,
+            <AdminImporterSettings key="folders" error={this.state.logsError} data={this.state.logsFolder}/>,
             <AdminFTPManagerList key="list" data={this.state.data} changeSelected={this.changeSelected} changeMode={this.changeMode}/>
         ];
 
@@ -319,6 +366,19 @@ class AdminFTPManager extends React.Component{
         />;
     }
 
+    renderLogsFolderEdit(){
+
+        if(this.state.mode !== 4) return null;
+
+        return <AdminLogsFolderEdit 
+            error={this.state.logsError} 
+            data={this.state.logsFolder} 
+            savedData={this.state.lastSavedLogsFolder}
+            updateValue={this.updateLogsFolder}
+            saveChanges={this.saveLogsFolder}
+        />;
+    }
+
     render(){
 
         return <div>
@@ -327,6 +387,9 @@ class AdminFTPManager extends React.Component{
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(0);
                 })}>Current Servers</div>
+                <div className={`tab ${(this.state.mode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(4);
+                })}>Logs Folder</div>
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(1);
                 })}>Add FTP Server</div>
@@ -341,6 +404,7 @@ class AdminFTPManager extends React.Component{
             {this.renderEdit()}
             {this.renderCreate()}
             {this.renderDelete()}
+            {this.renderLogsFolderEdit()}
             {this.renderNotifcation()}
 
         </div>
