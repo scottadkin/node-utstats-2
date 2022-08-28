@@ -6,15 +6,26 @@ class FormCheckBox extends React.Component{
     constructor(props){
 
         super(props);
-        
-        this.state = {"value": Boolean(this.props.value) ?? false};
+
+        this.setInitialValue();
         this.changeValue = this.changeValue.bind(this);
 
     }
 
+    setInitialValue(){
+
+        let value = false;
+
+        if(parseInt(this.props.value) === 1) value = true;
+
+        this.state = {"value": value};
+    }
+
     componentDidUpdate(prevProps){
+
         if(prevProps.value !== this.props.value){
-            this.setState({"value": Boolean(this.props.value) ?? false});
+
+            this.setState({"value": this.props.value});
         }
     }
 

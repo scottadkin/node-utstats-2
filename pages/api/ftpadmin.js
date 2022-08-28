@@ -29,6 +29,18 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
             
+        }else if(mode === "savelogsfolder"){
+            
+            await admin.updateLogsFolderSettings(
+                body.bIgnoreDuplicates, 
+                body.bIgnoreBots, 
+                body.minPlayers, 
+                body.minPlaytime, 
+                body.bImportAce
+            );
+            res.status(200).json({"message": "passed"});
+            return;
+            
         }else if(mode === "create"){
 
             if(body.server !== undefined){

@@ -242,6 +242,13 @@ class Admin{
         return await mysql.simpleQuery(query);
     }
 
+
+    async updateLogsFolderSettings(bIgnoreDuplicates, bIgnoreBots, minPlayers, minPlaytime, bImportAce){
+
+        const query = "UPDATE nstats_logs_folder SET ignore_bots=?, ignore_duplicates=?, min_players=?, min_playtime=?, import_ace=? WHERE id > -1";
+
+        await mysql.simpleQuery(query, [bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bImportAce]);
+    }
 }
 
 

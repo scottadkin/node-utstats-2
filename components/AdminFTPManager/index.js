@@ -37,7 +37,27 @@ class AdminFTPManager extends React.Component{
 
     async saveLogsFolder(){
 
-        console.log("save");
+        const req = await fetch("/api/ftpadmin", {
+            "method": "POST",
+            "headers": {
+                "Content-type": "application/json"
+            },
+            "body": JSON.stringify({
+                "mode": "savelogsfolder",
+                "bIgnoreDuplicates": this.state.logsFolder.ignore_duplicates,
+                "bIgnoreBots": this.state.logsFolder.ignore_bots,
+                "minPlayers": this.state.logsFolder.min_players,
+                "minPlaytime": this.state.logsFolder.min_playtime,
+                "bImportAce": this.state.logsFolder.import_ace
+            })
+        });
+
+        const response = await req.json();
+
+        if(response.error === undefined){
+
+            await this.loadLogsFolderSettings();
+        }
     }
 
     async updateLogsFolder(name, value){
@@ -86,6 +106,18 @@ class AdminFTPManager extends React.Component{
         }
     }
 
+    bAndLogsFolderChanges(){
+
+        if(this.state.logsFolder === null) return false;
+
+        for(const key of Object.keys(this.state.logsFolder)){
+
+            if(this.state.logsFolder[key] !== this.state.lastSavedLogsFolder[key]) return true;
+        }
+
+        return false;
+    }
+
     bAnyChangesNotSaved(){
 
         if(this.state.data === null) return false;
@@ -103,7 +135,7 @@ class AdminFTPManager extends React.Component{
             }
         }
 
-        return false;
+        return this.bAndLogsFolderChanges();
 
     }
 
@@ -176,7 +208,7 @@ class AdminFTPManager extends React.Component{
         if(this.state.mode !== 0) return;
 
         const elems = [
-            <AdminImporterSettings key="folders" error={this.state.logsError} data={this.state.logsFolder}/>,
+            <AdminImporterSettings key="folders" error={this.state.logsError} data={this.state.lastSavedLogsFolder}/>,
             <AdminFTPManagerList key="list" data={this.state.data} changeSelected={this.changeSelected} changeMode={this.changeMode}/>
         ];
 
@@ -222,6 +254,7 @@ class AdminFTPManager extends React.Component{
     async saveAllChanges(e){
 
         await this.saveChanges(e, true);
+        await this.saveLogsFolder();
     }
 
     async replaceServerItem(data){
@@ -338,6 +371,13 @@ class AdminFTPManager extends React.Component{
 
                     messages.push(<div key={i}>You have unsaved changes to server <span className="yellow"><b>{data.name}</b> {data.host}:{data.port}</span></div>);
                 }
+            }
+
+            if(this.bAndLogsFolderChanges()){
+
+                messages.push(<div key={"logs-folder"}>
+                    You have unsaved changes to the <span className="yellow"><b>website's Logs folder settings!</b></span>
+                </div>);
             }
 
             return <Notification type="warning">
