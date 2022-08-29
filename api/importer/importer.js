@@ -7,6 +7,7 @@ const EventEmitter = require('events');
 const AceManager = require('./acemanager');
 const mysql = require('../database');
 const SFTPImporter = require("./sftpimporter");
+const Logs = require("../logs");
 
 
 class MyEventEmitter extends EventEmitter{};
@@ -17,7 +18,10 @@ class Importer{
         bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bImportAce,
         bDeleteAceLogs, bDeleteAceScreenshots, bSkipFTP){
 
-        if(bSkipFTP === undefined){
+        
+        bSkipFTP = bSkipFTP ?? false;
+
+        if(!bSkipFTP){
 
             if(!bSFTP){
                 this.ftpImporter = new FTPImporter(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce,
@@ -46,10 +50,11 @@ class Importer{
         this.minPlayers = minPlayers;
         this.minPlaytime = minPlaytime;
         this.bSFTP = bSFTP;
+        this.bLogsFolderImport = bSkipFTP;
 
         this.myEmitter = new MyEventEmitter();
 
-        if(this.ftpImporter !== undefined){
+        if(!bSkipFTP){
             this.standardImport();
         }else{
             this.nonFtpImport();        
@@ -85,10 +90,24 @@ class Importer{
 
                 const f = this.logsToImport[i];
 
+                if(this.bLogsFolderImport){
+                    
+                    if(this.bIgnoreDuplicates){
+
+                        if(await Logs.bExists(f)){
+
+                            new Message(`The file ${f} has already been imported, skipping.`,"note");
+                            fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
+                            continue;
+                        }
+                    }
+                    
+                }
+
                 new Message(`Starting import of log number ${i + 1} of ${totalLogs}`,'progress');
                 
                 const logData = await this.openLog(`${config.importedLogsFolder}/${f}`);
-                
+
                 const log = new MatchManager(logData, f, this.bIgnoreBots, this.minPlayers, this.minPlaytime);
 
                 if(!log.bLinesNull){
@@ -151,9 +170,7 @@ class Importer{
                 console.trace(err);
                 this.myEmitter.emit("error");
             }   
-
         });
-
     }
 
     async nonFtpImport(){

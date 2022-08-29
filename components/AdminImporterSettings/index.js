@@ -69,7 +69,7 @@ class AdminImporterSettings extends React.Component{
             <div className="default-header">Logs Folder Settings</div>
             <div className="form m-bottom-25">
                 <div className="form-info">
-                    These are the current settings that are used if you place files in the websites /Logs folder, instead of using ftp or sftp.
+                    These are the current settings used if you place files in the websites /Logs folder, instead of using ftp or sftp.
                 </div>
             </div>
 

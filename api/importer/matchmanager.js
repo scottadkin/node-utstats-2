@@ -53,9 +53,6 @@ class MatchManager{
                 }
             }
 
-            const logId = await Logs.insert(this.fileName);
-
-            new Message(`Log file id is ${logId}`,"note");
 
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
@@ -74,6 +71,10 @@ class MatchManager{
                 new Message(`Total players is less then the minimum specified, skipping.`, "note");
                 return null;
             }
+
+            const logId = await Logs.insert(this.fileName);
+
+            new Message(`Log file id is ${logId}`,"note");
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots);
 

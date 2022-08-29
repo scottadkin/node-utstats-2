@@ -29,9 +29,23 @@ async function setFTPSettings(){
 }
 
 
+async function getLogsFolderSettings(){
+
+    const query = "SELECT ignore_duplicates,ignore_bots,min_players,min_playtime,import_ace FROM nstats_logs_folder ORDER BY id DESC LIMIT 1";
+
+    const result = await mysql.simpleQuery(query);
+
+    if(result.length === 0){
+        throw new Error("Logs folder settings have not been found, you have most likely missed an upgrade step from a previous version of node utstats 2.");    
+    }
+    
+    return result[0];
+
+}
+
 function startNewImport(ftpServer){
 
-    return new Promise((resolve, reject) =>{
+    return new Promise(async (resolve, reject) =>{
 
         const f = ftpServer;
 
@@ -58,7 +72,26 @@ function startNewImport(ftpServer){
             );
 
         }else{
-            I = new Importer(null, null, null, null, null, null, null, null, null, 0, 0, false, false, false , false , true);
+
+            const logsSettings = await getLogsFolderSettings();
+
+            I = new Importer(
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                logsSettings.ignore_bots, 
+                logsSettings.ignore_duplicates, 
+                logsSettings.min_players, 
+                logsSettings.min_playtime, 
+                false, 
+                false, 
+                false, 
+                false, 
+                true);
         }
 
         I.myEmitter.on("passed", () =>{
