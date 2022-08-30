@@ -19,7 +19,7 @@ class FormCheckBox extends React.Component{
 
         if(parseInt(this.props.value) === 1) value = true;
 
-        this.setState = {"value": value};
+        this.setState({"value": value});
     }
 
     componentDidUpdate(prevProps){
