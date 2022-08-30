@@ -143,7 +143,10 @@ const queries = [
         sftp int(1) NOT NULL,
         import_ace INT(1) NOT NULL,
         delete_ace_logs int(1) NOT NULL,
-        delete_ace_screenshots int(1) NOT NULL
+        delete_ace_screenshots int(1) NOT NULL,
+        total_ace_kick_logs INT(1) NOT NULL,
+        total_ace_join_logs INT(1) NOT NULL,
+        total_ace_screenshots INT(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
       `CREATE TABLE IF NOT EXISTS nstats_logs_folder (

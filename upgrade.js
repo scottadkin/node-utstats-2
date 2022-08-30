@@ -298,7 +298,10 @@ async function createNewTables(){
                 ignore_duplicates int(1) NOT NULL,
                 min_players int(2) NOT NULL,
                 min_playtime int(11) NOT NULL,
-                import_ace INT(1) NOT NULL
+                import_ace INT(1) NOT NULL,
+                total_ace_kick_logs INT(1) NOT NULL,
+                total_ace_join_logs INT(1) NOT NULL,
+                total_ace_screenshots INT(1) NOT NULL
               ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
         ];
 
@@ -376,7 +379,7 @@ async function insertLogsFolderSettings(){
     
     if(totalRows[0].total_rows > 0) return;
 
-    const query = "INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',0,0,0,0,0,0,0,0,0)";
+    const query = "INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',0,0,0,0,0,0,0,0,0,0,0,0)";
 
     await mysql.simpleQuery(query);
 
@@ -416,6 +419,18 @@ async function insertLogsFolderSettings(){
 
         if(!await columnExists("nstats_ftp", "delete_ace_screenshots")){
             await alterTable("nstats_ftp","delete_ace_screenshots", "INT(1) NOT NULL");
+        }
+
+        if(!await columnExists("nstats_ftp", "total_ace_kick_logs")){
+            await alterTable("nstats_ftp","total_ace_kick_logs", "INT(1) NOT NULL");
+        }
+
+        if(!await columnExists("nstats_ftp", "total_ace_join_logs")){
+            await alterTable("nstats_ftp","total_ace_join_logs", "INT(1) NOT NULL");
+        }
+
+        if(!await columnExists("nstats_ftp", "total_ace_screenshots")){
+            await alterTable("nstats_ftp","total_ace_screenshots", "INT(1) NOT NULL");
         }
 
 

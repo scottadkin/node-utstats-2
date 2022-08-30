@@ -34,7 +34,7 @@ class PlayerMonster extends React.Component{
             <div className={styles.title}>{this.props.name ?? "No name supplied"}</div>
             <div className={styles.split}>
                 <div className={styles.image}>
-                    <Image src={`/images/monsters/${this.props.image ?? "default.png"}`} width="130" height="130"/>
+                    <Image src={`/images/monsters/${this.props.image ?? "default.png"}`} width="130" alt="image" height="130"/>
                 </div>
                 <div className={styles.text}>
                   Seen in <span className={styles.value}>{matches}</span> match{(matches !== 1) ? "es" : ""}<br/>

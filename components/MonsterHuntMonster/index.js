@@ -120,7 +120,7 @@ class MonsterHuntMonster extends React.Component{
         return <div className={styles.wrapper}>
             <div className={styles.name}>{this.props.name}</div>
             <div className={styles.image}>
-                <Image src={`/images/monsters/${this.props.image}`} width={200} height={200}/>    
+                <Image src={`/images/monsters/${this.props.image}`} alt="Image" width={200} height={200}/>    
             </div>
             <Table2 width={0} noBottomMargin={1} compressed={1} players={1}>
                 <tr>

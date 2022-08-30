@@ -76,7 +76,7 @@ class AdminLogsFolderEdit extends React.Component{
             <div className="form">
                 <div className="default-sub-header-alt">Information</div>
                 <div className="form-info m-bottom-10">
-                    These are the settings that are used if you place files in the website's Logs folder instead of using the ftp, or sftp importer.
+                    These are the settings that are used if you place files in the website&#39;s Logs folder instead of using the ftp, or sftp importer.
                 </div>
                 {this.renderLoading()}
                 {this.renderForm()}

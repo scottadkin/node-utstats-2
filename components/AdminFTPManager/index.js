@@ -376,7 +376,7 @@ class AdminFTPManager extends React.Component{
             if(this.bAndLogsFolderChanges()){
 
                 messages.push(<div key={"logs-folder"}>
-                    You have unsaved changes to the <span className="yellow"><b>website's Logs folder settings!</b></span>
+                    You have unsaved changes to the <span className="yellow"><b>website&#39;s Logs folder settings!</b></span>
                 </div>);
             }
 
