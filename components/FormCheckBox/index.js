@@ -7,6 +7,7 @@ class FormCheckBox extends React.Component{
 
         super(props);
 
+        this.state = {"value": false};
         this.setInitialValue();
         this.changeValue = this.changeValue.bind(this);
 
