@@ -146,7 +146,8 @@ const queries = [
         delete_ace_screenshots int(1) NOT NULL,
         total_ace_kick_logs INT(1) NOT NULL,
         total_ace_join_logs INT(1) NOT NULL,
-        total_ace_screenshots INT(1) NOT NULL
+        total_ace_screenshots INT(1) NOT NULL,
+        enabled INT(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
       `CREATE TABLE IF NOT EXISTS nstats_logs_folder (

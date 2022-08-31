@@ -203,7 +203,7 @@ class Admin{
         deleteAceScreenshots = (deleteAceScreenshots === "true") ? 1 : 0 ;
 
       
-        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?,?,0,0,0)";
+        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?,?,0,0,0,1)";
 
         const vars = [
             name, 

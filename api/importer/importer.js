@@ -8,6 +8,7 @@ const AceManager = require('./acemanager');
 const mysql = require('../database');
 const SFTPImporter = require("./sftpimporter");
 const Logs = require("../logs");
+const ACE = require("../ace");
 
 
 class MyEventEmitter extends EventEmitter{};
@@ -51,6 +52,10 @@ class Importer{
         this.minPlaytime = minPlaytime;
         this.bSFTP = bSFTP;
         this.bLogsFolderImport = bSkipFTP;
+
+        if(this.bLogsFolderImport){
+            this.ace = new ACE();
+        }
 
         this.myEmitter = new MyEventEmitter();
 
@@ -118,7 +123,9 @@ class Importer{
                     
                     this.updateCurrentUpdatedStats(currentData);
 
+               
                     await this.updateImportStats();
+                    
                 
                 }else{
                     fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
@@ -146,6 +153,8 @@ class Importer{
                 }
 
                 await this.aceManager.importLog(f, mode, data);
+
+                await this.aceManager.updateTypeTotals(mode, this.host, this.port);
             }
 
             this.myEmitter.emit("passed");
@@ -265,18 +274,26 @@ class Importer{
 
         const now = Math.floor(Date.now() / 1000);
 
-        const query = `UPDATE nstats_ftp 
+        const ending = (this.bLogsFolderImport) ? "WHERE id > -1" : "WHERE host=? AND port=?";
+
+        const query = `UPDATE ${(this.bLogsFolderImport) ? "nstats_logs_folder" : "nstats_ftp"} 
         SET total_logs_imported = total_logs_imported + 1,
         first = IF (first > ?, ?, IF(first=0, ?, first)),
         last = IF (last < ?, ?, last)
-        WHERE host=? AND port=?`;
+        ${ending}`;
 
         await mysql.simpleInsert(query, [now, now, now, now, now, this.host, this.port]);
     }
 
     async updateTotalImports(){
 
-        const query = `UPDATE nstats_ftp SET total_imports=total_imports+1 WHERE host=? AND port=?`;
+        let query = "";
+
+        if(!this.bLogsFolderImport){
+            query = `UPDATE nstats_ftp SET total_imports=total_imports+1 WHERE host=? AND port=?`;
+        }else{
+            query = `UPDATE nstats_logs_folder SET total_imports=total_imports+1 WHERE id > -1`;
+        }
 
         await mysql.simpleQuery(query, [this.host, this.port]);
     }

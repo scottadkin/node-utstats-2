@@ -175,8 +175,13 @@ class AceManager{
             await this.ace.insertScreenshotRequest(fileName, rawData, data);
         }
 
-        fs.renameSync(`${config.ace.logDir}/${fileName}`, `Logs/imported/ace/kicks/${fileName}`);
-        
+        fs.renameSync(`${config.ace.logDir}/${fileName}`, `Logs/imported/ace/kicks/${fileName}`);    
+    }
+
+    async updateTypeTotals(type, host, port){
+
+        await this.ace.updateTypeTotals(type, host, port);
+
     }
 }
 

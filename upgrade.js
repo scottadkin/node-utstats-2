@@ -433,6 +433,10 @@ async function insertLogsFolderSettings(){
             await alterTable("nstats_ftp","total_ace_screenshots", "INT(1) NOT NULL");
         }
 
+        if(!await columnExists("nstats_ftp", "enabled")){
+            await alterTable("nstats_ftp","enabled", "INT(1) NOT NULL");
+        }
+
 
         await insertLogsFolderSettings();
 

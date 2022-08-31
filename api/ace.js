@@ -580,6 +580,29 @@ class ACE{
         return [];
         
     }
+
+
+    async updateTypeTotals(type, host, port){
+
+        type = type.toLowerCase();
+
+        let bNonFtp = (host === null || port === null) ? true : false;
+
+        const ending = (bNonFtp) ? "WHERE id > -1" : "WHERE host=? AND port=?";
+        const table = (bNonFtp) ? "nstats_logs_folder" : "nstats_ftp";
+
+        let toChange = "";
+
+        if(type === "kick") toChange = "total_ace_kick_logs=total_ace_kick_logs+1";
+        if(type === "join") toChange = "total_ace_join_logs=total_ace_join_logs+1";
+        if(type === "screenshot") toChange = "total_ace_screenshots=total_ace_screenshots+1";
+
+        const query = `UPDATE ${table} SET ${toChange} ${ending}`;
+
+        const vars = [host, port];
+
+        await mysql.simpleQuery(query, vars);
+    }
 }
 
 

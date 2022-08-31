@@ -331,6 +331,7 @@ class FTPImporter{
 
             await this.downloadFile(`${this.targetDir}${config.ace.screenshotsDir}/${f}`, `${config.ace.importedScreenshotsDir}/${f}`);
             await this.ace.updateScreenshotTable(f);
+            await this.ace.updateTypeTotals("screenshot", this.host, this.port);
 
             downloaded++;
 

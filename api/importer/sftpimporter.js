@@ -226,6 +226,7 @@ class SFTPImporter{
                     if(await this.downloadFile(`${this.entryPoint}/${dir}/`, f.name, dir)){
 
                         await this.ace.updateScreenshotTable(f.name);
+                        await this.ace.updateTypeTotals("screenshot", this.host, this.port);
                         passed++;
                     }
                 }

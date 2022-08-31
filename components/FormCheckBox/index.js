@@ -7,10 +7,15 @@ class FormCheckBox extends React.Component{
 
         super(props);
 
-        this.state = {"value": false};
-        this.setInitialValue();
+        this.state = {"value": null};
+
         this.changeValue = this.changeValue.bind(this);
 
+    }
+
+    componentDidMount(){
+
+        this.setInitialValue();
     }
 
     setInitialValue(){
@@ -18,14 +23,15 @@ class FormCheckBox extends React.Component{
         let value = false;
 
         if(parseInt(this.props.value) === 1) value = true;
-
+        if(parseInt(this.props.value) === 0) value = false;
+        
         this.setState({"value": value});
     }
 
     componentDidUpdate(prevProps){
 
         if(prevProps.value !== this.props.value){
-
+            
             this.setState({"value": this.props.value});
         }
     }
@@ -40,6 +46,7 @@ class FormCheckBox extends React.Component{
 
     render(){
 
+        if(this.state.value === null) return null;
         return <div>
             <input type="hidden" name={this.props.inputName} value={this.state.value}/>
             <div className={`${styles.button} ${(this.state.value) ? "team-green" : "team-red"}`} onClick={this.changeValue}>
