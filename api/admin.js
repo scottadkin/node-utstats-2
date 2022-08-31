@@ -139,7 +139,7 @@ class Admin{
     }
 
     async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, ignoreBots, ignoreDuplicates,
-        minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots){
+        minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots, enable){
 
         const query = `UPDATE nstats_ftp SET
             name=?,
@@ -157,7 +157,8 @@ class Admin{
             sftp=?,
             import_ace=?,
             delete_ace_logs=?,
-            delete_ace_screenshots=?
+            delete_ace_screenshots=?,
+            enabled=?
             WHERE id=?`;
         
         bSecureFTP = bSecureFTP ?? 0;
@@ -179,6 +180,7 @@ class Admin{
             importAce,
             deleteAceLogs,
             deleteAceScreenshots,
+            enable,
             id
         ];
 
@@ -188,7 +190,8 @@ class Admin{
 
 
     async addFTPServer(name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, 
-        ignoreBots, ignoreDuplicates, minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots){
+        ignoreBots, ignoreDuplicates, minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots,
+        enable){
 
         
         bSecureFTP = bSecureFTP ?? 0;
@@ -201,9 +204,10 @@ class Admin{
         importAce = (importAce === "true") ? 1 : 0 ;
         deleteAceLogs = (deleteAceLogs === "true") ? 1 : 0 ;
         deleteAceScreenshots = (deleteAceScreenshots === "true") ? 1 : 0 ;
+        enable = (enable === "true") ? 1 : 0 ;
 
       
-        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?,?,0,0,0,1)";
+        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?,?,0,0,0,?)";
 
         const vars = [
             name, 
@@ -221,7 +225,8 @@ class Admin{
             bSecureFTP,
             importAce,
             deleteAceLogs,
-            deleteAceScreenshots
+            deleteAceScreenshots,
+            enable
         ];
 
         return await mysql.insertReturnInsertId(query, vars);

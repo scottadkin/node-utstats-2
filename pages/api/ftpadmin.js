@@ -90,7 +90,8 @@ export default async function handler(req, res){
                     body.bSecure,
                     body.importAce,
                     body.deleteAceLogs,
-                    body.deleteAceScreenshots
+                    body.deleteAceScreenshots,
+                    body.enabled
                 );
 
                 res.status(200).json({"message": "Passed", "id": result});
@@ -115,7 +116,7 @@ export default async function handler(req, res){
 
             const result = await admin.updateFTPServer(body.id, body.server, body.ip, body.port, body.user, body.password, body.folder, body.deleteLogs, 
                 body.deleteTmp, body.ignoreBots, body.ignoreDuplicates, body.minPlayers, body.minPlaytime, body.bSecure, body.importAce,
-                 body.deleteAceLogs, body.deleteAceScreenshots);
+                 body.deleteAceLogs, body.deleteAceScreenshots, body.enabled);
             
             if(result > 0){
 

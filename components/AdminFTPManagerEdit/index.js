@@ -68,6 +68,14 @@ class AdminFTPManagerEdit extends React.Component{
                     }}/>
                 </div>
             </div>
+
+            <div className="select-row">
+                <div className="select-label">Enable Importer</div>
+                <div>
+                    <FormCheckBox inputName={"bEnable"} valueName="enabled" value={data.enabled} updateValue={this.updateValue}/>
+                </div>
+            </div>
+
             <div className="select-row">
                 <div className="select-label">Secure FTP</div>
                 <div>

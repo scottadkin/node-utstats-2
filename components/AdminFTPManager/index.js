@@ -303,6 +303,7 @@ class AdminFTPManager extends React.Component{
                 "importAce": data.import_ace,
                 "deleteAceLogs": data.delete_ace_logs,
                 "deleteAceScreenshots": data.delete_ace_screenshots,
+                "enabled": data.enabled
             })
         });
 
