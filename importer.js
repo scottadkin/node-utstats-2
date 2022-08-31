@@ -47,11 +47,19 @@ function startNewImport(ftpServer){
 
     return new Promise(async (resolve, reject) =>{
 
-        const f = ftpServer;
 
         let I = 0;
 
+
         if(ftpServer !== null){
+
+            const f = ftpServer;
+
+            if(f.enabled == 0){
+                new Message(`${f.host}:${f.port} has been disabled, skipping import.`,"note");
+                resolve();
+                return;
+            }
 
             I = new Importer(
                 f.host, 

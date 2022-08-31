@@ -82,6 +82,44 @@ class Importer{
         }
     }
 
+    async importACENonFTPScreenshots(){
+
+        new Message("Checking ./Logs for ACE screenshots.", "note");
+
+        const files = fs.readdirSync("./Logs");
+
+        const prefix = config.ace.screenshotPrefix.toLowerCase();
+        const extension = config.ace.screenshotExtensionType.toLowerCase();
+
+        for(let i = 0; i < files.length; i++){
+
+            const originalName = files[i];
+            const f = files[i].toLowerCase();
+
+            if(f.endsWith(extension) && f.startsWith(prefix)){
+
+                new Message(`Found ACE screenshot ${originalName} to import.`,"pass");
+
+                const bAlreadyImported = await this.ace.bScreenshotImported(f);
+
+                if(this.bIgnoreDuplicates){
+
+                    if(bAlreadyImported){
+
+                        new Message(`ACE screenshot ${originalName} has already been imported skipping.`, "note");
+                        fs.renameSync(`./Logs/${originalName}`, `./public/images/ace/${originalName}`);
+                        continue;
+                    }
+                }
+
+                await this.ace.updateScreenshotTable(originalName);
+                await this.ace.updateTypeTotals("screenshot", null, null);
+
+                fs.renameSync(`./Logs/${originalName}`, `./public/images/ace/${originalName}`);
+            }
+        }
+    }
+
     async importLogs(){
 
         try{
@@ -123,7 +161,6 @@ class Importer{
                     
                     this.updateCurrentUpdatedStats(currentData);
 
-               
                     await this.updateImportStats();
                     
                 
@@ -188,6 +225,7 @@ class Importer{
 
             new Message(`Import running without FTP.`,'note');
 
+            await this.importACENonFTPScreenshots();
             await this.importLogs();
             
             }catch(err){
