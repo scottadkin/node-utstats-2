@@ -3,6 +3,7 @@ import styles from './MatchMonsterHuntMonsterKills.module.css';
 import Loading from '../Loading';
 import Notifcation from '../Notification';
 import MonsterHuntMonster from '../MonsterHuntMonster';
+import MatchPlayerMonster from '../MatchPlayerMonster';
 
 class MatchMonsterHuntMonsterKills extends React.Component{
 
@@ -61,7 +62,7 @@ class MatchMonsterHuntMonsterKills extends React.Component{
             const res = await req.json();
 
             if(res.error === undefined){
-
+                
                 this.setState({
                     "bLoading": false,
                     "monsterNames": res.monsterNames,
@@ -157,6 +158,25 @@ class MatchMonsterHuntMonsterKills extends React.Component{
         return found;
     }
 
+    getSinglePlayerMonsterStats(playerId, monsterId){
+
+        let kills = 0;
+        let deaths = 0;
+
+
+        for(let i = 0; i < this.state.playerKills.length; i++){
+
+            const k = this.state.playerKills[i];
+
+            if(k.player === playerId && k.monster === monsterId){
+                return {"kills": k.kills, "deaths": k.deaths};
+            }
+
+        }
+
+        return {"kills": kills, "deaths": deaths}
+    }
+
     renderMonsters(){
 
         const monsters = [];
@@ -239,8 +259,51 @@ class MatchMonsterHuntMonsterKills extends React.Component{
         }
         
 
-        return <div className="tabs">
+        return <div className="tabs" key="tabs">
             {tabs}
+        </div>
+    }
+
+    renderMatchMonsters(){
+
+        return <div>
+            <div className="tabs" key="main-tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Single Display</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Display All</div>
+            </div>
+            {this.renderMonsterTabs()}
+            <div key="w" className={styles.wrapper}>
+            {this.renderMonsters()}
+            </div>
+            
+        </div>
+    }
+    
+    renderPlayerMatchMonsters(){
+
+
+        const monsterNames = this.monstersOrderedByName();
+        const elems = [];
+
+        for(let i = 0; i < monsterNames.length; i++){
+
+            const m = monsterNames[i];
+
+            const monsterImage = this.state.monsterImages[this.getMonsterName(m.id, true)];
+
+            const stats = this.getSinglePlayerMonsterStats(this.props.playerId, m.id);
+
+            if(stats.kills === 0 && stats.deaths === 0) continue;
+
+            elems.push(<MatchPlayerMonster key={m.id} monster={m} image={monsterImage} stats={stats}/>);
+        }
+
+        return <div>
+            {elems}
         </div>
     }
 
@@ -250,7 +313,13 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         if(!this.state.bLoading){
 
-            elems = this.renderMonsters();
+            if(this.props.playerId === undefined){
+
+                elems = this.renderMatchMonsters();
+            }else{
+
+                elems = this.renderPlayerMatchMonsters();
+            }
 
         } 
 
@@ -264,18 +333,8 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
         return <>
             <div className="default-header">Monster Stats</div>
-            <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(0);
-                })}>Single Display</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(1);
-                })}>Display All</div>
-            </div>
-            {this.renderMonsterTabs()}
-            <div className={styles.wrapper}>
-                {elems}
-            </div>
+            
+            {elems}
             {notification}
         </>
     }

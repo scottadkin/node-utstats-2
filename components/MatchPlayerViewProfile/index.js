@@ -10,9 +10,9 @@ const MatchPlayerViewProfile = ({host, data, matchId}) =>{
     return <div>
         <Link href={`/player/${data.player_id}`}>
             <a>
-                <div className={`${styles.wrapper} center m-bottom-25`}>
+                <div className={`${styles.wrapper} center m-bottom-10`}>
             
-                    Click to View <Image className={styles.flag} height={18} width={24} src={`/images/flags/${data.country.toLowerCase()}.svg`} alt="flag"/> 
+                    Click to View <Image className={styles.flag} height={14} width={22} src={`/images/flags/${data.country.toLowerCase()}.svg`} alt="flag"/> 
                     <b> {data.name}{(data.name[data.name.length - 1] == "s") ? "'" : "'s"}</b> Carrer Profile.
                 
                 </div>
@@ -21,7 +21,7 @@ const MatchPlayerViewProfile = ({host, data, matchId}) =>{
 
         <Link href={`/match/${matchId}`}>
             <a>
-                <div className={`${styles.wrapper} center m-bottom-25`}>
+                <div className={`${styles.wrapper} center m-bottom-10`}>
             
                     Click to View Full Match Report
                 

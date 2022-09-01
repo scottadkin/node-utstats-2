@@ -2,9 +2,8 @@
     background-color:var(--color-1);
     width:var(--width-1);
     max-width:var(--max-width-1);
-    border:1px solid var(--border-color-1);
     padding:10px 0px;
-    font-size:20px;
+    font-size:16px;
     transition:var(--transition-1);
 }
 
@@ -14,5 +13,5 @@
 }
 
 .flag{
-    height:18px;
+    height:143px;
 }

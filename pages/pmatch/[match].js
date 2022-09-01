@@ -70,7 +70,6 @@ class PlayerMatch extends React.Component{
         const info = JSON.parse(this.props.info);
         const playerData = JSON.parse(this.props.playerData);
 
-        console.log(playerData);
 
         let titleName = playerData.name;
         titleName+=(titleName[titleName.length - 1] == "s") ? "'" : "'s";
