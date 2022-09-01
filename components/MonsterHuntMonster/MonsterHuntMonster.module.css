@@ -1,12 +1,59 @@
 .wrapper{
     background-color:var(--color-3a);
     display:inline-block;
-    width:300px;
+    overflow:hidden;
     margin-right:5px;
     margin-bottom:5px;
+
 }
 
+.inner{
+    display:grid;
+    grid-template-columns: 200px 250px;
+    height:200px;
+}
+
+.right{
+    height:200px;
+}
+
+.right table td{
+    overflow:hidden;
+    font-size:16px;
+    line-height:16px;
+    padding:8px;
+}
+
+
+
 .name{
-    font-size:18px;
+    font-size:16px;
     padding:10px;
+    font-weight:bold;
+}
+
+.image{
+    background-color:black;
+    height:200px;
+}
+
+
+.pages{
+    display:grid;
+    grid-template-columns: 50% 50%;
+    width:100%;
+}
+
+.button{
+    font-size:12px;
+    padding:5px;   
+    user-select: none;
+    transition: all 0.5s;
+    border:1px solid var(--border-color-2);
+}
+
+.button:hover{
+    cursor: pointer;
+    color:yellow;
+    background-color:var(--color-2);
 }

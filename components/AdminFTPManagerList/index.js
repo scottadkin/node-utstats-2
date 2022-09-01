@@ -26,11 +26,10 @@ class AdminFTPManagerList extends React.Component{
             const d = this.props.data[i];
 
             rows.push(<tr key={i}>
+                <TrueFalse bTable={true} value={d.enabled}/>
                 <TrueFalse bTable={true} value={d.sftp}/>
                 <td>{d.name}</td>
                 <td>{d.host}:{d.port}</td>
-                <td>{d.user}</td>
-                <td>{d.target_folder}</td>
                 <td>{d.total_imports}</td>
                 <td>{(d.first === 0) ? "N/A" : Functions.convertTimestamp(d.first, true)}</td>
                 <td>{(d.last === 0) ? "N/A" : Functions.convertTimestamp(d.last, true)}</td>
@@ -50,11 +49,10 @@ class AdminFTPManagerList extends React.Component{
 
         return <Table2 width={1}>
             <tr>
+                <th>Enabled</th>
                 <th>Secure FTP</th>
                 <th>Name</th>
                 <th>Host</th>
-                <th>User</th>
-                <th>Entry Point</th>
                 <th>Total Imports</th>
                 <th>First Import</th>
                 <th>Last Import</th>

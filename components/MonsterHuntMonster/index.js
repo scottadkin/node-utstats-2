@@ -11,9 +11,43 @@ class MonsterHuntMonster extends React.Component{
     constructor(props){
 
         super(props);
+        this.state = {"page": 0, "totalPages": 0, "perPage": 5, "totalData": 0};
+
+        this.previousPage = this.previousPage.bind(this);
+        this.nextPage = this.nextPage.bind(this);
 
     }
 
+
+    previousPage(){
+
+        if(this.state.page - 1 < 0) return;
+
+        this.setState({"page": this.state.page - 1});
+    }
+
+    nextPage(){
+
+        if(this.state.page + 1 >= this.state.totalPages) return;
+
+        this.setState({"page": this.state.page + 1});
+
+    }
+
+    componentDidMount(){
+
+        const totalData = this.props.data.length;
+
+        if(totalData <= this.state.perPage){
+            this.setState({"totalPages": 1, "totalData": totalData});
+            return;
+        }
+
+        const pages = Math.ceil(totalData / this.state.perPage);
+
+        this.setState({"totalPages": pages, "totalData": totalData});
+    }
+    
 
     createRows(){
 
@@ -42,7 +76,10 @@ class MonsterHuntMonster extends React.Component{
             return 0;
         });
 
-        for(let i = 0; i < data.length; i++){
+        const start = this.state.page * this.state.perPage;
+        const end = (start + this.state.perPage > this.state.totalData ) ? this.state.totalData : start + this.state.perPage ;
+
+        for(let i = start; i < end; i++){
 
             const d = data[i];
 
@@ -71,40 +108,10 @@ class MonsterHuntMonster extends React.Component{
             </tr>);
         }
 
-        if(!this.props.bHide0Kills){
-            
-            for(const [key, value] of Object.entries(this.props.playerNames)){
-
-                if(usedNames.indexOf(value.name) === -1){
-
-                    let url = null;
-
-                    if(!this.props.bPlayerMatch === undefined){
-
-                        url = `/pmatch/${this.props.matchId}?player=${key}`;
-                    }else{
-                        url = `/player/${key}`;
-                    }
-
-                    rows.push(<tr key={value.name}>
-                        <td>
-                            <Link href={url}>
-                                <a>
-                                    <CountryFlag country={value.country}/>
-                                    {value.name}
-                                </a>
-                            </Link>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>);
-                }
-            }
-        }
 
         if(rows.length === 0){
 
-            rows.push(<tr key="1"><td colSpan="2" style={{"textAlign": "center"}}>No Kills</td></tr>);
+            rows.push(<tr key="1"><td colSpan="3" style={{"textAlign": "center"}}>No Kills</td></tr>);
         }
 
         return rows;
@@ -119,17 +126,27 @@ class MonsterHuntMonster extends React.Component{
 
         return <div className={styles.wrapper}>
             <div className={styles.name}>{this.props.name}</div>
-            <div className={styles.image}>
-                <Image src={`/images/monsters/${this.props.image}`} alt="Image" width={200} height={200}/>    
+            <div className={styles.inner}>
+                <div className={styles.left}>
+                    <div className={styles.image}>
+                        <Image src={`/images/monsters/${this.props.image}`} alt="Image" width={200} height={200}/>    
+                    </div>
+                </div>
+                <div className={styles.right}>
+                    <Table2 width={0} noBottomMargin={1} compressed={1} players={1}>
+                        <tr>
+                            <th>Player</th>
+                            <th>Kills</th>
+                            <th>Deaths</th>
+                        </tr>
+                        {rows}
+                    </Table2>
+                </div>
             </div>
-            <Table2 width={0} noBottomMargin={1} compressed={1} players={1}>
-                <tr>
-                    <th>Player</th>
-                    <th>Kills</th>
-                    <th>Deaths</th>
-                </tr>
-                {rows}
-            </Table2>
+            <div className={styles.pages}>
+                <div className={styles.button} onClick={this.previousPage}>Previous Players</div>
+                <div className={styles.button} onClick={this.nextPage}>Next Players</div>
+            </div>
         </div>
     }
 }
