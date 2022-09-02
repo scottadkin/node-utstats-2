@@ -94,6 +94,19 @@ class MonsterHuntMonster extends React.Component{
                 url = `/player/${d.player}`;
             }
 
+            let eff = 0;
+
+            if(d.kills > 0){
+
+                if(d.deaths > 0){
+
+                    eff = ((d.kills / (d.kills + d.deaths)) * 100).toFixed(2);
+                }else{
+
+                    eff = 100;
+                }
+            }
+
             rows.push(<tr key={i}>
                 <td>
                     <Link href={url}>
@@ -105,13 +118,14 @@ class MonsterHuntMonster extends React.Component{
                 </td>
                 <td>{Functions.ignore0(d.kills)}</td>
                 <td>{Functions.ignore0(d.deaths)}</td>
+                <td>{eff}%</td>
             </tr>);
         }
 
 
         if(rows.length === 0){
 
-            rows.push(<tr key="1"><td colSpan="3" style={{"textAlign": "center"}}>No Kills</td></tr>);
+            rows.push(<tr key="1"><td colSpan="4" style={{"textAlign": "center"}}>No Kills</td></tr>);
         }
 
         return rows;
@@ -138,6 +152,7 @@ class MonsterHuntMonster extends React.Component{
                             <th>Player</th>
                             <th>Kills</th>
                             <th>Deaths</th>
+                            <th>Efficiency</th>
                         </tr>
                         {rows}
                     </Table2>

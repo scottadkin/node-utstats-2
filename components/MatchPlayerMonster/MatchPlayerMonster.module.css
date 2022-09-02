@@ -1,7 +1,7 @@
 .wrapper{
     background-color:var(--color-1);
     display:inline-block;
-    width:200px;
+    width:225px;
     margin-right:5px;
     margin-bottom:5px;
     overflow:hidden;
@@ -14,7 +14,7 @@
 
 .image{
     background-color:black;
-    width:200px;
+    width:225px;
     height:150px;
 }
 
@@ -23,5 +23,6 @@
 }
 
 .table table td, .table table th{
-    padding:5px;
+    padding:10px;
+    font-weight:normal;
 }
