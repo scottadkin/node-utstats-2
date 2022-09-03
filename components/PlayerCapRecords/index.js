@@ -73,7 +73,7 @@ class PlayerCapRecords extends React.Component{
             const r = records[i];
 
             rows.push(<tr key={i}>
-                <td>
+                <td className="text-left">
                     <Link href={`/map/${r.map_id}`}>
                         <a>
                             {r.mapName}
@@ -97,7 +97,7 @@ class PlayerCapRecords extends React.Component{
             </tr>);
         }
 
-        return <Table2 width={4} players={true}>
+        return <Table2 width={4} >
             <tr>
                 <th>Map</th>
                 <th>Date of Record</th>

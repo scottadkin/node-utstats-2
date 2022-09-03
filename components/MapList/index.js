@@ -2,6 +2,7 @@ import MapDefaultBox from '../MapDefaultBox/';
 import MapTableRow from '../MapTableRow/';
 import React from 'react';
 import Table2 from '../Table2';
+import styles from "./MapList.module.css";
 
 class MapList extends React.Component{
 
@@ -45,9 +46,9 @@ class MapList extends React.Component{
                 elems.push(<MapDefaultBox host={this.props.host} key={i} data={maps[i]} images={this.props.images}/>);
             }
 
-            return (<div>
+            return <div className={styles.dwrapper}>
                 {elems}
-            </div>);
+            </div>;
         }
     }
 }

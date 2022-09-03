@@ -6,12 +6,10 @@
 
 .country{
     display:inline-block;
-    background-color:var(--color-3);
-    background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
+    background-color:var(--color-8);
     margin-right:10px;
     margin-bottom:10px;
-    min-width:200px;
-    border:1px solid var(--border-color-3);
+    min-width:250px;
 
 }
 
@@ -24,5 +22,5 @@
     line-height:24px;
     color:var(--color-6);
     font-size:14px;
-    padding:5px;
+    padding:5px 10px;
 }

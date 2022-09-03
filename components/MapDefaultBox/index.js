@@ -1,6 +1,5 @@
 import styles from './MapDefaultBox.module.css';
 import Functions from '../../api/functions';
-import TimeStamp from '../TimeStamp/';
 import Link from 'next/link';
 import React from 'react';
 import Image from 'next/image';
@@ -42,13 +41,13 @@ class MapDefaultBox extends React.Component{
                     <span className={styles.levelenter}>{(this.props.data.level_enter_text !== "") ? `"${this.props.data.level_enter_text}"` : ""}</span>
                 </div>
             </div>
-            <Image src={this.getImage()} width={480} height={270} className="map-image" alt="image"/>
+            <Image src={this.getImage()} width={350} height={196} className="map-image" alt="image"/>
             <div className={styles.info}>
                 
                 {this.props.data.matches} Matches<br/>
-                Playtime {parseFloat(this.props.data.playtime / (60 * 60)).toFixed(2)} Hours<br/>
-                First <TimeStamp timestamp={this.props.data.first}/><br/>
-                Last <TimeStamp timestamp={this.props.data.last}/><br/>
+                Playtime {Functions.toHours(this.props.data.playtime)} Hours<br/>
+                First {Functions.convertTimestamp(this.props.data.first, true)}<br/>
+                Last {Functions.convertTimestamp(this.props.data.last, true)}<br/>
             </div>
         </div></a></Link>);
     }

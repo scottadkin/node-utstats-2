@@ -143,7 +143,9 @@ class Matches extends React.Component{
         if(this.state.displayType){
             matchElems = <MatchesTableView data={this.props.matches}/>
         }else{
-            matchElems = <MatchesDefaultView data={this.props.matches} images={this.props.images} host={this.props.host}/>
+            matchElems = <div className="center" style={{"width": "var(--width-1)"}}>
+                <MatchesDefaultView data={this.props.matches} images={this.props.images} host={this.props.host}/>
+            </div>;
         }
 
         const start = (this.props.page <= 1) ? 1 : this.props.page * this.props.perPage;

@@ -1,8 +1,10 @@
+.wrapper{
+    width:var(--width-1);
+}
+
 .box{
-    background-color:var(--color-1);
-    background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
-    border:1px solid var(--border-color-3);
-    width:400px;
+    background-color:var(--color-8);
+    width:350px;
     display:inline-block;
     margin-right:5px;
     margin-bottom:5px;

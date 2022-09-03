@@ -54,7 +54,9 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
 
     return <div className="center">
         <div className="default-header">Most Played Gametypes</div>
-        {elems}
+        <div className={`center ${styles.wrapper}`}>
+            {elems}
+        </div>
     </div>
 }
 
