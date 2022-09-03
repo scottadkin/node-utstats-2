@@ -1,18 +1,16 @@
 .wrapper{
     background-color:var(--color-1);
     display:inline-block;
-    height:380px;
+    height:336px;
     width:250px;
     overflow:hidden;
-    border:1px solid var(--border-color-1);
-    margin-left:-1px;
-    margin-bottom:10px;
+    margin-bottom:5px;
+    margin-right:5px;
 }
 
 .name{
     padding:5px;
     background-color:var(--color-3);
-    border-bottom:1px solid var(--border-color-1);
     font-size:14px;
     line-height:24px;
     height:32px;
@@ -27,7 +25,6 @@
 
 
 .stats{
-    background-color:var(--color-2);
     border-top:1px solid rgba(255,255,255,0.25);
     height:200px;
 }
