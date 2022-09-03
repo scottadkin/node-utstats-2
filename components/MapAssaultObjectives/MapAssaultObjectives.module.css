@@ -1,26 +1,21 @@
 .box{
-    background-color:var(--color-3); 
-    border:1px solid var(--border-color-1);
-    margin-top:-1px;
+    background-color:var(--color-8); 
     display:inline-block;
-    margin-left:-1px;
-    margin-bottom:10px;
+    margin-bottom:5px;
+    margin-right:5px;
+    width:400px;
+    
 }
 
 .name{
     font-size:16px;
     padding:10px;
-    background-color:var(--color-1);
     color:yellow;
+    font-weight:bold;
 }
 
 .info{
     padding:10px;
     font-size:14px;
     line-height:24px;
-}
-
-.image{
-    width:400px;
-    height:224px;
 }

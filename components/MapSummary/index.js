@@ -12,7 +12,7 @@ const MapSummary = ({basic, spawns, imageHost, image}) =>{
             const elem = document.getElementById("main-image");
             elem.requestFullscreen();
         })} className={styles.mimage} id="main-image" src={`/${image}`} alt="image" width={1920} height={1080}/>
-        <Table2 width={2}>
+        <Table2 noBottomMargin={true}>
             <tr>
                 <td>Name</td>
                 <td>{Functions.removeUnr(basic.name)}</td>

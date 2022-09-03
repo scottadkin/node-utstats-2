@@ -39,8 +39,8 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
             if(i === 1){
 
                 elems.push(<div key={"rook-1"} className={styles.box}>
-                    <div>
-                        <Image className={styles.image}  width="200" height="112" alt="image" src={`/${getObjectImage(images, mapName, 1)}`} />
+                    <div className={styles.image}>
+                        <Image width="350" height="196" alt="image" src={`/${getObjectImage(images, mapName, 1)}`} />
                     </div>
                     <div>
                         <span className={styles.name}>Gatehouse Chains</span><br/>
@@ -57,8 +57,8 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
 
         elems.push(<div key={i} className={styles.box}>
             <div className={styles.name}>{o.name}</div>
-            <div>
-                <Image className={styles.image}  width="200" height="112"  alt="image" src={`/${getObjectImage(images, mapName, o.obj_id)}`} />
+            <div className={styles.image}>
+                <Image width="350" height="196"  alt="image" src={`/${getObjectImage(images, mapName, o.obj_id)}`} />
             </div>
             <div className={styles.info}>  
                 Taken {o.taken} Times<br/>
@@ -73,8 +73,8 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
             if(mapName === "rook"){
 
                 elems.push(<div key={"rook-end"} className={styles.box}>
-                    <div>
-                        <Image className={styles.image}  width="200" height="112" alt="image" src={`/${getObjectImage(images, mapName, 5)}`} />
+                    <div className={styles.image} >
+                        <Image width="350" height="196" alt="image" src={`/${getObjectImage(images, mapName, 5)}`} />
                     </div>
                     <div>
                         <span className={styles.name}>End</span><br/>
@@ -84,8 +84,8 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
 
             }else if(mapName === "overlord"){
                 elems.push(<div key={"rook-end"} className={styles.box}>
-                    <div>
-                        <Image className={styles.image}  alt="image" src={`/${getObjectImage(images, mapName, 3)}`} width="200" height="112" />
+                    <div className={styles.image}>
+                        <Image  alt="image" src={`/${getObjectImage(images, mapName, 3)}`} width="350" height="196" />
                     </div>
                     <div>
                         <span className={styles.name}>End</span><br/>
