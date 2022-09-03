@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./PlayerMonster.module.css";
 import Image from "next/image";
+import Table2 from "../Table2";
 
 class PlayerMonster extends React.Component{
 
@@ -30,6 +31,18 @@ class PlayerMonster extends React.Component{
             averageDeaths = (deaths / matches).toFixed(2);
         }
 
+        let eff = 0;
+
+        if(kills > 0){
+
+            if(deaths > 0){
+
+                eff = ((kills / (kills + deaths)) * 100).toFixed(2);
+            }else{
+                eff = 100;
+            }
+        }
+
         return <div className={styles.wrapper}>
             <div className={styles.title}>{this.props.name ?? "No name supplied"}</div>
             <div className={styles.split}>
@@ -37,12 +50,28 @@ class PlayerMonster extends React.Component{
                     <Image src={`/images/monsters/${this.props.image ?? "default.png"}`} width="130" alt="image" height="130"/>
                 </div>
                 <div className={styles.text}>
-                  Seen in <span className={styles.value}>{matches}</span> match{(matches !== 1) ? "es" : ""}<br/>
-                    <span className={styles.value}>{kills}</span> Killed<br/>
-                    <span className={styles.value}>{average}</span> kills per match<br/>
-                    <span className={styles.value}>{this.props.stats.deaths}</span> Deaths<br/>
-                    <span className={styles.value}>{averageDeaths}</span> Deaths per match
-
+                    <Table2>
+                        <tr>
+                            <td>Matches</td>
+                            <td>{matches}</td>
+                        </tr>
+                        <tr>
+                            <td>Kills</td>
+                            <td>{kills}</td>
+                        </tr>
+                        <tr>
+                            <td>Average Kills</td>
+                            <td>{average}</td>
+                        </tr>
+                        <tr>
+                            <td>Deaths</td>
+                            <td>{deaths}</td>
+                        </tr>
+                        <tr>
+                            <td>Efficiency</td>
+                            <td>{eff}%</td>
+                        </tr>
+                    </Table2>
                 </div>
             </div>
         </div>

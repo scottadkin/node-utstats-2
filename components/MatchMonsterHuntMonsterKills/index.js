@@ -185,6 +185,9 @@ class MatchMonsterHuntMonsterKills extends React.Component{
 
             const m = this.state.monsterTotals[i];
 
+            //skip not found monsters
+            if(m.monster === -1) continue;
+
             if(this.state.mode === 0){
 
                 if(m.monster !== this.state.currentMonster) continue;
