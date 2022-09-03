@@ -1,22 +1,42 @@
-import styles from './PlayerGeneral.module.css';
 import Functions from '../../api/functions';
-import BasicUIBox from '../BasicUIBox';
+import Table2 from '../Table2';
+import CountryFlag from '../CountryFlag';
+import Image from 'next/image';
+import styles from "./PlayerGeneral.module.css";
 
 
-const PlayerGeneral = ({host,flag, country, face, first, last, matches, playtime, wins, losses, winRate}) =>{
+const PlayerGeneral = ({host,flag, country, face, first, last, matches, playtime, wins, losses, winRate, draws}) =>{
 
     if(flag === "") flag = "xx";
 
-    return <div className={styles.wrapper}>
-        <BasicUIBox title={"From"} value={country} image={`/images/flags/${flag}.svg`} />
-        <BasicUIBox title={"Recent Face"} value={""} image={`/images/faces/${face}.png`} />
-        <BasicUIBox title={"First Seen"} value={Functions.convertTimestamp(first, true)} image={`/images/visual.png`} />
-        <BasicUIBox title={"Last Seen"} value={Functions.convertTimestamp(last, true)} image={`/images/visual.png`} />
-        <BasicUIBox title={"Playtime"} value={`${(playtime / (60 * 60)).toFixed(2)} Hours`} image={"/images/clock.png"} /><br/>
-        <BasicUIBox title={"Matches"} value={matches} image={"/images/matches.png"} />
-        <BasicUIBox title={"Wins"} value={wins} image={"/images/checked.png"} />
-        <BasicUIBox title={"Losses"} value={losses} image={"/images/cancel.png"} />
-        <BasicUIBox title={"Win Rate"} value={`${winRate.toFixed(2)}%`} image={"/images/bar-chart.png"} />
+    return <div>
+        <Table2 width={1}>
+            <tr>
+                <th>Face</th>
+                <th>Country</th>
+                <th>First Seen</th>
+                <th>Last Seen</th>
+                <th>Matches</th>
+                <th>Wins</th>
+                <th>Draws</th>
+                <th>Losses</th>
+                <th>Win Rate</th>
+                <th>Playtime</th>
+            </tr>
+            <tr>
+                <td><Image src={`/images/faces/${face}.png`} alt="face" width={46} height={46}/></td>
+                <td><CountryFlag country={flag}/>{country}</td>
+                <td>{Functions.convertTimestamp(first,true)}</td>
+                <td>{Functions.convertTimestamp(last,true)}</td>
+                <td>{matches}</td>
+                <td>{wins}</td>
+                <td>{draws}</td>
+                <td>{losses}</td>
+                <td>{winRate}%</td>
+                <td>{Functions.toHours(playtime)} Hours</td>
+            </tr>
+        </Table2>
+    
     </div>
 }
 

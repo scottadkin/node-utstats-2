@@ -21,8 +21,6 @@ class PlayerGametypeStats extends React.Component{
 
         const settings = this.props.session;
 
-        console.log(settings);
-
         if(settings["playerPageGametypeMode"] !== undefined){
             this.setState({"mode": JSON.parse(settings["playerPageGametypeMode"])});
         }

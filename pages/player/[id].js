@@ -236,7 +236,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	if(pageSettings["Display Monsterhunt Monster Stats"] === "true"){
 
-		elems[pageOrder["Display Monsterhunt Monster Stats"]] = <PlayerMonsters playerId={playerId}/>;
+		elems[pageOrder["Display Monsterhunt Monster Stats"]] = <PlayerMonsters key="player-monsters-detailed" playerId={playerId}/>;
 	}
 
 

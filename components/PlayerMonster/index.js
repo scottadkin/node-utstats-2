@@ -45,6 +45,35 @@ class PlayerMonster extends React.Component{
 
         return <div className={styles.wrapper}>
             <div className={styles.title}>{this.props.name ?? "No name supplied"}</div>
+            <div className={styles.image}>
+                <Image src={`/images/monsters/${this.props.image ?? "default.png"}`} width="130" alt="image" height="130"/>
+            </div>
+            <Table2 noBottomMargin={true}>
+                        <tr>
+                            <td>Matches</td>
+                            <td>{matches}</td>
+                        </tr>
+                        <tr>
+                            <td>Kills</td>
+                            <td>{kills}</td>
+                        </tr>
+                        <tr>
+                            <td>Average Kills</td>
+                            <td>{average}</td>
+                        </tr>
+                        <tr>
+                            <td>Deaths</td>
+                            <td>{deaths}</td>
+                        </tr>
+                        <tr>
+                            <td>Efficiency</td>
+                            <td>{eff}%</td>
+                        </tr>
+                    </Table2>
+        </div>
+
+        /*return <div className={styles.wrapper}>
+            <div className={styles.title}>{this.props.name ?? "No name supplied"}</div>
             <div className={styles.split}>
                 <div className={styles.image}>
                     <Image src={`/images/monsters/${this.props.image ?? "default.png"}`} width="130" alt="image" height="130"/>
@@ -74,7 +103,7 @@ class PlayerMonster extends React.Component{
                     </Table2>
                 </div>
             </div>
-        </div>
+        </div>*/
     }
 }
 

@@ -36,7 +36,7 @@ class MatchPlayerMonster extends React.Component{
                 {p.displayName}
             </div>
             <div className={styles.image}>
-                <Image src={`/images/monsters/${this.props.image}`} width={150} height={150}/>
+                <Image src={`/images/monsters/${this.props.image}`} alt="monster" width={150} height={150}/>
             </div>
             <div className={styles.table}>
                 <Table2 noBottomMargin={true}>

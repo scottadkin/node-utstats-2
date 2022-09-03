@@ -808,7 +808,7 @@ class GraphCanvas{
 
         const currentTab = this.currentTab + this.tabOffset;
 
-        console.log(`currentTab = ${currentTab}`);
+        //console.log(`currentTab = ${currentTab}`);
 
         let currentData = [];
 

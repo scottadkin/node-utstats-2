@@ -120,7 +120,7 @@ class PlayerMonsters extends React.Component{
                     const m = orderedMonsterByNames[i];
                     const monsterStats = this.getMonsterKills(m.id);
 
-                    monsterElems.push(<PlayerMonster key={i} stats={monsterStats} image={this.getImage(m.className)} 
+                    monsterElems.push(<PlayerMonster key={m.id} stats={monsterStats} image={this.getImage(m.className)} 
                         name={m.displayName}
                     />);
                 }
@@ -134,10 +134,10 @@ class PlayerMonsters extends React.Component{
 
        
 
-        return <>
+        return <div>
             <div className="default-header">Monster Stats</div>
             {elems}
-        </>
+        </div>
     }
 }
 

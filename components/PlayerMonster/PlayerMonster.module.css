@@ -2,44 +2,31 @@
 
     background-color:var(--color-1);
     display:inline-block;
-    width:400px;
+    width:250px;
     max-width:var(--width-1);
     margin-right:5px;
     margin-bottom:5px;
-    height:180px;
     overflow:hidden;
 }
 
 .title{
-    background-color:var(--color-3);
+    background-color:var(--color-8);
     padding:10px;
     font-weight:bold;
     height:40px;
 }
 
-.split{
-    display:grid;
-    grid-template-columns: 40% 60%;
-    height:140px;
-    overflow:hidden;
-}
 
 .image{
     background-color:black;
-    height:140px;
 }
 
-.text table td{
+.wrapper table td{
     padding:5px;
 }
 
-.text table td:nth-child(odd){
-    padding-left:5px;
+.wrapper table td:nth-child(odd){
+
     text-align:left;
     color:yellow;
-}
-
-.text table td:nth-child(even){
-    padding-right:5px;
-    text-align:right;
 }

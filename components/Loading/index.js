@@ -7,7 +7,6 @@ class Loading extends React.Component{
 
     constructor(props){
 
-        console.log(props.children);
         super(props);
     }
 
