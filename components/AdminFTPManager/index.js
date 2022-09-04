@@ -15,7 +15,7 @@ class AdminFTPManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 4, 
+            "mode": 0, 
             "selectedId": -1, 
             "data": null, 
             "lastSavedData": null, 

@@ -217,14 +217,15 @@ class NexgenStatsViewer{
 
     async createList(data){
 
-        const query = "INSERT INTO nstats_nexgen_stats_viewer VALUES(NULL,?,?,?,?,?,1)";
+        const query = "INSERT INTO nstats_nexgen_stats_viewer VALUES(NULL,?,?,?,?,?,?)";
 
         const vars = [
             data.title,
             data.type,
             data.gametype,
             data.players,
-            data.position
+            9999,
+            data.enabled
         ];
 
         return await mysql.insertReturnInsertId(query, vars)
@@ -310,6 +311,11 @@ class NexgenStatsViewer{
             console.trace(err);
             return "";
         }
+    }
+
+    getAllTypes(){
+
+        return this.validTypes;
     }
 }
 

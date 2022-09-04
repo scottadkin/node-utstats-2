@@ -1,7 +1,9 @@
 import React from 'react';
-import OnOff from '../OnOff';
 import styles from './AdminNexgenStatsViewer.module.css';
 import Table2 from '../Table2';
+import Loading from '../Loading';
+import Notification from '../Notification';
+import FormCheckBox from '../FormCheckBox';
 
 class AdminNexgenStatsViewer extends React.Component{
 
@@ -9,458 +11,370 @@ class AdminNexgenStatsViewer extends React.Component{
 
         super(props);
 
-        this.changeOnOff = this.changeOnOff.bind(this);
-        this.changePlayerCount = this.changePlayerCount.bind(this);
-        this.changeGametype = this.changeGametype.bind(this);
-        this.changeType = this.changeType.bind(this);
-        this.changeTitle = this.changeTitle.bind(this);
-        this.moveUp = this.moveUp.bind(this);
-        this.moveDown = this.moveDown.bind(this);
-        this.delete = this.delete.bind(this);
-    }
-
-
-    
-
-    delete(e){
-
-
-        const reg = /^delete-(.+)$/i;
-
-        const result = reg.exec(e.target.id);
-
-        if(result !== null){
-
-            const id = parseInt(result[1]);
-
-            this.props.delete(id);
-        }
-    }
-
-    getListCurrentPosition(id){
-
-        let s = 0;
-
-        for(let i = 0; i < this.props.settings.length; i++){
-
-            s = this.props.settings[i];
-
-            if(s.id === id) return {"position": i, "data": s}
-        }
-
-        return null;
-    }
-
-    moveUp(e){
-
-        const reg = /^up-(.+)$/i;
-        const result = reg.exec(e.target.id);
-
-        if(result !== null){
-
-            const id = parseInt(result[1]);
-
-            const currentIndex = this.getListCurrentPosition(id);
-
-            //can't move list down from last
-            if(currentIndex.position - 1 < 0) return;
-
-            if(currentIndex === null){
-                console.trace(`currentIndex is null`);
-                return;
+        this.state = {
+            "currentOrder": null, 
+            "data": null,  
+            "lastSavedData": null, 
+            "validTypes": null, 
+            "error": null,
+            "createForm":{
+                "title": "",
+                "type": 0,
+                "gametype": 0,
+                "players": 0,
+                "enabled": true
             }
+        };
 
-            const newList = Object.assign({}, this.props.settings);
-
-            const first = {
-                "id": this.props.settings[currentIndex.position].id,
-                "title": this.props.settings[currentIndex.position].title,
-                "type": this.props.settings[currentIndex.position].type,
-                "gametype": this.props.settings[currentIndex.position].gametype,
-                "players": this.props.settings[currentIndex.position].players,
-                "position": this.props.settings[currentIndex.position - 1].position,
-                "enabled": this.props.settings[currentIndex.position].enabled,
-            };
-
-            const second = {
-                "id": this.props.settings[currentIndex.position - 1].id,
-                "title": this.props.settings[currentIndex.position - 1].title,
-                "type": this.props.settings[currentIndex.position - 1].type,
-                "gametype": this.props.settings[currentIndex.position - 1].gametype,
-                "players": this.props.settings[currentIndex.position - 1].players,
-                "position": this.props.settings[currentIndex.position].position,
-                "enabled": this.props.settings[currentIndex.position - 1].enabled,
-            };
-
-            newList[currentIndex.position] = second;
-            newList[currentIndex.position - 1] = first;
-
-            this.props.setFullList(newList);
-        }
+        this.changeValue = this.changeValue.bind(this);
+        this.saveChanges = this.saveChanges.bind(this);
+        this.changeCreateValue = this.changeCreateValue.bind(this);
+        this.saveNewList = this.saveNewList.bind(this);
+        this.deleteList = this.deleteList.bind(this);
     }
 
-    moveDown(e){
 
+    async deleteList(id){
 
-        const reg = /^down-(.+)$/i;
-        const result = reg.exec(e.target.id);
+        const req = await fetch("/api/admin",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "nexgendelete", "id": id})
+        });
 
-        if(result !== null){
+        const res = await req.json();
 
-            const id = parseInt(result[1]);
+        if(res.error !== undefined){
 
-            const currentIndex = this.getListCurrentPosition(id);
+            this.setState({"error": res.error});
+            return;
+        }
 
-            //can't move list down from last
-            if(currentIndex.position + 1 >= this.props.settings.length) return;
+        await this.loadData();
+    }
 
-            if(currentIndex === null){
-                console.trace(`currentIndex is null`);
-                return;
+    resetCreateForm(){
+
+        this.setState({
+            "createForm": {
+                "title": "",
+                "type": 0,
+                "gametype": 0,
+                "players": 0,
+                "enabled": true
             }
+        });
+    }
 
-            const newList = Object.assign({}, this.props.settings);
+    changeCreateValue(type, value){
 
-            const first = {
-                "id": this.props.settings[currentIndex.position].id,
-                "title": this.props.settings[currentIndex.position].title,
-                "type": this.props.settings[currentIndex.position].type,
-                "gametype": this.props.settings[currentIndex.position].gametype,
-                "players": this.props.settings[currentIndex.position].players,
-                "position": this.props.settings[currentIndex.position + 1].position,
-                "enabled": this.props.settings[currentIndex.position].enabled,
-            };
+        const data = JSON.parse(JSON.stringify(this.state.createForm));
 
-            const second = {
-                "id": this.props.settings[currentIndex.position + 1].id,
-                "title": this.props.settings[currentIndex.position + 1].title,
-                "type": this.props.settings[currentIndex.position + 1].type,
-                "gametype": this.props.settings[currentIndex.position + 1].gametype,
-                "players": this.props.settings[currentIndex.position + 1].players,
-                "position": this.props.settings[currentIndex.position].position,
-                "enabled": this.props.settings[currentIndex.position + 1].enabled,
-            };
+        data[type] = value;
 
-            newList[currentIndex.position] = second;
-            newList[currentIndex.position + 1] = first;
+        this.setState({"createForm": data});
+    }
 
-            this.props.setFullList(newList);
+    async saveNewList(e){
+
+        e.preventDefault();
+
+        const req = await fetch("/api/admin",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "nexgencreate", "settings": this.state.createForm})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            this.setState({"error": res.error});
+            return;
+        }
+
+        this.setState({"error": null});
+        this.resetCreateForm();
+
+        await this.loadData();
+    }
+
+
+    async saveChanges(){
+
+        const req = await fetch("/api/admin",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "nexgensave", "settings": this.state.data})
+        });
+
+        const res = await req.json();
+
+        if(res.error === undefined){
+
+            this.setState({"lastSavedData": this.state.data});
+            return;
+
+        }
+
+        this.setState({"error": res.error});
+    }
+
+
+    changeValue(id, type, value){
+
+        if(type === null) return;
+
+        const data = JSON.parse(JSON.stringify(this.state.data));
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(d.id === id){
+
+                d[type] = value;
+                break;
+            }
+        }
+
+        this.setState({"data": data});
+
+    }
+
+    async loadData(){
+
+        const req = await fetch("/api/admin",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "nexgensettings"})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+
+            this.setState({"error": res.error});
+            return;
+        }
+
+        this.setState({
+            "data": res.data, 
+            "lastSavedData": res.data, 
+            "validTypes": res.validTypes, 
+            "error": null
+        });
+
+    }
+
+    async componentDidMount(){
+
+        await this.loadData();
+    }
+
+    renderLoading(){
+
+        if(this.state.data !== null) return null;
+
+        return <Loading />;
+    }
+
+
+    bAnyChanges(){
+
+        if(this.state.data === null) return false;
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const d = this.state.data[i];
+
+            for(const key of Object.keys(d)){
+
+                if(d[key] !== this.state.lastSavedData[i][key]) return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    renderNotification(){
+
+
+        if(this.bAnyChanges()){
+            return <Notification type="warning">
+                You have unsaved changes!
+            </Notification>
+        }
+
+
+        if(this.state.error !== null){
+            return <Notification type="error">
+                {this.state.error}
+            </Notification>
         }
     }
 
-    changeTitle(e){
 
-        const reg = /^title-(.+)$/i;
-        const result = reg.exec(e.target.id);
+    createTypeDropDown(value, id, bCreateForm){
 
-        if(result !== null){
+        if(bCreateForm === undefined) bCreateForm = false;
+        
+        const options = [];
 
-            this.props.updateSettings(parseInt(result[1]), "title", e.target.value);
+        for(let i = 0; i < this.state.validTypes.length; i++){
+
+            const t = this.state.validTypes[i];
+
+            options.push(<option key={t.id} value={t.id}>{t.name}</option>);
         }
 
+        return <select value={value} className="default-select" onChange={((e) =>{
+
+            const value = parseInt(e.target.value);
+
+            if(!bCreateForm){
+                this.changeValue(id, "type", value);
+            }else{
+                this.changeCreateValue("type", value);
+            }
+        })}>
+            <option value={"-1"}>Select an option...</option>
+            {options}
+        </select>
     }
 
-    changeType(e){
+    createGametypesDropDown(value, id, bCreateForm){
 
-        const reg = /^type-(.+)$/i;
-        const result = reg.exec(e.target.id);
-
-        if(result !== null){
-
-            this.props.updateSettings(parseInt(result[1]), "type", e.target.value);
-        }
-    }
-
-    changeGametype(e){
-
-        const reg = /^gametype-(.+)$/i;
-        const result = reg.exec(e.target.id);
-
-        if(result !== null){
-
-            this.props.updateSettings(parseInt(result[1]), "gametype", e.target.value);
-        }
-    }
-
-    changePlayerCount(e){
-
-        const reg = /^number-(.+)$/i;
-
-        const result = reg.exec(e.target.id);
-
-        if(result !== null){
-
-            this.props.updateSettings(parseInt(result[1]), "players", e.target.value);
-        }
-
-    }
-
-
-    changeOnOff(id, value){
-
-        this.props.updateSettings(id, "enabled", value);
-    }
-
-    createTypeDropDown(id, defaultValue, create){
+        if(bCreateForm === undefined) bCreateForm = false;
 
         const options = [];
 
-        options.push(<option key={-1} value="-1">Select an option</option>);
+        for(let i = 0; i < this.props.gametypes.length; i++){
 
-        let t = 0;
+            const t = this.props.gametypes[i];
 
-        for(let i = 0; i < this.props.validTypes.length; i++){
-
-            t = this.props.validTypes[i];
-
-            options.push(<option key={i} value={t.id}>{t.name}</option>);
-
+            options.push(<option key={t.id} value={t.id}>{t.name}</option>);
         }
 
-        if(create === undefined){
-            return <select id={`type-${id}`} className="default-select" value={defaultValue} onChange={this.changeType}>
-                {options}
-            </select>;
-        }else{
+        return <select value={value} className="default-select" onChange={((e) =>{
 
-            return <select id={`type-${id}`} className="default-select" >
-                {options}
-            </select>;
-        }
+                const value = parseInt(e.target.value);
+
+                if(!bCreateForm){
+                    this.changeValue(id, "gametype", value);
+                }else{
+                    this.changeCreateValue("gametype", value);
+                }
+
+            })}>
+            <option value={"-1"}>Select an option...</option>
+            <option value={"0"}>All Gametypes</option>
+            {options}
+        </select>
     }
 
-    createGametypeDropDown(id, defaultValue, create){
+    renderData(){
 
-        const options = [
-            <option key={-1} value="-1">Select an option</option>,
-            <option key={-2} value="0">All Gametypes</option>
-        ];
-
-        let g = 0;
-
-        for(let i = 0; i < this.props.gametypeNames.length; i++){
-
-            g = this.props.gametypeNames[i];
-
-            options.push(<option key={i} value={g.id}>{g.name}</option>);
-        }
-
-
-        if(create === undefined){
-
-            return <select id={`gametype-${id}`} className="default-select" value={defaultValue} onChange={this.changeGametype}>
-                {options}
-            </select>
-        }else{
-
-            return <select id={`gametype-${id}`} className="default-select">
-                {options}
-            </select>
-        }
-
-    }
-
-
-    renderTable(){
+        if(this.state.data === null) return null;
 
         const rows = [];
 
-        let s = 0;
+        for(let i = 0; i < this.state.data.length; i++){
 
-        for(let i = 0; i < this.props.settings.length; i++){
+            const d = this.state.data[i];
 
-            s = this.props.settings[i];
-
-            rows.push(<tr key={i}>
-                <td><input type="text" id={`title-${s.id}`} className="default-textbox" value={s.title} placeholder={"title..."} onChange={this.changeTitle}/></td>
-                <td>{this.createTypeDropDown(s.id, s.type)}</td>
-                <td>{this.createGametypeDropDown(s.id, s.gametype)}</td>
-                <td><input type="number" id={`number-${s.id}`} className="default-number" value={s.players} min={1} max={30} onChange={this.changePlayerCount}/></td>
-                <td><OnOff id={s.id} value={s.enabled} changeValue={this.changeOnOff}/></td>
+            rows.push(<tr key={d.id}>
+                <FormCheckBox bTable={true} valueName={"enabled"} value={d.enabled} updateValue={
+                    ((type, value) =>{
+                        this.changeValue(d.id, type, value);
+                    })
+                }/>
                 <td>
-                    <div id={`down-${s.id}`} className={`${styles.button} team-red`} onClick={this.moveDown}>Down</div>
-                    <div id={`up-${s.id}`} className={`${styles.button} team-green`} onClick={this.moveUp}>Up</div>
+                    <input type="text" className="default-textbox" value={d.title} onChange={((e) =>{
+                        this.changeValue(d.id, "title", e.target.value)
+                    })}/>
                 </td>
+                <td>{this.createTypeDropDown(d.type, d.id)}</td>
+                <td>{this.createGametypesDropDown(d.gametype, d.id)}</td>
                 <td>
-                    <div className={`team-red ${styles.delete}`} id={`delete-${s.id}`} onClick={this.delete}>Delete</div>
+                    <input type="number" className="default-textbox" value={d.players} min={0} max={30} onChange={((e) =>{
+                    this.changeValue(d.id, "players", parseInt(e.target.value))
+                })}/>
+                </td>
+                <td>UP/DOWN</td>
+                <td>
+                    <div className={`red ${styles.delete}`} onClick={(() =>{
+                        this.deleteList(d.id);
+                    })}>Delete</div>
                 </td>
             </tr>);
         }
 
         if(rows.length === 0){
 
-            rows.push(<tr key="none"><td colSpan="7">There are currently no lists created</td></tr>);
+            rows.push(<tr key="dogfoodfarts">
+                <td colSpan="7">No lists have been created.</td>
+            </tr>);
         }
 
-        return <Table2 width={1}>
-            <tr>
-                <th>Title</th>
-                <th>Type</th>
-                <th>Gametype</th>
-                <th>To Display</th>
-                <th>Enabled</th>
-                <th>Position</th>
-                <th>Delete</th>
-            </tr>
-            {rows}
-        </Table2>
-    }
-
-    renderUnsavedChanges(){
-
-        if(this.props.saveInProgress) return null;
-        
-        let current = this.props.settings;
-        let old = this.props.lastSavedSettings;
-
-        const elem = <div className="team-red center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
-            You have unsaved changes
-        </div>
-
-        if(current.length !== old.length) return elem;
-
-        for(let i = 0; i < current.length; i++){
-
-
-            for(const [key, value] of Object.entries(current[i])){
-
-                if(current[i][key] != old[i][key]){
-
-                    return elem;
-                }
-            }
-        }
-
-        
-        return null;
-    }
-
-    renderSaveInProgress(){
-
-        if(!this.props.saveInProgress) return null;
-
-        return <div className="team-yellow center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
-            Save in progress please wait...
+        return <div>
+                <Table2 width={1}>
+                <tr>
+                    <th>Enabled</th>
+                    <th>Display Title</th>
+                    <th>Type</th>
+                    <th>Gametype</th>
+                    <th>Total Entries</th>
+                    <th>Position</th>
+                    <th>Delete</th>
+                </tr>
+                {rows}
+            </Table2>
+            <input type="button" className="search-button" value="Save Changes" onClick={this.saveChanges}/>
         </div>
     }
 
-    renderSavePassed(){
+    renderCreateForm(){
 
-        if(this.props.savePassed !== true) return null;
-        if(this.props.saveInProgress) return null;
-
-        return <div className="team-green center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
-            Settings where updated successfully.
-        </div>
-    }
-
-    renderErrors(){
-
-        if(this.props.errors.length === 0) return null;
-
-        const errors = [];
-
-        let e = 0;
-
-        for(let i = 0; i < this.props.errors.length; i++){
-
-            e = this.props.errors[i];
-            
-            errors.push(<div key={i}>{e}</div>);
-        }
-
-        return <div className="team-red center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
-            There was a problem updating nexgen stats viewer settings.<br/><br/>
-            {errors}
-        </div>
-    }
-
-
-    renderCreate(){
+        if(this.state.validTypes === null) return;
 
         return <div>
             <div className="default-header">Create New List</div>
-            {this.renderCreateInProgress()}
-            {this.renderCreatePassed()}
-            {this.renderCreateErrors()}
-            <form className="form" method="POST" action="/" onSubmit={this.props.createList}>
+            <div className="form">
+           
+                <form action="/" method="POST" onSubmit={this.saveNewList}>
                 <div className="select-row">
-                    <div className="select-label">
-                        Title
+                        <div className="select-label">Enabled</div>
+                        <FormCheckBox valueName={"enabled"} value={this.state.createForm.enabled} updateValue={this.changeCreateValue}/>
                     </div>
-                    <div>
-                        <input type="text" className="default-textbox" placeholder="Display title..."/>
+                    <div className="select-row">
+                        <div className="select-label">Display Title</div>
+                        <input type="text" className="default-textbox" value={this.state.createForm.title} onChange={((e) =>{
+
+                            this.changeCreateValue("title", e.target.value);
+                        })}/>
                     </div>
-                </div>
-                <div className="select-row">
-                    <div className="select-label">
-                        List Type
+                    <div className="select-row">
+                        <div className="select-label">List Type</div>
+                        {this.createTypeDropDown(this.state.createForm.type, "", true)}
                     </div>
-                    <div>
-                        {this.createTypeDropDown(0,0,true)}
+                    <div className="select-row">
+                        <div className="select-label">Gametype</div>
+                        {this.createGametypesDropDown(this.state.createForm.gametype, "", true)}
                     </div>
-                </div>
-                <div className="select-row">
-                    <div className="select-label">
-                        Gametype
+                    <div className="select-row">
+                        <div className="select-label">Total Entries</div>
+                        <input type="number" className="default-textbox" min={0} max={30} value={this.state.createForm.players} onChange={((e) =>{
+               
+                            this.changeCreateValue("players", e.target.value);
+                        })}/>
                     </div>
-                    <div>
-                        {this.createGametypeDropDown(0,0,true)}
-                    </div>
-                </div>
-                <div className="select-row">
-                    <div className="select-label">
-                        Total Players
-                    </div>
-                    <div>
-                        <input type="number" className="default-number" min={1} max={30} defaultValue={5}/>
-                    </div>
-                </div>
-                <input type="submit" className="search-button" value="Create" />
-            </form>
+
+                    <input type="submit" className="search-button" value="Create List"/>
+                </form>
+            </div>
         </div>
     }
-
-    renderCreateInProgress(){
-
-        if(!this.props.createInProgress) return null;
-
-        return <div className="team-yellow center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
-            Creating new list please wait...
-        </div>
-    }
-
-    renderCreatePassed(){
-
-        if(this.props.createPassed !== true) return null;
-
-        return <div className="team-green center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
-            New list was created successfully 
-        </div>
-    }
-
-    renderCreateErrors(){
-
-        if(this.props.createPassed !== false) return null;
-
-        const errors = [];
-
-        let e = 0;
-
-        for(let i = 0; i < this.props.createErrors.length; i++){
-
-            e = this.props.createErrors[i];
-
-            errors.push(<div key={i}>{e}</div>);
-        }
-
-        return <div className="team-red center m-bottom-25 t-width-1 p-top-25 p-bottom-25">
-            Failed to create new list!<br/><br/>
-            {errors}
-        </div>
-    }
-
-    
 
     render(){
 
@@ -471,14 +385,11 @@ class AdminNexgenStatsViewer extends React.Component{
                     NexgenStatsViewer can support up to 5 lists with a combined total of 30 players.
                 </div>
             </div>
-            {this.renderSaveInProgress()}
-            {this.renderUnsavedChanges()}
-            {this.renderSavePassed()}
-            {this.renderErrors()}
-            {this.renderTable()}
-            <div className="search-button" onClick={this.props.save}>Save Changes</div>
+            {this.renderLoading()}
+            {this.renderData()}
+            {this.renderCreateForm()}
+            {this.renderNotification()}
             
-            {this.renderCreate()}
         </div>
     }
 }

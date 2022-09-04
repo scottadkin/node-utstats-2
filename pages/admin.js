@@ -20,7 +20,6 @@ import Items from '../api/items';
 import AdminWeaponImageUploader from '../components/AdminWeaponImageUploader/';
 import Weapons from '../api/weapons';
 import AdminFTPManager from '../components/AdminFTPManager/';
-import NexgenStatsViewer from '../api/nexgenstatsviewer';
 import AdminNexgenStatsViewer from '../components/AdminNexgenStatsViewer';
 import MonsterHunt from '../api/monsterhunt';
 import AdminMonsterHunt from '../components/AdminMonsterHunt';
@@ -36,20 +35,12 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 10, 
+            "mode": 11, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "rankingEvents": JSON.parse(this.props.rankingEvents),
             "itemList": JSON.parse(this.props.itemList),
             "weaponData": JSON.parse(this.props.weaponData),
-            "nexgenStatsViewerSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
-            "lastSavedNexgenSettings": JSON.parse(this.props.nexgenStatsViewerSettings),
-            "nexgenSaveInProgress": false,
-            "nexgenSavePassed": null,
-            "nexgenErrors": [],
-            "nexgenCreateInProgress": false,
-            "nexgenCreatePassed": null,
-            "nexgenCreateErrors": [],
             "monsterFiles": JSON.parse(this.props.monsterImages),
             "monsters": JSON.parse(this.props.monsters),
             "gametypeImages": JSON.parse(this.props.gametypeImages)
@@ -61,11 +52,6 @@ class Admin extends React.Component{
         this.setGametypeNames = this.setGametypeNames.bind(this);
         this.setItemList = this.setItemList.bind(this);
         this.updateWeaponData = this.updateWeaponData.bind(this);
-        this.updateNexgenSettings = this.updateNexgenSettings.bind(this);
-        this.saveNexgenSettings = this.saveNexgenSettings.bind(this);
-        this.setFullNexgenList = this.setFullNexgenList.bind(this);
-        this.deleteNexgenEntry = this.deleteNexgenEntry.bind(this);
-        this.nexgenCreateList = this.nexgenCreateList.bind(this);
         this.addMonsterImage = this.addMonsterImage.bind(this);
         this.renameMonster = this.renameMonster.bind(this);
         this.updateGametypeImages = this.updateGametypeImages.bind(this);
@@ -101,221 +87,6 @@ class Admin extends React.Component{
         
         this.setState({"monsterFiles": newFiles});
     }
-
-    async nexgenCreateList(e){
-
-        try{
-
-            e.preventDefault(e);
-
-            this.setState({
-                "nexgenCreateInProgress": true,
-                "nexgenCreatePassed": null,
-                "nexgenCreateErrors": []
-            });
-
-            const title = e.target[0].value;
-            const type = e.target[1].value;
-            const gametype = e.target[2].value;
-            const players = parseInt(e.target[3].value);
-
-            const errors = [];
-
-            if(title.length === 0) errors.push("Title can not be an empty string");
-            if(type < 0) errors.push("You have not selected a list type");
-            if(gametype < 0) errors.push("You have not selected a gametype");
-
-            if(errors.length === 0){
-
-                const req = await fetch("/api/adminnexgen", {         
-                    "headers": {"Content-Type": "application/json"},
-                    "method": "POST",
-                    "body": JSON.stringify({"mode":"create", "data": {
-                        "title": title, 
-                        "type": type, 
-                        "gametype": gametype, 
-                        "players": players, 
-                        "position": this.state.nexgenStatsViewerSettings.length
-                    }})
-                });
-
-                const result = await req.json();
-
-                if(result.message === "passed"){
-
-                    if(result.insertId >= 0){
-
-                        const newData = Object.assign(this.state.nexgenStatsViewerSettings);
-
-                        newData.push(
-                            {
-                                "id": result.insertId,
-                                "title": title, 
-                                "type": parseInt(type), 
-                                "gametype": parseInt(gametype), 
-                                "players": players, 
-                                "position": this.state.nexgenStatsViewerSettings.length,
-                                "enabled": 1
-                            }
-                        );
-                        
-                        this.setFullNexgenList(newData);
-                        this.setState({"lastSavedNexgenSettings": newData});
-
-                        this.setState({
-                            "nexgenCreateInProgress": false,
-                            "nexgenCreatePassed": true,
-                            "nexgenCreateErrors": []
-                        });
-
-                    }else{
-                        errors.push("List was not inserted into the database");
-                    }
-                }else{
-
-                    errors.push(result.message);
-                }
-
-            }
-
-
-            if(errors.length > 0){
-
-                console.table(errors);
-
-                this.setState({
-                    "nexgenCreateInProgress": false,
-                    "nexgenCreatePassed": false,
-                    "nexgenCreateErrors": errors
-                });
-            }
-
-        }catch(err){
-            console.trace(err);
-        }   
-    }
-
-    async deleteNexgenEntry(id){
-
-        try{
-
-
-            this.setState({"nexgenSaveInProgress": true, "nexgenSavePassed": null, "nexgenErrors": []});
-
-            const req = await fetch("/api/adminnexgen", {
-                "headers": {"Content-Type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "delete", "id": parseInt(id)})
-            });
-
-            const result = await req.json();
-
-            if(result.message === "passed"){
-
-                const newList = [];
-
-                let s = 0;
-
-                for(let i = 0; i < this.state.nexgenStatsViewerSettings.length; i++){
-
-                    s = this.state.nexgenStatsViewerSettings[i];
-
-                    if(s.id !== id){
-                        newList.push(s);
-                    }
-                }
-
-                this.setState({
-                    "nexgenStatsViewerSettings": newList, 
-                    "lastSavedNexgenSettings": newList, 
-                    "nexgenSaveInProgress": false, 
-                    "nexgenSavePassed": true, 
-                    "nexgenErrors": []
-                });
-            }else{
-
-                this.setState({"nexgenSaveInProgress": false, "nexgenSavePassed": false, "nexgenErrors": [result.message]});
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    setFullNexgenList(data){
-
-        this.setState({"nexgenStatsViewerSettings": data});
-    }
-
-    async saveNexgenSettings(){
-
-
-        try{
-
-
-            this.setState({"nexgenSaveInProgress": true, "nexgenSavePassed": null, "nexgenErrors": []});
-
-            const errors = [];
-            
-
-            const req = await fetch("/api/adminnexgen", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "update", "settings": this.state.nexgenStatsViewerSettings})
-            });
-            
-            const result = await req.json();
-
-            if(result.message === "passed"){
-
-                this.setState({"lastSavedNexgenSettings": this.state.nexgenStatsViewerSettings, "nexgenSaveInProgress": false, "nexgenSavePassed": true});
-                return;
-
-            }else{
-
-                errors.push(result.message);
-            }
-
-            this.setState({
-                "nexgenSaveInProgress": false, 
-                "nexgenSavePassed": false,
-                "nexgenErrors": errors
-            });
-
-
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    updateNexgenSettings(id, type, value){
-
-        const oldSettings = this.state.nexgenStatsViewerSettings;
-
-        const newSettings = [];
-
-        for(let i = 0; i < oldSettings.length; i++){
-
-            if(oldSettings[i].id !== id){
-                newSettings.push(oldSettings[i]);
-            }else{
-                newSettings.push({
-                    "id": oldSettings[i].id,
-                    "title": (type === "title") ? value : oldSettings[i].title,
-                    "type": (type === "type") ? value : oldSettings[i].type,
-                    "gametype":(type === "gametype") ? value : oldSettings[i].gametype,
-                    "players": (type === "players") ? value : oldSettings[i].players,
-                    "enabled": (type === "enabled") ? value : oldSettings[i].enabled,
-                    "position": (type === "position") ? value : oldSettings[i].position
-
-                });
-            }
-        }
-
-        this.setState({"nexgenStatsViewerSettings": newSettings, "nexgenSavePassed": null});
-    }
-
 
     updateWeaponData(file){
 
@@ -450,23 +221,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 11) return null;
 
-        return <AdminNexgenStatsViewer 
-            settings={this.state.nexgenStatsViewerSettings} 
-            validTypes={JSON.parse(this.props.nexgenValidTypes)}
-            gametypeNames={this.state.gametypeNames}
-            updateSettings={this.updateNexgenSettings}
-            lastSavedSettings={this.state.lastSavedNexgenSettings}
-            save={this.saveNexgenSettings}
-            saveInProgress={this.state.nexgenSaveInProgress}
-            savePassed={this.state.nexgenSavePassed}
-            errors={this.state.nexgenErrors}
-            setFullList={this.setFullNexgenList}
-            delete={this.deleteNexgenEntry}
-            createList={this.nexgenCreateList}
-            createInProgress={this.state.nexgenCreateInProgress}
-            createPassed={this.state.nexgenCreatePassed}
-            createErrors={this.state.nexgenCreateErrors}
-        />
+        return <AdminNexgenStatsViewer gametypes={this.state.gametypeNames}/>
     }
 
 
@@ -605,8 +360,6 @@ export async function getServerSideProps({req, query}){
         "files": []
     };
 
-    let nexgenStatsViewerSettings = [];
-    let nexgenValidTypes = [];
     let monsterImages = [];
     let monsters = [];
     let gametypeImages = [];
@@ -640,12 +393,6 @@ export async function getServerSideProps({req, query}){
 
         weaponData.names = await weaponManager.getAllNames();
         weaponData.files = await weaponManager.getImageList();
-
-        const nexgenStatsManager = new NexgenStatsViewer();
-
-        nexgenStatsViewerSettings = await nexgenStatsManager.getCurrentSettings();
-
-        nexgenValidTypes = nexgenStatsManager.validTypes;
 
         const monsterHuntManager = new MonsterHunt();
 
@@ -693,8 +440,6 @@ export async function getServerSideProps({req, query}){
             "rankingEvents": JSON.stringify(rankingEvents),
             "itemList": JSON.stringify(itemList),
             "weaponData": JSON.stringify(weaponData),
-            "nexgenStatsViewerSettings": JSON.stringify(nexgenStatsViewerSettings),
-            "nexgenValidTypes": JSON.stringify(nexgenValidTypes),
             "monsterImages": JSON.stringify(monsterImages),
             "monsters": JSON.stringify(monsters),
             "gametypeImages": JSON.stringify(gametypeImages),

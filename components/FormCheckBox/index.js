@@ -22,8 +22,14 @@ class FormCheckBox extends React.Component{
 
         let value = false;
 
-        if(parseInt(this.props.value) === 1) value = true;
-        if(parseInt(this.props.value) === 0) value = false;
+
+        if(this.props.value !== true && this.props.value !== false){
+            if(parseInt(this.props.value) === 1) value = true;
+            if(parseInt(this.props.value) === 0) value = false;
+        }else{
+
+            value = this.props.value;
+        }
         
         this.setState({"value": value});
     }
@@ -47,12 +53,30 @@ class FormCheckBox extends React.Component{
     render(){
 
         if(this.state.value === null) return null;
-        return <div>
+
+        let bTable = false;
+
+        if(this.props.bTable !== undefined){
+
+            bTable = this.props.bTable;
+        }
+
+        const elems = <>
             <input type="hidden" name={this.props.inputName} value={this.state.value}/>
             <div className={`${styles.button} ${(this.state.value) ? "team-green" : "team-red"}`} onClick={this.changeValue}>
                 {(this.state.value) ? "True" : "False"}
             </div>
-        </div>
+        </>
+        
+        if(!bTable){
+            return <div>
+                {elems}
+            </div>
+        }
+
+        return <td>
+            {elems}
+        </td>
     }
 }
 

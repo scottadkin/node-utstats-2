@@ -1,6 +1,7 @@
 import Session from '../../api/session';
 import Admin from '../../api/admin';
 import SiteSettings from '../../api/sitesettings';
+import NexgenStatsViewer from '../../api/nexgenstatsviewer';
 
 export default async function handler(req, res){
 
@@ -15,6 +16,12 @@ export default async function handler(req, res){
 
         const mode = req.body.mode ?? "";
         
+        const nexgenTypes = [
+            "nexgensettings",
+            "nexgensave",
+            "nexgencreate",
+            "nexgendelete"
+        ];
 
         if(mode === "settingCategories"){
 
@@ -105,7 +112,62 @@ export default async function handler(req, res){
                 res.status(200).json({"error": "There where no rows to update."});
                 return;
             }
+
+        }else if(nexgenTypes.indexOf(mode) !== -1){
+
+            const nexgen = new NexgenStatsViewer();
+
+            if(mode === "nexgensettings"){
+    
+                const data = await nexgen.getCurrentSettings(false);
+                const types = nexgen.getAllTypes();
+    
+                res.status(200).json({"data": data, "validTypes": types});
+                return;
+    
+            }else if(mode === "nexgensave"){
+    
+                const data = req.body.settings;
+
+                const result = await nexgen.updateSettings(data);
+    
+                if(result === true){
+    
+                    res.status(200).json({"message": "Passed"});
+                    return;
+                }
+    
+                res.status(200).json({"error": result});
+                return;
+    
+            }else if(mode === "nexgencreate"){
+    
+                const data = req.body.settings;
+    
+                await nexgen.createList(data);
+    
+                res.status(200).json({"message": "passed"});
+                return;
+    
+            }else if(mode === "nexgendelete"){
+    
+                const id = req.body.id;
+
+                const result = await nexgen.deleteList(id);
+
+                if(result){
+
+                    res.status(200).json({"message": "passed"});
+                    return;
+                }else{
+
+                    res.status(200).json({"error": "Failed to delete nexgen list"});
+                    return;
+                }
+            }
         }
+        
+
 
      
     }else{
