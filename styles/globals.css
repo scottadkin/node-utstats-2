@@ -737,6 +737,10 @@ input[type="range"]{
 	cursor:pointer;
 }
 
+.pointer{
+	user-select:none;
+}
+
 .pointer:hover{
 	cursor:pointer;
 }

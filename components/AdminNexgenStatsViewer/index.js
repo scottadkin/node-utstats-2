@@ -4,6 +4,7 @@ import Table2 from '../Table2';
 import Loading from '../Loading';
 import Notification from '../Notification';
 import FormCheckBox from '../FormCheckBox';
+import Image from 'next/image';
 
 class AdminNexgenStatsViewer extends React.Component{
 
@@ -12,7 +13,7 @@ class AdminNexgenStatsViewer extends React.Component{
         super(props);
 
         this.state = {
-            "currentOrder": null, 
+            "mode": 0,
             "data": null,  
             "lastSavedData": null, 
             "validTypes": null, 
@@ -31,8 +32,76 @@ class AdminNexgenStatsViewer extends React.Component{
         this.changeCreateValue = this.changeCreateValue.bind(this);
         this.saveNewList = this.saveNewList.bind(this);
         this.deleteList = this.deleteList.bind(this);
+        this.moveUp = this.moveUp.bind(this);
+        this.moveDown = this.moveDown.bind(this);
     }
 
+
+    getListCurrentPosition(currentOrder, id){
+
+        for(let i = 0; i < currentOrder.length; i++){
+
+            const c = currentOrder[i];
+
+            if(c.id === id){
+                return i;
+            }
+        }
+
+        return -1;
+
+    }
+
+    moveUp(id){
+
+        const currentOrder = JSON.parse(JSON.stringify(this.state.data));
+
+        const currentPosition = this.getListCurrentPosition(currentOrder, id);
+
+        if(currentPosition === 0) return;
+
+        const previousData = Object.assign({}, currentOrder[currentPosition - 1]);
+        const targetData = Object.assign({}, currentOrder[currentPosition]);
+
+        currentOrder.splice(currentPosition - 1, 1, targetData);
+        currentOrder.splice(currentPosition, 1, previousData);
+
+        for(let i = 0; i < currentOrder.length; i++){
+
+            const c = currentOrder[i];
+            c.position = i;
+        }
+
+
+        this.setState({"data": currentOrder});
+
+    }
+
+
+    moveDown(id){
+
+        const currentOrder = JSON.parse(JSON.stringify(this.state.data));
+
+        const currentPosition = this.getListCurrentPosition(currentOrder, id);
+
+        if(currentPosition >= currentOrder.length - 1) return;
+
+        const targetData = Object.assign({}, currentOrder[currentPosition]);
+        const nextData = Object.assign({}, currentOrder[currentPosition + 1]);
+
+        currentOrder.splice(currentPosition, 1, nextData);
+        currentOrder.splice(currentPosition + 1, 1,  targetData);
+
+
+        for(let i = 0; i < currentOrder.length; i++){
+
+            const c = currentOrder[i];
+            c.position = i;
+        }
+
+        this.setState({"data": currentOrder});
+
+    }
 
     async deleteList(id){
 
@@ -156,6 +225,7 @@ class AdminNexgenStatsViewer extends React.Component{
             this.setState({"error": res.error});
             return;
         }
+        
 
         this.setState({
             "data": res.data, 
@@ -301,7 +371,15 @@ class AdminNexgenStatsViewer extends React.Component{
                     this.changeValue(d.id, "players", parseInt(e.target.value))
                 })}/>
                 </td>
-                <td>UP/DOWN</td>
+                <td>
+                    <Image src="/images/up.png" className="pointer" width={24} height={24} onClick={(() =>{
+                        this.moveUp(d.id);
+                    })}/>
+                    
+                    <Image src="/images/down.png" className="pointer"  width={24} height={24} onClick={(() =>{
+                        this.moveDown(d.id);
+                    })}/>
+                </td>
                 <td>
                     <div className={`red ${styles.delete}`} onClick={(() =>{
                         this.deleteList(d.id);
@@ -376,10 +454,14 @@ class AdminNexgenStatsViewer extends React.Component{
         </div>
     }
 
-    render(){
+    renderManage(){
 
-        return <div>
-            <div className="default-header">NexgenStatsViewer Settings</div>
+        if(this.state.mode !== 0) return null;
+
+        return <>
+            <div className="default-header">
+                Manage Lists
+            </div>
             <div className="form m-bottom-25">
                 <div className="form-info">
                     NexgenStatsViewer can support up to 5 lists with a combined total of 30 players.
@@ -388,6 +470,19 @@ class AdminNexgenStatsViewer extends React.Component{
             {this.renderLoading()}
             {this.renderData()}
             {this.renderCreateForm()}
+        </>
+
+    }
+
+    render(){
+
+        return <div>
+            <div className="default-header">NexgenStatsViewer</div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>Manage Lists</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Preview Lists</div>
+            </div>
+            {this.renderManage()}
             {this.renderNotification()}
             
         </div>
