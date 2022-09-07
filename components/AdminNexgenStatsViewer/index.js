@@ -5,6 +5,7 @@ import Loading from '../Loading';
 import Notification from '../Notification';
 import FormCheckBox from '../FormCheckBox';
 import Image from 'next/image';
+import NexgenStatsViewerPreview from '../NexgenStatsViewerPreview';
 
 class AdminNexgenStatsViewer extends React.Component{
 
@@ -482,6 +483,7 @@ class AdminNexgenStatsViewer extends React.Component{
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>Manage Lists</div>
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Preview Lists</div>
             </div>
+            <NexgenStatsViewerPreview />
             {this.renderManage()}
             {this.renderNotification()}
             
