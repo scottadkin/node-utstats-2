@@ -35,8 +35,13 @@ class AdminNexgenStatsViewer extends React.Component{
         this.deleteList = this.deleteList.bind(this);
         this.moveUp = this.moveUp.bind(this);
         this.moveDown = this.moveDown.bind(this);
+        this.changeMode = this.changeMode.bind(this);
     }
 
+    changeMode(id){
+
+        this.setState({"mode": id});
+    }
 
     getListCurrentPosition(currentOrder, id){
 
@@ -373,11 +378,11 @@ class AdminNexgenStatsViewer extends React.Component{
                 })}/>
                 </td>
                 <td>
-                    <Image src="/images/up.png" className="pointer" width={24} height={24} onClick={(() =>{
+                    <Image src="/images/up.png" className="pointer" alt="icon" width={24} height={24} onClick={(() =>{
                         this.moveUp(d.id);
                     })}/>
                     
-                    <Image src="/images/down.png" className="pointer"  width={24} height={24} onClick={(() =>{
+                    <Image src="/images/down.png" className="pointer" alt="icon"  width={24} height={24} onClick={(() =>{
                         this.moveDown(d.id);
                     })}/>
                 </td>
@@ -472,7 +477,13 @@ class AdminNexgenStatsViewer extends React.Component{
             {this.renderData()}
             {this.renderCreateForm()}
         </>
+    }
 
+    renderPreview(){
+
+        if(this.state.mode !== 1) return null;
+
+        return <NexgenStatsViewerPreview />;
     }
 
     render(){
@@ -480,11 +491,15 @@ class AdminNexgenStatsViewer extends React.Component{
         return <div>
             <div className="default-header">NexgenStatsViewer</div>
             <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>Manage Lists</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Preview Lists</div>
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Manage Lists</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Preview Lists</div>
             </div>
-            <NexgenStatsViewerPreview />
             {this.renderManage()}
+            {this.renderPreview()}
             {this.renderNotification()}
             
         </div>

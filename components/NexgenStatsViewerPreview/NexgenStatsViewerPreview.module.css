@@ -1,0 +1,62 @@
+.wrapper, .none{
+    width:290px;
+    background-color:rgba(0,0,0,0.75);
+    font-size:11px;
+    padding:5px 15px;
+    line-height:14px;
+    text-align:left;
+}
+
+.title{
+    color:rgb(64,64,255);
+    border-bottom:1px solid rgb(64,64,255);
+    margin-bottom:3px;
+}
+
+.line{
+    color:rgb(192,192,192);
+    text-align:left;
+    line-height:14px;
+}
+
+.first{
+    color:rgb(236,188,0);
+}
+
+.second{
+    color:rgb(203,137,1);
+}
+
+.third{
+    color:rgb(170,85,2);
+}
+
+.list{
+    margin-bottom:5px;
+}
+
+.place{
+    display:inline-block;
+    width:20px;
+}
+
+.flag{
+    display:inline-block;
+}
+
+.name{
+    display:inline-block;
+    width:150px;
+    padding-left:5px;
+}
+
+.score{
+    display:inline-block;
+    width:50px;
+    text-align:right;
+}
+
+.icon{
+    display:inline-block;
+    padding-left:5px;
+}
