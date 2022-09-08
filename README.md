@@ -1,5 +1,3 @@
-@@ -1,97 +0,0 @@
-@@ -1,97 +0,0 @@
 # Node UTStats 2
 Unreal Tournament stats tracking website using node.js and mysql.
 
@@ -13,8 +11,8 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Cap records for ctf maps
 - User Accounts (in future builds you will be able to save matches, players to your favourites for easy tracking)
 - Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images.
-- ACE support
-- **Classic Support** You can now connect to classic utstats databases.
+- ACE support.
+- SFTP Support.
 
 # Current Supported Gametypes
 - Deathmatch
@@ -69,11 +67,11 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 # Creating an admin account
 - If there are no users in the database, create an account by going to the site's login page, then press the "Not a member? Register now!" button, the next created account will automatically set to admin, and will be activated.
 
-# Adding FTP servers
+# Adding S/FTP servers
 - FTP accounts require read, write, and delete privileges. 
-- To add FTP servers to node utstats 2, go to the admin area of the website, then "FTP manager", then finally "Add Server", there is no limit in the amount of servers you can add.
+- To add FTP servers to node utstats 2, go to the admin area of the website, then "Importer Manager", then finally "Add Server", there is no limit in the amount of servers you can add.
 - Target Folder must link to your UnrealTournament main folder(CASE SENSITIVE), e.g /Servers/UnrealTournament/ for an FTP user with entry point of C:/
-![alt text](https://i.imgur.com/wFRYFzZ.png "ftp image")
+![alt text](https://i.imgur.com/7lQX7zT.png "ftp image")
 - You can later edit settings if required.
 
 # Running the importer
