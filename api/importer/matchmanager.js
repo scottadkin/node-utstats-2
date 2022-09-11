@@ -333,7 +333,7 @@ class MatchManager{
 
             if(this.combogibManager !== undefined){
                 
-                this.combogibManager.setPlayerEvents();
+                this.combogibManager.createPlayerEvents();
             }
 
             await Logs.setMatchId(logId, this.matchId);

@@ -8,6 +8,9 @@ class CombogibManager{
         this.kills = [];
 
         this.playerStats = [];
+
+        this.multiKillCombos = [];
+
     }
 
     addLine(line){
@@ -30,7 +33,8 @@ class CombogibManager{
             "player": playerId,
             "kills": 0,
             "deaths": 0,
-            "bestKillsSingleCombo": 0
+            "bestKillsSingleCombo": 0,
+            "bestCombosSingleLife": 0
         });
 
         return this.playerStats[this.playerStats.length - 1];
@@ -59,9 +63,74 @@ class CombogibManager{
         });
     }
 
-    setPlayerEvents(){
-        
+    getKillsWithTimestamp(timestamp){
+
+        const found = [];
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const k = this.kills[i];
+
+            if(k.timestamp > timestamp) break;
+
+            if(k.timestamp === timestamp){
+                found.push(k);
+            }
+
+        }
+
+        return found;
     }
+
+    //probably overkill checking if two different players get a combo at the exact same time
+    createMultiComboKills(duplicateTimes){
+
+        for(const timestamp of duplicateTimes){
+
+            const killers = {};
+
+            const currentKills = this.getKillsWithTimestamp(timestamp);
+
+            for(let i = 0; i < currentKills.length; i++){
+
+                const k = currentKills[i];
+
+                if(killers[k.killer] === undefined){
+                    killers[k.killer] = 0;
+                }
+
+                if(k.killer !== k.victim) killers[k.killer]++;
+            }
+
+            for(const [key, value] of Object.entries(killers)){
+
+                if(value < 2) continue;
+
+                this.multiKillCombos.push({"timestamp": timestamp, "player": parseInt(key), "kills": value});
+            }
+        }
+    }
+
+    createPlayerEvents(){
+        
+        let previousTimestamp = -1;
+
+        const duplicateTimes = new Set();
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const {timestamp} = this.kills[i];
+
+            if(timestamp === previousTimestamp){
+                duplicateTimes.add(timestamp);
+            }
+
+            previousTimestamp = timestamp;
+        }
+        
+        this.createMultiComboKills(duplicateTimes);
+    }
+
 }
 
 
