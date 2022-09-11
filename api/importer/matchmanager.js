@@ -20,6 +20,7 @@ const ItemsManager = require('./itemsmanager');
 const CountriesManager = require('./countriesmanager');
 const Rankings = require('../rankings');
 const MonsterHuntManager = require('./monsterhuntmanager');
+const CombogibManager = require('./combogibmanager');
 
 class MatchManager{
 
@@ -33,6 +34,8 @@ class MatchManager{
         this.minPlaytime = minPlaytime;
 
         this.bLinesNull = false;
+
+        this.bFoundCombogibData = false;
 
         new Message(`Starting import of log file ${fileName}`,'note');
 
@@ -328,6 +331,10 @@ class MatchManager{
             new Message("Updating player rankings.","note");
             await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
 
+            if(this.combogibManager !== undefined){
+                
+                this.combogibManager.setPlayerEvents();
+            }
 
             await Logs.setMatchId(logId, this.matchId);
 
@@ -468,8 +475,6 @@ class MatchManager{
         ];
 
 
-
-
         for(let i = 0; i < this.lines.length; i++){
 
             typeResult = typeReg.exec(this.lines[i]);
@@ -574,6 +579,17 @@ class MatchManager{
 
                     this.itemLines.push(this.lines[i]);
 
+                }else if(currentType === "combo_kill"){
+                    
+                    if(!this.bFoundCombogibData) this.bFoundCombogibData = true;
+
+                    if(this.combogibManager === undefined){
+
+                        this.combogibManager = new CombogibManager();
+                    }
+
+                    this.combogibManager.addKill(this.lines[i]);
+                    
                 }else{
 
                     if(currentType.toLowerCase().startsWith("flag_")){
@@ -589,6 +605,8 @@ class MatchManager{
                 }
             }
         }
+
+        console.log(this.combogibManager);
 
     }
 
