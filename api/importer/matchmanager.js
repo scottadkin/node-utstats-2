@@ -35,7 +35,7 @@ class MatchManager{
 
         this.bLinesNull = false;
 
-        this.bFoundCombogibData = false;
+        this.combogibLines = [];
 
         new Message(`Starting import of log file ${fileName}`,'note');
 
@@ -87,11 +87,9 @@ class MatchManager{
  
             
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
-
             this.gametype = new Gametypes(this.gameInfo.gamename);
 
-            await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date, this.gameInfo.getMatchLength().length);
-            
+            await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date, this.gameInfo.getMatchLength().length);      
             this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
 
             if(this.gametype.currentMatchGametype === undefined){
@@ -331,11 +329,13 @@ class MatchManager{
             new Message("Updating player rankings.","note");
             await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
 
-            if(this.combogibManager !== undefined){
 
+            if(this.combogibLines.length !== 0){
+
+                this.combogibManager = new CombogibManager(this.playerManager, this.killManager, this.combogibLines);
+           
                 new Message("Parsing combogib data.","note");
                 
-                this.combogibManager.killManager = this.killManager;
                 this.combogibManager.createKillTypeData();
                 this.combogibManager.createPlayerEvents();
                 
@@ -585,15 +585,10 @@ class MatchManager{
                     this.itemLines.push(this.lines[i]);
 
                 }else if(currentType === "combo_kill"){
+
+                    this.combogibLines.push(this.lines[i]);
                     
-                    if(!this.bFoundCombogibData) this.bFoundCombogibData = true;
-
-                    if(this.combogibManager === undefined){
-
-                        this.combogibManager = new CombogibManager();
-                    }
-
-                    this.combogibManager.addComboEvent(this.lines[i]);
+                    //this.combogibManager.addComboEvent(this.lines[i]);
                     
                 }else{
 
@@ -610,9 +605,6 @@ class MatchManager{
                 }
             }
         }
-
-        console.log(this.combogibManager);
-
     }
 
 

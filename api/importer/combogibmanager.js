@@ -2,20 +2,31 @@ const Message = require("../message");
 
 class CombogibManager{
 
-    constructor(){
+    constructor(playerManager, killManager, lines){
+        
+        this.playerManager = playerManager;
+        this.killManager = killManager;
 
-        this.lines = [];
+        this.lines = lines;
         //used by smartCTF mod like sp0ngeb0bs
         this.comboEvents = [];
 
         this.playerStats = [];
 
+        this.playerBestCombos = {};
+
         this.multiKillCombos = [];
+
+        this.parseComboLines();
 
     }
 
-    addLine(line){
-        this.lines.push(line);
+    parseComboLines(){
+
+        for(let i = 0; i < this.lines.length; i++){
+
+            this.addComboEvent(this.lines[i]);
+        }
     }
 
     getPlayerStats(playerId){
@@ -59,8 +70,8 @@ class CombogibManager{
 
         this.comboEvents.push({
             "timestamp": timestamp,
-            "killer": killer,
-            "victim": victim
+            "killer": this.playerManager.getOriginalConnectionMasterId(killer),
+            "victim": this.playerManager.getOriginalConnectionMasterId(victim)
         });
     }
 
@@ -86,6 +97,19 @@ class CombogibManager{
         return found;
     }
 
+    updatePlayerBestSingleComboKill(playerId, kills){
+
+        //playerId = this.playerManager.getOriginalConnectionMasterId(playerId);
+
+        if(this.playerBestCombos[playerId] === undefined){
+            this.playerBestCombos[playerId] = 0;
+        }
+
+        if(this.playerBestCombos[playerId] < kills){
+            this.playerBestCombos[playerId] = kills;
+        }
+    }
+
     //probably overkill checking if two different players get a combo at the exact same time
     createMultiComboKills(duplicateTimes){
 
@@ -99,11 +123,15 @@ class CombogibManager{
 
                 const k = currentKills[i];
 
-                if(killers[k.killer] === undefined){
-                    killers[k.killer] = 0;
+                const killer = k.killer;
+                const victim = k.victim;
+
+
+                if(killers[killer] === undefined){
+                    killers[killer] = 0;
                 }
 
-                if(k.killer !== k.victim) killers[k.killer]++;
+                if(killer !== victim) killers[killer]++;
             }
 
             for(const [key, value] of Object.entries(killers)){
@@ -111,6 +139,7 @@ class CombogibManager{
                 if(value < 2) continue;
 
                 this.multiKillCombos.push({"timestamp": timestamp, "player": parseInt(key), "kills": value});
+                this.updatePlayerBestSingleComboKill(key, value);
             }
         }
     }
@@ -151,17 +180,19 @@ class CombogibManager{
 
             for(let i = 0; i < kills.length; i++){
 
-                const {player} = kills[i];
+                const player = this.playerManager.getOriginalConnectionMasterId(kills[i].player);
 
                 if(players[player] === undefined) players[player] = 0;
 
                 players[player]++;
             }
 
+
             for(const [player, kills] of Object.entries(players)){
 
                 if(kills > 1){
                     this.comboMultiKillsAlt.push({"timestamp": parseFloat(timestamp), "player": parseInt(player), "kills": kills});
+                    this.updatePlayerBestSingleComboKill(player, kills);
                 }
             }
         }
@@ -179,9 +210,11 @@ class CombogibManager{
             this.createMultiComboEventsFromKillsData();
        // }
 
-       console.log("----------------------------------");
+        console.log("----------------------------------");
         console.log(this.multiKillCombos);
         console.log(this.comboMultiKillsAlt);
+
+        console.log(this.playerBestCombos);
         
     }
 
@@ -228,7 +261,6 @@ class CombogibManager{
         }
 
         console.log(`Shock Ball kills = ${this.shockBallKills.length}, Primary Fire kills = ${this.primaryFireKills.length}, Combo Kills = ${this.comboKills.length}`);
-   
     }
 
 }
