@@ -41,7 +41,7 @@ class CombogibManager{
         return this.playerStats[this.playerStats.length - 1];
     }
 
-    addKill(line){
+    addComboEvent(line){
 
         const reg = /^(\d+\.\d+)\tcombo_kill\t(\d+)\t(\d+)$/i;
 
@@ -64,13 +64,16 @@ class CombogibManager{
         });
     }
 
-    getKillsWithTimestamp(timestamp){
+    getKillsWithTimestamp(timestamp, bComboEvents){
 
+        timestamp = parseFloat(timestamp);
         const found = [];
 
-        for(let i = 0; i < this.comboEvents.length; i++){
+        const events = (bComboEvents) ? this.comboEvents : this.comboKills;
 
-            const k = this.comboEvents[i];
+        for(let i = 0; i < events.length; i++){
+
+            const k = events[i];
 
             if(k.timestamp > timestamp) break;
 
@@ -90,7 +93,7 @@ class CombogibManager{
 
             const killers = {};
 
-            const currentKills = this.getKillsWithTimestamp(timestamp);
+            const currentKills = this.getKillsWithTimestamp(timestamp, true);
 
             for(let i = 0; i < currentKills.length; i++){
 
@@ -136,19 +139,49 @@ class CombogibManager{
 
     createMultiComboEventsFromKillsData(){
 
-        
+        this.comboMultiKillsAlt = [];
+
+        for(const [timestamp, totalKills] of Object.entries(this.comboKillTimestamps)){
+
+            if(totalKills <= 1) continue;
+
+            const kills = this.getKillsWithTimestamp(timestamp, false);
+
+            const players = {};
+
+            for(let i = 0; i < kills.length; i++){
+
+                const {player} = kills[i];
+
+                if(players[player] === undefined) players[player] = 0;
+
+                players[player]++;
+            }
+
+            for(const [player, kills] of Object.entries(players)){
+
+                if(kills > 1){
+                    this.comboMultiKillsAlt.push({"timestamp": parseFloat(timestamp), "player": parseInt(player), "kills": kills});
+                }
+            }
+        }
+
     }
 
     createPlayerEvents(){
         
 
-        if(this.comboEvents.length > 0){
+        //if(this.comboEvents.length > 0){
 
             this.createMultiCombosFromComboEvents();
-        }else{
+       // }else{
 
             this.createMultiComboEventsFromKillsData();
-        }
+       // }
+
+       console.log("----------------------------------");
+        console.log(this.multiKillCombos);
+        console.log(this.comboMultiKillsAlt);
         
     }
 
@@ -157,6 +190,7 @@ class CombogibManager{
         this.shockBallKills = [];
         this.primaryFireKills = [];
         this.comboKills = [];
+        this.comboKillTimestamps = {};
 
         for(let i = 0; i < this.killManager.kills.length; i++){
 
@@ -182,7 +216,14 @@ class CombogibManager{
             }
 
             if(deathType === "combo"){
+
                 this.comboKills.push(currentKill);
+
+                if(this.comboKillTimestamps[k.timestamp] === undefined){
+                    this.comboKillTimestamps[k.timestamp] = 0;
+                }
+
+                this.comboKillTimestamps[k.timestamp]++;
             }
         }
 

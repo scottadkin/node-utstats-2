@@ -593,7 +593,7 @@ class MatchManager{
                         this.combogibManager = new CombogibManager();
                     }
 
-                    this.combogibManager.addKill(this.lines[i]);
+                    this.combogibManager.addComboEvent(this.lines[i]);
                     
                 }else{
 
