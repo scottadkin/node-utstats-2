@@ -5,7 +5,8 @@ class CombogibManager{
     constructor(){
 
         this.lines = [];
-        this.kills = [];
+        //used by smartCTF mod like sp0ngeb0bs
+        this.comboEvents = [];
 
         this.playerStats = [];
 
@@ -56,7 +57,7 @@ class CombogibManager{
         const killer = parseInt(result[2]);
         const victim = parseInt(result[3]);
 
-        this.kills.push({
+        this.comboEvents.push({
             "timestamp": timestamp,
             "killer": killer,
             "victim": victim
@@ -67,9 +68,9 @@ class CombogibManager{
 
         const found = [];
 
-        for(let i = 0; i < this.kills.length; i++){
+        for(let i = 0; i < this.comboEvents.length; i++){
 
-            const k = this.kills[i];
+            const k = this.comboEvents[i];
 
             if(k.timestamp > timestamp) break;
 
@@ -111,15 +112,16 @@ class CombogibManager{
         }
     }
 
-    createPlayerEvents(){
-        
+    //combos captured as combo_kill\tkiller\tvictim
+    createMultiCombosFromComboEvents(){
+
         let previousTimestamp = -1;
 
         const duplicateTimes = new Set();
 
-        for(let i = 0; i < this.kills.length; i++){
+        for(let i = 0; i < this.comboEvents.length; i++){
 
-            const {timestamp} = this.kills[i];
+            const {timestamp} = this.comboEvents[i];
 
             if(timestamp === previousTimestamp){
                 duplicateTimes.add(timestamp);
@@ -129,6 +131,63 @@ class CombogibManager{
         }
         
         this.createMultiComboKills(duplicateTimes);
+
+    }
+
+    createMultiComboEventsFromKillsData(){
+
+        
+    }
+
+    createPlayerEvents(){
+        
+
+        if(this.comboEvents.length > 0){
+
+            this.createMultiCombosFromComboEvents();
+        }else{
+
+            this.createMultiComboEventsFromKillsData();
+        }
+        
+    }
+
+    createKillTypeData(){
+
+        this.shockBallKills = [];
+        this.primaryFireKills = [];
+        this.comboKills = [];
+
+        for(let i = 0; i < this.killManager.kills.length; i++){
+
+            const k = this.killManager.kills[i];
+
+            if(k.killerId === k.victimId || k.type.toLowerCase() == "suicide") continue;
+
+            const deathType = k.deathType.toLowerCase();
+
+            if(deathType !== "shockball" && deathType !== "jolted" && deathType !== "combo") continue;
+
+            const currentKill = {
+                "timestamp": k.timestamp,
+                "player": k.killerId
+            };
+
+            if(deathType === "shockball"){
+                this.shockBallKills.push(currentKill);
+            }
+
+            if(deathType === "jolted"){
+                this.primaryFireKills.push(currentKill);
+            }
+
+            if(deathType === "combo"){
+                this.comboKills.push(currentKill);
+            }
+        }
+
+        console.log(`Shock Ball kills = ${this.shockBallKills.length}, Primary Fire kills = ${this.primaryFireKills.length}, Combo Kills = ${this.comboKills.length}`);
+   
     }
 
 }

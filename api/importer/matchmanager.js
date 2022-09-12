@@ -332,8 +332,13 @@ class MatchManager{
             await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
 
             if(this.combogibManager !== undefined){
+
+                new Message("Parsing combogib data.","note");
                 
+                this.combogibManager.killManager = this.killManager;
+                this.combogibManager.createKillTypeData();
                 this.combogibManager.createPlayerEvents();
+                
             }
 
             await Logs.setMatchId(logId, this.matchId);
