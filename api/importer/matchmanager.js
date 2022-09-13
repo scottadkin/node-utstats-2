@@ -340,6 +340,7 @@ class MatchManager{
                 this.combogibManager.createPlayerEvents();
                 
             //}
+            
 
             await Logs.setMatchId(logId, this.matchId);
 

@@ -63,12 +63,14 @@ class CombogibManager{
                 "shockBall": 0,
                 "combo": 0
             },
-            "killsSinceLastDeath": 0,
             "bestKillsSingleCombo": 0,
             "bestComboKillsSingleLife": 0,
             "comboKillsSinceLastDeath": 0,
-            "lastComboKill": -1,
-            "lastDeath": -1
+            "lastDeath": -1,
+            "bestPrimaryKillsLife": 0,
+            "primaryKillsSinceDeath": 0,
+            "bestShockBallKillsLife": 0,
+            "shockBallKillsSinceDeath": 0
         });
 
         return this.playerStats[this.playerStats.length - 1];
@@ -298,7 +300,6 @@ class CombogibManager{
     }
 
 
-    //broken
     updatePlayerStat(playerId, event, killType, timestamp){
 
         const player = this.getPlayerStats(playerId);
@@ -309,8 +310,11 @@ class CombogibManager{
 
 
         if(deathsSinceLastEvent > 0){
+
             player.comboKillsSinceLastDeath = 0;
-            player.killsSinceLastDeath = 0;
+            player.shockBallKillsSinceDeath = 0;
+            player.primaryKillsSinceDeath = 0;
+
             player.lastDeath = timestamp;
 
         }
@@ -326,21 +330,26 @@ class CombogibManager{
             }
 
         }else if(killType === "shockball"){
+
             data.shockBall++;
+
+            player.shockBallKillsSinceDeath++;
+
+            if(player.shockBallKillsSinceDeath > player.bestShockBallKillsLife){
+                player.bestShockBallKillsLife = player.shockBallKillsSinceDeath;
+            }
+
         }else if(killType === "primary"){
+
             data.primary++;
+
+            player.primaryKillsSinceDeath++;
+
+            if(player.primaryKillsSinceDeath > player.bestPrimaryKillsLife){
+                player.bestPrimaryKillsLife = player.primaryKillsSinceDeath;
+            }
         }
 
-        if(event === "death"){
-
-            player.killsSinceLastDeath = 0;
-            player.comboKillsSinceLastDeath = 0;
-
-        }else{
-
-            player.killsSinceLastDeath++;
-
-        }
     }
 
 
@@ -350,7 +359,6 @@ class CombogibManager{
 
             const p = this.playerStats[i];
 
-            p.killsSinceLastDeath = 0;
             p.comboKillsSinceLastDeath = 0;
         }
     }
@@ -400,15 +408,30 @@ class CombogibManager{
 
             for(let i = 0; i < this.comboKills.length; i++){
                 
-                const c = this.comboKills[i];
+                const k = this.comboKills[i];
 
-                this.updatePlayerStat(c.player, "kill", "combo", c.timestamp);
-                this.updatePlayerStat(c.victim, "death", "combo", c.timestamp);
+                this.updatePlayerStat(k.player, "kill", "combo", k.timestamp);
+                this.updatePlayerStat(k.victim, "death", "combo", k.timestamp);
             }
+        }
+
+
+        for(let i = 0; i < this.shockBallKills.length; i++){
+
+            const k = this.shockBallKills[i];
+
+            this.updatePlayerStat(k.player, "kill", "shockball", k.timestamp);
+            this.updatePlayerStat(k.victim, "death", "shockball", k.timestamp);
         }
             
 
+        for(let i = 0; i < this.primaryFireKills.length; i++){
 
+            const k = this.primaryFireKills[i];
+
+            this.updatePlayerStat(k.player, "kill", "primary", k.timestamp);
+            this.updatePlayerStat(k.victim, "death", "primary", k.timestamp);
+        }
 
 
         //set player best kills with combos in single life but only with the combo events, 
