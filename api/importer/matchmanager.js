@@ -330,7 +330,7 @@ class MatchManager{
             await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
 
 
-            if(this.combogibLines.length !== 0){
+            //if(this.combogibLines.length !== 0){
 
                 this.combogibManager = new CombogibManager(this.playerManager, this.killManager, this.combogibLines);
            
@@ -339,7 +339,7 @@ class MatchManager{
                 this.combogibManager.createKillTypeData();
                 this.combogibManager.createPlayerEvents();
                 
-            }
+            //}
 
             await Logs.setMatchId(logId, this.matchId);
 

@@ -17,11 +17,19 @@ class CombogibManager{
 
         this.multiKillCombos = [];
 
+
+        this.bUsedComboEvents = false;
+        this.bUsedComboDamageType = false;
+
         this.parseComboLines();
 
     }
 
     parseComboLines(){
+
+        if(this.lines.length > 0){
+            this.bUsedComboEvents = true;
+        }
 
         for(let i = 0; i < this.lines.length; i++){
 
@@ -30,6 +38,8 @@ class CombogibManager{
     }
 
     getPlayerStats(playerId){
+
+        playerId = parseInt(playerId);
 
         for(let i = 0; i < this.playerStats.length; i++){
 
@@ -43,10 +53,22 @@ class CombogibManager{
 
         this.playerStats.push({
             "player": playerId,
-            "kills": 0,
-            "deaths": 0,
+            "kills":{
+                "primary": 0,
+                "shockBall": 0,
+                "combo": 0
+            },
+            "deaths":{
+                "primary": 0,
+                "shockBall": 0,
+                "combo": 0
+            },
+            "killsSinceLastDeath": 0,
             "bestKillsSingleCombo": 0,
-            "bestCombosSingleLife": 0
+            "bestComboKillsSingleLife": 0,
+            "comboKillsSinceLastDeath": 0,
+            "lastComboKill": -1,
+            "lastDeath": -1
         });
 
         return this.playerStats[this.playerStats.length - 1];
@@ -65,13 +87,23 @@ class CombogibManager{
         }
 
         const timestamp = parseFloat(result[1]);
-        const killer = parseInt(result[2]);
-        const victim = parseInt(result[3]);
+        const killerMatchId = parseInt(result[2]);
+        const victimMatchId = parseInt(result[3]);
+
+        const killerId = this.playerManager.getOriginalConnectionMasterId(killerMatchId);
+        const victimId = this.playerManager.getOriginalConnectionMasterId(victimMatchId);
+
+        const killer = this.getPlayerStats(killerId);
+        const victim = this.getPlayerStats(victimId);
+
+        killer.kills.combo++;
+        victim.deaths.combo++;
+ 
 
         this.comboEvents.push({
             "timestamp": timestamp,
-            "killer": this.playerManager.getOriginalConnectionMasterId(killer),
-            "victim": this.playerManager.getOriginalConnectionMasterId(victim)
+            "killer": killerId,
+            "victim": victimId
         });
     }
 
@@ -99,15 +131,12 @@ class CombogibManager{
 
     updatePlayerBestSingleComboKill(playerId, kills){
 
-        //playerId = this.playerManager.getOriginalConnectionMasterId(playerId);
+        const player = this.getPlayerStats(playerId);
 
-        if(this.playerBestCombos[playerId] === undefined){
-            this.playerBestCombos[playerId] = 0;
+        if(player.bestKillsSingleCombo < kills){
+            player.bestKillsSingleCombo = kills;
         }
-
-        if(this.playerBestCombos[playerId] < kills){
-            this.playerBestCombos[playerId] = kills;
-        }
+  
     }
 
     //probably overkill checking if two different players get a combo at the exact same time
@@ -210,11 +239,15 @@ class CombogibManager{
             this.createMultiComboEventsFromKillsData();
        // }
 
-        console.log("----------------------------------");
-        console.log(this.multiKillCombos);
-        console.log(this.comboMultiKillsAlt);
+        //console.log("----------------------------------");
+        //console.log(this.multiKillCombos);
+        //console.log(this.comboMultiKillsAlt);
 
-        console.log(this.playerBestCombos);
+       // console.log(this.playerBestCombos);
+        //console.log(this.playerStats);
+
+
+        this.setPlayerStats();
         
     }
 
@@ -237,7 +270,8 @@ class CombogibManager{
 
             const currentKill = {
                 "timestamp": k.timestamp,
-                "player": k.killerId
+                "player": this.playerManager.getOriginalConnectionMasterId(k.killerId),
+                "victim": this.playerManager.getOriginalConnectionMasterId(k.victimId)
             };
 
             if(deathType === "shockball"){
@@ -261,6 +295,127 @@ class CombogibManager{
         }
 
         console.log(`Shock Ball kills = ${this.shockBallKills.length}, Primary Fire kills = ${this.primaryFireKills.length}, Combo Kills = ${this.comboKills.length}`);
+    }
+
+
+    //broken
+    updatePlayerStat(playerId, event, killType, timestamp){
+
+        const player = this.getPlayerStats(playerId);
+
+        const data = (event === "kill") ? player.kills : player.deaths;
+
+        const deathsSinceLastEvent = this.killManager.getDeathsBetween(player.lastDeath, timestamp, playerId);
+
+
+        if(deathsSinceLastEvent > 0){
+            player.comboKillsSinceLastDeath = 0;
+            player.killsSinceLastDeath = 0;
+            player.lastDeath = timestamp;
+
+        }
+    
+
+        if(killType === "combo"){
+
+            data.combo++;
+            player.comboKillsSinceLastDeath++;
+
+            if(player.comboKillsSinceLastDeath > player.bestComboKillsSingleLife){
+                player.bestComboKillsSingleLife = player.comboKillsSinceLastDeath;
+            }
+
+        }else if(killType === "shockball"){
+            data.shockBall++;
+        }else if(killType === "primary"){
+            data.primary++;
+        }
+
+        if(event === "death"){
+
+            player.killsSinceLastDeath = 0;
+            player.comboKillsSinceLastDeath = 0;
+
+        }else{
+
+            player.killsSinceLastDeath++;
+
+        }
+    }
+
+
+    resetAllPlayerKillsSinceDeath(){
+
+        for(let i = 0; i < this.playerStats.length; i++){
+
+            const p = this.playerStats[i];
+
+            p.killsSinceLastDeath = 0;
+            p.comboKillsSinceLastDeath = 0;
+        }
+    }
+
+    //set the stats with combo events if they have not been set with damagetypes
+    setPlayersBestComboSingleLife(){
+
+
+        this.resetAllPlayerKillsSinceDeath();
+
+        const playersLastComboKill = {};
+
+        for(let i = 0; i < this.comboEvents.length; i++){
+
+            const e = this.comboEvents[i];
+
+            if(playersLastComboKill[e.killer] === undefined){
+                playersLastComboKill[e.killer] = e.timestamp;
+            }
+
+            const totalDeaths = this.killManager.getDeathsBetween(playersLastComboKill[e.killer], e.timestamp, e.killer);
+
+            const playerStats = this.getPlayerStats(e.killer);
+
+            if(totalDeaths === 0){
+
+                playerStats.comboKillsSinceLastDeath++;
+
+                if(playerStats.comboKillsSinceLastDeath > playerStats.bestComboKillsSingleLife){
+                    playerStats.bestComboKillsSingleLife = playerStats.comboKillsSinceLastDeath;
+                }
+
+            }else{
+
+                playerStats.comboKillsSinceLastDeath = 1;
+            }
+
+            playersLastComboKill[e.killer] = e.timestamp;
+        }
+    }
+
+
+    setPlayerStats(){
+
+
+        if(this.comboEvents.length === 0){
+
+            for(let i = 0; i < this.comboKills.length; i++){
+                
+                const c = this.comboKills[i];
+
+                this.updatePlayerStat(c.player, "kill", "combo", c.timestamp);
+                this.updatePlayerStat(c.victim, "death", "combo", c.timestamp);
+            }
+        }
+            
+
+
+
+
+        //set player best kills with combos in single life but only with the combo events, 
+
+        this.setPlayersBestComboSingleLife();
+       
+        console.log(this.playerStats);
     }
 
 }
