@@ -332,12 +332,14 @@ class MatchManager{
 
             //if(this.combogibLines.length !== 0){
 
-                this.combogibManager = new CombogibManager(this.playerManager, this.killManager, this.combogibLines);
+                this.combogibManager = new CombogibManager(this.playerManager, this.killManager, this.combogibLines, this.matchId, this.mapInfo.mapId);
            
                 new Message("Parsing combogib data.","note");
                 
                 this.combogibManager.createKillTypeData();
                 this.combogibManager.createPlayerEvents();
+
+                await this.combogibManager.insertPlayerMatchData();
                 
             //}
             

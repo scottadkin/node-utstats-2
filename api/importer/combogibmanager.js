@@ -1,13 +1,17 @@
 const Message = require("../message");
+const Combogib = require("../combogib");
 
 class CombogibManager{
 
-    constructor(playerManager, killManager, lines){
+    constructor(playerManager, killManager, lines, matchId, mapId){
         
         this.playerManager = playerManager;
         this.killManager = killManager;
 
         this.lines = lines;
+
+        this.matchId = matchId;
+        this.mapId = mapId;
         //used by smartCTF mod like sp0ngeb0bs
         this.comboEvents = [];
 
@@ -20,6 +24,8 @@ class CombogibManager{
 
         this.bUsedComboEvents = false;
         this.bUsedComboDamageType = false;
+
+        this.combogib = new Combogib();
 
         this.parseComboLines();
 
@@ -233,20 +239,13 @@ class CombogibManager{
     createPlayerEvents(){
         
 
-        //if(this.comboEvents.length > 0){
+        if(this.comboEvents.length > 0){
 
             this.createMultiCombosFromComboEvents();
-       // }else{
+        }else{
 
             this.createMultiComboEventsFromKillsData();
-       // }
-
-        //console.log("----------------------------------");
-        //console.log(this.multiKillCombos);
-        //console.log(this.comboMultiKillsAlt);
-
-       // console.log(this.playerBestCombos);
-        //console.log(this.playerStats);
+        }
 
 
         this.setPlayerStats();
@@ -296,7 +295,7 @@ class CombogibManager{
             }
         }
 
-        console.log(`Shock Ball kills = ${this.shockBallKills.length}, Primary Fire kills = ${this.primaryFireKills.length}, Combo Kills = ${this.comboKills.length}`);
+        //console.log(`Shock Ball kills = ${this.shockBallKills.length}, Primary Fire kills = ${this.primaryFireKills.length}, Combo Kills = ${this.comboKills.length}`);
     }
 
 
@@ -308,7 +307,6 @@ class CombogibManager{
 
         const deathsSinceLastEvent = this.killManager.getDeathsBetween(player.lastDeath, timestamp, playerId);
 
-
         if(deathsSinceLastEvent > 0){
 
             player.comboKillsSinceLastDeath = 0;
@@ -316,7 +314,6 @@ class CombogibManager{
             player.primaryKillsSinceDeath = 0;
 
             player.lastDeath = timestamp;
-
         }
     
 
@@ -438,7 +435,76 @@ class CombogibManager{
 
         this.setPlayersBestComboSingleLife();
        
-        console.log(this.playerStats);
+    }
+
+
+    async insertPlayerMatchData(){
+
+        try{
+
+            for(const player of Object.values(this.playerStats)){
+
+                const combos = {
+                    "kills": player.kills.combo,
+                    "deaths": player.deaths.combo,
+                    "efficiency": 0,
+                    "best": player.bestComboKillsSingleLife,
+                    "bestSingle": player.bestKillsSingleCombo
+                };
+
+                const shockBalls = {
+                    "kills": player.kills.shockBall,
+                    "deaths": player.deaths.shockBall,
+                    "efficiency": 0,
+                    "best": player.bestShockBallKillsLife
+                };
+
+
+                const primary = {
+                    "kills": player.kills.primary,
+                    "deaths": player.deaths.primary,
+                    "efficiency": 0,
+                    "best": player.bestPrimaryKillsLife
+                };
+
+                const killTypes = ["combo", "shockBall", "primary"];
+
+                for(let i = 0; i < killTypes.length; i++){
+
+                    const type = killTypes[i];
+
+                    const kills = player.kills[type];
+                    const deaths = player.deaths[type];
+
+                    let efficiency = 0;
+
+                    if(kills > 0){
+
+                        if(deaths > 0){
+
+                            efficiency = ((kills / (kills + deaths)) * 100).toFixed(5);
+
+                        }else{
+                            efficiency = 100;
+                        }
+                    }
+
+                    if(i === 0){
+                        combos.efficiency = efficiency;
+                    }else if(i === 1){
+                         shockBalls.efficiency = efficiency;
+                    }else{
+                        primary.efficiency = efficiency;
+                    }
+                }
+
+                await this.combogib.insertPlayerMatchData(player.player, this.matchId, this.mapId, combos, shockBalls, primary);
+            }
+
+        }catch(err){
+            console.trace(err);
+            new Message(err,"error");
+        }
     }
 
 }
