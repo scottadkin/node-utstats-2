@@ -856,6 +856,27 @@ const queries = [
             PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 
+        `CREATE TABLE IF NOT EXISTS nstats_match_combogib (
+          id int(11) NOT NULL AUTO_INCREMENT,
+          player_id int(11) NOT NULL,
+          match_id int(11) NOT NULL,
+          map_id int(11) NOT NULL,
+          primary_kills int(11) NOT NULL,
+          primary_deaths int(11) NOT NULL,
+          primary_efficiency float NOT NULL,
+          ball_kills int(11) NOT NULL,
+          ball_deaths int(11) NOT NULL,
+          ball_efficiency float NOT NULL,
+          combo_kills int(11) NOT NULL,
+          combo_deaths int(11) NOT NULL,
+          combo_efficiency float NOT NULL,
+          best_single_combo int(11) NOT NULL,
+          best_primary_kills int(11) NOT NULL,
+          best_ball_kills int(11) NOT NULL,
+          best_combo_kills int(11) NOT NULL,
+          PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+
     "INSERT INTO nstats_ranking_values VALUES(NULL,'frags','Kill','Player Killed an enemy',300)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'deaths','Death','Player died',-150)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'suicides','Suicide','Player killed themself',-150)",

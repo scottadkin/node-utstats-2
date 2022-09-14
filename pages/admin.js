@@ -35,7 +35,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 11, 
+            "mode": 0, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "rankingEvents": JSON.parse(this.props.rankingEvents),

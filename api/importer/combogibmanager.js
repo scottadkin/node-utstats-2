@@ -3,7 +3,7 @@ const Combogib = require("../combogib");
 
 class CombogibManager{
 
-    constructor(playerManager, killManager, lines, matchId, mapId){
+    constructor(playerManager, killManager, lines, matchId, mapId, bIgnoreBots){
         
         this.playerManager = playerManager;
         this.killManager = killManager;
@@ -12,6 +12,7 @@ class CombogibManager{
 
         this.matchId = matchId;
         this.mapId = mapId;
+        this.bIgnoreBots = bIgnoreBots;
         //used by smartCTF mod like sp0ngeb0bs
         this.comboEvents = [];
 
@@ -443,6 +444,10 @@ class CombogibManager{
         try{
 
             for(const player of Object.values(this.playerStats)){
+
+                if(this.playerManager.bPlayerBot(player.player) && this.bIgnoreBots){
+                    break;
+                }
 
                 const combos = {
                     "kills": player.kills.combo,

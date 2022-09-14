@@ -385,6 +385,39 @@ async function insertLogsFolderSettings(){
 
 }
 
+
+async function createCombogibTables(){
+
+    const queries = [
+        `CREATE TABLE IF NOT EXISTS nstats_match_combogib (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            player_id int(11) NOT NULL,
+            match_id int(11) NOT NULL,
+            map_id int(11) NOT NULL,
+            primary_kills int(11) NOT NULL,
+            primary_deaths int(11) NOT NULL,
+            primary_efficiency float NOT NULL,
+            ball_kills int(11) NOT NULL,
+            ball_deaths int(11) NOT NULL,
+            ball_efficiency float NOT NULL,
+            combo_kills int(11) NOT NULL,
+            combo_deaths int(11) NOT NULL,
+            combo_efficiency float NOT NULL,
+            best_single_combo int(11) NOT NULL,
+            best_primary_kills int(11) NOT NULL,
+            best_ball_kills int(11) NOT NULL,
+            best_combo_kills int(11) NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+    ];
+
+    for(let i = 0; i < queries.length; i++){
+
+        const q = queries[i];
+
+        await mysql.simpleQuery(q);
+    }
+}
+
 (async () =>{
 
     try{
@@ -439,6 +472,9 @@ async function insertLogsFolderSettings(){
 
 
         await insertLogsFolderSettings();
+
+
+        await createCombogibTables();
 
         process.exit(0);
 

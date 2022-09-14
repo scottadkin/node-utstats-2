@@ -1689,6 +1689,21 @@ class PlayerManager{
 
         return correctPlayerIds;
     }
+
+
+    bPlayerBot(masterPlayerId){
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            if(p.masterId === masterPlayerId){
+                if(p.bBot) return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 module.exports = PlayerManager;
