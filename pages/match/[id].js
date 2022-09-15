@@ -92,6 +92,21 @@ function createBasicPlayerData(players){
 }
 
 
+function createBasicPlayersObject(data){
+
+    const players = {};
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        players[d.id] = {"name": d.name, "country": d.country, "team": d.team};
+    }
+
+    return players;
+}
+
+
 function Match({navSettings, pageSettings, pageOrder, session, host, matchId, info, server, gametype,
     map, image, playerData, weaponData, domControlPointNames, 
     assaultData,  teams, faces, rankingChanges, currentRankings,
@@ -143,10 +158,13 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
     let {playerNames, justPlayerNames} = createBasicPlayerData(parsedPlayerData);
 
+    const basicPlayersObject = createBasicPlayersObject(playerNames);
+
     playerNames = JSON.stringify(playerNames);
 
     const elems = [];
 
+    
 
     if(pageSettings["Display Summary"] === "true"){
 
@@ -452,6 +470,9 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
         elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={parsedInfo.id} players={playerNames} mapId={parsedInfo.map}/>;
     }
 
+    console.log(basicPlayersObject);
+
+
     return <div>
         <DefaultHead host={host} 
             title={`${map} (${dateString}) Match Report`} 
@@ -468,7 +489,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
                         {titleElem}
 
-                        <CombogibMatchStats matchId={parsedInfo.id}/>
+                        <CombogibMatchStats matchId={parsedInfo.id} players={basicPlayersObject}/>
                         
                         {elems}
     
