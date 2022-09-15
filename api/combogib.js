@@ -25,6 +25,21 @@ class Combogib{
 
         await mysql.simpleQuery(query, vars);
     }
+
+
+    async getMatchData(matchId){
+
+        matchId = parseInt(matchId);
+
+        const query = `SELECT 
+        ball_deaths,ball_efficiency,ball_kills,best_ball_kills,best_combo_kills,best_primary_kills,
+        best_single_combo,combo_deaths,combo_efficiency,combo_kills,
+        player_id,primary_deaths,primary_efficiency,primary_kills
+
+        FROM nstats_match_combogib WHERE match_id=?`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
 }
 
 module.exports = Combogib;

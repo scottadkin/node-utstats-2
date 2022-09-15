@@ -40,7 +40,8 @@ import MatchCTFCapsNew from '../../components/MatchCTFCapsNew';
 import MatchPlayerScoreHistory from '../../components/MatchPlayerScoreHistory';
 import MatchPlayerPingHistory from '../../components/MatchPlayerPingHistory';
 import MatchDominationSummaryNew from '../../components/MatchDominationSummaryNew';
-import MatchCTFCapTimes from '../../components/MatchCTFCapTimes'
+import MatchCTFCapTimes from '../../components/MatchCTFCapTimes';
+import CombogibMatchStats from '../../components/CombogibMatchStats';
 
 
 function bDomination(players){
@@ -466,6 +467,8 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
                 <div className="default">
 
                         {titleElem}
+
+                        <CombogibMatchStats matchId={parsedInfo.id}/>
                         
                         {elems}
     
