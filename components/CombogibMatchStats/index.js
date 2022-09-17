@@ -12,11 +12,25 @@ class CombogibMatchStats extends React.Component{
 
         super(props);
 
-        this.state = {"data": null, "error": null, "mode": 0, "sortType": "name", "bAscendingOrder": true};
+        this.state = {
+            "data": null, 
+            "error": null, 
+            "mode": 0, 
+            "sortType": "name", 
+            "bAscendingOrder": true,
+            "bAllPlayers": true
+        };
 
         this.sortGeneral = this.sortGeneral.bind(this);
+        this.changeTeamMode = this.changeTeamMode.bind(this);
         
     }
+
+    changeTeamMode(newMode){
+
+        this.setState({"bAllPlayers": newMode});
+    }
+
 
     sortGeneral(type){
 
@@ -28,7 +42,7 @@ class CombogibMatchStats extends React.Component{
             return;
         }
 
-        this.setState({"sortType": sortType, "bAscendingOrder": true});
+        this.setState({"sortType": sortType, "bAscendingOrder": false});
     }
 
     async loadData(){
@@ -58,13 +72,11 @@ class CombogibMatchStats extends React.Component{
     }
 
 
-    renderBasic(){
-
-        const rows = [];
+    sortBasic(){
 
         const data = JSON.parse(JSON.stringify(this.state.data));
 
-        data.sort((a, b) =>{
+        return data.sort((a, b) =>{
 
             if(this.state.sortType === "combos"){
                 a = a.combo_kills;
@@ -108,32 +120,26 @@ class CombogibMatchStats extends React.Component{
 
             return 0;
         });
+    }
 
-        for(let i = 0; i < data.length; i++){
 
-            const d = data[i];
+    renderBasicTable(rows, totals, key){
 
-            const bestKill = d.best_single_combo;
+        if(rows.length === 0) return null;
 
-            const bestKillString = (bestKill === 0) ? "" : `${bestKill} Kill${(bestKill === 1) ? "" : "s"}`;
+        const bestKill = totals.bestSingle;
 
-            let currentPlayer = this.props.players[d.player_id];
+        const bestSingle = (bestKill === 0) ? "" : `${bestKill} Kill${(bestKill === 1) ? "" : "s"}`;
 
-            if(currentPlayer === undefined) currentPlayer = {"name": "Not Found", "country": "xx", "team": 255};
+        const totalsRow = <tr className="yellow" key={`totals-${key}`}>
+            <td><b>Totals</b></td>
+            <td><b>{totals.combos}</b></td>
+            <td><b>{totals.balls}</b></td>
+            <td><b>{totals.primary}</b></td>
+            <td><b>{bestSingle}</b></td>
+        </tr>
 
-            rows.push(<tr key={i}>
-                <td className={Functions.getTeamColor(currentPlayer.team)}>
-                    <CountryFlag country={currentPlayer.country}/>
-                    <Link href={`/pmatch/${this.props.matchId}?player=${d.player_id}`}><a>{currentPlayer.name}</a></Link>
-                </td>
-                <td>{Functions.ignore0(d.combo_kills)}</td>
-                <td>{Functions.ignore0(d.ball_kills)}</td>
-                <td>{Functions.ignore0(d.primary_kills)}</td>
-                <td>{bestKillString}</td>
-            </tr>);
-        }
-
-        return <Table2 width={4} players={true}>
+        return <Table2 key={key} width={4} players={true}>
             <tr>
                 <th>Player</th>
                 <th className="pointer" onClick={(() =>{
@@ -162,7 +168,95 @@ class CombogibMatchStats extends React.Component{
                 </th>
             </tr>
             {rows}
+            {totalsRow}
         </Table2>
+    }
+
+    renderBasic(){
+
+        const rows = [];
+
+        const data = this.sortBasic();
+
+        const teamData = [[],[],[],[]];
+
+        const teamTotals = [
+            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0},
+            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0},
+            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0},
+            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0},
+        ];
+
+        const allTotals = {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const bestKill = d.best_single_combo;
+
+            const bestKillString = (bestKill === 0) ? "" : `${bestKill} Kill${(bestKill === 1) ? "" : "s"}`;
+
+            let currentPlayer = this.props.players[d.player_id];
+
+            if(currentPlayer === undefined) currentPlayer = {"name": "Not Found", "country": "xx", "team": 255};
+
+            const currentElem = <tr key={i}>
+                <td className={Functions.getTeamColor(currentPlayer.team)}>
+                    <CountryFlag country={currentPlayer.country}/>
+                    <Link href={`/pmatch/${this.props.matchId}?player=${d.player_id}`}><a>{currentPlayer.name}</a></Link>
+                </td>
+                <td>{Functions.ignore0(d.combo_kills)}</td>
+                <td>{Functions.ignore0(d.ball_kills)}</td>
+                <td>{Functions.ignore0(d.primary_kills)}</td>
+                <td>{bestKillString}</td>
+            </tr>
+
+            if(this.state.bAllPlayers){
+
+                rows.push(currentElem);
+
+                allTotals.combos += d.combo_kills;
+                allTotals.balls += d.ball_kills;
+                allTotals.primary += d.primary_kills;
+
+                if(d.best_single_combo > allTotals.bestSingle){
+                    allTotals.bestSingle = d.best_single_combo;
+                }
+
+            }else{
+
+                teamData[currentPlayer.team].push(currentElem);
+
+                const teamTotal = teamTotals[currentPlayer.team];
+
+                teamTotal.combos += d.combo_kills;            
+                teamTotal.balls += d.ball_kills;  
+                teamTotal.primary += d.primary_kills;
+     
+                if(d.best_single_combo > teamTotal.bestSingle){
+                    teamTotal.bestSingle = d.best_single_combo;
+                }
+            }
+        }
+
+        if(this.state.bAllPlayers){
+
+            return this.renderBasicTable(rows, allTotals, -1);
+
+        }else{
+
+            const tables = [];
+
+            for(let i = 0; i < teamData.length; i++){
+
+                const teamRows = teamData[i];
+
+                tables.push(this.renderBasicTable(teamRows, teamTotals[i], i));
+            }
+
+            return tables;
+        }
     }
 
     render(){
@@ -178,6 +272,18 @@ class CombogibMatchStats extends React.Component{
             <div className="default-header">Combogib Stats</div> 
             <div className="tabs">
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>General Stats</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Combo Stats</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`}>Shock Ball Stats</div>
+                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`}>Instagib Stats</div>
+            </div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.bAllPlayers) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeTeamMode(true);
+                })}>All Players</div>
+                <div className={`tab ${(!this.state.bAllPlayers) ? "tab-selected" : ""}`}  onClick={(() =>{
+                    this.changeTeamMode(false);
+                })}>Separate Teams</div>
+                
             </div>
             {this.renderBasic()}
         </div>
