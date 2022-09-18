@@ -5,6 +5,7 @@ import CountryFlag from "../CountryFlag";
 import ErrorMessage from "../ErrorMessage";
 import Functions from "../../api/functions";
 import Link from "next/link";
+import styles from "./CombogibMatchStats.module.css";
 
 class CombogibMatchStats extends React.Component{
 
@@ -15,13 +16,14 @@ class CombogibMatchStats extends React.Component{
         this.state = {
             "data": null, 
             "error": null, 
-            "mode": 0, 
+            "mode": 1, 
             "sortType": "name", 
             "bAscendingOrder": true,
             "bAllPlayers": true
         };
 
         this.sortGeneral = this.sortGeneral.bind(this);
+        this.changeMode = this.changeMode.bind(this);
         this.changeTeamMode = this.changeTeamMode.bind(this);
         
     }
@@ -29,6 +31,12 @@ class CombogibMatchStats extends React.Component{
     changeTeamMode(newMode){
 
         this.setState({"bAllPlayers": newMode});
+    }
+
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
 
@@ -123,13 +131,19 @@ class CombogibMatchStats extends React.Component{
     }
 
 
+    getKillsString(kills){
+
+        return (kills === 0) ? "" : `${kills} Kill${(kills === 1) ? "" : "s"}`;
+
+    }
+
     renderBasicTable(rows, totals, key){
 
         if(rows.length === 0) return null;
 
         const bestKill = totals.bestSingle;
 
-        const bestSingle = (bestKill === 0) ? "" : `${bestKill} Kill${(bestKill === 1) ? "" : "s"}`;
+        const bestSingle = this.getKillsString(bestKill);
 
         const totalsRow = <tr className="yellow" key={`totals-${key}`}>
             <td><b>Totals</b></td>
@@ -172,7 +186,20 @@ class CombogibMatchStats extends React.Component{
         </Table2>
     }
 
+    getPlayer(id){
+
+        let player = this.props.players[id];
+
+        if(player === undefined){
+            return {"name": "Not Found", "country": "xx", "team": 255};
+        }
+
+        return player;
+    }
+
     renderBasic(){
+
+        if(this.state.mode !== 0) return null;
 
         const rows = [];
 
@@ -195,11 +222,9 @@ class CombogibMatchStats extends React.Component{
 
             const bestKill = d.best_single_combo;
 
-            const bestKillString = (bestKill === 0) ? "" : `${bestKill} Kill${(bestKill === 1) ? "" : "s"}`;
+            const bestKillString = this.getKillsString(bestKill);
 
-            let currentPlayer = this.props.players[d.player_id];
-
-            if(currentPlayer === undefined) currentPlayer = {"name": "Not Found", "country": "xx", "team": 255};
+            let currentPlayer = this.getPlayer(d.player_id);
 
             const currentElem = <tr key={i}>
                 <td className={Functions.getTeamColor(currentPlayer.team)}>
@@ -259,6 +284,117 @@ class CombogibMatchStats extends React.Component{
         }
     }
 
+    getTypeTitles(){
+
+        if(this.state.mode === 1){
+
+            return <tr>
+                <th>Player</th>
+                <th>Deaths</th>
+                <th>Kills</th>
+                <th>Efficiency</th>
+                <th>Most Kills in 1 Life</th>
+                <th>Best Combo</th>
+            </tr>
+
+        }else if(this.state.mode !== 0){
+
+            return <tr>
+                <th>Player</th>
+                <th>Deaths</th>
+                <th>Kills</th>
+                <th>Efficiency</th>
+                <th>Most Kills in 1 Life</th>
+            </tr>
+
+        }
+
+        return null;
+
+    }
+
+
+    getTypeRow(data){
+
+        if(this.state.mode === 0) return null;
+
+        const player = this.getPlayer(data.player_id);
+
+
+        const playerElem = <td className={Functions.getTeamColor(player.team)}>
+            <Link href={`/pmatch/${this.props.matchId}?player=${data.player_id}`}>
+                <a>
+                    <CountryFlag country={player.country}/>{player.name}
+                </a>
+            </Link>
+        </td>
+
+        if(this.state.mode === 1){
+
+            return <tr key={`${this.state.mode}-${data.player_id}`}>
+                {playerElem}
+                <td>{Functions.ignore0(data.combo_deaths)}</td>
+                <td>{Functions.ignore0(data.combo_kills)}</td>
+                <td>{data.combo_efficiency.toFixed(2)}%</td>
+                <td>{Functions.ignore0(data.best_combo_kills)}</td>
+                <td>{this.getKillsString(data.best_single_combo)}</td>
+            </tr>
+
+        }else{
+
+            let kills = (this.state.mode === 2) ? data.ball_kills : data.primary_kills;
+            let deaths = (this.state.mode === 2) ? data.ball_deaths : data.primary_deaths;
+            let best = (this.state.mode === 2) ? data.best_ball_kills : data.best_primary_kills;
+
+            const eff = (this.state.mode === 2) ? data.ball_efficiency : data.primary_efficiency;
+
+            return <tr key={`${this.state.mode}-${data.player_id}`}>
+                {playerElem}
+                <td>{Functions.ignore0(deaths)}</td>
+                <td>{Functions.ignore0(kills)}</td>
+                <td>{eff.toFixed(2)}%</td>
+                <td>{best}</td>
+            </tr>
+
+        }
+    }
+
+    renderTypeStats(){
+
+        if(this.state.mode === 0) return null;
+        
+        const rows = [];
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const d = this.state.data[i];
+
+            rows.push(this.getTypeRow(d));
+        }
+
+
+        let titlesRow = this.getTypeTitles();
+
+        let image = "combo.png";
+
+        if(this.state.mode === 2){
+            image = "shockball.png";
+        }else if(this.state.mode === 3){
+            image = "primary.png";
+        }
+
+
+        return <div>
+            <div className={`${styles.imageb} t-width-4 center`}>
+                <Image src={`/images/${image}`} alt="image" width={100} height={100}/>
+            </div>
+            <Table2 width={4} players={true}>
+                {titlesRow}
+                {rows}
+            </Table2>
+        </div>
+    }
+
     render(){
 
         if(this.state.error !== null){
@@ -271,10 +407,18 @@ class CombogibMatchStats extends React.Component{
         return <div>
             <div className="default-header">Combogib Stats</div> 
             <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>General Stats</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Combo Stats</div>
-                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`}>Shock Ball Stats</div>
-                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`}>Instagib Stats</div>
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>General Stats</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Combo Stats</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(2);
+                })}>Shock Ball Stats</div>
+                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(3);
+                })}>Instagib Stats</div>
             </div>
             <div className="tabs">
                 <div className={`tab ${(this.state.bAllPlayers) ? "tab-selected" : ""}`} onClick={(() =>{
@@ -286,6 +430,7 @@ class CombogibMatchStats extends React.Component{
                 
             </div>
             {this.renderBasic()}
+            {this.renderTypeStats()}
         </div>
     }
 }
