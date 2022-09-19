@@ -77,7 +77,8 @@ class CombogibManager{
             "bestPrimaryKillsLife": 0,
             "primaryKillsSinceDeath": 0,
             "bestShockBallKillsLife": 0,
-            "shockBallKillsSinceDeath": 0
+            "shockBallKillsSinceDeath": 0,
+            "bestSingleShockBall": 0
         });
 
         return this.playerStats[this.playerStats.length - 1];
@@ -116,7 +117,7 @@ class CombogibManager{
         });
     }
 
-    getKillsWithTimestamp(timestamp, bComboEvents){
+    getComboKillsWithTimestamp(timestamp, bComboEvents){
 
         timestamp = parseFloat(timestamp);
         const found = [];
@@ -155,7 +156,7 @@ class CombogibManager{
 
             const killers = {};
 
-            const currentKills = this.getKillsWithTimestamp(timestamp, true);
+            const currentKills = this.getComboKillsWithTimestamp(timestamp, true);
 
             for(let i = 0; i < currentKills.length; i++){
 
@@ -212,13 +213,14 @@ class CombogibManager{
 
             if(totalKills <= 1) continue;
 
-            const kills = this.getKillsWithTimestamp(timestamp, false);
+            const kills = this.getComboKillsWithTimestamp(timestamp, false);
 
             const players = {};
 
             for(let i = 0; i < kills.length; i++){
 
-                const player = this.playerManager.getOriginalConnectionMasterId(kills[i].player);
+                //const player = this.playerManager.getOriginalConnectionMasterId(kills[i].player);
+                const player = kills[i].player;
 
                 if(players[player] === undefined) players[player] = 0;
 
@@ -234,7 +236,69 @@ class CombogibManager{
                 }
             }
         }
+    }
 
+
+    updatePlayerBestSingleShockBall(playerId, totalKills){
+
+        const stats = this.getPlayerStats(playerId);
+
+        if(stats.bestSingleShockBall < totalKills){
+            stats.bestSingleShockBall = totalKills;
+        }
+    }
+
+    getShockBallKillsWithTimestamp(timestamp){
+
+        timestamp = parseFloat(timestamp);
+
+        const found = [];
+
+        for(let i = 0; i < this.shockBallKills.length; i++){
+
+            const s = this.shockBallKills[i];
+
+            if(s.timestamp > timestamp) break;
+
+            if(s.timestamp === timestamp){
+                found.push(s);
+            }
+        }
+
+
+        return found;
+    }
+
+    createMultiShockBallKills(){
+
+        if(this.shockBallTimestamps === undefined) return;
+
+        for(const [timestamp, kills] of Object.entries(this.shockBallTimestamps)){
+
+            if(kills < 2) continue;
+
+            const currentPlayerStats = {};
+
+            const currentKills = this.getShockBallKillsWithTimestamp(timestamp);
+
+            for(let i = 0; i < currentKills.length; i++){
+
+                const k = currentKills[i];
+
+                if(currentPlayerStats[k.player] === undefined){
+                    currentPlayerStats[k.player] = 0;
+                }
+
+                if(k.player !== k.victim){
+                    currentPlayerStats[k.player]++;
+                }
+            }
+
+            for(const [playerId, bestKills] of Object.entries(currentPlayerStats)){
+
+                this.updatePlayerBestSingleShockBall(playerId, bestKills);
+            }
+        }
     }
 
     createPlayerEvents(){
@@ -248,6 +312,7 @@ class CombogibManager{
             this.createMultiComboEventsFromKillsData();
         }
 
+        this.createMultiShockBallKills();
 
         this.setPlayerStats();
         
@@ -256,6 +321,7 @@ class CombogibManager{
     createKillTypeData(){
 
         this.shockBallKills = [];
+        this.shockBallTimestamps = {};
         this.primaryFireKills = [];
         this.comboKills = [];
         this.comboKillTimestamps = {};
@@ -277,7 +343,14 @@ class CombogibManager{
             };
 
             if(deathType === "shockball"){
+
                 this.shockBallKills.push(currentKill);
+
+                if(this.shockBallTimestamps[k.timestamp] === undefined){
+                    this.shockBallTimestamps[k.timestamp] = 0;
+                }
+
+                this.shockBallTimestamps[k.timestamp]++;
             }
 
             if(deathType === "jolted"){
@@ -461,7 +534,8 @@ class CombogibManager{
                     "kills": player.kills.shockBall,
                     "deaths": player.deaths.shockBall,
                     "efficiency": 0,
-                    "best": player.bestShockBallKillsLife
+                    "best": player.bestShockBallKillsLife,
+                    "bestSingle": player.bestSingleShockBall
                 };
 
 

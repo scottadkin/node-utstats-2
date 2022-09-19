@@ -489,7 +489,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
                         {titleElem}
 
-                        <CombogibMatchStats matchId={parsedInfo.id} players={basicPlayersObject}/>
+                        <CombogibMatchStats matchId={parsedInfo.id} players={basicPlayersObject} totalTeams={parsedInfo.total_teams}/>
                         
                         {elems}
     

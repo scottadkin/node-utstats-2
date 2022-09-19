@@ -18,6 +18,7 @@ class CombogibMatchStats extends React.Component{
             "error": null, 
             "mode": 1, 
             "sortType": "name", 
+            "statsSortBy": "kills",
             "bAscendingOrder": true,
             "bAllPlayers": true
         };
@@ -25,7 +26,14 @@ class CombogibMatchStats extends React.Component{
         this.sortGeneral = this.sortGeneral.bind(this);
         this.changeMode = this.changeMode.bind(this);
         this.changeTeamMode = this.changeTeamMode.bind(this);
+
+        this.changeStatsSortBy = this.changeStatsSortBy.bind(this);
         
+    }
+
+    changeStatsSortBy(type){
+
+        this.setState({"statsSortBy": type});
     }
 
     changeTeamMode(newMode){
@@ -284,17 +292,28 @@ class CombogibMatchStats extends React.Component{
         }
     }
 
+    // add stats for multiple kills with single shock blal
     getTypeTitles(){
 
         if(this.state.mode === 1){
 
             return <tr>
                 <th>Player</th>
-                <th>Deaths</th>
-                <th>Kills</th>
-                <th>Efficiency</th>
-                <th>Most Kills in 1 Life</th>
-                <th>Best Combo</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("deaths");
+                })}>Deaths</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("kills");
+                })}>Kills</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("efficiency");
+                })}>Efficiency</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("mostKills");
+                })}>Most Kills in 1 Life</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("bestCombo");
+                })}>Best Combo</th>
             </tr>
 
         }else if(this.state.mode !== 0){
@@ -395,6 +414,22 @@ class CombogibMatchStats extends React.Component{
         </div>
     }
 
+    renderTeamTabs(){
+
+        if(this.props.totalTeams < 2) return null;
+
+        return <div className="tabs">
+            <div className={`tab ${(this.state.bAllPlayers) ? "tab-selected" : ""}`} onClick={(() =>{
+                this.changeTeamMode(true);
+            })}>All Players</div>
+            <div className={`tab ${(!this.state.bAllPlayers) ? "tab-selected" : ""}`}  onClick={(() =>{
+                this.changeTeamMode(false);
+            })}>Separate Teams</div>
+            
+        </div>
+
+    }
+
     render(){
 
         if(this.state.error !== null){
@@ -420,15 +455,7 @@ class CombogibMatchStats extends React.Component{
                     this.changeMode(3);
                 })}>Instagib Stats</div>
             </div>
-            <div className="tabs">
-                <div className={`tab ${(this.state.bAllPlayers) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeTeamMode(true);
-                })}>All Players</div>
-                <div className={`tab ${(!this.state.bAllPlayers) ? "tab-selected" : ""}`}  onClick={(() =>{
-                    this.changeTeamMode(false);
-                })}>Separate Teams</div>
-                
-            </div>
+            {this.renderTeamTabs()}
             {this.renderBasic()}
             {this.renderTypeStats()}
         </div>

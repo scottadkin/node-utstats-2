@@ -13,14 +13,14 @@ class Combogib{
             ?,?,?,
             ?,?,?,
             ?,?,?,
-            ?,
+            ?,?,
             ?,?,?)`;
 
         const vars = [playerId, matchId, mapId,
             primary.kills, primary.deaths, primary.efficiency,
             shockBalls.kills, shockBalls.deaths, shockBalls.efficiency,
             combos.kills, combos.deaths, combos.efficiency,
-            combos.bestSingle, primary.best, shockBalls.best, combos.best
+            combos.bestSingle, shockBalls.bestSingle, primary.best, shockBalls.best, combos.best
         ];
 
         await mysql.simpleQuery(query, vars);

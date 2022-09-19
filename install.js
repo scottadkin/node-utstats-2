@@ -871,6 +871,7 @@ const queries = [
           combo_deaths int(11) NOT NULL,
           combo_efficiency float NOT NULL,
           best_single_combo int(11) NOT NULL,
+          best_single_shockball int(11) NOT NULL,
           best_primary_kills int(11) NOT NULL,
           best_ball_kills int(11) NOT NULL,
           best_combo_kills int(11) NOT NULL,
