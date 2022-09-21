@@ -334,7 +334,7 @@ class CombogibManager{
 
             const deathType = k.deathType.toLowerCase();
 
-            if(deathType !== "shockball" && deathType !== "jolted" && deathType !== "combo") continue;
+            if(deathType !== "shockball" && deathType !== "jolted" && deathType !== "combo" && deathType !== "shockcombo") continue;
 
             const currentKill = {
                 "timestamp": k.timestamp,
@@ -357,7 +357,7 @@ class CombogibManager{
                 this.primaryFireKills.push(currentKill);
             }
 
-            if(deathType === "combo"){
+            if(deathType === "combo" || deathType === "shockcombo"){
 
                 this.comboKills.push(currentKill);
 

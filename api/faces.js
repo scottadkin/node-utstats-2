@@ -274,22 +274,66 @@ class Faces{
         });   
     }
 
+    //smartCTF strips some data from the texture name, so we have to strip the face file names in the same way
+    //then compare file names for matches instead of having duplicate images with slightly different names.
+    smartCTFFaceComparison(string, faceFiles){
+
+        const reg = /^(.+)\.(.+?)5(.+)\.png$/i;
+        const stripExtReg = /^(.+)\.png$/i;
+
+        for(let i = 0; i < faceFiles.length; i++){
+
+            const f = faceFiles[i];
+
+            const result = reg.exec(f);
+
+            if(result !== null){
+
+                const cleanedFileName = `${result[1]}.${result[3]}`;
+
+                if(cleanedFileName === string){
+
+                    const stripResult = stripExtReg.exec(f);
+
+                    if(stripResult !== null){
+                        return stripResult[1];
+                    }
+                }
+            }
+        }
+
+        return null;
+        
+    }
+
     async getFacesWithFileStatuses(faceIds){
 
         try{
 
             const faces = await this.getFacesName(faceIds);
 
+            //console.log(faces);
+
             const newFaces = {};
 
             const files = fs.readdirSync('public/images/faces/');
 
+           // console.log(files);
+
             for(let i = 0; i < faces.length; i++){
+
+                const smartCTFFaceName = this.smartCTFFaceComparison(faces[i].name, files);
  
-                newFaces[faces[i].id] = {
-       
-                    "name": (files.indexOf(`${faces[i].name}.png`) !== -1) ? faces[i].name : "faceless"
-                };
+                if(smartCTFFaceName === null){
+
+                    newFaces[faces[i].id] = {
+        
+                        "name": (files.indexOf(`${faces[i].name}.png`) !== -1) ? faces[i].name : "faceless"
+                    };
+
+                }else{
+                    newFaces[faces[i].id] = {"name": smartCTFFaceName};
+                }
             }
 
             //add missing ones as faceless

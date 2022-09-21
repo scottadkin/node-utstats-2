@@ -87,6 +87,7 @@ class MatchManager{
  
             
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
+
             this.gametype = new Gametypes(this.gameInfo.gamename);
 
             await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date, this.gameInfo.getMatchLength().length);      
@@ -429,6 +430,7 @@ class MatchManager{
         const monsterKilledPlayerReg = /mk\t(.+?)\t(.+)/;
         this.lines = this.data.match(reg);
 
+
         if(this.lines === null){
             this.bLinesNull = true;
             new Message("matchmanager.ConvertFileToLines() this.lines is null","error");
@@ -491,23 +493,32 @@ class MatchManager{
 
             typeResult = typeReg.exec(this.lines[i]);
 
+           
+
             if(typeResult !== null){
 
                 currentType = typeResult[1].toLowerCase();
 
-                if(currentType == 'info'){
 
-                    this.serverLines.push(this.lines[i]);
-
-                }else if(currentType == 'map'){
-
-                    this.mapLines.push(this.lines[i]);
-
-                }else if(gameTypes.indexOf(currentType) !== -1){
+                if(gameTypes.indexOf(currentType) !== -1){
 
                     this.gameLines.push(this.lines[i]);
 
-                }else if(playerTypes.indexOf(currentType) !== -1 || currentType.startsWith('weap_')){
+                }
+
+
+                if(currentType == 'info'){
+
+                    this.serverLines.push(this.lines[i]);
+                }
+                
+                if(currentType == 'map'){
+
+                    this.mapLines.push(this.lines[i]);
+
+                }
+                
+                if(playerTypes.indexOf(currentType) !== -1 || currentType.startsWith('weap_')){
 
                     this.playerLines.push(this.lines[i]);
 
@@ -518,7 +529,9 @@ class MatchManager{
                         this.weaponsManager.data.push(this.lines[i]);
                     }
 
-                }else if(currentType === 'nstats'){
+                }
+                
+                if(currentType === 'nstats'){
 
                     typeResult = nstatsReg.exec(this.lines[i]);
 
@@ -564,11 +577,15 @@ class MatchManager{
                         }
                     }
 
-                }else if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide' || currentType === 'headshot'){
+                }
+                
+                if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide' || currentType === 'headshot'){
             
                     this.killLines.push(this.lines[i]);
 
-                }else if(assaultTypes.indexOf(currentType) !== -1){
+                }
+                
+                if(assaultTypes.indexOf(currentType) !== -1){
 
                     if(this.assaultManager === undefined){
                         this.assaultManager = new AssaultManager();
@@ -577,7 +594,9 @@ class MatchManager{
                     this.assaultManager.data.push(this.lines[i]);
 
                     
-                }else if(domTypes.indexOf(currentType) !== -1){
+                }
+                
+                if(domTypes.indexOf(currentType) !== -1){
 
                     //console.log(currentType);
 
@@ -587,29 +606,33 @@ class MatchManager{
 
                     this.domManager.data.push(this.lines[i]);
 
-                }else if(currentType === 'item_get' || currentType === "item_activate" || currentType === "item_deactivate"){
+                }
+                
+                if(currentType === 'item_get' || currentType === "item_activate" || currentType === "item_deactivate"){
 
                     this.itemLines.push(this.lines[i]);
 
-                }else if(currentType === "combo_kill"){
+                }
+                
+                if(currentType === "combo_kill"){
 
                     this.combogibLines.push(this.lines[i]);
                     
                     //this.combogibManager.addComboEvent(this.lines[i]);
                     
-                }else{
-
-                    if(currentType.toLowerCase().startsWith("flag_")){
-                        //console.log(`WOFOWOFWOFOWOFW`);
-
-                        if(this.CTFManager === undefined){
-                            this.CTFManager = new CTFManager();
-                        }
-
-                        this.CTFManager.data.push(this.lines[i]);
-                       // this.ctfData.push(this.lines[i]);
-                    }
                 }
+
+                if(currentType.toLowerCase().startsWith("flag_")){
+                    //console.log(`WOFOWOFWOFOWOFW`);
+
+                    if(this.CTFManager === undefined){
+                        this.CTFManager = new CTFManager();
+                    }
+
+                    this.CTFManager.data.push(this.lines[i]);
+                    // this.ctfData.push(this.lines[i]);
+                }
+                
             }
         }
     }

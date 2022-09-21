@@ -1,5 +1,3 @@
-const Functions = require('../functions');
-
 class GameInfo{
 
     constructor(data){
@@ -42,35 +40,28 @@ class GameInfo{
         const startReg = /^(\d+\.\d+)\tgame_start/;
         const endReg = /^(\d+\.\d+)\tgame_end\t(.+)$/;
 
-        let result = 0;
-        let d = 0;
-
-        let result1OriginalCase = 0;
-        let result2OriginalCase = 0;
-
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
-
-            result = reg.exec(d);
+            const d = this.data[i];
+            let result = reg.exec(d);
 
             if(result !== null){
 
-                result1OriginalCase = result[1].toLowerCase();
-                result2OriginalCase = result[2].toLowerCase();
+                const result1LowerCase = result[1].toLowerCase();
+                const result2LowerCase = result[2].toLowerCase();
 
-                if(result2OriginalCase === 'false'){
+                if(result2LowerCase === "false"){
                     result[2] = 0;
-                }else if(result2OriginalCase === 'true'){
+                }else if(result2LowerCase === "true"){
                     result[2] = 1;
                 }
 
-                if(result1OriginalCase === 'goodmutator'){
+                if(result1LowerCase === "goodmutator"){
                     this.mutators.push(result[2]);
                 }else{
-                
-                    this[result1OriginalCase] = result[2];
+                    this[result1LowerCase] = result[2];
                 }
+
 
             }else{
 

@@ -150,6 +150,8 @@ class PlayerManager{
         const statReg = /^\d+\.\d+\tstat_player\t(.+?)\t(.+?)\t(.+)$/i;
         const firstBloodReg = /^\d+\.\d+\tfirst_blood\t(\d+)$/;
 
+        const faceReg = /^(\d+)\t(.+)$/i;
+
         for(let i = 0; i < this.data.length; i++){
 
             d = this.data[i];
@@ -174,6 +176,25 @@ class PlayerManager{
                     this.teamsManager.lines.push(d);
                 }else if(type === 'ping'){
                     this.pingManager.lines.push(d);
+                }else if(type === "face"){
+
+                    const faceResult = faceReg.exec(result[3]);
+
+                    if(faceResult !== null){
+
+                        const player = this.getPlayerById(faceResult[1]);
+
+                        if(player !== null){
+
+                            player.setFace(faceResult[2].toLowerCase());
+                        }
+
+                    }else{
+                        new Message(`PlayerManager.parsePlayerStrings() faceResult is null.`,"warning");
+                    }
+                    
+
+                    //const player = this.getPlayerById(parseInt(result[3]));
                 }
 
             }else if(statReg.test(d)){
@@ -226,7 +247,6 @@ class PlayerManager{
                 type = result[2].toLowerCase();
                 timestamp = parseFloat(result[1]);
                 subString = result[3];
-
                 
           
                 if(type === 'connect'){

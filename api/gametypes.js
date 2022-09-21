@@ -26,7 +26,6 @@ class Gametypes{
     }
 
     create(name){
-
         
         return new Promise((resolve, reject) =>{
 
