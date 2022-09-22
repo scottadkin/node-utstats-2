@@ -167,7 +167,7 @@ class Voices{
                     p.voiceId = currentId;
                 }else{
                     p.voiceId = 0;
-                    new Message(`Failed to update player voice`,'warning');
+                    //new Message(`Failed to update player voice`,'warning');
                 }
 
             }

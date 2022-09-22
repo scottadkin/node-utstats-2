@@ -394,13 +394,15 @@ class CombogibManager{
         if(killType === "combo"){
 
             data.combo++;
-            player.comboKillsSinceLastDeath++;
-
-            if(player.comboKillsSinceLastDeath > player.bestComboKillsSingleLife){
-                player.bestComboKillsSingleLife = player.comboKillsSinceLastDeath;
-            }
 
             if(event === "kill"){
+
+                player.comboKillsSinceLastDeath++;
+
+                if(player.comboKillsSinceLastDeath > player.bestComboKillsSingleLife){
+                    player.bestComboKillsSingleLife = player.comboKillsSinceLastDeath;
+                }
+     
 
                 if(player.bestKillsSingleCombo === 0){
                     player.bestKillsSingleCombo = 1;
@@ -412,13 +414,13 @@ class CombogibManager{
 
             data.shockBall++;
 
-            player.shockBallKillsSinceDeath++;
-
-            if(player.shockBallKillsSinceDeath > player.bestShockBallKillsLife){
-                player.bestShockBallKillsLife = player.shockBallKillsSinceDeath;
-            }
-
             if(event === "kill"){
+
+                player.shockBallKillsSinceDeath++;
+
+                if(player.shockBallKillsSinceDeath > player.bestShockBallKillsLife){
+                    player.bestShockBallKillsLife = player.shockBallKillsSinceDeath;
+                }
 
                 if(player.bestSingleShockBall === 0){
                     player.bestSingleShockBall = 1;
@@ -429,10 +431,13 @@ class CombogibManager{
 
             data.primary++;
 
-            player.primaryKillsSinceDeath++;
+            if(event === "kill"){
 
-            if(player.primaryKillsSinceDeath > player.bestPrimaryKillsLife){
-                player.bestPrimaryKillsLife = player.primaryKillsSinceDeath;
+                player.primaryKillsSinceDeath++;
+
+                if(player.primaryKillsSinceDeath > player.bestPrimaryKillsLife){
+                    player.bestPrimaryKillsLife = player.primaryKillsSinceDeath;
+                }
             }
         }
 

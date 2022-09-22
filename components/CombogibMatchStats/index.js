@@ -167,7 +167,7 @@ class CombogibMatchStats extends React.Component{
             <td className="color8"><b>{bestSingle}</b></td>
         </tr>
 
-        return <Table2 key={key} width={4} players={true}>
+        return <Table2 key={key} width={1} players={true}>
             <tr>
                 <th>Player</th>
                 <th className="pointer" onClick={(() =>{
@@ -511,10 +511,10 @@ class CombogibMatchStats extends React.Component{
         if(this.state.bAllPlayers){
 
             return <div>
-                <div className={`${styles.imageb} t-width-4 center`}>
-                    <Image src={`/images/${image}`} alt="image" width={100} height={100}/>
+                <div className={`${styles.imageb} t-width-1 center`}>
+                    <Image src={`/images/${image}`} alt="image" width={64} height={64}/>
                 </div>
-                <Table2 width={4} players={true}>
+                <Table2 width={1} players={true}>
                     {titlesRow}
                     {rows}
                 </Table2>
@@ -539,10 +539,10 @@ class CombogibMatchStats extends React.Component{
 
 
             data.push(<div key={`team-${i}`}>
-                <div className={`${styles.imageb} t-width-4 center`}>
-                    <Image src={`/images/${image}`} alt="image" width={100} height={100}/>
+                <div className={`${styles.imageb} t-width-1 center`}>
+                    <Image src={`/images/${image}`} alt="image" width={64} height={64}/>
                 </div>
-                <Table2 width={4} players={true}>
+                <Table2 width={1} players={true}>
                     {titlesRow}
                     {teamRows[i]}
                     <tr>
