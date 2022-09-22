@@ -381,7 +381,7 @@ class CombogibManager{
 
         const deathsSinceLastEvent = this.killManager.getDeathsBetween(player.lastDeath, timestamp, playerId);
 
-        if(deathsSinceLastEvent > 0){
+        if(deathsSinceLastEvent > 0 || event === "death"){
 
             player.comboKillsSinceLastDeath = 0;
             player.shockBallKillsSinceDeath = 0;
