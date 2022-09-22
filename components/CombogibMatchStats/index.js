@@ -114,6 +114,11 @@ class CombogibMatchStats extends React.Component{
                 b = b.best_single_combo;
             }
 
+            if(this.state.sortType === "singleball"){
+                a = a.best_single_shockball;
+                b = b.best_single_shockball;
+            }
+
             
 
             if(this.state.bAscendingOrder){
@@ -141,6 +146,8 @@ class CombogibMatchStats extends React.Component{
 
     getKillsString(kills){
 
+        console.log(kills);
+
         return (kills === 0) ? "" : `${kills} Kill${(kills === 1) ? "" : "s"}`;
 
     }
@@ -149,16 +156,17 @@ class CombogibMatchStats extends React.Component{
 
         if(rows.length === 0) return null;
 
-        const bestKill = totals.bestSingle;
 
-        const bestSingle = this.getKillsString(bestKill);
+        const bestSingle = this.getKillsString(totals.bestSingle);
+        const bestSingleBall = this.getKillsString(totals.bestSingleShockBall);
 
-        const totalsRow = <tr className="yellow" key={`totals-${key}`}>
-            <td><b>Totals</b></td>
-            <td><b>{totals.combos}</b></td>
-            <td><b>{totals.balls}</b></td>
-            <td><b>{totals.primary}</b></td>
-            <td><b>{bestSingle}</b></td>
+        const totalsRow = <tr key={`totals-${key}`}>
+            <td className="color8"><b>Totals/Best</b></td>
+            <td className="color8"><b>{totals.combos}</b></td>
+            <td className="color8"><b>{totals.balls}</b></td>
+            <td className="color8"><b>{totals.primary}</b></td>
+            <td className="color8"><b>{bestSingleBall}</b></td>
+            <td className="color8"><b>{bestSingle}</b></td>
         </tr>
 
         return <Table2 key={key} width={4} players={true}>
@@ -181,6 +189,12 @@ class CombogibMatchStats extends React.Component{
                 })}>
                     <Image src="/images/primary.png" alt="image" width={64} height={64}/>
                     <br/>Instagib Kills
+                </th>
+                <th className="pointer" onClick={(() =>{
+                    this.sortGeneral("singleBall");
+                })}>
+                    <Image src="/images/shockball.png" alt="image" width={64} height={64}/>
+                    <br/>Best Single Shock Ball
                 </th>
                 <th className="pointer" onClick={(() =>{
                     this.sortGeneral("single");
@@ -216,21 +230,20 @@ class CombogibMatchStats extends React.Component{
         const teamData = [[],[],[],[]];
 
         const teamTotals = [
-            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0},
-            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0},
-            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0},
-            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0},
+            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0},
+            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0},
+            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0},
+            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0}
         ];
 
-        const allTotals = {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0};
+        const allTotals = {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0};
 
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
 
-            const bestKill = d.best_single_combo;
-
-            const bestKillString = this.getKillsString(bestKill);
+            const bestKillString = this.getKillsString(d.best_single_combo);
+            const bestBallKillString = this.getKillsString(d.best_single_shockball);
 
             let currentPlayer = this.getPlayer(d.player_id);
 
@@ -242,6 +255,7 @@ class CombogibMatchStats extends React.Component{
                 <td>{Functions.ignore0(d.combo_kills)}</td>
                 <td>{Functions.ignore0(d.ball_kills)}</td>
                 <td>{Functions.ignore0(d.primary_kills)}</td>
+                <td>{bestBallKillString}</td>
                 <td>{bestKillString}</td>
             </tr>
 
@@ -257,6 +271,10 @@ class CombogibMatchStats extends React.Component{
                     allTotals.bestSingle = d.best_single_combo;
                 }
 
+                if(d.best_single_shockball > allTotals.bestSingleShockBall){
+                    allTotals.bestSingleShockBall = d.best_single_shockball;
+                }
+
             }else{
 
                 teamData[currentPlayer.team].push(currentElem);
@@ -269,6 +287,10 @@ class CombogibMatchStats extends React.Component{
      
                 if(d.best_single_combo > teamTotal.bestSingle){
                     teamTotal.bestSingle = d.best_single_combo;
+                }
+
+                if(d.best_single_shockball > teamTotal.bestSingleShockBall){
+                    teamTotal.bestSingleShockBall = d.best_single_shockball;
                 }
             }
         }

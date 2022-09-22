@@ -29,6 +29,18 @@
 	--max-width-3:750px;
 }
 
+.color3{
+	background-color:var(--color-3);
+}
+
+.color4{
+	background-color:var(--color-4);
+}
+
+.color8{
+	background-color:var(--color-8);
+}
+
 body{
 
 	min-height:100vh;

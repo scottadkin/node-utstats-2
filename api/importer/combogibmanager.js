@@ -400,6 +400,14 @@ class CombogibManager{
                 player.bestComboKillsSingleLife = player.comboKillsSinceLastDeath;
             }
 
+            if(event === "kill"){
+
+                if(player.bestKillsSingleCombo === 0){
+                    player.bestKillsSingleCombo = 1;
+                }
+
+            }
+
         }else if(killType === "shockball"){
 
             data.shockBall++;
@@ -408,6 +416,13 @@ class CombogibManager{
 
             if(player.shockBallKillsSinceDeath > player.bestShockBallKillsLife){
                 player.bestShockBallKillsLife = player.shockBallKillsSinceDeath;
+            }
+
+            if(event === "kill"){
+
+                if(player.bestSingleShockBall === 0){
+                    player.bestSingleShockBall = 1;
+                }     
             }
 
         }else if(killType === "primary"){
