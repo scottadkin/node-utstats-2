@@ -146,8 +146,6 @@ class CombogibMatchStats extends React.Component{
 
     getKillsString(kills){
 
-        console.log(kills);
-
         return (kills === 0) ? "" : `${kills} Kill${(kills === 1) ? "" : "s"}`;
 
     }
@@ -317,7 +315,22 @@ class CombogibMatchStats extends React.Component{
     // add stats for multiple kills with single shock blal
     getTypeTitles(){
 
-        if(this.state.mode === 1){
+        if(this.state.mode === 1 || this.state.mode === 2){
+
+            let bestElem = null;
+
+            if(this.state.mode === 1){
+
+                bestElem = <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("bestCombo");
+                })}>Best Combo</th>
+
+            }else{
+
+                bestElem = <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("bestBall");
+                })}>Best Single Ball</th>
+            }
 
             return <tr>
                 <th>Player</th>
@@ -333,9 +346,7 @@ class CombogibMatchStats extends React.Component{
                 <th className="pointer" onClick={(() =>{
                     this.changeStatsSortBy("mostKills");
                 })}>Most Kills in 1 Life</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("bestCombo");
-                })}>Best Combo</th>
+                {bestElem}
             </tr>
 
         }else if(this.state.mode !== 0){
@@ -370,15 +381,17 @@ class CombogibMatchStats extends React.Component{
             </Link>
         </td>
 
-        if(this.state.mode === 1){
+        if(this.state.mode === 1 || this.state.mode === 2){
+
+            const bestKills = (this.state.mode === 1) ? data.best_combo_kills : data.best_ball_kills;
 
             return <tr key={`${this.state.mode}-${data.player_id}`}>
                 {playerElem}
                 <td>{Functions.ignore0(data.combo_deaths)}</td>
                 <td>{Functions.ignore0(data.combo_kills)}</td>
                 <td>{data.combo_efficiency.toFixed(2)}%</td>
-                <td>{Functions.ignore0(data.best_combo_kills)}</td>
-                <td>{this.getKillsString(data.best_single_combo)}</td>
+                <td>{Functions.ignore0(bestKills)}</td>
+                <td>{this.getKillsString((this.state.mode === 1) ? data.best_single_combo : data.best_single_shockball)}</td>
             </tr>
 
         }else{
@@ -400,19 +413,54 @@ class CombogibMatchStats extends React.Component{
         }
     }
 
+
+    updateTeamTotal(teamTotals, data, player){
+
+        const t = teamTotals[player.team];
+        const d = data;
+        
+        if(this.state.mode === 1){
+
+            t.kills += d.combo_kills;
+            t.deaths += d.combo_deaths;
+
+            if(d.best_combo_kills > t.mostKills){
+                t.mostKills = d.best_combo_kills;
+            }
+
+            if(d.best_single_combo > t.bestSingle){
+                t.bestSingle = d.best_single_combo;
+            }
+
+        }else if(this.state.mode === 2){
+
+            t.kills += d.ball_kills;
+            t.deaths += d.ball_deaths;
+
+            if(d.best_ball_kills > t.mostKills){
+                t.mostKills = d.best_ball_kills;
+            }
+
+            if(d.best_single_shockball > t.bestSingle){
+                t.bestSingle = d.best_single_shockball;
+            }
+
+        }else if(this.state.mode ===3){
+
+            t.kills += d.primary_kills;
+            t.deaths += d.primary_deaths;
+
+            if(d.best_primary_kills > t.mostKills){
+                t.mostKills = d.best_primary_kills;
+            }
+            
+        }
+
+    }
+
     renderTypeStats(){
 
         if(this.state.mode === 0) return null;
-        
-        const rows = [];
-
-        for(let i = 0; i < this.state.data.length; i++){
-
-            const d = this.state.data[i];
-
-            rows.push(this.getTypeRow(d));
-        }
-
 
         let titlesRow = this.getTypeTitles();
 
@@ -425,15 +473,93 @@ class CombogibMatchStats extends React.Component{
         }
 
 
-        return <div>
-            <div className={`${styles.imageb} t-width-4 center`}>
-                <Image src={`/images/${image}`} alt="image" width={100} height={100}/>
+        const rows = [];
+
+        const teamRows = [[],[],[],[]];
+
+        const teamTotals = [
+            {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0},
+            {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0},
+            {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0},
+            {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0},
+        ];
+
+ 
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const d = this.state.data[i];
+
+            if(this.state.bAllPlayers){
+
+                rows.push(this.getTypeRow(d));
+
+            }else{
+
+                const player = this.getPlayer(d.player_id);
+
+                if(player.team >= 0 && player.team < 4){
+  
+                    this.updateTeamTotal(teamTotals, d, player);
+                  
+                    teamRows[player.team].push(this.getTypeRow(d));
+                }
+            }
+        }
+
+        const data = [];
+
+        if(this.state.bAllPlayers){
+
+            return <div>
+                <div className={`${styles.imageb} t-width-4 center`}>
+                    <Image src={`/images/${image}`} alt="image" width={100} height={100}/>
+                </div>
+                <Table2 width={4} players={true}>
+                    {titlesRow}
+                    {rows}
+                </Table2>
             </div>
-            <Table2 width={4} players={true}>
-                {titlesRow}
-                {rows}
-            </Table2>
-        </div>
+        }
+
+        for(let i = 0; i < teamRows.length; i++){
+
+            if(teamRows[i].length === 0) continue;
+
+
+            let eff = 0;
+
+            if(teamTotals[i].kills > 0){
+
+                if(teamTotals[i].deaths > 0){
+                    eff = (teamTotals[i].kills / (teamTotals[i].kills + teamTotals[i].deaths)) * 100
+                }else{
+                    eff = 100;
+                }
+            }
+
+
+            data.push(<div key={`team-${i}`}>
+                <div className={`${styles.imageb} t-width-4 center`}>
+                    <Image src={`/images/${image}`} alt="image" width={100} height={100}/>
+                </div>
+                <Table2 width={4} players={true}>
+                    {titlesRow}
+                    {teamRows[i]}
+                    <tr>
+                        <td className="color8"><b>Totals/Best</b></td>
+                        <td className="color8"><b>{teamTotals[i].deaths}</b></td>
+                        <td className="color8"><b>{teamTotals[i].kills}</b></td>
+                        <td className="color8"><b>{eff.toFixed(2)}%</b></td>
+                        <td className="color8"><b>{teamTotals[i].mostKills}</b></td>
+                        {(this.state.mode === 3) ? null : <td className="color8"><b>{this.getKillsString(teamTotals[i].bestSingle)}</b></td>}
+                    </tr>
+                </Table2>
+            </div>);
+
+        }
+        
+
+        return data;
     }
 
     renderTeamTabs(){
