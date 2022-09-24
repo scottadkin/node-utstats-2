@@ -16,11 +16,11 @@ class CombogibMatchStats extends React.Component{
         this.state = {
             "data": null, 
             "error": null, 
-            "mode": 1, 
+            "mode": 0, 
             "sortType": "name", 
             "statsSortBy": "kills",
             "bAscendingOrder": true,
-            "bAllPlayers": true
+            "bAllPlayers": (this.props.totalTeams >= 2) ? false : true
         };
 
         this.sortGeneral = this.sortGeneral.bind(this);
@@ -33,7 +33,12 @@ class CombogibMatchStats extends React.Component{
 
     changeStatsSortBy(type){
 
-        this.setState({"statsSortBy": type});
+        if(type === this.state.statsSortBy){
+            this.setState({"bAscendingOrder": !this.state.bAscendingOrder});
+            return;
+        }
+
+        this.setState({"statsSortBy": type, "bAscendingOrder": true});
     }
 
     changeTeamMode(newMode){
@@ -245,8 +250,10 @@ class CombogibMatchStats extends React.Component{
 
             let currentPlayer = this.getPlayer(d.player_id);
 
+            const teamColor = (this.props.totalTeams >= 2) ? Functions.getTeamColor(currentPlayer.team) : "team-none";
+
             const currentElem = <tr key={i}>
-                <td className={Functions.getTeamColor(currentPlayer.team)}>
+                <td className={teamColor}>
                     <CountryFlag country={currentPlayer.country}/>
                     <Link href={`/pmatch/${this.props.matchId}?player=${d.player_id}`}><a>{currentPlayer.name}</a></Link>
                 </td>
@@ -312,7 +319,6 @@ class CombogibMatchStats extends React.Component{
         }
     }
 
-    // add stats for multiple kills with single shock blal
     getTypeTitles(){
 
         if(this.state.mode === 1 || this.state.mode === 2){
@@ -322,13 +328,13 @@ class CombogibMatchStats extends React.Component{
             if(this.state.mode === 1){
 
                 bestElem = <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("bestCombo");
+                    this.changeStatsSortBy("best_single_combo");
                 })}>Best Combo</th>
 
             }else{
 
                 bestElem = <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("bestBall");
+                    this.changeStatsSortBy("best_single_shockball");
                 })}>Best Single Ball</th>
             }
 
@@ -344,7 +350,7 @@ class CombogibMatchStats extends React.Component{
                     this.changeStatsSortBy("efficiency");
                 })}>Efficiency</th>
                 <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("mostKills");
+                    this.changeStatsSortBy("best_kills");
                 })}>Most Kills in 1 Life</th>
                 {bestElem}
             </tr>
@@ -353,10 +359,18 @@ class CombogibMatchStats extends React.Component{
 
             return <tr>
                 <th>Player</th>
-                <th>Deaths</th>
-                <th>Kills</th>
-                <th>Efficiency</th>
-                <th>Most Kills in 1 Life</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("deaths");
+                })}>Deaths</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("kills");
+                })}>Kills</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("efficiency");
+                })}>Efficiency</th>
+                <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("best_kills");
+                })}>Most Kills in 1 Life</th>
             </tr>
 
         }
@@ -372,8 +386,9 @@ class CombogibMatchStats extends React.Component{
 
         const player = this.getPlayer(data.player_id);
 
+        const teamColor = (this.props.totalTeams >= 2) ? Functions.getTeamColor(player.team) : "team-none";
 
-        const playerElem = <td className={Functions.getTeamColor(player.team)}>
+        const playerElem = <td className={teamColor}>
             <Link href={`/pmatch/${this.props.matchId}?player=${data.player_id}`}>
                 <a>
                     <CountryFlag country={player.country}/>{player.name}
@@ -384,23 +399,26 @@ class CombogibMatchStats extends React.Component{
         if(this.state.mode === 1 || this.state.mode === 2){
 
             const bestKills = (this.state.mode === 1) ? data.best_combo_kills : data.best_ball_kills;
+            const kills = (this.state.mode === 1) ? data.combo_kills : data.ball_kills;
+            const deaths = (this.state.mode === 1) ? data.combo_deaths: data.ball_deaths;
+            const eff = (this.state.mode === 1) ? data.combo_efficiency : data.ball_efficiency;
 
             return <tr key={`${this.state.mode}-${data.player_id}`}>
                 {playerElem}
-                <td>{Functions.ignore0(data.combo_deaths)}</td>
-                <td>{Functions.ignore0(data.combo_kills)}</td>
-                <td>{data.combo_efficiency.toFixed(2)}%</td>
+                <td>{Functions.ignore0(deaths)}</td>
+                <td>{Functions.ignore0(kills)}</td>
+                <td>{eff.toFixed(2)}%</td>
                 <td>{Functions.ignore0(bestKills)}</td>
                 <td>{this.getKillsString((this.state.mode === 1) ? data.best_single_combo : data.best_single_shockball)}</td>
             </tr>
 
         }else{
 
-            let kills = (this.state.mode === 2) ? data.ball_kills : data.primary_kills;
-            let deaths = (this.state.mode === 2) ? data.ball_deaths : data.primary_deaths;
-            let best = (this.state.mode === 2) ? data.best_ball_kills : data.best_primary_kills;
+            let kills =  data.primary_kills;
+            let deaths = data.primary_deaths;
+            let best =  data.best_primary_kills;
 
-            const eff = (this.state.mode === 2) ? data.ball_efficiency : data.primary_efficiency;
+            const eff = data.primary_efficiency;
 
             return <tr key={`${this.state.mode}-${data.player_id}`}>
                 {playerElem}
@@ -445,7 +463,7 @@ class CombogibMatchStats extends React.Component{
                 t.bestSingle = d.best_single_shockball;
             }
 
-        }else if(this.state.mode ===3){
+        }else if(this.state.mode === 3){
 
             t.kills += d.primary_kills;
             t.deaths += d.primary_deaths;
@@ -455,6 +473,48 @@ class CombogibMatchStats extends React.Component{
             }
             
         }
+    }
+
+    sortStatsType(data){
+
+        const sortType = this.state.statsSortBy;
+        const mode = this.state.mode;
+
+        let prefix = "combo";
+
+        if(mode === 2){
+            prefix = "ball";
+        }else if(mode === 3){
+            prefix = "primary";
+        }
+
+        let key = "";
+
+        if(sortType !== "best_single_combo" && sortType !== "best_single_shockball" && sortType !== "best_kills"){
+
+            key = `${prefix}_${sortType}`;
+
+        }else if(sortType === "best_kills"){
+            
+            key = `best_${prefix}_kills`;
+            
+        }else{
+            key = sortType;
+        }
+
+        data.sort((a, b) =>{
+
+            a = a[key];
+            b = b[key];
+
+            if(a < b){
+                return (!this.state.bAscendingOrder) ? -1 : 1;
+            }else if(a > b){
+                return (!this.state.bAscendingOrder) ? 1 : -1;
+            }
+
+            return 0;
+        });
 
     }
 
@@ -484,10 +544,14 @@ class CombogibMatchStats extends React.Component{
             {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0},
         ];
 
- 
-        for(let i = 0; i < this.state.data.length; i++){
+        const orderedStats = JSON.parse(JSON.stringify(this.state.data));
 
-            const d = this.state.data[i];
+        this.sortStatsType(orderedStats);
+
+ 
+        for(let i = 0; i < orderedStats.length; i++){
+
+            const d = orderedStats[i];
 
             if(this.state.bAllPlayers){
 
@@ -524,7 +588,6 @@ class CombogibMatchStats extends React.Component{
         for(let i = 0; i < teamRows.length; i++){
 
             if(teamRows[i].length === 0) continue;
-
 
             let eff = 0;
 
