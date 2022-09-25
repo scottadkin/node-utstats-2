@@ -739,7 +739,15 @@ class CombogibManager{
                     "best": player.bestPrimaryKillsLife
                 };
 
-                const killTypes = ["combo", "shockBall", "primary"];
+                const insane = {
+                    "kills": player.kills.insane,
+                    "deaths": player.deaths.insane,
+                    "efficiency": 0,
+                    "best": player.bestInsaneKillsSingleLife,
+                    "bestSingle": player.singleInsaneCombo
+                };
+
+                const killTypes = ["combo", "shockBall", "primary", "insane"];
 
                 for(let i = 0; i < killTypes.length; i++){
 
@@ -770,7 +778,7 @@ class CombogibManager{
                     }
                 }
 
-                await this.combogib.insertPlayerMatchData(player.player, this.matchId, this.mapId, combos, shockBalls, primary);
+                await this.combogib.insertPlayerMatchData(player.player, this.matchId, this.mapId, combos, shockBalls, primary, insane);
             }
 
         }catch(err){
