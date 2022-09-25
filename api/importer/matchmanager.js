@@ -614,7 +614,7 @@ class MatchManager{
 
                 }
                 
-                if(currentType === "combo_kill"){
+                if(currentType === "combo_kill" || currentType === "combo_insane"){
 
                     this.combogibLines.push(this.lines[i]);
                     

@@ -282,6 +282,20 @@ class CombogibMatchStats extends React.Component{
 
             }else{
 
+                if(currentPlayer.team === 255){
+
+                    console.log(`totalTeams = ${this.props.totalTeams}`);
+                    console.log(typeof this.props.totalTeams);
+                    console.log(this.props.totalTeams < 2);
+                    console.log("FUCL");
+
+                    if(this.props.totalTeams >= 2){
+                        continue;
+                    }
+                }
+
+                console.log(currentPlayer.team);
+
                 teamData[currentPlayer.team].push(currentElem);
 
                 const teamTotal = teamTotals[currentPlayer.team];

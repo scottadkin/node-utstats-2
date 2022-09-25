@@ -15,12 +15,19 @@ class CombogibManager{
         this.bIgnoreBots = bIgnoreBots;
         //used by smartCTF mod like sp0ngeb0bs
         this.comboEvents = [];
+        this.insaneComboEvents = [];
 
         this.playerStats = [];
 
         this.playerBestCombos = {};
 
         this.multiKillCombos = [];
+
+        this.shockBallKills = [];
+        this.shockBallTimestamps = {};
+        this.primaryFireKills = [];
+        this.comboKills = [];
+        this.comboKillTimestamps = {};
 
 
         this.bUsedComboEvents = false;
@@ -38,11 +45,26 @@ class CombogibManager{
             this.bUsedComboEvents = true;
         }
 
+        const insaneLines = [];
+        const insaneReg = /^\d+?\.\d+?\tcombo_insane\t.+$/i;
+
         for(let i = 0; i < this.lines.length; i++){
 
-            this.addComboEvent(this.lines[i]);
+            const check = insaneReg.test(this.lines[i]);
+
+            if(check){
+                insaneLines.push(this.lines[i]);
+            }else{
+                this.addComboEvent(this.lines[i]);
+            }          
+        }
+
+        for(let i = 0; i < insaneLines.length; i++){
+
+            this.createInsaneComboEvent(insaneLines[i]);
         }
     }
+
 
     getPlayerStats(playerId){
 
@@ -63,12 +85,14 @@ class CombogibManager{
             "kills":{
                 "primary": 0,
                 "shockBall": 0,
-                "combo": 0
+                "combo": 0,
+                "insane": 0
             },
             "deaths":{
                 "primary": 0,
                 "shockBall": 0,
-                "combo": 0
+                "combo": 0,
+                "insane": 0
             },
             "bestKillsSingleCombo": 0,
             "bestComboKillsSingleLife": 0,
@@ -78,10 +102,68 @@ class CombogibManager{
             "primaryKillsSinceDeath": 0,
             "bestShockBallKillsLife": 0,
             "shockBallKillsSinceDeath": 0,
-            "bestSingleShockBall": 0
+            "bestSingleShockBall": 0,
+            "insaneKillsSinceDeath": 0,
+            "singleInsaneCombo": 0,
+            "bestInsaneKillsSingleLife": 0
         });
 
         return this.playerStats[this.playerStats.length - 1];
+    }
+
+    createInsaneComboEvent(line){
+
+        const reg = /^(\d+?\.\d+?)\tcombo_insane\t(\d+)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null) return;
+
+        const timestamp = parseFloat(result[1]);
+        const killerId = parseInt(result[2]);
+
+        const player = this.playerManager.getOriginalConnectionMasterId(killerId);
+
+        this.insaneComboEvents.push({"timestamp": timestamp, "killer": player});
+
+        const matchingComboEvent = this.getComboEvent(timestamp, player);
+
+        if(matchingComboEvent !== null){
+
+            const killer = this.getPlayerStats(matchingComboEvent.killer);
+            const victim = this.getPlayerStats(matchingComboEvent.victim);
+
+            const totalKillsWithSingle = this.getTotalInsaneComboKillsWithTimestamp(timestamp, player);
+
+            if(killer.singleInsaneCombo < totalKillsWithSingle){
+                killer.singleInsaneCombo = totalKillsWithSingle;
+            }
+
+        
+            killer.kills.insane++;
+            victim.deaths.insane++;
+
+        }else{
+            new Message(`matchingComboEvent is null`,"warn");
+        }
+   
+    }
+
+    getComboEvent(timestamp, player){
+
+        for(let i = 0; i < this.comboEvents.length; i++){
+
+            const e = this.comboEvents[i];
+
+            if(e.timestamp > timestamp) return null;
+
+            if(e.timestamp === timestamp){
+
+                if(e.killer === player) return e;
+            }
+        }
+
+        return null;
     }
 
     addComboEvent(line){
@@ -92,7 +174,7 @@ class CombogibManager{
 
         if(result === null){
 
-            new Message(`CombogibManager.addKill() reg.exec(line) result was null.`,"warning");
+            //new Message(`CombogibManager.addKill() reg.exec(line) result was null.`,"warning");
             return;
         }
 
@@ -113,8 +195,34 @@ class CombogibManager{
         this.comboEvents.push({
             "timestamp": timestamp,
             "killer": killerId,
-            "victim": victimId
+            "victim": victimId,
         });
+
+    }
+
+
+    getTotalInsaneComboKillsWithTimestamp(timestamp, player){
+
+        timestamp = parseFloat(timestamp);
+        let found = 0;
+
+        const events = this.insaneComboEvents;
+
+        for(let i = 0; i < events.length; i++){
+
+            const k = events[i];
+            if(k.timestamp > timestamp) break;
+
+            if(k.timestamp === timestamp){
+                if(k.killer === player){
+                    found++;
+                }
+            }
+
+        }
+
+        return found;
+
     }
 
     getComboKillsWithTimestamp(timestamp, bComboEvents){
@@ -315,16 +423,12 @@ class CombogibManager{
         this.createMultiShockBallKills();
 
         this.setPlayerStats();
+
+
         
     }
 
     createKillTypeData(){
-
-        this.shockBallKills = [];
-        this.shockBallTimestamps = {};
-        this.primaryFireKills = [];
-        this.comboKills = [];
-        this.comboKillTimestamps = {};
 
         for(let i = 0; i < this.killManager.kills.length; i++){
 
@@ -359,6 +463,13 @@ class CombogibManager{
 
             if(deathType === "combo" || deathType === "shockcombo"){
 
+                if(this.bComboInsane(currentKill.timestamp, currentKill.player)){
+
+                    currentKill.bInsane = true;
+                }else{
+                    currentKill.bInsane = false;
+                }
+
                 this.comboKills.push(currentKill);
 
                 if(this.comboKillTimestamps[k.timestamp] === undefined){
@@ -372,6 +483,47 @@ class CombogibManager{
         //console.log(`Shock Ball kills = ${this.shockBallKills.length}, Primary Fire kills = ${this.primaryFireKills.length}, Combo Kills = ${this.comboKills.length}`);
     }
 
+    bComboInsane(timestamp, killer){
+
+
+        for(let i = 0; i < this.insaneComboEvents.length; i++){
+
+            const e = this.insaneComboEvents[i];
+
+            if(e.timestamp > timestamp) return false;
+
+            if(e.timestamp === timestamp){
+                if(e.killer === killer){
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+
+    updatePlayerStatCombo(event, data, player){
+
+        //stop duplicate data(sp0ngeb0b method + damage type)
+        if(this.comboEvents.length === 0){
+            data.combo++;
+        }
+
+        if(event === "kill"){
+
+            player.comboKillsSinceLastDeath++;
+
+            if(player.comboKillsSinceLastDeath > player.bestComboKillsSingleLife){
+                player.bestComboKillsSingleLife = player.comboKillsSinceLastDeath;
+            }
+
+            if(player.bestKillsSingleCombo === 0){
+                player.bestKillsSingleCombo = 1;
+            }
+        }
+
+    }
 
     updatePlayerStat(playerId, event, killType, timestamp){
 
@@ -386,30 +538,35 @@ class CombogibManager{
             player.comboKillsSinceLastDeath = 0;
             player.shockBallKillsSinceDeath = 0;
             player.primaryKillsSinceDeath = 0;
-
+            player.insaneKillsSinceDeath = 0;
+            
             player.lastDeath = timestamp;
         }
-    
+
 
         if(killType === "combo"){
 
-            data.combo++;
+            this.updatePlayerStatCombo(event, data, player);
+            
+
+        }else if(killType === "insane"){
+
+            this.updatePlayerStatCombo(event, data, player);
+            
+            //stop duplicate counting
+            if(this.comboEvents.length === 0){
+                data.insane++;
+            }
 
             if(event === "kill"){
 
-                player.comboKillsSinceLastDeath++;
+                player.insaneKillsSinceDeath++;
 
-                if(player.comboKillsSinceLastDeath > player.bestComboKillsSingleLife){
-                    player.bestComboKillsSingleLife = player.comboKillsSinceLastDeath;
+                if(player.insaneKillsSinceDeath > player.bestInsaneKillsSingleLife){
+                    player.bestInsaneKillsSingleLife = player.insaneKillsSinceDeath;
                 }
-     
-
-                if(player.bestKillsSingleCombo === 0){
-                    player.bestKillsSingleCombo = 1;
-                }
-
             }
-
+            
         }else if(killType === "shockball"){
 
             data.shockBall++;
@@ -457,7 +614,6 @@ class CombogibManager{
     //set the stats with combo events if they have not been set with damagetypes
     setPlayersBestComboSingleLife(){
 
-
         this.resetAllPlayerKillsSinceDeath();
 
         const playersLastComboKill = {};
@@ -494,17 +650,25 @@ class CombogibManager{
 
     setPlayerStats(){
 
+        let insaneFound = 0;
+        
 
-        if(this.comboEvents.length === 0){
+        //if(this.comboEvents.length === 0){
 
             for(let i = 0; i < this.comboKills.length; i++){
                 
                 const k = this.comboKills[i];
 
-                this.updatePlayerStat(k.player, "kill", "combo", k.timestamp);
-                this.updatePlayerStat(k.victim, "death", "combo", k.timestamp);
+                const type = (k.bInsane) ? "insane" : "combo";
+
+                if(type === "insane"){
+                    insaneFound++;
+                }
+
+                this.updatePlayerStat(k.player, "kill", type, k.timestamp);
+                this.updatePlayerStat(k.victim, "death", type, k.timestamp);
             }
-        }
+        //}
 
 
         for(let i = 0; i < this.shockBallKills.length; i++){
@@ -528,6 +692,15 @@ class CombogibManager{
         //set player best kills with combos in single life but only with the combo events, 
 
         this.setPlayersBestComboSingleLife();
+
+
+       // console.log(this.playerStats);
+
+       // console.log(`Found ${insaneFound} insane events, totalComboKills = ${this.comboKills.length}`);
+
+        
+
+
        
     }
 
