@@ -16,7 +16,7 @@ class CombogibMatchStats extends React.Component{
         this.state = {
             "data": null, 
             "error": null, 
-            "mode": 0, 
+            "mode": 4, 
             "sortType": "name", 
             "statsSortBy": "kills",
             "bAscendingOrder": true,
@@ -371,7 +371,7 @@ class CombogibMatchStats extends React.Component{
 
     getTypeTitles(){
 
-        if(this.state.mode === 1 || this.state.mode === 2){
+        if(this.state.mode === 1 || this.state.mode === 2 || this.state.mode === 4){
 
             let bestElem = null;
 
@@ -381,11 +381,16 @@ class CombogibMatchStats extends React.Component{
                     this.changeStatsSortBy("best_single_combo");
                 })}>Best Combo</th>
 
-            }else{
+            }else if(this.state.mode === 2){
 
                 bestElem = <th className="pointer" onClick={(() =>{
                     this.changeStatsSortBy("best_single_shockball");
                 })}>Best Single Ball</th>
+
+            }else{
+                bestElem = <th className="pointer" onClick={(() =>{
+                    this.changeStatsSortBy("best_single_insane");
+                })}>Best Insane Combo</th>
             }
 
             return <tr>
@@ -446,12 +451,39 @@ class CombogibMatchStats extends React.Component{
             </Link>
         </td>
 
-        if(this.state.mode === 1 || this.state.mode === 2){
+        if(this.state.mode === 1 || this.state.mode === 2 || this.state.mode === 4){
 
-            const bestKills = (this.state.mode === 1) ? data.best_combo_kills : data.best_ball_kills;
-            const kills = (this.state.mode === 1) ? data.combo_kills : data.ball_kills;
-            const deaths = (this.state.mode === 1) ? data.combo_deaths: data.ball_deaths;
-            const eff = (this.state.mode === 1) ? data.combo_efficiency : data.ball_efficiency;
+            let bestKills = 0;
+            let kills = 0;
+            let deaths = 0;
+            let eff = 0;
+            let bestOfType = 0;
+
+            if(this.state.mode === 1){
+
+                bestKills = data.best_combo_kills;
+                kills = data.combo_kills;
+                deaths = data.combo_deaths;
+                eff = data.combo_efficiency;
+                bestOfType =  data.best_single_combo;
+
+            }else if(this.state.mode === 2){
+
+                bestKills = data.best_ball_kills;
+                kills = data.ball_kills;
+                deaths = data.ball_deaths;
+                eff = data.ball_efficiency;
+                bestOfType = data.best_single_shockball;
+
+            }else if(this.state.mode === 4){
+
+                bestKills = data.best_insane_kills;
+                kills = data.insane_kills;
+                deaths = data.insane_deaths;
+                eff = data.insane_efficiency;
+                bestOfType = data.best_single_insane;
+            }
+
 
             return <tr key={`${this.state.mode}-${data.player_id}`}>
                 {playerElem}
@@ -459,7 +491,7 @@ class CombogibMatchStats extends React.Component{
                 <td>{Functions.ignore0(kills)}</td>
                 <td>{eff.toFixed(2)}%</td>
                 <td>{Functions.ignore0(bestKills)}</td>
-                <td>{this.getKillsString((this.state.mode === 1) ? data.best_single_combo : data.best_single_shockball)}</td>
+                <td>{this.getKillsString(bestOfType)}</td>
             </tr>
 
         }else{
@@ -522,6 +554,19 @@ class CombogibMatchStats extends React.Component{
                 t.mostKills = d.best_primary_kills;
             }
             
+        }else if(this.state.mode === 4){
+
+            t.kills += d.insane_kills;
+            t.deaths += d.insane_deaths;
+
+            if(d.best_insane_kills > t.mostKills){
+                t.mostKills = d.best_insane_kills;
+            }
+
+            if(d.best_single_insane > t.bestSingle){
+                t.bestSingle = d.best_single_insane;
+            }
+
         }
     }
 
@@ -536,11 +581,13 @@ class CombogibMatchStats extends React.Component{
             prefix = "ball";
         }else if(mode === 3){
             prefix = "primary";
+        }else if(mode === 4){
+            prefix = "insane";
         }
 
         let key = "";
 
-        if(sortType !== "best_single_combo" && sortType !== "best_single_shockball" && sortType !== "best_kills"){
+        if(sortType !== "best_single_combo" && sortType !== "best_single_shockball" && sortType !== "best_kills" && sortType !== "best_single_insane"){
 
             key = `${prefix}_${sortType}`;
 
@@ -565,7 +612,6 @@ class CombogibMatchStats extends React.Component{
 
             return 0;
         });
-
     }
 
     renderTypeStats(){
@@ -625,9 +671,7 @@ class CombogibMatchStats extends React.Component{
         if(this.state.bAllPlayers){
 
             return <div>
-                <div className={`${styles.imageb} t-width-1 center`}>
-                    <Image src={`/images/${image}`} alt="image" width={64} height={64}/>
-                </div>
+
                 <Table2 width={1} players={true}>
                     {titlesRow}
                     {rows}
@@ -652,9 +696,6 @@ class CombogibMatchStats extends React.Component{
 
 
             data.push(<div key={`team-${i}`}>
-                <div className={`${styles.imageb} t-width-1 center`}>
-                    <Image src={`/images/${image}`} alt="image" width={64} height={64}/>
-                </div>
                 <Table2 width={1} players={true}>
                     {titlesRow}
                     {teamRows[i]}
