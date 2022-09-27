@@ -773,8 +773,10 @@ class CombogibManager{
                         combos.efficiency = efficiency;
                     }else if(i === 1){
                          shockBalls.efficiency = efficiency;
-                    }else{
+                    }else if(i === 2){
                         primary.efficiency = efficiency;
+                    }else{
+                        insane.efficiency = efficiency;
                     }
                 }
 
