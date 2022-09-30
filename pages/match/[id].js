@@ -81,7 +81,8 @@ function createBasicPlayerData(players){
             "country": p.country,
             "team": p.team,
             "spectator": p.spectator,
-            "played": p.played
+            "played": p.played,
+            "playtime": p.playtime
         });
 
         justPlayerNames[players[i].player_id] = players[i].name;
@@ -100,7 +101,7 @@ function createBasicPlayersObject(data){
 
         const d = data[i];
 
-        players[d.id] = {"name": d.name, "country": d.country, "team": d.team};
+        players[d.id] = {"name": d.name, "country": d.country, "team": d.team, "playtime": d.playtime};
     }
 
     return players;
@@ -456,6 +457,14 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
         elems[pageOrder["Display Server Settings"]] = <MatchServerSettings key={"server-settings"} info={JSON.parse(info)}/>;
     }
+
+    if(pageSettings["Display Combogib Stats"] === "true"){
+
+        elems[pageOrder["Display Combogib Stats"]] = <CombogibMatchStats key={"combo-stats"} matchId={parsedInfo.id} 
+            players={basicPlayersObject} totalTeams={parsedInfo.total_teams}
+        />;
+
+    }
     
 
     const dateString = Functions.convertTimestamp(parsedInfo.date, true);
@@ -488,8 +497,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
                 <div className="default">
 
                         {titleElem}
-
-                        <CombogibMatchStats matchId={parsedInfo.id} players={basicPlayersObject} totalTeams={parsedInfo.total_teams}/>
                         
                         {elems}
     
