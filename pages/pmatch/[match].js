@@ -42,6 +42,8 @@ import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSu
 import PlayerMatchMonsters from  "../../components/PlayerMatchMonsters";
 import Analytics from "../../api/analytics";
 import MatchMonsterHuntMonsterKills from "../../components/MatchMonsterHuntMonsterKills";
+import CombogibPlayerMatch from "../../components/CombogibPlayerMatch";
+
 
 
 class PlayerMatch extends React.Component{
@@ -117,6 +119,8 @@ class PlayerMatch extends React.Component{
                         <div className="default-header">{titleName} Match Report</div>
 
                         <MatchPlayerViewProfile host={imageHost} data={playerData} matchId={parsedInfo.id}/>
+
+                        <CombogibPlayerMatch matchId={parsedInfo.id} playerId={playerData.player_id}/>
 
                         <MatchSummary 
                             info={this.props.info} 

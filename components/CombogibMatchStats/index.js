@@ -6,6 +6,7 @@ import ErrorMessage from "../ErrorMessage";
 import Functions from "../../api/functions";
 import Link from "next/link";
 import styles from "./CombogibMatchStats.module.css";
+import Loading from "../Loading";
 
 class CombogibMatchStats extends React.Component{
 
@@ -14,6 +15,7 @@ class CombogibMatchStats extends React.Component{
         super(props);
 
         this.state = {
+            "bLoading": true,
             "data": null, 
             "error": null, 
             "mode": 0, 
@@ -112,7 +114,7 @@ class CombogibMatchStats extends React.Component{
             this.setState({"error": res.error});
         }
 
-        this.setState({"bLoaded": true});
+        this.setState({"bLoading": false});
 
     }
 
@@ -626,8 +628,6 @@ class CombogibMatchStats extends React.Component{
             if(d.kpm.insane > t.bestKPM){
                 t.bestKPM = d.kpm.insane;
             }
-
-
         }
     }
 
@@ -802,6 +802,8 @@ class CombogibMatchStats extends React.Component{
         }
 
         if(this.state.data === null) return null;
+
+        if(this.state.bLoading) return <Loading />;
         
         return <div>
             <div className="default-header">Combogib Stats</div> 

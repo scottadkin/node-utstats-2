@@ -23,6 +23,17 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
 
             return;
+
+        }else if(mode === "pmatch"){
+
+            const matchId = req.body.matchId ?? -1;
+            const playerId = req.body.playerId ?? -1;
+
+            if(matchId === -1|| playerId === -1){
+                res.status(200).json({"error": "PlayerId and or matchId were not specified"});
+                return;
+            }
+
         }
 
     }catch(err){
