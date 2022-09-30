@@ -235,7 +235,8 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display CTF Caps","true",3)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display MonsterHunt Kills","true",6)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Items Summary","true",9)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Aliases","true",14)`
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Aliases","true",14)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Combogib Stats","true",45)`
     ];
 
     
