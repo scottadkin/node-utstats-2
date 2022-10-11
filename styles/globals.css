@@ -18,6 +18,8 @@
 	--color-hf:rgb(90,90,90);
 	--color-7:rgb(160,160,160);
 	--color-8:rgb(19,19,19);
+	--color-9:rgb(28,28,28);
+	--color-10:rgb(38,38,38);
 	--lg-hf:linear-gradient(to bottom, rgb(0,0,0), rgb(22,22,22));
 	--border-color-1:rgba(255,255,255,0.25);
 	--border-color-2:rgba(255,255,255,0.125);
@@ -218,11 +220,11 @@ tr{
 }
 
 tr:nth-child(odd){
-	background-color:var(--color-1a);
+	background-color:var(--color-10);
 }
 
 tr:nth-child(even){
-	background-color:var(--color-2a);
+	background-color:var(--color-9);
 }
 
 tr:nth-child(odd):hover, tr:nth-child(even):hover{

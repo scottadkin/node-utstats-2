@@ -441,7 +441,7 @@ class CombogibMatchStats extends React.Component{
                 {bestElem}
                 <th className="pointer" onClick={(() =>{
                     this.changeStatsSortBy("kpm");
-                })}>Most Per Minute</th>
+                })}>Kills Per Minute</th>
                 
             </tr>
 
@@ -463,7 +463,7 @@ class CombogibMatchStats extends React.Component{
                 })}>Most Kills in 1 Life</th>
                 <th className="pointer" onClick={(() =>{
                     this.changeStatsSortBy("kpm");
-                })}>Most Per Minute</th>
+                })}>Kills Per Minute</th>
             </tr>
 
         }

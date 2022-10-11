@@ -34,6 +34,10 @@ export default async function handler(req, res){
                 return;
             }
 
+            const data = await combo.getPlayerMatchData(playerId, matchId);
+
+            res.status(200).json({"data": data});
+            return;
         }
 
     }catch(err){
