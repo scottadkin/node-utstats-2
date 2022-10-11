@@ -221,7 +221,7 @@ class Functions{
             return input;
         }
 
-        return '';
+        return "";
     }
 
 
@@ -671,6 +671,17 @@ class Functions{
         if(id === 1) return "Blue";
         if(id === 2) return "Green";
         if(id === 3) return "Yellow";
+    }
+
+
+    static plural(value, word){
+
+        if(value == "") return "";
+
+        if(value === 1) return word;
+
+        return `${word}s`;
+
     }
 }
 

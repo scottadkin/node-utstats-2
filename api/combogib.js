@@ -49,10 +49,10 @@ class Combogib{
     async getPlayerMatchData(playerId, matchId){
         
         const query = `SELECT 
-        ball_deaths,ball_efficiency,ball_kills,best_ball_kills,best_combo_kills,best_primary_kills,
-        best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,
-        player_id,primary_deaths,primary_efficiency,primary_kills,insane_kills,
-        insane_deaths,insane_efficiency,best_insane_kills,best_single_insane
+        ball_deaths,ball_efficiency,ball_kpm,ball_kills,best_ball_kills,best_combo_kills,best_primary_kills,
+        best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,combo_kpm,
+        player_id,primary_deaths,primary_efficiency,primary_kills,primary_kpm,insane_kills,
+        insane_deaths,insane_efficiency,insane_kpm,best_insane_kills,best_single_insane
         FROM nstats_match_combogib WHERE match_id=? AND player_id=?`;
 
         const result = await mysql.simpleQuery(query, [matchId, playerId]);

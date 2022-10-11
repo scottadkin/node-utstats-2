@@ -106,12 +106,12 @@ footer{
 
 .default-header{
 	text-align:center;
-	font-size:20px;
+	font-size:18px;
 	color:white;
 	font-weight:bold;
 	padding-bottom:18px;
 	padding-top:18px;
-	background-color:var(--color-1);
+	background-color:var(--color-8);
 	margin-left:auto;
 	margin-right:auto;
 	margin-bottom:35px;
@@ -123,14 +123,13 @@ footer{
 	font-size:16px;
 	color:white;
 	font-weight:bold;
-	padding-bottom:15px;
-	padding-top:15px;
+	padding-bottom:12px;
+	padding-top:12px;
 	width:var(--width-1);
 	max-width:var(--max-width-1);
 	margin-left:auto;
 	margin-right:auto;
-	background-color:var(--color-3);
-	background:linear-gradient(to bottom, var(--color-1a), var(--color-3a));
+	background-color:var(--color-8);
 }
 
 .default-sub-header-alt{

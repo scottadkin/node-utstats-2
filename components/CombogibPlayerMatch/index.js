@@ -3,6 +3,7 @@ import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
 import Table2 from "../Table2";
 import Image from "next/image";
+import Functions from "../../api/functions";
 
 class CombogibPlayerMatch extends React.Component{
 
@@ -29,8 +30,6 @@ class CombogibPlayerMatch extends React.Component{
         });
 
         const res = await req.json();
-
-        console.log(res.data);
 
         if(res.error !== undefined){
             this.setState({"error": res.error});
@@ -83,16 +82,125 @@ class CombogibPlayerMatch extends React.Component{
 
     renderComboStats(){
 
-        return <Table2 width={1}>
-            <tr>
-                <th>Kills</th>
-                <th>Deaths</th>
-                <th>Efficiency</th>
-                <th>Best Single Combo</th>
-                <th>Most Kills In 1 Life</th>
-                <th>Kills Per Minute</th>
-            </tr>
-        </Table2>
+        if(this.state.mode !== 1 && this.state.mode !== 5) return null;
+
+        const d = this.state.data;
+
+        const titles = ["Kills", "Deaths", "Efficiency", "Best Single Combo", "Most Kills In 1 Life", "Kills Per Minutes"];
+
+        const bestKill = Functions.ignore0(d.best_single_combo);
+
+        const data = [
+            Functions.ignore0(d.combo_kills),
+            Functions.ignore0(d.combo_deaths),
+            `${d.combo_efficiency.toFixed(2)}%`,
+            `${bestKill} ${Functions.plural(bestKill, "kill")}`,
+            Functions.ignore0(d.best_combo_kills),
+            d.combo_kpm.toFixed(2)
+        ];
+
+        return this.renderBasicTable(titles, data, "Combo Stats");
+    }
+
+    renderInsaneComboStats(){
+
+        if(this.state.mode !== 2 && this.state.mode !== 5) return null;
+
+        const d = this.state.data;
+
+        const titles = ["Kills", "Deaths", "Efficiency", "Best Single Insane Combo", "Most Kills In 1 Life", "Kills Per Minutes"];
+
+        const bestKill = Functions.ignore0(d.best_single_insane);
+
+        const data = [
+            Functions.ignore0(d.insane_kills),
+            Functions.ignore0(d.insane_deaths),
+            `${d.insane_efficiency.toFixed(2)}%`,
+            `${bestKill} ${Functions.plural(bestKill, "kill")}`,
+            Functions.ignore0(d.best_insane_kills),
+            d.insane_kpm.toFixed(2)
+        ];
+
+        return this.renderBasicTable(titles, data, "Insane Combo Stats");
+
+    }
+
+    renderShockballStats(){
+
+        if(this.state.mode !== 3 && this.state.mode !== 5) return null;
+
+        const d = this.state.data;
+
+        const titles = ["Kills", "Deaths", "Efficiency", "Best Single Shockball", "Most Kills In 1 Life", "Kills Per Minutes"];
+
+        const bestKill = Functions.ignore0(d.best_single_shockball);
+
+        const data = [
+            Functions.ignore0(d.ball_kills),
+            Functions.ignore0(d.ball_deaths),
+            `${d.ball_efficiency.toFixed(2)}%`,
+            `${bestKill} ${Functions.plural(bestKill, "kill")}`,
+            Functions.ignore0(d.best_ball_kills),
+            d.ball_kpm.toFixed(2)
+        ];
+
+        return this.renderBasicTable(titles, data, "ShockBall Stats");
+
+    }
+
+    renderPrimaryStats(){
+
+        if(this.state.mode !== 4 && this.state.mode !== 5) return null;
+
+        const d = this.state.data;
+
+        const titles = ["Kills", "Deaths", "Efficiency", "Most Kills In 1 Life", "Kills Per Minutes"];
+
+        const data = [
+            Functions.ignore0(d.primary_kills),
+            Functions.ignore0(d.primary_deaths),
+            `${d.primary_efficiency.toFixed(2)}%`,
+            Functions.ignore0(d.best_primary_kills),
+            d.primary_kpm.toFixed(2)
+        ];
+
+        return this.renderBasicTable(titles, data, "Instagib Stats");
+
+    }
+
+    renderBasicTable(titles, data, subTitle){
+
+        const titleElems = [];
+        const dataElems = [];
+
+        for(let i = 0; i < titles.length; i++){
+
+            titleElems.push(<th key={i}>{titles[i]}</th>);
+            dataElems.push(<td key={i}>{data[i]}</td>);
+        }
+
+        if(this.state.mode === 5){
+            return <div>
+                <div className="default-sub-header">{subTitle}</div>
+                <Table2 width={1}>
+                    <tr>
+                        {titleElems}
+                    </tr>
+                    <tr>
+                        {dataElems}
+                    </tr>
+                </Table2>
+            </div>;
+        }else{
+            return <Table2 width={1}>
+                <tr>
+                    {titleElems}
+                </tr>
+                <tr>
+                    {dataElems}
+                </tr>
+            </Table2>;
+        }
     }
 
     render(){
@@ -119,9 +227,15 @@ class CombogibPlayerMatch extends React.Component{
                 <div className={`tab ${(this.state.mode === 4) ? "tab-selected" : "" }`} onClick={(() =>{
                     this.changeMode(4);
                 })}>Instagib Kills</div>
+                <div className={`tab ${(this.state.mode === 5) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeMode(5);
+                })}>Display All</div>
             </div>
             {this.renderGeneral()}
             {this.renderComboStats()}
+            {this.renderInsaneComboStats()}
+            {this.renderShockballStats()}
+            {this.renderPrimaryStats()}
         </div>
     }
 }
