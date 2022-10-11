@@ -720,7 +720,8 @@ class CombogibManager{
                     "deaths": player.deaths.combo,
                     "efficiency": 0,
                     "best": player.bestComboKillsSingleLife,
-                    "bestSingle": player.bestKillsSingleCombo
+                    "bestSingle": player.bestKillsSingleCombo,
+                    "kpm": 0
                 };
 
                 const shockBalls = {
@@ -728,7 +729,8 @@ class CombogibManager{
                     "deaths": player.deaths.shockBall,
                     "efficiency": 0,
                     "best": player.bestShockBallKillsLife,
-                    "bestSingle": player.bestSingleShockBall
+                    "bestSingle": player.bestSingleShockBall,
+                    "kpm": 0
                 };
 
 
@@ -736,7 +738,8 @@ class CombogibManager{
                     "kills": player.kills.primary,
                     "deaths": player.deaths.primary,
                     "efficiency": 0,
-                    "best": player.bestPrimaryKillsLife
+                    "best": player.bestPrimaryKillsLife,
+                    "kpm": 0
                 };
 
                 const insane = {
@@ -744,7 +747,8 @@ class CombogibManager{
                     "deaths": player.deaths.insane,
                     "efficiency": 0,
                     "best": player.bestInsaneKillsSingleLife,
-                    "bestSingle": player.singleInsaneCombo
+                    "bestSingle": player.singleInsaneCombo,
+                    "kpm": 0
                 };
 
                 const killTypes = ["combo", "shockBall", "primary", "insane"];
@@ -777,6 +781,30 @@ class CombogibManager{
                         primary.efficiency = efficiency;
                     }else{
                         insane.efficiency = efficiency;
+                    }
+                }
+
+                const playtime = this.playerManager.getPlayerPlaytime(player.player);
+
+                if(playtime !== null){
+
+                    if(playtime !== 0){
+
+                        const minutes = playtime / 60;
+
+                        if(combos.kills > 0){
+                            combos.kpm = combos.kills / minutes;
+                        }
+                        if(insane.kills > 0){
+                            insane.kpm = insane.kills / minutes;
+                        }
+                        if(primary.kills > 0){
+                            primary.kpm = primary.kills / minutes;
+                        }
+                        if(shockBalls.kills > 0){
+                            shockBalls.kpm = shockBalls.kills / minutes;
+                        }
+
                     }
                 }
 

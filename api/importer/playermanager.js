@@ -1724,6 +1724,20 @@ class PlayerManager{
 
         return false;
     }
+
+    getPlayerPlaytime(masterId){
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            if(p.masterId === masterId){
+                return p.stats.time_on_server;
+            }
+        }
+
+        return null;
+    }
 }
 
 module.exports = PlayerManager;

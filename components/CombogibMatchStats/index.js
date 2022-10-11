@@ -68,32 +68,6 @@ class CombogibMatchStats extends React.Component{
         this.setState({"sortType": sortType, "bAscendingOrder": false});
     }
 
-    createKillsPerMinute(data){
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            d.kpm = {
-                "primary": 0,
-                "ball": 0,
-                "combo": 0,
-                "insane": 0
-            };
-
-            const player = this.getPlayer(d.player_id);
-
-            const minutes = player.playtime / 60;
-
-            if(d.primary_kills > 0) d.kpm.primary = d.primary_kills / minutes;
-            if(d.ball_kills > 0) d.kpm.ball = d.ball_kills / minutes;
-            if(d.combo_kills > 0) d.kpm.combo = d.combo_kills / minutes;
-            if(d.insane_kills > 0) d.kpm.insane = d.insane_kills / minutes;
-            
-        }
-
-        return data;
-    }
 
     async loadData(){
 
@@ -107,9 +81,7 @@ class CombogibMatchStats extends React.Component{
 
         if(res.error === undefined){
 
-            const finalData = this.createKillsPerMinute(res.data);
-
-            this.setState({"data": finalData});
+            this.setState({"data": res.data});
         }else{
             this.setState({"error": res.error});
         }
@@ -505,7 +477,7 @@ class CombogibMatchStats extends React.Component{
                 deaths = data.combo_deaths;
                 eff = data.combo_efficiency;
                 bestOfType =  data.best_single_combo;
-                fpm = data.kpm.combo;
+                fpm = data.combo_kpm;
 
             }else if(this.state.mode === 2){
 
@@ -514,7 +486,7 @@ class CombogibMatchStats extends React.Component{
                 deaths = data.ball_deaths;
                 eff = data.ball_efficiency;
                 bestOfType = data.best_single_shockball;
-                fpm = data.kpm.ball;
+                fpm = data.ball_kpm;
 
             }else if(this.state.mode === 4){
 
@@ -523,7 +495,7 @@ class CombogibMatchStats extends React.Component{
                 deaths = data.insane_deaths;
                 eff = data.insane_efficiency;
                 bestOfType = data.best_single_insane;
-                fpm = data.kpm.insane;
+                fpm = data.insane_kpm;
             }
 
 
@@ -542,7 +514,7 @@ class CombogibMatchStats extends React.Component{
             let kills =  data.primary_kills;
             let deaths = data.primary_deaths;
             let best =  data.best_primary_kills;
-            let fpm = data.kpm.primary;
+            let fpm = data.primary_kpm;
 
             const eff = data.primary_efficiency;
 
@@ -577,8 +549,8 @@ class CombogibMatchStats extends React.Component{
                 t.bestSingle = d.best_single_combo;
             }
 
-            if(d.kpm.combo > t.bestKPM){
-                t.bestKPM = d.kpm.combo;
+            if(d.combo_kpm > t.bestKPM){
+                t.bestKPM = d.combo_kpm;
             }
 
         }else if(this.state.mode === 2){
@@ -594,8 +566,8 @@ class CombogibMatchStats extends React.Component{
                 t.bestSingle = d.best_single_shockball;
             }
 
-            if(d.kpm.ball > t.bestKPM){
-                t.bestKPM = d.kpm.ball;
+            if(d.ball_kpm > t.bestKPM){
+                t.bestKPM = d.ball_kpm;
             }
 
         }else if(this.state.mode === 3){
@@ -607,8 +579,8 @@ class CombogibMatchStats extends React.Component{
                 t.mostKills = d.best_primary_kills;
             }
 
-            if(d.kpm.primary > t.bestKPM){
-                t.bestKPM = d.kpm.primary;
+            if(d.primary_kpm > t.bestKPM){
+                t.bestKPM = d.primary_kpm;
             }
 
             
@@ -625,8 +597,8 @@ class CombogibMatchStats extends React.Component{
                 t.bestSingle = d.best_single_insane;
             }
 
-            if(d.kpm.insane > t.bestKPM){
-                t.bestKPM = d.kpm.insane;
+            if(d.insane_kpm > t.bestKPM){
+                t.bestKPM = d.insane_kpm;
             }
         }
     }
@@ -648,30 +620,24 @@ class CombogibMatchStats extends React.Component{
 
         let key = "";
 
-        if(sortType !== "kpm"){
+        if(sortType !== "best_single_combo" && sortType !== "best_single_shockball" && sortType !== "best_kills" && sortType !== "best_single_insane"){
 
-            if(sortType !== "best_single_combo" && sortType !== "best_single_shockball" && sortType !== "best_kills" && sortType !== "best_single_insane"){
+            key = `${prefix}_${sortType}`;
 
-                key = `${prefix}_${sortType}`;
-
-            }else if(sortType === "best_kills"){
-                
-                key = `best_${prefix}_kills`;
-                
-            }else{
-                key = sortType;
-            }
+        }else if(sortType === "best_kills"){
+            
+            key = `best_${prefix}_kills`;
+            
+        }else{
+            key = sortType;
         }
+   
 
         data.sort((a, b) =>{
 
-            if(sortType !== "kpm"){
-                a = a[key];
-                b = b[key];
-            }else{
-                a = a.kpm[prefix];
-                b = b.kpm[prefix];
-            }
+            a = a[key];
+            b = b[key];
+      
 
             if(a < b){
                 return (!this.state.bAscendingOrder) ? -1 : 1;

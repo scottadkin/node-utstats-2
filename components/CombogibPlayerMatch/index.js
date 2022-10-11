@@ -11,6 +11,13 @@ class CombogibPlayerMatch extends React.Component{
         super(props);
 
         this.state = {"error": null, "bLoading": true, "mode": 0};
+
+        this.changeMode = this.changeMode.bind(this);
+    }
+
+    changeMode(id){
+
+        this.setState({"mode": id});
     }
 
     async loadData(){
@@ -42,6 +49,8 @@ class CombogibPlayerMatch extends React.Component{
 
     renderGeneral(){
 
+        if(this.state.mode !== 0) return null;
+
         const d = this.state.data;
 
         return <Table2 width={4}>
@@ -72,6 +81,20 @@ class CombogibPlayerMatch extends React.Component{
         </Table2>
     }
 
+    renderComboStats(){
+
+        return <Table2 width={1}>
+            <tr>
+                <th>Kills</th>
+                <th>Deaths</th>
+                <th>Efficiency</th>
+                <th>Best Single Combo</th>
+                <th>Most Kills In 1 Life</th>
+                <th>Kills Per Minute</th>
+            </tr>
+        </Table2>
+    }
+
     render(){
 
         if(this.state.error !== null) return <ErrorMessage title="Combogib Stats" text={this.state.error}/>;
@@ -81,13 +104,24 @@ class CombogibPlayerMatch extends React.Component{
         return <div>
             <div className="default-header">Combogib Stats</div>
             <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "" }`}>General Stats</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "" }`}>Combo Stats</div>
-                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : "" }`}>Insane Combo Stats</div>
-                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : "" }`}>Shockball Kills</div>
-                <div className={`tab ${(this.state.mode === 4) ? "tab-selected" : "" }`}>Instagib Kills</div>
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>General Stats</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Combo Stats</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeMode(2);
+                })}>Insane Combo Stats</div>
+                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeMode(3);
+                })}>Shockball Kills</div>
+                <div className={`tab ${(this.state.mode === 4) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeMode(4);
+                })}>Instagib Kills</div>
             </div>
             {this.renderGeneral()}
+            {this.renderComboStats()}
         </div>
     }
 }
