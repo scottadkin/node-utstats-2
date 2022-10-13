@@ -81,7 +81,13 @@ class CombogibMatchStats extends React.Component{
 
         if(res.error === undefined){
 
-            this.setState({"data": res.data});
+            let data = res.data;
+
+            if(data.length === 0){
+                data = null;
+            }
+
+            this.setState({"data": data});
         }else{
             this.setState({"error": res.error});
         }
@@ -766,6 +772,7 @@ class CombogibMatchStats extends React.Component{
 
             return <ErrorMessage title="Combogib Stats" text={this.state.error}/>
         }
+
 
         if(this.state.data === null) return null;
 

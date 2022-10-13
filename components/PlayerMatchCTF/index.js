@@ -122,7 +122,6 @@ class PlayerMatchCTF extends React.Component{
     }
 
     render(){
-        //players={playerData} caps={ctfCaps} matchStart={parsedInfo.start} matchId={parsedInfo.id}
         return <div>
             <div className="default-header">Capture The Flag Summary</div>
             {this.renderGeneral()}
