@@ -226,7 +226,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 
 	}
 
-	//<GeneralStatistics totalMatches={totalMatches} firstMatch={firstMatch} lastMatch={lastMatch} totalPlayers={totalPlayers}/>
 	return (
 		<div>
 		<DefaultHead host={host} title={"Home"} description="Welcome to Node UTStats 2, view various stats for players,matches,maps,records and more!" keywords="home,welcome"/>
@@ -318,7 +317,7 @@ export async function getServerSideProps({req, query}) {
 	let justMapNames = [];
 
 	for(const [ket, value] of Object.entries(mapNames)){
-		justMapNames.push(Functions.removeUnr(Functions.removeMapGametypePrefix(value)));
+		justMapNames.push(Functions.removeUnr(value));
 	}
 
 	const mapImages = await mapManager.getImages(justMapNames);

@@ -285,7 +285,6 @@ class Maps{
 
     async getImage(name){
 
-        //name = this.removePrefix(name);
         name = Functions.cleanMapName(name);
         name = name.toLowerCase()+'.jpg';
 
@@ -300,7 +299,7 @@ class Maps{
 
     async getImages(names){
 
-        const files = fs.readdirSync('public/images/maps/thumbs/');
+        const files = fs.readdirSync('public/images/maps/');
 
         const exists = [];
 

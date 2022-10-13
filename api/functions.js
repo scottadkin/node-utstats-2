@@ -145,7 +145,7 @@ class Functions{
 
     static removeMapGametypePrefix(name){
 
-        const reg = /^.+?-(.+)$/i;
+        const reg = /^.*?-(.+)$/i;
 
         const result = reg.exec(name);
 

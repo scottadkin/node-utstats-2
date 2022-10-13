@@ -20,7 +20,7 @@ class MapDefaultBox extends React.Component{
         
 
         if(index !== -1){
-            return `/images/maps/thumbs/${images[index]}.jpg`;
+            return `/images/maps/${images[index]}.jpg`;
         }
 
         return `/images/defaultmap.jpg`;
