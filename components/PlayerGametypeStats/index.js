@@ -81,7 +81,7 @@ class PlayerGametypeStats extends React.Component{
                 if(d.wins > 0){
 
                     if(d.losses + d.draws === 0){
-                        winrate = 1;
+                        winrate = 100;
                     }else{
 
                         winrate = ((d.wins / d.matches) * 100).toFixed(2);

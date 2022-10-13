@@ -8,7 +8,22 @@ class PlayerMonsterHuntStats extends React.Component{
         super(props);
     }
 
+    bAnyData(){
+
+        const p = this.props;
+
+
+        if(p.kills > 0 || p.bestKillsLife > 0 || p.bestKills > 0 || p.totalDeaths > 0 || p.mostDeaths > 0){
+            return true;
+        }
+
+        return false;
+    }
+
     render(){
+
+        if(!this.bAnyData()) return null;
+
 
         let kdRatio = 0;
 

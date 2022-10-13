@@ -31,7 +31,9 @@ class PlayerMonsters extends React.Component{
 
             if(res.error === undefined){
 
-                this.setState({"data": res});
+                if(res.totals.length !== 0){
+                    this.setState({"data": res});
+                }
 
             }else{
 
@@ -128,6 +130,9 @@ class PlayerMonsters extends React.Component{
                 elems.push(
                     <div key="mw" className={styles.monsters}>{monsterElems}</div>);
 
+            }else{
+
+                return null;
             }
 
         }

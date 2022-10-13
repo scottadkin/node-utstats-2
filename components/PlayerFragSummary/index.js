@@ -56,6 +56,15 @@ class PlayerFragSummary extends React.Component{
 
     displayExtended(){
 
+        let spawnKillSpreeString = "";
+
+        if(this.props.spawnKillSpree !== 0){
+
+            const killText = Functions.plural(this.props.spawnKillSpree,"Kill");
+
+            spawnKillSpreeString = `${Functions.ignore0(this.props.spawnKillSpree)} ${killText}`;
+        }
+
         return <Table2 width={1}>
             <tr>
                 <th>Headshots</th>
@@ -68,7 +77,7 @@ class PlayerFragSummary extends React.Component{
             <tr>
                 <td>{Functions.ignore0(this.props.headshots)}</td>
                 <td>{Functions.ignore0(this.props.spawnKills)}</td>
-                <td>{Functions.ignore0(this.props.spawnKillSpree)} Kills</td>
+                <td>{spawnKillSpreeString}</td>
                 <td>{Functions.ignore0(this.props.close)}</td>
                 <td>{Functions.ignore0(this.props.long)}</td>
                 <td>{Functions.ignore0(this.props.uber)}</td>
