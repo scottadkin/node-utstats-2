@@ -1,0 +1,19 @@
+.wrapper{
+    position:absolute;
+    background-color:var(--color-3);
+    min-width:150px;
+    padding:5px;
+    max-width:250px;
+    margin-top:10px;
+    font-weight:400;
+    font-size:14px;
+    border:1px solid var(--border-color-3);
+}
+
+.title{
+    padding:5px;
+}
+
+.content{  
+    color:white;
+}

@@ -1,36 +1,42 @@
-const showTipBox = (title, content, event) =>{
+import React from "react";
+import styles from "./TipHeader.module.css";
 
-    //console.log(event);
 
-    const elem = document.getElementById("mouse-over");
-    const titleElem = document.getElementById("mouse-over-title");
-    const contentElem = document.getElementById("mouse-over-content");
+class TipHeader extends React.Component{
 
-    titleElem.innerHTML = title;
-    contentElem.innerHTML = content;
-    elem.style.cssText = `display:block;position:fixed;margin-top:${event.pageY + 25}px;margin-left:${event.pageX + 10}px;`;
+    constructor(props){
 
-}
+        super(props);
 
-const hideTipBox = () =>{
+        this.state = {"display": false};
+    }
 
-    const elem = document.getElementById("mouse-over");
-    elem.style.cssText = "display:none;";
-}
+    changeDisplay(bDisplay){
 
-const TipHeader = ({title, content}) =>{
+        this.setState({"display": bDisplay});
+    }
 
-    return (
-    <th
-    onMouseMove={((event) =>{
-        showTipBox(title, content, event)
-    })}
-    onMouseOut={((event) =>{
-        hideTipBox(title, content, event)
-    })}
-    >
-        {title}
-    </th>);
+    renderMouseOver(){
+
+        if(!this.state.display) return null;
+
+        return <div className={styles.wrapper}>
+            <div className={styles.title}>{this.props.title}</div>
+            <div className={styles.content}>{this.props.content}</div>
+        </div>
+    }
+
+    render(){
+
+        return <th onMouseOver={(() =>{
+            this.changeDisplay(true);
+        })} onMouseOut={(() =>{
+            this.changeDisplay(false);
+        })}>
+            {this.props.title}
+            {this.renderMouseOver()}
+        </th>;
+    }
 }
 
 

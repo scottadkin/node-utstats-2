@@ -120,7 +120,6 @@ class PlayerMatch extends React.Component{
 
                         <MatchPlayerViewProfile host={imageHost} data={playerData} matchId={parsedInfo.id}/>
 
-                        <CombogibPlayerMatch matchId={parsedInfo.id} playerId={playerData.player_id}/>
 
                         <MatchSummary 
                             info={this.props.info} 
@@ -171,6 +170,8 @@ class PlayerMatch extends React.Component{
                         <PlayerMatchDomination pointNames={domPointNames} data={playerDomCaps}/>
 
                         <PlayerMatchAssault pointNames={JSON.parse(this.props.assaultObjNames)} caps={JSON.parse(this.props.playerAssaultCaps)}/>
+
+                        <CombogibPlayerMatch matchId={parsedInfo.id} playerId={playerData.player_id}/>
 
                         <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
 

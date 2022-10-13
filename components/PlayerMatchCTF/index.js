@@ -95,7 +95,7 @@ class PlayerMatchCTF extends React.Component{
         }
 
         return <div className="m-bottom-25">
-            <Table2 width={1} players={1}>
+            <Table2 width={1}>
                     <tr>
                         <TipHeader title="Cover" content="Covered the Flag Carrier"/>
                         <TipHeader title="Cover Pass" content="Covered the flag carrier with the flag later being capped."/>
