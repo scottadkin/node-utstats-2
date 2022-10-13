@@ -6,10 +6,10 @@ class Combogib{
 
     }
 
-    async insertPlayerMatchData(playerId, matchId, mapId, combos, shockBalls, primary, insane){
+    async insertPlayerMatchData(playerId, matchId, mapId, playtime, combos, shockBalls, primary, insane){
 
         const query = `INSERT INTO nstats_match_combogib VALUES(
-            NULL,?,?,?,
+            NULL,?,?,?,?,
             ?,?,?,?,
             ?,?,?,?,
             ?,?,?,?,
@@ -17,7 +17,7 @@ class Combogib{
             ?,?,?,
             ?,?,?,?)`;
 
-        const vars = [playerId, matchId, mapId,
+        const vars = [playerId, matchId, mapId, playtime,
             primary.kills, primary.deaths, primary.efficiency, primary.kpm,
             shockBalls.kills, shockBalls.deaths, shockBalls.efficiency, shockBalls.kpm,
             combos.kills, combos.deaths, combos.efficiency, combos.kpm,

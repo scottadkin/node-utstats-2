@@ -808,7 +808,7 @@ class CombogibManager{
                     }
                 }
 
-                await this.combogib.insertPlayerMatchData(player.player, this.matchId, this.mapId, combos, shockBalls, primary, insane);
+                await this.combogib.insertPlayerMatchData(player.player, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
             }
 
         }catch(err){

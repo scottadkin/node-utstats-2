@@ -861,6 +861,7 @@ const queries = [
               player_id int(11) NOT NULL,
               match_id int(11) NOT NULL,
               map_id int(11) NOT NULL,
+              playtime float NOT NULL,
               primary_kills int(11) NOT NULL,
               primary_deaths int(11) NOT NULL,
               primary_efficiency float NOT NULL,
