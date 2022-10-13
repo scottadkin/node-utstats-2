@@ -3,6 +3,7 @@ import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import Table2 from "../Table2";
 import Functions from "../../api/functions";
+import TablePagination from "../TablePagination";
 
 class CombogibMapRecords extends React.Component{
 
@@ -12,10 +13,11 @@ class CombogibMapRecords extends React.Component{
 
         this.state = {
             "data": null, 
+            "totalResults": 0,
             "error": null, 
             "loaded": false, 
             "page": 0, 
-            "perPage": 5
+            "perPage": 10
         };
 
         this.nextPage = this.nextPage.bind(this);
@@ -61,7 +63,7 @@ class CombogibMapRecords extends React.Component{
             this.setState({"error": res.error});
         }else{
 
-            this.setState({"data": res.data});
+            this.setState({"data": res.data, "totalResults": res.totalResults});
         }
 
         
@@ -94,7 +96,7 @@ class CombogibMapRecords extends React.Component{
         }
 
         return <div>
-            <div className="default-sub-header">Fart</div>
+            <div className="default-sub-header">Combo Records Title</div>
             <Table2 width={4}>
                 <tr>
                     <th>Player</th>
@@ -103,8 +105,10 @@ class CombogibMapRecords extends React.Component{
                 </tr>
                 {rows}
             </Table2>
-            <span onClick={this.previousPage}>PREVIOUS</span>
-            <span onClick={this.nextPage}>NEXT</span>
+            <TablePagination previous={this.previousPage} next={this.nextPage} width={4} page={this.state.page + 1}
+                perPage={this.state.perPage} totalResults={this.state.totalResults}    
+            />
+       
         </div>
         
     }

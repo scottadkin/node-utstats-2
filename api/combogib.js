@@ -71,7 +71,17 @@ class Combogib{
 
         console.log(await mysql.simpleQuery(query, [mapId, limit]));
     }
+    
 
+    bValidRecordType(recordType){
+
+        const validRecordTypes = ["combo_kills","insane_kills","ball_kills","primary_kills"];
+        const typeIndex = validRecordTypes.indexOf(recordType);
+
+        if(typeIndex === -1) return false;
+
+        return true;
+    }
 
     async getMapRecords(mapId, recordType, page, perPage){
 
@@ -81,17 +91,36 @@ class Combogib{
             start = page * perPage;
         }
 
-        const validRecordTypes = ["combo_kills","insane_kills","ball_kills","primary_kills"];
-        const typeIndex = validRecordTypes.indexOf(recordType);
+        if(this.bValidRecordType(recordType)){
 
-        if(typeIndex === -1) return null;
+            const query = `SELECT player_id,match_id,MAX(${recordType}) as best_value FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?
+            GROUP BY player_id ORDER BY ${recordType} DESC LIMIT ?,?`;
 
-        const column = validRecordTypes[typeIndex];
+            return await mysql.simpleQuery(query, [mapId, start, perPage]);
 
-        const query = `SELECT player_id,match_id,MAX(${column}) as best_value FROM nstats_match_combogib WHERE ${column}>0 AND map_id=?
-        GROUP BY player_id ORDER BY ${column} DESC LIMIT ?,?`;
+        }else{
 
-        return await mysql.simpleQuery(query, [mapId, start, perPage]);
+            throw new Error(`${recordType} is not a valid record type.`);
+        }
+
+
+    }
+
+    async getTotalMapRecords(mapId, recordType){
+
+        if(this.bValidRecordType(recordType)){
+
+            const query = `SELECT COUNT(DISTINCT player_id) as unique_players FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?`;
+
+            const result = await mysql.simpleQuery(query, [mapId]);
+
+            if(result.length > 0){
+                return result[0].unique_players;
+            }
+
+        }else{
+            throw new Error(`${recordType} is not a valid record type.`);
+        }
 
     }
 }
