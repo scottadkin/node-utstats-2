@@ -38,6 +38,21 @@ export default async function handler(req, res){
 
             res.status(200).json({"data": data});
             return;
+
+        }else if(mode === "maprecord"){
+
+            const mapId = req.body.mapId ?? -1;
+            const page = req.body.page ?? 0;
+            const perPage = req.body.perPage ?? 5;
+
+            const data = await combo.getMapRecords(mapId, "combo_kills", page, perPage);
+            //const data2 = await combo.getMapRecords(mapId, "combo_kills", 1, 5);
+
+            console.log(data);
+            //console.log(data2);
+
+            res.status(200).json({"data": data});
+            return;
         }
 
     }catch(err){

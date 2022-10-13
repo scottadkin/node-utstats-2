@@ -22,6 +22,7 @@ import SiteSettings from '../../api/sitesettings';
 import Analytics from '../../api/analytics';
 import MapCTFCaps from '../../components/MapCTFCaps';
 import MapSummary from '../../components/MapSummary';
+import CombogibMapRecords from '../../components/CombogibMapRecords';
 
 
 const PlayedGraph = ({dates}) =>{
@@ -78,6 +79,8 @@ class Map extends React.Component{
         const pageSettings = JSON.parse(this.props.pageSettings);
 
         const elems = [];
+
+
 
         if(pageSettings["Display Summary"] === "true"){
 
@@ -186,6 +189,7 @@ class Map extends React.Component{
                         {Functions.removeUnr(basic.name)}
                     </div>
     
+                    <CombogibMapRecords mapId={basic.id}/>
                     {elems}
 
                 </div>

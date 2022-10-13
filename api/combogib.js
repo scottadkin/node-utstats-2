@@ -63,6 +63,37 @@ class Combogib{
 
         return null;
     }
+
+
+    async getMapMostCombos(mapId, limit){
+
+        const query = "SELECT player_id,match_id,MAX(combo_kills) as combo_kills FROM nstats_match_combogib WHERE map_id=? AND combo_kills>0 GROUP BY player_id ORDER BY combo_kills DESC LIMIT ?";
+
+        console.log(await mysql.simpleQuery(query, [mapId, limit]));
+    }
+
+
+    async getMapRecords(mapId, recordType, page, perPage){
+
+        let start = 0;
+
+        if(page > 0 && perPage > 0){
+            start = page * perPage;
+        }
+
+        const validRecordTypes = ["combo_kills","insane_kills","ball_kills","primary_kills"];
+        const typeIndex = validRecordTypes.indexOf(recordType);
+
+        if(typeIndex === -1) return null;
+
+        const column = validRecordTypes[typeIndex];
+
+        const query = `SELECT player_id,match_id,MAX(${column}) as best_value FROM nstats_match_combogib WHERE ${column}>0 AND map_id=?
+        GROUP BY player_id ORDER BY ${column} DESC LIMIT ?,?`;
+
+        return await mysql.simpleQuery(query, [mapId, start, perPage]);
+
+    }
 }
 
 module.exports = Combogib;
