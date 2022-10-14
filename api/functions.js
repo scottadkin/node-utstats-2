@@ -35,12 +35,25 @@ class Functions{
     }
     
 
-    static getPlayer = (players, id) =>{
+    static getPlayer = (players, id, bObject) =>{
 
-        for(let i = 0; i < players.length; i++){
-    
-            if(players[i].id === id){
-                return players[i];
+        bObject = bObject ?? false;
+
+        if(!bObject){
+
+            for(let i = 0; i < players.length; i++){
+        
+                if(players[i].id === id){
+                    return players[i];
+                }
+            }
+        }else{
+
+            if(players !== null){
+
+                if(players[id] !== undefined){
+                    return players[id];
+                }
             }
         }
     
@@ -681,8 +694,9 @@ class Functions{
         if(value === 1) return word;
 
         return `${word}s`;
-
     }
+
+
 }
 
 module.exports = Functions;

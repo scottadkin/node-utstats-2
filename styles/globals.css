@@ -108,7 +108,7 @@ footer{
 	text-align:center;
 	font-size:18px;
 	color:white;
-	font-weight:bold;
+	font-weight:400;
 	padding-bottom:18px;
 	padding-top:18px;
 	background-color:var(--color-8);
@@ -122,7 +122,7 @@ footer{
 	text-align:center;
 	font-size:16px;
 	color:white;
-	font-weight:bold;
+	font-weight:400;
 	padding-bottom:12px;
 	padding-top:12px;
 	width:var(--width-1);
@@ -134,9 +134,9 @@ footer{
 
 .default-sub-header-alt{
 	text-align:center;
-	font-size:18px;
+	font-size:16px;
 	color:white;
-	font-weight:bold;
+	font-weight:400;
 	padding-bottom:15px;
 	width:90%;
 	max-width:1250px;

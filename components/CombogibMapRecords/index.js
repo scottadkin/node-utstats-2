@@ -5,6 +5,8 @@ import Table2 from "../Table2";
 import Functions from "../../api/functions";
 import TablePagination from "../TablePagination";
 import TableHeader from "../TableHeader";
+import CountryFlag from "../CountryFlag";
+import Link from "next/link";
 
 class CombogibMapRecords extends React.Component{
 
@@ -14,6 +16,7 @@ class CombogibMapRecords extends React.Component{
 
         this.state = {
             "data": null, 
+            "players": null,
             "totalResults": 0,
             "error": null, 
             "loaded": false, 
@@ -38,12 +41,14 @@ class CombogibMapRecords extends React.Component{
             "combo_kills": "Most Combos Kills in a match",
             "insane_kills": "Most Insane Combo Kills in a match",
             "ball_kills": "Most ShockBall Kills in a match",
+            "primary_kills": "Most Instagib Kills in a match"
         };
 
         const tabTitles = {
             "combo_kills": "Combos Kills",
             "insane_kills": "Insane Combo Kills",
             "ball_kills": "ShockBall Kills",
+            "primary_kills": "Instagib Kills"
         };
 
         if(type === "*") return tabTitles;
@@ -92,7 +97,7 @@ class CombogibMapRecords extends React.Component{
             this.setState({"error": res.error});
         }else{
 
-            this.setState({"data": res.data, "totalResults": res.totalResults});
+            this.setState({"data": res.data, "totalResults": res.totalResults, "players": res.players});
         }
 
         
@@ -117,8 +122,18 @@ class CombogibMapRecords extends React.Component{
 
             const place = (this.state.page * this.state.perPage) + i + 1;
 
+            const player = Functions.getPlayer(this.state.players, d.player_id, true);
+
             rows.push(<tr key={i}>
                 <td><span className="place">{place}{Functions.getOrdinal(place)}</span></td>
+                <td className="text-left">
+                    <Link href={`/player/${d.player_id}`}>
+                        <a>
+                            <CountryFlag country={player.country}/>
+                            {player.name}
+                        </a>
+                    </Link>
+                </td>
                 <td></td>
                 <td>{d.best_value}</td>
             </tr>);
@@ -128,6 +143,7 @@ class CombogibMapRecords extends React.Component{
             <TableHeader width={4}>{this.getTitle(this.state.dataType)}</TableHeader>
             <Table2 width={4}>
                 <tr>
+                    <th>&nbsp;</th>
                     <th>Player</th>
                     <th>Date</th>
                     <th>Record</th>

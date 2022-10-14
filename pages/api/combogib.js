@@ -1,4 +1,6 @@
 import Combogib from "../../api/combogib";
+import Players from "../../api/players";
+import Functions from "../../api/functions";
 
 export default async function handler(req, res){
 
@@ -47,14 +49,13 @@ export default async function handler(req, res){
             const dataType = req.body.dataType ?? "combo_kills";
 
             const data = await combo.getMapRecords(mapId, dataType, page, perPage);
-            //const data2 = await combo.getMapRecords(mapId, "combo_kills", 1, 5);
-
             const totalResults = await combo.getTotalMapRecords(mapId, dataType);
 
-            console.log(data);
-            //console.log(data2);
+            const playerManager = new Players();
+            const playerIds = Functions.getUniqueValues(data, "player_id");
+            const players = await playerManager.getNamesByIds(playerIds, true);
 
-            res.status(200).json({"data": data, "totalResults": totalResults});
+            res.status(200).json({"data": data, "totalResults": totalResults, "players": players});
             return;
         }
 
