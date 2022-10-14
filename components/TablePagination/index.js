@@ -19,13 +19,24 @@ class TablePagination extends React.Component{
 
     componentDidMount(){
 
+        this.setTotalPages();
+    }
+
+    setTotalPages(){
+
         if(this.props.perPage > 0){
 
             if(this.props.totalResults > 0){
-
                 const pages = Math.ceil(this.props.totalResults / this.props.perPage);
                 this.setState({"totalPages": pages});
             }
+        }
+    }
+
+    componentDidUpdate(prevProps){
+
+        if(this.props.totalResults !== prevProps.totalResults){
+            this.setTotalPages();
         }
     }
 
