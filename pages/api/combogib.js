@@ -44,11 +44,12 @@ export default async function handler(req, res){
             const mapId = req.body.mapId ?? -1;
             const page = req.body.page ?? 0;
             const perPage = req.body.perPage ?? 5;
+            const dataType = req.body.dataType ?? "combo_kills";
 
-            const data = await combo.getMapRecords(mapId, "combo_kills", page, perPage);
+            const data = await combo.getMapRecords(mapId, dataType, page, perPage);
             //const data2 = await combo.getMapRecords(mapId, "combo_kills", 1, 5);
 
-            const totalResults = await combo.getTotalMapRecords(mapId, "combo_kills");
+            const totalResults = await combo.getTotalMapRecords(mapId, dataType);
 
             console.log(data);
             //console.log(data2);

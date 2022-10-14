@@ -4,6 +4,7 @@ import ErrorMessage from "../ErrorMessage";
 import Table2 from "../Table2";
 import Functions from "../../api/functions";
 import TablePagination from "../TablePagination";
+import TableHeader from "../TableHeader";
 
 class CombogibMapRecords extends React.Component{
 
@@ -17,13 +18,40 @@ class CombogibMapRecords extends React.Component{
             "error": null, 
             "loaded": false, 
             "page": 0, 
-            "perPage": 10
+            "perPage": 10,
+            "dataType": "combo_kills"
         };
 
         this.nextPage = this.nextPage.bind(this);
         this.previousPage = this.previousPage.bind(this);
+        this.changeDataType = this.changeDataType.bind(this);
     }
 
+    changeDataType(newType){
+
+        this.setState({"dataType": newType, "page": 0});
+    }
+
+    getTitle(type){
+
+        const titles = {
+            "combo_kills": "Most Combos Kills in a match",
+            "insane_kills": "Most Insane Combo Kills in a match",
+            "ball_kills": "Most ShockBall Kills in a match",
+        };
+
+        const tabTitles = {
+            "combo_kills": "Combos Kills",
+            "insane_kills": "Insane Combo Kills",
+            "ball_kills": "ShockBall Kills",
+        };
+
+        if(type === "*") return tabTitles;
+
+        if(titles[type] === undefined) return "Title doesn't exist!";
+
+        return titles[type];
+    }
 
     nextPage(){
 
@@ -39,7 +67,7 @@ class CombogibMapRecords extends React.Component{
 
     async componentDidUpdate(prevProps, prevState){
 
-        if(prevState.page !== this.state.page){
+        if(prevState.page !== this.state.page || prevState.dataType !== this.state.dataType){
             await this.loadData();
         }
     }
@@ -53,7 +81,8 @@ class CombogibMapRecords extends React.Component{
                 "mode": "maprecord", 
                 "mapId": this.props.mapId,
                 "page": this.state.page,
-                "perPage": this.state.perPage
+                "perPage": this.state.perPage,
+                "dataType": this.state.dataType
             })
         });
 
@@ -96,7 +125,7 @@ class CombogibMapRecords extends React.Component{
         }
 
         return <div>
-            <div className="default-sub-header">Combo Records Title</div>
+            <TableHeader width={4}>{this.getTitle(this.state.dataType)}</TableHeader>
             <Table2 width={4}>
                 <tr>
                     <th>Player</th>
@@ -113,6 +142,28 @@ class CombogibMapRecords extends React.Component{
         
     }
 
+    renderTabs(){
+
+        const titles = this.getTitle("*");
+
+        const tabs = [];
+
+        for(const [key, value] of Object.entries(titles)){
+
+            tabs.push(
+                <div key={key} className={`tab ${(this.state.dataType === key) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeDataType(key);
+                })}>
+                    {value}
+                </div>
+            );
+        }
+
+        return <div className="tabs">
+            {tabs}
+        </div>
+    }
+
     render(){
 
         if(!this.state.loaded) return <div><Loading /></div>;
@@ -120,6 +171,7 @@ class CombogibMapRecords extends React.Component{
 
         return <div>
             <div className="default-header">Combogib Records</div>
+            {this.renderTabs()}
             {this.renderTable()}
         </div>
     }
