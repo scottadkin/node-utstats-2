@@ -41,14 +41,28 @@ class CombogibMapRecords extends React.Component{
             "combo_kills": "Most Combos Kills in a match",
             "insane_kills": "Most Insane Combo Kills in a match",
             "ball_kills": "Most ShockBall Kills in a match",
-            "primary_kills": "Most Instagib Kills in a match"
+            "primary_kills": "Most Instagib Kills in a match",
+            "best_single_combo": "Most Kills with one Combo",
+            "best_single_insane": "Most Kills with one Insane Combo",
+            "best_single_shockball": "Most Kills with one Shock Ball",
+            "best_combo_kills": "Most Combos Kills in a Life",
+            "best_insane_kills": "Most Insane Combos Kills in a Life",
+            "best_ball_kills": "Most Shockball Kills in a Life",
+            "best_primary_kills": "Most Instagib Kills in a Life",
         };
 
         const tabTitles = {
             "combo_kills": "Combos Kills",
             "insane_kills": "Insane Combo Kills",
             "ball_kills": "ShockBall Kills",
-            "primary_kills": "Instagib Kills"
+            "primary_kills": "Instagib Kills",
+            "best_single_combo": "Best Combo",
+            "best_single_insane": "Best Insane Combo",
+            "best_single_shockball": "Best Shock Ball",
+            "best_combo_kills": "Best Combo Spree",
+            "best_insane_kills": "Best Insane Spree",
+            "best_ball_kills": "Best ShockBall Spree",
+            "best_primary_kills": "Best Instagib Spree",
         };
 
         if(type === "*") return tabTitles;
@@ -134,7 +148,7 @@ class CombogibMapRecords extends React.Component{
                         </a>
                     </Link>
                 </td>
-                <td></td>
+                <td>{Functions.MMSS(d.playtime)}</td>
                 <td>{d.best_value}</td>
             </tr>);
         }
@@ -145,7 +159,7 @@ class CombogibMapRecords extends React.Component{
                 <tr>
                     <th>&nbsp;</th>
                     <th>Player</th>
-                    <th>Date</th>
+                    <th>Playtime</th>
                     <th>Record</th>
                 </tr>
                 {rows}
@@ -163,21 +177,54 @@ class CombogibMapRecords extends React.Component{
         const titles = this.getTitle("*");
 
         const tabs = [];
+        
+
+        const tabsRow1 = [];
+        const tabsRow2 = [];
+        const tabsRow3 = [];
+
+        const tabRow1Types = ["combo_kills", "insane_kills","ball_kills","primary_kills"];
+        const tabRow2Types = ["best_single_combo", "best_single_insane", "best_single_shockball"];
+        const tabRow3Types = ["best_combo_kills","best_insane_kills","best_ball_kills","best_primary_kills",];
 
         for(const [key, value] of Object.entries(titles)){
 
-            tabs.push(
-                <div key={key} className={`tab ${(this.state.dataType === key) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeDataType(key);
-                })}>
-                    {value}
-                </div>
-            );
+            const elem = <div key={key} className={`tab ${(this.state.dataType === key) ? "tab-selected" : ""}`} onClick={(() =>{
+                this.changeDataType(key);
+            })}>
+                {value}
+            </div>
+
+            if(tabRow1Types.indexOf(key) !== -1){
+                tabsRow1.push(elem);
+            }
+
+            if(tabRow2Types.indexOf(key) !== -1){
+                tabsRow2.push(elem);
+            }
+
+            if(tabRow3Types.indexOf(key) !== -1){
+                tabsRow3.push(elem);
+            }
+
+           
         }
 
-        return <div className="tabs">
-            {tabs}
+        return <div>
+            <div className="tabs">
+                {tabsRow1}
+            </div>
+            <div className="tabs">
+                {tabsRow2}
+            </div>
+            <div className="tabs">
+                {tabsRow3}
+            </div>
         </div>
+
+        /*return <div className="tabs">
+            {tabs}
+        </div>*/
     }
 
     render(){

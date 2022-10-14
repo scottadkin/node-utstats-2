@@ -75,7 +75,19 @@ class Combogib{
 
     bValidRecordType(recordType){
 
-        const validRecordTypes = ["combo_kills","insane_kills","ball_kills","primary_kills"];
+        const validRecordTypes = [
+            "combo_kills",
+            "insane_kills",
+            "ball_kills",
+            "primary_kills",
+            "best_single_combo",
+            "best_single_insane",
+            "best_single_shockball",
+            "best_combo_kills",
+            "best_insane_kills",
+            "best_ball_kills",
+            "best_primary_kills",
+        ];
         const typeIndex = validRecordTypes.indexOf(recordType);
 
         if(typeIndex === -1) return false;
@@ -93,7 +105,7 @@ class Combogib{
 
         if(this.bValidRecordType(recordType)){
 
-            const query = `SELECT player_id,match_id,MAX(${recordType}) as best_value FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?
+            const query = `SELECT player_id,match_id,MAX(${recordType}) as best_value,playtime FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?
             GROUP BY player_id ORDER BY ${recordType} DESC LIMIT ?,?`;
 
             return await mysql.simpleQuery(query, [mapId, start, perPage]);
