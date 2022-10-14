@@ -7,6 +7,7 @@ import TablePagination from "../TablePagination";
 import TableHeader from "../TableHeader";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
+import TabsHeader from "../TabsHeader";
 
 class CombogibMapRecords extends React.Component{
 
@@ -21,7 +22,7 @@ class CombogibMapRecords extends React.Component{
             "error": null, 
             "loaded": false, 
             "page": 0, 
-            "perPage": 10,
+            "perPage": 15,
             "dataType": "combo_kills"
         };
 
@@ -60,7 +61,7 @@ class CombogibMapRecords extends React.Component{
             "best_single_insane": "Best Insane Combo",
             "best_single_shockball": "Best Shock Ball",
             "best_combo_kills": "Best Combo Spree",
-            "best_insane_kills": "Best Insane Spree",
+            "best_insane_kills": "Best Insane Combo Spree",
             "best_ball_kills": "Best ShockBall Spree",
             "best_primary_kills": "Best Instagib Spree",
         };
@@ -211,12 +212,15 @@ class CombogibMapRecords extends React.Component{
         }
 
         return <div>
+            <TabsHeader>Kill Types</TabsHeader>
             <div className="tabs">
                 {tabsRow1}
             </div>
+            <TabsHeader>Best Single Kill Events</TabsHeader>
             <div className="tabs">
                 {tabsRow2}
             </div>
+            <TabsHeader>Most Kill Types in a Single Life</TabsHeader>
             <div className="tabs">
                 {tabsRow3}
             </div>
