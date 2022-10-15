@@ -1,31 +1,11 @@
-.top{
-    display:inline-block;
-    margin-left:auto;
-    margin-right:auto;
-    width:500px;
-    background-color:var(--color-8);
-}
-
-
-.ttop{
-    border:none;
-    line-height:12px;
-    font-size:12px;
-}
-
-.mimage{
-    width:500px;
-}
-
-.mimage:hover{
-    cursor:pointer;
-}
-
-.top table td:nth-child(odd){
+.wrapper td:nth-child(1){
     color:yellow;
-    text-align:left;
 }
 
-.top table td:nth-child(even){
-    text-align:left;
+.wrapper td{
+    text-align: left;
+}
+
+.image:hover{
+    cursor: pointer;
 }
