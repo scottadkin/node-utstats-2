@@ -172,6 +172,11 @@ class Map extends React.Component{
             </div>
         }
 
+        if(pageSettings["Display Combogib Records"] === "true"){
+
+            elems[pageOrder["Display Combogib Records"]] = <CombogibMapRecords key="combo-records" mapId={basic.id}/>
+        }
+
         return <div>
         <DefaultHead host={this.props.host} 
             title={`View ${Functions.removeUnr(basic.name)} Map Statistics`} 
@@ -189,7 +194,7 @@ class Map extends React.Component{
                         {Functions.removeUnr(basic.name)}
                     </div>
     
-                    <CombogibMapRecords mapId={basic.id}/>
+                    
                     {elems}
 
                 </div>
