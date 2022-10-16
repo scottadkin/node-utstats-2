@@ -336,7 +336,8 @@ class MatchManager{
                 this.combogibManager = new CombogibManager(
                     this.playerManager, this.killManager, 
                     this.combogibLines, this.matchId, 
-                    this.mapInfo.mapId, this.bIgnoreBots
+                    this.mapInfo.mapId, this.bIgnoreBots,
+                    this.gameInfo.length
                 );
            
                 new Message("Parsing combogib data.","note");
@@ -345,6 +346,7 @@ class MatchManager{
                 this.combogibManager.createPlayerEvents();
 
                 await this.combogibManager.insertPlayerMatchData();
+                await this.combogibManager.updateMapTotals();
                 
             //}
             

@@ -133,8 +133,60 @@ class Combogib{
         }else{
             throw new Error(`${recordType} is not a valid record type.`);
         }
+    }
+
+
+    async bMapHaveTotalsData(mapId){
+
+        const query = "SELECT COUNT(*) as total_rows FROM nstats_map_combogib WHERE map_id=?";
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        if(result.length > 0){
+            if(result[0].total_rows > 0) return true;
+        }
+
+        return false;
 
     }
+
+
+    async insertNewMapTotals(mapId, playtime, combos, shockBalls, primary, insane){
+
+        const query = `INSERT INTO nstats_match_combogib VALUES(
+            NULL,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,
+            ?,?,?,?)`;
+
+        const vars = [mapId, playtime,
+            primary.kills, primary.deaths, primary.efficiency, primary.kpm,
+            shockBalls.kills, shockBalls.deaths, shockBalls.efficiency, shockBalls.kpm,
+            combos.kills, combos.deaths, combos.efficiency, combos.kpm,
+            insane.kills, insane.deaths, insane.efficiency, insane.kpm,
+            combos.bestSingle, shockBalls.bestSingle, insane.bestSingle,
+            primary.best, shockBalls.best, combos.best, insane.best
+        ];
+
+        await mysql.simpleQuery(query, vars);
+    }
+
+    async updateMapTotals(mapId, playtime, combos, shockBalls, primary, insane){
+
+        if(await this.bMapHaveTotalsData(mapId)){
+
+        }else{
+
+            await this.insertNewMapTotals(mapId, playtime, combos, shockBalls, primary, insane);
+        }
+
+        return;
+        
+    }
+
 }
 
 module.exports = Combogib;

@@ -3,10 +3,12 @@ const Combogib = require("../combogib");
 
 class CombogibManager{
 
-    constructor(playerManager, killManager, lines, matchId, mapId, bIgnoreBots){
+    constructor(playerManager, killManager, lines, matchId, mapId, bIgnoreBots, matchLength){
         
         this.playerManager = playerManager;
         this.killManager = killManager;
+
+        this.matchLength = matchLength;
 
         this.lines = lines;
 
@@ -424,7 +426,7 @@ class CombogibManager{
 
         this.setPlayerStats();
 
-
+        this.createDetailedPlayerStats();
         
     }
 
@@ -692,16 +694,114 @@ class CombogibManager{
         //set player best kills with combos in single life but only with the combo events, 
 
         this.setPlayersBestComboSingleLife();
+    }
 
 
-       // console.log(this.playerStats);
+    createDetailedPlayerStats(){
 
-       // console.log(`Found ${insaneFound} insane events, totalComboKills = ${this.comboKills.length}`);
+        this.detailedStats = {};
 
-        
+        const killTypes = ["combo", "shockBall", "primary", "insane"];
+
+        for(const player of Object.values(this.playerStats)){
+
+            const combos = {
+                "kills": player.kills.combo,
+                "deaths": player.deaths.combo,
+                "efficiency": 0,
+                "best": player.bestComboKillsSingleLife,
+                "bestSingle": player.bestKillsSingleCombo,
+                "kpm": 0
+            };
+
+            const shockBalls = {
+                "kills": player.kills.shockBall,
+                "deaths": player.deaths.shockBall,
+                "efficiency": 0,
+                "best": player.bestShockBallKillsLife,
+                "bestSingle": player.bestSingleShockBall,
+                "kpm": 0
+            };
 
 
-       
+            const primary = {
+                "kills": player.kills.primary,
+                "deaths": player.deaths.primary,
+                "efficiency": 0,
+                "best": player.bestPrimaryKillsLife,
+                "kpm": 0
+            };
+
+            const insane = {
+                "kills": player.kills.insane,
+                "deaths": player.deaths.insane,
+                "efficiency": 0,
+                "best": player.bestInsaneKillsSingleLife,
+                "bestSingle": player.singleInsaneCombo,
+                "kpm": 0
+            };
+
+
+            for(let i = 0; i < killTypes.length; i++){
+
+                const type = killTypes[i];
+
+                const kills = player.kills[type];
+                const deaths = player.deaths[type];
+
+                let efficiency = 0;
+
+                if(kills > 0){
+
+                    if(deaths > 0){
+                        efficiency = ((kills / (kills + deaths)) * 100).toFixed(5);
+                    }else{
+                        efficiency = 100;
+                    }
+                }
+
+                if(i === 0){
+                    combos.efficiency = efficiency;
+                }else if(i === 1){
+                     shockBalls.efficiency = efficiency;
+                }else if(i === 2){
+                    primary.efficiency = efficiency;
+                }else{
+                    insane.efficiency = efficiency;
+                }
+            }
+
+            const playtime = this.playerManager.getPlayerPlaytime(player.player);
+
+            if(playtime !== null){
+
+                if(playtime !== 0){
+
+                    const minutes = playtime / 60;
+
+                    if(combos.kills > 0){
+                        combos.kpm = combos.kills / minutes;
+                    }
+                    if(insane.kills > 0){
+                        insane.kpm = insane.kills / minutes;
+                    }
+                    if(primary.kills > 0){
+                        primary.kpm = primary.kills / minutes;
+                    }
+                    if(shockBalls.kills > 0){
+                        shockBalls.kpm = shockBalls.kills / minutes;
+                    }
+                }
+            }
+
+            this.detailedStats[player.player] = {
+                "playtime": playtime,
+                "combos": combos,
+                "insane": insane,
+                "primary": primary,
+                "shockBalls": shockBalls
+            };
+        }
     }
 
 
@@ -709,112 +809,30 @@ class CombogibManager{
 
         try{
 
-            for(const player of Object.values(this.playerStats)){
+            if(this.detailedStats === undefined){
+                throw new Error("This.detailedStats is undefined");
+            }
 
-                if(this.playerManager.bPlayerBot(player.player) && this.bIgnoreBots){
+            for(const [key,value] of Object.entries(this.detailedStats)){
+
+                if(this.playerManager.bPlayerBot(key) && this.bIgnoreBots){
                     break;
                 }
 
-                const combos = {
-                    "kills": player.kills.combo,
-                    "deaths": player.deaths.combo,
-                    "efficiency": 0,
-                    "best": player.bestComboKillsSingleLife,
-                    "bestSingle": player.bestKillsSingleCombo,
-                    "kpm": 0
-                };
-
-                const shockBalls = {
-                    "kills": player.kills.shockBall,
-                    "deaths": player.deaths.shockBall,
-                    "efficiency": 0,
-                    "best": player.bestShockBallKillsLife,
-                    "bestSingle": player.bestSingleShockBall,
-                    "kpm": 0
-                };
-
-
-                const primary = {
-                    "kills": player.kills.primary,
-                    "deaths": player.deaths.primary,
-                    "efficiency": 0,
-                    "best": player.bestPrimaryKillsLife,
-                    "kpm": 0
-                };
-
-                const insane = {
-                    "kills": player.kills.insane,
-                    "deaths": player.deaths.insane,
-                    "efficiency": 0,
-                    "best": player.bestInsaneKillsSingleLife,
-                    "bestSingle": player.singleInsaneCombo,
-                    "kpm": 0
-                };
-
-                const killTypes = ["combo", "shockBall", "primary", "insane"];
-
-                for(let i = 0; i < killTypes.length; i++){
-
-                    const type = killTypes[i];
-
-                    const kills = player.kills[type];
-                    const deaths = player.deaths[type];
-
-                    let efficiency = 0;
-
-                    if(kills > 0){
-
-                        if(deaths > 0){
-
-                            efficiency = ((kills / (kills + deaths)) * 100).toFixed(5);
-
-                        }else{
-                            efficiency = 100;
-                        }
-                    }
-
-                    if(i === 0){
-                        combos.efficiency = efficiency;
-                    }else if(i === 1){
-                         shockBalls.efficiency = efficiency;
-                    }else if(i === 2){
-                        primary.efficiency = efficiency;
-                    }else{
-                        insane.efficiency = efficiency;
-                    }
-                }
-
-                const playtime = this.playerManager.getPlayerPlaytime(player.player);
-
-                if(playtime !== null){
-
-                    if(playtime !== 0){
-
-                        const minutes = playtime / 60;
-
-                        if(combos.kills > 0){
-                            combos.kpm = combos.kills / minutes;
-                        }
-                        if(insane.kills > 0){
-                            insane.kpm = insane.kills / minutes;
-                        }
-                        if(primary.kills > 0){
-                            primary.kpm = primary.kills / minutes;
-                        }
-                        if(shockBalls.kills > 0){
-                            shockBalls.kpm = shockBalls.kills / minutes;
-                        }
-
-                    }
-                }
-
-                await this.combogib.insertPlayerMatchData(player.player, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
-            }
+                const {combos, insane, shockBalls, primary, playtime} = value;
+                await this.combogib.insertPlayerMatchData(key, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
+            }            
 
         }catch(err){
             console.trace(err);
             new Message(err,"error");
         }
+    }
+
+
+    async updateMapTotals(){
+
+        //await this.combogib.updateMapTotals(this.mapId, this.matchLength, combos, shockBalls, primary, insane);
     }
 
 }
