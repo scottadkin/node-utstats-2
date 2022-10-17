@@ -153,22 +153,66 @@ class Combogib{
 
     async insertNewMapTotals(mapId, playtime, combos, shockBalls, primary, insane){
 
-        const query = `INSERT INTO nstats_match_combogib VALUES(
-            NULL,?,?,
-            ?,?,?,?,
-            ?,?,?,?,
-            ?,?,?,?,
-            ?,?,?,?,
+        const query = `INSERT INTO nstats_map_combogib VALUES(
+            NULL,?,1,?,
+            ?,?,
+            ?,?,
+            ?,?,
+            ?,?,
             ?,?,?,
             ?,?,?,?)`;
 
         const vars = [mapId, playtime,
-            primary.kills, primary.deaths, primary.efficiency, primary.kpm,
-            shockBalls.kills, shockBalls.deaths, shockBalls.efficiency, shockBalls.kpm,
-            combos.kills, combos.deaths, combos.efficiency, combos.kpm,
-            insane.kills, insane.deaths, insane.efficiency, insane.kpm,
+            primary.kills, primary.kpm,
+            shockBalls.kills, shockBalls.kpm,
+            combos.kills, combos.kpm,
+            insane.kills,  insane.kpm,
             combos.bestSingle, shockBalls.bestSingle, insane.bestSingle,
             primary.best, shockBalls.best, combos.best, insane.best
+        ];
+
+        await mysql.simpleQuery(query, vars);
+    }
+
+    async updateMapTotalTable(mapId, playtime, combos, shockBalls, primary, insane){
+
+
+        const query = `UPDATE nstats_map_combogib SET
+        matches=matches+1,
+        playtime=playtime+?,
+        primary_kills=primary_kills+?,
+        primary_kpm=primary_kills/(playtime / 60),
+        ball_kills=ball_kills+?,
+        ball_kpm=ball_kills/(playtime / 60),
+        combo_kills=combo_kills+?,
+        combo_kpm=combo_kills/(playtime / 60),
+        insane_kills=insane_kills+?,
+        insane_kpm=insane_kills/(playtime / 60),
+        best_single_combo=IF(best_single_combo < ?, ?, best_single_combo),
+        best_single_shockball=IF(best_single_shockball < ?, ?, best_single_shockball),
+        best_single_insane=IF(best_single_insane < ?, ?, best_single_insane),
+        best_primary_kills=IF(best_primary_kills < ?, ?, best_primary_kills),
+        best_ball_kills=IF(best_ball_kills < ?, ?, best_ball_kills),
+        best_combo_kills=IF(best_combo_kills < ?, ?, best_combo_kills),
+        best_insane_kills=IF(best_insane_kills < ?, ?, best_insane_kills)
+        WHERE map_id=?
+
+        `;
+
+        const vars = [
+            playtime,
+            primary.kills,
+            shockBalls.kills,
+            combos.kills,
+            insane.kills,
+            combos.bestSingle, combos.bestSingle,
+            shockBalls.bestSingle, shockBalls.bestSingle,
+            insane.bestSingle, insane.bestSingle,
+            primary.best, primary.best,
+            shockBalls.best, shockBalls.best,
+            combos.best, combos.best,
+            insane.best, insane.best,
+            mapId
         ];
 
         await mysql.simpleQuery(query, vars);
@@ -177,6 +221,8 @@ class Combogib{
     async updateMapTotals(mapId, playtime, combos, shockBalls, primary, insane){
 
         if(await this.bMapHaveTotalsData(mapId)){
+
+            await this.updateMapTotalTable(mapId, playtime, combos, shockBalls, primary, insane);
 
         }else{
 

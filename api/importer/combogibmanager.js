@@ -830,9 +830,99 @@ class CombogibManager{
     }
 
 
+    getMatchTotals(){
+
+        const totals = {
+            "combos":{
+                "kills": 0,
+                "deaths": 0,
+                "efficiency": 0,
+                "best": 0,
+                "bestSingle": 0,
+                "kpm": 0
+            },
+            "insane":{
+                "kills": 0,
+                "deaths": 0,
+                "efficiency": 0,
+                "best": 0,
+                "bestSingle": 0,
+                "kpm": 0
+            },
+            "shockBalls":{
+                "kills": 0,
+                "deaths": 0,
+                "efficiency": 0,
+                "best": 0,
+                "bestSingle": 0,
+                "kpm": 0
+            },
+            "primary":{
+                "kills": 0,
+                "deaths": 0,
+                "efficiency": 0,
+                "best": 0,
+                "kpm": 0
+            }
+        };
+
+        const types = ["combos", "insane", "primary", "shockBalls"];
+
+        for(const playerData of Object.values(this.detailedStats)){
+
+            for(let i = 0; i < types.length; i++){
+
+                const t = types[i]
+
+                totals[t].kills += playerData[t].kills;
+                totals[t].deaths += playerData[t].deaths;
+
+                if(totals[t].best < playerData[t].best){
+                    totals[t].best = playerData[t].best;
+                }
+
+                if(totals[t].bestSingle !== undefined){
+
+                    if(totals[t].bestSingle < playerData[t].bestSingle){
+                        totals[t].bestSingle = playerData[t].bestSingle;
+                    }
+                }
+            }
+        }
+
+        const minutes = this.matchLength / 60;
+
+        for(const [type, data] of Object.entries(totals)){
+
+            const kills = totals[type].kills;
+            const deaths = totals[type].deaths;
+
+            if(kills > 0){
+
+                totals[type].kpm = kills / minutes;
+
+                if(deaths > 0){
+
+                    totals[type].efficiency = (kills / (kills + deaths)) * 100;
+
+                }else{
+                    totals[type].efficiency = 100;
+                }
+            } 
+        }
+
+
+        return totals;
+
+    }
+
     async updateMapTotals(){
 
         //await this.combogib.updateMapTotals(this.mapId, this.matchLength, combos, shockBalls, primary, insane);
+        const {combos, shockBalls, primary, insane} = this.getMatchTotals();
+
+        await this.combogib.updateMapTotals(this.mapId, this.matchLength, combos, shockBalls, primary, insane);
+        
     }
 
 }
