@@ -2,9 +2,7 @@ const mysql = require("./database");
 
 class Combogib{
 
-    constructor(){
-
-    }
+    constructor(){}
 
     async insertPlayerMatchData(playerId, matchId, mapId, playtime, combos, shockBalls, primary, insane){
 
@@ -151,7 +149,7 @@ class Combogib{
     }
 
 
-    async insertNewMapTotals(mapId, playtime, combos, shockBalls, primary, insane){
+    async insertNewMapTotals(mapId, matchId, playtime, combos, shockBalls, primary, insane){
 
         const query = `INSERT INTO nstats_map_combogib VALUES(
             NULL,?,1,?,
@@ -160,21 +158,31 @@ class Combogib{
             ?,?,
             ?,?,
             ?,?,?,
-            ?,?,?,?)`;
+            ?,?,?,
+            ?,?,?,
+            ?,?,?,
+            ?,?,?,
+            ?,?,?,
+            ?,?,?)`;
 
         const vars = [mapId, playtime,
             primary.kills, primary.kpm,
             shockBalls.kills, shockBalls.kpm,
             combos.kills, combos.kpm,
             insane.kills,  insane.kpm,
-            combos.bestSingle, shockBalls.bestSingle, insane.bestSingle,
-            primary.best, shockBalls.best, combos.best, insane.best
+            combos.bestSingle, combos.bestSinglePlayerId, matchId,
+            shockBalls.bestSingle, shockBalls.bestSinglePlayerId, matchId,
+            insane.bestSingle, insane.bestSinglePlayerId, matchId,
+            primary.best, primary.bestPlayerId, matchId,
+            shockBalls.best, shockBalls.bestPlayerId, matchId,
+            combos.best, combos.bestPlayerId, matchId,
+            insane.best, insane.bestPlayerId, matchId
         ];
 
         await mysql.simpleQuery(query, vars);
     }
 
-    async updateMapTotalTable(mapId, playtime, combos, shockBalls, primary, insane){
+    async updateMapTotalTable(mapId, matchId, playtime, combos, shockBalls, primary, insane){
 
 
         const query = `UPDATE nstats_map_combogib SET
@@ -188,12 +196,33 @@ class Combogib{
         combo_kpm=combo_kills/(playtime / 60),
         insane_kills=insane_kills+?,
         insane_kpm=insane_kills/(playtime / 60),
+
+        best_single_combo_player_id=IF(best_single_combo < ?, ?, best_single_combo_player_id),
+        best_single_combo_match_id=IF(best_single_combo < ?, ?, best_single_combo_match_id),
         best_single_combo=IF(best_single_combo < ?, ?, best_single_combo),
+
+        best_single_shockball_player_id=IF(best_single_shockball < ?, ?, best_single_shockball_player_id),
+        best_single_shockball_match_id=IF(best_single_shockball < ?, ?, best_single_shockball_match_id),
         best_single_shockball=IF(best_single_shockball < ?, ?, best_single_shockball),
+
+        best_single_insane_player_id=IF(best_single_insane < ?, ?, best_single_insane_player_id),
+        best_single_insane_match_id=IF(best_single_insane < ?, ?, best_single_insane_match_id),
         best_single_insane=IF(best_single_insane < ?, ?, best_single_insane),
+
+        best_primary_kills_player_id=IF(best_primary_kills < ?, ?, best_primary_kills_player_id),
+        best_primary_kills_match_id=IF(best_primary_kills < ?, ?, best_primary_kills_match_id),
         best_primary_kills=IF(best_primary_kills < ?, ?, best_primary_kills),
+
+        best_ball_kills_player_id=IF(best_ball_kills < ?, ?, best_ball_kills_player_id),
+        best_ball_kills_match_id=IF(best_ball_kills < ?, ?, best_ball_kills_match_id),
         best_ball_kills=IF(best_ball_kills < ?, ?, best_ball_kills),
+
+        best_combo_kills_player_id=IF(best_combo_kills < ?, ?, best_combo_kills_player_id),
+        best_combo_kills_match_id=IF(best_combo_kills < ?, ?, best_combo_kills_match_id),
         best_combo_kills=IF(best_combo_kills < ?, ?, best_combo_kills),
+
+        best_insane_kills_player_id=IF(best_insane_kills < ?, ?, best_insane_kills_player_id),
+        best_insane_kills_match_id=IF(best_insane_kills < ?, ?, best_insane_kills_match_id),
         best_insane_kills=IF(best_insane_kills < ?, ?, best_insane_kills)
         WHERE map_id=?
 
@@ -205,12 +234,33 @@ class Combogib{
             shockBalls.kills,
             combos.kills,
             insane.kills,
+
+            combos.bestSingle, combos.bestSinglePlayerId,
+            combos.bestSingle, matchId,
             combos.bestSingle, combos.bestSingle,
+
+            shockBalls.bestSingle, shockBalls.bestSinglePlayerId,
+            shockBalls.bestSingle, matchId,
             shockBalls.bestSingle, shockBalls.bestSingle,
+
+            insane.bestSingle, insane.bestSinglePlayerId,
+            insane.bestSingle, matchId,
             insane.bestSingle, insane.bestSingle,
+
+            primary.best, primary.bestPlayerId,
+            primary.best, matchId,
             primary.best, primary.best,
+
+            shockBalls.best, shockBalls.bestPlayerId,
+            shockBalls.best, matchId,
             shockBalls.best, shockBalls.best,
+            
+            combos.best, combos.bestPlayerId,
+            combos.best, matchId,
             combos.best, combos.best,
+
+            insane.best, insane.bestPlayerId,
+            insane.best, matchId,
             insane.best, insane.best,
             mapId
         ];
@@ -218,19 +268,28 @@ class Combogib{
         await mysql.simpleQuery(query, vars);
     }
 
-    async updateMapTotals(mapId, playtime, combos, shockBalls, primary, insane){
+    async updateMapTotals(mapId, matchId, playtime, combos, shockBalls, primary, insane){
 
         if(await this.bMapHaveTotalsData(mapId)){
-
-            await this.updateMapTotalTable(mapId, playtime, combos, shockBalls, primary, insane);
+            await this.updateMapTotalTable(mapId, matchId, playtime, combos, shockBalls, primary, insane);
 
         }else{
+            await this.insertNewMapTotals(mapId, matchId, playtime, combos, shockBalls, primary, insane);
+        } 
+    }
 
-            await this.insertNewMapTotals(mapId, playtime, combos, shockBalls, primary, insane);
+    async getMapTotals(mapId){
+
+        const query = "SELECT * FROM nstats_map_combogib WHERE map_id=?";
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        if(result.length > 0){
+
+            return result[0];
         }
 
-        return;
-        
+        return null;
     }
 
 }

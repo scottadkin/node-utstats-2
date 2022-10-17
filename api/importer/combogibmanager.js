@@ -838,7 +838,9 @@ class CombogibManager{
                 "deaths": 0,
                 "efficiency": 0,
                 "best": 0,
+                "bestPlayerId": -1,
                 "bestSingle": 0,
+                "bestSinglePlayerId": -1,
                 "kpm": 0
             },
             "insane":{
@@ -847,6 +849,8 @@ class CombogibManager{
                 "efficiency": 0,
                 "best": 0,
                 "bestSingle": 0,
+                "bestPlayerId": -1,
+                "bestSinglePlayerId": -1,
                 "kpm": 0
             },
             "shockBalls":{
@@ -854,7 +858,9 @@ class CombogibManager{
                 "deaths": 0,
                 "efficiency": 0,
                 "best": 0,
+                "bestPlayerId": -1,
                 "bestSingle": 0,
+                "bestSinglePlayerId": -1,
                 "kpm": 0
             },
             "primary":{
@@ -862,13 +868,14 @@ class CombogibManager{
                 "deaths": 0,
                 "efficiency": 0,
                 "best": 0,
+                "bestPlayerId": -1,
                 "kpm": 0
             }
         };
 
         const types = ["combos", "insane", "primary", "shockBalls"];
 
-        for(const playerData of Object.values(this.detailedStats)){
+        for(const [playerId, playerData] of Object.entries(this.detailedStats)){
 
             for(let i = 0; i < types.length; i++){
 
@@ -879,12 +886,14 @@ class CombogibManager{
 
                 if(totals[t].best < playerData[t].best){
                     totals[t].best = playerData[t].best;
+                    totals[t].bestPlayerId = parseInt(playerId);
                 }
 
                 if(totals[t].bestSingle !== undefined){
 
                     if(totals[t].bestSingle < playerData[t].bestSingle){
                         totals[t].bestSingle = playerData[t].bestSingle;
+                        totals[t].bestSinglePlayerId = parseInt(playerId);
                     }
                 }
             }
@@ -892,7 +901,7 @@ class CombogibManager{
 
         const minutes = this.matchLength / 60;
 
-        for(const [type, data] of Object.entries(totals)){
+        for(const type of Object.keys(totals)){
 
             const kills = totals[type].kills;
             const deaths = totals[type].deaths;
@@ -911,7 +920,6 @@ class CombogibManager{
             } 
         }
 
-
         return totals;
 
     }
@@ -921,7 +929,7 @@ class CombogibManager{
         //await this.combogib.updateMapTotals(this.mapId, this.matchLength, combos, shockBalls, primary, insane);
         const {combos, shockBalls, primary, insane} = this.getMatchTotals();
 
-        await this.combogib.updateMapTotals(this.mapId, this.matchLength, combos, shockBalls, primary, insane);
+        await this.combogib.updateMapTotals(this.mapId, this.matchId, this.matchLength, combos, shockBalls, primary, insane);
         
     }
 

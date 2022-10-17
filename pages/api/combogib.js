@@ -65,6 +65,21 @@ export default async function handler(req, res){
                 res.status(200).json({"error": "none"});
                 return;
             }
+
+        }else if(mode === "maptotal"){
+
+            const mapId = req.body.mapId ?? -1;
+
+            const data = await combo.getMapTotals(mapId);
+
+            if(data !== null){
+                res.status(200).json({"data": data});
+                return;
+            }
+
+            res.status(200).json({"error": "none"});
+            return;
+
         }
 
     }catch(err){

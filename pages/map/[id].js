@@ -23,6 +23,7 @@ import Analytics from '../../api/analytics';
 import MapCTFCaps from '../../components/MapCTFCaps';
 import MapSummary from '../../components/MapSummary';
 import CombogibMapRecords from '../../components/CombogibMapRecords';
+import CombogibMapTotals from "../../components/CombogibMapTotals";
 
 
 const PlayedGraph = ({dates}) =>{
@@ -190,11 +191,13 @@ class Map extends React.Component{
             <div id="content">
 
                 <div className="default">
+
+                <CombogibMapTotals mapId={basic.id}/>
+
                     <div className="default-header">
                         {Functions.removeUnr(basic.name)}
                     </div>
-    
-                    
+
                     {elems}
 
                 </div>

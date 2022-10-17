@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,300;0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,300;0,400;0,500;0,700;1,400&display=swap');
 
 :root{
 	--color-1:rgb(22,22,22);
@@ -108,7 +108,7 @@ footer{
 	text-align:center;
 	font-size:18px;
 	color:white;
-	font-weight:400;
+	font-weight:500;
 	padding-bottom:18px;
 	padding-top:18px;
 	background-color:var(--color-8);
@@ -122,7 +122,7 @@ footer{
 	text-align:center;
 	font-size:16px;
 	color:white;
-	font-weight:400;
+	font-weight:500;
 	padding-bottom:12px;
 	padding-top:12px;
 	width:var(--width-1);
@@ -136,7 +136,7 @@ footer{
 	text-align:center;
 	font-size:16px;
 	color:white;
-	font-weight:400;
+	font-weight:500;
 	padding-bottom:15px;
 	width:90%;
 	max-width:1250px;
@@ -201,7 +201,7 @@ table{
 
 
 th{
-	font-weight:bold;
+	font-weight:500;
 	color:yellow;
 	font-size:14px;
 	padding:7px 0px;
