@@ -4,6 +4,8 @@ import ErrorMessage from "../ErrorMessage";
 import Table2 from "../Table2";
 import TableHeader from "../TableHeader";
 import Functions from "../../api/functions";
+import CountryFlag from "../CountryFlag";
+import Link from "next/link";
 
 class CombogibMapTotals extends React.Component{
 
@@ -81,7 +83,7 @@ class CombogibMapTotals extends React.Component{
                     <th>Most Instagib Kills</th>
                 </tr>
                 <tr>
-                    <td>{Functions.ignore0(d.best_combo_kills)}</td>
+                    <td>{Functions.ignore0(d.best_combo_kills)} <CountryFlag country="gb"/> Ooper is small yellow font like place</td>
                     <td>{Functions.ignore0(d.best_insane_kills)}</td>
                     <td>{Functions.ignore0(d.best_ball_kills)}</td>
                     <td>{Functions.ignore0(d.best_primary_kills)}</td>

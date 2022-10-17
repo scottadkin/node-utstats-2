@@ -18,6 +18,15 @@ export default async function handler(req, res){
 
         const combo = new Combogib();
 
+        const requiresPlayerManager = ["maprecord", "maptotal"];
+
+        let playerManager = null;
+
+        if(requiresPlayerManager.indexOf(mode) !== -1){
+
+            playerManager = new Players();
+        }
+
         if(mode === "match"){
 
             const data = await combo.getMatchData(matchId);
@@ -54,7 +63,6 @@ export default async function handler(req, res){
                 const data = await combo.getMapRecords(mapId, dataType, page, perPage);
                 const totalResults = await combo.getTotalMapRecords(mapId, dataType);
 
-                const playerManager = new Players();
                 const playerIds = Functions.getUniqueValues(data, "player_id");
                 const players = await playerManager.getNamesByIds(playerIds, true);
 
@@ -72,8 +80,23 @@ export default async function handler(req, res){
 
             const data = await combo.getMapTotals(mapId);
 
+
             if(data !== null){
-                res.status(200).json({"data": data});
+
+                const playerIds = new Set();
+
+                playerIds.add(data.best_single_combo_player_id);
+                playerIds.add(data.best_single_insane_player_id);
+                playerIds.add(data.best_single_shockball_player_id);
+
+                playerIds.add(data.best_primary_kills_player_id);
+                playerIds.add(data.best_ball_kills_player_id);
+                playerIds.add(data.best_combo_kills_player_id);
+                playerIds.add(data.best_insane_kills_player_id);
+
+                const players = await playerManager.getNamesByIds([...playerIds], true);
+
+                res.status(200).json({"data": data, "players": players});
                 return;
             }
 

@@ -130,6 +130,27 @@ class Functions{
         return found;
     }
 
+    static getUniqueValuesMultipleKeys(data, keys){
+
+        const found = [];
+
+        for(let k = 0; k < keys.length; k++){
+
+            const key = keys[k];
+
+            console.log(`Current Key is ${key}`);
+
+            for(let i = 0; i < data.length; i++){
+
+                if(found.indexOf(data[i][key]) === -1){
+                    found.push(data[i][key]);
+                }
+            }
+        } 
+
+        return found;
+    }
+
     /**
      * Modify an array of objects by inserting a new key into each object with the ids matching value
      * @param {*} data Array of Objects to modify
