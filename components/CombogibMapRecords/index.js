@@ -154,6 +154,10 @@ class CombogibMapRecords extends React.Component{
             </tr>);
         }
 
+        if(rows.length === 0){
+            rows.push(<tr key="-1"><td colSpan="4">No data found</td></tr>);
+        }
+
         return <div>
             <TableHeader width={4}>{this.getTitle(this.state.dataType)}</TableHeader>
             <Table2 width={4}>
@@ -225,19 +229,22 @@ class CombogibMapRecords extends React.Component{
                 {tabsRow3}
             </div>
         </div>
-
-        /*return <div className="tabs">
-            {tabs}
-        </div>*/
     }
 
     render(){
 
         if(!this.state.loaded) return <div><Loading /></div>;
-        if(this.state.error !== null) return <ErrorMessage title="Combogib Stats" text={this.state.error}/>
+        if(this.state.error !== null){
+
+            if(this.state.error !== "none"){
+                return <ErrorMessage title="Combogib Stats" text={this.state.error}/>
+            }
+
+            return null;
+        }
 
         return <div>
-            <div className="default-header">Combogib Records</div>
+            <div className="default-header">Combogib Player Records</div>
             {this.renderTabs()}
             {this.renderTable()}
         </div>

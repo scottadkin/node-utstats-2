@@ -48,15 +48,23 @@ export default async function handler(req, res){
             const perPage = req.body.perPage ?? 5;
             const dataType = req.body.dataType ?? "combo_kills";
 
-            const data = await combo.getMapRecords(mapId, dataType, page, perPage);
-            const totalResults = await combo.getTotalMapRecords(mapId, dataType);
+            const bAnyMapData = await combo.bMapHaveTotalsData(mapId);
 
-            const playerManager = new Players();
-            const playerIds = Functions.getUniqueValues(data, "player_id");
-            const players = await playerManager.getNamesByIds(playerIds, true);
+            if(bAnyMapData){
+                const data = await combo.getMapRecords(mapId, dataType, page, perPage);
+                const totalResults = await combo.getTotalMapRecords(mapId, dataType);
 
-            res.status(200).json({"data": data, "totalResults": totalResults, "players": players});
-            return;
+                const playerManager = new Players();
+                const playerIds = Functions.getUniqueValues(data, "player_id");
+                const players = await playerManager.getNamesByIds(playerIds, true);
+
+                res.status(200).json({"data": data, "totalResults": totalResults, "players": players});
+                return;
+            }else{
+
+                res.status(200).json({"error": "none"});
+                return;
+            }
         }
 
     }catch(err){
