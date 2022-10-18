@@ -456,6 +456,19 @@ async function createCombogibTables(){
                 best_insane_kills int(11) NOT NULL,
                 best_insane_kills_player_id int(11) NOT NULL,
                 best_insane_kills_match_id int(11) NOT NULL,
+                max_combo_kills int(11) NOT NULL,
+                max_combo_kills_player_id int(11) NOT NULL,
+                max_combo_kills_match_id int(11) NOT NULL,
+                max_insane_kills int(11) NOT NULL,
+                max_insane_kills_player_id int(11) NOT NULL,
+                max_insane_kills_match_id int(11) NOT NULL,
+                max_ball_kills int(11) NOT NULL,
+                max_ball_kills_player_id int(11) NOT NULL,
+                max_ball_kills_match_id int(11) NOT NULL,
+                max_primary_kills int(11) NOT NULL,
+                max_primary_kills_player_id int(11) NOT NULL,
+                max_primary_kills_match_id int(11) NOT NULL,
+
                 PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     ];
 

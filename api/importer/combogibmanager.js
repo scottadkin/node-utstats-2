@@ -841,7 +841,9 @@ class CombogibManager{
                 "bestPlayerId": -1,
                 "bestSingle": 0,
                 "bestSinglePlayerId": -1,
-                "kpm": 0
+                "kpm": 0,
+                "mostKills": 0,
+                "mostKillsPlayerId": -1,
             },
             "insane":{
                 "kills": 0,
@@ -851,7 +853,9 @@ class CombogibManager{
                 "bestSingle": 0,
                 "bestPlayerId": -1,
                 "bestSinglePlayerId": -1,
-                "kpm": 0
+                "kpm": 0,
+                "mostKills": 0,
+                "mostKillsPlayerId": -1
             },
             "shockBalls":{
                 "kills": 0,
@@ -861,7 +865,9 @@ class CombogibManager{
                 "bestPlayerId": -1,
                 "bestSingle": 0,
                 "bestSinglePlayerId": -1,
-                "kpm": 0
+                "kpm": 0,
+                "mostKills": 0,
+                "mostKillsPlayerId": -1,
             },
             "primary":{
                 "kills": 0,
@@ -869,7 +875,9 @@ class CombogibManager{
                 "efficiency": 0,
                 "best": 0,
                 "bestPlayerId": -1,
-                "kpm": 0
+                "kpm": 0,
+                "mostKills": 0,
+                "mostKillsPlayerId": -1,
             }
         };
 
@@ -883,6 +891,11 @@ class CombogibManager{
 
                 totals[t].kills += playerData[t].kills;
                 totals[t].deaths += playerData[t].deaths;
+
+                if(totals[t].mostKills < playerData[t].kills){
+                    totals[t].mostKills = playerData[t].kills;
+                    totals[t].mostKillsPlayerId = parseInt(playerId);
+                }
 
                 if(totals[t].best < playerData[t].best){
                     totals[t].best = playerData[t].best;

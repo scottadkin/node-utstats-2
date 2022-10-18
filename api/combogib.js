@@ -163,6 +163,10 @@ class Combogib{
             ?,?,?,
             ?,?,?,
             ?,?,?,
+            ?,?,?,
+            ?,?,?,
+            ?,?,?,
+            ?,?,?,
             ?,?,?)`;
 
         const vars = [mapId, playtime,
@@ -176,7 +180,11 @@ class Combogib{
             primary.best, primary.bestPlayerId, matchId,
             shockBalls.best, shockBalls.bestPlayerId, matchId,
             combos.best, combos.bestPlayerId, matchId,
-            insane.best, insane.bestPlayerId, matchId
+            insane.best, insane.bestPlayerId, matchId,
+            combos.mostKills, combos.mostKillsPlayerId, matchId,
+            insane.mostKills, insane.mostKillsPlayerId, matchId,
+            shockBalls.mostKills, shockBalls.mostKillsPlayerId, matchId,
+            primary.mostKills, primary.mostKillsPlayerId, matchId,
         ];
 
         await mysql.simpleQuery(query, vars);
@@ -223,7 +231,25 @@ class Combogib{
 
         best_insane_kills_player_id=IF(best_insane_kills < ?, ?, best_insane_kills_player_id),
         best_insane_kills_match_id=IF(best_insane_kills < ?, ?, best_insane_kills_match_id),
-        best_insane_kills=IF(best_insane_kills < ?, ?, best_insane_kills)
+        best_insane_kills=IF(best_insane_kills < ?, ?, best_insane_kills),
+
+        max_combo_kills_player_id=IF(max_combo_kills < ?, ?, max_combo_kills_player_id),
+        max_combo_kills_match_id=IF(max_combo_kills < ?, ?, max_combo_kills_match_id),
+        max_combo_kills=IF(max_combo_kills < ?, ?, max_combo_kills),
+
+        max_insane_kills_player_id=IF(max_insane_kills < ?, ?, max_insane_kills_player_id),
+        max_insane_kills_match_id=IF(max_insane_kills < ?, ?, max_insane_kills_match_id),
+        max_insane_kills=IF(max_insane_kills < ?, ?, max_insane_kills),
+
+        max_ball_kills_player_id=IF(max_ball_kills < ?, ?, max_ball_kills_player_id),
+        max_ball_kills_match_id=IF(max_ball_kills < ?, ?, max_ball_kills_match_id),
+        max_ball_kills=IF(max_ball_kills < ?, ?, max_ball_kills),
+
+        max_primary_kills_player_id=IF(max_primary_kills < ?, ?, max_primary_kills_player_id),
+        max_primary_kills_match_id=IF(max_primary_kills < ?, ?, max_primary_kills_match_id),
+        max_primary_kills=IF(max_primary_kills < ?, ?, max_primary_kills)
+
+
         WHERE map_id=?
 
         `;
@@ -262,6 +288,25 @@ class Combogib{
             insane.best, insane.bestPlayerId,
             insane.best, matchId,
             insane.best, insane.best,
+
+            combos.mostKills, combos.mostKills,
+            combos.mostKills, combos.mostKillsPlayerId,
+            combos.mostKills, matchId,
+
+            insane.mostKills, insane.mostKills,
+            insane.mostKills, insane.mostKillsPlayerId,
+            insane.mostKills, matchId,
+
+            shockBalls.mostKills, shockBalls.mostKills,
+            shockBalls.mostKills, shockBalls.mostKillsPlayerId,
+            shockBalls.mostKills, matchId,
+
+            primary.mostKills, primary.mostKills,
+            primary.mostKills, primary.mostKillsPlayerId,
+            primary.mostKills, matchId,
+
+
+
             mapId
         ];
 
