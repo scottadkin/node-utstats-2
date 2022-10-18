@@ -1,17 +1,19 @@
 .wrapper{
     display:inline-block;
     padding-right:5px;
+    color:white;
 }
 
 .mouse{
     position:absolute;
     background-color:var(--color-1);
-    margin-top:20px;
-    padding:10px;
-    border:1px solid var(--border-color-1);
+    margin-top:25px;
+    padding:8px;
+    border:1px solid var(--border-color-2);
     text-align:center;
     font-size:14px;
     display:block;
     min-width:100px;
     z-index: 999999;
+    text-decoration: none;
 }

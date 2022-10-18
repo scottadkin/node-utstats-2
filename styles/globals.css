@@ -747,3 +747,11 @@ input[type="range"]{
 .pointer:hover{
 	cursor:pointer;
 }
+
+.small-font{
+	font-size:12px;
+}
+
+.grey{
+	color:var(--color-6);
+}

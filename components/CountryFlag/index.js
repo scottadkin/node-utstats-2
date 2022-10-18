@@ -33,9 +33,19 @@ class CountryFlag extends React.Component{
 
         const hoverElem = (this.state.show) ? <div className={`${styles.mouse} ${hiddenClass}`} onMouseOver={this.hide}>{flag.country}</div> : null;
 
+        let width = 16;
+        let height = 10;
+
+        const small = (this.props.small === undefined) ? false : this.props.small;
+
+        if(small){
+            width = 12;
+            height = 8;
+        }
+
         return <div className={styles.wrapper} onMouseOver={this.show} onMouseLeave={this.hide}>
             {hoverElem}
-            <Image className="country-flag" width={16} height={10} src={`/images/flags/${flag.code.toLowerCase()}.svg`} alt="flag"/>
+            <Image className="country-flag" width={width} height={height} src={`/images/flags/${flag.code.toLowerCase()}.svg`} alt="flag"/>
         </div>;
 
     }

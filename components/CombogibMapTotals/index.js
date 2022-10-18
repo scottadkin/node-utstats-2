@@ -30,7 +30,7 @@ class CombogibMapTotals extends React.Component{
 
             this.setState({"error": res.error});
         }else{
-            this.setState({"data": res.data});
+            this.setState({"data": res.data, "players": res.players});
         }
 
 
@@ -50,8 +50,8 @@ class CombogibMapTotals extends React.Component{
             <TableHeader width={1}>General Summary</TableHeader>
             <Table2 width={1}>
                 <tr>
-                    <th>Total Combo Matches</th>
-                    <th>Total Combo Playtime</th>
+                    <th>Total Matches</th>
+                    <th>Total Playtime</th>
                     <th>Combo Kills</th>
                     <th>Insane Combo Kills</th>
                     <th>Shock Ball Kills</th>
@@ -73,6 +73,11 @@ class CombogibMapTotals extends React.Component{
 
         const d = this.state.data;
 
+        const comboKillsPlayer = Functions.getPlayer(this.state.players, d.best_combo_kills_player_id, true);
+        const insaneKillsPlayer = Functions.getPlayer(this.state.players, d.best_insane_kills_player_id, true);
+        const ballKillsPlayer = Functions.getPlayer(this.state.players, d.best_ball_kills_player_id, true);
+        const primaryKillsPlayer = Functions.getPlayer(this.state.players, d.best_primary_kills_player_id, true);
+
         return <div>
             <TableHeader width={1}>Kill Type Spree Records</TableHeader>
             <Table2 width={1}>
@@ -83,10 +88,58 @@ class CombogibMapTotals extends React.Component{
                     <th>Most Instagib Kills</th>
                 </tr>
                 <tr>
-                    <td>{Functions.ignore0(d.best_combo_kills)} <CountryFlag country="gb"/> Ooper is small yellow font like place</td>
-                    <td>{Functions.ignore0(d.best_insane_kills)}</td>
-                    <td>{Functions.ignore0(d.best_ball_kills)}</td>
-                    <td>{Functions.ignore0(d.best_primary_kills)}</td>
+                    <td>
+                        {Functions.ignore0(d.best_combo_kills)}&nbsp;
+                        <span className="small-font grey">
+                            <i>
+                                Kills By&nbsp;
+                                <Link href={`/pmatch/${d.best_combo_kills_match_id}/?player=${d.best_combo_kills_player_id}`}>
+                                    <a>
+                                        <CountryFlag small={true} country={comboKillsPlayer.country}/>{comboKillsPlayer.name}
+                                    </a>
+                                </Link>
+                            </i>
+                        </span>
+                    </td>
+                    <td>
+                        {Functions.ignore0(d.best_insane_kills)}&nbsp;
+                        <span className="small-font grey">
+                            <i>
+                                Kills By&nbsp;
+                                <Link href={`/pmatch/${d.best_insane_kills_match_id}/?player=${d.best_insane_kills_player_id}`}>
+                                    <a>
+                                        <CountryFlag small={true} country={insaneKillsPlayer.country}/>{insaneKillsPlayer.name}
+                                    </a>
+                                </Link>
+                            </i>
+                        </span>
+                    </td>
+                    <td>
+                        {Functions.ignore0(d.best_ball_kills)}&nbsp;
+                        <span className="small-font grey">
+                            <i>
+                                Kills By&nbsp;
+                                <Link href={`/pmatch/${d.best_ball_kills_match_id}/?player=${d.best_ball_kills_player_id}`}>
+                                    <a>
+                                        <CountryFlag small={true} country={ballKillsPlayer.country}/>{ballKillsPlayer.name}
+                                    </a>
+                                </Link>
+                            </i>
+                        </span>
+                    </td>
+                    <td>
+                        {Functions.ignore0(d.best_primary_kills)}&nbsp;
+                        <span className="small-font grey">
+                            <i>
+                                Kills By&nbsp;
+                                <Link href={`/pmatch/${d.best_primary_kills_match_id}/?player=${d.best_primary_kills_player_id}`}>
+                                    <a>
+                                        <CountryFlag small={true} country={primaryKillsPlayer.country}/>{primaryKillsPlayer.name}
+                                    </a>
+                                </Link>
+                            </i>
+                        </span>
+                    </td>
                    
                 </tr>
             </Table2>
