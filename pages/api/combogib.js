@@ -94,6 +94,11 @@ export default async function handler(req, res){
                 playerIds.add(data.best_combo_kills_player_id);
                 playerIds.add(data.best_insane_kills_player_id);
 
+                playerIds.add(data.max_combo_kills_player_id);
+                playerIds.add(data.max_insane_kills_player_id);
+                playerIds.add(data.max_ball_kills_player_id);
+                playerIds.add(data.max_primary_kills_player_id);
+
                 const players = await playerManager.getNamesByIds([...playerIds], true);
 
                 res.status(200).json({"data": data, "players": players});
