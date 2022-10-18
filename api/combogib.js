@@ -289,24 +289,21 @@ class Combogib{
             insane.best, matchId,
             insane.best, insane.best,
 
-            combos.mostKills, combos.mostKills,
             combos.mostKills, combos.mostKillsPlayerId,
             combos.mostKills, matchId,
+            combos.mostKills, combos.mostKills,
 
-            insane.mostKills, insane.mostKills,
             insane.mostKills, insane.mostKillsPlayerId,
             insane.mostKills, matchId,
+            insane.mostKills, insane.mostKills,
 
-            shockBalls.mostKills, shockBalls.mostKills,
             shockBalls.mostKills, shockBalls.mostKillsPlayerId,
             shockBalls.mostKills, matchId,
+            shockBalls.mostKills, shockBalls.mostKills,
 
             primary.mostKills, primary.mostKills,
             primary.mostKills, primary.mostKillsPlayerId,
             primary.mostKills, matchId,
-
-
-
             mapId
         ];
 
