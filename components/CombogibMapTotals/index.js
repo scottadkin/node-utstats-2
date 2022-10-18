@@ -92,7 +92,7 @@ class CombogibMapTotals extends React.Component{
                         {Functions.ignore0(d.best_combo_kills)}&nbsp;
                         <span className="small-font grey">
                             <i>
-                                Kills By&nbsp;
+                            {Functions.plural(d.best_combo_kills, "Kill")} by&nbsp;
                                 <Link href={`/pmatch/${d.best_combo_kills_match_id}/?player=${d.best_combo_kills_player_id}`}>
                                     <a>
                                         <CountryFlag small={true} country={comboKillsPlayer.country}/>{comboKillsPlayer.name}
@@ -105,7 +105,7 @@ class CombogibMapTotals extends React.Component{
                         {Functions.ignore0(d.best_insane_kills)}&nbsp;
                         <span className="small-font grey">
                             <i>
-                                Kills By&nbsp;
+                            {Functions.plural(d.best_insane_kills, "Kill")} by&nbsp;
                                 <Link href={`/pmatch/${d.best_insane_kills_match_id}/?player=${d.best_insane_kills_player_id}`}>
                                     <a>
                                         <CountryFlag small={true} country={insaneKillsPlayer.country}/>{insaneKillsPlayer.name}
@@ -118,7 +118,7 @@ class CombogibMapTotals extends React.Component{
                         {Functions.ignore0(d.best_ball_kills)}&nbsp;
                         <span className="small-font grey">
                             <i>
-                                Kills By&nbsp;
+                            {Functions.plural(d.best_ball_kills, "Kill")} by&nbsp;
                                 <Link href={`/pmatch/${d.best_ball_kills_match_id}/?player=${d.best_ball_kills_player_id}`}>
                                     <a>
                                         <CountryFlag small={true} country={ballKillsPlayer.country}/>{ballKillsPlayer.name}
@@ -131,7 +131,7 @@ class CombogibMapTotals extends React.Component{
                         {Functions.ignore0(d.best_primary_kills)}&nbsp;
                         <span className="small-font grey">
                             <i>
-                                Kills By&nbsp;
+                                {Functions.plural(d.best_primary_kills, "Kill")} by&nbsp;
                                 <Link href={`/pmatch/${d.best_primary_kills_match_id}/?player=${d.best_primary_kills_player_id}`}>
                                     <a>
                                         <CountryFlag small={true} country={primaryKillsPlayer.country}/>{primaryKillsPlayer.name}
@@ -141,6 +141,64 @@ class CombogibMapTotals extends React.Component{
                         </span>
                     </td>
                    
+                </tr>
+            </Table2>
+        </div>
+    }
+
+    renderBestSingle(){
+
+        const d = this.state.data;
+
+        const comboPlayer = Functions.getPlayer(this.state.players, d.best_single_combo_player_id, true);
+        const insanePlayer = Functions.getPlayer(this.state.players, d.best_single_insane_player_id, true);
+        const ballPlayer = Functions.getPlayer(this.state.players, d.best_single_shockball_player_id, true);
+        
+        return <div>
+            <TableHeader width={1}>Single Event Records</TableHeader>
+            <Table2 width={1}>
+                <tr>
+                    <th>Most Kills With One Combo</th>
+                    <th>Most Kills With One Insane Combo</th>
+                    <th>Most Kills With One Shock Ball</th>
+                </tr>
+                <tr>
+                    <td>
+                        {d.best_single_combo}&nbsp;
+                        <span className="small-font grey">
+                            {Functions.plural(d.best_single_combo, "Kill")} by&nbsp;
+                            <Link href={`/pmatch/${d.best_single_combo_match_id}?player=${comboPlayer.id}`}>
+                                <a>
+                                    <CountryFlag small={true} country={comboPlayer.country}/>
+                                    {comboPlayer.name}
+                                </a>
+                            </Link>
+                        </span>
+                    </td>
+                    <td>
+                        {d.best_single_insane}&nbsp;
+                        <span className="small-font grey">
+                            {Functions.plural(d.best_single_insane, "Kill")} by&nbsp;
+                            <Link href={`/pmatch/${d.best_single_insane_match_id}?player=${insanePlayer.id}`}>
+                                <a>
+                                    <CountryFlag small={true} country={insanePlayer.country}/>
+                                    {insanePlayer.name}
+                                </a>
+                            </Link>
+                        </span>
+                    </td>
+                    <td>
+                        {d.best_single_shockball}&nbsp;
+                        <span className="small-font grey">
+                            {Functions.plural(d.best_single_shockball, "Kill")} by&nbsp;
+                            <Link href={`/pmatch/${d.best_single_shockball_match_id}?player=${ballPlayer.id}`}>
+                                <a>
+                                    <CountryFlag small={true} country={ballPlayer.country}/>
+                                    {ballPlayer.name}
+                                </a>
+                            </Link>
+                        </span>
+                    </td>
                 </tr>
             </Table2>
         </div>
@@ -162,6 +220,7 @@ class CombogibMapTotals extends React.Component{
         return <div>
             <div className="default-header">Combogib Map Totals</div>
             {this.renderTotals()}
+            {this.renderBestSingle()}
             {this.renderRecords()}
         </div>
     }
