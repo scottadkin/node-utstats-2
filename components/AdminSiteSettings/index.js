@@ -421,10 +421,10 @@ class AdminSiteSettings extends React.Component{
                 <td>
                     {(bDropDown || ignoreOrder.indexOf(s.name) !== -1) ? null :
                         <>
-                            <Image src="/images/up.png" width={32} height={32} className={styles.button} alt="up" onClick={(() =>{
+                            <Image src="/images/up.png" width={16} height={16} className={styles.button} alt="up" onClick={(() =>{
                                 this.changePosition(true, s.name);
                             })}/>
-                            <Image src="/images/down.png" width={32} height={32} className={styles.button} alt="down" onClick={(() =>{
+                            <Image src="/images/down.png" width={16} height={16} className={styles.button} alt="down" onClick={(() =>{
                                 this.changePosition(false, s.name);
                             })}/>
                         </>

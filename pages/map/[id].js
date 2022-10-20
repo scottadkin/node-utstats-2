@@ -173,9 +173,14 @@ class Map extends React.Component{
             </div>
         }
 
-        if(pageSettings["Display Combogib Records"] === "true"){
+        if(pageSettings["Display Combogib Player Records"] === "true"){
 
-            elems[pageOrder["Display Combogib Records"]] = <CombogibMapRecords key="combo-records" mapId={basic.id}/>
+            elems[pageOrder["Display Combogib Player Records"]] = <CombogibMapRecords key="combo-records" mapId={basic.id}/>
+        }
+
+        if(pageSettings["Display Combogib General Stats"] === "true"){
+
+            elems[pageOrder["Display Combogib General Stats"]] = <CombogibMapTotals key="combo-general" mapId={basic.id}/>;
         }
 
         return <div>
@@ -192,7 +197,7 @@ class Map extends React.Component{
 
                 <div className="default">
 
-                <CombogibMapTotals mapId={basic.id}/>
+                
 
                     <div className="default-header">
                         {Functions.removeUnr(basic.name)}

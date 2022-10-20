@@ -15,19 +15,20 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Latest Match","true","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Recent Matches","true","2")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Recent Matches & Player Stats","true","3")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Addicted Players","true","10")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Addicted Players","true","11")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Control Points (Domination)","true","8")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Games Played","true","4")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Longest Matches","true","11")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Longest Matches","true","12")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Map Objectives (Assault)","true","7")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Recent Matches","true","5")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Spawn Points","true","12")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Spawn Points","true","13")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Summary","true","3")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Max Addicted Players","5","2")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Max Longest Matches","5","1")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Recent Matches Per Page","25","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display CTF Caps","true","6")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Combogib Records","true","9")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Combogib Player Records","true","10")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Combogib General Stats","true","9")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Maps Page","Default Display Per Page","25","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Maps Page","Default Display Type","0","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Server Settings","true","29")`,
@@ -109,14 +110,14 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50","0")`,
-
-
 ];
 
 (async () =>{
 
     try{
         new Message(`Reset to default page order settings.`,"note");
+
+        await mysql.simpleQuery("DELETE FROM nstats_site_settings");
 
         for(let i = 0; i < queries.length; i++){
 

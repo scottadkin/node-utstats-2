@@ -237,8 +237,9 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Items Summary","true",9)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Aliases","true",14)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Combogib Stats","true",45)`,
-        `INSERT INTO nstats_site_settings VALUES(126, 'Map Pages', 'Display Combogib Records', 'true', 9);`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Combogib Stats","true","10")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Combogib Player Records","true","10")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Combogib General Stats","true","9")`,
     ];
 
     

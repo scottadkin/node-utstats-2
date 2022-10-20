@@ -1,19 +1,19 @@
 import Table2 from "../Table2";
 
-const Box = ({hits, unique, returning}) =>{
+const Box = ({hits, unique, returning, header}) =>{
 
     return <div>
-        <Table2 width={2}>
+        <Table2 width={3} header={header}>
             <tr>
-                <td>Site Hits</td>
+                <td className="yellow text-left">Site Hits</td>
                 <td>{hits}</td>
             </tr>
             <tr>
-                <td>Unique Visitors</td>
+                <td  className="yellow text-left">Unique Visitors</td>
                 <td>{unique}</td>
             </tr>
             <tr>
-                <td>Returning Visitors</td>
+                <td  className="yellow text-left">Returning Visitors</td>
                 <td>{returning}</td>
             </tr>
         </Table2>
@@ -25,25 +25,15 @@ const AnalyticsHitsGeneral = ({data, visitors}) =>{
     return <div>
         <div className="default-header">General Statistics</div>
 
-        <div className="default-sub-header">Hits Past 24 Hours</div>
+        <Box header="Hits Past 24 Hours" hits={data.day} unique={visitors.day.unique} returning={visitors.day.returning}/>
 
-        <Box hits={data.day} unique={visitors.day.unique} returning={visitors.day.returning}/>
+        <Box header="Hits Past 7 Days" hits={data.week}unique={visitors.week.unique} returning={visitors.week.returning}/>
 
-        <div className="default-sub-header">Hits Past 7 Days</div>
+        <Box header="Hits Past 28 Days" hits={data.month} unique={visitors.month.unique} returning={visitors.month.returning}/>
 
-        <Box hits={data.week}unique={visitors.week.unique} returning={visitors.week.returning}/>
+        <Box header="Hits Past 365 Days" hits={data.year} unique={visitors.year.unique} returning={visitors.year.returning}/>
 
-        <div className="default-sub-header">Hits Past 28 Days</div>
-
-        <Box hits={data.month} unique={visitors.month.unique} returning={visitors.month.returning}/>
-
-        <div className="default-sub-header">Hits Past 365 Days</div>
-
-        <Box hits={data.year} unique={visitors.year.unique} returning={visitors.year.returning}/>
-
-        <div className="default-sub-header">All Time Hits</div>
-
-        <Box hits={data.allTime} unique={visitors.allTime.unique} returning={visitors.allTime.returning}/>
+        <Box header="All Time Hits" hits={data.allTime} unique={visitors.allTime.unique} returning={visitors.allTime.returning}/>
 
     </div>
 }
