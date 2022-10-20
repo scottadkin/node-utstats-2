@@ -2,7 +2,6 @@ import React from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import Table2 from "../Table2";
-import TableHeader from "../TableHeader";
 import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
@@ -47,8 +46,8 @@ class CombogibMapTotals extends React.Component{
         const d = this.state.data;
 
         return <div>
-            <TableHeader width={1}>General Summary</TableHeader>
-            <Table2 width={1}>
+            
+            <Table2 header="General Summary" width={1}>
                 <tr>
                     <th>Total Matches</th>
                     <th>Total Playtime</th>
@@ -79,8 +78,7 @@ class CombogibMapTotals extends React.Component{
         const primaryKillsPlayer = Functions.getPlayer(this.state.players, d.best_primary_kills_player_id, true);
 
         return <div>
-            <TableHeader width={1}>Kill Type Spree Records</TableHeader>
-            <Table2 width={1}>
+            <Table2 header="Kill Type Spree Records" width={1}>
                 <tr>
                     <th>Most Combo Kills</th>
                     <th>Most Insane Combo Kills</th>
@@ -155,8 +153,7 @@ class CombogibMapTotals extends React.Component{
         const ballPlayer = Functions.getPlayer(this.state.players, d.best_single_shockball_player_id, true);
         
         return <div>
-            <TableHeader width={1}>Single Event Records</TableHeader>
-            <Table2 width={1}>
+            <Table2 header="Single Event Records" width={1}>
                 <tr>
                     <th>Most Kills With One Combo</th>
                     <th>Most Kills With One Insane Combo</th>
@@ -214,8 +211,7 @@ class CombogibMapTotals extends React.Component{
         const primaryPlayer = Functions.getPlayer(this.state.players, d.max_primary_kills_player_id, true);
 
         return <div>
-            <TableHeader width={1}>Most Kills in a Match by Type</TableHeader>
-            <Table2 width={1}>
+            <Table2 header="Most Kills in a Match by Type" width={1}>
                 <tr>
                     <th>Combo</th>
                     <th>Insane Combo</th>
@@ -276,6 +272,69 @@ class CombogibMapTotals extends React.Component{
         </div>
     }
 
+    renderAverage(){
+
+        let combos = 0;
+        let insane = 0;
+        let ball = 0;
+        let instagib = 0;
+
+        const d = this.state.data;
+        console.log(d);
+
+        if(d.combo_kills > 0){
+            combos = (d.combo_kills / d.matches).toFixed(2);
+        }
+
+        if(d.insane_kills > 0){
+            insane = (d.insane_kills / d.matches).toFixed(2);
+        }
+
+        if(d.ball_kills > 0){
+            ball = (d.ball_kills / d.matches).toFixed(2);
+        }
+
+        if(d.primary_kills > 0){
+            instagib = (d.primary_kills / d.matches).toFixed(2);
+        }
+
+
+        return <div>
+            <Table2 header="Match Averages" width="1">
+                <tr>
+                    <th>Combos Kills Per Match</th>
+                    <th>Insane Combos Kills Per Match</th>
+                    <th>Shock Ball Kills Per Match</th>
+                    <th>Instagib Kills Per Match</th>
+                </tr>
+                <tr>
+                    <td>{combos}</td>
+                    <td>{insane}</td>
+                    <td>{ball}</td>
+                    <td>{instagib}</td>
+                </tr>
+            </Table2>
+        </div>
+    }
+
+    renderKPM(){
+
+        return <Table2 header="Kills Per Minute" width={1}>
+            <tr>
+                <th>Combos</th>
+                <th>Insane Combos</th>
+                <th>ShockBalls</th>
+                <th>Instagib</th>
+            </tr>
+            <tr>
+                <td>{this.state.data.combo_kpm.toFixed(2)}</td>
+                <td>{this.state.data.insane_kpm.toFixed(2)}</td>
+                <td>{this.state.data.ball_kpm.toFixed(2)}</td>
+                <td>{this.state.data.primary_kpm.toFixed(2)}</td>
+            </tr>
+        </Table2>
+    }
+
     render(){
 
         if(!this.state.loaded) return <Loading/>;
@@ -292,6 +351,8 @@ class CombogibMapTotals extends React.Component{
         return <div>
             <div className="default-header">Combogib Map Totals</div>
             {this.renderTotals()}
+            {this.renderAverage()}
+            {this.renderKPM()}
             {this.renderBestSingle()}
             {this.renderMaxValues()}
             {this.renderRecords()}

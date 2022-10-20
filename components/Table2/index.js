@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Table2.module.css';
+import TableHeader from '../TableHeader';
 
 class Table2 extends React.Component{
 
@@ -21,7 +22,14 @@ class Table2 extends React.Component{
 
         const bCompressed = (this.props.compressed !== undefined) ? true : false;
 
+        let headerElem = null;
+
+        if(this.props.header !== undefined){
+            headerElem = <TableHeader width={widthId}>{this.props.header}</TableHeader>
+        }
+
         return <div className={`${styles.wrapper}`} style={{"marginBottom": `${(noBottomMargin) ? 0 : 25}px`}}>
+            {headerElem}
             <table className={`${widthClass} ${playerClass}`} style={(bCompressed) ? {"lineHeight": "10px"} : {}}>
                 <tbody>
                     {this.props.children}
