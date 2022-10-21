@@ -93,6 +93,7 @@ class CombogibMapRecords extends React.Component{
     }
 
     async loadData(){
+        
 
         const req = await fetch("/api/combogib", {
             "headers": {"Content-type": "application/json"},

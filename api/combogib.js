@@ -104,7 +104,7 @@ class Combogib{
         if(this.bValidRecordType(recordType)){
 
             const query = `SELECT player_id,match_id,MAX(${recordType}) as best_value,playtime FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?
-            GROUP BY player_id ORDER BY ${recordType} DESC LIMIT ?,?`;
+            GROUP BY player_id ORDER BY best_value DESC LIMIT ?,?`;
 
             return await mysql.simpleQuery(query, [mapId, start, perPage]);
 
