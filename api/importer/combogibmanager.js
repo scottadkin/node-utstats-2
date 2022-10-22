@@ -3,7 +3,7 @@ const Combogib = require("../combogib");
 
 class CombogibManager{
 
-    constructor(playerManager, killManager, lines, matchId, mapId, bIgnoreBots, matchLength){
+    constructor(playerManager, killManager, lines, gametypeId, matchId, mapId, bIgnoreBots, matchLength){
         
         this.playerManager = playerManager;
         this.killManager = killManager;
@@ -12,6 +12,7 @@ class CombogibManager{
 
         this.lines = lines;
 
+        this.gametypeId = gametypeId;
         this.matchId = matchId;
         this.mapId = mapId;
         this.bIgnoreBots = bIgnoreBots;
@@ -820,7 +821,7 @@ class CombogibManager{
                 }
 
                 const {combos, insane, shockBalls, primary, playtime} = value;
-                await this.combogib.insertPlayerMatchData(key, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
+                await this.combogib.insertPlayerMatchData(key, this.gametypeId, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
             }            
 
         }catch(err){
@@ -942,7 +943,7 @@ class CombogibManager{
         //await this.combogib.updateMapTotals(this.mapId, this.matchLength, combos, shockBalls, primary, insane);
         const {combos, shockBalls, primary, insane} = this.getMatchTotals();
 
-        await this.combogib.updateMapTotals(this.mapId, this.matchId, this.matchLength, combos, shockBalls, primary, insane);
+        await this.combogib.updateMapTotals(this.mapId, this.gametypeId, this.matchId, this.matchLength, combos, shockBalls, primary, insane);
         
     }
 

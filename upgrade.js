@@ -396,6 +396,7 @@ async function createCombogibTables(){
         `CREATE TABLE IF NOT EXISTS nstats_match_combogib (
             id int(11) NOT NULL AUTO_INCREMENT,
             player_id int(11) NOT NULL,
+            gametype_id int(11) NOT NULL,
             match_id int(11) NOT NULL,
             map_id int(11) NOT NULL,
             playtime float NOT NULL,
@@ -426,6 +427,7 @@ async function createCombogibTables(){
             `CREATE TABLE IF NOT EXISTS nstats_map_combogib (
                 id int(11) NOT NULL AUTO_INCREMENT,
                 map_id int(11) NOT NULL,
+                gametype_id int(11) NOT NULL,
                 matches int(11) NOT NULL,
                 playtime float NOT NULL,
                 primary_kills int(11) NOT NULL,

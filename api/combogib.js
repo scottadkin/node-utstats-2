@@ -4,10 +4,10 @@ class Combogib{
 
     constructor(){}
 
-    async insertPlayerMatchData(playerId, matchId, mapId, playtime, combos, shockBalls, primary, insane){
+    async insertPlayerMatchData(playerId, gametypeId, matchId, mapId, playtime, combos, shockBalls, primary, insane){
 
         const query = `INSERT INTO nstats_match_combogib VALUES(
-            NULL,?,?,?,?,
+            NULL,?,?,?,?,?,
             ?,?,?,?,
             ?,?,?,?,
             ?,?,?,?,
@@ -15,7 +15,7 @@ class Combogib{
             ?,?,?,
             ?,?,?,?)`;
 
-        const vars = [playerId, matchId, mapId, playtime,
+        const vars = [playerId, gametypeId, matchId, mapId, playtime,
             primary.kills, primary.deaths, primary.efficiency, primary.kpm,
             shockBalls.kills, shockBalls.deaths, shockBalls.efficiency, shockBalls.kpm,
             combos.kills, combos.deaths, combos.efficiency, combos.kpm,
@@ -134,11 +134,13 @@ class Combogib{
     }
 
 
-    async bMapHaveTotalsData(mapId){
+    async bMapHaveTotalsData(mapId, gametypeId){
 
-        const query = "SELECT COUNT(*) as total_rows FROM nstats_map_combogib WHERE map_id=?";
+        if(gametypeId === undefined) gametypeId = 0;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const query = "SELECT COUNT(*) as total_rows FROM nstats_map_combogib WHERE map_id=? AND gametype_id=?";
+
+        const result = await mysql.simpleQuery(query, [mapId, gametypeId]);
 
         if(result.length > 0){
             if(result[0].total_rows > 0) return true;
@@ -149,10 +151,10 @@ class Combogib{
     }
 
 
-    async insertNewMapTotals(mapId, matchId, playtime, combos, shockBalls, primary, insane){
+    async insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
 
         const query = `INSERT INTO nstats_map_combogib VALUES(
-            NULL,?,1,?,
+            NULL,?,?,1,?,
             ?,?,
             ?,?,
             ?,?,
@@ -169,7 +171,7 @@ class Combogib{
             ?,?,?,
             ?,?,?)`;
 
-        const vars = [mapId, playtime,
+        const vars = [mapId, gametypeId, playtime,
             primary.kills, primary.kpm,
             shockBalls.kills, shockBalls.kpm,
             combos.kills, combos.kpm,
@@ -190,7 +192,7 @@ class Combogib{
         await mysql.simpleQuery(query, vars);
     }
 
-    async updateMapTotalTable(mapId, matchId, playtime, combos, shockBalls, primary, insane){
+    async updateMapTotalTable(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
 
 
         const query = `UPDATE nstats_map_combogib SET
@@ -250,7 +252,7 @@ class Combogib{
         max_primary_kills=IF(max_primary_kills < ?, ?, max_primary_kills)
 
 
-        WHERE map_id=?
+        WHERE map_id=? AND gametype_id=?
 
         `;
 
@@ -304,27 +306,34 @@ class Combogib{
             primary.mostKills, primary.mostKills,
             primary.mostKills, primary.mostKillsPlayerId,
             primary.mostKills, matchId,
-            mapId
+            mapId, gametypeId
         ];
 
         await mysql.simpleQuery(query, vars);
     }
 
-    async updateMapTotals(mapId, matchId, playtime, combos, shockBalls, primary, insane){
+    async updateMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
 
-        if(await this.bMapHaveTotalsData(mapId)){
-            await this.updateMapTotalTable(mapId, matchId, playtime, combos, shockBalls, primary, insane);
+        if(await this.bMapHaveTotalsData(mapId, gametypeId)){
+            await this.updateMapTotalTable(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane);
 
         }else{
-            await this.insertNewMapTotals(mapId, matchId, playtime, combos, shockBalls, primary, insane);
+            await this.insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane);
         } 
+
+        //run again but with gametype id of 0(all combined)
+        if(gametypeId !== 0){
+            await this.updateMapTotals(mapId, 0, matchId, playtime, combos, shockBalls, primary, insane);
+        }
     }
 
-    async getMapTotals(mapId){
+    async getMapTotals(mapId, gametypeId){
 
-        const query = "SELECT * FROM nstats_map_combogib WHERE map_id=?";
+        if(gametypeId === undefined) gametypeId = 0;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const query = "SELECT * FROM nstats_map_combogib WHERE map_id=? AND gametype_id=?";
+
+        const result = await mysql.simpleQuery(query, [mapId, gametypeId]);
 
         if(result.length > 0){
 
