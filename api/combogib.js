@@ -343,6 +343,122 @@ class Combogib{
         return null;
     }
 
+
+    async createPlayerTotals(playerId, gametypeId){
+
+        const query = `INSERT INTO nstats_player_combogib VALUES(NULL,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+    async bPlayerTotalsExist(playerId, gametypeId){
+
+        const query = "SELECT COUNT(*) as total_matches FROM nstats_player_combogib WHERE player_id=? AND gametype_id=?";
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result[0].total_matches > 0) return true;
+
+        return false;
+    }
+
+    async updatePlayerTotals(playerId, matchId, gametypeId, playtime, combos, insane, shockBalls, primary){
+
+        if(!await this.bPlayerTotalsExist(playerId, gametypeId)){
+            await this.createPlayerTotals(playerId, gametypeId);
+        }
+
+        const query = `UPDATE nstats_player_combogib SET total_matches=total_matches+1,playtime=playtime+?,
+        combo_kills = combo_kills+?, insane_kills = insane_kills+?, shockball_kills=shockball_kills+?,
+        primary_kills = primary_kills+?,
+
+        best_single_combo_match_id = IF(best_single_combo < ?, ?, best_single_combo_match_id),
+        best_single_combo = IF(best_single_combo < ?, ?, best_single_combo),
+        
+        best_single_insane_match_id = IF(best_single_insane < ?, ?, best_single_insane_match_id),
+        best_single_insane = IF(best_single_insane < ?, ?, best_single_insane),
+        
+        best_single_shockball_match_id = IF(best_single_shockball < ?, ?, best_single_shockball_match_id),
+        best_single_shockball = IF(best_single_shockball < ?, ?, best_single_shockball),
+
+        most_combo_kills_match_id = IF(most_combo_kills < ?, ?, most_combo_kills_match_id),
+        most_combo_kills = IF(most_combo_kills < ?, ?, most_combo_kills),
+
+        most_insane_kills_match_id = IF(most_insane_kills < ?, ?, most_insane_kills_match_id),
+        most_insane_kills = IF(most_insane_kills < ?, ?, most_insane_kills),
+
+        most_shockball_kills_match_id = IF(most_shockball_kills < ?, ?, most_shockball_kills_match_id),
+        most_shockball_kills = IF(most_shockball_kills < ?, ?, most_shockball_kills),
+
+        most_primary_kills_match_id = IF(most_primary_kills < ?, ?, most_primary_kills_match_id),
+        most_primary_kills = IF(most_primary_kills < ?, ?, most_primary_kills),
+
+        best_combo_spree_match_id = IF(best_combo_spree < ?, ?, best_combo_spree_match_id),
+        best_combo_spree = IF(best_combo_spree < ?, ?, best_combo_spree),
+
+        best_insane_spree_match_id = IF(best_insane_spree < ?, ?, best_insane_spree_match_id),
+        best_insane_spree = IF(best_insane_spree < ?, ?, best_insane_spree),
+
+        best_shockball_spree_match_id = IF(best_shockball_spree < ?, ?, best_shockball_spree_match_id),
+        best_shockball_spree = IF(best_shockball_spree < ?, ?, best_shockball_spree),
+
+        best_primary_spree_match_id = IF(best_primary_spree < ?, ?, best_primary_spree_match_id),
+        best_primary_spree = IF(best_primary_spree < ?, ?, best_primary_spree)
+        
+        WHERE player_id=? AND gametype_id=?`;
+
+        const vars = [
+            playtime,
+            combos.kills, insane.kills, shockBalls.kills,
+            primary.kills,
+
+            combos.bestSingle, matchId,
+            combos.bestSingle, combos.bestSingle,
+            
+            insane.bestSingle, matchId,
+            insane.bestSingle, insane.bestSingle,
+            
+            shockBalls.bestSingle, matchId,
+            shockBalls.bestSingle, shockBalls.bestSingle,
+
+            combos.kills, matchId,
+            combos.kills, combos.kills,
+
+            insane.kills, matchId,
+            insane.kills, insane.kills,
+
+            shockBalls.kills, matchId,
+            shockBalls.kills, shockBalls.kills,
+
+            primary.kills, matchId,
+            primary.kills, primary.kills,
+
+            combos.best, matchId,
+            combos.best, combos.best,
+
+            insane.best, matchId,
+            insane.best, insane.best,
+
+            shockBalls.best, matchId,
+            shockBalls.best, shockBalls.best,
+
+            primary.best, matchId,
+            primary.best, primary.best,
+
+
+            
+            playerId, gametypeId
+        ];
+
+
+        await mysql.simpleQuery(query, vars);
+
+        if(gametypeId !== 0){
+            await this.updatePlayerTotals(playerId, matchId, 0, playtime, combos, insane, shockBalls, primary);
+        }
+
+    }
+
 }
 
 module.exports = Combogib;
