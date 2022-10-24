@@ -473,6 +473,59 @@ async function createCombogibTables(){
                 max_primary_kills_match_id int(11) NOT NULL,
 
                 PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+                `CREATE TABLE IF NOT EXISTS nstats_player_combogib (
+                    id int(11) NOT NULL AUTO_INCREMENT,
+                    player_id int(11) NOT NULL,
+                    gametype_id int(11) NOT NULL,
+                    total_matches int(11) NOT NULL,
+                    playtime float NOT NULL,
+                    combo_kills int(11) NOT NULL,
+                    combo_deaths int(11) NOT NULL,
+                    combo_efficiency FLOAT NOT NULL,
+                    combo_kpm float NOT NULL,
+                    insane_kills INT(11) NOT NULL,
+                    insane_deaths INT(11) NOT NULL,
+                    insane_efficiency FLOAT NOT NULL,
+                    insane_kpm float NOT NULL,
+                    shockball_kills int(11) NOT NULL,
+                    shockball_deaths int(11) NOT NULL,
+                    shockball_efficiency FLOAT NOT NULL,
+                    shockball_kpm float NOT NULL,
+                    primary_kills int(11) NOT NULL,
+                    primary_deaths int(11) NOT NULL,
+                    primary_efficiency FLOAT NOT NULL,
+                    primary_kpm float NOT NULL,      
+
+                    best_single_combo int(11) NOT NULL,
+                    best_single_combo_match_id int(11) NOT NULL,
+                    best_single_insane int(11) NOT NULL,
+                    best_single_insane_match_id int(11) NOT NULL,
+                    best_single_shockball int(11) NOT NULL,
+                    best_single_shockball_match_id int(11) NOT NULL,
+                    
+                    most_combo_kills int(11) NOT NULL,
+                    most_combo_kills_match_id int(11) NOT NULL,
+                    most_insane_kills int(11) NOT NULL,
+                    most_insane_kills_match_id int(11) NOT NULL,
+                    most_shockball_kills int(11) NOT NULL,
+                    most_shockball_kills_match_id int(11) NOT NULL,
+                    most_primary_kills int(11) NOT NULL,
+                    most_primary_kills_match_id int(11) NOT NULL,
+
+                    best_combo_spree int(11) NOT NULL,
+                    best_combo_spree_match_id int(11) NOT NULL,
+
+                    best_insane_spree int(11) NOT NULL,
+                    best_insane_spree_match_id int(11) NOT NULL,
+
+                    best_shockball_spree int(11) NOT NULL,
+                    best_shockball_spree_match_id int(11) NOT NULL,
+
+                    best_primary_spree int(11) NOT NULL,
+                    best_primary_spree_match_id int(11) NOT NULL,
+    
+                    PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     ];
 
     for(let i = 0; i < queries.length; i++){

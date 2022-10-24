@@ -346,7 +346,7 @@ class Combogib{
 
     async createPlayerTotals(playerId, gametypeId){
 
-        const query = `INSERT INTO nstats_player_combogib VALUES(NULL,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+        const query = `INSERT INTO nstats_player_combogib VALUES(NULL,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
         return await mysql.simpleQuery(query, [playerId, gametypeId]);
     }
@@ -369,8 +369,18 @@ class Combogib{
         }
 
         const query = `UPDATE nstats_player_combogib SET total_matches=total_matches+1,playtime=playtime+?,
-        combo_kills = combo_kills+?, insane_kills = insane_kills+?, shockball_kills=shockball_kills+?,
-        primary_kills = primary_kills+?,
+        combo_kills = combo_kills+?, combo_deaths = combo_deaths + ?,
+        combo_kpm = IF(combo_kills > 0 AND playtime > 0, combo_kills / (playtime / 60) , 0),
+        combo_efficiency = IF(combo_kills > 0, IF(combo_deaths = 0, 100, (combo_kills / (combo_kills + combo_deaths)) * 100) , 0),
+        insane_kills = insane_kills+?, insane_deaths = insane_deaths + ?,
+        insane_kpm = IF(insane_kills > 0 AND playtime > 0, insane_kills / (playtime / 60) , 0),
+        insane_efficiency = IF(insane_kills > 0, IF(insane_deaths = 0, 100, (insane_kills / (insane_kills + insane_deaths)) * 100) , 0),
+        shockball_kills=shockball_kills+?, shockball_deaths = shockball_deaths + ?,
+        shockball_kpm = IF(shockball_kills > 0 AND playtime > 0, shockball_kills / (playtime / 60) , 0),
+        shockball_efficiency = IF(shockball_kills > 0, IF(shockball_deaths = 0, 100, (shockball_kills / (shockball_kills + shockball_deaths)) * 100) , 0),
+        primary_kills = primary_kills+?, primary_deaths = primary_deaths + ?,
+        primary_kpm = IF(primary_kills > 0 AND playtime > 0, primary_kills / (playtime / 60) , 0),
+        primary_efficiency = IF(primary_kills > 0, IF(primary_deaths = 0, 100, (primary_kills / (primary_kills + primary_deaths)) * 100) , 0),
 
         best_single_combo_match_id = IF(best_single_combo < ?, ?, best_single_combo_match_id),
         best_single_combo = IF(best_single_combo < ?, ?, best_single_combo),
@@ -409,8 +419,10 @@ class Combogib{
 
         const vars = [
             playtime,
-            combos.kills, insane.kills, shockBalls.kills,
-            primary.kills,
+            combos.kills, combos.deaths,
+            insane.kills,  insane.deaths,
+            shockBalls.kills, shockBalls.deaths,
+            primary.kills,  primary.deaths,
 
             combos.bestSingle, matchId,
             combos.bestSingle, combos.bestSingle,
