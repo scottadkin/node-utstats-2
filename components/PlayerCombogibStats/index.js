@@ -64,7 +64,7 @@ class PlayerCombogibStats extends React.Component{
                 <th>Combo Kills</th>
                 <th>Insane Combo Kills</th>
                 <th>Shock Ball Kills</th>
-                <th>Primary Kills</th>
+                <th>Instagib Kills</th>
             </tr>
             <tr>
                 <td>{d.total_matches}</td>
@@ -88,7 +88,7 @@ class PlayerCombogibStats extends React.Component{
                 <th>Combo Kills</th>
                 <th>Insane Combo Kills</th>
                 <th>Shock Ball Kills</th>
-                <th>Primary Kills</th>
+                <th>Instagib Kills</th>
             </tr>
             <tr>
                 <td>{Functions.ignore0(d.combo_kpm).toFixed(2)}</td>
@@ -109,7 +109,7 @@ class PlayerCombogibStats extends React.Component{
                 <th>Combo Kills</th>
                 <th>Insane Combo Kills</th>
                 <th>Shock Ball Kills</th>
-                <th>Primary Kills</th>
+                <th>Instagib Kills</th>
             </tr>
             <tr>
                 <td>
@@ -153,7 +153,7 @@ class PlayerCombogibStats extends React.Component{
                 <th>Combo Kills</th>
                 <th>Insane Combo Kills</th>
                 <th>Shock Ball Kills</th>
-                <th>Primary Kills</th>
+                <th>Instagib Kills</th>
             </tr>
             <tr>
                 <td>

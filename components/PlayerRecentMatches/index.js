@@ -3,9 +3,7 @@ import TimeStamp from '../TimeStamp/';
 import styles from './PlayerRecentMatches.module.css';
 import Pagination from '../Pagination/';
 import Functions from '../../api/functions';
-import MMSS from '../MMSS/';
 import MatchResult from '../MatchResult/';
-import Graph from '../Graph/';
 import React from 'react';
 import MatchResultSmall from '../MatchResultSmall';
 import Table2 from '../Table2';
@@ -26,15 +24,13 @@ const getMatchScores = (scores, id) =>{
 
 function getMapImage(maps, name){
 
-    name = Functions.removeMapGametypePrefix(name.toLowerCase());
+    const cleanName = Functions.cleanMapName(name).toLowerCase();
 
-    const index = maps.indexOf(name);
-
-    if(index !== -1){
-        return `/images/maps/thumbs/${maps[index]}.jpg`;
+    if(maps.indexOf(cleanName) !== -1){
+        return `/images/maps/${cleanName}.jpg`;
     }
-
-    return '/images/maps/thumbs/default.jpg';
+    
+    return '/images/maps/default.jpg';
 }
 
 function getServerName(servers, id){
@@ -54,160 +50,6 @@ function getServerName(servers, id){
 
     }
     return 'Not Found';
-}
-
-function createFinalDatesData(data, gametypeNames, total){
-
-    const finalData = [];
-
-    for(const [key, value] of Object.entries(data)){
-
-        finalData.push({
-            "name": gametypeNames[key],
-            "data": (total > 0) ? value : []
-        });
-    }
-
-    if(finalData.length === 0){
-
-        finalData.push({
-            "name": "all",
-            "data": []
-        });
-    }
-
-    return finalData;
-}
-
-function createDatesData(dates, gametypeNames){
-
-    const uniqueGametypes = [];
-
-    let d = 0;
-
-    let totalHours = 0;
-    let totalDays = 0;
-    let totalMonth = 0;
-
-    for(let i = 0; i < dates.length; i++){
-
-        d = dates[i];
-
-
-        if(uniqueGametypes.indexOf(d.gametype) === -1){
-            uniqueGametypes.push(d.gametype);
-        }
-    }
-
-    const now = Math.floor(new Date() * 0.001);
-
-    const hours = {};
-    const hoursText = [];
-
-    for(let i = 0; i < uniqueGametypes.length; i++){
-
-        hours[uniqueGametypes[i]] = [];
-       // hoursText[uniqueGametypes[i]] = [];
-
-        for(let x = 0; x < 24; x++){
-
-            hours[uniqueGametypes[i]].push(0);
-
-            hoursText.push(
-                `Hour ${x} - ${x + 1}`
-            );
-        }
-    }
-
-
-    const days = {};
-    const daysText = [];
-
-    for(let i = 0; i < uniqueGametypes.length; i++){
-
-        days[uniqueGametypes[i]] = [];
-
-        for(let x = 0; x < 7; x++){
-
-            days[uniqueGametypes[i]].push(0);
-
-            daysText.push(
-                `Day ${x} - ${x + 1}`
-            );
-        }
-    }
-
-    const month = {};
-    const monthText = [];
-
-    for(let i = 0; i < uniqueGametypes.length; i++){
-
-        month[uniqueGametypes[i]] = [];
-
-        for(let x = 0; x < 28; x++){
-
-           month[uniqueGametypes[i]].push(0);
-           monthText.push(
-               `Day ${x} - ${x + 1}`
-           );
-        }
-    }
-
-
-    const hour = 60 * 60;
-    const day = ((60 * 60) * 24);
-
-    let diff = 0;
-    let currentHour = 0;
-    let currentDay = 0;
-
-    let currentGametype = 0;
-
-    for(let i = 0; i < dates.length ;i++){
-
-        d = dates[i];
-
-        currentGametype = d.gametype;
-
-        diff = now - d.date;
-        
-        currentHour = Math.floor(diff / hour);
-        currentDay = Math.floor(diff / day);
-
-        if(currentHour < 24){
-            hours[currentGametype][currentHour]++;
-            totalHours++;
-        }
-        
-        if(currentDay < 7){
-            days[currentGametype][currentDay]++;
-            totalDays++;
-        }
-
-        month[currentGametype][currentDay]++;
-        totalMonth++;
-
-    }
-
-
-    const finalHours = createFinalDatesData(hours, gametypeNames, totalHours);
-    const finalDays = createFinalDatesData(days, gametypeNames, totalDays);
-    const finalMonth = createFinalDatesData(month, gametypeNames, totalMonth);
-
-    return {
-        "data": {
-            "hours": finalHours,
-            "days": finalDays,
-            "month": finalMonth
-        },
-        "text": 
-            [
-                hoursText,
-                daysText,
-                monthText
-            ]
-        
-    };
 }
 
 
@@ -245,24 +87,15 @@ class PlayerRecentMatches extends React.Component{
         const mapImages = JSON.parse(this.props.mapImages);
 
         const serverNames = JSON.parse(this.props.serverNames);
-        const matchDates = JSON.parse(this.props.matchDates);
 
         let elems = [];
 
-        let m = 0;
-
-        let currentScore = "";
-        let currentWinnerClass = "";
-        let currentGametype = 0;
-        let mapImage = 0;
-
-        let currentResultString = "";
-
         for(let i = 0; i < matches.length; i++){
 
-            m = matches[i];
-
-            currentScore = getMatchScores(scores, m.match_id);
+            const m = matches[i];
+            const currentScore = getMatchScores(scores, m.match_id);
+            let currentWinnerClass = "";
+            let currentResultString = "";
 
             if(currentScore === null) continue;
 
@@ -296,7 +129,7 @@ class PlayerRecentMatches extends React.Component{
             }
 
 
-            currentGametype = gametypes[currentScore.gametype];
+            let currentGametype = gametypes[currentScore.gametype];
 
             if(currentGametype === undefined){
                 currentGametype = 'Not Found';
@@ -306,7 +139,7 @@ class PlayerRecentMatches extends React.Component{
 
             if(this.state.mode === 0){
 
-                mapImage = getMapImage(mapImages, m.mapName);
+                const mapImage = getMapImage(mapImages, m.mapName);
 
                 elems.push(<MatchResultDisplay 
                     key={`${m.id}b`}
@@ -335,7 +168,7 @@ class PlayerRecentMatches extends React.Component{
                     <td><Link href={`/match/${m.match_id}`}><a>{currentGametype}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a>{m.mapName}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a>{m.players}</a></Link></td>
-                    <td><Link href={`/match/${m.match_id}`}><a><MMSS timestamp={m.playtime}/></a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}><a>{Functions.MMSS(m.playtime)}</a></Link></td>
                     <td className={"padding-0 relative"}><Link href={`/match/${m.match_id}`}><a>
                         <MatchResultSmall dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
                         redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}
