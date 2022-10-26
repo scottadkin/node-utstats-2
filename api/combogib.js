@@ -344,28 +344,28 @@ class Combogib{
     }
 
 
-    async createPlayerTotals(playerId, gametypeId){
+    async createPlayerTotals(playerId, gametypeId, mapId){
 
-        const query = `INSERT INTO nstats_player_combogib VALUES(NULL,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+        const query = `INSERT INTO nstats_player_combogib VALUES(NULL,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
-    async bPlayerTotalsExist(playerId, gametypeId){
+    async bPlayerTotalsExist(playerId, gametypeId, mapId){
 
-        const query = "SELECT COUNT(*) as total_matches FROM nstats_player_combogib WHERE player_id=? AND gametype_id=?";
+        const query = "SELECT COUNT(*) as total_matches FROM nstats_player_combogib WHERE player_id=? AND gametype_id=? AND map_id=?";
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
 
         if(result[0].total_matches > 0) return true;
-
+32
         return false;
     }
 
-    async updatePlayerTotals(playerId, matchId, gametypeId, playtime, combos, insane, shockBalls, primary){
+    async updatePlayerTotals(playerId, gametypeId, mapId, matchId, playtime, combos, insane, shockBalls, primary){
 
-        if(!await this.bPlayerTotalsExist(playerId, gametypeId)){
-            await this.createPlayerTotals(playerId, gametypeId);
+        if(!await this.bPlayerTotalsExist(playerId, gametypeId, mapId)){
+            await this.createPlayerTotals(playerId, gametypeId, mapId);
         }
 
         const query = `UPDATE nstats_player_combogib SET total_matches=total_matches+1,playtime=playtime+?,
@@ -415,7 +415,7 @@ class Combogib{
         best_primary_spree_match_id = IF(best_primary_spree < ?, ?, best_primary_spree_match_id),
         best_primary_spree = IF(best_primary_spree < ?, ?, best_primary_spree)
         
-        WHERE player_id=? AND gametype_id=?`;
+        WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
         const vars = [
             playtime,
@@ -459,14 +459,18 @@ class Combogib{
 
 
             
-            playerId, gametypeId
+            playerId, gametypeId, mapId
         ];
 
 
         await mysql.simpleQuery(query, vars);
 
         if(gametypeId !== 0){
-            await this.updatePlayerTotals(playerId, matchId, 0, playtime, combos, insane, shockBalls, primary);
+            await this.updatePlayerTotals(playerId, 0, 0, matchId, playtime, combos, insane, shockBalls, primary);
+        }
+
+        if(mapId !== 0 && gametypeId !== 0){
+            await this.updatePlayerTotals(playerId, 0, mapId, matchId, playtime, combos, insane, shockBalls, primary);
         }
 
     }
