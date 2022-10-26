@@ -475,6 +475,20 @@ class Combogib{
 
     }
 
+
+    async getPlayerTotals(playerId){
+
+        const query = `SELECT * FROM nstats_player_combogib WHERE player_id=? AND gametype_id=0 AND map_id=0`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return [];
+    }
+
 }
 
 module.exports = Combogib;

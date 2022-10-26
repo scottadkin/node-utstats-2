@@ -33,6 +33,7 @@ import PlayerSpecialEvents from '../../components/PlayerSpecialEvents';
 import Image from 'next/image';
 import PlayerMonsterHuntStats from '../../components/PlayerMonsterHuntStats';
 import PlayerMonsters from '../../components/PlayerMonsters';
+import PlayerCombogibStats from '../../components/PlayerCombogibStats';
 
 
 
@@ -252,7 +253,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 					<div id="content">
 						<div className="default">
 
-						
+							<PlayerCombogibStats playerId={playerId}/>
 						
 							<div className="default-header">
 									{titleName} Career Profile

@@ -108,6 +108,14 @@ export default async function handler(req, res){
             res.status(200).json({"error": "none"});
             return;
 
+        }else if(mode === "ptotal"){
+
+            const playerId = req.body.playerId ?? -1;
+
+            const data = await combo.getPlayerTotals(playerId);
+            
+            res.status(200).json({"data": data});
+            return;
         }
 
     }catch(err){

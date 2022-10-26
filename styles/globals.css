@@ -17,7 +17,7 @@
 	--color-6:rgb(200,200,200);
 	--color-hf:rgb(90,90,90);
 	--color-7:rgb(160,160,160);
-	--color-8:rgb(21,21,21);
+	--color-8:rgb(24,24,24);
 	--color-9:rgb(28,28,28);
 	--color-10:rgb(38,38,38);
 	--lg-hf:linear-gradient(to bottom, rgb(0,0,0), rgb(22,22,22));
@@ -566,7 +566,7 @@ input[type="range"]{
 }
 
 .tab, .big-tab{
-	
+	color:white;
 	display:inline-block;
 	font-size:14px;
 	padding:5px 10px;
