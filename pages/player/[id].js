@@ -240,6 +240,11 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 		elems[pageOrder["Display Monsterhunt Monster Stats"]] = <PlayerMonsters key="player-monsters-detailed" playerId={playerId}/>;
 	}
 
+	if(pageSettings["Display Combogib Stats"] === "true"){
+
+		elems[pageOrder["Display Combogib Stats"]] = <PlayerCombogibStats key="player-combo-stats" playerId={playerId}/>;
+	}
+
 
 	return (
 			<div>
@@ -252,8 +257,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 					<Nav settings={navSettings} session={session}/>
 					<div id="content">
 						<div className="default">
-
-							<PlayerCombogibStats playerId={playerId}/>
 						
 							<div className="default-header">
 									{titleName} Career Profile
