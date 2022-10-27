@@ -1,408 +1,177 @@
-import DefaultHead from '../components/defaulthead';
-import Nav from '../components/Nav/';
-import Footer from '../components/Footer/';
-import Players from '../api/players';
-import Functions from '../api/functions';
-import RecordsList from '../components/RecordsList/';
-import Pagination from '../components/Pagination/';
-import React from 'react';
-import Link from 'next/link';
-import Maps from '../api/maps';
-import Session from '../api/session';
-import SiteSettings from '../api/sitesettings';
-import Analytics from '../api/analytics';
-
-const validTypes = [
-    "matches",
-    "wins",
-    "losses",
-    "draws",
-    "winrate",
-    "playtime",
-    "first_bloods",
-    "frags",
-    "score",
-    "kills",
-    "deaths",
-    "suicides",
-    "team_kills",
-    "spawn_kills",
-    "efficiency",
-    "multi_best",
-    "spree_best",
-    "best_spawn_kill_spree",
-    "accuracy",
-    "headshots",
-    "flag_assist",
-    "flag_return",
-    "flag_taken",
-    "flag_seal",
-    "flag_dropped",
-    "flag_capture",
-    "flag_pickup",
-    "flag_cover",
-    "flag_cover_pass",
-    "flag_cover_fail",
-    "flag_self_cover",
-    "flag_self_cover_pass",
-    "flag_self_cover_fail",
-    "flag_multi_cover",
-    "flag_spree_cover",
-    "flag_cover_best",
-    "flag_self_cover_best",
-    "flag_kill",
-    "flag_save",
-    "flag_carry_time",
-    "assault_objectives",
-    "dom_caps",
-    "dom_caps_best_life",
-    "k_distance_normal",
-    "k_distance_long",
-    "k_distance_uber",
-];
-
-const typeTitles = [
-    "Total Matches",
-    "Wins",
-    "Losses",
-    "Draws",
-    "WinRate",
-    "Playtime",
-    "First Bloods",
-    "Frags",
-    "Score",
-    "Kills",
-    "Deaths",
-    "Suicides",
-    "Team Kills",
-    "Spawn Kills",
-    "Efficiency",
-    "Best Multi Kill",
-    "Longest Killing Spree",
-    "Longest Spawn Killing Spree",
-    "Accuracy",
-    "Headshots",
-    "Flag Assists",
-    "Flag Returns",
-    "Flags Taken",
-    "Flag Seal",
-    "Flag Dropped",
-    "Flag Capture",
-    "Flag Pickup",
-    "Flag Cover",
-    "Flag Successful Cover",
-    "Flag Failed Cover",
-    "Flag Self Cover",
-    "Flag Self Successful Cover",
-    "Flag Self Cover Fail",
-    "Flag Multi Cover",
-    "Flag Cover Spree",
-    "Flag Cover Best",
-    "Flag Self Cover Best",
-    "Flag Kill",
-    "Flag Close Return",
-    "Flag Carry Time",
-    "Assault Objectives",
-    "Domination Control Point Caps",
-    "Domination Control Point Caps (Single Life)", 
-    "Short Distance Kills",
-    "Long Distance Kills",
-    "Uber Long Distance Kills"
-];
-
-
-
-
-const validTypesMatch = [
-    "playtime",
-    "frags",
-    "score",
-    "kills",
-    "deaths",
-    "suicides",
-    "team_kills",
-    "spawn_kills",
-    "efficiency",
-    "multi_best",
-    "spree_best",
-    "best_spawn_kill_spree",
-    "accuracy",
-    "headshots",
-    "flag_assist",
-    "flag_return",
-    "flag_taken",
-    "flag_dropped",
-    "flag_capture",
-    "flag_pickup",
-    "flag_seal",
-    "flag_cover",
-    "flag_cover_pass",
-    "flag_cover_fail",
-    "flag_self_cover",
-    "flag_self_cover_pass",
-    "flag_self_cover_fail",
-    "flag_multi_cover",
-    "flag_spree_cover",
-    "flag_cover_best",
-    "flag_self_cover_best",
-    "flag_kill",
-    "flag_save",
-    "flag_carry_time",
-    "assault_objectives",
-    "dom_caps",
-    "dom_caps_best_life",
-    "k_distance_normal",
-    "k_distance_long",
-    "k_distance_uber",
-];
-
-const typeTitlesMatch = [
-    "Playtime",
-    "Frags",
-    "Score",
-    "Kills",
-    "Deaths",
-    "Suicides",
-    "Team Kills",
-    "Spawn Kills",
-    "Efficiency",
-    "Best Multi Kill",
-    "Longest Killing Spree",
-    "Longest Spawn Killing Spree",
-    "Accuracy",
-    "Headshots",
-    "Flag Assists",
-    "Flag Returns",
-    "Flags Taken",
-    "Flag Dropped",
-    "Flag Capture",
-    "Flag Pickup",
-    "Flag Seal",
-    "Flag Cover",
-    "Flag Successful Cover",
-    "Flag Failed Cover",
-    "Flag Self Cover",
-    "Flag Self Successful Cover",
-    "Flag Self Cover Fail",
-    "Flag Multi Cover",
-    "Flag Cover Spree",
-    "Flag Cover Best",
-    "Flag Self Cover Best",
-    "Flag Kill",
-    "Flag Close Return",
-    "Flag Carry Time",
-    "Assault Objectives",
-    "Domination Control Point Caps",
-    "Domination Control Point Caps (Single Life)",
-    "Short Distance Kills",
-    "Long Distance Kills",
-    "Uber Long Distance Kills",
-];
-
-
-class SelectionBox extends React.Component{
-
-    constructor(props){
-
-        super(props);
-
-        this.changeEvent = this.changeEvent.bind(this);
-        
-    }
-
-    changeEvent(event){
-
-        this.props.changeEvent(event.target.value);
-    }
-
-    
-
-    render(){
-        const options = [];
-
-        const types = (this.props.mode === 0) ? validTypes : validTypesMatch;
-        const titles = (this.props.mode === 0) ? typeTitles : typeTitlesMatch;
-
-        for(let i = 0; i < types.length; i++){
-            options.push(<option key={i} value={types[i]}>{titles[i]}</option>);
-        }
-
-        return <div className="text-center"><select id="type" value={this.props.currentValue} onChange={this.changeEvent} className="default-select">
-            {options}
-        </select></div>
-    }
-}
+import DefaultHead from "../components/defaulthead";
+import Nav from "../components/Nav/";
+import Footer from "../components/Footer/";
+import Players from "../api/players";
+import Functions from "../api/functions";
+import RecordsList from "../components/RecordsList/";
+import Pagination from "../components/Pagination/";
+import React from "react";
+import Link from "next/link";
+import Maps from "../api/maps";
+import Session from "../api/session";
+import SiteSettings from "../api/sitesettings";
+import Analytics from "../api/analytics";
+import Loading from "../components/Loading";
+import ErrorMessage from "../components/ErrorMessage";
 
 class Records extends React.Component{
 
-
     constructor(props){
 
-      
         super(props);
 
-        this.state = {"type": this.props.type, "mode": this.props.mode, "perPage": parseInt(this.props.perPage)};
-
-        this.changeSelectedType = this.changeSelectedType.bind(this);
-        this.changeMode = this.changeMode.bind(this);
-        this.changePerPage = this.changePerPage.bind(this);
+        this.state = {"mode": 0, "loaded": true, "error": null};
     }
 
-    componentDidMount(){
 
-        const settings = JSON.parse(this.props.pageSettings);
-        const session = JSON.parse(this.props.session);
+    async loadData(){
 
 
-        if(settings["Default Per Page"] !== undefined){
+    }
 
-            if(session["recordsPerPage"] === undefined){
-                this.setState({"perPage": parseInt(settings["Default Per Page"])});
-            }else{
-                this.setState({"perPage": parseInt(session["recordsPerPage"])});
+    async componentDidMount(){
+
+        await this.loadData();
+    }
+
+
+    renderTotalOptions(){
+
+        
+        const types = [
+            {"type": "playtime", "display": "Playtime"},
+            {"type": "matches", "display": "Matches"},
+            {"type": "wins", "display": "Wins"},
+            {"type": "losses", "display": "Losses"},
+            {"type": "draws", "display": "Draws"},
+            {"type": "kills", "display": "Kills"},
+            {"type": "deaths", "display": "Deaths"},
+            {"type": "suicides", "display": "Suicides"},
+            {"type": "team_kills", "display": "Team Kills"},
+            {"type": "spawn_kills", "display": "Spawn Kills"},
+            {"type": "first_bloods", "display": "First Bloods"},
+            {"type": "frags", "display": "Frags"},
+            {"type": "score", "display": "Score"},
+            {"type": "spree_best", "display": "Best Killing Spree"},
+            {"type": "multi_best", "display": "Best Multi Kill"},
+            {"type": "efficiency", "display": "Efficiency"},
+
+            {"type": "flag_assist", "display": "CTF Flag Assists"},
+            {"type": "flag_return", "display": "CTF Flag Returns"},
+            {"type": "flag_taken", "display": "CTF Flag Grabs"},
+            {"type": "flag_dropped", "display": "CTF Flag Drops"},
+            {"type": "flag_capture", "display": "CTF Flag Captures"},
+            {"type": "flag_pickup", "display": "CTF Flag Pickups"},
+            {"type": "flag_seal", "display": "CTF Flag Seals"},
+            {"type": "flag_cover", "display": "CTF Flag Covers"},
+            {"type": "flag_kill", "display": "CTF Flag Kills"},
+            {"type": "flag_save", "display": "CTF Flag Close Returns"},
+            {"type": "flag_carry_time", "display": "CTF Flag Carry Time"},
+            {"type": "flag_self_cover", "display": "CTF Kills Carrying Flag"},
+            {"type": "flag_multi_cover", "display": "CTF Multi Covers"},
+            {"type": "flag_spree_cover", "display": "CTF Cover Sprees"},
+
+            {"type": "flag_cover_best", "display": "CTF Most Cover Kills"},
+            {"type": "flag_self_cover_best", "display": "CTF Most Kills With Flag"},
+        ];
+
+        types.sort((a, b) =>{
+
+            a = a.display.toLowerCase();
+            b = b.display.toLowerCase();
+
+            if(a < b){
+                return -1;
+            }else if(a > b){
+                return 1;
             }
+
+            return 0;
+        });
+
+        const options = [];
+
+        for(let i = 0; i < types.length; i++){
+
+            const {type, display} = types[i];
+
+            options.push(<option key={type} value={type}>{display}</option>);
         }
 
-        if(settings["Default Record Type"] !== undefined){
-
-            
-            if(session["recordsMode"] === undefined){
-                this.setState({"mode": parseInt(settings["Default Record Type"])});
-            }else{
-                console.log(`Using Records mode cookie (${session["recordsMode"]})`);
-                this.setState({"mode": parseInt(session["recordsMode"])});
-            }
-        }
-
-        if(session["recordsType"]){
-
-            this.setState({"type": session["recordsType"]});
-        }
+        return <div>
+            <div className="default-sub-header">Select Record Type</div>
+                <div className="form">
+                
+                <div className="select-row">
+                    <div className="select-label">Record Type</div>
+                    <select className="default-select">
+                        {options}
+                    </select>
+                </div>
+                <div className="search-button">Search</div>
+            </div>
+        </div>
     }
 
 
-    setCookie(key, value){
+    renderElems(){
 
-        const maxAge = ((60 * 60) * 24) * 365;
+        if(this.state.error !== null) return <ErrorMessage title="Records" text={this.state.error}/>
+        if(!this.state.loaded) return <Loading/>;
 
-        document.cookie = `${key}=${value}; max-age=${maxAge}; path=/;`;
+        return <div>
+            <div className="tabs">
+                <Link href={`/records/?mode=0&page=0`}>
+                    <a>
+                        <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>Player Total Records</div>
+                    </a>
+                </Link>
+                <Link href={`/records/?mode=1&page=0`}>
+                    <a>
+                        <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>Player Match Records</div>
+                    </a>
+                </Link>
+                <Link href={`/records/?mode=2&page=0`}>
+                    <a>
+                        <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`}>CTF Cap Records</div>
+                    </a>
+                </Link>
+                <Link href={`/records/?mode=3&page=0`}>
+                    <a>
+                        <div className={`tab ${(this.props.mode === 3) ? "tab-selected" : ""}`}>Combogib Records</div>
+                    </a>
+                </Link>
+            </div>
+            {this.renderTotalOptions()}
+        </div>
     }
 
-    changeSelectedType(type){
+    getTitle(){
 
-        this.setState({"type": type});
+        const m = this.props.mode;
 
-        this.setCookie("recordsType", type);
-    }
+        if(m === 0) return "Player Total Records";
+        if(m === 1) return "Player Match Records";
+        if(m === 2) return "CTF Cap Records";
+        if(m === 3) return "Combogib Records";
 
-    changePerPage(event){
-
-        let value = parseInt(event.target.value);
-        if(value !== value) value = 50;
-
-        this.setState({"perPage": value});
-        this.setCookie("recordsPerPage", value);
-    }
-
-    changeMode(mode){
-
-        this.setState({"mode": mode});
-
-        this.setCookie("recordsMode", mode);
-
+        return "Unknown";
     }
 
     render(){
 
-        const mode = this.props.mode;
-        const type = this.state.type;
-        const results = this.props.results;
-        const perPage = parseInt(this.props.perPage);
-        const title = this.props.title;
-        const page = this.props.page;
-        const pages = this.props.pages;
-        const record = this.props.record;
-        const currentRecords = this.props.currentRecords;
-
-        const url = `/records?mode=${mode}&perPage=${parseInt(this.state.perPage)}&type=${type}&page=`;
-
-        const start = (page - 1 < 1) ? 1 : (page - 1) * perPage;
-        const end = (page * perPage < results) ? page * perPage : results;
-
-        const paginationElem = <div className="text-center">
-            <Pagination currentPage={page} results={results} pages={pages} perPage={perPage} url={url}/>
-        </div>
-
         return <div>
             <DefaultHead 
-            title={`${title} - ${(mode === 0) ? "Player" : "Match" } Records Page ${page} of ${pages}`} 
-            description={`View the top ${title} ${(mode === 0) ? "Player" : "Match" } Records, displaying page ${page} of ${pages} records ${start} to ${end}, out of a possible ${results} records.`} 
+            title={this.getTitle()} 
+            description={`records descp`} 
             host={this.props.host}
-            keywords={`records,record,${title},${(mode === 0) ? "Player" : "Match" }`}/>
+            keywords={`records,record`}/>
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
                 <div id="content">
                     <div className="default">
                         <div className="default-header">Records</div>
-                        <div className="big-tabs">
-                            <div className="big-tab tab-selected">General Records</div>
-                            <Link href={`/ctfcaps`}><a><div className="big-tab">CTF Cap Records</div></a></Link>
-                        </div>
-                        <div className="default-sub-header">Choose a record type</div>
-                        <div className="form m-bottom-25">
-                                <div className="select-row">
-                                <div className="select-label">
-                                        Record Type
-                                </div>
-                                <div className="text-center">
-                                <Link href={`/records?mode=0&perPage=${parseInt(this.state.perPage)}&type=${type}&page=`}><a><div onClick={(() =>{
-                                    this.changeMode(0);
-                                })} style={{"width": "30%", "maxWidth": "100px"}} 
-                                className={`big-tab text-center ${(this.props.mode === 0) ? "tab-selected" : ""}`}>
-                                    Player
-                                </div></a></Link>
-
-                                <Link href={`/records?mode=1&perPage=${parseInt(this.state.perPage)}&type=${type}&page=`}><a><div onClick={(() =>{
-                                    this.changeMode(1);
-                                })}style={{"width": "30%", "maxWidth": "100px"}} 
-                                className={`big-tab text-center ${(this.props.mode === 1) ? "tab-selected" : ""}`}>
-                                    Match
-                                </div></a></Link>
-                                </div>
-                            </div>
-                          
-                            <div className="select-row">
-                                <div className="select-label">
-                                    Order By
-                                </div>
-                                <div>
-                                    <SelectionBox mode={mode} currentValue={type} changeEvent={this.changeSelectedType}/>
-                                </div>
-                                
-                            </div>
-
-                            <div className="select-row">
-                                <div className="select-label">
-                                    Display Per Page
-                                </div>
-                                <div className="text-center">
-                                    <select className="default-select" onChange={this.changePerPage} value={this.state.perPage}>
-                                        <option value="5">5</option>
-                                        <option value="10">10</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="75">75</option>
-                                        <option value="100">100</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <Link href={`${url}1`}><a className="search-button text-center">Search</a></Link>
-                        </div>
-                        {paginationElem}
-                        <div className="default-sub-header">Displaying {(mode === 0) ? "Player" : "Match"} {title} records</div>
-                        <RecordsList host={Functions.getImageHostAndPort(this.props.host)} mode={mode} type={this.state.type} title={title} data={currentRecords} page={page} perPage={perPage} record={record}/>
-                        {paginationElem}
+                        {this.renderElems()}
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -413,151 +182,31 @@ class Records extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
-    let type = "kills";
-    let page = 1;
-    let perPage = 50;
-    let mode = 0;
-    let title = "Kills";
-
-    let typeIndex = 0;
-
     const session = new Session(req);
-
 	await session.load();
 
-    if(query.mode !== undefined){
+    let mode = parseInt(query.mode) ?? 0;
+    if(mode !== mode) mode = 0;
 
-        mode = parseInt(query.mode);
+    let page = parseInt(query.page) ?? 0;
+    if(page !== page) page = 0;
 
-        if(page !== page){
-            mode = 0;
-        }else{
+    let type = query.type ?? "kills";
 
-            if(mode !== 0 && mode !== 1){
-                mode = 0;
-            }
-        }
-    }else{
-
-        if(session.cookies["recordsMode"] !== undefined){
-
-            mode = parseInt(session.cookies["recordsMode"]);
-
-            if(mode !== 0 && mode !== 1) mode = 0;
-        }   
-    }
-
-
-    if(query.type !== undefined){
-
-        if(mode === 0){
-            typeIndex = validTypes.indexOf(query.type.toLowerCase());
-        }else{
-            typeIndex = validTypesMatch.indexOf(query.type.toLowerCase());
-        }
-
-
-        if(typeIndex === -1) typeIndex = 0;
-
-        if(mode === 0){
-            type = validTypes[typeIndex];
-            title = typeTitles[typeIndex];
-        }else{
-            type = validTypesMatch[typeIndex];
-            title= typeTitlesMatch[typeIndex];
-        }
-        
-    }
-
-    if(query.page !== undefined){
-
-        page = parseInt(query.page);
-
-        if(page !== page){
-            page = 1;
-        }else{
-            if(page < 1) page = 1;
-        }
-    }
-
-    if(query.perPage !== undefined){
-
-        perPage = parseInt(query.perPage);
-
-        if(perPage !== perPage){
-            perPage = 50;
-        }else{
-
-            if(perPage < 1 || perPage > 100){
-                perPage = 50;
-            }
-        }
-
-    }else{
-
-        if(session.cookies["recordsPerPage"] !== undefined){
-            perPage = parseInt(session.cookies["recordsPerPage"]);
-            if(perPage !== perPage) perPage = 50;
-        }
-    }
-
-    const playerManager = new Players();
-
-    let currentRecords = [];
-    let highestValue = [{"value": 0}];
-    let totalResults = 0;
-
-    if(mode === 0){
-
-        currentRecords = await playerManager.getBestOfTypeTotal(validTypes, type, 0, perPage, page);
-        highestValue = await playerManager.getBestOfTypeTotal(validTypes, type, 0, 1, 1);
-        totalResults = await playerManager.getTotalResults(0);
-
-    }else{
-
-        currentRecords = await playerManager.getBestMatchValues(validTypesMatch, type, page, perPage);
-        highestValue = await playerManager.getBestMatchRecord(validTypesMatch, type);
-        totalResults = await playerManager.getTotalMatchResults();
-
-        const playerIds = Functions.getUniqueValues(currentRecords, 'player_id');
-        const playerNames = await playerManager.getJustNamesByIds(playerIds);
-
-        const mapIds = Functions.getUniqueValues(currentRecords, 'map_id');
-
-        const mapManager = new Maps();
-
-        const mapNames = await mapManager.getNames(mapIds);
-
-        Functions.setIdNames(currentRecords, playerNames, 'player_id', 'name');
-        Functions.setIdNames(currentRecords, mapNames, 'map_id', 'map');
-
-
-    }
-
-    let pages = Math.ceil(totalResults / perPage);
-
-    if(pages !== pages) pages = 1;
-
+    
    
 
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
 
-    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
     return {
         "props": {
             "host": req.headers.host,
             "mode": mode,
-            "type": type,
-            "results": totalResults,
-            "page": page,
-            "pages": pages,
-            "perPage": perPage,
-            "record": JSON.stringify(highestValue),
-            "currentRecords": JSON.stringify(currentRecords),
-            "title": title,
+            "type": type.toLowerCase(),
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "pageSettings": JSON.stringify(pageSettings)

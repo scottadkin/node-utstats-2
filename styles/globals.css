@@ -422,8 +422,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .form{
-	background-color:var(--color-3);
-	background:linear-gradient(to bottom, var(--color-1a), var(--color-3a));
+	background-color:var(--color-8);
 	max-width:var(--max-width-1);
 	width:90%;
 	margin-left:auto;
@@ -472,7 +471,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	font-size:16px;
 	text-align:right;
 	margin-right:5px;
-	line-height:30px;
+	line-height:34px;
 }
 
 .default-textbox{
