@@ -84,9 +84,6 @@ class Records extends React.Component{
 
 
     renderTotalOptions(){
-
-
-        console.log(this.props.validTypes);
         
         const types = [...this.props.validTypes.totals];
         
@@ -135,9 +132,15 @@ class Records extends React.Component{
 
     getTypeTitle(){
 
-        for(let i = 0; i < this.props.validTypes.totals.length; i++){
+        let types = [];
 
-            const {type, display} = this.props.validTypes.totals[i];
+        if(this.props.mode === 0){
+            types = this.props.validTypes.totals;
+        }
+
+        for(let i = 0; i < types.length; i++){
+
+            const {type, display} = types[i];
 
             if(type === this.props.type) return display;
         }
@@ -237,22 +240,23 @@ class Records extends React.Component{
 
         const m = this.props.mode;
 
-        if(m === 0) return "Player Total Records";
-        if(m === 1) return "Player Match Records";
-        if(m === 2) return "CTF Cap Records";
-        if(m === 3) return "Combogib Records";
+        if(m === 0) return `${this.getTypeTitle()} - Player Total Records`;
+        if(m === 1) return `${this.getTypeTitle()} - Player Match Records`;
+        if(m === 2) return `${this.getTypeTitle()} - CTF Cap Records`;
+        if(m === 3) return `${this.getTypeTitle()} - Combogib Records`;
 
         return "Unknown";
     }
 
     render(){
 
+
         return <div>
             <DefaultHead 
             title={this.getTitle()} 
             description={`records descp`} 
             host={this.props.host}
-            keywords={`records,record`}/>
+            keywords={`${this.getTypeTitle().replaceAll(" ",",").toLowerCase()},player,record`}/>
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
                 <div id="content">
@@ -280,16 +284,11 @@ export async function getServerSideProps({req, query}){
 
     let type = query.type ?? "kills";
 
-    
-   
-
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
 
-
     const playerManager = new Players();
-
     const validTypes = playerManager.getValidRecordTypes();
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);

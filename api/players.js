@@ -1866,9 +1866,9 @@ class Players{
         const totalTypes =  [
             {"type": "playtime", "display": "Playtime"},
             {"type": "matches", "display": "Matches"},
-            {"type": "wins", "display": "Wins"},
-            {"type": "losses", "display": "Losses"},
-            {"type": "draws", "display": "Draws"},
+            {"type": "wins", "display": "Match Wins"},
+            {"type": "losses", "display": "Match Losses"},
+            {"type": "draws", "display": "Match Draws"},
             {"type": "kills", "display": "Kills"},
             {"type": "deaths", "display": "Deaths"},
             {"type": "suicides", "display": "Suicides"},
