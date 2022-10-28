@@ -1,8 +1,5 @@
 import Players from "../../api/players";
 
-
-
-
 export default async function handler(req, res){
 
     if(req.body.mode === undefined){
@@ -37,6 +34,9 @@ export default async function handler(req, res){
     const type = req.body.type.toLowerCase();
     const page = req.body.page ?? 0;
     let perPage = parseInt(req.body.perPage) ?? 25;
+
+    if(perPage > 100) perPage = 100;
+    if(perPage <= 25) perPage = 25;
 
    
     console.log(`mode = ${mode}, type=${type}, page = ${page}`);

@@ -396,6 +396,9 @@ class Functions{
     }
     
     static convertTimestamp = (timestamp, noDayName, noTime) =>{
+
+        noDayName = (noDayName !== undefined) ? noDayName : false;
+        noTime = (noTime !== undefined) ? noTime : false;
     
         const now = new Date();
         now.setTime(timestamp * 1000);
@@ -409,16 +412,16 @@ class Functions{
         
         if(minute < 10) minute = `0${minute}`;
     
-        let dayNameString = `${this.getDayName(dayName)} `;
-    
-        if(noDayName !== undefined){
-            dayNameString = '';
+        let dayNameString = "";
+  
+        if(!noDayName){
+            dayNameString = `${this.getDayName(dayName)} `;
         }
+        
+        let timeString = "";
     
-        let timeString = ` ${hour}:${minute}`;
-    
-        if(noTime !== undefined){
-            timeString = '';
+        if(!noTime){
+            timeString = ` ${hour}:${minute}`;
         }
     
         return `${dayNameString}${day}${this.getOrdinal(day)} ${this.getMonthName(month)} ${year}${timeString}`;

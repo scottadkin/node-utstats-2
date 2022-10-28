@@ -27,15 +27,21 @@ class Records extends React.Component{
             "loaded": false, 
             "error": null, 
             "type": this.props.type, 
-            "perPage": 25
+            "perPage": this.props.perPage
         };
 
         this.changeType = this.changeType.bind(this);
+        this.changePerPage = this.changePerPage.bind(this);
     }
 
     changeType(e){
 
         this.setState({"type": e.target.value});
+    }
+
+    changePerPage(e){
+
+        this.setState({"perPage": e.target.value});
     }
 
 
@@ -77,7 +83,11 @@ class Records extends React.Component{
 
     async componentDidUpdate(prevProps){
 
-        if(prevProps.mode !== this.props.mode || prevProps.type !== this.props.type || prevProps.page !== this.props.page){
+        if(prevProps.mode !== this.props.mode || 
+            prevProps.type !== this.props.type || 
+            prevProps.page !== this.props.page ||
+            prevProps.perPage !== this.props.perPage
+        ){
             await this.loadData();
         }
     }
@@ -120,7 +130,16 @@ class Records extends React.Component{
                         {options}
                     </select>
                 </div>
-                <Link href={`/records/?mode=${this.props.mode}&type=${this.state.type}&page=0`}>
+                <div className="select-row">
+                    <div className="select-label">Results Per Page</div>
+                    <select value={this.props.perPage} onChange={this.changePerPage} className="default-select">
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="75">75</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <Link href={`/records/?mode=${this.props.mode}&type=${this.state.type}&page=0&pp=${this.state.perPage}`}>
                     <a>
                         <div className="search-button">Search</div>
                     </a>
@@ -183,6 +202,7 @@ class Records extends React.Component{
                         </a>
                     </Link>
                 </td>
+                <td className="small-font grey">{Functions.convertTimestamp(d.last, true, false)}</td>
                 <td>{d.matches}</td>
                 <td>{Functions.toHours(d.playtime)} Hours</td>
                 <td>{(hours.indexOf(this.props.type) === -1) ? d.value : `${Functions.toHours(d.value)} Hours`}</td>
@@ -194,6 +214,7 @@ class Records extends React.Component{
                 <tr>
                     <th>Place</th>
                     <th>Player</th>
+                    <th>Last Seen</th>
                     <th>Matches</th>
                     <th>Playtime</th>
                     <th>{type}</th>
@@ -210,22 +231,22 @@ class Records extends React.Component{
 
         return <div>
             <div className="tabs">
-                <Link href={`/records/?mode=0&page=0`}>
+                <Link href={`/records/?mode=0&page=0&pp=${this.state.perPage}`}>
                     <a>
                         <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>Player Total Records</div>
                     </a>
                 </Link>
-                <Link href={`/records/?mode=1&page=0`}>
+                <Link href={`/records/?mode=1&page=0&pp=${this.state.perPage}`}>
                     <a>
                         <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>Player Match Records</div>
                     </a>
                 </Link>
-                <Link href={`/records/?mode=2&page=0`}>
+                <Link href={`/records/?mode=2&page=0&pp=${this.state.perPage}`}>
                     <a>
                         <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`}>CTF Cap Records</div>
                     </a>
                 </Link>
-                <Link href={`/records/?mode=3&page=0`}>
+                <Link href={`/records/?mode=3&page=0&pp=${this.state.perPage}`}>
                     <a>
                         <div className={`tab ${(this.props.mode === 3) ? "tab-selected" : ""}`}>Combogib Records</div>
                     </a>
@@ -284,6 +305,9 @@ export async function getServerSideProps({req, query}){
 
     let type = query.type ?? "kills";
 
+    let perPage = parseInt(query.pp) ?? 25;
+    if(perPage !== perPage) perPage = 25;
+
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
@@ -299,6 +323,7 @@ export async function getServerSideProps({req, query}){
             "mode": mode,
             "page": page,
             "type": type.toLowerCase(),
+            "perPage": perPage,
             "validTypes": validTypes,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
