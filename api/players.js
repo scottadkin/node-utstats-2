@@ -250,61 +250,37 @@ class Players{
         });
     }
 
-    getBestOfTypeTotal(validTypes, type, gametype, limit, page){
+    async getBestOfTypeTotal(validTypes, type, gametype, limit, page){
 
-        return new Promise((resolve, reject) =>{
+        if(gametype === undefined) gametype = 0;
+        if(limit === undefined) limit = 25;
+        if(page === undefined) page = 0;
 
-            if(gametype === undefined) gametype = 0;
-            if(limit === undefined) limit = 25;
-            if(page === undefined) page = 1;
+        const start = page * limit;
 
-            page--;
+        const typeIndex = validTypes.indexOf(type.toLowerCase());
 
-            const start = page * limit;
+        if(typeIndex === -1) return [];
 
-            const typeIndex = validTypes.indexOf(type.toLowerCase());
+        const query = `SELECT player_id,name,country,matches,playtime,${validTypes[typeIndex]} as value 
+        FROM nstats_player_totals WHERE gametype=? ORDER BY ${validTypes[typeIndex]} DESC LIMIT ?, ?`;
 
-            if(typeIndex === -1) resolve([]);
+        return await mysql.simpleQuery(query, [gametype, start, limit]);
 
-            const query = `SELECT id,name,country,face,matches,playtime,${validTypes[typeIndex]} as value 
-            FROM nstats_player_totals WHERE gametype=? ORDER BY ${validTypes[typeIndex]} DESC LIMIT ?, ?`;
-
-            
-            mysql.query(query, [gametype, start, limit], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
 
-    getTotalResults(gametype){
+    async getTotalResults(gametype){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT COUNT(*) as total_results FROM nstats_player_totals WHERE gametype=?`;
 
-            const query = `SELECT COUNT(*) as total_results FROM nstats_player_totals WHERE gametype=?`;
+        const result = await mysql.simpleQuery(query, [gametype]);
 
-            mysql.query(query, [gametype], (err, result) =>{
+        if(result.length > 0){
+            return result[0].total_results;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    
-                    if(result.length > 0){
-                        resolve(result[0].total_results);
-                    }
-                }
-
-                resolve(0);
-            });
-
-        });
+        return 0;
     }
 
 
@@ -1880,6 +1856,66 @@ class Players{
         const result = await mysql.simpleQuery(query, [playerId]);
 
         return result[0].total_connections;
+    }
+
+
+    getValidRecordTypes(bJustTypes){
+
+        if(bJustTypes === undefined) bJustTypes = false;
+    
+        const totalTypes =  [
+            {"type": "playtime", "display": "Playtime"},
+            {"type": "matches", "display": "Matches"},
+            {"type": "wins", "display": "Wins"},
+            {"type": "losses", "display": "Losses"},
+            {"type": "draws", "display": "Draws"},
+            {"type": "kills", "display": "Kills"},
+            {"type": "deaths", "display": "Deaths"},
+            {"type": "suicides", "display": "Suicides"},
+            {"type": "team_kills", "display": "Team Kills"},
+            {"type": "spawn_kills", "display": "Spawn Kills"},
+            {"type": "first_bloods", "display": "First Bloods"},
+            {"type": "frags", "display": "Frags"},
+            {"type": "score", "display": "Score"},
+            {"type": "spree_best", "display": "Best Killing Spree"},
+            {"type": "multi_best", "display": "Best Multi Kill"},
+            {"type": "efficiency", "display": "Efficiency"},
+        
+            {"type": "flag_assist", "display": "CTF Flag Assists"},
+            {"type": "flag_return", "display": "CTF Flag Returns"},
+            {"type": "flag_taken", "display": "CTF Flag Grabs"},
+            {"type": "flag_dropped", "display": "CTF Flag Drops"},
+            {"type": "flag_capture", "display": "CTF Flag Captures"},
+            {"type": "flag_pickup", "display": "CTF Flag Pickups"},
+            {"type": "flag_seal", "display": "CTF Flag Seals"},
+            {"type": "flag_cover", "display": "CTF Flag Covers"},
+            {"type": "flag_kill", "display": "CTF Flag Kills"},
+            {"type": "flag_save", "display": "CTF Flag Close Returns"},
+            {"type": "flag_carry_time", "display": "CTF Flag Carry Time"},
+            {"type": "flag_self_cover", "display": "CTF Kills Carrying Flag"},
+            {"type": "flag_multi_cover", "display": "CTF Multi Covers"},
+            {"type": "flag_spree_cover", "display": "CTF Cover Sprees"},
+        
+            {"type": "flag_cover_best", "display": "CTF Most Cover Kills"},
+            {"type": "flag_self_cover_best", "display": "CTF Most Kills With Flag"}
+        ];
+    
+    
+        if(!bJustTypes){
+            return {"totals": totalTypes};
+        }
+    
+        let totalKeys = [];
+    
+        for(let i = 0; i < totalTypes.length; i++){
+    
+            const {type} = totalTypes[i];
+    
+            totalKeys.push(type);
+        }
+    
+        return {"totals": totalKeys};
+        
     }
 
 }

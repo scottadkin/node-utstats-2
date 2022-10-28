@@ -13,6 +13,8 @@ import SiteSettings from "../api/sitesettings";
 import Analytics from "../api/analytics";
 import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
+import Table2 from "../components/Table2";
+import CountryFlag from "../components/CountryFlag";
 
 class Records extends React.Component{
 
@@ -20,13 +22,52 @@ class Records extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0, "loaded": true, "error": null};
+        this.state = {
+            "mode": 0, 
+            "loaded": false, 
+            "error": null, 
+            "type": this.props.type, 
+            "perPage": 25
+        };
+
+        this.changeType = this.changeType.bind(this);
+    }
+
+    changeType(e){
+
+        this.setState({"type": e.target.value});
     }
 
 
     async loadData(){
 
+        let mode = this.state.mode;
 
+        if(mode === 0){
+            mode = "totals";
+        }else if(mode === 1){
+            mode = "match";
+        }else if(mode === 2){
+            mode = "ctf";
+        }else if(mode === 3){
+            mode = "combogib";
+        }
+
+        const req = await fetch("/api/records",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": mode, "type": this.state.type, "page": this.props.page, "perPage": this.state.perPage})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            this.setState({"error": res.error});
+        }else{
+            this.setState({"data": res.data});
+        }
+
+        this.setState({"loaded": true});
     }
 
     async componentDidMount(){
@@ -34,47 +75,21 @@ class Records extends React.Component{
         await this.loadData();
     }
 
+    async componentDidUpdate(prevProps){
+
+        if(prevProps.mode !== this.props.mode || prevProps.type !== this.props.type || prevProps.page !== this.props.page){
+            await this.loadData();
+        }
+    }
+
 
     renderTotalOptions(){
 
+
+        console.log(this.props.validTypes);
         
-        const types = [
-            {"type": "playtime", "display": "Playtime"},
-            {"type": "matches", "display": "Matches"},
-            {"type": "wins", "display": "Wins"},
-            {"type": "losses", "display": "Losses"},
-            {"type": "draws", "display": "Draws"},
-            {"type": "kills", "display": "Kills"},
-            {"type": "deaths", "display": "Deaths"},
-            {"type": "suicides", "display": "Suicides"},
-            {"type": "team_kills", "display": "Team Kills"},
-            {"type": "spawn_kills", "display": "Spawn Kills"},
-            {"type": "first_bloods", "display": "First Bloods"},
-            {"type": "frags", "display": "Frags"},
-            {"type": "score", "display": "Score"},
-            {"type": "spree_best", "display": "Best Killing Spree"},
-            {"type": "multi_best", "display": "Best Multi Kill"},
-            {"type": "efficiency", "display": "Efficiency"},
-
-            {"type": "flag_assist", "display": "CTF Flag Assists"},
-            {"type": "flag_return", "display": "CTF Flag Returns"},
-            {"type": "flag_taken", "display": "CTF Flag Grabs"},
-            {"type": "flag_dropped", "display": "CTF Flag Drops"},
-            {"type": "flag_capture", "display": "CTF Flag Captures"},
-            {"type": "flag_pickup", "display": "CTF Flag Pickups"},
-            {"type": "flag_seal", "display": "CTF Flag Seals"},
-            {"type": "flag_cover", "display": "CTF Flag Covers"},
-            {"type": "flag_kill", "display": "CTF Flag Kills"},
-            {"type": "flag_save", "display": "CTF Flag Close Returns"},
-            {"type": "flag_carry_time", "display": "CTF Flag Carry Time"},
-            {"type": "flag_self_cover", "display": "CTF Kills Carrying Flag"},
-            {"type": "flag_multi_cover", "display": "CTF Multi Covers"},
-            {"type": "flag_spree_cover", "display": "CTF Cover Sprees"},
-
-            {"type": "flag_cover_best", "display": "CTF Most Cover Kills"},
-            {"type": "flag_self_cover_best", "display": "CTF Most Kills With Flag"},
-        ];
-
+        const types = [...this.props.validTypes.totals];
+        
         types.sort((a, b) =>{
 
             a = a.display.toLowerCase();
@@ -104,15 +119,86 @@ class Records extends React.Component{
                 
                 <div className="select-row">
                     <div className="select-label">Record Type</div>
-                    <select className="default-select">
+                    <select value={this.state.type} onChange={this.changeType}  className="default-select">
                         {options}
                     </select>
                 </div>
-                <div className="search-button">Search</div>
+                <Link href={`/records/?mode=${this.props.mode}&type=${this.state.type}&page=0`}>
+                    <a>
+                        <div className="search-button">Search</div>
+                    </a>
+                </Link>
             </div>
         </div>
     }
 
+
+    getTypeTitle(){
+
+        for(let i = 0; i < this.props.validTypes.totals.length; i++){
+
+            const {type, display} = this.props.validTypes.totals[i];
+
+            if(type === this.props.type) return display;
+        }
+
+        return "Unknown type";
+
+    }
+
+
+    renderTable(){
+
+        const type = this.getTypeTitle();
+        let title = type;
+
+        if(this.props.mode === 0){
+            title = `Player Total Records For ${title}`;
+        }
+
+
+        const hours = ["flag_carry_time", "playtime"];
+
+        const rows = [];
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const d = this.state.data[i];
+
+            let place = 1 + i + (this.props.page * this.state.perPage);
+            rows.push(<tr key={`${i}-${d.value}-${d.player_id}`}>
+                <td>
+                <span className="small-font yellow">
+                        {place}{Functions.getOrdinal(place)}
+                    </span>&nbsp;
+                </td>
+                <td className="text-left">
+                    <Link href={`/player/${d.player_id}`}>
+                        <a>
+                            <CountryFlag country={d.country}/>
+                            {d.name}
+                        </a>
+                    </Link>
+                </td>
+                <td>{d.matches}</td>
+                <td>{Functions.toHours(d.playtime)} Hours</td>
+                <td>{(hours.indexOf(this.props.type) === -1) ? d.value : `${Functions.toHours(d.value)} Hours`}</td>
+            </tr>);
+        }
+
+        return <div className="m-top-25">
+            <Table2 width={1} header={title}>
+                <tr>
+                    <th>Place</th>
+                    <th>Player</th>
+                    <th>Matches</th>
+                    <th>Playtime</th>
+                    <th>{type}</th>
+                </tr>
+                {rows}
+            </Table2>
+        </div>
+    }
 
     renderElems(){
 
@@ -143,6 +229,7 @@ class Records extends React.Component{
                 </Link>
             </div>
             {this.renderTotalOptions()}
+            {this.renderTable()}
         </div>
     }
 
@@ -200,13 +287,20 @@ export async function getServerSideProps({req, query}){
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
 
+
+    const playerManager = new Players();
+
+    const validTypes = playerManager.getValidRecordTypes();
+
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
     return {
         "props": {
             "host": req.headers.host,
             "mode": mode,
+            "page": page,
             "type": type.toLowerCase(),
+            "validTypes": validTypes,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "pageSettings": JSON.stringify(pageSettings)
