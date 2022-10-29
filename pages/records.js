@@ -27,7 +27,8 @@ class Records extends React.Component{
             "loaded": false, 
             "error": null, 
             "type": this.props.type, 
-            "perPage": this.props.perPage
+            "perPage": this.props.perPage,
+            "totalResults": 0
         };
 
         this.changeType = this.changeType.bind(this);
@@ -62,7 +63,7 @@ class Records extends React.Component{
         const req = await fetch("/api/records",{
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": mode, "type": this.state.type, "page": this.props.page, "perPage": this.state.perPage})
+            "body": JSON.stringify({"mode": mode, "type": this.state.type, "page": this.props.page - 1, "perPage": this.state.perPage})
         });
 
         const res = await req.json();
@@ -70,7 +71,7 @@ class Records extends React.Component{
         if(res.error !== undefined){
             this.setState({"error": res.error});
         }else{
-            this.setState({"data": res.data});
+            this.setState({"data": res.data, "totalResults": res.totalResults});
         }
 
         this.setState({"loaded": true});
@@ -139,7 +140,7 @@ class Records extends React.Component{
                         <option value="100">100</option>
                     </select>
                 </div>
-                <Link href={`/records/?mode=${this.props.mode}&type=${this.state.type}&page=0&pp=${this.state.perPage}`}>
+                <Link href={`/records/?mode=${this.props.mode}&type=${this.state.type}&page=1&pp=${this.state.perPage}`}>
                     <a>
                         <div className="search-button">Search</div>
                     </a>
@@ -187,7 +188,7 @@ class Records extends React.Component{
 
             const d = this.state.data[i];
 
-            let place = 1 + i + (this.props.page * this.state.perPage);
+            let place = 1 + i + ((this.props.page - 1) * this.state.perPage);
             rows.push(<tr key={`${i}-${d.value}-${d.player_id}`}>
                 <td>
                 <span className="small-font yellow">
@@ -224,6 +225,13 @@ class Records extends React.Component{
         </div>
     }
 
+    renderPagination(){
+
+        return <Pagination url={`/records/?mode=${this.props.mode}&pp=${this.state.perPage}&page=`} results={this.state.totalResults} 
+            currentPage={this.props.page} perPage={this.props.perPage}
+        />  
+    }
+
     renderElems(){
 
         if(this.state.error !== null) return <ErrorMessage title="Records" text={this.state.error}/>
@@ -231,29 +239,31 @@ class Records extends React.Component{
 
         return <div>
             <div className="tabs">
-                <Link href={`/records/?mode=0&page=0&pp=${this.state.perPage}`}>
+                <Link href={`/records/?mode=0&page=1&pp=${this.state.perPage}`}>
                     <a>
                         <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>Player Total Records</div>
                     </a>
                 </Link>
-                <Link href={`/records/?mode=1&page=0&pp=${this.state.perPage}`}>
+                <Link href={`/records/?mode=1&page=1&pp=${this.state.perPage}`}>
                     <a>
                         <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>Player Match Records</div>
                     </a>
                 </Link>
-                <Link href={`/records/?mode=2&page=0&pp=${this.state.perPage}`}>
+                <Link href={`/records/?mode=2&page=1&pp=${this.state.perPage}`}>
                     <a>
                         <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`}>CTF Cap Records</div>
                     </a>
                 </Link>
-                <Link href={`/records/?mode=3&page=0&pp=${this.state.perPage}`}>
+                <Link href={`/records/?mode=3&page=1&pp=${this.state.perPage}`}>
                     <a>
                         <div className={`tab ${(this.props.mode === 3) ? "tab-selected" : ""}`}>Combogib Records</div>
                     </a>
                 </Link>
             </div>
             {this.renderTotalOptions()}
+            {this.renderPagination()}
             {this.renderTable()}
+            {this.renderPagination()}    
         </div>
     }
 
@@ -300,8 +310,8 @@ export async function getServerSideProps({req, query}){
     let mode = parseInt(query.mode) ?? 0;
     if(mode !== mode) mode = 0;
 
-    let page = parseInt(query.page) ?? 0;
-    if(page !== page) page = 0;
+    let page = parseInt(query.page) ?? 1;
+    if(page !== page) page = 1;
 
     let type = query.type ?? "kills";
 

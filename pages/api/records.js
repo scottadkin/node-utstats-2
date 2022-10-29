@@ -32,7 +32,8 @@ export default async function handler(req, res){
 
     
     const type = req.body.type.toLowerCase();
-    const page = req.body.page ?? 0;
+    let page = req.body.page ?? 0;
+    if(page < 0) page = 0;
     let perPage = parseInt(req.body.perPage) ?? 25;
 
     if(perPage > 100) perPage = 100;
@@ -49,7 +50,9 @@ export default async function handler(req, res){
 
             const totalData = await playerManager.getBestOfTypeTotal(validTypes.totals, type, 0, perPage, page);
 
-            res.status(200).json({"data": totalData});
+            const totalPossibleResults = await playerManager.getTotalResults(0);
+
+            res.status(200).json({"data": totalData, "totalResults": totalPossibleResults});
             return;
         }
     }
