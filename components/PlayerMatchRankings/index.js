@@ -1,6 +1,7 @@
 import Functions from '../../api/functions';
 import Table2 from '../Table2';
 import Image from 'next/image';
+import ErrorMessage from '../ErrorMessage';
 
 const getIcon = (value) =>{
 
@@ -14,6 +15,8 @@ const getIcon = (value) =>{
 }
 
 const PlayerMatchRankings = ({data, current, currentPosition}) =>{
+
+    if(data.length === 0) return <ErrorMessage title="PlayerMatchRankings" text="data is an empty array"/>
 
     return <div className="m-bottom-25">
         <div className="default-header">Match Ranking Summary</div>
