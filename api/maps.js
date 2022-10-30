@@ -318,30 +318,22 @@ class Maps{
         return exists;
     }
 
-    getNames(ids){
+    async getNames(ids){
 
-        return new Promise((resolve, reject) =>{
+        if(ids.length === 0) return {};
 
-            if(ids.length === 0) resolve({});
-            const data = {};
+        const data = {};
+        const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
 
-            const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
+        const result = await mysql.simpleQuery(query, [ids]);
 
-            mysql.query(query, [ids], (err, result) =>{
+        for(let i = 0; i < result.length; i++){
 
-                if(err) reject(err);
+            const r = result[i];
+            data[r.id] = this.removeUnr(r.name);
+        }
 
-                if(result !== undefined){
-
-                    for(let i = 0; i < result.length; i++){
-
-                        data[result[i].id] = this.removeUnr(result[i].name);
-                    }
-                }
-
-                resolve(data);
-            });
-        });
+        return data;
     }
 
     getTotalResults(name){

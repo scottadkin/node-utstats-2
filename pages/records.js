@@ -48,7 +48,7 @@ class Records extends React.Component{
 
     async loadData(){
 
-        let mode = this.state.mode;
+        let mode = this.props.mode;
 
         if(mode === 0){
             mode = "totals";
@@ -89,14 +89,23 @@ class Records extends React.Component{
             prevProps.page !== this.props.page ||
             prevProps.perPage !== this.props.perPage
         ){
+
+            if(prevProps.mode !== this.props.mode){
+                this.setState({"data": null, "loaded": false, "error": null});
+            }
             await this.loadData();
         }
     }
 
 
     renderTotalOptions(){
+
+        if(this.props.mode > 1) return null;
         
-        const types = [...this.props.validTypes.totals];
+        const types = [];
+
+        if(this.props.mode === 0) types.push(...this.props.validTypes.totals);
+        if(this.props.mode === 1) types.push(...this.props.validTypes.matches);
         
         types.sort((a, b) =>{
 
@@ -156,6 +165,8 @@ class Records extends React.Component{
 
         if(this.props.mode === 0){
             types = this.props.validTypes.totals;
+        }else if(this.props.mode === 1){
+            types = this.props.validTypes.matches;
         }
 
         for(let i = 0; i < types.length; i++){
@@ -177,6 +188,8 @@ class Records extends React.Component{
 
         if(this.props.mode === 0){
             title = `Player Total Records For ${title}`;
+        }else if(this.props.mode === 1){
+            title = `Player Match Records For ${title}`;
         }
 
 
@@ -188,6 +201,16 @@ class Records extends React.Component{
 
             const d = this.state.data[i];
 
+
+            let playerURL = "";
+
+            if(this.props.mode === 0){
+                playerURL = `/player/${d.player_id}`;
+            }else if(this.props.mode === 1){
+                playerURL = `/pmatch/${d.match_id}/?player=${d.player_id}`;
+            }
+
+
             let place = 1 + i + ((this.props.page - 1) * this.state.perPage);
             rows.push(<tr key={`${i}-${d.value}-${d.player_id}`}>
                 <td>
@@ -196,15 +219,15 @@ class Records extends React.Component{
                     </span>&nbsp;
                 </td>
                 <td className="text-left">
-                    <Link href={`/player/${d.player_id}`}>
+                    <Link href={playerURL}>
                         <a>
                             <CountryFlag country={d.country}/>
                             {d.name}
                         </a>
                     </Link>
                 </td>
-                <td className="small-font grey">{Functions.convertTimestamp(d.last, true, false)}</td>
-                <td>{d.matches}</td>
+                <td className="small-font grey">{Functions.convertTimestamp((this.props.mode === 0) ? d.last : d.match_date, true, false)}</td>
+                <td>{(this.props.mode === 0) ? d.matches : <Link href={`/map/${d.map_id}`}><a>{d.mapName}</a></Link>}</td>
                 <td>{Functions.toHours(d.playtime)} Hours</td>
                 <td>{(hours.indexOf(this.props.type) === -1) ? d.value : `${Functions.toHours(d.value)} Hours`}</td>
             </tr>);
@@ -215,8 +238,8 @@ class Records extends React.Component{
                 <tr>
                     <th>Place</th>
                     <th>Player</th>
-                    <th>Last Seen</th>
-                    <th>Matches</th>
+                    <th>{(this.props.mode === 0) ? "Last Seen" : "Date" }</th>
+                    <th>{(this.props.mode === 0) ? "Matches" : "Map" }</th>
                     <th>Playtime</th>
                     <th>{type}</th>
                 </tr>

@@ -284,68 +284,57 @@ class Players{
     }
 
 
-    getBestMatchValues(valid, type, page, perPage){
+    async getBestMatchValues(valid, type, page, perPage){
 
-        return new Promise((resolve, reject) =>{
 
-            type = type.toLowerCase();
+        type = type.toLowerCase();
 
-            let index = valid.indexOf(type);
+        let index = valid.indexOf(type);
 
-            if(index === -1) index = 0;
+        if(index === -1) index = 0;
 
-            page--;
+        if(page < 0) page = 0;
 
-            perPage = parseInt(perPage);
+        perPage = parseInt(perPage);
+        if(perPage !== perPage) perPage = 25;
 
-            if(perPage !== perPage) perPage = 50;
+        const start = perPage * page;
 
-            const start = perPage * page;
+        const query = `SELECT player_id,match_id,map_id,match_date,country,playtime,MAX(${valid[index]}) as value 
+        FROM nstats_player_matches GROUP BY player_id ORDER BY value DESC LIMIT ?, ?`;
 
-            const query = `SELECT match_id,player_id,map_id,country,playtime,${valid[index]} as value 
-            FROM nstats_player_matches ORDER BY ${valid[index]} DESC LIMIT ?, ?`;
-
-            mysql.query(query, [start, perPage], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await mysql.simpleQuery(query, [start, perPage]);
+      
     }
 
-    getTotalMatchResults(gametype){
+    async getTotalBestMatchValues(valid, type){
 
+        type = type.toLowerCase();
 
-        return new Promise((resolve, reject) =>{
+        let index = valid.indexOf(type);
 
+        if(index === -1) index = 0;
 
-            let query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE gametype=?";
-            let vars = [gametype];
+        const query = `SELECT COUNT(DISTINCT player_id) as total_results FROM nstats_player_matches WHERE played=1`;
+        const result = await mysql.simpleQuery(query);
 
-            if(gametype === undefined){
-                query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches";
-                vars = [];
-            }
+        return result[0].total_results;
+    }
 
-            mysql.query(query, vars, (err, result) =>{
+    async getTotalMatchResults(gametype){
+        
+        let vars = [];
+        let query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches";
 
-                if(err) reject(err);
+        if(gametype !== undefined){
+            
+            query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE gametype=?"; 
+            vars.push(gametype);
+        }
 
-                if(result !== undefined){
+        const result = await mysql.simpleQuery(query, vars);
 
-                    if(result.length > 0){
-                        resolve(result[0].total_matches);
-                    }
-                }
-
-                resolve(0);
-            });
-        });
+        return result[0].total_matches;
     }
 
 
@@ -1862,19 +1851,15 @@ class Players{
     getValidRecordTypes(bJustTypes){
 
         if(bJustTypes === undefined) bJustTypes = false;
-    
-        const totalTypes =  [
+
+
+        const both = [
             {"type": "playtime", "display": "Playtime"},
-            {"type": "matches", "display": "Matches"},
-            {"type": "wins", "display": "Match Wins"},
-            {"type": "losses", "display": "Match Losses"},
-            {"type": "draws", "display": "Match Draws"},
             {"type": "kills", "display": "Kills"},
             {"type": "deaths", "display": "Deaths"},
             {"type": "suicides", "display": "Suicides"},
             {"type": "team_kills", "display": "Team Kills"},
             {"type": "spawn_kills", "display": "Spawn Kills"},
-            {"type": "first_bloods", "display": "First Bloods"},
             {"type": "frags", "display": "Frags"},
             {"type": "score", "display": "Score"},
             {"type": "spree_best", "display": "Best Killing Spree"},
@@ -1900,9 +1885,22 @@ class Players{
             {"type": "flag_self_cover_best", "display": "CTF Most Kills With Flag"}
         ];
     
+        const totalTypes =  [
+            ...both,
+            {"type": "matches", "display": "Matches"},
+            {"type": "wins", "display": "Match Wins"},
+            {"type": "losses", "display": "Match Losses"},
+            {"type": "draws", "display": "Match Draws"},
+            {"type": "first_bloods", "display": "First Bloods"}
+        ];
+
+        const matchTypes = [
+            ...both
+        ];
+    
     
         if(!bJustTypes){
-            return {"totals": totalTypes};
+            return {"totals": totalTypes, "matches": matchTypes};
         }
     
         let totalKeys = [];
@@ -1910,11 +1908,18 @@ class Players{
         for(let i = 0; i < totalTypes.length; i++){
     
             const {type} = totalTypes[i];
-    
             totalKeys.push(type);
         }
+
+        let matchKeys = [];
+
+        for(let i = 0; i < matchTypes.length; i++){
     
-        return {"totals": totalKeys};
+            const {type} = matchTypes[i];
+            matchKeys.push(type);
+        }
+    
+        return {"totals": totalKeys, "matches": matchKeys};
         
     }
 

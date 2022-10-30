@@ -55,7 +55,7 @@ class PlayerMatchPowerUps extends React.Component{
 
         if(this.props.pads > 0){
 
-            rows.push(<tr>
+            rows.push(<tr key="4">
                 <td>Thigh Pads</td>
                 <td>{this.props.pads}</td>
                 <td>N/A</td>
@@ -65,7 +65,7 @@ class PlayerMatchPowerUps extends React.Component{
         
         if(this.props.boots > 0){
 
-            rows.push(<tr>
+            rows.push(<tr key="5">
                 <td>Jump Boots</td>
                 <td>{this.props.boots}</td>
                 <td>N/A</td>

@@ -1,4 +1,6 @@
 import Players from "../../api/players";
+import Functions from "../../api/functions";
+import Maps from "../../api/maps";
 
 export default async function handler(req, res){
 
@@ -54,6 +56,39 @@ export default async function handler(req, res){
 
             res.status(200).json({"data": totalData, "totalResults": totalPossibleResults});
             return;
+        }   
+    }
+
+    if(mode === "match"){
+
+        if(validTypes.totals.indexOf(type) !== -1){
+
+            const results = await playerManager.getBestMatchValues(validTypes.matches, type, page, perPage);
+
+
+            const totalResults = await playerManager.getTotalBestMatchValues(validTypes.matches, type);
+            
+
+            const playerIds = Functions.getUniqueValues(results, "player_id");
+            const mapIds = Functions.getUniqueValues(results, "map_id");
+
+            const mapManager = new Maps();
+
+            const mapNames = await mapManager.getNames(mapIds);
+
+            const playerNames = await playerManager.getNamesByIds(playerIds, true);
+
+            for(let i = 0; i < results.length; i++){
+
+                const r = results[i];
+                r.name = playerNames[results[i].player_id].name ?? "Not Found";
+                r.mapName = mapNames[results[i].map_id] ?? "Not Found";
+            }
+
+
+            res.status(200).json({"data": results, "totalResults": totalResults});
+            return;
+
         }
     }
 
