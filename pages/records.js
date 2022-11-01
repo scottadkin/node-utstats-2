@@ -27,7 +27,10 @@ class Records extends React.Component{
             "error": null, 
             "type": this.props.type, 
             "perPage": this.props.perPage,
-            "totalResults": 0
+            "totalResults": 0,
+            "players": null, 
+            "matchDates": null, 
+            "mapNames": null
         };
 
         this.changeType = this.changeType.bind(this);
@@ -72,8 +75,20 @@ class Records extends React.Component{
         if(res.error !== undefined){
             this.setState({"error": res.error});
         }else{
-            console.log(res);
-            this.setState({"data": res.data, "totalResults": res.totalResults});
+            
+            if(this.state.mode !== 2){
+
+                this.setState({
+                    "data": res.data, 
+                    "totalResults": res.totalResults, 
+                    "players": null, 
+                    "matchDates": null, 
+                    "mapNames": null
+                });
+
+            }else{
+                this.setState({"data": res.data, "players": res.playerNames, "matchDates": res.matchDates, "mapNames": res.mapNames});
+            }
         }
         
         
@@ -263,7 +278,10 @@ class Records extends React.Component{
     renderCTFCapRecords(){
 
         if(this.props.mode !== 2) return null;
-        return <CTFCapRecords />;
+
+        return <CTFCapRecords data={this.state.data} players={this.state.players} 
+            matchDates={this.state.matchDates} mapNames={this.state.mapNames}
+        />;
     }
 
     renderElems(){

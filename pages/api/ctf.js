@@ -299,8 +299,12 @@ export default async function handler(req, res){
             const playerIds = getUniquePlayersAlt(data);
             const playerNames = await playerManager.getNamesByIds(playerIds, true);
 
+            const mapManager = new Maps();
+           
+            const mapNames = await mapManager.getNames(Object.keys(data));
 
-            res.status(200).json({"data": data, "matchDates": matchDates, "playerNames": playerNames});
+
+            res.status(200).json({"data": data, "matchDates": matchDates, "playerNames": playerNames, "mapNames": mapNames});
             resolve();
             return;
 
