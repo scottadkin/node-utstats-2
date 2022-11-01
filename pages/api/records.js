@@ -10,7 +10,8 @@ export default async function handler(req, res){
         return;
     }
 
-    const mode = req.body.mode.toLowerCase();
+
+    let mode = req.body.mode ?? 0;
 
     const playerManager = new Players();
 
@@ -33,7 +34,7 @@ export default async function handler(req, res){
     }
 
     
-    const type = req.body.type.toLowerCase();
+    let type = req.body.type.toLowerCase() ?? "";
     let page = req.body.page ?? 0;
     if(page < 0) page = 0;
     let perPage = parseInt(req.body.perPage) ?? 25;

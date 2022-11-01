@@ -28,9 +28,7 @@ class Records extends React.Component{
             "type": this.props.type, 
             "perPage": this.props.perPage,
             "totalResults": 0,
-            "players": null, 
-            "matchDates": null, 
-            "mapNames": null
+            "data": null
         };
 
         this.changeType = this.changeType.bind(this);
@@ -58,10 +56,8 @@ class Records extends React.Component{
         }else if(mode === 1){
             mode = "match";
         }else if(mode === 2){
-            mode = "maprecords";
-            url = "/api/ctf";
-        }else if(mode === 3){
-            mode = "combogib";
+            this.setState({"loaded": true});
+            return;
         }
 
         const req = await fetch(url,{
@@ -76,19 +72,14 @@ class Records extends React.Component{
             this.setState({"error": res.error});
         }else{
             
-            if(this.state.mode !== 2){
-
-                this.setState({
-                    "data": res.data, 
-                    "totalResults": res.totalResults, 
-                    "players": null, 
-                    "matchDates": null, 
-                    "mapNames": null
-                });
-
-            }else{
-                this.setState({"data": res.data, "players": res.playerNames, "matchDates": res.matchDates, "mapNames": res.mapNames});
-            }
+           
+            this.setState({
+                "data": res.data, 
+                "totalResults": res.totalResults, 
+                "players": null, 
+                "matchDates": null, 
+                "mapNames": null
+            });        
         }
         
         
@@ -111,6 +102,7 @@ class Records extends React.Component{
             if(prevProps.mode !== this.props.mode){
                 this.setState({"data": null, "loaded": false, "error": null});
             }
+            
             await this.loadData();
         }
     }
@@ -200,7 +192,7 @@ class Records extends React.Component{
 
     renderTable(){
 
-        if(this.props.mode >= 2) return null;
+        if(this.props.mode >= 2 || !this.state.loaded || this.state.data === null) return null;
 
         const type = this.getTypeTitle();
         let title = type;
@@ -211,7 +203,6 @@ class Records extends React.Component{
             title = `Player Match Records For ${title}`;
         }
 
-
         const hours = ["flag_carry_time", "playtime"];
 
         const rows = [];
@@ -219,7 +210,6 @@ class Records extends React.Component{
         for(let i = 0; i < this.state.data.length; i++){
 
             const d = this.state.data[i];
-
 
             let playerURL = "";
 
@@ -269,6 +259,8 @@ class Records extends React.Component{
 
     renderPagination(){
 
+        if(!this.state.loaded || this.state.mode === 2) return null;
+
         return <Pagination url={`/records/?mode=${this.props.mode}&pp=${this.state.perPage}&page=`} results={this.state.totalResults} 
             currentPage={this.props.page} perPage={this.props.perPage}
         />  
@@ -279,15 +271,12 @@ class Records extends React.Component{
 
         if(this.props.mode !== 2) return null;
 
-        return <CTFCapRecords data={this.state.data} players={this.state.players} 
-            matchDates={this.state.matchDates} mapNames={this.state.mapNames}
-        />;
+        return <CTFCapRecords />;
     }
 
     renderElems(){
 
         if(this.state.error !== null) return <ErrorMessage title="Records" text={this.state.error}/>
-        if(!this.state.loaded) return <Loading/>;
 
         return <div>
             <div className="tabs">
@@ -313,6 +302,7 @@ class Records extends React.Component{
                 </Link>
             </div>
             {this.renderTotalOptions()}
+            {(!this.state.loaded) ? <Loading /> : null}
             {this.renderPagination()}
             {this.renderTable()}
             {this.renderCTFCapRecords()}

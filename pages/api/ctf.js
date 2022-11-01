@@ -293,9 +293,6 @@ export default async function handler(req, res){
 
             const data = await ctfManager.getMapsCapRecords(mapIds);
 
-            const matchIds = getUniqueMatchIds(data, true);
-            const matchDates = await matchManager.getDates(matchIds);
-
             const playerIds = getUniquePlayersAlt(data);
             const playerNames = await playerManager.getNamesByIds(playerIds, true);
 
@@ -303,8 +300,12 @@ export default async function handler(req, res){
            
             const mapNames = await mapManager.getNames(Object.keys(data));
 
+            for(const [mapId, mapData] of Object.entries(data)){
 
-            res.status(200).json({"data": data, "matchDates": matchDates, "playerNames": playerNames, "mapNames": mapNames});
+                mapData.name = mapNames[mapId] ?? "Not Found";
+            }
+
+            res.status(200).json({"data": data, "playerNames": playerNames, "mapNames": mapNames});
             resolve();
             return;
 
