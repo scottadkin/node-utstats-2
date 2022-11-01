@@ -28,11 +28,18 @@ class Records extends React.Component{
             "type": this.props.type, 
             "perPage": this.props.perPage,
             "totalResults": 0,
-            "data": null
+            "data": null,
+            "capMode": parseInt(this.props.capMode)
         };
 
         this.changeType = this.changeType.bind(this);
         this.changePerPage = this.changePerPage.bind(this);
+        this.changeCapMode = this.changeCapMode.bind(this);
+    }
+
+    changeCapMode(id){
+
+        this.setState({"capMode": id});
     }
 
     changeType(e){
@@ -102,7 +109,7 @@ class Records extends React.Component{
             if(prevProps.mode !== this.props.mode){
                 this.setState({"data": null, "loaded": false, "error": null});
             }
-            
+
             await this.loadData();
         }
     }
@@ -176,6 +183,13 @@ class Records extends React.Component{
             types = this.props.validTypes.totals;
         }else if(this.props.mode === 1){
             types = this.props.validTypes.matches;
+        }else if(this.props.mode === 2){
+
+            if(this.state.capMode === 0){
+                return "Solo Cap Records";
+            }else if(this.state.capMode === 1){
+                return "Assisted Cap Records";
+            }
         }
 
         for(let i = 0; i < types.length; i++){
@@ -271,7 +285,7 @@ class Records extends React.Component{
 
         if(this.props.mode !== 2) return null;
 
-        return <CTFCapRecords />;
+        return <CTFCapRecords mode={this.state.capMode} changeMode={this.changeCapMode}/>;
     }
 
     renderElems(){
@@ -361,6 +375,9 @@ export async function getServerSideProps({req, query}){
     let perPage = parseInt(query.pp) ?? 25;
     if(perPage !== perPage) perPage = 25;
 
+    let capMode = parseInt(query.cm) ?? 0;
+    if(capMode !== capMode) capMode = 0;
+
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
@@ -377,6 +394,7 @@ export async function getServerSideProps({req, query}){
             "page": page,
             "type": type.toLowerCase(),
             "perPage": perPage,
+            "capMode": capMode,
             "validTypes": validTypes,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),

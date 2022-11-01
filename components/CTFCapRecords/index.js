@@ -13,13 +13,13 @@ class CTFCapRecords extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0, "loaded": false, "error": null, "data": null, "players": null};
+        this.state = { "loaded": false, "error": null, "data": null, "players": null};
         this.changeMode = this.changeMode.bind(this);
     }
 
     changeMode(id){
 
-        this.setState({"mode": id});
+        this.props.changeMode(id);
     }
 
     async loadData(){
@@ -53,15 +53,10 @@ class CTFCapRecords extends React.Component{
     }
 
 
-    
 
-    renderSoloCaps(){
-
-        const rows = [];
+    toArrayData(){
 
         const arrayData = [];
-
-        if(!this.state.loaded) return null;
 
         for(const [key, value] of Object.entries(this.state.data)){
 
@@ -80,13 +75,23 @@ class CTFCapRecords extends React.Component{
             return 0;
         });
 
+        return arrayData;
+    }
+    
+
+    renderSoloCaps(){
+
+        const rows = [];
+
+        if(!this.state.loaded || this.props.mode === 1) return null;
+
+        const arrayData = this.toArrayData();
+
         for(let i = 0; i < arrayData.length; i++){
 
             const d = arrayData[i].data;
 
             if(d.solo === null) break;
-
-            console.log(d);
 
             const player = Functions.getPlayer(this.state.players, d.solo.cap, true);
 
@@ -128,6 +133,77 @@ class CTFCapRecords extends React.Component{
         </Table2>
     }
 
+    renderAssistedCaps(){
+
+        const rows = [];
+
+        if(!this.state.loaded || this.props.mode === 0) return null;
+
+        const arrayData = this.toArrayData();
+
+        for(let i = 0; i < arrayData.length; i++){
+
+            const d = arrayData[i].data;
+
+            if(d.assisted === null) break;
+
+            const capPlayer = Functions.getPlayer(this.state.players, d.assisted.cap, true);
+            const grabPlayer = Functions.getPlayer(this.state.players, d.assisted.grab, true);
+
+            console.log(d.assisted);
+
+            const assistedPlayerIds = d.assisted.assists.split(",");
+
+            console.log(assistedPlayerIds);
+
+            rows.push(<tr key={i}>
+                <td className="text-left">
+                    <Link href={`/map/${d.assisted.map_id}`}>
+                        <a>
+                            {arrayData[i].name}
+                        </a>
+                    </Link>
+                </td>
+                <td className="small-font grey">
+                    <Link href={`/match/${d.assisted.match_id}`}>
+                        <a>
+                            {Functions.convertTimestamp(d.assisted.match_date, true, false)}
+                        </a>
+                    </Link>
+                </td>
+                <td>
+                    <Link href={`/pmatch/${d.assisted.match_id}/?player=${grabPlayer.id}`}>
+                        <a>
+                            <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
+                        </a>
+                    </Link>
+                </td>
+                <td></td>
+                <td>
+                    <Link href={`/pmatch/${d.assisted.match_id}/?player=${capPlayer.id}`}>
+                        <a>
+                            <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                        </a>
+                    </Link>
+                </td>
+                <td className="purple">{Functions.MMSS(d.assisted.travel_time)}</td>
+            </tr>);
+        }
+
+
+        return <Table2 width={1} header="Assisted Cap Records">
+            <tr>
+                <th>Map</th>
+                <th>Date of Record</th>
+                <th>Grabbed By</th>
+                <th>Assisted</th>
+                <th>Capped By</th>
+                <th>Record Time</th>
+            </tr>
+            {rows}
+        </Table2>
+    }
+
     renderLoading(){
 
         if(this.state.loaded) return null;
@@ -151,13 +227,14 @@ class CTFCapRecords extends React.Component{
                     <div className="select-label">
                         Capture Type
                     </div>
-                    <Option2 title1="Solo Caps" title2="Assisted Caps" value={this.state.mode} changeEvent={this.changeMode}/>
+                    <Option2 title1="Solo Caps" title2="Assisted Caps" value={this.props.mode} changeEvent={this.changeMode}/>
                 </div>
             </div>
             <div className="m-top-25">
                 {this.renderLoading()}
                 {this.renderError()}
                 {this.renderSoloCaps()}
+                {this.renderAssistedCaps()}
             </div>
         </div>
     }
