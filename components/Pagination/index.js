@@ -28,13 +28,14 @@ const PageButton = ({url, page, anchor, current}) =>{
 
 const Pagination = ({currentPage, results, perPage, url, anchor}) =>{
 
+
     currentPage = parseInt(currentPage);
 
     let pages = Math.ceil(results / perPage);
 
     if(pages !== pages) pages = 1;
 
-    if(pages <= 1) return <div className="m-bottom-25"></div>;
+    if(pages <= 1) return null;
 
     const elems = [];
     
@@ -81,11 +82,10 @@ const Pagination = ({currentPage, results, perPage, url, anchor}) =>{
     }
 
     if(results === 0){
-        return (<div className={styles.wrapper}>
-        </div>);
+        return null;
     }
 
-    return (<div className={styles.wrapper}>
+    return <div className={styles.wrapper}>
 
         <div className={styles.header}>
             Displaying Page {currentPage} of {pages}
@@ -94,7 +94,7 @@ const Pagination = ({currentPage, results, perPage, url, anchor}) =>{
             Displaying results {(currentPage === 1) ? 1 : 1 + ((currentPage - 1) * perPage)} to {(currentPage !== pages ) ? currentPage * perPage : results} out of {results}
         </div>
         {elems}
-    </div>);
+    </div>;
 }
 
 

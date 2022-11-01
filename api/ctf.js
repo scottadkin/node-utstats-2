@@ -1267,6 +1267,11 @@ class CTF{
 
         if(mapIds.length === 0) return {};
 
+        if(mapIds === "*"){
+
+            mapIds = await this.getAllMapsWithCaps();
+        }
+
         const records = {};
 
         for(let i = 0; i < mapIds.length; i++){

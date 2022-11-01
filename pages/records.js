@@ -3,11 +3,9 @@ import Nav from "../components/Nav/";
 import Footer from "../components/Footer/";
 import Players from "../api/players";
 import Functions from "../api/functions";
-import RecordsList from "../components/RecordsList/";
 import Pagination from "../components/Pagination/";
 import React from "react";
 import Link from "next/link";
-import Maps from "../api/maps";
 import Session from "../api/session";
 import SiteSettings from "../api/sitesettings";
 import Analytics from "../api/analytics";
@@ -15,6 +13,7 @@ import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
 import Table2 from "../components/Table2";
 import CountryFlag from "../components/CountryFlag";
+import CTFCapRecords from "../components/CTFCapRecords";
 
 class Records extends React.Component{
 
@@ -23,7 +22,7 @@ class Records extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 0, 
+            "mode": 2, 
             "loaded": false, 
             "error": null, 
             "type": this.props.type, 
@@ -49,18 +48,20 @@ class Records extends React.Component{
     async loadData(){
 
         let mode = this.props.mode;
+        let url = "/api/records";
 
         if(mode === 0){
             mode = "totals";
         }else if(mode === 1){
             mode = "match";
         }else if(mode === 2){
-            mode = "ctf";
+            mode = "maprecords";
+            url = "/api/ctf";
         }else if(mode === 3){
             mode = "combogib";
         }
 
-        const req = await fetch("/api/records",{
+        const req = await fetch(url,{
             "headers": {"Content-type": "application/json"},
             "method": "POST",
             "body": JSON.stringify({"mode": mode, "type": this.state.type, "page": this.props.page - 1, "perPage": this.state.perPage})
@@ -71,9 +72,11 @@ class Records extends React.Component{
         if(res.error !== undefined){
             this.setState({"error": res.error});
         }else{
+            console.log(res);
             this.setState({"data": res.data, "totalResults": res.totalResults});
         }
-
+        
+        
         this.setState({"loaded": true});
     }
 
@@ -132,8 +135,7 @@ class Records extends React.Component{
 
         return <div>
             <div className="default-sub-header">Select Record Type</div>
-                <div className="form">
-                
+                <div className="form">     
                 <div className="select-row">
                     <div className="select-label">Record Type</div>
                     <select value={this.state.type} onChange={this.changeType}  className="default-select">
@@ -182,6 +184,8 @@ class Records extends React.Component{
 
 
     renderTable(){
+
+        if(this.props.mode >= 2) return null;
 
         const type = this.getTypeTitle();
         let title = type;
@@ -255,6 +259,13 @@ class Records extends React.Component{
         />  
     }
 
+
+    renderCTFCapRecords(){
+
+        if(this.props.mode !== 2) return null;
+        return <CTFCapRecords />;
+    }
+
     renderElems(){
 
         if(this.state.error !== null) return <ErrorMessage title="Records" text={this.state.error}/>
@@ -286,6 +297,7 @@ class Records extends React.Component{
             {this.renderTotalOptions()}
             {this.renderPagination()}
             {this.renderTable()}
+            {this.renderCTFCapRecords()}
             {this.renderPagination()}    
         </div>
     }

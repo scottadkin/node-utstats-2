@@ -1,14 +1,14 @@
 .wrapper{
-    background-color:var(--color-1);
+    background-color:var(--color-3);
     width:95%;
-    border:1px solid var(--border-color-1);
+    border:1px solid var(--border-color-2);
     color:white;
     position:relative;
-    height:30px;
+    height:32px;
     font-size:16px;
     overflow:hidden;
     user-select:none;
-    line-height:18px;
+    line-height:20px;
     max-width:300px;
 }
 
@@ -19,7 +19,7 @@
 .option, .option2{
     width:50%;
     position:absolute;
-    height:30px;
+    height:32px;
     padding:5px;
     text-align:center;
 }
@@ -30,8 +30,7 @@
 
 .slider{
     background-color:rgb(50,0,0);
-    border:1px solid var(--border-color-1);
-    height:30px;
+    height:32px;
     margin-top:-1px;
     margin-left:-1px;
     width:50%;

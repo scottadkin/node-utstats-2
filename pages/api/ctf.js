@@ -289,7 +289,7 @@ export default async function handler(req, res){
 
         }else if(mode === "maprecords"){
 
-            const mapIds = req.body.mapIds ?? [];
+            const mapIds = req.body.mapIds ?? "*";
 
             const data = await ctfManager.getMapsCapRecords(mapIds);
 
@@ -298,6 +298,7 @@ export default async function handler(req, res){
 
             const playerIds = getUniquePlayersAlt(data);
             const playerNames = await playerManager.getNamesByIds(playerIds, true);
+
 
             res.status(200).json({"data": data, "matchDates": matchDates, "playerNames": playerNames});
             resolve();
