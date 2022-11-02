@@ -133,10 +133,34 @@ class CTFCapRecords extends React.Component{
         </Table2>
     }
 
-    createAssistedPlayers(capPlayer, grabPlayer, assistedIds){
+    createAssistedPlayers(matchId, capPlayer, grabPlayer, assistedIds){
 
-        const players = {};
+        const elems = [];
+        const usedIds = [];
 
+        usedIds.push(grabPlayer.id, capPlayer.id);
+
+        for(let i = 0; i < assistedIds.length; i++){
+
+            const id = assistedIds[i];
+
+            if(usedIds.indexOf(id) === -1){
+
+                const player = Functions.getPlayer(this.state.players, id, true);
+
+                elems.push(
+                    <Link key={`${id}-${i}`} href={`/pmatch/${matchId}/?player=${id}`}>
+                        <a className="small-font grey">
+                            <CountryFlag country={player.country}/>{player.name}&nbsp;
+                        </a>
+                    </Link>
+                );
+
+                usedIds.push(id);
+            }
+        }
+
+        return elems;
     }
 
     renderAssistedCaps(){
@@ -156,11 +180,9 @@ class CTFCapRecords extends React.Component{
             const capPlayer = Functions.getPlayer(this.state.players, d.assisted.cap, true);
             const grabPlayer = Functions.getPlayer(this.state.players, d.assisted.grab, true);
 
-            console.log(d.assisted);
-
             const assistedPlayerIds = d.assisted.assists;
 
-            this.createAssistedPlayers(capPlayer, grabPlayer, assistedPlayerIds);
+            const assistedPlayersElems = this.createAssistedPlayers(d.assisted.match_id, capPlayer, grabPlayer, assistedPlayerIds);
 
 
             rows.push(<tr key={i}>
@@ -185,7 +207,9 @@ class CTFCapRecords extends React.Component{
                         </a>
                     </Link>
                 </td>
-                <td></td>
+                <td>
+                    {assistedPlayersElems}
+                </td>
                 <td>
                     <Link href={`/pmatch/${d.assisted.match_id}/?player=${capPlayer.id}`}>
                         <a>

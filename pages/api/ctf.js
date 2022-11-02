@@ -279,8 +279,6 @@ export default async function handler(req, res){
 
             const playerIds = getUniquePlayersAlt(data);
 
-            console.log(playerIds);
-
             const playerNames = await playerManager.getNamesByIds(playerIds, true);
 
             const mapManager = new Maps();
@@ -290,8 +288,6 @@ export default async function handler(req, res){
             for(const [mapId, mapData] of Object.entries(data)){
                 mapData.name = mapNames[mapId] ?? "Not Found";
             }
-
-            console.log(data);
 
             res.status(200).json({"data": data, "playerNames": playerNames, "mapNames": mapNames});
             resolve();
