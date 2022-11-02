@@ -30,7 +30,7 @@ function getUniquePlayers(data){
                 for(let i = 0; i < d.assists.length; i++){
 
                     if(playerIds.indexOf(d.assists[i]) === -1){
-                        playerIds.push(d.assist[i]);
+                        playerIds.push(d.assists[i]);
                     }   
                 }
             }
