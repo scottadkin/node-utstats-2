@@ -25,20 +25,13 @@ function getUniquePlayers(data){
 
         if(d.assists !== undefined){
 
-            if(d.assists !== ""){
+            if(d.assists.length > 0){
 
-                const assists = d.assists.split(",");
+                for(let i = 0; i < d.assists.length; i++){
 
-                for(let i = 0; i < assists.length; i++){
-
-                    const assist = parseInt(assists[i]);
-
-                    if(assist === assist){
-
-                        if(playerIds.indexOf(assist) === -1){
-                            playerIds.push(assist);
-                        }
-                    }
+                    if(playerIds.indexOf(d.assists[i]) === -1){
+                        playerIds.push(d.assist[i]);
+                    }   
                 }
             }
         }
@@ -51,7 +44,7 @@ function getUniquePlayersAlt(data){
 
     const playerIds = [];
 
-    for(const [key, value] of Object.entries(data)){
+    for(const value of Object.values(data)){
 
         const solo = value.solo;
         const assisted = value.assisted;
@@ -69,14 +62,12 @@ function getUniquePlayersAlt(data){
                 playerIds.push(assisted.cap);
             }
 
-            const assists = assisted.assists.split(",");
+            const assists = assisted.assists;
 
             for(let i = 0; i < assists.length; i++){
 
-                const assist = parseInt(assists[i]);
-
-                if(playerIds.indexOf(assist) === -1){
-                    playerIds.push(assist);
+                if(playerIds.indexOf(assists[i]) === -1){
+                    playerIds.push(assists[i]);
                 }
             }
         }
@@ -102,7 +93,7 @@ function getUniqueMatchIds(data, bMapRecords){
 
     }else{
 
-        for(const [key, value] of Object.entries(data)){
+        for(const value of Object.values(data)){
 
             const solo = value.solo;
             const assisted = value.assisted;
@@ -120,7 +111,6 @@ function getUniqueMatchIds(data, bMapRecords){
                     matchIds.push(assisted.match_id);
                 }
             }
-
         }
     }
 
@@ -140,8 +130,7 @@ function setCapDetails(caps, players, dates, records){
 
         let offset = 0;
 
-
-        if(c.assists === ""){
+        if(c.assists.length === 0){
             offset = records.solo.travel_time - c.travel_time;
         }else{
             offset = records.assist.travel_time - c.travel_time;
@@ -149,19 +138,15 @@ function setCapDetails(caps, players, dates, records){
 
         c.offset = Math.abs(offset);
 
-        const assists = c.assists.split(",");
+        const assists = c.assists;
         c.assistPlayers = [];
 
         if(assists.length > 0){
 
             for(let x = 0; x < assists.length; x++){
 
-                const assist = parseInt(assists[x]);
-
-                if(assist === assist){
-
-                    c.assistPlayers.push(players[assist] ?? {"name": "Not Found", "country": "xx"});
-                }
+                const assist = assists[x];
+                c.assistPlayers.push(players[assist] ?? {"name": "Not Found", "country": "xx"});       
             }
         }        
     }
@@ -230,7 +215,6 @@ export default async function handler(req, res){
 
     return new Promise(async (resolve, reject) =>{
 
-      
         const ctfManager = new CTF();
         const playerManager = new Players();
         const matchManager = new Matches();
@@ -294,6 +278,9 @@ export default async function handler(req, res){
             const data = await ctfManager.getMapsCapRecords(mapIds);
 
             const playerIds = getUniquePlayersAlt(data);
+
+            console.log(playerIds);
+
             const playerNames = await playerManager.getNamesByIds(playerIds, true);
 
             const mapManager = new Maps();
@@ -301,9 +288,10 @@ export default async function handler(req, res){
             const mapNames = await mapManager.getNames(Object.keys(data));
 
             for(const [mapId, mapData] of Object.entries(data)){
-
                 mapData.name = mapNames[mapId] ?? "Not Found";
             }
+
+            console.log(data);
 
             res.status(200).json({"data": data, "playerNames": playerNames, "mapNames": mapNames});
             resolve();

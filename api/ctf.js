@@ -1178,7 +1178,14 @@ class CTF{
 
         const result = await mysql.simpleQuery(query, [mapId]);
 
-        if(result.length > 0) return result[0];
+        if(result.length > 0){
+
+            const data = result[0];
+            const assistIds = data.assists.split(",").map(value => parseInt(value));
+
+            data.assists = assistIds;
+            return data;
+        }
 
         return null;
     }

@@ -58,9 +58,9 @@ class CTFCapRecords extends React.Component{
 
         const arrayData = [];
 
-        for(const [key, value] of Object.entries(this.state.data)){
+        for(const data of Object.values(this.state.data)){
 
-            arrayData.push({"name": value.name, "data": value});
+            arrayData.push({"name": data.name, "data": data});
         }
 
 
@@ -133,6 +133,12 @@ class CTFCapRecords extends React.Component{
         </Table2>
     }
 
+    createAssistedPlayers(capPlayer, grabPlayer, assistedIds){
+
+        const players = {};
+
+    }
+
     renderAssistedCaps(){
 
         const rows = [];
@@ -152,9 +158,10 @@ class CTFCapRecords extends React.Component{
 
             console.log(d.assisted);
 
-            const assistedPlayerIds = d.assisted.assists.split(",");
+            const assistedPlayerIds = d.assisted.assists;
 
-            console.log(assistedPlayerIds);
+            this.createAssistedPlayers(capPlayer, grabPlayer, assistedPlayerIds);
+
 
             rows.push(<tr key={i}>
                 <td className="text-left">
