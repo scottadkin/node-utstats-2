@@ -27,10 +27,12 @@ function getUniquePlayers(data){
 
             if(d.assists.length > 0){
 
-                for(let i = 0; i < d.assists.length; i++){
+                const assists = d.assists;
 
-                    if(playerIds.indexOf(d.assists[i]) === -1){
-                        playerIds.push(d.assists[i]);
+                for(let i = 0; i < assists.length; i++){
+
+                    if(playerIds.indexOf(assists[i]) === -1){
+                        playerIds.push(assists[i]);
                     }   
                 }
             }
@@ -139,6 +141,7 @@ function setCapDetails(caps, players, dates, records){
         c.offset = Math.abs(offset);
 
         const assists = c.assists;
+
         c.assistPlayers = [];
 
         if(assists.length > 0){
@@ -341,8 +344,6 @@ export default async function handler(req, res){
             return;
 
         }else if(mode === "singleplayercaprecords"){
-
-            //console.log(playerId);
 
             const mapManager = new Maps();
             const data = await ctfManager.getPlayerCapRecords(playerId);

@@ -1129,7 +1129,18 @@ class CTF{
 
             const vars = [mapId, start, perPage];
 
-            return await mysql.simpleQuery(query, vars);
+            const result = await mysql.simpleQuery(query, vars);
+
+            for(let i = 0; i < result.length; i++){
+
+                if(result[i].assists !== ""){
+
+                    result[i].assists = result[i].assists.split(",").map(id => parseInt(id));
+                }
+            }
+
+            return result;
+
 
         }else{
             console.log(`Start is NaN`);

@@ -280,7 +280,6 @@ class CombogibMapTotals extends React.Component{
         let instagib = 0;
 
         const d = this.state.data;
-        console.log(d);
 
         if(d.combo_kills > 0){
             combos = (d.combo_kills / d.matches).toFixed(2);

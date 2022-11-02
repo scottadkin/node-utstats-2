@@ -181,26 +181,24 @@ class MapFastestCaps extends React.Component{
 
             let assistElems = [];
 
-            const assists = d.assists.split(",");
+            const assists = d.assists;
 
             for(let x = 0; x < assists.length; x++){
 
-                const a = parseInt(assists[x]);
+                const a = assists[x];
 
                 const currentPlayer = this.getPlayer(a);
 
-                if(a === a){
+                assistElems.push(<React.Fragment key={`${i}_${Math.floor(Math.random() * 999999)}`}>
+                    <Link href={`/player/${currentPlayer.id}`}>
+                        <a>
+                            <CountryFlag host={this.props.host} country={currentPlayer.country}/>{currentPlayer.name}
+                        </a>
+                    </Link>
+                    {(x < assists.length - 1) ? ", " : ""}
+                </React.Fragment>);
 
-                    assistElems.push(<React.Fragment key={`${i}_${Math.floor(Math.random() * 999999)}`}>
-                        <Link href={`/player/${currentPlayer.id}`}>
-                            <a>
-                                <CountryFlag host={this.props.host} country={currentPlayer.country}/>{currentPlayer.name}
-                            </a>
-                        </Link>
-                        {(x < assists.length - 1) ? ", " : ""}
-                    </React.Fragment>);
-
-                }
+               
             }
 
             if(this.state.mode !== 1){
