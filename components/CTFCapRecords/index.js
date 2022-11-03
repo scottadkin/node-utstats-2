@@ -1,5 +1,5 @@
 import React from "react";
-import Option2 from "../Option2";
+import Option2Alt from "../Option2Alt";
 import Table2 from "../Table2";
 import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
@@ -14,12 +14,7 @@ class CTFCapRecords extends React.Component{
         super(props);
 
         this.state = { "loaded": false, "error": null, "data": null, "players": null};
-        this.changeMode = this.changeMode.bind(this);
-    }
-
-    changeMode(id){
-
-        this.props.changeMode(id);
+       
     }
 
     async loadData(){
@@ -258,7 +253,11 @@ class CTFCapRecords extends React.Component{
                     <div className="select-label">
                         Capture Type
                     </div>
-                    <Option2 title1="Solo Caps" title2="Assisted Caps" value={this.props.mode} changeEvent={this.changeMode}/>
+                    <Option2Alt 
+                        title1="Solo Caps" url1={`/records/?mode=2&cm=0`} 
+                        title2="Assisted Caps" url2={`/records/?mode=2&cm=1`} 
+                        value={this.props.mode}
+                    />
                 </div>
             </div>
             <div className="m-top-25">

@@ -29,18 +29,12 @@ class Records extends React.Component{
             "perPage": this.props.perPage,
             "totalResults": 0,
             "data": null,
-            "capMode": parseInt(this.props.capMode)
         };
 
         this.changeType = this.changeType.bind(this);
         this.changePerPage = this.changePerPage.bind(this);
-        this.changeCapMode = this.changeCapMode.bind(this);
     }
 
-    changeCapMode(id){
-
-        this.setState({"capMode": id});
-    }
 
     changeType(e){
 
@@ -185,9 +179,9 @@ class Records extends React.Component{
             types = this.props.validTypes.matches;
         }else if(this.props.mode === 2){
 
-            if(this.state.capMode === 0){
+            if(this.props.capMode === 0){
                 return "Solo Cap Records";
-            }else if(this.state.capMode === 1){
+            }else if(this.props.capMode === 1){
                 return "Assisted Cap Records";
             }
         }
@@ -285,7 +279,7 @@ class Records extends React.Component{
 
         if(this.props.mode !== 2) return null;
 
-        return <CTFCapRecords mode={this.state.capMode} changeMode={this.changeCapMode}/>;
+        return <CTFCapRecords mode={this.props.capMode} />;
     }
 
     renderElems(){

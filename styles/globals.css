@@ -447,7 +447,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .default-select{
-	background-color:var(--color-3a);
+	background-color:var(--color-3);
 	color:white;
 	border:1px solid var(--border-color-3);
 	font-size:16px;
