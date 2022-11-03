@@ -230,12 +230,6 @@ class CTFCapRecords extends React.Component{
         </Table2>
     }
 
-    renderLoading(){
-
-        if(this.state.loaded) return null;
-
-        return <Loading />;
-    }
 
     renderError(){
 
@@ -261,7 +255,7 @@ class CTFCapRecords extends React.Component{
                 </div>
             </div>
             <div className="m-top-25">
-                {this.renderLoading()}
+                <Loading value={this.state.loaded}/>
                 {this.renderError()}
                 {this.renderSoloCaps()}
                 {this.renderAssistedCaps()}

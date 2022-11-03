@@ -11,6 +11,13 @@ class Loading extends React.Component{
     }
 
     render(){
+
+
+        if(this.props.value !== undefined){
+
+            if(this.props.value) return null;
+        }
+
         return <div className={styles.wrapper}>
         <Image src={`/images/loading.png`} width={32} height={32} alt="Image"/>
         <div className={styles.text}>

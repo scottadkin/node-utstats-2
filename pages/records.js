@@ -14,6 +14,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import Table2 from "../components/Table2";
 import CountryFlag from "../components/CountryFlag";
 import CTFCapRecords from "../components/CTFCapRecords";
+import CombogibRecords from "../components/CombogibRecords";
 
 class Records extends React.Component{
 
@@ -22,7 +23,7 @@ class Records extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 2, 
+            "mode": 3, 
             "loaded": false, 
             "error": null, 
             "type": this.props.type, 
@@ -56,8 +57,8 @@ class Records extends React.Component{
             mode = "totals";
         }else if(mode === 1){
             mode = "match";
-        }else if(mode === 2){
-            this.setState({"loaded": true});
+        }else if(mode >= 2){
+            this.setState({"loaded": true, "totalResults": 0});
             return;
         }
 
@@ -174,9 +175,13 @@ class Records extends React.Component{
         let types = [];
 
         if(this.props.mode === 0){
+
             types = this.props.validTypes.totals;
+
         }else if(this.props.mode === 1){
+
             types = this.props.validTypes.matches;
+
         }else if(this.props.mode === 2){
 
             if(this.props.capMode === 0){
@@ -184,6 +189,10 @@ class Records extends React.Component{
             }else if(this.props.capMode === 1){
                 return "Assisted Cap Records";
             }
+
+        }else if(this.props.mode === 3){
+
+            return "Combogib Records";
         }
 
         for(let i = 0; i < types.length; i++){
@@ -282,6 +291,13 @@ class Records extends React.Component{
         return <CTFCapRecords mode={this.props.capMode} />;
     }
 
+    renderCombogibRecords(){
+
+        if(this.props.mode !== 3) return null;
+
+        return <CombogibRecords mode={this.props.capMode}/>;
+    }
+
     renderElems(){
 
         if(this.state.error !== null) return <ErrorMessage title="Records" text={this.state.error}/>
@@ -310,10 +326,11 @@ class Records extends React.Component{
                 </Link>
             </div>
             {this.renderTotalOptions()}
-            {(!this.state.loaded) ? <Loading /> : null}
+            {<Loading value={this.state.loaded}/> }
             {this.renderPagination()}
             {this.renderTable()}
             {this.renderCTFCapRecords()}
+            {this.renderCombogibRecords()}
             {this.renderPagination()}    
         </div>
     }
@@ -369,6 +386,7 @@ export async function getServerSideProps({req, query}){
     let perPage = parseInt(query.pp) ?? 25;
     if(perPage !== perPage) perPage = 25;
 
+    //also used as combo mode
     let capMode = parseInt(query.cm) ?? 0;
     if(capMode !== capMode) capMode = 0;
 
