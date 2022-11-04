@@ -15,6 +15,8 @@ import Table2 from "../components/Table2";
 import CountryFlag from "../components/CountryFlag";
 import CTFCapRecords from "../components/CTFCapRecords";
 import CombogibRecords from "../components/CombogibRecords";
+import Combogib from "../api/combogib";
+
 
 class Records extends React.Component{
 
@@ -46,6 +48,7 @@ class Records extends React.Component{
 
         this.setState({"perPage": e.target.value});
     }
+    
 
 
     async loadData(){
@@ -169,6 +172,25 @@ class Records extends React.Component{
         </div>
     }
 
+    getComboTitleString(){
+
+        const mode = parseInt(this.props.capMode);
+
+        const recordTypes = (mode === 0) ? "match" : "totals";
+
+
+        const type = (this.props.type === "kills") ? "combo_kills" : this.props.type;
+
+        const types = {};
+
+        this.props.validComboTypes[recordTypes].map((obj) =>{
+            types[obj.name] = obj.display;
+        });
+
+        return types[type] ?? "Not found";
+       
+    }
+
 
     getTypeTitle(){
 
@@ -192,7 +214,9 @@ class Records extends React.Component{
 
         }else if(this.props.mode === 3){
 
-            return "Combogib Records";
+            const modeString = (this.props.capMode === 0) ? "Match" : "Player Total";
+
+            return `${this.getComboTitleString()} ${modeString} Combogib Records`;
         }
 
         for(let i = 0; i < types.length; i++){
@@ -295,7 +319,11 @@ class Records extends React.Component{
 
         if(this.props.mode !== 3) return null;
 
-        return <CombogibRecords mode={this.props.capMode}/>;
+
+        return <CombogibRecords mode={this.props.capMode} page={this.props.page} perPage={this.props.perPage} 
+            type={(this.props.type === "kills") ? "combo_kills" : this.props.type}
+            validTypes={this.props.validComboTypes}
+        />;
     }
 
     renderElems(){
@@ -342,7 +370,7 @@ class Records extends React.Component{
         if(m === 0) return `${this.getTypeTitle()} - Player Total Records`;
         if(m === 1) return `${this.getTypeTitle()} - Player Match Records`;
         if(m === 2) return `${this.getTypeTitle()} - CTF Cap Records`;
-        if(m === 3) return `${this.getTypeTitle()} - Combogib Records`;
+        if(m === 3) return `${this.getTypeTitle()}`;
 
         return "Unknown";
     }
@@ -399,6 +427,10 @@ export async function getServerSideProps({req, query}){
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
+    const comboManager = new Combogib();
+
+    const validComboTypes = comboManager.getValidRecordTypes();
+
     return {
         "props": {
             "host": req.headers.host,
@@ -408,6 +440,7 @@ export async function getServerSideProps({req, query}){
             "perPage": perPage,
             "capMode": capMode,
             "validTypes": validTypes,
+            "validComboTypes": validComboTypes,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "pageSettings": JSON.stringify(pageSettings)

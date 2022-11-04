@@ -489,6 +489,38 @@ class Combogib{
         return [];
     }
 
+
+    getValidRecordTypes(){
+
+        const singleMatch = [
+            {"name": "primary_kills", "display": "Instagib Kills(Primary Fire)"},
+            {"name": "primary_deaths", "display": "Instagib Deaths(Primary Fire)"},
+            {"name": "primary_kpm", "display": "Instagib Kills Per Minute"},
+            {"name": "combo_kills", "display": "Combo Kills"},
+            {"name": "combo_deaths", "display": "Combo Deaths"},
+            {"name": "combo_kpm", "display": "Combo Kills Per Minute"},
+            {"name": "insane_kills", "display": "Insane Combo Kills"},
+            {"name": "insane_deaths", "display": "Insane Combo Deaths"},
+            {"name": "ball_kills", "display": "ShockBall Kills"},
+            {"name": "ball_deaths", "display": "ShockBall Deaths"},
+            {"name": "ball_kpm", "display": "ShockBall Kills Per Minute"},
+
+            {"name": "best_single_combo", "display": "Best Single Combo"},
+            {"name": "best_single_insane", "display": "Best Single Insane Combo"},
+            {"name": "best_single_shockball", "display": "Best Single ShockBall"},
+
+            {"name": "best_primary_kills", "display": "Most Instagib Kills(Single Life)"},
+            {"name": "best_combo_kills", "display": "Most Combo Kills(Single Life)"},
+            {"name": "best_insane_kills", "display": "Most Insane Combo Kills(Single Life)"},
+            {"name": "best_ball_kills", "display": "Most ShockBall Kills(Single Life)"},
+        ];
+
+        const playerTotals = [];
+
+
+        return {"match": singleMatch, "totals": playerTotals};
+    }
+
 }
 
 module.exports = Combogib;

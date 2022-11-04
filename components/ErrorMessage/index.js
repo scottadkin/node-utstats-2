@@ -10,6 +10,8 @@ class ErrorMessage extends React.Component{
 
     render(){
 
+        if(this.props.text === null) return null;
+
         return <div className={styles.wrapper}>
             <div className={styles.title}>
                 Error loading <b>{this.props.title ?? "Component"}</b>

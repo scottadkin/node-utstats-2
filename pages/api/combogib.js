@@ -116,6 +116,11 @@ export default async function handler(req, res){
             
             res.status(200).json({"data": data});
             return;
+
+        }else if(mode === "validtypes"){
+
+            res.status(200).json(combo.getValidRecordTypes());
+            return;
         }
 
     }catch(err){
