@@ -431,6 +431,20 @@ export async function getServerSideProps({req, query}){
 
     const validComboTypes = comboManager.getValidRecordTypes();
 
+    if(mode === 3){
+        
+        const dataKey = (capMode === 0) ? "match" : "totals";
+
+        const found = validComboTypes[dataKey].find((entry) =>{ 
+            return entry.name === type;
+        });
+
+        if(found === undefined){
+            type = "combo_kills";
+        }
+
+    }
+
     return {
         "props": {
             "host": req.headers.host,
