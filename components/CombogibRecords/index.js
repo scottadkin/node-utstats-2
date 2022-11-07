@@ -123,9 +123,7 @@ class CombogibRecords extends React.Component{
         if(this.props.validTypes === null) return null;
 
         const options = [];
-
         const data = (this.props.mode === 0) ? [...this.props.validTypes.match] : [...this.props.validTypes.totals];
-
 
         data.sort((a, b) =>{
 
@@ -143,7 +141,6 @@ class CombogibRecords extends React.Component{
             const {name, display} = data[i];
             options.push(<option key={name} value={name}>{display}</option>);
         }
- 
 
         return <select className="default-select" value={this.state.recordType} onChange={this.changeRecordType}>
             {options}
@@ -156,9 +153,7 @@ class CombogibRecords extends React.Component{
         if(!this.state.loaded) return null;
         if(this.state.data === null) return null;
 
-
         const rows = [];
-
 
         for(let i = 0; i < this.state.data.length; i++){
 
@@ -198,7 +193,7 @@ class CombogibRecords extends React.Component{
         }
 
         return <div>
-            <Table2 header="Why do dogs have wet noses?" width={1}>
+            <Table2 header={this.getTitle()} width={1}>
                 <tr>
                     <th>Place</th>
                     <th>Player</th>
@@ -210,6 +205,22 @@ class CombogibRecords extends React.Component{
                 {rows}
             </Table2>
             </div>
+    }
+
+
+    getTitle(){
+
+        if(this.props.validTypes === null) return "";
+
+        const key = (this.props.mode === 0) ? "match" : "totals";
+
+        for(let i = 0; i < this.props.validTypes[key].length; i++){
+
+            const {name, display} = this.props.validTypes[key][i];
+            if(this.props.type === name) return display;
+        }
+
+        return "Not Found";
     }
 
     render(){
