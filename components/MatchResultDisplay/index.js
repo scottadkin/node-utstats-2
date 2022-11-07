@@ -28,7 +28,7 @@ class MatchResultDisplay extends React.Component{
 
     reduceNameLength(name){
 
-        const maxLength = 60;
+        const maxLength = 45;
 
         if(name.length > maxLength){
 
