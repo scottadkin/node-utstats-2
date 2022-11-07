@@ -3,6 +3,10 @@ import Loading from "../Loading";
 import Option2Alt from "../Option2Alt";
 import ErrorMessage from "../ErrorMessage";
 import Link from "next/link";
+import Table2 from "../Table2";
+import CountryFlag from "../CountryFlag";
+import Functions from "../../api/functions";
+import Pagination from "../Pagination";
 
 
 class CombogibRecords extends React.Component{
@@ -14,7 +18,8 @@ class CombogibRecords extends React.Component{
         this.state = {
             "loaded": false, "error": null, "validTypes": null,
             "perPage": this.props.perPage, "recordType": this.props.type,
-            "data": null
+            "data": null,
+            "totalResults": null
         };
 
         this.changePerPage = this.changePerPage.bind(this);
@@ -38,6 +43,13 @@ class CombogibRecords extends React.Component{
         await this.loadData();
     }
 
+    async componentDidUpdate(prevProps){
+
+        if(prevProps.type !== this.props.type || this.props.page !== prevProps.page){
+            await this.loadData();
+        }
+    }
+
     bValidType(){
 
         const types = (this.props.mode === 0) ? this.props.validTypes.match : this.props.validTypes.totals;
@@ -50,7 +62,31 @@ class CombogibRecords extends React.Component{
         return true;
     }
 
+
+    async loadTotalResults(){
+
+
+        const req = await fetch("/api/combogib", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "totalmatchrecords"})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            this.setState({"error": res.error});
+        }else{
+
+            this.setState({"totalResults": res.results});
+        }
+    }
+
     async loadData(){
+
+        this.setState({"error": null});
+
+        await this.loadTotalResults();
 
         const mode = (this.props.mode === 0) ? "matchrecords" : "totalrecords";
 
@@ -65,12 +101,20 @@ class CombogibRecords extends React.Component{
         const req = await fetch("/api/combogib", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": mode, "type": this.state.recordType.toLowerCase()})
+            "body": JSON.stringify({"mode": mode, "type": this.state.recordType.toLowerCase(), "page": this.props.page - 1})
         });
 
         const res = await req.json();
 
-        console.log(res);
+        if(res.error !== undefined){
+
+            this.setState({"error": res.error});
+        }else{
+            this.setState({"data": res.data});
+        }
+
+        this.setState({"loaded": true});
+
     }
 
     renderOptions(){
@@ -106,11 +150,81 @@ class CombogibRecords extends React.Component{
         </select>
     }
 
+
+    renderData(){
+
+        if(!this.state.loaded) return null;
+        if(this.state.data === null) return null;
+
+
+        const rows = [];
+
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const {player, date, value, playtime, map} = this.state.data[i];
+
+            const matchId = this.state.data[i].match_id;
+            const mapId = this.state.data[i].map_id;
+
+            const place = i + 1 + ((this.props.page - 1) * this.state.perPage);
+
+            rows.push(<tr key={i}>
+                <td className="place">{place}{Functions.getOrdinal(place)}</td>
+                <td className="text-left">
+                    <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
+                        <a>
+                            <CountryFlag country={player.country}/>{player.name}
+                        </a>
+                    </Link>
+                </td>
+                <td className="small-font grey">
+                    <Link href={`/match/${matchId}/`}>
+                        <a>
+                            {Functions.convertTimestamp(date,true)}
+                        </a>
+                    </Link>
+                </td>
+                <td>
+                    <Link href={`/map/${mapId}/`}>
+                        <a>
+                            {map}
+                        </a>
+                    </Link>                
+                </td>
+                <td>{Functions.MMSS(playtime)}</td>
+                <td>{value}</td>
+            </tr>);
+        }
+
+        return <div>
+            <Table2 header="Why do dogs have wet noses?" width={1}>
+                <tr>
+                    <th>Place</th>
+                    <th>Player</th>
+                    <th>Date</th>
+                    <th>Map</th>
+                    <th>Playtime</th>
+                    <th>Value</th>
+                </tr>
+                {rows}
+            </Table2>
+            </div>
+    }
+
     render(){
+
+        const pagination = <Pagination 
+            url={`/records/?mode=3&type=${this.state.recordType}&pp=${this.state.perPage}&page=`}
+            currentPage={this.props.page}
+            perPage={this.state.perPage}
+            results={(this.state.totalResults !== null) ? this.state.totalResults : 0}
+            
+        />
 
         return <div>
             <div className="default-sub-header">Select Record Type</div>
-            <div className="form">
+            <div className="form m-bottom-25">
                 <div className="select-row">
                     <div className="select-label">Record Mode</div>
                     <Option2Alt 
@@ -140,6 +254,9 @@ class CombogibRecords extends React.Component{
             </div>
             <Loading value={this.state.loaded}/>
             <ErrorMessage title="CombogibRecords" text={this.state.error}/>
+            {pagination}
+            {this.renderData()}
+            {pagination}
         </div>
     }
 }

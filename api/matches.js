@@ -1481,7 +1481,6 @@ class Matches{
         for(let i = 0; i < result.length; i++){
 
             const r = result[i];
-
             obj[r.id] = r.date;
         }
 

@@ -557,15 +557,6 @@ class Combogib{
         return !types.indexOf(recordType) === -1;
     }
 
-    getTotalsTableEquivalentColumnName(columnName){
-        
-        const types = {
-            "best_combo_kills": "most_combo_kills",
-            "best_insane_kills": "most_insane_kills",
-            "best_ball_kills": "most_shockball_kills",
-            "best_combo_kills": "most_combo_kills",
-        };
-    }
 
     async getPlayerBestMatchValues(recordType, page, perPage){
 
@@ -573,13 +564,9 @@ class Combogib{
         if(perPage === undefined) page = 25;
 
         if(this.bValidRecordType(recordType, 0)){
-
-            const bHasMatchId = this.bRequiresMatchId(recordType);
-
-            console.log(bHasMatchId);
             
-            const query = `SELECT player_id,total_matches,${recordType.toLowerCase()} as value FROM nstats_player_combogib 
-            WHERE gametype_id=0 AND map_id=0 ORDER BY value DESC LIMIT ?,?`;
+            const query = `SELECT match_id,map_id,player_id,playtime,TRUNCATE(${recordType.toLowerCase()},3) as value FROM nstats_match_combogib 
+            ORDER BY value DESC LIMIT ?,?`;
 
             let start = parseInt(page * perPage);
 
@@ -597,6 +584,15 @@ class Combogib{
 
     }
         
+
+    async getTotalMatchRows(){
+
+        const query = "SELECT COUNT(*) as total_rows FROM nstats_match_combogib";
+
+        const result = await mysql.simpleQuery(query);
+
+        return result[0].total_rows;
+    }
 
 }
 

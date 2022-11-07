@@ -1,6 +1,8 @@
 import Combogib from "../../api/combogib";
 import Players from "../../api/players";
 import Functions from "../../api/functions";
+import Matches from "../../api/matches";
+import Maps from "../../api/maps";
 
 export default async function handler(req, res){
 
@@ -18,13 +20,26 @@ export default async function handler(req, res){
 
         const combo = new Combogib();
 
-        const requiresPlayerManager = ["maprecord", "maptotal"];
+        const requiresPlayerManager = ["maprecord", "maptotal", "matchrecords"];
+        const requiresMatchesManager = ["matchrecords"];
+        const requiresMapsManager = ["matchrecords"];
 
         let playerManager = null;
 
         if(requiresPlayerManager.indexOf(mode) !== -1){
-
             playerManager = new Players();
+        }
+
+        let matchManager = null;
+
+        if(requiresMatchesManager.indexOf(mode) !== -1){
+            matchManager = new Matches();
+        }
+
+        let mapManager = null;
+
+        if(requiresMatchesManager.indexOf(mode) !== -1){
+            mapManager = new Maps();
         }
 
         if(mode === "match"){
@@ -60,6 +75,7 @@ export default async function handler(req, res){
             const bAnyMapData = await combo.bMapHaveTotalsData(mapId);
 
             if(bAnyMapData){
+
                 const data = await combo.getMapRecords(mapId, dataType, page, perPage);
                 const totalResults = await combo.getTotalMapRecords(mapId, dataType);
 
@@ -125,11 +141,43 @@ export default async function handler(req, res){
         }else if(mode === "matchrecords"){
 
             const type = req.body.type ?? "combo_kills";
+            let page = parseInt(req.body.page) ?? 0;
 
-            const result = await combo.getPlayerBestMatchValues(type, 0, 25);
+            if(page < 0) page = 0;
 
-            console.log(result);
-            res.status(200).json({});
+            const result = await combo.getPlayerBestMatchValues(type, page, 25);
+
+            const matchIds = Functions.getUniqueValues(result, "match_id");
+            const matchDates = await matchManager.getDates(matchIds);
+
+
+            const mapIds = Functions.getUniqueValues(result, "map_id");
+            const mapNames = await mapManager.getNames(mapIds);
+
+            
+
+            const playerIds = Functions.getUniqueValues(result, "player_id");
+            const players = await playerManager.getNamesByIds(playerIds, true);
+
+            for(let i = 0; i < result.length; i++){
+
+                const player = Functions.getPlayer(players, result[i].player_id, true);
+                result[i].player = player;
+                delete result[i].player_id;
+
+                result[i].date = matchDates[result[i].match_id] ?? "0";
+                result[i].map = mapNames[result[i].map_id] ?? "Not Found";
+            }
+
+            res.status(200).json({"data": result});
+            return;
+
+        }else if(mode === "totalmatchrecords"){
+
+
+            const totalResults = await combo.getTotalMatchRows();
+
+            res.status(200).json({"results": totalResults});
             return;
         }
 
