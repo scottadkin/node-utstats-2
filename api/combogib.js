@@ -33,10 +33,10 @@ class Combogib{
         matchId = parseInt(matchId);
 
         const query = `SELECT 
-        ball_deaths,ball_efficiency,ball_kills,ball_kpm,best_ball_kills,best_combo_kills,best_primary_kills,
+        shockball_deaths,shockball_efficiency,shockball_kills,shockball_kpm,best_shockball_spree,best_combo_spree,best_primary_spree,
         best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,combo_kpm,
         player_id,primary_deaths,primary_efficiency,primary_kills,primary_kpm,insane_kills,
-        insane_deaths,insane_efficiency,insane_kpm,best_insane_kills,best_single_insane
+        insane_deaths,insane_efficiency,insane_kpm,best_insane_spree,best_single_insane
 
         FROM nstats_match_combogib WHERE match_id=?`;
 
@@ -47,10 +47,10 @@ class Combogib{
     async getPlayerMatchData(playerId, matchId){
         
         const query = `SELECT 
-        ball_deaths,ball_efficiency,ball_kpm,ball_kills,best_ball_kills,best_combo_kills,best_primary_kills,
+        shockball_deaths,shockball_efficiency,shockball_kpm,shockball_kills,best_shockball_spree,best_combo_spree,best_primary_spree,
         best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,combo_kpm,
         player_id,primary_deaths,primary_efficiency,primary_kills,primary_kpm,insane_kills,
-        insane_deaths,insane_efficiency,insane_kpm,best_insane_kills,best_single_insane
+        insane_deaths,insane_efficiency,insane_kpm,best_insane_spree,best_single_insane
         FROM nstats_match_combogib WHERE match_id=? AND player_id=?`;
 
         const result = await mysql.simpleQuery(query, [matchId, playerId]);
@@ -71,28 +71,6 @@ class Combogib{
     }
     
 
-    bValidRecordType(recordType){
-
-        const validRecordTypes = [
-            "combo_kills",
-            "insane_kills",
-            "ball_kills",
-            "primary_kills",
-            "best_single_combo",
-            "best_single_insane",
-            "best_single_shockball",
-            "best_combo_kills",
-            "best_insane_kills",
-            "best_ball_kills",
-            "best_primary_kills",
-        ];
-        const typeIndex = validRecordTypes.indexOf(recordType);
-
-        if(typeIndex === -1) return false;
-
-        return true;
-    }
-
     async getMapRecords(mapId, recordType, page, perPage){
 
         let start = 0;
@@ -101,7 +79,7 @@ class Combogib{
             start = page * perPage;
         }
 
-        if(this.bValidRecordType(recordType)){
+        if(this.bValidRecordType(recordType, "match")){
 
             const query = `SELECT player_id,match_id,MAX(${recordType}) as best_value,playtime FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?
             GROUP BY player_id ORDER BY best_value DESC LIMIT ?,?`;
@@ -118,7 +96,7 @@ class Combogib{
 
     async getTotalMapRecords(mapId, recordType){
 
-        if(this.bValidRecordType(recordType)){
+        if(this.bValidRecordType(recordType, "match")){
 
             const query = `SELECT COUNT(DISTINCT player_id) as unique_players FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?`;
 
@@ -200,8 +178,8 @@ class Combogib{
         playtime=playtime+?,
         primary_kills=primary_kills+?,
         primary_kpm=primary_kills/(playtime / 60),
-        ball_kills=ball_kills+?,
-        ball_kpm=ball_kills/(playtime / 60),
+        shockball_kills=shockball_kills+?,
+        shockball_kpm=shockball_kills/(playtime / 60),
         combo_kills=combo_kills+?,
         combo_kpm=combo_kills/(playtime / 60),
         insane_kills=insane_kills+?,
@@ -219,21 +197,21 @@ class Combogib{
         best_single_insane_match_id=IF(best_single_insane < ?, ?, best_single_insane_match_id),
         best_single_insane=IF(best_single_insane < ?, ?, best_single_insane),
 
-        best_primary_kills_player_id=IF(best_primary_kills < ?, ?, best_primary_kills_player_id),
-        best_primary_kills_match_id=IF(best_primary_kills < ?, ?, best_primary_kills_match_id),
-        best_primary_kills=IF(best_primary_kills < ?, ?, best_primary_kills),
+        best_primary_spree_player_id=IF(best_primary_spree < ?, ?, best_primary_spree_player_id),
+        best_primary_spree_match_id=IF(best_primary_spree < ?, ?, best_primary_spree_match_id),
+        best_primary_spree=IF(best_primary_spree < ?, ?, best_primary_spree),
 
-        best_ball_kills_player_id=IF(best_ball_kills < ?, ?, best_ball_kills_player_id),
-        best_ball_kills_match_id=IF(best_ball_kills < ?, ?, best_ball_kills_match_id),
-        best_ball_kills=IF(best_ball_kills < ?, ?, best_ball_kills),
+        best_shockball_spree_player_id=IF(best_shockball_spree < ?, ?, best_shockball_spree_player_id),
+        best_shockball_spree_match_id=IF(best_shockball_spree < ?, ?, best_shockball_spree_match_id),
+        best_shockball_spree=IF(best_shockball_spree < ?, ?, best_shockball_spree),
 
-        best_combo_kills_player_id=IF(best_combo_kills < ?, ?, best_combo_kills_player_id),
-        best_combo_kills_match_id=IF(best_combo_kills < ?, ?, best_combo_kills_match_id),
-        best_combo_kills=IF(best_combo_kills < ?, ?, best_combo_kills),
+        best_combo_spree_player_id=IF(best_combo_spree < ?, ?, best_combo_spree_player_id),
+        best_combo_spree_match_id=IF(best_combo_spree < ?, ?, best_combo_spree_match_id),
+        best_combo_spree=IF(best_combo_spree < ?, ?, best_combo_spree),
 
-        best_insane_kills_player_id=IF(best_insane_kills < ?, ?, best_insane_kills_player_id),
-        best_insane_kills_match_id=IF(best_insane_kills < ?, ?, best_insane_kills_match_id),
-        best_insane_kills=IF(best_insane_kills < ?, ?, best_insane_kills),
+        best_insane_spree_player_id=IF(best_insane_spree < ?, ?, best_insane_spree_player_id),
+        best_insane_spree_match_id=IF(best_insane_spree < ?, ?, best_insane_spree_match_id),
+        best_insane_spree=IF(best_insane_spree < ?, ?, best_insane_spree),
 
         max_combo_kills_player_id=IF(max_combo_kills < ?, ?, max_combo_kills_player_id),
         max_combo_kills_match_id=IF(max_combo_kills < ?, ?, max_combo_kills_match_id),
@@ -243,9 +221,9 @@ class Combogib{
         max_insane_kills_match_id=IF(max_insane_kills < ?, ?, max_insane_kills_match_id),
         max_insane_kills=IF(max_insane_kills < ?, ?, max_insane_kills),
 
-        max_ball_kills_player_id=IF(max_ball_kills < ?, ?, max_ball_kills_player_id),
-        max_ball_kills_match_id=IF(max_ball_kills < ?, ?, max_ball_kills_match_id),
-        max_ball_kills=IF(max_ball_kills < ?, ?, max_ball_kills),
+        max_shockball_kills_player_id=IF(max_shockball_kills < ?, ?, max_shockball_kills_player_id),
+        max_shockball_kills_match_id=IF(max_shockball_kills < ?, ?, max_shockball_kills_match_id),
+        max_shockball_kills=IF(max_shockball_kills < ?, ?, max_shockball_kills),
 
         max_primary_kills_player_id=IF(max_primary_kills < ?, ?, max_primary_kills_player_id),
         max_primary_kills_match_id=IF(max_primary_kills < ?, ?, max_primary_kills_match_id),
@@ -532,9 +510,102 @@ class Combogib{
             {"name": "best_primary_spree", "display": "Best Instagib Killing Spree"},
         ];
 
+        const justMatchKeys = [];
 
-        return {"match": singleMatch, "totals": playerTotals};
+        for(let i = 0; i < singleMatch.length; i++){
+
+            const {name} = singleMatch[i];
+            justMatchKeys.push(name);
+        }
+
+        const justTotalKeys = [];
+
+        for(let i = 0; i < playerTotals.length; i++){
+
+            const {name} = playerTotals[i];
+            justTotalKeys.push(name);
+        }
+
+
+        return {"match": singleMatch, "totals": playerTotals, "matchKeys": justMatchKeys, "totalKeys": justTotalKeys};
     }
+
+    bValidRecordType(recordName, recordType){
+
+        const validTypes = this.getValidRecordTypes();
+
+        let key = "";
+
+        if(recordType === 0) key = "matchKeys";
+        if(recordType !== 0) key = "totalKeys";
+
+        if(validTypes[key].indexOf(recordName) !== -1) return true;
+
+        return false;
+    }
+
+
+    bRequiresMatchId(recordType){
+
+        recordType = recordType.toLowerCase();
+
+        const types = [
+            "best_single_combo",
+            "best_single_insane",
+            "best_single_shockball",
+            "most_combo_kills",
+            "most_insane_kills",
+            "most_shockball_kills",
+            "most_primary_kills",
+            "best_combo_spree",
+            "best_insane_spree",
+            "best_shockball_spree",
+            "best_primary_spree"
+        ];
+
+        return !types.indexOf(recordType) === -1;
+    }
+
+    getTotalsTableEquivalentColumnName(columnName){
+        
+        const types = {
+            "best_combo_kills": "most_combo_kills",
+            "best_insane_kills": "most_insane_kills",
+            "best_ball_kills": "most_shockball_kills",
+            "best_combo_kills": "most_combo_kills",
+        };
+    }
+
+    async getPlayerBestMatchValues(recordType, page, perPage){
+
+        if(page === undefined) page = 0;
+        if(perPage === undefined) page = 25;
+
+        if(this.bValidRecordType(recordType, 0)){
+
+            const bHasMatchId = this.bRequiresMatchId(recordType);
+
+            console.log(bHasMatchId);
+            
+            const query = `SELECT player_id,total_matches,${recordType.toLowerCase()} as value FROM nstats_player_combogib 
+            WHERE gametype_id=0 AND map_id=0 ORDER BY value DESC LIMIT ?,?`;
+
+            let start = parseInt(page * perPage);
+
+            if(start !== start){
+                start = 0;
+            }
+
+            const vars = [start, perPage];
+
+            return await mysql.simpleQuery(query, vars);
+            
+        }else{
+            throw new Error(`${recordType} is not a valid type for player match combogib records.`);
+        }
+
+    }
+        
 
 }
 

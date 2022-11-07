@@ -121,6 +121,16 @@ export default async function handler(req, res){
 
             res.status(200).json(combo.getValidRecordTypes());
             return;
+
+        }else if(mode === "matchrecords"){
+
+            const type = req.body.type ?? "combo_kills";
+
+            const result = await combo.getPlayerBestMatchValues(type, 0, 25);
+
+            console.log(result);
+            res.status(200).json({});
+            return;
         }
 
     }catch(err){

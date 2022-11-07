@@ -61,7 +61,7 @@ class CombogibMapTotals extends React.Component{
                     <td>{Functions.toHours(d.playtime)} Hours</td>
                     <td>{Functions.ignore0(d.combo_kills)}</td>
                     <td>{Functions.ignore0(d.insane_kills)}</td>
-                    <td>{Functions.ignore0(d.ball_kills)}</td>
+                    <td>{Functions.ignore0(d.shockball_kills)}</td>
                     <td>{Functions.ignore0(d.primary_kills)}</td>
                 </tr>
             </Table2>
@@ -72,10 +72,10 @@ class CombogibMapTotals extends React.Component{
 
         const d = this.state.data;
 
-        const comboKillsPlayer = Functions.getPlayer(this.state.players, d.best_combo_kills_player_id, true);
-        const insaneKillsPlayer = Functions.getPlayer(this.state.players, d.best_insane_kills_player_id, true);
-        const ballKillsPlayer = Functions.getPlayer(this.state.players, d.best_ball_kills_player_id, true);
-        const primaryKillsPlayer = Functions.getPlayer(this.state.players, d.best_primary_kills_player_id, true);
+        const comboKillsPlayer = Functions.getPlayer(this.state.players, d.best_combo_spree_player_id, true);
+        const insaneKillsPlayer = Functions.getPlayer(this.state.players, d.best_insane_spree_player_id, true);
+        const ballKillsPlayer = Functions.getPlayer(this.state.players, d.best_shockball_spree_player_id, true);
+        const primaryKillsPlayer = Functions.getPlayer(this.state.players, d.best_primary_spree_player_id, true);
 
         return <div>
             <Table2 header="Kill Type Spree Records" width={1}>
@@ -289,8 +289,8 @@ class CombogibMapTotals extends React.Component{
             insane = (d.insane_kills / d.matches).toFixed(2);
         }
 
-        if(d.ball_kills > 0){
-            ball = (d.ball_kills / d.matches).toFixed(2);
+        if(d.shockball_kills > 0){
+            ball = (d.shockball_kills / d.matches).toFixed(2);
         }
 
         if(d.primary_kills > 0){
@@ -328,7 +328,7 @@ class CombogibMapTotals extends React.Component{
             <tr>
                 <td>{this.state.data.combo_kpm.toFixed(2)}</td>
                 <td>{this.state.data.insane_kpm.toFixed(2)}</td>
-                <td>{this.state.data.ball_kpm.toFixed(2)}</td>
+                <td>{this.state.data.shockball_kpm.toFixed(2)}</td>
                 <td>{this.state.data.primary_kpm.toFixed(2)}</td>
             </tr>
         </Table2>

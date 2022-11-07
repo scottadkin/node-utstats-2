@@ -74,7 +74,7 @@ class CombogibPlayerMatch extends React.Component{
             <tr>
                 <td>{d.combo_kills}</td>
                 <td>{d.insane_kills}</td>
-                <td>{d.ball_kills}</td>
+                <td>{d.shockball_kills}</td>
                 <td>{d.primary_kills}</td>
             </tr>
         </Table2>
@@ -95,7 +95,7 @@ class CombogibPlayerMatch extends React.Component{
             Functions.ignore0(d.combo_deaths),
             `${d.combo_efficiency.toFixed(2)}%`,
             `${bestKill} ${Functions.plural(bestKill, "kill")}`,
-            Functions.ignore0(d.best_combo_kills),
+            Functions.ignore0(d.best_combo_spree),
             d.combo_kpm.toFixed(2)
         ];
 
@@ -117,7 +117,7 @@ class CombogibPlayerMatch extends React.Component{
             Functions.ignore0(d.insane_deaths),
             `${d.insane_efficiency.toFixed(2)}%`,
             `${bestKill} ${Functions.plural(bestKill, "kill")}`,
-            Functions.ignore0(d.best_insane_kills),
+            Functions.ignore0(d.best_insane_spree),
             d.insane_kpm.toFixed(2)
         ];
 
@@ -136,12 +136,12 @@ class CombogibPlayerMatch extends React.Component{
         const bestKill = Functions.ignore0(d.best_single_shockball);
 
         const data = [
-            Functions.ignore0(d.ball_kills),
-            Functions.ignore0(d.ball_deaths),
-            `${d.ball_efficiency.toFixed(2)}%`,
+            Functions.ignore0(d.shockball_kills),
+            Functions.ignore0(d.shockball_deaths),
+            `${d.shockball_efficiency.toFixed(2)}%`,
             `${bestKill} ${Functions.plural(bestKill, "kill")}`,
-            Functions.ignore0(d.best_ball_kills),
-            d.ball_kpm.toFixed(2)
+            Functions.ignore0(d.best_shockball_spree),
+            d.shockball_kpm.toFixed(2)
         ];
 
         return this.renderBasicTable(titles, data, "ShockBall Stats");
@@ -160,7 +160,7 @@ class CombogibPlayerMatch extends React.Component{
             Functions.ignore0(d.primary_kills),
             Functions.ignore0(d.primary_deaths),
             `${d.primary_efficiency.toFixed(2)}%`,
-            Functions.ignore0(d.best_primary_kills),
+            Functions.ignore0(d.best_primary_spree),
             d.primary_kpm.toFixed(2)
         ];
 

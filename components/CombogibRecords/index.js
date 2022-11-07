@@ -13,7 +13,8 @@ class CombogibRecords extends React.Component{
 
         this.state = {
             "loaded": false, "error": null, "validTypes": null,
-            "perPage": this.props.perPage, "recordType": this.props.type
+            "perPage": this.props.perPage, "recordType": this.props.type,
+            "data": null
         };
 
         this.changePerPage = this.changePerPage.bind(this);
@@ -32,9 +33,44 @@ class CombogibRecords extends React.Component{
 
 
 
-    async componentDidUpdate(prevProps){
-     
-    
+    async componentDidMount(){
+        
+        await this.loadData();
+    }
+
+    bValidType(){
+
+        const types = (this.props.mode === 0) ? this.props.validTypes.match : this.props.validTypes.totals;
+
+        const result = types.find((entry) =>{
+            return entry.name === this.state.recordType;
+        });
+
+        if(result === undefined) return false;
+        return true;
+    }
+
+    async loadData(){
+
+        const mode = (this.props.mode === 0) ? "matchrecords" : "totalrecords";
+
+        const bValidType = this.bValidType();
+
+        if(!bValidType){
+
+            this.setState({"loaded": true, "error": `${this.state.recordType} is not a valid record type.`});
+            return;
+        }
+
+        const req = await fetch("/api/combogib", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": mode, "type": this.state.recordType.toLowerCase()})
+        });
+
+        const res = await req.json();
+
+        console.log(res);
     }
 
     renderOptions(){

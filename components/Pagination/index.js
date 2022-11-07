@@ -35,7 +35,7 @@ const Pagination = ({currentPage, results, perPage, url, anchor}) =>{
 
     if(pages !== pages) pages = 1;
 
-    if(pages <= 1) return null;
+    if(pages <= 1) return <div className="m-bottom-25"></div>;
 
     const elems = [];
     

@@ -35,6 +35,7 @@ class CombogibMatchStats extends React.Component{
 
     changeStatsSortBy(type){
 
+
         if(type === this.state.statsSortBy){
             this.setState({"bAscendingOrder": !this.state.bAscendingOrder});
             return;
@@ -114,8 +115,8 @@ class CombogibMatchStats extends React.Component{
             }
 
             if(this.state.sortType === "balls"){
-                a = a.ball_kills;
-                b = b.ball_kills;
+                a = a.shockball_kills;
+                b = b.shockball_kills;
             }
 
             if(this.state.sortType === "primary"){
@@ -188,7 +189,7 @@ class CombogibMatchStats extends React.Component{
             <td className="color8"><b>Totals/Best</b></td>
             <td className="color8"><b>{totals.combos}</b></td>
             <td className="color8"><b>{totals.insane}</b></td>
-            <td className="color8"><b>{totals.balls}</b></td>
+            <td className="color8"><b>{totals.shockBalls}</b></td>
             <td className="color8"><b>{totals.primary}</b></td>
             <td className="color8"><b>{bestSingleBall}</b></td>
             <td className="color8"><b>{bestInsane}</b></td>
@@ -272,13 +273,13 @@ class CombogibMatchStats extends React.Component{
         const teamData = [[],[],[],[]];
 
         const teamTotals = [
-            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0},
-            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0},
-            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0},
-            {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0}
+            {"combos": 0, "shockBalls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0},
+            {"combos": 0, "shockBalls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0},
+            {"combos": 0, "shockBalls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0},
+            {"combos": 0, "shockBalls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0}
         ];
 
-        const allTotals = {"combos": 0, "balls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0};
+        const allTotals = {"combos": 0, "shockBalls": 0, "primary": 0, "bestSingle": 0, "bestSingleShockBall": 0, "insane": 0, "bestSingleInsane": 0};
 
         for(let i = 0; i < data.length; i++){
 
@@ -299,7 +300,7 @@ class CombogibMatchStats extends React.Component{
                 </td>
                 <td>{Functions.ignore0(d.combo_kills)}</td>
                 <td>{Functions.ignore0(d.insane_kills)}</td>
-                <td>{Functions.ignore0(d.ball_kills)}</td>
+                <td>{Functions.ignore0(d.shockball_kills)}</td>
                 <td>{Functions.ignore0(d.primary_kills)}</td>
                 <td>{bestBallKillString}</td>
                 <td>{bestInsaneKillString}</td>
@@ -311,7 +312,7 @@ class CombogibMatchStats extends React.Component{
                 rows.push(currentElem);
 
                 allTotals.combos += d.combo_kills;
-                allTotals.balls += d.ball_kills;
+                allTotals.shockBalls += d.shockball_kills;
                 allTotals.primary += d.primary_kills;
                 allTotals.insane += d.insane_kills;
 
@@ -341,7 +342,7 @@ class CombogibMatchStats extends React.Component{
                 const teamTotal = teamTotals[currentPlayer.team];
 
                 teamTotal.combos += d.combo_kills;            
-                teamTotal.balls += d.ball_kills;  
+                teamTotal.shockBalls += d.shockball_kills;  
                 teamTotal.primary += d.primary_kills;
                 teamTotal.insane += d.insane_kills;
      
@@ -478,7 +479,7 @@ class CombogibMatchStats extends React.Component{
 
             if(this.state.mode === 1){
 
-                bestKills = data.best_combo_kills;
+                bestKills = data.best_combo_spree;
                 kills = data.combo_kills;
                 deaths = data.combo_deaths;
                 eff = data.combo_efficiency;
@@ -487,16 +488,16 @@ class CombogibMatchStats extends React.Component{
 
             }else if(this.state.mode === 2){
 
-                bestKills = data.best_ball_kills;
-                kills = data.ball_kills;
-                deaths = data.ball_deaths;
-                eff = data.ball_efficiency;
+                bestKills = data.best_shockball_spree;
+                kills = data.shockball_kills;
+                deaths = data.shockball_deaths;
+                eff = data.shockball_efficiency;
                 bestOfType = data.best_single_shockball;
-                fpm = data.ball_kpm;
+                fpm = data.shockball_kpm;
 
             }else if(this.state.mode === 4){
 
-                bestKills = data.best_insane_kills;
+                bestKills = data.best_insane_spree;
                 kills = data.insane_kills;
                 deaths = data.insane_deaths;
                 eff = data.insane_efficiency;
@@ -519,7 +520,7 @@ class CombogibMatchStats extends React.Component{
 
             let kills =  data.primary_kills;
             let deaths = data.primary_deaths;
-            let best =  data.best_primary_kills;
+            let best =  data.best_primary_spree;
             let fpm = data.primary_kpm;
 
             const eff = data.primary_efficiency;
@@ -547,8 +548,8 @@ class CombogibMatchStats extends React.Component{
             t.kills += d.combo_kills;
             t.deaths += d.combo_deaths;
 
-            if(d.best_combo_kills > t.mostKills){
-                t.mostKills = d.best_combo_kills;
+            if(d.best_combo_spree > t.mostKills){
+                t.mostKills = d.best_combo_spree;
             }
 
             if(d.best_single_combo > t.bestSingle){
@@ -561,19 +562,19 @@ class CombogibMatchStats extends React.Component{
 
         }else if(this.state.mode === 2){
 
-            t.kills += d.ball_kills;
-            t.deaths += d.ball_deaths;
+            t.kills += d.shockball_kills;
+            t.deaths += d.shockball_deaths;
 
-            if(d.best_ball_kills > t.mostKills){
-                t.mostKills = d.best_ball_kills;
+            if(d.best_shockball_spree > t.mostKills){
+                t.mostKills = d.best_shockball_spree;
             }
 
             if(d.best_single_shockball > t.bestSingle){
                 t.bestSingle = d.best_single_shockball;
             }
 
-            if(d.ball_kpm > t.bestKPM){
-                t.bestKPM = d.ball_kpm;
+            if(d.shockball_kpm > t.bestKPM){
+                t.bestKPM = d.shockball_kpm;
             }
 
         }else if(this.state.mode === 3){
@@ -581,8 +582,8 @@ class CombogibMatchStats extends React.Component{
             t.kills += d.primary_kills;
             t.deaths += d.primary_deaths;
 
-            if(d.best_primary_kills > t.mostKills){
-                t.mostKills = d.best_primary_kills;
+            if(d.best_primary_spree > t.mostKills){
+                t.mostKills = d.best_primary_spree;
             }
 
             if(d.primary_kpm > t.bestKPM){
@@ -595,8 +596,8 @@ class CombogibMatchStats extends React.Component{
             t.kills += d.insane_kills;
             t.deaths += d.insane_deaths;
 
-            if(d.best_insane_kills > t.mostKills){
-                t.mostKills = d.best_insane_kills;
+            if(d.best_insane_spree > t.mostKills){
+                t.mostKills = d.best_insane_spree;
             }
 
             if(d.best_single_insane > t.bestSingle){
@@ -617,12 +618,13 @@ class CombogibMatchStats extends React.Component{
         let prefix = "combo";
 
         if(mode === 2){
-            prefix = "ball";
+            prefix = "shockball";
         }else if(mode === 3){
             prefix = "primary";
         }else if(mode === 4){
             prefix = "insane";
         }
+
 
         let key = "";
 
@@ -632,7 +634,7 @@ class CombogibMatchStats extends React.Component{
 
         }else if(sortType === "best_kills"){
             
-            key = `best_${prefix}_kills`;
+            key = `best_${prefix}_spree`;
             
         }else{
             key = sortType;

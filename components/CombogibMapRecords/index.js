@@ -41,29 +41,29 @@ class CombogibMapRecords extends React.Component{
         const titles = {
             "combo_kills": "Most Combos Kills in a match",
             "insane_kills": "Most Insane Combo Kills in a match",
-            "ball_kills": "Most ShockBall Kills in a match",
+            "shockball_kills": "Most ShockBall Kills in a match",
             "primary_kills": "Most Instagib Kills in a match",
             "best_single_combo": "Most Kills with one Combo",
             "best_single_insane": "Most Kills with one Insane Combo",
             "best_single_shockball": "Most Kills with one Shock Ball",
-            "best_combo_kills": "Most Combos Kills in a Life",
-            "best_insane_kills": "Most Insane Combos Kills in a Life",
-            "best_ball_kills": "Most Shockball Kills in a Life",
-            "best_primary_kills": "Most Instagib Kills in a Life",
+            "best_combo_spree": "Most Combos Kills in a Life",
+            "best_insane_spree": "Most Insane Combos Kills in a Life",
+            "best_shockball_spree": "Most Shockball Kills in a Life",
+            "best_primary_spree": "Most Instagib Kills in a Life",
         };
 
         const tabTitles = {
             "combo_kills": "Combos Kills",
             "insane_kills": "Insane Combo Kills",
-            "ball_kills": "ShockBall Kills",
+            "shockball_kills": "ShockBall Kills",
             "primary_kills": "Instagib Kills",
             "best_single_combo": "Best Combo",
             "best_single_insane": "Best Insane Combo",
             "best_single_shockball": "Best Shock Ball",
-            "best_combo_kills": "Best Combo Spree",
-            "best_insane_kills": "Best Insane Combo Spree",
-            "best_ball_kills": "Best ShockBall Spree",
-            "best_primary_kills": "Best Instagib Spree",
+            "best_combo_spree": "Best Combo Spree",
+            "best_insane_spree": "Best Insane Combo Spree",
+            "best_shockball_spree": "Best ShockBall Spree",
+            "best_primary_spree": "Best Instagib Spree",
         };
 
         if(type === "*") return tabTitles;
@@ -189,9 +189,9 @@ class CombogibMapRecords extends React.Component{
         const tabsRow2 = [];
         const tabsRow3 = [];
 
-        const tabRow1Types = ["combo_kills", "insane_kills","ball_kills","primary_kills"];
+        const tabRow1Types = ["combo_kills", "insane_kills","shockball_kills","primary_kills"];
         const tabRow2Types = ["best_single_combo", "best_single_insane", "best_single_shockball"];
-        const tabRow3Types = ["best_combo_kills","best_insane_kills","best_ball_kills","best_primary_kills",];
+        const tabRow3Types = ["best_combo_spree","best_insane_spree","best_ball_spree","best_primary_spree",];
 
         for(const [key, value] of Object.entries(titles)){
 
