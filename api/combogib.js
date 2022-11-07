@@ -565,7 +565,7 @@ class Combogib{
 
         if(this.bValidRecordType(recordType, 0)){
             
-            const query = `SELECT match_id,map_id,player_id,playtime,TRUNCATE(${recordType.toLowerCase()},3) as value FROM nstats_match_combogib 
+            const query = `SELECT match_id,map_id,player_id,playtime,${recordType.toLowerCase()} as value FROM nstats_match_combogib 
             ORDER BY value DESC LIMIT ?,?`;
 
             let start = parseInt(page * perPage);
@@ -584,6 +584,14 @@ class Combogib{
 
     }
         
+    async getTotalPlayerRows(){
+
+        const query = "SELECT COUNT(DISTINCT player_id) as total_rows FROM nstats_player_combogib WHERE map_id=0 AND gametype_id=0";
+
+        const result = await mysql.simpleQuery(query);
+
+        return result[0].total_rows;
+    }
 
     async getTotalMatchRows(){
 
@@ -592,6 +600,34 @@ class Combogib{
         const result = await mysql.simpleQuery(query);
 
         return result[0].total_rows;
+    }
+
+
+    async getPlayerRecords(recordType, page, perPage){
+
+        if(page === undefined) page = 0;
+        if(page < 0) page = 0;
+
+        if(perPage === undefined) perPage = 25;
+        if(perPage < 1) perPage = 25;
+
+        if(this.bValidRecordType(recordType, 1)){
+
+            const query = `SELECT player_id,playtime,total_matches,${recordType} as value
+            FROM nstats_player_combogib WHERE gametype_id=0 AND map_id=0 ORDER BY value DESC LIMIT ?,?`;
+
+            let start = parseInt(page * perPage);
+
+            if(start !== start) start = 0;
+            if(start < 0) start = 0;
+            
+            const vars = [start, perPage];
+
+            return await mysql.simpleQuery(query, vars);
+
+        }else{
+            throw new Error(`${recordType} is not a valid record type.`);
+        }
     }
 
 }

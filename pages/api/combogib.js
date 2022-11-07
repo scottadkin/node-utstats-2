@@ -20,7 +20,7 @@ export default async function handler(req, res){
 
         const combo = new Combogib();
 
-        const requiresPlayerManager = ["maprecord", "maptotal", "matchrecords"];
+        const requiresPlayerManager = ["maprecord", "maptotal", "matchrecords", "totalrecords"];
         const requiresMatchesManager = ["matchrecords"];
         const requiresMapsManager = ["matchrecords"];
 
@@ -38,7 +38,7 @@ export default async function handler(req, res){
 
         let mapManager = null;
 
-        if(requiresMatchesManager.indexOf(mode) !== -1){
+        if(requiresMapsManager.indexOf(mode) !== -1){
             mapManager = new Maps();
         }
 
@@ -142,19 +142,17 @@ export default async function handler(req, res){
 
             const type = req.body.type ?? "combo_kills";
             let page = parseInt(req.body.page) ?? 0;
+            let perPage = req.body.perPage ?? 25;
 
             if(page < 0) page = 0;
 
-            const result = await combo.getPlayerBestMatchValues(type, page, 25);
+            const result = await combo.getPlayerBestMatchValues(type, page, perPage);
 
             const matchIds = Functions.getUniqueValues(result, "match_id");
             const matchDates = await matchManager.getDates(matchIds);
 
-
             const mapIds = Functions.getUniqueValues(result, "map_id");
             const mapNames = await mapManager.getNames(mapIds);
-
-            
 
             const playerIds = Functions.getUniqueValues(result, "player_id");
             const players = await playerManager.getNamesByIds(playerIds, true);
@@ -178,6 +176,34 @@ export default async function handler(req, res){
             const totalResults = await combo.getTotalMatchRows();
 
             res.status(200).json({"results": totalResults});
+            return;
+
+        }else if(mode === "totalplayerrecords"){
+
+            const totalResults = await combo.getTotalPlayerRows();
+
+            res.status(200).json({"results": totalResults});
+            return;
+
+        }else if(mode === "totalrecords"){
+
+            const type = req.body.type ?? "combo_kills";
+            const page = req.body.page ?? 0;
+            const perPage = req.body.perPage ?? 25;
+
+            const data = await combo.getPlayerRecords(type, page, perPage);
+
+            const playerIds = Functions.getUniqueValues(data, "player_id");
+            const playerNames = await playerManager.getNamesByIds(playerIds, true);
+
+
+            for(let i = 0; i < data.length; i++){
+
+                const d = data[i];
+                d.player = Functions.getPlayer(playerNames, d.player_id, true);
+            }
+
+            res.status(200).json({"data": data});
             return;
         }
 

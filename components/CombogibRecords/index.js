@@ -45,7 +45,12 @@ class CombogibRecords extends React.Component{
 
     async componentDidUpdate(prevProps){
 
-        if(prevProps.type !== this.props.type || this.props.page !== prevProps.page){
+        if(prevProps.type !== this.props.type || this.props.page !== prevProps.page || this.props.mode !== prevProps.mode
+            || this.props.perPage !== prevProps.perPage){
+
+                if(this.props.mode !== prevProps.mode){
+                    this.setState({"data": null, "loaded": false, "totalResults": null});
+                }
             await this.loadData();
         }
     }
@@ -69,13 +74,13 @@ class CombogibRecords extends React.Component{
         const req = await fetch("/api/combogib", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": "totalmatchrecords"})
+            "body": JSON.stringify({"mode": (this.props.mode === 0) ? "totalmatchrecords" : "totalplayerrecords"})
         });
 
         const res = await req.json();
 
         if(res.error !== undefined){
-            this.setState({"error": res.error});
+            this.setState({"error": res.error, "data": null, "totalResults": 0});
         }else{
 
             this.setState({"totalResults": res.results});
@@ -101,14 +106,19 @@ class CombogibRecords extends React.Component{
         const req = await fetch("/api/combogib", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": mode, "type": this.state.recordType.toLowerCase(), "page": this.props.page - 1})
+            "body": JSON.stringify({
+                "mode": mode, 
+                "type": this.state.recordType.toLowerCase(), 
+                "page": this.props.page - 1,
+                "perPage": parseInt(this.state.perPage)
+            })
         });
 
         const res = await req.json();
 
         if(res.error !== undefined){
 
-            this.setState({"error": res.error});
+            this.setState({"error": res.error, "data": null});
         }else{
             this.setState({"data": res.data});
         }
@@ -147,11 +157,7 @@ class CombogibRecords extends React.Component{
         </select>
     }
 
-
-    renderData(){
-
-        if(!this.state.loaded) return null;
-        if(this.state.data === null) return null;
+    renderMatchTable(){
 
         const rows = [];
 
@@ -204,7 +210,50 @@ class CombogibRecords extends React.Component{
                 </tr>
                 {rows}
             </Table2>
-            </div>
+        </div>
+    }
+
+    renderPlayerTable(){
+
+        const rows = [];
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const d = this.state.data[i];
+
+            const place = i + 1 + ((this.props.page - 1) * this.props.perPage);
+
+            rows.push(<tr key={`${d.player_id}-${i}`}>
+                <td className="place">{place}{Functions.getOrdinal(place)}</td>
+                <td className="text-left">
+                    <CountryFlag country={d.player.country}/>{d.player.name}
+                </td>
+                <td>{d.total_matches}</td>
+                <td>{Functions.toHours(d.playtime)} Hours</td>
+                <td>{d.value}</td>
+            </tr>);
+        }
+
+        return <Table2 header={this.getTitle()} width={4}>
+            <tr>
+                <th>Place</th>
+                <th>Player</th>
+                <th>Matches</th>
+                <th>Playtime</th>
+                <th>Value</th>
+            </tr>
+            {rows}
+        </Table2>
+    }
+
+    renderData(){
+
+        if(!this.state.loaded) return null;
+        if(this.state.data === null) return null;
+
+        if(this.props.mode === 0) return this.renderMatchTable();
+        if(this.props.mode === 1) return this.renderPlayerTable();
+        
     }
 
 
@@ -225,10 +274,10 @@ class CombogibRecords extends React.Component{
 
     render(){
 
-        const pagination = <Pagination 
-            url={`/records/?mode=3&type=${this.state.recordType}&pp=${this.state.perPage}&page=`}
+        const pagination = (!this.state.loaded) ? null : <Pagination 
+            url={`/records/?mode=3&type=${this.state.recordType}&cm=${this.props.mode}&pp=${this.props.perPage}&page=`}
             currentPage={this.props.page}
-            perPage={this.state.perPage}
+            perPage={this.props.perPage}
             results={(this.state.totalResults !== null) ? this.state.totalResults : 0}
             
         />
