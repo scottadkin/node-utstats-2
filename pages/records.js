@@ -375,13 +375,29 @@ class Records extends React.Component{
         return "Unknown";
     }
 
+    getDescription(){
+
+        const m = this.props.mode;
+
+        if(m === 0){
+            return `Look up player total stats in various leaderboards, this link is for the ${this.getTypeTitle()} leaderboard.`;
+        }else if(m === 1){
+            return `Look up player match stats in various leaderboards, this link is for the ${this.getTypeTitle()} leaderboard.`;
+        }else if(m === 2){
+            return `Look up map CTF Cap in both solo and assited leaderboards, this link is for the ${this.getTypeTitle()} leaderboard.`;
+        }else if(m === 3){
+            return `Look up various Combogib leaderboards, this link is for the ${this.getComboTitleString()} leaderboard.`;
+        }
+    }
+
     render(){
 
+        console.log(this.getDescription());
 
         return <div>
             <DefaultHead 
             title={this.getTitle()} 
-            description={`records descp`} 
+            description={this.getDescription()} 
             host={this.props.host}
             keywords={`${this.getTypeTitle().replaceAll(" ",",").toLowerCase()},player,record`}/>
             <main>
