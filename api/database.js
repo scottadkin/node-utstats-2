@@ -9,147 +9,44 @@ const Database = mysql.createPool({
     "database": config.mysql.database
 });
 
-Database.simpleFetch = (query, vars) =>{
+Database.simpleFetch = async (query, vars) =>{
 
-    return new Promise((resolve, reject) =>{
-
-        if(vars === undefined){
-
-            Database.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-
-        }else{
-
-            Database.query(query, vars, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        }
-    });
+    return await Database.simpleQuery(query, vars);
 }
 
-Database.simpleDelete = (query, vars) =>{
+Database.simpleDelete = async (query, vars) =>{
 
-    return new Promise((resolve, reject) =>{
-    
-        if(vars === undefined){
-
-            Database.query(query, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            }); 
-
-        }else{
-
-            Database.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        }
-    });
+    return await Database.simpleQuery(query, vars);
 }
 
-Database.simpleUpdate = (query, vars) =>{
+Database.simpleUpdate = async (query, vars) =>{
 
-    return new Promise((resolve, reject) =>{
-
-        if(vars === undefined){
-
-            Database.query(query, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-
-            });
-
-        }else{
-
-            Database.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        }
-    });
+    return await Database.simpleQuery(query, vars);
 }
 
-Database.simpleInsert = (query, vars) =>{
+Database.simpleInsert = async (query, vars) =>{
 
-    return new Promise((resolve, reject) =>{
-
-        if(vars === undefined){
-
-            Database.query(query, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-
-            });
-
-        }else{
-
-            Database.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        }
-    });
+    return await Database.simpleQuery(query, vars);
+  
 }
 
 Database.insertReturnInsertId = (query, vars) =>{
 
     return new Promise((resolve, reject) =>{
 
-        if(vars === undefined){
+        if(vars === undefined) vars = [];
 
-            Database.query(query, (err, result) =>{
+        Database.query(query, vars, (err, result) =>{
 
-                if(err) reject(err);
+            if(err) reject(err);
 
-                if(result !== undefined){
-                    resolve(result.insertId);
-                }
+            if(result !== undefined){
+                resolve(result.insertId);
+            }
 
-                resolve(-1);
-
-            });
-
-        }else{
-
-            Database.query(query, vars, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result.insertId);
-                }
-
-                resolve(-1);
-            });
-        }
+            resolve(-1);
+        });
+        
     });
 }
 
@@ -157,43 +54,24 @@ Database.updateReturnAffectedRows = (query, vars) =>{
 
     return new Promise((resolve, reject) =>{
 
-        if(vars === undefined){
+        if(vars === undefined) vars = [];
+        
+        Database.query(query, vars, (err, result) =>{
 
-            Database.query(query, (err, result) =>{
+            if(err){
+                console.trace(err);
+                reject(err);
+                return
+            }
 
-                if(err){
-                    console.trace(err);
-                    reject(err);
-                    return;
-                }
+            if(result !== undefined){
+                resolve(result.affectedRows);
+                return;
+            }
 
-                if(result !== undefined){
-                    resolve(result.affectedRows);
-                    return;
-                }
-
-                resolve(0);
-
-            });
-
-        }else{
-
-            Database.query(query, vars, (err, result) =>{
-
-                if(err){
-                    console.trace(err);
-                    reject(err);
-                    return
-                }
-
-                if(result !== undefined){
-                    resolve(result.affectedRows);
-                    return;
-                }
-
-                resolve(0);
-            });
-        }
+            resolve(0);
+        });
+        
     });
 }
 
@@ -202,47 +80,25 @@ Database.simpleQuery = (query, vars) =>{
 
     return new Promise((resolve, reject) =>{
 
-        if(vars === undefined){
+        if(vars === undefined) vars = [];
 
-            Database.query(query, (err, result) =>{
+        Database.query(query, vars, (err, result) =>{
 
-                if(err){
-                    console.trace(err);
-                    reject(err);
-                    return;
-                }
-
-                if(result !== undefined){
-                    resolve(result);
-                    return;
-                }
-
-                resolve([]);
+            if(err){
+                console.trace(err);
+                reject(err);
                 return;
-            });
-        }else{
+            }
 
-            Database.query(query, vars, (err, result) =>{
-
-                if(err){
-                    console.trace(err);
-                    reject(err);
-                    return;
-                }
-
-                if(result !== undefined){
-                    resolve(result);
-                    return;
-                }
-
-                resolve([]);
+            if(result !== undefined){
+                resolve(result);
                 return;
+            }
 
-            });
-        }
-
-    });
-    
+            resolve([]);
+            return;
+        });
+    });  
 }
 
 module.exports = Database;
