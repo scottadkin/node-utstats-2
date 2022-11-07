@@ -483,31 +483,22 @@ class Combogib{
             {"name": "insane_kpm", "display": "Insane Combo Kills Per Minute"},
             {"name": "combo_kpm", "display": "Combo Kills Per Minute"},
             {"name": "primary_kpm", "display": "Instagib Kills Per Minute"},
-            
-        ];
-
-        const singleMatch = [
-            
-            ...both,
-            {"name": "ball_kills", "display": "ShockBall Kills"},
-            {"name": "ball_deaths", "display": "ShockBall Deaths"},
-            {"name": "ball_kpm", "display": "ShockBall Kills Per Minute"},
-            {"name": "best_primary_kills", "display": "Best Instagib Killing Spree"},
-            {"name": "best_combo_kills", "display": "Best Combo Killing Spree"},
-            {"name": "best_insane_kills", "display": "Best Insane Combo Killing Spree"},
-            {"name": "best_ball_kills", "display": "Best ShockBall Killing Spree"},
-        ];
-
-        const playerTotals = [
-            ...both,
             {"name": "shockball_kills", "display": "ShockBall Kills"},
             {"name": "shockball_deaths", "display": "ShockBall Deaths"},
             {"name": "shockball_kpm", "display": "ShockBall Kills Per Minute"},
-
+            {"name": "best_primary_spree", "display": "Best Instagib Killing Spree"},
             {"name": "best_combo_spree", "display": "Best Combo Killing Spree"},
             {"name": "best_insane_spree", "display": "Best Insane Combo Killing Spree"},
             {"name": "best_shockball_spree", "display": "Best ShockBall Killing Spree"},
-            {"name": "best_primary_spree", "display": "Best Instagib Killing Spree"},
+            
+        ];
+
+        const singleMatch = [        
+            ...both         
+        ];
+
+        const playerTotals = [
+            ...both
         ];
 
         const justMatchKeys = [];
