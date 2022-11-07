@@ -300,7 +300,7 @@ class Records extends React.Component{
 
     renderPagination(){
 
-        if(!this.state.loaded || this.state.mode >= 2) return null;
+        if(!this.state.loaded || this.props.mode >= 2) return null;
 
         return <Pagination url={`/records/?mode=${this.props.mode}&pp=${this.state.perPage}&page=`} results={this.state.totalResults} 
             currentPage={this.props.page} perPage={this.props.perPage}
