@@ -728,19 +728,26 @@ class Combogib{
 
     async getMapBestValues(mapId){
 
-        console.log(mapId);
-
-        const query = `SELECT gametype_id,best_single_combo_player_id,best_single_insane_player_id,best_single_shockball_player_id,
-        best_primary_spree_player_id,best_combo_spree_player_id,best_insane_spree_player_id,best_shockball_spree_player_id,
-        max_primary_kills_player_id,max_combo_kills_player_id,max_insane_kills_player_id,max_shockball_kills_player_id
+        const query = `SELECT gametype_id,
+        best_single_combo, best_single_combo_player_id, best_single_combo_match_id, 
+        best_single_insane, best_single_insane_player_id, best_single_insane_match_id, 
+        best_single_shockball, best_single_shockball_player_id, best_single_shockball_match_id, 
+        best_primary_spree, best_primary_spree_player_id, best_primary_spree_match_id,
+        best_combo_spree, best_combo_spree_player_id, best_combo_spree_match_id,
+        best_insane_spree, best_insane_spree_player_id, best_insane_spree_match_id,
+        best_shockball_spree, best_shockball_spree_player_id, best_shockball_spree_match_id,
+        max_primary_kills, max_primary_kills_player_id, max_primary_kills_match_id,
+        max_combo_kills, max_combo_kills_player_id, max_combo_kills_match_id,
+        max_insane_kills, max_insane_kills_player_id, max_combo_kills_match_id,
+        max_shockball_kills, max_shockball_kills_player_id ,max_combo_kills_match_id
         FROM nstats_map_combogib WHERE map_id=?`;
 
         return await mysql.simpleQuery(query, [mapId]);
     }
 
-    async getMapBestValue(mapId, gametypeId, column){
+    getValidBestColumns(){
 
-        const validColumns = [
+        return [
             "best_single_combo",
             "best_single_insane",
             "best_single_shockball",
@@ -753,35 +760,102 @@ class Combogib{
             "max_insane_spree",
             "max_shockball_spree",
         ];
+    }
 
-        if(column ){
+    //find the best value of x type from the player table for recalculation
+    async getMapPlayerBestValue(mapId, gametypeId, column){
 
+        const validColumns = this.getValidBestColumns();
+
+        const index = validColumns.indexOf(column); 
+        if(index === -1) throw new Error(`${column} is not a valid column name`);
+
+        const c = validColumns[index];
+
+        const query = `SELECT player_id,${c} as best_value,${c}_match_id as match_id
+        FROM nstats_player_combogib WHERE gametype_id=? AND map_id=? ORDER BY best_value DESC LIMIT 1`;
+        
+        const result = await mysql.simpleQuery(query, [gametypeId, mapId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
+
+
+    async setMapBestValue(mapId, gametypeId, column, value, valuePlayerId, valueMatchId){
+
+        const validColumns = this.getValidBestColumns();
+
+        const index = validColumns.indexOf(column);
+
+        if(index === -1) throw new Error(`${column} is not a valid column name.`);
+
+        const c = validColumns[index];
+
+        const query = `UPDATE nstats_map_combogib SET ${c}=?, ${c}_player_id=?, ${c}_match_id=? WHERE map_id=? AND gametype_id=?`;
+
+        await mysql.simpleQuery(query, [value, valuePlayerId, valueMatchId, mapId, gametypeId]);
+    }
+
+    async getUniqueMapGametypes(mapId){
+
+
+        const query = "SELECT DISTINCT gametype_id FROM nstats_map_combogib WHERE map_id=? AND gametype_id!=0";
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        const found = [0];
+
+        for(let i = 0; i < result.length; i++){
+
+            found.push(result[i].gametype_id);
         }
+
+        return found;
     }
 
     async recalculateMapBestValues(mapId){
 
-        const data = await this.getMapBestValues(mapId);
+        const keys = this.getValidBestColumns();
 
-        console.log(data);
+        const data = await this.getMapBestValues(mapId);
 
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
-            console.log(d);
 
-            if(d.best_single_combo_player_id === 0){
+            for(let k = 0; k < keys.length; k++){
 
-            }
+                if(d[keys[k]] === 0){
 
-            if(d.best_primary_spree_player_id === 0){
-                
-                console.log(`need to change spree`);
+                    const best = await this.getMapPlayerBestValue(mapId, d.gametype_id, keys[k]);
+
+                    if(best !== null){
+
+                        await this.setMapBestValue(mapId, d.gametype_id, keys[k], best.best_value, best.player_id, best.match_id);
+
+                    }else{
+                        console.log(`Combogib.recalculateMapBestValues() best returned null`);
+                    }
+                }
             }
         }
-
     }
 
+    async deletePlayerMatchesData(playerId){
+
+        const query = "DELETE FROM nstats_match_combogib WHERE player_id=?";
+
+        await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async deletePlayerTotalData(playerId){
+        
+        const query = "DELETE FROM nstats_player_combogib WHERE player_id=?";
+
+        await mysql.simpleQuery(query, [playerId]);
+    }
 
     async deletePlayer(playerId){
 
@@ -791,20 +865,19 @@ class Combogib{
 
         const history = await this.getPlayerHistory(playerId);
 
+        await this.deletePlayerMatchesData(playerId);
+        await this.deletePlayerTotalData(playerId);
+
         const affectedMapIds = new Set();
 
-        for(let i = 0; i < 1; i++){
+        for(let i = 0; i < history.length; i++){
 
             const h = history[i];
 
-            //await this.reduceMapTotals(h);
+            await this.reduceMapTotals(h);
             await this.recalculateMapBestValues(h.map_id);
             affectedMapIds.add(h.map_id);
         }
-
-        
-
-        
     }
 
 }
