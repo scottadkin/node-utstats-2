@@ -1,25 +1,26 @@
-const Player = require('./player');
-const mysql = require('./database');
-const Functions = require('./functions');
-const Matches = require('./matches');
-const Assault = require('./assault');
-const CTF = require('./ctf');
-const Domination = require('./domination');
-const Headshots = require('./headshots');
-const Items = require('./items');
-const Kills = require('./kills');
-const Connections = require('./connections');
-const Pings = require('./pings');
-const Maps = require('./maps');
-const Weapons = require('./weapons');
-const Rankings = require('./rankings');
-const Winrate = require('./winrate');
-const CountriesManager = require('./countriesmanager');
-const Faces = require('./faces');
-const Teams = require('./teams');
-const Voices = require('./voices');
-const Sprees = require('./sprees');
-const MonsterHunt = require('./monsterhunt');
+const Player = require("./player");
+const mysql = require("./database");
+const Functions = require("./functions");
+const Matches = require("./matches");
+const Assault = require("./assault");
+const CTF = require("./ctf");
+const Domination = require("./domination");
+const Headshots = require("./headshots");
+const Items = require("./items");
+const Kills = require("./kills");
+const Connections = require("./connections");
+const Pings = require("./pings");
+const Maps = require("./maps");
+const Weapons = require("./weapons");
+const Rankings = require("./rankings");
+const Winrate = require("./winrate");
+const CountriesManager = require("./countriesmanager");
+const Faces = require("./faces");
+const Teams = require("./teams");
+const Voices = require("./voices");
+const Sprees = require("./sprees");
+const MonsterHunt = require("./monsterhunt");
+const Combogib = require("./combogib");
 
 class Players{
 
@@ -121,22 +122,22 @@ class Players{
             const start = page * perPage;
 
             const validTypes = [
-                'name',
-                'country',
-                'score',
-                'frags',
-                'kills',
-                'playtime',
-                'winrate',
-                'wins',
-                'loses',
-                'draws',
-                'matches',
-                'first',
-                'last',
-                'deaths',
-                'efficiency',
-                'accuracy'
+                "name",
+                "country",
+                "score",
+                "frags",
+                "kills",
+                "playtime",
+                "winrate",
+                "wins",
+                "loses",
+                "draws",
+                "matches",
+                "first",
+                "last",
+                "deaths",
+                "efficiency",
+                "accuracy"
             ];
 
             sort = sort.toLowerCase();
@@ -147,14 +148,14 @@ class Players{
                 index = 0;
             }
 
-            if(order !== 'ASC' && order !== 'DESC'){
-                order = 'ASC';
+            if(order !== "ASC" && order !== "DESC"){
+                order = "ASC";
             }
 
             let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND playtime>0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
             let vars = [start, perPage];
 
-            if(name !== ''){
+            if(name !== ""){
                 query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND playtime>0 AND name LIKE(?) ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
                 vars = [`%${name}%`, start, perPage];
             }
@@ -989,6 +990,11 @@ class Players{
             //delete player totals last
 
             await this.deletePlayerTotals(playerId);
+
+
+            const comboManager = new Combogib();
+
+            await comboManager.deletePlayer(playerId);
 
             return true;
 

@@ -113,30 +113,30 @@ class PlayerCombogibStats extends React.Component{
             </tr>
             <tr>
                 <td>
-                    <Link href={`/pmatch/${d.most_combo_kills_match_id}/?player=${this.props.playerId}`}>
+                    <Link href={`/pmatch/${d.max_combo_kills_match_id}/?player=${this.props.playerId}`}>
                         <a>
-                            {Functions.ignore0(d.most_combo_kills)}
+                            {Functions.ignore0(d.max_combo_kills)}
                         </a>
                     </Link>
                 </td>
                 <td>
-                    <Link href={`/pmatch/${d.most_insane_kills_match_id}/?player=${this.props.playerId}`}>
+                    <Link href={`/pmatch/${d.max_insane_kills_match_id}/?player=${this.props.playerId}`}>
                         <a>
-                            {Functions.ignore0(d.most_insane_kills)}
+                            {Functions.ignore0(d.max_insane_kills)}
                         </a>
                     </Link>
                 </td>
                 <td>
-                    <Link href={`/pmatch/${d.most_shockball_kills_match_id}/?player=${this.props.playerId}`}>
+                    <Link href={`/pmatch/${d.max_shockball_kills_match_id}/?player=${this.props.playerId}`}>
                         <a>
-                            {Functions.ignore0(d.most_shockball_kills)}
+                            {Functions.ignore0(d.max_shockball_kills)}
                         </a>
                     </Link>
                 </td>
                 <td>
-                    <Link href={`/pmatch/${d.most_primary_kills_match_id}/?player=${this.props.playerId}`}>
+                    <Link href={`/pmatch/${d.max_primary_kills_match_id}/?player=${this.props.playerId}`}>
                         <a>
-                            {Functions.ignore0(d.most_primary_kills)}
+                            {Functions.ignore0(d.max_primary_kills)}
                         </a>
                     </Link>
                 </td>
