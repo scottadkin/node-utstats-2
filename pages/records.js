@@ -50,8 +50,28 @@ class Records extends React.Component{
     }
     
 
+    bAllModesDisabled(){
+
+        const settings = this.props.pageSettings;
+
+        const options = ["Display Player Records","Display Match Records","Display CTF Cap Records","Display Combogib Records"];
+
+        for(let i = 0; i < options.length; i++){
+
+            if(settings[options[i]] === "true") return false;
+        }
+
+        return true;
+    }
 
     async loadData(){
+
+
+        if(this.bAllModesDisabled()){
+            this.setState({"error": `Every mode has been disabled from the admin menu,
+            if you wanted to hide this area instead, disable it from the Navigation menu settings.`, "loaded": true});
+            return;
+        }
 
         let mode = this.props.mode;
         let url = "/api/records";
@@ -157,6 +177,8 @@ class Records extends React.Component{
                 <div className="select-row">
                     <div className="select-label">Results Per Page</div>
                     <select value={this.props.perPage} onChange={this.changePerPage} className="default-select">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
                         <option value="25">25</option>
                         <option value="50">50</option>
                         <option value="75">75</option>
@@ -325,33 +347,71 @@ class Records extends React.Component{
         />;
     }
 
+    renderTabs(){
+
+        const tabs = [];
+
+
+        const settings = this.props.pageSettings;
+
+        if(settings["Display Player Records"] === "true"){
+
+            tabs.push(
+                <Link key="players" href={`/records/?mode=0&page=1&pp=${this.state.perPage}`}>
+                    <a>
+                        <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>Player Total Records</div>
+                    </a>
+                </Link>
+            );
+        }
+
+        if(settings["Display Match Records"] === "true"){
+
+            tabs.push(
+                <Link key="matches" href={`/records/?mode=1&page=1&pp=${this.state.perPage}`}>
+                    <a>
+                        <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>Player Match Records</div>
+                    </a>
+                </Link>
+            );
+        }
+
+        if(settings["Display CTF Cap Records"] === "true"){
+
+            tabs.push(
+                <Link key="ctf" href={`/records/?mode=2&page=1&pp=${this.state.perPage}`}>
+                    <a>
+                        <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`}>CTF Cap Records</div>
+                    </a>
+                </Link>   
+            );
+        }
+
+        if(settings["Display Combogib Records"] === "true"){
+
+            tabs.push(
+                <Link key="combo" href={`/records/?mode=3&page=1&pp=${this.state.perPage}`}>
+                    <a>
+                        <div className={`tab ${(this.props.mode === 3) ? "tab-selected" : ""}`}>Combogib Records</div>
+                    </a>
+                </Link>
+            );
+        }
+
+        if(tabs.length === 1) return null;
+
+        return <div className="tabs">
+            {tabs}
+        </div>;
+
+    }
+
     renderElems(){
 
         if(this.state.error !== null) return <ErrorMessage title="Records" text={this.state.error}/>
 
         return <div>
-            <div className="tabs">
-                <Link href={`/records/?mode=0&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>Player Total Records</div>
-                    </a>
-                </Link>
-                <Link href={`/records/?mode=1&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>Player Match Records</div>
-                    </a>
-                </Link>
-                <Link href={`/records/?mode=2&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`}>CTF Cap Records</div>
-                    </a>
-                </Link>
-                <Link href={`/records/?mode=3&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className={`tab ${(this.props.mode === 3) ? "tab-selected" : ""}`}>Combogib Records</div>
-                    </a>
-                </Link>
-            </div>
+            {this.renderTabs()}
             {this.renderTotalOptions()}
             {<Loading value={this.state.loaded}/> }
             {this.renderPagination()}
@@ -424,9 +484,6 @@ export async function getServerSideProps({req, query}){
 
     let type = query.type ?? "kills";
 
-    let perPage = parseInt(query.pp) ?? 25;
-    if(perPage !== perPage) perPage = 25;
-
     //also used as combo mode
     let capMode = parseInt(query.cm) ?? 0;
     if(capMode !== capMode) capMode = 0;
@@ -434,6 +491,13 @@ export async function getServerSideProps({req, query}){
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
+
+    const defaultPerPage = parseInt(pageSettings["Default Per Page"]);
+
+    let perPage = query.pp ?? defaultPerPage ?? 25;
+
+    if(perPage !== perPage) perPage = 25;
+    if(perPage <= 0 || perPage > 100) perPage = defaultPerPage;
 
     const playerManager = new Players();
     const validTypes = playerManager.getValidRecordTypes();
@@ -455,7 +519,6 @@ export async function getServerSideProps({req, query}){
         if(found === undefined){
             type = "combo_kills";
         }
-
     }
 
     return {
@@ -470,7 +533,7 @@ export async function getServerSideProps({req, query}){
             "validComboTypes": validComboTypes,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings)
+            "pageSettings": pageSettings
         }
     }
 }

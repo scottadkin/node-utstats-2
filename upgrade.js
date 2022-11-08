@@ -241,6 +241,11 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Combogib Player Records","true","10")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Combogib General Stats","true","9")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Combogib Stats","true","8")`,
+
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Player Records","true","0")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Match Records","true","0")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display CTF Cap Records","true","0")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Combogib Records","true","0")`,
     ];
 
     
@@ -251,7 +256,6 @@ async function updateSiteSettings(){
         const q = queries[i];
 
         const result = reg.exec(q);
-
 
         if(result !== null){
 
@@ -265,7 +269,12 @@ async function updateSiteSettings(){
     }
 
     await mysql.simpleQuery(`DELETE FROM nstats_site_settings WHERE category="Match Pages" AND name="Display Power Up Control"`);
-    new Message(`Remove Old Setting "Match Pages"."Display Power Up Control" completed.`,"pass");
+    await mysql.simpleQuery(`DELETE FROM nstats_site_settings WHERE category="Records Page" AND name="Default Record Type"`);
+    await mysql.simpleQuery(`DELETE FROM nstats_site_settings WHERE category="Records Page" AND name="Minimum Solo Caps Before Displayed"`);
+    await mysql.simpleQuery(`DELETE FROM nstats_site_settings WHERE category="Records Page" AND name="Minimum Assisted Caps Before Displayed"`);
+    await mysql.simpleQuery(`DELETE FROM nstats_site_settings WHERE category="Records Page" AND name="Maximum Solo Caps To Display"`);
+    await mysql.simpleQuery(`DELETE FROM nstats_site_settings WHERE category="Records Page" AND name="Maximum Assisted Caps To Display"`);
+    new Message(`Remove Old Setting for Record Page completed.`,"pass");
 
 }
 

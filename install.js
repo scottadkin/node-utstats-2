@@ -1222,11 +1222,10 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Rankings Per Gametype (Main)","10","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Rankings Per Page (Individual)","100","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Per Page","25","0")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Record Type","0","0")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Solo Caps Before Displayed","1","0")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1","0")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50","0")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50","0")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Player Records","true","0")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Match Records","true","0")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display CTF Cap Records","true","0")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Combogib Records","true","0")`,
 
 
 

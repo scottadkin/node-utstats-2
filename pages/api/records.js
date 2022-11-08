@@ -15,7 +15,6 @@ export default async function handler(req, res){
 
     const playerManager = new Players();
 
-
     const validTypesDisplay = playerManager.getValidRecordTypes();
     const validTypes = playerManager.getValidRecordTypes(true);
 
@@ -30,7 +29,6 @@ export default async function handler(req, res){
 
         res.status(200).json({"error": "No type was specified."});
         return;
-
     }
 
     
@@ -39,13 +37,10 @@ export default async function handler(req, res){
     if(page < 0) page = 0;
     let perPage = parseInt(req.body.perPage) ?? 25;
 
+    if(perPage !== perPage) perPage = 25;
     if(perPage > 100) perPage = 100;
-    if(perPage <= 25) perPage = 25;
+    if(perPage <= 0) perPage = 25;
 
-   
-    console.log(`mode = ${mode}, type=${type}, page = ${page}`);
-
-   
 
     if(mode === "totals"){
 

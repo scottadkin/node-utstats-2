@@ -300,6 +300,8 @@ class CombogibRecords extends React.Component{
                 <div className="select-row">
                     <div className="select-label">Results Per Page</div>
                     <select value={this.state.perPage} onChange={this.changePerPage} className="default-select">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
                         <option value="25">25</option>
                         <option value="50">50</option>
                         <option value="75">75</option>
