@@ -24,10 +24,10 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
         <Head>
             <title>{title} - Node UTStats 2</title>
             <link rel="icon" href="/fav.png" />
-            <meta name="description" content={`${description} Node UTStats 2.`} />
+            <meta name="description" content={`${description}`} />
             <meta name="keywords" content={`${keywords}ut,unreal,tournament,stats,node`} />
             <meta property="og:title" content={`${title} - Node UTStats 2`} />
-            <meta property="og:description" content={`${description} Node UTStats 2.`} />
+            <meta property="og:description" content={`${description}`} />
             <meta property="og:type" content="website" />
             <meta property="og:url" content={`http://${host}${router.asPath}`} />
             <meta property="og:image:secure_url" content={`https://${host}${router.asPath}`} />

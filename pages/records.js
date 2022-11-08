@@ -178,7 +178,6 @@ class Records extends React.Component{
 
         const recordTypes = (mode === 0) ? "match" : "totals";
 
-
         const type = (this.props.type === "kills") ? "combo_kills" : this.props.type;
 
         const types = {};
@@ -214,9 +213,9 @@ class Records extends React.Component{
 
         }else if(this.props.mode === 3){
 
-            const modeString = (this.props.capMode === 0) ? "Match" : "Player Total";
+            const modeString = (this.props.capMode === 0) ? "Match" : "Player";
 
-            return `${this.getComboTitleString()} ${modeString} Combogib Records`;
+            return `${this.getComboTitleString()} - ${modeString} Combogib Records`;
         }
 
         for(let i = 0; i < types.length; i++){
@@ -380,19 +379,17 @@ class Records extends React.Component{
         const m = this.props.mode;
 
         if(m === 0){
-            return `Look up player total stats in various leaderboards, this link is for the ${this.getTypeTitle()} leaderboard.`;
+            return `Look up player total stats in various leaderboards, this page is for the ${this.getTypeTitle()} leaderboard.`;
         }else if(m === 1){
-            return `Look up player match stats in various leaderboards, this link is for the ${this.getTypeTitle()} leaderboard.`;
+            return `Look up player match stats in various leaderboards, this page is for the ${this.getTypeTitle()} leaderboard.`;
         }else if(m === 2){
-            return `Look up map CTF Cap in both solo and assited leaderboards, this link is for the ${this.getTypeTitle()} leaderboard.`;
+            return `Look up map CTF Cap in both solo and assited leaderboards, this page is for the ${this.getTypeTitle()} leaderboard.`;
         }else if(m === 3){
-            return `Look up various Combogib leaderboards, this link is for the ${this.getComboTitleString()} leaderboard.`;
+            return `Look up various Combogib leaderboards, this page is for the ${this.getComboTitleString()} leaderboard.`;
         }
     }
 
     render(){
-
-        console.log(this.getDescription());
 
         return <div>
             <DefaultHead 
