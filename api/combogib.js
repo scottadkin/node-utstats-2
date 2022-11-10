@@ -881,6 +881,20 @@ class Combogib{
             await this.recalculateMapBestValues(value);
         }
     }
+
+
+    async deletePlayerFromMatch(playerId, matchId){
+
+        playerId = parseInt(playerId);
+        matchId = parseInt(matchId);
+
+        if(playerId !== playerId) throw new Error(`PlayerId must be a valid integer`);
+        if(matchId !== matchId) throw new Error(`matchId must be a valid integer`);
+
+        const matchData = await this.getPlayerMatchData(playerId, matchId);
+
+        console.log(matchData);
+    }
 }
 
 module.exports = Combogib;

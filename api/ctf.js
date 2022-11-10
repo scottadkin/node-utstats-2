@@ -279,7 +279,7 @@ class CTF{
 
     async getMatchEvents(id){
 
-        const query = "SELECT player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
+        const query = "SELECT id,player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
         return await mysql.simpleQuery(query, [id]);
 
     }
@@ -703,22 +703,18 @@ class CTF{
         });
     }
 
-    updateEvent(data, ignoredPlayer){
+    async updateEvent(data, ignoredPlayer){
 
-        return new Promise((resolve, reject) =>{
+        if(data.player !== ignoredPlayer) return;
 
-            if(data.player !== ignoredPlayer){
-                resolve();
-            }else{
+        const query = "DELETE FROM nstats_ctf_events WHERE id=?";
+        await mysql.simpleQuery(query, [data.id]);
+    }
 
-                mysql.query(query, [data.id], (err) =>{
+    async deletePlayerMatchEvents(playerId, matchId){
 
-                    if(err) reject(err);
-
-                    resolve();
-                });
-            }
-        });
+        const query = "DELETE FROM nstats_ctf_events WHERE match_id=? AND player=?";
+        await mysql.simpleQuery(query, [matchId, playerId]);
     }
 
     /**
@@ -727,20 +723,11 @@ class CTF{
      * @param {*} matchId 
      * @param {*} bIgnoreEvents only set this if you want to ignore events
      */
-    async deletePlayerFromMatch(playerId, matchId, bIgnoreEvents){
+    async deletePlayerFromMatch(playerId, matchId){
 
         try{
 
-
             const matchCaps = await this.getMatchCaps(matchId);
-
-            let matchEvents = [];
-
-            if(bIgnoreEvents === undefined){
-                matchEvents = await this.getMatchEvents(matchId);
-            }
-
-            
 
             if(matchCaps.length > 0){
    
@@ -753,13 +740,7 @@ class CTF{
                 }
             }
 
-            if(matchEvents.length > 0){
-
-                for(let i = 0; i < matchEvents.length; i++){
-
-                    await this.updateEvent(matchEvents[i], playerId);
-                }
-            }
+            await this.deletePlayerMatchEvents(playerId, matchId);
 
         }catch(err){
             console.trace(err);

@@ -1,23 +1,24 @@
-const mysql = require('./database');
-const Message = require('./message');
-const Functions = require('./functions');
-const CountriesManager = require('./countriesmanager');
-const Assault = require('./assault');
-const CTF = require('./ctf');
-const Domination = require('./domination');
-const Faces = require('./faces');
-const Headshots = require('./headshots');
-const Items = require('./items');
-const Kills = require('./kills');
-const Connections = require('./connections');
-const Pings = require('./pings');
-const Weapons = require('./weapons');
-const Rankings = require('./rankings');
-const Voices = require('./voices');
-const WinRate = require('./winrate');
-const Sprees = require('./sprees');
-const MonsterHunt = require('./monsterhunt');
-const SiteSettings = require('./sitesettings');
+const mysql = require("./database");
+const Message = require("./message");
+const Functions = require("./functions");
+const CountriesManager = require("./countriesmanager");
+const Assault = require("./assault");
+const CTF = require("./ctf");
+const Domination = require("./domination");
+const Faces = require("./faces");
+const Headshots = require("./headshots");
+const Items = require("./items");
+const Kills = require("./kills");
+const Connections = require("./connections");
+const Pings = require("./pings");
+const Weapons = require("./weapons");
+const Rankings = require("./rankings");
+const Voices = require("./voices");
+const WinRate = require("./winrate");
+const Sprees = require("./sprees");
+const MonsterHunt = require("./monsterhunt");
+const SiteSettings = require("./sitesettings");
+const Combogib = require("./combogib");
 
 class Player{
 
@@ -63,7 +64,7 @@ class Player{
             }
 
 
-            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,'',0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,"",0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             ,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
@@ -214,7 +215,7 @@ class Player{
 
                 }catch(err){
                     console.trace(err);
-                    new Message(err, 'warning');
+                    new Message(err, "warning");
                 }
 
                 resolve();
@@ -281,8 +282,8 @@ class Player{
                 player.bBot,
                 (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
                 (player.stats.time_on_server === 0) ? 0 : 1,//player.bPlayedInMatch,
-                Functions.setValueIfUndefined(player.ip,''),
-                Functions.setValueIfUndefined(player.country,'xx'),
+                Functions.setValueIfUndefined(player.ip,""),
+                Functions.setValueIfUndefined(player.country,"xx"),
                 Functions.setValueIfUndefined(player.faceId),
                 Functions.setValueIfUndefined(player.voiceId),
                 gametypeId,
@@ -1029,7 +1030,6 @@ class Player{
 
 
                 const spreeManager = new Sprees();
-
                 await spreeManager.deletePlayerMatchData(playerId, matchId);
 
                 await this.deletePlayerMatch(playerId, matchId);
@@ -1044,6 +1044,9 @@ class Player{
                     await matchManager.recalculateDmWinner(matchId, this);
                 }
 
+                const comboManager = new Combogib();
+
+                await comboManager.deletePlayerFromMatch(playerId, matchId)
                // await matchManager.renameSingleDMMatchWinner(matchId, oldName, matchData.name);
 
             }

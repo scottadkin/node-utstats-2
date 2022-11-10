@@ -476,7 +476,9 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
 
     if(parsedSession["bLoggedIn"]){
-        elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={parsedInfo.id} players={playerNames} mapId={parsedInfo.map}/>;
+        elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={parsedInfo.id} players={playerNames} mapId={parsedInfo.map}
+            gametypeId={parsedInfo.gametype}
+        />;
     }
 
     console.log(basicPlayersObject);
