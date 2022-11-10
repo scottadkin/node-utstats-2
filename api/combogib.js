@@ -800,7 +800,6 @@ class Combogib{
 
     async getUniqueMapGametypes(mapId){
 
-
         const query = "SELECT DISTINCT gametype_id FROM nstats_map_combogib WHERE map_id=? AND gametype_id!=0";
 
         const result = await mysql.simpleQuery(query, [mapId]);
@@ -875,11 +874,13 @@ class Combogib{
             const h = history[i];
 
             await this.reduceMapTotals(h);
-            await this.recalculateMapBestValues(h.map_id);
             affectedMapIds.add(h.map_id);
         }
-    }
 
+        for(const value of affectedMapIds.values()){
+            await this.recalculateMapBestValues(value);
+        }
+    }
 }
 
 module.exports = Combogib;
