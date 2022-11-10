@@ -1,12 +1,12 @@
 .wrapper{
     position:fixed;
-    background-color:rgba(0,0,0,0.85);
+    background-color:rgba(0,0,0,0.95);
     bottom:0;
     z-index:999999;
     width:100%;
     color:white;
     text-align:center;
-    border-top:1px solid var(--border-color-1);
+    border-top:1px solid var(--border-color-2);
 }
 
 .header{
@@ -16,7 +16,7 @@
 
 .info{
     font-size:14px;
-    padding-bottom:10px;
+    padding-bottom:15px;
 }
 
 .hide{

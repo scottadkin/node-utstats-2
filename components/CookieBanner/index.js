@@ -9,7 +9,7 @@ class CookieBanner extends React.Component{
 
         super(props);
 
-        this.state = {"bShow": true, "session": JSON.parse(this.props.session)};
+        this.state = {"bShow": false, "session": JSON.parse(this.props.session)};
 
         this.hide = this.hide.bind(this);
     }
@@ -17,8 +17,8 @@ class CookieBanner extends React.Component{
     componentDidMount(){
 
     
-        if(this.state.session.hideCookieBanner !== undefined){
-            if(this.state.session.hideCookieBanner) this.setState({"bShow": false});
+        if(this.state.session.hideCookieBanner === undefined){
+            this.setState({"bShow": true});
         }
 
     }
@@ -28,10 +28,9 @@ class CookieBanner extends React.Component{
         this.setState({"bShow": false});
 
         const year = ((60 * 60) * 24) * 365;
-
-        if(process.browser){
-            document.cookie = `hideCookieBanner=true; max-age=${year}`;
-        }
+      
+        document.cookie = `hideCookieBanner=true; max-age=${year}`;
+        
     }
 
     render(){
