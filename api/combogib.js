@@ -640,6 +640,17 @@ class Combogib{
         
     }
 
+    async getPlayerFullMatchData(playerId, matchId){
+
+        const query = `SELECT * FROM nstats_match_combogib WHERE player_id=? AND match_id`;
+
+        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
+
     async reduceMapTotals(data){
 
 
@@ -755,10 +766,11 @@ class Combogib{
             "best_combo_spree",
             "best_insane_spree",
             "best_shockball_spree",
-            "max_primary_spree",
-            "max_combo_spree",
-            "max_insane_spree",
-            "max_shockball_spree",
+            "max_combo_kills",
+            "max_insane_kills",
+            "max_shockball_kills",
+            "max_primary_kills",
+
         ];
     }
 
@@ -883,17 +895,38 @@ class Combogib{
     }
 
 
-    async deletePlayerFromMatch(playerId, matchId){
+    async deletePlayerFromMatch(playerId, mapId, gametypeId, matchId){
 
         playerId = parseInt(playerId);
         matchId = parseInt(matchId);
+        mapId = parseInt(mapId);
+        gametypeId = parseInt(gametypeId);
 
+        gametypeId = parseInt(gametypeId);
         if(playerId !== playerId) throw new Error(`PlayerId must be a valid integer`);
         if(matchId !== matchId) throw new Error(`matchId must be a valid integer`);
+        if(mapId !== mapId) throw new Error(`mapId must be a valid integer`);
+        if(gametypeId !== gametypeId) throw new Error(`gametypeId must be a valid integer`);
 
-        const matchData = await this.getPlayerMatchData(playerId, matchId);
+        const matchData = await this.getPlayerFullMatchData(playerId, matchId);
 
-        console.log(matchData);
+        const query = "DELETE FROM nstats_match_combogib WHERE player_id=? AND match_id=?";
+
+        await mysql.simpleQuery(query, [playerId, matchId]);
+
+        if(matchData !== null){
+
+            matchData.gametype_id = gametypeId;
+            matchData.map_id = mapId;
+
+            await this.reduceMapTotals(matchData);
+            await this.recalculateMapBestValues(mapId);
+
+        }else{
+            throw new Error(`matchData is null`);
+        }
+
+        
     }
 }
 

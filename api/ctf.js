@@ -901,7 +901,7 @@ class CTF{
         return false;
     }
     
-    async deletePlayerViaMatchData(playerId, matches){
+    async deletePlayerViaMatchData(playerId, matchIds){
 
         try{
 
@@ -909,15 +909,14 @@ class CTF{
 
             let m = 0;
 
-            for(let i = 0; i < matches.length; i++){
+            for(let i = 0; i < matchIds.length; i++){
 
-                m = matches[i];
+                m = matchIds[i];
 
-                if(this.bAnyCtfDataInMatch(matches[i])){
+                //if(this.bAnyCtfDataInMatch(matches[i])){
 
-                    await this.deletePlayerFromMatch(playerId, m.match_id, true);
-
-                }
+                    await this.deletePlayerFromMatch(playerId, m, true);
+                //}
             }
 
         }catch(err){    

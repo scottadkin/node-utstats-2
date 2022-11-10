@@ -1280,6 +1280,19 @@ class Matches{
         return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE player_id=? ORDER BY id ASC", [player]);
     }
 
+    async getAllPlayerMatchIds(playerId){
+        const data = await mysql.simpleFetch("SELECT match_id FROM nstats_player_matches WHERE player_id=? ORDER BY id ASC", [playerId]);
+
+        const ids = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            ids.push(data[i].match_id);
+        }
+
+        return ids;
+    }
+
     async getMatchGametypes(ids){
 
         if(ids.length === 0) return {};

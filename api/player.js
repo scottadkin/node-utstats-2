@@ -1046,7 +1046,7 @@ class Player{
 
                 const comboManager = new Combogib();
 
-                await comboManager.deletePlayerFromMatch(playerId, matchId)
+                await comboManager.deletePlayerFromMatch(playerId, mapId, matchData.gametype, matchId)
                // await matchManager.renameSingleDMMatchWinner(matchId, oldName, matchData.name);
 
             }

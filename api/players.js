@@ -906,23 +906,23 @@ class Players{
 
             const matches = await matchManager.getAllPlayerMatches(playerId);
 
+            const matchIds = await matchManager.getAllPlayerMatchIds(playerId);
+
             const countriesManager = new CountriesManager();
 
             await countriesManager.deletePlayerViaMatchData(matches);
 
             const ctfManager = new CTF();
 
-            await ctfManager.deletePlayerViaMatchData(playerId, matches);
+            await ctfManager.deletePlayerViaMatchData(playerId, matchIds);
 
             const domManager = new Domination();
 
             await domManager.deletePlayer(playerId);
 
-
             const monsterHuntManager = new MonsterHunt();
 
             await monsterHuntManager.deletePlayer(playerId);
-
 
             const faceManager = new Faces();
 
