@@ -42,6 +42,7 @@ import MatchPlayerPingHistory from '../../components/MatchPlayerPingHistory';
 import MatchDominationSummaryNew from '../../components/MatchDominationSummaryNew';
 import MatchCTFCapTimes from '../../components/MatchCTFCapTimes';
 import CombogibMatchStats from '../../components/CombogibMatchStats';
+import ErrorMessage from '../../components/ErrorMessage';
 
 
 function bDomination(players){
@@ -141,7 +142,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
                 <div className="default">
                     
                     <div className="default-header">Match Does Not Exist!</div>
-    
+                    <ErrorMessage title="Match Report" text={`There is no match with the id of ${matchId}`}/>
                 </div>
             </div>
             <Footer session={session}/>
@@ -481,8 +482,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
         />;
     }
 
-    console.log(basicPlayersObject);
-
 
     return <div>
         <DefaultHead host={host} 
@@ -548,6 +547,7 @@ export async function getServerSideProps({req, query}){
                 "session": JSON.stringify(session.settings),         
                 "navSettings": JSON.stringify(navSettings),
                 "pageSettings": JSON.stringify(pageSettings),
+                "matchId": matchId
             }
         };
     }

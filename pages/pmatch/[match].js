@@ -37,12 +37,11 @@ import Domination from '../../api/domination';
 import PlayerMatchDomination from '../../components/PlayerMatchDomination';
 import Assault from '../../api/assault';
 import PlayerMatchAssault from '../../components/PlayerMatchAssault';
-import MonsterHunt from "../../api/monsterhunt";
 import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSummary";
-import PlayerMatchMonsters from  "../../components/PlayerMatchMonsters";
 import Analytics from "../../api/analytics";
 import MatchMonsterHuntMonsterKills from "../../components/MatchMonsterHuntMonsterKills";
 import CombogibPlayerMatch from "../../components/CombogibPlayerMatch";
+import ErrorMessage from "../../components/ErrorMessage";
 
 
 
@@ -67,7 +66,36 @@ class PlayerMatch extends React.Component{
         return input;
     }
 
+
+    renderError(){
+        
+        return <div>
+            <DefaultHead 
+                host={this.props.host} 
+                title={`Error! Match Report`} 
+                description={`Error`} 
+                keywords={`error`}
+            />
+            <main>
+                <Nav settings={this.props.navSettings} session={this.props.session}/>
+                <div id="content">
+                    <div className="default">
+                        <div className="default-header">Match Report</div>
+                        <ErrorMessage title="Match Report" text={this.props.error}/>
+                    </div>
+                </div>
+                <Footer session={this.props.session}/>
+            </main>
+        </div>
+    }
+
     render(){
+
+        if(this.props.error !== undefined){
+
+            return this.renderError();
+            
+        }
 
         const info = JSON.parse(this.props.info);
         const playerData = JSON.parse(this.props.playerData);
@@ -253,6 +281,20 @@ export async function getServerSideProps({req, query}){
 
     const matchManager = new Match();
 
+    const bMatchExist = await matchManager.exists(matchId);
+
+    if(!bMatchExist){
+        return {
+            "props": {
+                "host": req.headers.host,
+                "session": JSON.stringify(session.settings),
+                "navSettings": JSON.stringify(navSettings),
+                "pageSettings": JSON.stringify(pageSettings),
+                "error": `There is no match with the id of ${matchId}.`
+            }
+        };
+    }
+
     const info = await matchManager.get(matchId);
 
     const gametypeManager = new Gametypes();
@@ -263,6 +305,22 @@ export async function getServerSideProps({req, query}){
     const mapName = await mapManager.getName(info.map);
 
     const playerManager = new Player();
+
+    const bPlayerInMatch = await playerManager.bPlayerInMatch(playerId, matchId);
+    
+
+    if(!bPlayerInMatch){
+        return {
+            "props": {
+                "host": req.headers.host,
+                "session": JSON.stringify(session.settings),
+                "navSettings": JSON.stringify(navSettings),
+                "pageSettings": JSON.stringify(pageSettings),
+                "error": "Player wasn't in the match."
+            }
+        };
+    }
+
     const playersManager = new Players();
 
     const players = await playerManager.getAllInMatch(matchId);

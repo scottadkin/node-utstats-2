@@ -1065,6 +1065,15 @@ class Player{
 
     }
 
+    async bPlayerInMatch(playerId, matchId){
+
+        const query = "SELECT COUNT(*) as total_rows FROM nstats_player_matches WHERE player_id=? AND match_id=?";
+
+        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+
+        return result[0].total_rows > 0;
+    }
+
 }
 
 module.exports = Player;

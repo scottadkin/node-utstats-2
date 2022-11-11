@@ -1545,8 +1545,7 @@ class Matches{
         Functions.setIdNames(result, mapNames, "map", "mapName");
 
         return result;
-
-
     }
+
 }
 module.exports = Matches;
