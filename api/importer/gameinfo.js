@@ -85,6 +85,16 @@ class GameInfo{
                 }
             }
         }
+
+        if(this.gamename !== undefined){
+
+            if(this.insta !== undefined){
+
+                if(this.insta === 1){
+                    this.gamename = this.gamename + " (Instagib)";
+                }
+            }
+        }
     }
 
     setMatchLength(){
