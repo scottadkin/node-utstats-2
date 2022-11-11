@@ -1,24 +1,23 @@
 .box{
     display:inline-block;
-    width:200px;
-    background-color:var(--color-3);
-    border:1px solid var(--border-color-2);
+    width:175px;
+    background-color:var(--color-10);
+    border:1px solid var(--border-color-3);
     margin-left:5px;
     margin-bottom:5px;
 }
 
 .title{
-    font-size:16px;
-    padding:10px;
-    background-color:rgb(12,12,12);
+    font-size:14px;
+    padding:5px;
 }
 
 .image{
-    width:198px;
-    height:160px;
-    background-color:black;
-    background:linear-gradient(to bottom right, black, rgba(155, 66, 0, 0.5));
+    width:148px;
+    height:110px;
     padding-top:10px;
+    margin-left:auto;
+    margin-right:auto;
 }
 
 .image img{
@@ -28,6 +27,5 @@
 .value{
     font-size:14px;
     color:yellow;
-    background-color:rgb(12,12,12);
     padding:5px;
 }

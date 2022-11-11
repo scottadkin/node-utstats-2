@@ -6,7 +6,7 @@ const MatchCTFCapBox = ({title, image, value}) =>{
     return <div className={styles.box}>
         <div className={styles.title}>{title}</div>
         <div className={styles.image}>
-            <Image src={`/images/${image}`} width={160} height={140} alt="image"/>
+            <Image src={`/images/${image}`} width={90} height={90} alt="image"/>
         </div>
         <div className={styles.value}>{value}</div>
     </div>;
