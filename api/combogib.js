@@ -44,8 +44,10 @@ class Combogib{
     }
 
 
-    async getPlayerMatchData(playerId, matchId){
+    async getPlayerMatchData(playerId, matchId, bEveryRow){
         
+        if(bEveryRow === undefined) bEveryRow = false;
+
         const query = `SELECT 
         shockball_deaths,shockball_efficiency,shockball_kpm,shockball_kills,best_shockball_spree,best_combo_spree,best_primary_spree,
         best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,combo_kpm,
@@ -56,7 +58,12 @@ class Combogib{
         const result = await mysql.simpleQuery(query, [matchId, playerId]);
         
         if(result.length > 0){
-            return result[0];
+
+            if(!bEveryRow){
+                return result[0];
+            }else{
+                return result;
+            }
         }
 
         return null;
@@ -924,9 +931,188 @@ class Combogib{
 
         }else{
             throw new Error(`matchData is null`);
+        }   
+    }
+
+    async getDuplicatePlayerMatchIds(playerId){
+
+        const query = "SELECT match_id,COUNT(match_id) as total_entries FROM nstats_match_combogib WHERE player_id=? GROUP BY match_id";
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        const duplicates = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            if(result[i].total_entries > 1){
+                duplicates.push(result[i].match_id);
+            }
         }
 
+        return duplicates;
+    }
+
+    /*mergePlayerMatchData(data){
+
+        const total = data[0];
+
+        if(data.length === 1) return total;
+
+
+        for(let i = 1; i < data.length; i++){
+
+            const d = data[i];
+
+            total.shockball_deaths += d.shockball_deaths;
+            total.shockball_kills += d.shockball_kills;
+
+            if(d.best_shockball_spree > total.best_shockball_spree){
+                total.best_shockball_spree + d.best_shockball_spree;
+            }
+
+            total.combo_deaths += d.combo_deaths;
+            total.combo_kills += d.combo_kills;
+
+            if(d.best_combo_spree > total.best_combo_spree){
+                total.best_combo_spree + d.best_combo_spree;
+            }
+
+            total.primary_deaths += d.primary_deaths;
+            total.primary_kills += d.primary_kills;
+
+            if(d.best_primary_spree > total.best_primary_spree){
+                total.best_primary_spree + d.best_primary_spree;
+            }
+
+            total.insane_deaths += d.insane_deaths;
+            total.insane_kills += d.insane_kills;
+
+            if(d.best_insane_spree > total.best_insane_spree){
+                total.best_insane_spree + d.best_insane_spree;
+            }
+
+            
+        }
         
+        //do kpm and eff here
+    }*/
+
+
+    setCombinedPlayerMatchDataValues(data, key, playtime){
+
+        const kpmKey = `${key}_kpm`;
+        const effKey = `${key}_efficiency`;
+        const killsKey = `${key}_kills`;
+        const deathsKey = `${key}_deaths`;
+
+        data[kpmKey] = 0;
+        data[effKey] = 0;
+
+        if(playtime === 0) return;
+
+        if(data[killsKey] > 0){
+
+            if(data[deathsKey] > 0){
+                data[effKey] = (data[killsKey] / (data[killsKey] + data[deathsKey])) * 100;
+            }else{
+                data[effKey] = 100;
+            }
+
+            data[kpmKey] = data[killsKey] / (playtime / 60);
+        }
+    }
+
+    async getCombinedPlayerMatchData(playerOne, playerTwo, matchId){
+
+
+        const query = `SELECT 
+        SUM(playtime) as playtime,
+        SUM(primary_kills) as primary_kills,
+        SUM(primary_deaths) as primary_deaths,
+        SUM(shockball_kills) as shockball_kills,
+        SUM(shockball_deaths) as shockball_deaths,
+        SUM(combo_kills) as combo_kills,
+        SUM(combo_deaths) as combo_deaths,
+        SUM(insane_kills) as insane_kills,
+        SUM(insane_deaths) as insane_deaths,
+        MAX(best_single_combo) as best_single_combo,
+        MAX(best_single_shockball) as best_single_shockball,
+        MAX(best_single_insane) as best_single_insane,
+        MAX(best_primary_spree) as best_primary_spree,
+        MAX(best_shockball_spree) as best_shockball_spree,
+        MAX(best_combo_spree) as best_combo_spree,
+        MAX(best_insane_spree) as best_insane_spree
+        FROM nstats_match_combogib WHERE match_id=? AND (player_id=? OR player_id=?)`;
+
+        const result = await mysql.simpleQuery(query, [matchId, playerOne, playerTwo]);
+
+        if(result[0].playtime === null) return null;
+
+        const r = result[0];
+
+        const playtime = r.playtime;
+
+        this.setCombinedPlayerMatchDataValues(r, "primary", playtime);
+        this.setCombinedPlayerMatchDataValues(r, "shockball", playtime);
+        this.setCombinedPlayerMatchDataValues(r, "combo", playtime);
+        this.setCombinedPlayerMatchDataValues(r, "insane", playtime);
+
+        console.log(r);
+
+        //console.log(result);
+
+    }
+
+    //replace all data that has the id of playerOne with playerTwo
+    async mergePlayersMatchData(playerOne, playerTwo){
+
+        const matchTableQuery = `UPDATE nstats_match_combogib SET player_id=? WHERE player_id=?`;
+        await mysql.simpleQuery(matchTableQuery, [playerTwo, playerOne]);
+
+        const duplicateMatchIds = await this.getDuplicatePlayerMatchIds(playerTwo);
+
+
+        for(let i = 0; i < duplicateMatchIds.length; i++){
+
+            const matchId = duplicateMatchIds[i];
+
+            //const data = await this.getPlayerMatchData(playerTwo, matchId, true);
+            //console.log(data);
+
+            await this.getCombinedPlayerMatchData(playerOne, playerTwo, matchId);
+
+            /*if(data === null){
+                console.log(`No player data from matchId of ${matchId} and playerId of ${playerTwo}`);
+                continue;
+            }*/
+
+
+
+           // console.log(data);
+        }
+        console.log(duplicateMatchIds);
+
+    }
+
+    //merge playerOnes's stats into playerTwo's
+    async mergePlayers(playerOne, playerTwo){
+        
+        const playerOneHistory = await this.getPlayerHistory(playerOne);
+        const playerTwoHistory = await this.getPlayerHistory(playerTwo);
+
+        //nothing to do if there is no data for player one
+        if(playerOneHistory.length === 0) return true;
+
+
+       // if(playerTwoHistory.length === 0){
+
+            await this.mergePlayersMatchData(playerOne, playerOne/**test */);
+        //}
+
+
+        //console.log(playerOneHistory);
+        //console.log(playerTwoHistory);
+
     }
 }
 
