@@ -1,6 +1,7 @@
 import Session from "../../api/session";
 import Players from "../../api/players";
 import Matches from "../../api/matches";
+import Combogib from "../../api/combogib";
 
 
 export default async function handler (req, res){
@@ -116,11 +117,12 @@ export default async function handler (req, res){
             }else if(mode === "merge"){
 
                 const matchManager = new Matches();
+                const combogibManager = new Combogib();
 
                 const player1 = req.body.player1 ?? null;
                 const player2 = req.body.player2 ?? null;
 
-                if(await playerManager.mergePlayers(player1, player2, matchManager)){
+                if(await playerManager.mergePlayers(player1, player2, matchManager, combogibManager)){
 
                     res.status(200).json({"message": "Merged players successfully"});
                     return;

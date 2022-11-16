@@ -1069,7 +1069,7 @@ class Combogib{
     }
 
     //replace all data that has the id of playerOne with playerTwo
-    async mergePlayersMatchData(playerOne, playerTwo){
+    async mergePlayersData(playerOne, playerTwo){
 
         const matchTableQuery = `UPDATE nstats_match_combogib SET player_id=? WHERE player_id=?`;
         await mysql.simpleQuery(matchTableQuery, [playerTwo, playerOne]);
@@ -1132,7 +1132,6 @@ class Combogib{
         }
 
         for(const value of affectedMapIds.values()){
-
             await this.recalculateMapBestValues(value, true);
         }
     }
@@ -1145,9 +1144,8 @@ class Combogib{
         //nothing to do if there is no data for player one
         if(history.length === 0) return true;
 
-        await this.mergePlayersMatchData(playerOne, playerTwo);
+        await this.mergePlayersData(playerOne, playerTwo);
  
-
     }
 
     //for merging players, to delete from match and effect map/gametype totals use deletePlayerFromMatch instead

@@ -885,15 +885,9 @@ class Matches{
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
-            ?,?,?,?
-
+            ?,?,?,?,?
         )`;
 
-
-
-        
-
-        //87
 
         const vars = [
             data.match_id,
@@ -996,7 +990,8 @@ class Matches{
             data.super_health,
             data.mh_kills,
             data.mh_kills_best_life,
-            data.views
+            data.views,
+            data.mh_deaths
 
         ];
 

@@ -271,7 +271,7 @@ class Player{
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                 0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-
+                //53
             const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
 
             const vars = [

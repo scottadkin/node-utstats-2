@@ -734,7 +734,7 @@ class Players{
     }
 
     //first player gets merged into second
-    async mergePlayers(first, second, matchManager){
+    async mergePlayers(first, second, matchManager, combogibManager){
 
         try{    
 
@@ -847,6 +847,8 @@ class Players{
                 const spreeManager = new Sprees();
 
                 await spreeManager.changePlayerIds(first.id, second.id);
+
+                await combogibManager.mergePlayers(first.id, second.id);
 
                 return true;
             }else{
