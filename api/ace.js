@@ -447,7 +447,7 @@ class ACE{
             data.sounddevice,
             data.commandline,
             data.timestamp,
-            data.adminname,
+            data.adminname ?? "",
             data.filename,
             data.status
         ];
