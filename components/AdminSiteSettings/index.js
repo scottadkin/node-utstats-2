@@ -26,6 +26,7 @@ class AdminSiteSettings extends React.Component{
         this.changeTrueFalse = this.changeTrueFalse.bind(this);
         this.changeDropDownValue = this.changeDropDownValue.bind(this);
         this.changePosition = this.changePosition.bind(this);
+        this.changeHomeTitle = this.changeHomeTitle.bind(this);
 
     }
 
@@ -209,7 +210,9 @@ class AdminSiteSettings extends React.Component{
         return false;
     }
 
-    async updateCurrentSettings(toEdit, newValue){
+    async updateCurrentSettings(toEdit, newValue, bSaveChanges){
+
+        if(bSaveChanges === undefined) bSaveChanges = true;
 
         const oldSettings = JSON.parse(JSON.stringify(this.state.settings));
 
@@ -229,11 +232,12 @@ class AdminSiteSettings extends React.Component{
             }
         }
 
-        if(await this.updateSetting(toEdit, newValue)){
-
-            this.setState({"settings": newSettings});
-
+        if(bSaveChanges){
+            await this.updateSetting(toEdit, newValue);
+        
         }
+
+        this.setState({"settings": newSettings});
 
         
     }
@@ -247,6 +251,32 @@ class AdminSiteSettings extends React.Component{
         }
 
         await this.updateCurrentSettings(type, value);
+    }
+
+    async changeHomeTitle(e){
+
+        //const oldSetting = this.state.settings[]
+
+        console.log(this.state.settings);
+        console.log(e.target.value);
+
+        const newValue = e.target.value;
+
+        await this.updateCurrentSettings("Welcome Message Title", newValue, false);
+
+        /*for(let i = 0; i < this.state.settings.length; i++){
+
+            const s = this.state.settings[i];
+
+            if(s.name === "Welcome Message Title"){
+                //oldValue = s.value;
+
+                if(newValue !== s.value){
+                    console.log(`Value changed`);
+                }
+            }
+        }*/
+
     }
 
     async changeMode(id){
@@ -368,6 +398,34 @@ class AdminSiteSettings extends React.Component{
         </select>
     }
 
+    renderHomeMessageSettings(catName){
+
+        if(catName !== "Home") return null;
+
+        let title = null;
+        let textContent = null;
+        
+        for(let i = 0; i < this.state.settings.length; i++){
+
+            const s = this.state.settings[i];
+
+            if(s.name === "Welcome Message Content"){
+                textContent = s.value;
+            }else if(s.name === "Welcome Message Title"){
+                title = s.value;
+            }
+        }
+
+        return <div className="form">
+            <div className="default-sub-header-alt">Welcome Message Title</div>
+            <div>
+                <input type="text" className="default-textbox t-width-1" value={title} onChange={this.changeHomeTitle}/>
+            </div>
+            <div className="default-sub-header-alt m-top-25">Welcome Message Content</div>
+            <textarea className="default-textarea t-width-1" value={textContent}></textarea>
+        </div>
+    }
+
     renderSettings(){
 
         if(this.state.settings === null) return null;
@@ -378,9 +436,16 @@ class AdminSiteSettings extends React.Component{
 
         let ignoreOrder = [];
 
-        if(this.state.categories[this.state.mode] === "Match Pages"){
+        const catName = this.state.categories[this.state.mode];
+
+        if(catName === "Match Pages"){
+
             ignoreOrder = ["Display Match Report Title", "Display Mutators", "Display Target Score", "Display Time Limit"];
+        }else if(catName === "Home"){
+            ignoreOrder = ["Display Welcome Message"];
         }
+
+        const special = ["Welcome Message Title", "Welcome Message Content"];
 
         for(let i = 0; i < this.state.settings.length; i++){
 
@@ -388,6 +453,14 @@ class AdminSiteSettings extends React.Component{
 
             let valueElem = null;
             let bDropDown = false;
+
+            if(catName === "Home"){
+
+                if(special.indexOf(s.name) !== -1){
+
+                    continue;
+                }        
+            }
 
             if(s.value === "true" || s.value === "false"){
 
@@ -419,7 +492,7 @@ class AdminSiteSettings extends React.Component{
                 <td className="text-left">{s.name}</td>
                 {valueElem}
                 <td>
-                    {(bDropDown || ignoreOrder.indexOf(s.name) !== -1) ? null :
+                    {(bDropDown || ignoreOrder.indexOf(s.name) !== -1) ? <span className="small-font grey">N/A</span> :
                         <>
                             <Image src="/images/up.png" width={16} height={16} className={styles.button} alt="up" onClick={(() =>{
                                 this.changePosition(true, s.name);
@@ -433,8 +506,8 @@ class AdminSiteSettings extends React.Component{
             </tr>);
         }
 
-        return <div>
-            <Table2 width={4}>
+        return <div className="m-top-25">
+            <Table2 width={4} header={catName}>
                 <tr>
                     <th>Setting</th>
                     <th>Value</th>
@@ -444,6 +517,8 @@ class AdminSiteSettings extends React.Component{
                 {rows}
                 
             </Table2>
+
+            {this.renderHomeMessageSettings(catName)}
         </div>
     }
 

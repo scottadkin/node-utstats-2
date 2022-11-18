@@ -111,7 +111,7 @@ footer{
 	font-weight:500;
 	padding-bottom:18px;
 	padding-top:18px;
-	background-color:var(--color-8);
+	background-color:var(--color-9);
 	margin-left:auto;
 	margin-right:auto;
 	margin-bottom:35px;
@@ -129,7 +129,7 @@ footer{
 	max-width:var(--max-width-1);
 	margin-left:auto;
 	margin-right:auto;
-	background-color:var(--color-8);
+	background-color:var(--color-9);
 }
 
 .default-sub-header-alt{
@@ -147,7 +147,7 @@ footer{
 
 .default-info{
 
-	background-color:var(--color-3a);
+	background-color:var(--color-3);
 	border:1px solid var(--border-color-1);
 	max-width:var(--max-width-1);
 	width:90%;
@@ -422,7 +422,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .form{
-	background-color:var(--color-8);
+	background-color:var(--color-9);
 	max-width:var(--max-width-1);
 	width:90%;
 	margin-left:auto;
@@ -447,7 +447,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .default-select{
-	background-color:var(--color-3);
+	background-color:var(--color-8);
 	color:white;
 	border:1px solid var(--border-color-3);
 	font-size:16px;
@@ -461,8 +461,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .default-select option{
-	background-color:var(--color-3);
-
+	background-color:var(--color-9);
 }
 
 .select-label{
@@ -491,7 +490,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	font-size:18px;
 	font-weight:300;
 	padding:5px;
-	border:1px solid var(--border-color-1);
+	border:1px solid var(--border-color-3);
 	color:white;
 }
 
@@ -500,7 +499,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	font-size:14px;
 	font-weight:300;
 	padding:5px;
-	border:1px solid var(--border-color-1);
+	border:1px solid var(--border-color-3);
 	margin-bottom:10px;
 	color:white;
 }

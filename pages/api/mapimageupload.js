@@ -3,21 +3,64 @@ import fs from 'fs';
 import Session from '../../api/session';
 import Jimp from 'jimp';
 
+
+
 export const config = {
     api: {
         bodyParser: false,
     },
 };
 
+const FULLSIZE_DIR = "./public/images/maps/";
+const THUMBS_DIR = "./public/images/maps/thumbs/";
+
+
+function getExt(string){
+
+    const ext = /^.+\.(.+)$/i.exec(string);
+
+    if(ext !== null){
+        return ext[1].toLowerCase();
+    }
+
+    return null;
+}
+
+
+function uploadImage(currentLocation, currentName, targetName){
+
+    return new Promise(async (resolve, reject) =>{
+
+        fs.rename(`${currentLocation}/${currentName}`, `${FULLSIZE_DIR}/${targetName}`, async (err) =>{
+
+            if(err){
+                reject(err);
+                return;
+            }
+
+            const fileName = `${FULLSIZE_DIR}/${targetName}`;
+            const iconName = `${THUMBS_DIR}/${targetName}`;
+
+            await Jimp.read(fileName).then((file) =>{
+
+                return file.resize(480, 270).write(iconName);
+
+            }).catch((err) =>{
+                console.trace(err);
+            })
+
+            resolve();
+        });
+    });
+    
+}
+
 export default async function handler(req, res){
 
     return new Promise(async (resolve, reject) =>{
 
-        const VALID_FILE_TYPES = [".jpg", ".jpeg"];
-        const VALID_MIME_TYPES = ["image/jpg", "image/jpeg"];
-        const FULLSIZE_DIR = "./public/images/maps/";
-        const THUMBS_DIR = "./public/images/maps/thumbs/";
-
+        const VALID_FILE_TYPES = ["jpg", "jpeg", "png"];
+        const VALID_MIME_TYPES = ["image/jpg", "image/jpeg", "image/png"];
 
         const session = new Session(req);
 
@@ -25,65 +68,62 @@ export default async function handler(req, res){
 
         if(await session.bUserAdmin()){
 
-            const form = new formidable.IncomingForm();
-
             const errors = [];
 
-            form.uploadDir = "./uploads";
-            //form.maxFileSize = (1024 * 1024) * 5;
+            const form = formidable({"uploadDir": "./uploads/"});
 
             form.parse(req, (err, fields, files) =>{
 
-
-
-            });
-
-            form.on('file', async (name, file) => {
-                
-
-                await Jimp.read(file.path)
-                .then((file) =>{
-
-                    return file
-                    .quality(85)
-                    .resize(480, 270)
-                    .write(`${THUMBS_DIR}${name}`)
-
-                }).catch((err) =>{
-                    console.trace(err);
-                    errors.push(err);
-                })
-
-
-                await Jimp.read(file.path)
-                .then((file) =>{
-
-                    return file
-                    .quality(85)
-                    .write(`${FULLSIZE_DIR}${name}`)
-
-                }).catch((err) =>{
-                    errors.push(errors);
-                    console.trace(err);
-                }); 
-
-                try{
-                    fs.unlinkSync(file.path);
-
-                }catch(err){
-
+                if(err){
                     console.trace(err);
                     errors.push(err);
                 }
+            });
 
-                if(errors.length === 0){
-                    res.status(200).json({"message": "file uploaded"});
+            form.on("file", async (formName, file) =>{
+            //form.onPart = function(part){
+
+                console.log("CHECK");
+                //console.log(part.originalFilename);
+
+                console.log(formName, file);
+   
+
+                if(VALID_MIME_TYPES.indexOf(file.mimetype) !== -1){     
+
+                    const ext = getExt(file.originalFilename);
+
+                    if(ext !== null){
+
+                        if(VALID_FILE_TYPES.indexOf(ext) !== -1){
+
+                            await uploadImage(`./uploads/`, file.newFilename, `${formName}`);
+                            console.log("ok");
+                            res.status(200).json({"message": "upload complete."});
+                            resolve();
+
+                        }else{
+                            errors.push(`${ext} is not a valid file extension`);
+                        }
+                    }else{
+
+                        errors.push(`File extension was null`);
+                    }
+
                 }else{
-                    res.status(200).json({"errors": errors});
+                    errors.push(`${mimetype} is not a valid mimeType`);
                 }
 
-                resolve();
+              
+
+                if(errors.length > 0){
+
+                    console.log(errors);
+                    res.status(200).json({"errors": errors});
+                    resolve()
+                }
             });
+           
 
         }else{
             res.status(200).json({"errors": ["Access Denied"]});

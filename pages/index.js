@@ -1,27 +1,28 @@
-import DefaultHead from '../components/defaulthead'
-import Nav from '../components/Nav/'
-import Footer from '../components/Footer/';
-import Matches from '../api/matches';
-import MatchesDefaultView from '../components/MatchesDefaultView/';
-import Functions from '../api/functions';
-import Maps from '../api/maps';
-import Gametypes from '../api/gametypes';
-import Servers from '../api/servers';
-import PopularCountries from '../components/PopularCountries/';
-import CountryManager from '../api/countriesmanager';
-import Players from '../api/players';
-import React from 'react';
-import Graph from '../components/Graph/';
-import BasicPlayers from '../components/BasicPlayers/';
-import Faces from '../api/faces';
-import HomeTopMaps from '../components/HomeTopMaps/';
-import HomeMostPlayedGametypes from '../components/HomeMostPlayedGametypes/';
-import MostUsedFaces from '../components/MostUsedFaces/';
-import Session from '../api/session';
-import SiteSettings from '../api/sitesettings';
-import MatchesTableView from '../components/MatchesTableView/';
-import Screenshot from '../components/Screenshot';
-import Analytics from '../api/analytics';
+import DefaultHead from "../components/defaulthead"
+import Nav from "../components/Nav/"
+import Footer from "../components/Footer/";
+import Matches from "../api/matches";
+import MatchesDefaultView from "../components/MatchesDefaultView/";
+import Functions from "../api/functions";
+import Maps from "../api/maps";
+import Gametypes from "../api/gametypes";
+import Servers from "../api/servers";
+import PopularCountries from "../components/PopularCountries/";
+import CountryManager from "../api/countriesmanager";
+import Players from "../api/players";
+import React from "react";
+import Graph from "../components/Graph/";
+import BasicPlayers from "../components/BasicPlayers/";
+import Faces from "../api/faces";
+import HomeTopMaps from "../components/HomeTopMaps/";
+import HomeMostPlayedGametypes from "../components/HomeMostPlayedGametypes/";
+import MostUsedFaces from "../components/MostUsedFaces/";
+import Session from "../api/session";
+import SiteSettings from "../api/sitesettings";
+import MatchesTableView from "../components/MatchesTableView/";
+import Screenshot from "../components/Screenshot";
+import Analytics from "../api/analytics";
+import HomeWelcomeMessage from "../components/HomeWelcomeMessage";
 
 function createDatesGraphData(data){
 
@@ -114,9 +115,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 	for(let i = 0; i < totalElems; i++){
 		elems.push(null);
 	}
-
-	console.log(pageOrder);
-	
 
 	
 	if(JSON.parse(matchesData).length > 0){
@@ -223,13 +221,11 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 
 			elems[pageOrder["Display Most Popular Countries"]] = <PopularCountries key={"countries"} data={countriesData} totalPlayers={totalPlayers}/>;
 		}
-
 	}
 
 	return (
 		<div>
-		<DefaultHead host={host} title={"Home"} description="Welcome to Node UTStats 2, view various stats for players,matches,maps,records and more!" keywords="home,welcome"/>
-		
+		<DefaultHead host={host} title={"Home"} description="Welcome to Node UTStats 2, view various stats for players,matches,maps,records and more!" keywords="home,welcome"/>	
 		<main>
 			<Nav settings={navSettings} session={session}/>
 			<div id="content">
@@ -237,8 +233,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 			
 				{message}
 
-				<div className="default-header">Welcome to Node UTStats 2</div>
-				<div id="welcome-text">Here you can look up information for UT matches, players, and maps.</div>
+				<HomeWelcomeMessage />
 
 				{elems}
 				
@@ -282,9 +277,9 @@ export async function getServerSideProps({req, query}) {
 		mostPlayedMaps = await mapManager.getMostPlayed(4);
 	}
 
-	let mapIds = Functions.getUniqueValues(matchesData, 'map');
-	const gametypeIds = Functions.getUniqueValues(matchesData, 'gametype');
-	const serverIds = Functions.getUniqueValues(matchesData, 'server');
+	let mapIds = Functions.getUniqueValues(matchesData, "map");
+	const gametypeIds = Functions.getUniqueValues(matchesData, "gametype");
+	const serverIds = Functions.getUniqueValues(matchesData, "server");
 
 	let mapNames = await mapManager.getNames(mapIds);
 	
@@ -305,9 +300,9 @@ export async function getServerSideProps({req, query}) {
 		countryData = await countriesM.getMostPopular();
 	}
 
-	Functions.setIdNames(matchesData, mapNames, 'map', 'mapName');
-	Functions.setIdNames(matchesData, gametypeNames, 'gametype', 'gametypeName');
-	Functions.setIdNames(matchesData, serverNames, 'server', 'serverName');
+	Functions.setIdNames(matchesData, mapNames, "map", "mapName");
+	Functions.setIdNames(matchesData, gametypeNames, "gametype", "gametypeName");
+	Functions.setIdNames(matchesData, serverNames, "server", "serverName");
 
 	const totalMatches = await matchManager.getTotal();
 	const firstMatch = await matchManager.getFirst();
@@ -357,9 +352,9 @@ export async function getServerSideProps({req, query}) {
 		recentPlayersData = await playerManager.getRecentPlayers(5);
 	}
 
-	let faceIds = Functions.getUniqueValues(addictedPlayersData, 'face');
+	let faceIds = Functions.getUniqueValues(addictedPlayersData, "face");
 
-	faceIds = faceIds.concat(Functions.getUniqueValues(recentPlayersData, 'face'));
+	faceIds = faceIds.concat(Functions.getUniqueValues(recentPlayersData, "face"));
 
 	const faceManager = new Faces();
 
@@ -369,7 +364,7 @@ export async function getServerSideProps({req, query}) {
 		mostUsedFaces = await faceManager.getMostUsed(5);
 	}
 
-	faceIds = faceIds.concat(Functions.getUniqueValues(mostUsedFaces, 'id'));
+	faceIds = faceIds.concat(Functions.getUniqueValues(mostUsedFaces, "id"));
 
 	const faceFiles = await faceManager.getFacesWithFileStatuses(faceIds);
 
@@ -384,7 +379,7 @@ export async function getServerSideProps({req, query}) {
 
 		for(let i = 0; i < gametypeStats.length; i++){
 	
-			imageGametypeNames.push(gametypeStats[i].name.replace(/ /ig,'').replace(/tournament/ig, '').toLowerCase());
+			imageGametypeNames.push(gametypeStats[i].name.replace(/ /ig,"").replace(/tournament/ig, "").toLowerCase());
 		}
 	
 		gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);
@@ -421,7 +416,7 @@ export async function getServerSideProps({req, query}) {
 		}
 	}
 
-	await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+	await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
 	return { props: { 
 			"pageSettings": JSON.stringify(pageSettings),
