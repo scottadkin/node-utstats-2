@@ -83,11 +83,7 @@ export default async function handler(req, res){
             form.on("file", async (formName, file) =>{
             //form.onPart = function(part){
 
-                console.log("CHECK");
-                //console.log(part.originalFilename);
-
-                console.log(formName, file);
-   
+                if(formName === undefined) formName = "000_temp";
 
                 if(VALID_MIME_TYPES.indexOf(file.mimetype) !== -1){     
 
