@@ -182,7 +182,10 @@ class FTPImporter{
 
             this.client.get(target, (err, stream) =>{
 
-                if(err) reject(err);
+                if(err){
+                    reject(err);
+                    return;
+                }
 
                 stream.pipe(fs.createWriteStream(destination));
                 // why did i not add this here before?
@@ -350,7 +353,10 @@ class FTPImporter{
 
             this.client.list(`${this.targetDir}${config.ace.screenshotsDir}/`, async (err, files) =>{
 
-                if(err) reject(err);
+                if(err){
+                    reject(err);
+                    return;
+                }
 
                 const prefix = config.ace.screenshotPrefix.toLowerCase();
                 const extensionType = config.ace.screenshotExtensionType.toLowerCase();
@@ -377,7 +383,10 @@ class FTPImporter{
 
             this.client.list(`${this.targetDir}${config.ace.logDir}/`, async (err, files) =>{
 
-                if(err) reject(err);
+                if(err){
+                    reject(err);
+                    return;
+                }
 
                 const joinPrefix = config.ace.playerJoinLogPrefix.toLowerCase();
                 const kickPrefix = config.ace.kickLogPrefix.toLowerCase();
