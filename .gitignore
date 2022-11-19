@@ -16,6 +16,7 @@
 server.js
 ooper_ddns_net.der
 ooper_ddns_net.pem
+config.json
 
 # production
 /build
