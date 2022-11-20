@@ -1,5 +1,7 @@
 {
     "importInterval": 30,
+    "imageServerPort": 3001,
+    "websitePort": 3000,
     "mysql": {
         "host": "localhost",
         "port": 3306,
