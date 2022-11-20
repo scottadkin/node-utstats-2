@@ -39,9 +39,9 @@ class ACEScreenshot extends React.Component{
 
         const reg = /^.*\/(.+)$/i;
         const result = reg.exec(file);
-        let image = `${this.props.host}images/temp.jpg`;
+        let image = `${this.props.host}/temp.jpg`;
 
-        if(result !== null) image = `${this.props.host}images/ace/${result[1]}`;
+        if(result !== null) image = `${this.props.host}/ace/${result[1]}`;
 
         return image;
     }
@@ -92,7 +92,7 @@ class ACEScreenshot extends React.Component{
             </Table2>
 
             <div className="default-sub-header">Screenshot</div>
-            <a href={image} rel="noreferrer" target="_blank"><Image width={1920} height={1080} src={image} className="t-width-1 m-bottom-25" alt="image"/></a>
+            <a href={image} rel="noreferrer" target="_blank"><img src={image} className="t-width-3 m-bottom-25" alt="image"/></a>
 
             {this.renderRawLog()}
         </div>

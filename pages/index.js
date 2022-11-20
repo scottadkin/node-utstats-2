@@ -125,7 +125,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 			
 			elems[pageOrder["Display Latest Match"]] = <Screenshot 
 				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} 
-				image={`${imageHost}/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
+				image={`${imageHost}/maps/${JSON.parse(latestMatchImage)}.jpg`} 
 				matchData={JSON.stringify(latestMatch)}
 				serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={latestFaces} bHome={true}
 				host={imageHost}
@@ -232,8 +232,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 				<div className="default">
 			
 				{message}
-
-				<HomeWelcomeMessage />
+				
 
 				{elems}
 				
