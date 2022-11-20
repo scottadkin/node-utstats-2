@@ -1,4 +1,4 @@
-const config = require('../config.json');
+const {imageServerPort} = require("../config.json");
 
 class Functions{
 
@@ -644,9 +644,6 @@ class Functions{
 
     static getImageHostAndPort(host){
 
-        if(!config.bUseImageServer) return `http://${host}/`;
-
-
         const hostReg = /^(.+):(\d+)$/im;
         const hostResult = hostReg.exec(host);
 
@@ -657,10 +654,10 @@ class Functions{
             host = hostResult[1];
         }else{
 
-            return `${host}:3001/`;
+            return `${host}:${imageServerPort}`;
         }
 
-        return `http://${host}:${port}/`;
+        return `http://${host}:${port}`;
        
 
     }
