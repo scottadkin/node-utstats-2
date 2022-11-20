@@ -374,7 +374,6 @@ class SFTPImporter{
                
                 const age = now - fileDate;
  
-
                 if(age > minTmpFileAge){
                     await this.deleteFile(`${this.entryPoint}/Logs/${f.name}`);
                 }

@@ -60,8 +60,8 @@ class PlayerManager{
         for(let i = 0; i < this.players.length; i++){
 
             p = this.players[i];
-
-            if(p.bDuplicate === undefined && p.bPlayedInMatch){
+            
+            if(p.bDuplicate === undefined && p.bPlayedInMatch && p.stats.time_on_server > 0){
 
                 if(this.bIgnoreBots){
                     if(p.bBot) continue;
