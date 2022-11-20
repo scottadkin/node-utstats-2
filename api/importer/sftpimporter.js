@@ -361,12 +361,23 @@ class SFTPImporter{
 
         new Message(`Found ${this.tmpFiles.length} tmp files in logs folder.`, "note");
 
+        const now = Math.floor(Date.now() * 0.001);
+
+        const minTmpFileAge = ((60 * 60) * 24) * config.minTMPFileAgeInDays;
+
         if(this.bDeleteTmpFiles){
 
             for(let i = 0; i < this.tmpFiles.length; i++){
 
                 const f = this.tmpFiles[i];
-                await this.deleteFile(`${this.entryPoint}/Logs/${f.name}`);
+                const fileDate = Math.floor(f.accessTime * 0.001);
+               
+                const age = now - fileDate;
+ 
+
+                if(age > minTmpFileAge){
+                    await this.deleteFile(`${this.entryPoint}/Logs/${f.name}`);
+                }
             }
         }
     }
