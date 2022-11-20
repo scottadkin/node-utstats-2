@@ -131,7 +131,11 @@ class FTPImporter{
         const extReg = /^.+\.log$/i;
         const tmpReg = /^.+\.tmp$/i;
 
+        const now = Math.floor(Date.now() * 0.001);
+
         let bAlreadyImported = false;
+
+        const minTmpFileAge = ((60 * 60) * 24) * config.minTMPFileAgeInDays;
 
         const logFilePrefix = config.logFilePrefix.toLowerCase();
 
@@ -166,7 +170,15 @@ class FTPImporter{
                 if(f.name.toLowerCase().startsWith(logFilePrefix)){
 
                     if(this.bDeleteTmpFiles){
-                        await this.deleteFile(`${this.targetDir}Logs/${f.name}`);
+
+                        const fileDate = Math.floor(Date.parse(f.date) * 0.001);
+
+                        const age = now - fileDate;
+
+                        if(age > minTmpFileAge){
+                            await this.deleteFile(`${this.targetDir}Logs/${f.name}`);
+                        }
+                        
                     }else{
                         new Message(`Delete TMP files is disabled on this server, skipping delete ${this.targetDir}Logs/${f.name}.`,'note');
                     }

@@ -2,6 +2,7 @@
     "importInterval": 30,
     "imageServerPort": 3001,
     "websitePort": 3000,
+    "minTMPFileAgeInDays": 1,
     "mysql": {
         "host": "localhost",
         "port": 3306,
@@ -30,7 +31,5 @@
         "screenshotsDir": "Shots",
         "screenshotExtensionType": ".jpg",
         "screenshotPrefix": "[ACE]"
-    },
-    "bUseImageServer": false
-
+    }
 }
