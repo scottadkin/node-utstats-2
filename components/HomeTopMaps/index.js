@@ -40,7 +40,7 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
         elems.push(<Link key={i} href={`${(classic) ? "/classic" : "" }/map/${id}`}><a>
             <div className={styles.wrapper}>
                 <div className={styles.name}>{Functions.removeUnr(m.name)} </div> 
-                <Image src={`/images/maps/${currentImage}.jpg`} height={225} width={400} alt="image" />
+                <img src={`${host}/maps/${currentImage}.jpg`} alt="image" />
                 <div className={styles.info}>
                     Playtime {hours.toFixed(2)} Hours<br/>
                     {matches} Matches<br/>
@@ -53,7 +53,6 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
 
     return <div className="m-bottom-10">
         <div className="default-header">Most Played Maps</div>
-
         {elems}
     </div>
 }

@@ -46,42 +46,53 @@ class ACEPlayerReport extends React.Component{
     async nextSShots(){
 
         if(this.state.sshotPage < this.state.sshotPages - 1){
+
+            const page = this.state.sshotPage + 1;
   
-            this.setState({"sshotPage": ++this.state.sshotPage});
-            await this.loadScreenshotRequests(this.state.sshotPage);
+            this.setState({"sshotPage": page});
+            await this.loadScreenshotRequests(page);
         }
     }
 
     async previousSShots(){
 
         if(this.state.sshotPage > 0){
-            this.setState({"sshotPage": --this.state.sshotPage});
-            await this.loadScreenshotRequests(this.state.sshotPage);
+
+            const page = this.state.sshotPage - 1;
+
+            this.setState({"sshotPage": page});
+            await this.loadScreenshotRequests(page);
         }
     }
 
     async nextKicks(){
 
         if(this.state.kickPage < this.state.kickPages - 1){
+
+            const page = this.state.kickPage + 1;
   
-            this.setState({"kickPage": ++this.state.kickPage});
-            await this.loadKickLogs(this.state.kickPage);
+            this.setState({"kickPage": page});
+            await this.loadKickLogs(page);
         }
     }
 
     async previousKicks(){
 
         if(this.state.kickPage > 0){
-            this.setState({"kickPage": --this.state.kickPage});
-            await this.loadKickLogs(this.state.kickPage);
+
+            const page = this.state.kickPage - 1;
+            this.setState({"kickPage": page});
+            await this.loadKickLogs(page);
         }
     }
 
     async previous(){
 
         if(this.state.joinsPage > 0){
-            this.setState({"joinsPage": --this.state.joinsPage });
-            await this.loadPlayerJoins(this.state.joinsPage);
+
+            const page = this.state.joinsPage - 1;
+            this.setState({"joinsPage": page});
+            await this.loadPlayerJoins(page);
         }
     }
 
@@ -89,8 +100,10 @@ class ACEPlayerReport extends React.Component{
 
         if(this.state.joinsPage < this.state.joinPages - 1){
 
-            this.setState({"joinsPage": ++this.state.joinsPage});
-            await this.loadPlayerJoins(this.state.joinsPage);
+            const page = this.state.joinsPage + 1;
+
+            this.setState({"joinsPage": page});
+            await this.loadPlayerJoins(page);
         }
     }
 
@@ -121,8 +134,6 @@ class ACEPlayerReport extends React.Component{
                         return b-a;
                     });
                 }
-
-                console.log(res);
 
                 this.setState({
                     "basicData": res.playerData,
