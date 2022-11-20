@@ -1,3 +1,5 @@
+const Message = require("../message");
+
 class GameInfo{
 
     constructor(data){
@@ -12,8 +14,10 @@ class GameInfo{
 
         this.start = 0;
         this.end = 0;
-        this.length = 0;
+       // this.length = 0;
         this.endReason = 0;
+
+        this.matchLength = 0;
 
         this.targetScore = 0;
 
@@ -22,6 +26,7 @@ class GameInfo{
 
         this.mutators = [];
         
+        this.hardcore = 0;
 
 
         this.parseData();
@@ -99,14 +104,24 @@ class GameInfo{
 
     setMatchLength(){
 
-        this.length = 0;
+        this.matchLength = 0;
+
+        const sn3pValue = 1.09863333333333333333333333333333333333333333333333333333333;
 
         if(this.start !== null && this.end !== null){
 
-            this.length = this.end - this.start;
+            this.matchLength = this.end - this.start;
         
         }else if(this.start === null && this.end !== null){
-            this.length = this.end;
+            this.matchLength = this.end;
+        }
+
+        //gamespeed is 110%
+        if(this.hardcore){
+            new Message(`Match mode is hardcore!`,"note");
+            if(this.matchLength !== 0){
+                this.matchLength = this.matchLength / 1.1;
+            }
         }
     }
 
@@ -115,7 +130,7 @@ class GameInfo{
         return {
             "start": (this.start !== null) ? this.start : 0,
             "end": (this.end !== null) ? this.end : 0,
-            "length": (this.length !== null) ? this.length : 0,
+            "length": (this.matchLength !== null) ? this.matchLength : 0,
         };
     }
 

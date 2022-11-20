@@ -60,7 +60,7 @@ class MatchManager{
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
 
-            if(this.gameInfo.length < this.minPlaytime){
+            if(this.gameInfo.matchLength < this.minPlaytime){
                 new Message(`Match length is less then the minimum specified, skipping.`, "note");
                 return null;
             }
@@ -121,6 +121,8 @@ class MatchManager{
             new Message(`Inserted match info into database.`,'pass');
             
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
+
+            this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
 
             const bLMS = this.bLastManStanding();
 
@@ -212,6 +214,7 @@ class MatchManager{
             }
 
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
+
             new Message(`Updated player frag performance.`,'pass');
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
             new Message(`Updated player winstats performance.`,'pass');
@@ -337,7 +340,7 @@ class MatchManager{
                     this.playerManager, this.killManager, 
                     this.combogibLines, this.gametype.currentMatchGametype, this.matchId, 
                     this.mapInfo.mapId, this.bIgnoreBots,
-                    this.gameInfo.length
+                    this.gameInfo.matchLength
                 );
            
                 new Message("Parsing combogib data.","note");
@@ -389,7 +392,7 @@ class MatchManager{
                 this.serverInfo.server_region,
                 motd,
                 this.gameInfo.mutators,
-                this.gameInfo.length,
+                this.gameInfo.matchLength,
                 this.gameInfo.endReason,
                 this.gameInfo.start,
                 this.gameInfo.end,

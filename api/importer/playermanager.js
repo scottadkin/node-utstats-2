@@ -1024,17 +1024,17 @@ class PlayerManager{
 
     }
 
+
     async updateFragPerformance(gametypeId, date){
 
         try{
 
-            let p = 0;
-
+   
             //get current gametype id here
 
             for(let i = 0; i < this.players.length; i++){
 
-                p = this.players[i];
+                const p = this.players[i];
 
                 if(!p.bPlayedInMatch) continue;
 
@@ -1044,11 +1044,14 @@ class PlayerManager{
                  
                 if(p.bDuplicate === undefined){
 
+                    let playtime = p.stats.time_on_server;
+
+
                     //update combined gametypes totals
                     await Player.updateFrags(
                         p.masterId, 
                         date,
-                        p.stats.time_on_server, 
+                        playtime, 
                         p.stats.frags,
                         p.stats.score,  
                         p.stats.kills, 
@@ -1076,7 +1079,7 @@ class PlayerManager{
                     await Player.updateFrags(
                         p.gametypeId, 
                         date,
-                        p.stats.time_on_server, 
+                        playtime, 
                         p.stats.frags,
                         p.stats.score, 
                         p.stats.kills, 
@@ -1737,6 +1740,33 @@ class PlayerManager{
         }
 
         return null;
+    }
+
+    fixPlaytime(bHardcore, matchLength){
+
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            let playtime = p.stats.time_on_server;
+
+            if(bHardcore){
+                if(playtime > 0){
+                    playtime = playtime / 1.1;
+                }
+            }
+
+            //lazy way to ignore warm up
+            if(playtime > matchLength){
+                playtime = matchLength;
+            }
+
+            p.stats.time_on_server = playtime;
+
+        }
+
+        
     }
 }
 
