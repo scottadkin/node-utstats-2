@@ -1,35 +1,19 @@
-const Playtime = ({seconds}) =>{
+import React from "react";
+import styles from "./Playtime.module.css";
+import Functions from "../../api/functions";
 
+class Playtime extends React.Component{
 
-    let currentMinutes = Math.floor(seconds / 60);
+    constructor(props){
 
-    let currentSeconds = Math.floor(seconds % 60);
-
-
-
-    let secondString = (currentSeconds > 1) ? "Secs" : "Sec";
-    let minuteString = (currentMinutes > 1) ? "Mins" : "Min";
-
- 
-    let string = `${currentMinutes} ${minuteString}, ${currentSeconds} ${secondString}`;
-
-    if(currentMinutes >= 1){
-
-        if(currentSeconds === 0){
-            string = `${currentMinutes} ${minuteString}`;
-        }
+        super(props);
     }
 
-    if(currentMinutes === 0){
-        string = `${currentSeconds} ${secondString}`;
+
+    render(){
+
+        return <div className={styles.wrapper}>{Functions.toPlaytime(this.props.timestamp)}</div>
     }
-
-    
-
-    return (<span>
-        {string}
-    </span>);
 }
-
 
 export default Playtime;

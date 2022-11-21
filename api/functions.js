@@ -605,7 +605,7 @@ class Functions{
 
         if(seconds === 0) return 0;
 
-        return (seconds / (60 * 60)).toFixed(2);
+        return (seconds / 3600).toFixed(2);
     }
 
     static reduceGraphDataPoints(inputData, max){
@@ -717,6 +717,56 @@ class Functions{
         return `${word}s`;
     }
 
+
+    static toPlaytime(seconds){
+
+        if(seconds === 0) return "None";
+
+        const rSeconds = Math.floor(seconds % 60);
+        const secondString = Functions.plural(rSeconds, "Second");
+
+        const totalMintues = Math.floor(seconds / 60);
+
+        const rMinutes = Math.floor(totalMintues % 60);
+        const minuteString = Functions.plural(rMinutes, "Minute");
+            
+        const hours = Math.floor(totalMintues / 60);
+        const hoursString = Functions.plural(hours, "Hour");
+
+       // const minutes = Math.floor(seconds / 60) % 60;
+
+        if(hours > 0){
+
+            if(rMinutes > 0){
+                return `${hours} ${hoursString}, ${rMinutes} ${minuteString}`;
+            }else{
+
+                if(rSeconds > 0){
+                    return `${hours} ${hoursString}, ${rSeconds} ${secondString}`;
+                }
+            }
+
+            return `${hours} ${hoursString}`;
+            
+        }else{
+
+            if(rMinutes > 0){
+
+                if(rSeconds > 0){
+                    return `${rMinutes} ${minuteString}, ${rSeconds} ${secondString}`;
+                }
+
+                return `${rMinutes} ${minuteString}`;
+
+            }else{
+
+                return `${rSeconds} ${secondString}`;
+            }
+        }
+
+        return ":thinking:";
+        //return `${hours}horus (${rMinutes}), ${rSeconds} secs`
+    }
 
 }
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import React from 'react';
 import Functions from '../../api/functions';
 import Table2 from '../Table2';
+import Playtime from '../Playtime';
 
 function createOrderLink(terms, type, value){
 
@@ -126,7 +127,7 @@ class PlayersList extends React.Component{
                     })}>Accuracy</a></Link></th>
                     <th><Link href={createOrderLink(searchTerms, "playtime", this.state.order)}><a onClick={(() =>{
                         this.changeOrder("playtime");
-                    })}>Playtime (Hours)</a></Link></th>
+                    })}>Playtime</a></Link></th>
                 </tr>);
             }
 
@@ -177,7 +178,7 @@ class PlayersList extends React.Component{
                     <td>{p.deaths}</td>
                     <td>{p.efficiency.toFixed(2)}%</td>
                     <td>{p.accuracy.toFixed(2)}%</td>
-                    <td>{(p.playtime / (60 * 60)).toFixed(2)}</td>
+                    <td><Playtime timestamp={p.playtime}/></td>
             
                 </tr>);
             }
