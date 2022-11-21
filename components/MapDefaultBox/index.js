@@ -12,11 +12,10 @@ class MapDefaultBox extends React.Component{
     getImage(){
         
 
-        const fixedName = Functions.removeMapGametypePrefix(Functions.removeUnr(this.props.data.name)).toLowerCase();
+        const fixedName = Functions.cleanMapName(this.props.data.name).toLowerCase();
         const images = JSON.parse(this.props.images);
 
         const index = images.indexOf(fixedName);
-        
 
         if(index !== -1){
             return `${this.props.host}/maps/thumbs/${images[index]}.jpg`;
