@@ -7,13 +7,14 @@ const express = require("express");
 
 const eApp = express();
 
-eApp.use(express.static("./public/images/"));
-
+eApp.use(express.static("./public/images"));
+const dev = process.argv.indexOf("production") === -1;
 eApp.listen(imageServerPort);
 
-const dev = process.env.NODE_ENV !== "production";
+//const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = process.env.PORT ?? websitePort;
+
 
 console.log(`port = ${port}`);
 
