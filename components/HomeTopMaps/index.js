@@ -1,7 +1,6 @@
 import Functions from '../../api/functions';
 import Link from 'next/link';
 import styles from './HomeTopMaps.module.css';
-import Image from 'next/image';
 
 const HomeTopMaps = ({maps, images, classic, host}) =>{
 
@@ -40,7 +39,7 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
         elems.push(<Link key={i} href={`${(classic) ? "/classic" : "" }/map/${id}`}><a>
             <div className={styles.wrapper}>
                 <div className={styles.name}>{Functions.removeUnr(m.name)} </div> 
-                <img className={styles.sshot} src={`${host}/maps/thumbs/${currentImage}.jpg`} alt="image" />
+                <img className="thumb-sshot" src={`${host}/maps/thumbs/${currentImage}.jpg`} alt="image" />
                 <div className={styles.info}>
                     Playtime {hours.toFixed(2)} Hours<br/>
                     {matches} Matches<br/>

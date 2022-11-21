@@ -754,3 +754,8 @@ input[type="range"]{
 .grey{
 	color:var(--color-6);
 }
+
+.thumb-sshot{
+    height:196px;
+    width:350px;
+}

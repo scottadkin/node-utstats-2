@@ -1,4 +1,3 @@
-import styles from './MatchesDefaultView.module.css';
 import Functions from '../../api/functions'
 import React from 'react';
 import MatchResultDisplay from '../MatchResultDisplay';
@@ -57,7 +56,7 @@ class MatchesDefaultView extends React.Component{
                 key={i}
                 mode="recent"
                 url={`/match/${m.id}`}
-                mapImage={`/images/maps/${this.getMapImage(m.mapName)}.jpg`}
+                mapImage={`${this.props.host}/maps/thumbs/${this.getMapImage(m.mapName)}.jpg`}
                 mapName={m.mapName}
                 serverName={m.serverName}
                 date={Functions.convertTimestamp(m.date)}

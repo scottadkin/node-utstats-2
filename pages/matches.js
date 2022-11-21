@@ -140,11 +140,13 @@ class Matches extends React.Component{
 
         let matchElems = [];
 
+        const imageHost = Functions.getImageHostAndPort(this.props.host);
+
         if(this.state.displayType){
             matchElems = <MatchesTableView data={this.props.matches}/>
         }else{
             matchElems = <div className="center" style={{"width": "var(--width-1)"}}>
-                <MatchesDefaultView data={this.props.matches} images={this.props.images} host={this.props.host}/>
+                <MatchesDefaultView data={this.props.matches} images={this.props.images} host={imageHost}/>
             </div>;
         }
 

@@ -138,7 +138,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 			elems[pageOrder["Display Recent Matches"]] = <div key={"recent-matches"}>
 
 				<div className="default-header">Recent Matches</div>
-				{(pageSettings["Recent Matches Display Type"] === "0") ? <MatchesDefaultView host={host} images={mapImages} data={matchesData} /> : 
+				{(pageSettings["Recent Matches Display Type"] === "0") ? <MatchesDefaultView host={imageHost} images={mapImages} data={matchesData} /> : 
 				<MatchesTableView data={matchesData}/> }
 
 			</div>;

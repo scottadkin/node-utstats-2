@@ -1,6 +1,5 @@
 import styles from './MatchResultDisplay.module.css';
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 
 
@@ -51,7 +50,7 @@ class MatchResultDisplay extends React.Component{
                 {this.props.playerResult}
             </div>
             <div className={styles.mapi}>
-                <Image src={this.props.mapImage} width={400} height={225} alt="image"/>
+                <img className="thumb-sshot" src={this.props.mapImage}  alt="image"/>
             </div>
             <div className={styles.sinfo}>
                 {this.reduceNameLength(this.props.serverName)}<br/>
@@ -78,7 +77,7 @@ class MatchResultDisplay extends React.Component{
                 {this.props.mapName}
             </div>
             <div className={styles.mapi}>
-                <Image src={this.props.mapImage} width={400} height={225} alt="image"/>
+                <img className="thumb-sshot" src={this.props.mapImage} alt="image"/>
             </div>
             <div className={styles.sinfo}>
                 {this.reduceNameLength(this.props.serverName)}<br/>

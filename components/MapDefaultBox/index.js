@@ -2,7 +2,6 @@ import styles from './MapDefaultBox.module.css';
 import Functions from '../../api/functions';
 import Link from 'next/link';
 import React from 'react';
-import Image from 'next/image';
 
 class MapDefaultBox extends React.Component{
 
@@ -20,10 +19,10 @@ class MapDefaultBox extends React.Component{
         
 
         if(index !== -1){
-            return `/images/maps/${images[index]}.jpg`;
+            return `${this.props.host}/maps/thumbs/${images[index]}.jpg`;
         }
 
-        return `/images/defaultmap.jpg`;
+        return `${this.props.host}/maps/thumbs/default.jpg`;
     }
 
     render(){
@@ -41,7 +40,7 @@ class MapDefaultBox extends React.Component{
                     <span className={styles.levelenter}>{(this.props.data.level_enter_text !== "") ? `"${this.props.data.level_enter_text}"` : ""}</span>
                 </div>
             </div>
-            <Image src={this.getImage()} width={350} height={196} className="map-image" alt="image"/>
+            <img className="thumb-sshot" src={this.getImage()} alt="image"/>
             <div className={styles.info}>
                 
                 {this.props.data.matches} Matches<br/>
