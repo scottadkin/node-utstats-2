@@ -650,7 +650,7 @@ class Functions{
         let port = "";
         
         if(hostResult !== null){
-            port = `${parseInt(hostResult[2]) + 1}`;
+            port = `${imageServerPort}`;
             host = hostResult[1];
         }else{
 
