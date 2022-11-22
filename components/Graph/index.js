@@ -73,7 +73,7 @@ class GraphCanvas{
 
         this.mouse = {"x": 0, "y": 0};
 
-        this.maxDataDisplay = 8;
+        this.maxDataDisplay = 12;
         this.maxDataDisplayFullscreen = 16;
 
 
