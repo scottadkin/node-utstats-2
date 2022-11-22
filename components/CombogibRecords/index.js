@@ -7,6 +7,7 @@ import Table2 from "../Table2";
 import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
 import Pagination from "../Pagination";
+import Playtime from "../Playtime";
 
 
 class CombogibRecords extends React.Component{
@@ -193,7 +194,7 @@ class CombogibRecords extends React.Component{
                         </a>
                     </Link>                
                 </td>
-                <td>{Functions.MMSS(playtime)}</td>
+                <td className="playtime"><Playtime timestamp={playtime} /></td>
                 <td>{value}</td>
             </tr>);
         }
@@ -229,7 +230,7 @@ class CombogibRecords extends React.Component{
                     <CountryFlag country={d.player.country}/>{d.player.name}
                 </td>
                 <td>{d.total_matches}</td>
-                <td>{Functions.toHours(d.playtime)} Hours</td>
+                <td className="playtime"><Playtime timestamp={d.playtime}/></td>
                 <td>{d.value}</td>
             </tr>);
         }

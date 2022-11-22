@@ -6,6 +6,7 @@ import Functions from '../../api/functions';
 import Pagination from '../../components/Pagination/';
 import Image from 'next/image';
 import Table2 from '../Table2';
+import Playtime from '../Playtime';
 
 const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bDisplayPagination, mode}) =>{
 
@@ -44,7 +45,7 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
             <td>{position}{Functions.getOrdinal(position)}</td>
             <td className="text-left"><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country} host={host}/> {d.name}</a></Link></td>
       
-            <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
+            <td className="playtime"><Playtime timestamp={d.playtime}/></td>
             <td><Image className={styles.icon} src={currentImage} width={12} height={12} alt="image"/> <MouseHoverBox title={`Previous Match Ranking Change`} 
                     content={changeString} 
                     display={d.ranking.toFixed(2)} />

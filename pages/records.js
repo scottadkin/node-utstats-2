@@ -16,6 +16,7 @@ import CountryFlag from "../components/CountryFlag";
 import CTFCapRecords from "../components/CTFCapRecords";
 import CombogibRecords from "../components/CombogibRecords";
 import Combogib from "../api/combogib";
+import Playtime from "../components/Playtime";
 
 
 class Records extends React.Component{
@@ -299,7 +300,7 @@ class Records extends React.Component{
                 </td>
                 <td className="small-font grey">{Functions.convertTimestamp((this.props.mode === 0) ? d.last : d.match_date, true, false)}</td>
                 <td>{(this.props.mode === 0) ? d.matches : <Link href={`/map/${d.map_id}`}><a>{d.mapName}</a></Link>}</td>
-                <td>{Functions.toHours(d.playtime)} Hours</td>
+                <td className="playtime"><Playtime timestamp={d.playtime}/></td>
                 <td>{(hours.indexOf(this.props.type) === -1) ? d.value : `${Functions.toHours(d.value)} Hours`}</td>
             </tr>);
         }
