@@ -1,6 +1,7 @@
 import styles from './MatchResultDisplay.module.css';
 import React from 'react';
 import Link from 'next/link';
+import Playtime from '../Playtime';
 
 
 class MatchResultDisplay extends React.Component{
@@ -62,7 +63,7 @@ class MatchResultDisplay extends React.Component{
             <div className={styles.minfo}>
                 {this.props.gametypeName}<br/>
                 {this.props.date}<br/>
-                Playtime {this.props.playtime}<br/>
+                <Playtime timestamp={this.props.playtime}/><br/>
                 {this.props.players} Players
             </div>
         </div>;
@@ -86,7 +87,7 @@ class MatchResultDisplay extends React.Component{
             <div className={styles.minfo}>
                 {this.props.gametypeName}<br/>
                 {this.props.date}<br/>
-                Playtime {this.props.playtime}<br/>
+                <Playtime timestamp={this.props.playtime}/><br/>
                 {this.props.players} Players
             </div>
         </div>;

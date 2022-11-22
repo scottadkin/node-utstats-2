@@ -17,8 +17,8 @@
 }
 
 .info{
-    font-size:14px;
+    font-size:12px;
     line-height:24px;
-    color:var(--color-7);
+    color:var(--color-6);
     padding-bottom:5px;
 }

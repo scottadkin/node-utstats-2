@@ -1,5 +1,6 @@
 import styles from './HomeMostPlayedGametypes.module.css';
 import Functions from '../../api/functions';
+import Playtime from '../Playtime';
 
 const HomeMostPlayedGametypes = ({data, images, host}) =>{
     
@@ -42,7 +43,7 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
             <div className={styles.name}>{d.name}</div>
             <div className={styles.image}><img src={`${host}/images/gametypes/${currentImage}`} alt="image" className="thumb-sshot"/></div>
             <div className={styles.info}>
-                Playtime {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
+                Playtime <Playtime timestamp={d.playtime}/><br/>
                 {d.matches} Matches<br/> 
                 First Match {Functions.convertTimestamp(d.first, true)}<br/>
                 Last Match {Functions.convertTimestamp(d.last, true)}<br/>

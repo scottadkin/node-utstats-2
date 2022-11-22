@@ -759,3 +759,8 @@ input[type="range"]{
     height:196px;
     width:350px;
 }
+
+.playtime{
+	font-size:12px;
+	color:var(--color-6);
+}

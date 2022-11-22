@@ -1,6 +1,7 @@
 import Functions from '../../api/functions';
 import Link from 'next/link';
 import styles from './HomeTopMaps.module.css';
+import Playtime from '../Playtime';
 
 const HomeTopMaps = ({maps, images, classic, host}) =>{
 
@@ -23,10 +24,6 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
 
         const currentImageIndex = images.indexOf(Functions.cleanMapName(m.name).toLowerCase());
 
-        const playtime = (m.playtime !== undefined) ? m.playtime : m.gametime;
-
-        const hours = (playtime > 0) ? playtime / (60 * 60) : 0;
-
         if(currentImageIndex === -1){
             currentImage = "default";
         }else{
@@ -41,7 +38,7 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
                 <div className={styles.name}>{Functions.removeUnr(m.name)} </div> 
                 <img className="thumb-sshot" src={`${host}/images/maps/thumbs/${currentImage}.jpg`} alt="image" />
                 <div className={styles.info}>
-                    Playtime {hours.toFixed(2)} Hours<br/>
+                    Playtime <Playtime timestamp={m.playtime}/><br/>
                     {matches} Matches<br/>
                     First Match {Functions.convertTimestamp(first, true)}<br/>
                     Last Match {Functions.convertTimestamp(last, true)}<br/>

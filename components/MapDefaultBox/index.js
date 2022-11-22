@@ -2,6 +2,7 @@ import styles from './MapDefaultBox.module.css';
 import Functions from '../../api/functions';
 import Link from 'next/link';
 import React from 'react';
+import Playtime from '../Playtime';
 
 class MapDefaultBox extends React.Component{
 
@@ -35,15 +36,13 @@ class MapDefaultBox extends React.Component{
                 <div className={styles.enter}>
                     {(this.props.data.ideal_player_count !== '') ? "Ideal Player Count " : ""}
                     {(this.props.data.ideal_player_count !== '') ? this.props.data.ideal_player_count : ""}<br/>
-
-                    <span className={styles.levelenter}>{(this.props.data.level_enter_text !== "") ? `"${this.props.data.level_enter_text}"` : ""}</span>
                 </div>
             </div>
             <img className="thumb-sshot" src={this.getImage()} alt="image"/>
             <div className={styles.info}>
                 
                 {this.props.data.matches} Matches<br/>
-                Playtime {Functions.toHours(this.props.data.playtime)} Hours<br/>
+                Playtime <Playtime timestamp={this.props.data.playtime}/><br/>
                 First {Functions.convertTimestamp(this.props.data.first, true)}<br/>
                 Last {Functions.convertTimestamp(this.props.data.last, true)}<br/>
             </div>

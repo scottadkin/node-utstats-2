@@ -178,7 +178,7 @@ class PlayersList extends React.Component{
                     <td>{p.deaths}</td>
                     <td>{p.efficiency.toFixed(2)}%</td>
                     <td>{p.accuracy.toFixed(2)}%</td>
-                    <td><Playtime timestamp={p.playtime}/></td>
+                    <td className="playtime"><Playtime timestamp={p.playtime}/></td>
             
                 </tr>);
             }

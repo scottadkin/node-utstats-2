@@ -12,7 +12,9 @@ class Playtime extends React.Component{
 
     render(){
 
-        return <div className={styles.wrapper}>{Functions.toPlaytime(this.props.timestamp)}</div>
+        return <div className={styles.wrapper}>
+            {Functions.toPlaytime(this.props.timestamp)}
+        </div>
     }
 }
 

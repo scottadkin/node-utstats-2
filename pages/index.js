@@ -418,7 +418,7 @@ export async function getServerSideProps({req, query}) {
 	}
 
 	await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
-
+	
 	return { props: { 
 			"pageSettings": JSON.stringify(pageSettings),
 			"pageOrder": JSON.stringify(pageOrder),

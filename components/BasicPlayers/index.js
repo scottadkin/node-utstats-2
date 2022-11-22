@@ -3,6 +3,7 @@ import CountryFlag from '../CountryFlag';
 import styles from './AddictedPlayers.module.css';
 import Functions from '../../api/functions';
 import Image from 'next/image';
+import Playtime from '../Playtime';
 
 const BasicPlayers = ({title, players, faceFiles, host}) =>{
 
@@ -30,7 +31,7 @@ const BasicPlayers = ({title, players, faceFiles, host}) =>{
                 <div className={styles.info}>
                     Last Match {Functions.convertTimestamp(p.last, true)}<br/>
                     First Match {Functions.convertTimestamp(p.first, true)}<br/>
-                    {(p.playtime / (60 * 60)).toFixed(2)} Hours<br/>
+                    Playtime <Playtime timestamp={p.playtime}/><br/>
                     {p.matches} Matches
                 </div>
             </div>

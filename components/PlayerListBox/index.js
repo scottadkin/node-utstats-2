@@ -3,7 +3,7 @@ import Countries from '../../api/countries';
 import Link from 'next/link';
 import TimeStamp from '../TimeStamp/';
 import Image from 'next/image';
-import Functions from '../../api/functions';
+import Playtime from '../Playtime';
 
 
 
@@ -60,8 +60,8 @@ function PlayerListBox({
                     <Image src={`/images/flags/${countryData.code.toLowerCase()}.svg`} height={20} width={32} alt="flag"/> 
                     &nbsp;{name}
                     <span className={styles.countryName}>{countryData.country}</span>
-                    <span className={styles.playtime}>{Functions.toPlaytime(playtime)}</span>
                 </div>
+                <div className={styles.playtime}>Playtime <span className="playtime"><Playtime timestamp={playtime}/></span></div>
                 <div className={styles.face}>
                     <Image src={`/images/faces/${face}.png`} alt="face" width={64} height={64}/>
                 </div>

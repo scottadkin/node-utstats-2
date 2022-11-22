@@ -2,6 +2,7 @@ import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import Functions from '../../api/functions';
 import Table2 from '../Table2';
+import Playtime from '../Playtime';
 
 const MapAddictedPlayers = ({host, players, playerNames}) =>{
 
@@ -26,7 +27,7 @@ const MapAddictedPlayers = ({host, players, playerNames}) =>{
                 <td>{Functions.convertTimestamp(p.first, false, false)}</td>
                 <td>{Functions.convertTimestamp(p.last, false, false)}</td>
                 <td>{p.matches}</td>
-                <td>{(p.playtime / (60 * 60)).toFixed(2)} Hours</td>
+                <td className="playtime"><Playtime timestamp={p.playtime}/></td>
                 
             </tr>);
         }

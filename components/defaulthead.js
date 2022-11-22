@@ -19,20 +19,8 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
 
     const imageHost = Functions.getImageHostAndPort(host);
 
-
     const ogImage = `${imageHost}/images/${image}.${imageType}`;
 
-    let ogImageSecure = ogImage;
-
-    const reg = /^(http:\/\/)(.+)$/i
-    const result = reg.exec(ogImage);
-
-    if(result !== null){
-
-        ogImageSecure = `https://${result[2]}`;
-    }
-
-    // <meta property="og:image:secure_url" content={`https://${host}/images/${image}.jpg`} />
     return (
         <Head>
             <title>{title} - Node UTStats 2</title>
@@ -43,8 +31,8 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
             <meta property="og:description" content={`${description}`} />
             <meta property="og:type" content="website" />
             <meta property="og:url" content={`http://${host}${router.asPath}`} />
-            <meta property="og:image:secure_url" content={ogImageSecure} />
-            <meta property="og:image" content={ogImage} />
+            <meta property="og:image:secure_url" content={`https://${host}${ogImage}`} />
+            <meta property="og:image" content={`http://${host}${ogImage}`} />
             <meta property="og:site_name" content="Node UTStats 2" />
         </Head>    
     );

@@ -1,5 +1,14 @@
 .wrapper{
     display:inline-block;
-    font-size:12px;
-    color:var(--color-6);
+}
+
+.test{
+    background-color:var(--color-3);
+    border:1px solid var(--border-color-3);
+    display:block;
+    position:absolute;
+    margin-top:25px;
+    padding:10px;
+    font-size:14px;
+    color:white;
 }

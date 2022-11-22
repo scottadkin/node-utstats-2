@@ -2,6 +2,7 @@ import TimeStamp from '../TimeStamp';
 import Functions from '../../api/functions';
 import Link from 'next/link';
 import React from 'react';
+import Playtime from '../Playtime';
 
 class MapTableRow extends React.Component{
 
@@ -13,9 +14,9 @@ class MapTableRow extends React.Component{
 
         return (<tr>
             <td><Link href={`/map/${this.props.data.id}`}><a>{Functions.removeUnr(this.props.data.name)}</a></Link></td>
-            <td><TimeStamp timestamp={this.props.data.first} /></td>
-            <td><TimeStamp timestamp={this.props.data.last} /></td>
-            <td>{parseFloat(this.props.data.playtime / (60 * 60)).toFixed(2)} Hours</td>
+            <td>{Functions.convertTimestamp(this.props.data.first, true)} </td>
+            <td>{Functions.convertTimestamp(this.props.data.last, true)}</td>
+            <td className="playtime"><Playtime timestamp={this.props.data.playtime}/></td>
             <td>{this.props.data.matches}</td>
         </tr>);
     }

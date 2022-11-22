@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import TimeStamp from '../TimeStamp/';
-import MMSS from '../MMSS/';
 import MatchResultSmall from '../MatchResultSmall/';
 import React from 'react';
 import Table2 from '../Table2/';
+import Playtime from '../Playtime';
+import Functions from '../../api/functions';
 
 class MatchesTableView extends React.Component{
 
@@ -74,11 +74,11 @@ class MatchesTableView extends React.Component{
             // <td><Link href={url}><a>{m.serverName}</a></Link></td>
             rows.push(<tr key={`matches-row-${i}`}>
                
-                <td><Link href={url}><a><TimeStamp timestamp={m.date} noDayName={true}/></a></Link></td>
+                <td><Link href={url}><a>{Functions.convertTimestamp(m.date, true)}</a></Link></td>
                 <td><Link href={url}><a>{m.gametypeName}</a></Link></td>
                 <td><Link href={url}><a>{m.mapName}</a></Link></td>
                 <td><Link href={url}><a>{m.players}</a></Link></td>
-                <td><Link href={url}><a><MMSS timestamp={m.playtime} /></a></Link></td>
+                <td className="playtime"><Link href={url}><a><Playtime timestamp={m.playtime} /></a></Link></td>
                 <td className="padding-0"><MatchResultSmall 
                     totalTeams={m.total_teams} 
                     dmWinner={m.dm_winner} 

@@ -15,9 +15,11 @@
 }
 
 .name{
-    font-size:20px;
-    padding:10px;
-    line-height:38px;
+    font-size:18px;
+    padding:5px;
+    padding-top:10px;
+    padding-left:10px;
+    line-height:28px;
 }
 
 .name img{
@@ -38,8 +40,10 @@
 }
 
 .playtime{
-    float:right;
-    font-size:14px;
+    font-size:12px;
+    text-align:right;
+    height:12px;
+    padding-right:10px;
 }
 
 .right{

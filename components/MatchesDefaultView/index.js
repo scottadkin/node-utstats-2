@@ -61,7 +61,7 @@ class MatchesDefaultView extends React.Component{
                 serverName={m.serverName}
                 date={Functions.convertTimestamp(m.date)}
                 players={m.players}
-                playtime={Functions.MMSS(m.playtime)}
+                playtime={m.playtime}
                 gametypeName={m.gametypeName}
             >
                 <MatchResult 
