@@ -49,6 +49,7 @@ class MatchResultDisplay extends React.Component{
             <div className={styles.presult} style={{"color": resultColor}}>
                 {this.props.playerResult}
             </div>
+            
             <div className={styles.mapi}>
                 <img className="thumb-sshot" src={this.props.mapImage}  alt="image"/>
             </div>

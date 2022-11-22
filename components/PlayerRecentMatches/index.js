@@ -27,10 +27,10 @@ function getMapImage(maps, name){
     const cleanName = Functions.cleanMapName(name).toLowerCase();
 
     if(maps.indexOf(cleanName) !== -1){
-        return `/images/maps/${cleanName}.jpg`;
+        return `/images/maps/thumbs/${cleanName}.jpg`;
     }
     
-    return '/images/maps/default.jpg';
+    return '/images/maps/thumbs/default.jpg';
 }
 
 function getServerName(servers, id){
