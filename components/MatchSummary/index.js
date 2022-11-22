@@ -55,7 +55,7 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
                 {targetScoreElem}
                 {timeLimitElem}
 
-                <span className="white">Match Length</span> <Playtime seconds={info.playtime} /><br/>
+                <span className="white">Match Length</span> <Playtime timestamp={info.playtime} /><br/>
                 <span className="white">Players</span> {info.players}<br/>
 
                 {mutatorsElem}

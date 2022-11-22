@@ -227,7 +227,7 @@ class GraphCanvas{
                 
                 for(let x = 0; x < this.data[i].length; x++){
 
-                    this.hideKeys[i].push((x < 8) ? false : true);
+                    this.hideKeys[i].push((x < this.maxDataDisplay) ? false : true);
                 }
             }else{
                 console.trace(`this.data[i] is undefined`);

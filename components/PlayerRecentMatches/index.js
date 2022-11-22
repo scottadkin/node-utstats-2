@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import TimeStamp from '../TimeStamp/';
 import styles from './PlayerRecentMatches.module.css';
 import Pagination from '../Pagination/';
 import Functions from '../../api/functions';
@@ -151,7 +150,7 @@ class PlayerRecentMatches extends React.Component{
                     serverName={getServerName(serverNames, m.server)}
                     gametypeName={currentGametype}
                     date={Functions.convertTimestamp(m.match_date)}
-                    playtime={Functions.MMSS(m.playtime)}
+                    playtime={m.playtime}
                     players={m.players}>
 
                     <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
@@ -164,11 +163,11 @@ class PlayerRecentMatches extends React.Component{
             }else{
 
                 elems.push(<tr key={i}>
-                    <td><Link href={`/match/${m.match_id}`}><a><TimeStamp timestamp={m.match_date} noDayName={true}/></a></Link></td>   
+                    <td><Link href={`/match/${m.match_id}`}><a>{Functions.convertTimestamp(m.match_date, true)}</a></Link></td>   
                     <td><Link href={`/match/${m.match_id}`}><a>{currentGametype}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a>{m.mapName}</a></Link></td>
                     <td><Link href={`/match/${m.match_id}`}><a>{m.players}</a></Link></td>
-                    <td><Link href={`/match/${m.match_id}`}><a>{Functions.MMSS(m.playtime)}</a></Link></td>
+                    <td className="playtime"><Link href={`/match/${m.match_id}`}><a><Playtime timestamp={m.playtime}/></a></Link></td>
                     <td className={"padding-0 relative"}><Link href={`/match/${m.match_id}`}><a>
                         <MatchResultSmall dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
                         redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}

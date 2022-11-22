@@ -2,7 +2,7 @@ import Functions from '../../api/functions';
 import Table2 from '../Table2';
 import CountryFlag from '../CountryFlag';
 import Image from 'next/image';
-import styles from "./PlayerGeneral.module.css";
+import Playtime from '../Playtime';
 
 
 const PlayerGeneral = ({host,flag, country, face, first, last, matches, playtime, wins, losses, winRate, draws}) =>{
@@ -33,7 +33,7 @@ const PlayerGeneral = ({host,flag, country, face, first, last, matches, playtime
                 <td>{draws}</td>
                 <td>{losses}</td>
                 <td>{winRate}%</td>
-                <td>{Functions.toHours(playtime)} Hours</td>
+                <td className="playtime"><Playtime timestamp={playtime}/></td>
             </tr>
         </Table2>
     

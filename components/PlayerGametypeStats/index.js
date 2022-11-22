@@ -1,9 +1,9 @@
 
 import React from 'react';
 import Functions from '../../api/functions';
-import TimeStamp from '../TimeStamp/';
 import Graph from '../Graph/';
 import Table2 from '../Table2';
+import Playtime from '../Playtime';
 
 
 class PlayerGametypeStats extends React.Component{
@@ -107,8 +107,8 @@ class PlayerGametypeStats extends React.Component{
                 <td>{d.wins}</td>
                 <td>{winrate}%</td>
                 <td>{d.matches}</td>
-                <td>{(d.playtime / (60 * 60)).toFixed(2)} Hours</td>
-                <td><TimeStamp timestamp={d.last}/></td>
+                <td className="playtime"><Playtime timestamp={d.playtime}/></td>
+                <td>{Functions.convertTimestamp(d.last)}</td>
             </tr>);
         }
 
@@ -128,8 +128,8 @@ class PlayerGametypeStats extends React.Component{
             <td>{totalWins}</td>
             <td>{totalWinrate}%</td>
             <td>{totalMatches}</td>
-            <td>{(totalPlaytime / (60 * 60)).toFixed(2)} Hours</td>
-            <td><TimeStamp timestamp={lastMatch}/></td>
+            <td className="playtime"><Playtime timestamp={totalPlaytime}/></td>
+            <td>{Functions.convertTimestamp(lastMatch)}</td>
 
         </tr>);
 
