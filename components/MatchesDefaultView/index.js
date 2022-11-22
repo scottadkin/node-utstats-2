@@ -51,12 +51,12 @@ class MatchesDefaultView extends React.Component{
         for(let i = 0; i < matches.length; i++){
 
             const m = matches[i];
-
+            
             elems.push(<MatchResultDisplay 
                 key={i}
                 mode="recent"
                 url={`/match/${m.id}`}
-                mapImage={`${this.props.host}/maps/thumbs/${this.getMapImage(m.mapName)}.jpg`}
+                mapImage={`${this.props.host}/images/maps/thumbs/${this.getMapImage(m.mapName)}.jpg`}
                 mapName={m.mapName}
                 serverName={m.serverName}
                 date={Functions.convertTimestamp(m.date)}

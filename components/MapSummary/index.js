@@ -2,7 +2,6 @@
 import styles from './MapSummary.module.css';
 import Table2 from '../Table2';
 import Functions from '../../api/functions';
-import Image from 'next/image';
 import TableHeader from '../TableHeader';
 
 
@@ -13,7 +12,7 @@ const MapSummary = ({basic, spawns, imageHost, image}) =>{
     return <div className={`${styles.wrapper}`}>
         <TableHeader width={2}>{Functions.removeUnr(basic.name)} Summary</TableHeader>
         <div className={`${styles.image} t-width-2 center`}>
-            <Image id="main-image" src={`/${image}`} alt="Map image" width={1920} height={1080} onClick={(() =>{
+            <img id="main-image" src={`/${image}`} alt="Map image" style={{"width": "100%"}} onClick={(() =>{
             const elem = document.getElementById("main-image");
             elem.requestFullscreen();
         })}/>

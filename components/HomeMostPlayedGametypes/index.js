@@ -1,6 +1,5 @@
 import styles from './HomeMostPlayedGametypes.module.css';
 import Functions from '../../api/functions';
-import Image from 'next/image';
 
 const HomeMostPlayedGametypes = ({data, images, host}) =>{
     
@@ -41,7 +40,7 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
 
         elems.push(<div className={styles.box} key={i}>
             <div className={styles.name}>{d.name}</div>
-            <div className={styles.image}><Image src={`/images/gametypes/${currentImage}`} alt="image" width="400" height="225"/></div>
+            <div className={styles.image}><img src={`${host}/images/gametypes/${currentImage}`} alt="image" className="thumb-sshot"/></div>
             <div className={styles.info}>
                 Playtime {(d.playtime / (60 * 60)).toFixed(2)} Hours<br/>
                 {d.matches} Matches<br/> 

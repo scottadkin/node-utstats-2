@@ -18,10 +18,10 @@ class MapDefaultBox extends React.Component{
         const index = images.indexOf(fixedName);
 
         if(index !== -1){
-            return `${this.props.host}/maps/thumbs/${images[index]}.jpg`;
+            return `${this.props.host}/images/maps/thumbs/${images[index]}.jpg`;
         }
 
-        return `${this.props.host}/maps/thumbs/default.jpg`;
+        return `${this.props.host}/images/maps/thumbs/default.jpg`;
     }
 
     render(){

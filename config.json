@@ -1,7 +1,8 @@
 {
     "importInterval": 30,
     "imageServerPort": 3001,
-    "websitePort": 3000,
+    "bIncludeImageServerPortInURLs": true,
+    "websitePort": 1999,
     "minTMPFileAgeInDays": 1,
     "mysql": {
         "host": "localhost",
