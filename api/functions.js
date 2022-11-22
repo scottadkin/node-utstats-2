@@ -1,4 +1,4 @@
-const {imageServerPort, bIncludeImageServerPortInURLs} = require("../config.json");
+const {imageServerPort, bIncludeImageServerPortInURLs, bUseSeperateImageServer} = require("../config.json");
 
 class Functions{
 
@@ -644,14 +644,17 @@ class Functions{
 
     static getImageHostAndPort(host){
 
+        if(!bUseSeperateImageServer){
+            //console.log(host);
+            //return host;
+
+            return "";
+        }
+
         const hostReg = /^(.+):(\d+)$/im;
         const hostResult = hostReg.exec(host);
 
         let port = "";
-
-        console.log(hostResult);
-
-        console.log(`bIncludeImageServerPortInURLs=${bIncludeImageServerPortInURLs}`);
         
         if(hostResult !== null){
             port = `${imageServerPort}`;

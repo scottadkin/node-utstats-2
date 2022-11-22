@@ -1,15 +1,19 @@
 const { createServer } = require("http")
 const { parse } = require("url");
 const next = require("next");
-const {websitePort, imageServerPort} = require("./config.json");
+const {websitePort, imageServerPort, bUseSeperateImageServer} = require("./config.json");
 
-const express = require("express");
 
-const eApp = express();
+if(bUseSeperateImageServer){
+    const express = require("express");
 
-eApp.use(express.static("./public/images"));
+    const eApp = express();
+    eApp.use(express.static("./public/"));
+    eApp.listen(imageServerPort);
+}
+
 const dev = process.argv.indexOf("production") === -1;
-eApp.listen(imageServerPort);
+
 
 //const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
