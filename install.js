@@ -1217,7 +1217,6 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Monsterhunt Basic Stats","true","3")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Monsterhunt Monster Stats","true","4")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Combogib Stats","true","8")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Combogib Stats","true","8")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","Default Display Per Page","25","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","Default Display Type","0","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","Default Order","ASC","0")`,
