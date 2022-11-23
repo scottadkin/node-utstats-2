@@ -284,6 +284,21 @@ class Players{
         return 0;
     }
 
+    async getBestMatchValueDetails(valid, type, playerId, value){
+
+        type = type.toLowerCase();
+
+        let index = valid.indexOf(type);
+
+        if(index === -1) index = 0;
+
+        const query = `SELECT player_id,match_id,map_id,match_date,country,playtime,${valid[index]} as value FROM 
+        nstats_player_matches WHERE ${valid[index]}=? AND player_id=? LIMIT 1`;
+
+        return await mysql.simpleQuery(query, [value, playerId]);
+
+    }
+
 
     async getBestMatchValues(valid, type, page, perPage){
 
@@ -301,10 +316,21 @@ class Players{
 
         const start = perPage * page;
 
-        const query = `SELECT player_id,match_id,map_id,match_date,country,playtime,MAX(${valid[index]}) as value 
+        const query = `SELECT MAX(${valid[index]}) as value, player_id
         FROM nstats_player_matches GROUP BY player_id ORDER BY value DESC LIMIT ?, ?`;
 
-        return await mysql.simpleQuery(query, [start, perPage]);
+        const result = await mysql.simpleQuery(query, [start, perPage]);
+
+        for(let i = 0; i < result.length; i++){
+
+            const data = await this.getBestMatchValueDetails(valid, type, result[i].player_id, result[i].value);
+
+            if(data.length > 0){
+                result[i] = data[0];
+            }
+        }
+
+        return result;
       
     }
 
