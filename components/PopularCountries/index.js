@@ -28,8 +28,6 @@ const PopularCountries = ({data, totalPlayers, classic}) =>{
             <div className={styles.info}>
                 {d.total_uses} Players<br/>
                 {percent.toFixed(2)}% of all Players<br/>
-                First Seen {Functions.convertTimestamp(d.first_match, true)}<br/>
-                Last Seen {Functions.convertTimestamp(d.last_match, true)}
             </div>
         </div>);
     }
