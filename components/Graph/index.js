@@ -315,7 +315,6 @@ class GraphCanvas{
         for(let i = offsetX; i < width; i += tabWidth){
 
             if(this.mouse.x >= i && this.mouse.x < i + tabWidth){
-                console.log(`tabOffset = ${this.tabOffset}`);
                 
                 if(this.data[currentTab + this.tabOffset][0] === undefined){
                     this.canvas.style.cssText = `cursor:no-drop;`;
@@ -587,7 +586,20 @@ class GraphCanvas{
         
         this.mostData--;
 
+
         this.range = Math.abs(this.max) + Math.abs(this.min);
+
+        const quarter  = this.range * 0.25;
+
+        const rem = quarter  % 1;
+
+        if(rem !== 0){
+            
+            const test = quarter + (1 - rem);
+            this.range = test * 4;
+            if(this.range < 4) this.range = 4;
+        }
+        
 
         //console.log(`${this.range} max=${this.max} min=${this.min}`);
     }
@@ -1220,7 +1232,7 @@ class GraphCanvas{
         x -= valueOffsetX;
 
         if(this.min !== null && this.max !== null){
-            c.fillText(this.max, x, y - valueTextSize);
+            c.fillText(this.min + this.range, x, y - valueTextSize);
             c.fillText(this.min + (this.range * 0.75), x, y + quaterHeight - valueTextSize);
             c.fillText(this.min + (this.range * 0.5), x, y + (quaterHeight * 2) - valueTextSize);
             c.fillText(this.min + (this.range * 0.25), x, y + (quaterHeight * 3) - valueTextSize);
