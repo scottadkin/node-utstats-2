@@ -112,25 +112,169 @@ class PlayerMatch extends React.Component{
 
         const compactDate = Functions.DDMMYY(info.date, true);
 
-
         const domPointNames = JSON.parse(this.props.domPointNames);
         const playerDomCaps = JSON.parse(this.props.playerDomCaps);
 
         const imageHost = Functions.getImageHostAndPort(this.props.host);
 
+        const elems = [];
 
-        let monsterHuntMonsterKills = null;
+        const pageSettings = this.props.pageSettings;
+        const pageOrder = this.props.pageOrder;
 
-        if(parsedInfo.mh){
+        if(pageSettings["Display Combogib Stats"] === "true"){
+            elems[pageOrder["Display Combogib Stats"]] = <CombogibPlayerMatch key="combo" matchId={parsedInfo.id} playerId={playerData.player_id}/>;
+        }
 
-            monsterHuntMonsterKills = <MatchMonsterHuntMonsterKills 
+        if(pageSettings["Display Screenshot"] ==="true"){
+
+            elems[pageOrder["Display Screenshot"]] = <Screenshot 
+                key="sshot"
+                host={imageHost}
+                map={this.props.map} 
+                totalTeams={parsedInfo.total_teams} 
+                players={this.props.players} 
+                image={this.props.mapImage} 
+                matchData={this.props.info} 
+                serverName={this.props.server} 
+                gametype={this.props.gametype} 
+                faces={this.props.faces}
+                highlight={playerData.name}
+            />
+        }
+
+
+        if(pageSettings["Display Frag Summary"] === "true"){
+
+            if(parsedInfo.mh){
+
+                elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key="frag-summary" single={true} matchStart={parsedInfo.start} playerData={[playerMatchData]}/>;
+            
+            }else{
+
+                elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key="frag-summary"
+                    playerData={[playerMatchData]} 
+                    totalTeams={parsedInfo.total_teams}
+                    matchStart={parsedInfo.start}
+                    single={true}
+                    
+                />
+            }
+        }
+
+
+
+        if(parsedInfo.mh && pageSettings["Display MonsterHunt Kills"] === "true"){
+
+
+            elems[pageOrder["Display MonsterHunt Kills"]] = <MatchMonsterHuntMonsterKills 
                 key={"mh-monsters"} 
                 playerData={playerData} 
                 matchId={parsedInfo.id}
                 playerId={playerData.player_id}
             />;
         }
+
+        if(this.props.bCTF){
+
+            if(pageSettings["Display Capture The Flag Summary"] === "true"){
+                elems[pageOrder["Display Capture The Flag Summary"]] = <PlayerMatchCTF 
+                    key="ctf-sum"
+                    player={playerMatchData} 
+                    playerData={this.props.players} 
+                    caps={this.props.ctfCaps} 
+                    matchId={parsedInfo.id} 
+                    matchStart={parsedInfo.start}
+                />
+            }
+        } 
+            
         
+
+        if(pageSettings["Display Domination Summary"] === "true"){
+
+            elems[pageOrder["Display Domination Summary"]] = <PlayerMatchDomination key="dom-sum" pointNames={domPointNames} data={playerDomCaps}/>
+        }
+
+        if(pageSettings["Display Assault Summary"] === "true"){
+
+            elems[pageOrder["Display Assault Summary"]] = <PlayerMatchAssault key={"ass-sum"} 
+                pointNames={this.props.assaultObjNames} caps={this.props.playerAssaultCaps}
+            />;
+        }
+        
+
+        if(pageSettings["Display Special Events"] === "true"){
+
+            elems[pageOrder["Display Special Events"]] = <MatchSpecialEvents key="s-e" bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>;
+        }
+
+        if(pageSettings["Display Extended Sprees"] === "true"){
+
+            elems[pageOrder["Display Extended Sprees"]] = <MatchSprees host={imageHost} key="m-e-s" 
+                playerId={playerMatchData.player_id} matchId={parsedInfo.id} players={JSON.parse(this.props.playerNames)} matchStart={parsedInfo.start}
+            />
+
+        }
+
+        if(pageSettings["Display Powerup Control"] === "true"){
+
+            elems[pageOrder["Display Powerup Control"]] = <PlayerMatchPowerUps 
+                key="p-m-pu"
+                belt={playerMatchData.shield_belt} 
+                amp={playerMatchData.amp}
+                ampTime={playerMatchData.amp_time}
+                invisibility={playerMatchData.invisibility}
+                invisibilityTime={playerMatchData.invisibility_time}
+                pads={playerMatchData.pads}
+                armor={playerMatchData.armor}
+                boots={playerMatchData.boots}
+                superHealth={playerMatchData.super_health}
+            />
+        }
+
+
+        if(!parsedInfo.mh && pageSettings["Display Weapon Statistics"] === "true"){
+
+            elems[pageOrder["Display Weapon Statistics"]] = <PlayerMatchWeapons 
+                key="pmw"
+                data={JSON.parse(this.props.playerWeaponData)}
+                names={JSON.parse(this.props.weaponNames)}
+            />
+        }
+
+
+        if(pageSettings["Display Pickup Summary"] === "true"){
+
+            elems[pageOrder["Display Pickup Summary"]] = <PlayerMatchPickups 
+                data={JSON.parse(this.props.pickupData)}
+                names={JSON.parse(this.props.pickupNames)}
+            />
+        }
+
+        if(pageSettings["Display Rankings"] === "true"){
+
+            elems[pageOrder["Display Rankings"]] = <PlayerMatchRankings key="pmr" data={JSON.parse(this.props.rankingData)}
+                current={JSON.parse(this.props.rankingData)} 
+                currentPosition={this.props.currentRankingPosition}
+            />
+        }
+
+        if(pageSettings["Display Player Ping Graph"] === "true"){
+
+            elems[pageOrder["Display Player Ping Graph"]] = <PlayerMatchPing key="pmp-g" data={JSON.parse(this.props.pingData)}/>
+        }
+
+
+        if(pageSettings["Display Team Changes"] === "true"){
+
+            elems[pageOrder["Display Team Chagnes"]] = <PlayerMatchTeamChanges key="ptc" data={JSON.parse(this.props.teamData)} matchStart={parsedInfo.start}/>
+        }
+
+        if(pageSettings["Display Players Connected to Server Graph"] === "true"){
+
+            elems[pageOrder["Display Players Connected to Server Graph"]] = <PlayerMatchConnections key="pmcc" data={JSON.parse(this.props.connectionsData)} matchStart={parsedInfo.start}/>
+        }
 
         return <div>
             <DefaultHead 
@@ -148,7 +292,6 @@ class PlayerMatch extends React.Component{
 
                         <MatchPlayerViewProfile host={imageHost} data={playerData} matchId={parsedInfo.id}/>
 
-
                         <MatchSummary 
                             info={this.props.info} 
                             server={this.props.server} 
@@ -159,88 +302,8 @@ class PlayerMatch extends React.Component{
                             settings={this.props.pageSettings}
                         />
 
-                        <Screenshot 
-                            host={imageHost}
-                            map={this.props.map} 
-                            totalTeams={parsedInfo.total_teams} 
-                            players={this.props.players} 
-                            image={this.props.mapImage} 
-                            matchData={this.props.info} 
-                            serverName={this.props.server} 
-                            gametype={this.props.gametype} 
-                            faces={this.props.faces}
-                            highlight={playerData.name}
-                        />
+                        {elems}
 
-                        {(parsedInfo.mh) ? <MatchMonsterHuntFragSummary single={true} matchStart={parsedInfo.start} playerData={[playerMatchData]}/> :
-                            <MatchFragSummary 
-                                playerData={[playerMatchData]} 
-                                totalTeams={parsedInfo.total_teams}
-                                matchStart={parsedInfo.start}
-                                single={true}
-                                
-                            />
-                        }
-
-                        {monsterHuntMonsterKills}
-
-                        {(!this.props.bCTF) ? null :
-                            <PlayerMatchCTF 
-                                player={playerMatchData} 
-                                playerData={this.props.players} 
-                                caps={this.props.ctfCaps} 
-                                matchId={parsedInfo.id} 
-                                matchStart={parsedInfo.start}
-                            />
-                        }
-
-
-                        <PlayerMatchDomination pointNames={domPointNames} data={playerDomCaps}/>
-
-                        <PlayerMatchAssault pointNames={JSON.parse(this.props.assaultObjNames)} caps={JSON.parse(this.props.playerAssaultCaps)}/>
-
-                        <CombogibPlayerMatch matchId={parsedInfo.id} playerId={playerData.player_id}/>
-
-                        <MatchSpecialEvents bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>
-
-                        <MatchSprees host={imageHost} playerId={playerMatchData.player_id} matchId={parsedInfo.id} players={JSON.parse(this.props.playerNames)} matchStart={parsedInfo.start}/>
-
-                     
-
-                        <PlayerMatchPowerUps 
-                            belt={playerMatchData.shield_belt} 
-                            amp={playerMatchData.amp}
-                            ampTime={playerMatchData.amp_time}
-                            invisibility={playerMatchData.invisibility}
-                            invisibilityTime={playerMatchData.invisibility_time}
-                            pads={playerMatchData.pads}
-                            armor={playerMatchData.armor}
-                            boots={playerMatchData.boots}
-                            superHealth={playerMatchData.super_health}
-                        />
-
-                        {(parsedInfo.mh) ? null :
-                            <PlayerMatchWeapons 
-                                data={JSON.parse(this.props.playerWeaponData)}
-                                names={JSON.parse(this.props.weaponNames)}
-                            />
-                        }
-                      
-                        <PlayerMatchPickups 
-                            data={JSON.parse(this.props.pickupData)}
-                            names={JSON.parse(this.props.pickupNames)}
-                        />
-
-                        <PlayerMatchRankings data={JSON.parse(this.props.rankingData)}
-                            current={JSON.parse(this.props.rankingData)} 
-                            currentPosition={this.props.currentRankingPosition}
-                        />
-
-                        <PlayerMatchPing data={JSON.parse(this.props.pingData)}/>
-
-                        <PlayerMatchTeamChanges data={JSON.parse(this.props.teamData)} matchStart={parsedInfo.start}/>
-
-                        <PlayerMatchConnections data={JSON.parse(this.props.connectionsData)} matchStart={parsedInfo.start}/>
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -278,6 +341,7 @@ export async function getServerSideProps({req, query}){
 
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Match Pages");
+    const pageOrder = await settings.getCategoryOrder("Match Pages");
 
     const matchManager = new Match();
 
@@ -472,15 +536,15 @@ export async function getServerSideProps({req, query}){
         assaultObjNames = await assaultManager.getMapObjectives(info.map);
     }
 
-
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
-    
+
     return {
         "props": {
             "host": req.headers.host,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings),
+            "pageSettings": pageSettings,
+            "pageOrder": pageOrder,
             "info": JSON.stringify(info),
             "server": serverName,
             "gametype": gametypeName,
@@ -506,8 +570,8 @@ export async function getServerSideProps({req, query}){
             "domPointNames": JSON.stringify(domPointNames),
             "playerDomCaps": JSON.stringify(playerDomCaps),
             "bCTF": bCTF,
-            "assaultObjNames": JSON.stringify(assaultObjNames),
-            "playerAssaultCaps": JSON.stringify(playerAssaultCaps)
+            "assaultObjNames": assaultObjNames,
+            "playerAssaultCaps": playerAssaultCaps
 
         }
     }
