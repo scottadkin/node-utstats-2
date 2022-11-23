@@ -7,6 +7,7 @@ import React from 'react';
 import MatchResultSmall from '../MatchResultSmall';
 import Table2 from '../Table2';
 import MatchResultDisplay from '../MatchResultDisplay';
+import Playtime from '../Playtime';
 
 const getMatchScores = (scores, id) =>{
     
