@@ -428,28 +428,17 @@ class Rankings{
         });
     }
 
-    getGametypePosition(ranking, gametype){
+    async getGametypePosition(ranking, gametype){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT gametype,COUNT(*) as player_position FROM nstats_ranking_player_current WHERE gametype=? AND ranking>=?  GROUP BY gametype ORDER BY ranking DESC";
 
-            const query = "SELECT COUNT(*) as player_position FROM nstats_ranking_player_current WHERE gametype=? AND ranking >= ?  ORDER BY ranking DESC";
+        const result = await mysql.simpleQuery(query, [gametype, ranking]);
 
-            mysql.query(query, [gametype, ranking], (err, result) =>{
+        if(result.length > 0){
+            return result[0].player_position;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-                        
-
-                        resolve(result[0].player_position);
-                    }
-                }
-
-                resolve(-1);
-            });
-        });
+        return -1;
     }
 
     deleteMatchRankings(id){
