@@ -224,10 +224,7 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Minimum Playtime","0",0)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Player Score Graph","true",18)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Capture The Flag Times","true",10)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Solo Caps Before Displayed","1",0)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Minimum Assisted Caps Before Displayed","1",0)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Solo Caps To Display","50",0)`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Maximum Assisted Caps To Display","50",0)`,
+        
         `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Capture The Flag Cap Records","true",4)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Health/Armour Control","true",26)`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapons Control","true",25)`,
@@ -245,6 +242,7 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Match Records","true","0")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display CTF Cap Records","true","0")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Combogib Records","true","0")`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Per Page","25",0)`
     ];
 
     

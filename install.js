@@ -1223,11 +1223,13 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","Default Sort Type","name","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Rankings Per Gametype (Main)","10","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Rankings Per Page (Individual)","100","0")`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Per Page","25","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Player Records","true","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Match Records","true","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display CTF Cap Records","true","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Combogib Records","true","0")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Per Page","25",0)`
+
+    
 
 
 
