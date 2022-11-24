@@ -73,7 +73,23 @@ class BarChart extends React.Component{
             }
         }
 
-        this.setState({"minValue": minValue, "maxValue": maxValue, "range": maxValue - minValue});
+        let quater = maxValue * 0.25;
+
+        const rem = quater % 1;
+
+        if(rem !== 0){
+
+            quater = quater + (1 - rem);
+            maxValue = quater * 4;
+        }
+
+        let range = maxValue - minValue;
+
+        if(range < 4){
+            range = 4;
+        }
+
+        this.setState({"minValue": minValue, "maxValue": maxValue, "range": range});
 
     }
 
@@ -196,7 +212,7 @@ class BarChart extends React.Component{
                 <div className={styles.value} style={{"marginLeft": "33.125%"}}>{this.state.range * 0.25}</div>
                 <div className={styles.value} style={{"marginLeft": "49.375%"}}>{this.state.range * 0.5}</div>
                 <div className={styles.value} style={{"marginLeft": "65.625%"}}>{this.state.range * 0.75}</div>
-                <div className={styles.value} style={{"marginLeft": "81.875%"}}>{this.state.maxValue}</div>
+                <div className={styles.value} style={{"marginLeft": "81.875%"}}>{this.state.range}</div>
             </div>
 
             {this.renderKeys()} 
