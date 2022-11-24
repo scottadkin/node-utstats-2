@@ -30,18 +30,11 @@ class MapDefaultBox extends React.Component{
         return (<Link href={`/map/${this.props.data.id}`}><a><div className={styles.wrapper}>
             <div className={styles.title}>
                 {Functions.removeUnr(this.props.data.name)}
-                <div className={styles.author}>
-                    {(this.props.data.author !== "") ? `By ${this.props.data.author}` : ""}           
-                </div>
-                <div className={styles.enter}>
-                    {(this.props.data.ideal_player_count !== '') ? "Ideal Player Count " : ""}
-                    {(this.props.data.ideal_player_count !== '') ? this.props.data.ideal_player_count : ""}<br/>
-                </div>
             </div>
             <img className="thumb-sshot" src={this.getImage()} alt="image"/>
             <div className={styles.info}>
                 
-                {this.props.data.matches} Matches<br/>
+                {this.props.data.matches} {(this.props.data.matches === 1) ? "Match" : "Matches"}<br/>
                 Playtime <Playtime timestamp={this.props.data.playtime}/><br/>
                 First {Functions.convertTimestamp(this.props.data.first, true)}<br/>
                 Last {Functions.convertTimestamp(this.props.data.last, true)}<br/>
