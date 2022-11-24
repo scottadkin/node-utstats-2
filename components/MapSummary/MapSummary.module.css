@@ -1,5 +1,6 @@
 .wrapper td:nth-child(1){
-    color:yellow;
+    color:var(--color-6);
+    text-align:right;
 }
 
 .wrapper td{

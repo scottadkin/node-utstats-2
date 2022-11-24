@@ -3,6 +3,7 @@ import styles from './MapSummary.module.css';
 import Table2 from '../Table2';
 import Functions from '../../api/functions';
 import TableHeader from '../TableHeader';
+import Playtime from "../Playtime";
 
 
 const MapSummary = ({basic, spawns, imageHost, image}) =>{
@@ -48,7 +49,7 @@ const MapSummary = ({basic, spawns, imageHost, image}) =>{
             </tr>
             <tr>
                 <td>Total Playtime</td>
-                <td>{Functions.toHours(basic.playtime)} Hours</td>   
+                <td className="playtime"><Playtime timestamp={basic.playtime}/></td>   
             </tr>
             <tr>
                 <td>Total Spawns</td>
