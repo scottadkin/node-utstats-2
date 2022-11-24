@@ -8,6 +8,7 @@ import TableHeader from "../TableHeader";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import TabsHeader from "../TabsHeader";
+import Playtime from "../Playtime";
 
 class CombogibMapRecords extends React.Component{
 
@@ -150,7 +151,7 @@ class CombogibMapRecords extends React.Component{
                         </a>
                     </Link>
                 </td>
-                <td>{Functions.MMSS(d.playtime)}</td>
+                <td className="playtime"><Playtime timestamp={d.playtime}/></td>
                 <td>{d.best_value}</td>
             </tr>);
         }

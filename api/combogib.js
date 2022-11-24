@@ -77,6 +77,27 @@ class Combogib{
         console.log(await mysql.simpleQuery(query, [mapId, limit]));
     }
     
+    async getMapRecordDetails(playerId, mapId, type, value){
+
+        if(this.bValidRecordType(type, "match")){
+
+            const query = `SELECT match_id,playtime FROM nstats_match_combogib WHERE player_id=? AND ${type}=? AND map_id=? LIMIT 1`;
+
+            const result = await mysql.simpleQuery(query, [playerId, value, mapId]);
+
+            if(result.length > 0){
+                return result[0];
+            }
+
+            return null;
+
+        }else{
+
+            throw new Error(`${recordType} is not a valid record type.`);
+        }
+
+       
+    }
 
     async getMapRecords(mapId, recordType, page, perPage){
 
@@ -88,10 +109,23 @@ class Combogib{
 
         if(this.bValidRecordType(recordType, "match")){
 
-            const query = `SELECT player_id,match_id,MAX(${recordType}) as best_value,playtime FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?
+            const query = `SELECT player_id,MAX(${recordType}) as best_value FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?
             GROUP BY player_id ORDER BY best_value DESC LIMIT ?,?`;
 
-            return await mysql.simpleQuery(query, [mapId, start, perPage]);
+            const result =  await mysql.simpleQuery(query, [mapId, start, perPage]);
+            
+
+            for(let i = 0; i < result.length; i++){
+
+                const details = await this.getMapRecordDetails(result[i].player_id, mapId, recordType, result[i].best_value);
+
+                if(details !== null){
+                    result[i].playtime = details.playtime;
+                    result[i].match_id = details.match_id;
+                }
+            }
+
+            return result;
 
         }else{
 
