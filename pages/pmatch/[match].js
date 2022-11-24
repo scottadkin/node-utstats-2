@@ -42,6 +42,7 @@ import Analytics from "../../api/analytics";
 import MatchMonsterHuntMonsterKills from "../../components/MatchMonsterHuntMonsterKills";
 import CombogibPlayerMatch from "../../components/CombogibPlayerMatch";
 import ErrorMessage from "../../components/ErrorMessage";
+import ErrorPage from "../ErrorPage";
 
 
 
@@ -91,10 +92,12 @@ class PlayerMatch extends React.Component{
 
     render(){
 
-        if(this.props.error !== undefined){
+        if(this.props.pageLoadError !== undefined){
+            return <ErrorPage>{this.props.pageLoadError}</ErrorPage>
+        }
 
-            return this.renderError();
-            
+        if(this.props.error !== undefined){
+            return this.renderError();     
         }
 
         const info = JSON.parse(this.props.info);
@@ -315,264 +318,276 @@ class PlayerMatch extends React.Component{
 export async function getServerSideProps({req, query}){
 
 
-    let matchId = -1;
-    let playerId = -1;
+    try{
 
-    if(query.match !== undefined){
+        let matchId = -1;
+        let playerId = -1;
 
-        matchId = parseInt(query.match);
+        if(query.match !== undefined){
 
-        if(matchId !== matchId) matchId = -1;
-    }
+            matchId = parseInt(query.match);
 
-    if(query.player !== undefined){
+            if(matchId !== matchId) matchId = -1;
+        }
 
-        playerId = parseInt(query.player);
+        if(query.player !== undefined){
 
-        if(playerId !== playerId) playerId = -1;
-    }
-    
+            playerId = parseInt(query.player);
 
-    const session = new Session(req);
-
-    await session.load();
-
-    const settings = new Sitesettings();
-
-    const navSettings = await settings.getCategorySettings("Navigation");
-    const pageSettings = await settings.getCategorySettings("Match Pages");
-    const pageOrder = await settings.getCategoryOrder("Match Pages");
-
-    const matchManager = new Match();
-
-    const bMatchExist = await matchManager.exists(matchId);
-
-    if(!bMatchExist){
-        return {
-            "props": {
-                "host": req.headers.host,
-                "session": JSON.stringify(session.settings),
-                "navSettings": JSON.stringify(navSettings),
-                "pageSettings": JSON.stringify(pageSettings),
-                "error": `There is no match with the id of ${matchId}.`
-            }
-        };
-    }
-
-    const info = await matchManager.get(matchId);
-
-    const gametypeManager = new Gametypes();
-    const gametypeName = await gametypeManager.getName(info.gametype);
-    const serverManager = new Servers();
-    const serverName = await serverManager.getName(info.server);
-    const mapManager = new Maps();
-    const mapName = await mapManager.getName(info.map);
-
-    const playerManager = new Player();
-
-    const bPlayerInMatch = await playerManager.bPlayerInMatch(playerId, matchId);
-    
-
-    if(!bPlayerInMatch){
-        return {
-            "props": {
-                "host": req.headers.host,
-                "session": JSON.stringify(session.settings),
-                "navSettings": JSON.stringify(navSettings),
-                "pageSettings": JSON.stringify(pageSettings),
-                "error": "Player wasn't in the match."
-            }
-        };
-    }
-
-    const playersManager = new Players();
-
-    const players = await playerManager.getAllInMatch(matchId);
-    
-
-    const playerFaceIds = [];
-    const playerIds = [];
-    
-    let p = 0;
-
-    for(let i = 0; i < players.length; i++){
-
-        p = players[i];
-
+            if(playerId !== playerId) playerId = -1;
+        }
         
 
-        if(playerFaceIds.indexOf(p.face) === -1){
-            playerFaceIds.push(p.face);
+        const session = new Session(req);
+
+        await session.load();
+
+        const settings = new Sitesettings();
+
+        const navSettings = await settings.getCategorySettings("Navigation");
+        const pageSettings = await settings.getCategorySettings("Match Pages");
+        const pageOrder = await settings.getCategoryOrder("Match Pages");
+
+        const matchManager = new Match();
+
+        const bMatchExist = await matchManager.exists(matchId);
+
+        if(!bMatchExist){
+            return {
+                "props": {
+                    "host": req.headers.host,
+                    "session": JSON.stringify(session.settings),
+                    "navSettings": JSON.stringify(navSettings),
+                    "pageSettings": JSON.stringify(pageSettings),
+                    "error": `There is no match with the id of ${matchId}.`
+                }
+            };
         }
 
-        if(playerIds.indexOf(p.player_id) === -1){
-            playerIds.push(p.player_id);
+
+        const info = await matchManager.get(matchId);
+
+        const gametypeManager = new Gametypes();
+        const gametypeName = await gametypeManager.getName(info.gametype);
+        const serverManager = new Servers();
+        const serverName = await serverManager.getName(info.server);
+        const mapManager = new Maps();
+        const mapName = await mapManager.getName(info.map);
+
+        const playerManager = new Player();
+
+        const bPlayerInMatch = await playerManager.bPlayerInMatch(playerId, matchId);
+        
+
+        if(!bPlayerInMatch){
+            return {
+                "props": {
+                    "host": req.headers.host,
+                    "session": JSON.stringify(session.settings),
+                    "navSettings": JSON.stringify(navSettings),
+                    "pageSettings": JSON.stringify(pageSettings),
+                    "error": "Player wasn't in the match."
+                }
+            };
         }
-    }
 
+        const playersManager = new Players();
 
-    const playerNames = await playersManager.getNamesByIds(playerIds);
+        const players = await playerManager.getAllInMatch(matchId);
+        
 
-    let currentName = "";
-
-    const getPlayerName = (id) =>{
-
+        const playerFaceIds = [];
+        const playerIds = [];
+        
         let p = 0;
 
-        for(let i = 0; i < playerNames.length; i++){
+        for(let i = 0; i < players.length; i++){
 
-            p = playerNames[i];
+            p = players[i];
 
-            if(p.id === id){
-                return p.name;
+            
+
+            if(playerFaceIds.indexOf(p.face) === -1){
+                playerFaceIds.push(p.face);
+            }
+
+            if(playerIds.indexOf(p.player_id) === -1){
+                playerIds.push(p.player_id);
             }
         }
 
-        return "Not Found";
-    }
 
-    for(let i = 0; i < players.length; i++){
+        const playerNames = await playersManager.getNamesByIds(playerIds);
 
-        p = players[i];
+        let currentName = "";
 
-        currentName = getPlayerName(p.player_id);
+        const getPlayerName = (id) =>{
 
-        if(currentName === undefined){
-            currentName = "Not Found";
+            let p = 0;
+
+            for(let i = 0; i < playerNames.length; i++){
+
+                p = playerNames[i];
+
+                if(p.id === id){
+                    return p.name;
+                }
+            }
+
+            return "Not Found";
         }
 
-        p.name = currentName;
-    }
-    
+        for(let i = 0; i < players.length; i++){
 
-    const playerData = await playerManager.getPlayerById(playerId);
-    const playerMatchData = await playerManager.getMatchData(playerId, matchId);
+            p = players[i];
 
-    playerMatchData.name = playerData.name;
+            currentName = getPlayerName(p.player_id);
 
-    const playerGametypeData = await playerManager.getGametypeTotals(playerId, info.gametype);
+            if(currentName === undefined){
+                currentName = "Not Found";
+            }
 
-    const mapImage = await mapManager.getImage(mapName);
-    const cleanMapImage = Functions.removeExtension(mapImage);
-    
-    const faceManager = new Faces();
-    const playerFaces = await faceManager.getFacesWithFileStatuses(playerFaceIds);
-
-    const weaponManager = new Weapons();
-
-    const playerWeaponData = await weaponManager.getPlayerMatchData(playerId, matchId);
-
-    const weaponIds = [];
-
-    for(let i = 0; i < playerWeaponData.length; i++){
-
-        if(weaponIds.indexOf(playerWeaponData[i].weapon_id) === -1){
-            weaponIds.push(playerWeaponData[i].weapon_id);
+            p.name = currentName;
         }
-    }
+        
 
-    const weaponNames = await weaponManager.getNamesByIds(weaponIds);
+        const playerData = await playerManager.getPlayerById(playerId);
+        const playerMatchData = await playerManager.getMatchData(playerId, matchId);
 
-    const itemsManager = new Items();
+        playerMatchData.name = playerData.name;
 
-    const pickupData = await itemsManager.getPlayerMatchData(matchId, playerId);
+        const playerGametypeData = await playerManager.getGametypeTotals(playerId, info.gametype);
 
-    const itemIds = [];
+        const mapImage = await mapManager.getImage(mapName);
+        const cleanMapImage = Functions.removeExtension(mapImage);
+        
+        const faceManager = new Faces();
+        const playerFaces = await faceManager.getFacesWithFileStatuses(playerFaceIds);
 
-    for(let i = 0; i < pickupData.length; i++){
+        const weaponManager = new Weapons();
 
-        if(itemIds.indexOf(pickupData[i].item) === -1){
+        const playerWeaponData = await weaponManager.getPlayerMatchData(playerId, matchId);
 
-            itemIds.push(pickupData[i].item);
+        const weaponIds = [];
+
+        for(let i = 0; i < playerWeaponData.length; i++){
+
+            if(weaponIds.indexOf(playerWeaponData[i].weapon_id) === -1){
+                weaponIds.push(playerWeaponData[i].weapon_id);
+            }
         }
-    }
 
-    const pickupNames = await itemsManager.getNamesByIds(itemIds);
+        const weaponNames = await weaponManager.getNamesByIds(weaponIds);
 
-    
-    const rankingManager = new Rankings();
+        const itemsManager = new Items();
 
-    const matchRankingData = await rankingManager.getPlayerMatchHistory(playerId, matchId);
+        const pickupData = await itemsManager.getPlayerMatchData(matchId, playerId);
 
-    const currentRankingData = await rankingManager.getCurrentPlayerRanking(playerId, info.gametype);
+        const itemIds = [];
 
-    let currentGametypePosition = 0;
+        for(let i = 0; i < pickupData.length; i++){
 
-    if(currentRankingData.length > 0){
-        currentGametypePosition = await rankingManager.getGametypePosition(currentRankingData[0].ranking, info.gametype);
-    }
+            if(itemIds.indexOf(pickupData[i].item) === -1){
 
-    const pingManager = new Pings();
+                itemIds.push(pickupData[i].item);
+            }
+        }
 
-    const pingData = await pingManager.getPlayerMatchData(matchId, playerId);
+        const pickupNames = await itemsManager.getNamesByIds(itemIds);
 
-    const connectionManager = new Connections();
+        
+        const rankingManager = new Rankings();
 
-    const connectionsData = await connectionManager.getPlayerMatchData(matchId, playerId);
+        const matchRankingData = await rankingManager.getPlayerMatchHistory(playerId, matchId);
 
-    const teamsManager = new Teams();
+        const currentRankingData = await rankingManager.getCurrentPlayerRanking(playerId, info.gametype);
 
-    const teamData = await teamsManager.getPlayerMatchData(matchId, playerId);
+        let currentGametypePosition = 0;
 
-    const ctfManager = new CTF();
+        if(currentRankingData.length > 0){
+            currentGametypePosition = await rankingManager.getGametypePosition(currentRankingData[0].ranking, info.gametype);
+        }
+
+        const pingManager = new Pings();
+
+        const pingData = await pingManager.getPlayerMatchData(matchId, playerId);
+
+        const connectionManager = new Connections();
+
+        const connectionsData = await connectionManager.getPlayerMatchData(matchId, playerId);
+
+        const teamsManager = new Teams();
+
+        const teamData = await teamsManager.getPlayerMatchData(matchId, playerId);
+
+        const ctfManager = new CTF();
 
 
 
-    const bCTF = ctfManager.bAnyCtfDataInMatch(playerMatchData);
+        const bCTF = ctfManager.bAnyCtfDataInMatch(playerMatchData);
 
-    const dominationManager = new Domination();
+        const dominationManager = new Domination();
 
-    const domPointNames = await dominationManager.getControlPointNames(info.map);
-    const playerDomCaps = await dominationManager.getPlayerMatchCaps(matchId, playerId);
+        const domPointNames = await dominationManager.getControlPointNames(info.map);
+        const playerDomCaps = await dominationManager.getPlayerMatchCaps(matchId, playerId);
 
-    const assaultManager = new Assault();
+        const assaultManager = new Assault();
 
-    const playerAssaultCaps = await assaultManager.getPlayerMatchCaps(matchId, playerId);
+        const playerAssaultCaps = await assaultManager.getPlayerMatchCaps(matchId, playerId);
 
-    let assaultObjNames = [];
+        let assaultObjNames = [];
 
-    if(playerAssaultCaps.length !== 0){
+        if(playerAssaultCaps.length !== 0){
 
-        assaultObjNames = await assaultManager.getMapObjectives(info.map);
-    }
+            assaultObjNames = await assaultManager.getMapObjectives(info.map);
+        }
 
-    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+        await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
-    return {
-        "props": {
-            "host": req.headers.host,
-            "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings),
-            "pageSettings": pageSettings,
-            "pageOrder": pageOrder,
-            "info": JSON.stringify(info),
-            "server": serverName,
-            "gametype": gametypeName,
-            "map": mapName,
-            "playerNames": JSON.stringify(playerNames),
-            "playerData": JSON.stringify(playerData),
-            "playerMatchData": JSON.stringify(playerMatchData),
-            "playerGametypeData": JSON.stringify(playerGametypeData),
-            "mapImage": mapImage,
-            "cleanMapImage": cleanMapImage,
-            "players": JSON.stringify(players),
-            "faces": JSON.stringify(playerFaces),
-            "playerWeaponData": JSON.stringify(playerWeaponData),
-            "weaponNames": JSON.stringify(weaponNames),
-            "pickupData": JSON.stringify(pickupData),
-            "pickupNames": JSON.stringify(pickupNames),
-            "rankingData": JSON.stringify(matchRankingData),
-            "currentRankingData": JSON.stringify(currentRankingData),
-            "currentRankingPosition": currentGametypePosition,
-            "pingData": JSON.stringify(pingData),
-            "connectionsData": JSON.stringify(connectionsData),
-            "teamData": JSON.stringify(teamData),
-            "domPointNames": JSON.stringify(domPointNames),
-            "playerDomCaps": JSON.stringify(playerDomCaps),
-            "bCTF": bCTF,
-            "assaultObjNames": assaultObjNames,
-            "playerAssaultCaps": playerAssaultCaps
+        return {
+            "props": {
+                "host": req.headers.host,
+                "session": JSON.stringify(session.settings),
+                "navSettings": JSON.stringify(navSettings),
+                "pageSettings": pageSettings,
+                "pageOrder": pageOrder,
+                "info": JSON.stringify(info),
+                "server": serverName,
+                "gametype": gametypeName,
+                "map": mapName,
+                "playerNames": JSON.stringify(playerNames),
+                "playerData": JSON.stringify(playerData),
+                "playerMatchData": JSON.stringify(playerMatchData),
+                "playerGametypeData": JSON.stringify(playerGametypeData),
+                "mapImage": mapImage,
+                "cleanMapImage": cleanMapImage,
+                "players": JSON.stringify(players),
+                "faces": JSON.stringify(playerFaces),
+                "playerWeaponData": JSON.stringify(playerWeaponData),
+                "weaponNames": JSON.stringify(weaponNames),
+                "pickupData": JSON.stringify(pickupData),
+                "pickupNames": JSON.stringify(pickupNames),
+                "rankingData": JSON.stringify(matchRankingData),
+                "currentRankingData": JSON.stringify(currentRankingData),
+                "currentRankingPosition": currentGametypePosition,
+                "pingData": JSON.stringify(pingData),
+                "connectionsData": JSON.stringify(connectionsData),
+                "teamData": JSON.stringify(teamData),
+                "domPointNames": JSON.stringify(domPointNames),
+                "playerDomCaps": JSON.stringify(playerDomCaps),
+                "bCTF": bCTF,
+                "assaultObjNames": assaultObjNames,
+                "playerAssaultCaps": playerAssaultCaps
 
+            }
+        }
+
+    }catch(err){
+
+        return {
+            "props":{
+                "pageLoadError": err.toString()
+            }
         }
     }
 }

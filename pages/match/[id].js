@@ -43,6 +43,7 @@ import MatchDominationSummaryNew from '../../components/MatchDominationSummaryNe
 import MatchCTFCapTimes from '../../components/MatchCTFCapTimes';
 import CombogibMatchStats from '../../components/CombogibMatchStats';
 import ErrorMessage from '../../components/ErrorMessage';
+import ErrorPage from '../ErrorPage';
 
 
 function bDomination(players){
@@ -112,7 +113,13 @@ function createBasicPlayersObject(data){
 function Match({navSettings, pageSettings, pageOrder, session, host, matchId, info, server, gametype,
     map, image, playerData, weaponData, domControlPointNames, 
     assaultData,  teams, faces, rankingChanges, currentRankings,
-    rankingPositions, bMonsterHunt}){
+    rankingPositions, bMonsterHunt, error}){
+
+
+    if(error !== undefined){
+
+        return <ErrorPage>{error}</ErrorPage>
+    }
 
     const imageHost = Functions.getImageHostAndPort(host);
 
@@ -129,25 +136,25 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
     if(info === undefined){
 
         return <div>
-        <DefaultHead host={host} 
-            title={`Doesn't Exist! - Match Report`} 
-            description={`Match does not exist.`} 
-            keywords={`match,report`}
-            image={ogImage}    
-            />
-        <main>
-            <Nav settings={navSettings} session={session}/>
-            <div id="content">
+            <DefaultHead host={host} 
+                title={`Doesn't Exist! - Match Report`} 
+                description={`Match does not exist.`} 
+                keywords={`match,report`}
+                image={ogImage}    
+                />
+            <main>
+                <Nav settings={navSettings} session={session}/>
+                <div id="content">
 
-                <div className="default">
-                    
-                    <div className="default-header">Match Does Not Exist!</div>
-                    <ErrorMessage title="Match Report" text={`There is no match with the id of ${matchId}`}/>
+                    <div className="default">
+                        
+                        <div className="default-header">Match Does Not Exist!</div>
+                        <ErrorMessage title="Match Report" text={`There is no match with the id of ${matchId}`}/>
+                    </div>
                 </div>
-            </div>
-            <Footer session={session}/>
-        </main>
-    </div>
+                <Footer session={session}/>
+            </main>
+        </div>
     }
 
 
@@ -513,212 +520,227 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
 export async function getServerSideProps({req, query}){
 
-    let matchId = (query.id !== undefined) ? parseInt(query.id) : parseInt(null);
+    try{
 
-    const session = new Session(req);
+        let matchId = (query.id !== undefined) ? parseInt(query.id) : parseInt(null);
 
-	await session.load();
+        const session = new Session(req);
 
-    const settings = new SiteSettings();
-    const pageSettings = await settings.getCategorySettings("Match Pages");
-    const pageOrder = await settings.getCategoryOrder("Match Pages");
-    const navSettings = await settings.getCategorySettings("Navigation");
+        await session.load();
 
-   // console.log(pageSettings);
+        const settings = new SiteSettings();
+        const pageSettings = await settings.getCategorySettings("Match Pages");
+        const pageOrder = await settings.getCategoryOrder("Match Pages");
+        const navSettings = await settings.getCategorySettings("Navigation");
 
-    const m = new MatchManager();
+    // console.log(pageSettings);
 
-    if(matchId !== matchId){
+        const m = new MatchManager();
 
-        return {
+        if(matchId !== matchId){
 
-            props: {
-                "session": JSON.stringify(session.settings),
-                "navSettings": JSON.stringify(navSettings),
-                "pageSettings": JSON.stringify(pageSettings),
-            }
-        };
-    }
+            return {
 
-    if(!await m.exists(matchId)){
-
-        return {
-            props: {
-                "session": JSON.stringify(session.settings),         
-                "navSettings": JSON.stringify(navSettings),
-                "pageSettings": JSON.stringify(pageSettings),
-                "matchId": matchId
-            }
-        };
-    }
-
-    let matchInfo = await m.get(matchId);
-
-    const s = new Servers();
-    const serverName = await s.getName(matchInfo.server);
-    const g = new Gametypes();
-    const gametypeName = await g.getName(matchInfo.gametype);
-    const map = new Maps();
-    const mapName = await map.getName(matchInfo.map);
-    const image = await map.getImage(mapName);
-    const playerManager = new Player();
-
-    let playerData = await playerManager.getAllInMatch(matchId);
-
-    const playerIds = [];
-
-    for(let i = 0; i < playerData.length; i++){
-
-        playerIds.push(playerData[i].player_id);
-    }
-
-    let playerNames = await playerManager.getNames(playerIds);
-
-    let currentName = 0;
-
-    let playerFaces = [];
-
-    for(let i = 0; i < playerData.length; i++){
-
-        //playerData[i].name = 'Not Found';
-        currentName = playerNames.get(playerData[i].player_id);
-
-        if(currentName === undefined){
-            currentName = 'Not Found';
-        }
-
-        playerData[i].name = currentName;
-
-        if(playerFaces.indexOf(playerData[i].face) === -1){
-            playerFaces.push(playerData[i].face);
-        }
-    }
-
-    //if it's a team game sort by teams here isntead of in the components
-
-    if(matchInfo.team_game){
-
-        playerData.sort((a, b) =>{
-
-
-            if(a.team < b.team){
-                return 1;
-            }else if(a.team > b.team){
-                return -1;
-            }else{
-                if(a.score > b.score){
-                    return -1;
-                }else if(a.score < b.score){
-                    return 1;
+                props: {
+                    "session": JSON.stringify(session.settings),
+                    "navSettings": JSON.stringify(navSettings),
+                    "pageSettings": JSON.stringify(pageSettings),
                 }
+            };
+        }
+
+        if(!await m.exists(matchId)){
+
+            return {
+                props: {
+                    "session": JSON.stringify(session.settings),         
+                    "navSettings": JSON.stringify(navSettings),
+                    "pageSettings": JSON.stringify(pageSettings),
+                    "matchId": matchId
+                }
+            };
+        }
+
+        let matchInfo = await m.get(matchId);
+
+        const s = new Servers();
+        const serverName = await s.getName(matchInfo.server);
+        const g = new Gametypes();
+        const gametypeName = await g.getName(matchInfo.gametype);
+        const map = new Maps();
+        const mapName = await map.getName(matchInfo.map);
+        const image = await map.getImage(mapName);
+        const playerManager = new Player();
+
+        let playerData = await playerManager.getAllInMatch(matchId);
+
+        const playerIds = [];
+
+        for(let i = 0; i < playerData.length; i++){
+
+            playerIds.push(playerData[i].player_id);
+        }
+
+        let playerNames = await playerManager.getNames(playerIds);
+
+        let currentName = 0;
+
+        let playerFaces = [];
+
+        for(let i = 0; i < playerData.length; i++){
+
+            //playerData[i].name = 'Not Found';
+            currentName = playerNames.get(playerData[i].player_id);
+
+            if(currentName === undefined){
+                currentName = 'Not Found';
             }
 
-            return 0;
-        });
-    }
+            playerData[i].name = currentName;
 
-    let domControlPointNames = [];
+            if(playerFaces.indexOf(playerData[i].face) === -1){
+                playerFaces.push(playerData[i].face);
+            }
+        }
 
-    if(bDomination(playerData)){
+        //if it's a team game sort by teams here isntead of in the components
 
-        const dom = new Domination();
+        if(matchInfo.team_game){
 
-        domControlPointNames = await dom.getControlPointNames(matchInfo.map);
-
-    }
-    
-
-    let assaultData = [];
-
-    const assaultManager = new Assault();
+            playerData.sort((a, b) =>{
 
 
-    if(pageSettings["Display Assault Summary"] === "true"){
-        assaultData = await assaultManager.getMatchData(matchId, matchInfo.map);
-    }
+                if(a.team < b.team){
+                    return 1;
+                }else if(a.team > b.team){
+                    return -1;
+                }else{
+                    if(a.score > b.score){
+                        return -1;
+                    }else if(a.score < b.score){
+                        return 1;
+                    }
+                }
 
-    domControlPointNames = JSON.stringify(domControlPointNames);
+                return 0;
+            });
+        }
+
+        let domControlPointNames = [];
+
+        if(bDomination(playerData)){
+
+            const dom = new Domination();
+
+            domControlPointNames = await dom.getControlPointNames(matchInfo.map);
+
+        }
+        
+
+        let assaultData = [];
+
+        const assaultManager = new Assault();
 
 
-    playerData = JSON.stringify(playerData);
+        if(pageSettings["Display Assault Summary"] === "true"){
+            assaultData = await assaultManager.getMatchData(matchId, matchInfo.map);
+        }
+
+        domControlPointNames = JSON.stringify(domControlPointNames);
 
 
-    const weaponManager = new Weapons();
-
-    let weaponData = await weaponManager.getMatchData(matchId);
-
-    if(weaponData === undefined) weaponData = [];
-
-    weaponData = JSON.stringify(weaponData);
-
-    const teamsManager = new Teams();
-
-    let teamsData = await teamsManager.getMatchData(matchId);
+        playerData = JSON.stringify(playerData);
 
 
-    const faceManager = new Faces();
+        const weaponManager = new Weapons();
 
-    let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
+        let weaponData = await weaponManager.getMatchData(matchId);
 
-    const headshotsManager = new Headshots();
-    const headshotData = await headshotsManager.getMatchData(matchId);
+        if(weaponData === undefined) weaponData = [];
 
-    const rankingsManager = new Rankings();
+        weaponData = JSON.stringify(weaponData);
 
-    let rankingChanges = [];
-    let currentRankings = [];
-    let rankingPositions = {};
-    
+        const teamsManager = new Teams();
 
-    if(pageSettings["Display Rankings"] === "true"){
+        let teamsData = await teamsManager.getMatchData(matchId);
 
-        rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
-        currentRankings = await rankingsManager.getCurrentPlayersRanking(playerIds, matchInfo.gametype);
 
-        for(let i = 0; i < currentRankings.length; i++){
+        const faceManager = new Faces();
 
-            rankingPositions[currentRankings[i].player_id] = await rankingsManager.getGametypePosition(currentRankings[i].ranking, matchInfo.gametype);
+        let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
+
+        const headshotsManager = new Headshots();
+        const headshotData = await headshotsManager.getMatchData(matchId);
+
+        const rankingsManager = new Rankings();
+
+        let rankingChanges = [];
+        let currentRankings = [];
+        let rankingPositions = {};
+
+
+        
+
+        if(pageSettings["Display Rankings"] === "true"){
+
+            rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
+            currentRankings = await rankingsManager.getCurrentPlayersRanking(playerIds, matchInfo.gametype);
+
+            for(let i = 0; i < currentRankings.length; i++){
+
+                rankingPositions[currentRankings[i].player_id] = await rankingsManager.getGametypePosition(currentRankings[i].ranking, matchInfo.gametype);
+            }
+        }
+
+        let monsterHuntPlayerKillTotals = [];
+
+        if(matchInfo.mh){
+
+            const monsterHuntManager = new MonsterHunt();
+
+            monsterHuntPlayerKillTotals = await monsterHuntManager.getPlayerMatchKillTotals(matchId);
+
+        }
+
+
+        await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+
+        return {
+            props: {
+                "navSettings": JSON.stringify(navSettings),
+                "pageSettings": JSON.stringify(pageSettings),
+                "pageOrder": JSON.stringify(pageOrder),
+                "session": JSON.stringify(session.settings),
+                "host": req.headers.host,
+                "matchId": matchId,
+                "info": JSON.stringify(matchInfo),
+                "server": serverName,
+                "gametype": gametypeName,
+                "map": mapName,
+                "image": image,
+                "playerData": playerData,
+                "weaponData": weaponData,
+                "domControlPointNames": domControlPointNames,
+                "assaultData": JSON.stringify(assaultData),
+                "teams": JSON.stringify(teamsData),
+                "faces": JSON.stringify(pFaces),
+                "headshotData": JSON.stringify(headshotData),
+                "rankingChanges": JSON.stringify(rankingChanges),
+                "currentRankings": JSON.stringify(currentRankings),
+                "rankingPositions": JSON.stringify(rankingPositions),
+                "bMonsterHunt": matchInfo.mh,
+            }
+        };
+
+    }catch(err){
+        console.trace(err);
+
+        return {
+            "props": {
+                "error": err.toString()
+            }
         }
     }
-
-    let monsterHuntPlayerKillTotals = [];
-
-    if(matchInfo.mh){
-
-        const monsterHuntManager = new MonsterHunt();
-
-        monsterHuntPlayerKillTotals = await monsterHuntManager.getPlayerMatchKillTotals(matchId);
-
-    }
-
-    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
-
-    return {
-        props: {
-            "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings),
-            "pageOrder": JSON.stringify(pageOrder),
-            "session": JSON.stringify(session.settings),
-            "host": req.headers.host,
-            "matchId": matchId,
-            "info": JSON.stringify(matchInfo),
-            "server": serverName,
-            "gametype": gametypeName,
-            "map": mapName,
-            "image": image,
-            "playerData": playerData,
-            "weaponData": weaponData,
-            "domControlPointNames": domControlPointNames,
-            "assaultData": JSON.stringify(assaultData),
-            "teams": JSON.stringify(teamsData),
-            "faces": JSON.stringify(pFaces),
-            "headshotData": JSON.stringify(headshotData),
-            "rankingChanges": JSON.stringify(rankingChanges),
-            "currentRankings": JSON.stringify(currentRankings),
-            "rankingPositions": JSON.stringify(rankingPositions),
-            "bMonsterHunt": matchInfo.mh,
-        }
-    };
 
 }
 
