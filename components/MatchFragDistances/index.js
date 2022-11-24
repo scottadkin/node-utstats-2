@@ -2,7 +2,6 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import TipHeader from '../TipHeader/';
-import styles from '../MatchFragTable/MatchFragTable.module.css';
 import Table2 from '../Table2';
 
 const bAnyData = (data) =>{
@@ -28,8 +27,6 @@ const MatchFragDistances = ({host, players, team, toDisplay, single, matchId}) =
 
     const elems = [];
 
-    let p = 0;
-
     let bgColor = Functions.getTeamColor(team);
 
     let shortestKillTotal = 0;
@@ -42,11 +39,9 @@ const MatchFragDistances = ({host, players, team, toDisplay, single, matchId}) =
 
     let index = 0;
 
-    
-
     for(let i = 0; i < players.length; i++){
 
-        p = players[i];
+        const p = players[i];
 
         if(p.team !== team && team !== -1) continue;
         
@@ -57,7 +52,15 @@ const MatchFragDistances = ({host, players, team, toDisplay, single, matchId}) =
 
         }else{
 
-            if(p.shortest_kill_distance < shortestKillTotal && p.shortest_kill_distance !== 0) shortestKillTotal = p.shortest_kill_distance;
+            if(shortestKillTotal === 0){
+                shortestKillTotal = p.shortest_kill_distance;
+            }else{
+
+                if(p.shortest_kill_distance > 0){
+                    shortestKillTotal = p.shortest_kill_distance
+                }
+            }
+
             if(p.longest_kill_distance > longestKillTotal) longestKillTotal = p.longest_kill_distance;
         }
 
@@ -92,6 +95,7 @@ const MatchFragDistances = ({host, players, team, toDisplay, single, matchId}) =
     }
 
     if(elems.length > 0 && !single){
+        
         elems.push(<tr key={"end"}>
             {(single) ? null :<td className="text-left">Best/Totals</td>}
             <td>{parseFloat(Functions.ignore0(shortestKillTotal)).toFixed(2)}</td>
