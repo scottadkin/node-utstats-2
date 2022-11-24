@@ -99,7 +99,7 @@ const MatchFragTable = ({host, players, team, matchStart, toDisplay, matchId, si
     if(!single){
         elems.push(<tr key={`frag_tr_total__${team}`} className={`${styles.totals}`}>
             <td className="text-left">Totals</td>
-            <td>{Functions.MMSS(totalPlaytime)}</td>
+            <td className="small-font grey">N/A</td>
             <td>{Functions.ignore0(totalScore)}</td>
             <td>{Functions.ignore0(totalFrags)}</td>
             <td>{Functions.ignore0(totalKills)}</td>

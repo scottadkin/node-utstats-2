@@ -18,7 +18,6 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
 
         let currentImage = 0;
 
-        const first = (m.first !== undefined) ? m.first : Functions.utDate(m.first_match);
         const last = (m.last !== undefined) ? m.last : Functions.utDate(m.last_match);
         const matches = (m.matches !== undefined) ? m.matches : m.total_matches ;
 
@@ -40,7 +39,6 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
                 <div className={styles.info}>
                     Playtime <Playtime timestamp={m.playtime}/><br/>
                     {matches} Matches<br/>
-                    First Match {Functions.convertTimestamp(first, true)}<br/>
                     Last Match {Functions.convertTimestamp(last, true)}<br/>
                 </div>
             </div>    
