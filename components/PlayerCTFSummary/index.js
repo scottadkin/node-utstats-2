@@ -2,6 +2,7 @@ import TipHeader from '../TipHeader';
 import React from 'react';
 import Functions from '../../api/functions';
 import Table2 from '../Table2';
+import Playtime from "../Playtime";
 
 
 class PlayerCTFSummary extends React.Component{
@@ -138,7 +139,7 @@ class PlayerCTFSummary extends React.Component{
                 <TipHeader title="Kills With Flag Efficiency" content="How successful the player's kills are in regard to capping the flag."/>
             </tr>
             <tr>
-                <td>{(data.flag_carry_time / (60 * 60)).toFixed(2)} Hours</td>
+                <td className="playtime"><Playtime timestamp={data.flag_carry_time}/></td>
                 <td>{data.flag_self_cover}</td>
                 <td>{data.flag_self_cover_best}</td>
                 <td>{data.flag_self_cover_pass}</td>
