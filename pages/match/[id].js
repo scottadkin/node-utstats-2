@@ -72,6 +72,7 @@ function createBasicPlayerData(players){
 
     const playerNames = [];
     const justPlayerNames = {};
+    const playedPlayers = {};
     
     for(let i = 0; i < players.length; i++){
 
@@ -88,10 +89,14 @@ function createBasicPlayerData(players){
         });
 
         justPlayerNames[players[i].player_id] = players[i].name;
+
+        if(p.playtime > 0 || !p.spectator){
+            playedPlayers[players[i].player_id] = players[i].name;
+        }
     }
 
 
-    return {"playerNames": playerNames, "justPlayerNames": justPlayerNames};
+    return {"playerNames": playerNames, "justPlayerNames": justPlayerNames, "nonSpectators": playedPlayers};
 }
 
 
@@ -165,7 +170,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
     pageSettings = JSON.parse(pageSettings);
     pageOrder = JSON.parse(pageOrder);
 
-    let {playerNames, justPlayerNames} = createBasicPlayerData(parsedPlayerData);
+    let {playerNames, justPlayerNames, nonSpectators} = createBasicPlayerData(parsedPlayerData);
 
     const basicPlayersObject = createBasicPlayersObject(playerNames);
 
@@ -236,7 +241,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             elems[pageOrder["Display Frag Graph"]] = <MatchFragsGraph 
                 key="frag-graphs" 
                 matchId={parsedInfo.id} 
-                players={justPlayerNames} 
+                players={nonSpectators} 
                 teams={parsedInfo.total_teams}
             />;
         }
@@ -276,7 +281,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             key="ctf-graphs" 
             matchId={parsedInfo.id} 
             totalTeams={parsedInfo.total_teams} 
-            players={justPlayerNames}
+            players={nonSpectators}
         />;
     
     }
@@ -427,7 +432,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
         elems[pageOrder["Display Player Score Graph"]] = <MatchPlayerScoreHistory 
             key="score history" 
-            players={justPlayerNames} 
+            players={nonSpectators} 
             matchId={parsedInfo.id}
         />;
     }
@@ -436,7 +441,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
         
         elems[pageOrder["Display Player Ping Graph"]] = <MatchPlayerPingHistory 
             key="ping history" 
-            players={justPlayerNames} 
+            players={nonSpectators} 
             matchId={parsedInfo.id}
         />;
         
