@@ -430,7 +430,7 @@ class Rankings{
 
     async getGametypePosition(ranking, gametype){
 
-        const query = "SELECT gametype,COUNT(*) as player_position FROM nstats_ranking_player_current WHERE gametype=? AND ranking>=?  GROUP BY gametype ORDER BY ranking DESC";
+        const query = "SELECT COUNT(*) as player_position FROM nstats_ranking_player_current WHERE gametype=? AND ranking>=? ORDER BY ranking DESC";
 
         const result = await mysql.simpleQuery(query, [gametype, ranking]);
 
