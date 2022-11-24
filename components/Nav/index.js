@@ -60,7 +60,7 @@ function Nav({session, settings}){
         "Display Records": {"text": "Records", "url": "/records", "alt": ["/ctfcaps"]},
         "Display Maps": {"text": "Maps", "url": "/maps", "alt": ["/map/[id]"]},
         "Display Admin": {"text": "Admin", "url": "/admin"},
-        "Display ACE": {"text": "Ace", "url": "/ace"},
+        "Display ACE": {"text": "ACE", "url": "/ace"},
         "Display Login/Logout": {"text": "Login/Register", "url": "/login"},
         
     }
