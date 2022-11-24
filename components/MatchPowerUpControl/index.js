@@ -182,6 +182,8 @@ class MatchPowerUpControl extends React.Component{
 
             const p = this.props.players[i];
 
+            if(p.spectator || p.playtime === 0) continue;
+
             uses.push(this.getPlayerItemUsage(itemId, p.id));
         }
 
@@ -195,6 +197,8 @@ class MatchPowerUpControl extends React.Component{
         for(let i = 0; i < this.props.players.length; i++){
 
             const p = this.props.players[i];
+
+            if(p.spectator || p.playtime === 0) continue;
 
             names.push(p.name);
         }
