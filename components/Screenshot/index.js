@@ -1163,11 +1163,13 @@ class MatchScreenshot{
         }
 
         for(let i = 0; i < this.players.length; i++){
+ 
+            const p = this.players[i];
 
-            if(this.players[i].team === team){
+            if(p.team === team && p.playtime > 0 && p.played){
 
                 if(totalPlayers < maxPlayers){
-                    this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers), teamWidth, playerHeight, this.players[i]);
+                    this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers), teamWidth, playerHeight, p);
                 }
                 totalPlayers++;
             }
@@ -1260,7 +1262,7 @@ class MatchScreenshot{
 
                 p = this.players[i];
                 
-                if(!p.played){
+                if(!p.played /*|| p.playtime === 0*/){
                     spectators.push(p.name);
                 }
             }
