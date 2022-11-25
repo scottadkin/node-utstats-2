@@ -44,7 +44,7 @@ const tables = [
     "ranking_values",
     "ranking_player_current",
     "ranking_player_history",
-    "users",
+    //"users",
     "sessions",
     "site_settings",
     "sprees",
