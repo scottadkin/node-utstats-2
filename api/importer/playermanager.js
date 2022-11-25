@@ -754,7 +754,6 @@ class PlayerManager{
 
     mergePlayer(master, duplicate){
 
-
         //bPlayedInMatch
        
         if(master.bPlayedInMatch || duplicate.bPlayedInMatch){
@@ -781,6 +780,7 @@ class PlayerManager{
         }
 
         for(const c in master.stats.ctf){
+
             master.stats.ctf[c] += duplicate.stats.ctf[c];
         }
 

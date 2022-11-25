@@ -10,6 +10,7 @@ class CTFManager{
         this.events = [];
         this.capData = [];
         this.flagLines = [];
+        this.bHaveNStatsData = false;
 
         this.carryTimeFrames = []; 
 
@@ -74,19 +75,36 @@ class CTFManager{
        //console.log(this.currentFlagHolders);
     }*/
 
-    parseData(killManager){
-        
+    parseData(killManager, matchStartTimestamp){
+
         const reg = /^(\d+?\.\d+?)\tflag_(.+?)\t(\d+?)(|\t(\d+?)|\t(\d+?)\t(\d+?))$/i;
 
         const returnReg = /return/i;
 
         this.killManager = killManager;
 
+        const testReg = /flag_kill/i;
+        const test2Reg = /nstats/i;
+        const test = [];
+        const test3Reg = /nstats\tflag_kill/i;
+        const test2 = [];
+
+        //361.87	nstats	flag_kill	0	11	6938.494141	450.293762	7157.908691
+        const backupReg = /^(\d+?\.\d+?)\tnstats\tflag_kill\t(\d+?)\t(\d+?).+$/i;
+        const backupFlagKills = [];
 
         for(let i = 0; i < this.data.length; i++){
 
             const d = this.data[i];
             const result = reg.exec(d);
+
+            if(testReg.test(d) && !test2Reg.test(d)){
+                test.push(d);
+            }
+
+            if(test3Reg.test(d)){
+                test2.push(d);
+            }
 
             if(result !== null){
                 
@@ -191,16 +209,18 @@ class CTFManager{
                 }else if(type === "kill"){
 
                     //"flag_kill", KillerPRI.PlayerID
-                    
-                    this.events.push(
-                        {
-                            "timestamp": timestamp,
-                            "type": type,
-                            "playerId": playerId,
-                            "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
-                            "player": this.playerManager.getOriginalConnectionById(playerId)
-                        }
-                    );
+                    if(!this.bHaveNStatsData){
+                        this.events.push(
+                            {
+                                "timestamp": timestamp,
+                                "type": type,
+                                "playerId": playerId,
+                                "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                                "player": this.playerManager.getOriginalConnectionById(playerId),
+                                "bSuicide": false
+                            }
+                        );
+                    }
 
                 }else if(type === "seal"){
 
@@ -216,7 +236,44 @@ class CTFManager{
                         //"team": parseInt(result[7]),
                         "player": this.playerManager.getOriginalConnectionById(playerId)
                     });
+                }     
+            }else{
+
+                const result = backupReg.exec(d);
+                //console.log(result);
+
+                if(result !== null){
+
+                    const timestamp = parseFloat(result[1]);
+                    const killerId = parseInt(result[2]);
+                    const victimId = parseInt(result[3]);
+
+                    if(timestamp <= matchStartTimestamp){
+                        new Message(`CTF event happened before match start. (Warmup mode)`,"note");
+                    }else{
+
+                        this.events.push(
+                            {
+                                "timestamp": timestamp,
+                                "type": "kill",
+                                "playerId": killerId,
+                                "playerTeam": this.playerManager.getPlayerTeamAt(killerId, timestamp),
+                                "player": this.playerManager.getOriginalConnectionById(killerId),
+                                "bSuicide": killerId === victimId
+                            }
+                        )
+                    }
                 }
+                /*
+                this.events.push(
+                    {
+                        "timestamp": timestamp,
+                        "type": type,
+                        "playerId": playerId,
+                        "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
+                        "player": this.playerManager.getOriginalConnectionById(playerId)
+                    }
+                );*/
             }
         }
 
@@ -242,10 +299,6 @@ class CTFManager{
         }
 
         this.setSelfCovers(killManager);
-
-        //console.table(this.events);
-        //console.log(this.events);
-
         
     }
 
@@ -664,7 +717,14 @@ class CTFManager{
                         this.updateCarryTime(timestamp, player);
                     }
 
-                    player.stats.ctf[type]++;
+                    if(type !== "kill"){
+                        player.stats.ctf[type]++;
+                    }else{
+
+                        if(!this.events[i].bSuicide){
+                            player.stats.ctf[type]++;
+                        }
+                    }
 
                 }else{
 

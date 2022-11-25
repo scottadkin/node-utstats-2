@@ -138,7 +138,7 @@ class MatchManager{
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
                     // console.table(this.CTFManager.data);
                     
-                    this.CTFManager.parseData(this.killManager);
+                    this.CTFManager.parseData(this.killManager, matchTimings.start);
                     this.CTFManager.createCapData();
                     this.CTFManager.setPlayerStats();
                     await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
@@ -560,10 +560,11 @@ class MatchManager{
 
                             this.domManager.data.push(this.lines[i]);
 
-                        }else if(currentType === 'flag_location'){
+                        }else if(currentType === 'flag_location' || currentType === "flag_kill"){
 
                             if(this.CTFManager === undefined){
                                 this.CTFManager = new CTFManager();
+                                this.CTFManager.bHaveNStatsData = true;
                             }
                             this.CTFManager.flagLines.push(this.lines[i]);
 
