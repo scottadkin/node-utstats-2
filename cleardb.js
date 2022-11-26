@@ -41,7 +41,7 @@ const tables = [
     "weapons",
     "winrates",
     "winrates_latest",
-    "ranking_values",
+    //"ranking_values",
     "ranking_player_current",
     "ranking_player_history",
     //"users",
@@ -60,7 +60,10 @@ const tables = [
     "ace_joins",
     "ace_kicks",
     "ace_players",
-    "ace_sshot_requests"
+    "ace_sshot_requests",
+    "map_combogib",
+    "match_combogib",
+    "player_combogib"
 
 ];
 
