@@ -1262,7 +1262,7 @@ class MatchScreenshot{
 
                 p = this.players[i];
                 
-                if(!p.played /*|| p.playtime === 0*/){
+                if(!p.played || p.playtime === 0){
                     spectators.push(p.name);
                 }
             }
