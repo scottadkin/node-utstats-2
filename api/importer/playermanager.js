@@ -1608,15 +1608,14 @@ class PlayerManager{
                     if(this.bIgnoreBots){
                         if(p.bBot) continue;
                     }
+
                     current = await Player.getGametypeTotals(p.masterId, gametype);
 
                     if(current !== null){
                         data[p.masterId] = current;
                     }
-
                 }
             }
-
 
 
             return data;

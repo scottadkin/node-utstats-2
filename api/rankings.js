@@ -1,33 +1,226 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const Message = require('./message');
+const Players = require("./players");
 
 class Rankings{
 
     constructor(){
 
+        this.playerManager = new Players();
+    }
 
+    async init(){
+
+        await this.loadCurrentSettings();
+    }
+
+    async loadCurrentSettings(){
+
+        const settings = await this.getCurrentSettings();
+
+        this.settings = {};
+        this.timePenalties = {};
+
+        const penaltyNames = [
+            "sub_half_hour_multiplier",
+            "sub_hour_multiplier",
+            "sub_2hour_multiplier",
+            "sub_3hour_multiplier"
+        ];
+
+        for(let i = 0; i < settings.length; i++){
+
+            const {name, value} = settings[i];
+
+            if(penaltyNames.indexOf(name) === -1){
+                this.settings[name] = value;
+            }else{
+                this.timePenalties[name] = value;
+            }
+        }
+    }
+
+    async getCurrentSettings(){
+
+        const query = "SELECT name,value FROM nstats_ranking_values";
+        return await mysql.simpleQuery(query);
     }
 
 
-    getRankingSettings(){
+    async insertPlayerCurrent(playerId, gametypeId, playtime, ranking, rankingChange){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,1,?,?,?)";
 
-            const query = "SELECT name,value FROM nstats_ranking_values";
+        await mysql.simpleQuery(query, [playerId, gametypeId, playtime, ranking, rankingChange]);
+    }
 
-            mysql.query(query, (err, result) =>{
 
-                if(err) reject(err);
+    async updatePlayerCurrentQuery(playerId, gametypeId, playtime, ranking, rankingChange){
 
-                if(result !== undefined){
+        const query = `UPDATE nstats_ranking_player_current SET 
+        matches=matches+1,playtime=playtime+?,ranking=?,ranking_change=? WHERE player_id=? AND gametype=?`;
 
-                    resolve(result);
-                }
+        await mysql.simpleQuery(query, [playerime, ranking, rankingChange, playerId, gametypeId]);
+    }
 
-                resolve([]);
-            });
-        });
+    async getPlayerGametypeRanking(playerId, gametypeId){
+
+        const query = `SELECT ranking FROM nstats_ranking_player_current WHERE player_id=? AND gametype=? LIMIT 1`;
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result.length > 0){
+            return result[0].ranking;
+        }
+
+        return null;
+
+    }
+
+    async updatePlayerCurrent(playerId, gametypeId, playtime, ranking){
+
+        if(!await this.playerCurrentRankingExists(playerId, gametypeId)){
+
+            await this.insertPlayerCurrent(playerId, gametypeId, playtime, ranking, 0);
+
+        }else{
+            console.log(`already exists`);
+
+            const previousGametypeRanking = await this.getPlayerGametypeRanking(playerId, gametypeId);
+            
+            console.log(`players previous ranking is ${previousGametypeRanking}`);
+
+            const playerTotalData = await this.playerManager.getPlayerGametypeTotals(playerId, gametypeId);
+            //await this.calculateTotalRanking(playerId, gametypeId);
+            console.log(playerTotalData);
+
+            const newGametypeRanking = this.calculateRanking(playerTotalData);
+
+            console.log(`newGamtypeRankings = ${newGametypeRanking}`);
+        }
+    }
+
+    async playerCurrentRankingExists(playerId, gametypeId){
+
+        const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result.length > 0){
+
+            if(result[0].total_players > 0){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    calculateRanking(data){
+
+        const playtime = data.playtime ?? 0;
+
+        let score = 0;
+
+        for(const [type, value] of Object.entries(this.settings)){
+
+            if(this.settings[type] === undefined){
+
+                new Message(`Ranking setting ${type} does not exist!`,"error");
+                continue;
+            }
+
+            score += data[type] * value;
+        }
+
+
+        const hour = 60 * 60;
+
+        if(score !== 0){
+
+            if(playtime !== 0){
+                score = score / (playtime / 60)
+            }else{
+                score = 0;
+            }
+
+            if(playtime <= hour * 0.5){
+                score = score * this.timePenalties["sub_half_hour_multiplier"]
+            }else if(playtime < hour){
+                score = score * this.timePenalties["sub_hour_multiplier"]
+            }else if(playtime < hour * 2){
+                score = score * this.timePenalties["sub_2hour_multiplier"]
+            }else if(playtime < hour * 3){
+                score = score * this.timePenalties["sub_3hour_multiplier"]
+            }
+        }
+
+        return score;
+    }
+
+    /*async calculateTotalRanking(playerId, gametypeId){
+
+        const query = `SELECT * FROM nstats_player_totals WHERE player_id=? and gametype=? LIMIT 1`;
+
+        const data = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        console.log(data);
+    }*/
+
+
+}
+
+/*class Rankings{
+
+    constructor(){}
+
+    async init(){
+        await this.setRankingSettings();
+    }
+
+    async setRankingSettings(){
+
+        const result = await this.getRankingSettings();
+
+        this.settings = [];
+
+        for(let i = 0; i < result.length; i++){
+            this.settings[result[i].name] = result[i].value;
+        }
+    }
+
+    async getRankingSettings(){
+
+        return await mysql.simpleQuery("SELECT name,value FROM nstats_ranking_values");
+    }
+
+    async getSettingsObject(){
+
+        try{
+
+            let values = [];
+
+            if(this.settings === undefined){
+                values = await this.getSettings();
+            }else{
+                values = this.settings;
+            }
+
+            const obj = {};
+
+            for(let i = 0; i < values.length; i++){
+
+                const v = values[i];
+
+                obj[v.name] = v.value;
+            }
+
+            return obj;
+
+        }catch(err){
+            console.trace(err);
+            return [];
+        }
     }
 
     async getFullValues(){
@@ -35,32 +228,6 @@ class Rankings{
         return await mysql.simpleFetch("SELECT * FROM nstats_ranking_values");
     }
 
-    setRankingSettings(){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT name,value FROM nstats_ranking_values";
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    const data = [];
-
-                    for(let i = 0; i < result.length; i++){
-
-                        data[result[i].name] = result[i].value;
-                    }
-
-                    this.settings = data;
-                }
-
-                resolve();
-            });
-        });
-    }
 
     insertPlayerCurrent(player, gametype, playtime, ranking){
 
@@ -151,7 +318,7 @@ class Rankings{
         });
     }
 
-    async update(matchId, players, gametype, bIgnoreBots){
+    async update(matchId, players, gametype){
 
         try{
 
@@ -159,8 +326,6 @@ class Rankings{
             const hour = 60 * 60;
             const hour2 = hour * 2;
             const hour3 = hour * 3;
-
-
 
             if(this.settings === undefined){
                 new Message(`Rankings.update() Settings are not set, can't updated rankings!`,"error");
@@ -176,30 +341,19 @@ class Rankings{
                 "sub_3hour_multiplier"
             ];
 
-           // const scores = {};
-
-            let p = 0;
-            let currentScore = 0;
-            let currentPlaytime = 0;
-            let matchScore = 0;
-
-            let previousData = 0;
-
             for(const [key, value] of Object.entries(players)){
 
-                currentScore = 0;
-            
+                let currentScore = 0;
+          
                 for(const [settingKey, settingValue] of Object.entries(s)){
 
                     if(ignore.indexOf(settingKey) != -1) continue;
-
                     currentScore += value[settingKey] * settingValue;
                 }
 
-
-                currentPlaytime = value.playtime;
-
+                const currentPlaytime = value.playtime;
                 currentScore = currentScore / (currentPlaytime / 60);
+
                          
                 if(currentPlaytime < halfHour){
 
@@ -218,13 +372,12 @@ class Rankings{
                     currentScore *= s.sub_3hour_multiplier;
                 }
 
-                matchScore = currentScore;
+                let matchScore = currentScore;
 
                 if(currentScore === Infinity || currentScore === -Infinity) currentScore = 0;
                 if(matchScore === Infinity || matchScore === -Infinity) matchScore = 0;
 
-                previousData = await this.getPlayerPreviousHistoryRanking(parseInt(key), gametype);
-
+                let previousData = await this.getPlayerPreviousHistoryRanking(parseInt(key), gametype);
 
                 if(await this.updatePlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore) === 0){
                     await this.insertPlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore);
@@ -236,8 +389,6 @@ class Rankings{
 
                 await this.insertPlayerHistory(matchId, parseInt(key), gametype, currentScore, matchScore, 
                 currentScore - previousData.ranking, matchScore - previousData.match_ranking);
-
-               // scores[key] = currentScore;
             }
 
         }catch(err){
@@ -349,41 +500,16 @@ class Rankings{
         });
     }
 
-    getSettings(){
+    async getSettings(){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
+        const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
+        return await mysql.simpleQuery(query);
     }
 
-    getMatchRankingChanges(matchId){
+    async getMatchRankingChanges(matchId){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT player_id,ranking,match_ranking,ranking_change,match_ranking_change FROM nstats_ranking_player_history WHERE match_id=?";
-
-            mysql.query(query, [matchId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT player_id,ranking,match_ranking,ranking_change,match_ranking_change FROM nstats_ranking_player_history WHERE match_id=?";
+        return await mysql.simpleQuery(query, [matchId]);
     }
 
 
@@ -485,8 +611,6 @@ class Rankings{
 
         try{
 
-            const values = await this.getRankingSettings();
-
             const halfHour = 60 * 30;
             const hour = 60 * 60;
             const hour2 = hour * 2;
@@ -503,18 +627,13 @@ class Rankings{
 
             let currentScore = 0;
 
-            let v = 0;
+            for(let i = 0; i < this.settings.length; i++){
 
-            for(let i = 0; i < values.length; i++){
-
-                v = values[i];
+                const v = this.settings[i];
 
                 if(ignore.indexOf(v.name) === -1){
-
                     currentScore += playerGametypeData[0][v.name] * v.value;
-
                 }else{
-
                     penalties[v.name] = v.value;
                 }
             }
@@ -578,31 +697,6 @@ class Rankings{
         await mysql.simpleDelete("DELETE FROM nstats_ranking_player_current WHERE player_id=?", [playerId]);
     }
 
-    async getSettingsObject(){
-
-        try{
-
-            const values = await this.getSettings();
-
-            const obj = {};
-
-            let v = 0;
-
-            for(let i = 0; i < values.length; i++){
-
-                v = values[i];
-
-                obj[v.name] = v.value;
-            }
-
-            return obj;
-
-        }catch(err){
-            console.trace(err);
-            return [];
-        }
-    }
-
 
     async insertPlayerCurrentFromMerge(playerId, gametypeId, data){
 
@@ -633,51 +727,9 @@ class Rankings{
 
             console.log(`Start of full player recalculation for playerId ${playerId}, ${matches.length * 2} matches needs to be processed`);
 
-            const values = await this.getSettingsObject();
- 
-
-            const types = [
-                'frags',
-                'deaths',
-                'suicides',
-                'team_kills',
-                'flag_taken',
-                'flag_pickup',
-                'flag_return',
-                'flag_capture',
-                'flag_cover',
-                'flag_seal',
-                'flag_assist',
-                'flag_kill',
-                'dom_caps',
-                'assault_objectives',
-                'multi_1',
-                'multi_2',
-                'multi_3',
-                'multi_4',
-                'multi_5',
-                'multi_6',
-                'multi_7',
-                'spree_1',
-                'spree_2',
-                'spree_3',
-                'spree_4',
-                'spree_5',
-                'spree_6',
-                'spree_7',
-                'flag_dropped',
-                'flag_cover_pass',
-                'flag_cover_fail',
-                'flag_self_cover',
-                'flag_self_cover_pass',
-                'flag_self_cover_fail',
-                'flag_multi_cover',
-                'flag_spree_cover',
-                'flag_save'
-            ];
+            const settings = await this.getSettingsObject();
 
             const gametypeTotals = {};
-
 
             gametypeTotals[0] = {
                 "totalScore": 0,
@@ -707,14 +759,8 @@ class Rankings{
             const hour2 = hour * 2;
             const hour3 = hour * 3;
 
-
-            let m = 0;
-
             let previousMatchScore = 0;
-            let currentMatchScore = 0;
-            let matchPlaytime = 0;
             let matchChange = 0;
-
             let currentTotalScore = 0;
             let previousTotalScore = 0;
             let totalPlaytime = 0;
@@ -722,41 +768,12 @@ class Rankings{
 
             for(let i = 0; i < matches.length; i++){
 
-                m = matches[i];
-               // console.log(m.gametype);
-               currentMatchScore = 0;
+                const m = matches[i];
 
-
-                for(let x = 0; x < types.length; x++){
-
-                    currentMatchScore += m[types[x]] * values[types[x]];
-                }
+                const currentMatchScore = createMatchScore(timePenalties, types, m, playtime);
 
                 updateGametypeTotals(0, m.playtime, currentMatchScore);
                 updateGametypeTotals(m.gametype, m.playtime, currentMatchScore);
-
-                
-                currentMatchScore = currentMatchScore / (m.playtime / 60);
-
-
-                matchPlaytime = m.playtime / 60;
-
-
-                if(matchPlaytime === Infinity){
-                    currentMatchScore = 0;
-                }else{
-
-                    if(matchPlaytime < halfHour){
-                        currentMatchScore *= values["sub_half_hour_multiplier"];
-                    }else if(matchPlaytime < hour){
-                        currentMatchScore *= values["sub_hour_multiplier"];
-                    }else if(matchPlaytime < hour2){
-                        currentMatchScore *= values["sub_2hour_multiplier"];
-                    }else if(matchPlaytime < hour3){
-                        currentMatchScore *= values["sub_3hour_multiplier"];
-                    }
-                }
-
 
                 matchChange = currentMatchScore - previousMatchScore;
 
@@ -772,13 +789,13 @@ class Rankings{
 
                     
                     if(totalPlaytime < halfHour){
-                        currentTotalScore *= values["sub_half_hour_multiplier"];
+                        currentTotalScore *= settings["sub_half_hour_multiplier"];
                     }else if(totalPlaytime < hour){
-                        currentTotalScore *= values["sub_hour_multiplier"];
+                        currentTotalScore *= settings["sub_hour_multiplier"];
                     }else if(totalPlaytime < hour2){
-                        currentTotalScore *= values["sub_2hour_multiplier"];
+                        currentTotalScore *= settings["sub_2hour_multiplier"];
                     }else if(totalPlaytime < hour3){
-                        currentTotalScore *= values["sub_3hour_multiplier"];
+                        currentTotalScore *= settings["sub_3hour_multiplier"];
                     }
 
                 }
@@ -792,7 +809,6 @@ class Rankings{
                 gametypeTotals[0].ranking = currentTotalScore;
 
                 if(currentTotalScore !== currentTotalScore) currentTotalScore = 0;
-                if(currentMatchScore !== currentMatchScore) currentMatchScore = 0;
                 if(totalChange !== totalChange) totalChange = 0;
                 if(matchChange !== matchChange) matchChange = 0;
 
@@ -804,10 +820,6 @@ class Rankings{
                 previousTotalScore = currentTotalScore;
                 
             }
-
-            //console.table(gametypeTotals);
-
-            //update current ranking
 
             for(const [key, value] of Object.entries(gametypeTotals)){
 
@@ -827,7 +839,7 @@ class Rankings{
     }
 
 
-    createMatchScore(timePenalties, types, matchData, playtime){
+    createMatchScore(settings, matchData, playtime){
 
         let score = 0;
 
@@ -838,14 +850,12 @@ class Rankings{
             "sub_3hour_multiplier"
         ];
 
+        const timePenalties = this.getTimePenalties(settings);
 
-        for(let i = 0; i < types.length; i++){
+        for(let i = 0; i < settings.length; i++){
 
-            if(ignore.indexOf(types[i].name) === -1){
-
-               // console.log(`${types[i].name} = ${types[i].value}`);
-                score += matchData[types[i].name] * types[i].value;
-
+            if(ignore.indexOf(settings[i].name) === -1){
+                score += matchData[settings[i].name] * settings[i].value;
             }
         }
 
@@ -858,7 +868,6 @@ class Rankings{
 
         score = score / (playtime / 60);
 
-        //console.log(`score before penalties ${score}`);
 
         if(playtime < halfHour){
 
@@ -876,7 +885,6 @@ class Rankings{
             score *= timePenalties.sub_3hour_multiplier;
         }
 
-        //console.log(`score after penalties ${score}`);
 
         return score;
     }
@@ -923,36 +931,33 @@ class Rankings{
         return null;
     }
 
+    getTimePenalties(settings){
+
+        return {
+            "sub_half_hour_multiplier": this.getEventValue(settings, "sub_half_hour_multiplier") ?? 0,
+            "sub_hour_multiplier": this.getEventValue(settings, "sub_hour_multiplier") ?? 0,
+            "sub_2hour_multiplier": this.getEventValue(settings, "sub_2hour_multiplier") ?? 0,
+            "sub_3hour_multiplier": this.getEventValue(settings, "sub_3hour_multiplier") ?? 0
+        };
+
+    }
+
     async recalculateGametypeRankings(id){
 
         try{
 
-            const values = await this.getSettings();
+            const settings = await this.getSettings();
 
             const query = `SELECT * FROM nstats_player_matches WHERE gametype=? AND played=1 AND playtime>0 ORDER BY match_id ASC`;
 
             const data = await mysql.simpleFetch(query, [id]);
 
-            const timePenalties = {
-                "sub_half_hour_multiplier": this.getEventValue(values, "sub_half_hour_multiplier") ?? 0,
-                "sub_hour_multiplier": this.getEventValue(values, "sub_hour_multiplier") ?? 0,
-                "sub_2hour_multiplier": this.getEventValue(values, "sub_2hour_multiplier") ?? 0,
-                "sub_3hour_multiplier": this.getEventValue(values, "sub_3hour_multiplier") ?? 0
-            };
-
-
             const players = {};
-
-            let d = 0;
-
-            let current = 0;
             let previous = 0;
-            let currentIndex = 0;
-            let currentScore = 0;
 
             for(let i = 0; i < data.length; i++){
 
-                d = data[i];
+                const d = data[i];
 
                 if(players[d.player_id] === undefined){
                     players[d.player_id] = [this.createDummyPlayerData()];
@@ -960,8 +965,8 @@ class Rankings{
                     players[d.player_id].push(this.createDummyPlayerData());
                 }
 
-                currentIndex = players[d.player_id].length - 1;
-                current = players[d.player_id][players[d.player_id].length - 1];
+                const currentIndex = players[d.player_id].length - 1;
+                const current = players[d.player_id][players[d.player_id].length - 1];
                 current.match_id = d.match_id;
 
                 if(currentIndex > 0){
@@ -973,7 +978,7 @@ class Rankings{
                 current.matches = previous.matches + 1;
                 current.playtime += previous.playtime + d.playtime;
 
-                currentScore = this.createMatchScore(timePenalties, values, d, current.playtime);
+                const currentScore = this.createMatchScore(settings, d, current.playtime);
 
                 current.ranking = currentScore;
                 current.match_ranking = currentScore;
@@ -993,11 +998,9 @@ class Rankings{
 
             for(const [playerId, data] of Object.entries(players)){
 
-                let d = 0;
-
                 for(let i = 0; i < data.length; i++){
 
-                    d = data[i];
+                    const d = data[i];
 
                     await this.insertPlayerHistory(d.match_id, playerId, id, d.ranking, d.match_ranking, d.ranking_change, d.match_ranking_change);
 
@@ -1006,8 +1009,6 @@ class Rankings{
                     }
                 }
             }
-
-            
 
         }catch(err){
             console.trace(err);
@@ -1079,7 +1080,7 @@ class Rankings{
         
         return await mysql.simpleFetch(query, [playerId, gametype]);
     }
-}
+}*/
 
 
 module.exports = Rankings;

@@ -324,7 +324,9 @@ class MatchManager{
 
             this.rankingsManager = new Rankings();
 
-            await this.rankingsManager.setRankingSettings();
+            await this.rankingsManager.init();
+
+            //await this.rankingsManager.setRankingSettings();
 
             new Message("Getting player totals for rankings calculation.","note");
             const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);

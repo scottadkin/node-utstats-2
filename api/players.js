@@ -1956,7 +1956,19 @@ class Players{
         return {"totals": totalKeys, "matches": matchKeys};
         
     }
+    
+    async getPlayerGametypeTotals(playerId, gametypeId){
 
+        const query = "SELECT * FROM nstats_player_totals WHERE player_id=? AND gametype=? LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+        
+        return null;
+    }
 }
 
 

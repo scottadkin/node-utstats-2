@@ -13,6 +13,7 @@ export default async function handler(req, res){
         if(await session.bUserAdmin()){
 
             const rankingManager = new Rankings();
+            await rankingManager.init();
 
             let gametypeId = parseInt(req.body.gametypeId);
             let mode = req.body.mode;
