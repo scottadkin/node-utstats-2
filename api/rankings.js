@@ -827,7 +827,7 @@ class Rankings{
     }
 
 
-    createMatchScore(types, matchData, playtime){
+    createMatchScore(timePenalties, types, matchData, playtime){
 
         let score = 0;
 
@@ -838,12 +838,6 @@ class Rankings{
             "sub_3hour_multiplier"
         ];
 
-        const penalties = {
-            "sub_half_hour_multiplier": 0,
-            "sub_hour_multiplier": 0,
-            "sub_2hour_multiplier": 0,
-            "sub_3hour_multiplier": 0
-        };
 
         for(let i = 0; i < types.length; i++){
 
@@ -852,10 +846,7 @@ class Rankings{
                // console.log(`${types[i].name} = ${types[i].value}`);
                 score += matchData[types[i].name] * types[i].value;
 
-            }else{
-
-                penalties[types[i].name] = types[i].value;
-            }     
+            }
         }
 
         playtime = playtime + matchData.playtime;
@@ -871,18 +862,18 @@ class Rankings{
 
         if(playtime < halfHour){
 
-            score *= penalties.sub_half_hour_multiplier;
+            score *= timePenalties.sub_half_hour_multiplier;
 
         }else if(playtime < hour){
 
-            score *= penalties.sub_hour_multiplier;
+            score *= timePenalties.sub_hour_multiplier;
 
         }else if(playtime < hour2){
 
-            score *= penalties.sub_2hour_multiplier;
+            score *= timePenalties.sub_2hour_multiplier;
 
         }else if(playtime < hour3){
-            score *= penalties.sub_3hour_multiplier;
+            score *= timePenalties.sub_3hour_multiplier;
         }
 
         //console.log(`score after penalties ${score}`);
@@ -921,18 +912,36 @@ class Rankings{
 
     }
 
+    getEventValue(values, eventName){
+
+        for(let i = 0; i < values.length; i++){
+
+            const v = values[i];
+            if(v.name === eventName) return v.value;
+        }
+
+        return null;
+    }
+
     async recalculateGametypeRankings(id){
 
         try{
 
             const values = await this.getSettings();
 
-            const data = await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE gametype=? ORDER BY match_id ASC", [id]);
+            const query = `SELECT * FROM nstats_player_matches WHERE gametype=? AND played=1 AND playtime>0 ORDER BY match_id ASC`;
 
+            const data = await mysql.simpleFetch(query, [id]);
 
-            const players = {
-
+            const timePenalties = {
+                "sub_half_hour_multiplier": this.getEventValue(values, "sub_half_hour_multiplier") ?? 0,
+                "sub_hour_multiplier": this.getEventValue(values, "sub_hour_multiplier") ?? 0,
+                "sub_2hour_multiplier": this.getEventValue(values, "sub_2hour_multiplier") ?? 0,
+                "sub_3hour_multiplier": this.getEventValue(values, "sub_3hour_multiplier") ?? 0
             };
+
+
+            const players = {};
 
             let d = 0;
 
@@ -964,7 +973,7 @@ class Rankings{
                 current.matches = previous.matches + 1;
                 current.playtime += previous.playtime + d.playtime;
 
-                currentScore = this.createMatchScore(values, d, current.playtime);
+                currentScore = this.createMatchScore(timePenalties, values, d, current.playtime);
 
                 current.ranking = currentScore;
                 current.match_ranking = currentScore;

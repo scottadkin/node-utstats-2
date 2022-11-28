@@ -243,13 +243,14 @@ export default async function handler(req, res){
                 if(mapId > 0){
 
                     const data = await ctfManager.getMapCaps(mapId, page, perPage, type);
+
                     const playerIds = getUniquePlayers(data);
                     const playerNames = await playerManager.getNamesByIds(playerIds, true);
                     const matchIds = getUniqueMatchIds(data, false);
                     const matchDates = await matchManager.getDates(matchIds);
                     const totalCaps = await ctfManager.getMapTotalCaps(mapId, type);
                     const records = await ctfManager.getFastestMapCaps(mapId, playerManager);
-
+    
                     if(setDetails){
 
                         setCapDetails(data, playerNames, matchDates, records);
