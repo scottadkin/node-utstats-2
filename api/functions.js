@@ -687,13 +687,7 @@ class Functions{
 
     static capTime(input){
 
-        let ms = Math.floor(((input % 1) * 100));
-        ms = ms.toString();
-
-        if(ms.length === 1){
-            ms = `${ms}0`;
-        }
-       
+        const ms = Math.floor((input%1) * 100).toString().padStart(2, '0');
 
         let seconds = Math.floor(input % 60);
         let minutes = Math.floor(input / 60);
