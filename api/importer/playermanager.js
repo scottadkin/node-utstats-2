@@ -1,5 +1,4 @@
 const mysql = require('../database');
-const Promise = require('promise');
 const PlayerInfo = require('./playerinfo');
 const Message = require('../message');
 const geoip = require('geoip-lite');
@@ -1764,8 +1763,27 @@ class PlayerManager{
             p.stats.time_on_server = playtime;
 
         }
+    }
 
-        
+    async updateRankings(rankingsManager, gametypeId, matchId){
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            if(p.bBot){
+                if(this.bIgnoreBots) continue;
+            }
+
+            if(p.stats.time_on_server > 0){
+
+                if(p.bDuplicate === undefined){
+                    await rankingsManager.updatePlayerRankings(Player, p.masterId, gametypeId, matchId);
+                }else{
+                    new Message(`Duplicate player detected, ignoring ranking update for ${p.name}.`,"note");
+                }
+            }
+        }
     }
 }
 

@@ -8,7 +8,7 @@ const Rankings = require("./api/rankings");
     await r.init();
 
 
-    await r.updatePlayerCurrent(538, 16, 1111, 2312, 33);
+    await r.updatePlayerRankings(538, 16, 175);
 
     process.exit();
 

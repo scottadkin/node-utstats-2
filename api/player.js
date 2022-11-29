@@ -725,26 +725,19 @@ class Player{
     }
 
 
-    getMatchData(playerId, matchId){
+    async getMatchData(playerId, matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id=? LIMIT 1";
 
-            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id=?";
+        const result = await mysql.simpleQuery(query, [playerId, matchId]);
 
-            mysql.query(query, [playerId, matchId], (err, result) =>{
+        if(result.length > 0){
+            return result[0];
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0){
-                        resolve(result[0]);
-                    }
-                }
-
-                resolve(null);
-            });
-        });
+        return null;
     }
+
 
     async deletePlayerMatch(playerId, matchId){
 
@@ -1065,6 +1058,19 @@ class Player{
         const result = await mysql.simpleQuery(query, [playerId, matchId]);
 
         return result[0].total_rows > 0;
+    }
+
+    async getPlayerGametypeTotals(playerId, gametypeId){
+
+        const query = "SELECT * FROM nstats_player_totals WHERE player_id=? AND gametype=? LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+        
+        return null;
     }
 
 }

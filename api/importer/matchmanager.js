@@ -328,13 +328,13 @@ class MatchManager{
 
             //await this.rankingsManager.setRankingSettings();
 
-            new Message("Getting player totals for rankings calculation.","note");
-            const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);
+            //new Message("Getting player totals for rankings calculation.","note");
+            //const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);
 
             //need to get player current totals then add them to the scores
             new Message("Updating player rankings.","note");
-            await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
-
+            //await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
+            await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
 
             //if(this.combogibLines.length !== 0){
 
