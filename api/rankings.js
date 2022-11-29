@@ -100,7 +100,7 @@ class Rankings{
         if(!await this.playerCurrentRankingExists(playerId, gametypeId)){
 
             await this.insertPlayerCurrent(playerId, gametypeId, playtime, newGametypeRanking, newGametypeRanking);
-            await this.insertPlayerHistory(matchId, playerId, gametypeId, newGametypeRanking, matchRankingScore, newGametypeRanking);
+            await this.insertPlayerHistory(matchId, playerId, gametypeId, newGametypeRanking, matchRankingScore, 0);
 
         }else{
        
@@ -182,134 +182,98 @@ class Rankings{
     }
 
 
+    async getData(gametypeId, page, perPage){
 
+        page = parseInt(page);
+        perPage = parseInt(perPage);
+
+        if(page !== page) page = 1;
+        if(perPage !== perPage) perPage = 25;
+
+        page--;
+
+        const start = page * perPage;
+
+        const query = "SELECT * FROM nstats_ranking_player_current WHERE gametype=? ORDER BY ranking DESC LIMIT ?,?";
+
+        return await mysql.simpleQuery(query, [gametypeId, start, perPage]);
+
+    }
+
+    async getMultipleGametypesData(gametypeIds, perPage){
+
+        if(gametypeIds.length === 0) return [];
+
+        const data = [];
+
+        for(let i = 0; i < gametypeIds.length; i++){
+
+            const id = gametypeIds[i];
+
+            const result = await this.getData(id, 1, perPage);
+            data.push({"data": result, "id": id});
+        }
+
+
+        return data;
+    }
+
+
+    async getTotalPlayers(gametypeId){
+
+        const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE gametype=?";
+
+        const result = await mysql.simpleQuery(query, [gametypeId]);
+
+        return result[0].total_players;
+
+    }
+
+    async getDetailedSettings(){
+
+        const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
+        return await mysql.simpleQuery(query);
+    }
+
+
+    async getPlayerRankings(playerId){
+
+        const query = "SELECT gametype,matches,playtime,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=?";
+
+        return await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async getGametypePosition(rankingValue, gametypeId){
+
+        const query = "SELECT COUNT(*) as total_values FROM nstats_ranking_player_current WHERE gametype=? AND ranking>? ORDER BY ranking DESC";
+
+        const result = await mysql.simpleQuery(query, [gametypeId, rankingValue]);
+
+        if(result[0].total_values === 0) return 1;
+
+        return result[0].total_values + 1;
+    }
+
+    async getMatchRankingChanges(matchId){
+
+        const query = "SELECT player_id,ranking,match_ranking,ranking_change,match_ranking_change FROM nstats_ranking_player_history WHERE match_id=?";
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
+
+    async getCurrentPlayersRanking(players, gametype){
+
+        if(players.length === 0) return [];
+
+        const query = "SELECT player_id,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id IN(?) AND gametype=?";
+
+        return await mysql.simpleQuery(query, [players, gametype]);
+    }
 }
 
 /*class Rankings{
 
-    constructor(){}
 
-    async init(){
-        await this.setRankingSettings();
-    }
-
-    async setRankingSettings(){
-
-        const result = await this.getRankingSettings();
-
-        this.settings = [];
-
-        for(let i = 0; i < result.length; i++){
-            this.settings[result[i].name] = result[i].value;
-        }
-    }
-
-    async getRankingSettings(){
-
-        return await mysql.simpleQuery("SELECT name,value FROM nstats_ranking_values");
-    }
-
-    async getSettingsObject(){
-
-        try{
-
-            let values = [];
-
-            if(this.settings === undefined){
-                values = await this.getSettings();
-            }else{
-                values = this.settings;
-            }
-
-            const obj = {};
-
-            for(let i = 0; i < values.length; i++){
-
-                const v = values[i];
-
-                obj[v.name] = v.value;
-            }
-
-            return obj;
-
-        }catch(err){
-            console.trace(err);
-            return [];
-        }
-    }
-
-    async getFullValues(){
-
-        return await mysql.simpleFetch("SELECT * FROM nstats_ranking_values");
-    }
-
-
-    insertPlayerCurrent(player, gametype, playtime, ranking){
-
-        return new Promise((resolve, reject) =>{
-
-            if(ranking !== ranking) ranking = 0;
-
-            const query = "INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,1,?,?,?)";
-
-            mysql.query(query, [player,gametype,playtime,ranking,ranking], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
-    }
-
-
-    updatePlayerCurrent(player, gametype, playtime, newRanking){
-
-        return new Promise((resolve, reject) =>{
-            
-
-            const query = `UPDATE nstats_ranking_player_current SET
-            matches=matches+1, playtime=?,ranking_change=?-ranking,ranking=?
-            WHERE gametype=? AND player_id=?`;
-
-
-            if(newRanking !== newRanking){
-                newRanking = 0;
-            }
-
-            mysql.query(query, [playtime, newRanking, newRanking, gametype, player], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    resolve(result.affectedRows);
-                }
-
-                resolve(0);
-            });
-        });
-    }
-
-    insertPlayerHistory(matchId, player, gametype, ranking, matchScore, rankingChange, matchChange){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?,?,?,?)";
-
-            if(matchScore !== matchScore || matchScore === Infinity) matchScore = 0;
-            if(matchChange !== matchChange || matchChange === Infinity) matchChange = 0;
-
-            if(ranking !== ranking) ranking = 0;
-            if(rankingChange !== rankingChange) rankingChange = 0;
-
-            mysql.query(query, [matchId, player, gametype, ranking, matchScore, rankingChange, matchChange], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
-    }
 
     getPlayerPreviousHistoryRanking(player, gametype){
 
@@ -333,194 +297,6 @@ class Rankings{
         });
     }
 
-    async update(matchId, players, gametype){
-
-        try{
-
-            const halfHour = 60 * 30;
-            const hour = 60 * 60;
-            const hour2 = hour * 2;
-            const hour3 = hour * 3;
-
-            if(this.settings === undefined){
-                new Message(`Rankings.update() Settings are not set, can't updated rankings!`,"error");
-                return;
-            }
-
-            const s = this.settings;
-
-            const ignore = [
-                "sub_half_hour_multiplier",
-                "sub_hour_multiplier",
-                "sub_2hour_multiplier",
-                "sub_3hour_multiplier"
-            ];
-
-            for(const [key, value] of Object.entries(players)){
-
-                let currentScore = 0;
-          
-                for(const [settingKey, settingValue] of Object.entries(s)){
-
-                    if(ignore.indexOf(settingKey) != -1) continue;
-                    currentScore += value[settingKey] * settingValue;
-                }
-
-                const currentPlaytime = value.playtime;
-                currentScore = currentScore / (currentPlaytime / 60);
-
-                         
-                if(currentPlaytime < halfHour){
-
-                    currentScore *= s.sub_half_hour_multiplier;
-
-                }else if(currentPlaytime < hour){
-
-                    currentScore *= s.sub_hour_multiplier;
-
-                }else if(currentPlaytime < hour2){
-
-                    currentScore *= s.sub_2hour_multiplier;
-
-                }else if(currentPlaytime < hour3){
-                    
-                    currentScore *= s.sub_3hour_multiplier;
-                }
-
-                let matchScore = currentScore;
-
-                if(currentScore === Infinity || currentScore === -Infinity) currentScore = 0;
-                if(matchScore === Infinity || matchScore === -Infinity) matchScore = 0;
-
-                let previousData = await this.getPlayerPreviousHistoryRanking(parseInt(key), gametype);
-
-                if(await this.updatePlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore) === 0){
-                    await this.insertPlayerCurrent(parseInt(key), gametype, currentPlaytime, currentScore);
-                }
-
-                if(previousData === null){
-                    previousData = {"ranking": currentScore, "match_ranking": matchScore};
-                }
-
-                await this.insertPlayerHistory(matchId, parseInt(key), gametype, currentScore, matchScore, 
-                currentScore - previousData.ranking, matchScore - previousData.match_ranking);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }   
-    }
-
-
-    getData(gametype, page, perPage){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = `SELECT player_id,gametype,matches,playtime,ranking,ranking_change 
-            FROM nstats_ranking_player_current WHERE gametype=? ORDER BY ranking DESC LIMIT ?, ?`;
-
-            page--;
-
-            const start = page * perPage;
-
-            mysql.query(query, [gametype, start, perPage], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
-    }
-
-    debugGetAllNames(){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT name FROM nstats_ranking_values WHERE id>222";
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    let string = "";
-
-                    for(let i = 0; i < result.length; i++){
-
-                        string += `${result[i].name},`;
-                    }
-
-                    //console.log(string);
-
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-
-        });
-    }
-
-    async getMultipleGametypesData(ids, perPage){
-
-        try{
-
-
-            if(ids.length === 0) return [];
-
-            const data = [];
-
-            let current = 0;
-
-            for(let i = 0; i < ids.length; i++){
-
-                current = await this.getData(ids[i], 1, perPage);
-
-                data.push({
-                    "id": ids[i],
-                    "data": current
-                });
-            }
-
-            return data;
-
-        }catch(err){
-            console.trace(err);
-        }  
-    }
-
-
-    getTotalPlayers(gametype){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE gametype=?";
-
-            mysql.query(query, [gametype], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0){
-                        resolve(result[0].total_players);
-                    }
-                }
-                resolve(0);
-            });
-        });
-    }
-
-    async getSettings(){
-
-        const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
-        return await mysql.simpleQuery(query);
-    }
-
     async getMatchRankingChanges(matchId){
 
         const query = "SELECT player_id,ranking,match_ranking,ranking_change,match_ranking_change FROM nstats_ranking_player_history WHERE match_id=?";
@@ -528,59 +304,7 @@ class Rankings{
     }
 
 
-    getCurrentPlayersRanking(players, gametype){
 
-        return new Promise((resolve, reject) =>{
-
-
-            if(players.length === 0) resolve([]);
-            
-            const query = "SELECT player_id,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id IN(?) AND gametype=?";
-
-            mysql.query(query, [players, gametype], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
-    }
-
-    getPlayerRankings(id){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT gametype,matches,playtime,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=?";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
-    }
-
-    async getGametypePosition(ranking, gametype){
-
-        const query = "SELECT COUNT(*) as player_position FROM nstats_ranking_player_current WHERE gametype=? AND ranking>=? ORDER BY ranking DESC";
-
-        const result = await mysql.simpleQuery(query, [gametype, ranking]);
-
-        if(result.length > 0){
-            return result[0].player_position;
-        }
-
-        return -1;
-    }
 
     deleteMatchRankings(id){
 

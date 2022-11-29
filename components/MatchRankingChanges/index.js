@@ -62,11 +62,11 @@ const MatchRankingChanges = ({host, changes, currentRankings, playerNames, posit
 
         player = Functions.getPlayer(playerNames, c.player_id);
 
-        previousRanking = c.match_ranking - c.ranking_change;
+        previousRanking = c.ranking - c.ranking_change;
         currentRanking = getCurrentRankings(currentRankings, c.player_id);
 
         icon2 = getIcon(currentRanking.ranking_change);
-        icon3 = getIcon(c.match_ranking_change);
+        icon3 = getIcon(c.ranking_change);
 
 
         if(currentRanking.ranking_change > 0){
@@ -83,7 +83,7 @@ const MatchRankingChanges = ({host, changes, currentRankings, playerNames, posit
             <td><Link href={`/pmatch/${matchId}?player=${c.player_id}`}><a><CountryFlag host={host} country={player.country}/>{player.name}</a></Link></td>
             <td>{previousRanking.toFixed(2)}</td>
             <td><Image width={14} height={14} className="ranking-icon" src={icon3} alt="icon"/> {c.ranking.toFixed(2)}</td>
-            <td><Image width={14} height={14} className="ranking-icon" src={icon3} alt="icon"/> {c.match_ranking_change.toFixed(2)}</td>
+            <td><Image width={14} height={14} className="ranking-icon" src={icon3} alt="icon"/> {c.ranking_change.toFixed(2)}</td>
             <td>{c.match_ranking.toFixed(2)}</td>
             <td><span className="ranking-position">({positions[c.player_id]}{Functions.getOrdinal(positions[c.player_id])})</span><Image width={14} height={14} className="ranking-icon" src={icon2} alt="icon"/> <MouseHoverBox title="Ranking Change" content={rankingString} display={currentRanking.ranking.toFixed(2)}/></td>
         </tr>);
