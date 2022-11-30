@@ -18,22 +18,17 @@ export default async function handler(req, res){
             let gametypeId = parseInt(req.body.gametypeId);
             let mode = req.body.mode;
 
+            console.log(mode);
+
             if(mode === "values"){
 
                 const values = req.body.data;
 
                 if(values !== undefined){
 
-                    console.log("change values");
-
-                    console.table(values);
-
-                    let v = 0;
-
                     for(let i = 0; i < values.length; i++){
 
-                        v = values[i];
-
+                        const v = values[i];
                         await rankingManager.updateEvent(v.id, v.description, v.value);
                     }
 
@@ -71,16 +66,14 @@ export default async function handler(req, res){
                             return;
 
                         }else{
-
                             res.status(200).json({"message": "Gametype must be a positive integer."});
                         }
 
                     }else{
-
                         res.status(200).json({"message": "Gametype must a valid integer."});
                     }
-                }else{
 
+                }else{
                     res.status(200).json({"message": "Mode must be a valid interger."});
                 }
             }

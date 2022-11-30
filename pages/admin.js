@@ -383,7 +383,7 @@ export async function getServerSideProps({req, query}){
 
         const rankingManager = new Rankings();
 
-        rankingEvents = await rankingManager.getFullValues();
+        rankingEvents = await rankingManager.getDetailedSettings();
 
         const itemManager = new Items();
 

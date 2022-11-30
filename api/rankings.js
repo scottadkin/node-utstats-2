@@ -1,10 +1,10 @@
 const mysql = require('./database');
 const Message = require('./message');
+const Gametypes = require("./gametypes");
 
 class Rankings{
 
-    constructor(){
-    }
+    constructor(){}
 
     async init(){
 
@@ -153,6 +153,7 @@ class Rankings{
                 new Message(`Ranking setting ${type} does not exist!`,"error");
                 continue;
             }
+
             score += data[type] * value;
         }
 
@@ -269,6 +270,83 @@ class Rankings{
 
         return await mysql.simpleQuery(query, [players, gametype]);
     }
+
+    async getPlayerMatchHistory(playerId, matchId){
+
+        const query = "SELECT * FROM nstats_ranking_player_history WHERE player_id=? AND match_id=?";
+        return await mysql.simpleFetch(query, [playerId, matchId]);
+    }
+
+    async getCurrentPlayerRanking(playerId, gametypeId){
+
+        const query = `SELECT matches, playtime, ranking, ranking_change FROM 
+        nstats_ranking_player_current WHERE player_id=? AND gametype=?`;
+        
+        return await mysql.simpleFetch(query, [playerId, gametypeId]);
+    }
+
+    async deleteGametypeHistory(gametypeId){
+
+        const query = "DELETE FROM nstats_ranking_player_history WHERE gametype=?";
+
+        await mysql.simpleQuery(query, [gametypeId]);
+    }
+
+    
+    updateCurrentPlayerTotal(totals, data){
+
+        const playerId = data.player_id;
+
+        if(totals[playerId] === undefined){
+            totals[playerId] = {
+                "playtime": 0,
+                "previousScore": 0
+            };
+        }
+
+        const player = totals[playerId];
+
+        player.playtime += data.playtime;
+
+        for(const key of Object.keys(this.settings)){
+
+            if(player[key] === undefined){
+                player[key] = data[key];
+            }
+        }
+
+        return player;
+    }
+
+    async recalculateGametypeRankings(gametypeId){
+
+        gametypeId = parseInt(gametypeId);
+
+        console.log(`Perform full recalculation of gametype rankings.`);
+
+        await this.deleteGametypeHistory(gametypeId);
+
+        const gametypesManager = new Gametypes();
+        const data = await gametypesManager.getAllPlayerMatchData(gametypeId);
+
+        const currentTotals = {};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const matchScore = this.calculateRanking(d);
+
+            const playerTotalData = this.updateCurrentPlayerTotal(currentTotals, d);
+            const totalScore = this.calculateRanking(playerTotalData);
+
+            const rankingChange = totalScore - playerTotalData.previousScore;
+            await this.insertPlayerHistory(d.match_id, d.player_id, gametypeId, totalScore, matchScore, rankingChange);
+
+            playerTotalData.previousScore = totalScore;
+        
+        }
+    }
 }
 
 /*class Rankings{
@@ -319,11 +397,6 @@ class Rankings{
                 resolve();
             });
         });
-    }
-
-    async getPlayerMatchHistory(playerId, matchId){
-        return await mysql.simpleFetch("SELECT * FROM nstats_ranking_player_history WHERE player_id=? AND match_id=?",
-        [playerId, matchId]);
     }
 
 
@@ -578,69 +651,6 @@ class Rankings{
     }
 
 
-    createMatchScore(settings, matchData, playtime){
-
-        let score = 0;
-
-        const ignore = [
-            "sub_half_hour_multiplier",
-            "sub_hour_multiplier",
-            "sub_2hour_multiplier",
-            "sub_3hour_multiplier"
-        ];
-
-        const timePenalties = this.getTimePenalties(settings);
-
-        for(let i = 0; i < settings.length; i++){
-
-            if(ignore.indexOf(settings[i].name) === -1){
-                score += matchData[settings[i].name] * settings[i].value;
-            }
-        }
-
-        playtime = playtime + matchData.playtime;
-
-        const halfHour = 60 * 30;
-        const hour = 60 * 60;
-        const hour2 = hour * 2;
-        const hour3 = hour * 3;
-
-        score = score / (playtime / 60);
-
-
-        if(playtime < halfHour){
-
-            score *= timePenalties.sub_half_hour_multiplier;
-
-        }else if(playtime < hour){
-
-            score *= timePenalties.sub_hour_multiplier;
-
-        }else if(playtime < hour2){
-
-            score *= timePenalties.sub_2hour_multiplier;
-
-        }else if(playtime < hour3){
-            score *= timePenalties.sub_3hour_multiplier;
-        }
-
-
-        return score;
-    }
-
-    createDummyPlayerData(){
-
-        return {
-            "matches": 0,
-            "playtime": 0,
-            "ranking": 0,
-            "ranking_change": 0,
-            "match_ranking": 0,
-            "match_ranking_change": 0,
-            "match_id": 0
-        };
-    }
-
     async deleteGametypeHistory(id){
         await mysql.simpleDelete("DELETE FROM nstats_ranking_player_history WHERE gametype=?",[id]);
         await mysql.simpleDelete("DELETE FROM nstats_ranking_player_current WHERE gametype=?",[id]);
@@ -670,16 +680,6 @@ class Rankings{
         return null;
     }
 
-    getTimePenalties(settings){
-
-        return {
-            "sub_half_hour_multiplier": this.getEventValue(settings, "sub_half_hour_multiplier") ?? 0,
-            "sub_hour_multiplier": this.getEventValue(settings, "sub_hour_multiplier") ?? 0,
-            "sub_2hour_multiplier": this.getEventValue(settings, "sub_2hour_multiplier") ?? 0,
-            "sub_3hour_multiplier": this.getEventValue(settings, "sub_3hour_multiplier") ?? 0
-        };
-
-    }
 
     async recalculateGametypeRankings(id){
 
@@ -812,13 +812,6 @@ class Rankings{
         }
     }
 
-    async getCurrentPlayerRanking(playerId, gametype){
-
-        const query = `SELECT matches, playtime, ranking, ranking_change FROM 
-        nstats_ranking_player_current WHERE player_id=? AND gametype=?`;
-        
-        return await mysql.simpleFetch(query, [playerId, gametype]);
-    }
 }*/
 
 

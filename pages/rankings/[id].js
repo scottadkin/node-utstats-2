@@ -73,8 +73,10 @@ class Rankings extends React.Component{
 
             d = data[i];
 
-            elems.push(<RankingTable host={Functions.getImageHostAndPort(this.props.host)} gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} key={i} mode={this.props.gametypeId}
-                title={this.getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results} bDisplayPagination={(data.length > 1) ? false : true}/>);
+            elems.push(<RankingTable host={Functions.getImageHostAndPort(this.props.host)} gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} 
+                key={i} mode={this.props.gametypeId}
+                title={this.getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results} bDisplayPagination={(data.length > 1) ? false : true}
+            />);
         }
 
         return elems;
@@ -189,7 +191,7 @@ export async function getServerSideProps({req, query}){
 
     const gametypeIds = [];
 
-    for(const [key, value] of Object.entries(gametypeNames)){
+    for(const key of Object.keys(gametypeNames)){
 
         gametypeIds.push(parseInt(key));
     }

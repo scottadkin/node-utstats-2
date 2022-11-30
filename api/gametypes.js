@@ -890,7 +890,19 @@ class Gametypes{
         }
 
         return foundImages;
+    }
 
+    async getAllPlayerMatchData(gametypeId){
+
+        gametypeId = parseInt(gametypeId);
+
+        if(gametypeId !== gametypeId){
+            throw new Error(`GametypeId must be a valid integer`);
+        }
+
+        const query = "SELECT * FROM nstats_player_matches WHERE gametype=? ORDER BY match_date ASC";
+
+        return await mysql.simpleQuery(query, [gametypeId]);
     }
 }
 
