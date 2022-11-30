@@ -44,11 +44,11 @@ class Rankings{
     }
 
 
-    async insertPlayerCurrent(playerId, gametypeId, playtime, ranking, rankingChange){
+    async insertPlayerCurrent(playerId, gametypeId, totalMatches, playtime, ranking, rankingChange){
 
-        const query = "INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,1,?,?,?)";
+        const query = "INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,?,?,?,?)";
 
-        await mysql.simpleQuery(query, [playerId, gametypeId, playtime, ranking, rankingChange]);
+        await mysql.simpleQuery(query, [playerId, gametypeId, totalMatches, playtime, ranking, rankingChange]);
     }
 
 
@@ -58,6 +58,18 @@ class Rankings{
         matches=matches+1,playtime=playtime+?,ranking=?,ranking_change=? WHERE player_id=? AND gametype=?`;
 
         await mysql.simpleQuery(query, [playtime, ranking, rankingChange, playerId, gametypeId]);
+    }
+
+    async updatePlayerCurrentCustom(playerId, gametypeId, playtime, totalMatches, ranking, rankingChange){
+
+        const query = `UPDATE nstats_ranking_player_current SET 
+        matches=?,playtime=?,ranking=?,ranking_change=? WHERE player_id=? AND gametype=?`;
+
+        const result = await mysql.simpleQuery(query, [totalMatches, playtime, ranking, rankingChange, playerId, gametypeId]);
+
+        if(result.changedRows === 0){      
+            await this.insertPlayerCurrent(playerId, gametypeId, totalMatches, playtime, ranking, rankingChange);
+        }    
     }
 
     async getPlayerGametypeRanking(playerId, gametypeId){
@@ -99,7 +111,7 @@ class Rankings{
 
         if(!await this.playerCurrentRankingExists(playerId, gametypeId)){
 
-            await this.insertPlayerCurrent(playerId, gametypeId, playtime, newGametypeRanking, newGametypeRanking);
+            await this.insertPlayerCurrent(playerId, gametypeId, 1, playtime, newGametypeRanking, newGametypeRanking);
             await this.insertPlayerHistory(matchId, playerId, gametypeId, newGametypeRanking, matchRankingScore, 0);
 
         }else{
@@ -288,7 +300,13 @@ class Rankings{
     async deleteGametypeHistory(gametypeId){
 
         const query = "DELETE FROM nstats_ranking_player_history WHERE gametype=?";
+        await mysql.simpleQuery(query, [gametypeId]);
 
+    }
+
+    async deleteGametypeCurrent(gametypeId){
+
+        const query = "DELETE FROM nstats_ranking_player_current WHERE gametype=?";
         await mysql.simpleQuery(query, [gametypeId]);
     }
 
@@ -298,21 +316,34 @@ class Rankings{
         const playerId = data.player_id;
 
         if(totals[playerId] === undefined){
+
             totals[playerId] = {
                 "playtime": 0,
-                "previousScore": 0
+                "previousScore": 0,
+                "matches": 0,
+                "rankingChange": 0
             };
         }
+
 
         const player = totals[playerId];
 
         player.playtime += data.playtime;
+        player.matches++;
+
+        const ignore = ["sub_half_hour_multiplier","sub_hour_multiplier","sub_2hour_multiplier","sub_3hour_multiplier"];
 
         for(const key of Object.keys(this.settings)){
 
+            if(ignore.indexOf(key) !== -1){
+                continue;
+            }
+
             if(player[key] === undefined){
                 player[key] = data[key];
-            }
+            }else{
+                player[key] += data[key];
+            }     
         }
 
         return player;
@@ -325,6 +356,7 @@ class Rankings{
         console.log(`Perform full recalculation of gametype rankings.`);
 
         await this.deleteGametypeHistory(gametypeId);
+        await this.deleteGametypeCurrent(gametypeId);
 
         const gametypesManager = new Gametypes();
         const data = await gametypesManager.getAllPlayerMatchData(gametypeId);
@@ -341,12 +373,18 @@ class Rankings{
             const totalScore = this.calculateRanking(playerTotalData);
 
             const rankingChange = totalScore - playerTotalData.previousScore;
+
             await this.insertPlayerHistory(d.match_id, d.player_id, gametypeId, totalScore, matchScore, rankingChange);
 
-            playerTotalData.previousScore = totalScore;
-        
+            playerTotalData.previousScore = totalScore;  
+            playerTotalData.rankingChange = rankingChange;
+        }
+
+        for(const [playerId, data] of Object.entries(currentTotals)){
+            await this.insertPlayerCurrent(playerId, gametypeId, data.matches, data.playtime, data.previousScore, data.rankingChange);
         }
     }
+    
 }
 
 /*class Rankings{
