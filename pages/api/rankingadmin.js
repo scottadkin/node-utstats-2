@@ -60,13 +60,14 @@ export default async function handler(req, res){
 
                             }else if(mode === 1){
 
-                                await rankingManager.deleteGametype(gametypeId);
+                                const data = await rankingManager.deleteGametype(gametypeId);
+
+                                res.status(200).json({"message": "passed", "result": data});
+                                return;
                             }
 
 
-                            console.log(`gametypeId = ${gametypeId}, mode = ${mode}`);
-                            res.status(200).json({"message": "passed"});
-                            return;
+                           
 
                         }else{
                             res.status(200).json({"message": "Gametype must be a positive integer."});

@@ -47,11 +47,9 @@ class AdminRankingManager extends React.Component{
 
             const newEvents = [];
 
-            let d = 0;
-
             for(let i = 0; i < this.state.events.length; i++){
 
-                d = this.state.events[i];
+                const d = this.state.events[i];
 
                 if(d.id === eventId){
 

@@ -309,6 +309,14 @@ class Rankings{
         return await mysql.simpleQuery(query, [gametypeId]);
     }
 
+
+    async deleteGametype(gametypeId){
+
+        const currentResult = await this.deleteGametypeCurrent(gametypeId);
+        const historyResult = await this.deleteGametypeHistory(gametypeId);
+
+        return {"deletedCurrentCount": currentResult.affectedRows, "deletedHistoryCount": historyResult.affectedRows};
+    }
     
     updateCurrentPlayerTotal(totals, data){
 
