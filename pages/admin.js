@@ -38,7 +38,6 @@ class Admin extends React.Component{
             "mode": 0, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
-            "rankingEvents": JSON.parse(this.props.rankingEvents),
             "itemList": JSON.parse(this.props.itemList),
             "weaponData": JSON.parse(this.props.weaponData),
             "monsterFiles": JSON.parse(this.props.monsterImages),
@@ -48,7 +47,6 @@ class Admin extends React.Component{
 
         this.changeMode = this.changeMode.bind(this);
         this.onChange = this.onChange.bind(this);
-        this.setRankingEvents = this.setRankingEvents.bind(this);
         this.setGametypeNames = this.setGametypeNames.bind(this);
         this.setItemList = this.setItemList.bind(this);
         this.updateWeaponData = this.updateWeaponData.bind(this);
@@ -111,11 +109,6 @@ class Admin extends React.Component{
         this.setState({"itemList": data});
     }
 
-    setRankingEvents(data){
-
-        this.setState({"rankingEvents": data});
-        
-    }
 
     setGametypeNames(data){
         this.setState({"gametypeNames": data});
@@ -177,8 +170,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 7) return null;
 
-        return <AdminRankingManager names={this.state.gametypeNames}
-        updateParentRankingValues={this.setRankingEvents} events={this.state.rankingEvents}/>
+        return <AdminRankingManager names={this.state.gametypeNames}/>
     }
 
     displayPlayersManager(){
@@ -353,7 +345,6 @@ export async function getServerSideProps({req, query}){
     let faceData = [];
     let faceFiles = [];
     let gametypeNames = [];
-    let rankingEvents = [];
     let itemList = [];
     let weaponData = {
         "names": [],
@@ -380,10 +371,6 @@ export async function getServerSideProps({req, query}){
 
         gametypeNames = await gametypeManager.getAll();
         gametypeImages = gametypeManager.getImages();
-
-        const rankingManager = new Rankings();
-
-        rankingEvents = await rankingManager.getDetailedSettings();
 
         const itemManager = new Items();
 
@@ -437,7 +424,6 @@ export async function getServerSideProps({req, query}){
             "faceData": JSON.stringify(faceData),
             "faceFiles": JSON.stringify(faceFiles),
             "gametypeNames": JSON.stringify(gametypeNames),
-            "rankingEvents": JSON.stringify(rankingEvents),
             "itemList": JSON.stringify(itemList),
             "weaponData": JSON.stringify(weaponData),
             "monsterImages": JSON.stringify(monsterImages),

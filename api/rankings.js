@@ -405,6 +405,18 @@ class Rankings{
             "insertedCurrentCount": insertedCurrentCount
         };
     }
+
+
+    async updateEvent(name, displayName, description, value){
+
+        const query = "UPDATE nstats_ranking_values SET display_name=?,description=?,value=? WHERE name=?";
+
+        const result = await mysql.simpleQuery(query, [displayName, description, value, name]);
+
+        if(result.changedRows > 0) return true;
+
+        return false;
+    }
     
 }
 

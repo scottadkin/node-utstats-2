@@ -22,24 +22,43 @@ export default async function handler(req, res){
 
             if(mode === "values"){
 
-                const values = req.body.data;
+                const data = await rankingManager.getDetailedSettings();
 
-                if(values !== undefined){
+                res.status(200).json({"values": data});
 
-                    for(let i = 0; i < values.length; i++){
-
-                        const v = values[i];
-                        await rankingManager.updateEvent(v.id, v.description, v.value);
-                    }
-
-                    res.status(200).json({"message": "passed"});
-
-                }else{
-                    res.status(200).json({"message": "Values are not set"});
-                }
-
+                return;
                 
 
+            }else if(mode === "change"){
+                
+                const data = req.body.data ?? null;
+
+                if(data === null){
+                    res.status(200).json({"error": "No data was found to be changed."});
+                    return;
+                }
+
+                if(!Array.isArray(data)){
+                    res.status(200).json({"error": "Data must be an array."});
+                    return;
+                }
+
+                const messages = [];
+
+                for(let i = 0; i < data.length; i++){
+
+                    const d = data[i];
+
+                    if(await rankingManager.updateEvent(d.name, d.display_name, d.description, d.value)){
+                        messages.push(`Updated event ${d.name}.`);
+                    }else{
+                        messages.push(`Failed to update event ${d.name}.`);
+                    }
+                }
+
+                res.status(200).json({"message": "passed", "results": messages});
+                return;
+                
             }else{
 
                 mode = parseInt(mode);

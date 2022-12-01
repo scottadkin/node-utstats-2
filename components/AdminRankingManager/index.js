@@ -13,110 +13,108 @@ class AdminRankingManager extends React.Component{
 
         this.state = {
             "gametypes": this.props.names, 
-            "events": this.props.events,
-            "previousSavedEvents": this.props.events,
+            "events": null,
+            "previousEvents": null,
             "mode": 0, 
             "bPassed": false, 
             "errors": [], 
             "inProgress": false,
             "saveInProgress": false,
+            "initialLoad": true,
             "savePassed": null,
-            "result": null
+            "result": null,
+            "saveMessages": []
         };
 
         this.performAction = this.performAction.bind(this);
         this.changeMode = this.changeMode.bind(this);
 
-        this.updateEventDescription = this.updateEventDescription.bind(this);
-        this.updateEventValue = this.updateEventValue.bind(this);
         this.saveChanges = this.saveChanges.bind(this);
+        this.update = this.update.bind(this);
     }
 
-    updateEventDescription(e){
 
-       // console.log(e.target);
+    updateEvent(updateType, eventName, value){
 
-        const reg = /(.+?)-(.+)/i;
+        const newStateValues = [];
 
-        const result = reg.exec(e.target.id);
-        const value = e.target.value;
+        for(let i = 0; i < this.state.events.length; i++){
 
-        if(result !== null){
+            const v = this.state.events[i];
 
-            const eventId = parseInt(result[2]);
+            if(v.name === eventName){
 
-            const newEvents = [];
-
-            for(let i = 0; i < this.state.events.length; i++){
-
-                const d = this.state.events[i];
-
-                if(d.id === eventId){
-
-                    newEvents.push({
-                        "id": d.id,
-                        "description": value,
-                        "display_name": d.display_name,
-                        "name": d.name,
-                        "value": d.value
-
-                    });
-
-                }else{
-                    newEvents.push(d);
+                if(updateType === "name"){
+                    v.display_name = value;
                 }
 
+                if(updateType === "desc"){
+                    v.description = value;
+                }
+
+                if(updateType === "value"){
+                    v.value = value;
+                }        
             }
 
-            this.setState({"events": newEvents});
-
+            newStateValues.push(v);
         }
+
+        this.setState({"events": newStateValues});
     }
+  
 
-    updateEventValue(e){
+    update(e){
 
-        const newEvents = [];
-
-        const reg = /(.+?)-(.+)/i;
-
+        const reg = /^(.+?)-(.+)$/i;
         const result = reg.exec(e.target.id);
 
         if(result !== null){
 
+            const type = result[1].toLowerCase();
+            const eventName = result[2].toLowerCase();
 
-            const eventId = parseInt(result[2]);
-
-            let d = 0;
-
-            for(let i = 0; i < this.state.events.length; i++){
-
-                d = this.state.events[i];
-
-                if(d.id === eventId){
-
-
-                    newEvents.push({
-                        "id": d.id,
-                        "description": d.description,
-                        "display_name": d.display_name,
-                        "name": d.name,
-                        "value": e.target.value
-
-                    });
-
-                }else{
-                    newEvents.push(d);
-                }
-
-            }
-
-
-            this.setState({"events": newEvents});
+            this.updateEvent(type, eventName, e.target.value);
         }
     }
+
+    async loadValues(){
+
+        const req = await fetch("/api/rankingadmin",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "values"})
+        });
+
+        const res = await req.json();
+
+        if(res.error === undefined){
+            this.setState({"initialLoad": true, "events": res.values, "previousEvents": JSON.parse(JSON.stringify(res.values))});
+        }else{
+            this.setState({"errors": [res.error]});
+        }
+    }
+
+    async componentDidMount(){
+
+        await this.loadValues();
+    }
+
 
     changeMode(id){
-        this.setState({"mode": id});
+
+        this.setState({
+            "mode": id,
+            "bPassed": false, 
+            "errors": [], 
+            "inProgress": false,
+            "saveInProgress": false,
+            "initialLoad": true,
+            "savePassed": null,
+            "result": null,
+            "saveMessages": []
+        });
+    
     }
 
 
@@ -204,10 +202,11 @@ class AdminRankingManager extends React.Component{
 
         if(this.state.inProgress){
 
-            return <Notification type="warning">
+            return <Notification hideClose={1} type="warning">
                 <Loading />
             </Notification>
         }
+
 
         const errors = this.state.errors;
         
@@ -222,7 +221,7 @@ class AdminRankingManager extends React.Component{
                 errorElems.push(<div key={i}><b>Error {i + 1} - </b>{errors[i]}</div>);
             }
 
-            return <Notification type="error">
+            return <Notification hideClose={1} type="error">
                 <b>There was a problem performing you're request.</b><br/>
                 {errorElems}
             </Notification>
@@ -256,7 +255,7 @@ class AdminRankingManager extends React.Component{
                 }
             }
 
-            return <Notification type="pass">
+            return <Notification hideClose={1} type="pass">
                 Action completed without errors.
                 {passElems}
             </Notification>
@@ -306,167 +305,138 @@ class AdminRankingManager extends React.Component{
     }
 
 
-    bAnyChanges(){
-
-
-        const newData = this.state.events;
-        const oldData = this.state.previousSavedEvents;
-
-
-
-        for(let i = 0; i < newData.length; i++){
-
-            if(newData[i].description !== oldData[i].description) return true;
-            if(parseFloat(newData[i].value) !== parseFloat(oldData[i].value)) return true;
-            
-        }
-
-        return false;
-
-    }
-
     getChangedValues(){
 
+        const found = [];
 
-        const changed = [];
+        for(let i = 0; i < this.state.events.length; i++){
 
-        const oldData = this.state.previousSavedEvents;
-        const newData = this.state.events;
+            const old = this.state.previousEvents[i];
+            const current = this.state.events[i];
 
-        let bCurrentChanged = false;
-
-        for(let i = 0; i < newData.length; i++){
-
-            bCurrentChanged = false;
-
-            if(newData[i].description !== oldData[i].description) bCurrentChanged = true;
-            if(parseFloat(newData[i].value) !== parseFloat(oldData[i].value)) bCurrentChanged = true;
-
-            if(bCurrentChanged){
-
-                changed.push(
-                    {
-                        "id": newData[i].id,
-                        "description": newData[i].description,
-                        "value": newData[i].value
-                    }
-                );
+            if(old.display_name !== current.display_name || old.description !== current.description || old.value !== current.value){
+                found.push(current);
             }
-
         }
 
-        return changed;
+        return found;
     }
+
 
     async saveChanges(){
 
         try{
+                
+            if(!this.bAnyChanges()){
+                console.log(`No changes detected!`);
+                return;
+            }
 
-            this.setState({"saveInProgress": true});
+            this.setState({"saveInProgress": true, "saveMessages": []});
+
 
             const changedData = this.getChangedValues();
 
             const req = await fetch("/api/rankingadmin", {
                 "headers": {"Content-Type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({"mode": "values", "data": changedData})
+                "body": JSON.stringify({"mode": "change", "data": changedData})
             });
 
 
-            const result = await req.json();
+            const res = await req.json();
 
-            if(result.message === "passed"){
-                this.props.updateParentRankingValues(this.state.events);
-                this.setState({"previousSavedEvents": this.state.events, "saveInProgress": false, "savePassed": true});
+            if(res.error === undefined){
+
+                const events = JSON.parse(JSON.stringify(this.state.events));
+
+                this.setState({"saveInProgress": false, "saveMessages": res.messages, "previousEvents": events});
+
             }else{
-
-                this.setState({"saveInProgress": false, "savePassed": false});
+                this.setState({"errors": [res.error]});
             }
            
-            console.log(result);
 
         }catch(err){
             console.trace(err);
         }
     }
 
+    bAnyChanges(){
+
+        if(JSON.stringify(this.state.events) === JSON.stringify(this.state.previousEvents)) return false;
+
+        return true;
+    }
+
     renderUnsavedChanges(){
 
-        if(!this.bAnyChanges()){
+        if(this.bAnyChanges()){
 
-            if(this.state.savePassed){
-
-                return <div className="team-green center t-width-1 p-bottom-25 m-top-25">
-                    <div className="default-header">Passed</div>
-                    Ranking value changes where updated successfully.
-                </div>
-            }
-
-            return null;    
+            return <Notification type="warning" hideClose={1}>
+                You have unsaved changes!
+            </Notification>
         }
 
-        if(this.state.saveInProgress){
-
-            return <div className="team-yellow center t-width-1 p-bottom-25 m-top-25">
-                <div className="default-header">Processing</div>
-                Save in progress please wait...
-            </div>
-        }
-        
-
-        
-
-        return <div className="team-red center t-width-1 p-bottom-25 m-top-25">
-            <div className="default-header">Warning</div>
-            You have unsaved changes please save them before going to another page.
-            <div className="search-button m-top-25" onClick={this.saveChanges}>Save Changes</div>
-        </div>
+        return null;
+   
     }
 
     renderEvents(){
 
         if(this.state.mode !== 1) return null;
 
-        const rows = [];
+        if(!this.state.initialLoad) return <Loading />;
 
-        let e = 0;
+        const rows = [];
 
         for(let i = 0; i < this.state.events.length; i++){
 
-            e = this.state.events[i];
+            const e = this.state.events[i];
 
-            //<textarea value={this.state.value} onChange={this.handleChange} />
-            rows.push(<tr key={i}>
-                <td>{e.display_name}</td>
+            rows.push(<tr key={e.name}>
                 <td>
-                    <textarea style={{"width": "90%","minHeight": "50px"}} className="default-textarea" id={`desc-${e.id}`} 
-                    defaultValue={this.state.events[i].description}
-                    onChange={this.updateEventDescription}
-                    
-                    />
+                    <input type="text" id={`name-${e.name}`} className="default-textbox" placeholder="display name..." value={e.display_name} 
+                    onChange={this.update} />
                 </td>
                 <td>
-                    <input type="number" className="default-textbox" value={e.value} id={`value-${e.id}`} onChange={this.updateEventValue}/>
+                    <input type="text" id={`desc-${e.name}`} className="default-textbox" placeholder="event description..." value={e.description} 
+                    onChange={this.update} />
+                </td>
+                <td>
+                    <input type="number" id={`value-${e.name}`} className="default-textbox" placeholder="Event Value" value={e.value} 
+                    onChange={this.update} />
                 </td>
             </tr>);
         }
 
+        const saveElem = <div>
+            <div className="search-button" onClick={this.saveChanges}>Save Changes</div>
+        </div>
+
         return <div>
-            <div className="team-red center t-width-1 p-bottom-25 m-top-25">
-                <div className="default-header">Important</div>
-                If you have already imported matches before making changes to event values you will have to recalculate the rankings using the tab above.
+            <div className="default-header">
+                Change Event Values
             </div>
-            {this.renderUnsavedChanges()}
-            <div className="default-header">Change Ranking Event values</div>
-            <Table2 width={1}>
-                <tr>
-                    <th>Event</th>
-                    <th>Description</th>
-                    <th>Points Per Event</th>
-                </tr>
-                {rows}
-            </Table2>
-            {this.renderUnsavedChanges()}
+            <div className="form">
+                <div className="form-info">
+                    On this page you can modify the values for each event type that is used to calculate a player's ranking score.
+                    <div className="team-red">
+                        <b>If you make changes to event values after importing you must recalculate player rankings with the tab above for the changes to take effect.</b>
+                    </div>
+                </div>
+                {saveElem}
+                
+                <Table2>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Description</th>
+                        <th>Value</th>
+                    </tr>
+                    {rows}
+                </Table2>
+                {saveElem}
+            </div>
         </div>
     }
 
@@ -484,6 +454,8 @@ class AdminRankingManager extends React.Component{
             </div>
             {this.renderActions()}
             {this.renderEvents()}
+            {this.renderUnsavedChanges()}
+
         </div>
     }
 }

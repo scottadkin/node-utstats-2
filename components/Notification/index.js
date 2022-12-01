@@ -10,6 +10,7 @@ class Notification extends React.Component{
         this.state = {"bDisplay": true};
         this.close = this.close.bind(this);
     }
+    
 
     close(){
         this.setState({"bDisplay": false});
@@ -49,6 +50,10 @@ class Notification extends React.Component{
 
         if(!this.state.bDisplay) return null;
 
+        const closeElem = (this.props.hideClose !== undefined) ? null : <div className={styles.exit} onClick={this.close}>
+            Close
+        </div>;
+
         return <div className={`${styles.wrapper} ${this.getColorClass()}`}>
             
             <div className={styles.header}>
@@ -59,9 +64,7 @@ class Notification extends React.Component{
                 {this.props.children}
             </div>
 
-            <div className={styles.exit} onClick={this.close}>
-                Close
-            </div>
+            {closeElem}
         </div>
     }
 }
