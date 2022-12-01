@@ -53,7 +53,10 @@ export default async function handler(req, res){
 
                             if(mode === 0){
 
-                                await rankingManager.recalculateGametypeRankings(gametypeId);
+                                const data = await rankingManager.recalculateGametypeRankings(gametypeId);
+
+                                res.status(200).json({"message": "passed", "result": data});
+                                return;
 
                             }else if(mode === 1){
 

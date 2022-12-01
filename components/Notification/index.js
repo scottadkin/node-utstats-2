@@ -7,31 +7,13 @@ class Notification extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"bDisplay": true, "time": 0};
+        this.state = {"bDisplay": true};
+        this.close = this.close.bind(this);
     }
 
-    componentDidMount(){
-
-        this.intervalId = setInterval((() =>{
-            this.tick();
-        }), 1000);
-        //this.setDelay();
-
+    close(){
+        this.setState({"bDisplay": false});
     }
-
-    tick(){
-
-        const now = Math.floor(Date.now() * 0.001);
-
-        this.setState({"time": now});
-
-    }
-
-    componentWillUnmount(){
-
-        clearInterval(this.intervalId);
-    }
-    
 
     getTitle(){
 
@@ -65,16 +47,20 @@ class Notification extends React.Component{
 
     render(){
 
-    
-        if(this.state.time >= this.props.displayUntil) return null;
+        if(!this.state.bDisplay) return null;
 
         return <div className={`${styles.wrapper} ${this.getColorClass()}`}>
+            
             <div className={styles.header}>
                 {this.getTitle()}
             </div>
             
             <div className={styles.content}>
                 {this.props.children}
+            </div>
+
+            <div className={styles.exit} onClick={this.close}>
+                Close
             </div>
         </div>
     }

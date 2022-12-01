@@ -300,14 +300,13 @@ class Rankings{
     async deleteGametypeHistory(gametypeId){
 
         const query = "DELETE FROM nstats_ranking_player_history WHERE gametype=?";
-        await mysql.simpleQuery(query, [gametypeId]);
-
+        return await mysql.simpleQuery(query, [gametypeId]);
     }
 
     async deleteGametypeCurrent(gametypeId){
 
         const query = "DELETE FROM nstats_ranking_player_current WHERE gametype=?";
-        await mysql.simpleQuery(query, [gametypeId]);
+        return await mysql.simpleQuery(query, [gametypeId]);
     }
 
     
@@ -355,13 +354,14 @@ class Rankings{
 
         console.log(`Perform full recalculation of gametype rankings.`);
 
-        await this.deleteGametypeHistory(gametypeId);
-        await this.deleteGametypeCurrent(gametypeId);
-
+        const deletedHistoryResult = await this.deleteGametypeHistory(gametypeId);
+        const deletedCurrentResult = await this.deleteGametypeCurrent(gametypeId);
+        
         const gametypesManager = new Gametypes();
         const data = await gametypesManager.getAllPlayerMatchData(gametypeId);
 
         const currentTotals = {};
+        let insertedHistoryCount = 0;
 
         for(let i = 0; i < data.length; i++){
 
@@ -376,13 +376,26 @@ class Rankings{
 
             await this.insertPlayerHistory(d.match_id, d.player_id, gametypeId, totalScore, matchScore, rankingChange);
 
+            insertedHistoryCount++;
+
             playerTotalData.previousScore = totalScore;  
             playerTotalData.rankingChange = rankingChange;
         }
 
+        let insertedCurrentCount = 0;
+
         for(const [playerId, data] of Object.entries(currentTotals)){
+
             await this.insertPlayerCurrent(playerId, gametypeId, data.matches, data.playtime, data.previousScore, data.rankingChange);
+            insertedCurrentCount++;
         }
+
+        return {
+            "deletedHistoryCount": deletedHistoryResult.affectedRows,
+            "deletedCurrentCount": deletedCurrentResult.affectedRows,
+            "insertedHistoryCount": insertedHistoryCount,
+            "insertedCurrentCount": insertedCurrentCount
+        };
     }
     
 }

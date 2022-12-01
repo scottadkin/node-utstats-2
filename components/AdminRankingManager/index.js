@@ -1,5 +1,7 @@
 import React from 'react';
 import Table2 from '../Table2';
+import Notification from '../Notification';
+import Loading from '../Loading';
 
 
 class AdminRankingManager extends React.Component{
@@ -18,7 +20,8 @@ class AdminRankingManager extends React.Component{
             "errors": [], 
             "inProgress": false,
             "saveInProgress": false,
-            "savePassed": null
+            "savePassed": null,
+            "result": null
         };
 
         this.performAction = this.performAction.bind(this);
@@ -130,7 +133,7 @@ class AdminRankingManager extends React.Component{
             let gametypeId = parseInt(e.target[0].value);
             let action = parseInt(e.target[1].value);
 
-            this.setState({"errors": [], "bPassed": false, "inProgress": true});
+            this.setState({"errors": [], "bPassed": false, "inProgress": true, "result": null});
 
             if(gametypeId !== gametypeId){
                 errors.push("GametypeId must be a valid integer.");
@@ -161,10 +164,8 @@ class AdminRankingManager extends React.Component{
 
                 const result = await req.json();
 
-                console.log(result);
-
                 if(result.message === "passed"){
-                    this.setState({"bPassed": true, "inProgress": false});
+                    this.setState({"bPassed": true, "inProgress": false, "result": result.result});
                 }else{
                     errors.push(result.message);
                 }
@@ -200,15 +201,14 @@ class AdminRankingManager extends React.Component{
         </select>
     }
 
-    renderErrors(){
+    renderNotification(){
 
 
         if(this.state.inProgress){
 
-            return <div className="team-yellow m-bottom-25 p-bottom-25">
-                <div className="default-header">Processing</div>
-                Action in progress please wait...
-            </div>
+            return <Notification type="warning">
+                <Loading />
+            </Notification>
         }
 
         const errors = this.state.errors;
@@ -221,20 +221,47 @@ class AdminRankingManager extends React.Component{
 
             for(let i = 0; i < errors.length; i++){
 
-                errorElems.push(<div key={i}>{errors[i]}</div>);
+                errorElems.push(<div key={i}><b>Error {i + 1} - </b>{errors[i]}</div>);
             }
 
-            return <div className="team-red m-bottom-25 p-bottom-25">
-                <div className="default-header">Errors</div>
+            return <Notification type="error">
+                <b>There was a problem performing you're request.</b><br/>
                 {errorElems}
-            </div>
+            </Notification>
 
         }else{
 
-            return <div className="team-green m-bottom-25 p-bottom-25">
-                <div className="default-header">Passed</div>
-                Action was performed without errors.
-            </div>
+            const passElems = [];
+
+            if(this.state.result !== null){
+
+                const r = this.state.result;
+
+                if(r.deletedCurrentCount !== undefined){
+
+                    passElems.push(<div key={"del-current"}>Deleted {r.deletedCurrentCount} rows from current rankings table.</div>);
+                }
+
+                if(r.deletedHistoryCount !== undefined){
+
+                    passElems.push(<div key={"del-history"}>Deleted {r.deletedHistoryCount} rows from history rankings table.</div>);
+                }
+
+                if(r.insertedCurrentCount !== undefined){
+
+                    passElems.push(<div key={"in-current"}>Inserted {r.insertedCurrentCount} rows into current rankings table.</div>);
+                }
+
+                if(r.insertedHistoryCount !== undefined){
+
+                    passElems.push(<div key={"in-history"}>Inserted {r.insertedHistoryCount} rows into history rankings table.</div>);
+                }
+            }
+
+            return <Notification type="pass">
+                Action completed without errors.
+                {passElems}
+            </Notification>
         }
     }
 
@@ -252,8 +279,6 @@ class AdminRankingManager extends React.Component{
                     Recalculate rankings will set all player rankings for that gametype to 0 then go through all match data for players of that gametype and set them to their correct values.<br/>
                     Delete all rankings will delete all player rankings for that gametype, effectively starting that gametype&apos;s rankings again.
                 </div>
-
-                {this.renderErrors()}
 
                 
                 <div className="select-row">
@@ -278,7 +303,7 @@ class AdminRankingManager extends React.Component{
                 </div>
                 <input type="submit" className="search-button" value="Perform Action"/>
             </form>
-        
+            {this.renderNotification()}
         </div>
     }
 
