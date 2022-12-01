@@ -1108,9 +1108,10 @@ class Players{
             WHERE gametype=? AND player_id=?
         `;
 
+
         const vars = [
             data.matches, data.wins, data.draws, data.losses,
-            data.playtime, data.first_blood, data.frags, data.score,
+            data.playtime, data.first_bloods, data.frags, data.score,
             data.kills, data.deaths, data.suicides, data.team_kills, data.spawn_kills,
             data.multi_1, data.multi_2, data.multi_3, data.multi_4, data.multi_5, data.multi_6, data.multi_7,
             data.spree_1, data.spree_2, data.spree_3, data.spree_4, data.spree_5, data.spree_6, data.spree_7,

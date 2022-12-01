@@ -650,7 +650,7 @@ class Gametypes{
 
             //update rankings
 
-            await rankingManager.changeGametypeId(oldId, newId);
+            await rankingManager.changeGametypeId(this, oldId, newId);
 
             await this.deleteGametype(oldId);
 

@@ -1,5 +1,6 @@
 import Session from '../../api/session';
 import Rankings from '../../api/rankings';
+import Gametypes from '../../api/gametypes';
 
 export default async function handler(req, res){
 
@@ -72,7 +73,9 @@ export default async function handler(req, res){
 
                             if(mode === 0){
 
-                                const data = await rankingManager.recalculateGametypeRankings(gametypeId);
+                                const gametypeManager = new Gametypes();
+
+                                const data = await rankingManager.recalculateGametypeRankings(gametypeManager, gametypeId);
 
                                 res.status(200).json({"message": "passed", "result": data});
                                 return;
