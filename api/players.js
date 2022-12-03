@@ -544,7 +544,7 @@ class Players{
                 ?,?,?,?,?, 
                 ?,?,?,?,?, 
                 ?,?,?,?,?,?, 
-                ?,?,?,?
+                ?,?,?,?,?,?
             )`;
 
             const d = data;
@@ -571,7 +571,7 @@ class Players{
                 d.dom_caps_best, d.dom_caps_best_life, d.accuracy, d.k_distance_normal, d.k_distance_long,
                 d.k_distance_uber, d.headshots, d.shield_belt, d.amp, d.amp_time,
                 d.invisibility, d.invisibility_time, d.pads, d.armor, d.boots, d.super_health,
-                d.mh_kills, d.mh_kills_best_life, d.mh_kills_best, d.views
+                d.mh_kills, d.mh_kills_best_life, d.mh_kills_best, d.views, d.mh_deaths, d.mh_deaths_worst
             ];
             
             await mysql.simpleInsert(query, vars);
@@ -608,7 +608,7 @@ class Players{
         flag_self_cover_best=?, flag_kill=?, flag_save=?, flag_carry_time=?, assault_objectives=?, dom_caps=?,
         dom_caps_best=?, dom_caps_best_life=?, accuracy=?, k_distance_normal=?, k_distance_long=?, k_distance_uber=?,
         headshots=?, shield_belt=?, amp=?, amp_time=?, invisibility=?, invisibility_time=?, pads=?, armor=?,
-        boots=?, super_health=?, mh_kills=?, mh_kills_best_life=?, mh_kills_best=?
+        boots=?, super_health=?, mh_kills=?, mh_kills_best_life=?, mh_kills_best=?, mh_deaths=?, mh_deaths_worst=?
         WHERE gametype=? AND player_id=?`;
 
         for(const [gametype, d] of Object.entries(gametypeTotals)){
@@ -667,7 +667,7 @@ class Players{
                 d.flag_self_cover_best, d.flag_kill, d.flag_save, d.flag_carry_time, d.assault_objectives, d.dom_caps,
                 d.dom_caps_best, d.dom_caps_best_life, d.accuracy, d.k_distance_normal, d.k_distance_long, d.k_distance_uber,
                 d.headshots, d.shield_belt, d.amp, d.amp_time, d.invisibility, d.invisibility_time, d.pads, d.armor,
-                d.boots, d.super_health, d.mh_kills, d.mh_kills_best_life, d.mh_kills_best,
+                d.boots, d.super_health, d.mh_kills, d.mh_kills_best_life, d.mh_kills_best, d.mh_deaths, d.mh_deaths_worst,
 
                 gametype, playerId
             ];
@@ -706,8 +706,10 @@ class Players{
         SUM(amp_time) as amp_time, SUM(invisibility) as invisibility, SUM(invisibility_time) as invisibility_time,
         SUM(pads) as pads, SUM(armor) as armor, SUM(boots) as boots, SUM(super_health) as super_health, SUM(mh_kills) as mh_kills,
         MAX(mh_kills) as mh_kills_best,
-        MAX(mh_kills_best_life) as mh_kills_best_life
-        FROM nstats_player_matches WHERE player_id=?`;
+        MAX(mh_kills_best_life) as mh_kills_best_life,
+        SUM(mh_deaths) as mh_deaths,
+        MAX(mh_deaths) as mh_deaths_worst
+        FROM nstats_player_matches WHERE player_id=? GROUP BY(gametype)`;
 
         const result = await mysql.simpleQuery(query, playerId);
 
@@ -743,7 +745,9 @@ class Players{
         SUM(amp_time) as amp_time, SUM(invisibility) as invisibility, SUM(invisibility_time) as invisibility_time,
         SUM(pads) as pads, SUM(armor) as armor, SUM(boots) as boots, SUM(super_health) as super_health, SUM(mh_kills) as mh_kills,
         MAX(mh_kills) as mh_kills_best,
-        MAX(mh_kills_best_life) as mh_kills_best_life
+        MAX(mh_kills_best_life) as mh_kills_best_life,
+        SUM(mh_deaths) as mh_deaths,
+        MAX(mh_deaths) as mh_deaths_worst
         FROM nstats_player_matches WHERE player_id=? GROUP BY (gametype)`;
 
         const result = await mysql.simpleQuery(query, playerId);
@@ -843,23 +847,13 @@ class Players{
                 const playerGametypeTotals = await this.getPlayerTotalsPerGametypeByMatches(second.id);
                 const playerTotals = await this.getPlayerTotalsByMatches(second.id);
 
-                await this.recalculatePlayerTotalsAfterMerge(second.id, second.name, playerGametypeTotals, playerTotals );
+                await this.recalculatePlayerTotalsAfterMerge(second.id, second.name, playerGametypeTotals, playerTotals);
 
                 //await this.recalculatePlayerTotalsAfterMerge(updatedPlayerMatches, second.id, second.name);
 
                 const weaponsManager = new Weapons();
 
                 await weaponsManager.mergePlayers(first.id, second.id, matchManager);
-
-                const rankingsManager = new Rankings();
-
-                await rankingsManager.deleteAllPlayerHistory(first.id);
-                await rankingsManager.deleteAllPlayerCurrent(first.id);
-
-                await rankingsManager.deleteAllPlayerHistory(second.id);
-                await rankingsManager.deleteAllPlayerCurrent(second.id);
-
-                await rankingsManager.fullPlayerRecalculate(second.id, updatedPlayerMatches);
 
                 const winrateManager = new Winrate();
 
@@ -875,6 +869,15 @@ class Players{
                 await spreeManager.changePlayerIds(first.id, second.id);
 
                 await combogibManager.mergePlayers(first.id, second.id);
+
+
+                const rankingsManager = new Rankings();
+                await rankingsManager.init();
+
+                await rankingsManager.deletePlayer(first.id);
+                await rankingsManager.deletePlayer(second.id);
+     
+                await rankingsManager.fullPlayerRecalculate(this, second.id);
 
                 return true;
             }else{
@@ -1035,6 +1038,13 @@ class Players{
     async getAllGametypeMatchData(gametypeId){
 
         return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE gametype=?", [gametypeId]);
+    }
+
+    async getAllPlayersGametypeMatchData(gametypeId, playerId){
+
+        const query = "SELECT * FROM nstats_player_matches WHERE gametype=? AND player_id=?";
+
+        return await mysql.simpleQuery(query, [gametypeId, playerId]);
     }
 
     async reducePlayerGametypeTotals(gametypeId, playerId, data){
@@ -1956,6 +1966,24 @@ class Players{
     
         return {"totals": totalKeys, "matches": matchKeys};
         
+    }
+
+
+    async getPlayedGametypes(playerId){
+
+        const query = "SELECT DISTINCT gametype FROM nstats_player_matches WHERE player_id=?";
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        const gametypes = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            gametypes.push(r.gametype);
+        }
+
+        return gametypes;
     }
     
 }

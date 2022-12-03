@@ -1080,7 +1080,7 @@ class Combogib{
         MAX(best_shockball_spree) as best_shockball_spree,
         MAX(best_combo_spree) as best_combo_spree,
         MAX(best_insane_spree) as best_insane_spree
-        FROM nstats_match_combogib WHERE match_id=? AND player_id=?`;
+        FROM nstats_match_combogib WHERE match_id=? AND player_id=? GROUP BY gametype_id, map_id`;
 
         const result = await mysql.simpleQuery(query, [matchId, player]);
 

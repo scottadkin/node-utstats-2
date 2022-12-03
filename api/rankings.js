@@ -464,9 +464,23 @@ class Rankings{
         }
     }
 
+    async fullPlayerRecalculate(playerManager, playerId){
+
+        const playedGametypes = await playerManager.getPlayedGametypes(playerId);
+
+        for(let i = 0; i < playedGametypes.length; i++){
+
+            const pId = playedGametypes[i];
+
+            await this.recalculatePlayerGametype(playerManager, playerId, pId);
+        }
+    }
+
     async recalculatePlayerGametype(playerManager, playerId, gametypeId){
 
-        const matchHistory = await playerManager.getAllGametypeMatchData(playerId, gametypeId);
+        console.log(`recalculate player ranking for playerId=${playerId} and gametypeId=${gametypeId}`);
+
+        const matchHistory = await playerManager.getAllPlayersGametypeMatchData(gametypeId, playerId);
 
         const totals = {};
 
@@ -488,6 +502,7 @@ class Rankings{
             totalData.rankingChange = rankingChange;
 
         }
+
 
         if(Object.keys(totals).length > 0){
 
