@@ -222,7 +222,7 @@ class AdminRankingManager extends React.Component{
             }
 
             return <Notification hideClose={1} type="error">
-                <b>There was a problem performing you're request.</b><br/>
+                <b>There was a problem performing you&apos;re request.</b><br/>
                 {errorElems}
             </Notification>
 
@@ -420,7 +420,7 @@ class AdminRankingManager extends React.Component{
             </div>
             <div className="form">
                 <div className="form-info">
-                    On this page you can modify the values for each event type that is used to calculate a player's ranking score.
+                    On this page you can modify the values for each event type that is used to calculate a player&apos;s ranking score.
                     <div className="team-red">
                         <b>If you make changes to event values after importing you must recalculate player rankings with the tab above for the changes to take effect.</b>
                     </div>
