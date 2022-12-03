@@ -476,11 +476,19 @@ class Rankings{
         }
     }
 
+    async deletePlayerGametype(playerId, gametypeId){
+
+        await this.deletePlayerGametypeCurrent(playerId, gametypeId);
+        await this.deletePlayerGametypeHistory(playerId, gametypeId);
+    }
+
     async recalculatePlayerGametype(playerManager, playerId, gametypeId){
 
         console.log(`recalculate player ranking for playerId=${playerId} and gametypeId=${gametypeId}`);
 
         const matchHistory = await playerManager.getAllPlayersGametypeMatchData(gametypeId, playerId);
+
+        await this.deletePlayerGametype(playerId, gametypeId);
 
         const totals = {};
 
@@ -503,16 +511,13 @@ class Rankings{
 
         }
 
+        //await this.deletePlayerGametypeCurrent(playerId, gametypeId);
 
-        if(Object.keys(totals).length > 0){
-
-            for(const [playerId, data] of Object.entries(totals)){
-                await this.updatePlayerCurrentCustom(playerId, gametypeId, data.playtime, data.matches, data.previousScore, data.rankingChange);
-            }
-
-        }else{
-            await this.deletePlayerGametypeCurrent(playerId, gametypeId);
-        }
+        for(const [playerId, data] of Object.entries(totals)){
+            await this.insertPlayerCurrent(playerId, gametypeId, data.matches, data.playtime, data.previousScore, data.rankingChange);
+            //await this.updatePlayerCurrentCustom(playerId, gametypeId, data.playtime, data.matches, data.previousScore, data.rankingChange);
+        }      
+        
     }  
 
     async deletePlayer(playerId){
