@@ -12,7 +12,6 @@ const Kills = require("./kills");
 const Connections = require("./connections");
 const Pings = require("./pings");
 const Weapons = require("./weapons");
-const Rankings = require("./rankings");
 const Voices = require("./voices");
 const WinRate = require("./winrate");
 const Sprees = require("./sprees");
@@ -704,11 +703,9 @@ class Player{
 
 
 
-    getGametypeTotals(player, gametype){
+    async getGametypeTotals(player, gametype){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `SELECT frags,deaths,suicides,team_kills,flag_taken,flag_pickup,flag_return,flag_capture,
+        const query = `SELECT frags,deaths,suicides,team_kills,flag_taken,flag_pickup,flag_return,flag_capture,
             flag_cover,flag_seal,flag_assist,flag_kill,dom_caps,assault_objectives,multi_1,multi_2,multi_3,multi_4,
             multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,flag_assist,flag_return,
             flag_taken,flag_dropped,flag_capture,flag_pickup,flag_seal,flag_cover,flag_cover_pass,flag_cover_fail,
@@ -717,41 +714,29 @@ class Player{
             FROM nstats_player_totals WHERE gametype=? AND player_id=?
             `;
 
-            mysql.query(query, [gametype, player], (err, result) =>{
+        const result = await mysql.simpleQuery(query, [gametype, player]);
 
-                if(err) reject(err);
+        if(result.length > 0){
+            return result[0];
+        }
 
-                if(result !== undefined){
-                    if(result.length > 0) resolve(result[0]);
-                }
-
-                resolve(null);
-            });
-
-        });
+        return null;
     }
 
 
-    getMatchData(playerId, matchId){
+    async getMatchData(playerId, matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id=? LIMIT 1";
 
-            const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id=?";
+        const result = await mysql.simpleQuery(query, [playerId, matchId]);
 
-            mysql.query(query, [playerId, matchId], (err, result) =>{
+        if(result.length > 0){
+            return result[0];
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0){
-                        resolve(result[0]);
-                    }
-                }
-
-                resolve(null);
-            });
-        });
+        return null;
     }
+
 
     async deletePlayerMatch(playerId, matchId){
 
@@ -939,7 +924,7 @@ class Player{
     }
     
 
-    async removeFromMatch(playerId, matchId, mapId, matchManager){
+    async removeFromMatch(playerId, matchId, mapId, matchManager, rankingManager){
 
         try{
 
@@ -954,6 +939,9 @@ class Player{
             let currentDMWinner = "";
 
             if(matchData !== null){
+
+                const gametypeId = matchData.gametype;
+
 
                 const countriesManager = new CountriesManager();
 
@@ -1011,15 +999,6 @@ class Player{
 
                 await weaponManager.deletePlayerFromMatch(playerId, matchId);
 
-                const rankingManager = new Rankings();
-
-                await rankingManager.deletePlayerFromMatch(playerId, matchId, matchData.playtime);
-
-
-                const playerGametypeData = await this.getPlayerGametypeData(matchData.name, matchData.gametype);
-
-                await rankingManager.recalculatePlayerRanking(playerId, playerGametypeData);
-
                 const voiceManager = new Voices();
 
                 await voiceManager.reduceTotals(matchData.voice, 1);
@@ -1046,8 +1025,10 @@ class Player{
 
                 const comboManager = new Combogib();
 
-                await comboManager.deletePlayerFromMatch(playerId, mapId, matchData.gametype, matchId)
+                await comboManager.deletePlayerFromMatch(playerId, mapId, matchData.gametype, matchId);
                // await matchManager.renameSingleDMMatchWinner(matchId, oldName, matchData.name);
+
+               await rankingManager.deletePlayerFromMatch(this, playerId, matchId, gametypeId, true);
 
             }
 
@@ -1074,6 +1055,26 @@ class Player{
         return result[0].total_rows > 0;
     }
 
+    async getPlayerGametypeTotals(playerId, gametypeId){
+
+        const query = "SELECT * FROM nstats_player_totals WHERE player_id=? AND gametype=? LIMIT 1";
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+        
+        return null;
+    }
+
+
+    async getAllGametypeMatchData(playerId, gametypeId){
+
+        const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND gametype=? ORDER BY match_date ASC";
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
 }
 
 module.exports = Player;

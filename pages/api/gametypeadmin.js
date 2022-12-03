@@ -73,6 +73,7 @@ export default async function handler(req, res){
                 
 
                 const rankingManager = new Rankings();
+                await rankingManager.init();
                 const winrateManager = new Winrate();
 
                 await gametypeManager.merge(oldId, newId, rankingManager, winrateManager);

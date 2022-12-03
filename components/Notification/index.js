@@ -7,31 +7,21 @@ class Notification extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"bDisplay": true, "time": 0};
-    }
-
-    componentDidMount(){
-
-        this.intervalId = setInterval((() =>{
-            this.tick();
-        }), 1000);
-        //this.setDelay();
-
-    }
-
-    tick(){
-
-        const now = Math.floor(Date.now() * 0.001);
-
-        this.setState({"time": now});
-
-    }
-
-    componentWillUnmount(){
-
-        clearInterval(this.intervalId);
+        this.state = {"bDisplay": true};
+        this.close = this.close.bind(this);
     }
     
+
+    componentDidUpdate(prevProps){
+
+        if(this.props.children !== prevProps.children){
+            this.setState({"bDisplay": true});
+        }
+    }
+
+    close(){
+        this.setState({"bDisplay": false});
+    }
 
     getTitle(){
 
@@ -65,10 +55,16 @@ class Notification extends React.Component{
 
     render(){
 
-    
-        if(this.state.time >= this.props.displayUntil) return null;
+        if(!this.state.bDisplay) return null;
+
+        if(this.props.children === "") return null;
+
+        const closeElem = (this.props.hideClose !== undefined) ? null : <div className={styles.exit} onClick={this.close}>
+            Close
+        </div>;
 
         return <div className={`${styles.wrapper} ${this.getColorClass()}`}>
+            
             <div className={styles.header}>
                 {this.getTitle()}
             </div>
@@ -76,6 +72,8 @@ class Notification extends React.Component{
             <div className={styles.content}>
                 {this.props.children}
             </div>
+
+            {closeElem}
         </div>
     }
 }

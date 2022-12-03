@@ -187,11 +187,11 @@ class MonsterHunt{
     }
 
 
-    async insertMergedMonsterMatchTotals(matchId, playerId, monsterId, kills){
+    async insertMergedMonsterMatchTotals(matchId, playerId, monsterId, kills, deaths){
 
-        const query = "INSERT INTO nstats_monsters_player_match VALUES(NULL,?,?,?,?)";
+        const query = "INSERT INTO nstats_monsters_player_match VALUES(NULL,?,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [matchId, playerId, monsterId, kills]);
+        await mysql.simpleInsert(query, [matchId, playerId, monsterId, kills, deaths]);
     }
 
 
@@ -207,11 +207,10 @@ class MonsterHunt{
 
         const newTotals = {};
 
-        let m = 0;
 
         for(let i = 0; i < matchTotals.length; i++){
 
-            m = matchTotals[i];
+            const m = matchTotals[i];
 
             if(newTotals[m.match_id] === undefined){
 
@@ -223,10 +222,11 @@ class MonsterHunt{
 
             if(newTotals[m.match_id].monsters[m.monster] === undefined){
 
-                newTotals[m.match_id].monsters[m.monster] = {"kills": 0};
+                newTotals[m.match_id].monsters[m.monster] = {"kills": 0, "deaths": 0};
             }
 
             newTotals[m.match_id].monsters[m.monster].kills += m.kills;
+            newTotals[m.match_id].monsters[m.monster].deaths += m.deaths;
         }
 
         await this.deletePlayerMatchTotals(newId);
@@ -237,7 +237,7 @@ class MonsterHunt{
 
                 for(const [monsterId, kills] of Object.entries(monster)){
 
-                    await this.insertMergedMonsterMatchTotals(match, newId, monsterId, kills.kills);
+                    await this.insertMergedMonsterMatchTotals(match, newId, monsterId, kills.kills, kills.deaths);
                 }
             }
         }
@@ -264,11 +264,13 @@ class MonsterHunt{
 
                 newData[d.monster] = {
                     "kills": 0,
-                    "matches": 0
+                    "matches": 0,
+                    "deaths": 0
                 };
             }
 
             newData[d.monster].kills += d.kills;
+            newData[d.monster].deaths += d.deaths;
             newData[d.monster].matches += d.matches;
 
         }

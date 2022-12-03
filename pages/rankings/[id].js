@@ -62,19 +62,22 @@ class Rankings extends React.Component{
 
     createElems(){
 
+
         const data = JSON.parse(this.props.data);
         const gametypeNames = JSON.parse(this.props.gametypeNames);
 
-        const elems = [];
+        const bDisplayPagination = data.length === 1;
 
-        let d = 0;
+        const elems = [];
 
         for(let i = 0; i < data.length; i++){
 
-            d = data[i];
+            const d = data[i];
 
-            elems.push(<RankingTable host={Functions.getImageHostAndPort(this.props.host)} gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} key={i} mode={this.props.gametypeId}
-                title={this.getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results} bDisplayPagination={(data.length > 1) ? false : true}/>);
+            elems.push(<RankingTable host={Functions.getImageHostAndPort(this.props.host)} gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} 
+                key={i} mode={this.props.gametypeId}
+                title={this.getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results} bDisplayPagination={bDisplayPagination}
+            />);
         }
 
         return elems;
@@ -189,7 +192,7 @@ export async function getServerSideProps({req, query}){
 
     const gametypeIds = [];
 
-    for(const [key, value] of Object.entries(gametypeNames)){
+    for(const key of Object.keys(gametypeNames)){
 
         gametypeIds.push(parseInt(key));
     }
@@ -197,7 +200,14 @@ export async function getServerSideProps({req, query}){
     let data = [];
 
     if(gametype === 0){
+
+        if(gametypeIds.length <= 1){
+            perPage = parseInt(pageSettings["Rankings Per Page (Individual)"]);
+        }
+
         data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage);
+        
+    
     }else{
         data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage)});
     }
@@ -250,7 +260,7 @@ export async function getServerSideProps({req, query}){
 
     const navSettings = await sSettings.getCategorySettings("Navigation");
 
-    const rankingValues = await rankingManager.getSettings();
+    const rankingValues = await rankingManager.getDetailedSettings();
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 

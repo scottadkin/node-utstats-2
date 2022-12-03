@@ -183,17 +183,19 @@ class AdminPlayerMerge extends React.Component{
 
             elems = <Loading />;
 
-        }else if(this.state.bFailed){
+        }
+        
+        if(this.state.bFailed){
 
-            notification = <Notification type="error" displayUntil={this.state.displayUntil}>{this.state.message}</Notification>
+            notification = <Notification type="error" >{this.state.message}</Notification>
 
         }else if(this.state.bMergeInProgress){
 
-            notification = <Notification type="warning" displayUntil={this.state.displayUntil}>{this.state.message}</Notification>
+            notification = <Notification type="warning" >{this.state.message}</Notification>
 
         }else{
 
-            notification = <Notification type="pass" displayUntil={this.state.displayUntil}>{this.state.message}</Notification>
+            notification = <Notification type="pass">{this.state.message}</Notification>
 
         }
 

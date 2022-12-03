@@ -1,5 +1,6 @@
 import Session from '../../api/session';
 import Rankings from '../../api/rankings';
+import Gametypes from '../../api/gametypes';
 
 export default async function handler(req, res){
 
@@ -13,37 +14,52 @@ export default async function handler(req, res){
         if(await session.bUserAdmin()){
 
             const rankingManager = new Rankings();
+            await rankingManager.init();
 
             let gametypeId = parseInt(req.body.gametypeId);
             let mode = req.body.mode;
 
+            console.log(mode);
+
             if(mode === "values"){
 
-                const values = req.body.data;
+                const data = await rankingManager.getDetailedSettings();
 
-                if(values !== undefined){
+                res.status(200).json({"values": data});
 
-                    console.log("change values");
-
-                    console.table(values);
-
-                    let v = 0;
-
-                    for(let i = 0; i < values.length; i++){
-
-                        v = values[i];
-
-                        await rankingManager.updateEvent(v.id, v.description, v.value);
-                    }
-
-                    res.status(200).json({"message": "passed"});
-
-                }else{
-                    res.status(200).json({"message": "Values are not set"});
-                }
-
+                return;
                 
 
+            }else if(mode === "change"){
+                
+                const data = req.body.data ?? null;
+
+                if(data === null){
+                    res.status(200).json({"error": "No data was found to be changed."});
+                    return;
+                }
+
+                if(!Array.isArray(data)){
+                    res.status(200).json({"error": "Data must be an array."});
+                    return;
+                }
+
+                const messages = [];
+
+                for(let i = 0; i < data.length; i++){
+
+                    const d = data[i];
+
+                    if(await rankingManager.updateEvent(d.name, d.display_name, d.description, d.value)){
+                        messages.push(`Updated event ${d.name}.`);
+                    }else{
+                        messages.push(`Failed to update event ${d.name}.`);
+                    }
+                }
+
+                res.status(200).json({"message": "passed", "results": messages});
+                return;
+                
             }else{
 
                 mode = parseInt(mode);
@@ -57,29 +73,33 @@ export default async function handler(req, res){
 
                             if(mode === 0){
 
-                                await rankingManager.recalculateGametypeRankings(gametypeId);
+                                const gametypeManager = new Gametypes();
+
+                                const data = await rankingManager.recalculateGametypeRankings(gametypeManager, gametypeId);
+
+                                res.status(200).json({"message": "passed", "result": data});
+                                return;
 
                             }else if(mode === 1){
 
-                                await rankingManager.deleteGametype(gametypeId);
+                                const data = await rankingManager.deleteGametype(gametypeId);
+
+                                res.status(200).json({"message": "passed", "result": data});
+                                return;
                             }
 
 
-                            console.log(`gametypeId = ${gametypeId}, mode = ${mode}`);
-                            res.status(200).json({"message": "passed"});
-                            return;
+                           
 
                         }else{
-
                             res.status(200).json({"message": "Gametype must be a positive integer."});
                         }
 
                     }else{
-
                         res.status(200).json({"message": "Gametype must a valid integer."});
                     }
-                }else{
 
+                }else{
                     res.status(200).json({"message": "Mode must be a valid interger."});
                 }
             }

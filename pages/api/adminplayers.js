@@ -103,7 +103,7 @@ export default async function handler (req, res){
                     return;
                 }
 
-                if(await playerManager.deletePlayer(playerId ,matchManager)){
+                if(await playerManager.deletePlayer(playerId, matchManager)){
 
                     res.status(200).json({"message": `Player was deleted successfully`});
                     return;

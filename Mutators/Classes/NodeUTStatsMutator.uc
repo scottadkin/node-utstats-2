@@ -553,9 +553,12 @@ function ModifyPlayer(Pawn Other){
 
 
 function bool PreventDeath(Pawn Killed, Pawn Killer, name damageType, vector HitLocation){
+
+	local class KillerClass;
 	
-	if(Killer.PlayerReplicationInfo == None && Killed.PlayerReplicationInfo != None){
-		printLog( "nstats" $Chr(9)$ "mk" $Chr(9)$ Killer.class $ Chr(9) $ Killed.PlayerReplicationInfo.PlayerID);
+	if(Killer != None){
+	
+		if(Killer.PlayerReplicationInfo == None && Killed.PlayerReplicationInfo != None){						if(Killer != None){				KillerClass = Killer.class;			}else{				KillerClass = Killed.class;			}					printLog( "nstats" $Chr(9)$ "mk" $Chr(9)$ KillerClass $ Chr(9) $ Killed.PlayerReplicationInfo.PlayerID);		}
 	}
 
 	if(bLogFlagKills){
@@ -564,7 +567,11 @@ function bool PreventDeath(Pawn Killed, Pawn Killer, name damageType, vector Hit
 
 			if(Killed.PlayerReplicationInfo.HasFlag != None){
 			
-				logFlagKill(Killer, Killed);
+				if(Killer != None){
+					logFlagKill(Killer, Killed);
+				}else{
+					logFlagKill(Killed, Killed);
+				}
 			}
 		}
 	}

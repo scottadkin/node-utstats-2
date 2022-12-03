@@ -153,23 +153,17 @@ class Gametypes{
         }
     }
 
-    getName(id){
+    async getName(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT name FROM nstats_gametypes WHERE id=?";
 
-            const query = "SELECT name FROM nstats_gametypes WHERE id=?";
+        const result = await mysql.simpleQuery(query, [id]);
 
-            mysql.query(query, [id], (err, result) =>{
+        if(result.length > 0){
+            return result[0].name;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result[0].name);
-                }
-
-                resolve('Not Found');
-            });
-        });
+        return "Not Found";
     }
 
     async getNames(ids){
@@ -650,7 +644,7 @@ class Gametypes{
 
             //update rankings
 
-            await rankingManager.changeGametypeId(oldId, newId);
+            await rankingManager.changeGametypeId(this, oldId, newId);
 
             await this.deleteGametype(oldId);
 
@@ -890,7 +884,19 @@ class Gametypes{
         }
 
         return foundImages;
+    }
 
+    async getAllPlayerMatchData(gametypeId){
+
+        gametypeId = parseInt(gametypeId);
+
+        if(gametypeId !== gametypeId){
+            throw new Error(`GametypeId must be a valid integer`);
+        }
+
+        const query = "SELECT * FROM nstats_player_matches WHERE gametype=? ORDER BY match_date ASC";
+
+        return await mysql.simpleQuery(query, [gametypeId]);
     }
 }
 
