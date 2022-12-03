@@ -153,23 +153,17 @@ class Gametypes{
         }
     }
 
-    getName(id){
+    async getName(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT name FROM nstats_gametypes WHERE id=?";
 
-            const query = "SELECT name FROM nstats_gametypes WHERE id=?";
+        const result = await mysql.simpleQuery(query, [id]);
 
-            mysql.query(query, [id], (err, result) =>{
+        if(result.length > 0){
+            return result[0].name;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result[0].name);
-                }
-
-                resolve('Not Found');
-            });
-        });
+        return "Not Found";
     }
 
     async getNames(ids){

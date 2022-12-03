@@ -308,6 +308,12 @@ class Rankings{
         return await mysql.simpleQuery(query, [gametypeId]);
     }
 
+    async deletePlayerGametypeCurrent(playerId, gametypeId){
+
+        const query = "DELETE FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
 
     async deleteGametype(gametypeId){
 
@@ -429,7 +435,72 @@ class Rankings{
             console.trace(err);
         }
     }
-    
+
+    async deletePlayerMatchHistory(playerId, matchId){
+
+        const query = "DELETE FROM nstats_ranking_player_history WHERE player_id=? AND match_id=?";
+
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
+
+    async deletePlayerGametypeHistory(playerId, gametypeId){
+
+        const query = "DELETE FROM nstats_ranking_player_history WHERE player_id=? AND gametype=?";
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+
+    async deletePlayerFromMatch(playerManager, playerId, matchId, gametypeId, bRecalculate){
+
+
+        if(bRecalculate){
+
+            await this.deletePlayerGametypeHistory(playerId, gametypeId);
+            await this.recalculatePlayerGametype(playerManager, playerId, gametypeId);
+
+        }else{
+
+            await this.deletePlayerMatchHistory(playerId, matchId);
+        }
+
+    }
+
+    async recalculatePlayerGametype(playerManager, playerId, gametypeId){
+
+        const matchHistory = await playerManager.getAllGametypeMatchData(playerId, gametypeId);
+
+        const totals = {};
+
+        for(let i = 0; i < matchHistory.length; i++){
+
+            const m = matchHistory[i];
+
+            const matchId = m.match_id;
+
+            const matchScore = this.calculateRanking(m);
+
+            const totalData = this.updateCurrentPlayerTotal(totals, m);
+            const totalScore = this.calculateRanking(totalData);
+            const rankingChange = totalScore - totalData.previousScore;
+
+            await this.insertPlayerHistory(matchId, playerId, gametypeId, totalScore, matchScore, rankingChange);
+
+            totalData.previousScore = totalScore;  
+            totalData.rankingChange = rankingChange;
+
+        }
+
+        if(Object.keys(totals).length > 0){
+
+            for(const [playerId, data] of Object.entries(totals)){
+                await this.updatePlayerCurrentCustom(playerId, gametypeId, data.playtime, data.matches, data.previousScore, data.rankingChange);
+            }
+
+        }else{
+            await this.deletePlayerGametypeCurrent(playerId, gametypeId);
+        }
+    }  
 }
 
 /*class Rankings{

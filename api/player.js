@@ -12,7 +12,6 @@ const Kills = require("./kills");
 const Connections = require("./connections");
 const Pings = require("./pings");
 const Weapons = require("./weapons");
-const Rankings = require("./rankings");
 const Voices = require("./voices");
 const WinRate = require("./winrate");
 const Sprees = require("./sprees");
@@ -925,7 +924,7 @@ class Player{
     }
     
 
-    async removeFromMatch(playerId, matchId, mapId, matchManager){
+    async removeFromMatch(playerId, matchId, mapId, matchManager, rankingManager){
 
         try{
 
@@ -940,6 +939,9 @@ class Player{
             let currentDMWinner = "";
 
             if(matchData !== null){
+
+                const gametypeId = matchData.gametype;
+
 
                 const countriesManager = new CountriesManager();
 
@@ -997,15 +999,6 @@ class Player{
 
                 await weaponManager.deletePlayerFromMatch(playerId, matchId);
 
-                const rankingManager = new Rankings();
-
-                await rankingManager.deletePlayerFromMatch(playerId, matchId, matchData.playtime);
-
-
-                const playerGametypeData = await this.getPlayerGametypeData(matchData.name, matchData.gametype);
-
-                await rankingManager.recalculatePlayerRanking(playerId, playerGametypeData);
-
                 const voiceManager = new Voices();
 
                 await voiceManager.reduceTotals(matchData.voice, 1);
@@ -1032,8 +1025,10 @@ class Player{
 
                 const comboManager = new Combogib();
 
-                await comboManager.deletePlayerFromMatch(playerId, mapId, matchData.gametype, matchId)
+                await comboManager.deletePlayerFromMatch(playerId, mapId, matchData.gametype, matchId);
                // await matchManager.renameSingleDMMatchWinner(matchId, oldName, matchData.name);
+
+               await rankingManager.deletePlayerFromMatch(this, playerId, matchId, gametypeId, true);
 
             }
 
@@ -1073,6 +1068,13 @@ class Player{
         return null;
     }
 
+
+    async getAllGametypeMatchData(playerId, gametypeId){
+
+        const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND gametype=? ORDER BY match_date ASC";
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
 }
 
 module.exports = Player;

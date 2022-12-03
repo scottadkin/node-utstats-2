@@ -1,6 +1,7 @@
 import Session from '../../api/session';
 import Matches from '../../api/matches';
 import Player from '../../api/player';
+import Rankings from '../../api/rankings';
 
 export default async function handler(req, res){
 
@@ -22,10 +23,17 @@ export default async function handler(req, res){
                 
                 const playerManager = new Player();
 
+                const rankingManager = new Rankings();
+                await rankingManager.init();
+
                 await playerManager.removeFromMatch(
+                    
                     parseInt(req.body.playerId),
                     parseInt(req.body.matchId),
-                    parseInt(req.body.mapId), matchManager);
+                    parseInt(req.body.mapId), 
+                    matchManager,
+                    rankingManager
+                );
                     
 
             }else{
