@@ -12,6 +12,13 @@ class Notification extends React.Component{
     }
     
 
+    componentDidUpdate(prevProps){
+
+        if(this.props.children !== prevProps.children){
+            this.setState({"bDisplay": true});
+        }
+    }
+
     close(){
         this.setState({"bDisplay": false});
     }
@@ -49,6 +56,8 @@ class Notification extends React.Component{
     render(){
 
         if(!this.state.bDisplay) return null;
+
+        if(this.props.children === "") return null;
 
         const closeElem = (this.props.hideClose !== undefined) ? null : <div className={styles.exit} onClick={this.close}>
             Close

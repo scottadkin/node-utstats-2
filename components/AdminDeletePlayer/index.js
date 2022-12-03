@@ -11,8 +11,7 @@ class AdminDeletePlayer extends React.Component{
             "names": [], 
             "bLoadingInProgress": false, 
             "bFailed": false, 
-            "message": null, 
-            "displayUntil": 0,
+            "message": "", 
             "bDeleteInProgress": false
         };
 
@@ -67,7 +66,6 @@ class AdminDeletePlayer extends React.Component{
 
             this.setState({      
                 "message": "Deleting player please wait...",
-                "displayUntil": Math.floor(Date.now() * 0.001) + 5,
                 "bDeleteInProgress": true,
             });
 
@@ -75,7 +73,6 @@ class AdminDeletePlayer extends React.Component{
 
                 this.setState({      
                     "message": "PlayerID must be a valid integer",
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 5,
                     "bDeleteInProgress": false,
                     "bFailed": true
                 });
@@ -87,7 +84,6 @@ class AdminDeletePlayer extends React.Component{
 
                 this.setState({      
                     "message": "You have not selected a player to delete.",
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 5,
                     "bDeleteInProgress": false,
                     "bFailed": true
                 });
@@ -106,8 +102,7 @@ class AdminDeletePlayer extends React.Component{
             if(res.error === undefined){
 
                 this.setState({      
-                    "message": "Player successfully deleted.",
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 5,
+                    "message": res.message,
                     "bDeleteInProgress": false,
                     "bFailed": false
                 });
@@ -118,7 +113,6 @@ class AdminDeletePlayer extends React.Component{
 
                 this.setState({      
                     "message": res.error,
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 5,
                     "bDeleteInProgress": false,
                     "bFailed": true
                 });
@@ -179,19 +173,19 @@ class AdminDeletePlayer extends React.Component{
 
         if(this.state.bDeleteInProgress){
 
-            notification = <Notification displayUntil={this.state.displayUntil} type={"warning"}>
+            notification = <Notification type={"warning"}>
                 {this.state.message}
             </Notification>    
 
         }else if(this.state.bFailed){
 
-            notification = <Notification displayUntil={this.state.displayUntil} type={"error"}>
+            notification = <Notification  type={"error"}>
                 {this.state.message}
             </Notification> 
 
         }else{
 
-            notification = <Notification displayUntil={this.state.displayUntil} type={"pass"}>
+            notification = <Notification  type={"pass"}>
                 {this.state.message}
             </Notification> 
         }
