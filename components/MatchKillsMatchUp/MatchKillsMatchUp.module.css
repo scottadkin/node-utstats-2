@@ -1,0 +1,9 @@
+.th{
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    font-weight:normal;
+    color:white;
+    font-size:14px;
+    padding: 7px 5px;
+    text-align:left;
+}

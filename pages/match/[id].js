@@ -19,7 +19,6 @@ import Teams from '../../api/teams';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Faces from '../../api/faces';
-import MatchKillsMatchUpAlt from '../../components/MatchKillsMatchUpAlt/';
 import Functions from '../../api/functions';
 import Headshots from '../../api/headshots';
 import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
@@ -44,6 +43,7 @@ import MatchCTFCapTimes from '../../components/MatchCTFCapTimes';
 import CombogibMatchStats from '../../components/CombogibMatchStats';
 import ErrorMessage from '../../components/ErrorMessage';
 import ErrorPage from '../ErrorPage';
+import MatchKillsMatchUp from '../../components/MatchKillsMatchUp';
 
 
 function bDomination(players){
@@ -373,12 +373,14 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
     if(pageSettings["Display Kills Match Up"] === "true"){
 
         if(!parsedInfo.mh){
-            elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUpAlt 
+
+            elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUp key="kmu" matchId={parsedInfo.id} players={JSON.parse(playerNames)}/>;
+            /*elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUpAlt 
                 key={`kills-matchup`} 
                 matchId={matchId} 
                 totalTeams={parsedInfo.total_teams}
                  players={JSON.parse(playerNames)}
-            />;
+            />;*/
         }
     }
 

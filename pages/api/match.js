@@ -15,6 +15,12 @@ export default async function handler(req, res){
         const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
         const players = (req.body.players !== undefined) ? req.body.players : {};
 
+        let killManager = null;
+
+        if(mode === "kills" || mode === "kmu"){
+            killManager = new Kills();
+        }
+
         if(mode === "kills"){
 
             if(matchId !== matchId){
@@ -24,7 +30,7 @@ export default async function handler(req, res){
 
             const teams = req.body.teams || 0;
 
-            const killManager = new Kills();
+            
 
             const data = await killManager.getGraphData(matchId, players, teams);
 
@@ -149,6 +155,16 @@ export default async function handler(req, res){
             
             return;
 
+        }else if(mode === "kmu"){
+
+            if(matchId !== matchId){
+                res.status(200).json({"error": "Match id must be a valid integer"});
+                return;
+            }
+
+            const data = await killManager.getKillsMatchUp(matchId);
+            res.status(200).json({"data": data});
+            return;
         }
 
         res.status(200).json({"message": "passed"});

@@ -137,6 +137,7 @@ class Kills{
 
             const k = kills[i];
 
+
             //ignore suicides
             if(k.victim === 0) continue;
 
@@ -158,6 +159,7 @@ class Kills{
     reduceTotalDataPoints(data, players, teams){
 
         const playerIndexes = [];
+
         let killsData = [];
         let deathsData = [];
         let suicidesData = [];
