@@ -1440,7 +1440,7 @@ class PlayerManager{
 
                 d.match_result = current;
                 
-                if(current === 0){
+                if(current === 1){
 
                     d.wins++;   
                     d.current_win_streak++;
@@ -1451,7 +1451,7 @@ class PlayerManager{
                         d.max_win_streak = d.current_win_streak;
                     }
 
-                }else if(current === 1){
+                }else if(current === 0){
 
                     d.current_win_streak = 0;
                     d.current_draw_streak = 0;
@@ -1502,11 +1502,9 @@ class PlayerManager{
 
             const playerIds = [];
 
-            let p = 0;
-
             for(let i = 0; i < this.players.length; i++){
 
-                p = this.players[i];
+                const p = this.players[i];
 
                 if(p.bDuplicate === undefined && p.bPlayedInMatch){
 
@@ -1524,7 +1522,7 @@ class PlayerManager{
 
             for(let i = 0; i < this.players.length; i++){
 
-                p = this.players[i];
+                const p = this.players[i];
 
                 if(p.bDuplicate === undefined){
 

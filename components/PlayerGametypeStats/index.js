@@ -134,17 +134,17 @@ class PlayerGametypeStats extends React.Component{
         </tr>);
 
         return <Table2 width={1}>
-                <tr>
-                    <th>Gametype</th>
-                    <th>Last Accuracy</th>
-                    <th>Wins</th>
-                    <th>Win Rate</th>
-                    <th>Matches</th>
-                    <th>Playtime</th>
-                    <th>Last</th>
-                </tr>
-                {elems}
-            </Table2>
+            <tr>
+                <th>Gametype</th>
+                <th>Last Accuracy</th>
+                <th>Wins</th>
+                <th>Win Rate</th>
+                <th>Matches</th>
+                <th>Playtime</th>
+                <th>Last</th>
+            </tr>
+            {elems}
+        </Table2>
        
     }
 
@@ -161,12 +161,11 @@ class PlayerGametypeStats extends React.Component{
 
         let last = null;
 
-        let w = 0;
         let currentStreak = 0;
 
         for(let i = 0; i < winRateData.length; i++){
 
-            w = winRateData[i];
+            const w = winRateData[i];
 
             if(w.current_win_streak > 0){
                 currentStreak = `${w.current_win_streak} win${(w.current_win_streak !== 1) ? 's' : "" }`;
