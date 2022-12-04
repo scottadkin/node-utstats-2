@@ -18,7 +18,7 @@ const tables = [
     "faces",
     "gametypes",
     "headshots",
-    "items",
+    //"items",
     "items_match",
     "items_player",
     "kills",
