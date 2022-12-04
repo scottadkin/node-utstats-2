@@ -50,7 +50,9 @@ class MatchKillsMatchUp extends React.Component{
 
             if(p.spectator || !p.played) continue;
 
-            headers.push(<th key={p.id} className={`${styles.th} ${Functions.getTeamColor(p.team)} text-left`}>{p.name}</th>);
+            headers.push(<th key={p.id} className={`${styles.th} ${Functions.getTeamColor(p.team)} text-left`}>
+                <img className={styles.flag} src={`/images/flags/${p.country}.svg`} alt="flag"/>&nbsp;{p.name}
+            </th>);
         }
 
 
