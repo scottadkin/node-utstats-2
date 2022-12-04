@@ -922,16 +922,30 @@ class MatchScreenshot{
 
         const headshots = (!this.bClassic) ? player.headshots : 0;
         const belts = (!this.bCLassic) ? player.shield_belt : player.pu_belt;
-        const amps = (!this.bClassic) ? `${player.amp} (${this.MMSS(player.amp_time)})` : player.pu_amp;
-        const invisibility = (!this.bClassic) ? `${player.invisibility} (${this.MMSS(player.invisibility_time)}` : player.pu_invis;
-
         
         if(headshots > 0) pickupString += `HS:${headshots} `;
         if(belts > 0) pickupString += `SB:${belts} `;
-        if(amps > 0) pickupString += `AMP:${amps} `;
-        if(invisibility > 0) pickupString += `INVIS:${invisibility}`;
-    
-      
+
+        if(!this.bClassic){
+
+            if(player.amp > 0){
+                pickupString += `AMP:${player.amp} (${this.MMSS(player.amp_time)})`;
+            }
+
+            if(player.invisibility > 0){
+                pickupString += `INVIS:${player.invisibility} (${this.MMSS(player.invisibility_time)}`
+            }
+
+        }else{
+
+            if(player.pu_amp > 0){
+                pickupString += `AMP:${player.pu_amp}`;
+            }
+
+            if(player.pu_invis > 0){
+                pickupString += `INVIS:${player.pu_invis}`;
+            }
+        }      
   
         const playtime = (!this.bClassic) ? Math.floor(player.playtime / 60) : Math.floor(player.gametime / 60);
         const efficiency = (!this.bClassic) ? Math.floor(player.efficiency) : Math.floor(player.eff);
