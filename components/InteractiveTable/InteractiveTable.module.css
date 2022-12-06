@@ -1,0 +1,4 @@
+.wrapper th:hover{
+    cursor: pointer;
+    background-color:var(--color-3);
+}
