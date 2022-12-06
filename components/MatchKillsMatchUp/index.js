@@ -107,6 +107,8 @@ class MatchKillsMatchUp extends React.Component{
 
             const p = this.props.players[i];
 
+            if(p.spectator || !p.played) continue;
+
             rows.push(<tr key={p.id}>
                 <td className={`${Functions.getTeamColor(p.team)} text-left`}><CountryFlag country={p.country}/>{p.name}</td>
                 {this.createKillColumns(p.id)}
