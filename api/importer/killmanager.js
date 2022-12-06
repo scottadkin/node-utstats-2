@@ -5,12 +5,14 @@ const Headshots = require('../headshots');
 
 class KillManager{
 
-    constructor(data, playerManager, bIgnoreBots){
+    constructor(data, playerManager, bIgnoreBots, matchTimings){
 
         this.data = data;
         this.kills = [];
         this.headshots = [];
         this.bIgnoreBots = bIgnoreBots;
+
+        this.matchTimings = matchTimings;
 
         this.playerManager = playerManager;
 
@@ -33,15 +35,21 @@ class KillManager{
         const headshotReg = /^(\d+\.\d+)\theadshot\t(.+?)\t(.+)$/i;
 
         let result = '';
-        let d = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
             if(killReg.test(d)){
 
                 result = killReg.exec(d);
+
+                const timestamp = parseFloat(result[1]);
+
+                if(timestamp < this.matchTimings.start){
+                    new Message(`Kill happened before match start ignoring.(Warmpup)`,"note");
+                    continue;
+                }
 
                 if(this.killNames.indexOf(result[4]) === -1){
                     this.killNames.push(result[4]);
@@ -53,11 +61,25 @@ class KillManager{
 
                 result = distanceReg.exec(d);
 
+                const timestamp = parseFloat(result[1]);
+
+                if(timestamp < this.matchTimings.start){
+                    new Message(`Kill(Distance) happened before match start ignoring.(Warmpup)`,"note");
+                    continue;
+                }
+
                 this.setDistance(result[1], result[2], result[3], result[4]);
 
             }else if(locationReg.test(d)){
 
                 result = locationReg.exec(d);
+
+                const timestamp = parseFloat(result[1]);
+
+                if(timestamp < this.matchTimings.start){
+                    new Message(`Kill(Location) happened before match start ignoring.(Warmpup)`,"note");
+                    continue;
+                }
 
                 this.setLocations(
                     result[1],
@@ -83,6 +105,13 @@ class KillManager{
             }else if(headshotReg.test(d)){
                 
                 result = headshotReg.exec(d);
+
+                const timestamp = parseFloat(result[1]);
+
+                if(timestamp < this.matchTimings.start){
+                    new Message(`headshot happened before match start ignoring.(Warmpup)`,"note");
+                    continue;
+                }
 
                 this.headshots.push({
                     "timestamp": parseFloat(result[1]),

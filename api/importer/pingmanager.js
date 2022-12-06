@@ -1,4 +1,3 @@
-const Promise = require('promise');
 const Pings = require('../pings');
 const Message = require('../message');
 
@@ -25,6 +24,12 @@ class PingManager{
             const result = reg.exec(p);
 
             if(result !== null){
+
+                const timestamp = parseFloat(result[1]);
+
+                if(timestamp < playerManager.matchTimings.start){
+                    new Message(`Ping event before match, ignoring.`,"note");
+                }
 
                 if(parseInt(result[3]) != 0){
 
@@ -78,7 +83,7 @@ class PingManager{
                                 }
 
                                 this.data.push({
-                                    "timestamp": parseInt(result[1]), //no need to save decimals with how far between ping events are
+                                    "timestamp": parseInt(timestamp), //no need to save decimals with how far between ping events are
                                     "player": currentPlayer.masterId,
                                     "ping": currentPing
                                 });

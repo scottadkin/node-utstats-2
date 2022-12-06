@@ -16,11 +16,12 @@ const Sprees = require('../sprees');
 class PlayerManager{
 
 
-    constructor(data, spawnManager, bIgnoreBots){
+    constructor(data, spawnManager, bIgnoreBots, matchTimings){
 
         this.data = data;
 
         this.bIgnoreBots = bIgnoreBots;
+        this.matchTimings = matchTimings;
 
         this.players = [];
         this.uniqueNames = [];
@@ -267,25 +268,21 @@ class PlayerManager{
         const legacySpawnReg = /,/;
         const spawnLocationReg = /^(\d+?\t.+?,.+?,.+?)\t(\d+)$/;
 
-        let type = 0;
-        let result = 0;
         let subResult = 0;
-        let d = 0;
         let player = 0;
-        let timestamp = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
-            result = reg.exec(d);
+            let result = reg.exec(d);
             
             //console.log(result);
 
             if(result !== null){
 
-                timestamp = parseFloat(result[1]);
-                type = result[2].toLowerCase();
+                const timestamp = parseFloat(result[1]);
+                const type = result[2].toLowerCase();
                 
 
                 if(type === 'face' || type === 'voice' || type === 'netspeed'){
@@ -294,7 +291,6 @@ class PlayerManager{
 
                     result = secondReg.exec(result[3]);
 
-                    //console.log(result);
 
                     if(result !== null){
 
@@ -308,6 +304,11 @@ class PlayerManager{
                             }
 
                         }else if(type === 'p_s'){
+
+                            if(timestamp < this.matchTimings.start){
+                                new Message(`Score update before match start, ignoring.`,"note");
+                                continue;
+                            }
 
                             this.scoreHistory.push(
                                 {

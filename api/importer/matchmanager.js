@@ -66,7 +66,7 @@ class MatchManager{
             }
 
             this.spawnManager = new SpawnManager();
-            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots);
+            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
 
             const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
 
@@ -79,7 +79,7 @@ class MatchManager{
 
             new Message(`Log file id is ${logId}`,"note");
 
-            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots);
+            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
 
             if(this.mapInfo.mapPrefix === "mh"){
                 this.gameInfo.totalTeams = 0;
