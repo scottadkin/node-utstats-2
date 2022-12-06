@@ -178,6 +178,8 @@ class MatchPowerUpControl extends React.Component{
 
         const uses = [];
 
+    
+
         for(let i = 0; i < this.props.players.length; i++){
 
             const p = this.props.players[i];
@@ -193,6 +195,7 @@ class MatchPowerUpControl extends React.Component{
     getPlayerNames(){
 
         const names = [];
+
 
         for(let i = 0; i < this.props.players.length; i++){
 

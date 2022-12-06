@@ -86,6 +86,19 @@ class MatchCTFGraphs extends React.Component{
             this.state.data.teamDrops
         ];
 
+        
+        for(let i = 0; i < data.length; i++){
+
+            data[i].sort((a, b) =>{
+                a = a.name;
+                b = b.name;
+
+                if(a < b) return -1;
+                if(b < a) return 1;
+                return 0;
+            })
+        }
+
         let bAnyData = false;
 
         for(let i = 0; i < data.length; i++){

@@ -44,9 +44,21 @@ class MatchPlayerScoreHistory extends React.Component{
 
         if(!this.state.finishedLoading) return null;
 
+        const data = [...this.state.data];
+
+        data.sort((a, b) =>{
+
+            a = a.name;
+            b = b.name;
+
+            if(a < b) return -1;
+            if(b > a) return 1;
+            return 0;
+        });
+
         return <div>
             <div className="default-header">Player Score History</div>
-            <Graph title="Score History" data={JSON.stringify(this.state.data)}/>
+            <Graph title="Score History" data={JSON.stringify(data)}/>
         </div>
     }
 }
