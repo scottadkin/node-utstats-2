@@ -400,7 +400,7 @@ class AdminMapManager extends React.Component{
                 <div className="form-info m-bottom-25">
                     File names must be set before hand for bulk uploading.<br/>Valid map names are in all lowercase,
                     without the gametype prefix, and without .unr.<br/>
-                    File types are converted to .jpg, you can upload .jpg, .bmp, and .bmp files.
+                    File types are converted to .jpg, you can upload .jpg, .png, and .bmp files.
                 </div>
                 <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.bulkUploader}>
                     <input type="file" className="m-bottom-25" multiple accept=".jpg,.png,.bmp"/>
