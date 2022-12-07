@@ -637,7 +637,10 @@ const queries = [
         first int(11) NOT NULL,
         last int(11) NOT NULL,
         matches int(11) NOT NULL,
-        playtime double NOT NULL
+        playtime double NOT NULL,
+        display_name varchar(100) NOT NULL,
+        display_address varchar(100) NOT NULL,
+        password varchar(100) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_sessions (
         id int(11) NOT NULL AUTO_INCREMENT,

@@ -25,6 +25,7 @@ async function alterTable(table, column, datatype){
     const query = `ALTER TABLE ${table} ADD COLUMN ${column} ${datatype}`;
 
     await mysql.simpleUpdate(query);
+    new Message(query, "pass");
 }
 
 async function changeColumnName(table, oldName, newName){
@@ -544,6 +545,21 @@ async function createCombogibTables(){
     }
 }
 
+async function updateServerTable(){
+
+    if(!await columnExists("nstats_servers", "display_name")){
+        await alterTable("nstats_servers", "display_name", "varchar(100) NOT NULL");
+    }
+
+    if(!await columnExists("nstats_servers", "display_address")){
+        await alterTable("nstats_servers", "display_address", "varchar(100) NOT NULL");
+    }
+
+    if(!await columnExists("nstats_servers", "password")){
+        await alterTable("nstats_servers", "password", "varchar(100) NOT NULL");
+    }
+}
+
 (async () =>{
 
     try{
@@ -601,6 +617,8 @@ async function createCombogibTables(){
 
 
         await createCombogibTables();
+
+        await updateServerTable();
 
         process.exit(0);
 
