@@ -90,7 +90,7 @@ class CTFManager{
         const test2 = [];
 
         //361.87	nstats	flag_kill	0	11	6938.494141	450.293762	7157.908691
-        const backupReg = /^(\d+?\.\d+?)\tnstats\tflag_kill\t(\d+?)\t(\d+?).+$/i;
+        const backupReg = /^(\d+?\.\d+?)\tnstats\tflag_kill\t(\d+?)\t(\d+?)\t.+$/i;
         const backupFlagKills = [];
 
         for(let i = 0; i < this.data.length; i++){
