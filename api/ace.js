@@ -597,6 +597,11 @@ class ACE{
         if(type === "join") toChange = "total_ace_join_logs=total_ace_join_logs+1";
         if(type === "screenshot") toChange = "total_ace_screenshots=total_ace_screenshots+1";
 
+        if(toChange === ""){
+            new Message(`ACE.updateTypeTotals() toChange is ""`,"warning");
+            return;
+        }
+
         const query = `UPDATE ${table} SET ${toChange} ${ending}`;
 
         const vars = [host, port];
