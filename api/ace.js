@@ -428,6 +428,13 @@ class ACE{
             ?,?,?,?,?,
         ?)`;
 
+    
+        let gameVersion = 0;
+
+        if(data.gameversion !== ""){
+            gameVersion = 0;
+        }
+
         const vars = [
             fileName,
             rawData,
@@ -442,7 +449,7 @@ class ACE{
             data.machash1,
             data.machash2,
             data.hwid,
-            data.gameversion,
+            gameVersion,
             data.renderer,
             data.sounddevice,
             data.commandline,
