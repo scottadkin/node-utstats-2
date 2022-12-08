@@ -114,7 +114,13 @@ class AceManager{
                 if(type === "cpuspeed"){
 
                     const speedResult = speedReg.exec(currentValue);
-                    currentValue = speedResult[1];
+
+                    if(speedResult !== null){
+                        currentValue = speedResult[1];
+                    }else{
+                        new Message(`cpuSpeed speedResult = null`,"warning");
+                        currentValue = 0;
+                    }
 
                 }else if(type === "timestamp"){
 
