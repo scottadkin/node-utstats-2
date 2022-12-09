@@ -1,12 +1,11 @@
 .wrapper{
-    height:32px;
+    height:36px;
     display:grid;
     grid-template-columns: 50% 50%;   
 }
 
 
 .label{
-    background-color:brown;
     max-height:32px;
     font-size:16px;
     line-height:32px;
@@ -18,13 +17,13 @@
 
 .fake{
 
-    background-color:red;
+    background-color:var(--color-8);
     display:block;
     font-size:12px;
     text-align:left;
-    border:1px solid green;
+    border:1px solid var(--border-color-3);
     max-height:32px;
-    font-size:14px;
+    font-size:16px;
     line-height:32px;
     padding-left:5px; 
     
@@ -33,20 +32,22 @@
 .entries{
     text-align:left;
     overflow-y: auto;
-    max-height:200px;
+    max-height:75vh;
     user-select: none;
 }
 
-.entry{
-    background-color:red;
-    display:block;
-    font-size:12px;
-    text-align:left;
-    border:1px solid green;
-    max-height:32px;
-    font-size:14px;
-    line-height:32px;
+.entries div{
     padding-left:5px;
+}
+
+.entry{
+    background-color:var(--color-8);
+    display:block;
+    text-align:left;
+    border:1px solid var(--border-color-3);
+    max-height:36px;
+    font-size:16px;
+    line-height:36px;
     width:100%;
 }
 
@@ -55,6 +56,6 @@
 }
 
 .entry:hover{
-    background-color:orange;
+    background-color:var(--color-5);
     cursor: pointer;
 }

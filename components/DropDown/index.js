@@ -69,7 +69,7 @@ class DropDown extends React.Component{
             }
         }
 
-        const zStyle = (this.state.bActive) ? {"position":"relative", "width": "100%"} : {};
+        const zStyle = (this.state.bActive) ? {"position":"relative", "width": "100%", "border": "1px solid var(--border-color-3)"} : { "overflow": "hidden"};
 
         return <div className={styles.entries} style={zStyle} onClick={this.changeActive}>
             {elems}
@@ -80,7 +80,7 @@ class DropDown extends React.Component{
 
         
 
-        return <div className={styles.wrapper}>  
+        return <div className={styles.wrapper} >  
             <div className={styles.label}>
                 {this.props.dName}
             </div>
