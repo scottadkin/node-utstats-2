@@ -286,7 +286,7 @@ class Records extends React.Component{
             let place = 1 + i + ((this.props.page - 1) * this.state.perPage);
             rows.push(<tr key={`${i}-${d.value}-${d.player_id}`}>
                 <td>
-                <span className="small-font yellow">
+                <span className="place">
                         {place}{Functions.getOrdinal(place)}
                     </span>&nbsp;
                 </td>

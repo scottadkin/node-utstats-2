@@ -2,10 +2,7 @@ const mysql = require('./database');
 
 class Servers{
 
-    constructor(){
-
-        
-    }
+    constructor(){}
 
     bServerExists(ip, port){
 
@@ -35,19 +32,12 @@ class Servers{
         });
     }
 
-    insertServer(ip, port, name, date, playtime){
+    async insertServer(ip, port, name, date, playtime){
 
-        return new Promise((resolve, reject) =>{
+        const query = `INSERT INTO nstats_servers VALUES(NULL,?,?,?,?,?,1,?,"","","")`;
+        const vars = [name, ip, port, date, date, playtime];
 
-            const query = "INSERT INTO nstats_servers VALUES(NULL,?,?,?,?,?,1,?)";
-
-            mysql.query(query, [name, ip, port, date, date, playtime], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, vars);
     }
 
     async updateServer(ip, port, name, date, playtime){
@@ -163,9 +153,7 @@ class Servers{
 
                 (result.affectedRows > 0) ? resolve(true) : resolve(false);
 
-
             });
-
         });
     }
 
@@ -190,26 +178,17 @@ class Servers{
     }
 
 
-    getServerId(ip, port){
+    async getServerId(ip, port){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id FROM nstats_servers WHERE ip=? AND port=? LIMIT 1";
 
-            const query = "SELECT id FROM nstats_servers WHERE ip=? AND port=? LIMIT 1";
+        const result = await mysql.simpleQuery(query, [ip, port]);
 
-            mysql.query(query, [ip, port], (err, result) =>{
+        if(result.length > 0){
+            return result[0].id;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-                        resolve(result[0].id);
-                    }
-                }
-
-                resolve(null);
-            });
-        });
+        return null;       
     }
 
     debugGetAllServers(){
@@ -233,24 +212,17 @@ class Servers{
         });
     }
 
-    getName(id){
+    async getName(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT name FROM nstats_servers WHERE id=?";
 
-            const query = "SELECT name FROM nstats_servers WHERE id=?";
+        const result = await mysql.simpleQuery(query, [id]);
 
-            mysql.query(query, [id], (err, result) =>{
+        if(result.length > 0){
+            return result[0].name;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result[0].name);
-                    
-                }
-
-                resolve('Server Not Found');
-            });
-        });
+        return "Server not found";
     }
 
     async getNames(ids){
@@ -272,43 +244,29 @@ class Servers{
         return data;
     }
 
-    getAllNames(){
+    async getAllNames(){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id,name FROM nstats_servers";
 
-            const query = "SELECT id,name FROM nstats_servers";
+        const result = await mysql.simpleQuery(query);
 
-            const data = {};
+        const data = {};
 
-            mysql.query(query, (err, result) =>{
+        for(let i = 0; i < result.length; i++){
 
-                if(err) reject(err);
+            const r = result[i];
 
-                if(result !== undefined){
+            data[r.id] = r.name;
+        }
 
-                    for(let i = 0; i < result.length; i++){
-                        data[result[i].id] = result[i].name
-                    }
-                }
-
-                resolve(data);
-            });
-        });
+        return data;
     }
 
-    reduceServerTotals(id, playtime){
+    async reduceServerTotals(id, playtime){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_servers SET matches=matches-1, playtime=playtime-? WHERE id=?";
 
-            const query = "UPDATE nstats_servers SET matches=matches-1, playtime=playtime-? WHERE id=?";
-
-            mysql.query(query, [playtime, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, [playtime, id]);
     }
 
     async reduceTotals(id, matches, playtime){

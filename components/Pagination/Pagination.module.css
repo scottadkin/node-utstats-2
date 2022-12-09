@@ -9,9 +9,9 @@
 
 .button{
     display:inline-block;
-    padding:6px 6px;
-    background-color:var(--color-2);
-    border:1px solid var(--border-color-2);
+    padding:7px 7px;
+    background-color:var(--color-9);
+    border:1px solid var(--border-color-3);
     margin-right:5px;
     font-size:16px;
     transition: all 0.5s;
@@ -24,7 +24,7 @@
 
 .abutton{
     display:inline-block;
-    padding:6px 6px;
+    padding:7px 7px;
     background-color:var(--color-3);
     border:1px solid var(--border-color-3);
     color:yellow;

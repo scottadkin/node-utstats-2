@@ -42,7 +42,7 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
         position = (page * perPage) + i + 1;
 
         rows.push(<tr key={i}>
-            <td>{position}{Functions.getOrdinal(position)}</td>
+            <td className="place">{position}{Functions.getOrdinal(position)}</td>
             <td className="text-left"><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country} host={host}/> {d.name}</a></Link></td>
       
             <td className="playtime"><Playtime timestamp={d.playtime}/></td>
