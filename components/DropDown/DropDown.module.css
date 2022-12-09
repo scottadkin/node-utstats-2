@@ -1,9 +1,9 @@
 .wrapper{
-    position:absolute;
+    height:32px;
     display:grid;
-    grid-template-columns: 50% 50%;
-    width:90%;
+    grid-template-columns: 50% 50%;   
 }
+
 
 .label{
     background-color:brown;
@@ -11,13 +11,28 @@
     font-size:16px;
     line-height:32px;
     overflow:hidden;
+    text-align:right;
+    padding-right:10px;
 
+}
+
+.fake{
+
+    background-color:red;
+    display:block;
+    font-size:12px;
+    text-align:left;
+    border:1px solid green;
+    max-height:32px;
+    font-size:14px;
+    line-height:32px;
+    padding-left:5px; 
+    
 }
 
 .entries{
     text-align:left;
-    background-color:grey;
-    overflow: auto;
+    overflow-y: auto;
     max-height:200px;
     user-select: none;
 }
@@ -32,6 +47,11 @@
     font-size:14px;
     line-height:32px;
     padding-left:5px;
+    width:100%;
+}
+
+.selected{
+    background-color:darkred;
 }
 
 .entry:hover{
