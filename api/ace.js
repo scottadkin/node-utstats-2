@@ -431,7 +431,7 @@ class ACE{
     
         let gameVersion = 0;
 
-        if(data.gameversion !== ""){
+        if(data.gameversion === ""){
             gameVersion = 0;
         }
 
