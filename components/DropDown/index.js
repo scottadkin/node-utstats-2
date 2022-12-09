@@ -1,16 +1,28 @@
 import React from "react";
 import styles from "./DropDown.module.css";
+import ErrorMessage from "../ErrorMessage";
 
 class DropDown extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"bActive": false, "selectedValue": null};
+
+        this.state = {"bActive": false, "selectedValue": this.props.originalValue ?? null};
+        
+        //this.setOrginalValue();
 
         this.changeActive = this.changeActive.bind(this);
         this.changeSelected = this.changeSelected.bind(this);
         this.hide = this.hide.bind(this);
+    }
+
+
+    setOrginalValue(){
+
+        if(this.props.originalValue !== undefined){
+            this.setState({"selectedValue": this.props.originalValue});
+        }
     }
 
     changeActive(){
@@ -20,6 +32,8 @@ class DropDown extends React.Component{
     }
 
     hide(){
+
+        if(!this.state.bActive) return;
 
         this.setState({"bActive": false});
     }
@@ -37,18 +51,16 @@ class DropDown extends React.Component{
 
         const elems = [];
 
-
         for(const [value, displayValue] of Object.entries(this.props.data)){
 
             if(!this.state.bActive){
 
                 if(this.state.selectedValue === null){
 
-                    elems.push(<div className={styles.fake} key={value}>{displayValue}</div>);
+                    elems.push(<div className={styles.fake} key={"null"}>Please select value</div>);
                     break;
 
                 }else{           
-
                     if(value === this.state.selectedValue){
                         elems.push(<div className={styles.fake} key={value}>{displayValue}</div>);
                         break;
@@ -69,6 +81,21 @@ class DropDown extends React.Component{
             }
         }
 
+        //just incase there is a value that is not in the dataset
+        if(elems.length === 0){
+
+            if(Object.keys(this.props.data).length > 0){
+
+                const firstKey = Object.keys(this.props.data)[0];
+                const data = this.props.data[firstKey];
+
+                elems.push(<div className={styles.fake} key={firstKey} onClick={(() =>{
+                    this.changeSelected(firstKey);
+                })}>{data}</div>);
+
+            }
+        }
+ 
         const zStyle = (this.state.bActive) ? {"position":"relative", "width": "100%", "border": "1px solid var(--border-color-3)"} : { "overflow": "hidden"};
 
         return <div className={styles.entries} style={zStyle} onClick={this.changeActive}>
@@ -77,10 +104,16 @@ class DropDown extends React.Component{
     }
 
     render(){
-
         
+        if(this.props.data === undefined){
+            return <ErrorMessage title={`DropDown (${this.props.dName})`} text="No data supplied."/>
+        }
 
-        return <div className={styles.wrapper} >  
+        if(this.props.data === null){
+            return <ErrorMessage title={`DropDown (${this.props.dName})`} text="Data is null."/>
+        }
+
+        return <div className={styles.wrapper} onClick={this.hide}>  
             <div className={styles.label}>
                 {this.props.dName}
             </div>
