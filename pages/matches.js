@@ -1,20 +1,15 @@
-import DefaultHead from '../components/defaulthead';
-import Nav from '../components/Nav';
-import Footer from '../components/Footer';
-import MatchesManager from '../api/matches';
-import MatchesTableView from '../components/MatchesTableView/';
-import MatchesDefaultView from '../components/MatchesDefaultView/';
-import Gametypes from '../api/gametypes';
-import Functions from '../api/functions';
-import Servers from '../api/servers';
-import Maps from '../api/maps';
-import Pagination from '../components/Pagination';
-import Link from 'next/link';
-import Option2 from '../components/Option2';
-import React from 'react';
-import Session from '../api/session';
-import SiteSettings from '../api/sitesettings';
-import Analytics from '../api/analytics';
+import DefaultHead from "../components/defaulthead";
+import Nav from "../components/Nav";
+import Footer from "../components/Footer";
+import React from "react";
+import Session from "../api/session";
+import SiteSettings from "../api/sitesettings";
+import Analytics from "../api/analytics";
+import Loading from "../components/Loading";
+import ErrorMessage from "../components/ErrorMessage";
+import ErrorPage from "./ErrorPage";
+import DropDown from "../components/DropDown";
+import Link from "next/link";
 
 class Matches extends React.Component{
 
@@ -22,152 +17,116 @@ class Matches extends React.Component{
 
         super(props);
 
-        this.state = {"perPage": this.props.perPage, "gametype": this.props.gametype, "displayType": this.props.displayType};
+        this.state = {
+            "bLoadedInitial": false, 
+            "error": null, 
+            "serverNames": null, 
+            "selectedServer": props.server, 
+            "selectedGametype": props.gametype,
+            "selectedMap": props.map,
+            "perPage": props.perPage
+        };
 
-        this.changePerPage = this.changePerPage.bind(this);
-        this.changeGametype = this.changeGametype.bind(this);
-        this.changeDisplay = this.changeDisplay.bind(this);
-
+        this.changeSelected = this.changeSelected.bind(this);
     }
 
-    componentDidMount(){
+    async changeSelected(type, value){
 
-        const settings = JSON.parse(this.props.pageSettings);
-        const session = JSON.parse(this.props.session);
+        const obj = {};
 
-        if(session["matchesGametype"] === undefined){
+        obj[type] = value;
 
-            if(settings["Default Gametype"] !== undefined){
-                this.setState({"gametype": parseInt(settings["Default Gametype"])});
-            }
+        this.setState(obj);
+    }
+
+    async loadNames(){
+
+        const req = await fetch("/api/matchsearch", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "full-list"})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+
+            this.setState({"error": res.error});
 
         }else{
-            this.setState({"gametype": parseInt(session["matchesGametype"])});
+
+            this.setState({
+                "serverNames": res.serverNames,
+                "gametypeNames": res.gametypeNames, 
+                "mapNames": res.mapNames,
+                "bLoadedInitial": true
+            });
         }
+    }
 
-        if(session["matchesPerPage"] === undefined){
+    async componentDidMount(){
 
-            if(settings["Default Display Per Page"] !== undefined){
-                this.setState({"perPage": parseInt(settings["Default Display Per Page"])});
-            }
+        await this.loadNames();
+    }
 
-        }else{
-            this.setState({"perPage": parseInt(session["matchesPerPage"])});
-        }
+    getPerPageData(){
 
+        const data = {};
 
-        if(session["matchesDisplay"] === undefined){
+        data["5"] = 5;
+        data["10"] = 10;
+        data["25"] = 25;
+        data["50"] = 50;
+        data["100"] = 100;
 
-            if(settings["Default Display Type"] !== undefined){
-                this.setState({"displayType": parseInt(settings["Default Display Type"])});
-            }
-
-        }else{
-            this.setState({"displayType": parseInt(session["matchesDisplay"])});
-        }
-
+        return data;
     }
 
 
-    changePerPage(event){
+    renderSearchForm(){
 
-        this.setState({"perPage": event.target.value});
+        const url = `/matches/?server=${this.state.selectedServer}&gametype=${this.state.selectedGametype}&map=${this.state.selectedMap}&page=1&pp=${this.state.perPage}`;
 
-        let value = parseInt(event.target.value);
-
-        if(value !== value) value = 25;
-        
-
-        Functions.setCookie("matchesPerPage", value);
-
+        return <div className="form">
+            <DropDown dName="Server" fName="selectedServer" originalValue={this.state.selectedServer.toString()} data={this.state.serverNames} changeSelected={this.changeSelected}/>
+            <DropDown dName="Gametype" fName="selectedGametype" originalValue={this.state.selectedGametype.toString()} data={this.state.gametypeNames} changeSelected={this.changeSelected}/>
+            <DropDown dName="Map" fName="selectedMap" originalValue={this.state.selectedMap.toString()} data={this.state.mapNames} changeSelected={this.changeSelected}/>
+            <DropDown dName="Results Per Page" fName="perPage" originalValue={this.state.perPage.toString()} data={this.getPerPageData()} changeSelected={this.changeSelected}/>
+            <Link href={url}>
+                <a>
+                    <div className="search-button">Search</div>
+                </a>
+            </Link>
+        </div>
     }
 
-    changeGametype(event){
+    renderElems(){
 
-        this.setState({"gametype": event.target.value})
-
-        let value = parseInt(event.target.value);
-
-        if(value !== value) value = 0;
-        
-        Functions.setCookie("matchesGametype", value);
-
-
-    }
-
-    createGametypeOptions(){
-
-        const elems = [];
-
-        const gametypes = JSON.parse(this.props.gametypes);
-
-        for(const [key, value] of Object.entries(gametypes)){
-            
-            elems.push(<option key={key} value={key}>{value}</option>);
+        if(this.state.error !== null){
+            return <ErrorMessage title="Recent Matches" text={this.state.error}/>
         }
 
-        return elems;
-    }
-
-    getGametypeName(id){
-
-        const gametypes = JSON.parse(this.props.gametypes);
-
-        if(gametypes[id] !== undefined){
-            return gametypes[id];
+        if(!this.state.bLoadedInitial){
+            return <Loading />;
         }
 
-        return "";
+        return this.renderSearchForm();
     }
-
-    changeDisplay(type){
-
-        this.setState({"displayType": type});
-
-        if(type !== 0 && type !== 1){
-            type = 0;
-        }
-
-        Functions.setCookie("matchesDisplay", type);
-    }
-
 
     render(){
 
-        const pages = Math.ceil(this.props.totalMatches / this.props.perPage);
+        if(this.props.pageError !== undefined){
 
-        const url = `/matches?perPage=${this.state.perPage}&gametype=${this.state.gametype}&displayType=${this.state.displayType}&page=`;
-
-        let matchElems = [];
-
-        const imageHost = Functions.getImageHostAndPort(this.props.host);
-
-        if(this.state.displayType){
-            matchElems = <MatchesTableView data={this.props.matches}/>
-        }else{
-            matchElems = <div className="center" style={{"width": "var(--width-1)"}}>
-                <MatchesDefaultView data={this.props.matches} images={this.props.images} host={imageHost}/>
-            </div>;
+            return <ErrorPage>{this.props.pageError}</ErrorPage>
         }
 
-        const start = (this.props.page <= 1) ? 1 : this.props.page * this.props.perPage;
-        const end = (((this.props.page + 1) * this.props.perPage) <= this.props.totalMatches) ? (this.props.page + 1) * this.props.perPage : this.props.totalMatches;
-
-        const gametypeName = this.getGametypeName(this.props.gametype);
-        const nameString = (gametypeName !== "") ? `(${gametypeName})` : "";
-
-        const paginationElem = <Pagination currentPage={this.props.page} 
-                perPage={this.props.perPage} 
-                pages={pages} 
-                results={this.props.totalMatches} 
-            url={url} />
 
         return (<div>
             <DefaultHead 
                 host={this.props.host} 
-                title={`Recent Matches${nameString} Page ${this.props.page} of ${pages}`} 
+                /*title={`Recent Matches${nameString} Page ${this.props.page} of ${pages}`} 
                 description={`Viewing Recent Matches${nameString} page ${this.props.page} of ${pages}, matches ${start} to ${end} out of a possible ${this.props.totalMatches} matches.`} 
-                keywords={`search,match,matches,page ${this.props.page}`}
+                keywords={`search,match,matches,page ${this.props.page}`}*/
             />
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
@@ -177,39 +136,7 @@ class Matches extends React.Component{
                         <div className="default-header">
                             Recent Matches
                         </div>
-                        <div className="default-sub-header">Search for matches</div>
-                        <div className="form">
-                            <div className="select-row">
-                                <div className="select-label">Gametype</div>
-                                <select className="default-select" value={this.state.gametype} onChange={this.changeGametype}>
-                                    <option value="0" key={`gametype-default`}>All</option>
-                                    {this.createGametypeOptions()}
-                                </select>
-                            </div>
-                            <div className="select-row">
-                                <div className="select-label">Results Per Page</div>
-        
-                                    <select className="default-select" value={this.state.perPage} onChange={this.changePerPage}>
-                                        <option value="5">5</option>
-                                        <option value="10">10</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="75">75</option>
-                                        <option value="100">100</option>
-                                    </select>
-                        
-                            </div>
-                            <div className="select-row">
-                                <div className="select-label">Display</div>
-                                <Option2 title1="Default" title2="Table" changeEvent={this.changeDisplay} value={this.state.displayType}/>
-                            </div>
-                            
-                            
-                            <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
-                        </div>
-                        {paginationElem}
-                            {matchElems}
-                        {paginationElem}
+                        {this.renderElems()}
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -221,160 +148,90 @@ class Matches extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
+    try{
 
-    const session = new Session(req);
+        const session = new Session(req);
+        await session.load();
 
-	await session.load();
+        const settings = new SiteSettings();
+        const navSettings = await settings.getCategorySettings("Navigation");
 
-    const matchManager = new MatchesManager();
-    const gametypeManager = new Gametypes();
-    const serverManager = new Servers();
-    const mapManager = new Maps();
+        const pageSettings = await settings.getCategorySettings("Matches Page");
 
-    const settings = new SiteSettings();
-    const navSettings = await settings.getCategorySettings("Navigation");
+        const defaultPerPage = pageSettings["Default Display Per Page"];
 
-    const pageSettings = await settings.getCategorySettings("Matches Page");
+        let perPage = defaultPerPage;
+        let page = 1;
+        let gametype = 0;
+        let displayType = 0;
+        let server = 0;
+        let map = 0;
 
-    const defaultPerPage = pageSettings["Default Display Per Page"];
-    let perPage = defaultPerPage;
-    let page = 1;
-    let gametype = 0;
-    let displayType = 0;
+        if(query.pp !== undefined){
 
-    if(query.perPage !== undefined){
+            perPage = parseInt(query.pp);
 
-        perPage = parseInt(query.perPage);
-
-    }else{
-
-        if(session.settings.matchesPerPage !== undefined){
-
-            perPage = parseInt(session.settings.matchesPerPage);
-        }
-    }
-
-    if(perPage !== perPage){
-        perPage = defaultPerPage;
-    }
-
-    if(perPage > 100 || perPage < 1){
-        perPage = defaultPerPage;
-    }
-
-    if(query.page !== undefined){
-
-        page = parseInt(query.page);
-
-        if(page !== page){
-            page = 1;
+            if(perPage !== perPage){
+                perPage = defaultPerPage;
+            }else{
+                if(perPage < 5 || perPage > 100){
+                    perPage = defaultPerPage;
+                }
+            }
         }
 
-        if(page < 1){
-            page = 1;
-        }
-    }
+        if(query.gametype !== undefined){
 
-    
-    if(query.gametype !== undefined){
+            gametype = parseInt(query.gametype);
+            if(gametype !== gametype) gametype = 0;
 
-        gametype = parseInt(query.gametype);
-
-    }else{
-
-        if(session.settings.matchesGametype !== undefined){
-            
-            gametype = parseInt(session.settings.matchesGametype);
-        }
-    }
-
-    if(gametype !== gametype) gametype = 0;
-
-    if(query.displayType !== undefined){
-
-        displayType = parseInt(query.displayType);
-
-    }
-
-    if(displayType !== displayType){
-        displayType = 0;
-    }else{
-        if(displayType !== 0 && displayType !== 1){
-            displayType = 0;
-        }
-    }
-
-    let gametypeNames = {};
-
-    gametypeNames = await gametypeManager.getAllNames();
-
-    const testGametypeIds = Object.keys(gametypeNames);
-
-    if(testGametypeIds.indexOf(`${gametype}`) === -1){
-        gametype = 0;
-    }
-
-    const totalMatches = await matchManager.getTotal(gametype);
-
-    if(totalMatches > 0){
-
-        if(page > Math.ceil(totalMatches / perPage)){
-            page = Math.ceil(totalMatches / perPage);
         }
 
-    }else{
-        page = 1;
-    }
+        if(query.server !== undefined){
 
-    const matches = await matchManager.getRecent(page - 1, perPage, gametype);
-    const uniqueServers = Functions.getUniqueValues(matches, 'server');
-    const uniqueMaps = Functions.getUniqueValues(matches, 'map');
-
-
-
-    let serverNames = {};
-
-    if(uniqueServers.length > 0){
-        serverNames = await serverManager.getNames(uniqueServers);
-    }
-
-    let mapNames = {};
-
-    if(uniqueMaps.length > 0){
-        mapNames = await mapManager.getNames(uniqueMaps);
-    }
-
-
-    Functions.setIdNames(matches, gametypeNames, 'gametype', 'gametypeName');
-    Functions.setIdNames(matches, serverNames, 'server', 'serverName');
-    Functions.setIdNames(matches, mapNames, 'map', 'mapName');
-
-    let justMapNames = [];
-
-    for(const [key,value] of Object.entries(mapNames)){
-        justMapNames.push(value);
-    }   
-
-    const mapImages = await mapManager.getImages(justMapNames);
-
-    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
-
-    return {
-        "props": {
-            "host": req.headers.host,
-            "matches": JSON.stringify(matches),
-            "page": page,
-            "perPage": perPage,
-            "totalMatches": totalMatches,
-            "gametypes": JSON.stringify(gametypeNames),
-            "gametype": gametype,
-            "displayType": displayType,
-            "images": JSON.stringify(mapImages),
-            "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings)
+            server = parseInt(query.server);
+            if(server !== server) server = 0;
         }
-    };
+
+        if(query.map !== undefined){
+
+            map = parseInt(query.map);
+            if(map !== map) map = 0;
+        }
+
+        if(query.page !== undefined){
+
+            page = parseInt(query.page);
+
+            if(page !== page) page = 1;
+        }
+
+        await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
+
+        return {
+            "props": {
+                "host": req.headers.host,
+                "page": page,
+                "perPage": perPage,
+                "displayType": displayType,
+                "session": JSON.stringify(session.settings),
+                "navSettings": JSON.stringify(navSettings),
+                "pageSettings": JSON.stringify(pageSettings),
+                "perPage": perPage,
+                "gametype": gametype,
+                "server": server,
+                "map": map
+            }
+        };
+
+    }catch(err){
+
+        return {
+            "props": {
+                "pageError": err.toString()
+            }
+        }
+    }
 }
 
 
