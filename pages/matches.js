@@ -10,6 +10,10 @@ import ErrorMessage from "../components/ErrorMessage";
 import ErrorPage from "./ErrorPage";
 import DropDown from "../components/DropDown";
 import Link from "next/link";
+import MatchesTableView from "../components/MatchesTableView";
+import MatchesDefaultView from "../components/MatchesDefaultView";
+import Pagination from "../components/Pagination";
+import SearchTerms from "../components/SearchTerms";
 
 class Matches extends React.Component{
 
@@ -17,17 +21,37 @@ class Matches extends React.Component{
 
         super(props);
 
+
         this.state = {
             "bLoadedInitial": false, 
             "error": null, 
             "serverNames": null, 
-            "selectedServer": props.server, 
-            "selectedGametype": props.gametype,
-            "selectedMap": props.map,
-            "perPage": props.perPage
+            "selectedServer": this.props.server, 
+            "selectedGametype": this.props.gametype,
+            "selectedMap": this.props.map,
+            "perPage": this.props.perPage,
+            "page": this.props.page,
+            "matches": null,
+            "totalMatches": 0
         };
 
         this.changeSelected = this.changeSelected.bind(this);
+    }
+
+    async componentDidUpdate(prevProps, prevState){
+
+        const checks = ["page", "gametype", "server", "map", "perPage"];
+
+        for(let i = 0; i < checks.length; i++){
+
+            const c = checks[i];
+
+            if(prevProps[c] !== this.props[c]){
+
+                await this.loadData();
+                return;
+            }
+        }
     }
 
     async changeSelected(type, value){
@@ -37,6 +61,33 @@ class Matches extends React.Component{
         obj[type] = value;
 
         this.setState(obj);
+    }
+
+    async loadTotalMatches(){
+
+        const req = await fetch("/api/matchsearch", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "search-count",
+                "serverId": this.state.selectedServer,
+                "gametypeId": this.state.selectedGametype,
+                "mapId": this.state.selectedMap
+            })
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+
+            this.setState({"error": res.error});
+
+        }else{
+
+            this.setState({
+                "totalMatches": res.totalMatches
+            });
+        }
     }
 
     async loadNames(){
@@ -64,9 +115,42 @@ class Matches extends React.Component{
         }
     }
 
+    async loadData(){
+
+
+        await this.loadTotalMatches();
+
+        console.log(arguments);
+
+        const req = await fetch("/api/matchsearch", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "search",
+                "serverId": this.state.selectedServer,
+                "gametypeId": this.state.selectedGametype,
+                "mapId": this.state.selectedMap,
+                "perPage": this.state.perPage,
+                "page": this.props.page
+
+            })
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+
+            this.setState({"error": res.error});
+        }else{
+            console.log(res.data);
+            this.setState({"matches": res.data});
+        }
+    }
+
     async componentDidMount(){
 
         await this.loadNames();
+        await this.loadData();
     }
 
     getPerPageData(){
@@ -85,18 +169,99 @@ class Matches extends React.Component{
 
     renderSearchForm(){
 
-        const url = `/matches/?server=${this.state.selectedServer}&gametype=${this.state.selectedGametype}&map=${this.state.selectedMap}&page=1&pp=${this.state.perPage}`;
+        const s = this.state.selectedServer;
+        const g = this.state.selectedGametype;
+        const m = this.state.selectedMap;
 
-        return <div className="form">
-            <DropDown dName="Server" fName="selectedServer" originalValue={this.state.selectedServer.toString()} data={this.state.serverNames} changeSelected={this.changeSelected}/>
-            <DropDown dName="Gametype" fName="selectedGametype" originalValue={this.state.selectedGametype.toString()} data={this.state.gametypeNames} changeSelected={this.changeSelected}/>
-            <DropDown dName="Map" fName="selectedMap" originalValue={this.state.selectedMap.toString()} data={this.state.mapNames} changeSelected={this.changeSelected}/>
-            <DropDown dName="Results Per Page" fName="perPage" originalValue={this.state.perPage.toString()} data={this.getPerPageData()} changeSelected={this.changeSelected}/>
+        const url = `/matches?server=${s}&gametype=${g}&map=${m}&page=1&pp=${this.state.perPage}`;
+
+        return <div className="form m-bottom-25">
+            <DropDown 
+                dName="Server" 
+                fName="selectedServer" 
+                originalValue={s.toString()} 
+                data={this.state.serverNames} 
+                changeSelected={this.changeSelected}
+            />
+            <DropDown 
+                dName="Gametype" 
+                fName="selectedGametype" 
+                originalValue={g.toString()} 
+                data={this.state.gametypeNames} 
+                changeSelected={this.changeSelected}
+            />
+            <DropDown 
+                dName="Map" 
+                fName="selectedMap" 
+                originalValue={m.toString()} 
+                data={this.state.mapNames} 
+                changeSelected={this.changeSelected}
+            />
+            <DropDown 
+                dName="Results Per Page" 
+                fName="perPage" 
+                originalValue={this.state.perPage.toString()} 
+                data={this.getPerPageData()} 
+                changeSelected={this.changeSelected}
+            />
             <Link href={url}>
                 <a>
                     <div className="search-button">Search</div>
                 </a>
             </Link>
+        </div>
+    }
+
+    createSearchTitle(){
+
+       
+
+        if(this.props.server === 0 && this.props.gametype === 0 && this.props.map === 0){
+            return null;
+        }
+        
+        const terms = {};
+
+        if(this.props.server !== 0){
+
+            const serverName = this.state.serverNames[this.props.server] ?? "Not Found";
+
+            terms["Server"] = serverName;
+        }
+
+        if(this.props.gametype !== 0){
+
+            const gametypeName = this.state.gametypeNames[this.props.gametype] ?? "Not Found";
+
+            terms["Gametype"] = gametypeName;
+        }
+
+        if(this.props.map !== 0){
+
+            const mapName = this.state.mapNames[this.props.map] ?? "Not Found";
+
+            terms["Map"] = mapName;
+        }
+    
+        return <div>
+            <div className="default-header">Search Results</div>
+            <SearchTerms data={terms}/>
+        </div>
+    }
+
+    renderMatches(){
+
+        if(this.state.matches === null) return null;
+
+        const url = `/matches/?server=${this.props.server}&gametype=${this.props.gametype}&map=${this.props.map}&pp=${this.props.perPage}&page=`;
+
+        const pagination = <Pagination url={url} currentPage={this.props.page} perPage={this.state.perPage} results={this.state.totalMatches}/>;
+
+        return <div>
+            {this.createSearchTitle()}
+            {pagination}
+            <MatchesTableView data={JSON.stringify(this.state.matches)}/>
+            {pagination}
         </div>
     }
 
@@ -110,7 +275,13 @@ class Matches extends React.Component{
             return <Loading />;
         }
 
-        return this.renderSearchForm();
+        return <div>
+            {this.renderSearchForm()}
+            <div>
+                {this.renderMatches()}
+            </div>
+        </div>
+
     }
 
     render(){
