@@ -25,7 +25,7 @@
     text-align:left;
     border:1px solid var(--border-color-3);
     max-height:32px;
-    font-size:16px;
+    font-size:14px;
     line-height:32px;
     padding-left:5px; 
     
@@ -34,7 +34,7 @@
 .entries{
     text-align:left;
     overflow-y: auto;
-    max-height:75vh;
+    max-height:50vh;
     user-select: none;
 }
 
@@ -47,10 +47,10 @@
     display:block;
     text-align:left;
     border:1px solid var(--border-color-3);
-    max-height:36px;
-    font-size:16px;
-    line-height:36px;
+    font-size:14px;
+    line-height:28px;
     width:100%;
+    overflow:hidden;
 }
 
 .selected{
@@ -60,4 +60,7 @@
 .entry:hover{
     background-color:var(--color-5);
     cursor: pointer;
+}
+.selected:hover{
+    background-color:Red;
 }
