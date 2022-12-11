@@ -220,7 +220,7 @@ class Functions{
         if(defaultValue === undefined) defaultValue = 1;
 
         if(value === undefined) return defaultValue;
-
+        
         value = parseInt(value);
 
         if(value !== value){

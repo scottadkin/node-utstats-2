@@ -14,6 +14,7 @@ import MatchesTableView from "../components/MatchesTableView";
 import MatchesDefaultView from "../components/MatchesDefaultView";
 import Pagination from "../components/Pagination";
 import SearchTerms from "../components/SearchTerms";
+import Functions from "../api/functions";
 
 class Matches extends React.Component{
 
@@ -32,7 +33,8 @@ class Matches extends React.Component{
             "perPage": this.props.perPage,
             "page": this.props.page,
             "matches": null,
-            "totalMatches": 0
+            "totalMatches": 0,
+            "images": []
         };
 
         this.changeSelected = this.changeSelected.bind(this);
@@ -142,8 +144,8 @@ class Matches extends React.Component{
 
             this.setState({"error": res.error});
         }else{
-            console.log(res.data);
-            this.setState({"matches": res.data});
+            console.log(res);
+            this.setState({"matches": res.data, "images": res.images});
         }
     }
 
@@ -257,10 +259,13 @@ class Matches extends React.Component{
 
         const pagination = <Pagination url={url} currentPage={this.props.page} perPage={this.state.perPage} results={this.state.totalMatches}/>;
 
+        const imageHost = Functions.getImageHostAndPort(this.props.host);
+
         return <div>
             {this.createSearchTitle()}
             {pagination}
-            <MatchesTableView data={JSON.stringify(this.state.matches)}/>
+            <MatchesTableView data={this.state.matches}/>
+            <MatchesDefaultView data={this.state.matches} images={this.state.images} host={imageHost}/>
             {pagination}
         </div>
     }

@@ -101,7 +101,7 @@ class MatchesTableView extends React.Component{
 
     render(){
 
-        const matches = JSON.parse(this.props.data);
+        const matches = this.props.data;
 
         const rows = this.createRows(matches);
 

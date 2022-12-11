@@ -61,7 +61,8 @@ export default async function handler(req, res){
 
             const mapNames = await mapManager.getNames(Array.from(uniqueMaps));
             const gametypeNames = await gametypeManager.getNames(Array.from(uniqueGametypes));
-
+            const mapImages = await mapManager.getImages(Object.values(mapNames));
+            const serverNames = await serverManager.getAllNames();
 
             for(let i = 0; i < data.length; i++){
 
@@ -69,10 +70,11 @@ export default async function handler(req, res){
 
                 d.mapName = mapNames[d.map] ?? "Not Found";
                 d.gametypeName = gametypeNames[d.gametype] ?? "Not Found"; 
+                d.serverName = serverNames[d.server] ?? "Not Found";
             }
 
 
-            res.status(200).json({"data": data});
+            res.status(200).json({"data": data, "images": mapImages});
             return;
 
         }else if(mode === "search-count"){

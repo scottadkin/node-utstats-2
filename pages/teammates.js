@@ -329,7 +329,7 @@ class TeamMates extends React.Component{
 
         return <div>
             <div className="default-header">Recent Matches</div>
-            <MatchesTableView data={JSON.stringify(this.state.data.matches)}/>
+            <MatchesTableView data={this.state.data.matches}/>
         </div>
     }
 
