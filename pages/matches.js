@@ -34,7 +34,8 @@ class Matches extends React.Component{
             "page": this.props.page,
             "matches": null,
             "totalMatches": 0,
-            "images": []
+            "images": [],
+            "displayMode": this.props.displayMode
         };
 
         this.changeSelected = this.changeSelected.bind(this);
@@ -122,7 +123,6 @@ class Matches extends React.Component{
 
         await this.loadTotalMatches();
 
-        console.log(arguments);
 
         const req = await fetch("/api/matchsearch", {
             "headers": {"Content-type": "application/json"},
@@ -169,13 +169,24 @@ class Matches extends React.Component{
     }
 
 
+    getDisplayModeData(){
+
+        const data = {};
+
+        data["0"] = "Default View";
+        data["1"] = "Table View";
+
+        return data;
+    }
+
     renderSearchForm(){
 
         const s = this.state.selectedServer;
         const g = this.state.selectedGametype;
         const m = this.state.selectedMap;
+        const d = this.state.displayMode;
 
-        const url = `/matches?server=${s}&gametype=${g}&map=${m}&page=1&pp=${this.state.perPage}`;
+        const url = `/matches?server=${s}&gametype=${g}&map=${m}&display=${d}&page=1&pp=${this.state.perPage}`;
 
         return <div className="form m-bottom-25">
             <DropDown 
@@ -204,6 +215,13 @@ class Matches extends React.Component{
                 fName="perPage" 
                 originalValue={this.state.perPage.toString()} 
                 data={this.getPerPageData()} 
+                changeSelected={this.changeSelected}
+            />
+            <DropDown 
+                dName="Display Style" 
+                fName="displayMode" 
+                originalValue={this.state.displayMode.toString()} 
+                data={this.getDisplayModeData()} 
                 changeSelected={this.changeSelected}
             />
             <Link href={url}>
@@ -255,17 +273,26 @@ class Matches extends React.Component{
 
         if(this.state.matches === null) return null;
 
-        const url = `/matches/?server=${this.props.server}&gametype=${this.props.gametype}&map=${this.props.map}&pp=${this.props.perPage}&page=`;
+        const url = `/matches/?server=${this.props.server}&gametype=${this.props.gametype}&map=${this.props.map}&display=${this.props.displayMode}&pp=${this.props.perPage}&page=`;
 
         const pagination = <Pagination url={url} currentPage={this.props.page} perPage={this.state.perPage} results={this.state.totalMatches}/>;
 
         const imageHost = Functions.getImageHostAndPort(this.props.host);
 
+        const displayMode = parseInt(this.state.displayMode);
+
+        let matches = null;
+
+        if(displayMode === 0){
+            matches = <MatchesDefaultView data={this.state.matches} images={this.state.images} host={imageHost}/>;
+        }else{
+            matches = <MatchesTableView data={this.state.matches}/>;
+        }
+
         return <div>
             {this.createSearchTitle()}
             {pagination}
-            <MatchesTableView data={this.state.matches}/>
-            <MatchesDefaultView data={this.state.matches} images={this.state.images} host={imageHost}/>
+            {matches}
             {pagination}
         </div>
     }
@@ -342,6 +369,7 @@ export async function getServerSideProps({req, query}){
         let displayType = 0;
         let server = 0;
         let map = 0;
+        let displayMode = 0;
 
         if(query.pp !== undefined){
 
@@ -382,6 +410,13 @@ export async function getServerSideProps({req, query}){
             if(page !== page) page = 1;
         }
 
+        if(query.display !== undefined){
+
+            displayMode = parseInt(query.display);
+
+            if(displayMode !== displayMode) displayMode = 0;
+        }
+
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
         return {
@@ -396,7 +431,8 @@ export async function getServerSideProps({req, query}){
                 "perPage": perPage,
                 "gametype": gametype,
                 "server": server,
-                "map": map
+                "map": map,
+                "displayMode": displayMode
             }
         };
 
