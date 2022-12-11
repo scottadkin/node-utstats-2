@@ -15,13 +15,15 @@ import MatchesDefaultView from "../components/MatchesDefaultView";
 import Pagination from "../components/Pagination";
 import SearchTerms from "../components/SearchTerms";
 import Functions from "../api/functions";
+import Servers from "../api/servers"
+import Gametypes from "../api/gametypes";
+import Maps from "../api/maps";
 
 class Matches extends React.Component{
 
     constructor(props){
 
         super(props);
-
 
         this.state = {
             "bLoadedInitial": false, 
@@ -284,7 +286,9 @@ class Matches extends React.Component{
         let matches = null;
 
         if(displayMode === 0){
-            matches = <MatchesDefaultView data={this.state.matches} images={this.state.images} host={imageHost}/>;
+            matches = <div className="center" style={{"width": "var(--width-1)"}}>
+                <MatchesDefaultView data={this.state.matches} images={this.state.images} host={imageHost}/>
+            </div>;
         }else{
             matches = <MatchesTableView data={this.state.matches}/>;
         }
@@ -323,13 +327,84 @@ class Matches extends React.Component{
             return <ErrorPage>{this.props.pageError}</ErrorPage>
         }
 
+        const serverString = this.props.metaServerName;
+        const gametypeString = this.props.metaGametypeName;
+        const mapString = this.props.metaMapName;
+
+        const keywords = [];
+
+        let title = "";
+
+        let description = "";
+
+        if(mapString !== ""){
+
+            title = `Matches on ${mapString}`;
+
+            description = `Search results for matches played on the map ${mapString}`;
+
+            keywords.push(mapString);
+        }
+
+        if(gametypeString !== ""){
+
+            keywords.push(gametypeString);
+
+            if(title !== ""){
+                title += ` (${gametypeString})`;
+            }else{
+                title = `${gametypeString} games`;
+            }
+
+            if(description !== ""){
+                description += `, with the gametype of ${gametypeString}`;
+            }else{
+
+                description = `Search results for matches played using the ${gametypeString} gametype`
+            } 
+
+            
+        }
+
+
+        if(serverString !== ""){
+
+            keywords.push(serverString);
+
+            if(title !== ""){
+                title += " on ";
+            }
+
+            if(description !== ""){
+                description += `, on the ${serverString} server`;
+            }
+
+            title += serverString;
+        }
+
+        if(description === ""){
+
+            description = "View the latest Unreal Tournament matches from all our servers here.";
+        }else{
+            description += ".";
+        }
+
+        if(title === ""){
+            title = "Recent Matches";
+        }
+
+        if(keywords.length === 0){
+            keywords.push("recent");
+        }
+        
+
 
         return (<div>
             <DefaultHead 
                 host={this.props.host} 
-                /*title={`Recent Matches${nameString} Page ${this.props.page} of ${pages}`} 
-                description={`Viewing Recent Matches${nameString} page ${this.props.page} of ${pages}, matches ${start} to ${end} out of a possible ${this.props.totalMatches} matches.`} 
-                keywords={`search,match,matches,page ${this.props.page}`}*/
+                title={title} 
+                description={description} 
+                keywords={`search,match,matches,history,${keywords.toString()}`}
             />
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
@@ -337,7 +412,7 @@ class Matches extends React.Component{
 
                     <div className="default">
                         <div className="default-header">
-                            Recent Matches
+                            Matches
                         </div>
                         {this.renderElems()}
                     </div>
@@ -419,6 +494,32 @@ export async function getServerSideProps({req, query}){
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
+
+        let metaServerName = "";
+
+        if(server !== 0){
+
+            const serverManager = new Servers();
+            metaServerName = await serverManager.getName(server);
+
+        }
+
+        let metaGametypeName = "";
+
+        if(gametype !== 0){
+
+            const gametypeManager = new Gametypes();
+            metaGametypeName = await gametypeManager.getName(gametype);
+        }
+
+        let metaMapName = "";
+
+        if(map !== 0){
+
+            const mapManager = new Maps();
+            metaMapName = await mapManager.getName(map);
+        }
+
         return {
             "props": {
                 "host": req.headers.host,
@@ -432,7 +533,10 @@ export async function getServerSideProps({req, query}){
                 "gametype": gametype,
                 "server": server,
                 "map": map,
-                "displayMode": displayMode
+                "displayMode": displayMode,
+                "metaServerName": metaServerName,
+                "metaGametypeName": metaGametypeName,
+                "metaMapName": metaMapName
             }
         };
 
