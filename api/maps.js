@@ -986,6 +986,26 @@ class Maps{
         return missing;
     }
 
+
+    async getAllNameAndIds(){
+
+        const query = "SELECT id,name FROM nstats_maps ORDER BY name ASC";
+
+        const result = await mysql.simpleQuery(query);
+
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data[r.id] = this.removeUnr(r.name);
+        }
+
+        return data;
+    }
+
 }
 
 

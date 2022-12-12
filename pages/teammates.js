@@ -21,7 +21,7 @@ class TeamMates extends React.Component{
 
         super(props);
         this.state = {
-            "selectedPlayers": [5981, 6039], 
+            "selectedPlayers": [], 
             "selectedAliases": [[],[]], 
             "loadingInProgress": false, 
             "data": [], 
@@ -329,7 +329,7 @@ class TeamMates extends React.Component{
 
         return <div>
             <div className="default-header">Recent Matches</div>
-            <MatchesTableView data={JSON.stringify(this.state.data.matches)}/>
+            <MatchesTableView data={this.state.data.matches}/>
         </div>
     }
 
@@ -1457,14 +1457,12 @@ export async function getServerSideProps({req, res}){
 
     const playerList = await playerManager.getAllNames();
 
-
     return {
         "props":{
             "host": Functions.getImageHostAndPort(req.headers.host),
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "players": JSON.stringify(playerList),
-            
+            "players": JSON.stringify(playerList),       
         }
     }
 }
