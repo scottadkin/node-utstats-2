@@ -165,6 +165,7 @@ class Matches extends React.Component{
         data["10"] = 10;
         data["25"] = 25;
         data["50"] = 50;
+        data["75"] = 75;
         data["100"] = 100;
 
         return data;
@@ -444,7 +445,7 @@ export async function getServerSideProps({req, query}){
         let displayType = 0;
         let server = 0;
         let map = 0;
-        let displayMode = 0;
+        let displayMode = pageSettings["Default Display Type"];
 
         if(query.pp !== undefined){
 
@@ -489,7 +490,7 @@ export async function getServerSideProps({req, query}){
 
             displayMode = parseInt(query.display);
 
-            if(displayMode !== displayMode) displayMode = 0;
+            if(displayMode !== displayMode) displayMode = pageSettings["Default Display Type"];
         }
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
