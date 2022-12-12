@@ -95,6 +95,16 @@ class Matches extends React.Component{
         }
     }
 
+    sortByDisplayValue(a, b){
+
+        a = a.displayValue.toLowerCase();
+        b = b.displayValue.toLowerCase();
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    }
+
     async loadNames(){
 
         const req = await fetch("/api/matchsearch", {
@@ -111,10 +121,33 @@ class Matches extends React.Component{
 
         }else{
 
+
+            const mapNames = [];
+
+            for(const [mapId, mapName] of Object.entries(res.mapNames)){
+                mapNames.push({"value": mapId, "displayValue": mapName});
+            }
+
+            const serverNames = [];
+
+            for(const [serverId, serverName] of Object.entries(res.serverNames)){
+                serverNames.push({"value": serverId, "displayValue": serverName});
+            }
+
+            serverNames.sort(this.sortByDisplayValue);
+
+            const gametypeNames = [];
+
+            for(const [gametypeId, gametypeName] of Object.entries(res.gametypeNames)){
+                gametypeNames.push({"value": gametypeId, "displayValue": gametypeName});
+            }
+
+            gametypeNames.sort(this.sortByDisplayValue);
+
             this.setState({
-                "serverNames": res.serverNames,
-                "gametypeNames": res.gametypeNames, 
-                "mapNames": res.mapNames,
+                "serverNames": serverNames,
+                "gametypeNames": gametypeNames, 
+                "mapNames": mapNames,
                 "bLoadedInitial": true
             });
         }
@@ -146,7 +179,6 @@ class Matches extends React.Component{
 
             this.setState({"error": res.error});
         }else{
-            console.log(res);
             this.setState({"matches": res.data, "images": res.images});
         }
     }
@@ -159,27 +191,25 @@ class Matches extends React.Component{
 
     getPerPageData(){
 
-        const data = {};
+        return [
+            {"value": "5", "displayValue": 5},
+            {"value": "10", "displayValue": 10},
+            {"value": "25", "displayValue": 25},
+            {"value": "50", "displayValue": 50},
+            {"value": "75", "displayValue": 75},
+            {"value": "100", "displayValue": 100}
+        ];
 
-        data["5"] = 5;
-        data["10"] = 10;
-        data["25"] = 25;
-        data["50"] = 50;
-        data["75"] = 75;
-        data["100"] = 100;
-
-        return data;
     }
 
 
     getDisplayModeData(){
 
-        const data = {};
+        return [
+            {"value": "0", "displayValue": "Default View"},
+            {"value": "1", "displayValue": "Table View"},
+        ];
 
-        data["0"] = "Default View";
-        data["1"] = "Table View";
-
-        return data;
     }
 
     renderSearchForm(){

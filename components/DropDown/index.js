@@ -51,7 +51,9 @@ class DropDown extends React.Component{
 
         const elems = [];
 
-        for(const [value, displayValue] of Object.entries(this.props.data)){
+        for(let i = 0; i < this.props.data.length; i++){
+
+            const {value, displayValue} = this.props.data[i];
 
             if(!this.state.bActive){
 
@@ -72,7 +74,7 @@ class DropDown extends React.Component{
                 let className = `${styles.entry}`;
 
                 if(value === this.state.selectedValue){
-                    className += ` ${styles.selected}`
+                    className += ` ${styles.selected}`;
                 }
 
                 elems.push(<div className={className} key={value} onClick={(() =>{
@@ -84,14 +86,13 @@ class DropDown extends React.Component{
         //just incase there is a value that is not in the dataset
         if(elems.length === 0){
 
-            if(Object.keys(this.props.data).length > 0){
+            if(this.props.data.length > 0){
 
-                const firstKey = Object.keys(this.props.data)[0];
-                const data = this.props.data[firstKey];
+                const data = this.props.data[0];
 
-                elems.push(<div className={styles.fake} key={firstKey} onClick={(() =>{
-                    this.changeSelected(firstKey);
-                })}>{data}</div>);
+                elems.push(<div className={styles.fake} key={data.value} onClick={(() =>{
+                    this.changeSelected(data.value);
+                })}>{data.displayValue}</div>);
 
             }
         }

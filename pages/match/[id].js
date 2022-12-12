@@ -64,7 +64,16 @@ function bAssault(gametype){
     if(reg.test(gametype)){
         return true;
     }
+}
 
+function sortByName(a, b){
+
+    a = a.name.toLowerCase();
+    b = b.name.toLowerCase();
+
+    if(a < b) return -1;
+    if(a > b) return 1;
+    return 0;
 }
 
 
@@ -497,6 +506,15 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
     }
 
 
+    const parsedWeaponData = JSON.parse(weaponData);
+
+    parsedWeaponData.names.sort(sortByName);
+
+    const orderedPlayers = JSON.parse(playerNames);
+
+    orderedPlayers.sort(sortByName);
+
+
     return <div>
         <DefaultHead host={host} 
             title={`${map} (${dateString}) Match Report`} 
@@ -511,6 +529,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
                 <div className="default">
 
+                        
                         {titleElem}
                         
                         {elems}

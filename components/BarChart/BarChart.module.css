@@ -2,7 +2,7 @@
     display:inline-block;
     background-color:var(--color-3a);
     width:var(--width-1);
-    max-width:600px;
+    max-width:750px;
     margin-bottom:10px;
     margin-right:10px;
     border:1px solid var(--border-color-3);
@@ -25,7 +25,6 @@
 .label{
     font-size:14px;
     height:27px;
-    line-height:32px;
     overflow:hidden;
     padding-left:5px;
 }
@@ -36,7 +35,7 @@
 }
 
 .bar{
-    height:13px;
+    height:15px;
 }
 
 .keys{
@@ -52,7 +51,9 @@
 
 .key{
     display:inline-block;
-    height:18px;
+    padding:2px;
+    background-color:rgba(0,0,0,0.125);
+    line-height:28px;
 }
 
 .color{
@@ -67,7 +68,7 @@
     display:inline-block;
     height:18px;
     margin-right:5px;
-    font-size:12px;
+    font-size:13px;
 }
 
 .hl{
@@ -114,11 +115,11 @@
 
 
 .mouse{
-    background-color:var(--color-2);
+    background-color:var(--color-5);
     display:inline-block;
     position:absolute;
     text-align:left;
-    border:1px solid var(--border-color-3);
+    border:1px solid var(--border-color-2);
     z-index: 99999;
     max-width:150px;
     width:150px;
@@ -129,6 +130,7 @@
     padding:3px;
     font-size:14px;
     text-align:center;
+    font-weight:bold;
 }
 
 .mousec{
