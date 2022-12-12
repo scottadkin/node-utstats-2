@@ -6,6 +6,7 @@ class BarChart extends React.Component{
     constructor(props){
 
         super(props);
+        
 
         this.state = {
             "minValue": 0, 

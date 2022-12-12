@@ -1,7 +1,5 @@
 import React from 'react';
-import MatchWeapon from '../MatchWeapon/';
 import styles from './MatchWeaponSummary.module.css';
-import CleanDamage from '../CleanDamage/';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
@@ -42,11 +40,9 @@ class MatchWeaponSummary extends React.Component{
 
     getPlayer(id){
 
-        let p = 0;
-
         for(let i = 0; i < this.props.players.length; i++){
 
-            p = this.props.players[i];
+            const p = this.props.players[i];
 
             if(p.id === id) return p;
             
@@ -61,12 +57,6 @@ class MatchWeaponSummary extends React.Component{
         const weapon = this.props.data.names[this.state.tab];
 
         const elems = [];
-
-        let p = 0;
-
-        let efficiency = 0;
-
-        let currentPlayer = 0;
 
         const teamTotals = [];
 
@@ -95,11 +85,11 @@ class MatchWeaponSummary extends React.Component{
 
         for(let i = 0; i < this.props.data.playerData.length; i++){
 
-            p = this.props.data.playerData[i];
+            const p = this.props.data.playerData[i];
 
             if(p.weapon_id === weapon.id){
 
-                currentPlayer = this.getPlayer(p.player_id);
+                let currentPlayer = this.getPlayer(p.player_id);
 
                 if(this.props.totalTeams < 2){
                     currentTeam = 0;
@@ -115,7 +105,7 @@ class MatchWeaponSummary extends React.Component{
                 teamTotals[currentTeam].hits += p.hits;
                 teamTotals[currentTeam].damage += p.damage;
 
-                efficiency = 0;
+                let efficiency = 0;
 
                 if(p.kills > 0){
 
@@ -247,8 +237,6 @@ class MatchWeaponSummary extends React.Component{
 
         if(teamsToCreate === 0) teamsToCreate = 1;
 
-        let p = 0;
-
         for(let i = 0; i < this.props.data.names.length; i++){
 
             currentPlayers = [];
@@ -272,7 +260,7 @@ class MatchWeaponSummary extends React.Component{
 
             for(let x = 0; x < this.props.data.playerData.length; x++){
 
-                p = this.props.data.playerData[x];
+                const p = this.props.data.playerData[x];
 
                 if(p.weapon_id !== currentWeapon.id) continue;
 
