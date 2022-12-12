@@ -196,7 +196,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	if(pageSettings["Display Items Summary"] === "true"){
 
-		elems[pageOrder["Display Items Summary"]] = <PlayerItemsSummary key={"pi"} data={itemData} names={itemNames}/>;
+		elems[pageOrder["Display Items Summary"]] = <PlayerItemsSummary key={"pi"} data={JSON.parse(itemData)} names={JSON.parse(itemNames)}/>;
 	}
 
 	if(pageSettings["Display Aliases"] === "true"){

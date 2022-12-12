@@ -9,9 +9,8 @@ class PlayerItemsSummary extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0, "totalTypes": 6};
+        this.state = {"mode": 1, "totalTypes": 6};
         
-
         this.changeMode = this.changeMode.bind(this);
 
     }
@@ -26,11 +25,9 @@ class PlayerItemsSummary extends React.Component{
 
     getItem(data, id){
 
-        let d = 0;
-
         for(let i = 0; i < data.length; i++){
 
-            d = data[i];
+            const d = data[i];
 
             if(d.id === id && d.type === this.state.mode){
                 return d;
@@ -43,16 +40,20 @@ class PlayerItemsSummary extends React.Component{
 
     setDefaultCategory(){
 
-        const data = JSON.parse(this.props.names);
+        const data = this.props.names;
 
         let start = null;
 
-        for(let i = 0; i < this.state.totalTypes; i++){
+        for(let i = 1; i < this.state.totalTypes; i++){
 
             if(this.bAnyCategoryData(data, i)){
                 start = i;
                 break;
             }
+        }
+
+        if(start === null){
+            start = 0;
         }
 
 
@@ -71,20 +72,18 @@ class PlayerItemsSummary extends React.Component{
 
     displayType(){
 
-        const data = JSON.parse(this.props.data);
+        const data = this.props.data;
 
-        const names = JSON.parse(this.props.names);
+        const names = this.props.names;
 
         const elems = [];
 
         let currentItem = 0;
         let averageUsage = 0;
 
-        let d = 0;
-
         for(let i = 0; i < data.length; i++){
 
-            d = data[i];
+            const d = data[i];
            
             currentItem = this.getItem(names, d.item);
             
@@ -133,29 +132,26 @@ class PlayerItemsSummary extends React.Component{
 
     displayTabs(){
 
-        const titles = [
-            "Unsorted",
-            "Weapons",
-            "Ammo",
-            "Health",
-            "Powerups",
-            "Special"
-        ];
+        const titles = {
+            "Weapons": 1,
+            "Ammo": 2,
+            "Health": 3,
+            "Powerups": 4,
+            "Special": 5,
+            "Unsorted": 0
+        };
+
         const elems = [];
 
-        const data = JSON.parse(this.props.names);
+        for(const [key, value] of Object.entries(titles)){
 
-        let bSetDefaultMode = false;
-
-        for(let i = 0; i < this.state.totalTypes; i++){
-
-            if(this.bAnyCategoryData(data, i)){
+            if(this.bAnyCategoryData(this.props.names, value)){
 
                 elems.push(
-                    <div key={i} className={`tab ${(this.state.mode === i) ? "tab-selected" : "" }`} onClick={(() =>{
-                        this.changeMode(i);
+                    <div key={value} className={`tab ${(this.state.mode === value) ? "tab-selected" : "" }`} onClick={(() =>{
+                        this.changeMode(value);
                     })}>
-                        {titles[i]}
+                        {key}
                     </div>
                 );
             }
