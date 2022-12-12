@@ -6,12 +6,12 @@ class MatchWeaponSummaryCharts extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"selected": null, "statType": "kills", "statTypeTitle": "Kills"};     
+        this.state = {"selected": null, "selectedName": null, "statType": "kills", "statTypeTitle": "Kills"};     
     }
 
-    changeSelected(id){
+    changeSelected(id, name){
 
-        this.setState({"selected": id});
+        this.setState({"selected": id, "selectedName": name});
 
         if(!this.bAnyDataType(id, this.state.statType)){
             this.findAvailableDataType(id);
@@ -44,7 +44,7 @@ class MatchWeaponSummaryCharts extends React.Component{
     setInitialSelected(){
 
         if(this.props.weaponNames.length > 0){
-            this.changeSelected(this.props.weaponNames[0].id);
+            this.changeSelected(this.props.weaponNames[0].id, this.props.weaponNames[0].name);
            // this.setState({"selected": this.props.weaponNames[0].id});
         }
     }
@@ -163,7 +163,7 @@ class MatchWeaponSummaryCharts extends React.Component{
             const className = `tab ${(this.state.selected === w.id) ? "tab-selected": ""}`;
 
             tabs.push(<div key={w.id} className={className} onClick={(() =>{
-                this.changeSelected(w.id);
+                this.changeSelected(w.id, w.name);
             })}>
                 {w.name}
             </div>);
@@ -203,7 +203,7 @@ class MatchWeaponSummaryCharts extends React.Component{
 
         return <div>
   
-            <BarChart title="Selected Weapon" label={this.state.statTypeTitle} values={data.values} names={data.names}/>
+            <BarChart title={this.state.selectedName} label={this.state.statTypeTitle} values={data.values} names={data.names}/>
         </div>
     }
 
