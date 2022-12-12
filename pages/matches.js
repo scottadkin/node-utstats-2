@@ -128,6 +128,8 @@ class Matches extends React.Component{
                 mapNames.push({"value": mapId, "displayValue": mapName});
             }
 
+            mapNames.sort(this.sortByDisplayValue);
+
             const serverNames = [];
 
             for(const [serverId, serverName] of Object.entries(res.serverNames)){
