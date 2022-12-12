@@ -116,18 +116,19 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 		elems.push(null);
 	}
 
+	const parsedMatchesData = JSON.parse(matchesData);
+
 	
-	if(JSON.parse(matchesData).length > 0){
+	if(parsedMatchesData.length > 0){
 
 		if(pageSettings["Display Latest Match"] === "true"){
 
-			const latestMatch = JSON.parse(matchesData)[0];
+			const latestMatch = parsedMatchesData[0];
 
-			//image={`${imageHost}/images/maps/${JSON.parse(latestMatchImage)}.jpg`} 
 			
 			elems[pageOrder["Display Latest Match"]] = <Screenshot 
 				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} 
-				image={Functions.getImageUrl(imageHost, `/images/maps/${JSON.parse(latestMatchImage)}.jpg`)} 
+				image={Functions.getImageUrl(imageHost, `/images/maps/${latestMatchImage}.jpg`)} 
 				matchData={JSON.stringify(latestMatch)}
 				serverName={latestMatch.serverName} gametype={latestMatch.gametypeName} faces={latestFaces} bHome={true}
 				host={imageHost}
@@ -135,13 +136,14 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 		}
 		
 
+
 		if(pageSettings["Display Recent Matches"] === "true"){
 
 			elems[pageOrder["Display Recent Matches"]] = <div key={"recent-matches"}>
 
 				<div className="default-header">Recent Matches</div>
-				{(pageSettings["Recent Matches Display Type"] === "0") ? <MatchesDefaultView host={imageHost} images={mapImages} data={matchesData} /> : 
-				<MatchesTableView data={matchesData}/> }
+				{(pageSettings["Recent Matches Display Type"] === "0") ? <MatchesDefaultView host={imageHost} images={JSON.parse(mapImages)} data={parsedMatchesData} /> : 
+				<MatchesTableView data={parsedMatchesData}/> }
 
 			</div>;
 		}
@@ -442,7 +444,7 @@ export async function getServerSideProps({req, query}) {
 			"query": query,
 			"gametypeImages": JSON.stringify(gametypeImages),
 			"latestMatchPlayers": JSON.stringify(latestMatchPlayers),
-			"latestMatchImage": JSON.stringify(latestMatchImage),
+			"latestMatchImage": latestMatchImage,
 			"latestFaces": JSON.stringify(latestFaces)
 			//"countryNames": JSON.stringify(countryNames)
 	 	} 

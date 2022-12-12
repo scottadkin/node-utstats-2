@@ -101,14 +101,27 @@ class MatchesTableView extends React.Component{
 
     render(){
 
-        const matches = JSON.parse(this.props.data);
+        const matches = this.props.data;
 
         const rows = this.createRows(matches);
 
-        if(matches.length === 0){
-            return null;//;(<div className="not-found">There are no matches meeting your search requirements.</div>);
+       // if(matches.length === 0){
+         //   return null;//;(<div className="not-found">There are no matches meeting your search requirements.</div>);
+        //}
+
+        if(rows.length === 0){
+            rows.push(<tr><td colSpan={7}>No Data</td></tr>);
         }
 
+
+        let finalHeader = null;
+
+        if(matches[0] !== undefined){
+            
+            if(matches[0].playerTeam !== undefined){
+                finalHeader = <th>Players Result</th>
+            }
+        }
 
         return <Table2 width={1}>
                 <tr>
@@ -118,7 +131,7 @@ class MatchesTableView extends React.Component{
                     <th>Players</th>
                     <th>Playtime</th>
                     <th>Result</th>
-                    {(matches[0].playersTeam !== undefined) ? <th>Players Result</th> : null}
+                    {finalHeader}
                 </tr>
                 {rows}
             </Table2>

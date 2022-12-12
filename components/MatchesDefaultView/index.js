@@ -9,24 +9,6 @@ class MatchesDefaultView extends React.Component{
 
         super(props);
 
-        if(this.props.image !== undefined){
-            this.state = {"image": this.props.image, "images": null};
-        }else{
-            this.state = {"images": JSON.parse(this.props.images), "image": null};
-        }
-
-        
-    }
-
-    componentDidUpdate(prevProps){
-
-        if(prevProps.images !== this.props.images){
-            this.setState({"images": JSON.parse(this.props.images)});
-        }
-
-        if(prevProps.image !== this.props.image){
-            this.setState({"image": this.props.image});
-        }
     }
 
 
@@ -34,16 +16,16 @@ class MatchesDefaultView extends React.Component{
 
         name = Functions.cleanMapName(name).toLowerCase();
 
-        const index = this.state.images.indexOf(name);
+        const index = this.props.images.indexOf(name);
         
         if(index === -1) return "default";
 
-        return this.state.images[index];
+        return this.props.images[index];
     }
 
     render(){
 
-        const matches = JSON.parse(this.props.data);
+        const matches = this.props.data;
 
         const elems = [];
         
@@ -51,7 +33,7 @@ class MatchesDefaultView extends React.Component{
         for(let i = 0; i < matches.length; i++){
 
             const m = matches[i];
-            
+
             elems.push(<MatchResultDisplay 
                 key={i}
                 mode="recent"

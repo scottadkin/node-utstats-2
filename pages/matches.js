@@ -1,20 +1,23 @@
-import DefaultHead from '../components/defaulthead';
-import Nav from '../components/Nav';
-import Footer from '../components/Footer';
-import MatchesManager from '../api/matches';
-import MatchesTableView from '../components/MatchesTableView/';
-import MatchesDefaultView from '../components/MatchesDefaultView/';
-import Gametypes from '../api/gametypes';
-import Functions from '../api/functions';
-import Servers from '../api/servers';
-import Maps from '../api/maps';
-import Pagination from '../components/Pagination';
-import Link from 'next/link';
-import Option2 from '../components/Option2';
-import React from 'react';
-import Session from '../api/session';
-import SiteSettings from '../api/sitesettings';
-import Analytics from '../api/analytics';
+import DefaultHead from "../components/defaulthead";
+import Nav from "../components/Nav";
+import Footer from "../components/Footer";
+import React from "react";
+import Session from "../api/session";
+import SiteSettings from "../api/sitesettings";
+import Analytics from "../api/analytics";
+import Loading from "../components/Loading";
+import ErrorMessage from "../components/ErrorMessage";
+import ErrorPage from "./ErrorPage";
+import DropDown from "../components/DropDown";
+import Link from "next/link";
+import MatchesTableView from "../components/MatchesTableView";
+import MatchesDefaultView from "../components/MatchesDefaultView";
+import Pagination from "../components/Pagination";
+import SearchTerms from "../components/SearchTerms";
+import Functions from "../api/functions";
+import Servers from "../api/servers"
+import Gametypes from "../api/gametypes";
+import Maps from "../api/maps";
 
 class Matches extends React.Component{
 
@@ -22,152 +25,387 @@ class Matches extends React.Component{
 
         super(props);
 
-        this.state = {"perPage": this.props.perPage, "gametype": this.props.gametype, "displayType": this.props.displayType};
+        this.state = {
+            "bLoadedInitial": false, 
+            "error": null, 
+            "serverNames": null, 
+            "selectedServer": this.props.server, 
+            "selectedGametype": this.props.gametype,
+            "selectedMap": this.props.map,
+            "perPage": this.props.perPage,
+            "page": this.props.page,
+            "matches": null,
+            "totalMatches": 0,
+            "images": [],
+            "displayMode": this.props.displayMode
+        };
 
-        this.changePerPage = this.changePerPage.bind(this);
-        this.changeGametype = this.changeGametype.bind(this);
-        this.changeDisplay = this.changeDisplay.bind(this);
-
+        this.changeSelected = this.changeSelected.bind(this);
     }
 
-    componentDidMount(){
+    async componentDidUpdate(prevProps, prevState){
 
-        const settings = JSON.parse(this.props.pageSettings);
-        const session = JSON.parse(this.props.session);
+        const checks = ["page", "gametype", "server", "map", "perPage"];
 
-        if(session["matchesGametype"] === undefined){
+        for(let i = 0; i < checks.length; i++){
 
-            if(settings["Default Gametype"] !== undefined){
-                this.setState({"gametype": parseInt(settings["Default Gametype"])});
+            const c = checks[i];
+
+            if(prevProps[c] !== this.props[c]){
+
+                await this.loadData();
+                return;
             }
+        }
+    }
+
+    async changeSelected(type, value){
+
+        const obj = {};
+
+        obj[type] = value;
+
+        this.setState(obj);
+    }
+
+    async loadTotalMatches(){
+
+        const req = await fetch("/api/matchsearch", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "search-count",
+                "serverId": this.state.selectedServer,
+                "gametypeId": this.state.selectedGametype,
+                "mapId": this.state.selectedMap
+            })
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+
+            this.setState({"error": res.error});
 
         }else{
-            this.setState({"gametype": parseInt(session["matchesGametype"])});
+
+            this.setState({
+                "totalMatches": res.totalMatches
+            });
         }
+    }
 
-        if(session["matchesPerPage"] === undefined){
+    async loadNames(){
 
-            if(settings["Default Display Per Page"] !== undefined){
-                this.setState({"perPage": parseInt(settings["Default Display Per Page"])});
-            }
+        const req = await fetch("/api/matchsearch", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "full-list"})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+
+            this.setState({"error": res.error});
 
         }else{
-            this.setState({"perPage": parseInt(session["matchesPerPage"])});
+
+            this.setState({
+                "serverNames": res.serverNames,
+                "gametypeNames": res.gametypeNames, 
+                "mapNames": res.mapNames,
+                "bLoadedInitial": true
+            });
         }
+    }
+
+    async loadData(){
 
 
-        if(session["matchesDisplay"] === undefined){
+        await this.loadTotalMatches();
 
-            if(settings["Default Display Type"] !== undefined){
-                this.setState({"displayType": parseInt(settings["Default Display Type"])});
-            }
 
+        const req = await fetch("/api/matchsearch", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "search",
+                "serverId": this.state.selectedServer,
+                "gametypeId": this.state.selectedGametype,
+                "mapId": this.state.selectedMap,
+                "perPage": this.state.perPage,
+                "page": this.props.page
+
+            })
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+
+            this.setState({"error": res.error});
         }else{
-            this.setState({"displayType": parseInt(session["matchesDisplay"])});
+            console.log(res);
+            this.setState({"matches": res.data, "images": res.images});
         }
+    }
 
+    async componentDidMount(){
+
+        await this.loadNames();
+        await this.loadData();
+    }
+
+    getPerPageData(){
+
+        const data = {};
+
+        data["5"] = 5;
+        data["10"] = 10;
+        data["25"] = 25;
+        data["50"] = 50;
+        data["75"] = 75;
+        data["100"] = 100;
+
+        return data;
     }
 
 
-    changePerPage(event){
+    getDisplayModeData(){
 
-        this.setState({"perPage": event.target.value});
+        const data = {};
 
-        let value = parseInt(event.target.value);
+        data["0"] = "Default View";
+        data["1"] = "Table View";
 
-        if(value !== value) value = 25;
+        return data;
+    }
+
+    renderSearchForm(){
+
+        const s = this.state.selectedServer;
+        const g = this.state.selectedGametype;
+        const m = this.state.selectedMap;
+        const d = this.state.displayMode;
+
+        const url = `/matches?server=${s}&gametype=${g}&map=${m}&display=${d}&page=1&pp=${this.state.perPage}`;
+
+        return <div className="form m-bottom-25">
+            <DropDown 
+                dName="Server" 
+                fName="selectedServer" 
+                originalValue={s.toString()} 
+                data={this.state.serverNames} 
+                changeSelected={this.changeSelected}
+            />
+            <DropDown 
+                dName="Gametype" 
+                fName="selectedGametype" 
+                originalValue={g.toString()} 
+                data={this.state.gametypeNames} 
+                changeSelected={this.changeSelected}
+            />
+            <DropDown 
+                dName="Map" 
+                fName="selectedMap" 
+                originalValue={m.toString()} 
+                data={this.state.mapNames} 
+                changeSelected={this.changeSelected}
+            />
+            <DropDown 
+                dName="Results Per Page" 
+                fName="perPage" 
+                originalValue={this.state.perPage.toString()} 
+                data={this.getPerPageData()} 
+                changeSelected={this.changeSelected}
+            />
+            <DropDown 
+                dName="Display Style" 
+                fName="displayMode" 
+                originalValue={this.state.displayMode.toString()} 
+                data={this.getDisplayModeData()} 
+                changeSelected={this.changeSelected}
+            />
+            <Link href={url}>
+                <a>
+                    <div className="search-button">Search</div>
+                </a>
+            </Link>
+        </div>
+    }
+
+    createSearchTitle(){
+
+       
+
+        if(this.props.server === 0 && this.props.gametype === 0 && this.props.map === 0){
+            return null;
+        }
         
+        const terms = {};
 
-        Functions.setCookie("matchesPerPage", value);
+        if(this.props.server !== 0){
 
-    }
+            const serverName = this.state.serverNames[this.props.server] ?? "Not Found";
 
-    changeGametype(event){
-
-        this.setState({"gametype": event.target.value})
-
-        let value = parseInt(event.target.value);
-
-        if(value !== value) value = 0;
-        
-        Functions.setCookie("matchesGametype", value);
-
-
-    }
-
-    createGametypeOptions(){
-
-        const elems = [];
-
-        const gametypes = JSON.parse(this.props.gametypes);
-
-        for(const [key, value] of Object.entries(gametypes)){
-            
-            elems.push(<option key={key} value={key}>{value}</option>);
+            terms["Server"] = serverName;
         }
 
-        return elems;
-    }
+        if(this.props.gametype !== 0){
 
-    getGametypeName(id){
+            const gametypeName = this.state.gametypeNames[this.props.gametype] ?? "Not Found";
 
-        const gametypes = JSON.parse(this.props.gametypes);
-
-        if(gametypes[id] !== undefined){
-            return gametypes[id];
+            terms["Gametype"] = gametypeName;
         }
 
-        return "";
-    }
+        if(this.props.map !== 0){
 
-    changeDisplay(type){
+            const mapName = this.state.mapNames[this.props.map] ?? "Not Found";
 
-        this.setState({"displayType": type});
-
-        if(type !== 0 && type !== 1){
-            type = 0;
+            terms["Map"] = mapName;
         }
-
-        Functions.setCookie("matchesDisplay", type);
+    
+        return <div>
+            <div className="default-header">Search Results</div>
+            <SearchTerms data={terms}/>
+        </div>
     }
 
+    renderMatches(){
 
-    render(){
+        if(this.state.matches === null) return null;
 
-        const pages = Math.ceil(this.props.totalMatches / this.props.perPage);
+        const url = `/matches/?server=${this.props.server}&gametype=${this.props.gametype}&map=${this.props.map}&display=${this.props.displayMode}&pp=${this.props.perPage}&page=`;
 
-        const url = `/matches?perPage=${this.state.perPage}&gametype=${this.state.gametype}&displayType=${this.state.displayType}&page=`;
-
-        let matchElems = [];
+        const pagination = <Pagination url={url} currentPage={this.props.page} perPage={this.state.perPage} results={this.state.totalMatches}/>;
 
         const imageHost = Functions.getImageHostAndPort(this.props.host);
 
-        if(this.state.displayType){
-            matchElems = <MatchesTableView data={this.props.matches}/>
-        }else{
-            matchElems = <div className="center" style={{"width": "var(--width-1)"}}>
-                <MatchesDefaultView data={this.props.matches} images={this.props.images} host={imageHost}/>
+        const displayMode = parseInt(this.state.displayMode);
+
+        let matches = null;
+
+        if(displayMode === 0){
+            matches = <div className="center" style={{"width": "var(--width-1)"}}>
+                <MatchesDefaultView data={this.state.matches} images={this.state.images} host={imageHost}/>
             </div>;
+        }else{
+            matches = <MatchesTableView data={this.state.matches}/>;
         }
 
-        const start = (this.props.page <= 1) ? 1 : this.props.page * this.props.perPage;
-        const end = (((this.props.page + 1) * this.props.perPage) <= this.props.totalMatches) ? (this.props.page + 1) * this.props.perPage : this.props.totalMatches;
+        return <div>
+            {this.createSearchTitle()}
+            {pagination}
+            {matches}
+            {pagination}
+        </div>
+    }
 
-        const gametypeName = this.getGametypeName(this.props.gametype);
-        const nameString = (gametypeName !== "") ? `(${gametypeName})` : "";
+    renderElems(){
 
-        const paginationElem = <Pagination currentPage={this.props.page} 
-                perPage={this.props.perPage} 
-                pages={pages} 
-                results={this.props.totalMatches} 
-            url={url} />
+        if(this.state.error !== null){
+            return <ErrorMessage title="Recent Matches" text={this.state.error}/>
+        }
+
+        if(!this.state.bLoadedInitial){
+            return <Loading />;
+        }
+
+        return <div>
+            {this.renderSearchForm()}
+            <div>
+                {this.renderMatches()}
+            </div>
+        </div>
+
+    }
+
+    render(){
+
+        if(this.props.pageError !== undefined){
+
+            return <ErrorPage>{this.props.pageError}</ErrorPage>
+        }
+
+        const serverString = this.props.metaServerName;
+        const gametypeString = this.props.metaGametypeName;
+        const mapString = this.props.metaMapName;
+
+        const keywords = [];
+
+        let title = "";
+
+        let description = "";
+
+        if(mapString !== ""){
+
+            title = `Matches on ${mapString}`;
+
+            description = `Search results for matches played on the map ${mapString}`;
+
+            keywords.push(mapString);
+        }
+
+        if(gametypeString !== ""){
+
+            keywords.push(gametypeString);
+
+            if(title !== ""){
+                title += ` (${gametypeString})`;
+            }else{
+                title = `${gametypeString} games`;
+            }
+
+            if(description !== ""){
+                description += `, with the gametype of ${gametypeString}`;
+            }else{
+
+                description = `Search results for matches played using the ${gametypeString} gametype`
+            } 
+
+            
+        }
+
+
+        if(serverString !== ""){
+
+            keywords.push(serverString);
+
+            if(title !== ""){
+                title += " on ";
+            }
+
+            if(description !== ""){
+                description += `, on the ${serverString} server`;
+            }
+
+            title += serverString;
+        }
+
+        if(description === ""){
+
+            description = "View the latest Unreal Tournament matches from all our servers here.";
+        }else{
+            description += ".";
+        }
+
+        if(title === ""){
+            title = "Recent Matches";
+        }
+
+        if(keywords.length === 0){
+            keywords.push("recent");
+        }
+        
+
 
         return (<div>
             <DefaultHead 
                 host={this.props.host} 
-                title={`Recent Matches${nameString} Page ${this.props.page} of ${pages}`} 
-                description={`Viewing Recent Matches${nameString} page ${this.props.page} of ${pages}, matches ${start} to ${end} out of a possible ${this.props.totalMatches} matches.`} 
-                keywords={`search,match,matches,page ${this.props.page}`}
+                title={title} 
+                description={description} 
+                keywords={`search,match,matches,history,${keywords.toString()}`}
             />
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
@@ -175,41 +413,9 @@ class Matches extends React.Component{
 
                     <div className="default">
                         <div className="default-header">
-                            Recent Matches
+                            Matches
                         </div>
-                        <div className="default-sub-header">Search for matches</div>
-                        <div className="form">
-                            <div className="select-row">
-                                <div className="select-label">Gametype</div>
-                                <select className="default-select" value={this.state.gametype} onChange={this.changeGametype}>
-                                    <option value="0" key={`gametype-default`}>All</option>
-                                    {this.createGametypeOptions()}
-                                </select>
-                            </div>
-                            <div className="select-row">
-                                <div className="select-label">Results Per Page</div>
-        
-                                    <select className="default-select" value={this.state.perPage} onChange={this.changePerPage}>
-                                        <option value="5">5</option>
-                                        <option value="10">10</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="75">75</option>
-                                        <option value="100">100</option>
-                                    </select>
-                        
-                            </div>
-                            <div className="select-row">
-                                <div className="select-label">Display</div>
-                                <Option2 title1="Default" title2="Table" changeEvent={this.changeDisplay} value={this.state.displayType}/>
-                            </div>
-                            
-                            
-                            <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
-                        </div>
-                        {paginationElem}
-                            {matchElems}
-                        {paginationElem}
+                        {this.renderElems()}
                     </div>
                 </div>
                 <Footer session={this.props.session}/>
@@ -221,160 +427,128 @@ class Matches extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
+    try{
 
-    const session = new Session(req);
+        const session = new Session(req);
+        await session.load();
 
-	await session.load();
+        const settings = new SiteSettings();
+        const navSettings = await settings.getCategorySettings("Navigation");
 
-    const matchManager = new MatchesManager();
-    const gametypeManager = new Gametypes();
-    const serverManager = new Servers();
-    const mapManager = new Maps();
+        const pageSettings = await settings.getCategorySettings("Matches Page");
 
-    const settings = new SiteSettings();
-    const navSettings = await settings.getCategorySettings("Navigation");
+        const defaultPerPage = pageSettings["Default Display Per Page"];
 
-    const pageSettings = await settings.getCategorySettings("Matches Page");
+        let perPage = defaultPerPage;
+        let page = 1;
+        let gametype = 0;
+        let displayType = 0;
+        let server = 0;
+        let map = 0;
+        let displayMode = pageSettings["Default Display Type"];
 
-    const defaultPerPage = pageSettings["Default Display Per Page"];
-    let perPage = defaultPerPage;
-    let page = 1;
-    let gametype = 0;
-    let displayType = 0;
+        if(query.pp !== undefined){
 
-    if(query.perPage !== undefined){
+            perPage = parseInt(query.pp);
 
-        perPage = parseInt(query.perPage);
-
-    }else{
-
-        if(session.settings.matchesPerPage !== undefined){
-
-            perPage = parseInt(session.settings.matchesPerPage);
-        }
-    }
-
-    if(perPage !== perPage){
-        perPage = defaultPerPage;
-    }
-
-    if(perPage > 100 || perPage < 1){
-        perPage = defaultPerPage;
-    }
-
-    if(query.page !== undefined){
-
-        page = parseInt(query.page);
-
-        if(page !== page){
-            page = 1;
+            if(perPage !== perPage){
+                perPage = defaultPerPage;
+            }else{
+                if(perPage < 5 || perPage > 100){
+                    perPage = defaultPerPage;
+                }
+            }
         }
 
-        if(page < 1){
-            page = 1;
-        }
-    }
+        if(query.gametype !== undefined){
 
-    
-    if(query.gametype !== undefined){
+            gametype = parseInt(query.gametype);
+            if(gametype !== gametype) gametype = 0;
 
-        gametype = parseInt(query.gametype);
-
-    }else{
-
-        if(session.settings.matchesGametype !== undefined){
-            
-            gametype = parseInt(session.settings.matchesGametype);
-        }
-    }
-
-    if(gametype !== gametype) gametype = 0;
-
-    if(query.displayType !== undefined){
-
-        displayType = parseInt(query.displayType);
-
-    }
-
-    if(displayType !== displayType){
-        displayType = 0;
-    }else{
-        if(displayType !== 0 && displayType !== 1){
-            displayType = 0;
-        }
-    }
-
-    let gametypeNames = {};
-
-    gametypeNames = await gametypeManager.getAllNames();
-
-    const testGametypeIds = Object.keys(gametypeNames);
-
-    if(testGametypeIds.indexOf(`${gametype}`) === -1){
-        gametype = 0;
-    }
-
-    const totalMatches = await matchManager.getTotal(gametype);
-
-    if(totalMatches > 0){
-
-        if(page > Math.ceil(totalMatches / perPage)){
-            page = Math.ceil(totalMatches / perPage);
         }
 
-    }else{
-        page = 1;
-    }
+        if(query.server !== undefined){
 
-    const matches = await matchManager.getRecent(page - 1, perPage, gametype);
-    const uniqueServers = Functions.getUniqueValues(matches, 'server');
-    const uniqueMaps = Functions.getUniqueValues(matches, 'map');
-
-
-
-    let serverNames = {};
-
-    if(uniqueServers.length > 0){
-        serverNames = await serverManager.getNames(uniqueServers);
-    }
-
-    let mapNames = {};
-
-    if(uniqueMaps.length > 0){
-        mapNames = await mapManager.getNames(uniqueMaps);
-    }
-
-
-    Functions.setIdNames(matches, gametypeNames, 'gametype', 'gametypeName');
-    Functions.setIdNames(matches, serverNames, 'server', 'serverName');
-    Functions.setIdNames(matches, mapNames, 'map', 'mapName');
-
-    let justMapNames = [];
-
-    for(const [key,value] of Object.entries(mapNames)){
-        justMapNames.push(value);
-    }   
-
-    const mapImages = await mapManager.getImages(justMapNames);
-
-    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
-
-    return {
-        "props": {
-            "host": req.headers.host,
-            "matches": JSON.stringify(matches),
-            "page": page,
-            "perPage": perPage,
-            "totalMatches": totalMatches,
-            "gametypes": JSON.stringify(gametypeNames),
-            "gametype": gametype,
-            "displayType": displayType,
-            "images": JSON.stringify(mapImages),
-            "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings)
+            server = parseInt(query.server);
+            if(server !== server) server = 0;
         }
-    };
+
+        if(query.map !== undefined){
+
+            map = parseInt(query.map);
+            if(map !== map) map = 0;
+        }
+
+        if(query.page !== undefined){
+
+            page = parseInt(query.page);
+
+            if(page !== page) page = 1;
+        }
+
+        if(query.display !== undefined){
+
+            displayMode = parseInt(query.display);
+
+            if(displayMode !== displayMode) displayMode = pageSettings["Default Display Type"];
+        }
+
+        await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
+
+
+        let metaServerName = "";
+
+        if(server !== 0){
+
+            const serverManager = new Servers();
+            metaServerName = await serverManager.getName(server);
+
+        }
+
+        let metaGametypeName = "";
+
+        if(gametype !== 0){
+
+            const gametypeManager = new Gametypes();
+            metaGametypeName = await gametypeManager.getName(gametype);
+        }
+
+        let metaMapName = "";
+
+        if(map !== 0){
+
+            const mapManager = new Maps();
+            metaMapName = await mapManager.getName(map);
+        }
+
+        return {
+            "props": {
+                "host": req.headers.host,
+                "page": page,
+                "perPage": perPage,
+                "displayType": displayType,
+                "session": JSON.stringify(session.settings),
+                "navSettings": JSON.stringify(navSettings),
+                "pageSettings": JSON.stringify(pageSettings),
+                "perPage": perPage,
+                "gametype": gametype,
+                "server": server,
+                "map": map,
+                "displayMode": displayMode,
+                "metaServerName": metaServerName,
+                "metaGametypeName": metaGametypeName,
+                "metaMapName": metaMapName
+            }
+        };
+
+    }catch(err){
+
+        return {
+            "props": {
+                "pageError": err.toString()
+            }
+        }
+    }
 }
 
 

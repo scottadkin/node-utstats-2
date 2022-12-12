@@ -23,9 +23,7 @@ const SiteSettings = require('./sitesettings');
 
 class Matches{
 
-    constructor(){
-
-    }
+    constructor(){}
 
     insertMatch(date, server, gametype, map, version, minVersion, admin, email, region, motd, mutators, playtime, endType, start, end, insta,
         teamGame, gameSpeed, hardcore, tournament, airControl, useTranslocator, friendlyFireScale, netMode, maxSpectators, 
@@ -211,30 +209,24 @@ class Matches{
         return result[0].total_matches;
     }
 
-    getServerNames(ids){
+    async getServerNames(ids){
 
-        return new Promise((resolve, reject) =>{
+        if(ids.length === 0) return {};
 
-            const query = "SELECT id,server FROM nstats_matches WHERE id IN(?)";
+        const query = "SELECT id,server FROM nstats_matches WHERE id IN(?)";
 
-            const data = {};
+        const result = await mysql.simpleQuery(query, [ids]);
 
-            if(ids.length === 0) resolve(data);
+        const data = {};
 
-            mysql.query(query, [ids], (err, result) =>{
+        for(let i = 0; i < result.length; i++){
 
-                if(err) reject(err);
-                
-                if(result !== undefined){
+            const r = result[i];
+            
+            data[r.id] = r.server;
+        }
 
-                    for(let i = 0; i < result.length; i++){
-                        data[result[i].id] = result[i].server; 
-                    }
-                }
-
-                resolve(data);
-            });
-        });
+        return data;
     }
 
 
@@ -1540,6 +1532,94 @@ class Matches{
         Functions.setIdNames(result, mapNames, "map", "mapName");
 
         return result;
+    }
+
+
+    createSearchQuery(bTotalCount, serverId, gametypeId, mapId, perPage, page){
+
+        
+        serverId = parseInt(serverId);
+        gametypeId = parseInt(gametypeId);
+        mapId = parseInt(mapId);
+        page = parseInt(page);
+        perPage = parseInt(perPage);
+
+        if(serverId !== serverId) throw new Error("ServerId must be a valid integer");
+        if(gametypeId !== gametypeId) throw new Error("gametypeId must be a valid integer");
+        if(mapId !== mapId) throw new Error("mapId must be a valid integer");
+        if(page !== page) throw new Error("page must be a valid integer");
+        if(perPage !== perPage) throw new Error("perPage must be a valid integer");
+
+
+        let start = "SELECT * FROM nstats_matches";
+
+        if(bTotalCount){
+            start = "SELECT COUNT(*) as total_matches FROM nstats_matches";
+        }
+
+        let query = start;
+        const vars = [];
+
+        if(serverId !== 0){
+            query += " WHERE server=? "
+            vars.push(serverId);
+        }
+
+        if(gametypeId !== 0){
+
+            if(query === start){
+                query += " WHERE gametype=? ";
+            }else{
+                query += " AND gametype=? ";
+            }
+     
+            vars.push(gametypeId);
+        }
+
+        if(mapId !== 0){
+
+            if(query === start){
+                query += " WHERE map=? ";
+            }else{
+                query += " AND map=? ";
+            }
+
+            vars.push(mapId);
+        }
+
+        if(!bTotalCount){
+
+            if(perPage <= 0 || perPage > 100){
+                perPage = 25;
+            }
+
+            let startIndex = page * perPage;
+
+            if(startIndex < 0) startIndex = 0;
+
+            query += " ORDER BY date DESC, id DESC LIMIT ?, ?";
+            vars.push(startIndex, perPage);
+        }
+
+        return {"query": query, "vars": vars};
+    }
+
+    async getSearchTotalResults(serverId, gametypeId, mapId){
+
+        
+        const {query, vars} = this.createSearchQuery(true, serverId, gametypeId, mapId, 0, 0);
+
+        const result = await mysql.simpleQuery(query, vars); 
+        
+        return result[0].total_matches;
+
+    }
+
+    async searchMatches(serverId, gametypeId, mapId, page, perPage){
+
+        const {query, vars} = this.createSearchQuery(false, serverId, gametypeId, mapId, perPage, page);
+
+        return await mysql.simpleQuery(query, vars); 
     }
 
 }
