@@ -1,6 +1,7 @@
 import React from "react";
 import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";
+import Link from "next/link";
 
 class InteractiveTable extends React.Component{
 
@@ -85,6 +86,10 @@ class InteractiveTable extends React.Component{
                     value = d[key].displayValue;
                 }else{
                     value = d[key].value;
+                }
+                
+                if(d[key].url !== undefined){
+                    value = <Link href={d[key].url}>{value}</Link>
                 }
 
                 if(d[key].className !== undefined){
