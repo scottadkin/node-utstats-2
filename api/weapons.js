@@ -162,27 +162,14 @@ class Weapons{
     }
 
 
-    bPlayerTotalExists(gametypeId, playerId, weaponId){
+    async bPlayerTotalExists(gametypeId, playerId, weaponId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_stats FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND weapon=?";
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId, weaponId]);
 
-            const query = "SELECT COUNT(*) as total_stats FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND weapon=?";
+        if(result[0].total_stats > 0) return true;
+        return false;
 
-            mysql.query(query, [playerId, gametypeId, weaponId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result[0].total_stats > 0){
-                        resolve(true);
-                    }
-                }
-
-                resolve(false);
-            });
-
-        });
     }
 
     createPlayerTotal(gametypeId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage){
@@ -365,19 +352,11 @@ class Weapons{
         }
     }
 
-    deletePlayerMatchData(id){
+    async deletePlayerMatchData(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_player_weapon_match WHERE match_id=?";
+        return await mysql.simpleQuery(query, [id]);
 
-            const query = "DELETE FROM nstats_player_weapon_match WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        })
     }
 
 
@@ -785,109 +764,164 @@ class Weapons{
         };
     }
 
+    async changePlayerIdMatches(oldId, newId){
 
-    async mergePlayers(oldId, newId, matchManager){
+        const query = "UPDATE nstats_player_weapon_match SET player_id=? WHERE player_id=?";
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
 
-        try{
+    async changePlayerIdTotals(oldId, newId){
 
-            const oldPlayerData = await this.getAllPlayerMatchData(oldId);
-            const newPlayerData = await this.getAllPlayerMatchData(newId);
-
-            const mergedData = {};
-            const weaponData = {};
-
-            
-            const matchIds = [];
+        const query = "UPDATE nstats_player_weapon_totals SET player_id=? WHERE player_id=?";
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
 
 
-            const setMatchIds = (data) =>{
+    async getCombinedMatchData(matchId, playerId, weaponId){
 
-                let d = 0;
+        const query = `SELECT 
+            SUM(kills) as total_kills, 
+            SUM(deaths) as total_deaths, 
+            SUM(hits) as total_hits, 
+            SUM(shots) as total_shots, 
+            SUM(damage) as total_damage
+            FROM nstats_player_weapon_match
+            WHERE match_id=? AND player_id=? AND weapon_id=?`;
 
-                for(let i = 0; i < data.length; i++){
+        const data = await mysql.simpleQuery(query, [matchId, playerId, weaponId]);
 
-                    d = data[i];
-                    if(matchIds.indexOf(d.match_id) === -1) matchIds.push(d.match_id);
-                }
-            }
-
-            setMatchIds(oldPlayerData);
-            setMatchIds(newPlayerData);
-
-            const matchGametypes = await matchManager.getMatchGametypes(matchIds);
-            
-            const createMergedData = (data) =>{
-
-                let d = 0;
-
-                let originalId = 0;
-
-                for(let i = 0; i < data.length; i++){
-
-                    d = data[i];
-
-                    d.gametype = matchGametypes[d.match_id];
-
-                    originalId = d.player_id;
-                    
-                    if(mergedData[d.match_id] === undefined){
-    
-                        //console.log(d);
-                        mergedData[d.match_id] = this.createDummyMatchData();
-                        mergedData[d.match_id].id = d.id;
-                        mergedData[d.match_id].player_id = newId;
-                        mergedData[d.match_id].weapon_id = d.weapon_id;
-                        mergedData[d.match_id].match_id = d.match_id;
-                        mergedData[d.match_id].gametype = matchGametypes[d.match_id];
-
-                    }
-
-
-                    mergedData[d.match_id].kills += d.kills;
-                    mergedData[d.match_id].deaths += d.deaths;
-                    mergedData[d.match_id].shots += d.shots;
-                    mergedData[d.match_id].hits += d.hits;
-                    mergedData[d.match_id].damage += d.damage;
-                    
-                    mergedData[d.match_id].accuracy = 0;
-
-                    if(mergedData[d.match_id].hits > 0){
-
-                        if(mergedData[d.match_id].shots > 0){
-
-                            mergedData[d.match_id].accuracy = (mergedData[d.match_id].hits / mergedData[d.match_id].shots) * 100;
-
-                        }else{
-                            mergedData[d.match_id].accuracy = 100;
-                        }
-                    }
-                }
-            }
-
-            
-
-            createMergedData(oldPlayerData);
-            createMergedData(newPlayerData);
-
-            for(const [k, v] of Object.entries(mergedData)){
-
-                await this.updateMatchRowFromMergedData(v);
-            }
-
-           // await this.deletePlayerMatchData(oldId, matchIds);
-
-            //await 
-
-            //await this.updatePlayerWeaponTotalsAfterMerged(newId, weaponData);
-            
-
-            await this.deletePlayer(oldId);
-            //await this.realculatePlayerWeaponTotals(oldId, matchManager);
-            await this.realculatePlayerWeaponTotals(newId, matchManager);
-
-        }catch(err){
-           console.trace(err); 
+        if(data.length > 0){
+            return data[0];
         }
+
+        return null;
+    }
+
+    async deleteMatchRows(matchId, playerId, weaponId){
+
+        const query = "DELETE FROM nstats_player_weapon_match WHERE match_id=? AND player_id=? AND weapon_id=?";
+        return await mysql.simpleQuery(query, [matchId, playerId, weaponId]);
+    }
+
+    async insertMatchRow(matchId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage){
+
+        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?)";
+        return await mysql.simpleQuery(query, [matchId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage]);
+    }
+
+    async mergePlayerMatchData(newId){
+
+        const query = "SELECT match_id,weapon_id,COUNT(*) as total_entries FROM nstats_player_weapon_match WHERE player_id=? GROUP BY match_id, weapon_id";
+
+        const result = await mysql.simpleQuery(query, [newId]);
+
+        const needsRecalculation = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(r.total_entries > 1){
+                needsRecalculation.push(r);
+            }
+        }
+
+        for(let i = 0; i < needsRecalculation.length; i++){
+
+            const n = needsRecalculation[i];
+            
+            const mergedData = await this.getCombinedMatchData(n.match_id, newId, n.weapon_id);
+
+            if(mergedData !== null){
+
+                await this.deleteMatchRows(n.match_id, newId, n.weapon_id);
+
+                mergedData.accuracy = 0;
+
+                if(mergedData.total_shots > 0){
+
+                    if(mergedData.total_hits > 0){
+                        mergedData.accuracy = (mergedData.total_hits / mergedData.total_shots) * 100;
+                    }
+                }
+
+                await this.insertMatchRow(
+                    n.match_id, 
+                    newId, 
+                    n.weapon_id, 
+                    mergedData.total_kills,
+                    mergedData.total_deaths, 
+                    mergedData.accuracy, 
+                    mergedData.total_shots, 
+                    mergedData.total_hits, 
+                    mergedData.total_damage
+                );
+
+            }else{
+                console.log(`mergedData is null`);
+            }
+        }
+    }
+
+    async deletePlayerTotalData(playerId){
+
+        const query = "DELETE FROM nstats_player_weapon_totals WHERE player_id=?";
+        return await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async mergePlayerTotalData(newId){
+
+        const query = "SELECT gametype,weapon,kills,deaths,efficiency,accuracy,shots,hits,damage,matches FROM nstats_player_weapon_totals WHERE player_id=?";
+
+        const data = await mysql.simpleQuery(query, [newId]);
+
+        await this.deletePlayerTotalData(newId);
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(!await this.bPlayerTotalExists(d.gametype, newId, d.weapon)){
+                await this.createPlayerTotalCustom(newId, d.gametype, d.weapon, d.kills, d.deaths, d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
+            }else{
+                await this.updatePlayerTotalCustom(newId, d.gametype, d.weapon, d.kills, d.deaths, d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
+            }
+        }
+
+    }
+
+    async createPlayerTotalCustom(playerId, gametypeId, weaponId, kills, deaths, efficiency, accuracy, shots, hits, damage, matches){
+
+        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)";
+        const vars = [playerId, gametypeId, weaponId, kills, deaths, efficiency, accuracy, shots, hits, damage, matches];
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async updatePlayerTotalCustom(playerId, gametypeId, weaponId, kills, deaths, efficiency, accuracy, shots, hits, damage, matches){
+
+        const query = `UPDATE nstats_player_weapon_totals SET 
+        kills = kills + ?,
+        deaths = deaths + ?,
+        efficiency = IF(kills > 0, IF(deaths > 0, (kills / (kills + deaths)) * 100 ,100), 0),
+        shots = shots + ?,
+        hits = hits + ?,
+        accuracy = IF(shots > 0, IF(hits > 0, (hits / shots) * 100, 0), 0),
+        damage = damage + ?,
+        matches = matches + ?
+        WHERE player_id=? AND gametype=? AND weapon=?`;
+
+        const vars = [kills, deaths, shots, hits, damage, matches, playerId, gametypeId, weaponId];
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async mergePlayers(oldId, newId){
+
+        await this.changePlayerIdMatches(oldId, newId);
+        await this.changePlayerIdTotals(oldId, newId);
+
+        await this.mergePlayerMatchData(newId);
+        await this.mergePlayerTotalData(newId);
+       
     }
 
     async deleteAllPlayerMatchData(playerId){
