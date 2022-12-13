@@ -113,12 +113,11 @@ class CTFManager{
                 
                 const playerId = parseInt(result[3]);
 
-                if(returnReg.test(type) || type === "taken" || type === "pickedup" || type === "captured" || type === "assist" || type === "dropped"){
+                if(type === "returned" || type === "return_closesave" || type === "taken" || type === "pickedup" ||
+                    type === "captured" || type === "assist" || type === "dropped"){
                     
                     if(type === "return_closesave"){
                         type = "save";
-                    }else if(type !== "taken" && type !== "pickedup" && type !== "captured" && type !== "assist" && type !== "dropped"){
-                        type = "return";
                     }
 
                     if(type === "taken" || type === "pickedup"){
