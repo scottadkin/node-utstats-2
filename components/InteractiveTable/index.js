@@ -2,6 +2,7 @@ import React from "react";
 import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";
 import Link from "next/link";
+import TableHeader from "../TableHeader";
 
 class InteractiveTable extends React.Component{
 
@@ -109,7 +110,14 @@ class InteractiveTable extends React.Component{
 
     render(){
 
+        let tableTitle = null;
+
+        if(this.props.title !== undefined){
+            tableTitle = <TableHeader width={this.props.width}>{this.props.title}</TableHeader>
+        }
+
         return <div className={styles.wrapper}>
+            {tableTitle}
             <Table2 width={this.props.width}>
                 {this.renderHeaders()}
                 {this.renderData()}

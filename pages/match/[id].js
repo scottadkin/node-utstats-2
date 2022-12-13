@@ -10,7 +10,7 @@ import Player from '../../api/player';
 import MatchFragSummary from '../../components/MatchFragSummary/';
 import MatchSpecialEvents from '../../components/MatchSpecialEvents/';
 import Weapons from '../../api/weapons';
-import MatchWeaponSummary from '../../components/MatchWeaponSummary/';
+import MatchWeaponSummaryCharts from '../../components/MatchWeaponSummaryCharts/';
 import MatchCTFSummary from '../../components/MatchCTFSummary/';
 import Domination from '../../api/domination';
 import Assault from '../../api/assault';
@@ -414,13 +414,31 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
         if(!parsedInfo.mh){
 
-            elems[pageOrder["Display Weapon Statistics"]] = <MatchWeaponSummary 
-                key={`match_5`} 
-                data={JSON.parse(weaponData)} 
-                players={JSON.parse(playerNames)} 
+            const parsedWeaponData = JSON.parse(weaponData);
+
+            parsedWeaponData.names.sort(sortByName);
+        
+            const orderedPlayers = JSON.parse(playerNames);
+        
+            orderedPlayers.sort(sortByName);
+        
+
+            elems[pageOrder["Display Weapon Statistics"]] = <MatchWeaponSummaryCharts 
+                key="weapon-stats"
+                weaponNames={parsedWeaponData.names} 
+                playerData={parsedWeaponData.playerData}
+                players={orderedPlayers} 
                 totalTeams={parsedInfo.total_teams} 
                 matchId={parsedInfo.id}
                 host={imageHost}
+                types={[
+                    {"name": "kills", "display": "Kills"},
+                    {"name": "deaths", "display": "Deaths"},
+                    {"name": "damage", "display": "Damage"},
+                    {"name": "shots", "display": "Shots"},
+                    {"name": "hits", "display": "Hits"},
+                    {"name": "accuracy", "display": "Accuracy"},
+                ]}
             />
             
         }
@@ -506,15 +524,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
     }
 
 
-    const parsedWeaponData = JSON.parse(weaponData);
-
-    parsedWeaponData.names.sort(sortByName);
-
-    const orderedPlayers = JSON.parse(playerNames);
-
-    orderedPlayers.sort(sortByName);
-
-
     return <div>
         <DefaultHead host={host} 
             title={`${map} (${dateString}) Match Report`} 
@@ -529,7 +538,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
                 <div className="default">
 
-                        
+        
                         {titleElem}
                         
                         {elems}
