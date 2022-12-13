@@ -157,7 +157,7 @@ class Map extends React.Component{
                 <div className="default-header">
                     Longest Matches
                 </div>
-                <MatchesTableView data={this.props.longestMatches} image={image}/>
+                <MatchesTableView data={JSON.parse(this.props.longestMatches)} image={image}/>
             </div>
         }
 
@@ -168,7 +168,7 @@ class Map extends React.Component{
                 <div className="default-header" id="recent-matches">Recent Matches</div>
                 <Pagination currentPage={this.props.page} results={basic.matches} pages={this.props.pages} perPage={this.props.perPage} url={`/map/${basic.id}?page=`} anchor={"#recent-matches"}/>
 
-                <MatchesTableView data={matches} image={image}/>
+                <MatchesTableView data={JSON.parse(matches)} image={image}/>
             
             </div>
         }
