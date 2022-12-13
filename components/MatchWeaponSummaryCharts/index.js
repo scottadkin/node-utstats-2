@@ -410,6 +410,7 @@ class MatchWeaponSummaryCharts extends React.Component{
 
     renderSingleWeaponTable(){
 
+        if(this.state.mode !== 0) return null;
         return this.renderSingleTable(this.state.selected, this.state.selectedName);
     }
 
