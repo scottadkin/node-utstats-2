@@ -243,7 +243,8 @@ async function updateSiteSettings(){
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Match Records","true","0")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display CTF Cap Records","true","0")`,
         `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Combogib Records","true","0")`,
-        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Per Page","25",0)`
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Per Page","25",0)`,
+        `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display Servers","true",0)`,
     ];
 
     

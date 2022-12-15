@@ -30,6 +30,7 @@ function Nav({session, settings}){
         settings = {
             "Display Home": "true",
             "Display Matches": "true",
+            "Display Servers": "true",
             "Display Players": "true",
             "Display Rankings": "true",
             "Display Records": "true",
@@ -42,19 +43,21 @@ function Nav({session, settings}){
         order = {
             'Display Home': 0,
             'Display Matches': 1,
-            'Display Players': 2,
-            'Display Rankings': 3,
-            'Display Records': 4,
-            'Display Maps': 5,
-            'Display ACE': 6,
-            'Display Admin': 7,
-            'Display Login/Logout': 8
+            'Display Servers': 2,
+            'Display Players': 3,
+            'Display Rankings': 4,
+            'Display Records': 5,
+            'Display Maps': 6,
+            'Display ACE': 7,
+            'Display Admin': 8,
+            'Display Login/Logout': 9
         }
     }
 
     const urls = {
         "Display Home": {"text": "Home", "url": "/"},
         "Display Matches": {"text": "Matches", "url": "/matches", "alt": ["/match/[id]","/pmatch/[match]"]},
+        "Display Servers": {"text": "Servers", "url": "/servers", "alt": ["/servers/[id]"]},
         "Display Players": {"text": "Players", "url": "/players", "alt": ["/player/[id]"]},
         "Display Rankings":{"text": "Rankings", "url": "/rankings/0", "alt": ["/rankings/[id]"]},
         "Display Records": {"text": "Records", "url": "/records", "alt": ["/ctfcaps"]},
