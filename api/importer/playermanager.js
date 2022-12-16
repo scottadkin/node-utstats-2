@@ -1,7 +1,6 @@
 const mysql = require('../database');
 const PlayerInfo = require('./playerinfo');
 const Message = require('../message');
-const geoip = require('geoip-lite');
 const P = require('../player');
 const Player = new P();
 const Faces = require('../faces');
@@ -16,12 +15,14 @@ const Sprees = require('../sprees');
 class PlayerManager{
 
 
-    constructor(data, spawnManager, bIgnoreBots, matchTimings){
+    constructor(data, spawnManager, bIgnoreBots, matchTimings, geoip){
 
         this.data = data;
 
         this.bIgnoreBots = bIgnoreBots;
         this.matchTimings = matchTimings;
+
+        this.geoip = geoip;
 
         this.players = [];
         this.uniqueNames = [];
@@ -667,7 +668,7 @@ class PlayerManager{
 
             if(player !== null){
 
-                const geo = geoip.lookup(result[2]);
+                const geo = this.geoip.lookup(result[2]);
 
                 //console.log(geo);
                 let country = 'xx';

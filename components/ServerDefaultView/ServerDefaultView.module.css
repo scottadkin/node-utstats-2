@@ -1,0 +1,43 @@
+.wrapper{
+    background-color:var(--color-1);
+    display:inline-block;
+    margin-right:5px;
+    margin-bottom:5px;
+    max-width:90%;
+    width:500px;
+}
+
+.title{
+    padding:10px;
+    font-size:14px;
+}
+
+.image img{
+    width:100%;
+}
+
+.join{
+    padding:10px;
+}
+
+.row{
+    display:grid;
+    grid-template-columns: 30% 70%;
+    font-size:14px;
+    padding:7px;
+}
+
+.date{
+    color:var(--color-6);
+    font-size:14px;
+    padding:5px;
+}
+
+.recent{
+    padding:10px;
+    background-color:var(--color-3);
+}
+
+.password{
+    color:yellow;
+}

@@ -10,6 +10,8 @@ import Table2 from "../components/Table2";
 import Loading from "../components/Loading";
 import Functions from "../api/functions";
 import InteractiveTable from "../components/InteractiveTable";
+import ServerDefaultView from "../components/ServerDefaultView";
+import Maps from "../api/maps";
 
 class ServersPage extends React.Component{
 
@@ -59,7 +61,7 @@ class ServersPage extends React.Component{
     }
 
 
-    renderElems(){
+    renderTable(){
 
         if(this.state.bLoading) return <Loading/>;
 
@@ -104,6 +106,23 @@ class ServersPage extends React.Component{
         return data;
     }
 
+    renderDefaultView(){
+
+        const elems = [];
+
+        const servers = JSON.parse(this.props.serverList);
+
+        for(let i = 0; i < servers.length; i++){
+
+            const s = servers[i];
+
+            elems.push(<ServerDefaultView key={s.id} mapNames={JSON.parse(this.props.mapNames)} mapImages={JSON.parse(this.props.mapImages)} data={s}/>);
+        }
+
+        return elems;
+
+    }
+
     render(){
 
         return <div>
@@ -114,8 +133,7 @@ class ServersPage extends React.Component{
 				<div className="default">
 			
                 <div className="default-header">Servers</div>
-                
-                {this.renderElems()}
+                {this.renderDefaultView()}
 			</div>
 			</div>
 			<Footer session={this.props.session}/>
@@ -143,6 +161,25 @@ export async function getServerSideProps({req, query}){
 
     const serverList = await serverManager.getAll();
 
+    const mapIds = new Set();
+    
+    for(let i = 0; i < serverList.length; i++){
+
+        const s = serverList[i];
+        mapIds.add(s.last_map_id);
+    }
+
+    const mapManager = new Maps();
+    const mapNames = await mapManager.getNames([...mapIds]);
+
+    const mapNamesArray = [];
+
+    for(const value of Object.values(mapNames)){
+        mapNamesArray.push(value);
+    }
+
+    const mapImages = await mapManager.getImages(mapNamesArray);
+
     return {
         "props": {
             "navSettings": JSON.stringify(navSettings),
@@ -150,7 +187,9 @@ export async function getServerSideProps({req, query}){
             "pageOrder": pageOrder,
             "session": JSON.stringify(session.settings),
             "host": req.headers.host,
-            "serverList": JSON.stringify(serverList)
+            "serverList": JSON.stringify(serverList),
+            "mapNames": JSON.stringify(mapNames),
+            "mapImages": JSON.stringify(mapImages)
         }
     }
 

@@ -616,10 +616,21 @@ async function updateServerTable(){
 
         await insertLogsFolderSettings();
 
-
         await createCombogibTables();
 
         await updateServerTable();
+
+        if(!await columnExists("nstats_servers", "country")){
+            await alterTable("nstats_servers", "country", "varchar(2) NOT NULL");
+        }
+
+        if(!await columnExists("nstats_servers", "last_match_id")){
+            await alterTable("nstats_servers", "last_match_id", "INT(11) NOT NULL");
+        }
+
+        if(!await columnExists("nstats_servers", "last_map_id")){
+            await alterTable("nstats_servers", "last_map_id", "INT(11) NOT NULL");
+        }
 
         process.exit(0);
 

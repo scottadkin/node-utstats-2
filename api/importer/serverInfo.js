@@ -17,11 +17,28 @@ class ServerInfo{
    
     }
 
-    async updateServer(){
+    async updateServer(geoip){
 
         try{
+
+            const ip = this.true_server_ip ?? this.server_ip;
+
+            const geo = geoip.lookup(ip);
+
+            //console.log(geo);
+            let country = 'xx';
+            if(geo !== null){
+                country = geo.country.toLowerCase();
+            }
            
-            await this.servers.updateServer(this.true_server_ip ?? this.server_ip, this.server_port, this.server_servername, this.date, this.matchTimings.length);
+            await this.servers.updateServer(
+                this.true_server_ip ?? this.server_ip, 
+                this.server_port, 
+                this.server_servername, 
+                this.date, 
+                this.matchTimings.length,
+                country
+            );
 
         }catch(err){
             console.trace(err);
@@ -121,6 +138,10 @@ class ServerInfo{
         return string;
     }
 
+    async setLastIds(serverId, matchId, mapId){
+
+        await this.servers.setLastIds(serverId, matchId, mapId);
+    }
 }
 
 module.exports = ServerInfo;

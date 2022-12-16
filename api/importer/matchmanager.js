@@ -21,6 +21,7 @@ const CountriesManager = require('./countriesmanager');
 const Rankings = require('../rankings');
 const MonsterHuntManager = require('./monsterhuntmanager');
 const CombogibManager = require('./combogibmanager');
+const geoip = require('geoip-lite');
 
 class MatchManager{
 
@@ -66,7 +67,7 @@ class MatchManager{
             }
 
             this.spawnManager = new SpawnManager();
-            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
+            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip);
 
             const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
 
@@ -106,7 +107,7 @@ class MatchManager{
             this.matches = new Matches();
             this.maps = new Maps();
 
-            await this.serverInfo.updateServer();
+            await this.serverInfo.updateServer(geoip);
             new Message(`Inserted server info into database.`, 'pass');
 
             const matchTimings = this.gameInfo.getMatchLength();
@@ -117,9 +118,13 @@ class MatchManager{
             await this.spawnManager.updateMapStats();
             new Message(`Inserted map info into database.`, 'pass');
 
+            this.serverId = await this.serverInfo.getServerId();
+
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
             
+            await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);
+
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
             this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
@@ -377,14 +382,13 @@ class MatchManager{
         try{
 
             //date, server, version, admin, region, motd, playtime, endType, start, end
-            const serverId = await this.serverInfo.getServerId();
 
 
             const motd = this.serverInfo.getMotd();
 
             this.matchId = await this.matches.insertMatch(
                 this.serverInfo.date, 
-                serverId, 
+                this.serverId, 
                 this.gametype.currentMatchGametype,
                 this.mapInfo.mapId,
                 this.gameInfo.gameversion, 
