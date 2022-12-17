@@ -303,7 +303,10 @@ const queries = [
         dom_caps int(11) NOT NULL,
         mh_kills int(11) NOT NULL,
         mh int(11) NOT NULL,
-        views int(11) NOT NULL
+        views int(11) NOT NULL,
+        ping_min_average float NOT NULL,
+        ping_average_average float NOT NULL,
+        ping_max_average float NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_match_connections (
         id int(11) NOT NULL AUTO_INCREMENT,

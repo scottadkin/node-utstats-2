@@ -127,6 +127,63 @@ class PingManager{
         }
         return null;
     }
+
+    getMatchAverage(playerManager){
+
+        let dataPoints = 0;
+
+        const min = {"min": null, "average": 0, "max": null, "total": 0};
+        const average = {"min": null, "average": 0, "max": null, "total": 0};
+        const max = {"min": null, "average": 0, "max": null, "total": 0};
+    
+
+        for(let i = 0; i < playerManager.players.length; i++){
+
+            const p = playerManager.players[i];
+
+            if(p.bDuplicate === undefined && p.bPlayedInMatch && p.stats.time_on_server > 0){
+
+                const currentData = this.getPlayerValues(p.masterId);
+
+                if(currentData !== null){
+
+                    dataPoints++;
+
+                    if(min.min === null) min.min = currentData.min;
+                    if(min.max === null) min.max = currentData.min;
+
+                    if(average.min === null) average.min = currentData.average;
+                    if(average.max === null) average.max = currentData.average;
+
+                    if(max.min === null) max.min = currentData.max;
+                    if(max.max === null) max.max = currentData.max;
+
+                    if(currentData.min < min.min) min.min = currentData.min;
+                    if(currentData.min > min.max) min.max = currentData.min;
+
+                    if(currentData.average < average.min) average.min = currentData.average;
+                    if(currentData.average > average.max) average.max = currentData.average;
+
+                    if(currentData.max < max.min) max.min = currentData.max;
+                    if(currentData.max > max.max) max.max = currentData.max;
+
+                    min.total += currentData.min;
+                    average.total += currentData.average;
+                    max.total += currentData.max;
+              
+                }
+            }
+        }
+
+        if(dataPoints > 0){
+
+            if(min.total > 0) min.average = min.total / dataPoints;
+            if(average.total > 0) average.average = average.total / dataPoints;
+            if(max.total > 0) max.average = max.total / dataPoints;
+        }
+
+        return {"min": min, "average": average, "max": max};
+    }
 }
 
 module.exports = PingManager;

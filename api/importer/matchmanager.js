@@ -360,6 +360,13 @@ class MatchManager{
                 
             //}
             
+            const pingAverageData = this.playerManager.pingManager.getMatchAverage(this.playerManager);
+
+            await this.match.setMatchPingData(this.matchId, 
+                pingAverageData.min.average, 
+                pingAverageData.average.average, 
+                pingAverageData.max.average
+            );
 
             await Logs.setMatchId(logId, this.matchId);
 
@@ -740,9 +747,7 @@ class MatchManager{
     bLastManStanding(){
 
         const reg = /last man standing/i;
-
         return reg.test(this.gameInfo.gamename);
-
     }
 }
 

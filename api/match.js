@@ -55,7 +55,14 @@ class Match{
     }
 
 
-    
+    async setMatchPingData(matchId, min, average, max){
+
+        const query = `UPDATE nstats_matches SET ping_min_average=?, ping_average_average=?, ping_max_average=?
+        WHERE id=?`;
+
+        return await mysql.simpleQuery(query, [min, average, max, matchId]);
+
+    }
 
 }
 

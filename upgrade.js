@@ -632,6 +632,17 @@ async function updateServerTable(){
             await alterTable("nstats_servers", "last_map_id", "INT(11) NOT NULL");
         }
 
+        if(!await columnExists("nstats_matches", "ping_min_average")){
+            await alterTable("nstats_matches", "ping_min_average", "float NOT NULL");
+        }
+        if(!await columnExists("nstats_matches", "ping_average_average")){
+            await alterTable("nstats_matches", "ping_average_average", "float NOT NULL");
+        }
+
+        if(!await columnExists("nstats_matches", "ping_max_average")){
+            await alterTable("nstats_matches", "ping_max_average", "float NOT NULL");
+        }
+
         process.exit(0);
 
     }catch(err){
