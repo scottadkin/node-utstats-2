@@ -18,7 +18,11 @@ class ServersPage extends React.Component{
     constructor(props){
 
         super(props);
-        this.state = {"bLoading": true};
+        this.state = {"bLoading": true, "displayMode": 0};
+    }
+
+    changeMode(id){
+        this.setState({"displayMode": id});
     }
 
     async componentDidMount(){
@@ -115,12 +119,18 @@ class ServersPage extends React.Component{
         for(let i = 0; i < servers.length; i++){
 
             const s = servers[i];
-
             elems.push(<ServerDefaultView key={s.id} mapNames={JSON.parse(this.props.mapNames)} mapImages={JSON.parse(this.props.mapImages)} data={s}/>);
         }
 
         return elems;
+    }
 
+    renderServerList(){
+
+        if(this.state.displayMode === 0) return this.renderDefaultView();
+        if(this.state.displayMode === 1) return this.renderTable();
+
+        return null;
     }
 
     render(){
@@ -133,7 +143,19 @@ class ServersPage extends React.Component{
 				<div className="default">
 			
                 <div className="default-header">Servers</div>
-                {this.renderDefaultView()}
+                <div className="tabs">
+                    <div className={`tab ${(this.state.displayMode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                        this.changeMode(0);
+                    })}>
+                        Default View
+                    </div>
+                    <div className={`tab ${(this.state.displayMode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                        this.changeMode(1);
+                    })}>
+                        Table View
+                    </div>
+                </div>
+                {this.renderServerList()}
 			</div>
 			</div>
 			<Footer session={this.props.session}/>

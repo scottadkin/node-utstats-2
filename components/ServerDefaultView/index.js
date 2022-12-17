@@ -42,7 +42,7 @@ class ServerDefaultView extends React.Component{
 
 
         return <div className={styles.wrapper}>
-            <div className={styles.title}>
+            <div className={`${styles.title} ellipsis`}>
                 <CountryFlag country={d.country}/>
                 {d.name}
             </div>
@@ -74,13 +74,13 @@ class ServerDefaultView extends React.Component{
             </div>
             <Link href={`/matches/?server=${d.id}`}>
                 <a>
-                    <div className={styles.recent}>
+                    <div className={`${styles.recent} ellipsis`}>
                         View Recent Matches
                     </div>
                 </a>
             </Link>
             <a href={`unreal://${d.ip}:${d.port}${password}`}>
-                <div className={`${styles.join} purple`}>
+                <div className={`${styles.join} purple ellipsis`}>
                     <span className="yellow">Join the server</span> {d.ip}:{d.port}{passwordElem}
                 </div>
             </a>
