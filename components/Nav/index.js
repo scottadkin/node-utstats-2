@@ -57,7 +57,7 @@ function Nav({session, settings}){
     const urls = {
         "Display Home": {"text": "Home", "url": "/"},
         "Display Matches": {"text": "Matches", "url": "/matches", "alt": ["/match/[id]","/pmatch/[match]"]},
-        "Display Servers": {"text": "Servers", "url": "/servers", "alt": ["/servers/[id]"]},
+        "Display Servers": {"text": "Servers", "url": "/servers", "alt": ["/servers/[id]", "/server/[id]"]},
         "Display Players": {"text": "Players", "url": "/players", "alt": ["/player/[id]"]},
         "Display Rankings":{"text": "Rankings", "url": "/rankings/0", "alt": ["/rankings/[id]"]},
         "Display Records": {"text": "Records", "url": "/records", "alt": ["/ctfcaps"]},

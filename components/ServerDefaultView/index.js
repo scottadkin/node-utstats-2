@@ -42,10 +42,14 @@ class ServerDefaultView extends React.Component{
 
 
         return <div className={styles.wrapper}>
-            <div className={`${styles.title} ellipsis`}>
-                <CountryFlag country={d.country}/>
-                {d.name}
-            </div>
+            <Link href={`/server/${d.id}`}>
+                <a>
+                    <div className={`${styles.title} ellipsis`}>
+                        <CountryFlag country={d.country}/>
+                        {d.name}
+                    </div>
+                </a>
+            </Link>
             <Link href={`/match/${d.last_match_id}`}>
                 <a>
                     <div className={styles.last}>

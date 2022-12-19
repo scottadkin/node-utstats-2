@@ -136,7 +136,7 @@ class ServersPage extends React.Component{
     render(){
 
         return <div>
-		<DefaultHead host={this.props.host} title={"Servers"} description="" keywords="server"/>	
+		<DefaultHead host={this.props.host} title={"Servers"} description="View information about our servers" keywords="server"/>	
 		<main>
 			<Nav settings={this.props.navSettings} session={this.props.session}/>
 			<div id="content">
@@ -214,7 +214,6 @@ export async function getServerSideProps({req, query}){
             "mapImages": JSON.stringify(mapImages)
         }
     }
-
 }
 
 export default ServersPage;

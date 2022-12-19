@@ -296,6 +296,26 @@ class Servers{
 
         return await mysql.simpleQuery(query, [matchId, mapId, serverId]);
     }
+
+    async getDetails(serverId){
+
+        const query = "SELECT * FROM nstats_servers WHERE id=?";
+
+        const result = await mysql.simpleQuery(query, [serverId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
+
+
+    async getServerRecentPings(serverId, limit){
+
+        const query = `SELECT id,date,gametype,map,ping_min_average,ping_average_average,ping_max_average
+        FROM nstats_matches WHERE server=? ORDER BY date DESC LIMIT ?`;
+
+        return await mysql.simpleQuery(query, [serverId, limit]);
+    }
 }
 
 module.exports = Servers;

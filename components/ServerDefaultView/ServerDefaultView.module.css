@@ -1,8 +1,9 @@
 .wrapper{
     background-color:var(--color-1);
+    border:1px solid var(--border-color-3);
     display:inline-block;
     margin-right:5px;
-    margin-bottom:5px;
+    margin-bottom:25px;
     max-width:90%;
     width:500px;
     font-size:14px;
@@ -10,6 +11,7 @@
 
 .title{
     padding:10px;   
+    background-color:var(--color-3);
 }
 
 .image img{
