@@ -13,11 +13,18 @@ class MatchPowerUpControl extends React.Component{
             "bFailed": false, 
             "playerTeams": [[],[],[],[]], 
             "bAllDisabled": false,
-            "mode": 0
+            "mode": 0,
+            "type": 1
         };
 
         this.changeMode = this.changeMode.bind(this);
+        this.changeType = this.changeType.bind(this);
 
+    }
+
+    changeType(id){
+
+        this.setState({"type": id});
     }
 
     changeMode(id){
@@ -284,27 +291,27 @@ class MatchPowerUpControl extends React.Component{
     }
 
 
+    renderTeamTabs(){
+
+        return <div className="tabs">
+            <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                this.changeMode(0);
+            })}>
+                Team Totals
+            </div>
+            <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                this.changeMode(1);
+            })}>
+                Player Totals
+            </div>
+        </div>;
+    }
+
     renderCategory(title, elems){
 
         if(elems.length === 0) return null;
 
         let tabs = null;
-
-        if(this.props.totalTeams >= 2){
-
-            tabs = <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(0);
-                })}>
-                    Team Totals
-                </div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(1);
-                })}>
-                    Player Totals
-                </div>
-            </div>
-        }
 
         return <React.Fragment key={title}>
             <div className="default-header">
@@ -336,16 +343,41 @@ class MatchPowerUpControl extends React.Component{
    
         if(elems === null) return null;
 
-        const finalElems = [];
+        let finalElems = [];
+
+        if(this.state.type === 1) finalElems = this.renderCategory("Power Up Control", elems.weapons);
+        if(this.state.type === 2) finalElems = this.renderCategory("Power Up Control", elems.ammo);
+        if(this.state.type === 3) finalElems = this.renderCategory("Power Up Control", elems.health);
+        if(this.state.type === 4) finalElems = this.renderCategory("Power Up Control", elems.powerUps);
+
+        /*const finalElems = [];
 
         finalElems[this.props.order["Display Power Up Control"]] = this.renderCategory("Power Up Control", elems.powerUps);
         finalElems[this.props.order["Display Health/Armour Control"]] = this.renderCategory("Health/Armour Control", elems.health);
         finalElems[this.props.order["Display Weapons Control"]] = this.renderCategory("Weapons Control", elems.weapons);
-        finalElems[this.props.order["Display Ammo Control"]] = this.renderCategory("Ammo Control", elems.ammo);
+        finalElems[this.props.order["Display Ammo Control"]] = this.renderCategory("Ammo Control", elems.ammo);*/
   
-        return <div>
-                {finalElems}
+    return <div>
+            <div className="default-header">
+                Item Control
             </div>
+            <div className="tabs">
+                <div className={`tab ${(this.state.type === 1) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeType(1);
+                })}>Weapons</div>
+                <div className={`tab ${(this.state.type === 2) ? "tab-selected" : "" }`} onClick={(() =>{
+                    this.changeType(2);
+                })}>Ammo</div>
+                <div className={`tab ${(this.state.type === 3) ? "tab-selected" : "" }`}  onClick={(() =>{
+                    this.changeType(3);
+                })}>Health &amp; Armour</div>
+                <div className={`tab ${(this.state.type === 4) ? "tab-selected" : "" }`}  onClick={(() =>{
+                    this.changeType(4);
+                })}>Powerups</div>
+            </div>
+            {this.renderTeamTabs()}
+            {finalElems}
+        </div>
         
   
     }
