@@ -139,7 +139,9 @@ class MatchManager{
                 this.CTFManager.playerManager = this.playerManager;
                 this.CTFManager.bIgnoreBots = this.bIgnoreBots;
 
-                if(this.CTFManager.bHasData()){
+                this.CTFManager.parseData(this.playerManager, matchTimings.start);
+
+                /*if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
                     // console.table(this.CTFManager.data);
                     
@@ -153,7 +155,7 @@ class MatchManager{
                    
 
                     new Message(`Capture The Flag stats update complete.`,'pass');
-                }
+                }*/
             }           
             
             if(this.assaultManager !== undefined){
@@ -241,7 +243,7 @@ class MatchManager{
                 await this.assaultManager.updatePlayersMatchStats();
             }
 
-            if(this.CTFManager !== undefined){
+            /*if(this.CTFManager !== undefined){
 
 
                 this.CTFManager.setSelfCovers(this.killManager);
@@ -250,7 +252,7 @@ class MatchManager{
                 await this.CTFManager.insertEvents(this.matchId);
                 
                 
-            }
+            }*/
 
             if(this.monsterHuntManager !== undefined){
 
@@ -576,10 +578,12 @@ class MatchManager{
                         }else if(currentType === 'flag_location' || currentType === "flag_kill"){
 
                             if(this.CTFManager === undefined){
+                                
                                 this.CTFManager = new CTFManager();
                                 this.CTFManager.bHaveNStatsData = true;
                             }
-                            this.CTFManager.flagLines.push(this.lines[i]);
+
+                            this.CTFManager.lines.push(this.lines[i]);
 
                         }else{
 
@@ -648,7 +652,7 @@ class MatchManager{
                         this.CTFManager = new CTFManager();
                     }
 
-                    this.CTFManager.data.push(this.lines[i]);
+                    this.CTFManager.lines.push(this.lines[i]);
                     // this.ctfData.push(this.lines[i]);
                 }
                 

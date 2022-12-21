@@ -139,6 +139,11 @@ class CTF{
 
         if(dropTimes.length === 0) return 0;
 
+        console.log(`dropTimes = `);
+        console.log(dropTimes);
+        console.log(`pickupTimes = `);
+        console.log(pickupTimes);
+
         for(let i = 0; i < pickupTimes.length; i++){
 
             //I forgot that there is no drops after the final pickup for caps 2iq move :(
@@ -165,6 +170,8 @@ class CTF{
         const totalUniqueAssists = assists.length;
 
         const timeDropped = this.calculateTimeDropped(dropTimes, pickupTimes);
+
+        console.log(`timeDropped = ${timeDropped}`);
         let carryTime = parseFloat(travelTime) - timeDropped;
         if(carryTime !== carryTime) carryTime = -1;
 
