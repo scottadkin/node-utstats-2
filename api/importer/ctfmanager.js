@@ -1,5 +1,6 @@
 const CTF = require("../ctf");
 const Message = require("../message");
+const CTFFlag = require("./ctfflag");
 
 class CTFManager{
 
@@ -12,6 +13,18 @@ class CTFManager{
         this.flagKills = [];
         this.flagReturns = [];
         this.flagTaken = [];
+
+        this.flags = [];
+
+        this.ctf = new CTF();
+    }
+
+    createFlags(){
+
+        console.log(`totalTeams = ${this.totalTeams}`);
+        for(let i = 0; i < this.totalTeams; i++){
+            this.flags.push(new CTFFlag(this.ctf, this.matchId, i));
+        }   
     }
 
     getLineTimestamp(line){
@@ -69,9 +82,11 @@ class CTFManager{
         const killer = this.playerManager.getOriginalConnectionById(killerId);
         const victim = this.playerManager.getOriginalConnectionById(victimId);
 
+        const killerTeam = killer.getTeamAt(timestamp);
 
         const flagKill = {
             "timestamp": timestamp,
+            "flagTeam": killerTeam,
             "killerId": killer.masterId,
             "victimId": victim.masterId,
             "killDistance": killDistance,
@@ -90,7 +105,7 @@ class CTFManager{
 
         if(smartCTFReg.test(line)){
 
-            const result = smartCTFReg.exec(line);     
+            const result = smartCTFReg.exec(line);          
         }
 
         if(nstatsCTFReg.test(line)){
@@ -100,10 +115,83 @@ class CTFManager{
             if(result !== null){
                 this.createNstatsFlagKill(timestamp, result);
             }
+        }  
+    }
+
+    createFlagTaken(timestamp, line){
+
+        const reg = /^.+?\tflag_taken\t(\d+?)\t(\d+)$/;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`Flag Taken regular expression failed`,"error");
+            return null;
         }
 
-    
-        
+        const playerId = parseInt(result[1]);
+        const flagTeam = parseInt(result[2]);
+
+        const player = this.playerManager.getOriginalConnectionById(playerId);
+
+        if(player === null){
+            new Message(`createFlagTaken player is null.`,"error");
+            return;
+        }
+
+        this.flags[flagTeam].taken(player.masterId, timestamp);
+
+    }
+
+
+    createFlagReturned(timestamp, line){
+
+        const reg = /^.+?\tflag_returned\t(\d+?)\t(\d+)$/;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`createFlagReturned regular expression failed.`);
+            return;
+        }
+
+        const playerId = parseInt(result[1]);
+        const flagTeam = parseInt(result[2]);
+
+        const player = this.playerManager.getOriginalConnectionById(playerId);
+
+        if(player === null){
+            new Message(`createFlagReturned player is null`,"error");
+            return;
+        }
+
+        this.flags[flagTeam].returned(timestamp, player.masterId);
+    }
+
+    createFlagDropped(timestamp, line){
+
+        const reg = /^.+?\tflag_dropped\t(\d+?)\t(\d+)$/;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`createFlagReturned regular expression failed.`);
+            return;
+        }
+
+        const playerId = parseInt(result[1]);
+        const flagTeam = parseInt(result[2]);
+
+
+        const player = this.playerManager.getOriginalConnectionById(playerId);
+
+        if(player === null){
+            new Message(`createFlagReturned player is null`,"error");
+            return;
+        }
+
+        this.flags[flagTeam].dropped(timestamp);
+
     }
 
     parseData(playerManager, matchStartTimestamp){
@@ -152,6 +240,18 @@ class CTFManager{
                 }
             }
 
+            if(eventType === "flag_taken"){
+
+                this.createFlagTaken(timestamp, line);
+            }
+
+            if(eventType === "flag_returned"){
+                this.createFlagReturned(timestamp, line);
+            }
+
+            if(eventType === "flag_dropped"){
+                this.createFlagDropped(timestamp, line);
+            }
 
       
             console.log(line);

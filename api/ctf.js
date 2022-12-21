@@ -269,19 +269,14 @@ class CTF{
     }
 
 
-    insertEvent(match, timestamp, player, event, team){
+    async insertEvent(match, timestamp, player, event, team){
 
-        return new Promise((resolve, reject) =>{
+        console.log(arguments);
 
-            const query = "INSERT INTO nstats_ctf_events VALUES(NULL,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_ctf_events VALUES(NULL,?,?,?,?,?)";
 
-            mysql.query(query, [match, timestamp, player, event, team], (err) =>{
+        return await mysql.simpleQuery(query, [match, timestamp, player, event, team]);
 
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
     async getMatchEvents(id){

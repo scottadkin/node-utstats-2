@@ -138,6 +138,8 @@ class MatchManager{
                 this.CTFManager.totalTeams = this.gameInfo.totalTeams;
                 this.CTFManager.playerManager = this.playerManager;
                 this.CTFManager.bIgnoreBots = this.bIgnoreBots;
+                this.CTFManager.matchId = this.matchId;
+                this.CTFManager.createFlags();
 
                 this.CTFManager.parseData(this.playerManager, matchTimings.start);
 
@@ -578,7 +580,7 @@ class MatchManager{
                         }else if(currentType === 'flag_location' || currentType === "flag_kill"){
 
                             if(this.CTFManager === undefined){
-                                
+
                                 this.CTFManager = new CTFManager();
                                 this.CTFManager.bHaveNStatsData = true;
                             }
