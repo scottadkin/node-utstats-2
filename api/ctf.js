@@ -73,11 +73,9 @@ class CTF{
         });
     }
 
-    updatePlayerMatchStats(rowId, stats){
+    async updatePlayerMatchStats(playerId, matchId, stats){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_player_matches SET
+        const query = `UPDATE nstats_player_matches SET
             flag_assist = ?,
             flag_return = ?,
             flag_taken = ?,
@@ -98,7 +96,7 @@ class CTF{
             flag_save = ?,
             flag_carry_time=?,
             flag_self_cover_best=?
-            WHERE id=?`;
+            WHERE player_id=? AND match_id=?`;
 
             const vars = [
                 stats.assist,
@@ -121,16 +119,11 @@ class CTF{
                 stats.save,
                 stats.carryTime,
                 stats.bestSelfCover,
-                rowId
+                playerId,
+                matchId
             ];
 
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, vars);
     }
 
     calculateTimeDropped(dropTimes, pickupTimes){

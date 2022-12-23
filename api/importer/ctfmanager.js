@@ -108,20 +108,24 @@ class CTFManager{
         const smartCTFReg = /^\d+?\.\d+?\tflag_kill\t(\d+)$/i;
         const nstatsCTFReg = /^\d+?\.\d+?\tnstats\tflag_kill\t(\d+?)\t(\d+?)\t(.+?)\t(.+?)\t(.+?)$/i;
 
-        if(smartCTFReg.test(line)){
+        //Work around a bug where sometimes the flag_kill is not saved to log by smartCTF, so use nstats one instead.
+        if(!this.bHaveNStatsData){
 
-            const result = smartCTFReg.exec(line);          
+            if(smartCTFReg.test(line)){
 
-            const playerId = parseInt(result[1]);
+                const result = smartCTFReg.exec(line);          
 
-            const player = this.playerManager.getOriginalConnectionById(playerId);
+                const playerId = parseInt(result[1]);
 
-            if(player === null){
-                new Message(`CreateFlagKill player is null`,"error");
-                return;
+                const player = this.playerManager.getOriginalConnectionById(playerId);
+
+                if(player === null){
+                    new Message(`CreateFlagKill player is null`,"error");
+                    return;
+                }
+
+                player.stats.ctf.kill++;
             }
-
-            player.stats.ctf.kill++;
         }
 
         if(nstatsCTFReg.test(line)){
@@ -277,6 +281,33 @@ class CTFManager{
         await this.flags[flagTeam].pickedUp(timestamp, holder.masterId);
     }
 
+    async createFlagSeal(timestamp, line){
+
+        const reg = /^\d+?\.\d+?\tflag_seal\t(\d+?)\t(\d+?)\t(\d+)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`createFlagSeal regular expression failed.`);
+            return;
+        }
+
+        const killerId = parseInt(result[1]);
+        //const victimId = parseInt(result[2]);
+        const killerTeam = parseInt(result[3]);
+
+        const killer = this.playerManager.getOriginalConnectionById(killerId);
+
+        if(killer === null){
+            new Message(`CreateFlagSeal killer is null`,"error");
+            return;
+        }
+
+        killer.stats.ctf.seal++;
+
+        await this.flags[killerTeam].seal(timestamp, killer.masterId);
+    }
+
     async parseData(matchStartTimestamp){
 
         this.matchStartTimestamp = matchStartTimestamp;
@@ -288,6 +319,7 @@ class CTFManager{
             "flag_return_enemybase",
             "flag_return_closesave"
         ];
+
    
         for(let i = 0; i < this.lines.length; i++){
 
@@ -313,20 +345,14 @@ class CTFManager{
 
                 if(nstatsType === null) continue;
 
-                console.log(`nstatsType = ${nstatsType}`);
-
                 if(nstatsType === "flag_kill"){
-
                     await this.createFlagKill(timestamp, line);
                 }
             }
 
             if(eventType === "flag_kill"){
-
-                if(!this.bHaveNStatsData){
-
-                    await this.createFlagKill(timestamp, line);
-                }
+          
+                await this.createFlagKill(timestamp, line);         
             }
 
             if(eventType === "flag_taken"){
@@ -350,7 +376,11 @@ class CTFManager{
                 await this.createFlagPickedUp(timestamp, line);
             }
 
-            console.log(line);
+            if(eventType === "flag_seal"){
+                await this.createFlagSeal(timestamp, line);
+            }
+
+            //console.log(line);
         }
 
         this.debugDisplayAllPlayers();
@@ -363,7 +393,7 @@ class CTFManager{
             const p = this.playerManager.players[i];
 
             console.log(p.name);
-            console.log(p.stats.ctf);
+            console.log(p.stats.ctf.kill);
         }
     }
 
@@ -380,6 +410,24 @@ class CTFManager{
                 player.stats.ctf.dropped++;
             }
         }
+    }
+
+
+    async updatePlayerMatchStats(){
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const player = this.playerManager.players[i];
+
+            console.log(player.masterId, this.matchId);
+
+            if(player.bDuplicate === undefined){
+                
+                await this.ctf.updatePlayerMatchStats(player.masterId, this.matchId, player.stats.ctf);
+            }
+        }
+
+        
     }
 }
 

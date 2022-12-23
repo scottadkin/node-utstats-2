@@ -25,6 +25,9 @@ class CTFFlag{
         this.killedByTimestamps = [];
         this.killedByPlayerIds = [];
 
+        this.sealTimestamps = [];
+        this.sealPlayerIds = [];
+
     }
 
     async reset(bCheckIfDropped){
@@ -51,19 +54,21 @@ class CTFFlag{
         this.pickupPlayerIds = [];
         this.killedByTimestamps = [];
         this.killedByPlayerIds = [];
+        this.sealTimestamps = [];
+        this.sealPlayerIds = [];
     }
 
     async returned(timestamp, playerId){
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "returned", this.team);
 
-        console.log(this);
-
         await this.reset(false);
     }
 
     async timedOutReturn(timestamp){
 
+        await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
+        await this.reset(false);
     }
 
     async taken(timestamp, playerId){
@@ -71,7 +76,6 @@ class CTFFlag{
         //just in case some data isn't reset
         await this.reset(true);
 
-        new Message(`${this.team} flag was taken by ${playerId}.`, "note");
         this.bDropped = false;
         this.bAtBase = false;
         this.carriedBy = playerId;
@@ -81,8 +85,6 @@ class CTFFlag{
     }
 
     async pickedUp(timestamp, playerId){
-
-        new Message(`${playerId} picked up the ${this.team}'s flag.`, "note");
 
         this.bDropped = false;
         this.bAtBase = false;
@@ -97,8 +99,6 @@ class CTFFlag{
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, this.carriedBy, "dropped", this.team);
 
-        new Message(`${this.carriedBy} dropped the ${this.team} flag`, "note");
-
         this.bDropped = true;
         this.bAtBase = false;
         this.droppedPlayerIds.push(this.carriedBy);
@@ -110,12 +110,23 @@ class CTFFlag{
 
         this.coverTimestamps.push(timestamp);
         this.coverPlayerIds.push(playerId);
+
+        await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "cover", this.team);
     }
 
     async killed(timestamp, killerId){
 
         this.killedByTimestamps.push(timestamp);
         this.killedByPlayerIds.push(killerId);
+
+        await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "killed", this.team);
+    }
+
+    async seal(timestamp, killerId){
+
+        this.sealTimestamps.push(timestamp);
+        this.sealPlayerIds.push(killerId);
+        await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
     }
 }
 

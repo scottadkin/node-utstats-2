@@ -133,32 +133,7 @@ class MatchManager{
 
             //this.playerManager.mergeDuplicates(bLMS);
             
-            if(this.CTFManager !== undefined){
-
-                this.CTFManager.totalTeams = this.gameInfo.totalTeams;
-                this.CTFManager.playerManager = this.playerManager;
-                this.CTFManager.bIgnoreBots = this.bIgnoreBots;
-                this.CTFManager.matchId = this.matchId;
-                this.CTFManager.createFlags();
-
-                await this.CTFManager.parseData(matchTimings.start);
-
-                /*if(this.CTFManager.bHasData()){
-                    new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
-                    // console.table(this.CTFManager.data);
-                    
-                    this.CTFManager.parseData(this.killManager, matchTimings.start);
-                    this.CTFManager.createCapData();
-                    this.CTFManager.setPlayerStats();
-                    await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
-                    await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
-                    await this.CTFManager.addCTF4Data();
-                    await this.CTFManager.updateMapCapRecords(this.mapInfo.mapId, this.matchId, this.serverInfo.date);
-                   
-
-                    new Message(`Capture The Flag stats update complete.`,'pass');
-                }*/
-            }           
+    
             
             if(this.assaultManager !== undefined){
 
@@ -245,16 +220,33 @@ class MatchManager{
                 await this.assaultManager.updatePlayersMatchStats();
             }
 
-            /*if(this.CTFManager !== undefined){
+            if(this.CTFManager !== undefined){
 
+                this.CTFManager.totalTeams = this.gameInfo.totalTeams;
+                this.CTFManager.playerManager = this.playerManager;
+                this.CTFManager.bIgnoreBots = this.bIgnoreBots;
+                this.CTFManager.matchId = this.matchId;
+                this.CTFManager.createFlags();
 
-                this.CTFManager.setSelfCovers(this.killManager);
-                await this.CTFManager.updatePlayersMatchStats();
-                await this.CTFManager.updatePlayerTotals();
-                await this.CTFManager.insertEvents(this.matchId);
-                
-                
-            }*/
+                await this.CTFManager.parseData(matchTimings.start);
+                await this.CTFManager.updatePlayerMatchStats();
+
+                /*if(this.CTFManager.bHasData()){
+                    new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
+                    // console.table(this.CTFManager.data);
+                    
+                    this.CTFManager.parseData(this.killManager, matchTimings.start);
+                    this.CTFManager.createCapData();
+                    this.CTFManager.setPlayerStats();
+                    await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
+                    await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
+                    await this.CTFManager.addCTF4Data();
+                    await this.CTFManager.updateMapCapRecords(this.mapInfo.mapId, this.matchId, this.serverInfo.date);
+                   
+
+                    new Message(`Capture The Flag stats update complete.`,'pass');
+                }*/
+            }       
 
             if(this.monsterHuntManager !== undefined){
 
@@ -468,7 +460,6 @@ class MatchManager{
         this.headshotLines = [];
 
         let typeResult = 0;
-        let currentType = 0;
 
         const gameTypes = [
             "game",
@@ -519,7 +510,7 @@ class MatchManager{
 
             if(typeResult !== null){
 
-                currentType = typeResult[1].toLowerCase();
+                const currentType = typeResult[1].toLowerCase();
 
 
                 if(gameTypes.indexOf(currentType) !== -1){
@@ -559,17 +550,17 @@ class MatchManager{
 
                     if(typeResult !== null){
 
-                        currentType = typeResult[1].toLowerCase();
+                        const subType = typeResult[1].toLowerCase();
 
-                        if(playerTypes.indexOf(currentType) !== -1){
+                        if(playerTypes.indexOf(subType) !== -1){
 
                             this.playerLines.push(this.lines[i]);
 
-                        }else if(currentType === 'kill_distance' || currentType == 'kill_location'){
+                        }else if(subType === 'kill_distance' || subType == 'kill_location'){
 
                             this.killLines.push(this.lines[i]);
 
-                        }else if(currentType === 'dom_point'){
+                        }else if(subType === 'dom_point'){
 
                             if(this.domManager === undefined){
                                 this.domManager = new DOMManager();
@@ -577,13 +568,14 @@ class MatchManager{
 
                             this.domManager.data.push(this.lines[i]);
 
-                        }else if(currentType === 'flag_location' || currentType === "flag_kill"){
+                        }else if(subType === 'flag_location' || subType === "flag_kill"){
 
                             if(this.CTFManager === undefined){
 
                                 this.CTFManager = new CTFManager();
-                                this.CTFManager.bHaveNStatsData = true;
                             }
+
+                            this.CTFManager.bHaveNStatsData = true;
 
                             this.CTFManager.lines.push(this.lines[i]);
 
@@ -601,7 +593,7 @@ class MatchManager{
                             }      
                         }
                     }
-
+                    continue;
                 }
                 
                 if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide' || currentType === 'headshot'){
