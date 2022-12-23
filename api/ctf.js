@@ -271,7 +271,6 @@ class CTF{
 
     async insertEvent(match, timestamp, player, event, team){
 
-        console.log(arguments);
 
         const query = "INSERT INTO nstats_ctf_events VALUES(NULL,?,?,?,?,?)";
 

@@ -35,6 +35,8 @@ class MatchCTFCapsNew extends React.Component{
 
             if(res.error === undefined){
 
+                console.log(res.data);
+
                 this.setState({"data": res.data, "finishedLoading": true});
 
             }else{

@@ -141,7 +141,7 @@ class MatchManager{
                 this.CTFManager.matchId = this.matchId;
                 this.CTFManager.createFlags();
 
-                this.CTFManager.parseData(this.playerManager, matchTimings.start);
+                await this.CTFManager.parseData(matchTimings.start);
 
                 /*if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');

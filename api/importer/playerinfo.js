@@ -69,6 +69,10 @@ class PlayerInfo{
             "ctf": {
                 "assist": 0,
                 "return": 0,
+                "returnMid": 0,
+                "returnBase": 0,
+                "returnEnemyBase": 0,
+                "save": 0,
                 "taken": 0,
                 "dropped": 0,
                 "capture": 0,
@@ -85,9 +89,9 @@ class PlayerInfo{
                 "bestCover": 0, //most covers during one flag
                 "bestSelfCover": 0, //most self covers during one flag
                 "kill": 0,
-                "save": 0,
                 "carryTime": 0,
-                "pickupTime": 0
+                "pickupTime": 0,
+                "suicide": 0 //suicide while carrying flag
             },
             "dom": {
                 "caps": 0,
