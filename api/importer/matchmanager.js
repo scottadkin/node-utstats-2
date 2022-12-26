@@ -205,10 +205,6 @@ class MatchManager{
             this.playerManager.pingManager.parsePings(this.playerManager);
             await this.playerManager.pingManager.insertPingData(this.matchId);
 
-
-            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
-            new Message(`Updated player match data.`,'pass');
-
             if(this.domManager !== undefined){
                 this.domManager.setLifeCaps(this.killManager);
                 await this.domManager.updatePlayersMatchStats();
@@ -219,34 +215,6 @@ class MatchManager{
             if(this.assaultManager !== undefined){
                 await this.assaultManager.updatePlayersMatchStats();
             }
-
-            if(this.CTFManager !== undefined){
-
-                this.CTFManager.totalTeams = this.gameInfo.totalTeams;
-                this.CTFManager.playerManager = this.playerManager;
-                this.CTFManager.bIgnoreBots = this.bIgnoreBots;
-                this.CTFManager.matchId = this.matchId;
-                this.CTFManager.createFlags();
-
-                await this.CTFManager.parseData(matchTimings.start);
-                await this.CTFManager.updatePlayerMatchStats();
-
-                /*if(this.CTFManager.bHasData()){
-                    new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
-                    // console.table(this.CTFManager.data);
-                    
-                    this.CTFManager.parseData(this.killManager, matchTimings.start);
-                    this.CTFManager.createCapData();
-                    this.CTFManager.setPlayerStats();
-                    await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
-                    await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
-                    await this.CTFManager.addCTF4Data();
-                    await this.CTFManager.updateMapCapRecords(this.mapInfo.mapId, this.matchId, this.serverInfo.date);
-                   
-
-                    new Message(`Capture The Flag stats update complete.`,'pass');
-                }*/
-            }       
 
             if(this.monsterHuntManager !== undefined){
 
@@ -323,19 +291,6 @@ class MatchManager{
             //this.maps.updatePlayerHistory(this.playerManager.players[0].masterId, this.mapInfo.matchId);
 
 
-            this.rankingsManager = new Rankings();
-
-            await this.rankingsManager.init();
-
-            //await this.rankingsManager.setRankingSettings();
-
-            //new Message("Getting player totals for rankings calculation.","note");
-            //const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);
-
-            //need to get player current totals then add them to the scores
-            new Message("Updating player rankings.","note");
-            //await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
-            await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
 
             //if(this.combogibLines.length !== 0){
 
@@ -363,6 +318,51 @@ class MatchManager{
                 pingAverageData.average.average, 
                 pingAverageData.max.average
             );
+
+
+
+            if(this.CTFManager !== undefined){
+
+                this.CTFManager.totalTeams = this.gameInfo.totalTeams;
+                this.CTFManager.playerManager = this.playerManager;
+                this.CTFManager.bIgnoreBots = this.bIgnoreBots;
+                this.CTFManager.matchId = this.matchId;
+                this.CTFManager.createFlags();
+
+                await this.CTFManager.parseData(matchTimings.start);
+                //await this.CTFManager.updatePlayerMatchStats();
+                
+                await this.playerManager.teamsManager.setTeamsPlaytime(this.playerManager, this.gameInfo.totalTeams, matchTimings, this.gameInfo.hardcore);
+
+                await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype, this.serverInfo.date);
+
+                /*if(this.CTFManager.bHasData()){
+                    new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
+                    // console.table(this.CTFManager.data);
+                    
+                    this.CTFManager.parseData(this.killManager, matchTimings.start);
+                    this.CTFManager.createCapData();
+                    this.CTFManager.setPlayerStats();
+                    await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
+                    await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
+                    await this.CTFManager.addCTF4Data();
+                    await this.CTFManager.updateMapCapRecords(this.mapInfo.mapId, this.matchId, this.serverInfo.date);
+                   
+
+                    new Message(`Capture The Flag stats update complete.`,'pass');
+                }*/
+            }       
+
+            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
+            new Message(`Updated player match data.`,'pass');
+
+            this.rankingsManager = new Rankings();
+
+            await this.rankingsManager.init();
+
+            //need to get player current totals then add them to the scores
+            new Message("Updating player rankings.","note");
+            await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
 
             await Logs.setMatchId(logId, this.matchId);
 

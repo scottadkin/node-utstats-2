@@ -110,7 +110,14 @@ class PlayerInfo{
                 "lastKill": 0,
                 "deaths": 0
             },
-            "time_on_server": 0
+            "time_on_server": 0,
+            "teamPlaytime": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "255": 0,
+            }
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };
 

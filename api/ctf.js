@@ -1417,6 +1417,28 @@ class CTF{
 
         return {"soloCaps": soloRecords, "assistedCaps": assistedRecords};
     }
+
+
+    async insertPlayerMatchData(playerId, matchId, mapId, gametypeId, serverId, matchDate, player){
+
+        const query = `INSERT INTO nstats_player_ctf_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [
+            playerId,
+            matchId, 
+            gametypeId, 
+            serverId, 
+            mapId,
+            matchDate, 
+            player.stats.time_on_server,
+            player.stats.teamPlaytime[0],
+            player.stats.teamPlaytime[1],
+            player.stats.teamPlaytime[2],
+            player.stats.teamPlaytime[3],
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
 }
 
 

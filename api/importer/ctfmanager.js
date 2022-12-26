@@ -426,8 +426,25 @@ class CTFManager{
                 await this.ctf.updatePlayerMatchStats(player.masterId, this.matchId, player.stats.ctf);
             }
         }
+    }
 
-        
+    async insertPlayerMatchData(serverId, mapId, gametypeId, matchDate){
+
+        new Message("CTFManager.insertPlayerMatchData()", "note");
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+
+            if(p.bDuplicate !== undefined){
+                new Message(`${p.name} is a duplicate not inserting data.`, "note");
+                continue;   
+            }
+
+            await this.ctf.insertPlayerMatchData(p.masterId, this.matchId, mapId, gametypeId, serverId, matchDate, p);
+
+        }
+        //insertPlayerMatchData(playerId, this.matchId, mapId, gametypeId, serverId, matchDate, playtime)
     }
 }
 

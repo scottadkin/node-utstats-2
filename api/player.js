@@ -257,94 +257,84 @@ class Player{
     }
 
 
+    async insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping){
 
-    insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping){
+        const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+            ?,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        return new Promise((resolve, reject) =>{
+            //53
+        const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
 
-           // console.log(player);
+        const vars = [
+            matchId,
+            matchDate,
+            mapId,
+            player.masterId,
+            player.bBot,
+            (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
+            (player.stats.time_on_server === 0) ? 0 : 1,//player.bPlayedInMatch,
+            Functions.setValueIfUndefined(player.ip,""),
+            Functions.setValueIfUndefined(player.country,"xx"),
+            Functions.setValueIfUndefined(player.faceId),
+            Functions.setValueIfUndefined(player.voiceId),
+            gametypeId,
+            player.bWinner,
+            player.bDrew,
+            Functions.setValueIfUndefined(player.stats.time_on_server),
+            player.stats.teamPlaytime[0],
+            player.stats.teamPlaytime[1],
+            player.stats.teamPlaytime[2],
+            player.stats.teamPlaytime[3],
+            player.stats.teamPlaytime[255],
+            lastTeam,
+            player.stats.firstBlood,
+            player.stats.frags,
+            player.stats.score,
+            player.stats.kills,
+            player.stats.deaths,
+            player.stats.suicides,
+            player.stats.teamkills,
+            player.stats.spawnKills,
+            Functions.calculateKillEfficiency(player.stats.kills, player.stats.deaths),
+            player.stats.multis.double,
+            player.stats.multis.multi,
+            player.stats.multis.mega,
+            player.stats.multis.ultra,
+            player.stats.multis.monster,
+            player.stats.multis.ludicrous,
+            player.stats.multis.holyshit,
+            player.stats.bestMulti,
+            player.stats.sprees.spree,
+            player.stats.sprees.rampage,
+            player.stats.sprees.dominating,
+            player.stats.sprees.unstoppable,
+            player.stats.sprees.godlike,
+            player.stats.sprees.massacre,
+            player.stats.sprees.brutalizing,
+            player.stats.bestSpree,
+            player.stats.bestspawnkillspree,
+            ping.min,
+            parseInt(ping.average),
+            ping.max,
+            player.stats.accuracy.toFixed(2),
+            (isNaN(player.stats.killMinDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killMinDistance),
+            (isNaN(player.stats.killAverageDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killAverageDistance),
+            player.stats.killMaxDistance,
+            player.stats.killsNormalRange,
+            player.stats.killsLongRange,
+            player.stats.killsUberRange,
+            player.stats.headshots
+        ];
 
-            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-                ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-                ?,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+        const result = await mysql.simpleQuery(query, vars);
 
-                //53
-            const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
+        return result.insertId;
 
-            const vars = [
-                matchId,
-                matchDate,
-                mapId,
-                player.masterId,
-                player.bBot,
-                (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
-                (player.stats.time_on_server === 0) ? 0 : 1,//player.bPlayedInMatch,
-                Functions.setValueIfUndefined(player.ip,""),
-                Functions.setValueIfUndefined(player.country,"xx"),
-                Functions.setValueIfUndefined(player.faceId),
-                Functions.setValueIfUndefined(player.voiceId),
-                gametypeId,
-                player.bWinner,
-                player.bDrew,
-                Functions.setValueIfUndefined(player.stats.time_on_server),
-                lastTeam,
-                player.stats.firstBlood,
-                player.stats.frags,
-                player.stats.score,
-                player.stats.kills,
-                player.stats.deaths,
-                player.stats.suicides,
-                player.stats.teamkills,
-                player.stats.spawnKills,
-                Functions.calculateKillEfficiency(player.stats.kills, player.stats.deaths),
-                player.stats.multis.double,
-                player.stats.multis.multi,
-                player.stats.multis.mega,
-                player.stats.multis.ultra,
-                player.stats.multis.monster,
-                player.stats.multis.ludicrous,
-                player.stats.multis.holyshit,
-                player.stats.bestMulti,
-                player.stats.sprees.spree,
-                player.stats.sprees.rampage,
-                player.stats.sprees.dominating,
-                player.stats.sprees.unstoppable,
-                player.stats.sprees.godlike,
-                player.stats.sprees.massacre,
-                player.stats.sprees.brutalizing,
-                player.stats.bestSpree,
-                player.stats.bestspawnkillspree,
-                ping.min,
-                parseInt(ping.average),
-                ping.max,
-                player.stats.accuracy.toFixed(2),
-                (isNaN(player.stats.killMinDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killMinDistance),
-                (isNaN(player.stats.killAverageDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killAverageDistance),
-                player.stats.killMaxDistance,
-                player.stats.killsNormalRange,
-                player.stats.killsLongRange,
-                player.stats.killsUberRange,
-                player.stats.headshots
-            ];
-
-
-            mysql.query(query, vars, (err, result) =>{
-
-                if(err){
-                    console.trace(err);
-                    reject(err);
-                    console.log(vars);
-                    return;
-                }
-
-                //console.log(result);
-
-                resolve(result.insertId);
-            });
-        });
     }
+    
 
     getPlayerById(id){
 

@@ -561,6 +561,26 @@ async function updateServerTable(){
     }
 }
 
+
+async function updateMatchesTable(){
+
+    const queries = [
+        `ALTER TABLE nstats_player_matches ADD COLUMN team_0_playtime FLOAT NOT NULL after playtime`,
+        `ALTER TABLE nstats_player_matches ADD COLUMN team_1_playtime FLOAT NOT NULL after team_0_playtime`,
+        `ALTER TABLE nstats_player_matches ADD COLUMN team_2_playtime FLOAT NOT NULL after team_1_playtime`,
+        `ALTER TABLE nstats_player_matches ADD COLUMN team_3_playtime FLOAT NOT NULL after team_2_playtime`,
+        `ALTER TABLE nstats_player_matches ADD COLUMN spec_playtime FLOAT NOT NULL after team_3_playtime`,
+    ];
+
+    for(let i = 0; i < queries.length; i++){
+
+        const q = queries[i];
+
+        await mysql.simpleQuery(q);
+        new Message(q,"pass");
+    }
+}
+
 (async () =>{
 
     try{
@@ -641,6 +661,11 @@ async function updateServerTable(){
 
         if(!await columnExists("nstats_matches", "ping_max_average")){
             await alterTable("nstats_matches", "ping_max_average", "float NOT NULL");
+        }
+
+        if(!await columnExists("nstats_player_matches", "team_0_playtime")){
+
+            await updateMatchesTable();
         }
 
         process.exit(0);
