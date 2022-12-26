@@ -1246,7 +1246,21 @@ const queries = [
 
     
 
-
+    `CREATE TABLE IF NOT EXISTS nstats_player_ctf_match (
+      id int NOT NULL AUTO_INCREMENT,
+      player_id int NOT NULL,
+      match_id int NOT NULL,
+      gametype_id int NOT NULL,
+      server_id int NOT NULL,
+      map_id int NOT NULL,
+      match_date int NOT NULL,
+      playtime float NOT NULL,
+      team_0_playtime float NOT NULL,
+      team_1_playtime float NOT NULL,
+      team_2_playtime float NOT NULL,
+      team_3_playtime float NOT NULL,
+      spec_playtime float NOT NULL,
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
 
 ];
 

@@ -90,6 +90,11 @@ class CTFManager{
                 killer.stats.ctf.suicide++;
             }else{
                 killer.stats.ctf.kill++;
+
+                const lastTimestamp = killer.getCTFNewLastTimestamp("kill");
+                const totalDeaths = this.killManager.getOriginalIdDeathsBetween(killer.masterId, lastTimestamp, timestamp);
+
+                killer.setCTFNewValue("kill", timestamp, totalDeaths);
             }
 
         }
@@ -123,6 +128,11 @@ class CTFManager{
                     new Message(`CreateFlagKill player is null`,"error");
                     return;
                 }
+
+                const lastTimestamp = player.getCTFNewLastTimestamp("kill");
+                const totalDeaths = this.killManager.getOriginalIdDeathsBetween(player.masterId, lastTimestamp, timestamp);
+
+                player.setCTFNewValue("kill", timestamp, totalDeaths);
 
                 player.stats.ctf.kill++;
             }
@@ -191,10 +201,7 @@ class CTFManager{
 
         const lastEventTimestamp = player.getCTFNewLastTimestamp(type);
         
-
         const totalDeaths = this.killManager.getOriginalIdDeathsBetween(player.masterId, lastEventTimestamp, timestamp);
-
-        console.log(`lastEventTimestamp = ${lastEventTimestamp}, currentTimestamp=${timestamp} totalDeaths = ${totalDeaths}`);
 
         if(type === "returned"){
             player.setCTFNewValue("return", timestamp, totalDeaths);
@@ -427,7 +434,12 @@ class CTFManager{
 
                 await flag.dropped(timestamp);
 
+                const lastTimestamp = player.getCTFNewLastTimestamp("dropped");
+                const totalDeaths = this.killManager.getOriginalIdDeathsBetween(player.masterId, lastTimestamp, timestamp);
+
+                new Message(`Dropeed flags died ${totalDeaths}`,"error");
                 player.stats.ctf.dropped++;
+                player.setCTFNewValue("dropped", timestamp, totalDeaths);
             }
         }
     }

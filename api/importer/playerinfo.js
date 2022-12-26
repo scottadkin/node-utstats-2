@@ -97,6 +97,18 @@ class PlayerInfo{
                     "currentLife": 0,
                     "bestLife": 0,
                     "lastTimestamp": 0
+                },
+                "dropped":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "kill":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
                 }
             },
             "ctf": {
@@ -548,20 +560,20 @@ class PlayerInfo{
         if(value === undefined) value = 1;
 
         if(totalDeaths > 0){
-
-            const bestLife = this.stats.ctfNew[type].bestLife;
-            const currentLife = this.stats.ctfNew[type].currentLife;
-
-            if(bestLife < currentLife){
-                this.stats.ctfNew[type].bestLife = currentLife;
-            }
-
             this.stats.ctfNew[type].currentLife = 0;
         }
+
 
         this.stats.ctfNew[type].total += value;
         this.stats.ctfNew[type].lastTimestamp = timestamp;
         this.stats.ctfNew[type].currentLife++;
+
+        const bestLife = this.stats.ctfNew[type].bestLife;
+        const currentLife = this.stats.ctfNew[type].currentLife;
+
+        if(bestLife < currentLife){
+            this.stats.ctfNew[type].bestLife = currentLife;
+        }
     }
 
     getCTFNewLastTimestamp(type){
