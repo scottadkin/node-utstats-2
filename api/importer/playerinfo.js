@@ -1,5 +1,6 @@
 const config = require('../../config.json');
 const WeaponStats = require('./weaponstats');
+const Message = require("../message");
 
 class PlayerInfo{
 
@@ -66,9 +67,43 @@ class PlayerInfo{
             "bestspawnkillspree":0,
             "spawnKills": 0,
             "accuracy": 0,
+            "ctfNew":{
+                "return":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "returnMid":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "returnBase":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "returnEnemyBase":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "returnSave":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                }
+            },
             "ctf": {
                 "assist": 0,
                 "return": 0,
+                "returnBest": 0,//most flag returns in one life
+                "currentReturns": 0,
                 "returnMid": 0,
                 "returnBase": 0,
                 "returnEnemyBase": 0,
@@ -127,6 +162,7 @@ class PlayerInfo{
         this.timeAlive = 0;
 
         this.spawns = [];
+
         //console.log(this);
 
     }
@@ -225,7 +261,9 @@ class PlayerInfo{
 
         this.updateMonsterHuntSprees();
 
-        this.lastDeath = parseFloat(timestamp);
+        const deathTimestamp = parseFloat(timestamp);
+
+        this.lastDeath = deathTimestamp
 
         this.updateSprees();
         this.updateMultis();
@@ -503,6 +541,46 @@ class PlayerInfo{
     diedToMonster(){
         this.stats.monsterHunt.deaths++;
     }   
+
+
+    setCTFNewValue(type, timestamp, totalDeaths, value){
+
+        if(value === undefined) value = 1;
+
+        if(totalDeaths > 0){
+
+            const bestLife = this.stats.ctfNew[type].bestLife;
+            const currentLife = this.stats.ctfNew[type].currentLife;
+
+            if(bestLife < currentLife){
+                this.stats.ctfNew[type].bestLife = currentLife;
+            }
+
+            this.stats.ctfNew[type].currentLife = 0;
+        }
+
+        this.stats.ctfNew[type].total += value;
+        this.stats.ctfNew[type].lastTimestamp = timestamp;
+        this.stats.ctfNew[type].currentLife++;
+    }
+
+    getCTFNewLastTimestamp(type){
+
+
+        if(type === "return_closesave"){
+            type = "returnSave";
+        }else if(type === "return_enemybase"){
+           type = "returnEnemyBase";
+        }else if(type === "return_mid"){
+            type = "returnMid"
+        }else if(type === "return_base"){
+            type = "returnBase";
+        }else if(type === "returned"){
+            type = "return";
+        }
+
+        return this.stats.ctfNew[type].lastTimestamp;
+    }
 }
 
 

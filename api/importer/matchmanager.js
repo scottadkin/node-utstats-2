@@ -321,12 +321,16 @@ class MatchManager{
 
 
 
+            this.killManager.createOriginalIdDeaths();
+
+
             if(this.CTFManager !== undefined){
 
                 this.CTFManager.totalTeams = this.gameInfo.totalTeams;
                 this.CTFManager.playerManager = this.playerManager;
                 this.CTFManager.bIgnoreBots = this.bIgnoreBots;
                 this.CTFManager.matchId = this.matchId;
+                this.CTFManager.killManager = this.killManager;
                 this.CTFManager.createFlags();
 
                 await this.CTFManager.parseData(matchTimings.start);
@@ -336,6 +340,7 @@ class MatchManager{
 
                 await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype, this.serverInfo.date);
 
+                
                 /*if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
                     // console.table(this.CTFManager.data);
@@ -363,6 +368,7 @@ class MatchManager{
             //need to get player current totals then add them to the scores
             new Message("Updating player rankings.","note");
             await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
+
 
             await Logs.setMatchId(logId, this.matchId);
 

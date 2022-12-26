@@ -189,12 +189,32 @@ class CTFManager{
             return;
         }
 
-        player.stats.ctf.return++;
+        const lastEventTimestamp = player.getCTFNewLastTimestamp(type);
+        
 
-        if(type === "return_closesave") player.stats.ctf.save++;
-        if(type === "return_enemybase") player.stats.ctf.returnEnemyBase++;
-        if(type === "return_mid") player.stats.ctf.returnMid++;
-        if(type === "return_base") player.stats.ctf.returnBase++;
+        const totalDeaths = this.killManager.getOriginalIdDeathsBetween(player.masterId, lastEventTimestamp, timestamp);
+
+        console.log(`lastEventTimestamp = ${lastEventTimestamp}, currentTimestamp=${timestamp} totalDeaths = ${totalDeaths}`);
+
+        if(type === "returned"){
+            player.setCTFNewValue("return", timestamp, totalDeaths);
+        }
+
+        if(type === "return_closesave"){
+            player.setCTFNewValue("returnSave", timestamp, totalDeaths);
+        }
+
+        if(type === "return_enemybase"){
+            player.setCTFNewValue("returnEnemyBase", timestamp, totalDeaths);
+        }
+
+        if(type === "return_mid"){
+            player.setCTFNewValue("returnMid", timestamp, totalDeaths);
+        }
+
+        if(type === "return_base"){
+            player.setCTFNewValue("returnBase", timestamp, totalDeaths);
+        }
 
         await this.flags[flagTeam].returned(timestamp, player.masterId);
     }

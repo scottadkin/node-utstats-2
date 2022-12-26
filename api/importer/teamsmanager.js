@@ -127,7 +127,7 @@ class TeamsManager{
 
         for(const [playerId, data] of Object.entries(teamJoins)){
 
-            if(data.team >= 0 && data.team <= 3){
+            //if(data.team >= 0 && data.team <= 3){
 
                 let diff = matchTimings.end - data.timestamp;
 
@@ -146,7 +146,7 @@ class TeamsManager{
                 }
 
                 player.stats.teamPlaytime[data.team] += diff;
-            }
+            //}
         }
     }
 }

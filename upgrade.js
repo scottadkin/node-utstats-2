@@ -316,6 +316,34 @@ async function createNewTables(){
                 total_ace_join_logs INT(1) NOT NULL,
                 total_ace_screenshots INT(1) NOT NULL
               ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+              `CREATE TABLE IF NOT EXISTS nstats_player_ctf_match (
+                id int NOT NULL AUTO_INCREMENT,
+                player_id int NOT NULL,
+                match_id int NOT NULL,
+                gametype_id int NOT NULL,
+                server_id int NOT NULL,
+                map_id int NOT NULL,
+                match_date int NOT NULL,
+                playtime float NOT NULL,
+                team_0_playtime float NOT NULL,
+                team_1_playtime float NOT NULL,
+                team_2_playtime float NOT NULL,
+                team_3_playtime float NOT NULL,
+                spec_playtime float NOT NULL,
+                flag_assist INT(11) NOT NULL,
+                flag_assist_best INT(11) NOT NULL,
+                flag_return INT(11) NOT NULL, 
+                flag_return_best INT(11) NOT NULL, 
+                flag_return_base INT(11) NOT NULL, 
+                flag_return_base_best INT(11) NOT NULL, 
+                flag_return_mid INT(11) NOT NULL, 
+                flag_return_mid_best INT(11) NOT NULL, 
+                flag_return_enemy_base INT(11) NOT NULL, 
+                flag_return_enemy_base_best INT(11) NOT NULL, 
+                flag_return_save INT(11) NOT NULL, 
+                flag_return_save_best INT(11) NOT NULL, 
+                PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
         ];
 
         for(let i = 0; i < queries.length; i++){

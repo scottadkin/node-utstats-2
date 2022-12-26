@@ -377,12 +377,11 @@ class KillManager{
 
         let found = 0;
 
-        let k = 0;
         let currentVictim = 0;
 
         for(let i = 0; i < this.kills.length; i++){
 
-            k = this.kills[i];
+            const k = this.kills[i];
             
             if(k.timestamp > end) break;
 
@@ -413,12 +412,73 @@ class KillManager{
                         if(k.killerId === victim) found++;
                     }
                 }
-
             }
         }
 
         return found;
+    }
 
+
+    createOriginalIdDeaths(){
+
+        const cache = {};
+
+        this.deathTimestamps = {};
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const k = this.kills[i];
+
+            let victimId = 0;
+
+            if(k.victimId === -1){
+                victimId = k.killerId;
+            }else{
+                victimId = k.victimId;
+            }
+
+            if(cache[victimId] === undefined){
+
+                const player = this.playerManager.getOriginalConnectionById(victimId);
+
+                if(player === null){
+                    new Message(`KillManager.createOriginalIdDeaths player is null`, "error");
+                    continue;
+                }
+
+                cache[victimId] = player;
+
+                this.deathTimestamps[player.masterId] = [];
+   
+            }
+
+            const player = cache[victimId];
+
+
+            this.deathTimestamps[player.masterId].push(k.timestamp);
+        }
+    }
+
+    getOriginalIdDeathsBetween(masterId, start, end){
+
+        let found = 0;
+
+        if(this.deathTimestamps[masterId] === undefined){
+
+            new Message(`getOriginalIdDeathsBetween this.deathTimestamps[masterId] is undefined`,"warning");
+            return 0;
+        }
+
+        const data = this.deathTimestamps[masterId];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+            if(d > end) break;
+            if(d >= start) found++;
+        }
+
+        return found;
     }
 }
 
