@@ -360,7 +360,7 @@ class CTFManager{
             new Message(`createFlagCaptured result is null.`,"error");
             return;
         }
-        
+
         console.log(result);
     }
 
@@ -533,34 +533,6 @@ class CTFManager{
 
         for(const [playerId, timestamps] of Object.entries(playerCovers)){
 
-            let currentCovers = 0;
-            let bestCovers = 0;
-            let lastTimestamp = 0;
-
-            for(let i = 0; i < timestamps.length; i++){
-
-                if(i === 0){
-
-                    currentCovers = 1;
-                    lastTimestamp = timestamps[i];
-
-                }else{
-
-                    const totalDeaths = this.killManager.getOriginalIdDeathsBetween(playerId, lastTimestamp, timestamps[i]);
-                    console.log(`total deaths since last cover ${totalDeaths}`);
-
-                    if(totalDeaths > 0){
-                        currentCovers = 1;
-                    }else{
-                        currentCovers++;
-                    }
-                }
-
-                if(currentCovers > bestCovers){
-                    bestCovers = currentCovers;
-                }
-            }
-
             const player = this.playerManager.getPlayerByMasterId(playerId);
 
             if(player === null){
@@ -568,10 +540,28 @@ class CTFManager{
                 continue;
             }
 
-            
-            player.setCTFNewCovers(coverType, timestamps.length, bestCovers);
+            let currentCovers = player.stats.ctfNew[coverType].currentLife;
+            let bestCovers = 0;
+            let lastTimestamp = player.stats.ctfNew[coverType].lastTimestamp;
 
-            //player.setCTFNewValue("coverFail", timestamp, totalDeaths);
+            for(let i = 0; i < timestamps.length; i++){
+
+                const totalDeaths = this.killManager.getOriginalIdDeathsBetween(playerId, lastTimestamp, timestamps[i]);
+
+                if(totalDeaths > 0){
+                    currentCovers = 1;
+                }else{
+                    currentCovers++;
+                }
+
+                lastTimestamp = timestamps[i];
+              
+                if(currentCovers > bestCovers){
+                    bestCovers = currentCovers;
+                }
+            }
+
+            player.setCTFNewCovers(coverType, timestamps.length, bestCovers, currentCovers, lastTimestamp);
         }
     }
 }

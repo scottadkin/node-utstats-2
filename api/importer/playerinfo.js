@@ -125,11 +125,15 @@ class PlayerInfo{
                 },
                 "coverPass":{
                     "total": 0,
-                    "bestLife": 0
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
                 },
                 "coverFail":{
                     "total": 0,
-                    "bestLife": 0
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
                 },
                 
             },
@@ -621,7 +625,7 @@ class PlayerInfo{
         return this.stats.ctfNew[type].lastTimestamp;
     }
 
-    setCTFNewCovers(coverType, totalCovers, bestCovers){
+    setCTFNewCovers(coverType, totalCovers, bestCovers, currentCovers, timestamp){
 
         const data = this.stats.ctfNew[coverType];
 
@@ -630,6 +634,9 @@ class PlayerInfo{
         if(data.bestLife < bestCovers){
             data.bestLife = bestCovers;
         }
+
+        data.currentLife = currentCovers;
+        data.lastTimestamp = timestamp;
     }
 }
 
