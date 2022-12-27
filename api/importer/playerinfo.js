@@ -109,7 +109,29 @@ class PlayerInfo{
                     "currentLife": 0,
                     "bestLife": 0,
                     "lastTimestamp": 0
-                }
+                },
+                "suicide":{"total": 0},
+                "seal":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "cover":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "coverPass":{
+                    "total": 0,
+                    "bestLife": 0
+                },
+                "coverFail":{
+                    "total": 0,
+                    "bestLife": 0
+                },
+                
             },
             "ctf": {
                 "assist": 0,
@@ -557,6 +579,11 @@ class PlayerInfo{
 
     setCTFNewValue(type, timestamp, totalDeaths, value){
 
+        if(timestamp === null){
+            this.stats.ctfNew[type].total++;
+            return;
+        }
+
         if(value === undefined) value = 1;
 
         if(totalDeaths > 0){
@@ -592,6 +619,17 @@ class PlayerInfo{
         }
 
         return this.stats.ctfNew[type].lastTimestamp;
+    }
+
+    setCTFNewCovers(coverType, totalCovers, bestCovers){
+
+        const data = this.stats.ctfNew[coverType];
+
+        data.total += totalCovers;
+
+        if(data.bestLife < bestCovers){
+            data.bestLife = bestCovers;
+        }
     }
 }
 

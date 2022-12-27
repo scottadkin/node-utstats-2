@@ -347,6 +347,15 @@ async function createNewTables(){
                 flag_return_dropped_best INT(11) NOT NULL, 
                 flag_kill INT(11) NOT NULL, 
                 flag_kill_best INT(11) NOT NULL, 
+                flag_suicide INT(11) NOT NULL, 
+                flag_seal INT(11) NOT NULL, 
+                flag_seal_best INT(11) NOT NULL, 
+                flag_seal_cover INT(11) NOT NULL, 
+                flag_seal_cover_best INT(11) NOT NULL, 
+                flag_seal_cover_pass INT(11) NOT NULL, 
+                flag_seal_cover_pass_best INT(11) NOT NULL, 
+                flag_seal_cover_fail INT(11) NOT NULL, 
+                flag_seal_cover_fail_best INT(11) NOT NULL, 
                 PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
         ];
 
