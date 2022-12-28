@@ -28,6 +28,9 @@ class CTFFlag{
         this.sealTimestamps = [];
         this.sealPlayerIds = [];
 
+        this.killsWithFlagTimestamps = [];
+        this.killsWithFlagPlayerIds = [];
+
     }
 
     async reset(bCheckIfDropped){
@@ -127,6 +130,12 @@ class CTFFlag{
         this.sealTimestamps.push(timestamp);
         this.sealPlayerIds.push(killerId);
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
+    }
+
+    async captured(timestamp, playerId){
+
+        await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
+        this.reset(false);
     }
 }
 

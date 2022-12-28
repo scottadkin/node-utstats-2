@@ -521,19 +521,15 @@ class PlayerManager{
         let killer = 0;
         let victim = 0;
 
-        //console.log(kills);
 
         for(let i = 0; i < kills.length; i++){
 
             const k = kills[i];
 
-            //console.log(k);
-
-
             if(k.type === 'kill'){
 
-                killer = this.getPlayerById(k.killerId);
-                victim = this.getPlayerById(k.victimId);
+                killer = this.getOriginalConnectionById(k.killerId);
+                victim = this.getOriginalConnectionById(k.victimId);
 
                 if(killer !== null){
 
@@ -564,9 +560,9 @@ class PlayerManager{
                         }
 
                         this.sprees.addToList(
-                            victim.id, 
+                            victim.masterId, 
                             victim.getCurrentSpree(), 
-                            killer.id,
+                            killer.masterId,
                             victim.getPreviousSpawn(k.timestamp),
                             k.timestamp
                         );
@@ -584,16 +580,16 @@ class PlayerManager{
             }else if(k.type === 'suicide'){
                
 
-                victim = this.getPlayerById(k.killerId);
+                victim = this.getOriginalConnectionById(k.killerId);
 
                 if(victim !== null){
 
                     if(victim.onASpree()){
 
                         this.sprees.addToList(
-                            victim.id, 
+                            victim.masterId, 
                             victim.getCurrentSpree(), 
-                            victim.id,
+                            victim.masterId,
                             victim.getPreviousSpawn(k.timestamp),
                             k.timestamp
                         );
@@ -612,16 +608,14 @@ class PlayerManager{
 
     matchEnded(endTimestamp){
 
-        let p = 0;
-
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
 
             if(p.onASpree()){
 
                 this.sprees.addToList(
-                    p.id, 
+                    p.masterId, 
                     p.getCurrentSpree(), 
                     -1,
                     p.getPreviousSpawn(endTimestamp),
@@ -636,15 +630,11 @@ class PlayerManager{
 
     setHeadshots(data){
 
-        let killer = 0;
-
-        let d = 0;
-
         for(let i = 0; i < data.length; i++){
 
-            d = data[i];
+            const d = data[i];
 
-            killer = this.getPlayerById(d.killer);
+            const killer = this.getOriginalConnectionById(d.killer);
 
             if(killer !== null){
 
@@ -653,8 +643,7 @@ class PlayerManager{
             }else{
                 new Message(`PlayerManager.setHeadshots() killer is null`,'warning');
             }
-        }
-        
+        }    
     }
 
     setIp(string){    
@@ -670,8 +659,8 @@ class PlayerManager{
 
                 const geo = this.geoip.lookup(result[2]);
 
-                //console.log(geo);
-                let country = 'xx';
+                let country = "xx";
+
                 if(geo !== null){
                     country = geo.country.toLowerCase();
                 }
@@ -703,7 +692,6 @@ class PlayerManager{
                 return this.players[i];
             }
         }
-
 
         return null;
     }

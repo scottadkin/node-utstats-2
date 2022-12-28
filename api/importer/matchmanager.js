@@ -80,8 +80,7 @@ class MatchManager{
 
             new Message(`Log file id is ${logId}`,"note");
 
-            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
-
+    
             if(this.mapInfo.mapPrefix === "mh"){
                 this.gameInfo.totalTeams = 0;
             }
@@ -98,6 +97,11 @@ class MatchManager{
                 new Message(`Incomplete log skipping...`,'error');
                 return null;
             }
+
+            await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
+
+            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
+
 
             this.playerManager.setKills(this.killManager.kills);
             this.playerManager.matchEnded(this.gameInfo.end);
@@ -124,8 +128,6 @@ class MatchManager{
             new Message(`Inserted match info into database.`,'pass');
             
             await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);
-
-            await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
 
             this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
 

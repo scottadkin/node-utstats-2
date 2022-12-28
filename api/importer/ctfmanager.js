@@ -361,6 +361,18 @@ class CTFManager{
             return;
         }
 
+        const playerId = parseInt(result[1]);
+        const flagTeam = parseInt(result[2]);
+
+        const player = this.playerManager.getOriginalConnectionById(playerId);
+
+        if(player === null){
+            new Message(`createFlagCaptrued player is null`, "error");
+            return;
+        }
+
+        await this.flags[flagTeam].captured(timestamp, player.masterId);
+
         console.log(result);
     }
 

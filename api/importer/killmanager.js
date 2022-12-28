@@ -342,11 +342,9 @@ class KillManager{
 
         const found = [];
 
-        let k = 0;
-
         for(let i = 0; i < this.kills.length; i++){
 
-            k = this.kills[i];
+            const k = this.kills[i];
 
             if(k.timestamp >= start && k.timestamp <= end){
 
@@ -479,6 +477,11 @@ class KillManager{
         }
 
         return found;
+    }
+
+
+    setKillsMasterIds(){
+        
     }
 }
 
