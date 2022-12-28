@@ -39,6 +39,7 @@ class KillManager{
             this.killNames.push(result[4]);
         }
 
+
         const killerId = parseInt(result[3]);
         const killer = this.playerManager.getOriginalConnectionById(killerId);
 
@@ -96,8 +97,6 @@ class KillManager{
             new Message(`Kill(Location) happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
-
-        console.log(result);
 
         const killer = this.playerManager.getOriginalConnectionById(parseInt(result[2]));
         const victim = this.playerManager.getOriginalConnectionById(parseInt(result[6]));
@@ -234,9 +233,6 @@ class KillManager{
 
         try{
 
-            //console.log(weaponsManager.weapons);
-            let k = 0;
-
             let currentKiller = 0;
             let currentVictim = 0;
             let currentKillerTeam = 0;
@@ -246,10 +242,10 @@ class KillManager{
 
             for(let i = 0; i < this.kills.length; i++){
 
-                k = this.kills[i];
+                const k = this.kills[i];
 
-                currentKiller = this.playerManager.getOriginalConnectionById(k.killerId);
-                currentVictim = this.playerManager.getOriginalConnectionById(k.victimId);
+                currentKiller = this.playerManager.getPlayerByMasterId(k.killerId);
+                currentVictim = this.playerManager.getPlayerByMasterId(k.victimId);
                 
                 if(this.bIgnoreBots){
 
@@ -267,6 +263,7 @@ class KillManager{
                 currentVictimTeam =  this.playerManager.getPlayerTeamAt(k.victimId, k.timestamp);
 
                 currentKillerWeapon = weaponsManager.weapons.getSavedWeaponByName(k.killerWeapon);
+
                 if(k.victimId !== -1){
                     currentVictimWeapon = weaponsManager.weapons.getSavedWeaponByName(k.victimWeapon);
                 }else{
@@ -424,7 +421,7 @@ class KillManager{
 
                 if(k.timestamp >= start){
 
-                    currentVictim = this.playerManager.getOriginalConnectionById(k.victimId);
+                    currentVictim = this.playerManager.getPlayerByMasterId(k.victimId);
 
                     if(currentVictim !== null){
 

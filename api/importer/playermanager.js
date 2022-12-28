@@ -26,6 +26,7 @@ class PlayerManager{
 
         this.originalIdCache = {};
         this.originalConnectionIndexes = {};
+        this.masterIndexes = {};
         this.idToNames = {};
 
         this.players = [];
@@ -70,11 +71,17 @@ class PlayerManager{
                 this.originalConnectionIndexes[name] = i;
             }
 
+            //if(this.masterIndexes[p.masterId] === undefined){
+            //    this.masterIndexes[p.masterId] = i;
+            //}
+
             this.idToNames[p.id] = p.name;
+
         }
 
         console.log(this.originalConnectionIndexes);
         console.log(this.idToNames);
+       // console.log(this.masterIndexes);
     }
 
     getTotalPlayers(){
@@ -127,12 +134,16 @@ class PlayerManager{
 
     getPlayerByName(name){
 
-        for(let i = 0; i < this.players.length; i++){
+        if(this.originalConnectionIndexes[name.toLowerCase()] !== undefined){
+            return this.players[this.originalConnectionIndexes[name.toLowerCase()]];
+        }
+
+        /*for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
 
             if(p.name == name) return p;
-        }
+        }*/
 
         return null;
     }
@@ -141,17 +152,12 @@ class PlayerManager{
 
         id = parseInt(id);
 
-        if(this.originalConnectionIndexes[id] !== undefined){
-
-            return this.players[i]
-        }
-
-        /*for(let i = 0; i < this.players.length; i++){
+        for(let i = 0; i < this.players.length; i++){
 
             if(this.players[i].masterId === id){
                 return this.players[i];
             }
-        }*/
+        }
 
         return null;
     }
@@ -554,15 +560,14 @@ class PlayerManager{
         let killer = 0;
         let victim = 0;
 
-
         for(let i = 0; i < kills.length; i++){
 
             const k = kills[i];
 
             if(k.type === 'kill'){
 
-                killer = this.getOriginalConnectionById(k.killerId);
-                victim = this.getOriginalConnectionById(k.victimId);
+                killer = this.getPlayerByMasterId(k.killerId);
+                victim = this.getPlayerByMasterId(k.victimId);
 
                 if(killer !== null){
 
@@ -613,7 +618,7 @@ class PlayerManager{
             }else if(k.type === 'suicide'){
                
 
-                victim = this.getOriginalConnectionById(k.killerId);
+                victim = this.getPlayerByMasterId(k.killerId);
 
                 if(victim !== null){
 
@@ -667,7 +672,7 @@ class PlayerManager{
 
             const d = data[i];
 
-            const killer = this.getOriginalConnectionById(d.killer);
+            const killer = this.getPlayerByMasterId(d.killer);
 
             if(killer !== null){
 
@@ -1259,11 +1264,9 @@ class PlayerManager{
 
     setPlayerSpawns(){
 
-        let p = 0;
-
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
             p.spawns = this.spawnManager.getPlayerSpawns(p.id);
         }
     }
@@ -1305,13 +1308,11 @@ class PlayerManager{
 
         try{
 
-            let p = 0;
-
             const data = {};
 
             for(let i = 0; i < this.players.length; i++){
                 
-                p = this.players[i];
+                const p = this.players[i];
 
                 if(p.bDuplicate === undefined && p.bPlayedInMatch){
 
@@ -1403,11 +1404,11 @@ class PlayerManager{
     getPlayerTeamAt(id, timestamp){
 
         id = parseInt(id);
-        timestamp = parseFloat(timestamp);
+        timestamp = parseFloat(timestamp)
 
         for(let i = 0; i < this.players.length; i++){
 
-            if(this.players[i].id === id){
+            if(this.players[i].masterId === id){
                 return this.players[i].getTeamAt(timestamp);
             }
         }
@@ -1420,14 +1421,11 @@ class PlayerManager{
 
         try{
 
-            let currentPlayer = 0;
-            let s = 0;
-
             for(let i = 0; i < this.scoreHistory.length; i++){
 
-                s = this.scoreHistory[i];
+                const s = this.scoreHistory[i];
 
-                currentPlayer = this.getOriginalConnectionById(s.player);
+                const currentPlayer = this.getOriginalConnectionById(s.player);
 
                 if(currentPlayer !== null){
 
@@ -1674,7 +1672,6 @@ class PlayerManager{
         try{
 
             if(this.sprees.currentSprees !== undefined){
-                this.setSpreeMasterIds();
                 await this.sprees.insertCurrentSprees(matchId);
             }
 

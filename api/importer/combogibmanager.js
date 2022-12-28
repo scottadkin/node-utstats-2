@@ -443,10 +443,11 @@ class CombogibManager{
 
             if(deathType !== "shockball" && deathType !== "jolted" && deathType !== "combo" && deathType !== "shockcombo") continue;
 
+
             const currentKill = {
                 "timestamp": k.timestamp,
-                "player": this.playerManager.getOriginalConnectionMasterId(k.killerId),
-                "victim": this.playerManager.getOriginalConnectionMasterId(k.victimId)
+                "player": k.killerId,
+                "victim": k.victimId
             };
 
             if(deathType === "shockball"){
@@ -821,6 +822,7 @@ class CombogibManager{
                 }
 
                 const {combos, insane, shockBalls, primary, playtime} = value;
+
                 await this.combogib.insertPlayerMatchData(key, this.gametypeId, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
 
                 await this.combogib.updatePlayerTotals(key, this.gametypeId, this.mapId, this.matchId, playtime, combos, insane, shockBalls, primary);
