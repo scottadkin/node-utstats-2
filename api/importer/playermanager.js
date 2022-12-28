@@ -24,6 +24,10 @@ class PlayerManager{
 
         this.geoip = geoip;
 
+        this.originalIdCache = {};
+        this.originalConnectionIndexes = {};
+        this.idToNames = {};
+
         this.players = [];
         this.uniqueNames = [];
         this.duplicateNames = [];
@@ -50,6 +54,27 @@ class PlayerManager{
         this.parsePlayerStrings();
         this.setWeaponStats();
 
+    }
+
+
+    setOriginalIndexes(){
+
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            const name = p.name.toLowerCase();
+
+            if(this.originalConnectionIndexes[name] === undefined){
+                this.originalConnectionIndexes[name] = i;
+            }
+
+            this.idToNames[p.id] = p.name;
+        }
+
+        console.log(this.originalConnectionIndexes);
+        console.log(this.idToNames);
     }
 
     getTotalPlayers(){
@@ -116,12 +141,17 @@ class PlayerManager{
 
         id = parseInt(id);
 
-        for(let i = 0; i < this.players.length; i++){
+        if(this.originalConnectionIndexes[id] !== undefined){
+
+            return this.players[i]
+        }
+
+        /*for(let i = 0; i < this.players.length; i++){
 
             if(this.players[i].masterId === id){
                 return this.players[i];
             }
-        }
+        }*/
 
         return null;
     }
@@ -130,12 +160,15 @@ class PlayerManager{
 
         id = parseInt(id);
 
-        for(let i = 0; i < this.players.length; i++){
+        if(this.idToNames[id] !== undefined){
+            return this.idToNames[id];
+        }
+        /*for(let i = 0; i < this.players.length; i++){
 
             if(this.players[i].id === id){
                 return this.players[i].name;
             }
-        }
+        }*/
 
         return null;
     }
@@ -686,13 +719,19 @@ class PlayerManager{
 
         name = name.toLowerCase();
 
-        for(let i = 0; i < this.players.length; i++){
-
-            if(this.players[i].name.toLowerCase() === name){
-                return this.players[i];
-            }
+        if(this.originalConnectionIndexes[name] !== undefined){
+            return this.players[this.originalConnectionIndexes[name]];
         }
 
+        /*for(let i = 0; i < this.players.length; i++){
+
+            const currentName = this.players[i].name.toLowerCase();
+
+            if(currentName === name){
+                this.originalNameIndexes[currentName] = i;
+                return this.players[i];
+            }
+        }*/
         return null;
     }
 
@@ -704,7 +743,6 @@ class PlayerManager{
         const name = this.getPlayerNameById(id);
 
         if(name !== null){
-
             return this.getOriginalConnection(name);
         }
 

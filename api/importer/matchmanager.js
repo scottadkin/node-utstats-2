@@ -99,6 +99,7 @@ class MatchManager{
             }
 
             await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
+            this.playerManager.setOriginalIndexes();
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
 
@@ -323,7 +324,7 @@ class MatchManager{
 
 
 
-            this.killManager.createOriginalIdDeaths();
+           // this.killManager.createOriginalIdDeaths();
 
 
             if(this.CTFManager !== undefined){
