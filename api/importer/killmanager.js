@@ -451,7 +451,7 @@ class KillManager{
     }
 
 
-    createOriginalIdDeaths(){
+    /*createOriginalIdDeaths(){
 
         const cache = {};
 
@@ -511,7 +511,7 @@ class KillManager{
         }
 
         return found;
-    }
+    }*/
 
 
     setKillsMasterIds(){

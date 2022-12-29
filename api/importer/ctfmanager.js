@@ -93,7 +93,7 @@ class CTFManager{
                 killer.stats.ctf.kill++;
 
                 const lastTimestamp = killer.getCTFNewLastTimestamp("kill");
-                const totalDeaths = this.killManager.getOriginalIdDeathsBetween(killer.masterId, lastTimestamp, timestamp);
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, killer.masterId, false)
 
                 killer.setCTFNewValue("kill", timestamp, totalDeaths);
             }
@@ -102,7 +102,8 @@ class CTFManager{
 
         if(victim !== null){
             
-            const victimTeam = this.playerManager.getPlayerTeamAt(victimId, timestamp);
+            const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
+
             await this.flags[victimTeam].killed(timestamp, killer.masterId);
         }
 
@@ -131,7 +132,7 @@ class CTFManager{
                 }
 
                 const lastTimestamp = player.getCTFNewLastTimestamp("kill");
-                const totalDeaths = this.killManager.getOriginalIdDeathsBetween(player.masterId, lastTimestamp, timestamp);
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);
 
                 player.setCTFNewValue("kill", timestamp, totalDeaths);
 
@@ -202,7 +203,7 @@ class CTFManager{
 
         const lastEventTimestamp = player.getCTFNewLastTimestamp(type);
         
-        const totalDeaths = this.killManager.getOriginalIdDeathsBetween(player.masterId, lastEventTimestamp, timestamp);
+        const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
 
         if(type === "returned"){
             player.setCTFNewValue("return", timestamp, totalDeaths);
@@ -282,7 +283,7 @@ class CTFManager{
         killer.stats.ctf.cover++;
 
         const lastTimestamp = killer.getCTFNewLastTimestamp("cover");
-        const totalDeaths = this.killManager.getOriginalIdDeathsBetween(killer.masterId, lastTimestamp, timestamp);
+        const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, killer.masterId, false);
 
         killer.setCTFNewValue("cover", timestamp, totalDeaths);
 
@@ -341,7 +342,7 @@ class CTFManager{
 
 
         const lastEventTimestamp = killer.getCTFNewLastTimestamp("seal"); 
-        const totalDeaths = this.killManager.getOriginalIdDeathsBetween(killer.masterId, lastEventTimestamp, timestamp);
+        const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, killer.masterId, false);
 
         killer.setCTFNewValue("seal", timestamp, totalDeaths);
 
@@ -479,7 +480,7 @@ class CTFManager{
                 await flag.dropped(timestamp);
 
                 const lastTimestamp = player.getCTFNewLastTimestamp("dropped");
-                const totalDeaths = this.killManager.getOriginalIdDeathsBetween(player.masterId, lastTimestamp, timestamp);
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);
 
                 player.stats.ctf.dropped++;
                 player.setCTFNewValue("dropped", timestamp, totalDeaths);
@@ -558,7 +559,7 @@ class CTFManager{
 
             for(let i = 0; i < timestamps.length; i++){
 
-                const totalDeaths = this.killManager.getOriginalIdDeathsBetween(playerId, lastTimestamp, timestamps[i]);
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamps[i], playerId, false)
 
                 if(totalDeaths > 0){
                     currentCovers = 1;
