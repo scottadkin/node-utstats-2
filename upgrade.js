@@ -326,11 +326,6 @@ async function createNewTables(){
                 map_id int NOT NULL,
                 match_date int NOT NULL,
                 playtime float NOT NULL,
-                team_0_playtime float NOT NULL,
-                team_1_playtime float NOT NULL,
-                team_2_playtime float NOT NULL,
-                team_3_playtime float NOT NULL,
-                spec_playtime float NOT NULL,
                 flag_assist INT(11) NOT NULL,
                 flag_assist_best INT(11) NOT NULL,
                 flag_return INT(11) NOT NULL, 
@@ -356,6 +351,8 @@ async function createNewTables(){
                 flag_seal_cover_pass_best INT(11) NOT NULL, 
                 flag_seal_cover_fail INT(11) NOT NULL, 
                 flag_seal_cover_fail_best INT(11) NOT NULL, 
+                flag_capture INT(11) NOT NULL, 
+                flag_capture_best INT(11) NOT NULL, 
                 PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
         ];
 

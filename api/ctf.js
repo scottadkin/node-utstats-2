@@ -1421,8 +1421,8 @@ class CTF{
 
     async insertPlayerMatchData(playerId, matchId, mapId, gametypeId, serverId, matchDate, player){
 
-        const query = `INSERT INTO nstats_player_ctf_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_player_ctf_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             playerId,
@@ -1432,11 +1432,11 @@ class CTF{
             mapId,
             matchDate, 
             player.stats.time_on_server,
-            player.stats.teamPlaytime[0],
-            player.stats.teamPlaytime[1],
-            player.stats.teamPlaytime[2],
-            player.stats.teamPlaytime[3],
-            player.stats.teamPlaytime[255],
+            //player.stats.teamPlaytime[0],
+            //player.stats.teamPlaytime[1],
+            //player.stats.teamPlaytime[2],
+            //player.stats.teamPlaytime[3],
+            //player.stats.teamPlaytime[255],
             0,//flag assist
             0,//flag assist best
             player.stats.ctfNew.return.total,
@@ -1461,7 +1461,9 @@ class CTF{
             player.stats.ctfNew.coverPass.total,
             player.stats.ctfNew.coverPass.bestLife,
             player.stats.ctfNew.coverFail.total,
-            player.stats.ctfNew.coverFail.bestLife
+            player.stats.ctfNew.coverFail.bestLife,
+            player.stats.ctfNew.capture.total,
+            player.stats.ctfNew.capture.bestLife
         ];
 
         return await mysql.simpleQuery(query, vars);
