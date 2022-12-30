@@ -25,12 +25,18 @@ class Player{
 
     async createMasterId(playerName){
 
-        const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,0,0,"",0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+        const query = `INSERT INTO nstats_player_totals VALUES(
+            NULL,?,0,0,0,0,"",0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [playerName]);
 
+            //55
         return result.insertId;
     }
 
@@ -50,9 +56,14 @@ class Player{
 
     async createGametypeId(playerName, playerMasterId, gametypeId){
 
-        const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,"",0,0,?,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+        const query = `INSERT INTO nstats_player_totals VALUES(
+            NULL,?,?,0,0,0,"",0,0,?,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [playerName, playerMasterId, gametypeId]);
 
@@ -229,11 +240,15 @@ class Player{
 
     async insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping){
 
-        const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-            ?,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+        const query = `INSERT INTO nstats_player_matches VALUES(
+            NULL,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,0,0,0,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,0,0,0,0,0,0,0,0,0,
+            0,0,0,0)`;
 
             //53
         const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
@@ -665,12 +680,9 @@ class Player{
 
     async getGametypeTotals(player, gametype){
 
-        const query = `SELECT frags,deaths,suicides,team_kills,flag_taken,flag_pickup,flag_return,flag_capture,
-            flag_cover,flag_seal,flag_assist,flag_kill,dom_caps,assault_objectives,multi_1,multi_2,multi_3,multi_4,
-            multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,flag_assist,flag_return,
-            flag_taken,flag_dropped,flag_capture,flag_pickup,flag_seal,flag_cover,flag_cover_pass,flag_cover_fail,
-            flag_self_cover,flag_self_cover_pass,flag_self_cover_fail,flag_multi_cover,flag_spree_cover,flag_kill,
-            flag_save,dom_caps,assault_objectives,playtime,matches,mh_kills
+        const query = `SELECT frags,deaths,suicides,team_kills,dom_caps,assault_objectives,multi_1,multi_2,multi_3,multi_4,
+            multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,dom_caps,assault_objectives,playtime,
+            matches,mh_kills
             FROM nstats_player_totals WHERE gametype=? AND player_id=?
             `;
 
@@ -683,6 +695,16 @@ class Player{
         return null;
     }
 
+    async getCTFMatchData(playerId, matchId){
+
+        const query = "SELECT * FROM nstats_player_ctf_match WHERE player_id=? AND match_id=?";
+
+        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
 
     async getMatchData(playerId, matchId){
 
@@ -692,6 +714,13 @@ class Player{
         const result = await mysql.simpleQuery(query, [playerId, matchId]);
 
         if(result.length > 0){
+
+            const ctfData = await this.getCTFMatchData(playerId, matchId);
+
+            if(ctfData !== null){
+                result[0].ctfData = ctfData;          
+            }
+            
             return result[0];
         }
 
@@ -760,25 +789,6 @@ class Player{
             spree_5 = spree_5 - ?,
             spree_6 = spree_6 - ?,
             spree_7 = spree_7 - ?,
-
-            flag_assist = flag_assist - ?,
-            flag_return = flag_return - ?,
-            flag_taken = flag_taken - ?,
-            flag_dropped = flag_dropped - ?,
-            flag_capture = flag_capture - ?,
-            flag_pickup = flag_pickup - ?,
-            flag_seal = flag_seal - ?,
-            flag_cover = flag_cover - ?,
-            flag_cover_pass = flag_cover_pass - ?,
-            flag_cover_fail = flag_cover_fail - ?,
-            flag_self_cover = flag_self_cover - ?,
-            flag_self_cover_pass = flag_self_cover_pass - ?,
-            flag_self_cover_fail = flag_self_cover_fail - ?,
-            flag_multi_cover = flag_multi_cover - ?,
-            flag_spree_cover = flag_spree_cover - ?,
-            flag_kill = flag_kill - ?,
-            flag_save = flag_save - ?,
-            flag_carry_time = flag_carry_time - ?,
             assault_objectives = assault_objectives - ?,
             dom_caps = dom_caps - ?,
             k_distance_normal = k_distance_normal - ?,
@@ -832,7 +842,7 @@ class Player{
                 player.spree_6,
                 player.spree_7,
 
-                player.flag_assist,
+                /*player.flag_assist,
                 player.flag_return,
                 player.flag_taken,
                 player.flag_dropped,
@@ -849,7 +859,7 @@ class Player{
                 player.flag_spree_cover,
                 player.flag_kill,
                 player.flag_save,
-                player.flag_carry_time,
+                player.flag_carry_time,*/
                 player.assault_objectives,
                 player.dom_caps,
                 player.headshots,
@@ -1015,6 +1025,7 @@ class Player{
 
         return result[0].total_rows > 0;
     }
+    
 
     async getPlayerGametypeTotals(playerId, gametypeId){
 

@@ -79,8 +79,8 @@ class CTFManager{
         const distanceToEnemyBase = parseFloat(data[4]);
         const distanceToCap = parseFloat(data[5]);
 
-        const killer = this.playerManager.getOriginalConnectionById(killerId);
-        const victim = this.playerManager.getOriginalConnectionById(victimId);
+        const killer = this.playerManager.getPlayerById(killerId);
+        const victim = this.playerManager.getPlayerById(victimId);
 
         if(killer !== null && victim !== null){
 
@@ -124,7 +124,7 @@ class CTFManager{
 
                 const playerId = parseInt(result[1]);
 
-                const player = this.playerManager.getOriginalConnectionById(playerId);
+                const player = this.playerManager.getPlayerById(playerId);
 
                 if(player === null){
                     new Message(`CreateFlagKill player is null`,"error");
@@ -164,7 +164,7 @@ class CTFManager{
         const playerId = parseInt(result[1]);
         const flagTeam = parseInt(result[2]);
 
-        const player = this.playerManager.getOriginalConnectionById(playerId);
+        const player = this.playerManager.getPlayerById(playerId);
 
         if(player === null){
             new Message(`createFlagTaken player is null.`,"error");
@@ -194,7 +194,7 @@ class CTFManager{
         const playerId = parseInt(result[2]);
         const flagTeam = parseInt(result[3]);
 
-        const player = this.playerManager.getOriginalConnectionById(playerId);
+        const player = this.playerManager.getPlayerById(playerId);
 
         if(player === null){
             new Message(`createFlagReturned player is null`,"error");
@@ -244,7 +244,7 @@ class CTFManager{
 
         const playerId = parseInt(result[1]);
 
-        const player = this.playerManager.getOriginalConnectionById(playerId);
+        const player = this.playerManager.getPlayerById(playerId);
 
         if(player === null){
             new Message(`createFlagReturned player is null`,"error");
@@ -273,7 +273,7 @@ class CTFManager{
         //const victimId = parseInt(result[2]);
         const killerTeam = parseInt(result[3]);
 
-        const killer = this.playerManager.getOriginalConnectionById(killerId);
+        const killer = this.playerManager.getPlayerById(killerId);
 
         if(killer === null){
             new Message(`createFlagCover killer is null`,"error");
@@ -306,7 +306,7 @@ class CTFManager{
         const flagTeam = parseInt(result[2]);
 
 
-        const holder = this.playerManager.getOriginalConnectionById(playerId);
+        const holder = this.playerManager.getPlayerById(playerId);
 
         if(holder === null){
             new Message(`createFlagPickedUp flag holder is null`,"error");
@@ -333,7 +333,7 @@ class CTFManager{
         //const victimId = parseInt(result[2]);
         const killerTeam = parseInt(result[3]);
 
-        const killer = this.playerManager.getOriginalConnectionById(killerId);
+        const killer = this.playerManager.getPlayerById(killerId);
 
         if(killer === null){
             new Message(`CreateFlagSeal killer is null`,"error");
@@ -365,7 +365,7 @@ class CTFManager{
         const playerId = parseInt(result[1]);
         const flagTeam = parseInt(result[2]);
 
-        const player = this.playerManager.getOriginalConnectionById(playerId);
+        const player = this.playerManager.getPlayerById(playerId);
 
         if(player === null){
             new Message(`createFlagCaptrued player is null`, "error");

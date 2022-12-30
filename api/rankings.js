@@ -87,8 +87,7 @@ class Rankings{
 
     async updatePlayerRankings(playerManager, playerId, gametypeId, matchId){
 
-
-        const playerMatchData = await playerManager.getMatchData(playerId, matchId);
+        const playerMatchData = await playerManager.getMatchData(playerId, matchId);;
 
         if(playerMatchData === null){
             new Message(`Rankings.updatePlayerRankings() playerMatchData is null!`, "error");
@@ -162,6 +161,11 @@ class Rankings{
 
         let score = 0;
 
+
+        //remove this after table is finished
+        const ctfIgnore = ["id", "player_id", "match_id", "gametype_id", "server_id", "map_id", "match_date","playtime"];
+        
+
         for(const [type, value] of Object.entries(this.settings)){
 
             if(this.settings[type] === undefined){
@@ -170,7 +174,20 @@ class Rankings{
                 continue;
             }
 
-            score += data[type] * value;
+            if(data[type] !== undefined){
+                score += data[type] * value;
+            }else{
+
+                if(data.ctfData !== undefined){
+
+                    if(data.ctfData[type] !== undefined){
+                        
+                        if(ctfIgnore.indexOf(type) === -1){
+                            score += data.ctfData[type] * value;
+                        }
+                    }
+                }
+            }
         }
 
 

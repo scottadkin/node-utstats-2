@@ -66,7 +66,7 @@ class MonsterHuntManager{
 
                 killerId = parseInt(result[2]);
 
-                currentKiller = playerManager.getOriginalConnectionById(killerId);
+                currentKiller = playerManager.getPlayerById(killerId);
 
                 if(currentKiller !== null){
 
@@ -105,7 +105,7 @@ class MonsterHuntManager{
 
                 const playerId = parseInt(result[3]);
 
-                const currentVictim = playerManager.getOriginalConnectionById(playerId);
+                const currentVictim = playerManager.getPlayerById(playerId);
                 
                 if(currentVictim !== null){
 

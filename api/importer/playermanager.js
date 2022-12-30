@@ -193,6 +193,7 @@ class PlayerManager{
         const name = this.masterIdsToNames[id];
 
         if(name === undefined){
+            
             new Message(`getPlayerByMasterId(${id}) Name is undefined`,"error");
             return null;
         }

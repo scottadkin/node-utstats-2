@@ -245,7 +245,12 @@ class KillManager{
                 const k = this.kills[i];
 
                 currentKiller = this.playerManager.getPlayerByMasterId(k.killerId);
-                currentVictim = this.playerManager.getPlayerByMasterId(k.victimId);
+
+                if(k.victimId !== -1){
+                    currentVictim = this.playerManager.getPlayerByMasterId(k.victimId);
+                }else{
+                    currentVictim = currentKiller;
+                }
                 
                 if(this.bIgnoreBots){
 

@@ -224,7 +224,9 @@ class PlayerInfo{
     }
 
     disconnect(timeStamp){
+
         this.disconnects.push(timeStamp);
+
     }
 
     bDuplicateTeamData(timestamp, id){
