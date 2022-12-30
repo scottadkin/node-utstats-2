@@ -379,7 +379,7 @@ class MatchManager{
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
             return {
-                "updatedPlayers": this.playerManager.getAllNonDuplicateMasterIds(), 
+                "updatedPlayers": this.playerManager.players.length, 
                 "updatedGametype": this.gametype.currentMatchGametype
             }
 

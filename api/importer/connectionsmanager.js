@@ -25,7 +25,7 @@ class ConnectionsManager{
 
                 result = connectReg.exec(this.lines[i]);
       
-                currentPlayer = playerManager.getOriginalConnectionById(result[2]);
+                currentPlayer = playerManager.getPlayerById(result[2]);
                 
                 if(currentPlayer !== null){
 
@@ -42,7 +42,7 @@ class ConnectionsManager{
 
                 result = disconnectReg.exec(this.lines[i]);
 
-                currentPlayer = playerManager.getOriginalConnectionById(result[2]);
+                currentPlayer = playerManager.getPlayerById(result[2]);
 
                 if(currentPlayer !== null){
 
@@ -62,12 +62,9 @@ class ConnectionsManager{
 
         try{
 
-            let d = 0;
-
             for(let i = 0; i < this.data.length; i++){
 
-                d = this.data[i];
-
+                const d = this.data[i];
                 await this.connections.insert(matchId, d.timestamp, d.type, d.player);
             }
 

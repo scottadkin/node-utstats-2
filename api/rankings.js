@@ -153,6 +153,11 @@ class Rankings{
 
     calculateRanking(data){
 
+        if(data === null){
+            new Message(`Rankings.calculateRanking() data is null`,"error");
+            return 0;
+        }
+
         const playtime = data.playtime ?? 0;
 
         let score = 0;

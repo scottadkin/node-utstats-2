@@ -29,6 +29,7 @@ class PlayerManager{
         this.duplicateNames = [];
 
         this.idsToNames = {};
+        this.masterIdsToNames = {};
 
         this.faces = new Faces();
         this.voices = new Voices();
@@ -61,6 +62,7 @@ class PlayerManager{
         this.setWeaponStats();
 
         console.log(this.idsToNames);
+        console.log(this.masterIdsToNames);
     }
 
     async createPlayers(gametypeId){
@@ -115,9 +117,13 @@ class PlayerManager{
             player.gametypeId = masterIds.gametypeId;
 
             this.players.push(player);     
+        }else{
+
+            player.connect(timestamp);
         }   
 
         this.idsToNames[playerId] = result[1].toLowerCase();
+        this.masterIdsToNames[player.masterId] = result[1].toLowerCase();
 
     }
 
@@ -142,6 +148,7 @@ class PlayerManager{
                 this.players.push(player);
 
                 this.idsToNames[id] = result[1].toLowerCase();
+                this.masterIdsToNames[player.masterId] = result[1].toLowerCase();
 
             }else{
                 player.connect(timestamp, true);
@@ -168,10 +175,25 @@ class PlayerManager{
 
     getPlayerById(id){
         
+
+        id = parseInt(id);
+
         const name = this.idsToNames[id];
 
         if(name === undefined){
-            new Message(`Name is undefined`,"error");
+            new Message(`getPlayerById(${id}) Name is undefined`,"error");
+            return null;
+        }
+
+        return this.getPlayerByName(name);
+    }
+
+    getPlayerByMasterId(id){
+
+        const name = this.masterIdsToNames[id];
+
+        if(name === undefined){
+            new Message(`getPlayerByMasterId(${id}) Name is undefined`,"error");
             return null;
         }
 
@@ -700,6 +722,8 @@ class PlayerManager{
 
     mergePlayer(master, duplicate){
 
+        new Message(`PlayerManager.mergePlayer() is deprecated`,"error");
+        return;
         //bPlayedInMatch
        
         if(master.bPlayedInMatch || duplicate.bPlayedInMatch){
@@ -1424,7 +1448,7 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+                if(p.bPlayedInMatch){
 
                     if(this.bIgnoreBots){
                         if(p.bBot) continue;
@@ -1434,6 +1458,7 @@ class PlayerManager{
                 }
             }
 
+
             const data = await this.winRateManager.getCurrentPlayersData(playerIds, [0, gametypeId]);
 
             const currentResult = {};
@@ -1442,16 +1467,13 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                if(p.bDuplicate === undefined){
-
-                    if(p.bWinner){
-                        currentResult[p.masterId] = 1;
-                    }else if(!p.bWinner && !p.bDrew){
-                        currentResult[p.masterId] = 0;
-                    }else if(p.bDrew){
-                        currentResult[p.masterId] = 2;
-                    }  
-                }
+                if(p.bWinner){
+                    currentResult[p.masterId] = 1;
+                }else if(!p.bWinner && !p.bDrew){
+                    currentResult[p.masterId] = 0;
+                }else if(p.bDrew){
+                    currentResult[p.masterId] = 2;
+                }         
             }
 
             this.updateCurrentWinRates(data, currentResult);
@@ -1482,27 +1504,6 @@ class PlayerManager{
             new Message(`PlayerManager.updateWinRates() ${err}`,'error');
         }
     }
-
-
-
-    getAllNonDuplicateMasterIds(){
-
-        const found = [];
-
-        let p = 0;
-
-        for(let i = 0; i < this.players.length; i++){
-
-            p = this.players[i];
-
-            if(p.bDuplicate === undefined){
-                found.push(p.masterId);
-            }
-        }
-
-        return found;
-    }
-
 
     async getPlayerTotals(gametype){
 
@@ -1691,12 +1692,7 @@ class PlayerManager{
             }
 
             if(p.stats.time_on_server > 0){
-
-                if(p.bDuplicate === undefined){
-                    await rankingsManager.updatePlayerRankings(Player, p.masterId, gametypeId, matchId);
-                }else{
-                    new Message(`Duplicate player detected, ignoring ranking update for ${p.name}.`,"note");
-                }
+                await rankingsManager.updatePlayerRankings(Player, p.masterId, gametypeId, matchId);    
             }
         }
     }

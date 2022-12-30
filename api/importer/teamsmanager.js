@@ -22,7 +22,7 @@ class TeamsManager{
 
             if(result !== null){
 
-                const currentPlayer = playerManager.getOriginalConnectionById(parseInt(result[2]));
+                const currentPlayer = playerManager.getPlayerById(result[2]);
 
                 if(currentPlayer !== null){
 

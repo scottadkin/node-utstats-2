@@ -50,7 +50,7 @@ class Player{
 
     async createGametypeId(playerName, playerMasterId, gametypeId){
 
-        const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,"",0,0,0,0,0,0,
+        const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,"",0,0,?,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
@@ -73,7 +73,6 @@ class Player{
     }
 
     async getMasterIds(playerName, gametypeId){
-
 
         const masterId = await this.getMasterId(playerName, 0);
         const gametypeMasterId = await this.getGametypeId(playerName, masterId, gametypeId);
@@ -686,6 +685,7 @@ class Player{
 
 
     async getMatchData(playerId, matchId){
+
 
         const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id=? LIMIT 1";
 

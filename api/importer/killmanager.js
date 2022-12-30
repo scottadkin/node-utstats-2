@@ -41,10 +41,10 @@ class KillManager{
 
 
         const killerId = parseInt(result[3]);
-        const killer = this.playerManager.getOriginalConnectionById(killerId);
+        const killer = this.playerManager.getPlayerById(killerId);
 
         const victimId = parseInt(result[5]);
-        const victim = this.playerManager.getOriginalConnectionById(victimId);
+        const victim = this.playerManager.getPlayerById(victimId);
 
         const kill = new Kill(result[1], result[2], killer.masterId ?? -1, result[4], victim.masterId ?? -1, result[6], result[7]);
         
@@ -72,8 +72,8 @@ class KillManager{
             return;
         }
 
-        const killer = this.playerManager.getOriginalConnectionById(parseInt(result[2]));
-        const victim = this.playerManager.getOriginalConnectionById(parseInt(result[3]));
+        const killer = this.playerManager.getPlayerById(parseInt(result[2]));
+        const victim = this.playerManager.getPlayerById(parseInt(result[3]));
 
         this.headshots.push({
             "timestamp": parseFloat(result[1]),
@@ -84,7 +84,7 @@ class KillManager{
 
     parseSuicide(result){
 
-        const victim = this.playerManager.getOriginalConnectionById(parseInt(result[2]));
+        const victim = this.playerManager.getPlayerById(parseInt(result[2]));
 
         this.kills.push(new Kill(result[1], 'suicide', victim.masterId ?? -1, result[3], -1, null, result[4]));
     }
@@ -98,8 +98,8 @@ class KillManager{
             return;
         }
 
-        const killer = this.playerManager.getOriginalConnectionById(parseInt(result[2]));
-        const victim = this.playerManager.getOriginalConnectionById(parseInt(result[6]));
+        const killer = this.playerManager.getPlayerById(parseInt(result[2]));
+        const victim = this.playerManager.getPlayerById(parseInt(result[6]));
 
         this.setLocations(
             result[1],
@@ -182,8 +182,8 @@ class KillManager{
 
     setDistance(timestamp, distance, killerId, victimId){
 
-        const killer = this.playerManager.getOriginalConnectionById(killerId);
-        const victim = this.playerManager.getOriginalConnectionById(victimId);
+        const killer = this.playerManager.getPlayerById(killerId);
+        const victim = this.playerManager.getPlayerById(victimId);
         
         const kill = this.getMatchingKill(timestamp, killer.masterId, victim.masterId);
 
