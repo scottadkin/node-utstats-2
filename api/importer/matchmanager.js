@@ -66,10 +66,26 @@ class MatchManager{
                 return null;
             }
 
+            this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
+
+            this.gametype = new Gametypes(this.gameInfo.gamename);
+
+            await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date, this.gameInfo.getMatchLength().length);      
+            this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
+
+            if(this.gametype.currentMatchGametype === undefined){
+                new Message(`Incomplete log skipping...`,'error');
+                return null;
+            }
+
             this.spawnManager = new SpawnManager();
             this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip);
 
+            await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
+            this.playerManager.init();
+
             const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
+
 
             if(playersWithPlaytime < this.minPlayers){
                 new Message(`Total players is less then the minimum specified, skipping.`, "note");
@@ -85,21 +101,6 @@ class MatchManager{
                 this.gameInfo.totalTeams = 0;
             }
  
-            
-            this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
-
-            this.gametype = new Gametypes(this.gameInfo.gamename);
-
-            await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date, this.gameInfo.getMatchLength().length);      
-            this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
-
-            if(this.gametype.currentMatchGametype === undefined){
-                new Message(`Incomplete log skipping...`,'error');
-                return null;
-            }
-
-            await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
-            this.playerManager.setOriginalIndexes();
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
 

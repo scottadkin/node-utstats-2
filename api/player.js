@@ -23,94 +23,65 @@ class Player{
 
     constructor(){}
 
+    async createMasterId(playerName){
 
-
-    getNameIdQuery(name, gametypeId){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT id,gametype FROM nstats_player_totals WHERE name=? AND gametype=? LIMIT 1";
-
-            if(gametypeId === undefined){
-                gametypeId = 0;
-            }
-
-            mysql.query(query, [name, gametypeId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result[0] !== undefined){         
-                    resolve(result[0]);
-                    return;
-                }
-
-                resolve(null);
-            });
-        });
-    }
-
-    createNameIdQuery(name, gametype, masterPlayerId){
-        
-
-        return new Promise((resolve, reject) =>{
-
-            if(gametype === undefined){
-                gametype = 0;
-            }
-
-            if(masterPlayerId === undefined){
-                masterPlayerId = 0;
-            }
-
-
-            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,"",0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-            ,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,0,0,0,0,"",0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-            mysql.query(query, [name, masterPlayerId, gametype], (err, result) =>{
+        const result = await mysql.simpleQuery(query, [playerName]);
 
-                if(err){
-                    reject(err);
-                }else{
-                    resolve({"id": result.insertId, "gametype": gametype});
-                }
-            });
-        });
+        return result.insertId;
     }
 
-    async setPlayerMasterId(name, gametype, id){
 
-        await mysql.simpleUpdate("UPDATE nstats_player_totals SET player_id=? WHERE name=? AND gametype=?", 
-            [id, name, gametype]
-        );
+    async getMasterId(playerName){
+
+        const query = "SELECT id FROM nstats_player_totals WHERE name=? AND gametype=0";
+
+        const result = await mysql.simpleQuery(query, [playerName]);
+
+        if(result.length === 0){
+            return await this.createMasterId(playerName);
+        }
+
+        return result[0].id;
+    }
+
+    async createGametypeId(playerName, playerMasterId, gametypeId){
+
+        const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,"",0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+
+        const result = await mysql.simpleQuery(query, [playerName, playerMasterId, gametypeId]);
+
+        return result.insertId;
+    }
+    
+    async getGametypeId(playerName, playerMasterId, gametypeId){
+
+        const query = "SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=?";
+
+        const result = await mysql.simpleQuery(query, [playerMasterId, gametypeId]);
+
+        if(result.length === 0){
+            return await this.createGametypeId(playerName, playerMasterId, gametypeId);
+        }
+
+        return result[0].id;
+    }
+
+    async getMasterIds(playerName, gametypeId){
+
+
+        const masterId = await this.getMasterId(playerName, 0);
+        const gametypeMasterId = await this.getGametypeId(playerName, masterId, gametypeId);
+
+        return {"masterId": masterId, "gametypeId": gametypeMasterId};
     }
  
-    async getNameId(name, gametype, bCreate){
-
-
-
-        let id = await this.getNameIdQuery(name, 0);
-        
-        
-        if(id === null){
-
-            id = await this.createNameIdQuery(name, 0);
-
-            //only need for gametype 0, otherwise player totals for gametype 0 is always 0
-            await this.setPlayerMasterId(name, 0, id.id);
-        }
-
-        let idGametype = await this.getNameIdQuery(name, gametype);
-
-        if(idGametype === null){
-            idGametype = await this.createNameIdQuery(name, gametype, id.id);
-        }
-
-
-        return {"totalId": id.id, "gametypeId": idGametype.id};
-
-    
-    }
+  
 
     updateEfficiency(id){
 
