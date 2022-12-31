@@ -1470,6 +1470,17 @@ class CTF{
 
         return await mysql.simpleQuery(query, vars);
     }
+
+
+    async getCarryTimes(matchId){
+
+        const query = `SELECT 
+        player_id,playtime,flag_carry_time,flag_carry_time_best,flag_capture,flag_assist
+        FROM 
+        nstats_player_ctf_match WHERE match_id=?`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
 }
 
 

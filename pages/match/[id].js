@@ -44,6 +44,7 @@ import CombogibMatchStats from '../../components/CombogibMatchStats';
 import ErrorMessage from '../../components/ErrorMessage';
 import ErrorPage from '../ErrorPage';
 import MatchKillsMatchUp from '../../components/MatchKillsMatchUp';
+import MatchCTFCarryTime from '../../components/MatchCTFCarryTime';
 
 
 function bDomination(players){
@@ -538,7 +539,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
                 <div className="default">
 
-        
+                        <MatchCTFCarryTime matchId={parsedInfo.id} players={JSON.parse(playerNames)}/>
                         {titleElem}
                         
                         {elems}
