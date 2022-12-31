@@ -373,14 +373,13 @@ class CTFManager{
         }
 
        
-
         const lastEventTimestamp = player.getCTFNewLastTimestamp("capture"); 
 
         const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
     
         //console.log(`${timestamp} player ${player.masterId} capped the ${flagTeam} flag, previous cap was ${lastEventTimestamp} deaths since${totalDeaths}`);
 
-        await this.flags[flagTeam].captured(timestamp, player.masterId, totalDeaths);
+        await this.flags[flagTeam].captured(this.playerManager, this.killManager, timestamp, player.masterId, totalDeaths);
 
         player.setCTFNewValue("capture", timestamp, totalDeaths);
 
@@ -487,7 +486,7 @@ class CTFManager{
 
             if(flag.carriedBy === player.masterId){
 
-                await flag.dropped(timestamp);
+                await flag.dropped(this.playerManager, this.killManager, timestamp);
 
                 const lastTimestamp = player.getCTFNewLastTimestamp("dropped");
                 const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);

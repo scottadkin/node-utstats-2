@@ -141,6 +141,18 @@ class PlayerInfo{
                     "currentLife": 0,
                     "lastTimestamp": 0
                 },
+                "assist":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "carryTime":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
                 
             },
             "ctf": {
@@ -605,7 +617,7 @@ class PlayerInfo{
 
         this.stats.ctfNew[type].total += value;
         this.stats.ctfNew[type].lastTimestamp = timestamp;
-        this.stats.ctfNew[type].currentLife++;
+        this.stats.ctfNew[type].currentLife += value;
 
         const bestLife = this.stats.ctfNew[type].bestLife;
         const currentLife = this.stats.ctfNew[type].currentLife;

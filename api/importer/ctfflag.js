@@ -15,6 +15,7 @@ class CTFFlag{
         this.carriedBy = null;
 
         this.takenTimestamp = null;
+        this.lastCarriedTimestamp = null;
 
         this.droppedTimestamps = [];
         this.droppedPlayerIds = [];
@@ -30,6 +31,8 @@ class CTFFlag{
 
         this.killsWithFlagTimestamps = [];
         this.killsWithFlagPlayerIds = [];
+
+        this.carryTimes = [];
 
     }
 
@@ -59,6 +62,8 @@ class CTFFlag{
         this.killedByPlayerIds = [];
         this.sealTimestamps = [];
         this.sealPlayerIds = [];
+        this.lastCarriedTimestamp = null;
+        this.carryTimes = [];
     }
 
     async returned(timestamp, playerId){
@@ -83,6 +88,7 @@ class CTFFlag{
         this.bAtBase = false;
         this.carriedBy = playerId;
         this.takenTimestamp = timestamp;
+        this.lastCarriedTimestamp = timestamp;
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "taken", this.team);
     }
@@ -94,13 +100,16 @@ class CTFFlag{
         this.carriedBy = playerId;
         this.pickupTimestamps.push(timestamp);
         this.pickupPlayerIds.push(playerId);
+        this.lastCarriedTimestamp = timestamp;
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "pickedup", this.team);
     }
 
-    async dropped(timestamp){
+    async dropped(playerManager, killManager, timestamp){
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, this.carriedBy, "dropped", this.team);
+
+        this.setCarryTime(timestamp, playerManager, killManager);
 
         this.bDropped = true;
         this.bAtBase = false;
@@ -132,9 +141,62 @@ class CTFFlag{
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
     }
 
-    async captured(timestamp, playerId){
+    setCarryTime(timestamp, playerManager, killManager){
+
+        const currentCarryTime = timestamp - this.lastCarriedTimestamp;
+
+        const totalDeaths = killManager.getDeathsBetween(this.lastCarriedTimestamp, timestamp, this.carriedBy, false);
+
+        const player = playerManager.getPlayerByMasterId(this.carriedBy);
+
+        if(player === null){
+            new Message(`CTFFlag.dropped() player is null`,"warning");
+        }else{
+            player.setCTFNewValue("carryTime", timestamp, totalDeaths, currentCarryTime);
+        }
+
+        this.carryTimes.push({
+            "taken": this.lastCarriedTimestamp,
+            "dropped": timestamp,
+            "player": this.carriedBy, 
+            "carryTime": currentCarryTime
+        });
+    }
+
+    async captured(playerManager, killManager, timestamp, playerId){
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
+
+        this.setCarryTime(timestamp, playerManager, killManager);
+
+        const assistIds = new Set();
+
+        for(let i = 0; i < this.carryTimes.length; i++){
+
+            const c = this.carryTimes[i];
+
+            //don't want to count the capped player as an assist.
+            if(this.carriedBy !== c.player){
+                await this.ctfManager.insertEvent(this.matchId, timestamp, c.player, "assist", this.team);
+                assistIds.add(c.player);
+            }
+        }
+
+        for(const playerId of assistIds){
+
+            const player = playerManager.getPlayerByMasterId(playerId);
+
+            if(player === null){
+                new Message(`CTFFlag.captured() player is null`,"warning");
+                continue;
+            }
+
+            const lastEventTimestamp = player.getCTFNewLastTimestamp("assist"); 
+            const totalDeaths = killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
+            player.setCTFNewValue("assist", timestamp, totalDeaths);
+
+        }
+
         this.reset(false);
     }
 }
