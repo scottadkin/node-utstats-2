@@ -14,7 +14,11 @@ class MatchCTFCarryTime extends React.Component{
         this.state = {"bLoading": true, "error": null, "data": []};
     }
 
+    
     async loadData(){
+        
+
+        this.setState({"bLoading": true, "error": null, "data": []});
 
         const req = await fetch("/api/ctf", {
             "headers": {"Content-type": "application/json"},
@@ -36,6 +40,14 @@ class MatchCTFCarryTime extends React.Component{
         await this.loadData();
     }
 
+    async componentDidUpdate(prevProps){
+
+        if(prevProps.matchId !== this.props.matchId){
+
+            await this.loadData();
+        }
+    }
+
 
     renderData(){
 
@@ -54,6 +66,7 @@ class MatchCTFCarryTime extends React.Component{
             const d = this.state.data[i];
 
             const player = Functions.getPlayer(this.props.players, d.player_id);
+
 
             const playerElem = <Link href={`/pmatch/${this.props.matchId}?player=${d.player_id}`}>
                 <a><CountryFlag country={player.country}/>{player.name}</a>

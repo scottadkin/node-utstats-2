@@ -1,3 +1,4 @@
+import React from 'react';
 import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/'
 import Footer from '../../components/Footer/';
@@ -47,130 +48,234 @@ import MatchKillsMatchUp from '../../components/MatchKillsMatchUp';
 import MatchCTFCarryTime from '../../components/MatchCTFCarryTime';
 
 
-function bDomination(players){
+class Match extends React.Component{
 
-    for(let i = 0; i < players.length; i++){
+    constructor(props){
 
-        if(players[i].dom_caps > 0){
-            return true;
-        }
+        super(props);
+
+
+        this.state = {
+            "info": [],
+            "playerData": [],
+            "pageSettings": {},
+            "pageOrder": {},
+            "playerNames": [],
+            "justPlayerNames": [],
+            "nonSpectators": [],
+            "playerObject": {}
+            
+        };
     }
-    return false;
-}
 
-function bAssault(gametype){
+    componentDidMount(){
 
-    const reg = /assault/i;
-
-    if(reg.test(gametype)){
-        return true;
-    }
-}
-
-function sortByName(a, b){
-
-    a = a.name.toLowerCase();
-    b = b.name.toLowerCase();
-
-    if(a < b) return -1;
-    if(a > b) return 1;
-    return 0;
-}
-
-
-function createBasicPlayerData(players){
-
-    const playerNames = [];
-    const justPlayerNames = {};
-    const playedPlayers = {};
-    
-    for(let i = 0; i < players.length; i++){
-
-        const p = players[i];
-
-        playerNames.push({
-            "id": p.player_id, 
-            "name": p.name, 
-            "country": p.country,
-            "team": p.team,
-            "spectator": p.spectator,
-            "played": p.played,
-            "playtime": p.playtime
+        this.setState({
+            "info": JSON.parse(this.props.info)
         });
 
-        justPlayerNames[players[i].player_id] = players[i].name;
+        this.parsePageSettings();
+        this.createBasicPlayerData();
+        this.createBasicPlayersObject();
+    }
 
-        if(p.playtime > 0 || !p.spectator){
-            playedPlayers[players[i].player_id] = players[i].name;
+    parsePageSettings(){
+
+        const pageSettings = JSON.parse(this.props.pageSettings);
+        const pageOrder = JSON.parse(this.props.pageOrder);
+
+        this.setState({"pageSettings": pageSettings, "pageOrder": pageOrder});
+    }
+
+    createBasicPlayerData(){
+
+        const playerNames = [];
+        const justPlayerNames = {};
+        const playedPlayers = {};
+
+        const playerData = JSON.parse(this.props.playerData);
+
+        for(let i = 0; i < playerData.length; i++){
+    
+            const p = playerData[i];
+    
+            playerNames.push({
+                "id": p.player_id, 
+                "name": p.name, 
+                "country": p.country,
+                "team": p.team,
+                "spectator": p.spectator,
+                "played": p.played,
+                "playtime": p.playtime
+            });
+    
+            justPlayerNames[playerData[i].player_id] = playerData[i].name;
+    
+            if(p.playtime > 0 || !p.spectator){
+                playedPlayers[playerData[i].player_id] = playerData[i].name;
+            }
+        }
+    
+        this.setState({
+            "playerNames": playerNames, 
+            "justPlayerNames": justPlayerNames, 
+            "nonSpectators": playedPlayers
+        });
+    }
+    
+    
+    createBasicPlayersObject(){
+    
+        const players = {};
+
+    
+        for(let i = 0; i < this.state.playerNames.length; i++){
+    
+            const p = this.state.playerNames[i];
+    
+            players[p.id] = {"name": p.name, "country": p.country, "team": p.team, "playtime": p.playtime};
+        }
+    
+        this.setState({"playersObject": players});
+    }
+
+    renderMissing(ogImage){
+
+        if(this.props.info === undefined){
+
+            return <div>
+                <DefaultHead host={this.props.host} 
+                    title={`Doesn't Exist! - Match Report`} 
+                    description={`Match does not exist.`} 
+                    keywords={`match,report`}
+                    image={ogImage}    
+                    />
+                <main>
+                    <Nav settings={this.props.navSettings} session={this.props.session}/>
+                    <div id="content">
+    
+                        <div className="default">
+                            
+                            <div className="default-header">Match Does Not Exist!</div>
+                            <ErrorMessage title="Match Report" text={`There is no match with the id of ${this.props.matchId}`}/>
+                        </div>
+                    </div>
+                    <Footer session={this.props.session}/>
+                </main>
+            </div>
         }
     }
 
 
-    return {"playerNames": playerNames, "justPlayerNames": justPlayerNames, "nonSpectators": playedPlayers};
-}
+    
 
+    getTitleElem(){
 
-function createBasicPlayersObject(data){
+        const setting = this.state.pageSettings["Display Match Report Title"];
 
-    const players = {};
-
-    for(let i = 0; i < data.length; i++){
-
-        const d = data[i];
-
-        players[d.id] = {"name": d.name, "country": d.country, "team": d.team, "playtime": d.playtime};
+        if(setting === "true"){
+            return <div className="default-header">Match Report</div> 
+        }
     }
 
-    return players;
+    renderElems(imageHost){
+
+        const elems = [];
+
+        if(this.state.pageSettings["Display Summary"] === "true"){
+
+            elems[this.state.pageOrder["Display Summary"]] = <MatchSummary key={this.state.pageOrder["Display Summary"]} 
+                info={this.props.info} server={this.props.server} 
+                gametype={this.props.gametype} 
+                map={this.props.map} 
+                image={this.props.image} 
+                /*bMonsterHunt={bMonsterHunt}*/
+                settings={this.state.pageSettings}
+            />    
+        }
+
+        if(this.state.pageSettings["Display Screenshot"] === "true"){
+
+            elems[this.state.pageOrder["Display Screenshot"]] = <Screenshot 
+                host={imageHost}
+                key={"match-sshot"} map={this.props.map} 
+                totalTeams={this.state.info.total_teams} 
+                players={this.props.playerData} 
+                image={this.props.image} 
+                matchData={this.props.info}
+                serverName={this.props.server} 
+                gametype={this.props.gametype} 
+                faces={this.props.faces}
+            />
+        }
+
+        return elems;
+    }
+   
+    render(){
+        
+        if(this.props.error !== undefined){
+            return <ErrorPage>{this.props.error}</ErrorPage>
+        }
+
+        const imageHost = Functions.getImageHostAndPort(this.props.host);
+
+        //for default head open graph image
+        const imageReg = /^.+\/(.+)\.jpg$/i;
+        const imageRegResult = imageReg.exec(this.props.image);
+        let ogImage = "maps/default";
+
+        if(imageRegResult !== null){
+            ogImage = `maps/${imageRegResult[1]}`;
+        }
+            
+
+        if(this.props.info === undefined){
+            return this.renderMissing(ogImage);
+        }
+
+        const dateString = Functions.convertTimestamp(this.props.info.date, true);
+        
+
+        const titleElem = this.getTitleElem();
+
+        //playerNames = JSON.stringify(playerNames);
+
+        const elems = this.renderElems(imageHost);
+
+        return <div>
+            <DefaultHead host={this.props.host} 
+                title={`${this.props.map} (${dateString}) Match Report`} 
+                description={`Match report for ${this.props.map} (${this.props.gametype}${(this.props.info.insta) ? " Instagib" : ""}) 
+                played on ${this.props.server} at ${dateString}, total players ${this.state.info.players}, match length ${Functions.MMSS(this.state.info.playtime)}.`} 
+                keywords={`match,report,${this.props.map},${this.props.gametype},${this.props.server}`}
+                image={ogImage}    
+                />
+            <main>
+                <Nav settings={this.props.navSettings} session={this.props.session}/>
+                <div id="content">
+
+                    <div className="default">
+
+                    {titleElem}
+                    <MatchCTFCarryTime matchId={this.state.info.id} players={this.state.playerNames}/>
+                            
+                            
+                    {elems}
+        
+                    </div>
+                </div>
+                <Footer session={this.props.session}/>
+            </main>
+        </div>
+    }
 }
 
-
+/*
 function Match({navSettings, pageSettings, pageOrder, session, host, matchId, info, server, gametype,
     map, image, playerData, weaponData, domControlPointNames, 
     assaultData,  teams, faces, rankingChanges, currentRankings,
     rankingPositions, bMonsterHunt, error}){
-
-
-    if(error !== undefined){
-
-        return <ErrorPage>{error}</ErrorPage>
-    }
-
-    const imageHost = Functions.getImageHostAndPort(host);
-
-    //for default head open graph image
-    const imageReg = /^.+\/(.+)\.jpg$/i;
-    const imageRegResult = imageReg.exec(image);
-    let ogImage = "maps/default";
-
-    if(imageRegResult !== null){
-        ogImage = `maps/${imageRegResult[1]}`;
-    }
-    //
-
-    if(info === undefined){
-
-        return <div>
-            <DefaultHead host={host} 
-                title={`Doesn't Exist! - Match Report`} 
-                description={`Match does not exist.`} 
-                keywords={`match,report`}
-                image={ogImage}    
-                />
-            <main>
-                <Nav settings={navSettings} session={session}/>
-                <div id="content">
-
-                    <div className="default">
-                        
-                        <div className="default-header">Match Does Not Exist!</div>
-                        <ErrorMessage title="Match Report" text={`There is no match with the id of ${matchId}`}/>
-                    </div>
-                </div>
-                <Footer session={session}/>
-            </main>
-        </div>
-    }
 
 
     const parsedInfo = JSON.parse(info);
@@ -385,17 +490,11 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
         if(!parsedInfo.mh){
 
             elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUp key="kmu" matchId={parsedInfo.id} players={JSON.parse(playerNames)}/>;
-            /*elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUpAlt 
-                key={`kills-matchup`} 
-                matchId={matchId} 
-                totalTeams={parsedInfo.total_teams}
-                 players={JSON.parse(playerNames)}
-            />;*/
+ 
         }
     }
 
 
-    //if(pageSettings["Display Powerup Control"] === "true"){
 
         if(!parsedInfo.mh){
 
@@ -408,8 +507,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
                 order={pageOrder}
             />
         }
-    //}
-
+ 
 
     if(pageSettings["Display Weapon Statistics"] === "true"){
 
@@ -551,7 +649,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
     </div>
 }
 
-
+*/
 
 
 export async function getServerSideProps({req, query}){
@@ -662,31 +760,15 @@ export async function getServerSideProps({req, query}){
             });
         }
 
-        let domControlPointNames = [];
-
-        if(bDomination(playerData)){
-
-            const dom = new Domination();
-
-            domControlPointNames = await dom.getControlPointNames(matchInfo.map);
-
-        }
-        
-
         let assaultData = [];
 
         const assaultManager = new Assault();
-
 
         if(pageSettings["Display Assault Summary"] === "true"){
             assaultData = await assaultManager.getMatchData(matchId, matchInfo.map);
         }
 
-        domControlPointNames = JSON.stringify(domControlPointNames);
-
-
         playerData = JSON.stringify(playerData);
-
 
         const weaponManager = new Weapons();
 
@@ -704,39 +786,6 @@ export async function getServerSideProps({req, query}){
         const faceManager = new Faces();
 
         let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
-
-        const headshotsManager = new Headshots();
-        const headshotData = await headshotsManager.getMatchData(matchId);
-
-        const rankingsManager = new Rankings();
-
-        let rankingChanges = [];
-        let currentRankings = [];
-        let rankingPositions = {};
-
-
-        
-
-        if(pageSettings["Display Rankings"] === "true"){
-
-            rankingChanges = await rankingsManager.getMatchRankingChanges(matchId);
-            currentRankings = await rankingsManager.getCurrentPlayersRanking(playerIds, matchInfo.gametype);
-
-            for(let i = 0; i < currentRankings.length; i++){
-
-                rankingPositions[currentRankings[i].player_id] = await rankingsManager.getGametypePosition(currentRankings[i].ranking, matchInfo.gametype);
-            }
-        }
-
-        let monsterHuntPlayerKillTotals = [];
-
-        if(matchInfo.mh){
-
-            const monsterHuntManager = new MonsterHunt();
-
-            monsterHuntPlayerKillTotals = await monsterHuntManager.getPlayerMatchKillTotals(matchId);
-
-        }
 
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
@@ -756,15 +805,8 @@ export async function getServerSideProps({req, query}){
                 "image": image,
                 "playerData": playerData,
                 "weaponData": weaponData,
-                "domControlPointNames": domControlPointNames,
-                "assaultData": JSON.stringify(assaultData),
                 "teams": JSON.stringify(teamsData),
                 "faces": JSON.stringify(pFaces),
-                "headshotData": JSON.stringify(headshotData),
-                "rankingChanges": JSON.stringify(rankingChanges),
-                "currentRankings": JSON.stringify(currentRankings),
-                "rankingPositions": JSON.stringify(rankingPositions),
-                "bMonsterHunt": matchInfo.mh,
             }
         };
 

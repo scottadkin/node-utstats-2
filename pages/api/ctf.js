@@ -237,7 +237,15 @@ export default async function handler(req, res){
             const setDetails = req.body.setDetails ?? false;
             const matchId = (req.body.matchId !== undefined) ? parseInt(req.body.matchId) : -1;
 
-            if(mode === "fastestcaps"){
+            if(mode === "b-match-ctf"){
+
+                const bCTF = await ctfManager.bMatchCTF(matchId);
+
+                res.status(200).json({"bCTF": bCTF});
+                resolve();
+                return;
+                
+            }else if(mode === "fastestcaps"){
 
 
                 if(page !== page) page = 0;

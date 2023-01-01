@@ -9,86 +9,87 @@ class MatchScreenshot{
     constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host){
         
         try{
-        this.canvas = canvas;
-        this.context = this.canvas.getContext("2d");
-        this.download = download;
-        this.downloadJPG = downloadJPG;
-        this.downloadBMP = downloadBMP;
+            
+            this.canvas = canvas;
+            this.context = this.canvas.getContext("2d");
+            this.download = download;
+            this.downloadJPG = downloadJPG;
+            this.downloadBMP = downloadBMP;
 
-        this.host = host;
+            this.host = host;
 
-        this.bHome = bHome;
+            this.bHome = bHome;
 
-        this.bClassic = false;
+            this.bClassic = false;
 
-        if(bClassic !== undefined){
-            this.bClassic = bClassic;
-        }
-
-        this.map = map;
-        this.players = JSON.parse(players);
-
-        this.teams = parseInt(teams);
-
-        this.matchData = JSON.parse(matchData);
-        this.serverName = serverName;
-        this.gametype = gametype;
-        this.faces = JSON.parse(faces);
-
-        this.highlight = highlight;
-
-        this.players.sort((a,b) =>{
-
-            a = a.score;
-            b = b.score;
-
-            if(a < b){
-                return 1;
-            }else if(a > b){
-                return -1;
+            if(bClassic !== undefined){
+                this.bClassic = bClassic;
             }
-            return 0;
-        });
 
-        this.image = new Image();
-        this.image.src = image;
+            this.map = map;
+            this.players = JSON.parse(players);
+
+            this.teams = parseInt(teams);
+
+            this.matchData = JSON.parse(matchData);
+            this.serverName = serverName;
+            this.gametype = gametype;
+            this.faces = JSON.parse(faces);
+
+            this.highlight = highlight;
+
+            this.players.sort((a,b) =>{
+
+                a = a.score;
+                b = b.score;
+
+                if(a < b){
+                    return 1;
+                }else if(a > b){
+                    return -1;
+                }
+                return 0;
+            });
+
+            this.image = new Image();
+            this.image.src = image;
 
 
-        this.colors = {
-            "red": "rgb(226,0,0)",
-            "blue": "rgb(62,144,194)",
-            "green": "rgb(0,181,0)",
-            "yellow": "rgb(255,255,0)",
-            "yellowPlayer": "rgb(255,255,198)",
-            "greenFooter": "rgb(0,255,0)",
-            "dmName": "rgb(45,174,241)",
-            "dmScore": "rgb(181,255,255)"
-        };
+            this.colors = {
+                "red": "rgb(226,0,0)",
+                "blue": "rgb(62,144,194)",
+                "green": "rgb(0,181,0)",
+                "yellow": "rgb(255,255,0)",
+                "yellowPlayer": "rgb(255,255,198)",
+                "greenFooter": "rgb(0,255,0)",
+                "dmName": "rgb(45,174,241)",
+                "dmScore": "rgb(181,255,255)"
+            };
 
-        this.teamPlayerCount = [0,0,0,0];
+            this.teamPlayerCount = [0,0,0,0];
 
-        //this.scaleImage();
+            //this.scaleImage();
 
-        this.flags = {};
-        this.flagWidth = this.x(1.4);
-        this.flagHeight = this.y(1.3);
+            this.flags = {};
+            this.flagWidth = this.x(1.4);
+            this.flagHeight = this.y(1.3);
 
-        this.createFullscreenEvents();
+            this.createFullscreenEvents();
 
-        this.bDisplayLoading = true;
+            this.bDisplayLoading = true;
 
-        
-        this.renderLoading();
+            
+            this.renderLoading();
 
-        this.image.onload = async () =>{
- 
-            await this.loadPlayerFlags();
-            await this.loadPlayerIcons();
-            await this.loadIcons();
+            this.image.onload = async () =>{
+    
+                await this.loadPlayerFlags();
+                await this.loadPlayerIcons();
+                await this.loadIcons();
 
-            this.bDisplayLoading = false;
+                this.bDisplayLoading = false;
 
-        }   
+            }   
         }catch(err){
             console.trace(err);
         }

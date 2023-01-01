@@ -1481,6 +1481,17 @@ class CTF{
 
         return await mysql.simpleQuery(query, [matchId]);
     }
+
+    async bMatchCTF(matchId){
+ 
+        const query = `SELECT COUNT(*) as total_players FROM nstats_player_ctf_match WHERE match_id=?`;
+        const result = await mysql.simpleQuery(query, [matchId]);
+
+        if(result[0].total_players > 0) return true;
+
+        return false;
+        
+    }
 }
 
 
