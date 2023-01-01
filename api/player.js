@@ -450,23 +450,21 @@ class Player{
     }
 
 
-    getAllInMatch(id){
+    async getAllInMatch(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
 
-            const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
+        const result = await mysql.simpleQuery(query, [id]);
 
-            mysql.query(query, [id], (err, result) =>{
+        for(let i = 0; i < result.length; i++){
+            delete result[i].ip;
+        }
 
-                if(err) reject(err);
+        const ctf = new CTF();
 
-                if(result !== undefined){
-                    Functions.removeIps(result);
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
+        await ctf.setMatchCTFData(id, result);
+
+        return result;
     }
 
 

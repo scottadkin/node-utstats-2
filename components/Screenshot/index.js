@@ -993,12 +993,12 @@ class MatchScreenshot{
 
         c.textAlign = "right";
 
-        c.fillText(player.flag_capture, x + valueOffset + col1Offset, y + row1Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row1Offset, "caps", player.flag_capture);
-        c.fillText(player.flag_taken, x + valueOffset + col1Offset, y + row2Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row2Offset, "grabs", player.flag_taken);
-        c.fillText(player.flag_assist, x + valueOffset + col1Offset, y + row3Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row3Offset, "assists", player.flag_assist);
+        c.fillText(player.ctfData.flag_capture, x + valueOffset + col1Offset, y + row1Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row1Offset, "caps", player.ctfData.flag_capture);
+        c.fillText(player.ctfData.flag_taken, x + valueOffset + col1Offset, y + row2Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row2Offset, "grabs", player.ctfData.flag_taken);
+        c.fillText(player.ctfData.flag_assist, x + valueOffset + col1Offset, y + row3Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row3Offset, "assists", player.ctfData.flag_assist);
 
 
         c.textAlign = "left";
@@ -1009,12 +1009,12 @@ class MatchScreenshot{
 
         c.textAlign = "right";
 
-        c.fillText(player.flag_cover, x + valueOffset + col2Offset, y + row1Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row1Offset, "covers", player.flag_cover);
-        c.fillText(player.flag_seal, x + valueOffset + col2Offset, y + row2Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "seals", player.flag_seal);
-        c.fillText(player.flag_kill, x + valueOffset + col2Offset, y + row3Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.flag_kill);
+        c.fillText(player.ctfData.flag_cover, x + valueOffset + col2Offset, y + row1Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row1Offset, "covers", player.ctfData.flag_cover);
+        c.fillText(player.ctfData.flag_seal, x + valueOffset + col2Offset, y + row2Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "seals", player.ctfData.flag_seal);
+        c.fillText(player.ctfData.flag_kill, x + valueOffset + col2Offset, y + row3Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.ctfData.flag_kill);
 
         c.textAlign = "left";
     }
@@ -1227,41 +1227,41 @@ class MatchScreenshot{
 
             p = this.players[i];
 
-            if(p.flag_taken > this.maxCTF.grabs){
-                this.maxCTF.grabs = p.flag_taken;
+            if(p.ctfData.flag_taken > this.maxCTF.grabs){
+                this.maxCTF.grabs = p.ctfData.flag_taken;
             }
 
-            if(p.flag_capture > this.maxCTF.caps){
-                this.maxCTF.caps = p.flag_capture;
+            if(p.ctfData.flag_capture > this.maxCTF.caps){
+                this.maxCTF.caps = p.ctfData.flag_capture;
             }
 
-            if(p.flag_assist > this.maxCTF.assists){
-                this.maxCTF.assists = p.flag_assist;
+            if(p.ctfData.flag_assist > this.maxCTF.assists){
+                this.maxCTF.assists = p.ctfData.flag_assist;
             }
 
-            if(p.flag_cover > this.maxCTF.covers){
-                this.maxCTF.covers = p.flag_cover;
+            if(p.ctfData.flag_cover > this.maxCTF.covers){
+                this.maxCTF.covers = p.ctfData.flag_cover;
             }
 
             if(p.deaths > this.maxCTF.deaths){
                 this.maxCTF.deaths = p.deaths;
             }
 
-            if(p.flag_kill > this.maxCTF.flagKills){
-                this.maxCTF.flagKills = p.flag_kill;
+            if(p.ctfData.flag_kill > this.maxCTF.flagKills){
+                this.maxCTF.flagKills = p.ctfData.flag_kill;
             }
 
-            if(p.flag_seal > this.maxCTF.seals){
-                this.maxCTF.seals = p.flag_seal;
+            if(p.ctfData.flag_seal > this.maxCTF.seals){
+                this.maxCTF.seals = p.ctfData.flag_seal;
             }
 
-            this.totalCTF.grabs += p.flag_taken;
-            this.totalCTF.caps += p.flag_capture;
-            this.totalCTF.assists += p.flag_assist;
-            this.totalCTF.covers += p.flag_cover;
+            this.totalCTF.grabs += p.ctfData.flag_taken;
+            this.totalCTF.caps += p.ctfData.flag_capture;
+            this.totalCTF.assists += p.ctfData.flag_assist;
+            this.totalCTF.covers += p.ctfData.flag_cover;
             this.totalCTF.deaths += p.deaths;
-            this.totalCTF.flagKills += p.flag_kill;
-            this.totalCTF.seals += p.flag_seal;
+            this.totalCTF.flagKills += p.ctfData.flag_kill;
+            this.totalCTF.seals += p.ctfData.flag_seal;
         }
     }
 

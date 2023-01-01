@@ -1492,6 +1492,36 @@ class CTF{
         return false;
         
     }
+
+    async getMatchCTFData(matchId){
+
+        const query = "SELECT * FROM nstats_player_ctf_match WHERE match_id=?";
+
+        const result =  await mysql.simpleQuery(query, [matchId]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            data[result[i].player_id] = result[i];
+        }
+
+        return data;
+    }
+
+    async setMatchCTFData(matchId, players){
+
+        const ctfData = await this.getMatchCTFData(matchId);
+
+        for(let i = 0; i < players.length; i++){
+
+            const p = players[i];
+
+            if(ctfData[p.player_id] !== undefined){
+                p.ctfData = ctfData[p.player_id];
+            }
+        }
+    }
 }
 
 
