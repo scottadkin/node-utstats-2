@@ -615,6 +615,11 @@ input[type="range"]{
 	text-align:left;
 }
 
+.player{
+	width:200px;
+	text-align:left;
+}
+
 .ranking-icon{
 	height:14px;
 	margin-right:5px;

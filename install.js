@@ -1227,8 +1227,8 @@ const queries = [
       flag_return_enemy_base_best INT(11) NOT NULL, 
       flag_return_save INT(11) NOT NULL, 
       flag_return_save_best INT(11) NOT NULL, 
-      flag_return_dropped INT(11) NOT NULL, 
-      flag_return_dropped_best INT(11) NOT NULL, 
+      flag_dropped INT(11) NOT NULL, 
+      flag_dropped_best INT(11) NOT NULL, 
       flag_kill INT(11) NOT NULL, 
       flag_kill_best INT(11) NOT NULL, 
       flag_suicide INT(11) NOT NULL, 
@@ -1242,6 +1242,8 @@ const queries = [
       flag_seal_cover_fail_best INT(11) NOT NULL, 
       flag_capture INT(11) NOT NULL, 
       flag_capture_best INT(11) NOT NULL, 
+      flag_capture_time float NOT NULL, 
+      flag_capture_time_best float NOT NULL, 
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
 
 ];

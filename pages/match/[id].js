@@ -119,7 +119,8 @@ class Match extends React.Component{
         this.setState({
             "playerNames": playerNames, 
             "justPlayerNames": justPlayerNames, 
-            "nonSpectators": playedPlayers
+            "nonSpectators": playedPlayers,
+            "playerData": playerData
         });
     }
     
@@ -258,6 +259,7 @@ class Match extends React.Component{
                     <div className="default">
 
                     {titleElem}
+                    <MatchCTFSummary matchId={this.state.info.id} playerData={this.state.playerData} />
                     <MatchCTFCarryTime matchId={this.state.info.id} players={this.state.playerNames}/>
                             
                             

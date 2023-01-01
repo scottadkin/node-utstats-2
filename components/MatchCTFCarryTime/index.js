@@ -77,7 +77,7 @@ class MatchCTFCarryTime extends React.Component{
                 "name": {
                     "value": player.name.toLowerCase(), 
                     "displayValue": playerElem, 
-                    "className": `text-left ${Functions.getTeamColor(player.team)}`
+                    "className": `player ${Functions.getTeamColor(player.team)}`
                 },
                 "flag_assist": {
                     "value": d.flag_assist, 
