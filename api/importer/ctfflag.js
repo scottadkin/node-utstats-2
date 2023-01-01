@@ -68,6 +68,7 @@ class CTFFlag{
 
     async returned(timestamp, playerId){
 
+        this.debugSeals();
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "returned", this.team);
 
         await this.reset(false);
@@ -136,8 +137,14 @@ class CTFFlag{
 
     async seal(timestamp, killerId){
 
+        new Message(`SEAL by ${killerId} @ ${timestamp}`,"error");
+
         this.sealTimestamps.push(timestamp);
         this.sealPlayerIds.push(killerId);
+
+        console.log(this.sealTimestamps);
+        console.log(this.sealPlayerIds);
+
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
     }
 
@@ -163,7 +170,19 @@ class CTFFlag{
         });
     }
 
+    debugSeals(){
+
+        if(this.sealPlayerIds.length > 0){
+
+            new Message(`Flag had seals`,"error");
+            console.log(this.sealTimestamps);
+            console.log(this.sealPlayerIds);
+        }
+    }
+
     async captured(playerManager, killManager, timestamp, playerId){
+
+        this.debugSeals();
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
 

@@ -117,6 +117,18 @@ class PlayerInfo{
                     "bestLife": 0,
                     "lastTimestamp": 0
                 },
+                "sealPass":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "sealFail":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
                 "cover":{
                     "total": 0,
                     "currentLife": 0,
