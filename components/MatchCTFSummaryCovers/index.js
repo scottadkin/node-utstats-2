@@ -3,29 +3,22 @@ import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import Table2 from '../Table2';
+import React from 'react';
 
-const bAnyData = (player) =>{
+class MatchCTFSummaryCovers extends React.Component{
 
-    const types = [
-        "flag_cover",
-        "flag_cover_fail",
-        "flag_multi_cover",
-        "flag_spree_cover",
-        "flag_cover_best",
-        "flag_self_cover",
-        "flag_self_cover_pass",
-        "flag_self_cover_fail"
-    ];
+    constructor(props){
 
-
-    for(let i = 0; i < types.length; i++){
-
-        if(player[types[i]] !== 0)  return true;
+        super(props);
     }
 
-    return false;
+    render(){
+
+        return <div>fart</div>
+    }
 }
 
+/*
 const MatchCTFSummaryCovers = ({host, players, team, matchId}) =>{
 
 
@@ -135,6 +128,6 @@ const MatchCTFSummaryCovers = ({host, players, team, matchId}) =>{
             </tr>
         {elems}
     </Table2>
-}
+}*/
 
 export default MatchCTFSummaryCovers;

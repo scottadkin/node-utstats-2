@@ -3,6 +3,7 @@ import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";
 import Link from "next/link";
 import TableHeader from "../TableHeader";
+import TipHeader from "../TipHeader";
 
 class InteractiveTable extends React.Component{
 
@@ -27,11 +28,19 @@ class InteractiveTable extends React.Component{
 
         for(const [key, value] of Object.entries(this.props.headers)){
 
-            headers.push(<th className={`pointer`} key={key} onClick={(() =>{
-                this.changeOrder(key);
-            })}>
-                {value}
-            </th>);
+            const type = typeof value;
+
+            if(type === "string"){
+                headers.push(<th className={`pointer`} key={key} onClick={(() =>{
+                    this.changeOrder(key);
+                })}>
+                    {value}
+                </th>);
+            }else{
+                headers.push(<TipHeader key={key} sortEvent={(() =>{
+                    this.changeOrder(key);
+                })} title={value.title} content={value.content} />);
+            }
         }
 
         return <tr>{headers}</tr>
