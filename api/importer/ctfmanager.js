@@ -619,6 +619,10 @@ class CTFManager{
 
             }
 
+            if(currentFlagCovers > player.stats.ctfNew.bestSingleCover){
+                player.stats.ctfNew.bestSingleCover = currentCovers;
+            }
+
             player.setCTFNewCovers(coverType, timestamps.length, bestCovers, currentCovers, lastTimestamp);
         }
     }

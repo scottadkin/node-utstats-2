@@ -1248,6 +1248,7 @@ const queries = [
       flag_cover_multi_best INT(11) NOT NULL,
       flag_cover_spree INT(11) NOT NULL,
       flag_cover_spree_best INT(11) NOT NULL,
+      best_single_cover INT(11) NOT NULL,
       flag_capture INT(11) NOT NULL, 
       flag_capture_best INT(11) NOT NULL, 
       flag_carry_time float NOT NULL, 

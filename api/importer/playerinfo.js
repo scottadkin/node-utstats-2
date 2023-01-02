@@ -147,6 +147,7 @@ class PlayerInfo{
                     "bestLife": 0,
                     "lastTimestamp": 0
                 },
+                "bestSingleCover": 0,
                 "coverPass":{
                     "total": 0,
                     "bestLife": 0,
