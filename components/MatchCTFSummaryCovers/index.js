@@ -1,22 +1,107 @@
-import TipHeader from '../TipHeader/';
-import Functions from '../../api/functions';
-import CountryFlag from '../CountryFlag/';
-import Link from 'next/link';
-import Table2 from '../Table2';
 import React from 'react';
+import Functions from '../../api/functions';
+import InteractiveTable from '../InteractiveTable';
+import Link from 'next/link';
+import CountryFlag from '../CountryFlag';
+
 
 class MatchCTFSummaryCovers extends React.Component{
 
     constructor(props){
 
         super(props);
+
     }
+
+    renderTeam(teamId){
+
+        /*
+        <th>Player</th>
+                <TipHeader title="Cover" content="Player killed an enemy close to their flag carrier."/>
+                <TipHeader title="Cover Pass" content="Player killed an enemy close to their flag carrier, where the team later capped the flag."/>
+                <TipHeader title="Cover Fail" content="Player killed an enemy close to their flag carrier, where the enemy team returned the flag."/>
+                <TipHeader title="Cover Efficiency" content="The efficiency of the player's covers."/>
+                <TipHeader title="Multi Cover" content="Player covered 3 people while their team had the enemy flag."/>
+                <TipHeader title="Cover Spree" content="Player covered 4 or more people while their team had the enemy flag."/>
+                <TipHeader title="Best Covers" content="The most people the player covered while their team had the enemy flag."/>
+                <TipHeader title="Self Covers" content="How many people the player killed while carrying the flag."/>
+                <TipHeader title="Self Covers Pass" content="How many people the player killed while carrying the flag, where the team capped the flag."/>
+                <TipHeader title="Self Covers Fail" content="How many people the player killed while carrying the flag, where the enemy team returned the flag."/> */
+
+        const headers = {
+            "player": "Player",
+            "flag_cover": {"title": "Cover", "content": "Player killed an enemy close to their flag carrier."},
+            "flag_cover_pass": {"title": "Cover Pass", "content": "Player killed an enemy close to their flag carrier, where the team later capped the flag."},
+            "flag_cover_fail": {"title": "Cover Fail", "content": "Player killed an enemy close to their flag carrier, where the enemy team returned the flag."},
+            "flag_seal": {"title": "Seal", "content": "Player Sealed off their base."},
+            "flag_seal_pass": {"title": "Seal Pass", "content": "Player Sealed off their base and the flag was capped"},
+            "flag_seal_fail": {"title": "Seal Fail", "content": "Player Sealed off their base, but the flag was returned."},
+        };
+
+        const data = [];
+
+        for(let i = 0; i < this.props.playerData.length; i++){
+
+            const p = this.props.playerData[i];
+
+            if(p.team !== teamId) continue;
+
+            const ctf = p.ctfData;
+
+            const playerElem = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}>
+                <a>
+                    <CountryFlag country={p.country}/>
+                    {p.name}
+                </a>
+            </Link>;
+
+            data.push({
+                "player": {
+                    "value": p.name.toLowerCase(), 
+                    "displayValue": playerElem,
+                    "className": `player ${Functions.getTeamColor(p.team)}`
+                },
+                "flag_cover":  {"value": ctf.flag_cover , "displayValue": Functions.ignore0(ctf.flag_cover)},
+                "flag_cover_pass":  {"value": ctf.flag_cover_pass , "displayValue": Functions.ignore0(ctf.flag_cover_pass)},
+                "flag_cover_fail":  {"value": ctf.flag_cover_fail , "displayValue": Functions.ignore0(ctf.flag_cover_fail)},
+                "flag_seal":  {"value": ctf.flag_seal , "displayValue": Functions.ignore0(ctf.flag_seal)},
+                "flag_seal_pass":  {"value": ctf.flag_seal_pass , "displayValue": Functions.ignore0(ctf.flag_seal_pass)},
+                "flag_seal_fail":  {"value": ctf.flag_seal_fail , "displayValue": Functions.ignore0(ctf.flag_seal_fail)},
+
+            });
+        }
+
+        if(data.length === 0) return null;
+
+        return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
+    }
+
 
     render(){
 
-        return <div>fart</div>
+
+        const tables = [];
+
+        let bAnyData = false;
+
+        for(let i = 0; i < 4; i++){
+
+            const table = this.renderTeam(i)
+
+            if(table !== null) bAnyData = true;
+
+            tables.push(table);
+        }
+
+        if(!bAnyData) return null;
+
+        return <div>
+            {tables}
+        </div>
     }
 }
+
+export default MatchCTFSummaryCovers;
 
 /*
 const MatchCTFSummaryCovers = ({host, players, team, matchId}) =>{
@@ -129,5 +214,3 @@ const MatchCTFSummaryCovers = ({host, players, team, matchId}) =>{
         {elems}
     </Table2>
 }*/
-
-export default MatchCTFSummaryCovers;

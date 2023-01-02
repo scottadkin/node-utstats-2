@@ -9,7 +9,7 @@ class MatchCTFSummary extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0};
+        this.state = {"mode": 1};
     }
 
     renderDefault(){
@@ -17,6 +17,12 @@ class MatchCTFSummary extends React.Component{
         if(this.state.mode !== 0) return null;
 
         return <MatchCTFSummaryDefault playerData={this.props.playerData}/>;
+    }
+
+    renderCovers(){
+
+        if(this.state.mode !== 1) return null;
+        return <MatchCTFSummaryCovers playerData={this.props.playerData}/>;
     }
 
     render(){
@@ -28,6 +34,7 @@ class MatchCTFSummary extends React.Component{
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Covers</div>
             </div>
             {this.renderDefault()}
+            {this.renderCovers()}
         </div>
     }
 }

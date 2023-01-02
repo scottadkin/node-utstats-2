@@ -580,6 +580,8 @@ class CTFManager{
             let bestCovers = 0;
             let lastTimestamp = player.stats.ctfNew[coverType].lastTimestamp;
 
+            let currentFlagCovers = 0;
+
             for(let i = 0; i < timestamps.length; i++){
 
                 const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamps[i], playerId, false)
@@ -595,6 +597,26 @@ class CTFManager{
                 if(currentCovers > bestCovers){
                     bestCovers = currentCovers;
                 }
+
+                currentFlagCovers++;
+            }
+
+            console.log(currentFlagCovers);
+
+            if(currentFlagCovers === 3){
+
+                const previousMultiTimestamp = player.getCTFNewLastTimestamp("coverMulti");
+                const totalMultiDeaths = this.killManager.getDeathsBetween(previousMultiTimestamp, lastTimestamp, playerId, false);
+                console.log(`Deaths since last multi cover ${totalMultiDeaths}`);
+                player.setCTFNewValue("coverMulti", lastTimestamp, totalMultiDeaths);
+                //player.stats.ctfNew.coverMulti.lastTimestamp = lastTimestamp;
+            }else if(currentFlagCovers > 3){
+
+                const previousSpreeTimestamp = player.getCTFNewLastTimestamp("coverSpree");
+                const totalSpreeDeaths = this.killManager.getDeathsBetween(previousSpreeTimestamp, lastTimestamp, playerId, false);
+                console.log(`Deaths since last spree cover ${totalSpreeDeaths}`);
+                player.setCTFNewValue("coverSpree", lastTimestamp, totalSpreeDeaths);
+
             }
 
             player.setCTFNewCovers(coverType, timestamps.length, bestCovers, currentCovers, lastTimestamp);

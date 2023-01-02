@@ -135,6 +135,18 @@ class PlayerInfo{
                     "bestLife": 0,
                     "lastTimestamp": 0
                 },
+                "coverMulti":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "coverSpree":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
                 "coverPass":{
                     "total": 0,
                     "bestLife": 0,
@@ -678,6 +690,7 @@ class PlayerInfo{
         if(data.bestLife < bestCovers){
             data.bestLife = bestCovers;
         }
+
 
         data.currentLife = currentCovers;
         data.lastTimestamp = timestamp;
