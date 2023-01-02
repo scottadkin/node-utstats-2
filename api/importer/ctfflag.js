@@ -14,6 +14,9 @@ class CTFFlag{
         this.bAtBase = true;
         this.carriedBy = null;
 
+        this.pickupTimestamps = [];
+        this.pickupPlayerIds = [];
+
         this.takenTimestamp = null;
         this.lastCarriedTimestamp = null;
 
@@ -38,6 +41,8 @@ class CTFFlag{
 
     async reset(bCheckIfDropped){
 
+
+        //this.debugSeals("RESET");
 
         if(bCheckIfDropped){
 
@@ -68,13 +73,16 @@ class CTFFlag{
 
     async returned(timestamp, playerId){
 
-        this.debugSeals();
+        //this.debugSeals("RETURNED");
+
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "returned", this.team);
 
         await this.reset(false);
     }
 
     async timedOutReturn(timestamp){
+
+        //this.debugSeals("timedOutReturn");
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
         await this.reset(false);
@@ -83,7 +91,7 @@ class CTFFlag{
     async taken(timestamp, playerId){
 
         //just in case some data isn't reset
-        await this.reset(true);
+        //await this.reset(true);
 
         this.bDropped = false;
         this.bAtBase = false;
@@ -170,11 +178,10 @@ class CTFFlag{
         });
     }
 
-    debugSeals(){
+    debugSeals(message){
 
         if(this.sealPlayerIds.length > 0){
-
-            new Message(`Flag had seals`,"error");
+            console.log(`-------${message}-------------`);
             console.log(this.sealTimestamps);
             console.log(this.sealPlayerIds);
         }
@@ -182,7 +189,7 @@ class CTFFlag{
 
     async captured(playerManager, killManager, timestamp, playerId){
 
-        this.debugSeals();
+        //this.debugSeals("CAPTURED");
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
 

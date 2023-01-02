@@ -227,6 +227,7 @@ class CTFManager{
 
 
         this.processFlagCovers(flagTeam, true);
+        this.processFlagSeals(flagTeam, true);
 
         await this.flags[flagTeam].returned(timestamp, player.masterId);
     }
@@ -346,8 +347,6 @@ class CTFManager{
 
         killer.setCTFNewValue("seal", timestamp, totalDeaths);
 
-        killer.stats.ctf.seal++;
-
         await this.flags[killerTeam].seal(timestamp, killer.masterId);
     }
 
@@ -379,9 +378,14 @@ class CTFManager{
     
         //console.log(`${timestamp} player ${player.masterId} capped the ${flagTeam} flag, previous cap was ${lastEventTimestamp} deaths since${totalDeaths}`);
 
+        this.processFlagSeals(flagTeam, false);
+        this.processFlagCovers(flagTeam, false);
+
         await this.flags[flagTeam].captured(this.playerManager, this.killManager, timestamp, player.masterId, totalDeaths);
 
         player.setCTFNewValue("capture", timestamp, totalDeaths);
+
+        
 
         //console.log(result);
     }
@@ -474,7 +478,7 @@ class CTFManager{
             const p = this.playerManager.players[i];
 
             //console.log(p.name);
-            console.log(p.stats.ctfNew);
+            console.log(p.stats.ctfNew.seal);
         }
     }
 
@@ -491,7 +495,7 @@ class CTFManager{
                 const lastTimestamp = player.getCTFNewLastTimestamp("dropped");
                 const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);
 
-                player.stats.ctf.dropped++;
+                //player.stats.ctf.dropped++;
                 player.setCTFNewValue("dropped", timestamp, totalDeaths);
             }
         }
@@ -506,10 +510,10 @@ class CTFManager{
 
             console.log(player.masterId, this.matchId);
 
-            if(player.bDuplicate === undefined){
+            //if(player.bDuplicate === undefined){
                 
                 await this.ctf.updatePlayerMatchStats(player.masterId, this.matchId, player.stats.ctf);
-            }
+            //}
         }
     }
 
@@ -532,7 +536,7 @@ class CTFManager{
         //insertPlayerMatchData(playerId, this.matchId, mapId, gametypeId, serverId, matchDate, playtime)
     }
 
-
+    //determine if a flag cover was capped or returned
     processFlagCovers(flagTeam, bFailed){
 
         const flag = this.flags[flagTeam];
@@ -584,6 +588,41 @@ class CTFManager{
             }
 
             player.setCTFNewCovers(coverType, timestamps.length, bestCovers, currentCovers, lastTimestamp);
+        }
+    }
+
+    //determine if a flag seal was capped or returned
+    processFlagSeals(flagTeam, bFailed){
+
+        const flag = this.flags[flagTeam];
+
+        const sealTimestamps = flag.sealTimestamps;
+        const sealPlayerIds = flag.sealPlayerIds;
+
+        for(let i = 0; i < sealTimestamps.length; i++){
+
+            const timestamp = sealTimestamps[i];
+            const playerId = sealPlayerIds[i];
+
+            const player = this.playerManager.getPlayerByMasterId(playerId);
+
+            if(player === null){
+                new Message(`CTFManager.processFlagSeals() player is null.`,"warning");
+                continue;
+            }
+
+            if(bFailed){
+
+                const lastTimestampFail = player.getCTFNewLastTimestamp("sealFail");
+                const totalDeathsFail = this.killManager.getDeathsBetween(lastTimestampFail, timestamp, playerId, false);
+                player.setCTFNewValue("sealFail", timestamp, totalDeathsFail);
+
+            }else{
+                
+                const lastTimestampPass = player.getCTFNewLastTimestamp("sealPass");
+                const totalDeathsPass = this.killManager.getDeathsBetween(lastTimestampPass, timestamp, playerId, false);
+                player.setCTFNewValue("sealPass", timestamp, totalDeathsPass);
+            }
         }
     }
 }

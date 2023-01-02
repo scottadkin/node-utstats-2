@@ -1246,8 +1246,8 @@ const queries = [
       flag_cover_fail_best INT(11) NOT NULL, 
       flag_capture INT(11) NOT NULL, 
       flag_capture_best INT(11) NOT NULL, 
-      flag_capture_time float NOT NULL, 
-      flag_capture_time_best float NOT NULL, 
+      flag_carry_time float NOT NULL, 
+      flag_carry_time_best float NOT NULL, 
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
 
 ];
