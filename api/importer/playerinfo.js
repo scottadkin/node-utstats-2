@@ -165,6 +165,18 @@ class PlayerInfo{
                     "currentLife": 0,
                     "lastTimestamp": 0
                 },
+                "taken":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "pickup":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
                 
             },
             "ctf": {

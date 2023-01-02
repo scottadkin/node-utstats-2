@@ -171,7 +171,12 @@ class CTFManager{
             return;
         }
 
-        player.stats.ctf.taken++;
+        //player.stats.ctf.taken++;
+
+        const previousTimestamp = player.getCTFNewLastTimestamp("taken");
+        const totalDeaths = this.killManager.getDeathsBetween(previousTimestamp, timestamp, playerId);
+
+        player.setCTFNewValue("taken", timestamp, totalDeaths);
 
         await this.flags[flagTeam].taken(timestamp, player.masterId);
 
@@ -314,7 +319,12 @@ class CTFManager{
             return;
         }
 
-        holder.stats.ctf.pickup++;
+        //holder.stats.ctf.pickup++;
+
+        const lastTimestamp = holder.getCTFNewLastTimestamp("pickup");
+        const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, playerId);
+
+        holder.setCTFNewValue("pickup", timestamp, totalDeaths);
 
         await this.flags[flagTeam].pickedUp(timestamp, holder.masterId);
     }

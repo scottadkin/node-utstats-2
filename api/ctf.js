@@ -1422,7 +1422,7 @@ class CTF{
     async insertPlayerMatchData(playerId, matchId, mapId, gametypeId, serverId, matchDate, player){
 
         const query = `INSERT INTO nstats_player_ctf_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             playerId,
@@ -1469,7 +1469,11 @@ class CTF{
             player.stats.ctfNew.capture.total,
             player.stats.ctfNew.capture.bestLife,
             player.stats.ctfNew.carryTime.total,
-            player.stats.ctfNew.carryTime.bestLife
+            player.stats.ctfNew.carryTime.bestLife,
+            player.stats.ctfNew.taken.total,
+            player.stats.ctfNew.taken.bestLife,
+            player.stats.ctfNew.pickup.total,
+            player.stats.ctfNew.pickup.bestLife,
         ];
 
         return await mysql.simpleQuery(query, vars);

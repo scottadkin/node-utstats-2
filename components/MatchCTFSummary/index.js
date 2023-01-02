@@ -24,6 +24,7 @@ class MatchCTFSummary extends React.Component{
             "flag_taken": "Taken",
             "flag_pickup": "Pickup",
             "flag_dropped":	"Dropped",//	Assist	Cover	Seal	Capture	Kill	Return	Close Return
+            "flag_suicide":	"Suicide",
             "flag_assist": "Assist",
             "flag_cover": "Cover",
             "flag_seal": "Seal",
@@ -59,6 +60,7 @@ class MatchCTFSummary extends React.Component{
                 "flag_taken": {"value": ctf.flag_taken, "displayValue": Functions.ignore0(ctf.flag_taken)},
                 "flag_pickup": {"value": ctf.flag_pickup, "displayValue": Functions.ignore0(ctf.flag_pickup)},
                 "flag_dropped": {"value": ctf.flag_dropped, "displayValue": Functions.ignore0(ctf.flag_dropped)},
+                "flag_suicide": {"value": ctf.flag_suicide, "displayValue": Functions.ignore0(ctf.flag_suicide)},
                 "flag_assist": {"value": ctf.flag_assist , "displayValue": Functions.ignore0(ctf.flag_assist)},
                 "flag_cover":  {"value": ctf.flag_cover , "displayValue": Functions.ignore0(ctf.flag_cover)},
                 "flag_seal":  {"value": ctf.flag_seal , "displayValue": Functions.ignore0(ctf.flag_seal)},
