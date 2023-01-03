@@ -1238,6 +1238,7 @@ const queries = [
       flag_seal_pass_best INT(11) NOT NULL, 
       flag_seal_fail INT(11) NOT NULL, 
       flag_seal_fail_best INT(11) NOT NULL, 
+      best_single_seal INT(11) NOT NULL, 
       flag_cover INT(11) NOT NULL, 
       flag_cover_best INT(11) NOT NULL, 
       flag_cover_pass INT(11) NOT NULL, 

@@ -15,30 +15,38 @@ class MatchCTFSummaryCovers extends React.Component{
 
     renderTeam(teamId){
 
-        /*
-        <th>Player</th>
-                <TipHeader title="Cover" content="Player killed an enemy close to their flag carrier."/>
-                <TipHeader title="Cover Pass" content="Player killed an enemy close to their flag carrier, where the team later capped the flag."/>
-                <TipHeader title="Cover Fail" content="Player killed an enemy close to their flag carrier, where the enemy team returned the flag."/>
-                <TipHeader title="Cover Efficiency" content="The efficiency of the player's covers."/>
-                <TipHeader title="Multi Cover" content="Player covered 3 people while their team had the enemy flag."/>
-                <TipHeader title="Cover Spree" content="Player covered 4 or more people while their team had the enemy flag."/>
-                <TipHeader title="Best Covers" content="The most people the player covered while their team had the enemy flag."/>
-                <TipHeader title="Self Covers" content="How many people the player killed while carrying the flag."/>
-                <TipHeader title="Self Covers Pass" content="How many people the player killed while carrying the flag, where the team capped the flag."/>
-                <TipHeader title="Self Covers Fail" content="How many people the player killed while carrying the flag, where the enemy team returned the flag."/> */
-
         const headers = {
             "player": "Player",
-            "flag_cover": {"title": "Cover", "content": "Player killed an enemy close to their flag carrier."},
-            "flag_cover_pass": {"title": "Cover Pass", "content": "Player killed an enemy close to their flag carrier, where the team later capped the flag."},
-            "flag_cover_fail": {"title": "Cover Fail", "content": "Player killed an enemy close to their flag carrier, where the enemy team returned the flag."},
-            "flag_cover_multi": {"title": "Multi Cover", "content": "Player covered the flag carrier 3 times in one cap."},
-            "flag_cover_spree": {"title": "Cover Spree", "content": "Player covered the flag carrier at least 4 times in one cap."},
-            "best_single_cover": {"title": "Best Cover", "content": "The most covers the player got in 1 cap."},
-            /*"flag_seal": {"title": "Seal", "content": "Player Sealed off their base."},
-            "flag_seal_pass": {"title": "Seal Pass", "content": "Player Sealed off their base and the flag was capped"},
-            "flag_seal_fail": {"title": "Seal Fail", "content": "Player Sealed off their base, but the flag was returned."},*/
+            "flag_cover": {
+                "title": "Cover", 
+                "detailedTitle": "Flag Cover", 
+                "content": "Player killed an enemy close to their flag carrier."
+            },
+            "flag_cover_pass": {
+                "title": "Cover Pass", 
+                "detailedTitle": "Flag Cover Pass", 
+                "content": "Player killed an enemy close to their flag carrier, where the team later capped the flag."
+            },
+            "flag_cover_fail": {
+                "title": "Cover Fail", 
+                "detailedTitle": "Flag Cover Fail", 
+                "content": "Player killed an enemy close to their flag carrier, where the enemy team returned the flag."
+            },
+            "flag_cover_multi": {
+                "title": "Multi Cover", 
+                "detailedTitle": "Multi Flag Cover", 
+                "content": "Player covered the flag carrier 3 times in a single cap."
+            },
+            "flag_cover_spree": {
+                "title": "Cover Spree", 
+                "detailedTitle": "Flag Cover Spree", 
+                "content": "Player covered the flag carrier at least 4 times in a single cap."
+            },
+            "best_single_cover": {
+                "title": "Best Cover", 
+                "detailedTitle": "Best Flag Cover", 
+                "content": "The most covers the player got in a single cap."
+            },
         };
 
         const data = [];

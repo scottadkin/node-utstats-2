@@ -604,8 +604,6 @@ class CTFManager{
                 currentFlagCovers++;
             }
 
-            console.log(currentFlagCovers);
-
             if(currentFlagCovers === 3){
 
                 const previousMultiTimestamp = player.getCTFNewLastTimestamp("coverMulti");
@@ -638,6 +636,8 @@ class CTFManager{
         const sealTimestamps = flag.sealTimestamps;
         const sealPlayerIds = flag.sealPlayerIds;
 
+        let currentFlagSeals = {};
+
         for(let i = 0; i < sealTimestamps.length; i++){
 
             const timestamp = sealTimestamps[i];
@@ -650,6 +650,12 @@ class CTFManager{
                 continue;
             }
 
+            if(currentFlagSeals[playerId] === undefined){
+                currentFlagSeals[playerId] = 0;
+            }   
+
+            currentFlagSeals[playerId]++;
+
             if(bFailed){
 
                 const lastTimestampFail = player.getCTFNewLastTimestamp("sealFail");
@@ -661,6 +667,20 @@ class CTFManager{
                 const lastTimestampPass = player.getCTFNewLastTimestamp("sealPass");
                 const totalDeathsPass = this.killManager.getDeathsBetween(lastTimestampPass, timestamp, playerId, false);
                 player.setCTFNewValue("sealPass", timestamp, totalDeathsPass);
+            }
+        }
+
+        for(const [playerId, totalSeals] of Object.entries(currentFlagSeals)){
+
+            const player = this.playerManager.getPlayerByMasterId(playerId);
+
+            if(player === null){
+                new Message(`CTFManager.processFlagSeals() currentFlagSeals player is null`, "warning");
+                continue;
+            }
+
+            if(player.stats.ctfNew.bestSingleSeal < totalSeals){
+                player.stats.ctfNew.bestSingleSeal = totalSeals;
             }
         }
     }

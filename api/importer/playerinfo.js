@@ -129,6 +129,7 @@ class PlayerInfo{
                     "bestLife": 0,
                     "lastTimestamp": 0
                 },
+                "bestSingleSeal": 0,
                 "cover":{
                     "total": 0,
                     "currentLife": 0,

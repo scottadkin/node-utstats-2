@@ -157,10 +157,6 @@ class CTFFlag{
 
         this.sealTimestamps.push(timestamp);
         this.sealPlayerIds.push(killerId);
-
-        console.log(this.sealTimestamps);
-        console.log(this.sealPlayerIds);
-
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
     }
 
@@ -218,8 +214,6 @@ class CTFFlag{
         for(let i = 0; i < this.selfCovers.length; i++){
 
             const s = this.selfCovers[i];
-
-            console.log(s);
 
             const player = this.playerManager.getPlayerByMasterId(s.player);
 
