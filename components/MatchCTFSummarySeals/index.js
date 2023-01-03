@@ -46,6 +46,14 @@ class MatchCTFSummarySeals extends React.Component{
 
         const data = [];
 
+        const totals = {
+            "flag_seal": 0,
+            "flag_seal_pass": 0,
+            "flag_seal_fail": 0,
+            "best_single_seal":0,
+            "flag_seal_best": 0,
+        }
+
         for(let i = 0; i < this.props.playerData.length; i++){
 
             const p = this.props.playerData[i];
@@ -73,6 +81,19 @@ class MatchCTFSummarySeals extends React.Component{
                 bestSealString = `${ctf.flag_seal_best} ${Functions.plural(ctf.flag_seal_best, "Kill")}`;
             }
 
+
+            totals["flag_seal"] += ctf.flag_seal;
+            totals["flag_seal_pass"] += ctf.flag_seal_pass;
+            totals["flag_seal_fail"] += ctf.flag_seal_fail;
+
+            if(ctf.best_single_seal > totals.best_single_seal){
+                totals["best_single_seal"] = ctf.best_single_seal;
+            }
+
+            if(ctf.flag_seal_best > totals.flag_seal_best){
+                totals["flag_seal_best"] = ctf.flag_seal_best;
+            }
+          
             data.push({
                 "player": {
                     "value": p.name.toLowerCase(), 
@@ -90,6 +111,18 @@ class MatchCTFSummarySeals extends React.Component{
         }
 
         if(data.length === 0) return null;
+
+        data.push({
+            "bAlwaysLast": true,
+            "player": {
+                "value": "Totals", 
+            },
+            "flag_seal": {"value": Functions.ignore0(totals.flag_seal)},
+            "flag_seal_pass": {"value": Functions.ignore0(totals.flag_seal_pass)},
+            "flag_seal_fail": {"value": Functions.ignore0(totals.flag_seal_fail)},
+            "best_single_seal": {"value": `${totals.best_single_seal} ${Functions.plural(totals.best_single_seal, "Kill")}`},
+            "flag_seal_best": {"value": `${totals.flag_seal_best} ${Functions.plural(totals.flag_seal_best, "Kill")}`},
+        });
 
         return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
     }

@@ -1,7 +1,8 @@
-import MatchCTFSummaryDefault from '../MatchCTFSummaryDefault/';
-import MatchCTFSummaryCovers from '../MatchCTFSummaryCovers/';
-import MatchCTFSummarySeals from '../MatchCTFSummarySeals/';
-import React from 'react';
+import MatchCTFSummaryDefault from "../MatchCTFSummaryDefault/";
+import MatchCTFSummaryCovers from "../MatchCTFSummaryCovers/";
+import MatchCTFSummarySeals from "../MatchCTFSummarySeals/";
+import MatchCTFSummaryReturns from "../MatchCTFSummaryReturns/";
+import React from "react";
 
 
 class MatchCTFSummary extends React.Component{
@@ -31,8 +32,15 @@ class MatchCTFSummary extends React.Component{
     }
 
     renderSeals(){
+
         if(this.state.mode !== 2) return null;
         return <MatchCTFSummarySeals playerData={this.props.playerData}/>;
+    }
+
+    renderReturns(){
+
+        if(this.state.mode !== 3) return null;
+        return <MatchCTFSummaryReturns playerData={this.props.playerData}/>;
     }
 
     render(){
@@ -56,6 +64,7 @@ class MatchCTFSummary extends React.Component{
             {this.renderDefault()}
             {this.renderCovers()}
             {this.renderSeals()}
+            {this.renderReturns()}
         </div>
     }
 }

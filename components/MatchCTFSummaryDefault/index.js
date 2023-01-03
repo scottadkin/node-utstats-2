@@ -74,6 +74,21 @@ class MatchCTFSummaryDefault extends React.Component{
             },
         };
 
+        const totals = {
+            "flag_taken": 0,
+            "flag_pickup": 0,
+            "flag_dropped":	0,
+            "flag_suicide":	0,
+            "flag_assist": 0,
+            "flag_cover": 0,
+            "flag_seal": 0,
+            "flag_capture": 0,
+            "flag_kill": 0,
+            "flag_return": 0,
+            "flag_return_save": 0
+        };
+
+
         const data = [];
 
         for(let i = 0; i < this.props.playerData.length; i++){
@@ -90,6 +105,18 @@ class MatchCTFSummaryDefault extends React.Component{
                     {p.name}
                 </a>
             </Link>;
+
+            totals["flag_taken"] += ctf.flag_taken;
+            totals["flag_pickup"] += ctf.flag_pickup;
+            totals["flag_dropped"] += ctf.flag_dropped;
+            totals["flag_suicide"] += ctf.flag_suicide;
+            totals["flag_assist"] += ctf.flag_assist;
+            totals["flag_cover"] += ctf.flag_cover;
+            totals["flag_seal"] += ctf.flag_seal;
+            totals["flag_capture"] += ctf.flag_capture;
+            totals["flag_kill"] += ctf.flag_kill;
+            totals["flag_return"] += ctf.flag_return;
+            totals["flag_return_save"] += ctf.flag_return_save;
 
             data.push({
                 "player": {
@@ -113,6 +140,25 @@ class MatchCTFSummaryDefault extends React.Component{
         }
 
         if(data.length === 0) return null;
+
+        const last = {
+            "bAlwaysLast": true,
+            "player": "Totals",
+            "flag_taken": {"value": Functions.ignore0(totals.flag_taken) },
+            "flag_pickup": {"value": Functions.ignore0(totals.flag_pickup) },
+            "flag_dropped": {"value": Functions.ignore0(totals.flag_dropped) },
+            "flag_suicide": {"value": Functions.ignore0(totals.flag_suicide) },
+            "flag_assist": {"value": Functions.ignore0(totals.flag_assist) },
+            "flag_cover":  {"value": Functions.ignore0(totals.flag_cover) },
+            "flag_seal":  {"value": Functions.ignore0(totals.flag_seal) },
+            "flag_capture":  {"value": Functions.ignore0(totals.flag_capture) },
+            "flag_kill":  {"value": Functions.ignore0(totals.flag_kill) },
+            "flag_return":  {"value": Functions.ignore0(totals.flag_return) },
+            "flag_return_save":  {"value": Functions.ignore0(totals.flag_return_save) }
+        };
+
+
+        data.push(last);
 
         return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
     }

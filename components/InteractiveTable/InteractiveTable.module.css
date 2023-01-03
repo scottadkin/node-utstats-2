@@ -13,12 +13,12 @@
 }
 
 .mc{
-    font-size:14px;
-    padding:5px;
+    font-size:12px;
+    padding-bottom:10px;
+    color:var(--color-6);
 }
 
-.mi{
-    color:yellow;
-    font-size:12px;
-    padding:5px;
+
+.totals{
+    background-color:var(--color-3);
 }

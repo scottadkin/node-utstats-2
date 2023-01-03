@@ -115,11 +115,19 @@ class InteractiveTable extends React.Component{
             });
         }
 
+        let lastRow = null;
+        
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
 
             const columns = [];
+
+            if(d.bAlwaysLast !== undefined){
+                console.log("fart");
+                lastRow = d;
+                continue;
+            }
 
             for(const key of Object.keys(this.props.headers)){
 
@@ -147,6 +155,21 @@ class InteractiveTable extends React.Component{
             rows.push(<tr key={i}>{columns}</tr>);
         }
 
+        if(lastRow !== null){
+
+            const columns = [];
+
+            for(const key of Object.keys(this.props.headers)){
+
+                let value = lastRow[key].value;
+
+                columns.push(<td className={styles.totals} key={`last-${key}`}>{value}</td>);
+                 
+            }
+
+            rows.push(<tr key={"last"}>{columns}</tr>);
+        }
+
         return rows;
     }
 
@@ -158,9 +181,6 @@ class InteractiveTable extends React.Component{
             <div className={styles.mt}>{this.state.mouseTitle}</div>
             <div className={styles.mc}>
                 {this.state.mouseContent}
-            </div>
-            <div className={styles.mi}>
-                Click header to sort by that value.
             </div>
         </div>
     }
