@@ -36,9 +36,9 @@ class MatchCTFSummaryCovers extends React.Component{
             "flag_cover_multi": {"title": "Multi Cover", "content": "Player covered the flag carrier 3 times in one cap."},
             "flag_cover_spree": {"title": "Cover Spree", "content": "Player covered the flag carrier at least 4 times in one cap."},
             "best_single_cover": {"title": "Best Cover", "content": "The most covers the player got in 1 cap."},
-            "flag_seal": {"title": "Seal", "content": "Player Sealed off their base."},
+            /*"flag_seal": {"title": "Seal", "content": "Player Sealed off their base."},
             "flag_seal_pass": {"title": "Seal Pass", "content": "Player Sealed off their base and the flag was capped"},
-            "flag_seal_fail": {"title": "Seal Fail", "content": "Player Sealed off their base, but the flag was returned."},
+            "flag_seal_fail": {"title": "Seal Fail", "content": "Player Sealed off their base, but the flag was returned."},*/
         };
 
         const data = [];
@@ -76,9 +76,9 @@ class MatchCTFSummaryCovers extends React.Component{
                 "flag_cover_multi":  {"value": ctf.flag_cover_multi , "displayValue": Functions.ignore0(ctf.flag_cover_multi)},
                 "flag_cover_spree":  {"value": ctf.flag_cover_spree , "displayValue": Functions.ignore0(ctf.flag_cover_spree)},
                 "best_single_cover":  {"value": ctf.best_single_cover , "displayValue": bestCoverString},
-                "flag_seal":  {"value": ctf.flag_seal , "displayValue": Functions.ignore0(ctf.flag_seal)},
+                /*"flag_seal":  {"value": ctf.flag_seal , "displayValue": Functions.ignore0(ctf.flag_seal)},
                 "flag_seal_pass":  {"value": ctf.flag_seal_pass , "displayValue": Functions.ignore0(ctf.flag_seal_pass)},
-                "flag_seal_fail":  {"value": ctf.flag_seal_fail , "displayValue": Functions.ignore0(ctf.flag_seal_fail)},
+                "flag_seal_fail":  {"value": ctf.flag_seal_fail , "displayValue": Functions.ignore0(ctf.flag_seal_fail)},*/
 
             });
         }

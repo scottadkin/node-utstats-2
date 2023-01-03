@@ -190,6 +190,25 @@ class PlayerInfo{
                     "currentLife": 0,
                     "lastTimestamp": 0
                 },
+                "selfCover":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "selfCoverPass":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "selfCoverFail":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "bestSingleSelfCover": 0
                 
             },
             "ctf": {

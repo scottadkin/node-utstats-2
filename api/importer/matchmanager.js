@@ -337,7 +337,7 @@ class MatchManager{
                 this.CTFManager.killManager = this.killManager;
                 this.CTFManager.createFlags();
 
-                await this.CTFManager.parseData(matchTimings.start);
+                await this.CTFManager.parseData(matchTimings.start, matchTimings.end);
                 //await this.CTFManager.updatePlayerMatchStats();
                 
                 await this.playerManager.teamsManager.setTeamsPlaytime(this.playerManager, this.gameInfo.totalTeams, matchTimings, this.gameInfo.hardcore);

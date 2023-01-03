@@ -23,7 +23,7 @@ class CTFManager{
     createFlags(){
 
         for(let i = 0; i < this.totalTeams; i++){
-            this.flags.push(new CTFFlag(this.ctf, this.matchId, i));
+            this.flags.push(new CTFFlag(this.ctf, this.playerManager, this.killManager, this.matchId, i));
         }   
     }
 
@@ -230,6 +230,9 @@ class CTFManager{
             player.setCTFNewValue("returnBase", timestamp, totalDeaths);
         }
 
+        if(type === "flag_returned_timeout"){
+            new Message(`DO timeout returns`,"error");
+        }
 
         this.processFlagCovers(flagTeam, true);
         this.processFlagSeals(flagTeam, true);
@@ -391,7 +394,7 @@ class CTFManager{
         this.processFlagSeals(flagTeam, false);
         this.processFlagCovers(flagTeam, false);
 
-        await this.flags[flagTeam].captured(this.playerManager, this.killManager, timestamp, player.masterId, totalDeaths);
+        await this.flags[flagTeam].captured(timestamp, player.masterId, totalDeaths);
 
         player.setCTFNewValue("capture", timestamp, totalDeaths);
 
@@ -488,7 +491,7 @@ class CTFManager{
             const p = this.playerManager.players[i];
 
             //console.log(p.name);
-            console.log(p.stats.ctfNew.seal);
+            console.log(p.stats.ctfNew);
         }
     }
 
@@ -500,7 +503,7 @@ class CTFManager{
 
             if(flag.carriedBy === player.masterId){
 
-                await flag.dropped(this.playerManager, this.killManager, timestamp);
+                await flag.dropped(timestamp);
 
                 const lastTimestamp = player.getCTFNewLastTimestamp("dropped");
                 const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);
@@ -661,6 +664,7 @@ class CTFManager{
             }
         }
     }
+    
 }
 
 module.exports = CTFManager;

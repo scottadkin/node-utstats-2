@@ -381,6 +381,8 @@ class KillManager{
 
         const found = [];
 
+        if(bOnlyCount === undefined) bOnlyCount = false;
+
         for(let i = 0; i < this.kills.length; i++){
 
             const k = this.kills[i];
@@ -396,7 +398,7 @@ class KillManager{
             }
         }
 
-        if(bOnlyCount !== undefined){
+        if(bOnlyCount){
             return found.length;
         }else{
             return found;
