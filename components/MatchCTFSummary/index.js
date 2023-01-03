@@ -9,7 +9,7 @@ class MatchCTFSummary extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 1};
+        this.state = {"mode": 0};
     }
 
     renderDefault(){
@@ -32,6 +32,8 @@ class MatchCTFSummary extends React.Component{
             <div className="tabs">
                 <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`}>General</div>
                 <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}>Covers</div>
+                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`}>Seals</div>
+                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`}>Returns</div>
             </div>
             {this.renderDefault()}
             {this.renderCovers()}

@@ -17,17 +17,61 @@ class MatchCTFSummaryDefault extends React.Component{
 
         const headers = {
             "player": "Player",
-            "flag_taken": {"title": "Taken", "content": "Player took the flag from the enemy team's flag stand."},
-            "flag_pickup": {"title": "Pickup", "content":"Player picked up the flag that was dropped by a team mate."},
-            "flag_dropped":	{"title":"Dropped", "content": "Player dropped the enemy flag."},//	Assist	Cover	Seal	Capture	Kill	Return	Close Return
-            "flag_suicide":	{"title": "Suicide", "content": "Player killed themself while carrying the flag."},
-            "flag_assist": {"title":"Assist", "content": "Player had carried the flag that was later capped."},
-            "flag_cover": {"title":"Cover", "content": "Player covered their team mate that had the enemy flag."},
-            "flag_seal": {"title": "Seal", "content": "Player sealed off the base while flag was taken."},
-            "flag_capture": {"title": "Capture", "content": "Player capped the enemy flag scoring a point for their team."},
-            "flag_kill": {"title":"Kill", "content": "Player killed an enemy that was carrying their team's flag."},
-            "flag_return": {"title": "Return", "content":"Player returned their flag that was dropped by an enemy."},
-            "flag_return_save": {"title": "Close Return", "content": "Player returned their flag that was dropped by an enemy, that was close to being capped."},
+            "flag_taken": {
+                "title": "Taken", 
+                "detailedTitle": "Flag Taken", 
+                "content": "Player took the flag from the enemy team's flag stand."
+            },
+            "flag_pickup": {
+                "title": "Pickup", 
+                "detailedTitle": "Flag Pickup",
+                "content":"Player picked up the flag that was dropped by a team mate."
+            },
+            "flag_dropped":	{
+                "title":"Dropped", 
+                "detailedTitle": "Flag Dropped",
+                "content": "Player dropped the enemy flag."
+            },
+            "flag_suicide":	{
+                "title": "Suicide", 
+                "detailedTitle": "Flag Suicide",
+                "content": "Player killed themself while carrying the flag."
+            },
+            "flag_assist": {
+                "title":"Assist", 
+                "detailedTitle": "Flag Assist",
+                "content": "Player had carried the flag that was later capped."
+            },
+            "flag_cover": {
+                "title":"Cover", 
+                "detailedTitle": "Flag Cover",
+                "content": "Player covered their team mate that had the enemy flag."
+            },
+            "flag_seal": {
+                "title": "Seal", 
+                "detailedTitle": "Flag Seal",
+                "content": "Player sealed off the base while flag was taken."
+            },
+            "flag_capture": {
+                "title": "Capture", 
+                "detailedTitle": "Flag Capture",
+                "content": "Player capped the enemy flag scoring a point for their team."
+            },
+            "flag_kill": {
+                "title":"Kill", 
+                "detailedTitle": "Flag Kill",
+                "content": "Player killed an enemy that was carrying their team's flag."
+            },
+            "flag_return": {
+                "title": "Return", 
+                "detailedTitle": "Flag Return",
+                "content":"Player returned their flag that was dropped by an enemy."
+            },
+            "flag_return_save": {
+                "title": "Close Return", 
+                "detailedTitle": "Flag Close Return",
+                "content": "Player returned their flag that was dropped by an enemy, that was close to being capped."
+            },
         };
 
         const data = [];

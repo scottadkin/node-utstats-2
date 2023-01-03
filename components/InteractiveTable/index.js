@@ -3,14 +3,30 @@ import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";
 import Link from "next/link";
 import TableHeader from "../TableHeader";
-import TipHeader from "../TipHeader";
 
 class InteractiveTable extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"orderBy": null, "bAsc": true};
+
+        this.state = {
+            "orderBy": null, 
+            "bAsc": true,
+            "bDisplayMouseOver": false,
+            "mouseTitle": "",
+            "mouseContent": ""
+        };
+
+        this.hideMouseOver = this.hideMouseOver.bind(this);
+    }
+
+    hideMouseOver(){
+        this.setState({"bDisplayMouseOver": false});
+    }
+
+    updateMouseOver(title, content){
+        this.setState({"mouseTitle": title, "mouseContent": content, "bDisplayMouseOver": true});
     }
 
     changeOrder(orderBy){
@@ -31,16 +47,33 @@ class InteractiveTable extends React.Component{
             const type = typeof value;
 
             if(type === "string"){
+
                 headers.push(<th className={`pointer`} key={key} onClick={(() =>{
                     this.changeOrder(key);
                 })}>
                     {value}
                 </th>);
+
             }else{
-                headers.push(<TipHeader key={key} sortEvent={(() =>{
+
+                let title = value.title;
+
+                if(value.detailedTitle !== undefined){
+                    title = value.detailedTitle;
+                }
+
+                headers.push(<th className={`pointer`} key={key} 
+                onMouseOver={(() =>{
+                    this.updateMouseOver(title, value.content);
+                })} 
+                onClick={(() =>{
                     this.changeOrder(key);
-                })} title={value.title} content={value.content} />);
+                })}>
+                    {value.title}
+                </th>);
+
             }
+
         }
 
         return <tr>{headers}</tr>
@@ -117,6 +150,21 @@ class InteractiveTable extends React.Component{
         return rows;
     }
 
+    renderMouseOver(){
+
+        if(!this.state.bDisplayMouseOver) return null;
+
+        return <div className={`${styles.mo} center t-width-${this.props.width}`}>
+            <div className={styles.mt}>{this.state.mouseTitle}</div>
+            <div className={styles.mc}>
+                {this.state.mouseContent}
+            </div>
+            <div className={styles.mi}>
+                Click header to sort by that value.
+            </div>
+        </div>
+    }
+
     render(){
 
         let tableTitle = null;
@@ -125,12 +173,14 @@ class InteractiveTable extends React.Component{
             tableTitle = <TableHeader width={this.props.width}>{this.props.title}</TableHeader>
         }
 
-        return <div className={styles.wrapper}>
+        return <div className={styles.wrapper} onMouseLeave={this.hideMouseOver}>
             {tableTitle}
+            {this.renderMouseOver()}
             <Table2 width={this.props.width}>
                 {this.renderHeaders()}
                 {this.renderData()}
             </Table2>
+            
         </div>
     }
 }

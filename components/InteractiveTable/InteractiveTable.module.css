@@ -2,3 +2,23 @@
     cursor: pointer;
     background-color:var(--color-3);
 }
+
+.mo{
+    background-color:var(--color-8);
+}
+
+.mt{
+    padding:5px;
+    font-size:14px;
+}
+
+.mc{
+    font-size:14px;
+    padding:5px;
+}
+
+.mi{
+    color:yellow;
+    font-size:12px;
+    padding:5px;
+}
