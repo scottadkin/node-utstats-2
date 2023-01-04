@@ -2,13 +2,14 @@ const Message =  require("../message");
 
 class CTFFlag{
 
-    constructor(ctfManager, playerManager, killManager, matchId, matchDate, team){
+    constructor(ctfManager, playerManager, killManager, matchId, matchDate, mapId, team){
 
         this.ctfManager = ctfManager;
         this.playerManager = playerManager;
         this.killManager = killManager;
         this.matchId = matchId;
         this.matchDate = matchDate;
+        this.mapId = mapId;
         console.log(`new CTFFlag with team of ${team}`);
 
         this.team = team;
@@ -301,6 +302,7 @@ class CTFFlag{
             await this.ctfManager.insertCap(
                 this.matchId, 
                 this.matchDate, 
+                this.mapId,
                 capTeam, 
                 this.team, 
                 this.takenTimestamp, 

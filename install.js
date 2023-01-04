@@ -45,6 +45,7 @@ const queries = [
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
+        map_id int NOT NULL,
         cap_team int NOT NULL,
         flag_team int NOT NULL,
         grab_time float NOT NULL,

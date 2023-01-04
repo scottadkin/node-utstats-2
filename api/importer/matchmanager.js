@@ -336,6 +336,7 @@ class MatchManager{
                 this.CTFManager.matchId = this.matchId;
                 this.CTFManager.killManager = this.killManager;
                 this.CTFManager.matchDate = this.serverInfo.date;
+                this.CTFManager.mapId = this.mapInfo.mapId;
                 this.CTFManager.createFlags();
 
                 await this.CTFManager.parseData(matchTimings.start, matchTimings.end);

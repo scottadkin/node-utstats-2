@@ -150,7 +150,7 @@ class CTF{
         return timeDropped;
     }
 
-    async insertCap(matchId, matchDate, capTeam, flagTeam, grabTime, grabPlayer, capTime, capPlayer, travelTime, carryTime, dropTime){
+    async insertCap(matchId, matchDate, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, capPlayer, travelTime, carryTime, dropTime){
 
 
         let carryTimePercent = 0;
@@ -169,11 +169,12 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
             matchDate, 
+            mapId,
             capTeam, 
             flagTeam, 
             grabTime, 
