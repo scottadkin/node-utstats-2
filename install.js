@@ -57,6 +57,10 @@ const queries = [
         carry_time_percent float NOT NULL,
         drop_time float NOT NULL,
         drop_time_percent float NOT NULL,
+        total_drops int NOT NULL,
+        total_pickups int NOT NULL,
+        total_covers int NOT NULL,
+        total_seals int NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ctf_events (
         id int(11) NOT NULL AUTO_INCREMENT,

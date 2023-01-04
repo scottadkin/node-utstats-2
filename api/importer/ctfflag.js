@@ -310,8 +310,12 @@ class CTFFlag{
                 timestamp, 
                 this.carriedBy, 
                 travelTime, 
-                totalCarryTime,//carryTime, 
-                timeDropped//dropTime
+                totalCarryTime, 
+                timeDropped,
+                this.droppedTimestamps.length,
+                this.pickupTimestamps.length,
+                this.coverTimestamps.length,
+                this.sealTimestamps.length
             );
 
         }else{
