@@ -2,12 +2,13 @@ const Message =  require("../message");
 
 class CTFFlag{
 
-    constructor(ctfManager, playerManager, killManager, matchId, team){
+    constructor(ctfManager, playerManager, killManager, matchId, matchDate, team){
 
         this.ctfManager = ctfManager;
         this.playerManager = playerManager;
         this.killManager = killManager;
         this.matchId = matchId;
+        this.matchDate = matchDate;
         console.log(`new CTFFlag with team of ${team}`);
 
         this.team = team;
@@ -20,6 +21,7 @@ class CTFFlag{
         this.pickupPlayerIds = [];
 
         this.takenTimestamp = null;
+        this.takenPlayer = null;
         this.lastCarriedTimestamp = null;
 
         this.droppedTimestamps = [];
@@ -74,6 +76,7 @@ class CTFFlag{
         this.lastCarriedTimestamp = null;
         this.carryTimes = [];
         this.selfCovers = [];
+        this.takenPlayer = null;
     }
 
     async returned(timestamp, playerId){
@@ -106,6 +109,7 @@ class CTFFlag{
         this.carriedBy = playerId;
         this.takenTimestamp = timestamp;
         this.lastCarriedTimestamp = timestamp;
+        this.takenPlayer = playerId;
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "taken", this.team);
     }
@@ -243,13 +247,20 @@ class CTFFlag{
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
 
+
+        const travelTime = timestamp - this.takenTimestamp;
+
         await this.setCarryTime(timestamp);
 
         const assistIds = new Set();
 
+        let totalCarryTime = 0;
+
         for(let i = 0; i < this.carryTimes.length; i++){
 
             const c = this.carryTimes[i];
+
+            totalCarryTime += c.carryTime;
 
             //don't want to count the capped player as an assist.
             if(this.carriedBy !== c.player){
@@ -273,6 +284,39 @@ class CTFFlag{
         }
 
         await this.processSelfCovers(false);
+
+
+        const capPlayer = this.playerManager.getPlayerByMasterId(this.carriedBy);
+
+        if(capPlayer !== null){
+
+            //console.log(capPlayer);
+            const capTeam = this.playerManager.getPlayerTeamAt(this.carriedBy, timestamp);
+
+            const timeDropped = travelTime - totalCarryTime;
+
+            console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${totalCarryTime}, timeDropped ${timeDropped}`);
+
+            //await this.ctfManager.insertCap(this.matchId, this.matchDate, capTeam, this.team, this.takenTimestamp, this.takenPlayer, timestamp, this.carriedBy, travelTime, carryTime, dropTime);
+            await this.ctfManager.insertCap(
+                this.matchId, 
+                this.matchDate, 
+                capTeam, 
+                this.team, 
+                this.takenTimestamp, 
+                this.takenPlayer, 
+                timestamp, 
+                this.carriedBy, 
+                travelTime, 
+                totalCarryTime,//carryTime, 
+                timeDropped//dropTime
+            );
+
+        }else{
+            new Message(`capPlayer is null`,"warning");
+        }
+        
+        
 
         this.reset(false);
     }

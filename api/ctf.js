@@ -150,7 +150,48 @@ class CTF{
         return timeDropped;
     }
 
-    async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
+    async insertCap(matchId, matchDate, capTeam, flagTeam, grabTime, grabPlayer, capTime, capPlayer, travelTime, carryTime, dropTime){
+
+
+        let carryTimePercent = 0;
+        let travelTimePercent = 0;
+        let dropTimePercent = 0;
+
+        if(travelTime > 0){
+
+            if(carryTime > 0){
+                carryTimePercent = (carryTime / travelTime) * 100;
+            }
+
+            if(dropTime > 0){
+                dropTimePercent = (dropTime / travelTime) * 100;
+            }
+        }
+
+
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [
+            matchId,
+            matchDate, 
+            capTeam, 
+            flagTeam, 
+            grabTime, 
+            grabPlayer, 
+            capTime, 
+            capPlayer, 
+            travelTime, 
+            carryTime, 
+            carryTimePercent, 
+            dropTime, 
+            dropTimePercent
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+
+    }
+
+    /*async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
         assistsTimes, carryIds, cap, 
         capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes){
 
@@ -183,7 +224,7 @@ class CTF{
         
         await mysql.simpleQuery(query, vars);
 
-    }
+    }*/
 
     async bMapHaveRecord(mapId, type){
 

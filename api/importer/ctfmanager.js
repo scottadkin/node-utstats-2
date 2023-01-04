@@ -23,7 +23,7 @@ class CTFManager{
     createFlags(){
 
         for(let i = 0; i < this.totalTeams; i++){
-            this.flags.push(new CTFFlag(this.ctf, this.playerManager, this.killManager, this.matchId, i));
+            this.flags.push(new CTFFlag(this.ctf, this.playerManager, this.killManager, this.matchId, this.matchDate, i));
         }   
     }
 
@@ -544,7 +544,7 @@ class CTFManager{
         }
     }
 
-    async insertPlayerMatchData(serverId, mapId, gametypeId, matchDate){
+    async insertPlayerMatchData(serverId, mapId, gametypeId){
 
         new Message("CTFManager.insertPlayerMatchData()", "note");
 
@@ -557,7 +557,7 @@ class CTFManager{
                 continue;   
             }
 
-            await this.ctf.insertPlayerMatchData(p.masterId, this.matchId, mapId, gametypeId, serverId, matchDate, p);
+            await this.ctf.insertPlayerMatchData(p.masterId, this.matchId, mapId, gametypeId, serverId, this.matchDate, p);
 
         }
         //insertPlayerMatchData(playerId, this.matchId, mapId, gametypeId, serverId, matchDate, playtime)

@@ -335,6 +335,7 @@ class MatchManager{
                 this.CTFManager.bIgnoreBots = this.bIgnoreBots;
                 this.CTFManager.matchId = this.matchId;
                 this.CTFManager.killManager = this.killManager;
+                this.CTFManager.matchDate = this.serverInfo.date;
                 this.CTFManager.createFlags();
 
                 await this.CTFManager.parseData(matchTimings.start, matchTimings.end);
@@ -342,7 +343,7 @@ class MatchManager{
                 
                 await this.playerManager.teamsManager.setTeamsPlaytime(this.playerManager, this.gameInfo.totalTeams, matchTimings, this.gameInfo.hardcore);
 
-                await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype, this.serverInfo.date);
+                await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
 
                 
                 /*if(this.CTFManager.bHasData()){
