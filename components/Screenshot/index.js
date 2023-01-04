@@ -886,7 +886,9 @@ class MatchScreenshot{
 
 
     renderSmartCTFPlayer(c, team, x, y, width, height, player){
-
+        
+        if(player.ctfData === undefined) return;
+        
         //const height = this.y(6);
         c.fillStyle = "rgba(0,0,0,0.5)";
         c.fillRect(x, y, width, height);
@@ -1201,8 +1203,6 @@ class MatchScreenshot{
 
     setMaxCTFValues(){
 
-        let p = 0;
-
         this.maxCTF = {
             "grabs": 0,
             "caps": 0,
@@ -1225,7 +1225,9 @@ class MatchScreenshot{
 
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
+
+            if(p.ctfData === undefined) continue;
 
             if(p.ctfData.flag_taken > this.maxCTF.grabs){
                 this.maxCTF.grabs = p.ctfData.flag_taken;

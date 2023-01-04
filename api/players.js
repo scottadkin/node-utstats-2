@@ -1284,11 +1284,9 @@ class Players{
 
         const names = await this.getJustNamesByIds(ids);
 
-        let p = 0;
-
         for(let i = 0; i < players.length; i++){
 
-            p = players[i];
+            const p = players[i];
 
             if(names[`${p.player_id}`] !== undefined){
                 p.name = names[`${p.player_id}`];

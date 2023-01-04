@@ -185,12 +185,29 @@ class CTFManager{
 
     async createFlagReturned(timestamp, line){
 
-        const reg = /^.+?\tflag_(.+?)\t(\d+?)\t(\d+)$/;
+        const reg = /^.+?\tflag_(.+?)\t(\d+?)\t(\d+)$/i;
+
+        //57.86	flag_returned_timeout	1
+        const timeoutReg = /^.+?\tflag_returned_timeout\t(\d+)$/i;
 
         const result = reg.exec(line);
 
         if(result === null){
-            new Message(`createFlagReturned regular expression failed.`);
+
+            const timeoutResult = timeoutReg.exec(line);
+
+            if(timeoutResult !== null){
+
+                const flagTeam = parseInt(timeoutResult[1]);
+
+                this.processFlagCovers(flagTeam, true);
+                this.processFlagSeals(flagTeam, true);
+
+                await this.flags[flagTeam].timedOutReturn(timestamp);
+                return;
+            }
+
+            new Message(`createFlagReturned regular expressions failed.`, "warning");
             return;
         }
 
@@ -228,10 +245,6 @@ class CTFManager{
 
         if(type === "return_base"){
             player.setCTFNewValue("returnBase", timestamp, totalDeaths);
-        }
-
-        if(type === "flag_returned_timeout"){
-            new Message(`DO timeout returns`,"error");
         }
 
         this.processFlagCovers(flagTeam, true);
@@ -412,7 +425,8 @@ class CTFManager{
             "flag_return_mid",
             "flag_return_base",
             "flag_return_enemybase",
-            "flag_return_closesave"
+            "flag_return_closesave",
+            "flag_returned_timeout"
         ];
 
    

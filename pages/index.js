@@ -124,7 +124,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 		if(pageSettings["Display Latest Match"] === "true"){
 
 			const latestMatch = parsedMatchesData[0];
-
 			
 			elems[pageOrder["Display Latest Match"]] = <Screenshot 
 				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} 

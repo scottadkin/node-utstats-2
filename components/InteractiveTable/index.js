@@ -124,7 +124,6 @@ class InteractiveTable extends React.Component{
             const columns = [];
 
             if(d.bAlwaysLast !== undefined){
-                console.log("fart");
                 lastRow = d;
                 continue;
             }

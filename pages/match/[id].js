@@ -54,7 +54,6 @@ class Match extends React.Component{
 
         super(props);
 
-
         this.state = {
             "info": [],
             "playerData": [],
@@ -233,23 +232,21 @@ class Match extends React.Component{
 
         if(this.props.info === undefined){
             return this.renderMissing(ogImage);
-        }
-
-        const dateString = Functions.convertTimestamp(this.props.info.date, true);
+        }      
         
 
         const titleElem = this.getTitleElem();
 
-        //playerNames = JSON.stringify(playerNames);
-
         const elems = this.renderElems(imageHost);
+
+        const metaData = JSON.parse(this.props.metaData);
+
 
         return <div>
             <DefaultHead host={this.props.host} 
-                title={`${this.props.map} (${dateString}) Match Report`} 
-                description={`Match report for ${this.props.map} (${this.props.gametype}${(this.props.info.insta) ? " Instagib" : ""}) 
-                played on ${this.props.server} at ${dateString}, total players ${this.state.info.players}, match length ${Functions.MMSS(this.state.info.playtime)}.`} 
-                keywords={`match,report,${this.props.map},${this.props.gametype},${this.props.server}`}
+                title={metaData.title} 
+                description={metaData.description} 
+                keywords={metaData.keywords}
                 image={ogImage}    
                 />
             <main>
@@ -792,6 +789,19 @@ export async function getServerSideProps({req, query}){
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
+        const dateString = Functions.convertTimestamp(matchInfo.date, true);
+
+        let descriptionString = `Match report for ${mapName} (${gametypeName}) ${(matchInfo.insta) ? " Instagib" : ""}`;
+        descriptionString += `played on ${serverName} at ${dateString}, total players ${matchInfo.players}, match length ${Functions.MMSS(matchInfo.playtime)}.`
+
+        const keywords = `match,report,${mapName},${gametypeName},${serverName}`;
+
+        const metaData = {
+            "title": `${mapName} (${dateString}) Match Report`,
+            "description:": descriptionString,
+            "keywords": keywords
+        };
+
         return {
             props: {
                 "navSettings": JSON.stringify(navSettings),
@@ -809,6 +819,7 @@ export async function getServerSideProps({req, query}){
                 "weaponData": weaponData,
                 "teams": JSON.stringify(teamsData),
                 "faces": JSON.stringify(pFaces),
+                "metaData": JSON.stringify(metaData)
             }
         };
 
