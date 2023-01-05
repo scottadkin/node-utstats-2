@@ -64,6 +64,17 @@ const queries = [
         total_assists int NOT NULL,
         total_self_covers int NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+    `CREATE TABLE nstats_ctf_assists (
+      id int NOT NULL AUTO_INCREMENT,
+      match_id int NOT NULL,
+      match_date int NOT NULL,
+      map_id int NOT NULL,
+      cap_id int NOT NULL,
+      player_id int NOT NULL,
+      pickup_time float NOT NULL,
+      dropped_time float NOT NULL,
+      carry_time float NOT NULL,
+      PRIMARY_KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ctf_events (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
