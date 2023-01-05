@@ -13,13 +13,15 @@ class MatchCTFCaps extends React.Component{
 
         super(props);
 
-        this.state = {"bLoading": true, "error": null, "data": null};
+        this.state = {"mode": 0,"bLoading": true, "error": null, "data": null};
+    }
+
+    changeMode(id){
+        this.setState({"mode": id});
     }
 
 
     async loadData(){
-
-        console.log(`loadData`);
 
         this.setState({"bLoading": true});
 
@@ -37,7 +39,6 @@ class MatchCTFCaps extends React.Component{
             this.setState({"data": res.data, "bLoading": false});
         }
 
-        console.log(res);
     }
 
     async componentDidMount(){
@@ -54,18 +55,18 @@ class MatchCTFCaps extends React.Component{
         }
     }
 
-    renderData(){
+    renderSimple(){
 
         const data = [];
         const headers = {
             "match_score": "Match Score",
-            "grab_time": "Grabbed",
-            "grabbed_by": "Grabbed By",
-            "cap_time": "Capped",
-            "capped_by": "Capped By",
+            "grab_time": "Grab",
+            "grabbed_by": "Grab By",
+            "cap_time": "Cap",
+            "capped_by": "Cap By",
             "travel_time": "Travel Time",
-            "drop_time": "Dropped Time",
-            "total_drops": "Times Dropped",
+            "drop_time": "Drop Time",
+            "total_drops": "Dropped",
             "total_covers": "Covers",
             "total_self_covers": "Self Covers",
             "total_seals": "Seals",
@@ -160,9 +161,15 @@ class MatchCTFCaps extends React.Component{
 
         }
         
-
-
         return <InteractiveTable width={1} headers={headers} data={data}/>
+    }
+
+    renderData(){
+
+        if(this.state.mode === 0) return this.renderSimple();
+
+
+        return null;
     }
 
     render(){
@@ -177,6 +184,14 @@ class MatchCTFCaps extends React.Component{
 
         return <div className="m-bottom-25">
             <div className="default-header">Capture The Flag Caps</div> 
+            <div className="tabs">
+                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(0);
+                })}>Simple Display</div>
+                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(1);
+                })}>Detailed Display</div>
+            </div>
             {this.renderData()}
         </div>;
 
