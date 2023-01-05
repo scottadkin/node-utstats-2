@@ -151,11 +151,11 @@ class CTF{
     }
 
     async insertCap(matchId, matchDate, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, 
-        capPlayer, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals){
+        capPlayer, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
+        totalAssists, totalSelfCovers){
 
 
         let carryTimePercent = 0;
-        let travelTimePercent = 0;
         let dropTimePercent = 0;
 
         if(travelTime > 0){
@@ -170,7 +170,7 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -190,7 +190,9 @@ class CTF{
             totalDrops,
             totalPickups,
             totalCovers,
-            totalSeals
+            totalSeals,
+            totalAssists,
+            totalSelfCovers,
         ];
 
         return await mysql.simpleQuery(query, vars);
@@ -300,10 +302,7 @@ class CTF{
 
     async getMatchCaps(matchId){
 
-        const query = `SELECT team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,
-        assist_carry_ids,cap,cap_time,travel_time,self_covers,self_covers_times,flag_team,total_drops,total_covers,total_self_covers,
-        total_pickups,total_assists,total_unique_assists,total_seals,time_dropped,carry_time,seals,seal_times
-        FROM nstats_ctf_caps WHERE match_id=? ORDER BY grab_time ASC`;
+        const query = `SELECT * FROM nstats_ctf_caps WHERE match_id=? ORDER BY grab_time ASC`;
 
         return await mysql.simpleQuery(query, [matchId]);
     }

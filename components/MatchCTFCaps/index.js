@@ -1,394 +1,185 @@
 import React from 'react';
-import CountryFlag from '../CountryFlag/';
-import MMSS from '../MMSS/';
-import styles from './MatchCTFCaps.module.css';
-import Link from 'next/link';
 import Functions from '../../api/functions';
-import MouseHoverBox from '../MouseHoverBox/';
-import BasicPageSelect from '../BasicPageSelect';
+import Loading from '../Loading';
+import ErrorMessage from '../ErrorMessage';
+import InteractiveTable from '../InteractiveTable';
+import Link from 'next/link';
+import CountryFlag from '../CountryFlag';
+
 
 class MatchCTFCaps extends React.Component{
 
     constructor(props){
 
         super(props);
-        this.state = {"page": 0, "perPage": 25, "results": JSON.parse(props.caps).length};
 
-        const twat = JSON.parse(props.caps).length;
-        console.log(`I have ${twat} total data`);
-        console.log(`total pages should be ${twat / this.state.perPage}`);
-
-
-        this.changePage = this.changePage.bind(this);
-    }
-
-    changePage(page){
-
-        
-        if(page < 0) page = 0;
-
-        const max = Math.ceil(this.state.results / this.state.perPage) - 1;
-
-        if(page > max){
-            page = max;
-        }
-
-        this.setState({"page": page});
-
+        this.state = {"bLoading": true, "error": null, "data": null};
     }
 
 
-    createPlayerMap = (players) =>{
+    async loadData(){
 
-        const data = new Map();
-    
-        let p = 0;
-    
-        for(let i = 0; i < players.length; i++){
-    
-            p = players[i];
-    
-            data.set(p.player_id, {"name": p.name, "country": p.country});
-        }
-    
-        return data;
-    }
+        console.log(`loadData`);
 
-    getPlayer = (players, id) =>{
+        this.setState({"bLoading": true});
 
-        id = parseInt(id);
-    
-        const current = players.get(id);
-    
-        if(current !== undefined){
-            return {"name": current.name, "country": current.country};
-        }
-    
-        return null;
-    }
-    
-
-    createCovers(covers, coverTimes){
-
-        const data = new Map();
-    
-        covers = covers.split(',');
-        coverTimes = coverTimes.split(',');
-    
-        let total = 0;
-        let player = 0;
-        let current = 0;
-        
-    
-        for(let i = 0; i < covers.length; i++){
-    
-            if(covers[i] === ''){
-                continue;
-            }
-    
-            total++;
-    
-            player = parseInt(covers[i]);
-            current = data.get(player);
-    
-    
-            if(current === undefined){
-                data.set(player, {"total": 1, "times": [coverTimes[i]]});
-            }else{
-    
-                current.times.push(coverTimes[i]);
-                current.total++;
-    
-                if(current.times !== undefined){
-                    data.set(player, {"total": current.total, "times": current.times})
-                }
-            }
-        }
-    
-        let ordered = [];
-    
-        for(const [key, value] of data){
-            ordered.push({"key": key, "value": value.total, "times": value.times});
-        }
-    
-        ordered.sort((a, b) =>{
-    
-            a = a.value;
-            b = b.value;
-    
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
-            }
-    
-            return 0;
+        const req = await fetch("/api/ctf",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "match-caps", "matchId": this.props.matchId})
         });
-    
-        data.clear();
-    
-        for(let i = 0; i < ordered.length; i++){
-    
-            data.set(ordered[i].key, {"value": ordered[i].value, "times": ordered[i].times});
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            this.setState({"error": res.error, "bLoading": false});
+        }else{
+            this.setState({"data": res.data, "bLoading": false});
         }
-    
-        return {"data": data, "total": total};
+
+        console.log(res);
     }
 
-    createAssists(carryTimes, carryIds){
+    async componentDidMount(){
 
-        carryTimes = carryTimes.split(',');
-        carryIds = carryIds.split(',');
-    
-    
-    
-        const players = [];
-    
-        if(carryTimes.length > 1){
-    
-            for(let i = 0; i < carryTimes.length; i++){
-    
-                if(i < carryTimes.length - 1){
-                    players.push({
-                        "player": parseInt(carryIds[i]),
-                        "time": parseFloat(carryTimes[i])
-                    });
+        await this.loadData();
+    }
+
+    async componentDidUpdate(prevProps){
+        
+        const prevPlayers = JSON.stringify(prevProps.playerData);
+        const currentPlayers = JSON.stringify(this.props.playerData);
+        if(prevProps.matchId !== this.props.matchId || prevPlayers !== currentPlayers){
+            await this.loadData();
+        }
+    }
+
+    renderData(){
+
+        const data = [];
+        const headers = {
+            "match_score": "Match Score",
+            "grab_time": "Grabbed",
+            "grabbed_by": "Grabbed By",
+            "cap_time": "Capped",
+            "capped_by": "Capped By",
+            "travel_time": "Travel Time",
+            "drop_time": "Dropped Time",
+            "total_drops": "Times Dropped",
+            "total_covers": "Covers",
+            "total_self_covers": "Self Covers",
+            "total_seals": "Seals",
+            "total_assists": "Assists",
+        };
+
+        let teamScores = [];
+
+        for(let i = 0; i < this.props.totalTeams; i++){
+            teamScores.push(0);
+        }
+
+        for(let i = 0; i < this.state.data.length; i++){
+
+            const d = this.state.data[i];
+
+            teamScores[d.cap_team]++;
+
+            let teamScoreString = "";
+
+            for(let x = 0; x < teamScores.length; x++){
+
+                teamScoreString += `${teamScores[x]}`;
+
+                if(x < teamScores.length - 1){
+                    teamScoreString += ` - `
                 }
             }
-        }
-    
-        return players;
-    }
 
-    calcDropTime(data){
+            const grabPlayer = Functions.getPlayer(this.props.playerData, d.grab_player);
+            const capPlayer = Functions.getPlayer(this.props.playerData, d.cap_player);
 
-        let totalCarryTime = 0;
-    
-        data.assist_carry_times = data.assist_carry_times.split(',');
-    
-        for(let i = 0; i < data.assist_carry_times.length; i++){
-    
-            if(data.assist_carry_times[i] !== ''){
-                totalCarryTime += parseFloat(data.assist_carry_times[i]);
-            }
+            data.push({
+                "match_score": {
+                    "value": d.cap_time, 
+                    "displayValue": teamScoreString, 
+                    "className": Functions.getTeamColor(d.cap_team)
+                },
+                "cap_time": {
+                    "value": d.cap_time, 
+                    "displayValue": Functions.MMSS(d.cap_time - this.props.matchStart), 
+                    "className": "playtime"
+                },
+                "grab_time": {
+                    "value": d.grab_time, 
+                    "displayValue": Functions.MMSS(d.grab_time - this.props.matchStart), 
+                    "className": "playtime"
+                },
+                "grabbed_by": {
+                    "value": grabPlayer.name.toLowerCase(),
+                    "displayValue": <Link href={`/pmatch/${this.props.matchId}?player=${d.grab_player}`}>
+                        <a><CountryFlag country={grabPlayer.country}/>{grabPlayer.name}</a>
+                    </Link>
+                },
+                "capped_by": {
+                    "value": capPlayer.name.toLowerCase(),
+                    "displayValue": <Link href={`/pmatch/${this.props.matchId}?player=${d.cap_player}`}>
+                        <a><CountryFlag country={capPlayer.country}/>{capPlayer.name}</a>
+                    </Link>
+                },
+                "travel_time": {
+                    "value": d.travel_time,
+                    "displayValue": Functions.toPlaytime(d.travel_time),
+                    "className": "playtime"
+                },
+                "drop_time": {
+                    "value": d.drop_time,
+                    "displayValue": Functions.toPlaytime(d.drop_time),
+                    "className": "playtime"
+                },
+                "total_drops": {
+                    "value": d.total_drops,
+                    "displayValue": Functions.ignore0(d.total_drops),
+                },
+                "total_covers": {
+                    "value": d.total_covers,
+                    "displayValue": Functions.ignore0(d.total_covers),
+                },
+                "total_self_covers": {
+                    "value": d.total_self_covers,
+                    "displayValue": Functions.ignore0(d.total_self_covers),
+                },
+                "total_seals": {
+                    "value": d.total_seals,
+                    "displayValue": Functions.ignore0(d.total_seals),
+                },
+                "total_assists": {
+                    "value": d.total_assists,
+                    "displayValue": Functions.ignore0(d.total_assists),
+                }
+            });
+
         }
-       
-    
-        return parseFloat(data.travel_time - totalCarryTime).toFixed(2);
+        
+
+
+        return <InteractiveTable width={1} headers={headers} data={data}/>
     }
 
     render(){
 
-        let players = JSON.parse(this.props.players);
-        let caps = JSON.parse(this.props.caps);
-        let matchStart = parseFloat(this.props.matchStart)
-
-        const playerNames = this.createPlayerMap(players);
-
-        if(caps.length === 0) return null;
-
-        let currentCovers = 0;
-        let currentAssists = 0;
-        let grabPlayer = 0;
-        let capPlayer = 0;
-        let bgColor = 0;
-        let currentCoverPlayer = 0;
-        let currentAssistPlayer = 0;
-        let totalDropTime = 0;
-
-    
-        const elems = [];
-        let coverElems = [];
-        let assistElems = [];
-        let coverNames = [];
-
-        let c = 0;
-
-        let grabElem = [];
-        let capElem = [];
-        
-
-        let start = this.state.page * this.state.perPage;
-        let end = start + this.state.perPage;
-
-        if(end > this.state.results) end = caps.length;
-
-        for(let i = start; i < end; i++){
-
-            c = caps[i];
-
-
-            coverNames = "";
-            currentCovers = this.createCovers(c.covers, c.cover_times);
-            //currentAssists = createAssists(c.assists, c.assist_carry_times);
-            currentAssists = this.createAssists(c.assist_carry_times, c.assist_carry_ids);
-            totalDropTime = this.calcDropTime(c);
-
-            grabPlayer = this.getPlayer(playerNames, c.grab);
-            capPlayer = this.getPlayer(playerNames, c.cap);
-
-            coverElems = [];
-            assistElems = [];
-            let currentContent = [];
-
-            
-            //<CountryFlag country={currentCoverPlayer.country}/><Link href={`/player/${key}`}><a>{currentCoverPlayer.name}</a></Link> 
-            let coverTimes = [];
-            for(const [key, value] of currentCovers.data){
-
-                currentCoverPlayer = this.getPlayer(playerNames, key);
-
-                if(currentCoverPlayer !== null){
-
-                    //console.log(value);
-                    coverTimes = [];
-
-                    for(let x = 0; x < value.times.length; x++){
-
-                        coverTimes.push([Functions.MMSS(value.times[x] - matchStart), x + 1]);
-                    }
-
-                    currentContent = [
-                        {
-                        
-                            "headers": ["Timestamp", "Cover"],
-                            "content": coverTimes }
-                    ]
-
-                    coverElems.push(<span key={`cap-${i}-cover-${key}`} className={styles.cover}>
-                        <CountryFlag country={currentCoverPlayer.country}/>
-                        <Link href={`/pmatch/${this.props.matchId}?player=${key}`}><a>
-                        <MouseHoverBox title={`${currentCoverPlayer.name} covered the flag carrier ${value.value} ${(value.value === 1) ? "time" : "times"}`} 
-                            content={currentContent} 
-                            display={currentCoverPlayer.name}/>
-                        </a></Link> 
-                    </span>);
-                }
-            }
-
-            
-
-            let currentCarryPercent = 0;
-            let grabTimestamp = 0;
-            let dropTimestamp = 0;
-            let currentDropTimes = [];
-            let currentGrabTimes = [];
-            let currentCarryTime = [];
-
-            const reducer = (accumulator, currentValue) => accumulator + parseFloat(currentValue);
-
-            for(let x = 0; x < currentAssists.length; x++){
-
-                currentAssistPlayer = this.getPlayer(playerNames, currentAssists[x].player);
-
-                if(currentAssistPlayer !== null){
-                    currentGrabTimes = c.pickup_times.split(',');
-
-                    if(x === 0){
-                        grabTimestamp = Functions.MMSS(c.grab_time - matchStart);
-                    }else{
-                        grabTimestamp = Functions.MMSS(parseFloat(currentGrabTimes[x - 1]) - matchStart);
-                    }
-
-                    currentDropTimes = c.drop_times.split(',');
-                    
-
-                    dropTimestamp = Functions.MMSS(parseFloat(currentDropTimes[x]) - matchStart);
-
-                    currentCarryTime = c.assist_carry_times.reduce(reducer, 0);
-
-                    currentContent = [
-                        {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], 
-                        "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time.toFixed(2)}`, `${((currentAssists[x].time / currentCarryTime) * 100).toFixed(2)}%`]}
-                    ];
-
-                    
-
-                    assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
-                        <CountryFlag country={currentAssistPlayer.country}/>
-                        <Link href={`/pmatch/${this.props.matchId}/?player=${currentAssists[x].player}`}><a><MouseHoverBox title={"Assist"} display={currentAssistPlayer.name} 
-                        content={currentContent}/></a></Link>
-                    </span>);
-                }
-            }
-
-            bgColor = Functions.getTeamColor(c.team);
-
-        
-            currentCarryTime = parseInt(currentCarryTime);
-            if(currentCarryTime !== currentCarryTime) currentCarryTime = c.travel_time; 
-
-            if(grabPlayer === null){
-
-                grabElem = <td className="deleted">
-                    Deleted
-                </td>
-
-            }else{
-            
-                grabElem = <td className={bgColor}>
-                    <span className={styles.time}><MMSS timestamp={c.grab_time - matchStart}/></span>
-                    <CountryFlag country={grabPlayer.country}/><Link href={`/pmatch/${this.props.matchId}/?player=${c.grab}`}><a>{grabPlayer.name}</a></Link>
-                </td>;
-            }
-
-            if(capPlayer === null){
-                capElem = <td className="deleted">
-                    Deleted
-                </td>
-            }else{
-                capElem = <td className={bgColor}>
-                        <span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span>
-                        <CountryFlag country={capPlayer.country}/><Link href={`/pmatch/${this.props.matchId}/?player=${c.cap}`}>
-                        <a>
-                            <MouseHoverBox title={`${capPlayer.name} Captured the Flag`} display={capPlayer.name} content={
-                                [{
-                                    "headers": ["Carry Time", "Carry Percent"],
-                                    "content": [`${parseFloat(c.assist_carry_times[c.assist_carry_times.length - 1]).toFixed(2)}`,
-                                    `${((c.assist_carry_times[c.assist_carry_times.length - 1] / currentCarryTime) * 100).toFixed(2)}%`]
-                                }]
-                            }/>
-                        </a>
-                        </Link>
-                    </td>
-            }
-            
-
-
-            elems.push(<tr key={`cover-${i}`} className={"team-none"}>
-                {grabElem}
-                <td>{coverElems}</td>
-                <td>{assistElems}</td>
-                {capElem}
-                <td><span className={styles.time}>{(currentCarryTime != 0) ? <MMSS timestamp={currentCarryTime}/> : ''}</span></td>
-                <td><span className={styles.time}><MMSS timestamp={c.travel_time}/></span></td>     
-                <td className={styles.time}>{(totalDropTime > 0) ? `${totalDropTime} Seconds` : ''}</td>
-            </tr>);
+        if(this.state.error !== null){
+            return <ErrorMessage title="Match CTF Caps" text={this.state.error}/>
         }
 
-        return (<div className="m-bottom-25">
-            <div className="default-header">Flag Caps</div> 
-            <BasicPageSelect page={this.state.page} results={this.state.results} changePage={this.changePage}/>
-            <table className={`${styles.table} t-width-1`}>
-                <tbody>
-                    <tr>
-                        <th>Grabbed</th>
-                        <th>Covers</th>
-                        <th>Assists</th>
-                        <th>Capped</th>
-                        <th>Carry Time</th>
-                        <th>Travel Time</th>       
-                        <th>Time Dropped</th>
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>       
-        </div>);
+        if(this.state.bLoading){
+            return <Loading />;
+        }
 
-       /* return <div>
-            <div className="default-header">Capture The Flag Caps</div>
-            
-        </div>*/
+        return <div className="m-bottom-25">
+            <div className="default-header">Capture The Flag Caps</div> 
+            {this.renderData()}
+        </div>;
+
     }
 }
 

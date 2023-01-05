@@ -42,7 +42,10 @@ class MatchCTFCarryTime extends React.Component{
 
     async componentDidUpdate(prevProps){
 
-        if(prevProps.matchId !== this.props.matchId){
+        const prevPlayers = JSON.stringify(prevProps.players);
+        const players = JSON.stringify(this.props.players);
+
+        if(prevProps.matchId !== this.props.matchId || players !== prevPlayers){
 
             await this.loadData();
         }

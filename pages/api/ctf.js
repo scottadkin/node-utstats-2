@@ -389,6 +389,14 @@ export default async function handler(req, res){
                 res.status(200).json({"data": data});
                 resolve();
                 return;
+
+            }else if(mode === "match-caps"){
+
+                const data = await ctfManager.getMatchCaps(matchId);
+
+                res.status(200).json({"data": data})
+                resolve();
+                return;
             }
 
 

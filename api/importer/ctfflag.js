@@ -242,6 +242,19 @@ class CTFFlag{
         }
     }
 
+    getTotalSelfCovers(){
+
+        let found = 0;
+
+        for(let i = 0; i < this.selfCovers.length; i++){
+
+            const s = this.selfCovers[i];
+            found += s.total;
+        }
+
+        return found;
+    }
+
     async captured(timestamp, playerId){
 
         //this.debugSeals("CAPTURED");
@@ -298,6 +311,10 @@ class CTFFlag{
 
             console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${totalCarryTime}, timeDropped ${timeDropped}`);
 
+          
+
+            const totalSelfCovers = this.getTotalSelfCovers();
+
             //await this.ctfManager.insertCap(this.matchId, this.matchDate, capTeam, this.team, this.takenTimestamp, this.takenPlayer, timestamp, this.carriedBy, travelTime, carryTime, dropTime);
             await this.ctfManager.insertCap(
                 this.matchId, 
@@ -315,7 +332,9 @@ class CTFFlag{
                 this.droppedTimestamps.length,
                 this.pickupTimestamps.length,
                 this.coverTimestamps.length,
-                this.sealTimestamps.length
+                this.sealTimestamps.length,
+                assistIds.size, 
+                totalSelfCovers,
             );
 
         }else{

@@ -35,9 +35,11 @@ class Functions{
     }
     
 
-    static getPlayer = (players, id, bObject) =>{
+    static getPlayer(players, id, bObject){
 
         bObject = bObject ?? false;
+
+        console.log(players, id);
 
         if(!bObject){
 

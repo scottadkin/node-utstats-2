@@ -36,7 +36,7 @@ import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonst
 import Analytics from '../../api/analytics';
 import MatchFragsGraph from '../../components/MatchFragsGraph';
 import MatchCTFGraphs from '../../components/MatchCTFGraphs';
-import MatchCTFCapsNew from '../../components/MatchCTFCapsNew';
+import MatchCTFCaps from '../../components/MatchCTFCaps';
 import MatchPlayerScoreHistory from '../../components/MatchPlayerScoreHistory';
 import MatchPlayerPingHistory from '../../components/MatchPlayerPingHistory';
 import MatchDominationSummaryNew from '../../components/MatchDominationSummaryNew';
@@ -242,6 +242,7 @@ class Match extends React.Component{
         const metaData = JSON.parse(this.props.metaData);
 
 
+
         return <div>
             <DefaultHead host={this.props.host} 
                 title={metaData.title} 
@@ -256,6 +257,12 @@ class Match extends React.Component{
                     <div className="default">
 
                     {titleElem}
+                    <MatchCTFCaps 
+                        matchId={this.state.info.id} 
+                        playerData={this.state.playerNames} 
+                        totalTeams={this.state.info.total_teams}
+                        matchStart={this.state.info.start}
+                    />
                     <MatchCTFSummary matchId={this.state.info.id} playerData={this.state.playerData} />
                     <MatchCTFCarryTime matchId={this.state.info.id} players={this.state.playerNames}/>
                             
