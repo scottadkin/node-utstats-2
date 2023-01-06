@@ -5,6 +5,7 @@ import ErrorMessage from '../ErrorMessage';
 import InteractiveTable from '../InteractiveTable';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
+import MouseOver from "../MouseOver";
 
 
 class MatchCTFCaps extends React.Component{
@@ -13,7 +14,7 @@ class MatchCTFCaps extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0,"bLoading": true, "error": null, "data": null};
+        this.state = {"mode": 0,"bLoading": true, "error": null, "caps": null, "assists": null};
     }
 
     changeMode(id){
@@ -23,7 +24,7 @@ class MatchCTFCaps extends React.Component{
 
     async loadData(){
 
-        this.setState({"bLoading": true});
+        this.setState({"bLoading": true, "caps": null, "assists": null});
 
         const req = await fetch("/api/ctf",{
             "headers": {"Content-type": "application/json"},
@@ -36,7 +37,7 @@ class MatchCTFCaps extends React.Component{
         if(res.error !== undefined){
             this.setState({"error": res.error, "bLoading": false});
         }else{
-            this.setState({"data": res.data, "bLoading": false});
+            this.setState({"caps": res.caps, "assists": res.assists, "bLoading": false});
         }
 
     }
@@ -50,6 +51,7 @@ class MatchCTFCaps extends React.Component{
         
         const prevPlayers = JSON.stringify(prevProps.playerData);
         const currentPlayers = JSON.stringify(this.props.playerData);
+
         if(prevProps.matchId !== this.props.matchId || prevPlayers !== currentPlayers){
             await this.loadData();
         }
@@ -79,9 +81,9 @@ class MatchCTFCaps extends React.Component{
             teamScores.push(0);
         }
 
-        for(let i = 0; i < this.state.data.length; i++){
+        for(let i = 0; i < this.state.caps.length; i++){
 
-            const d = this.state.data[i];
+            const d = this.state.caps[i];
 
             teamScores[d.cap_team]++;
 
@@ -92,7 +94,7 @@ class MatchCTFCaps extends React.Component{
                 teamScoreString += `${teamScores[x]}`;
 
                 if(x < teamScores.length - 1){
-                    teamScoreString += ` - `
+                    teamScoreString += ` - `;
                 }
             }
 
@@ -102,8 +104,9 @@ class MatchCTFCaps extends React.Component{
             data.push({
                 "match_score": {
                     "value": d.cap_time, 
-                    "displayValue": teamScoreString, 
-                    "className": Functions.getTeamColor(d.cap_team)
+                    "displayValue": teamScoreString, //teamScoreString, 
+                    "className": Functions.getTeamColor(d.cap_team),
+                    "mouseOver": {"title": "My farts smell bad", "content": "lol wtf"}
                 },
                 "cap_time": {
                     "value": d.cap_time, 
@@ -155,7 +158,7 @@ class MatchCTFCaps extends React.Component{
                 },
                 "total_assists": {
                     "value": d.total_assists,
-                    "displayValue": Functions.ignore0(d.total_assists),
+                    "displayValue": <MouseOver display={"The flag was assisted by"} title="Flag Assists">{Functions.ignore0(d.total_assists)}</MouseOver>,
                 }
             });
 

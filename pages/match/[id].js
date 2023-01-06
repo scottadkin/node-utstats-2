@@ -253,7 +253,6 @@ class Match extends React.Component{
             <main>
                 <Nav settings={this.props.navSettings} session={this.props.session}/>
                 <div id="content">
-
                     <div className="default">
 
                     {titleElem}

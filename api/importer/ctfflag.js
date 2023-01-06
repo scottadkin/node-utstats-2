@@ -261,7 +261,6 @@ class CTFFlag{
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
 
-
         const travelTime = timestamp - this.takenTimestamp;
 
         await this.setCarryTime(timestamp);
@@ -269,6 +268,8 @@ class CTFFlag{
         const assistIds = new Set();
 
         let totalCarryTime = 0;
+
+        const assistVars = [];
 
         for(let i = 0; i < this.carryTimes.length; i++){
 
@@ -278,11 +279,22 @@ class CTFFlag{
 
             //don't want to count the capped player as an assist.
             if(this.carriedBy !== c.player){
+
                 await this.ctfManager.insertEvent(this.matchId, timestamp, c.player, "assist", this.team);
                 assistIds.add(c.player);
+
+                console.log(c);
+
+                assistVars.push(c);
+
+                //await this.ctfManager.insertAssist(this.matchId, this.matchDate, this.mapId,);
+               // assistVars.push(c.player, );
             }
         }
 
+        
+
+        //insertAssist(matchId, matchDate, mapId, capId, playerId, pickupTime, droppedTime, carryTime)
         for(const playerId of assistIds){
 
             const player = this.playerManager.getPlayerByMasterId(playerId);
@@ -292,6 +304,7 @@ class CTFFlag{
                 continue;
             }
 
+            
             const lastEventTimestamp = player.getCTFNewLastTimestamp("assist"); 
             const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
             player.setCTFNewValue("assist", timestamp, totalDeaths);
@@ -316,7 +329,7 @@ class CTFFlag{
             const totalSelfCovers = this.getTotalSelfCovers();
 
             //await this.ctfManager.insertCap(this.matchId, this.matchDate, capTeam, this.team, this.takenTimestamp, this.takenPlayer, timestamp, this.carriedBy, travelTime, carryTime, dropTime);
-            await this.ctfManager.insertCap(
+            const capId = await this.ctfManager.insertCap(
                 this.matchId, 
                 this.matchDate, 
                 this.mapId,
@@ -336,6 +349,13 @@ class CTFFlag{
                 assistIds.size, 
                 totalSelfCovers,
             );
+
+            for(let i = 0; i < assistVars.length; i++){
+
+                const a = assistVars[i];
+
+                await this.ctfManager.insertAssist(this.matchId, this.matchDate, this.mapId, capId, a.player, a.taken, a.dropped, a.carryTime);
+            }
 
         }else{
             new Message(`capPlayer is null`,"warning");

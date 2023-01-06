@@ -3,6 +3,7 @@ import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";
 import Link from "next/link";
 import TableHeader from "../TableHeader";
+import MouseOver from "../MouseOver";
 
 class InteractiveTable extends React.Component{
 
@@ -63,13 +64,10 @@ class InteractiveTable extends React.Component{
                 }
 
                 headers.push(<th className={`pointer`} key={key} 
-                onMouseOver={(() =>{
-                    this.updateMouseOver(title, value.content);
-                })} 
                 onClick={(() =>{
                     this.changeOrder(key);
                 })}>
-                    {value.title}
+                    <MouseOver title={title} display={value.content}>{value.title}</MouseOver>
                 </th>);
 
             }
@@ -172,18 +170,6 @@ class InteractiveTable extends React.Component{
         return rows;
     }
 
-    renderMouseOver(){
-
-        if(!this.state.bDisplayMouseOver) return null;
-
-        return <div className={`${styles.mo} center t-width-${this.props.width}`}>
-            <div className={styles.mt}>{this.state.mouseTitle}</div>
-            <div className={styles.mc}>
-                {this.state.mouseContent}
-            </div>
-        </div>
-    }
-
     render(){
 
         let tableTitle = null;
@@ -192,9 +178,8 @@ class InteractiveTable extends React.Component{
             tableTitle = <TableHeader width={this.props.width}>{this.props.title}</TableHeader>
         }
 
-        return <div className={styles.wrapper} onMouseLeave={this.hideMouseOver}>
+        return <div className={styles.wrapper}>
             {tableTitle}
-            {this.renderMouseOver()}
             <Table2 width={this.props.width}>
                 {this.renderHeaders()}
                 {this.renderData()}

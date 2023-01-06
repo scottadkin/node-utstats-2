@@ -392,9 +392,10 @@ export default async function handler(req, res){
 
             }else if(mode === "match-caps"){
 
-                const data = await ctfManager.getMatchCaps(matchId);
+                const caps = await ctfManager.getMatchCaps(matchId);
+                const assists = await ctfManager.getMatchAssists(matchId);
 
-                res.status(200).json({"data": data})
+                res.status(200).json({"caps": caps, "assists": assists})
                 resolve();
                 return;
             }
