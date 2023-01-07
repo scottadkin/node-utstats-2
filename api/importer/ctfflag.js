@@ -53,6 +53,7 @@ class CTFFlag{
         }
 
         await this.insertCovers(capId);
+        await this.processSelfCovers(false, capId);
 
         this.bDropped = false;
         this.bAtBase = true;
@@ -185,7 +186,7 @@ class CTFFlag{
             }
 
             player.setCTFNewValue("selfCover", timestamp, totalDeaths, killsWhileCarrying.length);
-            this.selfCovers.push({"player": this.carriedBy, "total": killsWhileCarrying.length, "timestamp": timestamp});
+            this.selfCovers.push({"player": this.carriedBy, "total": killsWhileCarrying.length, "timestamp": timestamp, "kills": killsWhileCarrying});
         }
 
         this.carryTimes.push({
@@ -206,7 +207,9 @@ class CTFFlag{
     }
 
 
-    async processSelfCovers(bFailed){
+    async processSelfCovers(bFailed, capId){
+
+        if(capId === undefined) capId = -1;
 
         for(let i = 0; i < this.selfCovers.length; i++){
 
@@ -217,6 +220,21 @@ class CTFFlag{
             if(player === null){
                 new Message(`CTFFlag.processSelfCovers() player is null`,"warning");
                 continue;
+            }
+
+            for(let x = 0; x < s.kills.length; x++){
+
+                const kill = s.kills[x];
+
+                await this.ctfManager.insertSelfCover(
+                    this.matchId, 
+                    this.matchDate, 
+                    this.mapId, 
+                    capId, 
+                    kill.timestamp, 
+                    kill.killerId, 
+                    kill.victimId
+                );
             }
 
             if(!bFailed){
@@ -307,8 +325,6 @@ class CTFFlag{
             const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
             player.setCTFNewValue("assist", timestamp, totalDeaths);
         }
-
-        await this.processSelfCovers(false);
 
 
         const capPlayer = this.playerManager.getPlayerByMasterId(this.carriedBy);
