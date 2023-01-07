@@ -6,6 +6,7 @@
     color:white;
     z-index: 99999;
     max-width:250px;
+    min-width:100px;
 }
 
 .mt{

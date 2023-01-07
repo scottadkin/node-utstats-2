@@ -37,6 +37,7 @@ class MatchCTFCaps extends React.Component{
         if(res.error !== undefined){
             this.setState({"error": res.error, "bLoading": false});
         }else{
+            console.log(res.assists);
             this.setState({"caps": res.caps, "assists": res.assists, "bLoading": false});
         }
 
@@ -55,6 +56,38 @@ class MatchCTFCaps extends React.Component{
         if(prevProps.matchId !== this.props.matchId || prevPlayers !== currentPlayers){
             await this.loadData();
         }
+    }
+
+    getAssists(capId){
+
+        const found = [];
+
+        for(let i = 0; i < this.state.assists.length; i++){
+
+            const a = this.state.assists[i];
+
+            if(a.cap_id === capId){
+
+                const player = Functions.getPlayer(this.props.playerData, a.player_id);
+
+                found.push({"cap": a, "player": player});
+            }
+        }
+
+        const elems = [];
+
+        for(let i = 0; i < found.length; i++){
+
+            const {cap, player} = found[i];
+
+            elems.push(<div key={cap.id} className={`text-left`}>
+                <CountryFlag country={player.country}/>{player.name} <span className="timestamp">({Functions.MMSS(cap.carry_time)})</span>
+            </div>);
+        }
+
+        if(elems.length > 0) return elems;
+
+        return "There were no assists for this cap.";
     }
 
     renderSimple(){
@@ -100,6 +133,8 @@ class MatchCTFCaps extends React.Component{
 
             const grabPlayer = Functions.getPlayer(this.props.playerData, d.grab_player);
             const capPlayer = Functions.getPlayer(this.props.playerData, d.cap_player);
+
+            const assists = this.getAssists(d.id);
 
             data.push({
                 "match_score": {
@@ -158,7 +193,7 @@ class MatchCTFCaps extends React.Component{
                 },
                 "total_assists": {
                     "value": d.total_assists,
-                    "displayValue": <MouseOver display={"The flag was assisted by"} title="Flag Assists">{Functions.ignore0(d.total_assists)}</MouseOver>,
+                    "displayValue": <MouseOver display={assists} title="Flag Assists">{Functions.ignore0(d.total_assists)}</MouseOver>,
                 }
             });
 

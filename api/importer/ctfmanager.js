@@ -292,7 +292,7 @@ class CTFManager{
         }
 
         const killerId = parseInt(result[1]);
-        //const victimId = parseInt(result[2]);
+        const victimId = parseInt(result[2]);
         const killerTeam = parseInt(result[3]);
 
         const killer = this.playerManager.getPlayerById(killerId);
@@ -302,14 +302,19 @@ class CTFManager{
             return;
         }
 
-        killer.stats.ctf.cover++;
+        const victim = this.playerManager.getPlayerById(victimId);
+
+        if(victim === null){
+            new Message(`createFlagCover victim is null`,"error");
+            return;
+        }
 
         const lastTimestamp = killer.getCTFNewLastTimestamp("cover");
         const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, killer.masterId, false);
 
         killer.setCTFNewValue("cover", timestamp, totalDeaths);
 
-        await this.flags[killerTeam].cover(timestamp, killer.masterId);
+        await this.flags[killerTeam].cover(timestamp, killer.masterId, victim.masterId);
 
     }
 
@@ -505,7 +510,7 @@ class CTFManager{
             const p = this.playerManager.players[i];
 
             //console.log(p.name);
-            console.log(p.stats.ctfNew);
+            //console.log(p.stats.ctfNew);
         }
     }
 
@@ -572,16 +577,16 @@ class CTFManager{
 
         const playerCovers = {};
 
-        for(let i = 0; i < flag.coverTimestamps.length; i++){
+        for(let i = 0; i < flag.covers.length; i++){
 
-            const coverTimestamp = flag.coverTimestamps[i];
-            const coverPlayerId = flag.coverPlayerIds[i];
+            const {killerId, timestamp} = flag.covers[i];
 
-            if(playerCovers[coverPlayerId] === undefined){
-                playerCovers[coverPlayerId] = [];
+            if(playerCovers[killerId] === undefined){
+                playerCovers[killerId] = [];
             }
 
-            playerCovers[coverPlayerId].push(coverTimestamp);
+            playerCovers[killerId].push(timestamp);
+
         }
 
         for(const [playerId, timestamps] of Object.entries(playerCovers)){
@@ -647,15 +652,13 @@ class CTFManager{
 
         const flag = this.flags[flagTeam];
 
-        const sealTimestamps = flag.sealTimestamps;
-        const sealPlayerIds = flag.sealPlayerIds;
+        const seals = flag.seals;
 
         let currentFlagSeals = {};
 
-        for(let i = 0; i < sealTimestamps.length; i++){
+        for(let i = 0; i < seals.length; i++){
 
-            const timestamp = sealTimestamps[i];
-            const playerId = sealPlayerIds[i];
+            const {timestamp, playerId} = seals[i];
 
             const player = this.playerManager.getPlayerByMasterId(playerId);
 

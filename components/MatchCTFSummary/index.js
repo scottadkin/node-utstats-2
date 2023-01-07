@@ -11,7 +11,7 @@ class MatchCTFSummary extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 1};
+        this.state = {"mode": 0};
     }
 
     changeMode(id){

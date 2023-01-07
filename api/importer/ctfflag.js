@@ -4,38 +4,35 @@ class CTFFlag{
 
     constructor(ctfManager, playerManager, killManager, matchId, matchDate, mapId, team){
 
+        console.log(`new CTFFlag with team of ${team}`);
+
         this.ctfManager = ctfManager;
         this.playerManager = playerManager;
         this.killManager = killManager;
         this.matchId = matchId;
         this.matchDate = matchDate;
         this.mapId = mapId;
-        console.log(`new CTFFlag with team of ${team}`);
-
+        
         this.team = team;
 
         this.bDropped = false;
         this.bAtBase = true;
         this.carriedBy = null;
 
-        this.pickupTimestamps = [];
-        this.pickupPlayerIds = [];
+        this.pickups = [];
 
         this.takenTimestamp = null;
         this.takenPlayer = null;
         this.lastCarriedTimestamp = null;
 
-        this.droppedTimestamps = [];
-        this.droppedPlayerIds = [];
+        this.drops = [];
 
-        this.coverTimestamps = [];
-        this.coverPlayerIds = [];
+        this.covers = [];
 
         this.killedByTimestamps = [];
         this.killedByPlayerIds = [];
 
-        this.sealTimestamps = [];
-        this.sealPlayerIds = [];
+        this.seals = [];
 
         this.killsWithFlagTimestamps = [];
         this.killsWithFlagPlayerIds = [];
@@ -64,16 +61,14 @@ class CTFFlag{
         this.bAtBase = true;
         this.carriedBy = null;
         this.takenTimestamp = null;
-        this.droppedTimestamps = [];
-        this.droppedPlayerIds = [];
-        this.coverTimestamps = [];
-        this.coverPlayerIds = [];
-        this.pickupTimestamps = [];
-        this.pickupPlayerIds = [];
+        this.drops = [];
+
+        this.covers = [];
+
+        this.pickups = [];
         this.killedByTimestamps = [];
         this.killedByPlayerIds = [];
-        this.sealTimestamps = [];
-        this.sealPlayerIds = [];
+        this.seals = [];
         this.lastCarriedTimestamp = null;
         this.carryTimes = [];
         this.selfCovers = [];
@@ -120,8 +115,9 @@ class CTFFlag{
         this.bDropped = false;
         this.bAtBase = false;
         this.carriedBy = playerId;
-        this.pickupTimestamps.push(timestamp);
-        this.pickupPlayerIds.push(playerId);
+
+        this.pickups.push({"timestamp": timestamp, "playerId": playerId});
+     
         this.lastCarriedTimestamp = timestamp;
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "pickedup", this.team);
@@ -135,17 +131,19 @@ class CTFFlag{
 
         this.bDropped = true;
         this.bAtBase = false;
-        this.droppedPlayerIds.push(this.carriedBy);
-        this.droppedTimestamps.push(timestamp);
+        this.drops.push({"playerId": this.carriedBy, "timestamp": timestamp});
         this.carriedBy = null;
     }
 
-    async cover(timestamp, playerId){
+    async cover(timestamp, killerId, victimId){
 
-        this.coverTimestamps.push(timestamp);
-        this.coverPlayerIds.push(playerId);
+        this.covers.push({
+            "timestamp": timestamp,
+            "killerId": killerId,
+            "victimId": victimId
+        });
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "cover", this.team);
+        await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "cover", this.team);
     }
 
     async killed(timestamp, killerId){
@@ -160,8 +158,7 @@ class CTFFlag{
 
         new Message(`SEAL by ${killerId} @ ${timestamp}`,"error");
 
-        this.sealTimestamps.push(timestamp);
-        this.sealPlayerIds.push(killerId);
+        this.seals.push({"timestamp": timestamp, "playerId": killerId});
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
     }
 
@@ -255,6 +252,20 @@ class CTFFlag{
         return found;
     }
 
+
+    //covers used in nstats_ctf_covers only caps are counted
+    async insertCovers(capId){
+
+        for(let i = 0; i < this.covers.length; i++){
+
+            //const timestamp = this.coverTimestamps[i];
+            //const playerId = this.coverPlayerIds[i];
+
+            //await this.ctfManager.insertCover(this.matchId, this.matchDate, this.mapId, capId, timestamp, killerId, victimId);
+        }
+
+    }
+
     async captured(timestamp, playerId){
 
         //this.debugSeals("CAPTURED");
@@ -283,12 +294,7 @@ class CTFFlag{
                 await this.ctfManager.insertEvent(this.matchId, timestamp, c.player, "assist", this.team);
                 assistIds.add(c.player);
 
-                console.log(c);
-
                 assistVars.push(c);
-
-                //await this.ctfManager.insertAssist(this.matchId, this.matchDate, this.mapId,);
-               // assistVars.push(c.player, );
             }
         }
 
@@ -325,7 +331,6 @@ class CTFFlag{
             console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${totalCarryTime}, timeDropped ${timeDropped}`);
 
           
-
             const totalSelfCovers = this.getTotalSelfCovers();
 
             //await this.ctfManager.insertCap(this.matchId, this.matchDate, capTeam, this.team, this.takenTimestamp, this.takenPlayer, timestamp, this.carriedBy, travelTime, carryTime, dropTime);
@@ -342,10 +347,10 @@ class CTFFlag{
                 travelTime, 
                 totalCarryTime, 
                 timeDropped,
-                this.droppedTimestamps.length,
-                this.pickupTimestamps.length,
-                this.coverTimestamps.length,
-                this.sealTimestamps.length,
+                this.drops.length,
+                this.pickups.length,
+                this.covers.length,
+                this.seals.length,
                 assistIds.size, 
                 totalSelfCovers,
             );
@@ -356,6 +361,9 @@ class CTFFlag{
 
                 await this.ctfManager.insertAssist(this.matchId, this.matchDate, this.mapId, capId, a.player, a.taken, a.dropped, a.carryTime);
             }
+
+
+            await this.insertCovers(capId);
 
         }else{
             new Message(`capPlayer is null`,"warning");

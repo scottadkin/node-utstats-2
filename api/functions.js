@@ -39,8 +39,6 @@ class Functions{
 
         bObject = bObject ?? false;
 
-        console.log(players, id);
-
         if(!bObject){
 
             for(let i = 0; i < players.length; i++){

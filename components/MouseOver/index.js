@@ -9,19 +9,20 @@ function MouseOver({children, display, title}){
     const [bDisplay, setbDisplay] = useState(false);
 
     const mainRef = useRef(null);
+    const mouseRef = useRef(null);
 
     function setMouseOverPosition(e){
 
         setbDisplay(true);
 
         const bounds = mainRef.current.getBoundingClientRect();
-
         const offset = 10;
-        setMarginLeft(e.clientX - bounds.left + offset);
-        setMarinTop(e.clientY - bounds.top + offset);
+
+        setMarinTop(bounds.height + offset);
     }
 
     let mouseOverElem = null;
+ 
 
     if(bDisplay){
 
@@ -29,13 +30,13 @@ function MouseOver({children, display, title}){
 
         const mouseTitle = (title === undefined) ? null : <div className={styles.mt}>{title}</div>
 
-        mouseOverElem = <div className={styles.mo} style={style} onMouseOver={() =>{setbDisplay(false)}}>
+        mouseOverElem = <div className={styles.mo} ref={mouseRef} style={style} onMouseOver={() =>{setbDisplay(false)}}>
             {mouseTitle}
             <div className={styles.mc}>{display}</div>
         </div>
     }
     
-    return <div ref={mainRef} onMouseLeave={() => { setbDisplay(false)}} onMouseMove={(e) => {setMouseOverPosition(e)}}>
+    return <div ref={mainRef} onMouseLeave={() => { setbDisplay(false)}} onMouseOver={(e) => {setMouseOverPosition(e)}}>
         {mouseOverElem}
         {children}
     </div>;

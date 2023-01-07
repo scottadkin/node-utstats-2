@@ -210,6 +210,15 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
+    async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, victimId){
+
+        const query = "INSERT INTO nstats_ctf_covers VALUES(NULL,?,?,?,?,?,?,?)";
+
+        const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, victimId];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
     /*async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
         assistsTimes, carryIds, cap, 
         capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes){
@@ -320,7 +329,7 @@ class CTF{
 
     async getMatchAssists(matchId){
 
-        const query = `SELECT cap_id,player_id,pickup_time,dropped_time,carry_time 
+        const query = `SELECT id,cap_id,player_id,pickup_time,dropped_time,carry_time 
         FROM nstats_ctf_assists WHERE match_id=? ORDER BY pickup_time ASC`;
 
         return await mysql.simpleQuery(query, [matchId]);
