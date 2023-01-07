@@ -344,6 +344,25 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    async getMatchCovers(matchId, bOnlyCapped){
+
+        const extra = " AND cap_id!=-1";
+
+        const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_covers
+        WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
+    async getMatchSelfCovers(matchId, bOnlyCapped){
+
+        const extra = " AND cap_id!=-1";
+
+        const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_self_covers
+        WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
 
     async insertEvent(match, timestamp, player, event, team){
 

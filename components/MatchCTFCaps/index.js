@@ -34,10 +34,11 @@ class MatchCTFCaps extends React.Component{
 
         const res = await req.json();
 
+        console.log(res);
+
         if(res.error !== undefined){
             this.setState({"error": res.error, "bLoading": false});
         }else{
-            console.log(res.assists);
             this.setState({"caps": res.caps, "assists": res.assists, "bLoading": false});
         }
 

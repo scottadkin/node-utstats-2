@@ -394,8 +394,16 @@ export default async function handler(req, res){
 
                 const caps = await ctfManager.getMatchCaps(matchId);
                 const assists = await ctfManager.getMatchAssists(matchId);
+                const covers = await ctfManager.getMatchCovers(matchId, true);
+                const selfCovers = await ctfManager.getMatchSelfCovers(matchId, true);
 
-                res.status(200).json({"caps": caps, "assists": assists})
+
+                res.status(200).json({
+                    "caps": caps, 
+                    "assists": assists,
+                    "covers": covers,
+                    "selfCovers": selfCovers
+                })
                 resolve();
                 return;
             }
