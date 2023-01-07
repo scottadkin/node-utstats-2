@@ -29,23 +29,18 @@ class CTFFlag{
 
         this.covers = [];
 
-        this.killedByTimestamps = [];
-        this.killedByPlayerIds = [];
+        this.killedBy = [];
 
         this.seals = [];
-
-        this.killsWithFlagTimestamps = [];
-        this.killsWithFlagPlayerIds = [];
-
         this.carryTimes = [];
-
         this.selfCovers = [];
 
     }
 
-    async reset(bCheckIfDropped){
+    async reset(bCheckIfDropped, capId){
 
 
+        if(capId === undefined) capId = -1;
         //this.debugSeals("RESET");
 
         if(bCheckIfDropped){
@@ -57,6 +52,8 @@ class CTFFlag{
             }
         }
 
+        await this.insertCovers(capId);
+
         this.bDropped = false;
         this.bAtBase = true;
         this.carriedBy = null;
@@ -66,8 +63,7 @@ class CTFFlag{
         this.covers = [];
 
         this.pickups = [];
-        this.killedByTimestamps = [];
-        this.killedByPlayerIds = [];
+        this.killedBy = [];
         this.seals = [];
         this.lastCarriedTimestamp = null;
         this.carryTimes = [];
@@ -148,8 +144,7 @@ class CTFFlag{
 
     async killed(timestamp, killerId){
 
-        this.killedByTimestamps.push(timestamp);
-        this.killedByPlayerIds.push(killerId);
+        this.killedBy.push({"timestamp": timestamp, "killerId": killerId});
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "killed", this.team);
     }
@@ -253,18 +248,15 @@ class CTFFlag{
     }
 
 
-    //covers used in nstats_ctf_covers only caps are counted
     async insertCovers(capId){
 
         for(let i = 0; i < this.covers.length; i++){
 
-            //const timestamp = this.coverTimestamps[i];
-            //const playerId = this.coverPlayerIds[i];
-
-            //await this.ctfManager.insertCover(this.matchId, this.matchDate, this.mapId, capId, timestamp, killerId, victimId);
+            const c = this.covers[i];
+            await this.ctfManager.insertCover(this.matchId, this.matchDate, this.mapId, capId, c.timestamp, c.killerId, c.victimId);
         }
-
     }
+    
 
     async captured(timestamp, playerId){
 
@@ -321,6 +313,8 @@ class CTFFlag{
 
         const capPlayer = this.playerManager.getPlayerByMasterId(this.carriedBy);
 
+        let capId = -1;
+
         if(capPlayer !== null){
 
             //console.log(capPlayer);
@@ -329,12 +323,11 @@ class CTFFlag{
             const timeDropped = travelTime - totalCarryTime;
 
             console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${totalCarryTime}, timeDropped ${timeDropped}`);
-
           
             const totalSelfCovers = this.getTotalSelfCovers();
 
             //await this.ctfManager.insertCap(this.matchId, this.matchDate, capTeam, this.team, this.takenTimestamp, this.takenPlayer, timestamp, this.carriedBy, travelTime, carryTime, dropTime);
-            const capId = await this.ctfManager.insertCap(
+            capId = await this.ctfManager.insertCap(
                 this.matchId, 
                 this.matchDate, 
                 this.mapId,
@@ -358,20 +351,15 @@ class CTFFlag{
             for(let i = 0; i < assistVars.length; i++){
 
                 const a = assistVars[i];
-
                 await this.ctfManager.insertAssist(this.matchId, this.matchDate, this.mapId, capId, a.player, a.taken, a.dropped, a.carryTime);
             }
 
-
-            await this.insertCovers(capId);
 
         }else{
             new Message(`capPlayer is null`,"warning");
         }
         
-        
-
-        this.reset(false);
+        this.reset(false, capId);
     }
 }
 
