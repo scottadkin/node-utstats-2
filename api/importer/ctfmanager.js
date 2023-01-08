@@ -362,7 +362,7 @@ class CTFManager{
         }
 
         const killerId = parseInt(result[1]);
-        //const victimId = parseInt(result[2]);
+        const victimId = parseInt(result[2]);
         const killerTeam = parseInt(result[3]);
 
         const killer = this.playerManager.getPlayerById(killerId);
@@ -372,13 +372,19 @@ class CTFManager{
             return;
         }
 
+        const victim = this.playerManager.getPlayerById(victimId);
+
+        if(victim === null){
+            new Message(`CreateFlagSeal victim is null`,"error");
+            return;
+        }
 
         const lastEventTimestamp = killer.getCTFNewLastTimestamp("seal"); 
         const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, killer.masterId, false);
 
         killer.setCTFNewValue("seal", timestamp, totalDeaths);
 
-        await this.flags[killerTeam].seal(timestamp, killer.masterId);
+        await this.flags[killerTeam].seal(timestamp, killer.masterId, victim.masterId);
     }
 
     async createFlagCaptured(timestamp, line){

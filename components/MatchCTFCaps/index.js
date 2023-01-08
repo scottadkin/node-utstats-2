@@ -103,12 +103,25 @@ class MatchCTFCaps extends React.Component{
 
             const player = Functions.getPlayer(this.props.playerData, playerId);
 
-            elems.push(<div key={playerId} className={`text-left`}>
-                <CountryFlag country={player.country}/>{player.name} <span className="timestamp">({Functions.MMSS(carryTime)})</span>
-            </div>);
+            elems.push(<tr key={playerId} className={`text-left`}>
+                <td>
+                    <CountryFlag country={player.country}/>{player.name} 
+                </td>
+                <td>
+                    {Functions.MMSS(carryTime)}
+                </td>
+            </tr>);
         }
 
-        if(elems.length > 0) return elems;
+        if(elems.length > 0){
+
+            return <table>
+                <tbody>
+                    {elems}
+                </tbody>
+            </table>
+            //return elems;
+        }
 
         return "There were no assists for this cap.";
     }
@@ -138,13 +151,26 @@ class MatchCTFCaps extends React.Component{
 
             const player = Functions.getPlayer(this.props.playerData, playerId);
 
-            elems.push(<div key={playerId} className={`text-left`}>
+            /*elems.push(<div key={playerId} className={`text-left`}>
                 <CountryFlag country={player.country}/>{player.name} <b className="yellow">{covers}</b>
-            </div>);
+            </div>);*/
+
+            elems.push(<tr key={playerId}>
+                <td className="text-left"><CountryFlag country={player.country}/>{player.name}</td>
+                <td> <b className="yellow">{covers}</b></td>
+            </tr>);
 
         }
 
-        if(elems.length > 0) return elems;
+        if(elems.length > 0){
+
+            return <table>
+                <tbody>
+                    {elems}
+                </tbody>
+            </table>
+            //return elems;
+        }
 
         return "There were no covers for this cap.";
     }

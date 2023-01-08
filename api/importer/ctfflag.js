@@ -54,6 +54,7 @@ class CTFFlag{
 
         await this.insertCovers(capId);
         await this.processSelfCovers(false, capId);
+        await this.insertSeals(capId);
 
         this.bDropped = false;
         this.bAtBase = true;
@@ -150,11 +151,11 @@ class CTFFlag{
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "killed", this.team);
     }
 
-    async seal(timestamp, killerId){
+    async seal(timestamp, killerId, victimId){
 
         new Message(`SEAL by ${killerId} @ ${timestamp}`,"error");
 
-        this.seals.push({"timestamp": timestamp, "playerId": killerId});
+        this.seals.push({"timestamp": timestamp, "playerId": killerId, "victimId": victimId});
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
     }
 
@@ -376,6 +377,16 @@ class CTFFlag{
         }
         
         this.reset(false, capId);
+    }
+
+    async insertSeals(capId){
+
+        for(let i = 0; i < this.seals.length; i++){
+
+            const {timestamp, playerId, victimId} = this.seals[i];
+
+            await this.ctfManager.insertSeal(this.matchId, this.matchDate, this.mapId, capId, timestamp, playerId, victimId);
+        }
     }
 }
 
