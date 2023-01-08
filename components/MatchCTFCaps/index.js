@@ -14,7 +14,15 @@ class MatchCTFCaps extends React.Component{
 
         super(props);
 
-        this.state = {"mode": 0,"bLoading": true, "error": null, "caps": null, "assists": null};
+        this.state = {
+            "mode": 0,
+            "bLoading": true, 
+            "error": null, 
+            "caps": null, 
+            "assists": null,
+            "covers": null,
+            "selfCovers": null
+        };
     }
 
     changeMode(id){
@@ -24,7 +32,13 @@ class MatchCTFCaps extends React.Component{
 
     async loadData(){
 
-        this.setState({"bLoading": true, "caps": null, "assists": null});
+        this.setState({
+            "bLoading": true, 
+            "caps": null, 
+            "assists": null,
+            "covers": null,
+            "selfCovers": null
+        });
 
         const req = await fetch("/api/ctf",{
             "headers": {"Content-type": "application/json"},
@@ -39,7 +53,13 @@ class MatchCTFCaps extends React.Component{
         if(res.error !== undefined){
             this.setState({"error": res.error, "bLoading": false});
         }else{
-            this.setState({"caps": res.caps, "assists": res.assists, "bLoading": false});
+            this.setState({
+                "caps": res.caps, 
+                "assists": res.assists, 
+                "bLoading": false,
+                "covers": res.covers,
+                "selfCovers": res.selfCovers
+            });
         }
 
     }
@@ -61,7 +81,9 @@ class MatchCTFCaps extends React.Component{
 
     getAssists(capId){
 
-        const found = [];
+        const found = {};
+
+        const elems = [];
 
         for(let i = 0; i < this.state.assists.length; i++){
 
@@ -69,26 +91,62 @@ class MatchCTFCaps extends React.Component{
 
             if(a.cap_id === capId){
 
-                const player = Functions.getPlayer(this.props.playerData, a.player_id);
+                if(found[a.player_id] === undefined){
+                    found[a.player_id] = 0;
+                }
 
-                found.push({"cap": a, "player": player});
+                found[a.player_id] += a.carry_time;
             }
         }
 
-        const elems = [];
+        for(const [playerId, carryTime] of Object.entries(found)){
 
-        for(let i = 0; i < found.length; i++){
+            const player = Functions.getPlayer(this.props.playerData, playerId);
 
-            const {cap, player} = found[i];
-
-            elems.push(<div key={cap.id} className={`text-left`}>
-                <CountryFlag country={player.country}/>{player.name} <span className="timestamp">({Functions.MMSS(cap.carry_time)})</span>
+            elems.push(<div key={playerId} className={`text-left`}>
+                <CountryFlag country={player.country}/>{player.name} <span className="timestamp">({Functions.MMSS(carryTime)})</span>
             </div>);
         }
 
         if(elems.length > 0) return elems;
 
         return "There were no assists for this cap.";
+    }
+
+    getCovers(capId, bSelfCovers){
+
+        const totalCovers = {};
+
+        const covers = (bSelfCovers) ? this.state.selfCovers : this.state.covers;
+
+        for(let i = 0; i < covers.length; i++){
+
+            const c = covers[i];
+
+            if(c.cap_id !== capId) continue;
+
+            if(totalCovers[c.killer_id] === undefined){
+                totalCovers[c.killer_id] = 0;
+            }
+
+            totalCovers[c.killer_id]++;
+        }
+
+        const elems = [];
+
+        for(const [playerId, covers] of Object.entries(totalCovers)){
+
+            const player = Functions.getPlayer(this.props.playerData, playerId);
+
+            elems.push(<div key={playerId} className={`text-left`}>
+                <CountryFlag country={player.country}/>{player.name} <b className="yellow">{covers}</b>
+            </div>);
+
+        }
+
+        if(elems.length > 0) return elems;
+
+        return "There were no covers for this cap.";
     }
 
     renderSimple(){
@@ -136,6 +194,8 @@ class MatchCTFCaps extends React.Component{
             const capPlayer = Functions.getPlayer(this.props.playerData, d.cap_player);
 
             const assists = this.getAssists(d.id);
+            const covers = this.getCovers(d.id, false);
+            const selfCovers = this.getCovers(d.id, true);
 
             data.push({
                 "match_score": {
@@ -182,11 +242,11 @@ class MatchCTFCaps extends React.Component{
                 },
                 "total_covers": {
                     "value": d.total_covers,
-                    "displayValue": Functions.ignore0(d.total_covers),
+                    "displayValue": <MouseOver display={covers} title="Flag Covers">{Functions.ignore0(d.total_covers)}</MouseOver>,
                 },
                 "total_self_covers": {
                     "value": d.total_self_covers,
-                    "displayValue": Functions.ignore0(d.total_self_covers),
+                    "displayValue": <MouseOver display={selfCovers} total="Flag Self Covers">{Functions.ignore0(d.total_self_covers)}</MouseOver>,
                 },
                 "total_seals": {
                     "value": d.total_seals,

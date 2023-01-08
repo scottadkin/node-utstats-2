@@ -4,7 +4,6 @@ import styles from "./MouseOver.module.css";
 
 function MouseOver({children, display, title}){
 
-    const [marginLeft, setMarginLeft] = useState(0);
     const [marginTop, setMarinTop] = useState(0);
     const [bDisplay, setbDisplay] = useState(false);
 
@@ -26,7 +25,7 @@ function MouseOver({children, display, title}){
 
     if(bDisplay){
 
-        const style = {"marginLeft": marginLeft, "marginTop": marginTop};
+        const style = {"marginTop": marginTop};
 
         const mouseTitle = (title === undefined) ? null : <div className={styles.mt}>{title}</div>
 

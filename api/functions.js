@@ -37,6 +37,8 @@ class Functions{
 
     static getPlayer(players, id, bObject){
 
+        id = parseInt(id);
+
         bObject = bObject ?? false;
 
         if(!bObject){
