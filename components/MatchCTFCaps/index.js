@@ -6,6 +6,7 @@ import InteractiveTable from '../InteractiveTable';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import MouseOver from "../MouseOver";
+import CapChart from '../CapChart';
 
 
 class MatchCTFCaps extends React.Component{
@@ -15,13 +16,14 @@ class MatchCTFCaps extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 0,
+            "mode": 1,
             "bLoading": true, 
             "error": null, 
             "caps": null, 
             "assists": null,
             "covers": null,
-            "selfCovers": null
+            "selfCovers": null,
+            "seals": null
         };
     }
 
@@ -37,7 +39,8 @@ class MatchCTFCaps extends React.Component{
             "caps": null, 
             "assists": null,
             "covers": null,
-            "selfCovers": null
+            "selfCovers": null,
+            "seals": null
         });
 
         const req = await fetch("/api/ctf",{
@@ -58,7 +61,8 @@ class MatchCTFCaps extends React.Component{
                 "assists": res.assists, 
                 "bLoading": false,
                 "covers": res.covers,
-                "selfCovers": res.selfCovers
+                "selfCovers": res.selfCovers,
+                "seals": res.seals
             });
         }
 
@@ -120,7 +124,6 @@ class MatchCTFCaps extends React.Component{
                     {elems}
                 </tbody>
             </table>
-            //return elems;
         }
 
         return "There were no assists for this cap.";
@@ -151,10 +154,6 @@ class MatchCTFCaps extends React.Component{
 
             const player = Functions.getPlayer(this.props.playerData, playerId);
 
-            /*elems.push(<div key={playerId} className={`text-left`}>
-                <CountryFlag country={player.country}/>{player.name} <b className="yellow">{covers}</b>
-            </div>);*/
-
             elems.push(<tr key={playerId}>
                 <td className="text-left"><CountryFlag country={player.country}/>{player.name}</td>
                 <td> <b className="yellow">{covers}</b></td>
@@ -169,10 +168,53 @@ class MatchCTFCaps extends React.Component{
                     {elems}
                 </tbody>
             </table>
-            //return elems;
         }
 
         return "There were no covers for this cap.";
+    }
+
+    getSeals(capId){
+
+        const totals = {};
+
+        for(let i = 0; i < this.state.seals.length; i++){
+
+            const s = this.state.seals[i];
+
+            if(s.cap_id === capId){
+
+                if(totals[s.killer_id] === undefined){
+                    totals[s.killer_id] = 0;
+                }
+
+                totals[s.killer_id]++;
+            }
+        }
+
+        const elems = [];
+
+        for(const [playerId, seals] of Object.entries(totals)){
+
+            const player = Functions.getPlayer(this.props.playerData, playerId);
+
+            elems.push(<tr key={playerId}>
+                <td className="text-left"><CountryFlag country={player.country}/>{player.name}</td>
+                <td> <b className="yellow">{seals}</b></td>
+            </tr>);
+
+        }
+
+        if(elems.length > 0){
+
+            return <table>
+                <tbody>
+                    {elems}
+                </tbody>
+            </table>
+        }
+
+        return "There were no seals for this cap.";
+
     }
 
     renderSimple(){
@@ -222,6 +264,7 @@ class MatchCTFCaps extends React.Component{
             const assists = this.getAssists(d.id);
             const covers = this.getCovers(d.id, false);
             const selfCovers = this.getCovers(d.id, true);
+            const seals = this.getSeals(d.id);
 
             data.push({
                 "match_score": {
@@ -272,11 +315,11 @@ class MatchCTFCaps extends React.Component{
                 },
                 "total_self_covers": {
                     "value": d.total_self_covers,
-                    "displayValue": <MouseOver display={selfCovers} total="Flag Self Covers">{Functions.ignore0(d.total_self_covers)}</MouseOver>,
+                    "displayValue": <MouseOver display={selfCovers} title="Flag Self Covers">{Functions.ignore0(d.total_self_covers)}</MouseOver>,
                 },
                 "total_seals": {
                     "value": d.total_seals,
-                    "displayValue": Functions.ignore0(d.total_seals),
+                    "displayValue": <MouseOver display={seals} title="Flag Seals">{Functions.ignore0(d.total_seals)}</MouseOver>,
                 },
                 "total_assists": {
                     "value": d.total_assists,
@@ -289,12 +332,41 @@ class MatchCTFCaps extends React.Component{
         return <InteractiveTable width={1} headers={headers} data={data}/>
     }
 
+
+    getCarryRanges(capId){
+
+        const found = [];
+
+        for(let i = 0; i < this.state.assists.length; i++){
+
+            const assist = this.state.assists[i];
+
+            if(assist.cap_id === capId){
+                found.push(assist);
+            }
+        }
+
+        return found;
+    }
+
     renderData(){
 
         if(this.state.mode === 0) return this.renderSimple();
 
 
-        return null;
+        //return <CapChart />;
+
+        const elems = [];
+
+        for(let i = 0; i < this.state.caps.length; i++){
+
+            const cap = this.state.caps[i];
+            console.log(cap);
+
+            elems.push(<CapChart key={cap.id} capInfo={cap} assists={this.getCarryRanges(cap.id)}/>);
+        }
+
+        return elems;
     }
 
     render(){

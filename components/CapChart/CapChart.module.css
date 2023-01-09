@@ -1,0 +1,34 @@
+.wrapper{
+    background-color:black;
+    max-width:var(--max-width-1);
+}
+
+.title{
+    padding:5px;
+}
+
+.bar-wrapper{
+    background-color:var(--color-3);
+    height:20px;
+}
+
+.inner-bar{
+    height:20px;
+    display:inline-block;
+}
+
+.inner-bar:hover{
+    cursor: pointer;
+}
+
+.solo{
+    background-color:gold;
+}
+
+.carry{
+    background-color:green;
+}
+
+.dropped{
+    background-color: red;
+}

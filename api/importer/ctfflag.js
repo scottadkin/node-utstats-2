@@ -34,11 +34,11 @@ class CTFFlag{
         this.seals = [];
         this.carryTimes = [];
         this.selfCovers = [];
+        this.totalCarryTime = 0;
 
     }
 
     async reset(bCheckIfDropped, capId){
-
 
         if(capId === undefined) capId = -1;
         //this.debugSeals("RESET");
@@ -55,6 +55,7 @@ class CTFFlag{
         await this.insertCovers(capId);
         await this.processSelfCovers(false, capId);
         await this.insertSeals(capId);
+        await this.insertCarryTimes(capId);
 
         this.bDropped = false;
         this.bAtBase = true;
@@ -71,6 +72,7 @@ class CTFFlag{
         this.carryTimes = [];
         this.selfCovers = [];
         this.takenPlayer = null;
+        this.totalCarryTime = 0;
     }
 
     async returned(timestamp, playerId){
@@ -153,7 +155,7 @@ class CTFFlag{
 
     async seal(timestamp, killerId, victimId){
 
-        new Message(`SEAL by ${killerId} @ ${timestamp}`,"error");
+        //new Message(`SEAL by ${killerId} @ ${timestamp}`,"error");
 
         this.seals.push({"timestamp": timestamp, "playerId": killerId, "victimId": victimId});
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
@@ -168,6 +170,7 @@ class CTFFlag{
         const player = this.playerManager.getPlayerByMasterId(this.carriedBy);
 
         if(player === null){
+           
             new Message(`CTFFlag.dropped() player is null`,"warning");
         }else{
             player.setCTFNewValue("carryTime", timestamp, totalDeaths, currentCarryTime);
@@ -287,9 +290,9 @@ class CTFFlag{
 
         await this.setCarryTime(timestamp);
 
-        const assistIds = new Set();
+       // console.log(this.carryTimes);
 
-        let totalCarryTime = 0;
+        const assistIds = new Set();
 
         const assistVars = [];
 
@@ -297,7 +300,7 @@ class CTFFlag{
 
             const c = this.carryTimes[i];
 
-            totalCarryTime += c.carryTime;
+            this.totalCarryTime += c.carryTime;
 
             //don't want to count the capped player as an assist.
             if(this.carriedBy !== c.player){
@@ -337,9 +340,9 @@ class CTFFlag{
             //console.log(capPlayer);
             const capTeam = this.playerManager.getPlayerTeamAt(this.carriedBy, timestamp);
 
-            const timeDropped = travelTime - totalCarryTime;
+            const timeDropped = travelTime - this.totalCarryTime;
 
-            console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${totalCarryTime}, timeDropped ${timeDropped}`);
+            console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${this.totalCarryTime}, timeDropped ${timeDropped}`);
           
             const totalSelfCovers = this.getTotalSelfCovers();
 
@@ -355,7 +358,7 @@ class CTFFlag{
                 timestamp, 
                 this.carriedBy, 
                 travelTime, 
-                totalCarryTime, 
+                this.totalCarryTime, 
                 timeDropped,
                 this.drops.length,
                 this.pickups.length,
@@ -376,7 +379,7 @@ class CTFFlag{
             new Message(`capPlayer is null`,"warning");
         }
         
-        this.reset(false, capId);
+        await this.reset(false, capId);
     }
 
     async insertSeals(capId){
@@ -386,6 +389,42 @@ class CTFFlag{
             const {timestamp, playerId, victimId} = this.seals[i];
 
             await this.ctfManager.insertSeal(this.matchId, this.matchDate, this.mapId, capId, timestamp, playerId, victimId);
+        }
+    }
+
+    async insertCarryTimes(capId){
+
+        for(let i = 0; i < this.carryTimes.length; i++){
+
+            const c = this.carryTimes[i];
+
+            const playerTeam = this.playerManager.getPlayerTeamAt(c.player, c.taken);
+
+            let carryPercent = 0;
+
+            if(this.totalCarryTime > 0){
+
+                if(c.carryTime > 0){
+                    carryPercent = (c.carryTime / this.totalCarryTime) * 100;
+                }
+            }
+
+           //1443.38	flag_taken	5	1
+           //1460.79	flag_dropped	5	1
+
+            await this.ctfManager.insertCarryTime(
+                this.matchId, 
+                this.matchDate, 
+                this.mapId, 
+                capId, 
+                this.team, 
+                (c.player === null) ? -1 : c.player, 
+                playerTeam, 
+                (c.taken === null) ? -1 : c.taken, 
+                c.dropped, 
+                c.carryTime,
+                carryPercent
+            );
         }
     }
 }

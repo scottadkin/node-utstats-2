@@ -152,7 +152,7 @@ class CTFManager{
 
     async createFlagTaken(timestamp, line){
 
-        const reg = /^.+?\tflag_taken\t(\d+?)\t(\d+)$/;
+        const reg = /^.+?\tflag_taken\t(\d+?)\t(\d+)$/i;
 
         const result = reg.exec(line);
 
@@ -260,7 +260,7 @@ class CTFManager{
         const result = reg.exec(line);
 
         if(result === null){
-            new Message(`createFlagReturned regular expression failed.`);
+            new Message(`createFlagDropped regular expression failed.`);
             return;
         }
 
@@ -269,7 +269,7 @@ class CTFManager{
         const player = this.playerManager.getPlayerById(playerId);
 
         if(player === null){
-            new Message(`createFlagReturned player is null`,"error");
+            new Message(`createFlagDropped player is null`,"error");
             return;
         }
 
