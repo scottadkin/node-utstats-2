@@ -5,8 +5,9 @@
     border:1px solid var(--border-color-3);
     color:white;
     z-index: 99999;
-    max-width:250px;
+    max-width:200px;
     min-width:100px;
+    text-align:center;
 }
 
 .mt{

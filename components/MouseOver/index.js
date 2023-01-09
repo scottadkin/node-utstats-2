@@ -17,19 +17,27 @@ function MouseOver({children, display, title}){
         setbDisplay(true);
 
         const bounds = mainRef.current.getBoundingClientRect();
-        const offset = 10;
 
+        setMarinTop(bounds.height + 10);
 
-        const maxOffset = bounds.left + 200;
+        let mouseBoxWidth = 200;
 
-        if(maxOffset > pageWidth){
+        if(mouseRef.current !== null){
+            const mouseBounds = mouseRef.current.getBoundingClientRect();
+            mouseBoxWidth = mouseBounds.width + 20;
+        }else{
+            return;
+        }   
 
-            const overlap = maxOffset - pageWidth;
-            setMarginLeft(-overlap);
-            
+        if(e.clientX + mouseBoxWidth > pageWidth){
+
+            const offset = (e.clientX + mouseBoxWidth) - pageWidth;
+            setMarginLeft(e.clientX - bounds.left - offset);
+        }else{
+            setMarginLeft(e.clientX - bounds.left);
         }
 
-        setMarinTop(bounds.height + offset);
+        
     }
 
     let mouseOverElem = null;
@@ -61,7 +69,7 @@ function MouseOver({children, display, title}){
         </div>
     }
     
-    return <div ref={mainRef} onMouseLeave={() => { setbDisplay(false)}} onMouseOver={(e) => {setMouseOverPosition(e)}}>
+    return <div ref={mainRef} onMouseLeave={() => { setbDisplay(false)}} onMouseMove={(e) => {setMouseOverPosition(e)}}>
         {mouseOverElem}
         {children}
     </div>;
