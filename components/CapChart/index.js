@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./CapChart.module.css";
 import Functions from "../../api/functions";
+import MouseOver from "../MouseOver";
 
 class CapChart extends React.Component{
 
@@ -22,44 +23,46 @@ class CapChart extends React.Component{
         const capTeamName = `${Functions.getTeamName(this.props.capInfo.cap_team)}`;
         const cappedFlagName = Functions.getTeamColorName(this.props.capInfo.flag_team);
 
-        const totalCarryTime = this.props.capInfo.carry_time;
+        const totalTravelTime = this.props.capInfo.travel_time;
 
         const barParts = [];
 
         let lastDropTime = null;
 
-        for(let i = 0; i < this.props.assists.length; i++){
+        for(let i = 0; i < this.props.carryTimes.length; i++){
 
-            const assist = this.props.assists[i];
+            const c = this.props.carryTimes[i];
 
             if(lastDropTime !== null){
 
-                const timeDropped = assist.pickup_time - lastDropTime;
+                let droppedPercent = 0;
 
-                let dropPercent = 0;
+                console.log(`Dropped for ${c.start_time - lastDropTime}`);
 
-                if(timeDropped > 0){
-                    if(totalCarryTime > 0){
-                        dropPercent = (timeDropped / assist.carry_time) * 100;
-                    }
+                const droppedTime = c.start_time - lastDropTime;
+
+                if(droppedTime > 0){
+                    droppedPercent = (droppedTime / totalTravelTime) * 100;
                 }
 
-                barParts.push(<div key={`${i}-dropped`} className={`${styles["inner-bar"]} ${styles.dropped}`} style={{"width": `${dropPercent}%`}}></div>);
-                console.log(`flag was dropped fro ${timeDropped}`);
+                barParts.push(
+                    <div key={`${c.id}-dropped`} className={`${styles["inner-bar"]} ${styles.dropped}`} style={{"width": `${droppedPercent}%`}}>
+                        <MouseOver title="Flag Dropped" display={`Flag Dropped for ${droppedTime.toFixed(2)} seconds.`}>&nbsp;</MouseOver>
+                    </div>
+                );
             }
 
             let carryPercent = 0;
 
-            if(assist.carry_time > 0){
-
-                if(totalCarryTime > 0){
-                    carryPercent = (assist.carry_time / totalCarryTime) * 100;
-                }
+            if(totalTravelTime > 0 && c.carry_time > 0){
+                carryPercent = (c.carry_time / totalTravelTime) * 100;
             }
 
-            barParts.push(<div key={i} className={`${styles["inner-bar"]} ${styles.carry}`} style={{"width": `${carryPercent}%`}}></div>);
+            barParts.push(<div key={c.id} className={`${styles["inner-bar"]} ${styles.carry}`} style={{"width": `${carryPercent}%`}}>
+                <MouseOver title="Flag In Possession" display={`Flag Carried for ${c.carry_time.toFixed(2)} seconds.`}>&nbsp;</MouseOver>
+            </div>);
 
-            lastDropTime = assist.dropped_time;
+            lastDropTime = c.end_time;
         }
 
 
@@ -67,9 +70,23 @@ class CapChart extends React.Component{
             barParts.push(<div key="0" className={`${styles["inner-bar"]} ${styles.solo}`} style={{"width": `100%`}}></div>);
         }
 
+        const teamScoreElems = [];
+
+        for(let i = 0; i < this.props.teamScores.length; i++){
+
+            const t = this.props.teamScores[i];
+
+            teamScoreElems.push(<div key={i} style={{"width": `${100 / this.props.teamScores.length}%`}} className={`${Functions.getTeamColor(i)} ${styles["team-score"]}`}>
+                {t}
+            </div>);
+        }
+
         return <div className={`${styles.wrapper} center`}>
             <div className={styles.title}>The {capTeamName} Capped the {cappedFlagName} Flag</div>
-
+            {teamScoreElems}
+            <div className={styles["bar-title"]}>
+                Cap Timeline
+            </div>
             <div className={styles["bar-wrapper"]}>
                 {barParts}
             </div>

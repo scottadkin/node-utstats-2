@@ -23,7 +23,8 @@ class MatchCTFCaps extends React.Component{
             "assists": null,
             "covers": null,
             "selfCovers": null,
-            "seals": null
+            "seals": null,
+            "carryTimes": null
         };
     }
 
@@ -40,7 +41,8 @@ class MatchCTFCaps extends React.Component{
             "assists": null,
             "covers": null,
             "selfCovers": null,
-            "seals": null
+            "seals": null,
+            "carryTimes": null
         });
 
         const req = await fetch("/api/ctf",{
@@ -62,7 +64,8 @@ class MatchCTFCaps extends React.Component{
                 "bLoading": false,
                 "covers": res.covers,
                 "selfCovers": res.selfCovers,
-                "seals": res.seals
+                "seals": res.seals,
+                "carryTimes": res.carryTimes
             });
         }
 
@@ -349,6 +352,22 @@ class MatchCTFCaps extends React.Component{
         return found;
     }
 
+    getCarryTimes(capId){
+
+        const found = [];
+
+        for(let i = 0; i < this.state.carryTimes.length; i++){
+
+            const c = this.state.carryTimes[i];
+
+            if(c.cap_id === capId) found.push(c);
+        }
+
+        console.log(found, capId);
+
+        return found;
+    }
+
     renderData(){
 
         if(this.state.mode === 0) return this.renderSimple();
@@ -356,14 +375,21 @@ class MatchCTFCaps extends React.Component{
 
         //return <CapChart />;
 
+        const teamScores = [];
+
+        for(let i = 0; i < this.props.totalTeams; i++){
+            teamScores.push(0);
+        }
+
         const elems = [];
 
         for(let i = 0; i < this.state.caps.length; i++){
 
             const cap = this.state.caps[i];
-            console.log(cap);
 
-            elems.push(<CapChart key={cap.id} capInfo={cap} assists={this.getCarryRanges(cap.id)}/>);
+            teamScores[cap.cap_team]++;
+
+            elems.push(<CapChart key={cap.id} teamScores={[...teamScores]} capInfo={cap} carryTimes={this.getCarryTimes(cap.id)}/>);
         }
 
         return elems;

@@ -72,7 +72,6 @@ class CTFFlag{
         this.carryTimes = [];
         this.selfCovers = [];
         this.takenPlayer = null;
-        this.totalCarryTime = 0;
     }
 
     async returned(timestamp, playerId){
@@ -296,11 +295,13 @@ class CTFFlag{
 
         const assistVars = [];
 
+        let totalCarryTime = 0;
+
         for(let i = 0; i < this.carryTimes.length; i++){
 
             const c = this.carryTimes[i];
 
-            this.totalCarryTime += c.carryTime;
+            totalCarryTime += c.carryTime;
 
             //don't want to count the capped player as an assist.
             if(this.carriedBy !== c.player){
@@ -340,9 +341,9 @@ class CTFFlag{
             //console.log(capPlayer);
             const capTeam = this.playerManager.getPlayerTeamAt(this.carriedBy, timestamp);
 
-            const timeDropped = travelTime - this.totalCarryTime;
+            const timeDropped = travelTime - totalCarryTime;
 
-            console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${this.totalCarryTime}, timeDropped ${timeDropped}`);
+            console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${totalCarryTime}, timeDropped ${timeDropped}`);
           
             const totalSelfCovers = this.getTotalSelfCovers();
 
@@ -358,7 +359,7 @@ class CTFFlag{
                 timestamp, 
                 this.carriedBy, 
                 travelTime, 
-                this.totalCarryTime, 
+                totalCarryTime, 
                 timeDropped,
                 this.drops.length,
                 this.pickups.length,
@@ -394,6 +395,13 @@ class CTFFlag{
 
     async insertCarryTimes(capId){
 
+        let totalCarryTime = 0;
+
+        for(let i = 0; i < this.carryTimes.length; i++){
+
+            totalCarryTime += this.carryTimes[i].carryTime;
+        }
+
         for(let i = 0; i < this.carryTimes.length; i++){
 
             const c = this.carryTimes[i];
@@ -402,10 +410,10 @@ class CTFFlag{
 
             let carryPercent = 0;
 
-            if(this.totalCarryTime > 0){
+            if(totalCarryTime > 0){
 
                 if(c.carryTime > 0){
-                    carryPercent = (c.carryTime / this.totalCarryTime) * 100;
+                    carryPercent = (c.carryTime / totalCarryTime) * 100;
                 }
             }
 
