@@ -775,3 +775,9 @@ input[type="range"]{
     overflow: hidden;
     white-space: nowrap;
 }
+
+.timestamp{
+	display:inline-block;
+	color:yellow;
+	letter-spacing: 1px;
+}

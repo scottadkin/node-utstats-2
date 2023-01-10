@@ -53,8 +53,6 @@ class MatchCTFCaps extends React.Component{
 
         const res = await req.json();
 
-        console.log(res);
-
         if(res.error !== undefined){
             this.setState({"error": res.error, "bLoading": false});
         }else{
@@ -368,6 +366,48 @@ class MatchCTFCaps extends React.Component{
         return found;
     }
 
+    getCovers(capId, bSelfCovers){
+
+        const covers = [];
+
+        for(let i = 0; i < this.state.covers.length; i++){
+
+            const c = this.state.covers[i];
+
+            c.bSelf = false;
+
+            if(c.cap_id === capId){
+                covers.push(c);
+            }
+        }
+
+        for(let i = 0; i < this.state.selfCovers.length; i++){
+
+            const c = this.state.selfCovers[i];
+            c.bSelf = true;
+
+            if(c.cap_id === capId){
+                covers.push(c);
+            }
+
+        }
+
+        covers.sort((a, b) =>{
+            a = a.timestamp;
+            b = b.timestamp;
+
+            if(a > b){
+                return 1;
+            }else if(a < b){
+                return -1;
+            }
+
+            return 0;
+        });
+
+        return covers
+    }
+
     renderData(){
 
         if(this.state.mode === 0) return this.renderSimple();
@@ -389,7 +429,16 @@ class MatchCTFCaps extends React.Component{
 
             teamScores[cap.cap_team]++;
 
-            elems.push(<CapChart key={cap.id} teamScores={[...teamScores]} capInfo={cap} carryTimes={this.getCarryTimes(cap.id)}/>);
+            elems.push(<CapChart 
+                key={cap.id} 
+                matchId={this.props.matchId}
+                teamScores={[...teamScores]} 
+                capInfo={cap} 
+                carryTimes={this.getCarryTimes(cap.id)}
+                matchStart={this.props.matchStart}
+                playerData={this.props.playerData}
+                covers={this.getCovers(cap.id)}
+            />);
         }
 
         return elems;
