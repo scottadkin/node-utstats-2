@@ -29,7 +29,7 @@ class CTFFlag{
 
         this.covers = [];
 
-        this.killedBy = [];
+        this.deaths = [];
 
         this.seals = [];
         this.carryTimes = [];
@@ -66,12 +66,13 @@ class CTFFlag{
         this.covers = [];
 
         this.pickups = [];
-        this.killedBy = [];
+        this.deaths = [];
         this.seals = [];
         this.lastCarriedTimestamp = null;
         this.carryTimes = [];
         this.selfCovers = [];
         this.takenPlayer = null;
+        this.deaths = [];
     }
 
     async returned(timestamp, playerId){
@@ -147,7 +148,7 @@ class CTFFlag{
 
     async killed(timestamp, killerId){
 
-        this.killedBy.push({"timestamp": timestamp, "killerId": killerId});
+        this.deaths.push({"timestamp": timestamp, "killerId": killerId});
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "killed", this.team);
     }
@@ -277,7 +278,7 @@ class CTFFlag{
             await this.ctfManager.insertCover(this.matchId, this.matchDate, this.mapId, capId, c.timestamp, c.killerId, c.victimId);
         }
     }
-    
+
 
     async captured(timestamp, playerId){
 
@@ -297,11 +298,15 @@ class CTFFlag{
 
         let totalCarryTime = 0;
 
+        let totalDeaths = 0;
+
         for(let i = 0; i < this.carryTimes.length; i++){
 
             const c = this.carryTimes[i];
 
             totalCarryTime += c.carryTime;
+
+            totalDeaths += this.killManager.getDeathsBetween(c.taken, c.dropped, c.player, true)
 
             //don't want to count the capped player as an assist.
             if(this.carriedBy !== c.player){
@@ -367,6 +372,7 @@ class CTFFlag{
                 this.seals.length,
                 assistIds.size, 
                 totalSelfCovers,
+                totalDeaths
             );
 
             for(let i = 0; i < assistVars.length; i++){

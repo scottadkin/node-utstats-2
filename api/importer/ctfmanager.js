@@ -82,6 +82,7 @@ class CTFManager{
         const killer = this.playerManager.getPlayerById(killerId);
         const victim = this.playerManager.getPlayerById(victimId);
 
+
         if(killer !== null && victim !== null){
 
             if(killer.masterId === victim.masterId){        
@@ -96,16 +97,14 @@ class CTFManager{
                 const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, killer.masterId, false)
 
                 killer.setCTFNewValue("kill", timestamp, totalDeaths);
+
+                //const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
+
+                //await this.flags[killerTeam].killed(timestamp, killer.masterId);
             }
 
         }
 
-        if(victim !== null){
-            
-            const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
-
-            await this.flags[victimTeam].killed(timestamp, killer.masterId);
-        }
 
     }
 
@@ -527,6 +526,8 @@ class CTFManager{
             const flag = this.flags[i];
 
             if(flag.carriedBy === player.masterId){
+
+                console.log(`${player.name} dropped the ${i} flag`);
 
                 await flag.dropped(timestamp);
 

@@ -63,6 +63,7 @@ const queries = [
         total_seals int NOT NULL,
         total_assists int NOT NULL,
         total_self_covers int NOT NULL,
+        total_deaths int NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE nstats_ctf_assists (
       id int NOT NULL AUTO_INCREMENT,

@@ -152,7 +152,7 @@ class CTF{
 
     async insertCap(matchId, matchDate, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, 
         capPlayer, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
-        totalAssists, totalSelfCovers){
+        totalAssists, totalSelfCovers, totalDeaths){
 
 
         let carryTimePercent = 0;
@@ -170,7 +170,7 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -193,6 +193,7 @@ class CTF{
             totalSeals,
             totalAssists,
             totalSelfCovers,
+            totalDeaths
         ];
 
         const result = await mysql.simpleQuery(query, vars);
