@@ -299,6 +299,7 @@ class CTFFlag{
         let totalCarryTime = 0;
 
         let totalDeaths = 0;
+        let totalSuicides = 0;
 
         for(let i = 0; i < this.carryTimes.length; i++){
 
@@ -306,7 +307,9 @@ class CTFFlag{
 
             totalCarryTime += c.carryTime;
 
-            totalDeaths += this.killManager.getDeathsBetween(c.taken, c.dropped, c.player, true)
+            totalDeaths += this.killManager.getDeathsBetween(c.taken, c.dropped, c.player, true);
+
+            totalSuicides += this.killManager.getSuicidesBetween(c.taken, c.dropped, c.player);
 
             //don't want to count the capped player as an assist.
             if(this.carriedBy !== c.player){
@@ -372,7 +375,8 @@ class CTFFlag{
                 this.seals.length,
                 assistIds.size, 
                 totalSelfCovers,
-                totalDeaths
+                totalDeaths,
+                totalSuicides
             );
 
             for(let i = 0; i < assistVars.length; i++){

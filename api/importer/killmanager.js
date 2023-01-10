@@ -456,6 +456,27 @@ class KillManager{
 
         return found;
     }
+
+    getSuicidesBetween(start, end, victim){
+
+        let suicides = 0;
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const k = this.kills[i];
+
+            const type = k.type;
+
+            if(k.timestamp < start) continue;
+            if(k.timestamp > end) break;
+
+            if(type === "suicide"){
+                if(k.killerId === victim) suicides++;
+            }
+        }
+
+        return suicides;
+    }
 }
 
 

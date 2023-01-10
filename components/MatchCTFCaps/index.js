@@ -130,7 +130,7 @@ class MatchCTFCaps extends React.Component{
         return "There were no assists for this cap.";
     }
 
-    getCovers(capId, bSelfCovers){
+    getCoverElements(capId, bSelfCovers){
 
         const totalCovers = {};
 
@@ -234,6 +234,8 @@ class MatchCTFCaps extends React.Component{
             "total_self_covers": "Self Covers",
             "total_seals": "Seals",
             "total_assists": "Assists",
+            "total_deaths": "Deaths",
+            "total_suicides": "Suicides",
         };
 
         let teamScores = [];
@@ -263,8 +265,8 @@ class MatchCTFCaps extends React.Component{
             const capPlayer = Functions.getPlayer(this.props.playerData, d.cap_player);
 
             const assists = this.getAssists(d.id);
-            const covers = this.getCovers(d.id, false);
-            const selfCovers = this.getCovers(d.id, true);
+            const covers = this.getCoverElements(d.id, false);
+            const selfCovers = this.getCoverElements(d.id, true);
             const seals = this.getSeals(d.id);
 
             data.push({
@@ -309,6 +311,14 @@ class MatchCTFCaps extends React.Component{
                 "total_drops": {
                     "value": d.total_drops,
                     "displayValue": Functions.ignore0(d.total_drops),
+                },
+                "total_deaths": {
+                    "value": d.total_deaths,
+                    "displayValue": Functions.ignore0(d.total_deaths),
+                },
+                "total_suicides": {
+                    "value": d.total_suicides,
+                    "displayValue": Functions.ignore0(d.total_suicides),
                 },
                 "total_covers": {
                     "value": d.total_covers,
