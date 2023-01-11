@@ -203,6 +203,56 @@ class CTF{
 
     }
 
+    async insertReturn(matchId, matchDate, mapId, flagTeam, grabTime, grabPlayer, returnTime, 
+        returnPlayer, distanceToCap, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
+        totalSelfCovers, totalDeaths, totalSuicides){
+
+
+        let carryTimePercent = 0;
+        let dropTimePercent = 0;
+
+        if(travelTime > 0){
+
+            if(carryTime > 0){
+                carryTimePercent = (carryTime / travelTime) * 100;
+            }
+
+            if(dropTime > 0){
+                dropTimePercent = (dropTime / travelTime) * 100;
+            }
+        }
+
+
+        const query = `INSERT INTO nstats_ctf_returns VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [
+            matchId,
+            matchDate, 
+            mapId, 
+            flagTeam, 
+            grabTime, 
+            grabPlayer, 
+            returnTime, 
+            returnPlayer, 
+            distanceToCap,
+            travelTime, 
+            carryTime, 
+            carryTimePercent, 
+            dropTime, 
+            dropTimePercent,
+            totalDrops,
+            totalPickups,
+            totalCovers,
+            totalSeals,
+            totalSelfCovers,
+            totalDeaths,
+            totalSuicides
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+
+    }
+
     async insertAssist(matchId, matchDate, mapId, capId, playerId, pickupTime, droppedTime, carryTime){
 
         const query = `INSERT INTO nstats_ctf_assists VALUES(NULL,?,?,?,?,?,?,?,?)`;

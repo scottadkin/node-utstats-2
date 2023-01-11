@@ -38,6 +38,8 @@ class CTFFlag{
         this.selfCovers = [];
         this.totalCarryTime = 0;
 
+        this.lastDroppedLocation = null;
+
     }
 
 
@@ -81,6 +83,7 @@ class CTFFlag{
         this.selfCovers = [];
         this.takenPlayer = null;
         this.deaths = [];
+        this.lastDroppedLocation = null;
     }
 
     async returned(timestamp, playerId){
@@ -98,12 +101,13 @@ class CTFFlag{
 
     async timedOutReturn(timestamp){
 
+        new Message(`new TIMED OUT REIUTRFIUESGOISUDOIGUDSOIGUDSI`,"error");
         //this.debugSeals("timedOutReturn");
         await this.processSelfCovers(true);
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
 
-        this.processReturn(timestamp, -1);
+        await this.processReturn(timestamp, -1);
         await this.reset(false);
     }
 
@@ -141,14 +145,20 @@ class CTFFlag{
 
         await this.setCarryTime(timestamp);
 
+        if(dropLocation !== null){
+            this.lastDroppedLocation = dropLocation;
+        }
+
         this.bDropped = true;
         this.bAtBase = false;
+
         this.drops.push({
             "playerId": this.carriedBy, 
             "timestamp": timestamp, 
             "dropLocation": dropLocation, 
             "distanceToCap": distanceToCap
         });
+        
         this.carriedBy = null;
     }
 
@@ -297,6 +307,22 @@ class CTFFlag{
     }
 
 
+    getTotalDeaths(){
+
+        let totalDeaths = 0;
+        let totalSuicides = 0;
+
+        for(let i = 0; i < this.carryTimes.length; i++){
+
+            const c = this.carryTimes[i];
+
+            totalDeaths += this.killManager.getDeathsBetween(c.taken, c.dropped, c.player, true);
+            totalSuicides += this.killManager.getSuicidesBetween(c.taken, c.dropped, c.player);
+        }
+
+        return {"deaths": totalDeaths, "suicides": totalSuicides};
+    }
+
     async captured(timestamp, playerId){
 
         //this.debugSeals("CAPTURED");
@@ -422,12 +448,7 @@ class CTFFlag{
 
     async insertCarryTimes(capId){
 
-        let totalCarryTime = 0;
-
-        for(let i = 0; i < this.carryTimes.length; i++){
-
-            totalCarryTime += this.carryTimes[i].carryTime;
-        }
+        let totalCarryTime = this.getTotalCarryTime();
 
         for(let i = 0; i < this.carryTimes.length; i++){
 
@@ -463,17 +484,61 @@ class CTFFlag{
         }
     }
 
+    getTotalCarryTime(){
+
+        let totalCarryTime = 0;
+
+        for(let i = 0; i < this.carryTimes.length; i++){
+            totalCarryTime += this.carryTimes[i].carryTime;
+        }
+
+        return totalCarryTime;
+    }
+
+    getLastDropDistanceToCap(){
+
+        if(this.drops.length > 0){
+
+            return this.drops[this.drops.length - 1].distanceToCap;
+        }
+
+        return -1;
+
+    }
 
     async processReturn(timestamp, playerId){
 
+        const carryTime = this.getTotalCarryTime();
 
-        console.log(`pppppppppppppppppppppp`);
-        console.log(this.carryTimes);
-        console.log(this.pickups);
-        console.log(this.drops);
-        console.log(this.deaths);
-        console.log(this.suicides);
+        const travelTime = timestamp - this.takenTimestamp;
 
+        const dropTime = travelTime - carryTime;
+
+        const totalSelfCovers = this.getTotalSelfCovers();
+
+        const {deaths, suicides} = this.getTotalDeaths();
+
+        await this.ctfManager.insertReturn(
+            this.matchId, 
+            this.matchDate, 
+            this.mapId, 
+            this.team, 
+            this.takenTimestamp, 
+            this.takenPlayer, 
+            timestamp, 
+            playerId, 
+            this.getLastDropDistanceToCap(),
+            travelTime, 
+            carryTime, 
+            dropTime, 
+            this.drops.length, 
+            this.pickups.length, 
+            this.covers.length, 
+            this.seals.length, 
+            totalSelfCovers, 
+            deaths, 
+            suicides
+        );
 
     }
 }

@@ -41,7 +41,7 @@ const queries = [
         last int(11) NOT NULL,
         total int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-      `CREATE TABLE nstats_ctf_caps (
+      `CREATE TABLE IF NOT EXISTS nstats_ctf_caps (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
@@ -66,7 +66,7 @@ const queries = [
         total_deaths int NOT NULL,
         total_suicides int NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE nstats_ctf_assists (
+    `CREATE TABLE IF NOT EXISTS nstats_ctf_assists (
       id int NOT NULL AUTO_INCREMENT,
       match_id int NOT NULL,
       match_date int NOT NULL,
@@ -76,8 +76,8 @@ const queries = [
       pickup_time float NOT NULL,
       dropped_time float NOT NULL,
       carry_time float NOT NULL,
-      PRIMARY_KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-      `CREATE TABLE nstats_ctf_covers (
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_ctf_covers (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
@@ -86,8 +86,8 @@ const queries = [
         timestamp float NOT NULL,
         killer_id int NOT NULL,
         victim_id int NOT NULL,
-      PRIMARY_KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-      `CREATE TABLE nstats_ctf_self_covers (
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_ctf_self_covers (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
@@ -96,8 +96,8 @@ const queries = [
         timestamp float NOT NULL,
         killer_id int NOT NULL,
         victim_id int NOT NULL,
-      PRIMARY_KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-      `CREATE TABLE nstats_ctf_seals (
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_ctf_seals (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
@@ -106,8 +106,8 @@ const queries = [
         timestamp float NOT NULL,
         killer_id int NOT NULL,
         victim_id int NOT NULL,
-      PRIMARY_KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-      `CREATE TABLE nstats_ctf_carry_times (
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_ctf_carry_times (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
@@ -120,7 +120,31 @@ const queries = [
         end_time float NOT NULL,
         carry_time float NOT NULL,
         carry_percent float NOT NULL,
-      PRIMARY_KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_ctf_returns (
+        id int NOT NULL AUTO_INCREMENT,
+        match_id int NOT NULL,
+        match_date int NOT NULL,
+        map_id int NOT NULL,
+        flag_team int NOT NULL,
+        grab_time float NOT NULL,
+        grab_player int NOT NULL,
+        return_time float NOT NULL,
+        return_player int NOT NULL,
+        distance_to_cap float NOT NULL,
+        travel_time float NOT NULL,
+        carry_time float NOT NULL,
+        carry_time_percent float NOT NULL,
+        drop_time float NOT NULL,
+        drop_time_percent float NOT NULL,
+        total_drops int NOT NULL,
+        total_pickups int NOT NULL,
+        total_covers int NOT NULL,
+        total_seals int NOT NULL,
+        total_self_covers int NOT NULL,
+        total_deaths int NOT NULL,
+        total_suicides int NOT NULL,
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ctf_events (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,

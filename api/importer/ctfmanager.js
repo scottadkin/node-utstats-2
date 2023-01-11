@@ -93,6 +93,7 @@ class CTFManager{
 
                 killer.stats.ctf.suicide++;
                 killer.setCTFNewValue("suicide", null);
+                
             }else{
                 killer.stats.ctf.kill++;
 
@@ -185,6 +186,19 @@ class CTFManager{
     }
 
 
+
+    async timedOutReturn(timestamp, timeoutResult){
+
+        const flagTeam = parseInt(timeoutResult[1]);
+
+        this.processFlagCovers(flagTeam, true);
+        this.processFlagSeals(flagTeam, true);
+
+        await this.flags[flagTeam].timedOutReturn(timestamp);
+        return;
+
+    }
+
     async createFlagReturned(timestamp, line){
 
         const reg = /^.+?\tflag_(.+?)\t(\d+?)\t(\d+)$/i;
@@ -199,13 +213,7 @@ class CTFManager{
             const timeoutResult = timeoutReg.exec(line);
 
             if(timeoutResult !== null){
-
-                const flagTeam = parseInt(timeoutResult[1]);
-
-                this.processFlagCovers(flagTeam, true);
-                this.processFlagSeals(flagTeam, true);
-
-                await this.flags[flagTeam].timedOutReturn(timestamp);
+                await this.timedOutReturn(timestamp, timeoutResult);
                 return;
             }
 
@@ -231,6 +239,11 @@ class CTFManager{
 
         if(type === "returned"){
             player.setCTFNewValue("return", timestamp, totalDeaths);
+            //dont want to process returns more than once as the other return_<type> are always logged at same time
+            this.processFlagCovers(flagTeam, true);
+            this.processFlagSeals(flagTeam, true);
+
+            await this.flags[flagTeam].returned(timestamp, player.masterId);
         }
 
         if(type === "return_closesave"){
@@ -249,10 +262,6 @@ class CTFManager{
             player.setCTFNewValue("returnBase", timestamp, totalDeaths);
         }
 
-        this.processFlagCovers(flagTeam, true);
-        this.processFlagSeals(flagTeam, true);
-
-        await this.flags[flagTeam].returned(timestamp, player.masterId);
     }
 
     async createFlagDropped(timestamp, line){
@@ -437,8 +446,7 @@ class CTFManager{
         for(let i = 0; i < this.lines.length; i++){
 
             const line = this.lines[i];
-
-            
+ 
             if(reg.test(line)){
 
                 const result = reg.exec(line);
@@ -484,8 +492,6 @@ class CTFManager{
             if(flagLocationReg.test(line)){
 
                 const result = flagLocationReg.exec(line);
-
-                console.log(result);
 
                 const flagTeam = parseInt(result[2]);
 
@@ -628,7 +634,6 @@ class CTFManager{
     }
 
     async dropAllFlags(player, timestamp){
-
 
         for(let i = 0; i < this.flags.length; i++){
 
