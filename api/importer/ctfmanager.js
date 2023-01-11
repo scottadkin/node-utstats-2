@@ -93,7 +93,7 @@ class CTFManager{
 
                 killer.stats.ctf.suicide++;
                 killer.setCTFNewValue("suicide", null);
-                
+
             }else{
                 killer.stats.ctf.kill++;
 
@@ -617,7 +617,7 @@ class CTFManager{
             }
         }
 
-        return null;
+        return {"x": 0, "y": 0, "z": 0};
     }
 
     getDistanceToCapping(playerTeam, targetLocation){

@@ -204,7 +204,7 @@ class CTF{
     }
 
     async insertReturn(matchId, matchDate, mapId, flagTeam, grabTime, grabPlayer, returnTime, 
-        returnPlayer, distanceToCap, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
+        returnPlayer, distanceToCap, returnLocation, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
         totalSelfCovers, totalDeaths, totalSuicides){
 
 
@@ -223,7 +223,7 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_returns VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_returns VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -235,6 +235,9 @@ class CTF{
             returnTime, 
             returnPlayer, 
             distanceToCap,
+            returnLocation.x,
+            returnLocation.y,
+            returnLocation.z,
             travelTime, 
             carryTime, 
             carryTimePercent, 
@@ -248,6 +251,8 @@ class CTF{
             totalDeaths,
             totalSuicides
         ];
+
+        console.log(vars);
 
         return await mysql.simpleQuery(query, vars);
 

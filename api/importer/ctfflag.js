@@ -158,7 +158,7 @@ class CTFFlag{
             "dropLocation": dropLocation, 
             "distanceToCap": distanceToCap
         });
-        
+
         this.carriedBy = null;
     }
 
@@ -495,14 +495,13 @@ class CTFFlag{
         return totalCarryTime;
     }
 
-    getLastDropDistanceToCap(){
+    getLastDropInfo(){
 
         if(this.drops.length > 0){
-
-            return this.drops[this.drops.length - 1].distanceToCap;
+            return this.drops[this.drops.length - 1];
         }
-
-        return -1;
+ 
+        return {"distanceToCap": -1, "dropLocation": {"x": 0, "y": 0, "z": 0} };
 
     }
 
@@ -518,6 +517,10 @@ class CTFFlag{
 
         const {deaths, suicides} = this.getTotalDeaths();
 
+        const lastDropInfo = this.getLastDropInfo();
+
+        console.log(lastDropInfo);
+
         await this.ctfManager.insertReturn(
             this.matchId, 
             this.matchDate, 
@@ -527,7 +530,8 @@ class CTFFlag{
             this.takenPlayer, 
             timestamp, 
             playerId, 
-            this.getLastDropDistanceToCap(),
+            lastDropInfo.distanceToCap,
+            lastDropInfo.dropLocation,
             travelTime, 
             carryTime, 
             dropTime, 
