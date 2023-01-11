@@ -12,6 +12,8 @@ class CTFFlag{
         this.matchId = matchId;
         this.matchDate = matchDate;
         this.mapId = mapId;
+
+        this.flagStand = null;
         
         this.team = team;
 
@@ -36,6 +38,12 @@ class CTFFlag{
         this.selfCovers = [];
         this.totalCarryTime = 0;
 
+    }
+
+
+    setFlagStandLocation(location){
+
+        this.flagStand = location;
     }
 
     async reset(bCheckIfDropped, capId){
@@ -83,6 +91,8 @@ class CTFFlag{
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "returned", this.team);
 
+        await this.processReturn(timestamp, playerId);
+
         await this.reset(false);
     }
 
@@ -92,6 +102,8 @@ class CTFFlag{
         await this.processSelfCovers(true);
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
+
+        this.processReturn(timestamp, -1);
         await this.reset(false);
     }
 
@@ -123,7 +135,7 @@ class CTFFlag{
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "pickedup", this.team);
     }
 
-    async dropped(timestamp){
+    async dropped(timestamp, dropLocation, distanceToCap){
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, this.carriedBy, "dropped", this.team);
 
@@ -131,7 +143,12 @@ class CTFFlag{
 
         this.bDropped = true;
         this.bAtBase = false;
-        this.drops.push({"playerId": this.carriedBy, "timestamp": timestamp});
+        this.drops.push({
+            "playerId": this.carriedBy, 
+            "timestamp": timestamp, 
+            "dropLocation": dropLocation, 
+            "distanceToCap": distanceToCap
+        });
         this.carriedBy = null;
     }
 
@@ -335,8 +352,8 @@ class CTFFlag{
 
             
             const lastEventTimestamp = player.getCTFNewLastTimestamp("assist"); 
-            const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
-            player.setCTFNewValue("assist", timestamp, totalDeaths);
+            const playerTotalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
+            player.setCTFNewValue("assist", timestamp, playerTotalDeaths);
         }
 
 
@@ -444,6 +461,20 @@ class CTFFlag{
                 carryPercent
             );
         }
+    }
+
+
+    async processReturn(timestamp, playerId){
+
+
+        console.log(`pppppppppppppppppppppp`);
+        console.log(this.carryTimes);
+        console.log(this.pickups);
+        console.log(this.drops);
+        console.log(this.deaths);
+        console.log(this.suicides);
+
+
     }
 }
 

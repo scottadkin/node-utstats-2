@@ -513,6 +513,13 @@ class MatchManager{
             "controlpoint_capture"
         ];
 
+        const ctfTypes = [
+            "flag_location",
+            "flag_kill",
+            "fdl", //flag drop location,
+            "frl", //flag return location,
+            "ftor" //flag timeout return location
+        ];
 
         for(let i = 0; i < this.lines.length; i++){
 
@@ -528,9 +535,7 @@ class MatchManager{
                 if(gameTypes.indexOf(currentType) !== -1){
 
                     this.gameLines.push(this.lines[i]);
-
                 }
-
 
                 if(currentType == 'info'){
 
@@ -580,7 +585,7 @@ class MatchManager{
 
                             this.domManager.data.push(this.lines[i]);
 
-                        }else if(subType === 'flag_location' || subType === "flag_kill"){
+                        }else if(ctfTypes.indexOf(subType) !== -1){
 
                             if(this.CTFManager === undefined){
 

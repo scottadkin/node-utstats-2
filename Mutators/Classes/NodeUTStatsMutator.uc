@@ -50,6 +50,11 @@ struct spawnInfo{
 
 var spawnInfo nSpawns[255]; 
 
+event PreBeginPlay()
+{
+	Spawn(class'NodeUTStats2Spectator');
+}
+
 
 function printLog(string s){
 

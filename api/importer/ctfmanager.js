@@ -14,6 +14,9 @@ class CTFManager{
         this.flagReturns = [];
         this.flagTaken = [];
 
+        this.flagDropLocations = [];
+        this.flagReturnLocations = [];
+
         this.flags = [];
 
         this.ctf = new CTF();
@@ -426,7 +429,83 @@ class CTFManager{
         //console.log(result);
     }
 
+    parseLocations(){
+
+        const reg = /^(\d+?\.\d+)\tnstats\t(fdl|frl|ftor)\t(\d+?)\t(.+?)\,(.+?)\,(.+)$/i;
+        const flagLocationReg = /^(\d+?\.\d+)\tnstats\tflag_location\t(\d+?)\t(.+?)\t(.+?)\t(.+)$/i;
+
+        for(let i = 0; i < this.lines.length; i++){
+
+            const line = this.lines[i];
+
+            
+            if(reg.test(line)){
+
+                const result = reg.exec(line);
+
+                const timestamp = parseFloat(result[1]);
+                const event = result[2];
+                const flagTeam = parseInt(result[3]);
+
+                const location = {
+                    "x": parseFloat(result[4]),
+                    "y": parseFloat(result[5]),
+                    "z": parseFloat(result[6]),
+                };
+
+                if(event === "frl"){
+
+                    this.flagReturnLocations.push({
+                        "timestamp": timestamp,
+                        "flagTeam": flagTeam,
+                        "location": location,
+                        "bTimedOut": false
+                    });
+
+                }else if(event === "ftor"){
+                    
+                    this.flagReturnLocations.push({
+                        "timestamp": timestamp,
+                        "flagTeam": flagTeam,
+                        "location": location,
+                        "bTimedOut": true
+                    });
+                    
+                }else if(event === "fdl"){
+
+                    this.flagDropLocations.push({
+                        "timestamp": timestamp,
+                        "flagTeam": flagTeam,
+                        "location": location
+                    });
+                }
+            }
+
+            if(flagLocationReg.test(line)){
+
+                const result = flagLocationReg.exec(line);
+
+                console.log(result);
+
+                const flagTeam = parseInt(result[2]);
+
+                if(this.flags[flagTeam] !== undefined){
+
+                    const location = {
+                        "x": parseFloat(result[3]),
+                        "y": parseFloat(result[4]),
+                        "z": parseFloat(result[5])
+                    };
+
+                    this.flags[flagTeam].setFlagStandLocation(location);
+                }
+            }
+        }
+    }
+
     async parseData(matchStartTimestamp){
+
+        this.parseLocations();
 
         this.matchStartTimestamp = matchStartTimestamp;
 
@@ -519,17 +598,56 @@ class CTFManager{
         }
     }
 
+    getDropLocation(timestamp, flagTeam){
+
+        for(let i = 0; i < this.flagDropLocations.length; i++){
+
+            const d = this.flagDropLocations[i];
+
+            if(d.timestamp > timestamp) break;
+
+            if(d.timestamp === timestamp && d.flagTeam === flagTeam){
+                return d.location;
+            }
+        }
+
+        return null;
+    }
+
+    getDistanceToCapping(playerTeam, targetLocation){
+
+        if(this.flags[playerTeam] === undefined) return null;
+
+        const flag = this.flags[playerTeam];
+
+        const distanceX = flag.flagStand.x - targetLocation.x;
+        const distanceY = flag.flagStand.y - targetLocation.y;
+        const distanceZ = flag.flagStand.z - targetLocation.z;
+
+        return Math.hypot(distanceX, distanceY, distanceZ);
+    }
+
     async dropAllFlags(player, timestamp){
+
 
         for(let i = 0; i < this.flags.length; i++){
 
-            const flag = this.flags[i];
+            const flag = this.flags[i];           
 
             if(flag.carriedBy === player.masterId){
 
+                const currentTeam = this.playerManager.getPlayerTeamAt(player.masterId, timestamp);
                 console.log(`${player.name} dropped the ${i} flag`);
 
-                await flag.dropped(timestamp);
+                const dropLocation = this.getDropLocation(timestamp, i);
+
+                let distanceToCap = 0;
+
+                if(dropLocation !== null){
+                    distanceToCap = this.getDistanceToCapping(currentTeam, dropLocation);
+                }
+
+                await flag.dropped(timestamp, dropLocation, distanceToCap);
 
                 const lastTimestamp = player.getCTFNewLastTimestamp("dropped");
                 const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);
