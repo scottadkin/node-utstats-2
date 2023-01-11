@@ -41,12 +41,12 @@ event ReceiveLocalizedMessage( class<LocalMessage> Message, optional int Switch,
 			}
 		}
 		
-		if(Switch == 3){
+		/*if(Switch == 3){
 			
 			flag = CTFFlag(OptionalObject);
 			currentMessage = "ftor" $ Chr(9) $flag.Team $ Chr(9) $ flag.Location.x $ "," $ flag.Location.y $ "," $ flag.Location.z;
 			LogEvent(currentMessage);
-		}
+		}*/
 	}
 }
 
