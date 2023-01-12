@@ -461,7 +461,7 @@ class CTFManager{
                     "z": parseFloat(result[6]),
                 };
 
-                if(event === "frl"){
+                /*if(event === "frl"){
 
                     this.flagReturnLocations.push({
                         "timestamp": timestamp,
@@ -479,7 +479,8 @@ class CTFManager{
                         "bTimedOut": true
                     });
                     
-                }else if(event === "fdl"){
+                }else*/
+                if(event === "fdl"){
 
                     this.flagDropLocations.push({
                         "timestamp": timestamp,
@@ -507,6 +508,7 @@ class CTFManager{
                 }
             }
         }
+
     }
 
     async parseData(matchStartTimestamp){
@@ -612,10 +614,12 @@ class CTFManager{
 
             if(d.timestamp > timestamp) break;
 
-            if(d.timestamp === timestamp && d.flagTeam === flagTeam){
+            if(d.flagTeam === flagTeam && d.timestamp === timestamp){
                 return d.location;
             }
         }
+
+        new Message(`CTFManager.getDropLocation() Didnt find drop location`,"warning");
 
         return {"x": 0, "y": 0, "z": 0};
     }
@@ -642,16 +646,13 @@ class CTFManager{
             if(flag.carriedBy === player.masterId){
 
                 const currentTeam = this.playerManager.getPlayerTeamAt(player.masterId, timestamp);
-                console.log(`${player.name} dropped the ${i} flag`);
 
                 const dropLocation = this.getDropLocation(timestamp, i);
 
                 let distanceToCap = 0;
 
-                if(dropLocation !== null){
-                    distanceToCap = this.getDistanceToCapping(currentTeam, dropLocation);
-                }
-
+                distanceToCap = this.getDistanceToCapping(currentTeam, dropLocation);
+               
                 await flag.dropped(timestamp, dropLocation, distanceToCap);
 
                 const lastTimestamp = player.getCTFNewLastTimestamp("dropped");

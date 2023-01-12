@@ -46,6 +46,7 @@ import ErrorMessage from '../../components/ErrorMessage';
 import ErrorPage from '../ErrorPage';
 import MatchKillsMatchUp from '../../components/MatchKillsMatchUp';
 import MatchCTFCarryTime from '../../components/MatchCTFCarryTime';
+import MatchCTFReturns from '../../components/MatchCTFReturns';
 
 
 class Match extends React.Component{
@@ -256,12 +257,21 @@ class Match extends React.Component{
                     <div className="default">
 
                     {titleElem}
+
+                    <MatchCTFReturns 
+                        matchId={this.state.info.id}
+                        playerData={this.state.playerNames} 
+                        totalTeams={this.state.info.total_teams}
+                        matchStart={this.state.info.start}
+                    />
+
                     <MatchCTFCaps 
                         matchId={this.state.info.id} 
                         playerData={this.state.playerNames} 
                         totalTeams={this.state.info.total_teams}
                         matchStart={this.state.info.start}
                     />
+                    
                     <MatchCTFSummary matchId={this.state.info.id} playerData={this.state.playerData} />
                     <MatchCTFCarryTime matchId={this.state.info.id} players={this.state.playerNames}/>
                             

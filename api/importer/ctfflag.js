@@ -108,6 +108,7 @@ class CTFFlag{
         await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
 
         await this.processReturn(timestamp, -1);
+        
         await this.reset(false);
     }
 
@@ -501,6 +502,7 @@ class CTFFlag{
             return this.drops[this.drops.length - 1];
         }
  
+        new Message("DROP NOT FOUUUUUUUUUUUMND","error");
         return {"distanceToCap": -1, "dropLocation": {"x": 0, "y": 0, "z": 0} };
 
     }
@@ -518,8 +520,6 @@ class CTFFlag{
         const {deaths, suicides} = this.getTotalDeaths();
 
         const lastDropInfo = this.getLastDropInfo();
-
-        console.log(lastDropInfo);
 
         await this.ctfManager.insertReturn(
             this.matchId, 

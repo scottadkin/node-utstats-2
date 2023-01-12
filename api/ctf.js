@@ -252,8 +252,6 @@ class CTF{
             totalSuicides
         ];
 
-        console.log(vars);
-
         return await mysql.simpleQuery(query, vars);
 
     }
@@ -456,6 +454,14 @@ class CTF{
         const query = `SELECT id,cap_id,flag_team,player_id,player_team,start_time,end_time,carry_time,carry_percent 
         FROM nstats_ctf_carry_times
         WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY start_time ASC`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
+
+    async getMatchReturns(matchId){
+
+        const query = "SELECT * FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time ASC";
 
         return await mysql.simpleQuery(query, [matchId]);
     }

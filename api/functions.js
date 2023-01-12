@@ -741,6 +741,8 @@ class Functions{
 
         if(seconds === 0) return "None";
 
+        const miliSeconds = seconds % 1;
+
         const rSeconds = Math.floor(seconds % 60);
         const secondString = Functions.plural(rSeconds, "Second");
 
@@ -779,12 +781,13 @@ class Functions{
 
             }else{
 
-                return `${rSeconds} ${secondString}`;
+                if(rSeconds > 0){
+                    return `${rSeconds} ${secondString}`;
+                }
+
+                return `${Math.floor(miliSeconds * 1000)} ms`;
             }
         }
-
-        return ":thinking:";
-        //return `${hours}horus (${rMinutes}), ${rSeconds} secs`
     }
 
 }
