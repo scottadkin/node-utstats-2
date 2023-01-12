@@ -15,6 +15,7 @@ event ReceiveLocalizedMessage( class<LocalMessage> Message, optional int Switch,
 
 	local string currentMessage;
 	local Pawn Owner;
+	local CTFFlag Flag;
 
 	
 	if(Message == class'CTFMessage'){
@@ -23,10 +24,12 @@ event ReceiveLocalizedMessage( class<LocalMessage> Message, optional int Switch,
 		
 			if(RelatedPRI_1.HasFlag != None){
 			
+				Flag = CTFFlag(RelatedPRI_1.HasFlag);
+			
 				Owner = Pawn(RelatedPRI_1.Owner);
 				
 				if(Owner != None){
-					currentMessage = "fdl" $ Chr(9) $ Owner.Location.x $ "," $ Owner.Location.y $ "," $ Owner.Location.z;	
+					currentMessage = "fdl" $ Chr(9) $ Flag.Team $ Chr(9) $ Owner.Location.x $ "," $ Owner.Location.y $ "," $ Owner.Location.z;	
 				}
 				
 				LogEvent(currentMessage);
