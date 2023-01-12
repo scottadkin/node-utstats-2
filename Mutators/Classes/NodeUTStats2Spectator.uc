@@ -13,9 +13,7 @@ function LogEvent(string Message){
 event ReceiveLocalizedMessage( class<LocalMessage> Message, optional int Switch, optional PlayerReplicationInfo RelatedPRI_1, optional PlayerReplicationInfo RelatedPRI_2, optional Object OptionalObject )
 {
 
-	local CTFFlag flag;
 	local string currentMessage;
-	local TeamInfo tInfo;
 	local Pawn Owner;
 
 	
@@ -26,7 +24,6 @@ event ReceiveLocalizedMessage( class<LocalMessage> Message, optional int Switch,
 			if(RelatedPRI_1.HasFlag != None){
 			
 				Owner = Pawn(RelatedPRI_1.Owner);
-				flag = CTFFlag(RelatedPRI_1.HasFlag);
 				
 				if(Owner != None){
 					currentMessage = "fdl" $ Chr(9) $ Owner.Location.x $ "," $ Owner.Location.y $ "," $ Owner.Location.z;	
