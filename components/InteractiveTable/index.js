@@ -1,56 +1,67 @@
-import React from "react";
+import {React, useState, useEffect} from "react";
 import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";
 import Link from "next/link";
 import TableHeader from "../TableHeader";
 import MouseOver from "../MouseOver";
 
-class InteractiveTable extends React.Component{
 
-    constructor(props){
+const InteractiveTable = (props) =>{
 
-        super(props);
+    const [orderBy, setOrderBy] = useState(null);
+    const [bAsc, setbAsc] = useState(true);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [displayPerPage, setDisplayPerPage] = useState(5);
 
-        this.state = {
-            "orderBy": null, 
-            "bAsc": true,
-            "bDisplayMouseOver": false,
-            "mouseTitle": "",
-            "mouseContent": ""
-        };
 
-        this.hideMouseOver = this.hideMouseOver.bind(this);
-    }
+    useEffect(() =>{
 
-    hideMouseOver(){
-        this.setState({"bDisplayMouseOver": false});
-    }
+        console.log("render");
 
-    updateMouseOver(title, content){
-        this.setState({"mouseTitle": title, "mouseContent": content, "bDisplayMouseOver": true});
-    }
+        console.log(props.data.length);
 
-    changeOrder(orderBy){
+        let newTotalPages = 0;
+
+
+        if(props.data.length > 0 && displayPerPage > 0){
+            newTotalPages = Math.ceil(props.data.length / displayPerPage);
+        }
         
-        if(orderBy === this.state.orderBy){
-            this.setState({"bAsc": !this.state.bAsc});
+        setTotalPages(newTotalPages);
+        console.log(`new total pages = ${newTotalPages} (${props.data.length} / ${displayPerPage})`);
+
+
+    }, [props.headers, props.data]);
+
+
+    const changeOrder = (newOrderBy) =>{
+        
+        
+        if(orderBy === newOrderBy){
+
+            const newOrdering = !bAsc;
+            setbAsc(newOrdering);
+            console.log("chnage asc");
         }else{
-            this.setState({"orderBy": orderBy});
+            console.log("change order");
+            setOrderBy(newOrderBy);
+            setCurrentPage(0);
         }
     }
 
-    renderHeaders(){
+    const renderHeaders = () =>{
 
         const headers = [];
 
-        for(const [key, value] of Object.entries(this.props.headers)){
+        for(const [key, value] of Object.entries(props.headers)){
 
             const type = typeof value;
 
             if(type === "string"){
 
                 headers.push(<th className={`pointer`} key={key} onClick={(() =>{
-                    this.changeOrder(key);
+                    changeOrder(key);
                 })}>
                     {value}
                 </th>);
@@ -65,7 +76,7 @@ class InteractiveTable extends React.Component{
 
                 headers.push(<th className={`pointer`} key={key} 
                 onClick={(() =>{
-                    this.changeOrder(key);
+                    changeOrder(key);
                 })}>
                     <MouseOver title={title} display={value.content}>{value.title}</MouseOver>
                 </th>);
@@ -77,23 +88,22 @@ class InteractiveTable extends React.Component{
         return <tr>{headers}</tr>
     }
 
-    renderData(){
+    const renderData = () =>{
 
         const rows = [];
 
-        const data = [...this.props.data];
+        const data = [...props.data];
 
-        if(this.state.orderBy !== null){
+        if(orderBy !== null){
 
             data.sort((a, b) =>{
 
-                a = a[this.state.orderBy].value;
-                b = b[this.state.orderBy].value;
-
+                a = a[orderBy].value;
+                b = b[orderBy].value;
 
                 if(a < b){
 
-                    if(this.state.bAsc){
+                    if(bAsc){
                         return -1;
                     }else{
                         return 1;
@@ -102,7 +112,7 @@ class InteractiveTable extends React.Component{
 
                 if(a > b){
                     
-                    if(this.state.bAsc){
+                    if(bAsc){
                         return 1;
                     }else{
                         return -1;
@@ -114,8 +124,15 @@ class InteractiveTable extends React.Component{
         }
 
         let lastRow = null;
+
+        const start = currentPage * displayPerPage;
+        let end = data.length;
+
+        if(start + displayPerPage < data.length){
+            end = start + displayPerPage;
+        }
         
-        for(let i = 0; i < data.length; i++){
+        for(let i = start; i < end; i++){
 
             const d = data[i];
 
@@ -126,7 +143,7 @@ class InteractiveTable extends React.Component{
                 continue;
             }
 
-            for(const key of Object.keys(this.props.headers)){
+            for(const key of Object.keys(props.headers)){
 
                 let value = null;
 
@@ -156,37 +173,58 @@ class InteractiveTable extends React.Component{
 
             const columns = [];
 
-            for(const key of Object.keys(this.props.headers)){
+            for(const key of Object.keys(props.headers)){
 
                 let value = lastRow[key].value;
 
                 columns.push(<td className={styles.totals} key={`last-${key}`}>{value}</td>);
-                 
+                    
             }
 
             rows.push(<tr key={"last"}>{columns}</tr>);
         }
 
-        return rows;
+        return rows;     
     }
 
-    render(){
+    const changePage = (bNext) =>{
 
-        let tableTitle = null;
+        if(bNext){
 
-        if(this.props.title !== undefined){
-            tableTitle = <TableHeader width={this.props.width}>{this.props.title}</TableHeader>
+            if(currentPage + 1 >= totalPages) return;
+
+            const nextPage = currentPage + 1;
+            setCurrentPage(nextPage);
+
+        }else{
+
+            if(currentPage - 1 < 0) return;
+
+            const previousPage = currentPage - 1;
+            setCurrentPage(previousPage);
         }
-
-        return <div className={styles.wrapper}>
-            {tableTitle}
-            <Table2 width={this.props.width}>
-                {this.renderHeaders()}
-                {this.renderData()}
-            </Table2>
-            
-        </div>
+       
     }
+
+    let tableTitle = null;
+
+    if(props.title !== undefined){
+        tableTitle = <TableHeader width={props.width}>{props.title}</TableHeader>
+    }
+
+    return <div className={styles.wrapper}>
+        {tableTitle}
+        <div>
+            Display page {currentPage + 1} out of {totalPages}
+        </div>
+        <span onClick={() =>{ changePage(false)}}>Previous</span>
+        <span onClick={() =>{ changePage(true)}}>Next</span>
+        <Table2 width={props.width}>
+            {renderHeaders()}
+            {renderData()}
+        </Table2>  
+    </div>
 }
+
 
 export default InteractiveTable;

@@ -109,10 +109,9 @@ const MatchCTFReturns = (props) =>{
             const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player);
             const returnPlayer = Functions.getPlayer(props.playerData, r.return_player);
 
-
             data.push({
-                "grab_time": {"value": r.grab_time, "displayValue": Functions.MMSS(r.grab_time)},
-                "return_time": {"value": r.return_time, "displayValue": Functions.MMSS(r.return_time)},
+                "grab_time": {"value": r.grab_time, "displayValue": Functions.MMSS(r.grab_time - props.matchStart)},
+                "return_time": {"value": r.return_time, "displayValue": Functions.MMSS(r.return_time - props.matchStart)},
                 "travel_time": {"value": r.travel_time, "displayValue": Functions.toPlaytime(r.travel_time), "className": "playtime"},
                 "time_dropped": {"value": r.drop_time, "displayValue": Functions.toPlaytime(r.drop_time), "className": "playtime"},
                 "total_drops": {"value": r.total_drops, "displayValue": r.total_drops},
