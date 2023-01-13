@@ -86,7 +86,7 @@ class CTFFlag{
         this.lastDroppedLocation = null;
     }
 
-    async returned(timestamp, playerId){
+    async returned(timestamp, playerId, smartCTFLocation){
 
         //this.debugSeals("RETURNED");
 
@@ -94,7 +94,7 @@ class CTFFlag{
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "returned", this.team);
 
-        await this.processReturn(timestamp, playerId);
+        await this.processReturn(timestamp, playerId, smartCTFLocation);
 
         await this.reset(false);
     }
@@ -507,7 +507,7 @@ class CTFFlag{
 
     }
 
-    async processReturn(timestamp, playerId){
+    async processReturn(timestamp, playerId, smartCTFLocation){
 
         const carryTime = this.getTotalCarryTime();
 
@@ -530,6 +530,7 @@ class CTFFlag{
             this.takenPlayer, 
             timestamp, 
             playerId, 
+            smartCTFLocation,
             lastDropInfo.distanceToCap,
             lastDropInfo.dropLocation,
             travelTime, 

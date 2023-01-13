@@ -131,6 +131,7 @@ const queries = [
         grab_player int NOT NULL,
         return_time float NOT NULL,
         return_player int NOT NULL,
+        return_string VARCHAR(60) NOT NULL,
         distance_to_cap float NOT NULL,
         pos_x float NOT NULL,
         pos_y float NOT NULL,

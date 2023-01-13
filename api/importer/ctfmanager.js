@@ -16,8 +16,18 @@ class CTFManager{
 
         this.flagDropLocations = [];
         this.flagReturnLocations = [];
+        this.smartCTFReturnInfo = [];
 
         this.flags = [];
+
+        this.returnTypes = [
+            "flag_returned", 
+            "flag_return_mid",
+            "flag_return_base",
+            "flag_return_enemybase",
+            "flag_return_closesave",
+            "flag_returned_timeout"
+        ];
 
         this.ctf = new CTF();
     }
@@ -243,7 +253,9 @@ class CTFManager{
             this.processFlagCovers(flagTeam, true);
             this.processFlagSeals(flagTeam, true);
 
-            await this.flags[flagTeam].returned(timestamp, player.masterId);
+            const smartCTFInfo = this.getSmartCTFReturnString(timestamp, flagTeam);
+
+            await this.flags[flagTeam].returned(timestamp, player.masterId, smartCTFInfo);
         }
 
         if(type === "return_closesave"){
@@ -511,20 +523,59 @@ class CTFManager{
 
     }
 
+    getSmartCTFReturnString(timestamp, flagTeam){
+
+        for(let i = 0; i < this.smartCTFReturnInfo.length; i++){
+
+            const info = this.smartCTFReturnInfo[i];
+
+            if(info.timestamp > timestamp) break;
+
+            if(info.timestamp === timestamp && info.flagTeam === flagTeam){
+                return info.string;
+            }
+        }
+
+        return "N/A";
+    }
+
+    parseSmartCTFReturns(){
+
+        const reg = /^(\d+?\.\d+?)\tflag_(return.+?)\t\d+?\t(\d+)$/i
+
+        for(let i = 0; i < this.lines.length; i++){
+
+            const line = this.lines[i];
+
+            const result = reg.exec(line);
+
+            if(result !== null){
+
+                //always gets logged with smartCTF returns
+                if(result[2] === "returned") continue;
+
+                const timestamp = parseFloat(result[1]);
+                const flagTeam = parseInt(result[3]);
+                const locationString = result[2];
+
+                this.smartCTFReturnInfo.push({
+                    "timestamp": timestamp,
+                    "flagTeam": flagTeam,
+                    "string": locationString
+                });
+            }
+        }
+
+        console.log(this.smartCTFReturnInfo);
+    }
+
     async parseData(matchStartTimestamp){
 
+        
+        this.parseSmartCTFReturns();
         this.parseLocations();
 
         this.matchStartTimestamp = matchStartTimestamp;
-
-        const returnTypes = [
-            "flag_returned", 
-            "flag_return_mid",
-            "flag_return_base",
-            "flag_return_enemybase",
-            "flag_return_closesave",
-            "flag_returned_timeout"
-        ];
 
    
         for(let i = 0; i < this.lines.length; i++){
@@ -566,7 +617,7 @@ class CTFManager{
                 await this.createFlagTaken(timestamp, line);
             }
 
-            if(returnTypes.indexOf(eventType) !== -1){
+            if(this.returnTypes.indexOf(eventType) !== -1){
                 await this.createFlagReturned(timestamp, line);
             }
 
