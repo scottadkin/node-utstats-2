@@ -6,22 +6,6 @@ import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 
-/*class MatchCTFReturns extends React.Component{
-
-    constructor(props){
-
-        super(props);
-    }
-
-    render(){
-
-        return <div>
-            <div className="default-header">Capture The Flag Returns</div>
-        </div>
-    }
-}*/
-
-
 const MatchCTFReturns = (props) =>{
 
     const [returnData, setReturnData] = useState(null);
@@ -77,6 +61,28 @@ const MatchCTFReturns = (props) =>{
     }, [props.matchId]);
 
 
+    function smartCTFString(string){
+
+        const reg = /^return_(.+)$/i;
+
+        const result = reg.exec(string);
+
+        if(result === null) return string;
+
+        const remaining = result[1];
+
+        if(remaining === "closesave"){
+            return "Close Save!";
+        }else if(remaining === "mid"){
+            return "Middle";
+        }else if(remaining === "base"){
+            return "Home Base";
+        }else if(remaining === "enemybase"){
+            return "Enemy Base";
+        }
+
+        return string;
+    }
 
     function renderBasicTable(){
 
@@ -90,7 +96,8 @@ const MatchCTFReturns = (props) =>{
             "total_drops": "Times Dropped",
             "grab_player": "Grab Player",
             "return_player": "Return Player",
-            "distance_to_cap": "Distance To Cap"
+            "distance_to_cap": "Distance To Cap",
+            "smartctf_info": "SmartCTF Info"
         };
 
         const data = [];
@@ -130,6 +137,10 @@ const MatchCTFReturns = (props) =>{
                 "distance_to_cap": {
                     "value": r.distance_to_cap,
                     "displayValue": r.distance_to_cap.toFixed(2)
+                },
+                "smartctf_info": {
+                    "value": r.distance_to_cap,
+                    "displayValue": smartCTFString(r.return_string)
                 }
             });
         }
