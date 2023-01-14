@@ -22,3 +22,33 @@
 .totals{
     background-color:var(--color-3);
 }
+
+.pagination{
+    font-size:14px;
+    background-color:var(--color-1);
+    padding:5px;
+}
+
+.p-info{
+
+    font-size:12px;
+    display:inline-block;
+    padding:5px 10px;
+    color:var(--color-6);
+}
+
+.p-button{
+    display:inline-block;
+    padding:5px;
+    background-color:var(--color-2);
+    user-select:none;
+    border:1px solid var(--border-color-3);
+    transition:all 0.3s;
+    
+}
+
+.p-button:hover{
+    cursor:pointer;
+    background-color:var(--color-4);
+    color:yellow;
+}

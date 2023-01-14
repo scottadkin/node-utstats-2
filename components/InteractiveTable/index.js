@@ -12,25 +12,18 @@ const InteractiveTable = (props) =>{
     const [bAsc, setbAsc] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [displayPerPage, setDisplayPerPage] = useState(5);
+    const [displayPerPage, setDisplayPerPage] = useState((props.perPage !== undefined) ? props.perPage : 50);
 
 
     useEffect(() =>{
 
-        console.log("render");
-
-        console.log(props.data.length);
-
         let newTotalPages = 0;
-
 
         if(props.data.length > 0 && displayPerPage > 0){
             newTotalPages = Math.ceil(props.data.length / displayPerPage);
         }
         
         setTotalPages(newTotalPages);
-        console.log(`new total pages = ${newTotalPages} (${props.data.length} / ${displayPerPage})`);
-
 
     }, [props.headers, props.data]);
 
@@ -39,9 +32,7 @@ const InteractiveTable = (props) =>{
         
         
         if(orderBy === newOrderBy){
-
-            const newOrdering = !bAsc;
-            setbAsc(newOrdering);
+            setbAsc((bAsc) => {return !bAsc});
             console.log("chnage asc");
         }else{
             console.log("change order");
@@ -192,18 +183,28 @@ const InteractiveTable = (props) =>{
         if(bNext){
 
             if(currentPage + 1 >= totalPages) return;
-
-            const nextPage = currentPage + 1;
-            setCurrentPage(nextPage);
+            setCurrentPage(currentPage => { return currentPage + 1});
 
         }else{
 
             if(currentPage - 1 < 0) return;
-
-            const previousPage = currentPage - 1;
-            setCurrentPage(previousPage);
+            setCurrentPage(currentPage => { return currentPage - 1});
         }
        
+    }
+
+
+    const renderPagination = () =>{
+
+        if(totalPages < 2) return null;
+
+        return <div className={`${styles.pagination} t-width-${props.width} center`}>
+            <div>
+                <div className={styles["p-button"]} onClick={() =>{ changePage(false)}}>Previous</div>
+                <div className={styles["p-info"]}>Display page {currentPage + 1} out of {totalPages}</div>     
+                <div className={styles["p-button"]} onClick={() =>{ changePage(true)}}>Next</div>
+            </div>
+        </div>
     }
 
     let tableTitle = null;
@@ -211,18 +212,17 @@ const InteractiveTable = (props) =>{
     if(props.title !== undefined){
         tableTitle = <TableHeader width={props.width}>{props.title}</TableHeader>
     }
+    
+    console.log("render");
 
     return <div className={styles.wrapper}>
         {tableTitle}
-        <div>
-            Display page {currentPage + 1} out of {totalPages}
-        </div>
-        <span onClick={() =>{ changePage(false)}}>Previous</span>
-        <span onClick={() =>{ changePage(true)}}>Next</span>
-        <Table2 width={props.width}>
+        {renderPagination()}
+        <Table2 width={props.width} noBottomMargin={(totalPages > 1) ? true : false}>
             {renderHeaders()}
             {renderData()}
         </Table2>  
+        {renderPagination()}
     </div>
 }
 

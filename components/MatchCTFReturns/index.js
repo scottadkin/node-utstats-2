@@ -145,7 +145,7 @@ const MatchCTFReturns = (props) =>{
         }
 
 
-        return <InteractiveTable width={1} headers={headers} data={data}/>
+        return <InteractiveTable width={1} headers={headers} data={data} perPage={10}/>
     }
 
 
