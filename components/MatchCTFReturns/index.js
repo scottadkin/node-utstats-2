@@ -5,6 +5,7 @@ import InteractiveTable from "../InteractiveTable";
 import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
+import styles from "./MatchCTFReturns.module.css";
 
 const MatchCTFReturns = (props) =>{
 
@@ -61,7 +62,7 @@ const MatchCTFReturns = (props) =>{
     }, [props.matchId]);
 
 
-    function smartCTFString(string){
+    function getSmartCTFString(string){
 
         const reg = /^return_(.+)$/i;
 
@@ -72,7 +73,7 @@ const MatchCTFReturns = (props) =>{
         const remaining = result[1];
 
         if(remaining === "closesave"){
-            return "Close Save!";
+            return "Close Save";
         }else if(remaining === "mid"){
             return "Middle";
         }else if(remaining === "base"){
@@ -89,15 +90,20 @@ const MatchCTFReturns = (props) =>{
         if(returnData === null) return null;
 
         const headers = {
-            "grab_time": "Grab Time",
-            "return_time": "Return Time",
+            "grab_time": "Grabbed",
+            "return_time": "Returned",
             "travel_time": "Travel Time",
             "time_dropped": "Time Dropped",
             "total_drops": "Times Dropped",
+            "total_deaths": "Deaths",
+            "total_pickups": "Pickups",
+            "total_covers": "Covers",
+            "total_self_covers": "Self Covers",
             "grab_player": "Grab Player",
             "return_player": "Return Player",
             "distance_to_cap": "Distance To Cap",
-            "smartctf_info": "SmartCTF Info"
+            
+            //"smartctf_info": "SmartCTF Info"
         };
 
         const data = [];
@@ -108,6 +114,16 @@ const MatchCTFReturns = (props) =>{
 
             const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player);
             const returnPlayer = Functions.getPlayer(props.playerData, r.return_player);
+
+            let smartCTFString = getSmartCTFString(r.return_string);
+
+            let suicideElem = null;
+
+            if(r.total_suicides > 0){
+                suicideElem = <span className={styles["smart-ctf-string"]}>
+                    ({r.total_suicides} {Functions.plural(r.total_suicides,"Suicide")})
+                </span>;
+            }
 
             data.push({
                 "grab_time": {"value": r.grab_time, "displayValue": Functions.MMSS(r.grab_time - props.matchStart)},
@@ -135,12 +151,23 @@ const MatchCTFReturns = (props) =>{
                 },
                 "distance_to_cap": {
                     "value": r.distance_to_cap,
-                    "displayValue": r.distance_to_cap.toFixed(2)
+                    "displayValue": <>{r.distance_to_cap.toFixed(2)} <span className={styles["smart-ctf-string"]}>({smartCTFString})</span></>
                 },
-                "smartctf_info": {
+                "total_deaths": {
+                    "value": r.total_deaths,
+                    "displayValue": <>{Functions.ignore0(r.total_deaths)} {suicideElem}</>
+                },
+                "total_pickups": {"value": r.total_pickups, "displayValue": Functions.ignore0(r.total_pickups)},
+                "total_covers": {"value": r.total_covers, "displayValue": Functions.ignore0(r.total_covers)},
+                "total_self_covers": {"value": r.total_self_covers, "displayValue": Functions.ignore0(r.total_self_covers)},
+                /*"total_suicides": {
+                    "value": r.total_suicides,
+                    "displayValue": Functions.ignore0(r.total_suicides)
+                },*/
+                /*"smartctf_info": {
                     "value": r.distance_to_cap,
                     "displayValue": smartCTFString(r.return_string)
-                }
+                }*/
             });
         }
 

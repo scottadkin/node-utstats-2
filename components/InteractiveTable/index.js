@@ -25,7 +25,7 @@ const InteractiveTable = (props) =>{
         
         setTotalPages(newTotalPages);
 
-    }, [props.headers, props.data]);
+    }, [props.headers, props.data, displayPerPage]);
 
 
     const changeOrder = (newOrderBy) =>{
