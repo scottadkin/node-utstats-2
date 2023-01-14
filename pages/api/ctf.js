@@ -413,7 +413,9 @@ export default async function handler(req, res){
 
             }else if(mode === "match-returns"){
 
-                const data = await ctfManager.getMatchReturns(matchId);
+               // const data = await ctfManager.getMatchReturns(matchId);
+                
+                const data = await ctfManager.getMatchDetailedReturns(matchId);
 
                 res.status(200).json({
                     "data": data

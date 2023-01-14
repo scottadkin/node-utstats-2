@@ -266,11 +266,11 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, victimId){
+    async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
 
-        const query = "INSERT INTO nstats_ctf_covers VALUES(NULL,?,?,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_ctf_covers VALUES(NULL,?,?,?,?,?,?,?,?)";
 
-        const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, victimId];
+        const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId];
 
         return await mysql.simpleQuery(query, vars);
     }
@@ -428,6 +428,14 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    async getMatchFailedCovers(matchId){
+
+        const query = `SELECT id,timestamp,killer_id,victim_id,killer_team FROM nstats_ctf_covers
+        WHERE match_id=? AND cap_id=-1 ORDER BY timestamp ASC`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
     async getMatchSelfCovers(matchId, bOnlyCapped){
 
         const extra = " AND cap_id!=-1";
@@ -465,6 +473,44 @@ class CTF{
         const query = "SELECT * FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time ASC";
 
         return await mysql.simpleQuery(query, [matchId]);
+    }
+
+    getCoversInRange(covers, team, start, end){
+
+        console.log(`Looking for covers ${start} -> ${end} with killerTeam = ${team}`);
+
+        const found = [];
+
+        for(let i = 0; i < covers.length; i++){
+
+            const c = covers[i];
+
+            if(c.timestamp < start) continue;
+            if(c.timestamp > end) break;
+
+            if(c.killer_team === team){
+                found.push(c);
+            }
+        }
+
+        return found;
+    }
+
+    async getMatchDetailedReturns(matchId){
+
+        const returns = await this.getMatchReturns(matchId);
+        const covers = await this.getMatchFailedCovers(matchId);
+        
+        console.table(covers);
+
+        for(let i = 0; i < returns.length; i++){
+
+            const r = returns[i];
+            r.coverData = this.getCoversInRange(covers, r.flag_team, r.grab_time, r.return_time);
+        }
+
+
+        return returns;
     }
 
     async insertEvent(match, timestamp, player, event, team){

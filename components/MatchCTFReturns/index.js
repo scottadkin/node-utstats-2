@@ -6,6 +6,8 @@ import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import styles from "./MatchCTFReturns.module.css";
+import MouseOver from "../MouseOver";
+import Table2 from "../Table2";
 
 const MatchCTFReturns = (props) =>{
 
@@ -85,6 +87,33 @@ const MatchCTFReturns = (props) =>{
         return string;
     }
 
+    const createCoversData = (covers) =>{
+
+        if(covers.length === 0) return null;
+
+        const rows = [];
+
+        for(let i = 0; i < covers.length; i++){
+
+            const c = covers[i];
+
+            const killer = Functions.getPlayer(props.playerData, c.killer_id);
+            const victim = Functions.getPlayer(props.playerData, c.victim_id);
+
+            rows.push(<tr key={c.id}>
+                <td className="playtime">{Functions.MMSS(c.timestamp - props.matchStart)}</td>
+                <td><CountryFlag country={killer.country}/>{killer.name}</td>
+                <td>Killed</td>
+                <td><CountryFlag country={victim.country}/>{victim.name}</td>
+            </tr>);
+
+        }
+
+        return <Table2 width={0}>
+            {rows}
+        </Table2>
+    }
+
     function renderBasicTable(){
 
         if(returnData === null) return null;
@@ -93,8 +122,8 @@ const MatchCTFReturns = (props) =>{
             "grab_time": "Grabbed",
             "return_time": "Returned",
             "travel_time": "Travel Time",
-            "time_dropped": "Time Dropped",
-            "total_drops": "Times Dropped",
+            "time_dropped": "Dropped Time",
+            "total_drops": "Drops",
             "total_deaths": "Deaths",
             "total_pickups": "Pickups",
             "total_covers": "Covers",
@@ -102,8 +131,6 @@ const MatchCTFReturns = (props) =>{
             "grab_player": "Grab Player",
             "return_player": "Return Player",
             "distance_to_cap": "Distance To Cap",
-            
-            //"smartctf_info": "SmartCTF Info"
         };
 
         const data = [];
@@ -126,7 +153,11 @@ const MatchCTFReturns = (props) =>{
             }
 
             data.push({
-                "grab_time": {"value": r.grab_time, "displayValue": Functions.MMSS(r.grab_time - props.matchStart)},
+                "grab_time": {
+                    "value": r.grab_time, 
+                    "displayValue": Functions.MMSS(r.grab_time - props.matchStart),
+                    "className": Functions.getTeamColor(r.flag_team)
+                },
                 "return_time": {"value": r.return_time, "displayValue": Functions.MMSS(r.return_time - props.matchStart)},
                 "travel_time": {"value": r.travel_time, "displayValue": Functions.toPlaytime(r.travel_time), "className": "playtime"},
                 "time_dropped": {"value": r.drop_time, "displayValue": Functions.toPlaytime(r.drop_time), "className": "playtime"},
@@ -156,18 +187,17 @@ const MatchCTFReturns = (props) =>{
                 "total_deaths": {
                     "value": r.total_deaths,
                     "displayValue": <>{Functions.ignore0(r.total_deaths)} {suicideElem}</>
+                 
                 },
                 "total_pickups": {"value": r.total_pickups, "displayValue": Functions.ignore0(r.total_pickups)},
-                "total_covers": {"value": r.total_covers, "displayValue": Functions.ignore0(r.total_covers)},
+                "total_covers": {
+                    "value": r.total_covers, 
+                    "displayValue": <MouseOver title="Covers" display={createCoversData(r.coverData)}>
+                    <>{Functions.ignore0(r.total_covers)}</>
+                </MouseOver>
+                },
                 "total_self_covers": {"value": r.total_self_covers, "displayValue": Functions.ignore0(r.total_self_covers)},
-                /*"total_suicides": {
-                    "value": r.total_suicides,
-                    "displayValue": Functions.ignore0(r.total_suicides)
-                },*/
-                /*"smartctf_info": {
-                    "value": r.distance_to_cap,
-                    "displayValue": smartCTFString(r.return_string)
-                }*/
+
             });
         }
 

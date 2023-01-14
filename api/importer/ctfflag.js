@@ -96,7 +96,7 @@ class CTFFlag{
 
         await this.processReturn(timestamp, playerId, smartCTFLocation);
 
-        await this.reset(false);
+        await this.reset(false, -1);
     }
 
     async timedOutReturn(timestamp){
@@ -107,9 +107,9 @@ class CTFFlag{
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
 
-        await this.processReturn(timestamp, -1);
+        await this.processReturn(timestamp, -1, "timeout");
         
-        await this.reset(false);
+        await this.reset(false, -1);
     }
 
     async taken(timestamp, playerId){
@@ -117,12 +117,17 @@ class CTFFlag{
         //just in case some data isn't reset
         //await this.reset(true);
 
+        if(this.covers.length > 0){
+            new Message(`CTFFlag.taken() this.covers is not empty.`,"warning");
+        }
+
         this.bDropped = false;
         this.bAtBase = false;
         this.carriedBy = playerId;
         this.takenTimestamp = timestamp;
         this.lastCarriedTimestamp = timestamp;
         this.takenPlayer = playerId;
+        this.covers = [];
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "taken", this.team);
     }
@@ -168,7 +173,7 @@ class CTFFlag{
         this.covers.push({
             "timestamp": timestamp,
             "killerId": killerId,
-            "victimId": victimId
+            "victimId": victimId,
         });
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "cover", this.team);
@@ -303,7 +308,17 @@ class CTFFlag{
         for(let i = 0; i < this.covers.length; i++){
 
             const c = this.covers[i];
-            await this.ctfManager.insertCover(this.matchId, this.matchDate, this.mapId, capId, c.timestamp, c.killerId, c.victimId);
+
+            await this.ctfManager.insertCover(
+                this.matchId, 
+                this.matchDate, 
+                this.mapId, 
+                capId, 
+                c.timestamp, 
+                c.killerId, 
+                this.team,
+                c.victimId
+            );
         }
     }
 

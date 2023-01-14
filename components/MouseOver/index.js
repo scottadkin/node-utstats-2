@@ -20,7 +20,7 @@ function MouseOver({children, display, title}){
 
         setMarinTop(bounds.height + 10);
 
-        let mouseBoxWidth = 200;
+        let mouseBoxWidth = 500;
 
         if(mouseRef.current !== null){
             const mouseBounds = mouseRef.current.getBoundingClientRect();
