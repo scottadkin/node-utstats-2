@@ -50,8 +50,6 @@ class CTFFlag{
 
     async reset(bFailed, capId){
 
-        console.log(this.deaths);
-
         if(capId === undefined) capId = -1;
         //this.debugSeals("RESET");
 
@@ -110,6 +108,10 @@ class CTFFlag{
 
         //just in case some data isn't reset
         //await this.reset(true);
+
+        if(this.deaths.length > 0){
+            new Message(`CTFFlag.taken() this.deaths is not empty.`, "warning");
+        }
 
         if(this.covers.length > 0){
             new Message(`CTFFlag.taken() this.covers is not empty.`,"warning");
@@ -549,10 +551,6 @@ class CTFFlag{
         const {deaths, suicides} = this.getTotalDeaths();
 
         const lastDropInfo = this.getLastDropInfo();
-
-        console.log("-----------------------insert return-------------------------");
-        console.log(this.covers);
-        console.log(this.covers.length);
 
         await this.ctfManager.insertReturn(
             this.matchId, 

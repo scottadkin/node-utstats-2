@@ -222,9 +222,9 @@ const MatchCTFReturns = (props) =>{
                     "displayValue": <>{r.distance_to_cap.toFixed(2)} <span className={styles["smart-ctf-string"]}>({smartCTFString})</span></>
                 },
                 "total_deaths": {
-                    "value": r.total_deaths + r.total_suicides,
+                    "value": r.total_deaths,
                     "displayValue": <MouseOver title="Deaths With Flag" display={createDeathsData(r.deathsData)}>
-                        {Functions.ignore0(r.total_deaths + r.total_suicides)} {suicideElem}
+                        {Functions.ignore0(r.total_deaths)} {suicideElem}
                     </MouseOver>
                  
                 },

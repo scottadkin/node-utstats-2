@@ -567,8 +567,10 @@ class CTF{
 
             r.deathsData = flagDeaths.filter((death) =>{
 
-                if(death.timestamp >= r.grab_time && death.timestamp <= r.return_time){
-                    return true;
+                if(death.victim_team !== r.flag_team){
+                    if(death.timestamp >= r.grab_time && death.timestamp <= r.return_time){
+                        return true;
+                    }
                 }
                 
                 return false;

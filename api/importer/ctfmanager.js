@@ -83,6 +83,22 @@ class CTFManager{
     }
 
 
+    getFlagsCarriedBy(playerId){
+
+        const carrying = [];
+
+        for(let i = 0; i < this.flags.length; i++){
+
+            const f = this.flags[i];
+
+            if(f.carriedBy === playerId){
+                carrying.push(f.team);
+            }
+        }
+
+        return carrying;
+    }
+
     async createNstatsFlagKill(timestamp, data){
 
         const killerId = parseInt(data[1]);
@@ -96,6 +112,8 @@ class CTFManager{
         const victim = this.playerManager.getPlayerById(victimId);
 
 
+        //
+
         if(killer !== null && victim !== null){
 
             if(killer.masterId === victim.masterId){     
@@ -107,16 +125,22 @@ class CTFManager{
 
                 const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
 
-                await this.flags[killerTeam].killed(
-                    timestamp, 
-                    killer.masterId, 
-                    killerTeam, 
-                    -1, 
-                    killerTeam, 
-                    0, 
-                    distanceToCap, 
-                    distanceToEnemyBase
-                );
+                const flagsInPossession = this.getFlagsCarriedBy(killer.masterId);
+
+                for(let i = 0; i < flagsInPossession.length; i++){
+
+                    await this.flags[flagsInPossession[i]].killed(
+                        timestamp, 
+                        killer.masterId, 
+                        killerTeam, 
+                        -1, 
+                        killerTeam, 
+                        0, 
+                        distanceToCap, 
+                        distanceToEnemyBase
+                    );
+                }
+     
 
             }else{
 
@@ -134,16 +158,22 @@ class CTFManager{
                 const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
                 const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
 
-                await this.flags[victimTeam].killed(
-                    timestamp, 
-                    killer.masterId, 
-                    killerTeam, 
-                    victim.masterId, 
-                    victimTeam, 
-                    killDistance, 
-                    distanceToCap, 
-                    distanceToEnemyBase
-                );
+                const flagsInPossession = this.getFlagsCarriedBy(victim.masterId);
+
+                for(let i = 0; i < flagsInPossession.length; i++){
+
+                    await this.flags[flagsInPossession[i]].killed(
+                        timestamp, 
+                        killer.masterId, 
+                        killerTeam, 
+                        victim.masterId, 
+                        victimTeam, 
+                        killDistance, 
+                        distanceToCap, 
+                        distanceToEnemyBase
+                    );
+                }
+               
             }
         }
     }
@@ -363,7 +393,6 @@ class CTFManager{
         killer.setCTFNewValue("cover", timestamp, totalDeaths);
 
         const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
-        console.log(`victimTeam = ${victimTeam}`);
 
         await this.flags[victimTeam].cover(timestamp, killer.masterId, victim.masterId);
 
