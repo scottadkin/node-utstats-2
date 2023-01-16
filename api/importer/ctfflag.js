@@ -48,22 +48,13 @@ class CTFFlag{
         this.flagStand = location;
     }
 
-    async reset(bCheckIfDropped, capId){
+    async reset(bFailed, capId){
 
         if(capId === undefined) capId = -1;
         //this.debugSeals("RESET");
 
-        if(bCheckIfDropped){
-
-            if(this.bDropped){
-
-                new Message(`Flag was dropped but not reset. Missing flag_returned_timeout event?`,"warning");
-                await this.ctfManager.insertEvent(this.matchId, -1, -1, "returned", this.team);
-            }
-        }
-
         await this.insertCovers(capId);
-        await this.processSelfCovers(false, capId);
+        await this.processSelfCovers(bFailed, capId);
         await this.insertSeals(capId);
         await this.insertCarryTimes(capId);
 
@@ -90,26 +81,26 @@ class CTFFlag{
 
         //this.debugSeals("RETURNED");
 
-        await this.processSelfCovers(true);
+        //await this.processSelfCovers(false, -1);
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "returned", this.team);
 
         await this.processReturn(timestamp, playerId, smartCTFLocation);
 
-        await this.reset(false, -1);
+        await this.reset(true, -1);
     }
 
     async timedOutReturn(timestamp){
 
         new Message(`new TIMED OUT REIUTRFIUESGOISUDOIGUDSOIGUDSI`,"error");
         //this.debugSeals("timedOutReturn");
-        await this.processSelfCovers(true);
+        //await this.processSelfCovers(false, -1);
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
 
         await this.processReturn(timestamp, -1, "timeout");
         
-        await this.reset(false, -1);
+        await this.reset(true, -1);
     }
 
     async taken(timestamp, playerId){
@@ -222,8 +213,17 @@ class CTFFlag{
                 player.stats.ctfNew.bestSingleSelfCover = killsWhileCarrying.length;
             }
 
+            const killerTeam = this.playerManager.getPlayerTeamAt(this.carriedBy, timestamp);
+
             player.setCTFNewValue("selfCover", timestamp, totalDeaths, killsWhileCarrying.length);
-            this.selfCovers.push({"player": this.carriedBy, "total": killsWhileCarrying.length, "timestamp": timestamp, "kills": killsWhileCarrying});
+            
+            this.selfCovers.push({
+                "player": this.carriedBy, 
+                "total": killsWhileCarrying.length, 
+                "timestamp": timestamp, 
+                "kills": killsWhileCarrying,
+                "killerTeam": killerTeam
+            });
         }
 
         this.carryTimes.push({
@@ -270,6 +270,7 @@ class CTFFlag{
                     capId, 
                     kill.timestamp, 
                     kill.killerId, 
+                    s.killerTeam,
                     kill.victimId
                 );
             }
@@ -535,6 +536,10 @@ class CTFFlag{
         const {deaths, suicides} = this.getTotalDeaths();
 
         const lastDropInfo = this.getLastDropInfo();
+
+        console.log("-----------------------insert return-------------------------");
+        console.log(this.covers);
+        console.log(this.covers.length);
 
         await this.ctfManager.insertReturn(
             this.matchId, 

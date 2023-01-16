@@ -109,7 +109,7 @@ const MatchCTFReturns = (props) =>{
 
         }
 
-        return <Table2 width={0}>
+        return <Table2 width={0} noBottomMargin={true}>
             {rows}
         </Table2>
     }
@@ -139,6 +139,8 @@ const MatchCTFReturns = (props) =>{
 
             const r = returnData[i];
 
+            console.log(r.total_self_covers, r.selfCoverData);
+
             const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player);
             const returnPlayer = Functions.getPlayer(props.playerData, r.return_player);
 
@@ -155,10 +157,9 @@ const MatchCTFReturns = (props) =>{
             data.push({
                 "grab_time": {
                     "value": r.grab_time, 
-                    "displayValue": Functions.MMSS(r.grab_time - props.matchStart),
-                    "className": Functions.getTeamColor(r.flag_team)
+                    "displayValue": `${Functions.MMSS(r.grab_time - props.matchStart)} unfixed=${r.grab_time}`
                 },
-                "return_time": {"value": r.return_time, "displayValue": Functions.MMSS(r.return_time - props.matchStart)},
+                "return_time": {"value": r.return_time, "displayValue": `${Functions.MMSS(r.return_time - props.matchStart)} unfixed=${r.return_time}`},
                 "travel_time": {"value": r.travel_time, "displayValue": Functions.toPlaytime(r.travel_time), "className": "playtime"},
                 "time_dropped": {"value": r.drop_time, "displayValue": Functions.toPlaytime(r.drop_time), "className": "playtime"},
                 "total_drops": {"value": r.total_drops, "displayValue": r.total_drops},
@@ -196,7 +197,12 @@ const MatchCTFReturns = (props) =>{
                     <>{Functions.ignore0(r.total_covers)}</>
                 </MouseOver>
                 },
-                "total_self_covers": {"value": r.total_self_covers, "displayValue": Functions.ignore0(r.total_self_covers)},
+                "total_self_covers": {
+                    "value": r.total_self_covers, 
+                    "displayValue": <MouseOver title="Self Covers" display={createCoversData(r.selfCoverData)}>
+                    <>{Functions.ignore0(r.total_self_covers)}</>
+                </MouseOver>
+                },
 
             });
         }

@@ -205,7 +205,6 @@ class CTFManager{
         this.processFlagSeals(flagTeam, true);
 
         await this.flags[flagTeam].timedOutReturn(timestamp);
-        return;
 
     }
 
@@ -337,7 +336,10 @@ class CTFManager{
 
         killer.setCTFNewValue("cover", timestamp, totalDeaths);
 
-        await this.flags[killerTeam].cover(timestamp, killer.masterId, victim.masterId);
+        const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
+        console.log(`victimTeam = ${victimTeam}`);
+
+        await this.flags[victimTeam].cover(timestamp, killer.masterId, victim.masterId);
 
     }
 
@@ -565,8 +567,6 @@ class CTFManager{
                 });
             }
         }
-
-        console.log(this.smartCTFReturnInfo);
     }
 
     async parseData(matchStartTimestamp){
@@ -809,14 +809,14 @@ class CTFManager{
 
                 const previousMultiTimestamp = player.getCTFNewLastTimestamp("coverMulti");
                 const totalMultiDeaths = this.killManager.getDeathsBetween(previousMultiTimestamp, lastTimestamp, playerId, false);
-                console.log(`Deaths since last multi cover ${totalMultiDeaths}`);
+                //console.log(`Deaths since last multi cover ${totalMultiDeaths}`);
                 player.setCTFNewValue("coverMulti", lastTimestamp, totalMultiDeaths);
                 //player.stats.ctfNew.coverMulti.lastTimestamp = lastTimestamp;
             }else if(currentFlagCovers > 3){
 
                 const previousSpreeTimestamp = player.getCTFNewLastTimestamp("coverSpree");
                 const totalSpreeDeaths = this.killManager.getDeathsBetween(previousSpreeTimestamp, lastTimestamp, playerId, false);
-                console.log(`Deaths since last spree cover ${totalSpreeDeaths}`);
+                //console.log(`Deaths since last spree cover ${totalSpreeDeaths}`);
                 player.setCTFNewValue("coverSpree", lastTimestamp, totalSpreeDeaths);
 
             }

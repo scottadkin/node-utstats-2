@@ -96,6 +96,7 @@ const queries = [
         cap_id int NOT NULL,
         timestamp float NOT NULL,
         killer_id int NOT NULL,
+        killer_team int NOT NULL,
         victim_id int NOT NULL,
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
       `CREATE TABLE IF NOT EXISTS nstats_ctf_seals (
