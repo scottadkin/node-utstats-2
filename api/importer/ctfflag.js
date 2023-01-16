@@ -50,9 +50,12 @@ class CTFFlag{
 
     async reset(bFailed, capId){
 
+        console.log(this.deaths);
+
         if(capId === undefined) capId = -1;
         //this.debugSeals("RESET");
 
+        await this.insertDeaths(capId);
         await this.insertCovers(capId);
         await this.processSelfCovers(bFailed, capId);
         await this.insertSeals(capId);
@@ -170,9 +173,19 @@ class CTFFlag{
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "cover", this.team);
     }
 
-    async killed(timestamp, killerId){
+    async killed(timestamp, killerId, killerTeam, victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase){
 
-        this.deaths.push({"timestamp": timestamp, "killerId": killerId});
+
+        this.deaths.push({
+            "timestamp": timestamp, 
+            "killerId": killerId,
+            "killerTeam": killerTeam,
+            "victimId": victimId,
+            "victimTeam": victimTeam,
+            "killDistance": killDistance,
+            "distanceToCap": distanceToCap,
+            "distanceToEnemyBase": distanceToEnemyBase,
+        });
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "killed", this.team);
     }
@@ -564,7 +577,29 @@ class CTFFlag{
             deaths, 
             suicides
         );
+    }
 
+    async insertDeaths(capId){
+
+        for(let i = 0; i < this.deaths.length; i++){
+
+            const d = this.deaths[i];
+
+            await this.ctfManager.insertFlagDeath(
+                this.matchId, 
+                this.matchDate, 
+                this.mapId, 
+                d.timestamp, 
+                capId,
+                d.killerId, 
+                d.killerTeam, 
+                d.victimId, 
+                d.victimTeam, 
+                d.killDistance, 
+                d.distanceToCap, 
+                d.distanceToEnemyBase        
+            );
+        }
     }
 }
 

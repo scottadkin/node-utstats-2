@@ -302,6 +302,30 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
+
+    async insertFlagDeath(matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
+        victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase){
+
+        const query = `INSERT INTO nstats_ctf_flag_deaths VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [
+            matchId, 
+            matchDate,
+            mapId, 
+            timestamp,
+            capId,
+            killerId, 
+            killerTeam, 
+            victimId, 
+            victimTeam, 
+            killDistance,
+            distanceToCap,
+            distanceToEnemyBase
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
     /*async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
         assistsTimes, carryIds, cap, 
         capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes){
@@ -467,6 +491,23 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    async getMatchFlagDeaths(matchId, include){
+
+        include = include.toLowerCase();
+
+        let query = `SELECT id,timestamp,cap_id,killer_id,killer_team,victim_id,victim_team,
+        kill_distance,distance_to_cap,distance_to_enemy_base
+        FROM nstats_ctf_flag_deaths WHERE match_id=?`;
+
+        if(include === "only-returns"){
+            query += " AND cap_id=-1";
+        }else if(include === "only-capped"){
+            query += " AND cap_id!=-1";
+        }
+
+        query += " ORDER BY timestamp ASC";
+        return await mysql.simpleQuery(query, [matchId]);
+    }
 
     async getMatchReturns(matchId){
 
@@ -516,16 +557,27 @@ class CTF{
         const returns = await this.getMatchReturns(matchId);
         const covers = await this.getMatchFailedCovers(matchId);
         const selfCovers = await this.getMatchFailedSelfCovers(matchId);
+        const flagDeaths = await this.getMatchFlagDeaths(matchId, "only-returns");
 
         for(let i = 0; i < returns.length; i++){
 
             const r = returns[i];
             r.coverData = this.getCoversInRange(covers, r.flag_team, r.grab_time, r.return_time, false);
             r.selfCoverData = this.getCoversInRange(selfCovers, r.flag_team, r.grab_time, r.return_time, true);
+
+            r.deathsData = flagDeaths.filter((death) =>{
+
+                if(death.timestamp >= r.grab_time && death.timestamp <= r.return_time){
+                    return true;
+                }
+                
+                return false;
+            });
         }
 
         return returns;
     }
+
 
     async insertEvent(match, timestamp, player, event, team){
 

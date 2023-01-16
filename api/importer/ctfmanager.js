@@ -98,13 +98,28 @@ class CTFManager{
 
         if(killer !== null && victim !== null){
 
-            if(killer.masterId === victim.masterId){        
+            if(killer.masterId === victim.masterId){     
+
                 new Message("flag suicide", "note");
 
                 killer.stats.ctf.suicide++;
                 killer.setCTFNewValue("suicide", null);
 
+                const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
+
+                await this.flags[killerTeam].killed(
+                    timestamp, 
+                    killer.masterId, 
+                    killerTeam, 
+                    -1, 
+                    killerTeam, 
+                    0, 
+                    distanceToCap, 
+                    distanceToEnemyBase
+                );
+
             }else{
+
                 killer.stats.ctf.kill++;
 
                 const lastTimestamp = killer.getCTFNewLastTimestamp("kill");
@@ -115,11 +130,22 @@ class CTFManager{
                 //const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
 
                 //await this.flags[killerTeam].killed(timestamp, killer.masterId);
+
+                const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
+                const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
+
+                await this.flags[victimTeam].killed(
+                    timestamp, 
+                    killer.masterId, 
+                    killerTeam, 
+                    victim.masterId, 
+                    victimTeam, 
+                    killDistance, 
+                    distanceToCap, 
+                    distanceToEnemyBase
+                );
             }
-
         }
-
-
     }
 
 
@@ -149,7 +175,7 @@ class CTFManager{
 
                 player.setCTFNewValue("kill", timestamp, totalDeaths);
 
-                player.stats.ctf.kill++;
+                //player.stats.ctf.kill++;
             }
         }
 

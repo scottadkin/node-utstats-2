@@ -114,7 +114,45 @@ const MatchCTFReturns = (props) =>{
         </Table2>
     }
 
-    function renderBasicTable(){
+    const createDeathsData = (data) =>{
+
+        if(data.length === 0) return null;
+
+        const rows = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            console.log(data[i]);
+
+            const d = data[i];
+
+            const killer = Functions.getPlayer(props.playerData, d.killer_id);
+
+            let victim = null;
+
+            if(d.victim_id === -1){
+                victim = killer;
+            }else{
+                victim = Functions.getPlayer(props.playerData, d.victim_id);
+            }
+
+            const killerFlag = <CountryFlag country={killer.flag}/>
+            const victimFlag = <CountryFlag country={victim.flag}/>
+
+            rows.push(<tr key={d.id}>
+                <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
+                <td>{killerFlag}{killer.name}</td>
+                {(d.victim_id !== -1) ? <td>Killed</td> : <td colSpan="2">Suicide</td>}
+                {(d.victim_id !== -1) ? <td>{victimFlag}{victim.name}</td> : null}
+            </tr>);
+        }
+
+        return <Table2 width={0} noBottomMargin={true}>
+            {rows}
+        </Table2>
+    }
+
+    const renderBasicTable = () =>{
 
         if(returnData === null) return null;
 
@@ -138,8 +176,6 @@ const MatchCTFReturns = (props) =>{
         for(let i = 0; i < returnData.length; i++){
 
             const r = returnData[i];
-
-            console.log(r.total_self_covers, r.selfCoverData);
 
             const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player);
             const returnPlayer = Functions.getPlayer(props.playerData, r.return_player);
@@ -186,8 +222,10 @@ const MatchCTFReturns = (props) =>{
                     "displayValue": <>{r.distance_to_cap.toFixed(2)} <span className={styles["smart-ctf-string"]}>({smartCTFString})</span></>
                 },
                 "total_deaths": {
-                    "value": r.total_deaths,
-                    "displayValue": <>{Functions.ignore0(r.total_deaths)} {suicideElem}</>
+                    "value": r.total_deaths + r.total_suicides,
+                    "displayValue": <MouseOver title="Deaths With Flag" display={createDeathsData(r.deathsData)}>
+                        {Functions.ignore0(r.total_deaths + r.total_suicides)} {suicideElem}
+                    </MouseOver>
                  
                 },
                 "total_pickups": {"value": r.total_pickups, "displayValue": Functions.ignore0(r.total_pickups)},
