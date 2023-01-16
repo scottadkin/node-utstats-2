@@ -326,6 +326,28 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
+    async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location){
+
+        const query = `INSERT INTO nstats_flag_drops VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [
+            matchId,
+            matchDate,
+            mapId,
+            timestamp,
+            capId,
+            flagTeam,
+            playerId, 
+            playerTeam,
+            distanceToCap,
+            location.x,
+            location.y,
+            location.z
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
     /*async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
         assistsTimes, carryIds, cap, 
         capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes){
@@ -568,6 +590,7 @@ class CTF{
             r.deathsData = flagDeaths.filter((death) =>{
 
                 if(death.victim_team !== r.flag_team){
+
                     if(death.timestamp >= r.grab_time && death.timestamp <= r.return_time){
                         return true;
                     }

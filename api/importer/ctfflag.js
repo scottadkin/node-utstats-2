@@ -58,6 +58,7 @@ class CTFFlag{
         await this.processSelfCovers(bFailed, capId);
         await this.insertSeals(capId);
         await this.insertCarryTimes(capId);
+        await this.insertDrops(capId);
 
         this.bDropped = false;
         this.bAtBase = true;
@@ -141,7 +142,7 @@ class CTFFlag{
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "pickedup", this.team);
     }
 
-    async dropped(timestamp, dropLocation, distanceToCap){
+    async dropped(timestamp, dropLocation, distanceToCap, playerTeam){
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, this.carriedBy, "dropped", this.team);
 
@@ -156,6 +157,7 @@ class CTFFlag{
 
         this.drops.push({
             "playerId": this.carriedBy, 
+            "playerTeam": playerTeam,
             "timestamp": timestamp, 
             "dropLocation": dropLocation, 
             "distanceToCap": distanceToCap
@@ -596,6 +598,29 @@ class CTFFlag{
                 d.killDistance, 
                 d.distanceToCap, 
                 d.distanceToEnemyBase        
+            );
+        }
+    }
+
+    async insertDrops(capId){
+
+        // /insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location)
+
+        for(let i = 0; i < this.drops.length; i++){
+
+            const d = this.drops[i];
+
+            await this.ctfManager.insertDrop(
+                this.matchId,
+                this.matchDate,
+                this.mapId,
+                d.timestamp,
+                capId,
+                this.team,
+                d.playerId,
+                d.playerTeam,
+                d.distanceToCap,
+                d.dropLocation
             );
         }
     }

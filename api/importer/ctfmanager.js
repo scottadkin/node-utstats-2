@@ -745,13 +745,13 @@ class CTFManager{
 
     async dropAllFlags(player, timestamp){
 
+        const currentTeam = this.playerManager.getPlayerTeamAt(player.masterId, timestamp);
+
         for(let i = 0; i < this.flags.length; i++){
 
             const flag = this.flags[i];           
 
             if(flag.carriedBy === player.masterId){
-
-                const currentTeam = this.playerManager.getPlayerTeamAt(player.masterId, timestamp);
 
                 const dropLocation = this.getDropLocation(timestamp, i);
 
@@ -759,7 +759,7 @@ class CTFManager{
 
                 distanceToCap = this.getDistanceToCapping(currentTeam, dropLocation);
                
-                await flag.dropped(timestamp, dropLocation, distanceToCap);
+                await flag.dropped(timestamp, dropLocation, distanceToCap, currentTeam);
 
                 const lastTimestamp = player.getCTFNewLastTimestamp("dropped");
                 const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);

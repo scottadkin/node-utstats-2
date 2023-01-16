@@ -122,8 +122,6 @@ const MatchCTFReturns = (props) =>{
 
         for(let i = 0; i < data.length; i++){
 
-            console.log(data[i]);
-
             const d = data[i];
 
             const killer = Functions.getPlayer(props.playerData, d.killer_id);
@@ -144,6 +142,8 @@ const MatchCTFReturns = (props) =>{
                 <td>{killerFlag}{killer.name}</td>
                 {(d.victim_id !== -1) ? <td>Killed</td> : <td colSpan="2">Suicide</td>}
                 {(d.victim_id !== -1) ? <td>{victimFlag}{victim.name}</td> : null}
+                <td>{d.distance_to_enemy_base.toFixed(2)}</td>
+
             </tr>);
         }
 
