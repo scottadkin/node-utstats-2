@@ -152,6 +152,30 @@ const MatchCTFReturns = (props) =>{
         </Table2>
     }
 
+    const createDropData = (data) =>{
+
+        if(data.length === 0) return null;
+
+        const rows = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const player = Functions.getPlayer(props.playerData, d.player_id);
+
+            rows.push(<tr key={d.id}>
+                <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
+                <td><CountryFlag country={player.country}/>{player.name}</td>
+                <td>{d.distance_to_cap}</td>
+            </tr>);
+        }
+
+        return <Table2 width={0} noBottomMargin={true}>
+            {rows}
+        </Table2>
+    }
+
     const renderBasicTable = () =>{
 
         if(returnData === null) return null;
@@ -177,6 +201,8 @@ const MatchCTFReturns = (props) =>{
 
             const r = returnData[i];
 
+            console.log(r.flagDrops);
+
             const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player);
             const returnPlayer = Functions.getPlayer(props.playerData, r.return_player);
 
@@ -193,12 +219,14 @@ const MatchCTFReturns = (props) =>{
             data.push({
                 "grab_time": {
                     "value": r.grab_time, 
-                    "displayValue": `${Functions.MMSS(r.grab_time - props.matchStart)} unfixed=${r.grab_time}`
+                    "displayValue": Functions.MMSS(r.grab_time - props.matchStart)
                 },
-                "return_time": {"value": r.return_time, "displayValue": `${Functions.MMSS(r.return_time - props.matchStart)} unfixed=${r.return_time}`},
+                "return_time": {"value": r.return_time, "displayValue": Functions.MMSS(r.return_time - props.matchStart)},
                 "travel_time": {"value": r.travel_time, "displayValue": Functions.toPlaytime(r.travel_time), "className": "playtime"},
                 "time_dropped": {"value": r.drop_time, "displayValue": Functions.toPlaytime(r.drop_time), "className": "playtime"},
-                "total_drops": {"value": r.total_drops, "displayValue": r.total_drops},
+                "total_drops": {
+                    "value": r.total_drops, 
+                    "displayValue": <MouseOver title="Flag Drops" display={createDropData(r.flagDrops)}>{r.total_drops}</MouseOver>},
                 "grab_player": {
                     "value": grabPlayer.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${props.matchId}/?player=${grabPlayer.id}`}>

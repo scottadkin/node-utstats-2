@@ -328,7 +328,7 @@ class CTF{
 
     async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location){
 
-        const query = `INSERT INTO nstats_flag_drops VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_flag_drops VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -513,6 +513,12 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    /**
+     * 
+     * @param {Number} matchId 
+     * @param {String} include all, only-returns, only-capped
+     * @returns 
+     */
     async getMatchFlagDeaths(matchId, include){
 
         include = include.toLowerCase();
@@ -528,6 +534,32 @@ class CTF{
         }
 
         query += " ORDER BY timestamp ASC";
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
+    /**
+     * 
+     * @param {Number} matchId 
+     * @param {String} include all, only-returns, only-capped
+     * @returns 
+     */
+    async getMatchFlagDrops(matchId, include){
+
+        include = include.toLowerCase();
+
+        let query = `SELECT id,timestamp,cap_id,flag_team,player_id,player_team,distance_to_cap,
+        position_x,position_y,position_z 
+        FROM nstats_ctf_flag_drops 
+        WHERE match_id=?`;
+
+        if(include === "only-returns"){
+            query += " AND cap_id=-1";
+        }else if(include === "only-capped"){
+            query += " AND cap_id!=-1";
+        }
+
+        query += " ORDER BY timestamp ASC"
+
         return await mysql.simpleQuery(query, [matchId]);
     }
 
@@ -580,6 +612,8 @@ class CTF{
         const covers = await this.getMatchFailedCovers(matchId);
         const selfCovers = await this.getMatchFailedSelfCovers(matchId);
         const flagDeaths = await this.getMatchFlagDeaths(matchId, "only-returns");
+        const flagDrops = await this.getMatchFlagDrops(matchId, "only-returns");
+        
 
         for(let i = 0; i < returns.length; i++){
 
@@ -597,6 +631,19 @@ class CTF{
                 }
                 
                 return false;
+            });
+
+            r.flagDrops = flagDrops.filter((drop) =>{
+
+                if(drop.flag_team === r.flag_team){
+
+                    if(drop.timestamp >= r.grab_time && drop.timestamp <= r.return_time){
+                        return true;
+                    }
+                }
+                
+                return false;
+
             });
         }
 

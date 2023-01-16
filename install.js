@@ -166,7 +166,7 @@ const queries = [
         distance_to_cap float NOT NULL,
         distance_to_enemy_base float NOT NULL,
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-      `CREATE TABLE nstats_flag_drops (
+      `CREATE TABLE nstats_ctf_flag_drops (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
