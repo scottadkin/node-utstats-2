@@ -180,6 +180,7 @@ const queries = [
         position_x float NOT NULL,
         position_y float NOT NULL,
         position_z float NOT NULL,
+        time_dropped float NOT NULL,
         PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
       `CREATE TABLE nstats_ctf_flag_pickups (
         id int NOT NULL AUTO_INCREMENT,

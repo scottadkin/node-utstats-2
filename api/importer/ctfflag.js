@@ -40,6 +40,8 @@ class CTFFlag{
 
         this.lastDroppedLocation = null;
 
+        this.lastReturnTimestamp = null;
+
     }
 
 
@@ -78,6 +80,7 @@ class CTFFlag{
         this.takenPlayer = null;
         this.deaths = [];
         this.lastDroppedLocation = null;
+        this.lastReturnTimestamp = null;
     }
 
     async returned(timestamp, playerId, smartCTFLocation){
@@ -85,6 +88,8 @@ class CTFFlag{
         //this.debugSeals("RETURNED");
 
         //await this.processSelfCovers(false, -1);
+
+        this.lastReturnTimestamp = timestamp;
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "returned", this.team);
 
@@ -98,6 +103,8 @@ class CTFFlag{
         new Message(`new TIMED OUT REIUTRFIUESGOISUDOIGUDSOIGUDSI`,"error");
         //this.debugSeals("timedOutReturn");
         //await this.processSelfCovers(false, -1);
+
+        this.lastReturnTimestamp = timestamp;
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
 
@@ -600,11 +607,32 @@ class CTFFlag{
         }
     }
 
+
+    getTimeDropped(timestamp){
+
+        for(let i = 0; i < this.pickups.length; i++){
+
+            const p = this.pickups[i];
+
+            if(p.timestamp < timestamp) continue;
+
+            return p.timestamp - timestamp;
+        }
+
+        if(this.lastReturnTimestamp !== null){
+            return this.lastReturnTimestamp - timestamp;
+        }
+
+        return -1;
+    }
+
     async insertDrops(capId){
 
         for(let i = 0; i < this.drops.length; i++){
 
             const d = this.drops[i];
+
+            const currentTimeDropped = this.getTimeDropped(d.timestamp);
 
             await this.ctfManager.insertDrop(
                 this.matchId,
@@ -616,7 +644,8 @@ class CTFFlag{
                 d.playerId,
                 d.playerTeam,
                 d.distanceToCap,
-                d.dropLocation
+                d.dropLocation,
+                currentTimeDropped
             );
         }
     }

@@ -326,9 +326,10 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location){
+    async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
+        timeDropped){
 
-        const query = `INSERT INTO nstats_ctf_flag_drops VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_flag_drops VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -342,7 +343,8 @@ class CTF{
             distanceToCap,
             location.x,
             location.y,
-            location.z
+            location.z,
+            timeDropped
         ];
 
         return await mysql.simpleQuery(query, vars);
