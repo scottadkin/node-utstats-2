@@ -13,6 +13,7 @@ const InteractiveTable = (props) =>{
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [displayPerPage, setDisplayPerPage] = useState((props.perPage !== undefined) ? props.perPage : 50);
+    const [bDisplayAll, setbDisplayAll] = useState(false);
 
 
     useEffect(() =>{
@@ -116,12 +117,27 @@ const InteractiveTable = (props) =>{
 
         let lastRow = null;
 
-        const start = currentPage * displayPerPage;
-        let end = data.length;
+        let start = 0;
+        let end = 0;
 
-        if(start + displayPerPage < data.length){
-            end = start + displayPerPage;
+        if(!bDisplayAll){
+            start = currentPage * displayPerPage;
         }
+
+        if(!bDisplayAll){
+     
+            if(start + displayPerPage < data.length){
+                end = start + displayPerPage;
+            }else{
+                end = data.length;
+            }
+
+        }else{
+            end = data.length;
+        }
+
+        
+        
         
         for(let i = start; i < end; i++){
 
@@ -198,11 +214,25 @@ const InteractiveTable = (props) =>{
 
         if(totalPages < 2) return null;
 
+        if(bDisplayAll){
+
+            if(!bDisplayAll){
+                return null;
+            }
+
+            return <div className={`${styles.pagination} t-width-${props.width} center`}>
+            <div>
+            <div className={styles["p-button"]} onClick={() =>{ setbDisplayAll(false)}}>Display less</div>
+            </div>
+            </div>
+        }
+
         return <div className={`${styles.pagination} t-width-${props.width} center`}>
             <div>
                 <div className={styles["p-button"]} onClick={() =>{ changePage(false)}}>Previous</div>
                 <div className={styles["p-info"]}>Display page {currentPage + 1} out of {totalPages}</div>     
                 <div className={styles["p-button"]} onClick={() =>{ changePage(true)}}>Next</div>
+                <div className={styles["p-alt-button"]} onClick={() =>{ setbDisplayAll(true)}}>Display All</div>
             </div>
         </div>
     }

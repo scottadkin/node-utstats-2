@@ -14,6 +14,7 @@ const MatchCTFReturns = (props) =>{
     const [returnData, setReturnData] = useState(null);
     const [bLoading, setbLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [displayMode, setDisplayMode] = useState(0);
 
     useEffect(() =>{
 
@@ -213,6 +214,8 @@ const MatchCTFReturns = (props) =>{
 
     const renderBasicTable = () =>{
 
+        if(displayMode !== 0) return null;
+
         if(returnData === null) return null;
 
         const headers = {
@@ -311,16 +314,39 @@ const MatchCTFReturns = (props) =>{
             });
         }
 
-
         return <InteractiveTable width={1} headers={headers} data={data} perPage={10}/>
     }
 
+    /*const renderDetailed = () =>{
+
+        if(displayMode !== 1) return null;
+
+        if(returnData === null) return null;
+
+        const elems = [];
+
+        for(let i = 0; i < returnData.length; i++){
+
+            const r = returnData[i];
+
+            elems.push(<MatchCTFReturnDetailed 
+                key={r.id} 
+                data={r} 
+                playerData={props.playerData}
+                smartCTFString={getSmartCTFString(r.return_string)}
+                matchId={props.matchId}
+                matchStart={props.matchStart}
+            />);
+
+        }
+
+        return elems;
+    }*/
 
     return <div>
         <div className="default-header">Capture The Flag Returns</div>
         {(bLoading) ? <Loading /> : null}
         {(error !== null) ? <ErrorMessage title="CTF Returns" text={error}/> : null }
-
         {renderBasicTable()}
     </div>
 }

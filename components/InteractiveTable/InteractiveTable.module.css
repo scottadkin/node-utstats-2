@@ -43,12 +43,23 @@
     background-color:var(--color-2);
     user-select:none;
     border:1px solid var(--border-color-3);
-    transition:all 0.3s;
-    
+    transition:all 0.3s; 
+    font-size:12px;
 }
 
 .p-button:hover{
     cursor:pointer;
     background-color:var(--color-4);
     color:yellow;
+}
+
+.p-alt-button{
+    float:right;
+    padding:5px;
+    background-color:var(--color-2);
+    user-select:none;
+    border:1px solid var(--border-color-3);
+    transition:all 0.3s; 
+    font-size:12px;
+    
 }
