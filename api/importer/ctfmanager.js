@@ -427,7 +427,9 @@ class CTFManager{
 
         holder.setCTFNewValue("pickup", timestamp, totalDeaths);
 
-        await this.flags[flagTeam].pickedUp(timestamp, holder.masterId);
+        const holderTeam = this.playerManager.getPlayerTeamAt(holder.masterId, timestamp);
+
+        await this.flags[flagTeam].pickedUp(timestamp, holder.masterId, holderTeam);
     }
 
     async createFlagSeal(timestamp, line){

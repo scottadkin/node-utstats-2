@@ -59,6 +59,7 @@ class CTFFlag{
         await this.insertSeals(capId);
         await this.insertCarryTimes(capId);
         await this.insertDrops(capId);
+        await this.insertPickups(capId);
 
         this.bDropped = false;
         this.bAtBase = true;
@@ -129,13 +130,17 @@ class CTFFlag{
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "taken", this.team);
     }
 
-    async pickedUp(timestamp, playerId){
+    async pickedUp(timestamp, playerId, playerTeam){
 
         this.bDropped = false;
         this.bAtBase = false;
         this.carriedBy = playerId;
 
-        this.pickups.push({"timestamp": timestamp, "playerId": playerId});
+        this.pickups.push({
+            "timestamp": timestamp, 
+            "playerId": playerId,
+            "playerTeam": playerTeam
+        });
      
         this.lastCarriedTimestamp = timestamp;
 
@@ -359,15 +364,11 @@ class CTFFlag{
 
     async captured(timestamp, playerId){
 
-        //this.debugSeals("CAPTURED");
-
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
 
         const travelTime = timestamp - this.takenTimestamp;
 
         await this.setCarryTime(timestamp);
-
-       // console.log(this.carryTimes);
 
         const assistIds = new Set();
 
@@ -398,9 +399,6 @@ class CTFFlag{
             }
         }
 
-        
-
-        //insertAssist(matchId, matchDate, mapId, capId, playerId, pickupTime, droppedTime, carryTime)
         for(const playerId of assistIds){
 
             const player = this.playerManager.getPlayerByMasterId(playerId);
@@ -498,9 +496,6 @@ class CTFFlag{
                     carryPercent = (c.carryTime / totalCarryTime) * 100;
                 }
             }
-
-           //1443.38	flag_taken	5	1
-           //1460.79	flag_dropped	5	1
 
             await this.ctfManager.insertCarryTime(
                 this.matchId, 
@@ -604,8 +599,6 @@ class CTFFlag{
 
     async insertDrops(capId){
 
-        // /insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location)
-
         for(let i = 0; i < this.drops.length; i++){
 
             const d = this.drops[i];
@@ -621,6 +614,26 @@ class CTFFlag{
                 d.playerTeam,
                 d.distanceToCap,
                 d.dropLocation
+            );
+        }
+    }
+
+
+    async insertPickups(capId){
+
+        for(let i = 0; i < this.pickups.length; i++){
+
+            const p = this.pickups[i];
+
+            await this.ctfManager.insertPickup(
+                this.matchId, 
+                this.matchDate, 
+                this.mapId,
+                capId,
+                p.timestamp,
+                p.playerId,
+                p.playerTeam,
+                this.team
             );
         }
     }

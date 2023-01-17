@@ -167,7 +167,7 @@ const MatchCTFReturns = (props) =>{
             rows.push(<tr key={d.id}>
                 <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
                 <td><CountryFlag country={player.country}/>{player.name}</td>
-                <td>{d.distance_to_cap}</td>
+                <td>{d.distance_to_cap.toFixed(2)}</td>
             </tr>);
         }
 
