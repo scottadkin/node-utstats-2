@@ -111,6 +111,10 @@ class CTFFlag{
         //just in case some data isn't reset
         //await this.reset(true);
 
+        if(this.pickups.length > 0){
+            new Message(`CTFFlag.taken() this.pickups is not empty.`, "warning");
+        }   
+
         if(this.deaths.length > 0){
             new Message(`CTFFlag.taken() this.deaths is not empty.`, "warning");
         }
@@ -183,7 +187,6 @@ class CTFFlag{
     }
 
     async killed(timestamp, killerId, killerTeam, victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase){
-
 
         this.deaths.push({
             "timestamp": timestamp, 

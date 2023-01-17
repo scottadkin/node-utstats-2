@@ -581,6 +581,26 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    async getMatchFlagPickups(matchId, include){
+
+        include = include.toLowerCase();
+
+        let query = `SELECT id,timestamp,cap_id,flag_team,player_id,player_team 
+        FROM nstats_ctf_flag_pickups 
+        WHERE match_id=?`;
+
+        if(include === "only-returns"){
+            query += " AND cap_id=-1";
+        }else if(include === "only-capped"){
+            query += " AND cap_id!=-1";
+        }
+
+        query += " ORDER BY timestamp ASC"
+
+        return await mysql.simpleQuery(query, [matchId]);
+
+    }
+
     async getMatchReturns(matchId){
 
         const query = "SELECT * FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time ASC";
@@ -588,10 +608,9 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
-    getCoversInRange(covers, team, start, end, bSelfCovers){
+    filterFlagCovers(covers, team, start, end, bSelfCovers){
 
         const found = [];
-        
 
         for(let i = 0; i < covers.length; i++){
 
@@ -600,16 +619,18 @@ class CTF{
             if(c.timestamp < start) continue;
             if(c.timestamp > end) break;
 
-                if(!bSelfCovers){
-                    if(c.killer_team === team){
-                        found.push(c);
-                    }
-                }else{
-                    if(c.killer_team !== team){
-                        found.push(c);
-                    }
+            if(!bSelfCovers){
+
+                if(c.killer_team === team){
+                    found.push(c);
                 }
 
+            }else{
+                
+                if(c.killer_team !== team){
+                    found.push(c);
+                }
+            }
         }
 
         return found;
@@ -624,6 +645,62 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    filterFlagDeaths(deaths, returnData){
+
+        const found = [];
+
+        const r = returnData;
+
+        for(let i = 0; i < deaths.length; i++){
+
+            const d = deaths[i];
+
+            if(d.victim_team !== r.flag_team && d.timestamp >= r.grab_time && d.timestamp <= r.return_time){
+                found.push(d);     
+            }
+        }
+        return found;
+    }
+
+    filterFlagDrops(drops, returnData){
+        
+        const found = [];
+
+        const r = returnData;
+
+        for(let i = 0; i < drops.length; i++){
+            
+            const d = drops[i];
+
+            if(d.flag_team === r.flag_team){
+
+                if(d.timestamp >= r.grab_time && d.timestamp <= r.return_time){
+                    found.push(d);
+                }
+            }
+        }
+
+        return found;
+    }
+
+    filterFlagPickups(pickups, returnData){
+
+        const found = [];
+
+        const r = returnData;
+
+        for(let i = 0; i < pickups.length; i++){
+
+            const p = pickups[i];
+
+            if(p.timestamp >= r.grab_time && p.timestamp <= r.return_time && r.flag_team === p.flag_team){
+                found.push(p);
+            }
+        }
+
+        return found;
+    }
+
     async getMatchDetailedReturns(matchId){
 
         const returns = await this.getMatchReturns(matchId);
@@ -631,38 +708,16 @@ class CTF{
         const selfCovers = await this.getMatchFailedSelfCovers(matchId);
         const flagDeaths = await this.getMatchFlagDeaths(matchId, "only-returns");
         const flagDrops = await this.getMatchFlagDrops(matchId, "only-returns");
-        
+        const flagPickups = await this.getMatchFlagPickups(matchId, "only-returns");    
 
         for(let i = 0; i < returns.length; i++){
 
             const r = returns[i];
-            r.coverData = this.getCoversInRange(covers, r.flag_team, r.grab_time, r.return_time, false);
-            r.selfCoverData = this.getCoversInRange(selfCovers, r.flag_team, r.grab_time, r.return_time, true);
-
-            r.deathsData = flagDeaths.filter((death) =>{
-
-                if(death.victim_team !== r.flag_team){
-
-                    if(death.timestamp >= r.grab_time && death.timestamp <= r.return_time){
-                        return true;
-                    }
-                }
-                
-                return false;
-            });
-
-            r.flagDrops = flagDrops.filter((drop) =>{
-
-                if(drop.flag_team === r.flag_team){
-
-                    if(drop.timestamp >= r.grab_time && drop.timestamp <= r.return_time){
-                        return true;
-                    }
-                }
-                
-                return false;
-
-            });
+            r.coverData = this.filterFlagCovers(covers, r.flag_team, r.grab_time, r.return_time, false);
+            r.selfCoverData = this.filterFlagCovers(selfCovers, r.flag_team, r.grab_time, r.return_time, true);
+            r.deathsData = this.filterFlagDeaths(flagDeaths, r);
+            r.flagDrops = this.filterFlagDrops(flagDrops, r);
+            r.flagPickups = this.filterFlagPickups(flagPickups, r);
         }
 
         return returns;

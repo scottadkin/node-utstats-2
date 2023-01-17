@@ -176,6 +176,30 @@ const MatchCTFReturns = (props) =>{
         </Table2>
     }
 
+    const createPickupsData = (data) =>{
+
+        if(data.length === 0) return null;
+
+        const rows = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const player = Functions.getPlayer(props.playerData, d.player_id);
+
+            rows.push(<tr key={d.id}>
+                <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
+                <td><CountryFlag country={player.country}/>{player.name}</td>
+                <td>{d.flag_team}</td>
+            </tr>);
+        }
+
+        return <Table2 width={0} noBottomMargin={true}>
+            {rows}
+        </Table2>
+    }
+
     const renderBasicTable = () =>{
 
         if(returnData === null) return null;
@@ -200,8 +224,6 @@ const MatchCTFReturns = (props) =>{
         for(let i = 0; i < returnData.length; i++){
 
             const r = returnData[i];
-
-            console.log(r.flagDrops);
 
             const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player);
             const returnPlayer = Functions.getPlayer(props.playerData, r.return_player);
@@ -256,16 +278,21 @@ const MatchCTFReturns = (props) =>{
                     </MouseOver>
                  
                 },
-                "total_pickups": {"value": r.total_pickups, "displayValue": Functions.ignore0(r.total_pickups)},
+                "total_pickups": {
+                    "value": r.total_pickups, 
+                    "displayValue": <MouseOver title="Flag Pickups" display={createPickupsData(r.flagPickups)}>
+                        {Functions.ignore0(r.total_pickups)}
+                    </MouseOver>
+                },
                 "total_covers": {
                     "value": r.total_covers, 
-                    "displayValue": <MouseOver title="Covers" display={createCoversData(r.coverData)}>
+                    "displayValue": <MouseOver title="Flag Covers" display={createCoversData(r.coverData)}>
                     <>{Functions.ignore0(r.total_covers)}</>
                 </MouseOver>
                 },
                 "total_self_covers": {
                     "value": r.total_self_covers, 
-                    "displayValue": <MouseOver title="Self Covers" display={createCoversData(r.selfCoverData)}>
+                    "displayValue": <MouseOver title="Self Covers (Kills carrying flag)" display={createCoversData(r.selfCoverData)}>
                     <>{Functions.ignore0(r.total_self_covers)}</>
                 </MouseOver>
                 },
