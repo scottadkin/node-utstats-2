@@ -18,8 +18,6 @@ class Table2 extends React.Component{
 
         const playerClass = (this.props.players !== undefined) ? (this.props.players) ? "player-td-1" : "" : "";
 
-       // const noBottomMargin = (this.props.noBottomMargin !== undefined) ? true : false;
-
         let noBottomMargin = false;
 
         if(this.props.noBottomMargin !== undefined){

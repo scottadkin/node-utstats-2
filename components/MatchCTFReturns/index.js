@@ -55,7 +55,6 @@ const MatchCTFReturns = (props) =>{
 
         loadData();
         
-
         //clean up function
         return () => {
             //cancel any pending requests
@@ -140,14 +139,19 @@ const MatchCTFReturns = (props) =>{
             rows.push(<tr key={d.id}>
                 <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
                 <td>{killerFlag}{killer.name}</td>
-                {(d.victim_id !== -1) ? <td>Killed</td> : <td colSpan="2">Suicide</td>}
-                {(d.victim_id !== -1) ? <td>{victimFlag}{victim.name}</td> : null}
+                <td>{(d.victim_id !== -1) ? <>{victimFlag}{victim.name}</> : "Suicide"}</td> 
                 <td>{d.distance_to_enemy_base.toFixed(2)}</td>
 
             </tr>);
         }
 
         return <Table2 width={0} noBottomMargin={true}>
+            <tr>
+                <th>Timestamp</th>
+                <th>Killer</th>
+                <th>Victim</th>
+                <th>Distance to Cap</th>
+            </tr>
             {rows}
         </Table2>
     }
@@ -168,10 +172,17 @@ const MatchCTFReturns = (props) =>{
                 <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
                 <td><CountryFlag country={player.country}/>{player.name}</td>
                 <td>{d.distance_to_cap.toFixed(2)}</td>
+                <td>{d.time_dropped.toFixed(2)} Seconds</td>
             </tr>);
         }
 
         return <Table2 width={0} noBottomMargin={true}>
+            <tr>
+                <th>Timestamp</th>
+                <th>Player</th>
+                <th>Distance to Cap</th>
+                <th>Time Dropped</th>
+            </tr>
             {rows}
         </Table2>
     }

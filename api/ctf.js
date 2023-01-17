@@ -568,7 +568,7 @@ class CTF{
         include = include.toLowerCase();
 
         let query = `SELECT id,timestamp,cap_id,flag_team,player_id,player_team,distance_to_cap,
-        position_x,position_y,position_z 
+        position_x,position_y,position_z,time_dropped 
         FROM nstats_ctf_flag_drops 
         WHERE match_id=?`;
 

@@ -17,5 +17,11 @@
 
 .mc{
     font-size:12px;
-    padding:5px;
+    padding:3px;
+}
+
+
+.mo td{
+    font-size:12px;
+    padding:4px;
 }
