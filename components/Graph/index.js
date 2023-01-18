@@ -22,6 +22,7 @@ class GraphCanvas{
         this.tabOffset = 0;
 
         this.defaultWidth = 650;
+        this.scale = {"x": 1, "y": 1};
 
         this.currentTab = 0;
         this.bMultiTab = false;
@@ -126,8 +127,13 @@ class GraphCanvas{
 
         this.canvas.addEventListener("mousemove", (e) =>{
 
-            this.mouse.x = this.toPercent(e.offsetX, true);
-            this.mouse.y = this.toPercent(e.offsetY, false);
+            this.mouse.x = this.toPercent(e.offsetX, true);// * this.scale.x;
+            this.mouse.y = this.toPercent(e.offsetY, false);// * this.scale.y;
+
+            if(!this.bFullScreen){
+                this.mouse.x *= this.scale.x;
+                this.mouse.y *= this.scale.y;
+            }
 
             //console.log(this.mouse);
 
@@ -158,6 +164,12 @@ class GraphCanvas{
                     this.hoverTab();
                 }
             }
+
+            const bounds = this.canvas.getBoundingClientRect();
+            
+
+            this.scale.x = this.canvas.width / bounds.width;
+            this.scale.y = this.canvas.height / bounds.height;
 
             this.render();
             
@@ -1268,7 +1280,7 @@ const Graph = ({title, data, text, minValue, maxValue}) =>{
     });
     
 
-    return (<canvas className={styles.canvas} ref={canvas} width="100" height="100"></canvas>);
+    return <canvas className={styles.canvas} ref={canvas} width="100" height="100"></canvas>;
 }
 
 

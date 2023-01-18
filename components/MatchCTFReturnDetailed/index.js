@@ -15,8 +15,8 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
         const carryPercent = data.carry_time_percent;
 
         const parts = [
-            {"value": dropPercent, "name": "Drop Percent"},
-            {"value": carryPercent, "name": "Carry Percent"},
+            {"value": `${data.drop_time.toFixed(2)} Seconds`, "percent": dropPercent, "name": "Time Dropped"},
+            {"value": `${data.carry_time.toFixed(2)} Seconds`, "percent": carryPercent, "name": "Carry Time"},
         ];
 
 
@@ -24,7 +24,13 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
         setPieParts(parts);
 
         console.log("someting chagned");
-    }, [data.id]);
+    }, [
+        data.id, 
+        data.drop_time_percent, 
+        data.carry_time_percent,
+        data.drop_time,
+        data.carry_time
+    ]);
 
 
    
@@ -56,7 +62,7 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
             </div>
         </div>
 
-        <PieChart parts={pieParts}/>
+        <PieChart title="Flag Info" parts={pieParts}/>
       
     </div>
 }
