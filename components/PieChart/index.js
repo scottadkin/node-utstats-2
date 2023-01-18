@@ -1,10 +1,18 @@
 import {React, useEffect, useRef, useState} from "react";
 
 
-const PieChart = ({parts, title}) =>{
+const PieChart = ({parts, titles, tabs}) =>{
+
+    if(tabs === undefined){
+        tabs = [];
+    }
 
     const canvasRef = useRef(null);
-    const [infoText, setInfoText] = useState("");
+    const [mouse, setMouse] = useState({"x": -999, "y": -999});
+    const [currentTab, setCurrentTab] = useState(0);
+    //const [infoText, setInfoText] = useState("");
+
+    const tabsHeight = 15;
 
     const colors = [
         "rgb(255,0,0)",
@@ -31,11 +39,14 @@ const PieChart = ({parts, title}) =>{
         if(canvasRef === null) return;
         if(canvasRef.current === null) return;
 
+       // let tabsHeight = 0;
+
         const canvas = canvasRef.current;
         const c = canvas.getContext("2d", {"willReadFrequently": true});
 
         c.fillStyle = "black";
         c.fillRect(0,0, canvas.width, canvas.height);
+
 
         const percentToPixels = (bWidth, value) =>{
 
@@ -43,6 +54,8 @@ const PieChart = ({parts, title}) =>{
             const percent = sizeInPixels * 0.01;
             return  percent * value;
         }
+
+        const tabsHeightPercent = percentToPixels(false, tabsHeight);
 
         const percentToAngle = (value) =>{
 
@@ -56,8 +69,8 @@ const PieChart = ({parts, title}) =>{
 
         const drawChunk = (startAngle, endAngle, color) =>{
 
-            const centerX = percentToPixels(true, 78);
-            const centerY = percentToPixels(false, 50);
+            const centerX = percentToPixels(true, 82);
+            const centerY = percentToPixels(false, 45) + tabsHeightPercent;
 
             c.strokeStyle = color;
             c.fillStyle = color;
@@ -66,7 +79,7 @@ const PieChart = ({parts, title}) =>{
             c.arc(
                 centerX, 
                 centerY,
-                percentToPixels(false, 40),
+                percentToPixels(false, 37),
                 degreesToRadians(percentToAngle(startAngle)) ,
                 degreesToRadians(percentToAngle(startAngle + endAngle))
             );
@@ -76,20 +89,27 @@ const PieChart = ({parts, title}) =>{
 
         }
 
-        c.fillStyle = "white";
-        c.textBaseline = "top";
-        c.textAlign = "center";
-        c.font = `${percentToPixels(false, 9)}px Arial`;
-        c.fillText(title, percentToPixels(true, 50), percentToPixels(false, 3));
-    
+        
 
-        const keyTextOffset = {"x": 5, "y": 20};
+        const renderTitle = () =>{
+
+            c.fillStyle = "white";
+            c.textBaseline = "top";
+            c.textAlign = "center";
+            c.font = `${percentToPixels(false, 9)}px Arial`;
+            c.fillText(titles[currentTab], percentToPixels(true, 50), percentToPixels(false, 3) + tabsHeightPercent);
+        }
+
+
+        const keyTextOffset = {"x": 5, "y": 2 + tabsHeightPercent};
         
         
         const drawKey = (name, value, percent) =>{
 
-            const fontSize = 6.5;    
-            const textOffsetX = percentToPixels(true, 4);
+            const fontSize = 6;    
+            const percentOffset = percentToPixels(true, 5);
+            const nameOffset = percentToPixels(true, 17);
+            const valueOffset = percentToPixels(true, 43);
             
             c.textAlign = "left";
             c.font = `${percentToPixels(false, fontSize)}px Arial`;
@@ -98,91 +118,168 @@ const PieChart = ({parts, title}) =>{
             const y = percentToPixels(false, keyTextOffset.y);
 
             c.fillRect(x, y, percentToPixels(true, 3), percentToPixels(false, 5));
-    
-            const valueString = `${percent.toFixed(2)}% ${name}`;
-            const nameLength = c.measureText(`${valueString} `).width;
-            c.fillText(valueString, x + textOffsetX, y);
+
+
+            c.fillText(`${percent.toFixed(2)}%`, percentOffset, y);
+            c.fillText(name, nameOffset, y);
 
             c.font = `bold ${percentToPixels(false, fontSize)}px Arial`;
-            c.fillText(value, x + textOffsetX + nameLength, y);
+            c.fillText(value, valueOffset, y);
 
-            keyTextOffset.y += fontSize * 1.2;
+            keyTextOffset.y += fontSize * 1.4;
         }
 
-        
 
-        c.strokeStyle = "red";
-        c.fillStyle = "red";
-        
-        
+        const renderTabs = () =>{
 
-        
+            c.fillStyle = "orange";
+            c.fillRect(0, 0, canvas.width, tabsHeightPercent);
 
-       let currentAngle = 0;
+            const tabWidth = 100 / titles.length;
 
-        for(let i = 0; i < parts.length; i++){
-
-            const p = parts[i];
             
-            drawChunk(currentAngle, p.percent, colors[i % colors.length]);
-            currentAngle += p.percent;
-            c.fillStyle = colors[i % colors.length];
-            drawKey(p.name, p.value, p.percent);
+            c.lineWidth = "2px";
+            c.strokeStyle = "green";
+            c.textAlign = "center";
+
+            c.font = `${tabsHeightPercent * 0.8}px Arial`;
+
+            let offsetX = 0;
+
+            let bHovering = false;
+
+            for(let i = 0; i < titles.length; i++){
+
+                const x = percentToPixels(true, offsetX)
+                const y = 0;
+                const width = percentToPixels(true, tabWidth);
+
+                if(mouse.x >= x && mouse.x < x + width && mouse.y >= 0 && mouse.y <= tabsHeightPercent){
+                    c.fillStyle = "green";
+                    bHovering = true;
+                }else{
+                    c.fillStyle = "red";
+                }     
+
+                c.fillRect(x, y, width, tabsHeightPercent);
+                c.strokeRect(x, y, width, tabsHeightPercent);
+
+  
+                c.fillStyle = "black";
+
+                c.fillText(titles[i], x + (width * 0.5), percentToPixels(false, 1.6));
+
+                offsetX += tabWidth;
+            }
+
+            if(bHovering){
+                canvas.className = "hover";
+            }else{
+                canvas.className = "default-cursor";
+            }
         }
 
-        c.fillStyle = "white";
+    
+        const renderChunks = () =>{
 
-        c.fillText(infoText, percentToPixels(true, 5), percentToPixels(false, 90))
+            let currentAngle = 0;
 
-        //imageData = c.getImageData(0,0, canvas.width, canvas.height,);
-        //console.log(imageData);
+            for(let i = 0; i < parts[currentTab].length; i++){
+
+                const p = parts[currentTab][i];
+                
+                drawChunk(currentAngle, p.percent, colors[i % colors.length]);
+                currentAngle += p.percent;
+                c.fillStyle = colors[i % colors.length];
+                drawKey(p.name, p.value, p.percent);
+            }
+
+        }
+
+       
+
+
+        renderChunks();
+        renderTitle();
+        renderTabs();
+
+        //c.fillStyle = "white";
+
+        //c.fillText(infoText, percentToPixels(true, 5), percentToPixels(false, 90))
 
     }
 
 
     useEffect(() =>{
-        
-        const test = (e) =>{
 
-            if(canvasRef === null) return
+        const updateMousePosition = (e) =>{
 
             const bounds = canvasRef.current.getBoundingClientRect();
 
             const x = e.clientX - bounds.left;
             const y = e.clientY - bounds.top;
 
-            const data = canvasRef.current.getContext("2d").getImageData(x, y, 1, 1);
+            //mouse.x = x;
+            //mouse.y = y;
 
-            const red = data.data[0];
-            const green = data.data[1];
-            const blue = data.data[2];
-
-            const currentColor = `rgb(${red},${green},${blue})`;
-
-            setInfoText("");
-
-            console.log(currentColor);
-           
-
+            setMouse({"x": x, "y": y});
+            renderCanvas();
         }
 
-        /*const canvas = canvasRef.current;
+        const checkClickLocation = (e) =>{
 
-        if(canvasRef.current !== null){
-            canvasRef.current.addEventListener("mousemove", test);
+            const bounds = canvasRef.current.getBoundingClientRect();
+
+            const x = e.clientX - bounds.left;
+            const y = e.clientY - bounds.top;
+
+            const maxY = bounds.height * (tabsHeight * 0.01);
+
+            const tabWidth = bounds.width / titles.length;
+
+            if(y <= maxY){
+
+                for(let i = 0; i < titles.length; i++){
+
+                    const startX = tabWidth * i;
+                    const endX = startX + tabWidth;
+
+                    if(x >= startX && x < endX){
+                        console.log(`new tab = ${i}`);
+                        setCurrentTab(i);
+                        renderCanvas();
+                        return
+                    }
+                }
+            }
+
+            
         }
 
+        if(canvasRef !== null){
+            console.log("fart");
+            canvasRef.current.addEventListener("mousemove", updateMousePosition);
+            canvasRef.current.addEventListener("mousedown", checkClickLocation);
+        }
 
-        return () =>{
-            canvas.removeEventListener("mousemove", test);
-        }*/
-    }, [parts]);
+        let canvas = null;
+
+        if(canvasRef !== null){
+            canvas = canvasRef.current;
+        }
+
+        return () =>{    
+            canvas.removeEventListener("mousemove", updateMousePosition);
+            canvas.removeEventListener("mousedown", checkClickLocation);
+        }
+    
+    });
 
 
     renderCanvas();
 
     return <div>
-        <canvas ref={canvasRef} width={500} height={200}></canvas>
+        <canvas ref={canvasRef} width={450} height={200}></canvas>
     </div>
 }
 

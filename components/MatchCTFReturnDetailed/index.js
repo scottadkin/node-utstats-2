@@ -7,30 +7,49 @@ import PieChart from "../PieChart";
 
 const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matchStart}) =>{
 
-    const [pieParts, setPieParts] = useState([]);
+    const dropPercent = data.drop_time_percent;
+    const carryPercent = data.carry_time_percent;
 
-    useEffect(() =>{
+    const travelParts = [
+        {"value": `${data.drop_time.toFixed(2)} Seconds`, "percent": dropPercent, "name": "Time Dropped"},
+        {"value": `${data.carry_time.toFixed(2)} Seconds`, "percent": carryPercent, "name": "Carry Time"},
+    ];
+    
+    const createCoverParts = () =>{
 
-        const dropPercent = data.drop_time_percent;
-        const carryPercent = data.carry_time_percent;
+        const parts = [];
 
-        const parts = [
-            {"value": `${data.drop_time.toFixed(2)} Seconds`, "percent": dropPercent, "name": "Time Dropped"},
-            {"value": `${data.carry_time.toFixed(2)} Seconds`, "percent": carryPercent, "name": "Carry Time"},
-        ];
+        const coversByPlayer = {};
 
+        for(let i = 0; i < data.coverData.length; i++){
 
+            const c = data.coverData[i];
 
-        setPieParts(parts);
+            if(coversByPlayer[c.killer_id] === undefined){
+                coversByPlayer[c.killer_id] = 0;
+            }
 
-        console.log("someting chagned");
-    }, [
-        data.id, 
-        data.drop_time_percent, 
-        data.carry_time_percent,
-        data.drop_time,
-        data.carry_time
-    ]);
+            coversByPlayer[c.killer_id]++;
+        }
+
+        for(const [key, value] of Object.entries(coversByPlayer)){
+
+            const currentPlayer = Functions.getPlayer(playerData, key);
+
+            parts.push({
+                "value": `${value} ${Functions.plural(value, "Cover")}`, 
+                "percent": (value / data.total_covers) * 100, 
+                "name": currentPlayer.name
+            });
+        }
+
+        return parts;
+
+    }
+
+    const coverParts = createCoverParts();
+
+    
 
 
    
@@ -61,8 +80,12 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
                 <div className={styles.value}>{Functions.MMSS(data.return_time - matchStart)}</div>
             </div>
         </div>
-
-        <PieChart title="Flag Info" parts={pieParts}/>
+        <div>
+            <div>Carry Time</div>
+            <div>Carry Time</div>
+        </div>
+        <PieChart titles={["Flag Info", "Covers"]} parts={[travelParts, coverParts]}/>
+        
       
     </div>
 }
