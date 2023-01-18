@@ -66,7 +66,7 @@ const PieChart = ({parts, title}) =>{
             c.arc(
                 centerX, 
                 centerY,
-                percentToPixels(false, 35),
+                percentToPixels(false, 40),
                 degreesToRadians(percentToAngle(startAngle)) ,
                 degreesToRadians(percentToAngle(startAngle + endAngle))
             );
@@ -86,7 +86,7 @@ const PieChart = ({parts, title}) =>{
         const keyTextOffset = {"x": 5, "y": 20};
         
         
-        const drawKey = (name, value) =>{
+        const drawKey = (name, value, percent) =>{
 
             const fontSize = 6.5;    
             const textOffsetX = percentToPixels(true, 4);
@@ -99,8 +99,9 @@ const PieChart = ({parts, title}) =>{
 
             c.fillRect(x, y, percentToPixels(true, 3), percentToPixels(false, 5));
     
-            const nameLength = c.measureText(`${name} `).width;
-            c.fillText(name, x + textOffsetX, y);
+            const valueString = `${percent.toFixed(2)}% ${name}`;
+            const nameLength = c.measureText(`${valueString} `).width;
+            c.fillText(valueString, x + textOffsetX, y);
 
             c.font = `bold ${percentToPixels(false, fontSize)}px Arial`;
             c.fillText(value, x + textOffsetX + nameLength, y);
@@ -126,7 +127,7 @@ const PieChart = ({parts, title}) =>{
             drawChunk(currentAngle, p.percent, colors[i % colors.length]);
             currentAngle += p.percent;
             c.fillStyle = colors[i % colors.length];
-            drawKey(p.name, p.value);
+            drawKey(p.name, p.value, p.percent);
         }
 
         c.fillStyle = "white";
@@ -158,14 +159,14 @@ const PieChart = ({parts, title}) =>{
 
             const currentColor = `rgb(${red},${green},${blue})`;
 
-            setInfoText("fart");
+            setInfoText("");
 
             console.log(currentColor);
            
 
         }
 
-        const canvas = canvasRef.current;
+        /*const canvas = canvasRef.current;
 
         if(canvasRef.current !== null){
             canvasRef.current.addEventListener("mousemove", test);
@@ -174,7 +175,7 @@ const PieChart = ({parts, title}) =>{
 
         return () =>{
             canvas.removeEventListener("mousemove", test);
-        }
+        }*/
     }, [parts]);
 
 
