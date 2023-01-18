@@ -1,18 +1,33 @@
-import {React, useEffect} from "react";
+import {React, useEffect, useState} from "react";
 import styles from "./MatchCTFReturnDetailed.module.css";
 import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
+import PieChart from "../PieChart";
 
 const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matchStart}) =>{
 
+    const [pieParts, setPieParts] = useState([]);
 
     useEffect(() =>{
+
+        const dropPercent = data.drop_time_percent;
+        const carryPercent = data.carry_time_percent;
+
+        const parts = [
+            {"value": dropPercent, "name": "Drop Percent"},
+            {"value": carryPercent, "name": "Carry Percent"},
+        ];
+
+
+
+        setPieParts(parts);
 
         console.log("someting chagned");
     }, [data.id]);
 
 
+   
 
     const returnPlayer = Functions.getPlayer(playerData, data.return_player);
 
@@ -40,6 +55,8 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
                 <div className={styles.value}>{Functions.MMSS(data.return_time - matchStart)}</div>
             </div>
         </div>
+
+        <PieChart parts={pieParts}/>
       
     </div>
 }

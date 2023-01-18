@@ -8,13 +8,14 @@ import Link from "next/link";
 import styles from "./MatchCTFReturns.module.css";
 import MouseOver from "../MouseOver";
 import Table2 from "../Table2";
+import MatchCTFReturnDetailed from "../MatchCTFReturnDetailed";
 
 const MatchCTFReturns = (props) =>{
 
     const [returnData, setReturnData] = useState(null);
     const [bLoading, setbLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [displayMode, setDisplayMode] = useState(0);
+    const [displayMode, setDisplayMode] = useState(1);
 
     useEffect(() =>{
 
@@ -317,7 +318,7 @@ const MatchCTFReturns = (props) =>{
         return <InteractiveTable width={1} headers={headers} data={data} perPage={10}/>
     }
 
-    /*const renderDetailed = () =>{
+    const renderDetailed = () =>{
 
         if(displayMode !== 1) return null;
 
@@ -341,13 +342,14 @@ const MatchCTFReturns = (props) =>{
         }
 
         return elems;
-    }*/
+    }
 
     return <div>
         <div className="default-header">Capture The Flag Returns</div>
         {(bLoading) ? <Loading /> : null}
         {(error !== null) ? <ErrorMessage title="CTF Returns" text={error}/> : null }
         {renderBasicTable()}
+        {renderDetailed()}
     </div>
 }
 
