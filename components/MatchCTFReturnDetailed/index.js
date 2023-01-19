@@ -140,8 +140,8 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
             <div>Carry Time</div>
         </div>
         <PieChart 
-        titles={["Flag Info", "Covers", "Self Covers", "Flag Kills"]} 
-        parts={[travelParts, coverParts, selfCoverParts, flagKillParts]}/>
+        titles={["Flag Info", "Covers", "Self Covers", "Flag Kills", "Flfsfsag Kills"]} 
+        parts={[travelParts, coverParts, selfCoverParts, flagKillParts, flagKillParts]}/>
         
       
     </div>

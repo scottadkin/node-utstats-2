@@ -10,9 +10,12 @@ const PieChart = ({parts, titles, tabs}) =>{
     const canvasRef = useRef(null);
     const [mouse, setMouse] = useState({"x": -999, "y": -999});
     const [currentTab, setCurrentTab] = useState(0);
+    const [tabStartIndex, setTabStartIndex] = useState(0);
     //const [infoText, setInfoText] = useState("");
 
     const tabsHeight = 15;
+    const maxTabsAtOnce = 3;
+    const tabButtonWidth = 10;
 
     const colors = [
         "rgb(255,0,0)",
@@ -104,10 +107,10 @@ const PieChart = ({parts, titles, tabs}) =>{
         
         const drawKey = (name, value, percent) =>{
 
-            const fontSize = 6;    
+            const fontSize = 6.4;    
             const percentOffset = percentToPixels(true, 5);
             const nameOffset = percentToPixels(true, 17);
-            const valueOffset = percentToPixels(true, 43);
+            const valueOffset = percentToPixels(true, 40);
             
             c.textAlign = "left";
             c.font = `${percentToPixels(false, fontSize)}px Arial`;
@@ -133,7 +136,23 @@ const PieChart = ({parts, titles, tabs}) =>{
             c.fillStyle = "orange";
             c.fillRect(0, 0, canvas.width, tabsHeightPercent);
 
-            const tabWidth = 100 / titles.length;
+            let tabWidth = 0;
+            let tabXOffset = 0;
+            let tabsToDisplay = 0;
+
+            let bDisplayExtraButtons = false;
+
+            if(titles.length <= maxTabsAtOnce){
+
+                tabWidth = 100 / titles.length;
+                tabsToDisplay = titles.length;
+            }else{
+
+                tabWidth = (100 - (tabButtonWidth * 2)) / maxTabsAtOnce;
+                tabXOffset = tabButtonWidth;
+                tabsToDisplay = maxTabsAtOnce;
+                bDisplayExtraButtons = true;
+            }
 
             
             c.lineWidth = "2px";
@@ -142,13 +161,26 @@ const PieChart = ({parts, titles, tabs}) =>{
 
             c.font = `${tabsHeightPercent * 0.6}px Arial`;
 
+            if(bDisplayExtraButtons){
+                c.fillStyle = "blue";
+                c.fillText("<<", percentToPixels(true, tabButtonWidth * 0.5), 5);
+                c.fillText(">>", percentToPixels(true, 100 - (tabButtonWidth * 0.5)), 5);
+            }
+
             let offsetX = 0;
 
             let bHovering = false;
 
-            for(let i = 0; i < titles.length; i++){
+            const start = tabStartIndex;
+            let end = titles.length;
 
-                const x = percentToPixels(true, offsetX)
+            if(start + maxTabsAtOnce < end){
+                end = start + maxTabsAtOnce;
+            }
+
+            for(let i = start; i < end; i++){
+
+                const x = percentToPixels(true, offsetX + tabXOffset)
                 const y = 0;
                 const width = percentToPixels(true, tabWidth);
 
@@ -156,7 +188,12 @@ const PieChart = ({parts, titles, tabs}) =>{
                     c.fillStyle = "green";
                     bHovering = true;
                 }else{
-                    c.fillStyle = "red";
+
+                    if(i === currentTab){
+                        c.fillStyle = "pink";
+                    }else{
+                        c.fillStyle = "red";
+                    }
                 }     
 
                 c.fillRect(x, y, width, tabsHeightPercent);
@@ -225,20 +262,71 @@ const PieChart = ({parts, titles, tabs}) =>{
 
             const maxY = bounds.height * (tabsHeight * 0.01);
 
-            const tabWidth = bounds.width / titles.length;
+            let start = tabStartIndex;
+            let end = titles.length;
+
+            if(start + maxTabsAtOnce < end){
+                end = start + maxTabsAtOnce;
+            }
+
+            
+
+            let tabWidth = 0;
+            let startOffsetX = 0;
+            let remainingWidth = 0;
+
+            if(maxTabsAtOnce < titles.length){
+
+                //make room for the previous and next buttons
+                const widthWithoutButtons = 100 - (tabButtonWidth * 2);
+                remainingWidth = bounds.width * (widthWithoutButtons * 0.01)
+
+                tabWidth = remainingWidth / maxTabsAtOnce;
+                startOffsetX = (bounds.width - remainingWidth) * 0.5;
+
+            }else{
+                tabWidth = bounds.width / 100;
+            }
+
+            
 
             if(y <= maxY){
 
-                for(let i = 0; i < titles.length; i++){
+                if(titles.length > maxTabsAtOnce){
 
-                    const startX = tabWidth * i;
-                    const endX = startX + tabWidth;
-
-                    if(x >= startX && x < endX){
-                        setCurrentTab(i);
+                    if(x <= startOffsetX && tabStartIndex - 1 >= 0){
+                        setTabStartIndex(tabStartIndex - 1);    
                         bClicked = true;
                         return;
                     }
+
+                    if(x >= startOffsetX + remainingWidth && tabStartIndex < titles.length - maxTabsAtOnce){
+                        setTabStartIndex(tabStartIndex + 1);
+                        bClicked = true;
+                        return
+                    }
+                }
+
+
+                let currentTabIndex = 0;
+
+                for(let i = start; i < end; i++){
+
+                    const startX = startOffsetX + (tabWidth * currentTabIndex);
+                    const endX = startX + tabWidth;
+
+                    if(x >= startX && x < endX){
+                        console.log(`clicked ===== ${i}`);
+
+                        if(i !== currentTab){
+
+                            setCurrentTab(i);
+                            bClicked = true;
+                            return;
+                        }
+                        
+                    }
+                    currentTabIndex++;
                 }
             }  
         }
