@@ -39,8 +39,6 @@ const PieChart = ({parts, titles, tabs}) =>{
         if(canvasRef === null) return;
         if(canvasRef.current === null) return;
 
-       // let tabsHeight = 0;
-
         const canvas = canvasRef.current;
         const c = canvas.getContext("2d", {"willReadFrequently": true});
 
@@ -142,7 +140,7 @@ const PieChart = ({parts, titles, tabs}) =>{
             c.strokeStyle = "green";
             c.textAlign = "center";
 
-            c.font = `${tabsHeightPercent * 0.8}px Arial`;
+            c.font = `${tabsHeightPercent * 0.6}px Arial`;
 
             let offsetX = 0;
 
@@ -167,7 +165,7 @@ const PieChart = ({parts, titles, tabs}) =>{
   
                 c.fillStyle = "black";
 
-                c.fillText(titles[i], x + (width * 0.5), percentToPixels(false, 1.6));
+                c.fillText(titles[i], x + (width * 0.5), percentToPixels(false, 2.3));
 
                 offsetX += tabWidth;
             }
@@ -196,17 +194,10 @@ const PieChart = ({parts, titles, tabs}) =>{
 
         }
 
-       
-
-
+    
         renderChunks();
         renderTitle();
         renderTabs();
-
-        //c.fillStyle = "white";
-
-        //c.fillText(infoText, percentToPixels(true, 5), percentToPixels(false, 90))
-
     }
 
 
@@ -219,12 +210,11 @@ const PieChart = ({parts, titles, tabs}) =>{
             const x = e.clientX - bounds.left;
             const y = e.clientY - bounds.top;
 
-            //mouse.x = x;
-            //mouse.y = y;
-
             setMouse({"x": x, "y": y});
             renderCanvas();
         }
+
+        let bClicked = false;
 
         const checkClickLocation = (e) =>{
 
@@ -245,21 +235,22 @@ const PieChart = ({parts, titles, tabs}) =>{
                     const endX = startX + tabWidth;
 
                     if(x >= startX && x < endX){
-                        console.log(`new tab = ${i}`);
                         setCurrentTab(i);
-                        renderCanvas();
-                        return
+                        bClicked = true;
+                        return;
                     }
                 }
-            }
+            }  
+        }
 
-            
+        const mouseLeave = () =>{
+            setMouse({"x": -999, "y": -999});
         }
 
         if(canvasRef !== null){
-            console.log("fart");
             canvasRef.current.addEventListener("mousemove", updateMousePosition);
             canvasRef.current.addEventListener("mousedown", checkClickLocation);
+            canvasRef.current.addEventListener("mouseleave", mouseLeave);
         }
 
         let canvas = null;
@@ -268,9 +259,14 @@ const PieChart = ({parts, titles, tabs}) =>{
             canvas = canvasRef.current;
         }
 
+        if(bClicked){
+            renderCanvas();
+        }
+
         return () =>{    
             canvas.removeEventListener("mousemove", updateMousePosition);
             canvas.removeEventListener("mousedown", checkClickLocation);
+            canvas.removeEventListener("mouseleave", mouseLeave);
         }
     
     });
