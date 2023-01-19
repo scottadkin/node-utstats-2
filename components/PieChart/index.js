@@ -1,4 +1,5 @@
 import {React, useEffect, useRef, useState} from "react";
+import styles from "./PieChart.module.css";
 
 
 const PieChart = ({parts, titles, tabs}) =>{
@@ -48,6 +49,13 @@ const PieChart = ({parts, titles, tabs}) =>{
         c.fillStyle = "black";
         c.fillRect(0,0, canvas.width, canvas.height);
 
+        const gradient = c.createLinearGradient(0, 0, canvas.width, canvas.height);
+
+        gradient.addColorStop(0, "rgb(24,24,24)");
+        gradient.addColorStop(1, "rgb(48,48,48)");
+        c.fillStyle = gradient;
+        c.fillRect(0,0, canvas.width, canvas.height);
+
 
         const percentToPixels = (bWidth, value) =>{
 
@@ -73,6 +81,8 @@ const PieChart = ({parts, titles, tabs}) =>{
             const centerX = percentToPixels(true, 82);
             const centerY = percentToPixels(false, 45) + tabsHeightPercent;
 
+            const radius = percentToPixels(false, 37);
+
             c.strokeStyle = color;
             c.fillStyle = color;
             c.beginPath();
@@ -80,13 +90,22 @@ const PieChart = ({parts, titles, tabs}) =>{
             c.arc(
                 centerX, 
                 centerY,
-                percentToPixels(false, 37),
+                radius,
                 degreesToRadians(percentToAngle(startAngle)) ,
                 degreesToRadians(percentToAngle(startAngle + endAngle))
             );
-            c.stroke();
+            //c.stroke();
+            c.fill();
+
+            const pat = c.createLinearGradient(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+            pat.addColorStop(0, "rgba(0,0,0,0.125)");
+            pat.addColorStop(1, "rgba(0,0,0,0.7)");
+            c.fillStyle = pat;
+            c.strokeStyle = pat;
+            //c.stroke();
             c.fill();
             c.closePath();
+
 
         }
 
@@ -134,6 +153,12 @@ const PieChart = ({parts, titles, tabs}) =>{
         const renderTabs = () =>{
 
             c.fillStyle = "orange";
+
+            const pat = c.createLinearGradient(0,0,0, percentToPixels(false, tabsHeight));
+
+            pat.addColorStop(0, "rgb(32,32,32)");
+            pat.addColorStop(1, "rgb(50,50,50)");
+            c.fillStyle = pat;
             c.fillRect(0, 0, canvas.width, tabsHeightPercent);
 
             let tabWidth = 0;
@@ -156,16 +181,19 @@ const PieChart = ({parts, titles, tabs}) =>{
 
             
             c.lineWidth = "2px";
-            c.strokeStyle = "green";
+            c.strokeStyle = "rgba(0,0,0,0.5)";
             c.textAlign = "center";
 
-            c.font = `${tabsHeightPercent * 0.6}px Arial`;
+            
 
             if(bDisplayExtraButtons){
-                c.fillStyle = "blue";
-                c.fillText("<<", percentToPixels(true, tabButtonWidth * 0.5), 5);
-                c.fillText(">>", percentToPixels(true, 100 - (tabButtonWidth * 0.5)), 5);
+                c.font = `${tabsHeightPercent * 0.7}px Arial`;
+                c.fillStyle = "yellow";
+                c.fillText("<<", percentToPixels(true, tabButtonWidth * 0.5), 7);
+                c.fillText(">>", percentToPixels(true, 100 - (tabButtonWidth * 0.5)), 7);
             }
+
+            c.font = `${tabsHeightPercent * 0.5}px Arial`;
 
             let offsetX = 0;
 
@@ -185,14 +213,14 @@ const PieChart = ({parts, titles, tabs}) =>{
                 const width = percentToPixels(true, tabWidth);
 
                 if(mouse.x >= x && mouse.x < x + width && mouse.y >= 0 && mouse.y <= tabsHeightPercent){
-                    c.fillStyle = "green";
+                    c.fillStyle = "rgba(255,255,0, 0.25)";
                     bHovering = true;
                 }else{
 
                     if(i === currentTab){
-                        c.fillStyle = "pink";
+                        c.fillStyle = "rgba(255,0,0,0.25)";
                     }else{
-                        c.fillStyle = "red";
+                        c.fillStyle = "rgba(100,100,100,0.25)";
                     }
                 }     
 
@@ -200,9 +228,9 @@ const PieChart = ({parts, titles, tabs}) =>{
                 c.strokeRect(x, y, width, tabsHeightPercent);
 
   
-                c.fillStyle = "black";
+                c.fillStyle = "white";
 
-                c.fillText(titles[i], x + (width * 0.5), percentToPixels(false, 2.3));
+                c.fillText(titles[i], x + (width * 0.5), percentToPixels(false, 3.8));
 
                 offsetX += tabWidth;
             }
@@ -295,13 +323,13 @@ const PieChart = ({parts, titles, tabs}) =>{
                 if(titles.length > maxTabsAtOnce){
 
                     if(x <= startOffsetX && tabStartIndex - 1 >= 0){
-                        setTabStartIndex(tabStartIndex - 1);    
+                        setTabStartIndex((tabStartIndex) => { return tabStartIndex - 1});    
                         bClicked = true;
                         return;
                     }
 
                     if(x >= startOffsetX + remainingWidth && tabStartIndex < titles.length - maxTabsAtOnce){
-                        setTabStartIndex(tabStartIndex + 1);
+                        setTabStartIndex((tabStartIndex) =>{ return tabStartIndex + 1});
                         bClicked = true;
                         return
                     }
@@ -362,7 +390,7 @@ const PieChart = ({parts, titles, tabs}) =>{
 
     renderCanvas();
 
-    return <div>
+    return <div className={styles.wrapper}>
         <canvas ref={canvasRef} width={450} height={200}></canvas>
     </div>
 }
