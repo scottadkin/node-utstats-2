@@ -16,7 +16,7 @@ class MatchCTFCaps extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 1,
+            "mode": 0,
             "bLoading": true, 
             "error": null, 
             "caps": null, 
@@ -466,14 +466,6 @@ class MatchCTFCaps extends React.Component{
 
         return <div className="m-bottom-25">
             <div className="default-header">Capture The Flag Caps</div> 
-            <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(0);
-                })}>Simple Display</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(1);
-                })}>Detailed Display</div>
-            </div>
             {this.renderData()}
         </div>;
 

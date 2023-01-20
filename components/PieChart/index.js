@@ -187,7 +187,7 @@ const PieChart = ({parts, titles, tabs}) =>{
             
 
             if(bDisplayExtraButtons){
-                c.font = `${tabsHeightPercent * 0.7}px Arial`;
+                c.font = `bold ${tabsHeightPercent * 0.7}px Arial`;
                 c.fillStyle = "yellow";
                 c.fillText("<<", percentToPixels(true, tabButtonWidth * 0.5), 7);
                 c.fillText(">>", percentToPixels(true, 100 - (tabButtonWidth * 0.5)), 7);

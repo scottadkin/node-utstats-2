@@ -95,8 +95,6 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
             }
         }
 
-        console.log();
-
         return convertToParts(players, data.total_deaths - data.total_suicides, "Flag Kill");
     }
 
@@ -135,13 +133,11 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
                 <div className={styles.value}>{Functions.MMSS(data.return_time - matchStart)}</div>
             </div>
         </div>
-        <div>
-            <div>Carry Time</div>
-            <div>Carry Time</div>
-        </div>
+
         <PieChart 
-        titles={["Flag Info", "Covers", "Self Covers", "Flag Kills", "Flfsfsag Kills"]} 
-        parts={[travelParts, coverParts, selfCoverParts, flagKillParts, flagKillParts]}/>
+            titles={["Flag Info", "Covers", "Self Covers", "Flag Kills"]} 
+            parts={[travelParts, coverParts, selfCoverParts, flagKillParts]}
+        />
         
       
     </div>

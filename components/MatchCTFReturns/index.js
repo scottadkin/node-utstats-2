@@ -7,7 +7,6 @@ import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import styles from "./MatchCTFReturns.module.css";
 import MouseOver from "../MouseOver";
-import Table2 from "../Table2";
 import MatchCTFReturnDetailed from "../MatchCTFReturnDetailed";
 
 const MatchCTFReturns = (props) =>{
@@ -15,7 +14,7 @@ const MatchCTFReturns = (props) =>{
     const [returnData, setReturnData] = useState(null);
     const [bLoading, setbLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [displayMode, setDisplayMode] = useState(1);
+    const [displayMode, setDisplayMode] = useState(0);
 
     useEffect(() =>{
 
@@ -88,130 +87,46 @@ const MatchCTFReturns = (props) =>{
         return string;
     }
 
-    const createCoversData = (covers) =>{
-
-        if(covers.length === 0) return null;
-
-        const rows = [];
-
-        for(let i = 0; i < covers.length; i++){
-
-            const c = covers[i];
-
-            const killer = Functions.getPlayer(props.playerData, c.killer_id);
-            const victim = Functions.getPlayer(props.playerData, c.victim_id);
-
-            rows.push(<tr key={c.id}>
-                <td className="playtime">{Functions.MMSS(c.timestamp - props.matchStart)}</td>
-                <td><CountryFlag country={killer.country}/>{killer.name}</td>
-                <td>Killed</td>
-                <td><CountryFlag country={victim.country}/>{victim.name}</td>
-            </tr>);
-
-        }
-
-        return <Table2 width={0} noBottomMargin={true}>
-            {rows}
-        </Table2>
-    }
-
-    const createDeathsData = (data) =>{
+    const createHoverData = (data, playerKey) =>{
 
         if(data.length === 0) return null;
 
-        const rows = [];
+        const unique = {};
 
         for(let i = 0; i < data.length; i++){
 
-            const d = data[i];
+            const c = data[i];
 
-            const killer = Functions.getPlayer(props.playerData, d.killer_id);
-
-            let victim = null;
-
-            if(d.victim_id === -1){
-                victim = killer;
-            }else{
-                victim = Functions.getPlayer(props.playerData, d.victim_id);
+            if(unique[c[playerKey]] === undefined){
+                unique[c[playerKey]] = 0;
             }
 
-            const killerFlag = <CountryFlag country={killer.flag}/>
-            const victimFlag = <CountryFlag country={victim.flag}/>
-
-            rows.push(<tr key={d.id}>
-                <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
-                <td>{killerFlag}{killer.name}</td>
-                <td>{(d.victim_id !== -1) ? <>{victimFlag}{victim.name}</> : "Suicide"}</td> 
-                <td>{d.distance_to_enemy_base.toFixed(2)}</td>
-
-            </tr>);
+            unique[c[playerKey]]++;
         }
 
-        return <Table2 width={0} noBottomMargin={true}>
-            <tr>
-                <th>Timestamp</th>
-                <th>Killer</th>
-                <th>Victim</th>
-                <th>Distance to Cap</th>
-            </tr>
-            {rows}
-        </Table2>
-    }
+        const elems = [];
 
-    const createDropData = (data) =>{
+        let index = 0;
 
-        if(data.length === 0) return null;
+        const totalUnique = Object.keys(unique).length;
 
-        const rows = [];
+        for(const [playerId, totalCovers] of Object.entries(unique)){
 
-        for(let i = 0; i < data.length; i++){
+            const player = Functions.getPlayer(props.playerData, playerId);
 
-            const d = data[i];
+            elems.push(<div key={playerId} className={styles.player}>
+                <CountryFlag country={player.country}/>{player.name} <b>{totalCovers}</b>
+                {(index < totalUnique - 1) ? ", " : ""}
+            </div>);
 
-            const player = Functions.getPlayer(props.playerData, d.player_id);
-
-            rows.push(<tr key={d.id}>
-                <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
-                <td><CountryFlag country={player.country}/>{player.name}</td>
-                <td>{d.distance_to_cap.toFixed(2)}</td>
-                <td>{d.time_dropped.toFixed(2)} Seconds</td>
-            </tr>);
+            index++;
         }
 
-        return <Table2 width={0} noBottomMargin={true}>
-            <tr>
-                <th>Timestamp</th>
-                <th>Player</th>
-                <th>Distance to Cap</th>
-                <th>Time Dropped</th>
-            </tr>
-            {rows}
-        </Table2>
+        return <div>
+            {elems}
+        </div>
     }
 
-    const createPickupsData = (data) =>{
-
-        if(data.length === 0) return null;
-
-        const rows = [];
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            const player = Functions.getPlayer(props.playerData, d.player_id);
-
-            rows.push(<tr key={d.id}>
-                <td className="playtime">{Functions.MMSS(d.timestamp - props.matchStart)}</td>
-                <td><CountryFlag country={player.country}/>{player.name}</td>
-                <td>{d.flag_team}</td>
-            </tr>);
-        }
-
-        return <Table2 width={0} noBottomMargin={true}>
-            {rows}
-        </Table2>
-    }
 
     const renderBasicTable = () =>{
 
@@ -263,7 +178,7 @@ const MatchCTFReturns = (props) =>{
                 "time_dropped": {"value": r.drop_time, "displayValue": Functions.toPlaytime(r.drop_time), "className": "playtime"},
                 "total_drops": {
                     "value": r.total_drops, 
-                    "displayValue": <MouseOver title="Flag Drops" display={createDropData(r.flagDrops)}>{r.total_drops}</MouseOver>},
+                    "displayValue": <MouseOver title="Flag Drops" display={createHoverData(r.flagDrops, "player_id")}>{r.total_drops}</MouseOver>},
                 "grab_player": {
                     "value": grabPlayer.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${props.matchId}/?player=${grabPlayer.id}`}>
@@ -288,26 +203,26 @@ const MatchCTFReturns = (props) =>{
                 },
                 "total_deaths": {
                     "value": r.total_deaths,
-                    "displayValue": <MouseOver title="Deaths With Flag" display={createDeathsData(r.deathsData)}>
+                    "displayValue": <MouseOver title="Deaths With Flag" display={createHoverData(r.deathsData, "victim_id")}>
                         {Functions.ignore0(r.total_deaths)} {suicideElem}
                     </MouseOver>
                  
                 },
                 "total_pickups": {
                     "value": r.total_pickups, 
-                    "displayValue": <MouseOver title="Flag Pickups" display={createPickupsData(r.flagPickups)}>
+                    "displayValue": <MouseOver title="Flag Pickups" display={createHoverData(r.flagPickups, "player_id")}>
                         {Functions.ignore0(r.total_pickups)}
                     </MouseOver>
                 },
                 "total_covers": {
                     "value": r.total_covers, 
-                    "displayValue": <MouseOver title="Flag Covers" display={createCoversData(r.coverData)}>
+                    "displayValue": <MouseOver title="Flag Covers" display={createHoverData(r.coverData, "killer_id")}>
                     <>{Functions.ignore0(r.total_covers)}</>
                 </MouseOver>
                 },
                 "total_self_covers": {
                     "value": r.total_self_covers, 
-                    "displayValue": <MouseOver title="Self Covers (Kills carrying flag)" display={createCoversData(r.selfCoverData)}>
+                    "displayValue": <MouseOver title="Self Covers (Kills carrying flag)" display={createHoverData(r.selfCoverData, "killer_id")}>
                     <>{Functions.ignore0(r.total_self_covers)}</>
                 </MouseOver>
                 },
