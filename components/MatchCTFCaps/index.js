@@ -1,4 +1,4 @@
-import React from 'react';
+import {React, useState, useEffect} from 'react';
 import Functions from '../../api/functions';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
@@ -6,10 +6,188 @@ import InteractiveTable from '../InteractiveTable';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import MouseOver from "../MouseOver";
-import CapChart from '../CapChart';
 
 
-class MatchCTFCaps extends React.Component{
+const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
+
+    const [data, setData] = useState({});
+    const [bLoading, setbLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() =>{
+
+        const loadData = async () =>{
+
+            const req = await fetch("/api/ctf",{
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "match-caps", "matchId": matchId})
+            });
+    
+            const res = await req.json();
+
+            if(res.error !== undefined){
+                setError(res.error.toString());
+            }else{
+                console.log(res);
+                setData(res);
+            }
+
+            setbLoading(false);
+
+        }
+
+        loadData();
+        
+        console.log("renderedddd");
+    }, [matchId]);
+
+
+
+    if(error !== null){
+        return <ErrorMessage title="Match CTF Caps" text={error}/>;
+    }
+
+    if(bLoading){
+        return <Loading />;
+    }
+
+    const teamScores = [];
+
+
+    const updateTeamScores = (teamId) =>{
+
+        if(teamScores.length === 0){
+
+            for(let i = 0; i < totalTeams; i++){
+                teamScores.push(0);
+            }
+        }
+
+        teamScores[teamId]++;
+    }
+
+    const createTeamScoresString = () =>{
+
+        let string = "";
+
+        console.log(teamScores);
+
+        for(let i = 0; i < teamScores.length; i++){
+
+            console.log(i);
+
+            string += `${teamScores[i]}`;
+            if(i < teamScores.length - 1){
+                string += " - ";
+            }
+        }
+
+        return string;
+    }
+
+    console.log(teamScores);
+
+    const createTableData = () =>{
+
+        if(data === undefined) return [];
+
+        const rows = [];
+
+        for(let i = 0; i < data.caps.length; i++){
+
+            const d = data.caps[i];
+
+            updateTeamScores(d.cap_team);
+            console.log(teamScores);
+            console.log(d);
+
+            console.log(createTeamScoresString());
+
+            const grabPlayer = Functions.getPlayer(playerData, d.grab_player);
+            const capPlayer = Functions.getPlayer(playerData, d.cap_player);
+
+            rows.push({
+                "score": {
+                    "value": teamScores.toString(), 
+                    "displayValue": createTeamScoresString(),
+                    "className": Functions.getTeamColor(d.cap_team)
+                },
+                "taken": {
+                    "value": d.grab_time,
+                    "displayValue": Functions.MMSS(d.grab_time - matchStart)
+                },
+                "taken_player": {
+                    "value": d.grab_time,
+                    "displayValue": Functions.MMSS(d.grab_time - matchStart)
+                },
+                "cap": {
+                    "value": d.cap_time,
+                    "displayValue": Functions.MMSS(d.cap_time - matchStart)
+                },
+                "travel_time": {
+                    "value": d.travel_time,
+                    "displayValue": Functions.toPlaytime(d.travel_time),
+                    "className": "playtime"
+                },
+                "carry_time": {
+                    "value": d.carry_time,
+                    "displayValue": Functions.toPlaytime(d.carry_time),
+                    "className": "playtime"
+                },
+                "time_dropped": {
+                    "value": d.drop_time,
+                    "displayValue": Functions.toPlaytime(d.drop_time),
+                    "className": "playtime"
+                },
+                "drops": {
+                    "value": d.total_drops,
+                    "displayValue": Functions.ignore0(d.total_drops)
+                },
+                "covers": {
+                    "value": d.total_covers,
+                    "displayValue": Functions.ignore0(d.total_covers)
+                },
+                "self_covers": {
+                    "value": d.total_self_covers,
+                    "displayValue": Functions.ignore0(d.total_self_covers)
+                },
+                "assists": {
+                    "value": d.total_assists,
+                    "displayValue": Functions.ignore0(d.total_assists)
+                },
+                
+            });
+        }
+
+        return rows;
+    }
+
+    const headers = {
+        "score": "Score",
+        "taken": "Taken",
+        "cap": "Capped",
+        "travel_time": "Travel Time",
+        "carry_time": "Carry Time",
+        "time_dropped": "Time Dropped",
+        "drops": "Drops",
+        "covers": "Covers",
+        "self_covers": "Self Covers",
+        "assists": "Assists"
+        
+    };
+
+    return <div>
+        <div className="default-header">Match CTF Caps</div>
+        <InteractiveTable width={1} data={createTableData()} headers={headers}/>
+    </div>
+
+}
+
+export default MatchCTFCaps;
+
+
+/*class MatchCTFCaps extends React.Component{
 
     constructor(props){
 
@@ -229,7 +407,7 @@ class MatchCTFCaps extends React.Component{
             "capped_by": "Cap By",
             "travel_time": "Travel Time",
             "drop_time": "Drop Time",
-            "total_drops": "Dropped",
+            "total_drops": "Drops",
             "total_covers": "Covers",
             "total_self_covers": "Self Covers",
             "total_seals": "Seals",
@@ -472,4 +650,4 @@ class MatchCTFCaps extends React.Component{
     }
 }
 
-export default MatchCTFCaps;
+export default MatchCTFCaps;*/
