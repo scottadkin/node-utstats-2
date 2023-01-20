@@ -2,7 +2,7 @@ const Message =  require("../message");
 
 class CTFFlag{
 
-    constructor(ctfManager, playerManager, killManager, matchId, matchDate, mapId, team){
+    constructor(ctfManager, playerManager, killManager, matchId, matchDate, mapId, team, totalTeams){
 
         console.log(`new CTFFlag with team of ${team}`);
 
@@ -16,6 +16,7 @@ class CTFFlag{
         this.flagStand = null;
         
         this.team = team;
+        this.totalTeams = totalTeams;
 
         this.bDropped = false;
         this.bAtBase = true;
@@ -372,6 +373,30 @@ class CTFFlag{
         return {"deaths": totalDeaths, "suicides": totalSuicides};
     }
 
+    getTeamsKills(start, end){
+
+        const redTeamKills = this.killManager.getKillsByTeamBetween(0, start, end);
+        const blueTeamKills = this.killManager.getKillsByTeamBetween(1, start, end);
+
+        let greenTeamKills = 0;
+        let yellowTeamKills = 0;
+
+        if(this.totalTeams > 2){
+            greenTeamKills = this.killManager.getKillsByTeamBetween(2, this.takenTimestamp, timestamp);
+        }
+
+        if(this.totalTeams > 3){
+            yellowTeamKills = this.killManager.getKillsByTeamBetween(3, this.takenTimestamp, timestamp);
+        }
+
+        return {
+            "red": redTeamKills, 
+            "blue": blueTeamKills, 
+            "green": greenTeamKills, 
+            "yellow": yellowTeamKills
+        };
+    }
+
     async captured(timestamp, playerId){
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
@@ -440,6 +465,8 @@ class CTFFlag{
           
             const totalSelfCovers = this.getTotalSelfCovers();
 
+            const teamKills = this.getTeamsKills(this.takenTimestamp, timestamp);
+
             //await this.ctfManager.insertCap(this.matchId, this.matchDate, capTeam, this.team, this.takenTimestamp, this.takenPlayer, timestamp, this.carriedBy, travelTime, carryTime, dropTime);
             capId = await this.ctfManager.insertCap(
                 this.matchId, 
@@ -461,7 +488,11 @@ class CTFFlag{
                 assistIds.size, 
                 totalSelfCovers,
                 totalDeaths,
-                totalSuicides
+                totalSuicides,
+                teamKills.red,
+                teamKills.blue,
+                teamKills.green,
+                teamKills.yellow
             );
 
             for(let i = 0; i < assistVars.length; i++){
@@ -559,6 +590,8 @@ class CTFFlag{
 
         const lastDropInfo = this.getLastDropInfo();
 
+        const teamKills = this.getTeamsKills(this.takenTimestamp, timestamp);
+
         await this.ctfManager.insertReturn(
             this.matchId, 
             this.matchDate, 
@@ -580,7 +613,11 @@ class CTFFlag{
             this.seals.length, 
             totalSelfCovers, 
             deaths, 
-            suicides
+            suicides,
+            teamKills.red,
+            teamKills.blue,
+            teamKills.green,
+            teamKills.yellow
         );
     }
 

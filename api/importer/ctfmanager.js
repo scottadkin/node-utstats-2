@@ -36,7 +36,17 @@ class CTFManager{
     createFlags(){
 
         for(let i = 0; i < this.totalTeams; i++){
-            this.flags.push(new CTFFlag(this.ctf, this.playerManager, this.killManager, this.matchId, this.matchDate, this.mapId, i));
+
+            this.flags.push(new CTFFlag(
+                this.ctf, 
+                this.playerManager, 
+                this.killManager, 
+                this.matchId, 
+                this.matchDate, 
+                this.mapId, 
+                i,
+                this.totalTeams
+            ));
         }   
     }
 

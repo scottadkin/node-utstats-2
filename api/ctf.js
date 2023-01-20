@@ -152,7 +152,9 @@ class CTF{
 
     async insertCap(matchId, matchDate, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, 
         capPlayer, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
-        totalAssists, totalSelfCovers, totalDeaths, totalSuicides){
+        totalAssists, totalSelfCovers, totalDeaths, totalSuicides, redTeamKills, blueTeamKills, greenTeamKills,
+        yellowTeamKills
+        ){
 
 
         let carryTimePercent = 0;
@@ -170,7 +172,9 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -194,7 +198,11 @@ class CTF{
             totalAssists,
             totalSelfCovers,
             totalDeaths,
-            totalSuicides
+            totalSuicides,
+            redTeamKills,
+            blueTeamKills,
+            greenTeamKills,
+            yellowTeamKills
         ];
 
         const result = await mysql.simpleQuery(query, vars);
@@ -204,8 +212,9 @@ class CTF{
     }
 
     async insertReturn(matchId, matchDate, mapId, flagTeam, grabTime, grabPlayer, returnTime, 
-        returnPlayer, returnString, distanceToCap, returnLocation, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
-        totalSelfCovers, totalDeaths, totalSuicides){
+        returnPlayer, returnString, distanceToCap, returnLocation, travelTime, carryTime, 
+        dropTime, totalDrops, totalPickups, totalCovers, totalSeals, totalSelfCovers, totalDeaths, 
+        totalSuicides, redKills, blueKills, greenKills, yellowKills){
 
 
         let carryTimePercent = 0;
@@ -223,7 +232,7 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_returns VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_returns VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -250,7 +259,11 @@ class CTF{
             totalSeals,
             totalSelfCovers,
             totalDeaths,
-            totalSuicides
+            totalSuicides,
+            redKills,
+            blueKills,
+            greenKills,
+            yellowKills
         ];
 
         return await mysql.simpleQuery(query, vars);
