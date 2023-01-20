@@ -11,32 +11,24 @@ const InteractiveTable = (props) =>{
     const [orderBy, setOrderBy] = useState(null);
     const [bAsc, setbAsc] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
+    //const [totalPages, setTotalPages] = useState(0);
     const [displayPerPage, setDisplayPerPage] = useState((props.perPage !== undefined) ? props.perPage : 50);
     const [bDisplayAll, setbDisplayAll] = useState(false);
 
 
-    useEffect(() =>{
+    let totalPages = 0;
 
-        let newTotalPages = 0;
-
+    if(props.data.length > 0 && displayPerPage > 0){
         if(props.data.length > 0 && displayPerPage > 0){
-            newTotalPages = Math.ceil(props.data.length / displayPerPage);
+            totalPages = Math.ceil(props.data.length / displayPerPage);
         }
-        
-        setTotalPages(newTotalPages);
-
-    }, [props.headers, props.data, displayPerPage]);
-
+    }
 
     const changeOrder = (newOrderBy) =>{
         
-        
         if(orderBy === newOrderBy){
             setbAsc((bAsc) => {return !bAsc});
-            console.log("chnage asc");
         }else{
-            console.log("change order");
             setOrderBy(newOrderBy);
             setCurrentPage(0);
         }
@@ -88,31 +80,44 @@ const InteractiveTable = (props) =>{
 
         if(orderBy !== null){
 
-            data.sort((a, b) =>{
+            let bMissingKey = false;
 
-                a = a[orderBy].value;
-                b = b[orderBy].value;
+            if(data.length > 0){
 
-                if(a < b){
-
-                    if(bAsc){
-                        return -1;
-                    }else{
-                        return 1;
-                    }
+                if(data[0][orderBy] === undefined){
+                    bMissingKey = true;
+                    //setOrderBy(null);
                 }
+            }
 
-                if(a > b){
+            if(!bMissingKey){
+
+                data.sort((a, b) =>{
+
+                    a = a[orderBy].value;
+                    b = b[orderBy].value;
+
+                    if(a < b){
+
+                        if(bAsc){
+                            return -1;
+                        }else{
+                            return 1;
+                        }
+                    }
+
+                    if(a > b){
+                        
+                        if(bAsc){
+                            return 1;
+                        }else{
+                            return -1;
+                        }
+                    }
                     
-                    if(bAsc){
-                        return 1;
-                    }else{
-                        return -1;
-                    }
-                }
-                
-                return 0;
-            });
+                    return 0;
+                });
+            }
         }
 
         let lastRow = null;
@@ -243,7 +248,7 @@ const InteractiveTable = (props) =>{
         tableTitle = <TableHeader width={props.width}>{props.title}</TableHeader>
     }
     
-    console.log("render");
+    console.log("render interactive table");
 
     return <div className={styles.wrapper}>
         {tableTitle}

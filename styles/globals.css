@@ -718,6 +718,14 @@ input[type="range"]{
 	cursor:pointer;
 }
 
+.hover{
+	cursor: pointer;
+}
+
+.default-cursor{
+	cursor: default;
+}
+
 .pointer{
 	user-select:none;
 }
