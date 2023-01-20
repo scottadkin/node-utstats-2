@@ -12,9 +12,8 @@ const InteractiveTable = (props) =>{
     const [bAsc, setbAsc] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
     //const [totalPages, setTotalPages] = useState(0);
-    const [displayPerPage, setDisplayPerPage] = useState((props.perPage !== undefined) ? props.perPage : 50);
+    const [displayPerPage, setDisplayPerPage] = useState((props.perPage !== undefined) ? props.perPage : 2);
     const [bDisplayAll, setbDisplayAll] = useState(false);
-
 
     let totalPages = 0;
 
@@ -72,6 +71,33 @@ const InteractiveTable = (props) =>{
         return <tr>{headers}</tr>
     }
 
+
+    const sortByValue = (a, b) =>{
+
+        a = a[orderBy].value;
+        b = b[orderBy].value;
+
+        if(a < b){
+
+            if(bAsc){
+                return -1;
+            }else{
+                return 1;
+            }
+        }
+
+        if(a > b){
+            
+            if(bAsc){
+                return 1;
+            }else{
+                return -1;
+            }
+        }
+        
+        return 0;
+    }
+
     const renderData = () =>{
 
         const rows = [];
@@ -86,38 +112,12 @@ const InteractiveTable = (props) =>{
 
                 if(data[0][orderBy] === undefined){
                     bMissingKey = true;
-                    //setOrderBy(null);
                 }
-            }
 
-            if(!bMissingKey){
-
-                data.sort((a, b) =>{
-
-                    a = a[orderBy].value;
-                    b = b[orderBy].value;
-
-                    if(a < b){
-
-                        if(bAsc){
-                            return -1;
-                        }else{
-                            return 1;
-                        }
-                    }
-
-                    if(a > b){
-                        
-                        if(bAsc){
-                            return 1;
-                        }else{
-                            return -1;
-                        }
-                    }
-                    
-                    return 0;
-                });
-            }
+                if(!bMissingKey){
+                    data.sort(sortByValue);
+                }
+            }   
         }
 
         let lastRow = null;
