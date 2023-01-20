@@ -99,13 +99,20 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             const d = data.caps[i];
 
             updateTeamScores(d.cap_team);
-            console.log(teamScores);
             console.log(d);
-
-            console.log(createTeamScoresString());
 
             const grabPlayer = Functions.getPlayer(playerData, d.grab_player);
             const capPlayer = Functions.getPlayer(playerData, d.cap_player);
+
+            const suicideElem = (d.total_suicides === 0) ? null : 
+            <span className="grey small-font">
+                &nbsp;({d.total_suicides} {Functions.plural(d.total_suicides, "Suicide")})
+            </span>
+
+            const deathsElem = <>
+                {Functions.ignore0(d.total_deaths)}
+                {suicideElem}
+            </>
 
             rows.push({
                 "score": {
@@ -118,12 +125,30 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                     "displayValue": Functions.MMSS(d.grab_time - matchStart)
                 },
                 "taken_player": {
-                    "value": d.grab_time,
-                    "displayValue": Functions.MMSS(d.grab_time - matchStart)
+                    "value": grabPlayer.name.toLowerCase(),
+                    "displayValue": <>
+                        <Link href={`/pmatch/${matchId}/?player=${grabPlayer.id}`}>
+                            <a>
+                                <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
+                            </a>
+                        </Link>
+                    </>,
+                    "className": Functions.getTeamColor(d.cap_team)
                 },
                 "cap": {
                     "value": d.cap_time,
                     "displayValue": Functions.MMSS(d.cap_time - matchStart)
+                },
+                "cap_player": {
+                    "value": capPlayer.name.toLowerCase(),
+                    "displayValue": <>
+                        <Link href={`/pmatch/${matchId}/?player=${capPlayer.id}`}>
+                            <a>
+                                <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                            </a>
+                        </Link>
+                    </>,
+                    "className": Functions.getTeamColor(d.cap_team)
                 },
                 "travel_time": {
                     "value": d.travel_time,
@@ -152,9 +177,17 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                     "value": d.total_self_covers,
                     "displayValue": Functions.ignore0(d.total_self_covers)
                 },
+                "seals": {
+                    "value": d.total_seals,
+                    "displayValue": Functions.ignore0(d.total_seals)
+                },
                 "assists": {
                     "value": d.total_assists,
                     "displayValue": Functions.ignore0(d.total_assists)
+                },
+                "deaths": {
+                    "value": d.total_deaths,
+                    "displayValue": deathsElem
                 },
                 
             });
@@ -166,14 +199,18 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
     const headers = {
         "score": "Score",
         "taken": "Taken",
+        "taken_player": "Grab Player",
         "cap": "Capped",
+        "cap_player": "Cap Player",
         "travel_time": "Travel Time",
         "carry_time": "Carry Time",
         "time_dropped": "Time Dropped",
         "drops": "Drops",
+        "deaths": "Deaths",
         "covers": "Covers",
         "self_covers": "Self Covers",
-        "assists": "Assists"
+        "seals": "Seals",
+        "assists": "Assists",
         
     };
 
