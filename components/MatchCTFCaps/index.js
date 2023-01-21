@@ -17,28 +17,44 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
     useEffect(() =>{
 
+
+        const controller = new AbortController();
+        const signal = controller.signal;
+
         const loadData = async () =>{
 
-            const req = await fetch("/api/ctf",{
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "match-caps", "matchId": matchId})
-            });
-    
-            const res = await req.json();
+            try{
+                
+                const req = await fetch("/api/ctf",{
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "match-caps", "matchId": matchId})
+                });
+        
+                const res = await req.json();
 
-            if(res.error !== undefined){
-                setError(res.error.toString());
-            }else{
-                console.log(res);
-                setData(res);
+                if(res.error !== undefined){
+                    setError(res.error.toString());
+                }else{
+                    console.log(res);
+                    setData(res);
+                }
+
+                setbLoading(false);
+
+            }catch(err){
+                if(err.name !== "AbortError"){
+                    setError(err.toString());
+                }
             }
-
-            setbLoading(false);
 
         }
 
         loadData();
+
+        return () =>{
+            controller.abort();
+        }
         
         console.log("renderedddd");
     }, [matchId]);
@@ -114,7 +130,12 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                     "value": i, 
                     "displayValue": createTeamScoresString(),
                     "className": Functions.getTeamColor(d.cap_team)
+                },
+                "cap": {
+                    "value": d.cap_time,
+                    "displayValue": Functions.MMSS(d.cap_time - matchStart)
                 }
+                
             };
 
             if(displayMode === 0){
@@ -123,7 +144,8 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                 currentRow["taken"] = {
                     "value": d.grab_time,
                     "displayValue": Functions.MMSS(d.grab_time - matchStart)
-                },
+                };
+
                 currentRow["taken_player"] = {
                     "value": grabPlayer.name.toLowerCase(),
                     "displayValue": <>
@@ -134,11 +156,9 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                         </Link>
                     </>,
                     "className": Functions.getTeamColor(d.cap_team)
-                },
-                currentRow["cap"] = {
-                    "value": d.cap_time,
-                    "displayValue": Functions.MMSS(d.cap_time - matchStart)
-                },
+                };
+
+                
                 currentRow["cap_player"] = {
                     "value": capPlayer.name.toLowerCase(),
                     "displayValue": <>
@@ -149,7 +169,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                         </Link>
                     </>,
                     "className": Functions.getTeamColor(d.cap_team)
-                },
+                };
 
                 currentRow["travel_time"] = {
                     "value": d.travel_time,
@@ -161,36 +181,43 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                     "value": d.carry_time,
                     "displayValue": Functions.toPlaytime(d.carry_time),
                     "className": "playtime"
-                },
+                };
+
                 currentRow["time_dropped"] = {
                     "value": d.drop_time,
                     "displayValue": Functions.toPlaytime(d.drop_time),
                     "className": "playtime"
-                },
+                };
+
                 currentRow["drops"] = {
                     "value": d.total_drops,
                     "displayValue": Functions.ignore0(d.total_drops)
-                },
+                };
+
                 currentRow["covers"] = {
                     "value": d.total_covers,
                     "displayValue": Functions.ignore0(d.total_covers)
-                },
+                };
+
                 currentRow["self_covers"] = {
                     "value": d.total_self_covers,
                     "displayValue": Functions.ignore0(d.total_self_covers)
-                },
+                };
+
                 currentRow["seals"] = {
                     "value": d.total_seals,
                     "displayValue": Functions.ignore0(d.total_seals)
-                },
+                };
+
                 currentRow["assists"] = {
                     "value": d.total_assists,
                     "displayValue": Functions.ignore0(d.total_assists)
-                },
+                };
+
                 currentRow["deaths"] = {
                     "value": d.total_deaths,
                     "displayValue": deathsElem
-                }
+                };
             }
 
             if(displayMode === 1){
@@ -240,6 +267,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
     }else if(displayMode === 1){
 
+        headers["cap"] = "Capped";
         for(let i = 0; i < totalTeams; i++){
 
             headers[`team_${i}_kills`] = `${Functions.getTeamName(i, true)} Kills`;

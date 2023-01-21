@@ -15,6 +15,7 @@ const MatchCTFReturns = (props) =>{
     const [bLoading, setbLoading] = useState(true);
     const [error, setError] = useState(null);
     const [displayMode, setDisplayMode] = useState(0);
+    const [currentTab, setCurrentTab] = useState(1);
 
     useEffect(() =>{
 
@@ -128,11 +129,7 @@ const MatchCTFReturns = (props) =>{
     }
 
 
-    const renderBasicTable = () =>{
-
-        if(displayMode !== 0) return null;
-
-        if(returnData === null) return null;
+    const getGeneralData = () =>{
 
         const headers = {
             "grab_time": "Grabbed",
@@ -230,6 +227,90 @@ const MatchCTFReturns = (props) =>{
             });
         }
 
+        return {"headers": headers, "data": data};
+    }
+
+    const getFragData = () =>{
+
+
+        const headers = {
+            "info": "Flag",
+            "grab": "Grabbed",
+            "returned": "Returned",
+        };
+
+        for(let i = 0; i < props.totalTeams; i++){
+
+            headers[`team_${i}_kills`] = `${Functions.getTeamName(i, true)} Kills`;
+            headers[`team_${i}_suicides`] = `${Functions.getTeamName(i, true)} Suicides`;
+        }
+
+        const data = returnData.map((currentReturn) =>{
+
+            const grabTime = currentReturn.grab_time - props.matchStart;
+            const returnTime = currentReturn.return_time - props.matchStart;
+            const flagTeam = currentReturn.flag_team;
+
+            const returnObject = {
+                "info": {
+                    "value": flagTeam,
+                    "displayValue": `${Functions.getTeamName(flagTeam, true)} Flag`,
+                    "className": Functions.getTeamColor(flagTeam) 
+                },
+                "grab": {
+                    "value": grabTime, 
+                    "displayValue": Functions.MMSS(grabTime)
+                },
+                "returned": {
+                    "value": returnTime, 
+                    "displayValue": Functions.MMSS(returnTime)
+                },
+            };
+
+            for(let i = 0; i < props.totalTeams; i++){
+
+                returnObject[`team_${i}_kills`] = {
+                    "value": currentReturn[`team_${i}_kills`],
+                    "displayValue": Functions.ignore0(currentReturn[`team_${i}_kills`])
+                };
+
+                returnObject[`team_${i}_suicides`] = {
+                    "value": currentReturn[`team_${i}_suicides`],
+                    "displayValue": Functions.ignore0(currentReturn[`team_${i}_suicides`])
+                };
+            }
+
+            return returnObject;
+        });
+
+        return {"data": data, "headers": headers};
+    }
+
+    const renderBasicTable = () =>{
+
+        if(displayMode !== 0) return null;
+
+        if(returnData === null) return null;
+
+        let headers = {};
+        let data = [];
+
+        if(currentTab === 0){
+            
+            const generalData = getGeneralData();
+
+            headers = generalData.headers;
+            data = generalData.data;
+        }
+
+        if(currentTab === 1){
+
+            const fragData = getFragData();
+
+            headers = fragData.headers;
+            data = fragData.data;
+        }
+
         return <InteractiveTable width={1} headers={headers} data={data} perPage={10}/>
     }
 
@@ -263,8 +344,19 @@ const MatchCTFReturns = (props) =>{
         <div className="default-header">Capture The Flag Returns</div>
         {(bLoading) ? <Loading /> : null}
         {(error !== null) ? <ErrorMessage title="CTF Returns" text={error}/> : null }
+        <div className="tabs">
+            <div className={`tab ${(currentTab === 0) ? "tab-selected" : ""}`} onClick={() =>{
+                setCurrentTab(0);
+            }}>
+                General
+            </div>
+            <div className={`tab ${(currentTab === 1) ? "tab-selected" : ""}`} onClick={() =>{
+                setCurrentTab(1);
+            }}>
+                Team Frags
+            </div>
+        </div>
         {renderBasicTable()}
-        {renderDetailed()}
     </div>
 }
 
