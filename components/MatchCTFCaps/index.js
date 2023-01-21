@@ -111,15 +111,20 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
             const currentRow = {
                 "score": {
-                    "value": teamScores.toString(), 
+                    "value": i, 
                     "displayValue": createTeamScoresString(),
                     "className": Functions.getTeamColor(d.cap_team)
-                },
-                "taken": {
+                }
+            };
+
+            if(displayMode === 0){
+
+               
+                currentRow["taken"] = {
                     "value": d.grab_time,
                     "displayValue": Functions.MMSS(d.grab_time - matchStart)
                 },
-                "taken_player": {
+                currentRow["taken_player"] = {
                     "value": grabPlayer.name.toLowerCase(),
                     "displayValue": <>
                         <Link href={`/pmatch/${matchId}/?player=${grabPlayer.id}`}>
@@ -130,11 +135,11 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                     </>,
                     "className": Functions.getTeamColor(d.cap_team)
                 },
-                "cap": {
+                currentRow["cap"] = {
                     "value": d.cap_time,
                     "displayValue": Functions.MMSS(d.cap_time - matchStart)
                 },
-                "cap_player": {
+                currentRow["cap_player"] = {
                     "value": capPlayer.name.toLowerCase(),
                     "displayValue": <>
                         <Link href={`/pmatch/${matchId}/?player=${capPlayer.id}`}>
@@ -145,9 +150,6 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                     </>,
                     "className": Functions.getTeamColor(d.cap_team)
                 },
-            };
-
-            if(displayMode === 0){
 
                 currentRow["travel_time"] = {
                     "value": d.travel_time,
@@ -199,88 +201,15 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                         "value": d[`team_${x}_kills`],
                         "displayValue": Functions.ignore0(d[`team_${x}_kills`])
                     };
+
+                    currentRow[`team_${x}_suicides`] = {
+                        "value": d[`team_${x}_suicides`],
+                        "displayValue": Functions.ignore0(d[`team_${x}_suicides`])
+                    };
                 }
             }
 
             rows.push(currentRow);
-
-            /*rows.push({
-                "score": {
-                    "value": teamScores.toString(), 
-                    "displayValue": createTeamScoresString(),
-                    "className": Functions.getTeamColor(d.cap_team)
-                },
-                "taken": {
-                    "value": d.grab_time,
-                    "displayValue": Functions.MMSS(d.grab_time - matchStart)
-                },
-                "taken_player": {
-                    "value": grabPlayer.name.toLowerCase(),
-                    "displayValue": <>
-                        <Link href={`/pmatch/${matchId}/?player=${grabPlayer.id}`}>
-                            <a>
-                                <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
-                            </a>
-                        </Link>
-                    </>,
-                    "className": Functions.getTeamColor(d.cap_team)
-                },
-                "cap": {
-                    "value": d.cap_time,
-                    "displayValue": Functions.MMSS(d.cap_time - matchStart)
-                },
-                "cap_player": {
-                    "value": capPlayer.name.toLowerCase(),
-                    "displayValue": <>
-                        <Link href={`/pmatch/${matchId}/?player=${capPlayer.id}`}>
-                            <a>
-                                <CountryFlag country={capPlayer.country}/>{capPlayer.name}
-                            </a>
-                        </Link>
-                    </>,
-                    "className": Functions.getTeamColor(d.cap_team)
-                },
-                "travel_time": {
-                    "value": d.travel_time,
-                    "displayValue": Functions.toPlaytime(d.travel_time),
-                    "className": "playtime"
-                },
-                "carry_time": {
-                    "value": d.carry_time,
-                    "displayValue": Functions.toPlaytime(d.carry_time),
-                    "className": "playtime"
-                },
-                "time_dropped": {
-                    "value": d.drop_time,
-                    "displayValue": Functions.toPlaytime(d.drop_time),
-                    "className": "playtime"
-                },
-                "drops": {
-                    "value": d.total_drops,
-                    "displayValue": Functions.ignore0(d.total_drops)
-                },
-                "covers": {
-                    "value": d.total_covers,
-                    "displayValue": Functions.ignore0(d.total_covers)
-                },
-                "self_covers": {
-                    "value": d.total_self_covers,
-                    "displayValue": Functions.ignore0(d.total_self_covers)
-                },
-                "seals": {
-                    "value": d.total_seals,
-                    "displayValue": Functions.ignore0(d.total_seals)
-                },
-                "assists": {
-                    "value": d.total_assists,
-                    "displayValue": Functions.ignore0(d.total_assists)
-                },
-                "deaths": {
-                    "value": d.total_deaths,
-                    "displayValue": deathsElem
-                },
-                
-            });*/
         }
 
         return rows;
@@ -289,14 +218,16 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
     const headers = {
         "score": "Score",
-        "taken": "Taken",
-        "taken_player": "Grab Player",
-        "cap": "Capped",
-        "cap_player": "Cap Player", 
     };
+
+    let tableWidth = 1;
 
     if(displayMode === 0){
 
+        headers["taken"] = "Taken";
+        headers["taken_player"] = "Grab Player";
+        headers["cap"] = "Capped";
+        headers["cap_player"] = "Cap Player";
         headers["travel_time"] =  "Travel Time";
         headers["carry_time"] = "Carry Time";
         headers["time_dropped"] = "Time Dropped";
@@ -311,8 +242,11 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
         for(let i = 0; i < totalTeams; i++){
 
-            headers[`team_${i}_kills`] = `${Functions.getTeamName(i)} Kills`;
+            headers[`team_${i}_kills`] = `${Functions.getTeamName(i, true)} Kills`;
+            headers[`team_${i}_suicides`] = `${Functions.getTeamName(i, true)} Suicides`;
         }
+
+        tableWidth = 2;
     }
 
     return <div>
@@ -324,10 +258,10 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             </div>
             <div className={`tab ${(displayMode === 1) ? "tab-selected" : ""}`} 
             onClick={() =>{ setDisplayMode(1)}}>
-                Frags
+                Team Frags
             </div>
         </div>
-        <InteractiveTable width={1} data={createTableData()} headers={headers}/>
+        <InteractiveTable width={tableWidth} data={createTableData()} headers={headers}/>
     </div>
 
 }

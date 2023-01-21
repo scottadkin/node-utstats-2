@@ -12,7 +12,7 @@ const InteractiveTable = (props) =>{
     const [bAsc, setbAsc] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
     //const [totalPages, setTotalPages] = useState(0);
-    const [displayPerPage, setDisplayPerPage] = useState((props.perPage !== undefined) ? props.perPage : 2);
+    const [displayPerPage, setDisplayPerPage] = useState((props.perPage !== undefined) ? props.perPage : 50);
     const [bDisplayAll, setbDisplayAll] = useState(false);
 
     let totalPages = 0;
