@@ -69,6 +69,10 @@ const queries = [
         team_1_kills int NOT NULL,
         team_2_kills int NOT NULL,
         team_3_kills int NOT NULL,
+        team_0_suicides int NOT NULL,
+        team_1_suicides int NOT NULL,
+        team_2_suicides int NOT NULL,
+        team_3_suicides int NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ctf_assists (
       id int NOT NULL AUTO_INCREMENT,
@@ -158,6 +162,10 @@ const queries = [
         team_1_kills int NOT NULL,
         team_2_kills int NOT NULL,
         team_3_kills int NOT NULL,
+        team_0_suicides int NOT NULL,
+        team_1_suicides int NOT NULL,
+        team_2_suicides int NOT NULL,
+        team_3_suicides int NOT NULL,
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
       `CREATE TABLE IF NOT EXISTS nstats_ctf_flag_deaths (
         id int NOT NULL AUTO_INCREMENT,

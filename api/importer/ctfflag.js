@@ -397,6 +397,30 @@ class CTFFlag{
         };
     }
 
+    getTeamsSuicides(start, end){
+
+        const redSuicides = this.killManager.getSuicidesByTeamBetween(0, start, end);
+        const blueSuicides  = this.killManager.getSuicidesByTeamBetween(1, start, end);
+
+        let greenSuicides = 0;
+        let yellowSuicides = 0;
+
+        if(this.totalTeams > 2){
+            greenSuicides = this.killManager.getSuicidesByTeamBetween(2, this.takenTimestamp, timestamp);
+        }
+
+        if(this.totalTeams > 3){
+            yellowSuicides = this.killManager.getSuicidesByTeamBetween(3, this.takenTimestamp, timestamp);
+        }
+
+        return {
+            "red": redSuicides, 
+            "blue": blueSuicides, 
+            "green": greenSuicides, 
+            "yellow": yellowSuicides
+        };
+    }
+
     async captured(timestamp, playerId){
 
         await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
@@ -466,6 +490,7 @@ class CTFFlag{
             const totalSelfCovers = this.getTotalSelfCovers();
 
             const teamKills = this.getTeamsKills(this.takenTimestamp, timestamp);
+            const teamSuicides = this.getTeamsSuicides(this.takenTimestamp, timestamp);
 
             //await this.ctfManager.insertCap(this.matchId, this.matchDate, capTeam, this.team, this.takenTimestamp, this.takenPlayer, timestamp, this.carriedBy, travelTime, carryTime, dropTime);
             capId = await this.ctfManager.insertCap(
@@ -492,7 +517,11 @@ class CTFFlag{
                 teamKills.red,
                 teamKills.blue,
                 teamKills.green,
-                teamKills.yellow
+                teamKills.yellow,
+                teamSuicides.red,
+                teamSuicides.blue,
+                teamSuicides.green,
+                teamSuicides.yellow
             );
 
             for(let i = 0; i < assistVars.length; i++){
@@ -591,6 +620,7 @@ class CTFFlag{
         const lastDropInfo = this.getLastDropInfo();
 
         const teamKills = this.getTeamsKills(this.takenTimestamp, timestamp);
+        const teamSuicides = this.getTeamsSuicides(this.takenTimestamp, timestamp);
 
         await this.ctfManager.insertReturn(
             this.matchId, 
@@ -617,7 +647,11 @@ class CTFFlag{
             teamKills.red,
             teamKills.blue,
             teamKills.green,
-            teamKills.yellow
+            teamKills.yellow,
+            teamSuicides.red,
+            teamSuicides.blue,
+            teamSuicides.green,
+            teamSuicides.yellow
         );
     }
 

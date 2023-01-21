@@ -482,8 +482,6 @@ class KillManager{
 
         let totalKills = 0;
 
-        //console.log(this.kills);
-
         for(let i = 0; i < this.kills.length; i++){
 
             const k = this.kills[i];
@@ -498,6 +496,27 @@ class KillManager{
         }
 
         return totalKills;
+    }
+
+    getSuicidesByTeamBetween(teamId, start, end){
+
+        let totalSuicides = 0;
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const k = this.kills[i];
+
+            if(k.timestamp > end) break;
+            if(k.timestamp < start) continue;
+            if(k.type !== "suicide") continue;
+
+            const victimTeam = this.playerManager.getPlayerTeamAt(k.killerId, k.timestamp);
+
+            if(victimTeam === teamId) totalSuicides++;
+        }
+
+        return totalSuicides;
+
     }
 }
 

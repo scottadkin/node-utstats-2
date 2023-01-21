@@ -153,8 +153,7 @@ class CTF{
     async insertCap(matchId, matchDate, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, 
         capPlayer, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
         totalAssists, totalSelfCovers, totalDeaths, totalSuicides, redTeamKills, blueTeamKills, greenTeamKills,
-        yellowTeamKills
-        ){
+        yellowTeamKills, redSuicides, blueSuicides, greenSuicides, yellowSuicides){
 
 
         let carryTimePercent = 0;
@@ -174,7 +173,7 @@ class CTF{
 
         const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?)`;
+            ?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -202,7 +201,11 @@ class CTF{
             redTeamKills,
             blueTeamKills,
             greenTeamKills,
-            yellowTeamKills
+            yellowTeamKills,
+            redSuicides,
+            blueSuicides,
+            greenSuicides,
+            yellowSuicides
         ];
 
         const result = await mysql.simpleQuery(query, vars);
@@ -214,7 +217,8 @@ class CTF{
     async insertReturn(matchId, matchDate, mapId, flagTeam, grabTime, grabPlayer, returnTime, 
         returnPlayer, returnString, distanceToCap, returnLocation, travelTime, carryTime, 
         dropTime, totalDrops, totalPickups, totalCovers, totalSeals, totalSelfCovers, totalDeaths, 
-        totalSuicides, redKills, blueKills, greenKills, yellowKills){
+        totalSuicides, redKills, blueKills, greenKills, yellowKills, redSuicides, blueSuicides, 
+        greenSuicides, yellowSuicides){
 
 
         let carryTimePercent = 0;
@@ -232,7 +236,8 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_returns VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        const query = `INSERT INTO nstats_ctf_returns VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+            ,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
@@ -263,7 +268,11 @@ class CTF{
             redKills,
             blueKills,
             greenKills,
-            yellowKills
+            yellowKills,
+            redSuicides,
+            blueSuicides,
+            greenSuicides,
+            yellowSuicides
         ];
 
         return await mysql.simpleQuery(query, vars);
