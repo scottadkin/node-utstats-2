@@ -2029,6 +2029,44 @@ class CTF{
             }
         }
     }
+
+
+    async insertCRKills(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
+
+        const query = `INSERT INTO nstats_ctf_cr_kills VALUES(NULL,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [matchId, matchDate, mapId, capId, eventType, timestamp, playerId, playerTeam, kills];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async getCapFragEvents(matchId){
+
+        const query = `SELECT cap_id,event_type,timestamp,player_id,player_team,total_events 
+        FROM nstats_ctf_cr_kills WHERE match_id=? AND cap_id != -1 ORDER BY timestamp ASC`;
+
+        const result = await mysql.simpleQuery(query, [matchId]);
+
+        const killsByTimestamp = {};
+        const suicidesByTimestamp = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            const timestamp = (r.event_type === 0) ? killsByTimestamp : suicidesByTimestamp;
+
+            if(timestamp[r.timestamp] === undefined){
+                timestamp[r.timestamp] = [];
+            }
+
+            timestamp[r.timestamp].push(r);
+        }
+
+        return {"kills": killsByTimestamp, "suicides": suicidesByTimestamp};
+
+    }
+
 }
 
 

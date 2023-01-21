@@ -376,6 +376,31 @@ class KillManager{
         }
     }
 
+    getTotalEventsByPlayerBetween(start, end, eventType){
+
+        const players = {};
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const k = this.kills[i];
+
+            if(k.timestamp > end) break;
+            if(k.timestamp < start) continue;
+            if(k.type !== eventType) continue;
+
+            const playerId = k.killerId;
+
+            if(players[playerId] === undefined){
+                players[playerId] = 0;
+            }
+
+            players[playerId]++;
+
+        }
+
+        return players;
+    }
+
 
     getKillsBetween(start, end, killer, bOnlyCount){
 
@@ -392,6 +417,7 @@ class KillManager{
                 if(k.killerId === killer && k.victimId !== killer && k.victimId !== -1){
                     found.push(k);
                 }
+
             }else if(k.timestamp > end){
 
                 break;

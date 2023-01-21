@@ -324,6 +324,17 @@ class Kills{
 
         return this.reduceTotalDataPoints(result, players, totalTeams);
     }
+
+
+    async getMatchKillsBetween(matchId, start, end){
+
+        const query = `SELECT killer,killer_team,COUNT(*) as total_kills 
+        FROM nstats_kills 
+        WHERE match_id=? AND timestamp >= ? AND timestamp <= ?
+        GROUP BY killer`;
+
+        return await mysql.simpleQuery(query, [matchId, start, end]);
+    }
 }
 
 module.exports = Kills;

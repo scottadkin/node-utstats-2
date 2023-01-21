@@ -13,13 +13,12 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
     const [data, setData] = useState({});
     const [bLoading, setbLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [displayMode, setDisplayMode] = useState(0);
+    const [displayMode, setDisplayMode] = useState(1);
 
     useEffect(() =>{
 
 
         const controller = new AbortController();
-        const signal = controller.signal;
 
         const loadData = async () =>{
 
@@ -56,7 +55,6 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             controller.abort();
         }
         
-        console.log("renderedddd");
     }, [matchId]);
 
 
@@ -98,6 +96,47 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
         }
 
         return string;
+    }
+
+    const createKillHoverData = (kills, teamId) =>{
+
+        kills.sort((a, b) =>{
+
+            a = a.total_events;
+            b = b.total_events;
+
+            if(a < b) return 1;
+            if(a > b) return -1;
+            return 0;
+        });
+
+
+        const found = kills.filter((kill) =>{
+            if(kill.player_team === teamId) return true;
+        });
+
+        const elems = found.map((kill, index) =>{
+
+            const player = Functions.getPlayer(playerData, kill.player_id);
+
+            let end = null;
+
+            if(index < found.length - 1){
+                end = ", ";
+            }
+
+            return <span key={kill.player_id}>
+                <CountryFlag country={player.country}/>{player.name} <b>{kill.total_events}</b>{end}
+            </span>
+            
+        });
+
+
+        if(elems.length === 0) return null;
+
+        return <div>
+            {elems}
+        </div>;
     }
 
     const createTableData = () =>{
@@ -226,12 +265,17 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
                     currentRow[`team_${x}_kills`] = {
                         "value": d[`team_${x}_kills`],
-                        "displayValue": Functions.ignore0(d[`team_${x}_kills`])
+                        "displayValue": 
+                        <MouseOver title="Kills" display={createKillHoverData(d.capKills, x)}>
+                            {Functions.ignore0(d[`team_${x}_kills`])}
+                        </MouseOver>
                     };
 
                     currentRow[`team_${x}_suicides`] = {
                         "value": d[`team_${x}_suicides`],
-                        "displayValue": Functions.ignore0(d[`team_${x}_suicides`])
+                        "displayValue": <MouseOver title="Suicides" display={createKillHoverData(d.capSuicides, x)}>
+                        {Functions.ignore0(d[`team_${x}_suicides`])}
+                    </MouseOver>
                     };
                 }
             }

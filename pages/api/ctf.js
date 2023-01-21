@@ -3,6 +3,7 @@ import Players from '../../api/players';
 import Matches from '../../api/matches';
 import Functions from '../../api/functions';
 import Maps from '../../api/maps';
+import Kills from "../../api/kills";
 
 function getUniquePlayers(data){
 
@@ -225,6 +226,7 @@ export default async function handler(req, res){
             const ctfManager = new CTF();
             const playerManager = new Players();
             const matchManager = new Matches();
+            const killManager = new Kills();
 
             const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
 
@@ -398,7 +400,15 @@ export default async function handler(req, res){
                 const selfCovers = await ctfManager.getMatchSelfCovers(matchId, true);
                 const seals = await ctfManager.getMatchSeals(matchId, true);
                 const carryTimes = await ctfManager.getMatchCarryTimes(matchId, true);
+                const capFragEvents = await ctfManager.getCapFragEvents(matchId);
+         
+                for(let i = 0; i < caps.length; i++){
 
+                    const c = caps[i];
+
+                    c.capKills = capFragEvents.kills[c.cap_time] ?? [];
+                    c.capSuicides = capFragEvents.suicides[c.cap_time] ?? [];
+                }
 
                 res.status(200).json({
                     "caps": caps, 

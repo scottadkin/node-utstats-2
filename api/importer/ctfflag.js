@@ -530,6 +530,10 @@ class CTFFlag{
                 await this.ctfManager.insertAssist(this.matchId, this.matchDate, this.mapId, capId, a.player, a.taken, a.dropped, a.carryTime);
             }
 
+            await this.insertCapReturnEvents(this.takenTimestamp, timestamp, capId, false);
+            await this.insertCapReturnEvents(this.takenTimestamp, timestamp, capId, true);
+
+
 
         }else{
             new Message(`capPlayer is null`,"warning");
@@ -605,6 +609,35 @@ class CTFFlag{
 
     }
 
+    async insertCapReturnEvents(start, end, capId, bSuicides){
+
+
+        let events = {};
+
+        if(!bSuicides){
+            events = this.killManager.getTotalEventsByPlayerBetween(start, end, "kill");
+        }else{
+            events = this.killManager.getTotalEventsByPlayerBetween(start, end, "suicide");
+        }
+
+        for(const [playerId, totalEvents] of Object.entries(events)){
+
+            const playerTeam = this.playerManager.getPlayerTeamAt(playerId, end);
+
+            await this.ctfManager.insertCRKills(
+                (bSuicides) ? 1 : 0,
+                this.matchId, 
+                this.matchDate, 
+                this.mapId, 
+                capId, 
+                end, 
+                playerId, 
+                playerTeam, 
+                totalEvents
+            );
+        }
+    }
+
     async processReturn(timestamp, playerId, smartCTFLocation){
 
         const carryTime = this.getTotalCarryTime();
@@ -621,6 +654,9 @@ class CTFFlag{
 
         const teamKills = this.getTeamsKills(this.takenTimestamp, timestamp);
         const teamSuicides = this.getTeamsSuicides(this.takenTimestamp, timestamp);
+
+        await this.insertCapReturnEvents(this.takenTimestamp, timestamp, -1, false);
+        await this.insertCapReturnEvents(this.takenTimestamp, timestamp, -1, true);
 
         await this.ctfManager.insertReturn(
             this.matchId, 
