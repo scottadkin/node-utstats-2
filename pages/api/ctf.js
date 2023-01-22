@@ -401,7 +401,7 @@ export default async function handler(req, res){
                 const seals = await ctfManager.getMatchSeals(matchId, true);
                 const carryTimes = await ctfManager.getMatchCarryTimes(matchId, true);
                 const capFragEvents = await ctfManager.getCapFragEvents(matchId);
-         
+
                 for(let i = 0; i < caps.length; i++){
 
                     const c = caps[i];

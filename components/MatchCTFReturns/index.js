@@ -40,6 +40,8 @@ const MatchCTFReturns = (props) =>{
                     if(res.error !== undefined){
                         setError(res.error.toString());
                     }else{
+
+                        console.log(res);
                         setReturnData(res.data);
                         setbLoading(false);
                     }
@@ -230,6 +232,30 @@ const MatchCTFReturns = (props) =>{
         return {"headers": headers, "data": data};
     }
 
+    const createFragHoverData = (targetTimestamp, teamId, data) =>{
+
+        const cleanData = data.filter((current) =>{
+            if(current.player_team === teamId) return true;
+        });
+
+        const elems = [];
+
+        for(let i = 0; i < cleanData.length; i++){
+
+            const d = cleanData[i];
+            const player = Functions.getPlayer(props.playerData, d.player_id);
+
+            elems.push(<span key={player.id}>
+                <CountryFlag country={player.country}/>{player.name} <b>{d.total_events}</b>{(i < cleanData.length - 1) ? ", " : null}
+            </span>);
+
+        }
+
+        return <div>
+            {elems}
+        </div>
+    }
+
     const getFragData = () =>{
 
 
@@ -271,12 +297,16 @@ const MatchCTFReturns = (props) =>{
 
                 returnObject[`team_${i}_kills`] = {
                     "value": currentReturn[`team_${i}_kills`],
-                    "displayValue": Functions.ignore0(currentReturn[`team_${i}_kills`])
+                    "displayValue": <MouseOver title="Kills" display={createFragHoverData(returnTime, i, currentReturn.returnKills)}>
+                        {Functions.ignore0(currentReturn[`team_${i}_kills`])}
+                    </MouseOver>
                 };
 
                 returnObject[`team_${i}_suicides`] = {
                     "value": currentReturn[`team_${i}_suicides`],
-                    "displayValue": Functions.ignore0(currentReturn[`team_${i}_suicides`])
+                    "displayValue": <MouseOver title="Suicides" display={createFragHoverData(returnTime, i, currentReturn.returnSuicides)}>
+                        {Functions.ignore0(currentReturn[`team_${i}_suicides`])}
+                    </MouseOver>
                 };
             }
 

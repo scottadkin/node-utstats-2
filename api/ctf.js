@@ -725,6 +725,7 @@ class CTF{
         return found;
     }
 
+
     async getMatchDetailedReturns(matchId){
 
         const returns = await this.getMatchReturns(matchId);
@@ -733,6 +734,7 @@ class CTF{
         const flagDeaths = await this.getMatchFlagDeaths(matchId, "only-returns");
         const flagDrops = await this.getMatchFlagDrops(matchId, "only-returns");
         const flagPickups = await this.getMatchFlagPickups(matchId, "only-returns");    
+        const teamFrags = await this.getCapFragEvents(matchId, "only-returns");
 
         for(let i = 0; i < returns.length; i++){
 
@@ -742,7 +744,12 @@ class CTF{
             r.deathsData = this.filterFlagDeaths(flagDeaths, r);
             r.flagDrops = this.filterFlagDrops(flagDrops, r);
             r.flagPickups = this.filterFlagPickups(flagPickups, r);
+
+            r.returnKills = teamFrags.kills[r.return_time] ?? []; 
+            r.returnSuicides = teamFrags.suicides[r.return_time] ?? []; 
+
         }
+
 
         return returns;
     }
@@ -2040,10 +2047,24 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async getCapFragEvents(matchId){
+    async getCapFragEvents(matchId, option){
+
+        let extra = "";
+
+        if(option === undefined){
+            option = "only-capped";
+        }
+
+        if(option === "only-capped"){
+            extra = "AND cap_id != -1";
+        }
+
+        if(option === "only-returns"){
+            extra = "AND cap_id = -1";
+        }
 
         const query = `SELECT cap_id,event_type,timestamp,player_id,player_team,total_events 
-        FROM nstats_ctf_cr_kills WHERE match_id=? AND cap_id != -1 ORDER BY timestamp ASC`;
+        FROM nstats_ctf_cr_kills WHERE match_id=? ${extra} ORDER BY timestamp ASC`;
 
         const result = await mysql.simpleQuery(query, [matchId]);
 

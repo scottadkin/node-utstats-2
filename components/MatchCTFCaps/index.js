@@ -13,7 +13,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
     const [data, setData] = useState({});
     const [bLoading, setbLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [displayMode, setDisplayMode] = useState(1);
+    const [displayMode, setDisplayMode] = useState(0);
 
     useEffect(() =>{
 
@@ -138,6 +138,8 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             {elems}
         </div>;
     }
+
+
 
     const createTableData = () =>{
 
