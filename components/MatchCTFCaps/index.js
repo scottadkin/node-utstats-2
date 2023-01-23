@@ -42,11 +42,11 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                 setbLoading(false);
 
             }catch(err){
+
                 if(err.name !== "AbortError"){
                     setError(err.toString());
                 }
             }
-
         }
 
         loadData();
@@ -141,15 +141,73 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
 
 
+    const createTotalsHoverData = (data, targetKey, invalidTargetKeyValue, alternativeKey) =>{
+
+        const totals = {};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            let current = null;
+
+            if(d[targetKey] === invalidTargetKeyValue){
+                current = d[alternativeKey];
+            }else{
+                current = d[targetKey];
+            }
+
+            if(totals[current] === undefined){
+                totals[current] = 0;
+            }
+
+            totals[current]++;
+        }
+
+        const finalData = Object.entries(totals);
+
+        finalData.sort((a, b) =>{
+            a = a[1];
+            b = b[1];
+
+            if(a < b) return 1;
+            if(a > b) return -1;
+            return 0;
+        });
+
+        const elems = [];
+
+        for(let i = 0; i < finalData.length; i++){
+
+            const d = finalData[i];
+
+            const player = Functions.getPlayer(playerData, d[0]);
+
+            let end = "";
+
+            if(i < finalData.length - 1){
+                end = ", ";
+            }
+
+            elems.push(<span key={d[0]}>
+                <CountryFlag country={player.country}/>{player.name} <b>{d[1]}</b>{end}
+            </span>);
+        }
+
+        return <div>{elems}</div>
+    }
+
+
+
     const createTableData = () =>{
 
         if(data === undefined) return [];
 
         const rows = [];
 
-        for(let i = 0; i < data.caps.length; i++){
+        for(let i = 0; i < data.length; i++){
 
-            const d = data.caps[i];
+            const d = data[i];
 
             updateTeamScores(d.cap_team);
 
@@ -182,12 +240,12 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             if(displayMode === 0){
 
                
-                currentRow["taken"] = {
+                /*currentRow["taken"] = {
                     "value": d.grab_time,
                     "displayValue": Functions.MMSS(d.grab_time - matchStart)
-                };
+                };*/
 
-                currentRow["taken_player"] = {
+                /*currentRow["taken_player"] = {
                     "value": grabPlayer.name.toLowerCase(),
                     "displayValue": <>
                         <Link href={`/pmatch/${matchId}/?player=${grabPlayer.id}`}>
@@ -197,7 +255,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                         </Link>
                     </>,
                     "className": Functions.getTeamColor(d.cap_team)
-                };
+                };*/
 
                 
                 currentRow["cap_player"] = {
@@ -232,22 +290,31 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
                 currentRow["drops"] = {
                     "value": d.total_drops,
-                    "displayValue": Functions.ignore0(d.total_drops)
+                    "displayValue": <MouseOver title="Flag Drops" display={createTotalsHoverData(d.flagDrops, "player_id", null, "")}>
+                        {Functions.ignore0(d.total_drops)}
+                    </MouseOver>
                 };
 
                 currentRow["covers"] = {
                     "value": d.total_covers,
-                    "displayValue": Functions.ignore0(d.total_covers)
+                    "displayValue": <MouseOver title="Covers" display={createTotalsHoverData(d.coverData, "killer_id", null, "")}>
+                        {Functions.ignore0(d.total_covers)}
+                    </MouseOver>
                 };
 
                 currentRow["self_covers"] = {
                     "value": d.total_self_covers,
-                    "displayValue": Functions.ignore0(d.total_self_covers)
+                    "displayValue": <MouseOver title="Self Covers" display={createTotalsHoverData(d.selfCoverData, "killer_id", null, "")}>
+                        {Functions.ignore0(d.total_self_covers)}
+                    </MouseOver>
                 };
 
                 currentRow["seals"] = {
                     "value": d.total_seals,
-                    "displayValue": Functions.ignore0(d.total_seals)
+                    "displayValue": <MouseOver 
+                        title="Seals" 
+                        display={createTotalsHoverData(d.flagSeals, "killer_id", null, "")}>{Functions.ignore0(d.total_seals)}
+                    </MouseOver>
                 };
 
                 currentRow["assists"] = {
@@ -257,7 +324,10 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
                 currentRow["deaths"] = {
                     "value": d.total_deaths,
-                    "displayValue": deathsElem
+                    "displayValue": <MouseOver 
+                        title="Flag Deaths" 
+                        display={createTotalsHoverData(d.flagDeaths, "victim_id", -1, "killer_id")}>{deathsElem}
+                    </MouseOver>
                 };
             }
 
@@ -297,9 +367,10 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
     if(displayMode === 0){
 
-        headers["taken"] = "Taken";
-        headers["taken_player"] = "Grab Player";
+       // headers["taken"] = "Taken";
+        //headers["taken_player"] = "Grab Player";
         headers["cap"] = "Capped";
+        
         headers["cap_player"] = "Cap Player";
         headers["travel_time"] =  "Travel Time";
         headers["carry_time"] = "Carry Time";
@@ -314,6 +385,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
     }else if(displayMode === 1){
 
         headers["cap"] = "Capped";
+
         for(let i = 0; i < totalTeams; i++){
 
             headers[`team_${i}_kills`] = `${Functions.getTeamName(i, true)} Kills`;

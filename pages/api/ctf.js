@@ -394,30 +394,18 @@ export default async function handler(req, res){
 
             }else if(mode === "match-caps"){
 
-                const caps = await ctfManager.getMatchCaps(matchId);
-                const assists = await ctfManager.getMatchAssists(matchId);
-                const covers = await ctfManager.getMatchCovers(matchId, true);
-                const selfCovers = await ctfManager.getMatchSelfCovers(matchId, true);
-                const seals = await ctfManager.getMatchSeals(matchId, true);
-                const carryTimes = await ctfManager.getMatchCarryTimes(matchId, true);
-                const capFragEvents = await ctfManager.getCapFragEvents(matchId);
+                const data = await ctfManager.getMatchDetailedCaps(matchId);
 
-                for(let i = 0; i < caps.length; i++){
+                res.status(200).json(data);
 
-                    const c = caps[i];
-
-                    c.capKills = capFragEvents.kills[c.cap_time] ?? [];
-                    c.capSuicides = capFragEvents.suicides[c.cap_time] ?? [];
-                }
-
-                res.status(200).json({
+                /*res.status(200).json({
                     "caps": caps, 
                     "assists": assists,
                     "covers": covers,
                     "selfCovers": selfCovers,
                     "seals": seals,
-                    "carryTimes": carryTimes
-                })
+                    "carryTimes": carryTimes,
+                })*/
                 resolve();
                 return;
 

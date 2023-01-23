@@ -524,6 +524,7 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+
     async getMatchSelfCovers(matchId, bOnlyCapped){
 
         const extra = " AND cap_id!=-1";
@@ -669,7 +670,7 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
-    filterFlagDeaths(deaths, returnData){
+    filterFlagDeaths(deaths, returnData, startKey, endKey){
 
         const found = [];
 
@@ -679,52 +680,49 @@ class CTF{
 
             const d = deaths[i];
 
-            if(d.victim_team !== r.flag_team && d.timestamp >= r.grab_time && d.timestamp <= r.return_time){
+            const startTime = d[startKey];
+            const endTime = d[endKey];
+            const time = d.timestamp;
+
+            if(d.victim_team !== r.flag_team && time >= startTime && time <= endTime){
                 found.push(d);     
             }
         }
         return found;
     }
 
-    filterFlagDrops(drops, returnData){
+    filterFlagDrops(drops, returnData, startTimestampKey, endTimestampKey){
         
-        const found = [];
+        return drops.filter((drop) =>{
 
-        const r = returnData;
+            const timestamp = drop.timestamp;
+            const startTime = returnData[startTimestampKey];
+            const endTime = returnData[endTimestampKey];
 
-        for(let i = 0; i < drops.length; i++){
-            
-            const d = drops[i];
+            if(drop.flag_team === returnData.flag_team){
 
-            if(d.flag_team === r.flag_team){
-
-                if(d.timestamp >= r.grab_time && d.timestamp <= r.return_time){
-                    found.push(d);
+                if(timestamp >= startTime && timestamp <= endTime){
+                    return true;
                 }
             }
-        }
-
-        return found;
+        });
     }
 
-    filterFlagPickups(pickups, returnData){
-
-        const found = [];
+    filterFlagPickups(pickups, returnData, startKey, endKey){
 
         const r = returnData;
 
-        for(let i = 0; i < pickups.length; i++){
+        return pickups.filter((p) =>{
 
-            const p = pickups[i];
+            const start = r[startKey];
+            const end = r[endKey];
+            const time = p.timestamp;
 
-            if(p.timestamp >= r.grab_time && p.timestamp <= r.return_time && r.flag_team === p.flag_team){
-                found.push(p);
+            if(time >= start && time <= end && r.flag_team === p.flag_team){
+                return true;
             }
-        }
-
-        return found;
+        });
     }
-
 
     async getMatchDetailedReturns(matchId){
 
@@ -741,9 +739,9 @@ class CTF{
             const r = returns[i];
             r.coverData = this.filterFlagCovers(covers, r.flag_team, r.grab_time, r.return_time, false);
             r.selfCoverData = this.filterFlagCovers(selfCovers, r.flag_team, r.grab_time, r.return_time, true);
-            r.deathsData = this.filterFlagDeaths(flagDeaths, r);
-            r.flagDrops = this.filterFlagDrops(flagDrops, r);
-            r.flagPickups = this.filterFlagPickups(flagPickups, r);
+            r.deathsData = this.filterFlagDeaths(flagDeaths, r, "grab_time", "return_time");
+            r.flagDrops = this.filterFlagDrops(flagDrops, r, "grab_time", "return_time");
+            r.flagPickups = this.filterFlagPickups(flagPickups, r, "grab_time", "return_time");
 
             r.returnKills = teamFrags.kills[r.return_time] ?? []; 
             r.returnSuicides = teamFrags.suicides[r.return_time] ?? []; 
@@ -754,6 +752,45 @@ class CTF{
         return returns;
     }
 
+    filterByCapId(data, capId){
+
+        return data.filter((d) =>{
+            if(d.cap_id === capId) return true;
+        });
+    }
+
+    async getMatchDetailedCaps(matchId){
+
+        const caps = await this.getMatchCaps(matchId);
+        const assists = await this.getMatchAssists(matchId);
+        const covers = await this.getMatchCovers(matchId, true);
+        const selfCovers = await this.getMatchSelfCovers(matchId, true);
+        const seals = await this.getMatchSeals(matchId, true);
+        const carryTimes = await this.getMatchCarryTimes(matchId, true);
+        const capFragEvents = await this.getCapFragEvents(matchId, "only-capped");
+        const flagDeaths = await this.getMatchFlagDeaths(matchId, "only-capped");
+        const flagDrops = await this.getMatchFlagDrops(matchId, "only-capped");
+        const flagPickups = await this.getMatchFlagPickups(matchId, "only-capped"); 
+
+        for(let i = 0; i < caps.length; i++){
+
+            const c = caps[i];
+
+            c.coverData = this.filterByCapId(covers, c.id);
+            c.selfCoverData = this.filterByCapId(selfCovers, c.id);
+            c.flagDrops = this.filterByCapId(flagDrops, c.id);
+            c.flagPickups = this.filterByCapId(flagPickups, c.id);
+            c.flagDeaths = this.filterByCapId(flagDeaths, c.id);
+            c.flagAssists = this.filterByCapId(assists, c.id);
+            c.flagSeals = this.filterByCapId(seals, c.id);
+            c.carryTimes = this.filterByCapId(carryTimes, c.id);
+
+            c.capKills = capFragEvents.kills[c.cap_time] ?? [];
+            c.capSuicides = capFragEvents.suicides[c.cap_time] ?? [];
+        }
+
+        return caps;
+    }
 
     async insertEvent(match, timestamp, player, event, team){
 
