@@ -15,7 +15,7 @@ const MatchCTFReturns = (props) =>{
     const [bLoading, setbLoading] = useState(true);
     const [error, setError] = useState(null);
     const [displayMode, setDisplayMode] = useState(0);
-    const [currentTab, setCurrentTab] = useState(1);
+    const [currentTab, setCurrentTab] = useState(0);
 
     useEffect(() =>{
 

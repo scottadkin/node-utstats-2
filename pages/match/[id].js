@@ -258,12 +258,7 @@ class Match extends React.Component{
 
                     {titleElem}
 
-                    <MatchCTFReturns 
-                        matchId={this.state.info.id}
-                        playerData={this.state.playerNames} 
-                        totalTeams={this.state.info.total_teams}
-                        matchStart={this.state.info.start}
-                    />
+                    <MatchCTFSummary matchId={this.state.info.id} playerData={this.state.playerData} />
 
                     <MatchCTFCaps 
                         matchId={this.state.info.id} 
@@ -271,8 +266,17 @@ class Match extends React.Component{
                         totalTeams={this.state.info.total_teams}
                         matchStart={this.state.info.start}
                     />
+
+                    <MatchCTFReturns 
+                        matchId={this.state.info.id}
+                        playerData={this.state.playerNames} 
+                        totalTeams={this.state.info.total_teams}
+                        matchStart={this.state.info.start}
+                    />
+
                     
-                    <MatchCTFSummary matchId={this.state.info.id} playerData={this.state.playerData} />
+                    
+                    
                     <MatchCTFCarryTime matchId={this.state.info.id} players={this.state.playerNames}/>
                             
                             

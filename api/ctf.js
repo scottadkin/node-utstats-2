@@ -2019,7 +2019,8 @@ class CTF{
     async getCarryTimes(matchId){
 
         const query = `SELECT 
-        player_id,playtime,flag_carry_time,flag_carry_time_best,flag_capture,flag_assist
+        player_id,playtime,flag_carry_time,flag_carry_time_best,flag_capture,flag_assist,
+        flag_capture_best,flag_assist_best
         FROM 
         nstats_player_ctf_match WHERE match_id=?`;
 

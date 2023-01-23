@@ -1,4 +1,4 @@
-import React from "react";
+import {React, useEffect, useState} from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import InteractiveTable from "../InteractiveTable";
@@ -6,123 +6,108 @@ import Link from "next/link";
 import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
 
-class MatchCTFCarryTime extends React.Component{
 
-    constructor(props){
+const MatchCTFCarryTime = ({matchId, players}) =>{
 
-        super(props);
-        this.state = {"bLoading": true, "error": null, "data": []};
-    }
+    const [bLoading, setbLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [data, setData] = useState([]);
 
+    useEffect(() =>{
+
+        const loadData = async () =>{
+
+            const req = await fetch("/api/ctf", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "carrytime", "matchId": matchId})
+            });
     
-    async loadData(){
-        
+            const res = await req.json();
 
-        this.setState({"bLoading": true, "error": null, "data": []});
+            if(res.error !== undefined){
+                setError(res.error);   
+            }else{
+                setData(res.data);
+            }
 
-        const req = await fetch("/api/ctf", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"mode": "carrytime", "matchId": this.props.matchId})
-        });
-
-        const res = await req.json();
-
-        if(res.error !== undefined){
-            this.setState({"error": res.error, "bLoading": false});
-        }else{
-            this.setState({"data": res.data, "bLoading": false});
+            setbLoading(false);
         }
-    }
 
-    async componentDidMount(){
+        loadData();
 
-        await this.loadData();
-    }
-
-    async componentDidUpdate(prevProps){
-
-        const prevPlayers = JSON.stringify(prevProps.players);
-        const players = JSON.stringify(this.props.players);
-
-        if(prevProps.matchId !== this.props.matchId || players !== prevPlayers){
-
-            await this.loadData();
-        }
-    }
+    }, [matchId]);
 
 
-    renderData(){
+    const renderTable = () =>{
+
+        if(data === null) return null;
 
         const headers = {
-            "name": "Player",
-            "flag_assist": "Flag Assist",
-            "flag_capture": "Flag Caps",
-            "flag_carry_time_best": "Best Carry Time Single Life",
-            "flag_carry_time": "Total Flag Carry Time",
+            "player": "Player",
+            "assists": "Assists",
+            "best_assist": "Most Assists(Single Life)",
+            "caps": "Caps",
+            "best_caps": "Most Caps(Single Life)",
+            "total_carry_time": "Total Carry Time",
+            "best_carry_time_life": "Best Carry Time(Single Life)"
         };
 
-        const data = [];
+        const rows = data.map((carryData) =>{
 
-        for(let i = 0; i < this.state.data.length; i++){
-
-            const d = this.state.data[i];
-
-            const player = Functions.getPlayer(this.props.players, d.player_id);
-
-
-            const playerElem = <Link href={`/pmatch/${this.props.matchId}?player=${d.player_id}`}>
-                <a><CountryFlag country={player.country}/>{player.name}</a>
-            </Link>;
-
-            
-            data.push({
-                "name": {
+            const player = Functions.getPlayer(players, carryData.player_id);
+            return {
+                "player": {
                     "value": player.name.toLowerCase(), 
-                    "displayValue": playerElem, 
-                    "className": `player ${Functions.getTeamColor(player.team)}`
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
+                        <a>
+                            <CountryFlag country={player.country}/>{player.name}
+                        </a>
+                    </Link>,
+                    "className": `text-left ${Functions.getTeamColor(player.team)}`
                 },
-                "flag_assist": {
-                    "value": d.flag_assist, 
-                    "displayValue": Functions.ignore0(d.flag_assist)
+                "assists": {
+                    "value": carryData.flag_assist,
+                    "displayValue": Functions.ignore0(carryData.flag_assist)
                 },
-                "flag_capture": {
-                    "value": d.flag_capture, 
-                    "displayValue": Functions.ignore0(d.flag_capture)
+                "best_assist": {
+                    "value": carryData.flag_assist_best,
+                    "displayValue": Functions.ignore0(carryData.flag_assist_best)
                 },
-                "flag_carry_time_best": {
-                    "value": d.flag_carry_time_best, 
-                    "displayValue": Functions.toPlaytime(d.flag_carry_time_best),
+                "caps": {
+                    "value": carryData.flag_capture,
+                    "displayValue": Functions.ignore0(carryData.flag_capture)
+                },
+                "best_caps": {
+                    "value": carryData.flag_capture_best,
+                    "displayValue": Functions.ignore0(carryData.flag_capture_best)
+                },
+                "total_carry_time": {
+                    "value": carryData.flag_carry_time,
+                    "displayValue": Functions.toPlaytime(carryData.flag_carry_time),
                     "className": "playtime"
                 },
-                "flag_carry_time": {
-                    "value": d.flag_carry_time, 
-                    "displayValue":  Functions.toPlaytime(d.flag_carry_time),
+                "best_carry_time_life": {
+                    "value": carryData.flag_carry_time_best,
+                    "displayValue": Functions.toPlaytime(carryData.flag_carry_time_best),
                     "className": "playtime"
-                },
-            });
-        }
+                }
+            };
+        });
 
 
-        return <InteractiveTable width={1} headers={headers} data={data}/>
+        return <InteractiveTable width={1} headers={headers} data={rows}/>
     }
 
-    render(){
 
-        if(this.state.bLoading) return <Loading />;
+    if(bLoading) return <Loading />;
+    if(error !== null) return <ErrorMessage title="Captrue The Flag Carry Times" text={error}/>
 
-        if(this.state.error !== null){
 
-            return <ErrorMessage title="Capture The Flag Carry Times" text={this.state.error}/>
-        }
-
-        return <div>
-            <div className="default-header">
-                Capture The Flag Carry Times
-            </div>
-            {this.renderData()}
-        </div>
-    }
+    return <div>
+        <div className="default-header">Capture The Flag Carry Times</div>
+        {renderTable()}
+    </div>
 }
 
 export default MatchCTFCarryTime;
