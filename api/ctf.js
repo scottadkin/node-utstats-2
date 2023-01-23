@@ -672,23 +672,16 @@ class CTF{
 
     filterFlagDeaths(deaths, returnData, startKey, endKey){
 
-        const found = [];
+        return deaths.filter((death) =>{
 
-        const r = returnData;
+            const start = returnData[startKey];
+            const end = returnData[endKey];
+            const time = death.timestamp;
 
-        for(let i = 0; i < deaths.length; i++){
-
-            const d = deaths[i];
-
-            const startTime = d[startKey];
-            const endTime = d[endKey];
-            const time = d.timestamp;
-
-            if(d.victim_team !== r.flag_team && time >= startTime && time <= endTime){
-                found.push(d);     
+            if(death.victim_team !== returnData.flag_team && time >= start && time <= end){
+                return true;
             }
-        }
-        return found;
+        });
     }
 
     filterFlagDrops(drops, returnData, startTimestampKey, endTimestampKey){

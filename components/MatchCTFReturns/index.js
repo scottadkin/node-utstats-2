@@ -107,27 +107,35 @@ const MatchCTFReturns = (props) =>{
             unique[c[playerKey]]++;
         }
 
+        const totals = Object.entries(unique);
+
+        totals.sort((a, b) =>{
+
+            a = a[1];
+            b = b[1];
+
+            if(a < b) return 1;
+            if(a > b) return -1;
+            return 0;
+
+        });
+
         const elems = [];
 
-        let index = 0;
+        for(let i = 0; i < totals.length; i++){
 
-        const totalUnique = Object.keys(unique).length;
+            const t = totals[i];
 
-        for(const [playerId, totalCovers] of Object.entries(unique)){
+            const player = Functions.getPlayer(props.playerData, t[0]);
 
-            const player = Functions.getPlayer(props.playerData, playerId);
-
-            elems.push(<div key={playerId} className={styles.player}>
-                <CountryFlag country={player.country}/>{player.name} <b>{totalCovers}</b>
-                {(index < totalUnique - 1) ? ", " : ""}
+            elems.push(<div key={t[0]} className={styles.player}>
+                <CountryFlag country={player.country}/>{player.name} <b>{t[1]}</b>
+                {(i < totals.length - 1) ? ", " : ""}
             </div>);
 
-            index++;
         }
 
-        return <div>
-            {elems}
-        </div>
+        return <div>{elems}</div>;
     }
 
 
@@ -236,6 +244,16 @@ const MatchCTFReturns = (props) =>{
 
         const cleanData = data.filter((current) =>{
             if(current.player_team === teamId) return true;
+        });
+
+        cleanData.sort((a, b) =>{
+
+            a = a.total_events;
+            b = b.total_events;
+
+            if(a < b) return 1;
+            if(a > b) return -1;
+            return 0;
         });
 
         const elems = [];
