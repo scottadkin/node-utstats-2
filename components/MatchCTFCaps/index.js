@@ -198,6 +198,22 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
     }
 
 
+    const createAssistHoverData = (assists) =>{
+
+        const elems = assists.map((assist, index) =>{
+
+            let end = "";
+
+            if(index < assists.length - 1){
+                end = `, `;
+            }
+            const player = Functions.getPlayer(playerData, assist.player_id);
+            return <span key={assist.id}><CountryFlag country={player.country}/>{player.name} <b>{assist.carry_time} Secs</b>{end}</span>
+        });
+
+        return <div>{elems}</div>
+    }
+
 
     const createTableData = () =>{
 
@@ -209,9 +225,11 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
             const d = data[i];
 
+            console.log(d.flagAssists);
+
             updateTeamScores(d.cap_team);
 
-            const grabPlayer = Functions.getPlayer(playerData, d.grab_player);
+            //const grabPlayer = Functions.getPlayer(playerData, d.grab_player);
             const capPlayer = Functions.getPlayer(playerData, d.cap_player);
 
             const suicideElem = (d.total_suicides === 0) ? null : 
@@ -319,7 +337,9 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
                 currentRow["assists"] = {
                     "value": d.total_assists,
-                    "displayValue": Functions.ignore0(d.total_assists)
+                    "displayValue": <MouseOver title="Flag Assists" display={createAssistHoverData(d.flagAssists)}>
+                        {Functions.ignore0(d.total_assists)}
+                    </MouseOver>
                 };
 
                 currentRow["deaths"] = {
