@@ -1302,6 +1302,8 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Summary","true","1")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Match Report Title","true","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Combogib Stats","true","10")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Capture The Flag Returns","true","999")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Capture The Flag Carry Times","true","9991")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Display Per Page","25","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Display Type","0","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","Default Gametype","0","0")`,

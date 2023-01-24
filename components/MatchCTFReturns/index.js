@@ -126,7 +126,7 @@ const MatchCTFReturns = (props) =>{
 
             const t = totals[i];
 
-            const player = Functions.getPlayer(props.playerData, t[0]);
+            const player = Functions.getPlayer(props.playerData, t[0], true);
 
             elems.push(<div key={t[0]} className={styles.player}>
                 <CountryFlag country={player.country}/>{player.name} <b>{t[1]}</b>
@@ -162,8 +162,8 @@ const MatchCTFReturns = (props) =>{
 
             const r = returnData[i];
 
-            const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player);
-            const returnPlayer = Functions.getPlayer(props.playerData, r.return_player);
+            const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player, true);
+            const returnPlayer = Functions.getPlayer(props.playerData, r.return_player, true);
 
             let smartCTFString = getSmartCTFString(r.return_string);
 
@@ -261,9 +261,9 @@ const MatchCTFReturns = (props) =>{
         for(let i = 0; i < cleanData.length; i++){
 
             const d = cleanData[i];
-            const player = Functions.getPlayer(props.playerData, d.player_id);
+            const player = Functions.getPlayer(props.playerData, d.player_id, true);
 
-            elems.push(<span key={player.id}>
+            elems.push(<span key={i}>
                 <CountryFlag country={player.country}/>{player.name} <b>{d.total_events}</b>{(i < cleanData.length - 1) ? ", " : null}
             </span>);
 

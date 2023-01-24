@@ -1,4 +1,4 @@
-import React from 'react';
+import {React, useEffect, useState, useReducer} from 'react';
 import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/'
 import Footer from '../../components/Footer/';
@@ -49,7 +49,271 @@ import MatchCTFCarryTime from '../../components/MatchCTFCarryTime';
 import MatchCTFReturns from '../../components/MatchCTFReturns';
 
 
-class Match extends React.Component{
+const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, navSettings, playerData}) =>{
+
+    metaData = JSON.parse(metaData);
+    playerData = JSON.parse(playerData);
+    info = JSON.parse(info);
+    pageSettings = JSON.parse(pageSettings);
+    pageOrder = JSON.parse(pageOrder);
+
+    const reducer = (state, action) =>{
+        
+        switch(action.type){
+
+            case "INITIAL_PLAYERS":{
+                return {
+                    ...state,
+                    "basicPlayers": action.basicPlayers,
+                    "justPlayerNames": action.justPlayerNames,
+                    "nonSpectators": action.nonSpectators,
+                }
+            } 
+        }
+    }
+
+    const [state, dispatch] = useReducer(reducer, {
+        "basicPlayers": {},
+        "justPlayerNames": {},
+        "nonSpectators": {},
+    });
+
+
+   
+
+    const createBasicPlayerData = () =>{
+
+        const basicPlayers = {};
+        const justPlayerNames = {};
+        const playedPlayers = {};
+
+
+        for(let i = 0; i < playerData.length; i++){
+    
+            const p = playerData[i];
+    
+            basicPlayers[p.player_id] = {
+                "id": p.player_id,
+                "name": p.name, 
+                "country": p.country,
+                "team": p.team,
+                "spectator": p.spectator,
+                "played": p.played,
+                "playtime": p.playtime
+            };
+    
+            justPlayerNames[playerData[i].player_id] = playerData[i].name;
+    
+            if(p.playtime > 0 || !p.spectator){
+                playedPlayers[playerData[i].player_id] = playerData[i].name;
+            }
+        }
+
+        console.log(basicPlayers);
+
+        dispatch({
+            "type": "INITIAL_PLAYERS",
+            "basicPlayers": basicPlayers,
+            "justPlayerNames": justPlayerNames,
+            "nonSpectators": playedPlayers,
+        });
+    }
+
+
+    useEffect(() =>{
+
+        createBasicPlayerData();
+
+    }, [matchId]);
+    
+
+
+    
+    
+    //createBasicPlayerData();
+
+    const renderTitleElem = () =>{
+
+        const setting = pageSettings["Display Match Report Title"];
+
+        if(setting === "true"){
+            return <div className="default-header">Match Report</div> 
+        }
+    }
+
+    const getOGImage = () =>{
+
+        //for default head open graph image
+        const imageReg = /^.+\/(.+)\.jpg$/i;
+        const imageRegResult = imageReg.exec(image);
+
+        if(imageRegResult !== null){
+            return `maps/${imageRegResult[1]}`;
+        }
+
+        return "maps/default";
+
+    }
+
+
+    
+
+    const elems = [];
+
+
+    if(pageSettings["Display Capture The Flag Summary"] === "true"){
+        elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={playerData} />
+    }
+
+    if(pageSettings["Display Capture The Flag Returns"] === "true"){
+        
+        elems[pageOrder["Display Capture The Flag Returns"]] = <MatchCTFReturns 
+            key="ctf-r"
+            matchId={matchId}
+            playerData={state.basicPlayers} 
+            totalTeams={info.total_teams}
+            matchStart={info.start}
+        />
+    }
+
+    if(pageSettings["Display Capture The Flag Caps"] === "true"){
+
+        elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCaps 
+            key="ctf-c"
+            matchId={matchId} 
+            playerData={state.basicPlayers} 
+            totalTeams={info.total_teams}
+            matchStart={info.start}
+        />
+    }
+
+    if(pageSettings["Display Capture The Flag Carry Times"] === "true"){
+
+        elems[pageOrder["Display Capture The Flag Carry Times"]] = <MatchCTFCarryTime 
+            matchId={matchId} 
+            players={state.basicPlayers}
+            key="ctf-ct"
+        />;
+    }
+
+
+    return <div>
+            <DefaultHead host={host} 
+                title={metaData.title} 
+                description={metaData.description} 
+                keywords={metaData.keywords}
+                image={getOGImage()}    
+                />
+            <main>
+                <Nav settings={navSettings} session={session}/>
+                <div id="content">
+                    <div className="default">
+
+                    {renderTitleElem()}
+
+                    {elems}
+                    
+        
+                    </div>
+                </div>
+                <Footer session={session}/>
+            </main>
+        </div>;
+
+    
+    /*const createBasicPlayersObject = () =>{
+    
+        const players = {};
+
+    
+        for(let i = 0; i < this.state.playerNames.length; i++){
+    
+            const p = this.state.playerNames[i];
+    
+            players[p.id] = {"name": p.name, "country": p.country, "team": p.team, "playtime": p.playtime};
+        }
+    
+        this.setState({"playersObject": players});
+    }*/
+
+    /*
+        if(error !== undefined){
+            return <ErrorPage>{error}</ErrorPage>
+        }
+
+        const imageHost = Functions.getImageHostAndPort(host);
+
+        //for default head open graph image
+        const imageReg = /^.+\/(.+)\.jpg$/i;
+        const imageRegResult = imageReg.exec(image);
+        let ogImage = "maps/default";
+
+        if(imageRegResult !== null){
+            ogImage = `maps/${imageRegResult[1]}`;
+        }
+            
+
+        if(info === undefined){
+            return this.renderMissing(ogImage);
+        }      
+        
+
+        const titleElem = this.getTitleElem();
+
+        const elems = this.renderElems(imageHost);
+
+        //const metaData = JSON.parse(metaData);
+
+
+
+        return <div>
+            <DefaultHead host={host} 
+                title={metaData.title} 
+                description={metaData.description} 
+                keywords={metaData.keywords}
+                image={ogImage}    
+                />
+            <main>
+                <Nav settings={navSettings} session={session}/>
+                <div id="content">
+                    <div className="default">
+
+                    {titleElem}
+
+                    <MatchCTFSummary matchId={info.id} playerData={this.state.playerData} />
+
+                    <MatchCTFCaps 
+                        matchId={info.id} 
+                        playerData={this.state.playerNames} 
+                        totalTeams={info.total_teams}
+                        matchStart={info.start}
+                    />
+
+                    <MatchCTFReturns 
+                        matchId={info.id}
+                        playerData={this.state.playerNames} 
+                        totalTeams={info.total_teams}
+                        matchStart={info.start}
+                    />
+
+                    
+                    
+                    
+                    <MatchCTFCarryTime matchId={info.id} players={this.state.playerNames}/>
+                            
+                            
+                    {elems}
+        
+                    </div>
+                </div>
+                <Footer session={this.props.session}/>
+            </main>
+        </div>
+    
+*/
+}
+
+/*class Match extends React.Component{
 
     constructor(props){
 
@@ -190,7 +454,7 @@ class Match extends React.Component{
                 gametype={this.props.gametype} 
                 map={this.props.map} 
                 image={this.props.image} 
-                /*bMonsterHunt={bMonsterHunt}*/
+                //bMonsterHunt={bMonsterHunt}
                 settings={this.state.pageSettings}
             />    
         }
@@ -289,6 +553,9 @@ class Match extends React.Component{
         </div>
     }
 }
+*/
+
+
 
 /*
 function Match({navSettings, pageSettings, pageOrder, session, host, matchId, info, server, gametype,

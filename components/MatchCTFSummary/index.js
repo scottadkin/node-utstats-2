@@ -22,25 +22,25 @@ class MatchCTFSummary extends React.Component{
 
         if(this.state.mode !== 0) return null;
 
-        return <MatchCTFSummaryDefault playerData={this.props.playerData}/>;
+        return <MatchCTFSummaryDefault matchId={this.props.matchId} playerData={this.props.playerData}/>;
     }
 
     renderCovers(){
 
         if(this.state.mode !== 1) return null;
-        return <MatchCTFSummaryCovers playerData={this.props.playerData}/>;
+        return <MatchCTFSummaryCovers matchId={this.props.matchId} playerData={this.props.playerData}/>;
     }
 
     renderSeals(){
 
         if(this.state.mode !== 2) return null;
-        return <MatchCTFSummarySeals playerData={this.props.playerData}/>;
+        return <MatchCTFSummarySeals matchId={this.props.matchId}  playerData={this.props.playerData}/>;
     }
 
     renderReturns(){
 
         if(this.state.mode !== 3) return null;
-        return <MatchCTFSummaryReturns playerData={this.props.playerData}/>;
+        return <MatchCTFSummaryReturns matchId={this.props.matchId}  playerData={this.props.playerData}/>;
     }
 
     render(){

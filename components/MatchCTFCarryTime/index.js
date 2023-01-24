@@ -55,7 +55,7 @@ const MatchCTFCarryTime = ({matchId, players}) =>{
 
         const rows = data.map((carryData) =>{
 
-            const player = Functions.getPlayer(players, carryData.player_id);
+            const player = Functions.getPlayer(players, carryData.player_id, true);
             return {
                 "player": {
                     "value": player.name.toLowerCase(), 
