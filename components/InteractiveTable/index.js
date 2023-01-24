@@ -187,7 +187,14 @@ const InteractiveTable = (props) =>{
 
             for(const key of Object.keys(props.headers)){
 
-                let value = lastRow[key].value;
+                let value = "";
+
+                if(lastRow[key].displayValue !== undefined){
+                    value = lastRow[key].displayValue;
+                }else{
+                    value = lastRow[key].value;
+                }
+                
 
                 columns.push(<td className={styles.totals} key={`last-${key}`}>{value}</td>);
                     
