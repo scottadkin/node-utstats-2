@@ -26,8 +26,8 @@ function getMapImage(maps, name){
 
     const cleanName = Functions.cleanMapName(name).toLowerCase();
 
-    if(maps.indexOf(cleanName) !== -1){
-        return `/images/maps/thumbs/${cleanName}.jpg`;
+    if(maps[cleanName] !== undefined){
+        return `/images/maps/thumbs/${maps[cleanName]}.jpg`;
     }
     
     return '/images/maps/thumbs/default.jpg';

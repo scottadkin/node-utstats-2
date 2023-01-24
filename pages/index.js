@@ -412,7 +412,7 @@ export async function getServerSideProps({req, query}) {
 
 			const latestMapName = Functions.cleanMapName(matchesData[0].mapName).toLowerCase();
 
-			if(mapImages.indexOf(latestMapName) !== -1){
+			if(mapImages[latestMapName] !== undefined){
 				latestMatchImage = latestMapName;
 			}
 		}

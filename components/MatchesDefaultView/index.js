@@ -16,11 +16,12 @@ class MatchesDefaultView extends React.Component{
 
         name = Functions.cleanMapName(name).toLowerCase();
 
-        const index = this.props.images.indexOf(name);
-        
-        if(index === -1) return "default";
+        if(this.props.images[name] !== undefined){
+            return this.props.images[name];
+        }
 
-        return this.props.images[index];
+        return "default";
+
     }
 
     render(){

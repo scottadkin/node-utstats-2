@@ -283,16 +283,40 @@ class Maps{
         return name;
     }
 
+
+    getSimilarImage(targetName, fileList){
+
+        for(let i = 0; i < fileList.length; i++){
+
+            const file = fileList[i];
+
+            const cleanNameResult = /^(.+?)\.jpg$/i.exec(file);
+
+            if(cleanNameResult === null) continue;
+
+            const currentName = cleanNameResult[1].toLowerCase();
+            if(targetName.includes(currentName)) return cleanNameResult[1];     
+        }
+
+        return null;
+    }
+
     async getImage(name){
 
         name = Functions.cleanMapName(name);
-        name = name.toLowerCase()+'.jpg';
+
+        const justName = name.toLowerCase();
+        name = justName+'.jpg';
 
         const files = fs.readdirSync('public/images/maps/');
 
         if(files.indexOf(name) !== -1){
             return `/images/maps/${name}`;
         }
+
+        const similarImage = this.getSimilarImage(justName, files);
+
+        if(similarImage !== null) return `/images/maps/${similarImage}`;
 
         return `/images/maps/default.jpg`;
     }
@@ -301,19 +325,26 @@ class Maps{
 
         const files = fs.readdirSync('public/images/maps/');
 
-        const exists = [];
-
-        let currentName = "";
+        const exists = {};
 
         for(let i = 0; i < names.length; i++){
             
-            currentName = Functions.cleanMapName(names[i]).toLowerCase();
+            const currentName = Functions.cleanMapName(names[i]).toLowerCase();
 
             if(files.indexOf(`${currentName}.jpg`) !== -1){
-                exists.push(currentName);
+
+                exists[currentName] = currentName;
+            }else{
+
+                const similarImage = this.getSimilarImage(currentName, files);
+
+                if(similarImage !== null){
+                    console.log(`Found similar image ${similarImage}`);
+                    exists[currentName] = similarImage
+                }
+
             }
         }
-
 
         return exists;
     }
