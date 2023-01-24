@@ -15,9 +15,12 @@ const MatchCTFCarryTime = ({matchId, players}) =>{
 
     useEffect(() =>{
 
+        const controller = new AbortController();
+
         const loadData = async () =>{
 
             const req = await fetch("/api/ctf", {
+                "signal": controller.signal,
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
                 "body": JSON.stringify({"mode": "carrytime", "matchId": matchId})
@@ -35,6 +38,10 @@ const MatchCTFCarryTime = ({matchId, players}) =>{
         }
 
         loadData();
+
+        return () =>{
+            controller.abort();
+        }
 
     }, [matchId]);
 

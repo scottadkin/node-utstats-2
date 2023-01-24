@@ -25,6 +25,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             try{
                 
                 const req = await fetch("/api/ctf",{
+                    "signal": controller.signal,
                     "headers": {"Content-type": "application/json"},
                     "method": "POST",
                     "body": JSON.stringify({"mode": "match-caps", "matchId": matchId})

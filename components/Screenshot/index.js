@@ -27,14 +27,28 @@ class MatchScreenshot{
             }
 
             this.map = map;
-            this.players = JSON.parse(players);
+            
+            if(typeof players === "string"){
+                players = JSON.parse(players);
+            }
+
+            this.players = players;
 
             this.teams = parseInt(teams);
 
-            this.matchData = JSON.parse(matchData);
+            if(typeof matchData === "string"){
+                matchData = JSON.parse(matchData);
+            }
+
+            this.matchData = matchData;
+
             this.serverName = serverName;
             this.gametype = gametype;
-            this.faces = JSON.parse(faces);
+
+            if(typeof faces === "string"){
+                faces = JSON.parse(faces);
+            }
+            this.faces = faces;
 
             this.highlight = highlight;
 

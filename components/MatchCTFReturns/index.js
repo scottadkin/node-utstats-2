@@ -41,7 +41,6 @@ const MatchCTFReturns = (props) =>{
                         setError(res.error.toString());
                     }else{
 
-                        console.log(res);
                         setReturnData(res.data);
                         setbLoading(false);
                     }
