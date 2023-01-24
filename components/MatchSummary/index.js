@@ -13,7 +13,6 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
         </div>);
     }
 
-    info = JSON.parse(info);
 
     if(info.email === '') info.email = 'Not specified';
 
