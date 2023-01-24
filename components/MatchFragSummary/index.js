@@ -5,6 +5,7 @@ import MatchFragDistances from '../MatchFragDistances/';
 const MatchFragSummary = ({matchId, playerData, totalTeams, single}) =>{
 
     const [mode, setMode] = useState(0);
+    const [separateByTeam, setSeparateByTeam] = useState(true);
 
     const bAnyDistanceData = () =>{
 
@@ -44,10 +45,25 @@ const MatchFragSummary = ({matchId, playerData, totalTeams, single}) =>{
 
     const renderDefaultTable = () =>{
 
+        if(mode !== 0) return null;
+
         return <MatchFragTable 
             playerData={playerData} 
             totalTeams={totalTeams} 
-            bSeparateByTeam={true} 
+            bSeparateByTeam={separateByTeam} 
+            highlight={null}
+            matchId={matchId}
+        />
+    }
+
+    const renderDistanceTable = () =>{
+
+        if(mode !== 1) return null;
+
+        return <MatchFragDistances 
+            playerData={playerData} 
+            totalTeams={totalTeams} 
+            bSeparateByTeam={separateByTeam} 
             highlight={null}
             matchId={matchId}
         />
@@ -56,7 +72,12 @@ const MatchFragSummary = ({matchId, playerData, totalTeams, single}) =>{
     return <div>
         <div className="default-header">Frags Summary</div>
         {renderTabs()}
+        <div className="tabs">
+            <div onClick={() => setSeparateByTeam(true)} className={`tab ${(separateByTeam) ? "tab-selected" : ""}`}>Separate by Team</div>
+            <div onClick={() => setSeparateByTeam(false)} className={`tab ${(!separateByTeam) ? "tab-selected" : ""}`}>Display All</div>
+        </div>
         {renderDefaultTable()}
+        {renderDistanceTable()}
     </div>
 }
 

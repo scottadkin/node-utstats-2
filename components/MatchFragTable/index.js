@@ -9,8 +9,6 @@ import InteractiveTable from '../InteractiveTable';
 
 const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, highlight}) =>{
 
-    const [mode, setMode] = useState(0);
-
 
     const bAnyDataType = (type) =>{
 
@@ -132,22 +130,6 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, highl
 
         }
 
-        /*const last = {
-            "bAlwaysLast": true,
-            "player": "Totals",
-            "flag_taken": {"value": Functions.ignore0(totals.flag_taken) },
-            "flag_pickup": {"value": Functions.ignore0(totals.flag_pickup) },
-            "flag_dropped": {"value": Functions.ignore0(totals.flag_dropped) },
-            "flag_suicide": {"value": Functions.ignore0(totals.flag_suicide) },
-            "flag_assist": {"value": Functions.ignore0(totals.flag_assist) },
-            "flag_cover":  {"value": Functions.ignore0(totals.flag_cover) },
-            "flag_seal":  {"value": Functions.ignore0(totals.flag_seal) },
-            "flag_capture":  {"value": Functions.ignore0(totals.flag_capture) },
-            "flag_kill":  {"value": Functions.ignore0(totals.flag_kill) },
-            "flag_return":  {"value": Functions.ignore0(totals.flag_return) },
-            "flag_return_save":  {"value": Functions.ignore0(totals.flag_return_save) }
-        };*/
-
         let totalEff = 0;
 
         if(totals.kills > 0){
@@ -209,7 +191,7 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, highl
 
     const tables = [];
 
-    if(mode === 0){
+    if(bSeparateByTeam){
 
         for(let i = 0; i < totalTeams; i++){
 
@@ -222,10 +204,6 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, highl
     }
 
     return <div>
-        <div className="tabs">
-            <div onClick={() => setMode(0)} className={`tab ${(mode === 0) ? "tab-selected" : ""}`}>Separate by Team</div>
-            <div onClick={() => setMode(1)} className={`tab ${(mode === 1) ? "tab-selected" : ""}`}>Display All</div>
-        </div>
         {tables}
     </div>
 
