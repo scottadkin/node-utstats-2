@@ -1,10 +1,11 @@
-import Kills from '../../api/kills';
-import CTF from '../../api/ctf';
-import Sprees from '../../api/sprees';
-import Players from '../../api/players';
-import Pings from '../../api/pings';
-import Domination from '../../api/domination';
-import Faces from '../../api/faces';
+import Kills from "../../api/kills";
+import CTF from "../../api/ctf";
+import Sprees from "../../api/sprees";
+import Players from "../../api/players";
+import Pings from "../../api/pings";
+import Domination from "../../api/domination";
+import Faces from "../../api/faces";
+import Weapons from "../../api/weapons";
 
 export default async function handler(req, res){
 
@@ -24,20 +25,27 @@ export default async function handler(req, res){
 
         if(mode === "players"){
 
-            console.log(`await playerManager.getAllInMatch(${matchId});`);
             const playerManager = new Players();
             const playerData = await playerManager.getAllInMatch(matchId);
 
             const uniqueFaces = playerManager.getUniqueFaces(playerData);
-            console.log(uniqueFaces);
 
             const faceManager = new Faces();
             //console.log(data);
             const playerFaces = await faceManager.getFacesWithFileStatuses(uniqueFaces);
 
-            console.log(playerFaces);
 
             res.status(200).json({"playerData": playerData, "playerFaces": playerFaces});
+            return;
+        }
+
+        if(mode === "weapons"){
+
+            const weaponManager = new Weapons();
+
+            const data = await weaponManager.getMatchData(matchId);
+
+            res.status(200).json({"names": data.names, "playerData": data.playerData});
             return;
         }
         
@@ -188,7 +196,7 @@ export default async function handler(req, res){
             return;
         }
 
-        res.status(200).json({"message": "passed"});
+        res.status(200).json({"error": "Unknown command"});
 
     }catch(err){
         console.trace(err);

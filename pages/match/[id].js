@@ -7,16 +7,12 @@ import Servers from '../../api/servers';
 import Maps from '../../api/maps';
 import Gametypes from '../../api/gametypes';
 import MatchSummary from '../../components/MatchSummary/'
-import Player from '../../api/player';
 import MatchFragSummary from '../../components/MatchFragSummary/';
 import MatchSpecialEvents from '../../components/MatchSpecialEvents/';
-import Weapons from '../../api/weapons';
 import MatchWeaponSummaryCharts from '../../components/MatchWeaponSummaryCharts/';
 import MatchCTFSummary from '../../components/MatchCTFSummary/';
 import Domination from '../../api/domination';
-import Assault from '../../api/assault';
 import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
-import Teams from '../../api/teams';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Functions from '../../api/functions';
@@ -320,6 +316,24 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 <Nav settings={navSettings} session={session}/>
                 <div id="content">
                     <div className="default">
+
+                <MatchWeaponSummaryCharts 
+                    key="weapon-stats"
+                    //weaponNames={parsedWeaponData.names} 
+                    playerData={state.basicPlayers}
+                    //players={orderedPlayers} 
+                    totalTeams={info.total_teams} 
+                    matchId={matchId}
+                    host={imageHost}
+                    types={[
+                        {"name": "kills", "display": "Kills"},
+                        {"name": "deaths", "display": "Deaths"},
+                        {"name": "damage", "display": "Damage"},
+                        {"name": "shots", "display": "Shots"},
+                        {"name": "hits", "display": "Hits"},
+                        {"name": "accuracy", "display": "Accuracy"},
+                    ]}
+                />
 
                     {renderTitleElem()}
 
@@ -771,15 +785,12 @@ export async function getServerSideProps({req, query}){
         let matchId = (query.id !== undefined) ? parseInt(query.id) : parseInt(null);
 
         const session = new Session(req);
-
         await session.load();
 
         const settings = new SiteSettings();
         const pageSettings = await settings.getCategorySettings("Match Pages");
         const pageOrder = await settings.getCategoryOrder("Match Pages");
         const navSettings = await settings.getCategorySettings("Navigation");
-
-    // console.log(pageSettings);
 
         const m = new MatchManager();
 
@@ -816,89 +827,6 @@ export async function getServerSideProps({req, query}){
         const map = new Maps();
         const mapName = await map.getName(matchInfo.map);
         const image = await map.getImage(mapName);
-        const playerManager = new Player();
-
-        /*let playerData = await playerManager.getAllInMatch(matchId);
-
-        const playerIds = [];
-
-        for(let i = 0; i < playerData.length; i++){
-
-            playerIds.push(playerData[i].player_id);
-        }
-
-        let playerNames = await playerManager.getNames(playerIds);
-
-        let currentName = 0;
-
-        let playerFaces = [];
-
-        for(let i = 0; i < playerData.length; i++){
-
-            //playerData[i].name = 'Not Found';
-            currentName = playerNames.get(playerData[i].player_id);
-
-            if(currentName === undefined){
-                currentName = 'Not Found';
-            }
-
-            playerData[i].name = currentName;
-
-            if(playerFaces.indexOf(playerData[i].face) === -1){
-                playerFaces.push(playerData[i].face);
-            }
-        }
-
-        //if it's a team game sort by teams here isntead of in the components
-
-        if(matchInfo.team_game){
-
-            playerData.sort((a, b) =>{
-
-
-                if(a.team < b.team){
-                    return 1;
-                }else if(a.team > b.team){
-                    return -1;
-                }else{
-                    if(a.score > b.score){
-                        return -1;
-                    }else if(a.score < b.score){
-                        return 1;
-                    }
-                }
-
-                return 0;
-            });
-        }*/
-
-        let assaultData = [];
-
-        const assaultManager = new Assault();
-
-        if(pageSettings["Display Assault Summary"] === "true"){
-            assaultData = await assaultManager.getMatchData(matchId, matchInfo.map);
-        }
-
-        //playerData = JSON.stringify(playerData);
-
-        const weaponManager = new Weapons();
-
-        let weaponData = await weaponManager.getMatchData(matchId);
-
-        if(weaponData === undefined) weaponData = [];
-
-        weaponData = JSON.stringify(weaponData);
-
-        const teamsManager = new Teams();
-
-        let teamsData = await teamsManager.getMatchData(matchId);
-
-
-       // const faceManager = new Faces();
-
-        //let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
-
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
@@ -915,6 +843,7 @@ export async function getServerSideProps({req, query}){
             "keywords": keywords
         };
 
+
         return {
             props: {
                 "navSettings": JSON.stringify(navSettings),
@@ -928,9 +857,6 @@ export async function getServerSideProps({req, query}){
                 "gametype": gametypeName,
                 "map": mapName,
                 "image": image,
-                "weaponData": weaponData,
-                "teams": JSON.stringify(teamsData),
-                //"faces": JSON.stringify(pFaces),
                 "metaData": JSON.stringify(metaData)
             }
         };

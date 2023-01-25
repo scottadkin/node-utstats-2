@@ -95,6 +95,8 @@ class MatchCTFSummaryDefault extends React.Component{
 
             const p = this.props.playerData[i];
 
+            if(p.ctfData === undefined) continue;
+
             if(p.team !== teamId) continue;
 
             const ctf = p.ctfData;
