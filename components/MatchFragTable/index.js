@@ -7,7 +7,7 @@ import InteractiveTable from '../InteractiveTable';
 
 //highlight for pmatch
 
-const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, highlight}) =>{
+const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam}) =>{
 
 
     const bAnyDataType = (type) =>{
