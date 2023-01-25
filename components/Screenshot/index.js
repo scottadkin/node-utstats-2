@@ -2,26 +2,17 @@ import styles from './Screenshot.module.css'
 import {useEffect, useRef} from "react";
 import Functions from '../../api/functions';
 
-//fix screenshot not loading on page back
-
 class MatchScreenshot{
 
-    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host){
+    constructor(canvas, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host){
         
         try{
             
             this.canvas = canvas;
             this.context = this.canvas.getContext("2d");
-            this.download = download;
-            this.downloadJPG = downloadJPG;
-            this.downloadBMP = downloadBMP;
-
             this.host = host;
-
             this.bHome = bHome;
-
             this.bClassic = false;
-
             if(bClassic !== undefined){
                 this.bClassic = bClassic;
             }
@@ -48,6 +39,7 @@ class MatchScreenshot{
             if(typeof faces === "string"){
                 faces = JSON.parse(faces);
             }
+
             this.faces = faces;
 
             this.highlight = highlight;
@@ -65,8 +57,8 @@ class MatchScreenshot{
                 return 0;
             });
 
-            this.image = new Image();
-            this.image.src = image;
+            this.imageSrc = image;
+
 
 
             this.colors = {
@@ -82,100 +74,145 @@ class MatchScreenshot{
 
             this.teamPlayerCount = [0,0,0,0];
 
-            //this.scaleImage();
-
             this.flags = {};
             this.flagWidth = this.x(1.4);
             this.flagHeight = this.y(1.3);
 
             this.createFullscreenEvents();
 
-            this.bDisplayLoading = true;
-
+            this.init();
             
-            this.renderLoading();
-
-            this.image.onload = async () =>{
-    
-                await this.loadPlayerFlags();
-                await this.loadPlayerIcons();
-                await this.loadIcons();
-
-                this.bDisplayLoading = false;
-
-            }   
+             
         }catch(err){
             console.trace(err);
         }
     
     }
 
-    renderLoading(){
+    loadImage(url){
 
 
-        const minValue = 0;
-        const maxValue = 50;
-        let currentValue = minValue;
-        let bReverse = false;
+        return new Promise((resolve, reject) =>{
 
-        let textOffsetX = 50;
-        
+            const image = new Image();
 
-        const tick = () =>{
-
-
-            if(!bReverse){
-                currentValue++;
-                if(currentValue >= maxValue){
-                    bReverse = true;
-                }
-            }else{
-                currentValue--;
-                if(currentValue <= minValue){
-                    bReverse = false;
-                }
+            image.onload = () =>{
+                resolve(image);
             }
 
-  
-            const c = this.context;
-
-            c.fillStyle = `rgb(${currentValue},${currentValue},${currentValue})`;
-            c.fillRect(0,0,this.canvas.width,this.canvas.height);
-
-            c.fillStyle = "white";
-
-            c.textAlign = "center";
-            c.font = `${this.y(5)}px Arial`;
-
-            const textWidth = this.xPercent(c.measureText("Loading Please Wait...").width);
-
-            textOffsetX+=1;
-
-            if(textOffsetX > 100 + (textWidth * 0.5)){
-                textOffsetX = -textWidth * 0.5;
+            image.onerror = () =>{
+                reject(`Failed to load image ${url}`);
             }
 
-            c.textBaseline = "top";
+            image.src = url;
+        });
+    }
 
-            for(let i = 0; i < 20; i++){
-                c.fillText("Loading Please Wait...", this.x(textOffsetX), this.y((i * 5)));
-            }
+    async init(){
 
-            c.textAlign = "left";
 
-            if(!this.bDisplayLoading){
+        const flagUrls = this.getFlagUrls();
+        const playerIconUrls = this.getPlayerIconUrls();
+        const generalIconUrls = this.getIconUrls();
 
-                clearInterval(loading);
-              
+        const fileList = [this.imageSrc, ...flagUrls, ...playerIconUrls, ...generalIconUrls];
+
+        const promiseList = [];
+
+        for(let i = 0; i < fileList.length; i++){
+            promiseList.push(this.loadImage(fileList[i]));
+        }
+
+        try{
+
+            await Promise.all(promiseList).then((result) =>{
+
+                this.image = result[0];
                 this.render();
-                this.setupDownload();
+            });
+ 
             
-            }
+
+        }catch(err){
+
+            console.trace(err);
+        }
+
+    }
+
+    getFlagUrls(){
+
+        const flags = new Set();
+        flags.add("xx");
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+            flags.add(p.country);
+        }
+
+        this.flags = {};
+
+        const flagsArray = [...flags]
+
+        for(let i = 0; i < flagsArray.length; i++){
+
+            const flag = flagsArray[i]
+
+            this.flags[flag] = new Image();
+            this.flags[flag].src = `/images/flags/${flag.toLowerCase()}.svg`;
 
         }
 
-        const loading = setInterval(tick, 33);
+        return flagsArray.map((flag) =>{
+            return `/images/flags/${flag.toLowerCase()}.svg`;
+        });
+    }
 
+    getPlayerIconUrls(){
+
+        const faces = new Set();
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+            faces.add(p.face);
+        }
+
+        this.playerIcons = {};
+
+        const facesArray = [...faces];
+
+        for(let i = 0; i < facesArray.length; i++){
+
+            const face = facesArray[i];
+
+            this.playerIcons[face] = new Image();
+            this.playerIcons[face].src = `/images/faces/${this.getPlayerIconName(face)}.png`
+        }
+
+        return facesArray.map((faceId) =>{  
+            return `/images/faces/${this.getPlayerIconName(faceId)}.png`;
+        });
+    }
+
+    getIconUrls(){
+        
+        const files = ["red", "blue", "green", "yellow", "smartctfbg"];
+
+        this.icons = {};
+
+        for(let i = 0; i < files.length; i++){
+
+            const f = files[i];
+
+            this.icons[f] = new Image();
+            this.icons[f].src = `/images/${f}.png`;
+        }
+
+        return files.map((file) =>{
+            return `/images/${file}.png`;
+        });
     }
 
 
@@ -189,180 +226,21 @@ class MatchScreenshot{
         });
     }
 
-    setupDownload(){
-
-        return;
-
-        if(this.bHome) return;
-
-        const imagePNG = this.canvas.toDataURL("image/png");
-        const imageJPG = this.canvas.toDataURL("image/jpeg");
-        const imageBMP = this.canvas.toDataURL("image/bmp");
-        //console.log(image);
-
-        const map = this.map.replace(/\W/i,'');
-        const gametype = this.gametype.replace(/\W/i,'');
-        const date = this.matchData.date;
-
-
-        const fileName = `sshot${map}-${gametype}-${date}.`;
-
-        this.download.href = imagePNG;
-        this.download.download = `${fileName}png`;
-        this.downloadJPG.href = imageJPG;
-        this.downloadJPG.download = `${fileName}jpeg`;
-        this.downloadBMP.href = imageBMP;
-        this.downloadBMP.download = `${fileName}bmp`;
-    }
-
     getPlayerIconName(id){
 
         if(this.faces[id] !== undefined){
             
             if(this.faces[id] !== null){
                
-                return this.faces[id].name;
-                   
+                return this.faces[id].name;           
             }
         }
 
         return 'faceless';
     }
 
-    loadPlayerIcons(){
+    
 
-        return new Promise((resolve, reject) =>{
-
-            const uniqueIcons = [];
-
-            this.playerIcons = {};
-
-            if(!this.bClassic){
-
-                let p = 0;
-
-                for(let i = 0; i < this.players.length; i++){
-
-                    p = this.players[i];
-
-                    if(uniqueIcons.indexOf(p.face) === -1){
-                        uniqueIcons.push(p.face);
-                    }
-                }
-
-                this.playerIconsToLoad = uniqueIcons.length;
-                this.playerIconsLoaded = 0;
-
-                for(let i = 0; i < uniqueIcons.length; i++){
-
-                    this.playerIcons[uniqueIcons[i]] = new Image();
-
-                    this.playerIcons[uniqueIcons[i]].src = `/images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
-
-                    this.playerIcons[uniqueIcons[i]].onload = () =>{
-
-                        this.playerIconsLoaded++;
-
-                        if(this.playerIconsLoaded >= this.playerIconsToLoad){
-                            resolve();
-                        }
-                    }
-                }
-
-            }else{
-
-                this.playerIcons = [];
-
-                this.playerIconsToLoad = this.faces.length;
-                this.playerIconsLoaded = 0;
-
-                for(let i = 0; i < this.faces.length; i++){
-
-                    this.playerIcons.push(new Image());
-
-                    this.playerIcons[i].src = `/images/faces/${this.faces[i]}`;
-
-                    this.playerIcons[i].onload = () =>{
-
-                        this.playerIconsLoaded++;
-
-                        if(this.playerIconsLoaded >= this.playerIconsToLoad){
-                            resolve();
-                        }
-
-                    }
-                }
-            }
-        });     
-    }
-
-    loadPlayerFlags(){
-
-        return new Promise((resolve, reject) =>{
-
-            let p = 0;
-
-            let uniqueFlags = ["XX"];
-
-            this.loadedFlags = 0;
-
-            for(let i = 0; i < this.players.length; i++){
-
-                p = this.players[i];
-
-                if(uniqueFlags.indexOf(p.country.toUpperCase()) === -1 && p.country !== ""){
-                    uniqueFlags.push(p.country.toUpperCase());
-                }
-            }
-
-            this.flagsToLoad = uniqueFlags.length;
-
-            for(let i = 0; i < this.flagsToLoad; i++){
-
-                this.flags[uniqueFlags[i]] = new Image();
-                this.flags[uniqueFlags[i]].src = `/images/flags/${uniqueFlags[i].toLowerCase()}.svg`;
-
-                this.flags[uniqueFlags[i]].onload = () =>{
-                    this.loadedFlags++;
-                    if(this.loadedFlags >= this.flagsToLoad){
-                        //console.log(`Loaded flag ${this.loadedFlags} out of ${this.flagsToLoad}`);
-                        //this.loadIcons();
-                        resolve();
-                    }
-                }
-            }
-
-        });
-        
-    }
-
-    loadIcons(){
-
-        return new Promise((resolve, reject) =>{
-
-            const files = ["red", "blue", "green", "yellow", "smartctfbg"];
-
-            this.iconsToLoad = files.length;
-            this.iconsLoaded = 0;
-
-            this.icons = {};
-
-            for(let i = 0; i < files.length; i++){
-
-                this.icons[files[i]] = new Image();
-                this.icons[files[i]].src = `/images/${files[i]}.png`;
-                this.icons[files[i]].onload = () =>{
-
-                    this.iconsLoaded++;
-
-                    if(this.iconsLoaded >= this.iconsToLoad){
-        
-                        resolve();
-                    }
-                }
-            }
-        });    
-    }
 
     x(input){
         return (this.canvas.width * 0.01) * input;
@@ -439,7 +317,7 @@ class MatchScreenshot{
 
     getFlag(code){
 
-        code = code.toUpperCase();
+        code = code.toLowerCase();
 
         for(const [key, value] of Object.entries(this.flags)){
       
@@ -448,7 +326,7 @@ class MatchScreenshot{
             }
         }
 
-        return this.getFlag("XX");
+        return this.getFlag("xx");
     }
 
     getTeamColor(team){
@@ -1492,19 +1370,13 @@ class MatchScreenshot{
 const Screenshot = ({host, map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome, bClassic}) =>{
 
     const sshot = useRef(null);
-    const sshotDownload = useRef(null);
-    const sshotDownload2 = useRef(null);
-    const sshotDownload3 = useRef(null);
 
     bHome = (bHome !== undefined) ? bHome : false;
 
-
     useEffect(() =>{
+        
         new MatchScreenshot(
-            sshot.current, 
-            sshotDownload.current, 
-            sshotDownload2.current, 
-            sshotDownload3.current, 
+            sshot.current,
             image, 
             map, 
             players,
@@ -1527,11 +1399,6 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
         </div>
         <div className={`${styles.content} center`}>
             <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-10" 
-                data-match-data={matchData} 
-                data-map={map} 
-                data-image={image}
-                data-teams={totalTeams} 
-                data-players={players} 
                 width="1920" height="1080">
             </canvas>
         </div>

@@ -1983,6 +1983,18 @@ class Players{
 
         return gametypes;
     }
+
+    getUniqueFaces(data){
+
+        const found = new Set();
+
+        for(let i = 0; i < data.length; i++){
+
+            found.add(data[i].face);
+        }
+
+        return [...found];
+    }
     
 }
 

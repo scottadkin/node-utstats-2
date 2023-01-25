@@ -4,6 +4,7 @@ import Sprees from '../../api/sprees';
 import Players from '../../api/players';
 import Pings from '../../api/pings';
 import Domination from '../../api/domination';
+import Faces from '../../api/faces';
 
 export default async function handler(req, res){
 
@@ -21,6 +22,26 @@ export default async function handler(req, res){
             killManager = new Kills();
         }
 
+        if(mode === "players"){
+
+            console.log(`await playerManager.getAllInMatch(${matchId});`);
+            const playerManager = new Players();
+            const playerData = await playerManager.getAllInMatch(matchId);
+
+            const uniqueFaces = playerManager.getUniqueFaces(playerData);
+            console.log(uniqueFaces);
+
+            const faceManager = new Faces();
+            //console.log(data);
+            const playerFaces = await faceManager.getFacesWithFileStatuses(uniqueFaces);
+
+            console.log(playerFaces);
+
+            res.status(200).json({"playerData": playerData, "playerFaces": playerFaces});
+            return;
+        }
+        
+        
         if(mode === "kills"){
 
             if(matchId !== matchId){

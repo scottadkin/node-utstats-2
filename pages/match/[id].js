@@ -1,4 +1,4 @@
-import {React} from 'react';
+import {React, useEffect, useReducer} from 'react';
 import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/'
 import Footer from '../../components/Footer/';
@@ -19,7 +19,6 @@ import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
 import Teams from '../../api/teams';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
-import Faces from '../../api/faces';
 import Functions from '../../api/functions';
 import Headshots from '../../api/headshots';
 import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
@@ -50,35 +49,99 @@ import MatchCTFReturns from '../../components/MatchCTFReturns';
 
 
 const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, 
-    navSettings, playerData, map, server, gametype, faces, bMonsterHunt}) =>{
+    navSettings, map, server, gametype, bMonsterHunt}) =>{
 
 
+    const reducer = (state, action) =>{
 
-    const basicPlayers = {};
-    const justPlayerNames = {};
-    const playedPlayers = {};
+        switch(action.type){
 
-
-    for(let i = 0; i < playerData.length; i++){
-
-        const p = playerData[i];
-
-        basicPlayers[p.player_id] = {
-            "id": p.player_id,
-            "name": p.name, 
-            "country": p.country,
-            "team": p.team,
-            "spectator": p.spectator,
-            "played": p.played,
-            "playtime": p.playtime
-        };
-
-        justPlayerNames[playerData[i].player_id] = playerData[i].name;
-
-        if(p.playtime > 0 || !p.spectator){
-            playedPlayers[playerData[i].player_id] = playerData[i].name;
+            case "playerData": return {
+                "playerData": action.payload.playerData,
+                "faces": action.payload.faces,
+                "basicPlayers": action.payload.basicPlayers,
+                "nonSpectators": action.payload.nonSpectators,
+            }
         }
+
+        throw new Error("Unknown Action");
     }
+
+    const [state, dispatch] = useReducer(reducer, {
+        "playerData": [],
+        "faces": {},
+        "basicPlayers": {},
+        "nonSpectators": {}
+    });
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        const createPlayerObjects = (data) =>{
+
+            const basicPlayers = {};
+            const justPlayerNames = {};
+            const playedPlayers = {};
+
+            for(let i = 0; i < data.playerData.length; i++){
+
+                const p = data.playerData[i];
+
+                basicPlayers[p.player_id] = {
+                    "id": p.player_id,
+                    "name": p.name, 
+                    "country": p.country,
+                    "team": p.team,
+                    "spectator": p.spectator,
+                    "played": p.played,
+                    "playtime": p.playtime
+                };
+
+                justPlayerNames[data.playerData[i].player_id] = data.playerData[i].name;
+
+                if(p.playtime > 0 || !p.spectator){
+                    playedPlayers[data.playerData[i].player_id] = data.playerData[i].name;
+                }
+            }
+
+            dispatch({
+                "type": "playerData",
+                "payload": {
+                    "playerData": data.playerData,
+                    "faces": data.playerFaces,
+                    "basicPlayers": basicPlayers,
+                    "nonSpectators": playedPlayers
+                }
+            });
+        }
+
+        const loadPlayerData = async () =>{
+
+            const req = await fetch("/api/match",{
+                "signal": controller.signal,
+                "headers": {
+                    "Content-type": "application/json"
+                },
+                "method": "POST",
+                "body": JSON.stringify({"mode": "players", "matchId": matchId})
+            });
+
+            const res = await req.json();
+            
+            createPlayerObjects(res);
+
+            console.log(res);
+        }
+
+        loadPlayerData();
+
+        return () =>{
+            controller.abort();
+        }
+    }, [matchId]);
+
+
 
     if(error !== undefined){
         return <ErrorPage>{error}</ErrorPage>
@@ -123,11 +186,11 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     }
 
     metaData = JSON.parse(metaData);
-    playerData = JSON.parse(playerData);
+    //playerData = JSON.parse(playerData);
     info = JSON.parse(info);
     pageSettings = JSON.parse(pageSettings);
     pageOrder = JSON.parse(pageOrder);
-    faces = JSON.parse(faces);
+    //faces = JSON.parse(faces);
     const imageHost = Functions.getImageHostAndPort(host);
 
     
@@ -173,12 +236,12 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             host={imageHost}
             key={"match-sshot"} map={map} 
             totalTeams={info.total_teams} 
-            players={playerData} 
+            players={state.playerData} 
             image={image} 
             matchData={info}
             serverName={server} 
             gametype={gametype} 
-            faces={faces}
+            faces={state.faces}
         />
     }
 
@@ -190,7 +253,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key={`match_3`} 
                 host={imageHost} 
                 totalTeams={info.total_teams} 
-                playerData={playerData} 
+                playerData={state.playerData} 
                 matchStart={info.start}
                 matchId={info.id}
             />
@@ -200,7 +263,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
             elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key={`mh-frags`} 
                 host={imageHost} 
-                playerData={playerData} 
+                playerData={state.playerData} 
                 matchStart={info.start} 
                 matchId={info.id
             }/>
@@ -211,7 +274,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
 
     if(pageSettings["Display Capture The Flag Summary"] === "true"){
-        elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={playerData} />
+        elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={state.playerData} />
     }
 
     if(pageSettings["Display Capture The Flag Returns"] === "true"){
@@ -219,7 +282,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         elems[pageOrder["Display Capture The Flag Returns"]] = <MatchCTFReturns 
             key="ctf-r"
             matchId={matchId}
-            playerData={basicPlayers} 
+            playerData={state.basicPlayers} 
             totalTeams={info.total_teams}
             matchStart={info.start}
         />
@@ -230,7 +293,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCaps 
             key="ctf-c"
             matchId={matchId} 
-            playerData={basicPlayers} 
+            playerData={state.basicPlayers} 
             totalTeams={info.total_teams}
             matchStart={info.start}
         />
@@ -240,7 +303,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
         elems[pageOrder["Display Capture The Flag Carry Times"]] = <MatchCTFCarryTime 
             matchId={matchId} 
-            players={basicPlayers}
+            players={state.basicPlayers}
             key="ctf-ct"
         />;
     }
@@ -755,7 +818,7 @@ export async function getServerSideProps({req, query}){
         const image = await map.getImage(mapName);
         const playerManager = new Player();
 
-        let playerData = await playerManager.getAllInMatch(matchId);
+        /*let playerData = await playerManager.getAllInMatch(matchId);
 
         const playerIds = [];
 
@@ -807,7 +870,7 @@ export async function getServerSideProps({req, query}){
 
                 return 0;
             });
-        }
+        }*/
 
         let assaultData = [];
 
@@ -817,7 +880,7 @@ export async function getServerSideProps({req, query}){
             assaultData = await assaultManager.getMatchData(matchId, matchInfo.map);
         }
 
-        playerData = JSON.stringify(playerData);
+        //playerData = JSON.stringify(playerData);
 
         const weaponManager = new Weapons();
 
@@ -832,9 +895,9 @@ export async function getServerSideProps({req, query}){
         let teamsData = await teamsManager.getMatchData(matchId);
 
 
-        const faceManager = new Faces();
+       // const faceManager = new Faces();
 
-        let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
+        //let pFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
 
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
@@ -865,10 +928,9 @@ export async function getServerSideProps({req, query}){
                 "gametype": gametypeName,
                 "map": mapName,
                 "image": image,
-                "playerData": playerData,
                 "weaponData": weaponData,
                 "teams": JSON.stringify(teamsData),
-                "faces": JSON.stringify(pFaces),
+                //"faces": JSON.stringify(pFaces),
                 "metaData": JSON.stringify(metaData)
             }
         };
