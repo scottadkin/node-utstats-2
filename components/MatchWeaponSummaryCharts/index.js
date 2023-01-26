@@ -75,9 +75,21 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
         const tabs = [];
 
-        for(let i = 0; i < weaponStats.names.length; i++){
+        const names = [...weaponStats.names];
 
-            const weapon = weaponStats.names[i];
+        names.sort((a, b) =>{
+
+            a = a.name.toLowerCase();
+            b = b.name.toLowerCase();
+
+            if(a < b) return -1;
+            if(a > b) return 1;
+            return 0;
+        });
+
+        for(let i = 0; i < names.length; i++){
+
+            const weapon = names[i];
 
             const styleClass = `tab ${(selectedWeaponId === weapon.id) ?  "tab-selected": ""}`;
 
