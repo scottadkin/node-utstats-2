@@ -8,8 +8,6 @@ export default async function handler(req, res){
 
     try{
 
-        console.log(req.body);
-
         const session = new Session(req);
 
         await session.load();

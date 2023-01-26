@@ -195,6 +195,14 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     const imageHost = Functions.getImageHostAndPort(host);
 
     
+    const bAnyCTFData = () =>{
+
+        if(state.playerData.length > 0){
+            if(state.playerData[0].ctfData !== undefined) return true;
+        }
+
+        return false;
+    }
 
     const renderMain = () =>{
 
@@ -256,43 +264,46 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             }
         }
     
-    
-    
-        if(pageSettings["Display Capture The Flag Summary"] === "true"){
-            elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={state.playerData} />
-        }
-    
-        if(pageSettings["Display Capture The Flag Returns"] === "true"){
-            
-            elems[pageOrder["Display Capture The Flag Returns"]] = <MatchCTFReturns 
-                key="ctf-r"
-                matchId={matchId}
-                playerData={state.basicPlayers} 
-                totalTeams={info.total_teams}
-                matchStart={info.start}
-            />
-        }
-    
-        if(pageSettings["Display Capture The Flag Caps"] === "true"){
-    
-            elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCaps 
-                key="ctf-c"
-                matchId={matchId} 
-                playerData={state.basicPlayers} 
-                totalTeams={info.total_teams}
-                matchStart={info.start}
-            />
-        }
-    
-        if(pageSettings["Display Capture The Flag Carry Times"] === "true"){
-    
-            elems[pageOrder["Display Capture The Flag Carry Times"]] = <MatchCTFCarryTime 
-                matchId={matchId} 
-                players={state.basicPlayers}
-                key="ctf-ct"
-            />;
-        }
 
+        if(bAnyCTFData()){
+       
+            if(pageSettings["Display Capture The Flag Summary"] === "true"){
+                elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={state.playerData} />
+            }
+        
+            if(pageSettings["Display Capture The Flag Returns"] === "true"){
+                
+                elems[pageOrder["Display Capture The Flag Returns"]] = <MatchCTFReturns 
+                    key="ctf-r"
+                    matchId={matchId}
+                    playerData={state.basicPlayers} 
+                    totalTeams={info.total_teams}
+                    matchStart={info.start}
+                />
+            }
+        
+            if(pageSettings["Display Capture The Flag Caps"] === "true"){
+        
+
+                elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCaps 
+                    key="ctf-c"
+                    matchId={matchId} 
+                    playerData={state.basicPlayers} 
+                    totalTeams={info.total_teams}
+                    matchStart={info.start}
+                />
+                    
+            }
+        
+            if(pageSettings["Display Capture The Flag Carry Times"] === "true"){
+        
+                elems[pageOrder["Display Capture The Flag Carry Times"]] = <MatchCTFCarryTime 
+                    matchId={matchId} 
+                    players={state.basicPlayers}
+                    key="ctf-ct"
+                />;
+            }
+        }
 
         if(pageSettings["Display Weapon Statistics"] === "true"){
 

@@ -17,7 +17,6 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
     useEffect(() =>{
 
-
         const controller = new AbortController();
 
         const loadData = async () =>{
