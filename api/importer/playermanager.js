@@ -190,6 +190,8 @@ class PlayerManager{
 
     getPlayerByMasterId(id){
 
+        id = parseInt(id);
+
         const name = this.masterIdsToNames[id];
 
         if(name === undefined){

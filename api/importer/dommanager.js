@@ -15,11 +15,8 @@ class DOMManager{
         };
 
         this.playerCaps = {};
-
         this.playerScores = [];
-
         this.capData = [];
-
         this.domination = new Domination();
     }
 
@@ -30,27 +27,24 @@ class DOMManager{
         const teamScoreReg = /^\d+\.\d+\tdom_score_update\t(.+?)\t(.+?)$/;
         const playerScoreReg = /^(\d+\.\d+)\tdom_playerscore_update\t(.+?)\t(.+)$/i;
 
-        let d = 0;
-        let result = 0;
         let currentPlayer = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
             if(domPointReg.test(d)){
 
-                result = domPointReg.exec(d);
-
+                const result = domPointReg.exec(d);
                 this.createDomPoint(result[1],result[2],result[3],result[4]);
-              
+                continue;
+            }
 
-            }else if(capReg.test(d)){
+            if(capReg.test(d)){
 
-                result = capReg.exec(d);
+                const result = capReg.exec(d);
        
-
-                currentPlayer = this.playerManager.getOriginalConnectionById(result[3]);
+                currentPlayer = this.playerManager.getPlayerById(result[3]);
 
                 if(currentPlayer === null){
                     currentPlayer = {"masterId": -1};
@@ -71,16 +65,21 @@ class DOMManager{
 
                 });
 
-            }else if(teamScoreReg.test(d)){
+                continue;
+            }
+            
+            if(teamScoreReg.test(d)){
 
-                result = teamScoreReg.exec(d);
+                const result = teamScoreReg.exec(d);
                 this.setTeamScore(result[1], result[2]);
+                continue;
 
-            }else if(playerScoreReg.test(d)){
+            }
+            
+            if(playerScoreReg.test(d)){
 
-                result = playerScoreReg.exec(d);
-
-                currentPlayer = this.playerManager.getOriginalConnectionById(result[2]);
+                const result = playerScoreReg.exec(d);
+                currentPlayer = this.playerManager.getPlayerById(result[2]);
 
                 if(currentPlayer !== null){
 
@@ -93,6 +92,8 @@ class DOMManager{
                         "player": currentPlayer.masterId,
                         "score": parseInt(result[3])
                     });
+
+                    continue;
 
                 }else{
                     new Message(`DomManager.parseData() playerScoreReg currentPlayer is null`,'warning');
@@ -138,6 +139,13 @@ class DOMManager{
 
         playerId = parseInt(playerId);
 
+        const player = this.playerManager.getPlayerById(playerId);
+
+        if(player === null){
+            new Message(`DomManager.pointCaptured(${name},${playerId}) player is null.`,"warning");
+            return;
+        }
+
         let point = this.getPoint(name);
 
         if(point === null){
@@ -147,11 +155,11 @@ class DOMManager{
 
         //this.playerCaps.push(playerId);
 
-        if(this.playerCaps[playerId] === undefined){
-            this.playerCaps[playerId] = 0;
+        if(this.playerCaps[player.masterId] === undefined){
+            this.playerCaps[player.masterId] = 0;
         }
 
-        this.playerCaps[playerId]++;
+        this.playerCaps[player.masterId]++;
 
         point.captured++;
 
@@ -175,11 +183,9 @@ class DOMManager{
 
         try{
 
-            let d = 0;
-
             for(let i = 0; i < this.domPoints.length; i++){
 
-                d = this.domPoints[i];
+                const d = this.domPoints[i];
 
                 await this.domination.updateMapControlPoint(this.mapId, d.name, d.captured, d.position);
             }
@@ -193,11 +199,9 @@ class DOMManager{
 
         try{
 
-            let d = 0;
-
             for(let i = 0; i < this.domPoints.length; i++){
 
-                d = this.domPoints[i];
+                const d = this.domPoints[i];
 
                 await this.domination.updateMatchControlPoint(this.matchId, this.mapId, d.name, d.captured, d.team);
             }
@@ -231,13 +235,10 @@ class DOMManager{
     async setPlayerDomCaps(){
 
         try{
-            let p = 0;
-
-            let currentPlayer = 0;
 
             for(const player in this.playerCaps){
 
-                currentPlayer = this.playerManager.getOriginalConnectionById(player);
+                const currentPlayer = this.playerManager.getPlayerByMasterId(player);
 
                 if(currentPlayer !== null){
 
@@ -266,28 +267,25 @@ class DOMManager{
         try{
 
             if(matchId === undefined) matchId = this.matchId;
-            
-            let p = 0;
 
             const players = this.playerManager.players;
 
             for(let i = 0; i < players.length; i++){
 
-                p = players[i];
+                const p = players[i];
 
-                if(p.bDuplicate === undefined){
+                if(p.stats.dom.caps > 0){
 
-                    if(p.stats.dom.caps > 0){
-
-                        if(this.playerManager.bIgnoreBots){
-                            if(p.bBot) continue;
-                        }
-
-                        await this.domination.updatePlayerMatchStats(p.matchId, p.stats.dom.caps);
-                    }else{
-                        new Message(`${p.name} did not have any control point caps, skipping stats update.`,'pass');
+                    if(this.playerManager.bIgnoreBots){
+                        if(p.bBot) continue;
                     }
+
+                    await this.domination.updatePlayerMatchStats(p.matchId, p.stats.dom.caps);
+
+                }else{
+                    new Message(`${p.name} did not have any control point caps, skipping stats update.`,'pass');
                 }
+                
             }
 
         }catch(err){
@@ -304,15 +302,12 @@ class DOMManager{
 
             const pointIds = await this.domination.getMapControlPoints(mapId);
 
-            let d = 0;
-
-            let pointId = 0;
 
             for(let i = 0; i < this.capData.length; i++){
 
-                d = this.capData[i];
+                const d = this.capData[i];
 
-                pointId = pointIds.get(d.point);
+                let pointId = pointIds.get(d.point);
 
                 if(pointId === undefined){
                     pointId = -1;
@@ -347,20 +342,15 @@ class DOMManager{
 
     setLifeCaps(killManager){
 
-        let c = 0;
-
-        let currentPlayer = 0;
-        let currentDeaths = 0;
-
         for(let i = 0; i < this.capData.length; i++){
 
-            c = this.capData[i];
+            const c = this.capData[i];
 
-            currentPlayer = this.playerManager.getPlayerByMasterId(c.player);
+            const currentPlayer = this.playerManager.getPlayerByMasterId(c.player);
 
             if(currentPlayer !== null){
 
-                currentDeaths = killManager.getDeathsBetween(currentPlayer.stats.dom.lastCapTime, c.timestamp, c.player);
+                const currentDeaths = killManager.getDeathsBetween(currentPlayer.stats.dom.lastCapTime, c.timestamp, c.player);
 
                 currentPlayer.stats.dom.lastCapTime = c.timestamp;
 
@@ -383,16 +373,13 @@ class DOMManager{
 
         try{
 
-            let p = 0;
-
             for(let i = 0; i < this.playerManager.players.length; i++){
 
-                p = this.playerManager.players[i];
+                const p = this.playerManager.players[i];
 
-                if(p.bDuplicate === undefined){
-                    await this.domination.updatePlayerBestLifeCaps(p.gametypeId, p.masterId, p.stats.dom.mostCapsLife);
-                    await this.domination.updateMatchBestLifeCaps(p.masterId, matchId, p.stats.dom.mostCapsLife);
-                }
+                await this.domination.updatePlayerBestLifeCaps(p.gametypeId, p.masterId, p.stats.dom.mostCapsLife);
+                await this.domination.updateMatchBestLifeCaps(p.masterId, matchId, p.stats.dom.mostCapsLife);
+                
             }
             
         }catch(err){
