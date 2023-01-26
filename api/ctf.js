@@ -1234,6 +1234,106 @@ class CTF{
         await mysql.simpleQuery(query, [matchId, playerId]);
     }
 
+    async deletePlayerMatchAssists(playerId, matchId){
+
+        const query = `DELETE FROM nstats_ctf_assists WHERE player_id=? AND match_id=?`;
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
+
+    async removePlayerMatchAssists(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_assists SET player_id=-1 WHERE player_id=? AND match_id=?`;
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
+
+    async removePlayerMatchCaps(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_caps SET
+        grab_player = IF(grab_player = ?, -1, grab_player),
+        cap_player = IF(cap_player = ?, -1, cap_player)
+        WHERE match_id=?`;
+        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+    }
+
+    async removePlayerMatchCarryTimes(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_carry_times SET player_id=-1 WHERE player_id=? AND match_id=?`;
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
+
+    async removePlayerMatchCovers(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_covers SET
+        killer_id = IF(killer_id = ?, -1, killer_id),
+        victim_id = IF(victim_id = ?, -1, victim_id)
+        WHERE match_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+    }
+
+    async removePlayerMatchCRKills(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_cr_kills SET player_id=-1 WHERE player_id=? AND match_id=?`;
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
+
+    async removePlayerMatchFlagDeaths(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_flag_deaths SET
+        killer_id = IF(killer_id = ?, -1, killer_id),
+        victim_id = IF(victim_id = ?, -1, victim_id)
+        WHERE match_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+    }
+
+    async removePlayerMatchFlagDrops(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_flag_drops SET player_id=-1 WHERE player_id=? AND match_id=?`;
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
+
+    async removePlayerMatchFlagPickups(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_flag_pickups SET player_id=-1 WHERE player_id=? AND match_id=?`;
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
+
+    async removePlayerMatchReturns(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_returns SET
+        grab_player = IF(grab_player = ?, -1, grab_player),
+        return_player = IF(return_player = ?, -1, return_player)
+        WHERE match_id=?`;
+        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+    }
+
+    async removePlayerMatchSeals(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_seals SET
+        killer_id = IF(killer_id = ?, -1, killer_id),
+        victim_id = IF(victim_id = ?, -1, victim_id)
+        WHERE match_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+    }
+
+    async removePlayerMatchSelfCovers(playerId, matchId){
+
+        const query = `UPDATE nstats_ctf_self_covers SET
+        killer_id = IF(killer_id = ?, -1, killer_id),
+        victim_id = IF(victim_id = ?, -1, victim_id)
+        WHERE match_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+    }
+
+    async deletePlayerMatchStats(playerId, matchId){
+
+        const query = `DELETE FROM nstats_player_ctf_match WHERE player_id=? AND match_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
     /**
      * 
      * @param {*} playerId 
@@ -1244,18 +1344,18 @@ class CTF{
 
         try{
 
-            const matchCaps = await this.getMatchCaps(matchId);
-
-            if(matchCaps.length > 0){
-   
-                if(this.parseCapEvents(matchCaps, playerId)){
-
-                    for(let i = 0; i < matchCaps.length; i++){
-
-                        await this.updateCap(matchCaps[i]);
-                    }
-                }
-            }
+            await this.removePlayerMatchAssists(playerId, matchId);
+            await this.removePlayerMatchCaps(playerId, matchId);
+            await this.removePlayerMatchCarryTimes(playerId, matchId);
+            await this.removePlayerMatchCovers(playerId, matchId);
+            await this.removePlayerMatchCRKills(playerId, matchId);
+            await this.removePlayerMatchFlagDeaths(playerId, matchId);
+            await this.removePlayerMatchFlagDrops(playerId, matchId);
+            await this.removePlayerMatchFlagPickups(playerId, matchId);
+            await this.removePlayerMatchReturns(playerId, matchId);
+            await this.removePlayerMatchSeals(playerId, matchId);
+            await this.removePlayerMatchSelfCovers(playerId, matchId);
+            await this.deletePlayerMatchStats(playerId, matchId);
 
             await this.deletePlayerMatchEvents(playerId, matchId);
 
