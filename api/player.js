@@ -893,7 +893,7 @@ class Player{
     }
     
 
-    async removeFromMatch(playerId, matchId, mapId, matchManager, rankingManager){
+    async removeFromMatch(playerId, matchId, mapId, matchManager){
 
         try{
 
@@ -997,7 +997,6 @@ class Player{
                 await comboManager.deletePlayerFromMatch(playerId, mapId, matchData.gametype, matchId);
                // await matchManager.renameSingleDMMatchWinner(matchId, oldName, matchData.name);
 
-               await rankingManager.deletePlayerFromMatch(this, playerId, matchId, gametypeId, true);
 
             }
 

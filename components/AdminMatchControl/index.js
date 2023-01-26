@@ -25,7 +25,9 @@ const AdminMatchControl = ({players, matchId, mapId, gametypeId}) =>{
                 "type": "deletePlayer", 
                 "matchId": matchId,
                 "playerId": playerId,
-                "mapId": mapId})
+                "mapId": mapId,
+                "gametypeId": gametypeId
+            })
         });
 
         const res = await req.json();
