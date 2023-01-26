@@ -50,6 +50,6 @@ export default async function handler(req, res){
 
     }catch(err){
         console.trace(err);
-        res.status(200).json({"message": `Error ${err}`})
+        res.status(200).json({"error": `Error ${err}`})
     }   
 }

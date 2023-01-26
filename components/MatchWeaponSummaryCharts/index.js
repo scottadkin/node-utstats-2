@@ -224,7 +224,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
                 <div className={`tab ${(selectedStatType === "accuracy") ? "tab-selected" : ""}`} 
                     onClick={() => setSelectedStatType("accuracy")}>Accuracy</div>
             </div>
-            <BarChart title={weaponName} label={selectedStatType} values={values} names={names}/>
+            <BarChart title={weaponName} label={selectedStatType.toUpperCase()} values={values} names={names}/>
         </div>
     }
 

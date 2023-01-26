@@ -1,8 +1,38 @@
 import styles from './CookieBanner.module.css';
-import React from 'react';
+import {React, useState} from 'react';
 
 
+const CookieBanner = ({session}) =>{
 
+
+    const [bShow, setbShow] = useState(false);
+
+    if(typeof session === "string"){
+        session = JSON.parse(session);
+    }
+
+    if(session.hideCookieBanner === undefined){
+        setbShow(true);
+    }
+
+    if(!bShow) return null;
+
+    return <div className={styles.wrapper}>
+        <div className={styles.header}>Cookies</div>
+
+        <div className={styles.info}>
+            This site uses cookies to enhance your user experience, by using this site you are agreeing to their use.
+        </div>
+
+        <div className={styles.hide} onClick={() => setbShow(false)}>
+            Got it!
+        </div>
+    </div>
+}
+
+export default CookieBanner;
+
+/*
 class CookieBanner extends React.Component{
 
     constructor(props){
@@ -53,4 +83,4 @@ class CookieBanner extends React.Component{
 
 
 
-export default CookieBanner;
+export default CookieBanner;*/

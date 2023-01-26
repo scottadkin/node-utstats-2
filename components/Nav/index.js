@@ -6,7 +6,9 @@ function Nav({session, settings}){
 
     const router = useRouter();
 
-    session = JSON.parse(session);
+    if(typeof session === "string"){
+        session = JSON.parse(session);
+    }
 
     //console.log(session);
 

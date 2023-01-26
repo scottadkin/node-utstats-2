@@ -48,6 +48,8 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     navSettings, map, server, gametype, bMonsterHunt}) =>{
 
 
+    session = JSON.parse(session);
+
     const reducer = (state, action) =>{
 
         switch(action.type){
@@ -144,6 +146,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     if(error !== undefined){
         return <ErrorPage>{error}</ErrorPage>
     }
+
 
     const getOGImage = () =>{
 
@@ -290,6 +293,25 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             />;
         }
 
+
+        if(pageSettings["Display Weapon Statistics"] === "true"){
+
+            elems[pageOrder["Display Weapon Statistics"]] = <MatchWeaponSummaryCharts 
+                key="weapon-stats"
+                playerData={state.basicPlayers}
+                totalTeams={info.total_teams} 
+                matchId={matchId}
+                host={imageHost}
+            />;
+        }
+
+
+        if(session["bLoggedIn"]){
+            elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
+                gametypeId={info.gametype}
+            />;
+        }
+
         return elems;
     }
 
@@ -321,26 +343,6 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         elems = renderMain();
     }
 
-    /**
-     * 
-     * <MatchWeaponSummaryCharts 
-                    key="weapon-stats"
-                    //weaponNames={parsedWeaponData.names} 
-                    playerData={state.basicPlayers}
-                    //players={orderedPlayers} 
-                    totalTeams={info.total_teams} 
-                    matchId={matchId}
-                    host={imageHost}
-                    types={[
-                        {"name": "kills", "display": "Kills"},
-                        {"name": "deaths", "display": "Deaths"},
-                        {"name": "damage", "display": "Damage"},
-                        {"name": "shots", "display": "Shots"},
-                        {"name": "hits", "display": "Hits"},
-                        {"name": "accuracy", "display": "Accuracy"},
-                    ]}
-                />
-     */
 
 
     return <div>
@@ -356,23 +358,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
                 
-                    <MatchWeaponSummaryCharts 
-                        key="weapon-stats"
-                        //weaponNames={parsedWeaponData.names} 
-                        playerData={state.basicPlayers}
-                        //players={orderedPlayers} 
-                        totalTeams={info.total_teams} 
-                        matchId={matchId}
-                        host={imageHost}
-                        types={[
-                            {"name": "kills", "display": "Kills"},
-                            {"name": "deaths", "display": "Deaths"},
-                            {"name": "damage", "display": "Damage"},
-                            {"name": "shots", "display": "Shots"},
-                            {"name": "hits", "display": "Hits"},
-                            {"name": "accuracy", "display": "Accuracy"},
-                        ]}
-                    />
+                    
 
                     {renderTitleElem()}
 
@@ -673,40 +659,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             />
         }
  
-
-    if(pageSettings["Display Weapon Statistics"] === "true"){
-
-        if(!parsedInfo.mh){
-
-            const parsedWeaponData = JSON.parse(weaponData);
-
-            parsedWeaponData.names.sort(sortByName);
-        
-            const orderedPlayers = JSON.parse(playerNames);
-        
-            orderedPlayers.sort(sortByName);
-        
-
-            elems[pageOrder["Display Weapon Statistics"]] = <MatchWeaponSummaryCharts 
-                key="weapon-stats"
-                weaponNames={parsedWeaponData.names} 
-                playerData={parsedWeaponData.playerData}
-                players={orderedPlayers} 
-                totalTeams={parsedInfo.total_teams} 
-                matchId={parsedInfo.id}
-                host={imageHost}
-                types={[
-                    {"name": "kills", "display": "Kills"},
-                    {"name": "deaths", "display": "Deaths"},
-                    {"name": "damage", "display": "Damage"},
-                    {"name": "shots", "display": "Shots"},
-                    {"name": "hits", "display": "Hits"},
-                    {"name": "accuracy", "display": "Accuracy"},
-                ]}
-            />
-            
-        }
-    }
     
     if(pageSettings["Display Rankings"] === "true"){
 
@@ -788,30 +740,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
     }
 
 
-    return <div>
-        <DefaultHead host={host} 
-            title={`${map} (${dateString}) Match Report`} 
-            description={`Match report for ${map} (${gametype}${(parsedInfo.insta) ? " Instagib" : ""}) 
-            played on ${server} at ${dateString}, total players ${parsedInfo.players}, match length ${Functions.MMSS(parsedInfo.playtime)}.`} 
-            keywords={`match,report,${map},${gametype},${server}`}
-            image={ogImage}    
-            />
-        <main>
-            <Nav settings={navSettings} session={session}/>
-            <div id="content">
 
-                <div className="default">
-
-                        <MatchCTFCarryTime matchId={parsedInfo.id} players={JSON.parse(playerNames)}/>
-                        {titleElem}
-                        
-                        {elems}
-    
-                </div>
-            </div>
-            <Footer session={session}/>
-        </main>
-    </div>
 }
 
 */

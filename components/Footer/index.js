@@ -1,6 +1,11 @@
 import CookieBanner from '../CookieBanner/';
 
 function Footer({session}){
+
+    if(typeof session === "string"){
+        session = JSON.parse(session);
+    }
+    
     return (
         <div>
             <CookieBanner session={session}/>
