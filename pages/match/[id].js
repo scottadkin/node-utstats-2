@@ -303,6 +303,17 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     key="ctf-ct"
                 />;
             }
+
+            if(pageSettings["Display Capture The Flag Graphs"] === "true"){
+
+                elems[pageOrder["Display Capture The Flag Graphs"]] = <MatchCTFGraphs 
+                    key="ctf-graphs" 
+                    matchId={matchId} 
+                    totalTeams={info.total_teams} 
+                    players={state.nonSpectators}
+                />;
+            
+            }
         }
 
         if(pageSettings["Display Weapon Statistics"] === "true"){
@@ -316,6 +327,19 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             />;
         }
 
+
+        if(pageSettings["Display Frags Graphs"] === "true"){
+  
+            if(info.mh === 0){
+    
+                elems[pageOrder["Display Frags Graphs"]] = <MatchFragsGraph 
+                    key="frag-graphs" 
+                    matchId={matchId} 
+                    players={state.nonSpectators} 
+                    teams={info.total_teams}
+                />;
+            }
+        }
 
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
@@ -381,83 +405,6 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 <Footer session={session}/>
             </main>
         </div>;
-
-
-    /*
-        if(error !== undefined){
-            return <ErrorPage>{error}</ErrorPage>
-        }
-
-        const imageHost = Functions.getImageHostAndPort(host);
-
-        //for default head open graph image
-        const imageReg = /^.+\/(.+)\.jpg$/i;
-        const imageRegResult = imageReg.exec(image);
-        let ogImage = "maps/default";
-
-        if(imageRegResult !== null){
-            ogImage = `maps/${imageRegResult[1]}`;
-        }
-            
-
-        if(info === undefined){
-            return this.renderMissing(ogImage);
-        }      
-        
-
-        const titleElem = this.getTitleElem();
-
-        const elems = this.renderElems(imageHost);
-
-        //const metaData = JSON.parse(metaData);
-
-
-
-        return <div>
-            <DefaultHead host={host} 
-                title={metaData.title} 
-                description={metaData.description} 
-                keywords={metaData.keywords}
-                image={ogImage}    
-                />
-            <main>
-                <Nav settings={navSettings} session={session}/>
-                <div id="content">
-                    <div className="default">
-
-                    {titleElem}
-
-                    <MatchCTFSummary matchId={info.id} playerData={this.state.playerData} />
-
-                    <MatchCTFCaps 
-                        matchId={info.id} 
-                        playerData={this.state.playerNames} 
-                        totalTeams={info.total_teams}
-                        matchStart={info.start}
-                    />
-
-                    <MatchCTFReturns 
-                        matchId={info.id}
-                        playerData={this.state.playerNames} 
-                        totalTeams={info.total_teams}
-                        matchStart={info.start}
-                    />
-
-                    
-                    
-                    
-                    <MatchCTFCarryTime matchId={info.id} players={this.state.playerNames}/>
-                            
-                            
-                    {elems}
-        
-                    </div>
-                </div>
-                <Footer session={this.props.session}/>
-            </main>
-        </div>
-    
-*/
 }
 
 
@@ -511,57 +458,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
         }
     }
 
-    if(pageSettings["Display Frags Graphs"] === "true"){
-
-        if(!parsedInfo.mh){
-
-            elems[pageOrder["Display Frag Graph"]] = <MatchFragsGraph 
-                key="frag-graphs" 
-                matchId={parsedInfo.id} 
-                players={nonSpectators} 
-                teams={parsedInfo.total_teams}
-            />;
-        }
-    }
-
- 
-        
-    if(pageSettings["Display Capture The Flag Summary"] === "true"){
-
-        elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary 
-            key={`match_1`} 
-            host={imageHost} 
-            session={session} 
-            players={JSON.parse(playerData)} 
-            totalTeams={parsedInfo.total_teams} 
-            matchId={parsedInfo.id}
-        />;
-        
-    }
-
-    if(pageSettings["Display Capture The Flag Times"] === "true"){
-
-        elems[pageOrder["Display Capture The Flag Times"]] = <MatchCTFCapTimes 
-            key={`match-ctf-caps`} 
-            players={JSON.parse(playerNames)} 
-            matchId={parsedInfo.id} 
-            mapId={parsedInfo.map} 
-            host={imageHost} 
-            matchStart={parsedInfo.start}
-        />;
-        
-    }
-
-    if(pageSettings["Display Capture The Flag Graphs"] === "true"){
-
-        elems[pageOrder["Display Capture The Flag Graphs"]] = <MatchCTFGraphs 
-            key="ctf-graphs" 
-            matchId={parsedInfo.id} 
-            totalTeams={parsedInfo.total_teams} 
-            players={nonSpectators}
-        />;
-    
-    }
 
     const bDom = bDomination(parsedPlayerData);
     const bAssaultGame = bAssault(gametype);
