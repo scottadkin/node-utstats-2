@@ -42,7 +42,7 @@ import ErrorPage from '../ErrorPage';
 import MatchKillsMatchUp from '../../components/MatchKillsMatchUp';
 import MatchCTFCarryTime from '../../components/MatchCTFCarryTime';
 import MatchCTFReturns from '../../components/MatchCTFReturns';
-
+import Loading from '../../components/Loading';
 
 const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, 
     navSettings, map, server, gametype, bMonsterHunt}) =>{
@@ -57,6 +57,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 "faces": action.payload.faces,
                 "basicPlayers": action.payload.basicPlayers,
                 "nonSpectators": action.payload.nonSpectators,
+                "bLoadingPlayers": false
             }
         }
 
@@ -67,7 +68,8 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         "playerData": [],
         "faces": {},
         "basicPlayers": {},
-        "nonSpectators": {}
+        "nonSpectators": {},
+        "bLoadingPlayers": true
     });
 
     useEffect(() =>{
@@ -191,6 +193,105 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
     
 
+    const renderMain = () =>{
+
+        const elems = [];
+
+        if(pageSettings["Display Summary"] === "true"){
+
+            elems[pageOrder["Display Summary"]] = <MatchSummary 
+                key={"m-s"} 
+                info={info} 
+                server={server} 
+                gametype={gametype} 
+                map={map} 
+                image={image} 
+                bMonsterHunt={bMonsterHunt} 
+                settings={pageSettings}
+            />
+                   
+        }
+    
+        if(pageSettings["Display Screenshot"] === "true"){
+    
+            elems[pageOrder["Display Screenshot"]] = <Screenshot 
+                host={imageHost}
+                key={"match-sshot"} map={map} 
+                totalTeams={info.total_teams} 
+                players={state.playerData} 
+                image={image} 
+                matchData={info}
+                serverName={server} 
+                gametype={gametype} 
+                faces={state.faces}
+            />
+        }
+    
+    
+        if(pageSettings["Display Frag Summary"] === "true"){
+    
+            if(!bMonsterHunt){
+    
+                elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key={`match_3`} 
+                    host={imageHost} 
+                    totalTeams={info.total_teams} 
+                    playerData={state.playerData} 
+                    matchStart={info.start}
+                    matchId={info.id}
+                />
+              
+    
+            }else{
+    
+                elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key={`mh-frags`} 
+                    host={imageHost} 
+                    playerData={state.playerData} 
+                    matchStart={info.start} 
+                    matchId={info.id
+                }/>
+               
+            }
+        }
+    
+    
+    
+        if(pageSettings["Display Capture The Flag Summary"] === "true"){
+            elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={state.playerData} />
+        }
+    
+        if(pageSettings["Display Capture The Flag Returns"] === "true"){
+            
+            elems[pageOrder["Display Capture The Flag Returns"]] = <MatchCTFReturns 
+                key="ctf-r"
+                matchId={matchId}
+                playerData={state.basicPlayers} 
+                totalTeams={info.total_teams}
+                matchStart={info.start}
+            />
+        }
+    
+        if(pageSettings["Display Capture The Flag Caps"] === "true"){
+    
+            elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCaps 
+                key="ctf-c"
+                matchId={matchId} 
+                playerData={state.basicPlayers} 
+                totalTeams={info.total_teams}
+                matchStart={info.start}
+            />
+        }
+    
+        if(pageSettings["Display Capture The Flag Carry Times"] === "true"){
+    
+            elems[pageOrder["Display Capture The Flag Carry Times"]] = <MatchCTFCarryTime 
+                matchId={matchId} 
+                players={state.basicPlayers}
+                key="ctf-ct"
+            />;
+        }
+
+        return elems;
+    }
 
 
 
@@ -208,116 +309,21 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
 
 
+    let elems = [];
 
-    const elems = [];
+    if(state.bLoadingPlayers){
 
-    if(pageSettings["Display Summary"] === "true"){
-
-        elems[pageOrder["Display Summary"]] = <MatchSummary 
-            key={"m-s"} 
-            info={info} 
-            server={server} 
-            gametype={gametype} 
-            map={map} 
-            image={image} 
-            bMonsterHunt={bMonsterHunt} 
-            settings={pageSettings}
-        />
-               
+        elems = <Loading />
     }
 
-    if(pageSettings["Display Screenshot"] === "true"){
+    if(!state.bLoadingPlayers){
 
-        elems[pageOrder["Display Screenshot"]] = <Screenshot 
-            host={imageHost}
-            key={"match-sshot"} map={map} 
-            totalTeams={info.total_teams} 
-            players={state.playerData} 
-            image={image} 
-            matchData={info}
-            serverName={server} 
-            gametype={gametype} 
-            faces={state.faces}
-        />
+        elems = renderMain();
     }
 
-
-    if(pageSettings["Display Frag Summary"] === "true"){
-
-        if(!bMonsterHunt){
-
-            elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key={`match_3`} 
-                host={imageHost} 
-                totalTeams={info.total_teams} 
-                playerData={state.playerData} 
-                matchStart={info.start}
-                matchId={info.id}
-            />
-          
-
-        }else{
-
-            elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key={`mh-frags`} 
-                host={imageHost} 
-                playerData={state.playerData} 
-                matchStart={info.start} 
-                matchId={info.id
-            }/>
-           
-        }
-    }
-
-
-
-    if(pageSettings["Display Capture The Flag Summary"] === "true"){
-        elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={state.playerData} />
-    }
-
-    if(pageSettings["Display Capture The Flag Returns"] === "true"){
-        
-        elems[pageOrder["Display Capture The Flag Returns"]] = <MatchCTFReturns 
-            key="ctf-r"
-            matchId={matchId}
-            playerData={state.basicPlayers} 
-            totalTeams={info.total_teams}
-            matchStart={info.start}
-        />
-    }
-
-    if(pageSettings["Display Capture The Flag Caps"] === "true"){
-
-        elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCaps 
-            key="ctf-c"
-            matchId={matchId} 
-            playerData={state.basicPlayers} 
-            totalTeams={info.total_teams}
-            matchStart={info.start}
-        />
-    }
-
-    if(pageSettings["Display Capture The Flag Carry Times"] === "true"){
-
-        elems[pageOrder["Display Capture The Flag Carry Times"]] = <MatchCTFCarryTime 
-            matchId={matchId} 
-            players={state.basicPlayers}
-            key="ctf-ct"
-        />;
-    }
-
-
-    return <div>
-            <DefaultHead host={host} 
-                title={metaData.title} 
-                description={metaData.description} 
-                keywords={metaData.keywords}
-                image={getOGImage()}    
-                />
-            <main>
-                <Nav settings={navSettings} session={session}/>
-                <div id="content">
-                    <div className="default">
-
-                <MatchWeaponSummaryCharts 
+    /**
+     * 
+     * <MatchWeaponSummaryCharts 
                     key="weapon-stats"
                     //weaponNames={parsedWeaponData.names} 
                     playerData={state.basicPlayers}
@@ -334,6 +340,39 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                         {"name": "accuracy", "display": "Accuracy"},
                     ]}
                 />
+     */
+
+
+    return <div>
+            <DefaultHead host={host} 
+                title={metaData.title} 
+                description={metaData.description} 
+                keywords={metaData.keywords}
+                image={getOGImage()}    
+                />
+            <main>
+                <Nav settings={navSettings} session={session}/>
+                <div id="content">
+                    <div className="default">
+
+                
+                    <MatchWeaponSummaryCharts 
+                        key="weapon-stats"
+                        //weaponNames={parsedWeaponData.names} 
+                        playerData={state.basicPlayers}
+                        //players={orderedPlayers} 
+                        totalTeams={info.total_teams} 
+                        matchId={matchId}
+                        host={imageHost}
+                        types={[
+                            {"name": "kills", "display": "Kills"},
+                            {"name": "deaths", "display": "Deaths"},
+                            {"name": "damage", "display": "Damage"},
+                            {"name": "shots", "display": "Shots"},
+                            {"name": "hits", "display": "Hits"},
+                            {"name": "accuracy", "display": "Accuracy"},
+                        ]}
+                    />
 
                     {renderTitleElem()}
 
