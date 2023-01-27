@@ -224,8 +224,6 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
             const d = data[i];
 
-            console.log(d.flagAssists);
-
             updateTeamScores(d.cap_team);
 
             //const grabPlayer = Functions.getPlayer(playerData, d.grab_player);
