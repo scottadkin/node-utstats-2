@@ -107,74 +107,99 @@ class GraphCanvas{
         
 
         this.render();
+      
+        this.controller = new AbortController();
 
-        this.canvas.onfullscreenchange = (e) =>{
-
-            if(document.fullscreenElement !== this.canvas){
-                this.bFullScreen = false;
-            }else{
-                this.bFullScreen = true;
-            }
-
-            this.setMaxStringLengths();
-            this.calcMinMax();
-            this.createMouseOverData();
-
-            this.render();
-        }
-
-        this.canvas.onfullscreenerror = (e) =>{
-            console.log(e);
-        }
-
+        
         this.canvas.addEventListener("mousemove", (e) =>{
-
-            this.mouse.x = this.toPercent(e.offsetX, true);
-            this.mouse.y = this.toPercent(e.offsetY, false);
-
-            //console.log(this.mouse);
-
-            if(this.mouse.y >= this.keyStartY){
-                //this.canvas.style.cssText = "cursor:default;";
-                this.hoverKeys();
-
-            }else if(this.mouse.y >= this.graphStartY && this.mouse.y < this.graphStartY + this.graphHeight
-                && this.mouse.x >= this.graphStartX && this.mouse.x < this.graphStartX + this.graphWidth
-                ){
-                
-               
-                this.canvas.style.cssText = "cursor:cell;";
-                
-                
-            }else{
-
-                if(this.bFullScreen){
-                    this.canvas.style.cssText = "cursor:default;";
-                }else{
-                    this.canvas.style.cssText = "cursor:zoom-in;";
-                }
-            }
-
-            if(this.bMultiTab && this.totalTabs > 1){
-
-                if(this.mouse.y <= this.tabHeight){
-                    this.hoverTab();
-                }
-            }
-
-            this.render();
-            
-        });
+            this.handleMouseMove(e);    
+        }, {"signal": this.controller.signal});
 
 
         this.canvas.addEventListener("click", (e) =>{
+            this.handleClick(e);
+        },{"signal": this.controller.signal});
+
+        this.canvas.addEventListener("fullscreenchange", (e) =>{
+            this.handleFullscreenChange(e);
+        },{"signal": this.controller.signal});
+
+
+        this.canvas.addEventListener("fullscreenerror", (e) =>{
+            this.handleFullscreenError(e);
+        },{"signal": this.controller.signal});
+        
+    }
+
+
+    handleFullscreenError(e){
+        console.trace(e);
+    }
+
+    handleFullscreenChange(e){
+
+        if(document.fullscreenElement !== this.canvas){
+            this.bFullScreen = false;
+        }else{
+            this.bFullScreen = true;
+        }
+
+        this.setMaxStringLengths();
+        this.calcMinMax();
+        this.createMouseOverData();
+
+        this.render();
+    
+    }
+
+    handleMouseMove(e){
+
+        this.mouse.x = this.toPercent(e.offsetX, true);
+        this.mouse.y = this.toPercent(e.offsetY, false);
+
+        //console.log(this.mouse);
+
+        if(this.mouse.y >= this.keyStartY){
+            //this.canvas.style.cssText = "cursor:default;";
+            this.hoverKeys();
+
+        }else if(this.mouse.y >= this.graphStartY && this.mouse.y < this.graphStartY + this.graphHeight
+            && this.mouse.x >= this.graphStartX && this.mouse.x < this.graphStartX + this.graphWidth
+            ){
+            
+            
+            this.canvas.style.cssText = "cursor:cell;";
+            
+            
+        }else{
+
+            if(this.bFullScreen){
+                this.canvas.style.cssText = "cursor:default;";
+            }else{
+                this.canvas.style.cssText = "cursor:zoom-in;";
+            }
+        }
+
+        if(this.bMultiTab && this.totalTabs > 1){
+
+            if(this.mouse.y <= this.tabHeight){
+                this.hoverTab();
+            }
+        }
+
+        this.render();
+    }
+
+    async handleClick(e){
+
+        try{
+
 
             if(!this.keyEvents()){
             
                 if(!this.bMultiTab){
-                    this.canvas.requestFullscreen().catch((err) =>{
-                        console.log(err);
-                    });
+                    
+                    await this.canvas.requestFullscreen();
 
                     this.render();
                     return;
@@ -184,9 +209,8 @@ class GraphCanvas{
                 if(this.mouse.y > this.tabHeight){
                     
                     if(!this.bFullScreen){
-                        this.canvas.requestFullscreen().catch((err) =>{
-                            console.trace(err);
-                        });
+                        this.canvas.width = 2;
+                        await this.canvas.requestFullscreen();
                     }
                     
                 }else{
@@ -204,8 +228,32 @@ class GraphCanvas{
             }
 
             this.render();
+            
+        }catch(err){
+            console.trace(err);
+        }
          
+    }
+
+    cleanup(){
+
+        this.controller.abort();
+        
+        /*
+        this.canvas.removeEventListener("click", (e) =>{
+            this.handleClick(e);
         });
+        this.canvas.removeEventListener("mousemove", (e) =>{
+            this.handleMouseMove(e);
+        });
+        this.canvas.removeEventListener("fullscreenchange", (e) =>{
+            this.handleFullscreenChange(e);
+        });
+
+        this.canvas.removeEventListener("fullscreenerror", (e) =>{
+            this.handleFullscreenError(e);
+        });*/
+
     }
 
 
@@ -273,8 +321,6 @@ class GraphCanvas{
 
     keyEvents(){
 
-        let k = 0;
-
         let heightOffset = 0;
         let y = 0;
 
@@ -289,7 +335,7 @@ class GraphCanvas{
 
         for(let i = 0; i < this.keyCoordinates.length; i++){
 
-            k = this.keyCoordinates[i];
+            const k = this.keyCoordinates[i];
 
             if(this.mouse.x >= k.x && this.mouse.x < k.x + k.width){
 
@@ -1258,17 +1304,21 @@ class GraphCanvas{
     }
 }
 
-const Graph = ({title, data, text, minValue, maxValue}) =>{
+const Graph = ({title, data, text, minValue, maxValue, timestamp}) =>{
 
+    if(timestamp === undefined) timestamp = 0;
     if(minValue === undefined) minValue = null;
     if(maxValue === undefined) maxValue = null;
 
     const canvas = useRef(null);
-    
-    let test = null;
 
     useEffect(() =>{
-        test = new GraphCanvas(canvas.current, title, data, text, minValue, maxValue);
+        
+        const c = new GraphCanvas(canvas.current, title, data, text, minValue, maxValue);
+
+        return () =>{
+            c.cleanup();
+        }
     });
     
 
