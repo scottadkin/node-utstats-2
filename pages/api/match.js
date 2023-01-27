@@ -49,7 +49,6 @@ export default async function handler(req, res){
             return;
         }
         
-        
         if(mode === "kills"){
 
             if(matchId !== matchId){
@@ -154,13 +153,18 @@ export default async function handler(req, res){
 
             const domManager = new Domination();
 
+            const pointNames = await domManager.getControlPointNames(mapId);
             const playerPointTotals = await domManager.getMatchPlayerCapTotals(matchId);
-            const pointsGraphData = await domManager.getPointsGraphData(matchId, req.body.pointNames || []);
+            const pointsGraphData = await domManager.getPointsGraphData(matchId, pointNames);
 
-            const playerCaps = await domManager.getPlayerCapsGraphData(matchId, req.body.pointNames || [], players);
+            const playerCaps = await domManager.getPlayerCapsGraphData(matchId, pointNames);
 
-
-            res.status(200).json({"pointsGraph": pointsGraphData, "playerTotals": playerPointTotals, "playerCaps": playerCaps});
+            res.status(200).json({
+                "pointsGraph": pointsGraphData, 
+                "playerTotals": playerPointTotals, 
+                "playerCaps": playerCaps,
+                "pointNames": pointNames
+            });
             return;
 
         }else if(mode === "fastestcaps"){

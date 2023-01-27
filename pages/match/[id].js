@@ -341,6 +341,13 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             }
         }
 
+        /*elems[pageOrder["Display Domination Summary"]] = <MatchDominationSummaryNew key="dom-sum" 
+            host={imageHost}
+            matchId={matchId} 
+            totalTeams={info.total_teams} 
+            players={state.playerData} 
+        />;*/
+
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
                 gametypeId={info.gametype}
@@ -352,6 +359,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
 
 
+    
     
 
 
@@ -393,7 +401,13 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
                 
-                    
+                    <MatchDominationSummaryNew key="dom-sum" 
+                        host={imageHost}
+                        matchId={matchId} 
+                        totalTeams={info.total_teams} 
+                        playerData={state.basicPlayers} 
+                        mapId={info.map}
+                    />
 
                     {renderTitleElem()}
 
@@ -456,22 +470,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             }/>
            
         }
-    }
-
-
-    const bDom = bDomination(parsedPlayerData);
-    const bAssaultGame = bAssault(gametype);
-
-    if(!bDom && !bAssaultGame && pageSettings["Display Capture The Flag Caps"] === "true"){
-
-        elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCapsNew 
-            host={imageHost} 
-            key="ctf-caps" 
-            players={JSON.parse(playerNames)} 
-            totalTeams={parsedInfo.total_teams} 
-            matchId={parsedInfo.id} 
-            start={parsedInfo.start}
-        />;
     }
 
 
@@ -630,25 +628,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
         />;
 
     }
-    
-
-    const dateString = Functions.convertTimestamp(parsedInfo.date, true);
-
-
-    const titleElem = (pageSettings["Display Match Report Title"] === "true") ? 
-    <div className="default-header">Match Report</div> 
-    : null;
-
-
-    if(parsedSession["bLoggedIn"]){
-        elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={parsedInfo.id} players={playerNames} mapId={parsedInfo.map}
-            gametypeId={parsedInfo.gametype}
-        />;
-    }
-
-
-
-}
 
 */
 

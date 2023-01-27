@@ -9,6 +9,9 @@ class GraphCanvas{
 
     constructor(canvas, title, data, text, minValue, maxValue){
 
+        if(typeof data === "string"){
+            data = JSON.parse(data);
+        }
         
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
@@ -22,7 +25,6 @@ class GraphCanvas{
         this.tabOffset = 0;
 
         this.defaultWidth = 650;
-        this.scale = {"x": 1, "y": 1};
 
         this.currentTab = 0;
         this.bMultiTab = false;
@@ -30,7 +32,7 @@ class GraphCanvas{
         this.tabHeight = 8;
         this.heightOffset = 0;
 
-        this.data = JSON.parse(data);
+        this.data = data;
 
         this.text = null;
 
@@ -127,13 +129,8 @@ class GraphCanvas{
 
         this.canvas.addEventListener("mousemove", (e) =>{
 
-            this.mouse.x = this.toPercent(e.offsetX, true);// * this.scale.x;
-            this.mouse.y = this.toPercent(e.offsetY, false);// * this.scale.y;
-
-            if(!this.bFullScreen){
-                this.mouse.x *= this.scale.x;
-                this.mouse.y *= this.scale.y;
-            }
+            this.mouse.x = this.toPercent(e.offsetX, true);
+            this.mouse.y = this.toPercent(e.offsetY, false);
 
             //console.log(this.mouse);
 
@@ -164,12 +161,6 @@ class GraphCanvas{
                     this.hoverTab();
                 }
             }
-
-            const bounds = this.canvas.getBoundingClientRect();
-            
-
-            this.scale.x = this.canvas.width / bounds.width;
-            this.scale.y = this.canvas.height / bounds.height;
 
             this.render();
             
@@ -1274,13 +1265,14 @@ const Graph = ({title, data, text, minValue, maxValue}) =>{
 
     const canvas = useRef(null);
     
+    let test = null;
 
     useEffect(() =>{
-        const g1 = new GraphCanvas(canvas.current, title, data, text, minValue, maxValue);
+        test = new GraphCanvas(canvas.current, title, data, text, minValue, maxValue);
     });
     
 
-    return <canvas className={styles.canvas} ref={canvas} width="100" height="100"></canvas>;
+    return (<canvas className={styles.canvas} ref={canvas} width="100" height="100"></canvas>);
 }
 
 

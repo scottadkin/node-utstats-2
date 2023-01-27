@@ -66,7 +66,7 @@ class FTPImporter{
         });
 
         this.client.on('error', (err) =>{
-            
+
             new Message(`FTP ERROR: Server = ${this.host}:${this.port}`,"error");
             new Message(err, 'error');
             console.trace(err);
