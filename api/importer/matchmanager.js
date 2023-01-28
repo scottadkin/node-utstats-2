@@ -131,6 +131,10 @@ class MatchManager{
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
 
+            await this.playerManager.updateFaces(this.serverInfo.date);
+            await this.playerManager.updateVoices(this.serverInfo.date);
+            await this.playerManager.setIpCountry();
+
             await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
             new Message(`Updated player match data.`,'pass');
             
@@ -197,9 +201,7 @@ class MatchManager{
                 }
             }
 
-            await this.playerManager.updateFaces(this.serverInfo.date);
-            await this.playerManager.updateVoices(this.serverInfo.date);
-            await this.playerManager.setIpCountry();
+            
             
 
             if(!bLMS){
