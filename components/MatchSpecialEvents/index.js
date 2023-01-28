@@ -330,6 +330,7 @@ const MatchSpecialEvents = ({matchId, bTeamGame, players}) =>{
         return <InteractiveTable width={1} headers={headers} data={data} />;
     }
 
+    if(!bAnySprees() && !bAnyMultiKills()) return null;
 
     return <div>
         <div className="default-header">Special Events</div>
