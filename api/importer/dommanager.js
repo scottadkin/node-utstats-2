@@ -266,6 +266,7 @@ class DOMManager{
 
         try{
 
+
             if(matchId === undefined) matchId = this.matchId;
 
             const players = this.playerManager.players;

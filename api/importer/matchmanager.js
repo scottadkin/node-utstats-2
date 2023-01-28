@@ -101,6 +101,7 @@ class MatchManager{
                 this.gameInfo.totalTeams = 0;
             }
  
+            
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
 
@@ -128,6 +129,9 @@ class MatchManager{
 
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
+
+            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
+            new Message(`Updated player match data.`,'pass');
             
             await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);
 
@@ -172,7 +176,7 @@ class MatchManager{
 
             
 
-            this.playerManager.mergeDuplicates(bLMS);
+            //this.playerManager.mergeDuplicates(bLMS);
 
             if(bLMS){
                 
@@ -364,8 +368,7 @@ class MatchManager{
                 }*/
             }       
 
-            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
-            new Message(`Updated player match data.`,'pass');
+            
 
             this.rankingsManager = new Rankings();
 
