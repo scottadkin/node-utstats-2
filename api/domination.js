@@ -584,7 +584,7 @@ class Domination{
             const currentPlayer = playerData[player];
             const currentValue = currentPlayer[point][currentPlayer[point].length - 1];
 
-            const currentValueAll = currentPlayer[0][currentPlayer[point].length - 1];
+            const currentValueAll = currentPlayer[0][currentPlayer[0].length - 1];
 
             currentPlayer[point].push(currentValue + 1);
             currentPlayer[0].push(currentValueAll + 1);
