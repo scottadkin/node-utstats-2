@@ -84,6 +84,7 @@ class MatchManager{
             await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
             this.playerManager.init();
 
+
             const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
 
 

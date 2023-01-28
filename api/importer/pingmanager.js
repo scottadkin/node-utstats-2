@@ -27,15 +27,18 @@ class PingManager{
 
                 const timestamp = parseFloat(result[1]);
 
-                if(timestamp < playerManager.matchTimings.start){
+                /*if(timestamp < playerManager.matchTimings.start){
                     new Message(`Ping event before match, ignoring.`,"note");
-                }
+                }*/
 
-                if(parseInt(result[3]) != 0){
+                const playerId = parseInt(result[2]);
+                const currentPing = parseInt(result[3]);
 
-                    const currentPlayer = playerManager.getPlayerById(result[2]);
+                if(currentPing != 0){
 
-                    const currentPing = parseInt(result[3]);
+                    const currentPlayer = playerManager.getPlayerById(playerId);
+
+                    //const currentPing = parseInt(result[3]);
 
                     if(currentPlayer !== null){
 
@@ -90,7 +93,7 @@ class PingManager{
                         
 
                     }else{
-                        new Message(`Pings.parsePings() There is no player with the id ${result[2]}`,'warning');
+                        new Message(`Pings.parsePings() There is no player with the id ${playerId}`,'warning');
                     }
                 }
             }

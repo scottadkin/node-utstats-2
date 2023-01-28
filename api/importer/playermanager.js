@@ -72,13 +72,14 @@ class PlayerManager{
         for(let i = 0; i < this.data.length; i++){
 
             const d = this.data[i];
-            const result = reg.exec(d);
+            const result = reg.exec(d);           
 
             if(result !== null){
 
                 const type = result[2].toLowerCase();
                 const timestamp = parseFloat(result[1]);
                 const subString = result[3];
+
                    
                 if(type === 'connect'){
                     await this.connectPlayer(timestamp, subString, gametypeId);
@@ -137,6 +138,7 @@ class PlayerManager{
             const id = parseInt(result[2]);
             const player = this.getPlayerByName(result[1]);
 
+
             if(player === null){
 
                 const masterIds = await Player.getMasterIds(result[1], gametypeId);
@@ -151,6 +153,7 @@ class PlayerManager{
                 this.masterIdsToNames[player.masterId] = result[1].toLowerCase();
 
             }else{
+                this.idsToNames[id] = result[1].toLowerCase();
                 player.connect(timestamp, true);
             }
 
@@ -175,12 +178,12 @@ class PlayerManager{
 
     getPlayerById(id){
         
-
         id = parseInt(id);
 
         const name = this.idsToNames[id];
 
         if(name === undefined){
+
             new Message(`getPlayerById(${id}) Name is undefined`,"error");
             return null;
         }

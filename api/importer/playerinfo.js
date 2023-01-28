@@ -4,11 +4,11 @@ const Message = require("../message");
 
 class PlayerInfo{
 
-    constructor(id, name, timeStamp, bSpectator){
+    constructor(id, name, timestamp, bSpectator){
 
         this.id = id;
         this.name = name;
-        this.connects = [timeStamp];
+        this.connects = [timestamp];
         this.disconnects = [];
         this.teams = [];
         this.bBot = false;
@@ -270,8 +270,8 @@ class PlayerInfo{
         };
 
         this.lastDeath = -999;
-        this.lastKill = timeStamp;
-        this.lastSpawn = timeStamp;
+        this.lastKill = timestamp;
+        this.lastSpawn = timestamp;
         this.timeAlive = 0;
 
         this.spawns = [];
@@ -280,9 +280,9 @@ class PlayerInfo{
 
     }
 
-    connect(timeStamp, bSpectator){
+    connect(timestamp, bSpectator){
 
-        this.connects.push(timeStamp);
+        this.connects.push(timestamp);
 
         if(bSpectator !== undefined){
             this.bSpectator = true;
@@ -292,9 +292,9 @@ class PlayerInfo{
         }
     }
 
-    disconnect(timeStamp){
+    disconnect(timestamp){
 
-        this.disconnects.push(timeStamp);
+        this.disconnects.push(timestamp);
 
     }
 
