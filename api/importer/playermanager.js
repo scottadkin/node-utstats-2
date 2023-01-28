@@ -10,7 +10,7 @@ const ConnectionsManager = require('./connectionsmanager');
 const PingManager = require('./pingmanager');
 const TeamsManager = require('./teamsmanager');
 const WinRateManager = require('../winrate');
-const Sprees = require('../sprees');
+const SpreeManager = require("./spreemanager")
 
 class PlayerManager{
 
@@ -44,7 +44,7 @@ class PlayerManager{
         this.pingManager = new PingManager();
         this.winRateManager = new WinRateManager();
 
-        this.sprees = new Sprees();
+        this.spreeManager = new SpreeManager(matchTimings.start);
 
         /*this.createPlayers();
         this.setNStatsValues();
@@ -254,7 +254,6 @@ class PlayerManager{
 
     parsePlayerStrings(){
 
-        let d = 0;
         let result = 0;
         let type = 0;
         let player = 0;
@@ -267,7 +266,7 @@ class PlayerManager{
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
             if(reg.test(d)){
 
@@ -376,6 +375,7 @@ class PlayerManager{
 
                             player = this.getPlayerById(result[1]);
 
+
                             if(player !== null){
 
                                 player.setStatsValue(type, result[2], true);
@@ -401,9 +401,14 @@ class PlayerManager{
 
                             if(legacySpawnReg.test(result[2])){
 
+                                const playerId = parseInt(result[1]);
+
+                                const player = this.getPlayerById(playerId);
+                                player.spawned(timestamp);
+
                                 this.spawnManager.playerSpawnedLegacy(
                                     timestamp,
-                                    parseInt(result[1]),
+                                    player.masterId,
                                     result[2].split(',')
                                 );
 
@@ -412,13 +417,15 @@ class PlayerManager{
                                 const playerId = parseInt(result[1]);
 
                                 const player = this.getPlayerById(playerId);
-
+                                
 
                                 if(player === null){
                                     new Message(`PlayerManager.setNStatsValues() player is null, playerID =${playerId}`,"warning");
                                     this.spawnManager.playerSpawned(timestamp, -1, result[2]);
                                     continue;
                                 }
+
+                                player.spawned(timestamp);
 
                                 this.spawnManager.playerSpawned(timestamp, player.masterId, result[2]);
                             }
@@ -543,7 +550,6 @@ class PlayerManager{
 
     setKills(kills){
 
-
         let killer = 0;
         let victim = 0;
 
@@ -584,7 +590,7 @@ class PlayerManager{
                             killer = {"id": -1}
                         }
 
-                        this.sprees.addToList(
+                        this.spreeManager.add(
                             victim.masterId, 
                             victim.getCurrentSpree(), 
                             killer.masterId,
@@ -592,6 +598,13 @@ class PlayerManager{
                             k.timestamp
                         );
 
+                        /*this.sprees.addToList(
+                            victim.masterId, 
+                            victim.getCurrentSpree(), 
+                            killer.masterId,
+                            victim.getPreviousSpawn(k.timestamp),
+                            k.timestamp
+                        );*/
                     }
 
                    if(victim.died(k.timestamp, k.killerWeapon)){
@@ -611,13 +624,20 @@ class PlayerManager{
 
                     if(victim.onASpree()){
 
-                        this.sprees.addToList(
+                        this.spreeManager.add(
+                            victim.masterId, 
+                            victim.getCurrentSpree(), 
+                            killer.masterId,
+                            victim.getPreviousSpawn(k.timestamp),
+                            k.timestamp
+                        );
+                        /*this.sprees.addToList(
                             victim.masterId, 
                             victim.getCurrentSpree(), 
                             victim.masterId,
                             victim.getPreviousSpawn(k.timestamp),
                             k.timestamp
-                        );
+                        );*/
                         
                     }
 
@@ -639,13 +659,20 @@ class PlayerManager{
 
             if(p.onASpree()){
 
-                this.sprees.addToList(
+                this.spreeManager.add(
                     p.masterId, 
                     p.getCurrentSpree(), 
                     -1,
                     p.getPreviousSpawn(endTimestamp),
                     endTimestamp
                 );
+                /*this.sprees.addToList(
+                    p.masterId, 
+                    p.getCurrentSpree(), 
+                    -1,
+                    p.getPreviousSpawn(endTimestamp),
+                    endTimestamp
+                );*/
                 
             }
 
@@ -1550,29 +1577,14 @@ class PlayerManager{
     }
 
 
-
-    setSpreeMasterIds(){
-
-        for(let i = 0; i < this.sprees.currentSprees.length; i++){
-
-            const s = this.sprees.currentSprees[i];
-
-            s.player = this.getOriginalConnectionMasterId(s.player);
-
-            if(s.killedBy !== -1){
-
-                s.killedBy = this.getOriginalConnectionMasterId(s.killedBy);
-            }
-        }
-    }
-
     async insertSprees(matchId){
 
         try{
 
-            if(this.sprees.currentSprees !== undefined){
+            await this.spreeManager.insertSprees(matchId);
+            /*if(this.sprees.currentSprees !== undefined){
                 await this.sprees.insertCurrentSprees(matchId);
-            }
+            }*/
 
         }catch(err){
             

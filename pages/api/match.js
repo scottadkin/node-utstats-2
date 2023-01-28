@@ -6,6 +6,7 @@ import Pings from "../../api/pings";
 import Domination from "../../api/domination";
 import Faces from "../../api/faces";
 import Weapons from "../../api/weapons";
+import Assault from "../../api/assault";
 
 export default async function handler(req, res){
 
@@ -39,6 +40,16 @@ export default async function handler(req, res){
             return;
         }
 
+        if(mode === "assault"){
+
+            const assaultManager = new Assault();
+
+            const assaultData = await assaultManager.getMatchData(matchId, mapId);
+
+            res.status(200).json(assaultData);
+            return;
+        }
+
         if(mode === "weapons"){
 
             const weaponManager = new Weapons();
@@ -48,6 +59,7 @@ export default async function handler(req, res){
             res.status(200).json({"names": data.names, "playerData": data.playerData});
             return;
         }
+
         
         if(mode === "kills"){
 
@@ -58,15 +70,13 @@ export default async function handler(req, res){
 
             const teams = req.body.teams || 0;
 
-            
-
             const data = await killManager.getGraphData(matchId, players, teams);
-
 
             res.status(200).json({"data": data});
             return;
-
-        }else if(mode === "ctfevents"){
+        }
+        
+        if(mode === "ctfevents"){
 
             if(matchId !== matchId){
                 res.status(200).json({"error": "Match id must be a valid integer"});
@@ -82,7 +92,9 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
 
-        }else if(mode === "ctfcaps"){
+        }
+        
+        if(mode === "ctfcaps"){
 
             if(matchId !== matchId){
                 res.status(200).json({"error": "Match id must be a valid integer"});
@@ -96,7 +108,9 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
 
-        }else if(mode === "sprees"){
+        }
+        
+        if(mode === "sprees"){
 
             if(matchId !== matchId){
                 res.status(200).json({"error": "Match id must be a valid integer"});
@@ -116,7 +130,8 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
 
-        }else if(mode === "scorehistory"){
+        }
+        if(mode === "scorehistory"){
 
 
             if(matchId !== matchId){
@@ -130,7 +145,9 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
 
-        }else if(mode === "pings"){
+        }
+        
+        if(mode === "pings"){
 
             if(matchId !== matchId){
                 res.status(200).json({"error": "Match id must be a valid integer"});
@@ -144,7 +161,9 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
 
-        }else if(mode === "playerdomcaps"){
+        }
+        
+        if(mode === "playerdomcaps"){
 
             if(matchId !== matchId){
                 res.status(200).json({"error": "Match id must be a valid integer"});
@@ -167,7 +186,9 @@ export default async function handler(req, res){
             });
             return;
 
-        }else if(mode === "fastestcaps"){
+        }
+        
+        if(mode === "fastestcaps"){
 
             if(matchId !== matchId){
                 res.status(200).json({"error": "Match id must be a valid integer"});
@@ -188,7 +209,9 @@ export default async function handler(req, res){
             
             return;
 
-        }else if(mode === "kmu"){
+        }
+        
+        if(mode === "kmu"){
 
             if(matchId !== matchId){
                 res.status(200).json({"error": "Match id must be a valid integer"});

@@ -276,6 +276,8 @@ class PlayerInfo{
 
         this.spawns = [];
 
+
+        this.spawnTimestamps = [];
         //console.log(this);
 
     }
@@ -598,13 +600,12 @@ class PlayerInfo{
         return currentTeam;
     }
 
-    getPreviousSpawn(timestamp){
+    /*getPreviousSpawn(timestamp){
 
-        let s = 0;
 
         for(let i = this.spawns.length - 1; i >= 0; i--){
 
-            s = this.spawns[i];
+            const s = this.spawns[i];
 
             if(s.timestamp < timestamp){
                 return s.timestamp;
@@ -613,7 +614,7 @@ class PlayerInfo{
 
         return null;
 
-    }
+    }*/
 
     updateMonsterHuntSprees(){
 
@@ -715,6 +716,27 @@ class PlayerInfo{
 
         data.currentLife = currentCovers;
         data.lastTimestamp = timestamp;
+    }
+
+
+    spawned(timestamp){
+        this.spawnTimestamps.push(timestamp);
+    }
+
+    getPreviousSpawn(timestamp){
+
+        let closest = 0;
+
+        for(let i = 0; i < this.spawnTimestamps.length; i++){
+
+            const s = this.spawnTimestamps[i];
+
+            if(s > timestamp) break;
+            closest = s;
+
+        }
+
+        return closest;
     }
 }
 

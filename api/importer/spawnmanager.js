@@ -53,7 +53,6 @@ class SpawnManager{
             this.updateSpawnCount(spawnId);
         }
 
-        console.log(playerId);
 
         this.data.push(
             {
@@ -74,7 +73,6 @@ class SpawnManager{
         timestamp = parseFloat(timestamp);
         playerId = parseInt(playerId);
         spawnId = parseInt(spawnId);
-
 
         for(let i = 0; i < this.spawnPoints.length; i++){
 

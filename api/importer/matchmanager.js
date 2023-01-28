@@ -106,6 +106,7 @@ class MatchManager{
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
 
+            const matchTimings = this.gameInfo.getMatchLength();
 
             this.playerManager.setKills(this.killManager.kills);
             this.playerManager.matchEnded(this.gameInfo.end);
@@ -118,7 +119,7 @@ class MatchManager{
             await this.serverInfo.updateServer(geoip);
             new Message(`Inserted server info into database.`, 'pass');
 
-            const matchTimings = this.gameInfo.getMatchLength();
+            
             await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
 
 
@@ -383,6 +384,16 @@ class MatchManager{
 
 
             await Logs.setMatchId(logId, this.matchId);
+
+
+            for(let i = 0; i < this.playerManager.players.length; i++){
+
+                const p = this.playerManager.players[i];
+
+                console.log(p.spawnTimestamps);
+            }
+
+            console.log(this.playerManager.spreeManager.spreeList);
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 

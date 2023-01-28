@@ -3,49 +3,16 @@ const mysql = require('./database');
 
 class Sprees{
 
-    constructor(){
-    
-    }
+    constructor(){}
 
-    // if killedBy is -1 it means match ending ended the spree
-    addToList(player, kills, killedBy, start, end){
+    async insertSpree(matchId, playerId, totalKills, startTimestamp, endTimestamp, totalTime, killerId){
 
-        if(this.currentSprees === undefined){
+        const query = `INSERT INTO nstats_sprees VALUES(NULL,?,?,?,?,?,?,?)`;
 
-            this.currentSprees = [];
-        }
+        const vars = [matchId, playerId, totalKills, startTimestamp, endTimestamp, totalTime, killerId];
 
-        this.currentSprees.push({
+        return await mysql.simpleQuery(query, vars);
 
-            "player": player,
-            "kills": kills,
-            "killedBy": killedBy,
-            "start": start,
-            "end": end,
-            "totalTime": end - start
-        });
-    }
-
-    async insertCurrentSprees(matchId){
-
-        const query = "INSERT INTO nstats_sprees VALUES(NULL,?,?,?,?,?,?,?)";
-
-        for(let i = 0; i < this.currentSprees.length; i++){
-
-            const s = this.currentSprees[i];
-
-            const vars = [
-                matchId,
-                s.player,
-                s.kills,
-                (s.start === null) ? 0 : s.start,
-                (s.end === null) ? 0 : s.end,
-                s.totalTime,
-                s.killedBy
-            ];
-
-            await mysql.simpleQuery(query, vars);
-        }
     }
 
     async getMatchData(id){

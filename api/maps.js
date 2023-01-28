@@ -316,7 +316,7 @@ class Maps{
 
         const similarImage = this.getSimilarImage(justName, files);
 
-        if(similarImage !== null) return `/images/maps/${similarImage}`;
+        if(similarImage !== null) return `/images/maps/${similarImage}.jpg`;
 
         return `/images/maps/default.jpg`;
     }

@@ -11,8 +11,6 @@ import MatchFragSummary from '../../components/MatchFragSummary/';
 import MatchSpecialEvents from '../../components/MatchSpecialEvents/';
 import MatchWeaponSummaryCharts from '../../components/MatchWeaponSummaryCharts/';
 import MatchCTFSummary from '../../components/MatchCTFSummary/';
-import Domination from '../../api/domination';
-import MatchAssaultSummary from '../../components/MatchAssaultSummary/';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Functions from '../../api/functions';
@@ -363,7 +361,18 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     mapId={info.map}
                 />;
             }
+        }
 
+        if(pageSettings["Display Special Events"] === "true"){
+
+            elems[pageOrder["Display Special Events"]] = <MatchSpecialEvents 
+                key={`mse`} 
+                host={imageHost} 
+                bTeamGame={info.team_game} 
+                players={state.playerData} 
+                matchId={matchId}
+            />;
+     
         }
 
         if(session["bLoggedIn"]){
@@ -418,8 +427,13 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 <div id="content">
                     <div className="default">
 
-                
-                
+                    <MatchSprees 
+                        key={"sprees"} 
+                        host={imageHost} 
+                        players={state.basicPlayers} 
+                        matchStart={info.start} 
+                        matchId={matchId}
+                    />
 
                     {renderTitleElem()}
 
@@ -457,69 +471,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
     const elems = [];
 
-    
-
-    if(pageSettings["Display Frag Summary"] === "true"){
-
-        if(!parsedInfo.mh){
-
-            elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key={`match_3`} 
-                host={imageHost} 
-                totalTeams={parsedInfo.total_teams} 
-                playerData={JSON.parse(playerData)} 
-                matchStart={parsedInfo.start}
-                matchId={parsedInfo.id}
-            />
-          
-
-        }else{
-
-            elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key={`mh-frags`} 
-                host={imageHost} 
-                playerData={JSON.parse(playerData)} 
-                matchStart={parsedInfo.start} 
-                matchId={parsedInfo.id
-            }/>
-           
-        }
-    }
-
-
-    if(bDom){
-
-        if(pageSettings["Display Domination Summary"] === "true"){
-
-            elems[pageOrder["Display Domination Summary"]] = <MatchDominationSummaryNew key="dom-sum" 
-                host={imageHost}
-                matchId={parsedInfo.id} 
-                totalTeams={parsedInfo.total_teams} 
-                players={JSON.parse(playerNames)} 
-                playerNames={justPlayerNames}
-                pointNames={JSON.parse(domControlPointNames)}
-            />;
-            
-        }
-    }
-
-    if(bAssaultGame){
-
-        if(pageSettings["Display Assault Summary"] === "true"){
-            elems[pageOrder["Display Assault Summary"]] = <MatchAssaultSummary 
-                host={imageHost} 
-                key={`assault_data`} 
-                players={playerData} 
-                data={assaultData} 
-                matchStart={parsedInfo.start} 
-                attackingTeam={parsedInfo.attacking_team}
-                redScore={parsedInfo.team_score_0} 
-                blueScore={parsedInfo.team_score_1} 
-                playerNames={playerNames}
-            />;
-        }
-        
-
-    }
-
     if(parsedInfo.mh){
 
         elems[pageOrder["Display MonsterHunt Kills"]] = <MatchMonsterHuntMonsterKills 
@@ -529,17 +480,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
         />;
     }
 
-    if(pageSettings["Display Special Events"] === "true"){
-
-        elems[pageOrder["Display Special Events"]] = <MatchSpecialEvents 
-            key={`match_4`} 
-            host={imageHost} 
-            bTeamGame={parsedInfo.team_game} 
-            players={JSON.parse(playerData)} 
-            matchId={parsedInfo.id}
-        />
- 
-    }
 
     if(pageSettings["Display Extended Sprees"] === "true"){
 
