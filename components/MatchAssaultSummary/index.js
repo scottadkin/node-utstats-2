@@ -1,29 +1,73 @@
 import styles from './MatchAssaultSummary.module.css';
-import MMSS from '../MMSS/';
 import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
 import Table2 from '../Table2';
+import Loading from '../Loading';
+import {React, useEffect, useReducer} from "react";
 
-function getName(objectives, id){
 
-    for(let i = 0; i < objectives.length; i++){
+const MatchAssaultSummary = ({matchId, mapId, players, matchStart, redScore, blueScore, attackingTeam}) =>{
 
-        if(objectives[i].obj_id === id){
-            return objectives[i].name;
+    const reducer = (state, action) =>{
+
+        switch(action.type){
+            case "loaded": {return {
+                "bLoading": false,
+                "assaultObjectives": action.payload.objectives
+
+            }}
+            default: return state
         }
     }
 
-    return 'Not Found';
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "assaultObjectives": []
+    });
+
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+            const req = await fetch("/api/match", {
+                "signal": controller.signal,
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "assault", "matchId": matchId, "mapId": mapId})
+            });
+
+            const res = await req.json();
+
+            dispatch({
+                "type": "loaded",
+                "payload": {"assaultObjectives": []}
+            });
+        }
+
+        loadData();
+
+        return () =>{
+            controller.abort();
+        }
+        
+    }, [matchId, mapId]);
+
+    if(state.bLoading){
+        return <Loading />
+    }
+
+    return <div>
+        <div className="default-header">Assault Summary</div>
+    </div>
 }
 
+export default MatchAssaultSummary;
 
+/*const MatchAssaultSummary = ({host, players, data, matchStart, attackingTeam, redScore, blueScore, playerNames}) =>{
 
-const MatchAssaultSummary = ({host, players, data, matchStart, attackingTeam, redScore, blueScore, playerNames}) =>{
-
-    players = JSON.parse(players);
-    data = JSON.parse(data);
-    matchStart = JSON.parse(matchStart);
-    playerNames = JSON.parse(playerNames);
 
     if(data.caps === undefined) return null;
 
@@ -123,4 +167,4 @@ const MatchAssaultSummary = ({host, players, data, matchStart, attackingTeam, re
 }
 
 
-export default MatchAssaultSummary;
+export default MatchAssaultSummary;*/
