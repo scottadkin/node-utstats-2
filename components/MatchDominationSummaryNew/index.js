@@ -1,9 +1,10 @@
-import {React, useReducer, useEffect} from 'react';
+import {React, useReducer, useEffect, useState} from 'react';
 import Graph from '../Graph';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import Loading from '../Loading';
+import InteractiveTable from '../InteractiveTable';
 
 const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
 
@@ -28,6 +29,8 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
         "pointGraph": [],
         "bLoading": true
     });
+
+    const [separateTeams, setSeparateTeams] = useState(true);
 
     useEffect(() =>{
 
@@ -69,8 +72,6 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
         const data = [];
         const titles = [];
 
-        console.log(state.pointNames);
-
         for(const values of Object.values(state.pointNames)){
 
             titles.push(values.name);
@@ -93,9 +94,122 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
         return <Graph title={titles} data={data}/>
     }
 
+    const getPlayerPointCapCount = (playerId, pointId) =>{
+
+        for(let i = 0; i < state.playerTotals.length; i++){
+
+            const p = state.playerTotals[i];
+
+            if(p.player === playerId && p.point === pointId){
+                return p.total_caps;
+            }
+        }
+
+        return 0;
+    }
+
+
+    const renderTable = (headers, teamId) =>{
+
+
+        const data = [];
+
+        const totals = {};
+
+        for(const key of Object.keys(headers)){
+
+            totals[key] = 0;
+        }
+
+        for(const player of Object.values(playerData)){
+
+            if(player.team !== teamId && teamId !== -1) continue;
+
+            const current = {
+                "player": {
+                    "value": player.name.toLowerCase(), 
+                    "displayValue": player.name,
+                    "className": `player ${Functions.getTeamColor(player.team)}`
+                }
+            }
+
+            for(let i = 1; i < state.pointNames.length; i++){
+
+                const point = state.pointNames[i];
+
+                const totalCaps = getPlayerPointCapCount(player.id, point.id);
+
+                totals[point.name] += totalCaps;
+
+                current[point.name] = {
+                    "value": totalCaps,
+                    "displayValue": Functions.ignore0(totalCaps)
+                }
+            }
+
+            data.push(current);
+        }
+
+        if(data.length > 0){
+
+            const current ={
+                "bAlwaysLast": true,
+                "player": {"value": "Totals"}
+            };
+
+            for(let i = 1; i < state.pointNames.length; i++){
+
+                const point = state.pointNames[i];
+
+                current[point.name] = {
+                    "value": totals[point.name],
+                    "displayValue": Functions.ignore0(totals[point.name])
+                }
+            }
+
+            data.push(current);
+        }
+
+
+        return <InteractiveTable key={teamId} width={2} headers={headers} data={data}/>
+    }
+
+    const renderTables = () =>{
+
+        const headers = {
+            "player": "Player"
+        };
+
+        //0 is always all
+        for(let i = 1; i < state.pointNames.length; i++){
+
+            const {id, name} = state.pointNames[i];
+            headers[name] = name;
+        }
+
+        const tables = [];
+
+        if(separateTeams){
+
+            for(let i = 0; i < totalTeams; i++){
+                tables.push(renderTable(headers, i));
+            }
+
+        }else{
+            return renderTable(headers, -1);
+        }
+
+        return tables;
+    }
+
     return <div>
         <div className="default-header">Domination Summary</div>
         <Loading value={!state.bLoading}/>
+        <div className="tabs">
+            <div className={`tab ${(separateTeams) ? "tab-selected" : ""}`} onClick={() => setSeparateTeams(true)}>Seperate Teams</div>
+            <div className={`tab ${(!separateTeams) ? "tab-selected" : ""}`} onClick={() => setSeparateTeams(false)}>Display All</div>
+        </div>
+        {renderTables()}
         {renderGraph()}
     </div>
 }

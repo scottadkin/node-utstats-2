@@ -204,6 +204,17 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         return false;
     }
 
+    const bAnyDominationData = () =>{
+
+        for(let i = 0; i < state.playerData.length; i++){
+
+            const p = state.playerData[i];
+            if(p.dom_caps > 0) return true;
+        }
+
+        return false;
+    }
+
     const renderMain = () =>{
 
         const elems = [];
@@ -341,12 +352,19 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             }
         }
 
-        /*elems[pageOrder["Display Domination Summary"]] = <MatchDominationSummaryNew key="dom-sum" 
-            host={imageHost}
-            matchId={matchId} 
-            totalTeams={info.total_teams} 
-            players={state.playerData} 
-        />;*/
+        if(pageSettings["Display Domination Summary"] === "true"){
+
+            if(bAnyDominationData()){
+                elems[pageOrder["Display Domination Summary"]] = <MatchDominationSummaryNew key="dom-sum" 
+                    host={imageHost}
+                    matchId={matchId} 
+                    totalTeams={info.total_teams} 
+                    playerData={state.basicPlayers} 
+                    mapId={info.map}
+                />;
+            }
+
+        }
 
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
@@ -401,13 +419,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
                 
-                    <MatchDominationSummaryNew key="dom-sum" 
-                        host={imageHost}
-                        matchId={matchId} 
-                        totalTeams={info.total_teams} 
-                        playerData={state.basicPlayers} 
-                        mapId={info.map}
-                    />
+                
 
                     {renderTitleElem()}
 
