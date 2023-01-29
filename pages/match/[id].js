@@ -372,7 +372,26 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 players={state.playerData} 
                 matchId={matchId}
             />;
+        }
+
+        if(pageSettings["Display Extended Sprees"] === "true"){
+
+            elems[pageOrder["Display Extended Sprees"]] = <MatchSprees 
+                key={"sprees"} 
+                host={imageHost} 
+                players={state.basicPlayers} 
+                matchStart={info.start} 
+                matchId={matchId}
+            />;
+        }
+
+        if(pageSettings["Display Kills Match Up"] === "true"){
+
+            if(!info.mh){
+    
+                elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUp key="kmu" matchId={info.id} players={state.basicPlayers}/>
      
+            }
         }
 
         if(session["bLoggedIn"]){
@@ -427,13 +446,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 <div id="content">
                     <div className="default">
 
-                    <MatchSprees 
-                        key={"sprees"} 
-                        host={imageHost} 
-                        players={state.basicPlayers} 
-                        matchStart={info.start} 
-                        matchId={matchId}
-                    />
+                    
 
                     {renderTitleElem()}
 
@@ -479,19 +492,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             matchId={parsedInfo.id}
         />;
     }
-
-
-    if(pageSettings["Display Extended Sprees"] === "true"){
-
-        elems[pageOrder["Display Extended Sprees"]] = <MatchSprees 
-            key={"sprees"} 
-            host={imageHost} 
-            players={JSON.parse(playerNames)} 
-            matchStart={parsedInfo.start} 
-            matchId={parsedInfo.id}
-        />;
-    }
-
 
     if(pageSettings["Display Kills Match Up"] === "true"){
 

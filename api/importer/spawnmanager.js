@@ -1,6 +1,4 @@
 const Message = require('../message');
-const Promise = require('promise');
-const Maps = require('../maps');
 const Spawns = require('../spawns');
 
 class SpawnManager{

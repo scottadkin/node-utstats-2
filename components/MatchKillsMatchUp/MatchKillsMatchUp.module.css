@@ -11,4 +11,5 @@
 
 .flag{
     width:16px;
+    transform: rotate(90deg);
 }

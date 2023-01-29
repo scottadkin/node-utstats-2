@@ -1,69 +1,61 @@
-import React from "react";
+import {React, useState, useEffect} from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import styles from"./MatchKillsMatchUp.module.css";
 import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
+import Table2 from "../Table2";
+import Link from "next/link";
 
-class MatchKillsMatchUp extends React.Component{
+const MatchKillsMatchUp = ({matchId, players}) =>{
 
-    constructor(props){
-
-        super(props);
-
-        this.state = {"bLoaded": false, "error": null, "data": null};
-    }
-
-
-    async componentDidMount(){
-
-        await this.loadData();
-    }
+    const [bLoading, setbLoading] = useState(true);
+    const [killData, setKillData] = useState(null);
+    const [error, setError] = useState(null);
 
 
-    async loadData(){
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+            const req = await fetch("/api/match",{
+                "signal": controller.signal,
+                "headers": {
+                    "Content-type": "application/json"
+                },
+                "method": "POST",
+                "body": JSON.stringify({"mode": "kmu", "matchId": matchId})
+            });
+
+            const res = await req.json();
+
+            if(res.error !== undefined){
+                setError(res.error);
+            }else{
+                setKillData(res.data);
+            }
+
+            setbLoading(false);
 
 
-        const req = await fetch("/api/match", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"mode": "kmu", "matchId": this.props.matchId})
-        });
-
-        const res = await req.json();
-
-        if(res.error === undefined){
-            this.setState({"data": res.data, "bLoaded": true});
-        }else{
-            this.setState({"error": res.error, "bLoaded": true});
         }
 
-    }
+        loadData();
 
-    getHeaders(){
-
-        const headers = [];
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            const p = this.props.players[i];
-
-            if(p.spectator || !p.played) continue;
-
-            headers.push(<th key={p.id} className={`${styles.th} ${Functions.getTeamColor(p.team)} text-left`}>
-                <img className={styles.flag} src={`/images/flags/${p.country}.svg`} alt="flag"/>&nbsp;{p.name}
-            </th>);
+        return () =>{
+            controller.abort();
         }
 
+    }, [matchId]);
 
-        return headers;
-    }
 
-    getKills(killer, victim){
+    const getKills = (killer, victim) =>{
 
-        for(let i = 0; i < this.state.data.length; i++){
+        for(let i = 0; i < killData.length; i++){
 
-            const d = this.state.data[i];
+            const d = killData[i];
 
             if(d.killer === killer && d.victim === victim){
                 return d.kills;
@@ -73,73 +65,99 @@ class MatchKillsMatchUp extends React.Component{
         return 0;
     }
 
-    createKillColumns(playerId){
 
-        const cols = [];
+    const renderTable = () =>{
 
-        for(let i = 0; i < this.props.players.length; i++){
+        const headers = [];
 
-            const p = this.props.players[i];
+        const orderedPlayers = [...Object.values(players)];
 
-            if(p.spectator || !p.played) continue;
+        orderedPlayers.sort((a, b) =>{
 
-            if(p.id === playerId){
-                cols.push(<td key={`pid-${p.id}`} className={"color3"}>{Functions.ignore0(this.getKills(playerId, playerId))}</td>);
-            }else{
-                cols.push(<td key={`pid-${p.id}`}>{Functions.ignore0(this.getKills(playerId, p.id))}</td>);
-            }
+            if(a.team > b.team) return -1;
+            if(a.team < b.team) return 1;
+
+            const aName = a.name.toLowerCase();
+            const bName = b.name.toLowerCase();
+
+            if(aName > bName) return -1;
+            if(aName < bName) return 1;
+            return 0;
+            
+        });
+
+        for(let i = 0; i < orderedPlayers.length; i++){
+
+            const player = orderedPlayers[i];
+
+            if(player.spectator || !player.played) continue;
+
+            headers.push(<th key={player.id} className={`${styles.th} text-left ${Functions.getTeamColor(player.team)}`}>
+                <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
+                    <a>
+                        <img className={styles.flag} src={`/images/flags/${player.country}.svg`} alt="flag"/>
+                        &nbsp;&nbsp;{player.name}
+                    </a>
+                </Link>
+            </th>);
 
         }
 
-        return cols;
-    }
-
-    renderTable(){
-
-        if(!this.state.bLoaded) return null;
-
-        const headers = this.getHeaders();
 
         const rows = [];
-        
 
-        for(let i = 0; i < this.props.players.length; i++){
 
-            const p = this.props.players[i];
+        for(let i = 0; i < orderedPlayers.length; i++){
 
-            if(p.spectator || !p.played) continue;
+            const killer = orderedPlayers[i];
 
-            rows.push(<tr key={p.id}>
-                <td className={`${Functions.getTeamColor(p.team)} text-left`}><CountryFlag country={p.country}/>{p.name}</td>
-                {this.createKillColumns(p.id)}
+            if(killer.spectator || !killer.played) continue;
+
+            const columns = [];
+
+            for(let x = 0; x < orderedPlayers.length; x++){
+                const victim = orderedPlayers[x];
+
+                if(victim.spectator || !victim.played) continue;
+
+                const totalKills = Functions.ignore0(getKills(killer.id, victim.id));
+
+                const key = `km-${i}-${x}`;
+
+                if(killer.id === victim.id){
+                    columns.push(<td key={key} className="color3">{totalKills}</td>);
+                }else{
+                    columns.push(<td key={key}>{totalKills}</td>);
+                }
+
+            }
+
+            rows.push(<tr key={i}>
+                <td className={`${Functions.getTeamColor(killer.team)} text-left`}><CountryFlag country={killer.country}/>{killer.name}</td>
+                {columns}
             </tr>);
         }
 
+
         return <table>
             <tbody>
-                <tr>
-                    <th>&nbsp;</th>
-                    {headers}
-                </tr>
-                {rows}
+            <tr>
+                <th>&nbsp;</th>
+                {headers}
+            </tr>
+            {rows}
             </tbody>
         </table>
     }
-    
 
-    render(){
+    if(bLoading) return <Loading />;
 
+    if(killData.length === 0) return null;
 
-        if(this.state.error !== null){
-            return <ErrorMessage title="Match Kills Match Up" text={this.state.error}/>
-        }
-
-        return <div>
-            <div className="default-header">Kills Match Up</div>
-            <Loading value={this.state.bLoaded}/>
-            {this.renderTable()}
-        </div>
-    }
+    return <div>
+        <div className="default-header">Kills Match Up</div>
+        {renderTable()}
+    </div>
 }
 
 export default MatchKillsMatchUp;
