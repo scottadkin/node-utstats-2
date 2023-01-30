@@ -634,7 +634,7 @@ class Functions{
                 outputData[x].data.push(inputData[x].data[Math.ceil(increment * i)]);
 
                 if(i === max - 1){
-                    outputData[x].data.push(inputData[x].lastValue);
+                   // outputData[x].data.push(inputData[x].lastValue);
                 }
             }
         }

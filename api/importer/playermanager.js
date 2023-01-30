@@ -1365,7 +1365,6 @@ class PlayerManager{
         return -1;
     }
 
-
     async insertScoreHistory(matchId){
 
         try{

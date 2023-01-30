@@ -390,8 +390,16 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             if(!info.mh){
     
                 elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUp key="kmu" matchId={info.id} players={state.basicPlayers}/>
-     
             }
+        }
+
+        if(pageSettings["Display Player Score Graph"] === "true"){
+
+            elems[pageOrder["Display Player Score Graph"]] = <MatchPlayerScoreHistory 
+                key="score history" 
+                players={state.nonSpectators} 
+                matchId={matchId}
+            />;
         }
 
         if(session["bLoggedIn"]){
@@ -446,6 +454,8 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 <div id="content">
                     <div className="default">
 
+
+            
                     
 
                     {renderTitleElem()}
@@ -491,15 +501,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             playerData={JSON.parse(playerData)} 
             matchId={parsedInfo.id}
         />;
-    }
-
-    if(pageSettings["Display Kills Match Up"] === "true"){
-
-        if(!parsedInfo.mh){
-
-            elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUp key="kmu" matchId={parsedInfo.id} players={JSON.parse(playerNames)}/>;
- 
-        }
     }
 
 
