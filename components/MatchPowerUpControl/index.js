@@ -1,386 +1,284 @@
-import React from 'react';
-import styles from './MatchPowerUpControl.module.css';
+import {React, useReducer, useEffect} from 'react';
 import Functions from '../../api/functions';
 import BarChart from '../BarChart';
+import Loading from '../Loading';
+import ErrorMessage from '../ErrorMessage';
 
-class MatchPowerUpControl extends React.Component{
+const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
 
-    constructor(props){
 
-        super(props);
-        this.state = {
-            "bFinishedLoading": false, 
-            "bFailed": false, 
-            "playerTeams": [[],[],[],[]], 
-            "bAllDisabled": false,
-            "mode": 0,
-            "type": 1
-        };
+    const reducer = (state, action) =>{
 
-        this.changeMode = this.changeMode.bind(this);
-        this.changeType = this.changeType.bind(this);
-
-    }
-
-    changeType(id){
-
-        this.setState({"type": id});
-    }
-
-    changeMode(id){
-
-        this.setState({"mode": id});
-    }
-
-    bAllDisabled(){
-
-        const needed = [
-            "Display Weapons Control",
-            "Display Powerup Control",
-            "Display Ammo Control",
-            "Display Health/Armour Control"
-        ];
-
-        for(let i = 0; i < needed.length; i++){
-
-            const n = needed[i];
-
-            if(this.props.settings[n] === "true"){
-                return false;
+        switch(action.type){
+            case "setError": {
+                return {
+                    ...state,
+                    "error": action.payload.error,
+                    "bLoading": false
+                }
+            }
+            case "teamsViewChange": {
+                return {
+                    ...state,
+                    "bTeamsView": action.mode
+                }
+            }
+            case "displayModeChange": {
+                return {
+                    ...state,
+                    "displayMode": action.mode
+                }
+            }
+            case "modeChange": {
+                return {
+                    ...state,
+                    "mode": action.mode
+                };
+            }
+            case "loaded": {
+                return {
+                    ...state,
+                    "bLoading": false,
+                    "itemNames": action.payload.itemNames,
+                    "playerUses": action.payload.playerUses,
+                    "itemTotals": action.payload.itemTotals
+                };
             }
         }
-        
-        return true;
     }
 
-    async loadData(){
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "mode": 1,
+        "error": null,
+        "displayMode": 0,
+        "bTeamsView": false
+        
+    });
 
-        try{
 
-            if(this.bAllDisabled()){
-                this.setState({"bAllDisabled": true});
-                return;
-            }
+    useEffect(() =>{
 
-            const req = await fetch("/api/pickups", {
-                "headers": {"content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "matchUsage", "matchId": this.props.matchId})
-            });
+        const controller = new AbortController();
 
-            const res = await req.json();
+        const loadData = async () =>{
 
-            if(res.error !== undefined){
-                this.setState({"bFailed": true});
-            }else{
-                this.setState({
-                    "itemNames": res.itemNames, 
-                    "playerUses": res.playerUses, 
-                    "itemTotals": res.itemTotals, 
-                    "bFinishedLoading": true
+            try{
+                const req = await fetch("/api/pickups", {
+                    "headers": {"content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "matchUsage", "matchId": matchId})
                 });
-            }
 
-        }catch(err){
-            console.trace(err);
-        }
-    }
+                const res = await req.json();
 
-    async componentDidMount(){
+                if(res.error !== undefined){
+                    dispatch({"type": "setError", "payload": {"error": res.error}});
+                }else{
+                    dispatch({"type": "loaded", "payload": res});
+                }
 
-        this.setPlayerTeams();
-        await this.loadData();
-
-    }
-
-    setPlayerTeams(){
-
-        const teams = [[],[],[],[]];
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            const p = this.props.players[i];
-
-            if(p.team >= 0 && p.team <= 4){
-
-                teams[p.team].push(p.id);
+            }catch(err){
+                console.log(err);
             }
         }
 
-        this.setState({"playerTeams": teams});
-    }
+        loadData();
 
-    getItemTotalUsage(itemId){
+        return () =>{
 
-        if(this.state.itemTotals[itemId] !== undefined) return this.state.itemTotals[itemId];
-        
-        return 0;
-    }
-
-    getPlayerTeam(playerId){
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            const p = this.props.players[i];
-
-            if(p.id === playerId) return p.team;
+            controller.abort();
         }
-
-        return -1;
-    }
-
-    getTeamsItemUsage(itemId){
-
-        if(this.props.totalTeams < 2) return [];
-
-        let total = [];
-
-        for(let i = 0; i < this.props.totalTeams; i++) total.push(0);
-
-        for(let i = 0; i < this.state.playerUses.length; i++){
-
-            const p = this.state.playerUses[i];
-        
-            if(p.item === itemId){
-
-                const playerTeam = this.getPlayerTeam(p.player_id);
-                total[playerTeam] += p.uses;
-            }
-        }
-
-        return total;
-    }
+    }, [matchId]);
 
 
-    getTeamNames(){
+    const getTeamTotalUses = (itemId, targetTeam) =>{
 
-        const names = [];
+        let totalUses = 0;
 
-        for(let i = 0; i < this.props.totalTeams; i++){
+        for(const [playerId, playerUses] of Object.entries(state.playerUses)){
 
-            names.push(Functions.getTeamName(i));
-        }
+            const player = Functions.getPlayer(players, playerId, true);
 
-        return names;
-    }
+            if(player.team === targetTeam){
 
-    getPlayerItemUsage(item, playerId){
-
-        for(let i = 0; i < this.state.playerUses.length; i++){
-
-            const p = this.state.playerUses[i];
-
-            if(p.player_id === playerId){
-
-                if(p.item === item){
-                    return p.uses;
+                if(playerUses[itemId] !== undefined){
+                    totalUses += playerUses[itemId];
                 }
             }
         }
 
-        return 0;
+        return totalUses;
     }
 
-    getPlayersItemUsage(itemId){
+    /*const renderTeamTotalsTables = () =>{
+
+        if(state.displayMode !== 1 || !state.bTeamsView) return null;
+
+        const headers = {
+            "item": "Item"
+        };
+
+        for(let i = 0; i < totalTeams; i++){
+            headers[`team_${i}`] = Functions.getTeamName(i);
+        }
+
+        const data = [];
+
+        for(let i = 0; i < state.itemNames.length; i++){
+
+            const item = state.itemNames[i];
+
+            if(item.type !== state.mode) continue;
+            
+
+            const current = {
+                "item": {
+                        "value": item.name.toLowerCase(), 
+                        "displayValue": item.name,
+                        "className": "text-left"
+                    }
+                }
+
+            for(let x = 0; x < totalTeams; x++){
+
+                const totalUses = getTeamTotalUses(item.id, x);
+                current[`team_${x}`] = {"value": totalUses, "displayValue": Functions.ignore0(totalUses)};
+            }
+
+            data.push(current);
+        }
+
+        return <div>
+            <InteractiveTable width={2} headers={headers} data={data}/>
+        </div>
+    }*/
+
+    const renderTeamBarCharts = () =>{
+
+        if(state.displayMode !== 0 || !state.bTeamsView) return null;
+        
+        const barCharts = [];
+
+        const names = [];
+
+        for(let i = 0; i < totalTeams; i++){
+
+            names.push(Functions.getTeamName(i));
+        }
+
+        for(let i = 0; i < state.itemNames.length; i++){
+
+            const item = state.itemNames[i];
+            
+
+            if(item.type !== state.mode) continue;
+            
+            const values = [];
+
+            for(let x = 0; x < totalTeams; x++){
+                values.push(getTeamTotalUses(item.id, x));
+            }
+          
+            barCharts.push(<BarChart key={item.id} label="Taken" title={item.name} values={values} names={names}/>);
+        }
+
+        return <div>
+            {barCharts}
+        </div>
+    }
+
+
+    const getPlayerUses = (itemId) =>{
 
         const uses = [];
 
-    
+        for(const playerUses of Object.values(state.playerUses)){
 
-        for(let i = 0; i < this.props.players.length; i++){
-
-            const p = this.props.players[i];
-
-            if(p.spectator || p.playtime === 0) continue;
-
-            uses.push(this.getPlayerItemUsage(itemId, p.id));
+            if(playerUses[itemId] !== undefined){
+                uses.push(playerUses[itemId]);
+            }else{
+                uses.push(0);
+            }
         }
 
         return uses;
     }
 
-    getPlayerNames(){
+    const renderPlayerBarCharts = () =>{
+
+        if(state.bTeamsView || state.displayMode !== 0) return null;
+
+        const barCharts = [];
 
         const names = [];
 
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            const p = this.props.players[i];
-
-            if(p.spectator || p.playtime === 0) continue;
-
-            names.push(p.name);
+        for(const player of Object.values(players)){
+            names.push(player.name);
         }
 
-        return names;
-    }
+        for(let i = 0; i < state.itemNames.length; i++){
 
-    createElems(){
+            const item = state.itemNames[i];
 
-        const health = [];
-        const powerUps = [];
-        const weapons = [];
-        const ammo = [];
+            if(item.type !== state.mode) continue;
 
-        let names = [];
+            const uses = getPlayerUses(item.id);
 
-        if(this.props.totalTeams < 2 || this.state.mode === 1){
-            names = this.getPlayerNames();
-
-        }else{
-            names = this.getTeamNames();    
-        }
-
-        for(let i = 0; i < this.state.itemNames.length; i++){
-
-            const item = this.state.itemNames[i];
-            
-            if(item.type < 0) continue;
-
-            let uses = [];
-
-            if(this.props.totalTeams < 2 || this.state.mode === 1){
-                uses = this.getPlayersItemUsage(item.id);             
-            }else{
-                uses = this.getTeamsItemUsage(item.id);
-            }
-
-            let targetArray = null;
-
-            if(item.type === 1){
-
-                if(this.props.settings["Display Weapons Control"] === "true"){
-                    targetArray = weapons;
-                }
-                
-            }else if(item.type === 2){
-                
-                if(this.props.settings["Display Ammo Control"] === "true"){
-                    targetArray = ammo;
-                }
-
-            }else if(item.type === 3){
-
-                if(this.props.settings["Display Health/Armour Control"] === "true"){
-                    targetArray = health;
-                }
-                
-            }else if(item.type === 4){
-
-                if(this.props.settings["Display Powerup Control"] === "true"){
-                    targetArray = powerUps;
-                }
-            }
-
-            if(targetArray !== null){
-
-                targetArray.push(<BarChart 
-                    key={i}
-                    title={item.display_name} 
-                    label="Taken" 
-                    values={uses}
-                    names={names}        
-                />);
-            }
-            
-        }
-
-        return {"health": health, "powerUps": powerUps, "weapons": weapons, "ammo": ammo};
-
-    }
-
-
-    renderTeamTabs(){
-
-        return <div className="tabs">
-            <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                this.changeMode(0);
-            })}>
-                Team Totals
-            </div>
-            <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                this.changeMode(1);
-            })}>
-                Player Totals
-            </div>
-        </div>;
-    }
-
-    renderCategory(title, elems){
-
-        if(elems.length === 0) return null;
-
-        let tabs = null;
-
-        return <React.Fragment key={title}>
-            <div className="default-header">
-                {title}
-            </div>
-            {tabs}
-            <div className={styles.wrapper}>
-                {elems}
-            </div>
-        </React.Fragment>
-    }
-
-    render(){
-
-        if(this.state.bAllDisabled) return null;
-
-        if(!this.state.bFinishedLoading){
-
-            return <div>
-                <div className="default-header">Item Stats</div>
-                Loading Please Wait...
-            </div>
+            barCharts.push(<BarChart key={item.id} label="Taken" title={item.name} names={names} values={uses} />);
 
         }
 
-        let elems = null;
-
-        elems = this.createElems();
-   
-        if(elems === null) return null;
-
-        let finalElems = [];
-
-        if(this.state.type === 1) finalElems = this.renderCategory("Power Up Control", elems.weapons);
-        if(this.state.type === 2) finalElems = this.renderCategory("Power Up Control", elems.ammo);
-        if(this.state.type === 3) finalElems = this.renderCategory("Power Up Control", elems.health);
-        if(this.state.type === 4) finalElems = this.renderCategory("Power Up Control", elems.powerUps);
-
-        /*const finalElems = [];
-
-        finalElems[this.props.order["Display Power Up Control"]] = this.renderCategory("Power Up Control", elems.powerUps);
-        finalElems[this.props.order["Display Health/Armour Control"]] = this.renderCategory("Health/Armour Control", elems.health);
-        finalElems[this.props.order["Display Weapons Control"]] = this.renderCategory("Weapons Control", elems.weapons);
-        finalElems[this.props.order["Display Ammo Control"]] = this.renderCategory("Ammo Control", elems.ammo);*/
-  
-    return <div>
-            <div className="default-header">
-                Item Control
-            </div>
-            <div className="tabs">
-                <div className={`tab ${(this.state.type === 1) ? "tab-selected" : "" }`} onClick={(() =>{
-                    this.changeType(1);
-                })}>Weapons</div>
-                <div className={`tab ${(this.state.type === 2) ? "tab-selected" : "" }`} onClick={(() =>{
-                    this.changeType(2);
-                })}>Ammo</div>
-                <div className={`tab ${(this.state.type === 3) ? "tab-selected" : "" }`}  onClick={(() =>{
-                    this.changeType(3);
-                })}>Health &amp; Armour</div>
-                <div className={`tab ${(this.state.type === 4) ? "tab-selected" : "" }`}  onClick={(() =>{
-                    this.changeType(4);
-                })}>Powerups</div>
-            </div>
-            {this.renderTeamTabs()}
-            {finalElems}
+        return <div>
+            {barCharts}
         </div>
-        
-  
     }
+
+
+    if(state.error !== null) return <ErrorMessage title="Powerup Control" text={state.error}/>
+    if(state.bLoading) return <Loading />;
+
+    return <div>
+        <div className="default-header">Powerup Control</div>
+
+
+        <div className="tabs">
+            <div className={`tab ${(!state.bTeamsView) ? "tab-selected" : ""}`}
+                onClick={() => dispatch({"type": "teamsViewChange", "mode": false})}>
+                    Players
+            </div>
+            <div className={`tab ${(state.bTeamsView) ? "tab-selected" : ""}`}
+                onClick={() => dispatch({"type": "teamsViewChange", "mode": true})}>
+                    Teams
+            </div>
+        </div>
+
+        <div className="tabs">
+            <div className={`tab ${(state.mode === 1) ? "tab-selected" : ""}`} 
+                onClick={() => dispatch({"type": "modeChange", "mode": 1})}>
+                    Weapons
+            </div>
+            <div className={`tab ${(state.mode === 2) ? "tab-selected" : ""}`} 
+                onClick={() => dispatch({"type": "modeChange", "mode": 2})}>
+                    Ammo
+            </div>
+        
+            <div className={`tab ${(state.mode === 3) ? "tab-selected" : ""}`} 
+                onClick={() => dispatch({"type": "modeChange", "mode": 3})}>
+                    Armour
+            </div>
+            <div className={`tab ${(state.mode === 4) ? "tab-selected" : ""}`} 
+                onClick={() => dispatch({"type": "modeChange", "mode": 4})}>
+                    Powerups
+            </div>
+            <div className={`tab ${(state.mode === 0) ? "tab-selected" : ""}`} 
+                onClick={() => dispatch({"type": "modeChange", "mode": 0})}>
+                    Unsorted
+            </div>
+        </div>
+        {renderTeamBarCharts()}
+        {renderPlayerBarCharts()}
+    </div>
 }
 
 

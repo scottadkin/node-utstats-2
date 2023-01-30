@@ -723,6 +723,26 @@ class Items{
         return await mysql.simpleFetch(query, [matchId, playerId]);
     }
 
+    createPlayerItemUses(data){
+
+        const players = {};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(players[d.player_id] === undefined){
+                players[d.player_id] = {};
+            }
+
+            const p = players[d.player_id];
+
+            p[d.item] = d.uses;
+        }
+
+        return players;
+    }
+
     returnUniqueIds(data){
 
         const unique = [];

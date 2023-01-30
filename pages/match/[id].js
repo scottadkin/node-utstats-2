@@ -402,6 +402,19 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             />;
         }
 
+
+        if(pageSettings["Display Powerup Control"] === "true"){
+
+            elems[pageOrder["Display Powerup Control"]] = <MatchPowerUpControl 
+                host={imageHost} key={`match-power-control`}        
+                totalTeams={info.total_teams}
+                matchId={matchId}
+                players={state.basicPlayers}
+                settings={pageSettings}
+                order={pageOrder}
+            />
+        }
+
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
                 gametypeId={info.gametype}
@@ -455,7 +468,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
 
-            
+                     
                     
 
                     {renderTitleElem()}
@@ -507,14 +520,7 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
 
         if(!parsedInfo.mh){
 
-            elems[pageOrder["Display Powerup Control"]] = <MatchPowerUpControl 
-                host={imageHost} key={`match-power-control`}        
-                totalTeams={parsedInfo.total_teams}
-                matchId={parsedInfo.id}
-                players={JSON.parse(playerNames)}
-                settings={pageSettings}
-                order={pageOrder}
-            />
+             
         }
  
     
@@ -528,15 +534,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             currentRankings={currentRankings}
             matchId={parsedInfo.id}
             host={imageHost}
-        />;
-    }
-
-    if(pageSettings["Display Player Score Graph"] === "true"){
-
-        elems[pageOrder["Display Player Score Graph"]] = <MatchPlayerScoreHistory 
-            key="score history" 
-            players={nonSpectators} 
-            matchId={parsedInfo.id}
         />;
     }
 
