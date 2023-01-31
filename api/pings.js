@@ -33,7 +33,7 @@ class Pings{
         for(const [key, value] of Object.entries(players)){
 
             playerIndexes.push(parseInt(key));
-            data.push({"name": value, "data": [0], "lastValue": 0, "total": 0, "average": 0});
+            data.push({"name": value, "data": [], "lastValue": 0, "total": 0, "average": 0});
         }
 
         const updateOthers = (ignore) =>{

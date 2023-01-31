@@ -424,6 +424,19 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 host={imageHost}
                 gametype={info.gametype}
             />
+        }
+
+        if(pageSettings["Display Player Ping Graph"] === "true"){
+        
+            elems[pageOrder["Display Player Ping Graph"]] = <MatchPlayerPingHistory 
+                key="ping history" 
+                playerIds={state.nonSpectators} 
+                players={state.basicPlayers}
+                matchId={matchId}
+                playerData={state.playerData.map((player) =>{
+                    return {"playerId": player.player_id, "min": player.ping_min, "average": player.ping_average, "max": player.ping_max}
+                })}
+            />;
 
         }
 
@@ -465,6 +478,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         elems = renderMain();
     }
 
+    console.log(state.playerData);
 
 
     return <div>
@@ -526,17 +540,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             playerData={JSON.parse(playerData)} 
             matchId={parsedInfo.id}
         />;
-    }
-
-
-    if(pageSettings["Display Player Ping Graph"] === "true"){
-        
-        elems[pageOrder["Display Player Ping Graph"]] = <MatchPlayerPingHistory 
-            key="ping history" 
-            players={nonSpectators} 
-            matchId={parsedInfo.id}
-        />;
-        
     }
 
 
