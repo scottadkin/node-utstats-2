@@ -9,7 +9,7 @@ class PingManager{
         this.data = [];
         this.pings = new Pings();
 
-        this.playerValues = [];
+        this.playerValues = {};
         
     }
 
@@ -34,6 +34,8 @@ class PingManager{
                 const playerId = parseInt(result[2]);
                 const currentPing = parseInt(result[3]);
 
+     
+
                 if(currentPing != 0){
 
                     const currentPlayer = playerManager.getPlayerById(playerId);
@@ -51,8 +53,6 @@ class PingManager{
                                 new Message(`parsePings() masterId is undefined.`, "Warning");
                                 continue;
                             }
-
-                            //valueIndex = this.playerValues.indexOf(masterId);
 
                             if(this.playerValues[masterId] !== undefined){
 

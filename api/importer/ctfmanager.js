@@ -128,7 +128,7 @@ class CTFManager{
 
             if(killer.masterId === victim.masterId){     
 
-                new Message("flag suicide", "note");
+                //new Message("flag suicide", "note");
 
                 killer.stats.ctf.suicide++;
                 killer.setCTFNewValue("suicide", null);
@@ -655,7 +655,7 @@ class CTFManager{
 
             if(timestamp < matchStartTimestamp){
 
-                new Message(`CTF event happened before match start timestamp(Warmup)`,"warning");
+                //new Message(`CTF event happened before match start timestamp(Warmup)`,"warning");
                 continue;
             }
 
@@ -737,7 +737,7 @@ class CTFManager{
             }
         }
 
-        new Message(`CTFManager.getDropLocation() Didnt find drop location`,"warning");
+       // new Message(`CTFManager.getDropLocation() Didnt find drop location`,"warning");
 
         return {"x": 0, "y": 0, "z": 0};
     }

@@ -136,6 +136,9 @@ class MatchManager{
             await this.playerManager.updateVoices(this.serverInfo.date);
             await this.playerManager.setIpCountry();
 
+            this.playerManager.pingManager.parsePings(this.playerManager);
+            await this.playerManager.pingManager.insertPingData(this.matchId);
+
             await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
             new Message(`Updated player match data.`,'pass');
             
@@ -214,8 +217,7 @@ class MatchManager{
             new Message(`Updated player frag performance.`,'pass');
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
             new Message(`Updated player winstats performance.`,'pass');
-            this.playerManager.pingManager.parsePings(this.playerManager);
-            await this.playerManager.pingManager.insertPingData(this.matchId);
+            
 
             if(this.domManager !== undefined){
                 this.domManager.setLifeCaps(this.killManager);

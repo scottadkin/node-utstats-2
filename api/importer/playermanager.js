@@ -46,12 +46,6 @@ class PlayerManager{
 
         this.spreeManager = new SpreeManager(matchTimings.start);
 
-        /*this.createPlayers();
-        this.setNStatsValues();
-        this.setPlayerSpawns();
-        this.parsePlayerStrings();
-        this.setWeaponStats();*/
-
     }
 
     init(){
@@ -89,9 +83,7 @@ class PlayerManager{
                     await this.renamePlayer(timestamp, subString, gametypeId);
                 }
             }
-        }
-
-        
+        }    
     }
 
 
