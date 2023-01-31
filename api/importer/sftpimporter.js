@@ -2,11 +2,9 @@ const Client =  require("ssh2-sftp-client");
 const config = require("../../config.json");
 const Message = require("../message");
 const fs = require("fs");
-const EventEmitter = require('events');
 const Logs = require("../logs");
 const Ace = require("../ace");
 
-class MyEventEmitter extends EventEmitter {}
 
 class SFTPImporter{
 
@@ -26,13 +24,13 @@ class SFTPImporter{
 
         this.ace = new Ace();
 
-        this.events = new MyEventEmitter();
+        //this.events = new MyEventEmitter();
 
         new Message(`Attempting to connect to sftp server sftp://${host}:${port}.`,"note");
 
         this.client = new Client();
 
-        this.connect();
+        //this.connect();
     }
 
     async connect(){
@@ -49,11 +47,12 @@ class SFTPImporter{
 
             new Message(`Connected to sftp server sftp://${this.host}:${this.port} successfully.`,"pass");
 
-            await this.import();
+            //await this.import();
 
-            this.client.end();
-            new Message(`Disconnected from sftp server sftp://${this.host}:${this.port} successfully.`,"pass");
-            this.events.emit("finished");
+            //this.client.end();
+           // new Message(`Disconnected from sftp server sftp://${this.host}:${this.port} successfully.`,"pass");
+            //this.events.emit("finished");
+            return true;
 
         }catch(err){
             console.trace(err);
@@ -61,6 +60,8 @@ class SFTPImporter{
     }
 
     async import(){
+
+        await this.connect();
 
         await this.downloadLogFiles();
         await this.deleteTMPFiles();
@@ -71,6 +72,11 @@ class SFTPImporter{
         }else{
             new Message(`ACE importing is disabled, skipping.`, "note");
         }
+
+        this.client.end();
+        new Message(`Disconnected from sftp server sftp://${this.host}:${this.port} successfully.`,"pass");
+
+        return;
     }
 
     async getAllLogFileNames(){

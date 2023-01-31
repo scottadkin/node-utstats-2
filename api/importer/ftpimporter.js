@@ -1,18 +1,17 @@
 const config = require('../../config.json');
 const Client = require('ftp');
 const fs = require('fs');
-const EventEmitter = require('events');
 const Message = require('../message');
 const Logs = require('../logs');
 const Ace = require("../ace");
 
-class MyEmitter extends EventEmitter {}
+//class MyEmitter extends EventEmitter {}
 
 class FTPImporter{
 
     constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce, bDeleteAceLogs, bDeleteAceScreenshots){
 
-        this.events = new MyEmitter();
+        //this.events = new MyEmitter();
 
         this.host = host;
         this.port = port;
@@ -37,56 +36,65 @@ class FTPImporter{
 
         this.ace = new Ace();
 
-        this.createClient();
+        //this.createClient();
     }
 
+    async import(){
+
+        return await this.createClient();
+    }
 
     createClient(){
-        
-        this.client = new Client();
 
-        new Message(`Attempting to connect to ftp://${this.host}:${this.port}`,'note');
+        return new Promise(async (resolve, reject) =>{
 
-        this.client.on('ready', async () =>{
+            this.client = new Client();
 
-            new Message(`Connected to ftp://${this.host}:${this.port}.`, 'pass');
+            new Message(`Attempting to connect to ftp://${this.host}:${this.port}`,'note');
 
-            await this.checkForLogFiles();
+            this.client.on('ready', async () =>{
 
-            if(this.bImportAce){
-                await this.checkForAceScreenshots();
-                await this.checkForACELogs();
-                await this.downloadACEFiles();
-            }else{
-                new Message(`ACE importing is disabled, skipping.`, "note");
-            }
-            
+                new Message(`Connected to ftp://${this.host}:${this.port}.`, 'pass');
 
-            this.client.end();
-        });
+                await this.checkForLogFiles();
 
-        this.client.on('error', (err) =>{
+                if(this.bImportAce){
+                    await this.checkForAceScreenshots();
+                    await this.checkForACELogs();
+                    await this.downloadACEFiles();
+                }else{
+                    new Message(`ACE importing is disabled, skipping.`, "note");
+                }
+                
 
-            new Message(`FTP ERROR: Server = ${this.host}:${this.port}`,"error");
-            new Message(err, 'error');
-            console.trace(err);
-            new Message(`Closing connection to ftp://${this.host}:${this.port} due to an error.`, "error");
-            this.client.end();
-        });
+                this.client.end();
+            });
 
-        this.client.on('close', () =>{
-            new Message(`Connection to ${this.host}:${this.port} has closed.`, 'pass');
-            this.events.emit('finished');
-        });
+            this.client.on('error', (err) =>{
 
-        this.client.connect({
+                new Message(`FTP ERROR: Server = ${this.host}:${this.port}`,"error");
+                new Message(err, 'error');
+                console.trace(err);
+                new Message(`Closing connection to ftp://${this.host}:${this.port} due to an error.`, "error");
+                this.client.end();
+            });
 
-            "host": this.host,
-            "port": this.port,
-            "user": this.user,
-            "password": this.password
+            this.client.on('close', () =>{
+                new Message(`Connection to ${this.host}:${this.port} has closed.`, 'pass');
+                //this.events.emit('finished');
+                resolve();
+            });
 
-        });
+            this.client.connect({
+
+                "host": this.host,
+                "port": this.port,
+                "user": this.user,
+                "password": this.password
+
+            });
+
+        });  
     }
 
     checkForLogFiles(){

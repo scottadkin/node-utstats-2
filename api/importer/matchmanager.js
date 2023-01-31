@@ -385,16 +385,6 @@ class MatchManager{
 
             await Logs.setMatchId(logId, this.matchId);
 
-
-            for(let i = 0; i < this.playerManager.players.length; i++){
-
-                const p = this.playerManager.players[i];
-
-                console.log(p.spawnTimestamps);
-            }
-
-            console.log(this.playerManager.spreeManager.spreeList);
-
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
             return {

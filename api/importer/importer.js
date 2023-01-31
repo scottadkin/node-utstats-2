@@ -3,7 +3,6 @@ const FTPImporter =  require('./ftpimporter');
 const fs =  require('fs');
 const Message = require('../message');
 const MatchManager = require('./matchmanager');
-const EventEmitter = require('events');
 const AceManager = require('./acemanager');
 const mysql = require('../database');
 const SFTPImporter = require("./sftpimporter");
@@ -11,15 +10,12 @@ const Logs = require("../logs");
 const ACE = require("../ace");
 
 
-class MyEventEmitter extends EventEmitter{};
-
 class Importer{
 
     constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, 
         bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bImportAce,
         bDeleteAceLogs, bDeleteAceScreenshots, bSkipFTP){
 
-        
         bSkipFTP = bSkipFTP ?? false;
 
         if(!bSkipFTP){
@@ -51,22 +47,25 @@ class Importer{
         this.minPlayers = minPlayers;
         this.minPlaytime = minPlaytime;
         this.bSFTP = bSFTP;
+        this.bSkipFTP = bSkipFTP;
         this.bLogsFolderImport = bSkipFTP;
 
         if(this.bLogsFolderImport){
             this.ace = new ACE();
         }
-
-        this.myEmitter = new MyEventEmitter();
-
-        if(!bSkipFTP){
-            this.standardImport();
-        }else{
-            this.nonFtpImport();        
-        }
-
     }
 
+
+    async import(){
+
+
+        if(!this.bSkipFTP){
+            await this.ftpImporter.import();
+            await this.standardImport();
+        }else{
+            await this.nonFtpImport();        
+        }
+    }
 
 
     updateCurrentUpdatedStats(currentData){
@@ -124,8 +123,9 @@ class Importer{
 
         try{
 
-            await this.checkLogsFolder();
+            this.checkLogsFolder();
             await this.updateTotalImports();
+
 
             const totalLogs = this.logsToImport.length;
 
@@ -194,7 +194,7 @@ class Importer{
                 await this.aceManager.updateTypeTotals(mode, this.host, this.port);
             }
 
-            this.myEmitter.emit("passed");
+            //this.myEmitter.emit("passed");
 
 
         }catch(err){
@@ -206,7 +206,14 @@ class Importer{
 
     async standardImport(){
 
-        this.ftpImporter.events.on('finished', async () =>{
+        try{
+
+            await this.importLogs();
+
+        }catch(err){
+            console.trace(err);
+        }
+       /* this.ftpImporter.events.on('finished', async () =>{
                           
             try{
                 
@@ -214,9 +221,9 @@ class Importer{
 
             }catch(err){
                 console.trace(err);
-                this.myEmitter.emit("error");
+                //this.myEmitter.emit("error");
             }   
-        });
+        });*/
     }
 
     async nonFtpImport(){
@@ -250,7 +257,7 @@ class Importer{
         if(this.updatedGametypes.indexOf(gametype) === -1) this.updatedGametypes.push(gametype);
     }
 
-    async checkLogsFolder(){
+    checkLogsFolder(){
 
         try{
 
@@ -282,6 +289,7 @@ class Importer{
             }
 
             new Message(`Found ${this.logsToImport.length} log files to import.`, 'pass');
+
         }catch(err){
             console.trace(err);
         }   
