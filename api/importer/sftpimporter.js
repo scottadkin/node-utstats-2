@@ -73,7 +73,7 @@ class SFTPImporter{
             new Message(`ACE importing is disabled, skipping.`, "note");
         }
 
-        this.client.end();
+        await this.client.end();
         new Message(`Disconnected from sftp server sftp://${this.host}:${this.port} successfully.`,"pass");
 
         return;

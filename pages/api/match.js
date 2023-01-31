@@ -7,6 +7,7 @@ import Domination from "../../api/domination";
 import Faces from "../../api/faces";
 import Weapons from "../../api/weapons";
 import Assault from "../../api/assault";
+import Rankings from "../../api/rankings";
 
 export default async function handler(req, res){
 
@@ -17,6 +18,8 @@ export default async function handler(req, res){
         const mapId = (req.body.mapId !== undefined) ? parseInt(req.body.mapId) : -1;
         const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
         const players = (req.body.players !== undefined) ? req.body.players : {};
+        const playerIds = (req.body.playerIds !== undefined) ? req.body.playerIds : [];
+        const gametypeId = (req.body.gametypeId !== undefined) ? parseInt(req.body.gametypeId) : -1;
 
         let killManager = null;
 
@@ -37,6 +40,29 @@ export default async function handler(req, res){
 
 
             res.status(200).json({"playerData": playerData, "playerFaces": playerFaces});
+            return;
+        }
+
+        if(mode === "ranking"){
+
+            const rankingManager = new Rankings();
+
+            const matchChanges = await rankingManager.getMatchRankingChanges(matchId);
+            const currentRankings = await rankingManager.getCurrentPlayersRanking(playerIds, gametypeId);
+
+            const currentPositions = {};
+
+            for(let i = 0; i < currentRankings.length; i++){
+
+                const c = currentRankings[i];
+                currentPositions[c.player_id] = await rankingManager.getGametypePosition(c.ranking, gametypeId);
+            }
+      
+            res.status(200).json({
+                "matchChanges": matchChanges, 
+                "currentRankings": currentRankings,
+                "currentPositions": currentPositions
+            });
             return;
         }
 

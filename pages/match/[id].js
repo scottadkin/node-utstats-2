@@ -415,6 +415,18 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             />
         }
 
+        if(pageSettings["Display Rankings"] === "true"){
+
+            elems[pageOrder["Display Rankings"]] = <MatchRankingChanges 
+                key={"r-changes"} 
+                players={state.basicPlayers} 
+                matchId={matchId}
+                host={imageHost}
+                gametype={info.gametype}
+            />
+
+        }
+
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
                 gametypeId={info.gametype}
@@ -468,7 +480,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
 
-                     
+                    
                     
 
                     {renderTitleElem()}
@@ -516,26 +528,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
         />;
     }
 
-
-
-        if(!parsedInfo.mh){
-
-             
-        }
- 
-    
-    if(pageSettings["Display Rankings"] === "true"){
-
-        elems[pageOrder["Display Rankings"]] = <MatchRankingChanges 
-            key={"r-changes"} 
-            positions={rankingPositions} 
-            changes={rankingChanges} 
-            playerNames={playerNames} 
-            currentRankings={currentRankings}
-            matchId={parsedInfo.id}
-            host={imageHost}
-        />;
-    }
 
     if(pageSettings["Display Player Ping Graph"] === "true"){
         

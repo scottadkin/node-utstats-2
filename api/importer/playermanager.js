@@ -107,13 +107,13 @@ class PlayerManager{
         }
         
         const playerId = parseInt(result[2]);
-        const player = this.getPlayerByName(result[1]);
+        let player = this.getPlayerByName(result[1]);
 
         if(player === null){
 
             const masterIds = await Player.getMasterIds(result[1], gametypeId);
 
-            const player = new PlayerInfo(playerId, result[1], timestamp);
+            player = new PlayerInfo(playerId, result[1], timestamp);
             player.masterId = masterIds.masterId;
             player.gametypeId = masterIds.gametypeId;
 
@@ -124,6 +124,7 @@ class PlayerManager{
         }   
 
         this.idsToNames[playerId] = result[1].toLowerCase();
+        
         this.masterIdsToNames[player.masterId] = result[1].toLowerCase();
 
     }
