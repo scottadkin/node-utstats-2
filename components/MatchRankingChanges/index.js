@@ -78,7 +78,7 @@ const MatchRankingChanges = ({matchId, players, gametype}) =>{
             controller.abort();
         }
 
-    },[matchId]);
+    },[matchId, gametype, players]);
 
 
     const getIcon = (value) =>{
@@ -126,7 +126,7 @@ const MatchRankingChanges = ({matchId, players, gametype}) =>{
             return <>Player lost <b>{Math.abs(value).toFixed(2)}</b> ranking points.</>
         }
 
-        return <>There was no change to the player's rankings score.</>;
+        return <>There was no change to the player&apos;s rankings score.</>;
     }
 
     const renderRankings = () =>{

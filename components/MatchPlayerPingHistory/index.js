@@ -65,7 +65,7 @@ const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData}) =>{
         return () =>{
             controller.abort();
         }
-    }, [matchId]);
+    }, [matchId, playerIds]);
 
 
     const renderTable = () =>{

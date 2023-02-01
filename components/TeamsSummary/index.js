@@ -10,7 +10,7 @@ import InteractiveTable from '../InteractiveTable';
 const TeamsSummary = ({matchId, matchStart, players, playerData, totalTeams}) =>{
 
 
-    const [displayMode, setDisplayMode] = useState(1);
+    const [displayMode, setDisplayMode] = useState(0);
 
     const reducer = (state, action) =>{
 
@@ -152,7 +152,7 @@ const TeamsSummary = ({matchId, matchStart, players, playerData, totalTeams}) =>
                     "value": player.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.player_id}`}>
                         <a>
-                            <CountryFlag country={player.coutnry}/>{player.name}
+                            <CountryFlag country={player.country}/>{player.name}
                         </a>
                     </Link>,
                     "className": `player`

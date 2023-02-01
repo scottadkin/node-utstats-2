@@ -14,16 +14,13 @@ import MatchCTFSummary from '../../components/MatchCTFSummary/';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Functions from '../../api/functions';
-import Headshots from '../../api/headshots';
 import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
 import MatchServerSettings from '../../components/MatchServerSettings/';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
-import Rankings from '../../api/rankings';
 import MatchRankingChanges from '../../components/MatchRankingChanges/';
 import AdminMatchControl from '../../components/AdminMatchControl/';
 import MatchSprees from '../../components/MatchSprees/';
-import MonsterHunt from '../../api/monsterhunt';
 import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSummary/';
 import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonsterKills/';
 import Analytics from '../../api/analytics';
@@ -33,7 +30,6 @@ import MatchCTFCaps from '../../components/MatchCTFCaps';
 import MatchPlayerScoreHistory from '../../components/MatchPlayerScoreHistory';
 import MatchPlayerPingHistory from '../../components/MatchPlayerPingHistory';
 import MatchDominationSummaryNew from '../../components/MatchDominationSummaryNew';
-import MatchCTFCapTimes from '../../components/MatchCTFCapTimes';
 import CombogibMatchStats from '../../components/CombogibMatchStats';
 import ErrorMessage from '../../components/ErrorMessage';
 import ErrorPage from '../ErrorPage';
@@ -443,7 +439,26 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         if(pageSettings["Display Server Settings"] === "true"){
 
             elems[pageOrder["Display Server Settings"]] = <MatchServerSettings key={"server-settings"} info={info}/>;
+        }
 
+        if(pageSettings["Display Team Changes"] === "true"){
+
+            if(!info.mh){
+    
+                if(info.team_game){
+    
+                    elems[pageOrder["Display Team Changes"]] = <TeamsSummary 
+                        key={`teams-data`} 
+                        host={imageHost} 
+                        players={state.basicPlayers}
+                        playerData={state.playerData} 
+                        matchId={matchId}
+                        matchStart={info.start}
+                        totalTeams={info.total_teams}
+                    />
+                    
+                }
+            }
         }
 
         if(session["bLoggedIn"]){
@@ -501,15 +516,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
 
                     
-                    <TeamsSummary 
-                        key={`teams-data`} 
-                        host={imageHost} 
-                        players={state.basicPlayers}
-                        playerData={state.playerData} 
-                        matchId={matchId}
-                        matchStart={info.start}
-                        totalTeams={info.total_teams}
-                    />
+                    
                     
 
                     {renderTitleElem()}
@@ -555,25 +562,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             playerData={JSON.parse(playerData)} 
             matchId={parsedInfo.id}
         />;
-    }
-
-
-    if(pageSettings["Display Team Changes"] === "true"){
-
-        if(!parsedInfo.mh){
-
-            if(parsedInfo.team_game){
-
-                elems[pageOrder["Display Team Changes"]] = <TeamsSummary 
-                    key={`teams-data`} 
-                    host={imageHost} 
-                    data={teams} 
-                    playerNames={playerNames} 
-                    matchId={parsedInfo.id}
-                />
-                
-            }
-        }
     }
 
     if(pageSettings["Display Combogib Stats"] === "true"){
