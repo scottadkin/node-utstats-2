@@ -277,6 +277,9 @@ class PlayerInfo{
         this.spawns = [];
 
 
+        this.teamChangeEvents = [];
+
+
         this.spawnTimestamps = [];
         //console.log(this);
 
@@ -292,11 +295,15 @@ class PlayerInfo{
             this.bSpectator = false;
             this.bPlayedInMatch = true;
         }
+
+        //this.teamChangeEvents.push({"timestamp": timestamp, "type": "connect"});
     }
 
     disconnect(timestamp){
 
         this.disconnects.push(timestamp);
+
+        this.teamChangeEvents.push({"timestamp": timestamp, "type": "disconnect"});
 
     }
 
@@ -320,6 +327,8 @@ class PlayerInfo{
 
         timestamp = parseFloat(timestamp);
         id = parseInt(id);
+
+        this.teamChangeEvents.push({"timestamp": timestamp, "type": "change", "newTeam": id});
 
         if(!this.bDuplicateTeamData(timestamp, id)){
             this.teams.push({
@@ -737,6 +746,21 @@ class PlayerInfo{
         }
 
         return closest;
+    }
+
+
+    getTotalPlaytime(){
+
+        let totalPlaytime = 0;
+
+        for(const [key, value] of Object.entries(this.stats.teamPlaytime)){
+            //dont count time as spectator as playtime
+            if(key !== "255"){
+                totalPlaytime += value;
+            }
+        }
+
+        return totalPlaytime;
     }
 }
 

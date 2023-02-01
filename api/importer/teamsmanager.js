@@ -79,78 +79,74 @@ class TeamsManager{
         }
     }
 
-    async setTeamsPlaytime(playerManager, totalTeams, matchTimings, bHardcore){
+    scalePlaytime(playtime, bHardcore){
 
-        console.log(`SET TEAMS PLAYTIME ${totalTeams}`);
-        
+        if(bHardcore && playtime !== 0){
+            return playtime / 1.1;      
+        }
+
+        return playtime;
+    }
+
+    setTeamsPlaytime(playerManager, totalTeams, matchTimings, bHardcore){
+
         if(totalTeams < 2) return;
 
         this.setTimestampsToMatchStart(matchTimings);
 
-        const teamJoins = {};
 
-        for(let i = 0; i < this.data.length; i++){
+        for(let i = 0; i < playerManager.players.length; i++){
 
-            const d = this.data[i];
+            const p = playerManager.players[i];
 
-            if(teamJoins[d.player] === undefined){
-                teamJoins[d.player] = null;
-            }
+            const events = [...p.teamChangeEvents];
 
-            if(teamJoins[d.player] !== null){
+            events.sort((a, b) =>{
 
-                const player = playerManager.getPlayerByMasterId(d.player);
+                a = a.timestamp;
+                b = b.timestamp;
 
-                if(player === null){
-                    new Message(`TeamsManager.setTeamsPlaytime() player is null`, "warning");
-                    continue;
+                if(a < b) return -1;
+                if(a > b) return 1;
+                return 0;
+            });
+
+            let previousTimestamp = 0;
+            let bLastDisconnect = false;
+            let previousTeam = 255;
+
+            for(let x = 0; x < events.length; x++){
+
+                const currentEvent = events[x];
+
+                if(x === 0){
+                    previousTimestamp = currentEvent.timestamp;
+                    continue
                 }
 
-                let diff = d.timestamp - teamJoins[d.player].timestamp;
+                const diff = this.scalePlaytime(currentEvent.timestamp - previousTimestamp, bHardcore);
+ 
 
-                if(bHardcore){
-                    if(diff !== 0){
-                        diff = diff / 1.1;
-                    }
+                if(currentEvent.type === "disconnect"){
+                    bLastDisconnect = true;
+                    p.stats.teamPlaytime[previousTeam] += diff;
+                }else{
+                    bLastDisconnect = false;
+                    p.stats.teamPlaytime[previousTeam] += diff;
+                    previousTeam = currentEvent.newTeam;             
                 }
 
-                const team = teamJoins[d.player].team;
+                previousTimestamp = currentEvent.timestamp;
                 
-                //if(team < 0 || team > 3) continue;
-
-                player.stats.teamPlaytime[team] += diff;
-
-                teamJoins[d.player] = {"timestamp": d.timestamp, "team": d.team};
-
-            }else{
-                teamJoins[d.player] = {"timestamp": d.timestamp, "team": d.team};
             }
-        }
 
-        for(const [playerId, data] of Object.entries(teamJoins)){
-
-            //if(data.team >= 0 && data.team <= 3){
-
-                let diff = matchTimings.end - data.timestamp;
-
-                if(bHardcore){
-
-                    if(diff !== 0){
-                        diff = diff / 1.1;
-                    }
-                }
-
-                const player = playerManager.getPlayerByMasterId(playerId);
-
-                if(player === null){
-                    new Message(`TeamsManager.setTeamsPlaytime() player is null(match end).`, "warning");
-                    continue;
-                }
-
-                player.stats.teamPlaytime[data.team] += diff;
-            //}
+            if(!bLastDisconnect){
+                const finalDiff = this.scalePlaytime(matchTimings.end - previousTimestamp, bHardcore);
+                p.stats.teamPlaytime[previousTeam] += finalDiff;
+            }
         }
     }
+
 }
 
 module.exports = TeamsManager;

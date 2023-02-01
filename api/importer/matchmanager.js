@@ -139,12 +139,22 @@ class MatchManager{
             this.playerManager.pingManager.parsePings(this.playerManager);
             await this.playerManager.pingManager.insertPingData(this.matchId);
 
+            this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
+            await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
+            // no longer needed with new way of calculating playtime includes hardcore check
+            //this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
+
+
+            this.playerManager.teamsManager.setTeamsPlaytime(this.playerManager, this.gameInfo.totalTeams, matchTimings, this.gameInfo.hardcore);
+            new Message(`Updated player team changes`,'pass');
+            //process.exit();
+
             await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
             new Message(`Updated player match data.`,'pass');
             
             await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);
 
-            this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
+            
 
             const bLMS = this.bLastManStanding();
 
@@ -272,9 +282,7 @@ class MatchManager{
             await this.playerManager.insertConnectionData(this.matchId);
             new Message(`Updated played connection data.`,'pass');
 
-            this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
-            await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
-            new Message(`Updated player team changes`,'pass');
+            
 
 
             this.countiresManager = new CountriesManager();
@@ -352,7 +360,7 @@ class MatchManager{
                 await this.CTFManager.parseData(matchTimings.start, matchTimings.end);
                 //await this.CTFManager.updatePlayerMatchStats();
                 
-                await this.playerManager.teamsManager.setTeamsPlaytime(this.playerManager, this.gameInfo.totalTeams, matchTimings, this.gameInfo.hardcore);
+                
 
                 await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
 

@@ -252,6 +252,7 @@ class Player{
 
             //53
         const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
+        
 
         const vars = [
             matchId,
@@ -268,7 +269,7 @@ class Player{
             gametypeId,
             player.bWinner,
             player.bDrew,
-            Functions.setValueIfUndefined(player.stats.time_on_server),
+            player.getTotalPlaytime(),//Functions.setValueIfUndefined(player.stats.time_on_server),
             player.stats.teamPlaytime[0],
             player.stats.teamPlaytime[1],
             player.stats.teamPlaytime[2],

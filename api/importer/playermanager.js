@@ -267,7 +267,7 @@ class PlayerManager{
                 type = result[2].toLowerCase();
 
                 if(type === 'team'){
-                    this.setTeam(result[3], result[1]);
+                    //this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
                     this.setBotStatus(result[3]);
                 }else if(type == 'ip'){
@@ -964,20 +964,15 @@ class PlayerManager{
 
         const reg = /^(\d+\.\d+)\tweap_(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
 
-        let d = 0;
-
-        let result = 0;
-        let player = 0;
-
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
-            result = reg.exec(d);
+            const result = reg.exec(d);
 
             if(result !== null){
 
-                player = this.getPlayerById(parseInt(result[4]));
+                const player = this.getPlayerById(parseInt(result[4]));
 
                 if(player !== null){
 
@@ -1018,7 +1013,7 @@ class PlayerManager{
                  
                 if(p.bDuplicate === undefined){
 
-                    let playtime = p.stats.time_on_server;
+                    const playtime = p.getTotalPlaytime();
 
 
                     //update combined gametypes totals
@@ -1666,7 +1661,7 @@ class PlayerManager{
         
     }
 
-    fixPlaytime(bHardcore, matchLength){
+    /*fixPlaytime(bHardcore, matchLength){
 
 
         for(let i = 0; i < this.players.length; i++){
@@ -1689,7 +1684,7 @@ class PlayerManager{
             p.stats.time_on_server = playtime;
 
         }
-    }
+    }*/
 
     async updateRankings(rankingsManager, gametypeId, matchId){
 
