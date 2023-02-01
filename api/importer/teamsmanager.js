@@ -80,6 +80,8 @@ class TeamsManager{
     }
 
     async setTeamsPlaytime(playerManager, totalTeams, matchTimings, bHardcore){
+
+        console.log(`SET TEAMS PLAYTIME ${totalTeams}`);
         
         if(totalTeams < 2) return;
 

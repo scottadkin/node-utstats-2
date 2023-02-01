@@ -1654,16 +1654,16 @@ class PlayerManager{
 
     getPlayerPlaytime(masterId){
 
-        for(let i = 0; i < this.players.length; i++){
+        const player = this.getPlayerByMasterId(masterId);
 
-            const p = this.players[i];
+        if(player === null){
 
-            if(p.masterId === masterId){
-                return p.stats.time_on_server;
-            }
+            new Message(`failed to getPlayerPlaytime(${masterId})`,"error");
+            return null;
         }
 
-        return null;
+        return player.stats.time_on_server;
+        
     }
 
     fixPlaytime(bHardcore, matchLength){

@@ -748,6 +748,8 @@ class CTFManager{
 
         const flag = this.flags[playerTeam];
 
+        if(flag.flagStand === null) return -1;
+
         const distanceX = flag.flagStand.x - targetLocation.x;
         const distanceY = flag.flagStand.y - targetLocation.y;
         const distanceZ = flag.flagStand.z - targetLocation.z;
