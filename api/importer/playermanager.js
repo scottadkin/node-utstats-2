@@ -1701,6 +1701,118 @@ class PlayerManager{
             }
         }
     }
+
+    ignoreWarmpup(timestamp){
+
+        if(timestamp < this.matchTimings.start){
+            return this.matchTimings.start;
+        }
+
+        return timestamp;
+    }
+
+    setPlayerPlaytime(totalTeams, bHardcore){
+
+        if(totalTeams < 2) return;
+
+        const matchTimings = this.matchTimings;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            const events = [...p.teamChangeEvents];
+
+            events.sort((a, b) =>{
+
+                a = a.timestamp;
+                b = b.timestamp;
+
+                if(a < b) return -1;
+                if(a > b) return 1;
+                return 0;
+            });
+
+            let previousTimestamp = 0;
+            let bLastDisconnect = false;
+            let previousTeam = 255;
+
+            for(let x = 0; x < events.length; x++){
+
+                const currentEvent = events[x];
+
+                if(x === 0){
+
+                    previousTimestamp = this.ignoreWarmpup(currentEvent.timestamp);
+
+                    if(currentEvent.type === "change"){
+                        previousTeam = currentEvent.newTeam;
+                    }
+
+                    continue;
+                }
+
+
+                const diff = this.ignoreWarmpup(currentEvent.timestamp) - previousTimestamp;
+ 
+
+                if(currentEvent.type === "disconnect"){
+                    bLastDisconnect = true;
+                    p.stats.teamPlaytime[previousTeam] += diff;
+                }else{
+                    bLastDisconnect = false;
+                    p.stats.teamPlaytime[previousTeam] += diff;
+                    previousTeam = currentEvent.newTeam;             
+                }
+
+                previousTimestamp = this.ignoreWarmpup(currentEvent.timestamp);
+                
+            }
+
+            if(!bLastDisconnect){
+                
+                const finalDiff = matchTimings.end - previousTimestamp;
+                p.stats.teamPlaytime[previousTeam] += finalDiff;
+            }
+        }
+
+
+        this.scalePlaytimes(bHardcore);
+        
+    }
+
+    scalePlaytime(playtime, bHardcore){
+
+        if(bHardcore && playtime !== 0){
+            return playtime / 1.1;      
+        }
+
+        return playtime;
+    }
+    
+
+    scalePlaytimes(bHardcore){
+
+       /* if(bHardcore && playtime !== 0){
+            return playtime / 1.1;      
+        }
+
+        return playtime;*/
+
+        if(!bHardcore) return;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            for(const [teamId, playtime] of Object.entries(p.stats.teamPlaytime)){
+
+                //console.log(`scaled ${p.stats.teamPlaytime[teamId]} to ${this.scalePlaytime(playtime, bHardcore)}`);
+                p.stats.teamPlaytime[teamId] = this.scalePlaytime(playtime, bHardcore);
+            }
+        }
+    }
+    
     
 }
 

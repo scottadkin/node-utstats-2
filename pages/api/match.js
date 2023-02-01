@@ -8,6 +8,7 @@ import Faces from "../../api/faces";
 import Weapons from "../../api/weapons";
 import Assault from "../../api/assault";
 import Rankings from "../../api/rankings";
+import Teams from "../../api/teams";
 
 export default async function handler(req, res){
 
@@ -40,6 +41,16 @@ export default async function handler(req, res){
 
 
             res.status(200).json({"playerData": playerData, "playerFaces": playerFaces});
+            return;
+        }
+
+        if(mode === "teams"){
+
+            const teamsManager = new Teams();
+
+            let teamsData = await teamsManager.getMatchData(matchId);
+
+            res.status(200).json({"data": teamsData});
             return;
         }
 

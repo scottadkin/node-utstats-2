@@ -145,7 +145,7 @@ class MatchManager{
             //this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
 
 
-            this.playerManager.teamsManager.setTeamsPlaytime(this.playerManager, this.gameInfo.totalTeams, matchTimings, this.gameInfo.hardcore);
+            this.playerManager.setPlayerPlaytime(this.gameInfo.totalTeams, this.gameInfo.hardcore);
             new Message(`Updated player team changes`,'pass');
             //process.exit();
 

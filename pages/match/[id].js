@@ -440,6 +440,12 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
         }
 
+        if(pageSettings["Display Server Settings"] === "true"){
+
+            elems[pageOrder["Display Server Settings"]] = <MatchServerSettings key={"server-settings"} info={info}/>;
+
+        }
+
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
                 gametypeId={info.gametype}
@@ -495,6 +501,15 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
 
                     
+                    <TeamsSummary 
+                        key={`teams-data`} 
+                        host={imageHost} 
+                        players={state.basicPlayers}
+                        playerData={state.playerData} 
+                        matchId={matchId}
+                        matchStart={info.start}
+                        totalTeams={info.total_teams}
+                    />
                     
 
                     {renderTitleElem()}
@@ -559,11 +574,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
                 
             }
         }
-    }
-
-    if(pageSettings["Display Server Settings"] === "true"){
-
-        elems[pageOrder["Display Server Settings"]] = <MatchServerSettings key={"server-settings"} info={JSON.parse(info)}/>;
     }
 
     if(pageSettings["Display Combogib Stats"] === "true"){
