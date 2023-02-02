@@ -4,6 +4,16 @@ import Maps from "../../api/maps";
 import Gametypes from "../../api/gametypes";
 
 
+const sortByName = (a, b) =>{
+
+    a = a.name.toLowerCase();
+    b = b.name.toLowerCase();
+
+    if(a < b) return -1;
+    if(a > b) return 1;
+    return 0;
+}
+
 export default async function handler(req, res){
 
     try{
@@ -39,11 +49,42 @@ export default async function handler(req, res){
             const mapNames = await mapManager.getAllNameAndIds();
             const gametypeNames = await gametypeManager.getAllNames();
             
-            mapNames[0] = "All Maps";
-            serverNames[0] = "All Servers";
-            gametypeNames[0] = "All Gametypes";
+            const serverNamesArray = [
+            ];
 
-            res.status(200).json({"serverNames": serverNames, "mapNames": mapNames, "gametypeNames": gametypeNames});
+            for(const [id, name] of Object.entries(serverNames)){
+                serverNamesArray.push({"id": id, "name": name});
+            }
+
+            const gametypeNamesArray = [
+            ];
+
+            for(const [id, name] of Object.entries(gametypeNames)){
+                gametypeNamesArray.push({"id": id, "name": name});
+            }
+
+            const mapNamesArray = [];
+
+            for(const [id, name] of Object.entries(mapNames)){
+                mapNamesArray.push({"id": id, "name": name});
+            }
+
+            serverNamesArray.sort(sortByName);
+            gametypeNamesArray.sort(sortByName);
+            mapNamesArray.sort(sortByName);
+
+            serverNamesArray.unshift({"id": 0, "name": "All Servers"});
+            gametypeNamesArray.unshift({"id": 0, "name": "All Gametypes"});
+            mapNamesArray.unshift({"id": 0, "name": "All Maps"});
+
+
+
+            res.status(200).json({
+                "serverNames": serverNamesArray, 
+                "mapNames": mapNamesArray, 
+                "gametypeNames": gametypeNamesArray
+            });
+
             return;
 
         }else if(mode === "search"){
@@ -74,7 +115,9 @@ export default async function handler(req, res){
             }
 
 
-            res.status(200).json({"data": data, "images": mapImages});
+            const totalMatches = await matchManager.getSearchTotalResults(serverId, gametypeId, mapId);
+
+            res.status(200).json({"data": data, "images": mapImages, "totalMatches": totalMatches});
             return;
 
         }else if(mode === "search-count"){
@@ -86,6 +129,7 @@ export default async function handler(req, res){
         }
 
         res.status(200).json({"error": "Unknown command"});
+        return;
 
     }catch(err){
         console.trace(err);

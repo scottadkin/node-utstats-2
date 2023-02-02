@@ -64,7 +64,7 @@ class DropDown extends React.Component{
 
                 }else{           
                     if(value === this.state.selectedValue){
-                        elems.push(<div className={styles.fake} key={value}>{displayValue}</div>);
+                        elems.push(<div className={styles.fake} key={`${i}-${value}`}>{displayValue}</div>);
                         break;
                     }
                 }
@@ -77,7 +77,7 @@ class DropDown extends React.Component{
                     className += ` ${styles.selected}`;
                 }
 
-                elems.push(<div className={className} key={value} onClick={(() =>{
+                elems.push(<div className={className} key={`${i}-${value}`} onClick={(() =>{
                     this.changeSelected(value);
                 })}>{displayValue}</div>);
             }

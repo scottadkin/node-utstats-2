@@ -10,6 +10,7 @@ function Nav({session, settings}){
         session = JSON.parse(session);
     }
 
+    
     //console.log(session);
 
     let displayName = "NOT FOUND";
@@ -22,7 +23,11 @@ function Nav({session, settings}){
     
     if(settings !== undefined){
 
-        const parsedSettings = JSON.parse(settings);
+        if(typeof settings === "string"){
+            settings = JSON.parse(settings);
+        }
+
+        const parsedSettings = settings;
 
         settings = parsedSettings.settings;
         order = parsedSettings.order;

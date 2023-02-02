@@ -1610,7 +1610,7 @@ class Matches{
         const {query, vars} = this.createSearchQuery(true, serverId, gametypeId, mapId, 0, 0);
 
         const result = await mysql.simpleQuery(query, vars); 
-        
+
         return result[0].total_matches;
 
     }
