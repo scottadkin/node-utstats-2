@@ -4,44 +4,35 @@ import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
 import Link from "next/link";
 
-class ServerDefaultView extends React.Component{
+const ServerDefaultView = ({mapImages, mapNames, data}) =>{
 
-    constructor(props){
+    const d = data;
 
-        super(props);
-    }
+    const getMapImage = (mapName) =>{
 
-    getMapImage(mapName){
+        mapName = Functions.cleanMapName(mapName).toLowerCase();
 
-
-        const cleanMapName = Functions.cleanMapName(mapName);
-
-        const index = this.props.mapImages.indexOf(cleanMapName.toLowerCase());
-        
-        if(index === -1) return "default";
-
-        return this.props.mapImages[index];
-    }
-
-    render(){
-
-        const d = this.props.data;
-
-        const mapName = this.props.mapNames[this.props.data.last_map_id] ?? "Not Found";
-
-        const mapImage = this.getMapImage(mapName);
-
-        let password = "";
-        let passwordElem = null;
-
-        if(d.password !== ""){
-            password = `?password=${d.password}`;
-
-            passwordElem = <span className={styles.password}>?password={d.password}</span>
+        if(mapImages[mapName] !== undefined){
+            return mapImages[mapName];
         }
 
+        return "default";
 
-        return <div className={styles.wrapper}>
+    }
+
+    const mapName = mapNames[data.last_map_id] ?? "Not Found";
+    const mapImage = getMapImage(mapName);
+
+    let password = "";
+    let passwordElem = null;
+
+    if(d.password !== ""){
+        password = `?password=${d.password}`;
+
+        passwordElem = <span className={styles.password}>?password={d.password}</span>
+    }
+
+    return <div className={styles.wrapper}>
             <Link href={`/server/${d.id}`}>
                 <a>
                     <div className={`${styles.title} ellipsis`}>
@@ -89,7 +80,6 @@ class ServerDefaultView extends React.Component{
                 </div>
             </a>
         </div>
-    }
 }
 
 export default ServerDefaultView;
