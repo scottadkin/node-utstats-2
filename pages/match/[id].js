@@ -461,6 +461,15 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             }
         }
 
+
+        if(pageSettings["Display Combogib Stats"] === "true"){
+
+            elems[pageOrder["Display Combogib Stats"]] = <CombogibMatchStats key={"combo-stats"} matchId={matchId} 
+                players={state.basicPlayers} totalTeams={info.total_teams}
+            />
+
+        }
+
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
                 gametypeId={info.gametype}
@@ -498,8 +507,6 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
         elems = renderMain();
     }
-
-    console.log(state.playerData);
 
 
     return <div>

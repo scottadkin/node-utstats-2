@@ -238,6 +238,8 @@ const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
     if(state.error !== null) return <ErrorMessage title="Powerup Control" text={state.error}/>
     if(state.bLoading) return <Loading />;
 
+    if(state.itemNames.length === 0) return null;
+
     return <div>
         <div className="default-header">Powerup Control</div>
 
