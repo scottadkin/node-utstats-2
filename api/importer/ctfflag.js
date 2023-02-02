@@ -207,7 +207,12 @@ class CTFFlag{
             "distanceToEnemyBase": distanceToEnemyBase,
         });
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "killed", this.team);
+        /*if(victimId === -1){
+            await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "suicide", this.team);
+        }else{
+            await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "kill", this.team);
+        }*/
+        
     }
 
     async seal(timestamp, killerId, victimId){
@@ -604,7 +609,7 @@ class CTFFlag{
             return this.drops[this.drops.length - 1];
         }
  
-        new Message("DROP NOT FOUUUUUUUUUUUMND","error");
+        new Message("DROP NOT Found","error");
         return {"distanceToCap": -1, "dropLocation": {"x": 0, "y": 0, "z": 0} };
 
     }

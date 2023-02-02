@@ -179,6 +179,25 @@ class KillManager{
         return null;
     }
 
+    //mainly for utstats flag_Kill...
+    getMatchingKillNoVictim(timestamp, killerId){
+
+        timestamp = parseFloat(timestamp);
+        killerId = parseInt(killerId);
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const k = this.kills[i];
+
+            if(k.timestamp < timestamp) continue;
+            if(k.timestamp > timestamp) break;
+
+            if(k.killerId === killerId) return k;
+        }
+
+        return null;
+    }
+
 
     setDistance(timestamp, distance, killerId, victimId){
 

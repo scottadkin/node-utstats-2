@@ -14,6 +14,8 @@ class CTFManager{
         this.flagReturns = [];
         this.flagTaken = [];
 
+        this.flagDrops = [];
+
         this.flagDropLocations = [];
         this.flagReturnLocations = [];
         this.smartCTFReturnInfo = [];
@@ -139,6 +141,10 @@ class CTFManager{
 
                 for(let i = 0; i < flagsInPossession.length; i++){
 
+       
+                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "suicide", killerTeam);
+                    
+
                     await this.flags[flagsInPossession[i]].killed(
                         timestamp, 
                         killer.masterId, 
@@ -172,6 +178,10 @@ class CTFManager{
 
                 for(let i = 0; i < flagsInPossession.length; i++){
 
+ 
+                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "kill", killerTeam);
+                    
+
                     await this.flags[flagsInPossession[i]].killed(
                         timestamp, 
                         killer.masterId, 
@@ -183,7 +193,6 @@ class CTFManager{
                         distanceToEnemyBase
                     );
                 }
-               
             }
         }
     }
@@ -194,28 +203,76 @@ class CTFManager{
         const smartCTFReg = /^\d+?\.\d+?\tflag_kill\t(\d+)$/i;
         const nstatsCTFReg = /^\d+?\.\d+?\tnstats\tflag_kill\t(\d+?)\t(\d+?)\t(.+?)\t(.+?)\t(.+?)$/i;
 
-        //Work around a bug where sometimes the flag_kill is not saved to log by smartCTF, so use nstats one instead.
+        //Work around a bug where sometimes the flag_kill is not saved to log by UTStats, so use nstats one instead.
         if(!this.bHaveNStatsData){
 
             if(smartCTFReg.test(line)){
+
 
                 const result = smartCTFReg.exec(line);          
 
                 const playerId = parseInt(result[1]);
 
-                const player = this.playerManager.getPlayerById(playerId);
+                const killer = this.playerManager.getPlayerById(playerId);
 
-                if(player === null){
-                    new Message(`CreateFlagKill player is null`,"error");
+                if(killer === null){
+                    new Message(`CreateFlagKill killer is null`,"error");
                     return;
                 }
 
-                const lastTimestamp = player.getCTFNewLastTimestamp("kill");
-                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);
+                const lastTimestamp = killer.getCTFNewLastTimestamp("kill");
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, killer.masterId, false);
+                //await this.ctf.insertEvent(this.matchId, timestamp, killerId, "kill", this.team));
+                killer.setCTFNewValue("kill", timestamp, totalDeaths);
 
-                player.setCTFNewValue("kill", timestamp, totalDeaths);
 
-                //player.stats.ctf.kill++;
+                const killInfo = this.killManager.getMatchingKillNoVictim(timestamp, killer.masterId);
+
+
+                if(killInfo === null){
+                    new Message(`CTFManager.createFlagKIll() killInfo is null.`,"warning");
+                    return;
+                }
+
+                const victim = this.playerManager.getPlayerByMasterId(killInfo.victimId);
+
+                if(victim === null){
+                    new Message(`CreateFlagKill victim is null`,"error");
+                    return;
+                }
+
+                //console.log(killInfo);
+
+                const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
+                const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
+
+                const droppedFlags = this.getDroppedFlags(timestamp, killInfo.victimId);
+         
+                if(droppedFlags.length === 0){
+                    new Message(`CTFManager.createFlagKill() droppedFlags.length is 0`,"warning");
+                }
+
+                for(let i = 0; i < droppedFlags.length; i++){
+
+                    const d = droppedFlags[i];
+
+                    //await this.ctf.insertEvent(this.matchId, d.timestamp, killer.masterId, "kill", killerTeam);
+
+           
+                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "kill",  d.flagTeam);
+                    
+
+                    await this.flags[d.flagTeam].killed(
+                        timestamp, 
+                        killer.masterId, 
+                        killerTeam, 
+                        victim.masterId, 
+                        victimTeam, 
+                        -1,//killDistance, 
+                        -1, 
+                        -1
+                    );
+                }
             }
         }
 
@@ -250,10 +307,9 @@ class CTFManager{
             return;
         }
 
-        //player.stats.ctf.taken++;
 
         const previousTimestamp = player.getCTFNewLastTimestamp("taken");
-        const totalDeaths = this.killManager.getDeathsBetween(previousTimestamp, timestamp, playerId);
+        const totalDeaths = this.killManager.getDeathsBetween(previousTimestamp, timestamp, player.masterId);
 
         player.setCTFNewValue("taken", timestamp, totalDeaths);
 
@@ -433,7 +489,7 @@ class CTFManager{
         //holder.stats.ctf.pickup++;
 
         const lastTimestamp = holder.getCTFNewLastTimestamp("pickup");
-        const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, playerId);
+        const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, holder.masterId);
 
         holder.setCTFNewValue("pickup", timestamp, totalDeaths);
 
@@ -477,6 +533,26 @@ class CTFManager{
         killer.setCTFNewValue("seal", timestamp, totalDeaths);
 
         await this.flags[killerTeam].seal(timestamp, killer.masterId, victim.masterId);
+    }
+
+    //need because flag drops logs before flag kills(when no nstats are present)
+    getDroppedFlags(timestamp, droppedPlayerId){
+
+        const found = [];
+
+        for(let i = 0; i < this.flagDrops.length; i++){
+
+            const f = this.flagDrops[i];
+
+            if(f.timestamp < timestamp) continue;
+            if(f.timestamp > timestamp ) break;
+            
+            if(f.playerId === droppedPlayerId){
+                found.push(f);
+            }
+        }
+
+        return found;
     }
 
     async createFlagCaptured(timestamp, line){
@@ -780,6 +856,8 @@ class CTFManager{
 
                 //player.stats.ctf.dropped++;
                 player.setCTFNewValue("dropped", timestamp, totalDeaths);
+
+                this.flagDrops.push({"timestamp": timestamp, "playerId": player.masterId,  "flagTeam": flag.team});
             }
         }
     }
