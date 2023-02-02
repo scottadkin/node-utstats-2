@@ -195,6 +195,7 @@ class GraphCanvas{
         try{
 
 
+
             if(!this.keyEvents()){
             
                 if(!this.bMultiTab){
@@ -209,7 +210,7 @@ class GraphCanvas{
                 if(this.mouse.y > this.tabHeight){
                     
                     if(!this.bFullScreen){
-                        this.canvas.width = 2;
+                        //this.canvas.width = 2;
                         await this.canvas.requestFullscreen();
                     }
                     
@@ -221,6 +222,7 @@ class GraphCanvas{
                 }
 
             }else{
+                
                 this.setMaxStringLengths();
                 this.calcMinMax();
                 this.createMouseOverData();
@@ -330,8 +332,9 @@ class GraphCanvas{
         }else{
             y = this.mouse.y;
         }
+
+        const currentTab = this.currentTab + this.tabOffset;
         
-        let bChangedValue = false;
 
         for(let i = 0; i < this.keyCoordinates.length; i++){
 
@@ -341,15 +344,14 @@ class GraphCanvas{
 
                 if(y >= k.y && y < k.y + k.height){
 
-                    this.hideKeys[this.currentTab][i] = !this.hideKeys[this.currentTab][i];
+                    this.hideKeys[currentTab][i] = !this.hideKeys[currentTab][i];
                     //alert(`ok ${i} ${this.bFullScreen}`);
-                    bChangedValue = true;
-                    break;
+                    return true;
                 }
             }
         }
 
-        return bChangedValue;
+        return false;
     }
 
     hoverTab(){
@@ -935,14 +937,11 @@ class GraphCanvas{
 
         const targetX = this.mouse.x;
 
-        let m = 0;
-       // console.log(this.text);
-
         const currentTab = this.currentTab + this.tabOffset;
 
         for(let i = 0; i < this.mouseOverData.length; i++){
 
-            m = this.mouseOverData[i];
+            const m = this.mouseOverData[i];
             
             if(targetX >= m.startX && targetX < m.endX){
 
@@ -1206,6 +1205,7 @@ class GraphCanvas{
 
         c.textAlign = "center";
         c.textBaseline = "top";
+        
 
 
         const pattern = c.createLinearGradient(0,0, this.scaleX(100), this.scaleY(100));
