@@ -13,7 +13,6 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
         </div>);
     }
 
-
     if(info.email === '') info.email = 'Not specified';
 
     let mutatorsElem = null;

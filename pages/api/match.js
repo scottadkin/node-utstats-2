@@ -39,7 +39,6 @@ export default async function handler(req, res){
             //console.log(data);
             const playerFaces = await faceManager.getFacesWithFileStatuses(uniqueFaces);
 
-
             res.status(200).json({"playerData": playerData, "playerFaces": playerFaces});
             return;
         }

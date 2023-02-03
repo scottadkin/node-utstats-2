@@ -53,6 +53,7 @@ const MatchFragSummary = ({matchId, playerData, totalTeams, single}) =>{
             bSeparateByTeam={separateByTeam} 
             highlight={null}
             matchId={matchId}
+            single={single}
         />
     }
 
@@ -66,16 +67,24 @@ const MatchFragSummary = ({matchId, playerData, totalTeams, single}) =>{
             bSeparateByTeam={separateByTeam} 
             highlight={null}
             matchId={matchId}
+            single={single}
         />
+    }
+
+    const renderTeamTabs = () =>{
+
+        if(single) return null;
+        
+        return <div className="tabs">
+            <div onClick={() => setSeparateByTeam(true)} className={`tab ${(separateByTeam) ? "tab-selected" : ""}`}>Separate by Team</div>
+            <div onClick={() => setSeparateByTeam(false)} className={`tab ${(!separateByTeam) ? "tab-selected" : ""}`}>Display All</div>
+        </div>
     }
 
     return <div>
         <div className="default-header">Frags Summary</div>
         {renderTabs()}
-        <div className="tabs">
-            <div onClick={() => setSeparateByTeam(true)} className={`tab ${(separateByTeam) ? "tab-selected" : ""}`}>Separate by Team</div>
-            <div onClick={() => setSeparateByTeam(false)} className={`tab ${(!separateByTeam) ? "tab-selected" : ""}`}>Display All</div>
-        </div>
+        {renderTeamTabs()}
         {renderDefaultTable()}
         {renderDistanceTable()}
     </div>

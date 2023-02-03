@@ -556,11 +556,12 @@ class Functions{
     static apostrophe(name){
 
         name = name.toLowerCase();
-        if(name[name.length - 1] === 's'){
-            return '\'';
+        
+        if(name[name.length - 1] === "s"){
+            return "'";
         }
 
-        return '\'s';
+        return "'s";
     }
 
 

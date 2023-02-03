@@ -37,6 +37,7 @@ import MatchKillsMatchUp from '../../components/MatchKillsMatchUp';
 import MatchCTFCarryTime from '../../components/MatchCTFCarryTime';
 import MatchCTFReturns from '../../components/MatchCTFReturns';
 import Loading from '../../components/Loading';
+import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
 
 const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, 
     navSettings, map, server, gametype, bMonsterHunt}) =>{
@@ -44,97 +45,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
     session = JSON.parse(session);
 
-    const reducer = (state, action) =>{
-
-        switch(action.type){
-
-            case "playerData": return {
-                "playerData": action.payload.playerData,
-                "faces": action.payload.faces,
-                "basicPlayers": action.payload.basicPlayers,
-                "nonSpectators": action.payload.nonSpectators,
-                "bLoadingPlayers": false
-            }
-        }
-
-        throw new Error("Unknown Action");
-    }
-
-    const [state, dispatch] = useReducer(reducer, {
-        "playerData": [],
-        "faces": {},
-        "basicPlayers": {},
-        "nonSpectators": {},
-        "bLoadingPlayers": true
-    });
-
-    useEffect(() =>{
-
-        const controller = new AbortController();
-
-        const createPlayerObjects = (data) =>{
-
-            const basicPlayers = {};
-            const justPlayerNames = {};
-            const playedPlayers = {};
-
-            for(let i = 0; i < data.playerData.length; i++){
-
-                const p = data.playerData[i];
-
-                basicPlayers[p.player_id] = {
-                    "id": p.player_id,
-                    "name": p.name, 
-                    "country": p.country,
-                    "team": p.team,
-                    "spectator": p.spectator,
-                    "played": p.played,
-                    "playtime": p.playtime
-                };
-
-                justPlayerNames[data.playerData[i].player_id] = data.playerData[i].name;
-
-                if(p.playtime > 0 || !p.spectator){
-                    playedPlayers[data.playerData[i].player_id] = data.playerData[i].name;
-                }
-            }
-
-            dispatch({
-                "type": "playerData",
-                "payload": {
-                    "playerData": data.playerData,
-                    "faces": data.playerFaces,
-                    "basicPlayers": basicPlayers,
-                    "nonSpectators": playedPlayers
-                }
-            });
-        }
-
-        const loadPlayerData = async () =>{
-
-            const req = await fetch("/api/match",{
-                "signal": controller.signal,
-                "headers": {
-                    "Content-type": "application/json"
-                },
-                "method": "POST",
-                "body": JSON.stringify({"mode": "players", "matchId": matchId})
-            });
-
-            const res = await req.json();
-            
-            createPlayerObjects(res);
-
-            console.log(res);
-        }
-
-        loadPlayerData();
-
-        return () =>{
-            controller.abort();
-        }
-    }, [matchId]);
-
+    const players = useMatchPlayersLoader(matchId);
 
 
     if(error !== undefined){
@@ -191,8 +102,8 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     
     const bAnyCTFData = () =>{
 
-        if(state.playerData.length > 0){
-            if(state.playerData[0].ctfData !== undefined) return true;
+        if(players.playerData.length > 0){
+            if(players.playerData[0].ctfData !== undefined) return true;
         }
 
         return false;
@@ -200,9 +111,9 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
     const bAnyDominationData = () =>{
 
-        for(let i = 0; i < state.playerData.length; i++){
+        for(let i = 0; i < players.playerData.length; i++){
 
-            const p = state.playerData[i];
+            const p = players.playerData[i];
             if(p.dom_caps > 0) return true;
         }
 
@@ -234,12 +145,12 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 host={imageHost}
                 key={"match-sshot"} map={map} 
                 totalTeams={info.total_teams} 
-                players={state.playerData} 
+                players={players.playerData} 
                 image={image} 
                 matchData={info}
                 serverName={server} 
                 gametype={gametype} 
-                faces={state.faces}
+                faces={players.faces}
             />
         }
     
@@ -251,7 +162,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key={`match_3`} 
                     host={imageHost} 
                     totalTeams={info.total_teams} 
-                    playerData={state.playerData} 
+                    playerData={players.playerData} 
                     matchStart={info.start}
                     matchId={info.id}
                 />
@@ -261,7 +172,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     
                 elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key={`mh-frags`} 
                     host={imageHost} 
-                    playerData={state.playerData} 
+                    playerData={players.playerData} 
                     matchStart={info.start} 
                     matchId={info.id
                 }/>
@@ -273,7 +184,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         if(bAnyCTFData()){
        
             if(pageSettings["Display Capture The Flag Summary"] === "true"){
-                elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={state.playerData} />
+                elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={players.playerData} />
             }
         
             if(pageSettings["Display Capture The Flag Returns"] === "true"){
@@ -281,7 +192,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 elems[pageOrder["Display Capture The Flag Returns"]] = <MatchCTFReturns 
                     key="ctf-r"
                     matchId={matchId}
-                    playerData={state.basicPlayers} 
+                    playerData={players.basicPlayers} 
                     totalTeams={info.total_teams}
                     matchStart={info.start}
                 />
@@ -293,7 +204,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCaps 
                     key="ctf-c"
                     matchId={matchId} 
-                    playerData={state.basicPlayers} 
+                    playerData={players.basicPlayers} 
                     totalTeams={info.total_teams}
                     matchStart={info.start}
                 />
@@ -304,7 +215,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         
                 elems[pageOrder["Display Capture The Flag Carry Times"]] = <MatchCTFCarryTime 
                     matchId={matchId} 
-                    players={state.basicPlayers}
+                    players={players.basicPlayers}
                     key="ctf-ct"
                 />;
             }
@@ -315,7 +226,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     key="ctf-graphs" 
                     matchId={matchId} 
                     totalTeams={info.total_teams} 
-                    players={state.nonSpectators}
+                    players={players.nonSpectators}
                 />;
             
             }
@@ -325,7 +236,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
             elems[pageOrder["Display Weapon Statistics"]] = <MatchWeaponSummaryCharts 
                 key="weapon-stats"
-                playerData={state.basicPlayers}
+                playerData={players.basicPlayers}
                 totalTeams={info.total_teams} 
                 matchId={matchId}
                 host={imageHost}
@@ -340,7 +251,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 elems[pageOrder["Display Frags Graphs"]] = <MatchFragsGraph 
                     key="frag-graphs" 
                     matchId={matchId} 
-                    players={state.nonSpectators} 
+                    players={players.nonSpectators} 
                     teams={info.total_teams}
                 />;
             }
@@ -353,7 +264,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     host={imageHost}
                     matchId={matchId} 
                     totalTeams={info.total_teams} 
-                    playerData={state.basicPlayers} 
+                    playerData={players.basicPlayers} 
                     mapId={info.map}
                 />;
             }
@@ -365,7 +276,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 key={`mse`} 
                 host={imageHost} 
                 bTeamGame={info.team_game} 
-                players={state.playerData} 
+                players={players.playerData} 
                 matchId={matchId}
             />;
         }
@@ -375,7 +286,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             elems[pageOrder["Display Extended Sprees"]] = <MatchSprees 
                 key={"sprees"} 
                 host={imageHost} 
-                players={state.basicPlayers} 
+                players={players.basicPlayers} 
                 matchStart={info.start} 
                 matchId={matchId}
             />;
@@ -385,7 +296,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
             if(!info.mh){
     
-                elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUp key="kmu" matchId={info.id} players={state.basicPlayers}/>
+                elems[pageOrder["Display Kills Match Up"]] = <MatchKillsMatchUp key="kmu" matchId={info.id} players={players.basicPlayers}/>
             }
         }
 
@@ -393,7 +304,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
             elems[pageOrder["Display Player Score Graph"]] = <MatchPlayerScoreHistory 
                 key="score history" 
-                players={state.nonSpectators} 
+                players={players.nonSpectators} 
                 matchId={matchId}
             />;
         }
@@ -405,7 +316,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 host={imageHost} key={`match-power-control`}        
                 totalTeams={info.total_teams}
                 matchId={matchId}
-                players={state.basicPlayers}
+                players={players.basicPlayers}
                 settings={pageSettings}
                 order={pageOrder}
             />
@@ -415,7 +326,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
             elems[pageOrder["Display Rankings"]] = <MatchRankingChanges 
                 key={"r-changes"} 
-                players={state.basicPlayers} 
+                players={players.basicPlayers} 
                 matchId={matchId}
                 host={imageHost}
                 gametype={info.gametype}
@@ -426,10 +337,10 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         
             elems[pageOrder["Display Player Ping Graph"]] = <MatchPlayerPingHistory 
                 key="ping history" 
-                playerIds={state.nonSpectators} 
-                players={state.basicPlayers}
+                playerIds={players.nonSpectators} 
+                players={players.basicPlayers}
                 matchId={matchId}
-                playerData={state.playerData.map((player) =>{
+                playerData={players.playerData.map((player) =>{
                     return {"playerId": player.player_id, "min": player.ping_min, "average": player.ping_average, "max": player.ping_max}
                 })}
             />;
@@ -450,8 +361,8 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     elems[pageOrder["Display Team Changes"]] = <TeamsSummary 
                         key={`teams-data`} 
                         host={imageHost} 
-                        players={state.basicPlayers}
-                        playerData={state.playerData} 
+                        players={players.basicPlayers}
+                        playerData={players.playerData} 
                         matchId={matchId}
                         matchStart={info.start}
                         totalTeams={info.total_teams}
@@ -465,13 +376,13 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         if(pageSettings["Display Combogib Stats"] === "true"){
 
             elems[pageOrder["Display Combogib Stats"]] = <CombogibMatchStats key={"combo-stats"} matchId={matchId} 
-                players={state.basicPlayers} totalTeams={info.total_teams}
+                players={players.basicPlayers} totalTeams={info.total_teams}
             />
 
         }
 
         if(session["bLoggedIn"]){
-            elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={state.basicPlayers} mapId={info.map}
+            elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={players.basicPlayers} mapId={info.map}
                 gametypeId={info.gametype}
             />;
         }
@@ -498,12 +409,12 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
     let elems = [];
 
-    if(state.bLoadingPlayers){
+    if(players.bLoadingPlayers){
 
         elems = <Loading />
     }
 
-    if(!state.bLoadingPlayers){
+    if(!players.bLoadingPlayers){
 
         elems = renderMain();
     }

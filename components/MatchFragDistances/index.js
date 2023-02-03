@@ -5,7 +5,7 @@ import InteractiveTable from '../InteractiveTable';
 import React from 'react';
 import MouseOver from '../MouseOver';
 
-const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam}) =>{
+const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam, single}) =>{
 
     const headers = {
         "player": "Player",
@@ -103,7 +103,7 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam}) 
             });
         }
 
-        if(rows.length > 0){
+        if(rows.length > 0 && !single){
 
             rows.push({
                 "bAlwaysLast": true,
@@ -148,7 +148,7 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam}) 
         return <InteractiveTable key={teamId} width={1} headers={headers} data={rows}/>;
     }
 
-    if(!bSeparateByTeam) return renderTable(-1);
+    if(!bSeparateByTeam || single) return renderTable(-1);
 
     const tables = [];
 
@@ -163,130 +163,3 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam}) 
 }
 
 export default MatchFragDistances;
-/*
-const bAnyData = (data) =>{
-    
-    const types = [
-        "shortest_kill_distance",
-        "average_kill_distance",
-        "longest_kill_distance",
-        "k_distance_normal",
-        "k_distance_long",
-        "k_distance_uber"
-    ];
-
-    for(let i = 0; i < types.length; i++){
-
-        if(data[types[i]] != 0) return true;
-    }
-
-    return false;
-}
-
-const MatchFragDistances = ({host, players, team, toDisplay, single, matchId}) =>{
-
-    const elems = [];
-
-    let bgColor = Functions.getTeamColor(team);
-
-    let shortestKillTotal = 0;
-    let totalAverage = 0;
-    let longestKillTotal = 0;
-
-    let totalCloseRange = 0;
-    let totalLongRange = 0;
-    let totalUberRange = 0;
-
-    let index = 0;
-
-    for(let i = 0; i < players.length; i++){
-
-        const p = players[i];
-
-        if(p.team !== team && team !== -1) continue;
-        
-        if(index === 0){
-
-            shortestKillTotal = p.shortest_kill_distance;
-            longestKillTotal = p.longest_kill_distance;
-
-        }else{
-
-            if(shortestKillTotal === 0){
-                shortestKillTotal = p.shortest_kill_distance;
-            }else{
-
-                if(p.shortest_kill_distance > 0){
-                    shortestKillTotal = p.shortest_kill_distance
-                }
-            }
-
-            if(p.longest_kill_distance > longestKillTotal) longestKillTotal = p.longest_kill_distance;
-        }
-
-        totalCloseRange += p.k_distance_normal;
-        totalLongRange += p.k_distance_long;
-        totalUberRange += p.k_distance_uber;
-
-        totalAverage += p.average_kill_distance;
-
-        if(bAnyData(p)){
-
-            elems.push(<tr key={i}>
-                {(single) ? null :
-                <td className={`text-left name-td ${bgColor}`}>
-                    <Link href={`/pmatch/${matchId}?player=${p.player_id}`}><a><CountryFlag host={host} country={p.country}/>{p.name}</a></Link>
-                </td>}
-                <td style={(single) ? {textAlign: "center"} : {} }>{Functions.ignore0(p.shortest_kill_distance.toFixed(2))}</td>
-                <td>{Functions.ignore0(p.average_kill_distance.toFixed(2))}</td>
-                <td>{Functions.ignore0(p.longest_kill_distance.toFixed(2))}</td>
-                {(toDisplay.indexOf("k_distance_normal") !== -1) ?  <td>{Functions.ignore0(p.k_distance_normal)}</td> : null }
-                {(toDisplay.indexOf("k_distance_long") !== -1) ?  <td>{Functions.ignore0(p.k_distance_long)}</td> : null }
-                {(toDisplay.indexOf("k_distance_uber") !== -1) ?  <td>{Functions.ignore0(p.k_distance_uber)}</td> : null }
-            </tr>);
-        }
-
-        index++;
-    }
-
-    if(totalAverage > 0 && index > 0){
-
-        totalAverage = totalAverage / index;
-    }
-
-    if(elems.length > 0 && !single){
-        
-        elems.push(<tr key={"end"}>
-            {(single) ? null :<td className="text-left">Best/Totals</td>}
-            <td>{parseFloat(Functions.ignore0(shortestKillTotal)).toFixed(2)}</td>
-            <td>{parseFloat(Functions.ignore0(totalAverage)).toFixed(2)}</td>
-            <td>{parseFloat(Functions.ignore0(longestKillTotal)).toFixed(2)}</td>
-            {(toDisplay.indexOf("k_distance_normal") !== -1) ? <td>{Functions.ignore0(totalCloseRange)}</td> : null}
-            {(toDisplay.indexOf("k_distance_long") !== -1) ?  <td>{Functions.ignore0(totalLongRange)}</td> : null}
-            {(toDisplay.indexOf("k_distance_uber") !== -1) ? <td>{Functions.ignore0(totalUberRange)}</td> : null}
-        </tr>);
-    }
-
-    if(elems.length > 0){
-
-        elems.unshift(<tr key={"start"}>
-            {(single) ? null :<th>Player</th>}
-            <th>Shortest Distance</th>
-            <th>Average Distance</th>
-            <th>Longest Distance</th>
-            {(toDisplay.indexOf("k_distance_normal") !== -1) ? <TipHeader title="Close Range Kills" content="Kills with a distance of less than 1536uu." /> : null}
-            {(toDisplay.indexOf("k_distance_long") !== -1) ? <TipHeader title="Long Range Kills" content="Kills with a distance of 1536uu to 3071uu." /> : null}
-            {(toDisplay.indexOf("k_distance_uber") !== -1) ? <TipHeader title="Uber Long Range Kills" content="Kills with a distance of 3072 and greater." /> : null}
-        </tr>);
-
-        return <Table2 width={1} players={true}>
-            {elems}
-        </Table2>
-    }
-
-    return null;
-
-}
-
-
-export default MatchFragDistances;*/

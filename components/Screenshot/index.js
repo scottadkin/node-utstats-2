@@ -778,7 +778,7 @@ class MatchScreenshot{
 
 
     renderSmartCTFPlayer(c, team, x, y, width, height, player){
-        
+    
         if(player.ctfData === undefined) return;
         
         //const height = this.y(6);
@@ -1391,6 +1391,7 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
             host
         );
     });
+    
 
 
     return (<div className={`${styles.wrapper} center`}>

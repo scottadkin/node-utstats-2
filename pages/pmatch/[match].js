@@ -1,4 +1,4 @@
-import React from "react";
+import {React, useEffect, useReducer} from "react";
 import DefaultHead from "../../components/defaulthead";
 import Nav from '../../components/Nav/';
 import Footer from "../../components/Footer/";
@@ -43,10 +43,130 @@ import MatchMonsterHuntMonsterKills from "../../components/MatchMonsterHuntMonst
 import CombogibPlayerMatch from "../../components/CombogibPlayerMatch";
 import ErrorMessage from "../../components/ErrorMessage";
 import ErrorPage from "../ErrorPage";
+import Loading from "../../components/Loading";
+import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
 
 
+const reducer = (state, action) =>{
 
-class PlayerMatch extends React.Component{
+    switch(action.type){
+
+        default: return state;
+    }
+}
+
+const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, info, server, gametype, map, cleanMapImage,
+    playerData, mapImage}) =>{
+
+    playerData = JSON.parse(playerData);
+    info = JSON.parse(info);
+    const matchId = info.id;
+
+
+    console.log(`MATCHID = ${matchId}`);
+    const players = useMatchPlayersLoader(matchId);
+
+    console.log("players");
+    console.log(players);
+
+
+    const renderError = () =>{    
+
+        return <div>
+            <DefaultHead 
+                host={host} 
+                title={`Error! Match Report`} 
+                description={`Error`} 
+                keywords={`error`}
+            />
+            <main>
+                <Nav settings={navSettings} session={session}/>
+                <div id="content">
+                    <div className="default">
+                        <div className="default-header">Match Report</div>
+                        <ErrorMessage title="Match Report" text={pageError}/>
+                    </div>
+                </div>
+                <Footer session={session}/>
+            </main>
+        </div>
+    }
+
+    const cleanImageURL = (input) =>{
+
+        const reg = /^\/images\/(.+)$/i;
+
+        const result = reg.exec(input);
+
+        if(result !== null){
+            return result[1];
+        }
+
+        return input;
+    }
+
+    if(pageError !== undefined) return renderError();
+
+    const elems = [];
+
+    const titleName = `${playerData.name}${Functions.apostrophe(playerData.name)}`;
+    const compactDate = Functions.DDMMYY(info.date, true);
+    const dateString = Functions.convertTimestamp(info.date, true);
+    const imageHost = Functions.getImageHostAndPort(host);
+
+    return <div>
+        <DefaultHead 
+            host={host} 
+            title={`${titleName} Match Report ${compactDate} ${map}`} 
+            description={`${titleName} match report for ${map} (${gametype}${(info.insta) ? " Instagib" : ""}) ${dateString}.`} 
+            keywords={`match,report,player,${playerData.name},${map},${gametype}`}
+            image={cleanImageURL(cleanMapImage)}    
+        />
+        <main>
+            <Nav settings={navSettings} session={session}/>
+            <div id="content">
+                <div className="default">
+                    <div className="default-header">{titleName} Match Report</div>
+                    
+                    <Screenshot 
+                        key="sshot"
+                        host={imageHost}
+                        map={map} 
+                        totalTeams={info.total_teams} 
+                        players={players.playerData} 
+                        image={mapImage} 
+                        matchData={info} 
+                        serverName={server} 
+                        gametype={gametype} 
+                        faces={players.faces}
+                        highlight={playerData.name}
+                    />
+                    {elems}
+
+                </div>
+            </div>
+            <Footer session={session}/>
+        </main>
+    </div>
+}
+
+/**
+ * 
+  {<MatchPlayerViewProfile host={imageHost} data={playerData} matchId={parsedInfo.id}/>
+
+                    <MatchSummary 
+                        info={JSON.parse(this.props.info)} 
+                        server={this.props.server} 
+                        gametype={this.props.gametype}
+                        map={this.props.map} 
+                        image={this.props.mapImage}
+                        bMonsterHunt={parsedInfo.mh}
+                        settings={this.props.pageSettings}
+                    />} param0 
+ * @returns 
+ */
+
+/*class PlayerMatch extends React.Component{
 
     constructor(props){
 
@@ -296,7 +416,7 @@ class PlayerMatch extends React.Component{
                         <MatchPlayerViewProfile host={imageHost} data={playerData} matchId={parsedInfo.id}/>
 
                         <MatchSummary 
-                            info={this.props.info} 
+                            info={JSON.parse(this.props.info)} 
                             server={this.props.server} 
                             gametype={this.props.gametype}
                             map={this.props.map} 
@@ -313,7 +433,7 @@ class PlayerMatch extends React.Component{
             </main>
         </div>
     }
-}
+}*/
 
 export async function getServerSideProps({req, query}){
 
@@ -359,7 +479,7 @@ export async function getServerSideProps({req, query}){
                     "session": JSON.stringify(session.settings),
                     "navSettings": JSON.stringify(navSettings),
                     "pageSettings": JSON.stringify(pageSettings),
-                    "error": `There is no match with the id of ${matchId}.`
+                    "pageError": `There is no match with the id of ${matchId}.`
                 }
             };
         }
@@ -386,7 +506,7 @@ export async function getServerSideProps({req, query}){
                     "session": JSON.stringify(session.settings),
                     "navSettings": JSON.stringify(navSettings),
                     "pageSettings": JSON.stringify(pageSettings),
-                    "error": "Player wasn't in the match."
+                    "pageError": "Player wasn't in the match."
                 }
             };
         }
@@ -398,12 +518,11 @@ export async function getServerSideProps({req, query}){
 
         const playerFaceIds = [];
         const playerIds = [];
-        
-        let p = 0;
+    
 
         for(let i = 0; i < players.length; i++){
 
-            p = players[i];
+            const p = players[i];
 
             
 
@@ -423,11 +542,11 @@ export async function getServerSideProps({req, query}){
 
         const getPlayerName = (id) =>{
 
-            let p = 0;
+   
 
             for(let i = 0; i < playerNames.length; i++){
 
-                p = playerNames[i];
+                const p = playerNames[i];
 
                 if(p.id === id){
                     return p.name;
@@ -439,7 +558,7 @@ export async function getServerSideProps({req, query}){
 
         for(let i = 0; i < players.length; i++){
 
-            p = players[i];
+            const p = players[i];
 
             currentName = getPlayerName(p.player_id);
 
@@ -523,7 +642,6 @@ export async function getServerSideProps({req, query}){
         const ctfManager = new CTF();
 
 
-
         const bCTF = ctfManager.bAnyCtfDataInMatch(playerMatchData);
 
         const dominationManager = new Domination();
@@ -543,6 +661,7 @@ export async function getServerSideProps({req, query}){
         }
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+
 
         return {
             "props": {

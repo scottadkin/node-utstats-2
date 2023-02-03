@@ -462,7 +462,6 @@ class Player{
         }
 
         const ctf = new CTF();
-
         await ctf.setMatchCTFData(id, result);
 
         return result;
