@@ -433,9 +433,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
 
-                    
-                    
-                    
+             
 
                     {renderTitleElem()}
 

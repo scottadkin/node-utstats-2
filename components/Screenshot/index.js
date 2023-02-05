@@ -637,11 +637,9 @@ class MatchScreenshot{
 
         c.textAlign = "left";
 
-        let p = 0;
-
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
             //console.log(p);
             if(!this.bClassic){
                 this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score, p.playtime, Math.floor(p.ping_average), p.country);

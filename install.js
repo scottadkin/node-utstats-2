@@ -905,7 +905,7 @@ const queries = [
       `CREATE TABLE IF NOT EXISTS nstats_ace_kicks (
         id int(11) NOT NULL AUTO_INCREMENT,
         file varchar(255) NOT NULL,
-        raw_data TEXT NOT NULL,
+        raw_data LONGTEXT NOT NULL,
         name varchar(30) NOT NULL,
         ace_version varchar(20) NOT NULL,
         ip varchar(50) NOT NULL,
@@ -950,7 +950,7 @@ const queries = [
         `CREATE TABLE IF NOT EXISTS nstats_ace_sshot_requests (
           id int(11) NOT NULL AUTO_INCREMENT,
           file varchar(255) NOT NULL,
-          raw_data text NOT NULL,
+          raw_data LONGTEXT NOT NULL,
           player varchar(30) NOT NULL,
           ip varchar(50) NOT NULL,
           country varchar(2) NOT NULL,

@@ -1271,16 +1271,12 @@ class Players{
     }
 
 
-    async getAllInMatch(id){
+    async setPlayerMatchNames(players){
 
-        const players = await this.player.getAllInMatch(id);
+        const ids = players.map((player) =>{
+            return player.player_id;
+        });
 
-        const ids = [];
-
-        for(let i = 0; i < players.length; i++){
-
-            ids.push(players[i].player_id);
-        }
 
         const names = await this.getJustNamesByIds(ids);
 
@@ -1295,7 +1291,43 @@ class Players{
             }
         }
 
+    }
+
+    async getAllInMatch(id){
+
+        const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
+
+        const players = await mysql.simpleQuery(query, [id]);
+
+        for(let i = 0; i < players.length; i++){
+            delete players[i].ip;
+        }
+
+        const ctf = new CTF();
+        await ctf.setMatchCTFData(id, players);
+        await this.setPlayerMatchNames(players);
+        
         return players;
+    }
+
+    async getSinglePlayerInMatch(matchId, playerId){
+
+        const query = "SELECT * FROM nstats_player_matches WHERE match_id=? AND player_id=?";
+
+        const players = await mysql.simpleQuery(query, [matchId, playerId]);
+
+
+        for(let i = 0; i < players.length; i++){
+            delete players[i].ip;
+        }
+
+        const ctf = new CTF();
+        await ctf.setMatchCTFData(matchId, players);
+        await this.setPlayerMatchNames(players);
+
+        return players;
+
+
     }
 
     async getUniquePlayersBetween(start, end){

@@ -43,6 +43,21 @@ export default async function handler(req, res){
             return;
         }
 
+        if(mode === "single-player"){
+
+            const playerManager = new Players();
+            const playerData = await playerManager.getSinglePlayerInMatch(matchId, playerId);
+
+            const uniqueFaces = playerManager.getUniqueFaces(playerData);
+
+            const faceManager = new Faces();
+            //console.log(data);
+            const playerFaces = await faceManager.getFacesWithFileStatuses(uniqueFaces);
+
+            res.status(200).json({"playerData": playerData, "playerFaces": playerFaces});
+            return;
+        }
+
         if(mode === "teams"){
 
             const teamsManager = new Teams();

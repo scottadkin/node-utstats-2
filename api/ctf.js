@@ -2138,11 +2138,13 @@ class CTF{
         
     }
 
-    async getMatchCTFData(matchId){
+    async getMatchCTFData(matchId, playerIds){
 
-        const query = "SELECT * FROM nstats_player_ctf_match WHERE match_id=?";
+        if(playerIds.length === 0) return {};
 
-        const result =  await mysql.simpleQuery(query, [matchId]);
+        const query = "SELECT * FROM nstats_player_ctf_match WHERE match_id=? AND player_id IN(?)";
+
+        const result =  await mysql.simpleQuery(query, [matchId, playerIds]);
 
         const data = {};
 
@@ -2156,7 +2158,14 @@ class CTF{
 
     async setMatchCTFData(matchId, players){
 
-        const ctfData = await this.getMatchCTFData(matchId);
+        //console.log(players);
+
+        const playerIds = players.map((player) =>{
+            return player.player_id;
+        });
+
+
+        const ctfData = await this.getMatchCTFData(matchId, playerIds);
 
         for(let i = 0; i < players.length; i++){
 

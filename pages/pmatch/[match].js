@@ -30,7 +30,6 @@ import Connections from "../../api/connections";
 import PlayerMatchConnections from "../../components/PlayerMatchConnections";
 import Teams from "../../api/teams";
 import PlayerMatchTeamChanges from "../../components/PlayerMatchTeamChanges";
-import MatchPlayerViewProfile from "../../components/MatchPlayerViewProfile";
 import CTF from '../../api/ctf';
 import PlayerMatchCTF from '../../components/PlayerMatchCTF';
 import Domination from '../../api/domination';
@@ -46,6 +45,8 @@ import ErrorPage from "../ErrorPage";
 import Loading from "../../components/Loading";
 import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
 
+import PlayerMatchProfile from "../../components/PlayerMatch/PlayerMatchProfile";
+
 
 const reducer = (state, action) =>{
 
@@ -55,71 +56,103 @@ const reducer = (state, action) =>{
     }
 }
 
-const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, info, server, gametype, map, cleanMapImage,
-    playerData, mapImage}) =>{
+const renderError = (host, navSettings, session, pageError) =>{    
 
-    playerData = JSON.parse(playerData);
+    return <div>
+        <DefaultHead 
+            host={host} 
+            title={`Error! Match Report`} 
+            description={`Error`} 
+            keywords={`error`}
+        />
+        <main>
+            <Nav settings={navSettings} session={session}/>
+            <div id="content">
+                <div className="default">
+                    <div className="default-header">Match Report</div>
+                    <ErrorMessage title="Match Report" text={pageError}/>
+                </div>
+            </div>
+            <Footer session={session}/>
+        </main>
+    </div>
+}
+
+const cleanImageURL = (input) =>{
+
+    const reg = /^\/images\/(.+)$/i;
+
+    const result = reg.exec(input);
+
+    if(result !== null){
+        return result[1];
+    }
+
+    return input;
+}
+
+const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageOrder, 
+    info, server, gametype, map, cleanMapImage, playerInfo, playerId,
+      mapImage}) =>{
+
     info = JSON.parse(info);
     const matchId = info.id;
 
+    playerInfo = JSON.parse(playerInfo);
 
-    console.log(`MATCHID = ${matchId}`);
-    const players = useMatchPlayersLoader(matchId);
-
-    console.log("players");
-    console.log(players);
+    const players = useMatchPlayersLoader(matchId, playerId);
 
 
-    const renderError = () =>{    
 
-        return <div>
-            <DefaultHead 
-                host={host} 
-                title={`Error! Match Report`} 
-                description={`Error`} 
-                keywords={`error`}
-            />
-            <main>
-                <Nav settings={navSettings} session={session}/>
-                <div id="content">
-                    <div className="default">
-                        <div className="default-header">Match Report</div>
-                        <ErrorMessage title="Match Report" text={pageError}/>
-                    </div>
-                </div>
-                <Footer session={session}/>
-            </main>
-        </div>
-    }
+    if(pageError !== undefined) return renderError(host, navSettings, session, pageError);
 
-    const cleanImageURL = (input) =>{
-
-        const reg = /^\/images\/(.+)$/i;
-
-        const result = reg.exec(input);
-
-        if(result !== null){
-            return result[1];
-        }
-
-        return input;
-    }
-
-    if(pageError !== undefined) return renderError();
-
-    const elems = [];
-
-    const titleName = `${playerData.name}${Functions.apostrophe(playerData.name)}`;
+    const titleName = `${playerInfo.name}${Functions.apostrophe(playerInfo.name)}`;
     const compactDate = Functions.DDMMYY(info.date, true);
     const dateString = Functions.convertTimestamp(info.date, true);
     const imageHost = Functions.getImageHostAndPort(host);
+
+    const elems = [];
+
+    if(pageSettings["Display Screenshot"] ==="true"){
+
+        elems[pageOrder["Display Screenshot"]] = <Screenshot 
+            key="sshot"
+            host={imageHost}
+            map={map} 
+            totalTeams={info.total_teams} 
+            players={players.playerData} 
+            image={mapImage} 
+            matchData={info} 
+            serverName={server} 
+            gametype={gametype} 
+            faces={players.faces}
+            highlight={playerInfo.name}
+        />;
+
+    }
+
+    if(pageSettings["Display Frag Summary"] === "true"){
+ 
+        elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key={`match_3`} 
+            host={imageHost} 
+            totalTeams={info.total_teams} 
+            playerData={players.targetPlayer} 
+            matchStart={info.start}
+            matchId={info.id}
+            single={true}
+        />
+        
+    }
+
+
+    
 
     return <div>
         <DefaultHead 
             host={host} 
             title={`${titleName} Match Report ${compactDate} ${map}`} 
             description={`${titleName} match report for ${map} (${gametype}${(info.insta) ? " Instagib" : ""}) ${dateString}.`} 
-            keywords={`match,report,player,${playerData.name},${map},${gametype}`}
+            keywords={`match,report,player,${playerInfo.name},${map},${gametype}`}
             image={cleanImageURL(cleanMapImage)}    
         />
         <main>
@@ -127,20 +160,13 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, info,
             <div id="content">
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
+
+                
                     
-                    <Screenshot 
-                        key="sshot"
-                        host={imageHost}
-                        map={map} 
-                        totalTeams={info.total_teams} 
-                        players={players.playerData} 
-                        image={mapImage} 
-                        matchData={info} 
-                        serverName={server} 
-                        gametype={gametype} 
-                        faces={players.faces}
-                        highlight={playerData.name}
-                    />
+                    
+                    <PlayerMatchProfile host={imageHost} data={playerInfo} matchId={info.id}/>
+                   
+                    
                     {elems}
 
                 </div>
@@ -493,6 +519,8 @@ export async function getServerSideProps({req, query}){
         const serverName = await serverManager.getName(info.server);
         const mapManager = new Maps();
         const mapName = await mapManager.getName(info.map);
+        const mapImage = await mapManager.getImage(mapName);
+        const cleanMapImage = Functions.removeExtension(mapImage);
 
         const playerManager = new Player();
 
@@ -511,157 +539,10 @@ export async function getServerSideProps({req, query}){
             };
         }
 
-        const playersManager = new Players();
 
-        const players = await playerManager.getAllInMatch(matchId);
-        
-
-        const playerFaceIds = [];
-        const playerIds = [];
-    
-
-        for(let i = 0; i < players.length; i++){
-
-            const p = players[i];
-
-            
-
-            if(playerFaceIds.indexOf(p.face) === -1){
-                playerFaceIds.push(p.face);
-            }
-
-            if(playerIds.indexOf(p.player_id) === -1){
-                playerIds.push(p.player_id);
-            }
-        }
-
-
-        const playerNames = await playersManager.getNamesByIds(playerIds);
-
-        let currentName = "";
-
-        const getPlayerName = (id) =>{
-
-   
-
-            for(let i = 0; i < playerNames.length; i++){
-
-                const p = playerNames[i];
-
-                if(p.id === id){
-                    return p.name;
-                }
-            }
-
-            return "Not Found";
-        }
-
-        for(let i = 0; i < players.length; i++){
-
-            const p = players[i];
-
-            currentName = getPlayerName(p.player_id);
-
-            if(currentName === undefined){
-                currentName = "Not Found";
-            }
-
-            p.name = currentName;
-        }
-        
-
-        const playerData = await playerManager.getPlayerById(playerId);
-        const playerMatchData = await playerManager.getMatchData(playerId, matchId);
-
-        playerMatchData.name = playerData.name;
-
-        const playerGametypeData = await playerManager.getGametypeTotals(playerId, info.gametype);
-
-        const mapImage = await mapManager.getImage(mapName);
-        const cleanMapImage = Functions.removeExtension(mapImage);
-        
-        const faceManager = new Faces();
-        const playerFaces = await faceManager.getFacesWithFileStatuses(playerFaceIds);
-
-        const weaponManager = new Weapons();
-
-        const playerWeaponData = await weaponManager.getPlayerMatchData(playerId, matchId);
-
-        const weaponIds = [];
-
-        for(let i = 0; i < playerWeaponData.length; i++){
-
-            if(weaponIds.indexOf(playerWeaponData[i].weapon_id) === -1){
-                weaponIds.push(playerWeaponData[i].weapon_id);
-            }
-        }
-
-        const weaponNames = await weaponManager.getNamesByIds(weaponIds);
-
-        const itemsManager = new Items();
-
-        const pickupData = await itemsManager.getPlayerMatchData(matchId, playerId);
-
-        const itemIds = [];
-
-        for(let i = 0; i < pickupData.length; i++){
-
-            if(itemIds.indexOf(pickupData[i].item) === -1){
-
-                itemIds.push(pickupData[i].item);
-            }
-        }
-
-        const pickupNames = await itemsManager.getNamesByIds(itemIds);
-
-        
-        const rankingManager = new Rankings();
-
-        const matchRankingData = await rankingManager.getPlayerMatchHistory(playerId, matchId);
-
-        const currentRankingData = await rankingManager.getCurrentPlayerRanking(playerId, info.gametype);
-
-        let currentGametypePosition = 0;
-
-        if(currentRankingData.length > 0){
-            currentGametypePosition = await rankingManager.getGametypePosition(currentRankingData[0].ranking, info.gametype);
-        }
-
-        const pingManager = new Pings();
-
-        const pingData = await pingManager.getPlayerMatchData(matchId, playerId);
-
-        const connectionManager = new Connections();
-
-        const connectionsData = await connectionManager.getPlayerMatchData(matchId, playerId);
-
-        const teamsManager = new Teams();
-
-        const teamData = await teamsManager.getPlayerMatchData(matchId, playerId);
-
-        const ctfManager = new CTF();
-
-
-        const bCTF = ctfManager.bAnyCtfDataInMatch(playerMatchData);
-
-        const dominationManager = new Domination();
-
-        const domPointNames = await dominationManager.getControlPointNames(info.map);
-        const playerDomCaps = await dominationManager.getPlayerMatchCaps(matchId, playerId);
-
-        const assaultManager = new Assault();
-
-        const playerAssaultCaps = await assaultManager.getPlayerMatchCaps(matchId, playerId);
-
-        let assaultObjNames = [];
-
-        if(playerAssaultCaps.length !== 0){
-
-            assaultObjNames = await assaultManager.getMapObjectives(info.map);
-        }
+        const playerInfo = await playerManager.getBasicInfo(playerId);
 
         await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
-
 
         return {
             "props": {
@@ -670,33 +551,14 @@ export async function getServerSideProps({req, query}){
                 "navSettings": JSON.stringify(navSettings),
                 "pageSettings": pageSettings,
                 "pageOrder": pageOrder,
+                "playerInfo": JSON.stringify(playerInfo),
                 "info": JSON.stringify(info),
                 "server": serverName,
                 "gametype": gametypeName,
                 "map": mapName,
-                "playerNames": JSON.stringify(playerNames),
-                "playerData": JSON.stringify(playerData),
-                "playerMatchData": JSON.stringify(playerMatchData),
-                "playerGametypeData": JSON.stringify(playerGametypeData),
-                "mapImage": mapImage,
+                "mapImage": mapImage, 
                 "cleanMapImage": cleanMapImage,
-                "players": JSON.stringify(players),
-                "faces": JSON.stringify(playerFaces),
-                "playerWeaponData": JSON.stringify(playerWeaponData),
-                "weaponNames": JSON.stringify(weaponNames),
-                "pickupData": JSON.stringify(pickupData),
-                "pickupNames": JSON.stringify(pickupNames),
-                "rankingData": JSON.stringify(matchRankingData),
-                "currentRankingData": JSON.stringify(currentRankingData),
-                "currentRankingPosition": currentGametypePosition,
-                "pingData": JSON.stringify(pingData),
-                "connectionsData": JSON.stringify(connectionsData),
-                "teamData": JSON.stringify(teamData),
-                "domPointNames": JSON.stringify(domPointNames),
-                "playerDomCaps": JSON.stringify(playerDomCaps),
-                "bCTF": bCTF,
-                "assaultObjNames": assaultObjNames,
-                "playerAssaultCaps": playerAssaultCaps
+                "playerId": playerId
 
             }
         }

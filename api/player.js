@@ -451,22 +451,6 @@ class Player{
     }
 
 
-    async getAllInMatch(id){
-
-        const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
-
-        const result = await mysql.simpleQuery(query, [id]);
-
-        for(let i = 0; i < result.length; i++){
-            delete result[i].ip;
-        }
-
-        const ctf = new CTF();
-        await ctf.setMatchCTFData(id, result);
-
-        return result;
-    }
-
 
     getNames(ids){
 
@@ -1043,6 +1027,20 @@ class Player{
         const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND gametype=? ORDER BY match_date ASC";
 
         return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+
+    async getBasicInfo(playerId){
+
+        const query = `SELECT name,country FROM nstats_player_totals WHERE id=? AND gametype=0`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
     }
 }
 
