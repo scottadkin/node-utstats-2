@@ -39,6 +39,7 @@ import MatchCTFReturns from '../../components/MatchCTFReturns';
 import Loading from '../../components/Loading';
 import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
 
+
 const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, 
     navSettings, map, server, gametype, bMonsterHunt}) =>{
 
@@ -100,14 +101,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     const imageHost = Functions.getImageHostAndPort(host);
 
     
-    const bAnyCTFData = () =>{
 
-        if(players.playerData.length > 0){
-            if(players.playerData[0].ctfData !== undefined) return true;
-        }
-
-        return false;
-    }
 
     const bAnyDominationData = () =>{
 
@@ -181,10 +175,15 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         }
     
 
-        if(bAnyCTFData()){
+        if(Functions.bAnyCTFData(players.playerData)){
        
             if(pageSettings["Display Capture The Flag Summary"] === "true"){
-                elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary key="ctf-s" matchId={matchId} playerData={players.playerData} />
+                elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary 
+                    key="ctf-s" 
+                    matchId={matchId} 
+                    playerData={players.playerData} 
+                    single={false}
+                />
             }
         
             if(pageSettings["Display Capture The Flag Returns"] === "true"){
@@ -195,6 +194,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     playerData={players.basicPlayers} 
                     totalTeams={info.total_teams}
                     matchStart={info.start}
+                    single={false}
                 />
             }
         

@@ -137,22 +137,24 @@ class MatchCTFSummaryCovers extends React.Component{
 
         if(data.length === 0) return null;
 
-        data.push({
-            "bAlwaysLast": true,
-            "player": {
-                "value": "Totals", 
-            },
-            "flag_cover":  {"value": Functions.ignore0(totals.flag_cover) },
-            "flag_cover_pass":  {"value": Functions.ignore0(totals.flag_cover_pass) },
-            "flag_cover_fail":  {"value": Functions.ignore0(totals.flag_cover_fail) },
-            "flag_cover_multi":  {"value": Functions.ignore0(totals.flag_cover_multi) },
-            "flag_cover_spree":  {"value": Functions.ignore0(totals.flag_cover_spree)},
-            "best_single_cover":  {"value": `${totals.best_single_cover} ${Functions.plural(totals.best_single_cover, "Kill")}`},
-            "flag_self_cover":  {"value": Functions.ignore0(totals.flag_self_cover)},
-            "flag_self_cover_pass":  {"value": Functions.ignore0(totals.flag_self_cover_pass)},
-            "flag_self_cover_fail":  {"value": Functions.ignore0(totals.flag_self_cover_fail)},
+        if(!this.props.single){
+            data.push({
+                "bAlwaysLast": true,
+                "player": {
+                    "value": "Totals", 
+                },
+                "flag_cover":  {"value": Functions.ignore0(totals.flag_cover) },
+                "flag_cover_pass":  {"value": Functions.ignore0(totals.flag_cover_pass) },
+                "flag_cover_fail":  {"value": Functions.ignore0(totals.flag_cover_fail) },
+                "flag_cover_multi":  {"value": Functions.ignore0(totals.flag_cover_multi) },
+                "flag_cover_spree":  {"value": Functions.ignore0(totals.flag_cover_spree)},
+                "best_single_cover":  {"value": `${totals.best_single_cover} ${Functions.plural(totals.best_single_cover, "Kill")}`},
+                "flag_self_cover":  {"value": Functions.ignore0(totals.flag_self_cover)},
+                "flag_self_cover_pass":  {"value": Functions.ignore0(totals.flag_self_cover_pass)},
+                "flag_self_cover_fail":  {"value": Functions.ignore0(totals.flag_self_cover_fail)},
 
-        });
+            });
+        }
 
         return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
     }

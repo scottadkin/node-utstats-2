@@ -4,32 +4,33 @@ import MatchCTFSummarySeals from "../MatchCTFSummarySeals/";
 import MatchCTFSummaryReturns from "../MatchCTFSummaryReturns/";
 import {React, useState} from "react";
 
-const MatchCTFSummary = ({matchId, playerData}) =>{
-    
+const MatchCTFSummary = ({matchId, playerData, single}) =>{
+
+
     const [mode, setMode] = useState(0);
 
     const renderDefault = () =>{
 
         if(mode !== 0) return null;
-        return <MatchCTFSummaryDefault matchId={matchId} playerData={playerData}/>;
+        return <MatchCTFSummaryDefault matchId={matchId} playerData={playerData} single={single}/>;
     }
 
     const renderCovers = () =>{
 
         if(mode !== 1) return null;
-        return <MatchCTFSummaryCovers matchId={matchId} playerData={playerData}/>;
+        return <MatchCTFSummaryCovers matchId={matchId} playerData={playerData} single={single}/>;
     }
 
     const renderSeals = () =>{
 
         if(mode !== 2) return null;
-        return <MatchCTFSummarySeals matchId={matchId}  playerData={playerData}/>;
+        return <MatchCTFSummarySeals matchId={matchId}  playerData={playerData}single={single} />;
     }
 
     const renderReturns = () =>{
 
         if(mode !== 3) return null;
-        return <MatchCTFSummaryReturns matchId={matchId}  playerData={playerData}/>;
+        return <MatchCTFSummaryReturns matchId={matchId}  playerData={playerData} single={single}/>;
     }
     
 

@@ -143,24 +143,28 @@ class MatchCTFSummaryDefault extends React.Component{
 
         if(data.length === 0) return null;
 
-        const last = {
-            "bAlwaysLast": true,
-            "player": "Totals",
-            "flag_taken": {"value": Functions.ignore0(totals.flag_taken) },
-            "flag_pickup": {"value": Functions.ignore0(totals.flag_pickup) },
-            "flag_dropped": {"value": Functions.ignore0(totals.flag_dropped) },
-            "flag_suicide": {"value": Functions.ignore0(totals.flag_suicide) },
-            "flag_assist": {"value": Functions.ignore0(totals.flag_assist) },
-            "flag_cover":  {"value": Functions.ignore0(totals.flag_cover) },
-            "flag_seal":  {"value": Functions.ignore0(totals.flag_seal) },
-            "flag_capture":  {"value": Functions.ignore0(totals.flag_capture) },
-            "flag_kill":  {"value": Functions.ignore0(totals.flag_kill) },
-            "flag_return":  {"value": Functions.ignore0(totals.flag_return) },
-            "flag_return_save":  {"value": Functions.ignore0(totals.flag_return_save) }
-        };
+        if(!this.props.single){
+            
+            const last = {
+                "bAlwaysLast": true,
+                "player": "Totals",
+                "flag_taken": {"value": Functions.ignore0(totals.flag_taken) },
+                "flag_pickup": {"value": Functions.ignore0(totals.flag_pickup) },
+                "flag_dropped": {"value": Functions.ignore0(totals.flag_dropped) },
+                "flag_suicide": {"value": Functions.ignore0(totals.flag_suicide) },
+                "flag_assist": {"value": Functions.ignore0(totals.flag_assist) },
+                "flag_cover":  {"value": Functions.ignore0(totals.flag_cover) },
+                "flag_seal":  {"value": Functions.ignore0(totals.flag_seal) },
+                "flag_capture":  {"value": Functions.ignore0(totals.flag_capture) },
+                "flag_kill":  {"value": Functions.ignore0(totals.flag_kill) },
+                "flag_return":  {"value": Functions.ignore0(totals.flag_return) },
+                "flag_return_save":  {"value": Functions.ignore0(totals.flag_return_save) }
+            };
 
 
-        data.push(last);
+
+            data.push(last);
+        }
 
         return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
     }

@@ -398,14 +398,6 @@ export default async function handler(req, res){
 
                 res.status(200).json(data);
 
-                /*res.status(200).json({
-                    "caps": caps, 
-                    "assists": assists,
-                    "covers": covers,
-                    "selfCovers": selfCovers,
-                    "seals": seals,
-                    "carryTimes": carryTimes,
-                })*/
                 resolve();
                 return;
 
@@ -416,7 +408,19 @@ export default async function handler(req, res){
                 res.status(200).json({
                     "data": data
                 });
+
                 return;
+
+            }else if(mode === "match-returns-player"){
+
+                const data = await ctfManager.getPlayerMatchReturns(matchId, playerId);
+
+                res.status(200).json({
+                    "data": data
+                });
+                
+                return;
+
             }
 
 

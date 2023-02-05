@@ -92,21 +92,23 @@ class MatchCTFSummaryReturns extends React.Component{
 
         if(data.length === 0) return null;
 
-        const last = {
-            "bAlwaysLast": true,
-            "player": {
-                "value": "Totals", 
-                "className": `black`
-            },
-            "flag_return":  { "value": Functions.ignore0(totals.flag_return)},
-            "flag_return_base":  { "value": Functions.ignore0(totals.flag_return_base)},
-            "flag_return_mid":  { "value": Functions.ignore0(totals.flag_return_mid)},
-            "flag_return_enemy_base":  { "value": Functions.ignore0(totals.flag_return_enemy_base)},
-            "flag_return_save":  { "value": Functions.ignore0(totals.flag_return_save)},
-        };
+        if(!this.props.single){
+            const last = {
+                "bAlwaysLast": true,
+                "player": {
+                    "value": "Totals", 
+                    "className": `black`
+                },
+                "flag_return":  { "value": Functions.ignore0(totals.flag_return)},
+                "flag_return_base":  { "value": Functions.ignore0(totals.flag_return_base)},
+                "flag_return_mid":  { "value": Functions.ignore0(totals.flag_return_mid)},
+                "flag_return_enemy_base":  { "value": Functions.ignore0(totals.flag_return_enemy_base)},
+                "flag_return_save":  { "value": Functions.ignore0(totals.flag_return_save)},
+            };
 
 
-        data.push(last);
+            data.push(last);
+        }
         return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
     }
 

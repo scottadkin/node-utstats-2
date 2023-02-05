@@ -112,18 +112,21 @@ class MatchCTFSummarySeals extends React.Component{
 
         if(data.length === 0) return null;
 
-        data.push({
-            "bAlwaysLast": true,
-            "player": {
-                "value": "Totals", 
-            },
-            "flag_seal": {"value": Functions.ignore0(totals.flag_seal)},
-            "flag_seal_pass": {"value": Functions.ignore0(totals.flag_seal_pass)},
-            "flag_seal_fail": {"value": Functions.ignore0(totals.flag_seal_fail)},
-            "best_single_seal": {"value": `${totals.best_single_seal} ${Functions.plural(totals.best_single_seal, "Kill")}`},
-            "flag_seal_best": {"value": `${totals.flag_seal_best} ${Functions.plural(totals.flag_seal_best, "Kill")}`},
-        });
+        if(!this.props.single){
 
+            data.push({
+                "bAlwaysLast": true,
+                "player": {
+                    "value": "Totals", 
+                },
+                "flag_seal": {"value": Functions.ignore0(totals.flag_seal)},
+                "flag_seal_pass": {"value": Functions.ignore0(totals.flag_seal_pass)},
+                "flag_seal_fail": {"value": Functions.ignore0(totals.flag_seal_fail)},
+                "best_single_seal": {"value": `${totals.best_single_seal} ${Functions.plural(totals.best_single_seal, "Kill")}`},
+                "flag_seal_best": {"value": `${totals.flag_seal_best} ${Functions.plural(totals.flag_seal_best, "Kill")}`},
+            });
+        }
+        
         return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
     }
 

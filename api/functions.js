@@ -789,6 +789,38 @@ class Functions{
         }
     }
 
+    static bAnyCTFData(playerData){
+
+        if(playerData.length > 0){
+            if(playerData[0].ctfData !== undefined) return true;
+        }
+    
+        return false;
+    }
+
+    static getSmartCTFReturnString(string){
+
+        const reg = /^return_(.+)$/i;
+
+        const result = reg.exec(string);
+
+        if(result === null) return string;
+
+        const remaining = result[1];
+
+        if(remaining === "closesave"){
+            return "Close Save";
+        }else if(remaining === "mid"){
+            return "Middle";
+        }else if(remaining === "base"){
+            return "Home Base";
+        }else if(remaining === "enemybase"){
+            return "Enemy Base";
+        }
+
+        return string;
+    }
+
 }
 
 module.exports = Functions;

@@ -66,28 +66,6 @@ const MatchCTFReturns = (props) =>{
     }, [props.matchId]);
 
 
-    function getSmartCTFString(string){
-
-        const reg = /^return_(.+)$/i;
-
-        const result = reg.exec(string);
-
-        if(result === null) return string;
-
-        const remaining = result[1];
-
-        if(remaining === "closesave"){
-            return "Close Save";
-        }else if(remaining === "mid"){
-            return "Middle";
-        }else if(remaining === "base"){
-            return "Home Base";
-        }else if(remaining === "enemybase"){
-            return "Enemy Base";
-        }
-
-        return string;
-    }
 
     const createHoverData = (data, playerKey) =>{
 
@@ -164,7 +142,7 @@ const MatchCTFReturns = (props) =>{
             const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player, true);
             const returnPlayer = Functions.getPlayer(props.playerData, r.return_player, true);
 
-            let smartCTFString = getSmartCTFString(r.return_string);
+            let smartCTFString = Functions.getSmartCTFReturnString(r.return_string);
 
             let suicideElem = null;
 

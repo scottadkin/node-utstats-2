@@ -745,6 +745,14 @@ class CTF{
         return returns;
     }
 
+    async getPlayerMatchReturns(matchId, playerId){
+
+        const query = `SELECT grab_time,return_time,return_string,distance_to_cap,travel_time,carry_time,drop_time 
+        FROM nstats_ctf_returns WHERE match_id=? AND return_player=?`;
+
+        return await mysql.simpleQuery(query, [matchId, playerId]);
+    }
+
     filterByCapId(data, capId){
 
         return data.filter((d) =>{
