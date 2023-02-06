@@ -253,25 +253,6 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             };
 
             if(displayMode === 0){
-
-               
-                /*currentRow["taken"] = {
-                    "value": d.grab_time,
-                    "displayValue": Functions.MMSS(d.grab_time - matchStart)
-                };*/
-
-                /*currentRow["taken_player"] = {
-                    "value": grabPlayer.name.toLowerCase(),
-                    "displayValue": <>
-                        <Link href={`/pmatch/${matchId}/?player=${grabPlayer.id}`}>
-                            <a>
-                                <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
-                            </a>
-                        </Link>
-                    </>,
-                    "className": Functions.getTeamColor(d.cap_team)
-                };*/
-
                 
                 currentRow["cap_player"] = {
                     "value": capPlayer.name.toLowerCase(),

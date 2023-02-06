@@ -1614,30 +1614,33 @@ class CTF{
         }
     }
 
+    async getPlayerCapCarryTime(capId, playerId){
+
+        const query = `SELECT SUM(carry_time) as total_carry_time, SUM(carry_percent) as total_carry_percent 
+        FROM nstats_ctf_carry_times WHERE cap_id=? AND player_id=?`;
+
+        const r = await mysql.simpleQuery(query, [capId, playerId]);
+
+        const totalCarryTime = (r[0].total_carry_time === null) ? 0 : r[0].total_carry_time; 
+        const totalCarryPercent = (r[0].total_carry_percent === null) ? 0 : r[0].total_carry_percent; 
+
+        return {"carryTime": totalCarryTime, "carryPercent": totalCarryPercent};
+    }
+
     async getPlayerMatchCaps(matchId, playerId){
 
-        const query = `SELECT team,grab_time,grab,drops,drop_times,pickups,pickup_times,covers,cover_times,assists,assist_carry_times,
-            assist_carry_ids,cap,cap_time,travel_time FROM nstats_ctf_caps 
-            WHERE match_id=? AND (
-            grab=? OR
-            drops LIKE('%?%') OR
-            pickups LIKE('%?%') OR
-            covers LIKE('%?%') OR
-            assists LIKE('%?%') OR
-            cap=?) `;
+        const query = `SELECT id,cap_team,flag_team,grab_time,cap_time,travel_time,total_assists 
+        FROM nstats_ctf_caps WHERE match_id=? AND cap_player=? ORDER BY cap_time ASC`;
 
-        const vars = [
-            matchId,
-            playerId,
-            playerId,
-            playerId,
-            playerId,
-            playerId,
-            playerId,
+        const caps = await mysql.simpleQuery(query, [matchId, playerId]);
+
+        for(let i = 0; i < caps.length; i++){
             
-        ];
+            const c = caps[i];
+            c.times = await this.getPlayerCapCarryTime(c.id, playerId);
+        }
 
-        return await mysql.simpleFetch(query, vars);
+        return caps;
     }
 
     async getFastestMatchCaps(matchId){

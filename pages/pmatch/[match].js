@@ -48,7 +48,7 @@ import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
 import PlayerMatchProfile from "../../components/PlayerMatch/PlayerMatchProfile";
 import MatchCTFSummary from "../../components/MatchCTFSummary";
 import PlayerMatchCTFReturns from "../../components/PlayerMatch/PlayerMatchCTFReturns";
-import MatchCTFCaps from "../../components/MatchCTFCaps";
+import PlayerMatchCTFCaps from "../../components/PlayerMatch/PlayerMatchCTFCaps";
 import MatchCTFCarryTime from "../../components/MatchCTFCarryTime";
 import MatchWeaponSummaryCharts from "../../components/MatchWeaponSummaryCharts";
 
@@ -161,17 +161,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             />
         }
 
-        /*if(pageSettings["Display Capture The Flag Returns"] === "true"){
-            
-            elems[pageOrder["Display Capture The Flag Returns"]] = <PlayerMatchCTFReturns 
-                key="ctf-r"
-                matchId={matchId}
-                playerData={players.targetPlayer} 
-                matchStart={info.start}
-                single={true}
-            />
-        }*/
-    
+
         if(pageSettings["Display Capture The Flag Returns"] === "true"){
             
             elems[pageOrder["Display Capture The Flag Returns"]] = <PlayerMatchCTFReturns 
@@ -183,29 +173,19 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             />
         }
     
-        /*if(pageSettings["Display Capture The Flag Caps"] === "true"){
+        if(pageSettings["Display Capture The Flag Caps"] === "true"){
     
-
-            elems[pageOrder["Display Capture The Flag Caps"]] = <MatchCTFCaps 
+            elems[pageOrder["Display Capture The Flag Caps"]] = <PlayerMatchCTFCaps 
                 key="ctf-c"
                 matchId={matchId} 
                 playerData={players.basicPlayers} 
-                totalTeams={info.total_teams}
                 matchStart={info.start}
-            />
-                
+                playerId={playerId}
+            />             
         }
     
-        if(pageSettings["Display Capture The Flag Carry Times"] === "true"){
-    
-            elems[pageOrder["Display Capture The Flag Carry Times"]] = <MatchCTFCarryTime 
-                matchId={matchId} 
-                players={players.basicPlayers}
-                key="ctf-ct"
-            />;
-        }
 
-        if(pageSettings["Display Weapon Statistics"] === "true"){
+        /*if(pageSettings["Display Weapon Statistics"] === "true"){
 
             elems[pageOrder["Display Weapon Statistics"]] = <MatchWeaponSummaryCharts 
                 key="weapon-stats"
@@ -234,8 +214,8 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
 
-                
-                   
+                    
+                        
                     
                     <PlayerMatchProfile host={imageHost} data={playerInfo} matchId={info.id}/>
                    

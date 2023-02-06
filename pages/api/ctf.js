@@ -247,7 +247,9 @@ export default async function handler(req, res){
                 resolve();
                 return;
                 
-            }else if(mode === "fastestcaps"){
+            }
+            
+            if(mode === "fastestcaps"){
 
 
                 if(page !== page) page = 0;
@@ -290,7 +292,9 @@ export default async function handler(req, res){
                     }
                 }
 
-            }else if(mode === "maprecords"){
+            }
+            
+            if(mode === "maprecords"){
 
                 const mapIds = req.body.mapIds ?? "*";
 
@@ -312,7 +316,8 @@ export default async function handler(req, res){
                 resolve();
                 return;
 
-            }else if(mode === "totalcaps"){
+            }
+            if(mode === "totalcaps"){
 
                 if(mapId === -1){
                     res.status(200).json({"error": "MapId Must be a positive integer"});
@@ -333,7 +338,9 @@ export default async function handler(req, res){
                 resolve();
                 return;
 
-            }else if(mode === "caprecordsplayers"){
+            }
+            
+            if(mode === "caprecordsplayers"){
 
                 const minSolo = (req.body.minSoloCaps !== undefined) ? parseInt(req.body.minSoloCaps) : 1;
                 const minAssisted = (req.body.minAssistCaps !== undefined) ? parseInt(req.body.minAssistCaps) : 1;
@@ -359,7 +366,9 @@ export default async function handler(req, res){
                 resolve();
                 return;
 
-            }else if(mode === "singleplayercaprecords"){
+            }
+            
+            if(mode === "singleplayercaprecords"){
 
                 const mapManager = new Maps();
                 const data = await ctfManager.getPlayerCapRecords(playerId);
@@ -383,7 +392,9 @@ export default async function handler(req, res){
                 resolve();
                 return;
             
-            }else if(mode === "carrytime"){
+            }
+            
+            if(mode === "carrytime"){
 
 
                 const data = await ctfManager.getCarryTimes(matchId);
@@ -392,7 +403,9 @@ export default async function handler(req, res){
                 resolve();
                 return;
 
-            }else if(mode === "match-caps"){
+            }
+            
+            if(mode === "match-caps"){
 
                 const data = await ctfManager.getMatchDetailedCaps(matchId);
 
@@ -401,7 +414,9 @@ export default async function handler(req, res){
                 resolve();
                 return;
 
-            }else if(mode === "match-returns"){
+            }
+            
+            if(mode === "match-returns"){
 
                 const data = await ctfManager.getMatchDetailedReturns(matchId);
 
@@ -410,8 +425,9 @@ export default async function handler(req, res){
                 });
 
                 return;
-
-            }else if(mode === "match-returns-player"){
+            }
+            
+            if(mode === "match-returns-player"){
 
                 const data = await ctfManager.getPlayerMatchReturns(matchId, playerId);
 
@@ -421,6 +437,15 @@ export default async function handler(req, res){
                 
                 return;
 
+            }
+
+
+            if(mode === "player-match-caps"){
+
+                const data = await ctfManager.getPlayerMatchCaps(matchId, playerId);
+
+                res.status(200).json({"data": data});
+                return;
             }
 
 

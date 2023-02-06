@@ -4,9 +4,7 @@ import Loading from "../../Loading";
 import InteractiveTable from "../../InteractiveTable";
 import Functions from "../../../api/functions";
 
-const renderData = (returnData, matchStart, displayMode) =>{
-
-    if(displayMode !== 1) return null;
+const renderData = (returnData, matchStart) =>{
 
     const headers = {
         "grabbed": "Taken Timestamp",
@@ -76,30 +74,6 @@ const getTotalReturnsByType = (data) =>{
     return found;
 }
 
-const renderDistanceInfo = (returnData, displayMode) =>{
-
-    if(displayMode !== 0) return null;
-
-    const headers = {
-        "home": "Home Base",
-        "mid": "Middle Of Map",
-        "enemy": "Enemy Base",
-        "save": "Close Save"
-    };
-
-    const totals = getTotalReturnsByType(returnData);
-
-    const data = {
-        "home": {"value": totals.base, "displayValue": Functions.ignore0(totals.base)},
-        "mid": {"value": totals.mid, "displayValue": Functions.ignore0(totals.mid)},
-        "enemy": {"value": totals.enemy, "displayValue": Functions.ignore0(totals.enemy)},
-        "save": {"save": totals.base, "displayValue": Functions.ignore0(totals.save)},
-    };
-
-    return <>
-        <InteractiveTable width={1} headers={headers} data={[data]}/>
-    </>
-}
 
 const reducer = (state, action) =>{
 
@@ -123,7 +97,7 @@ const reducer = (state, action) =>{
 
 const PlayerMatchCTFReturns = ({matchId, playerId, playerData, matchStart}) =>{
 
-    const [displayMode, setDisplayMode] = useState(0);
+    //const [displayMode, setDisplayMode] = useState(0);
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -170,12 +144,9 @@ const PlayerMatchCTFReturns = ({matchId, playerId, playerData, matchStart}) =>{
 
     return <div>
         <div className="default-header">Capture The Flag Returns</div>
-        <div className="tabs">
-            <div className={`tab ${(displayMode === 0) ? "tab-selected" : "tab"}`} onClick={() => setDisplayMode(0)}>Simple</div>
-            <div className={`tab ${(displayMode === 1) ? "tab-selected" : "tab"}`} onClick={() => setDisplayMode(1)}>Detailed</div>
-        </div>
-        {renderData(state.returnData, matchStart, displayMode)}
-        {renderDistanceInfo(state.returnData, displayMode)}
+
+        {renderData(state.returnData, matchStart)}
+        
     </div>
 }
 
