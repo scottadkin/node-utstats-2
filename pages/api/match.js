@@ -252,6 +252,19 @@ export default async function handler(req, res){
             return;
 
         }
+
+        if(mode === "single-player-dom"){
+
+            const domManager = new Domination();
+
+            const pointNames = await domManager.getControlPointNames(mapId);
+            const totalCaps = await domManager.getMatchSinglePlayerTotalCaps(matchId, playerId);
+
+    
+            res.status(200).json({"caps": totalCaps, "pointNames": pointNames});
+            return;
+
+        }
         
         if(mode === "fastestcaps"){
 

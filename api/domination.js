@@ -484,6 +484,22 @@ class Domination{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    async getMatchSinglePlayerTotalCaps(matchId, playerId){
+
+        const query = "SELECT point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? AND player=? GROUP BY point";
+        const result =  await mysql.simpleQuery(query, [matchId, playerId]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            data[r.point] = r.total_caps;
+        }
+        
+        return data;
+    }
+
 
     createPointGraphData(inputData, pointNames){
 

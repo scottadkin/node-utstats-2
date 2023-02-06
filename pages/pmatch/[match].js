@@ -30,7 +30,6 @@ import PlayerMatchConnections from "../../components/PlayerMatchConnections";
 import Teams from "../../api/teams";
 import PlayerMatchTeamChanges from "../../components/PlayerMatchTeamChanges";
 import Domination from '../../api/domination';
-import PlayerMatchDomination from '../../components/PlayerMatchDomination';
 import Assault from '../../api/assault';
 import PlayerMatchAssault from '../../components/PlayerMatchAssault';
 import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSummary";
@@ -49,6 +48,7 @@ import PlayerMatchCTFCaps from "../../components/PlayerMatch/PlayerMatchCTFCaps"
 import MatchCTFCarryTime from "../../components/MatchCTFCarryTime";
 import MatchWeaponSummaryCharts from "../../components/MatchWeaponSummaryCharts";
 import PlayerMatchWeapons from "../../components/PlayerMatch/PlayerMatchWeapons";
+import PlayerMatchDomination from "../../components/PlayerMatch/PlayerMatchDomination";
 
 
 const reducer = (state, action) =>{
@@ -181,30 +181,40 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 playerId={playerId}
             />             
         }
+    }
 
-        if(pageSettings["Display Combogib Stats"] === "true"){
-            elems[pageOrder["Display Combogib Stats"]] = <CombogibPlayerMatch key="combo" matchId={matchId} playerId={playerId}/>;
-        }
+    if(pageSettings["Display Combogib Stats"] === "true"){
+        elems[pageOrder["Display Combogib Stats"]] = <CombogibPlayerMatch key="combo" matchId={matchId} playerId={playerId}/>;
+    }
 
-        if(pageSettings["Display Weapon Statistics"] === "true"){
+    if(pageSettings["Display Weapon Statistics"] === "true"){
 
-            elems[pageOrder["Display Weapon Statistics"]] = <PlayerMatchWeapons key="wstats" matchId={matchId} playerId={playerId}/>;
-        }
+        elems[pageOrder["Display Weapon Statistics"]] = <PlayerMatchWeapons key="wstats" matchId={matchId} playerId={playerId}/>;
+    }
 
-        if(pageSettings["Display Special Events"] === "true"){
+    if(pageSettings["Display Special Events"] === "true"){
 
-            elems[pageOrder["Display Special Events"]] = <MatchSpecialEvents 
-                key={`mse`} 
-                host={imageHost} 
-                bTeamGame={info.team_game} 
-                players={players.playerData} 
-                matchId={matchId}
-                bSingle={true}
-                targetPlayerId={playerId}
-            />
+        elems[pageOrder["Display Special Events"]] = <MatchSpecialEvents 
+            key={`mse`} 
+            host={imageHost} 
+            bTeamGame={info.team_game} 
+            players={players.playerData} 
+            matchId={matchId}
+            bSingle={true}
+            targetPlayerId={playerId}
+        />
+    }
 
-        }
-    
+    if(pageSettings["Display Domination Summary"] === "true"){
+
+
+        elems[pageOrder["Display Domination Summary"]] = <PlayerMatchDomination key="dom-sum" 
+            matchId={matchId} 
+            playerData={players.basicPlayers} 
+            playerId={playerId}
+            mapId={info.map}
+        />;
+
     }
 
     
@@ -223,10 +233,13 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
 
-                
                     
                     
-                    <PlayerMatchProfile host={imageHost} data={playerInfo} matchId={info.id}/>
+                    <PlayerMatchProfile 
+                        host={imageHost} 
+                        data={playerInfo} 
+                        matchId={info.id}
+                    />
                    
                     
                     {elems}
@@ -240,27 +253,10 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
 
 /**
  * 
-  {<MatchPlayerViewProfile host={imageHost} data={playerData} matchId={parsedInfo.id}/>
 
-                    <MatchSummary 
-                        info={JSON.parse(this.props.info)} 
-                        server={this.props.server} 
-                        gametype={this.props.gametype}
-                        map={this.props.map} 
-                        image={this.props.mapImage}
-                        bMonsterHunt={parsedInfo.mh}
-                        settings={this.props.pageSettings}
-                    />} param0 
- * @returns 
- */
 
 /*class PlayerMatch extends React.Component{
 
-  
-
-        if(pageSettings["Display Combogib Stats"] === "true"){
-            elems[pageOrder["Display Combogib Stats"]] = <CombogibPlayerMatch key="combo" matchId={parsedInfo.id} playerId={playerData.player_id}/>;
-        }
 
 
         if(parsedInfo.mh && pageSettings["Display MonsterHunt Kills"] === "true"){
@@ -274,12 +270,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             />;
         }
          
-
-        if(pageSettings["Display Domination Summary"] === "true"){
-
-            elems[pageOrder["Display Domination Summary"]] = <PlayerMatchDomination key="dom-sum" pointNames={domPointNames} data={playerDomCaps}/>
-        }
-
         if(pageSettings["Display Assault Summary"] === "true"){
 
             elems[pageOrder["Display Assault Summary"]] = <PlayerMatchAssault key={"ass-sum"} 
@@ -287,12 +277,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             />;
         }
         
-
-        if(pageSettings["Display Special Events"] === "true"){
-
-            elems[pageOrder["Display Special Events"]] = <MatchSpecialEvents key="s-e" bTeamGame={parsedInfo.team_game} players={[playerMatchData]} single={true}/>;
-        }
-
         if(pageSettings["Display Extended Sprees"] === "true"){
 
             elems[pageOrder["Display Extended Sprees"]] = <MatchSprees host={imageHost} key="m-e-s" 
@@ -314,16 +298,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 armor={playerMatchData.armor}
                 boots={playerMatchData.boots}
                 superHealth={playerMatchData.super_health}
-            />
-        }
-
-
-        if(!parsedInfo.mh && pageSettings["Display Weapon Statistics"] === "true"){
-
-            elems[pageOrder["Display Weapon Statistics"]] = <PlayerMatchWeapons 
-                key="pmw"
-                data={JSON.parse(this.props.playerWeaponData)}
-                names={JSON.parse(this.props.weaponNames)}
             />
         }
 

@@ -56,8 +56,6 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
                     "pointsGraph": res.pointGraph
                 }
             });
-
-            console.log(res);
         }
 
         loadData();
@@ -128,7 +126,9 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
             const current = {
                 "player": {
                     "value": player.name.toLowerCase(), 
-                    "displayValue": player.name,
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
+                        <a><CountryFlag country={player.country}/>{player.name}</a>
+                    </Link>,
                     "className": `player ${Functions.getTeamColor(player.team)}`
                 }
             }
