@@ -701,7 +701,8 @@ const queries = [
         accuracy float NOT NULL,
         shots int(11) NOT NULL,
         hits int(11) NOT NULL,
-        damage bigint(11) NOT NULL
+        damage bigint(11) NOT NULL,
+        efficiency float NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_player_weapon_totals (
         id int(11) NOT NULL AUTO_INCREMENT,

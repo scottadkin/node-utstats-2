@@ -10,15 +10,34 @@ class WeaponStats{
         this.shots = 0;
         this.hits = 0;
         this.damage = 0;
+        this.efficiency = 0;
 
+    }
+
+    updateEfficiency(){
+
+        if(this.kills > 0){
+
+            if(this.deaths === 0){
+                this.efficiency = 100;
+            }else{
+                this.efficiency = (this.kills / (this.deaths + this.kills)) * 100;
+            }
+
+            return;
+        }
+
+        this.efficiency = 0;
     }
 
     killedPlayer(){
         this.kills++;
+        this.updateEfficiency();
     }
 
     died(){
         this.deaths++;
+        this.updateEfficiency();
     }
 
     setValue(type, value){
