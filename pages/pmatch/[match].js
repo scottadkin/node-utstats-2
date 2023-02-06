@@ -19,7 +19,6 @@ import MatchSpecialEvents from "../../components/MatchSpecialEvents";
 import MatchSprees from '../../components/MatchSprees';
 import PlayerMatchPowerUps from "../../components/PlayerMatchPowerUps";
 import Weapons from '../../api/weapons';
-import PlayerMatchWeapons from "../../components/PlayerMatchWeapons";
 import PlayerMatchPickups from "../../components/PlayerMatchPickups";
 import Items from '../../api/items';
 import Rankings from '../../api/rankings';
@@ -30,8 +29,6 @@ import Connections from "../../api/connections";
 import PlayerMatchConnections from "../../components/PlayerMatchConnections";
 import Teams from "../../api/teams";
 import PlayerMatchTeamChanges from "../../components/PlayerMatchTeamChanges";
-import CTF from '../../api/ctf';
-import PlayerMatchCTF from '../../components/PlayerMatchCTF';
 import Domination from '../../api/domination';
 import PlayerMatchDomination from '../../components/PlayerMatchDomination';
 import Assault from '../../api/assault';
@@ -51,6 +48,7 @@ import PlayerMatchCTFReturns from "../../components/PlayerMatch/PlayerMatchCTFRe
 import PlayerMatchCTFCaps from "../../components/PlayerMatch/PlayerMatchCTFCaps";
 import MatchCTFCarryTime from "../../components/MatchCTFCarryTime";
 import MatchWeaponSummaryCharts from "../../components/MatchWeaponSummaryCharts";
+import PlayerMatchWeapons from "../../components/PlayerMatch/PlayerMatchWeapons";
 
 
 const reducer = (state, action) =>{
@@ -183,6 +181,16 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 playerId={playerId}
             />             
         }
+
+        if(pageSettings["Display Combogib Stats"] === "true"){
+            elems[pageOrder["Display Combogib Stats"]] = <CombogibPlayerMatch key="combo" matchId={matchId} playerId={playerId}/>;
+        }
+
+        if(pageSettings["Display Weapon Statistics"] === "true"){
+
+            elems[pageOrder["Display Weapon Statistics"]] = <PlayerMatchWeapons key="wstats" matchId={matchId} playerId={playerId}/>;
+
+        }
     
 
         /*if(pageSettings["Display Weapon Statistics"] === "true"){
@@ -214,8 +222,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
 
-                    
-                        
+                
                     
                     <PlayerMatchProfile host={imageHost} data={playerInfo} matchId={info.id}/>
                    
@@ -247,123 +254,11 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
 
 /*class PlayerMatch extends React.Component{
 
-    constructor(props){
-
-        super(props);
-
-    }
-
-    cleanImageURL(input){
-
-        const reg = /^\/images\/(.+)$/i;
-
-        const result = reg.exec(input);
-
-        if(result !== null){
-
-            return result[1];
-        }
-        return input;
-    }
-
-
-    renderError(){
-        
-        return <div>
-            <DefaultHead 
-                host={this.props.host} 
-                title={`Error! Match Report`} 
-                description={`Error`} 
-                keywords={`error`}
-            />
-            <main>
-                <Nav settings={this.props.navSettings} session={this.props.session}/>
-                <div id="content">
-                    <div className="default">
-                        <div className="default-header">Match Report</div>
-                        <ErrorMessage title="Match Report" text={this.props.error}/>
-                    </div>
-                </div>
-                <Footer session={this.props.session}/>
-            </main>
-        </div>
-    }
-
-    render(){
-
-        if(this.props.pageLoadError !== undefined){
-            return <ErrorPage>{this.props.pageLoadError}</ErrorPage>
-        }
-
-        if(this.props.error !== undefined){
-            return this.renderError();     
-        }
-
-        const info = JSON.parse(this.props.info);
-        const playerData = JSON.parse(this.props.playerData);
-
-
-        let titleName = playerData.name;
-        titleName+=(titleName[titleName.length - 1] == "s") ? "'" : "'s";
-
-        const dateString = Functions.convertTimestamp(info.date, true);
-
-        const parsedInfo = JSON.parse(this.props.info);
-
-        const playerMatchData = JSON.parse(this.props.playerMatchData);
-
-        const compactDate = Functions.DDMMYY(info.date, true);
-
-        const domPointNames = JSON.parse(this.props.domPointNames);
-        const playerDomCaps = JSON.parse(this.props.playerDomCaps);
-
-        const imageHost = Functions.getImageHostAndPort(this.props.host);
-
-        const elems = [];
-
-        const pageSettings = this.props.pageSettings;
-        const pageOrder = this.props.pageOrder;
+  
 
         if(pageSettings["Display Combogib Stats"] === "true"){
             elems[pageOrder["Display Combogib Stats"]] = <CombogibPlayerMatch key="combo" matchId={parsedInfo.id} playerId={playerData.player_id}/>;
         }
-
-        if(pageSettings["Display Screenshot"] ==="true"){
-
-            elems[pageOrder["Display Screenshot"]] = <Screenshot 
-                key="sshot"
-                host={imageHost}
-                map={this.props.map} 
-                totalTeams={parsedInfo.total_teams} 
-                players={this.props.players} 
-                image={this.props.mapImage} 
-                matchData={this.props.info} 
-                serverName={this.props.server} 
-                gametype={this.props.gametype} 
-                faces={this.props.faces}
-                highlight={playerData.name}
-            />
-        }
-
-
-        if(pageSettings["Display Frag Summary"] === "true"){
-
-            if(parsedInfo.mh){
-
-                elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key="frag-summary" single={true} matchStart={parsedInfo.start} playerData={[playerMatchData]}/>;
-            
-            }else{
-
-                elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key="frag-summary"
-                    playerData={[playerMatchData]} 
-                    totalTeams={parsedInfo.total_teams}
-                    matchStart={parsedInfo.start}
-                    single={true}
-                    
-                />
-            }
-        }
-
 
 
         if(parsedInfo.mh && pageSettings["Display MonsterHunt Kills"] === "true"){
@@ -376,22 +271,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 playerId={playerData.player_id}
             />;
         }
-
-        if(this.props.bCTF){
-
-            if(pageSettings["Display Capture The Flag Summary"] === "true"){
-                elems[pageOrder["Display Capture The Flag Summary"]] = <PlayerMatchCTF 
-                    key="ctf-sum"
-                    player={playerMatchData} 
-                    playerData={this.props.players} 
-                    caps={this.props.ctfCaps} 
-                    matchId={parsedInfo.id} 
-                    matchStart={parsedInfo.start}
-                />
-            }
-        } 
-            
-        
+         
 
         if(pageSettings["Display Domination Summary"] === "true"){
 
@@ -473,45 +353,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             elems[pageOrder["Display Team Chagnes"]] = <PlayerMatchTeamChanges key="ptc" data={JSON.parse(this.props.teamData)} matchStart={parsedInfo.start}/>
         }
 
-        if(pageSettings["Display Players Connected to Server Graph"] === "true"){
-
-            elems[pageOrder["Display Players Connected to Server Graph"]] = <PlayerMatchConnections key="pmcc" data={JSON.parse(this.props.connectionsData)} matchStart={parsedInfo.start}/>
-        }
-
-        return <div>
-            <DefaultHead 
-                host={this.props.host} 
-                title={`${titleName} Match Report ${compactDate} ${this.props.map}`} 
-                description={`${titleName} match report for ${this.props.map} (${this.props.gametype}${(info.insta) ? " Instagib" : ""}) ${dateString}.`} 
-                keywords={`match,report,player,${playerData.name},${this.props.map},${this.props.gametype}`}
-                image={this.cleanImageURL(this.props.cleanMapImage)}    
-            />
-            <main>
-                <Nav settings={this.props.navSettings} session={this.props.session}/>
-                <div id="content">
-                    <div className="default">
-                        <div className="default-header">{titleName} Match Report</div>
-
-                        <MatchPlayerViewProfile host={imageHost} data={playerData} matchId={parsedInfo.id}/>
-
-                        <MatchSummary 
-                            info={JSON.parse(this.props.info)} 
-                            server={this.props.server} 
-                            gametype={this.props.gametype}
-                            map={this.props.map} 
-                            image={this.props.mapImage}
-                            bMonsterHunt={parsedInfo.mh}
-                            settings={this.props.pageSettings}
-                        />
-
-                        {elems}
-
-                    </div>
-                </div>
-                <Footer session={this.props.session}/>
-            </main>
-        </div>
-    }
 }*/
 
 export async function getServerSideProps({req, query}){

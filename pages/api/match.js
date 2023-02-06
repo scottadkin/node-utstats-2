@@ -111,6 +111,20 @@ export default async function handler(req, res){
             return;
         }
 
+        if(mode === "player-weapons"){
+
+            const weaponManager = new Weapons();
+
+            const data = await weaponManager.getPlayerMatchData(playerId, matchId);
+
+            const weaponIds = data.map((weapon) => weapon.weapon_id);
+
+            const weaponNames = await weaponManager.getNamesByIds(weaponIds, true);
+
+            res.status(200).json({"data": data, "names": weaponNames})
+            return;
+        }
+
         
         if(mode === "kills"){
 
