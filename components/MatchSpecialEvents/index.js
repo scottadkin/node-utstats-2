@@ -5,7 +5,7 @@ import Functions from '../../api/functions';
 import Link from 'next/link';
 import InteractiveTable from '../InteractiveTable';
 
-const MatchSpecialEvents = ({matchId, bTeamGame, players}) =>{
+const MatchSpecialEvents = ({matchId, bTeamGame, players, bSingle, targetPlayerId}) =>{
 
 
     const [killMode, setKillMode] = useState(0);
@@ -153,10 +153,13 @@ const MatchSpecialEvents = ({matchId, bTeamGame, players}) =>{
 
         const data = [];
 
-        
         for(let i = 0; i < players.length; i++){
 
             const p = players[i];
+
+            if(bSingle){
+                if(p.player_id !== targetPlayerId) continue;
+            }
 
             if(!bPlayerAnyMultis(p)) continue;
 
@@ -238,6 +241,10 @@ const MatchSpecialEvents = ({matchId, bTeamGame, players}) =>{
 
             const p = players[i];
 
+            if(bSingle){
+                if(p.player_id !== targetPlayerId) continue;
+            }
+
             const teamColor = (bTeamGame) ? Functions.getTeamColor(p.team) : "";
 
             const current = {
@@ -293,7 +300,14 @@ const MatchSpecialEvents = ({matchId, bTeamGame, players}) =>{
 
         for(let i = 0; i < players.length; i++){
 
-            if(bPlayerAnyMultis(players[i])) return true;
+            if(!bSingle){
+                if(bPlayerAnyMultis(players[i])) return true;
+            }else{
+
+                if(players[i].player_id === targetPlayerId){
+                    return bPlayerAnyMultis(players[i]);
+                }
+            }
         }
 
         return false;
@@ -303,7 +317,14 @@ const MatchSpecialEvents = ({matchId, bTeamGame, players}) =>{
 
         for(let i = 0; i < players.length; i++){
 
-            if(bPlayerAnySprees(players[i])) return true;
+            if(!bSingle){
+                if(bPlayerAnySprees(players[i])) return true;
+            }else{
+
+                if(players[i].player_id === targetPlayerId){
+                    return bPlayerAnySprees(players[i]);
+                }
+            }
         }
 
         return false;

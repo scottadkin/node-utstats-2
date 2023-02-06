@@ -189,21 +189,22 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
         if(pageSettings["Display Weapon Statistics"] === "true"){
 
             elems[pageOrder["Display Weapon Statistics"]] = <PlayerMatchWeapons key="wstats" matchId={matchId} playerId={playerId}/>;
+        }
+
+        if(pageSettings["Display Special Events"] === "true"){
+
+            elems[pageOrder["Display Special Events"]] = <MatchSpecialEvents 
+                key={`mse`} 
+                host={imageHost} 
+                bTeamGame={info.team_game} 
+                players={players.playerData} 
+                matchId={matchId}
+                bSingle={true}
+                targetPlayerId={playerId}
+            />
 
         }
     
-
-        /*if(pageSettings["Display Weapon Statistics"] === "true"){
-
-            elems[pageOrder["Display Weapon Statistics"]] = <MatchWeaponSummaryCharts 
-                key="weapon-stats"
-                playerData={players.targetPlayer}
-                totalTeams={info.total_teams} 
-                matchId={matchId}
-                host={imageHost}
-            />;
-        }*/
-
     }
 
     
@@ -223,6 +224,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                     <div className="default-header">{titleName} Match Report</div>
 
                 
+                    
                     
                     <PlayerMatchProfile host={imageHost} data={playerInfo} matchId={info.id}/>
                    
