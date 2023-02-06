@@ -28,7 +28,7 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
 
     const headers = {
         "player": "Player",
-        "playtime": "playtime",
+        "playtime": "Playtime",
         "score": "Score",
         "frags": "Frags",
         "kills": "Kills",

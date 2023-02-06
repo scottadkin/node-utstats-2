@@ -46,14 +46,16 @@ function MouseOver({children, display, title}){
 
     useEffect(() =>{
 
+        const controller = new AbortController();
+
         function updatePageWidth(){
             setPageWidth(window.innerWidth);
         }
 
-        window.addEventListener("resize", updatePageWidth);
+        window.addEventListener("resize", updatePageWidth, {"signal": controller.signal});
 
         return () =>{
-            window.removeEventListener("resize", updatePageWidth);
+            controller.abort();
         }
     });
 
