@@ -4,7 +4,7 @@ import Functions from '../../api/functions';
 
 class MatchScreenshot{
 
-    constructor(canvas, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host){
+    constructor(canvas, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host, abortController){
         
         try{
             
@@ -16,6 +16,8 @@ class MatchScreenshot{
             if(bClassic !== undefined){
                 this.bClassic = bClassic;
             }
+
+            this.abortController = abortController;
 
             this.map = map;
             
@@ -223,7 +225,7 @@ class MatchScreenshot{
             this.canvas.requestFullscreen().catch((err) =>{
                 console.trace(err);
             });
-        });
+        }, {"signal": this.abortController.signal});
     }
 
     getPlayerIconName(id){
@@ -1371,6 +1373,8 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
 
     bHome = (bHome !== undefined) ? bHome : false;
 
+    const controller = new AbortController();
+
     useEffect(() =>{
         
         new MatchScreenshot(
@@ -1386,8 +1390,15 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
             highlight,
             bHome,
             bClassic,
-            host
+            host,
+            controller
         );
+
+
+
+        return () =>{
+            controller.abort();
+        }
     });
     
 
