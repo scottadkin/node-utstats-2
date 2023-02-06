@@ -301,23 +301,13 @@ class Weapons{
     }
 
 
-    getMatchPlayerData(id){
+    async getMatchPlayerData(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT player_id,weapon_id,kills,deaths,accuracy,shots,hits,damage,efficiency 
+        FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC`;
 
-            const query = "SELECT player_id,weapon_id,kills,deaths,accuracy,shots,hits,damage FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC";
+        return await mysql.simpleQuery(query, [id]);
 
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
     async getMatchData(id){

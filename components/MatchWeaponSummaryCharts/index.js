@@ -136,8 +136,9 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
             "shots": "Shots",
             "hits": "Hits",
             "accuracy": "Accuracy",
-            "deaths": "Deaths",
             "kills": "Kills",
+            "deaths": "Deaths",  
+            "eff": "Efficiency",
             "damage": "Damage"
         };
 
@@ -170,6 +171,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
                 "deaths": {"value": d.deaths, "displayValue": Functions.ignore0(d.deaths)},
                 "kills": {"value": d.kills, "displayValue": Functions.ignore0(d.kills)},
                 "damage": {"value": d.damage, "displayValue": Functions.ignore0(d.damage)},
+                "eff": {"value": d.efficiency, "displayValue": `${d.efficiency.toFixed(2)}%`}
             });
         }
 

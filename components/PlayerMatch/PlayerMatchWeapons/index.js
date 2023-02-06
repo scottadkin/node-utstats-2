@@ -35,7 +35,8 @@ const renderTable = (weaponData, weaponNames) =>{
         "acc": "Accuracy",
         "kills": "Kills",
         "deaths": "Deaths",
-        "eff": "Efficiency"
+        "eff": "Efficiency",
+        "damage": "Damage"
     };
 
     const data = weaponData.map((stats) =>{
@@ -53,7 +54,8 @@ const renderTable = (weaponData, weaponNames) =>{
             "acc": {"value": stats.accuracy, "displayValue": `${stats.accuracy.toFixed(2)}%`},
             "kills": {"value": stats.kills, "displayValue": Functions.ignore0(stats.kills)},
             "deaths": {"value": stats.deaths, "displayValue": Functions.ignore0(stats.deaths)},
-            "eff": {"value": stats.efficiency, "displayValue": `${stats.efficiency.toFixed(2)}%`}
+            "eff": {"value": stats.efficiency, "displayValue": `${stats.efficiency.toFixed(2)}%`},
+            "damage": {"value": stats.damage, "displayValue": Functions.ignore0(stats.damage)}
         };
     });
 
