@@ -205,16 +205,22 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
         />
     }
 
-    if(pageSettings["Display Domination Summary"] === "true"){
+    if(Functions.bAnyDomData(players.playerData)){
 
+        if(pageSettings["Display Domination Summary"] === "true"){
 
-        elems[pageOrder["Display Domination Summary"]] = <PlayerMatchDomination key="dom-sum" 
-            matchId={matchId} 
-            playerData={players.basicPlayers} 
-            playerId={playerId}
-            mapId={info.map}
-        />;
+            elems[pageOrder["Display Domination Summary"]] = <PlayerMatchDomination key="dom-sum" 
+                matchId={matchId} 
+                playerData={players.basicPlayers} 
+                playerId={playerId}
+                mapId={info.map}
+            />;
+        }
+    }
 
+    if(pageSettings["Display Pickup Summary"] === "true"){
+
+        elems[pageOrder["Display Pickup Summary"]] = <PlayerMatchPickups playerId={playerId} matchId={matchId}/>;
     }
 
     
@@ -233,6 +239,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
 
+           
                     
                     
                     <PlayerMatchProfile 
@@ -277,13 +284,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             />;
         }
         
-        if(pageSettings["Display Extended Sprees"] === "true"){
-
-            elems[pageOrder["Display Extended Sprees"]] = <MatchSprees host={imageHost} key="m-e-s" 
-                playerId={playerMatchData.player_id} matchId={parsedInfo.id} players={JSON.parse(this.props.playerNames)} matchStart={parsedInfo.start}
-            />
-
-        }
 
         if(pageSettings["Display Powerup Control"] === "true"){
 

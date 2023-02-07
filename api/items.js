@@ -720,7 +720,19 @@ class Items{
     async getPlayerMatchData(matchId, playerId){
 
         const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
-        return await mysql.simpleFetch(query, [matchId, playerId]);
+
+        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data[r.item] = r.uses;
+        }
+
+        return data;
     }
 
     createPlayerItemUses(data){

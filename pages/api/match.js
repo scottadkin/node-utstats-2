@@ -9,6 +9,7 @@ import Weapons from "../../api/weapons";
 import Assault from "../../api/assault";
 import Rankings from "../../api/rankings";
 import Teams from "../../api/teams";
+import Items from "../../api/items";
 
 export default async function handler(req, res){
 
@@ -196,6 +197,7 @@ export default async function handler(req, res){
             return;
 
         }
+
         if(mode === "scorehistory"){
 
 
@@ -298,6 +300,19 @@ export default async function handler(req, res){
 
             const data = await killManager.getKillsMatchUp(matchId);
             res.status(200).json({"data": data});
+            return;
+        }
+
+        if(mode === "player-items"){
+
+            const itemManager = new Items();
+
+            const uses = await itemManager.getPlayerMatchData(matchId, playerId);
+            const itemIds = Object.keys(uses);
+
+            const itemNames = await itemManager.getNamesByIds(itemIds, true);
+
+            res.status(200).json({"uses": uses, "itemNames": itemNames});
             return;
         }
 

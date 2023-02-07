@@ -798,6 +798,17 @@ class Functions{
         return false;
     }
 
+
+    static bAnyDomData(playerData){
+
+        for(let i = 0; i < playerData.length; i++){
+
+            if(playerData[i].dom_caps > 0) return true;
+        }
+
+        return false;
+    }
+
     static getSmartCTFReturnString(string){
 
         const reg = /^return_(.+)$/i;
