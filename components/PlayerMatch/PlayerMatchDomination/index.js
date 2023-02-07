@@ -90,7 +90,7 @@ const PlayerMatchDomination = ({matchId, playerId, playerData, mapId}) =>{
             controller.abort();
         }
 
-    }, [matchId, playerId]);
+    }, [matchId, playerId, mapId]);
 
     if(state.bLoading) return <Loading />;
     if(state.error !== null) return <ErrorMessage title="Domination Caps" text={state.error}/>

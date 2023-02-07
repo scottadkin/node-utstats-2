@@ -12,6 +12,12 @@ class GraphCanvas{
         if(typeof data === "string"){
             data = JSON.parse(data);
         }
+
+        if(text === undefined) text = null;
+
+        if(typeof text === "string"){
+            text = JSON.parse(text);
+        }
         
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
@@ -34,11 +40,7 @@ class GraphCanvas{
 
         this.data = data;
 
-        this.text = null;
-
-        if(text !== undefined){
-            this.text = JSON.parse(text);
-        }
+        this.text = text;
 
         this.hideKeys = [];
 

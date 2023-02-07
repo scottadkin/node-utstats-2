@@ -85,8 +85,6 @@ const PlayerMatchPickups = ({playerId, matchId}) =>{
             }else{
                 dispatch({"type": "loaded", "itemNames": res.itemNames, "itemUses": res.uses});
             }
-
-            console.log(res);
         }
 
         loadData();

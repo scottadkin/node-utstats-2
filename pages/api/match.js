@@ -229,6 +229,19 @@ export default async function handler(req, res){
             return;
 
         }
+
+        if(mode === "player-ping"){
+
+            const pingManager = new Pings();
+
+            const data = await pingManager.getPlayerMatchData(matchId, playerId);
+            const {graphData, graphText} = pingManager.createPlayerMatchGraphData(data);
+
+            const basicInfo = pingManager.createPlayerMatchBasicInfo(data);
+
+            res.status(200).json({"graphData": graphData, "graphText": graphText, "basicInfo": basicInfo});
+            return;
+        }
         
         if(mode === "playerdomcaps"){
 

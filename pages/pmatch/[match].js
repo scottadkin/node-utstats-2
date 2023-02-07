@@ -10,27 +10,17 @@ import Servers from '../../api/servers';
 import Maps from '../../api/maps';
 import MatchSummary from "../../components/MatchSummary";
 import Player from "../../api/player";
-import Players from "../../api/players";
 import Functions from '../../api/functions';
 import Screenshot from '../../components/Screenshot/';
-import Faces from '../../api/faces';
 import MatchFragSummary from "../../components/MatchFragSummary";
 import MatchSpecialEvents from "../../components/MatchSpecialEvents";
 import MatchSprees from '../../components/MatchSprees';
 import PlayerMatchPowerUps from "../../components/PlayerMatchPowerUps";
-import Weapons from '../../api/weapons';
 import PlayerMatchPickups from "../../components/PlayerMatchPickups";
-import Items from '../../api/items';
-import Rankings from '../../api/rankings';
 import PlayerMatchRankings from '../../components/PlayerMatchRankings/';
-import Pings from '../../api/pings';
-import PlayerMatchPing from "../../components/PlayerMatchPing";
-import Connections from "../../api/connections";
+import PlayerMatchPing from "../../components/PlayerMatch/PlayerMatchPing";
 import PlayerMatchConnections from "../../components/PlayerMatchConnections";
-import Teams from "../../api/teams";
 import PlayerMatchTeamChanges from "../../components/PlayerMatchTeamChanges";
-import Domination from '../../api/domination';
-import Assault from '../../api/assault';
 import PlayerMatchAssault from '../../components/PlayerMatchAssault';
 import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSummary";
 import Analytics from "../../api/analytics";
@@ -220,9 +210,15 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
 
     if(pageSettings["Display Pickup Summary"] === "true"){
 
-        elems[pageOrder["Display Pickup Summary"]] = <PlayerMatchPickups playerId={playerId} matchId={matchId}/>;
+        elems[pageOrder["Display Pickup Summary"]] = <PlayerMatchPickups key="pmp" playerId={playerId} matchId={matchId}/>;
     }
 
+
+    if(pageSettings["Display Player Ping Graph"] === "true"){
+
+        elems[pageOrder["Display Player Ping Graph"]] = <PlayerMatchPing key="pmp-g" playerId={playerId} matchId={matchId}/>;
+
+    }
     
 
     return <div>
@@ -239,7 +235,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
 
-           
+                    
                     
                     
                     <PlayerMatchProfile 
@@ -302,14 +298,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
         }
 
 
-        if(pageSettings["Display Pickup Summary"] === "true"){
-
-            elems[pageOrder["Display Pickup Summary"]] = <PlayerMatchPickups 
-                data={JSON.parse(this.props.pickupData)}
-                names={JSON.parse(this.props.pickupNames)}
-            />
-        }
-
         if(pageSettings["Display Rankings"] === "true"){
 
             elems[pageOrder["Display Rankings"]] = <PlayerMatchRankings key="pmr" data={JSON.parse(this.props.rankingData)}
@@ -317,12 +305,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 currentPosition={this.props.currentRankingPosition}
             />
         }
-
-        if(pageSettings["Display Player Ping Graph"] === "true"){
-
-            elems[pageOrder["Display Player Ping Graph"]] = <PlayerMatchPing key="pmp-g" data={JSON.parse(this.props.pingData)}/>
-        }
-
 
         if(pageSettings["Display Team Changes"] === "true"){
 
