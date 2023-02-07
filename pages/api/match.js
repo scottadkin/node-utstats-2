@@ -69,6 +69,15 @@ export default async function handler(req, res){
             return;
         }
 
+        if(mode === "player-teams"){
+            const teamsManager = new Teams();
+
+            const teamsData = await teamsManager.getPlayerMatchData(matchId, playerId)
+
+            res.status(200).json({"data": teamsData});
+            return;
+        }
+
         if(mode === "ranking"){
 
             const rankingManager = new Rankings();

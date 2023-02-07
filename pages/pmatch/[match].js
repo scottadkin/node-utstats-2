@@ -20,7 +20,6 @@ import PlayerMatchPickups from "../../components/PlayerMatchPickups";
 import PlayerMatchRankings from '../../components/PlayerMatchRankings/';
 import PlayerMatchPing from "../../components/PlayerMatch/PlayerMatchPing";
 import PlayerMatchConnections from "../../components/PlayerMatchConnections";
-import PlayerMatchTeamChanges from "../../components/PlayerMatchTeamChanges";
 import PlayerMatchAssault from '../../components/PlayerMatchAssault';
 import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSummary";
 import Analytics from "../../api/analytics";
@@ -39,15 +38,7 @@ import MatchCTFCarryTime from "../../components/MatchCTFCarryTime";
 import MatchWeaponSummaryCharts from "../../components/MatchWeaponSummaryCharts";
 import PlayerMatchWeapons from "../../components/PlayerMatch/PlayerMatchWeapons";
 import PlayerMatchDomination from "../../components/PlayerMatch/PlayerMatchDomination";
-
-
-const reducer = (state, action) =>{
-
-    switch(action.type){
-
-        default: return state;
-    }
-}
+import PlayerMatchTeamChanges from "../../components/PlayerMatch/PlayerMatchTeamChanges";
 
 const renderError = (host, navSettings, session, pageError) =>{    
 
@@ -217,6 +208,13 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
     if(pageSettings["Display Player Ping Graph"] === "true"){
 
         elems[pageOrder["Display Player Ping Graph"]] = <PlayerMatchPing key="pmp-g" playerId={playerId} matchId={matchId}/>;
+    }
+
+    if(pageSettings["Display Team Changes"] === "true"){
+
+        elems[pageOrder["Display Team Changes"]] = <PlayerMatchTeamChanges key="ptc" matchStart={info.start} 
+            matchId={matchId} playerId={playerId} totalTeams={info.total_teams}
+        />
 
     }
     
@@ -306,10 +304,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             />
         }
 
-        if(pageSettings["Display Team Changes"] === "true"){
-
-            elems[pageOrder["Display Team Chagnes"]] = <PlayerMatchTeamChanges key="ptc" data={JSON.parse(this.props.teamData)} matchStart={parsedInfo.start}/>
-        }
 
 }*/
 

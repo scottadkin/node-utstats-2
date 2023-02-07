@@ -51,7 +51,7 @@ class Teams{
 
         const query = "SELECT timestamp,team FROM nstats_match_team_changes WHERE match_id=? AND player=? ORDER BY timestamp ASC";
 
-        return await mysql.simpleFetch(query, [matchId, playerId]);
+        return await mysql.simpleQuery(query, [matchId, playerId]);
     }
 }
 
