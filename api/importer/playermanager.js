@@ -994,7 +994,7 @@ class PlayerManager{
     }
 
 
-    async updateFragPerformance(gametypeId, date){
+    async updateFragPerformance(gametypeId, date, totalTeams){
 
         try{
 
@@ -1013,7 +1013,7 @@ class PlayerManager{
                  
                 if(p.bDuplicate === undefined){
 
-                    const playtime = p.getTotalPlaytime();
+                    const playtime = p.getTotalPlaytime(totalTeams);
 
 
                     //update combined gametypes totals
@@ -1279,7 +1279,7 @@ class PlayerManager{
     }
 
 
-    async insertMatchData(gametypeId, matchId, mapId, matchDate){
+    async insertMatchData(gametypeId, matchId, mapId, matchDate, totalTeams){
 
         try{
 
@@ -1307,7 +1307,7 @@ class PlayerManager{
                       
                     }
 
-                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData);
+                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData, totalTeams);
 
                     
                     
@@ -1713,7 +1713,7 @@ class PlayerManager{
 
     setPlayerPlaytime(totalTeams, bHardcore){
 
-        if(totalTeams < 2) return;
+        //if(totalTeams < 2) return;
 
         const matchTimings = this.matchTimings;
 

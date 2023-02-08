@@ -148,7 +148,7 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam, s
         return <InteractiveTable key={teamId} width={1} headers={headers} data={rows}/>;
     }
 
-    if(!bSeparateByTeam || single) return renderTable(-1);
+    if(!bSeparateByTeam || single || totalTeams < 2) return renderTable(-1);
 
     const tables = [];
 

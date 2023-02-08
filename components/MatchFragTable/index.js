@@ -192,7 +192,7 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
 
     const tables = [];
 
-    if(bSeparateByTeam && !single){
+    if(bSeparateByTeam && !single && totalTeams > 1){
 
         for(let i = 0; i < totalTeams; i++){
 

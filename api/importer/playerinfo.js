@@ -749,13 +749,15 @@ class PlayerInfo{
     }
 
 
-    getTotalPlaytime(){
+    getTotalPlaytime(totalTeams){
 
         let totalPlaytime = 0;
 
         for(const [key, value] of Object.entries(this.stats.teamPlaytime)){
             //dont count time as spectator as playtime
-            if(key !== "255"){
+            if(totalTeams > 1 && key !== "255"){
+                totalPlaytime += value;
+            }else{
                 totalPlaytime += value;
             }
         }

@@ -4,6 +4,7 @@ import MatchFragDistances from '../MatchFragDistances/';
 
 const MatchFragSummary = ({matchId, playerData, totalTeams, single}) =>{
 
+
     const [mode, setMode] = useState(0);
     const [separateByTeam, setSeparateByTeam] = useState(true);
 
@@ -73,7 +74,7 @@ const MatchFragSummary = ({matchId, playerData, totalTeams, single}) =>{
 
     const renderTeamTabs = () =>{
 
-        if(single) return null;
+        if(single || totalTeams < 2) return null;
         
         return <div className="tabs">
             <div onClick={() => setSeparateByTeam(true)} className={`tab ${(separateByTeam) ? "tab-selected" : ""}`}>Separate by Team</div>

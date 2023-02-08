@@ -238,7 +238,7 @@ class Player{
     }
 
 
-    async insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping){
+    async insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping, totalTeams){
 
         const query = `INSERT INTO nstats_player_matches VALUES(
             NULL,?,?,?,?,?,?,?,?,?,
@@ -253,6 +253,7 @@ class Player{
             //53
         const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
         
+        const playtime = player.getTotalPlaytime(totalTeams);
 
         const vars = [
             matchId,
@@ -269,7 +270,7 @@ class Player{
             gametypeId,
             player.bWinner,
             player.bDrew,
-            player.getTotalPlaytime(),//Functions.setValueIfUndefined(player.stats.time_on_server),
+            playtime,//Functions.setValueIfUndefined(player.stats.time_on_server),
             player.stats.teamPlaytime[0],
             player.stats.teamPlaytime[1],
             player.stats.teamPlaytime[2],
@@ -280,7 +281,7 @@ class Player{
             player.stats.frags,
             player.stats.score,
             player.stats.kills,
-            player.stats.deaths,
+            player.stats.deaths + player.stats.suicides,
             player.stats.suicides,
             player.stats.teamkills,
             player.stats.spawnKills,

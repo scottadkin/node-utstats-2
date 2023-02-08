@@ -149,7 +149,12 @@ class MatchManager{
             new Message(`Updated player team changes`,'pass');
             //process.exit();
 
-            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
+            await this.playerManager.insertMatchData(
+                this.gametype.currentMatchGametype, 
+                this.matchId, this.mapInfo.mapId, 
+                this.serverInfo.date, 
+                this.gameInfo.totalTeams
+            );
             new Message(`Updated player match data.`,'pass');
             
             await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);
@@ -222,7 +227,7 @@ class MatchManager{
                 this.setMatchWinners();
             }
 
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date, this.gameInfo.totalTeams);
 
             new Message(`Updated player frag performance.`,'pass');
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
