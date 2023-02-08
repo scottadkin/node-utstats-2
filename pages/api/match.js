@@ -101,6 +101,21 @@ export default async function handler(req, res){
             return;
         }
 
+
+        if(mode === "player-ranking"){
+
+            const rankingManager = new Rankings();
+
+            const matchChange = await rankingManager.getPlayerMatchRankingChange(matchId, playerId);
+            const currentRanking = await rankingManager.getCurrentRanking(playerId, gametypeId);
+
+            const position = await rankingManager.getGametypePosition(currentRanking.ranking, gametypeId);
+            
+            res.status(200).json({"position": position, "matchChange": matchChange, "currentRanking": currentRanking});
+            return;
+        }
+
+
         if(mode === "assault"){
 
             const assaultManager = new Assault();

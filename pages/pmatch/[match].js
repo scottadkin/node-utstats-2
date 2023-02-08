@@ -17,7 +17,6 @@ import MatchSpecialEvents from "../../components/MatchSpecialEvents";
 import MatchSprees from '../../components/MatchSprees';
 import PlayerMatchPowerUps from "../../components/PlayerMatchPowerUps";
 import PlayerMatchPickups from "../../components/PlayerMatchPickups";
-import PlayerMatchRankings from '../../components/PlayerMatchRankings/';
 import PlayerMatchPing from "../../components/PlayerMatch/PlayerMatchPing";
 import PlayerMatchConnections from "../../components/PlayerMatchConnections";
 import PlayerMatchAssault from '../../components/PlayerMatchAssault';
@@ -39,6 +38,7 @@ import MatchWeaponSummaryCharts from "../../components/MatchWeaponSummaryCharts"
 import PlayerMatchWeapons from "../../components/PlayerMatch/PlayerMatchWeapons";
 import PlayerMatchDomination from "../../components/PlayerMatch/PlayerMatchDomination";
 import PlayerMatchTeamChanges from "../../components/PlayerMatch/PlayerMatchTeamChanges";
+import PlayerMatchRankings from "../../components/PlayerMatch/PlayerMatchRankings";
 
 const renderError = (host, navSettings, session, pageError) =>{    
 
@@ -215,6 +215,16 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
         elems[pageOrder["Display Team Changes"]] = <PlayerMatchTeamChanges key="ptc" matchStart={info.start} 
             matchId={matchId} playerId={playerId} totalTeams={info.total_teams}
         />
+    }
+
+    if(pageSettings["Display Rankings"] === "true"){
+
+        elems[pageOrder["Display Rankings"]] = <PlayerMatchRankings 
+            key="pmr" 
+            matchId={matchId} 
+            playerId={playerId} 
+            gametypeId={info.gametype}
+        />
 
     }
     
@@ -294,16 +304,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 superHealth={playerMatchData.super_health}
             />
         }
-
-
-        if(pageSettings["Display Rankings"] === "true"){
-
-            elems[pageOrder["Display Rankings"]] = <PlayerMatchRankings key="pmr" data={JSON.parse(this.props.rankingData)}
-                current={JSON.parse(this.props.rankingData)} 
-                currentPosition={this.props.currentRankingPosition}
-            />
-        }
-
 
 }*/
 
