@@ -420,7 +420,6 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         elems = renderMain();
     }
 
-
     return <div>
             <DefaultHead host={host} 
                 title={metaData.title} 
@@ -553,7 +552,7 @@ export async function getServerSideProps({req, query}){
 
         const metaData = {
             "title": `${mapName} (${dateString}) Match Report`,
-            "description:": descriptionString,
+            "description": descriptionString,
             "keywords": keywords
         };
 

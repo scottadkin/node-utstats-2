@@ -112,7 +112,20 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             faces={players.faces}
             highlight={playerInfo.name}
         />;
+    }
 
+    if(pageSettings["Display Summary"] === "true"){
+
+        elems[pageOrder["Display Summary"]] = <MatchSummary 
+            key={"m-s"} 
+            info={info} 
+            server={server} 
+            gametype={gametype} 
+            map={map} 
+            image={mapImage} 
+            bMonsterHunt={info.mh} 
+            settings={pageSettings}
+        />
     }
 
     if(pageSettings["Display Frag Summary"] === "true"){
@@ -243,6 +256,8 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
 
+
+                    
                     
                     
                     
