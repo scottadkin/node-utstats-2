@@ -60,9 +60,15 @@ const MatchCTFCarryTime = ({matchId, players}) =>{
             "best_carry_time_life": "Best Carry Time(Single Life)"
         };
 
-        const rows = data.map((carryData) =>{
+        
+        const filtered = data.filter((playerInfo) =>{
+            if(playerInfo.playtime > 0) return true;
+        });
+
+        const rows = filtered.map((carryData) =>{
 
             const player = Functions.getPlayer(players, carryData.player_id, true);
+            
             return {
                 "player": {
                     "value": player.name.toLowerCase(), 
