@@ -4,8 +4,23 @@ import BarChart from '../BarChart';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
 
-const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
+const renderTeamTabs = (totalTeams, dispatch) =>{
 
+    if(totalTeams < 2) return null;
+
+    return <div className="tabs">
+        <div className={`tab ${(!state.bTeamsView) ? "tab-selected" : ""}`}
+            onClick={() => dispatch({"type": "teamsViewChange", "mode": false})}>
+                Players
+        </div>
+        <div className={`tab ${(state.bTeamsView) ? "tab-selected" : ""}`}
+            onClick={() => dispatch({"type": "teamsViewChange", "mode": true})}>
+                Teams
+        </div>
+    </div>
+}
+
+const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
 
     const reducer = (state, action) =>{
 
@@ -195,6 +210,8 @@ const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
         </div>
     }
 
+    
+
 
     if(state.error !== null) return <ErrorMessage title="Powerup Control" text={state.error}/>
     if(state.bLoading) return <Loading />;
@@ -205,16 +222,7 @@ const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
         <div className="default-header">Powerup Control</div>
 
 
-        <div className="tabs">
-            <div className={`tab ${(!state.bTeamsView) ? "tab-selected" : ""}`}
-                onClick={() => dispatch({"type": "teamsViewChange", "mode": false})}>
-                    Players
-            </div>
-            <div className={`tab ${(state.bTeamsView) ? "tab-selected" : ""}`}
-                onClick={() => dispatch({"type": "teamsViewChange", "mode": true})}>
-                    Teams
-            </div>
-        </div>
+        {renderTeamTabs(totalTeams, dispatch)}
 
         <div className="tabs">
             <div className={`tab ${(state.mode === 1) ? "tab-selected" : ""}`} 
