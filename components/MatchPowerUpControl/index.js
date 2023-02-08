@@ -111,49 +111,6 @@ const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
         return totalUses;
     }
 
-    /*const renderTeamTotalsTables = () =>{
-
-        if(state.displayMode !== 1 || !state.bTeamsView) return null;
-
-        const headers = {
-            "item": "Item"
-        };
-
-        for(let i = 0; i < totalTeams; i++){
-            headers[`team_${i}`] = Functions.getTeamName(i);
-        }
-
-        const data = [];
-
-        for(let i = 0; i < state.itemNames.length; i++){
-
-            const item = state.itemNames[i];
-
-            if(item.type !== state.mode) continue;
-            
-
-            const current = {
-                "item": {
-                        "value": item.name.toLowerCase(), 
-                        "displayValue": item.name,
-                        "className": "text-left"
-                    }
-                }
-
-            for(let x = 0; x < totalTeams; x++){
-
-                const totalUses = getTeamTotalUses(item.id, x);
-                current[`team_${x}`] = {"value": totalUses, "displayValue": Functions.ignore0(totalUses)};
-            }
-
-            data.push(current);
-        }
-
-        return <div>
-            <InteractiveTable width={2} headers={headers} data={data}/>
-        </div>
-    }*/
-
     const renderTeamBarCharts = () =>{
 
         if(state.displayMode !== 0 || !state.bTeamsView) return null;
@@ -214,7 +171,11 @@ const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
         const names = [];
 
         for(const player of Object.values(players)){
+
+            if(player.spectator) continue;
+            
             names.push(player.name);
+            
         }
 
         for(let i = 0; i < state.itemNames.length; i++){
