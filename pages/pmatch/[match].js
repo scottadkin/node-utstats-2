@@ -15,7 +15,7 @@ import Screenshot from '../../components/Screenshot/';
 import MatchFragSummary from "../../components/MatchFragSummary";
 import MatchSpecialEvents from "../../components/MatchSpecialEvents";
 import MatchSprees from '../../components/MatchSprees';
-import PlayerMatchPowerUps from "../../components/PlayerMatch/PlayerMatchPowerUps";
+import PlayerMatchItems from "../../components/PlayerMatch/PlayerMatchItems";
 import PlayerMatchPickups from "../../components/PlayerMatchPickups";
 import PlayerMatchPing from "../../components/PlayerMatch/PlayerMatchPing";
 import PlayerMatchConnections from "../../components/PlayerMatchConnections";
@@ -255,18 +255,12 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             <div id="content">
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
-
-
-                    <PlayerMatchPowerUps 
-                        key="p-m-pu"
-                    />
-                    
                     
                     
                     <PlayerMatchProfile 
                         host={imageHost} 
                         data={playerInfo} 
-                        matchId={info.id}
+                        matchId={matchId}
                     />
                    
                     

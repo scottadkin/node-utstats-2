@@ -269,8 +269,8 @@ class MatchManager{
                 this.weaponsManager = new WeaponsManager();
             }
 
-            this.itemsManager = new ItemsManager(this.itemLines);
-            this.itemsManager.playerManager = this.playerManager;
+            this.itemsManager = new ItemsManager(this.itemLines, this.playerManager, this.killManager);
+          
             await this.itemsManager.updateTotals(this.serverInfo.date);
 
             this.itemsManager.setPlayerPickupTimes(this.gameInfo.end);

@@ -3,16 +3,20 @@ const Items = require("../items");
 
 class ItemsManager{
 
-    constructor(lines){
+    constructor(lines, playerManager, killsManager){
 
         this.lines = lines;
+        this.playerManager = playerManager;
+        this.killsManager = killsManager;
 
         this.items = new Items();
 
         this.data = [];
 
-        this.activeData = [];
-        this.deactiveData = [];
+        this.events = [];
+
+        this.activeReg = /^(\d+?\.\d+?)\titem_activate\t(.+?)\t(.+)$/i
+        this.deactiveReg = /^(\d+?\.\d+?)\titem_deactivate\t(.+?)\t(.+)$/i
 
         this.pickupCount = new Map();
 
@@ -23,22 +27,44 @@ class ItemsManager{
         this.parseData();
     }
 
+    parseActivate(line, bDeactivate){
+
+        const reg = (bDeactivate) ? this.deactiveReg : this.activeReg;
+
+        const result = reg.exec(line);
+        const timestamp = parseFloat(result[1]);
+        const item = result[2];
+        const playerId = parseInt(result[3]);
+
+        const player = this.playerManager.getPlayerById(playerId);
+
+        if(player === null){
+            new Message(`ItemsManager.parseActive() player is null.`,"warning");
+            return;
+        }
+
+        this.events.push(
+            {
+                "timestamp": timestamp,
+                "item": item,
+                "player": player.masterId,
+                "bDeactivate": bDeactivate 
+            }
+        );
+    }
+
+
     parseData(){
 
         const reg = /^(\d+?\.\d+?)\titem_get\t(.+?)\t(.+)$/i;
-
-        const activeReg = /^(\d+?\.\d+?)\titem_activate\t(.+?)\t(.+)$/i
-        const deactiveReg = /^(\d+?\.\d+?)\titem_deactivate\t(.+?)\t(.+)$/i
-
-        let result = '';
-
-        let currentPickup = 0;
-        let currentPlayerPickup = 0;
+ 
         let currentItems = 0;
 
         for(let i = 0; i < this.lines.length; i++){
 
-            result = reg.exec(this.lines[i]);
+            const line = this.lines[i];
+
+            const result = reg.exec(line);
 
             if(result !== null){
 
@@ -46,7 +72,7 @@ class ItemsManager{
                     this.itemNames.push(result[2]);
                 }
 
-                currentPickup = this.pickupCount.get(result[2]);
+                const currentPickup = this.pickupCount.get(result[2]);
 
                 if(currentPickup === undefined){
                     this.pickupCount.set(result[2], 1);
@@ -56,7 +82,7 @@ class ItemsManager{
 
                 //match pickups
 
-                currentPlayerPickup = this.matchData.get(parseInt(result[3]));
+                const currentPlayerPickup = this.matchData.get(parseInt(result[3]));
 
                 if(currentPlayerPickup !== undefined){
 
@@ -85,32 +111,15 @@ class ItemsManager{
                     "player": parseInt(result[3])
                 });
 
-            }else if(activeReg.test(this.lines[i])){
+            }else if(this.activeReg.test(line)){
 
-                result = activeReg.exec(this.lines[i]);
+                this.parseActivate(line, false);
 
-                this.activeData.push(
-                    {
-                        "timestamp": parseFloat(result[1]),
-                        "item": result[2],
-                        "player": parseInt(result[3])
-                    }
-                );
+            }else if(this.deactiveReg.test(line)){
 
-            }else if(deactiveReg.test(this.lines[i])){
-
-                result = deactiveReg.exec(this.lines[i]);
-
-                this.deactiveData.push(
-                    {
-                        "timestamp": parseFloat(result[1]),
-                        "item": result[2],
-                        "player": parseInt(result[3])
-                    }
-                );
+                this.parseActivate(line, true);
             }
         }
-
     }
 
     async updateTotals(date){
@@ -206,46 +215,55 @@ class ItemsManager{
 
             const currentName = d.item.replace(/\s/ig, "").toLowerCase();
 
+            const player = this.playerManager.getPlayerById(d.player);
+
+            if(player === null){
+                new Message(`ItemsManager.setPlayerPickups() player is null`, "warning");
+                continue;
+            }
+
+            const playerId = player.masterId;
+
             if(currentName === "damageamplifier"){
              
-                this.updateUsedPickups(d.player, "amp");
+                this.updateUsedPickups(playerId, "amp");
 
             }else if(currentName === "shieldbelt"){
                 
-                this.updateUsedPickups(d.player, "belt");
+                this.updateUsedPickups(playerId, "belt");
 
             }else if(currentName === "invisibility"){
-                this.updateUsedPickups(d.player, "invis");
+                this.updateUsedPickups(playerId, "invis");
 
             }else if(currentName === "bodyarmor"){
 
-                this.updateUsedPickups(d.player, "armor");
+                this.updateUsedPickups(playerId, "armor");
 
             }else if(currentName === "antigravboots"){
 
-                this.updateUsedPickups(d.player, "boots");
+                this.updateUsedPickups(playerId, "boots");
 
             }else if(currentName === "thighpads"){
-                this.updateUsedPickups(d.player, "pads");
+                this.updateUsedPickups(playerId, "pads");
 
             }else if(currentName === "superhealthpack"){
-                this.updateUsedPickups(d.player, "super");
+                this.updateUsedPickups(playerId, "super");
             }
         }
     }
 
-    getDeactiveDataTimestamp(activeTimestamp, item, player){
+    getDeactiveDataTimestamp(activateTimestamp, item, player){
 
-        for(let i = 0; i < this.deactiveData.length; i++){
+        for(let i = 0; i < this.events.length; i++){
 
-            const d = this.deactiveData[i];
+            const e = this.events[i];
 
-            if(d.timestamp >= activeTimestamp){
+            if(e.timestamp < activateTimestamp) continue;
+            if(!e.bDeactivate) continue;
 
-                if(d.item === item && d.player === player){
-                    return d.timestamp;
-                }
-            }
+            if(e.player !== player) continue;
+            if(e.item === item) return e.timestamp;
+            
         }
 
         return null;
@@ -253,46 +271,66 @@ class ItemsManager{
 
     setPlayerPickupTimes(matchEnd){
 
-        //if there is no deactivate data use the match end time
 
-        for(let i = 0; i < this.activeData.length; i++){
+        for(let i = 0; i < this.events.length; i++){
 
-            const a = this.activeData[i];
+            const e = this.events[i];
 
-            let endTimestamp = this.getDeactiveDataTimestamp(a.timestamp, a.item, a.player);
-            //console.log(this.getDeactiveDataTimestamp(a.timestamp, a.item, a.player));
+            if(e.bDeactivate) continue;
+
+            let endTimestamp = this.getDeactiveDataTimestamp(e.timestamp, e.item, e.player);
 
             if(endTimestamp === null){
-                endTimestamp = matchEnd;
+
+                const nextDeath = this.killsManager.getPlayerNextDeath(e.player, e.timestamp);
+
+                if(nextDeath === null){
+                    endTimestamp = matchEnd;
+                }else{
+                    endTimestamp = nextDeath.timestamp;
+                }
             }
 
-            const currentDiff = endTimestamp - a.timestamp;
-            a.carryTime = currentDiff;
+            const totalKills = this.killsManager.getKillsBetween(e.timestamp, endTimestamp, e.player, true);
 
+            const currentCarryTime = endTimestamp - e.timestamp;
+            e.carryTime = currentCarryTime;
+            e.totalKills = totalKills;
         }
 
     }
 
-    getPlayerTotalItemCarryTime(player, item){
+    getPlayerItemStats(player, item){
 
-        let total = 0;
+        let totalTime = 0;
+        let totalKills = 0;
+        let bestKills = 0;
         
-        for(let i = 0; i < this.activeData.length; i++){
+        for(let i = 0; i < this.events.length; i++){
 
-            const a = this.activeData[i];
-            const fixedItemName = a.item.replace(/\s/ig,"").toLowerCase();
+            const e = this.events[i];
 
-            if(a.player === player){
+            if(e.player !== player) continue;
+            if(e.bDeactivate) continue;
+            
+            const fixedItemName = e.item.replace(/\s/ig,"").toLowerCase();
 
-                if(fixedItemName === "damageamplifier" && item === "amp"){
-                    total += a.carryTime;
-                }else if(fixedItemName === "invisibility" && item === "invis"){
-                    total += a.carryTime;
-                }
-            }
+            if(fixedItemName === "damageamplifier" && item === "amp"){
+
+                totalTime += e.carryTime;
+                totalKills += e.totalKills;
+                if(e.totalKills > bestKills) bestKills = e.totalKills;
+
+            }else if(fixedItemName === "invisibility" && item === "invis"){
+
+                totalTime += e.carryTime;
+                totalKills += e.totalKills;
+                if(e.totalKills > bestKills) bestKills = e.totalKills;
+
+            }      
         }
 
-        return total;
+        return {"totalTime": totalTime, "totalKills": totalKills, "bestKills": bestKills};
     }
 
     async setPlayerMatchPickups(matchId){
@@ -300,22 +338,17 @@ class ItemsManager{
         try{
 
 
-            for(const [key, value] of Object.entries(this.playerPickups)){
+            for(const [playerId, value] of Object.entries(this.playerPickups)){
 
-                const currentAmpTime = this.getPlayerTotalItemCarryTime(parseInt(key), "amp");;
-                const currentInvisTime = this.getPlayerTotalItemCarryTime(parseInt(key), "invis");;
+                const ampStats = this.getPlayerItemStats(parseInt(playerId), "amp");
+                const invisStats = this.getPlayerItemStats(parseInt(playerId), "invis");
                
-                value.ampTime = currentAmpTime;
-                value.invisTime = currentInvisTime;
+                value.ampStats = ampStats;
+                value.invisStats = invisStats;
 
-                const player = this.playerManager.getPlayerById(key);
-
-                if(player !== null){
-                    await this.items.setPlayerMatchPickups(matchId, player.masterId, value);
-                    await this.items.updatePlayerBasicPickupData(player.masterId, value);
-                }else{
-                    new Message("ItemsManager.setPlayerMatchPickups() player is null","warning");
-                }
+                await this.items.setPlayerMatchPickups(matchId, parseInt(playerId), value);
+                await this.items.updatePlayerBasicPickupData(parseInt(playerId), value);
+               
             }
 
         }catch(err){

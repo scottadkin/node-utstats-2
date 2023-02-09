@@ -10,7 +10,8 @@ const ConnectionsManager = require('./connectionsmanager');
 const PingManager = require('./pingmanager');
 const TeamsManager = require('./teamsmanager');
 const WinRateManager = require('../winrate');
-const SpreeManager = require("./spreemanager")
+const SpreeManager = require("./spreemanager");
+const Functions = require("../functions");
 
 class PlayerManager{
 
@@ -1781,14 +1782,7 @@ class PlayerManager{
         
     }
 
-    scalePlaytime(playtime, bHardcore){
-
-        if(bHardcore && playtime !== 0){
-            return playtime / 1.1;      
-        }
-
-        return playtime;
-    }
+    
     
 
     scalePlaytimes(bHardcore){
@@ -1808,7 +1802,7 @@ class PlayerManager{
             for(const [teamId, playtime] of Object.entries(p.stats.teamPlaytime)){
 
                 //console.log(`scaled ${p.stats.teamPlaytime[teamId]} to ${this.scalePlaytime(playtime, bHardcore)}`);
-                p.stats.teamPlaytime[teamId] = this.scalePlaytime(playtime, bHardcore);
+                p.stats.teamPlaytime[teamId] = Functions.scalePlaytime(playtime, bHardcore);
             }
         }
     }

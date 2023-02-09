@@ -561,7 +561,26 @@ class KillManager{
         }
 
         return totalSuicides;
+    }
 
+    getPlayerNextDeath(playerId, timestamp){
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const k = this.kills[i];
+
+            if(k.timestamp < timestamp) continue;
+
+            if(k.type === "suicide" && k.killerId === playerId){
+                return k;
+            }
+
+            if(k.type === "kill" && k.victimId === playerId){
+                return k;
+            }
+        }
+
+        return null;
     }
 }
 

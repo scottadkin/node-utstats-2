@@ -254,65 +254,56 @@ class Items{
     }
 
 
-    setPlayerMatchPickups(matchId, player, data){
+    async setPlayerMatchPickups(matchId, player, data){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_player_matches SET 
-            shield_belt=?,amp=?,amp_time=?,invisibility=?,invisibility_time=?,pads=?,armor=?,boots=?,super_health=?
+        const query = `UPDATE nstats_player_matches SET 
+            shield_belt=?,amp=?,amp_time=?,amp_kills=?,amp_kills_single_life=?,
+            invisibility=?,invisibility_time=?,invisibility_kills=?,invisibility_kills_single_life=?,
+            pads=?,armor=?,boots=?,super_health=?
             WHERE match_id=? AND player_id=?`;
 
-            const vars = [
-                (data.belt !== undefined) ? data.belt : 0,
-                (data.amp !== undefined) ? data.amp : 0,
-                (data.ampTime !== undefined) ? data.ampTime : 0,
-                (data.invis !== undefined) ? data.invis : 0,
-                (data.invisTime !== undefined) ? data.invisTime : 0,
-                (data.pads !== undefined) ? data.pads : 0,
-                (data.armor !== undefined) ? data.armor : 0,
-                (data.boots !== undefined) ? data.boots : 0,
-                (data.super !== undefined) ? data.super : 0,
-                matchId,
-                player
-            ];
+        const vars = [
+            (data.belt !== undefined) ? data.belt : 0,
+            (data.amp !== undefined) ? data.amp : 0,
+            (data.ampStats !== undefined) ? data.ampStats.totalTime : 0,
+            (data.ampStats !== undefined) ? data.ampStats.totalKills : 0,
+            (data.ampStats !== undefined) ? data.ampStats.bestKills : 0,
+            (data.invis !== undefined) ? data.invis : 0,
+            (data.invisStats !== undefined) ? data.invisStats.totalTime : 0,
+            (data.invisStats !== undefined) ? data.invisStats.totalKills : 0,
+            (data.invisStats !== undefined) ? data.invisStats.bestKills : 0,
+            (data.pads !== undefined) ? data.pads : 0,
+            (data.armor !== undefined) ? data.armor : 0,
+            (data.boots !== undefined) ? data.boots : 0,
+            (data.super !== undefined) ? data.super : 0,
+            matchId,
+            player
+        ];
 
-            mysql.query(query, vars, (err) =>{
+        return await mysql.simpleQuery(query, vars)
 
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
-    updatePlayerBasicPickupData(player, data){
+    async updatePlayerBasicPickupData(player, data){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_player_totals SET 
+        const query = `UPDATE nstats_player_totals SET 
             shield_belt=shield_belt+?,amp=amp+?,amp_time=amp_time+?,invisibility=invisibility+?,invisibility_time=invisibility_time+?,
             pads=pads+?,armor=armor+?,boots=boots+?,super_health=super_health+? WHERE id=?`;
 
-            const vars = [
-                (data.belt !== undefined) ? data.belt : 0,
-                (data.amp !== undefined) ? data.amp : 0,
-                (data.ampTime !== undefined) ? data.ampTime : 0,
-                (data.invis !== undefined) ? data.invis : 0,
-                (data.invisTime !== undefined) ? data.invisTime : 0,
-                (data.pads !== undefined) ? data.pads : 0,
-                (data.armor !== undefined) ? data.armor : 0,
-                (data.boots !== undefined) ? data.boots : 0,
-                (data.super !== undefined) ? data.super : 0,
-                player
-            ];
+        const vars = [
+            (data.belt !== undefined) ? data.belt : 0,
+            (data.amp !== undefined) ? data.amp : 0,
+            (data.ampStats !== undefined) ? data.ampStats.totalTime : 0,
+            (data.invis !== undefined) ? data.invis : 0,
+            (data.invisStats !== undefined) ? data.invisStats.totalTime : 0,
+            (data.pads !== undefined) ? data.pads : 0,
+            (data.armor !== undefined) ? data.armor : 0,
+            (data.boots !== undefined) ? data.boots : 0,
+            (data.super !== undefined) ? data.super : 0,
+            player
+        ];
 
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, vars);
     }
 
 

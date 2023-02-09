@@ -877,7 +877,7 @@ class Matches{
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
-            ?,?,?,?,?
+            ?,?,?,?,?,?,?,?,?
         )`;
 
 
@@ -973,8 +973,12 @@ class Matches{
             data.shield_belt,
             data.amp,
             data.amp_time,
+            data.amp_kills,
+            data.amp_kills_single_life,
             data.invisibility,
             data.invisibility_time,
+            data.invisibility_kills,
+            data.invisibility_single_life,
 
             data.pads,
             data.armor,

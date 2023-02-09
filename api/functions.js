@@ -832,6 +832,16 @@ class Functions{
         return string;
     }
 
+
+    static scalePlaytime(playtime, bHardcore){
+
+        if(bHardcore && playtime !== 0){
+            return playtime / 1.1;      
+        }
+
+        return playtime;
+    }
+
 }
 
 module.exports = Functions;
