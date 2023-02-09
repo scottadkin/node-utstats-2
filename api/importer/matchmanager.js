@@ -38,6 +38,9 @@ class MatchManager{
 
         this.combogibLines = [];
 
+        this.bFoundMatchStart = false;
+        this.bFoundRealMatchStart = false;
+
         new Message(`Starting import of log file ${fileName}`,'note');
 
         this.convertFileToLines();
@@ -55,6 +58,12 @@ class MatchManager{
                     new Message(`Finished import of log file ${this.fileName}.`, 'note');
                     return;
                 }
+            }
+
+            if(!this.bFoundRealMatchStart){
+
+                new Message(`There is no match realstart event, skipping import.`,"note");
+                return;
             }
 
 
@@ -469,13 +478,75 @@ class MatchManager{
         }
     }
 
+    parseNStatsLine(line, playerTypes){
+
+        const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
+        const monsterReg = /monsterkill\t(\d+?)\t(.+)$/i
+        const monsterKilledPlayerReg = /mk\t(.+?)\t(.+)/;
+
+        const ctfTypes = [
+            "flag_location",
+            "flag_kill",
+            "fdl", //flag drop location,
+            "frl", //flag return location,
+            "ftor" //flag timeout return location
+        ];
+
+        const typeResult = nstatsReg.exec(line);
+
+        if(typeResult !== null){
+
+            const subType = typeResult[1].toLowerCase();
+
+            if(playerTypes.indexOf(subType) !== -1){
+
+                this.playerLines.push(line);
+
+            }else if(subType === 'kill_distance' || subType == 'kill_location'){
+
+                this.killLines.push(line);
+
+            }else if(subType === 'dom_point'){
+
+                if(this.domManager === undefined){
+                    this.domManager = new DOMManager();
+                }
+
+                this.domManager.data.push(line);
+
+            }else if(ctfTypes.indexOf(subType) !== -1){
+
+                if(this.CTFManager === undefined){
+
+                    this.CTFManager = new CTFManager();
+                }
+
+                this.CTFManager.bHaveNStatsData = true;
+
+                this.CTFManager.lines.push(line);
+
+            }else{
+
+                if(monsterReg.test(line) || monsterKilledPlayerReg.test(line)){
+
+                    if(this.monsterHuntManager === undefined){
+
+                        this.monsterHuntManager = new MonsterHuntManager();
+
+                    }
+
+                    this.monsterHuntManager.lines.push(line);
+                }      
+            }
+        }
+                 
+    }
+
     convertFileToLines(){
 
         const reg = /^(.+?)$/img;
         const typeReg = /^\d+\.\d+?\t(.+?)(\t.+|)$/i;
-        const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
-        const monsterReg = /monsterkill\t(\d+?)\t(.+)$/i
-        const monsterKilledPlayerReg = /mk\t(.+?)\t(.+)/;
+        const realStartReg = /^\d+\.\d+\tgame\trealstart$/i;
         this.lines = this.data.match(reg);
 
 
@@ -493,7 +564,6 @@ class MatchManager{
         this.itemLines = [];
         this.headshotLines = [];
 
-        let typeResult = 0;
 
         const gameTypes = [
             "game",
@@ -535,160 +605,94 @@ class MatchManager{
             "controlpoint_capture"
         ];
 
-        const ctfTypes = [
-            "flag_location",
-            "flag_kill",
-            "fdl", //flag drop location,
-            "frl", //flag return location,
-            "ftor" //flag timeout return location
-        ];
+        
 
         for(let i = 0; i < this.lines.length; i++){
 
-            typeResult = typeReg.exec(this.lines[i]);
+            const line = this.lines[i];
+            const typeResult = typeReg.exec(line);
 
+            if(typeResult === null) continue;
            
+            const currentType = typeResult[1].toLowerCase();
 
-            if(typeResult !== null){
+            if(gameTypes.indexOf(currentType) !== -1){
+                console.log(line, currentType);
 
-                const currentType = typeResult[1].toLowerCase();
+                if(currentType === "game_start") this.bFoundMatchStart = true;
 
-
-                if(gameTypes.indexOf(currentType) !== -1){
-
-                    this.gameLines.push(this.lines[i]);
+                if(realStartReg.test(line)){
+                    this.bFoundRealMatchStart = true;
                 }
 
-                if(currentType == 'info'){
+                this.gameLines.push(line);
+            }
+            if(currentType == 'info') this.serverLines.push(line);   
+            if(currentType == 'map') this.mapLines.push(line);
 
-                    this.serverLines.push(this.lines[i]);
-                }
-                
-                if(currentType == 'map'){
-
-                    this.mapLines.push(this.lines[i]);
-
-                }
-                
-                if(playerTypes.indexOf(currentType) !== -1 || currentType.startsWith('weap_')){
-
-                    this.playerLines.push(this.lines[i]);
-
-                    if(currentType.startsWith('weap_')){
-
-                        if(this.weaponsManager === undefined) this.weaponsManager = new WeaponsManager();
-
-                        this.weaponsManager.data.push(this.lines[i]);
-                    }
-
-                }
-                
-                if(currentType === 'nstats'){
-
-                    typeResult = nstatsReg.exec(this.lines[i]);
-
-                    if(typeResult !== null){
-
-                        const subType = typeResult[1].toLowerCase();
-
-                        if(playerTypes.indexOf(subType) !== -1){
-
-                            this.playerLines.push(this.lines[i]);
-
-                        }else if(subType === 'kill_distance' || subType == 'kill_location'){
-
-                            this.killLines.push(this.lines[i]);
-
-                        }else if(subType === 'dom_point'){
-
-                            if(this.domManager === undefined){
-                                this.domManager = new DOMManager();
-                            }
-
-                            this.domManager.data.push(this.lines[i]);
-
-                        }else if(ctfTypes.indexOf(subType) !== -1){
-
-                            if(this.CTFManager === undefined){
-
-                                this.CTFManager = new CTFManager();
-                            }
-
-                            this.CTFManager.bHaveNStatsData = true;
-
-                            this.CTFManager.lines.push(this.lines[i]);
-
-                        }else{
-
-                            if(monsterReg.test(this.lines[i]) || monsterKilledPlayerReg.test(this.lines[i])){
-
-                                if(this.monsterHuntManager === undefined){
-
-                                    this.monsterHuntManager = new MonsterHuntManager();
-
-                                }
-
-                                this.monsterHuntManager.lines.push(this.lines[i]);
-                            }      
-                        }
-                    }
-                    continue;
-                }
-                
-                if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide' || currentType === 'headshot'){
             
-                    this.killLines.push(this.lines[i]);
+            if(playerTypes.indexOf(currentType) !== -1 || currentType.startsWith('weap_')){
 
+                this.playerLines.push(line);
+
+                if(currentType.startsWith('weap_')){
+
+                    if(this.weaponsManager === undefined) this.weaponsManager = new WeaponsManager();
+
+                    this.weaponsManager.data.push(line);
                 }
+            }
+            
+            if(currentType === 'nstats'){
+
+                this.parseNStatsLine(line, playerTypes);
+            }
+            
+            if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide' || currentType === 'headshot'){
+        
+                this.killLines.push(line);
+
+            }
+            
+            if(assaultTypes.indexOf(currentType) !== -1){
+
+                if(this.assaultManager === undefined){
+                    this.assaultManager = new AssaultManager();
+                }
+
+                this.assaultManager.data.push(line);
+
                 
-                if(assaultTypes.indexOf(currentType) !== -1){
+            }
+            
+            if(domTypes.indexOf(currentType) !== -1){
 
-                    if(this.assaultManager === undefined){
-                        this.assaultManager = new AssaultManager();
-                    }
-
-                    this.assaultManager.data.push(this.lines[i]);
-
-                    
-                }
-                
-                if(domTypes.indexOf(currentType) !== -1){
-
-                    //console.log(currentType);
-
-                    if(this.domManager === undefined){
-                        this.domManager = new DOMManager();
-                    }
-
-                    this.domManager.data.push(this.lines[i]);
-
-                }
-                
-                if(currentType === 'item_get' || currentType === "item_activate" || currentType === "item_deactivate"){
-
-                    this.itemLines.push(this.lines[i]);
-
-                }
-                
-                if(currentType === "combo_kill" || currentType === "combo_insane"){
-
-                    this.combogibLines.push(this.lines[i]);
-                    
-                    //this.combogibManager.addComboEvent(this.lines[i]);
-                    
+                if(this.domManager === undefined){
+                    this.domManager = new DOMManager();
                 }
 
-                if(currentType.toLowerCase().startsWith("flag_")){
-                    //console.log(`WOFOWOFWOFOWOFW`);
+                this.domManager.data.push(line);
+            }
+            
+            if(currentType === 'item_get' || currentType === "item_activate" || currentType === "item_deactivate"){
 
-                    if(this.CTFManager === undefined){
-                        this.CTFManager = new CTFManager();
-                    }
+                this.itemLines.push(line);
+            }
+            
+            if(currentType === "combo_kill" || currentType === "combo_insane"){
 
-                    this.CTFManager.lines.push(this.lines[i]);
-                    // this.ctfData.push(this.lines[i]);
+                this.combogibLines.push(line);            
+                //this.combogibManager.addComboEvent(this.lines[i]);
+            }
+
+            if(currentType.toLowerCase().startsWith("flag_")){
+
+                if(this.CTFManager === undefined){
+                    this.CTFManager = new CTFManager();
                 }
-                
+
+                this.CTFManager.lines.push(line);
+                // this.ctfData.push(this.lines[i]);
             }
         }
     }
@@ -699,11 +703,9 @@ class MatchManager{
         
         if(this.gameInfo.endReason.toLowerCase() === "hunt successfull!"){
 
-            let p = 0;
-
             for(let i = 0; i < this.playerManager.players.length; i++){
 
-                p = this.playerManager.players[i];
+                const p = this.playerManager.players[i];
 
                 if(p.bPlayedInMatch && !p.bSpectator){
                     p.bWinner = true;
