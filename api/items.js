@@ -287,19 +287,43 @@ class Items{
     async updatePlayerBasicPickupData(player, data){
 
         const query = `UPDATE nstats_player_totals SET 
-            shield_belt=shield_belt+?,amp=amp+?,amp_time=amp_time+?,invisibility=invisibility+?,invisibility_time=invisibility_time+?,
+            shield_belt=shield_belt+?,
+            amp=amp+?,
+            amp_time=amp_time+?,
+            amp_kills=amp_kills+?,
+            amp_kills_best = IF(amp_kills_best < ?, ?, amp_kills_best),
+            amp_kills_best_life = IF(amp_kills_best_life < ?, ?, amp_kills_best_life),
+            invisibility=invisibility+?,
+            invisibility_time=invisibility_time+?,
+            invisibility_kills=invisibility_kills+?,
+            invisibility_kills_best = IF(invisibility_kills_best < ?, ?, invisibility_kills_best),
+            invisibility_kills_best_life = IF(invisibility_kills_best_life < ?, ?, invisibility_kills_best_life),
             pads=pads+?,armor=armor+?,boots=boots+?,super_health=super_health+? WHERE id=?`;
 
+        
+
+
+        
         const vars = [
-            (data.belt !== undefined) ? data.belt : 0,
-            (data.amp !== undefined) ? data.amp : 0,
-            (data.ampStats !== undefined) ? data.ampStats.totalTime : 0,
-            (data.invis !== undefined) ? data.invis : 0,
-            (data.invisStats !== undefined) ? data.invisStats.totalTime : 0,
-            (data.pads !== undefined) ? data.pads : 0,
-            (data.armor !== undefined) ? data.armor : 0,
-            (data.boots !== undefined) ? data.boots : 0,
-            (data.super !== undefined) ? data.super : 0,
+            data.belt,
+            data.amp,
+            data.ampStats.totalTime,
+            data.ampStats.totalKills,
+            data.ampStats.totalKills,
+            data.ampStats.totalKills,
+            data.ampStats.bestKills,
+            data.ampStats.bestKills,
+            data.invis,
+            data.invisStats.totalTime,
+            data.invisStats.totalKills,
+            data.invisStats.totalKills,
+            data.invisStats.totalKills,
+            data.invisStats.bestKills,
+            data.invisStats.bestKills,
+            data.pads,
+            data.armor,
+            data.boots,
+            data.super,
             player
         ];
 
@@ -373,12 +397,10 @@ class Items{
             const matchData = await this.getMatchData(id);
 
             const uses = {};
-
-            let m = 0;
-
+            
             for(let i = 0; i < matchData.length; i++){
 
-                m = matchData[i];
+                const m = matchData[i];
 
                 if(uses[m.item] !== undefined){
                     uses[m.item] += m.uses;

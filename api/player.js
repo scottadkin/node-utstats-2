@@ -32,7 +32,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [playerName]);
 
@@ -63,7 +63,8 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [playerName, playerMasterId, gametypeId]);
 
