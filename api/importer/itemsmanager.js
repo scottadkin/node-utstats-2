@@ -3,11 +3,12 @@ const Items = require("../items");
 
 class ItemsManager{
 
-    constructor(lines, playerManager, killsManager){
+    constructor(lines, playerManager, killsManager, totalTeams){
 
         this.lines = lines;
         this.playerManager = playerManager;
         this.killsManager = killsManager;
+        this.totalTeams = totalTeams;
 
         this.items = new Items();
 
@@ -23,6 +24,14 @@ class ItemsManager{
         this.matchData = new Map();
 
         this.itemNames = [];
+
+        this.ampKills = {
+            "red": 0,
+            "blue": 0,
+            "green": 0,
+            "yellow": 0,
+            "total": 0
+        };
 
         this.parseData();
     }
@@ -296,8 +305,26 @@ class ItemsManager{
             const currentCarryTime = endTimestamp - e.timestamp;
             e.carryTime = currentCarryTime;
             e.totalKills = totalKills;
-        }
 
+            const playerTeam = this.playerManager.getPlayerTeamAt(e.player, e.timestamp);
+
+            this.updateAmpTeamKills(playerTeam, totalKills);
+        }
+    }
+
+    updateAmpTeamKills(team, kills){
+
+        
+        this.ampKills.total += kills;
+
+        if(team === -1 || this.totalTeams < 2) return;
+
+            
+        if(team === 0) this.ampKills.red += kills;
+        if(team === 1) this.ampKills.blue += kills;
+        if(team === 2) this.ampKills.green += kills;
+        if(team === 3) this.ampKills.yellow += kills;
+        
     }
 
     getPlayerItemStats(player, item){
@@ -312,7 +339,7 @@ class ItemsManager{
 
             if(e.player !== player) continue;
             if(e.bDeactivate) continue;
-            
+
             const fixedItemName = e.item.replace(/\s/ig,"").toLowerCase();
 
             if(fixedItemName === "damageamplifier" && item === "amp"){
@@ -332,6 +359,7 @@ class ItemsManager{
 
         return {"totalTime": totalTime, "totalKills": totalKills, "bestKills": bestKills};
     }
+
 
     async setPlayerMatchPickups(matchId){
 
@@ -354,6 +382,12 @@ class ItemsManager{
         }catch(err){
             new Message(`ItemsManager.setPlayerMatchPickups() ${err}`,"error");
         }
+    }
+
+
+    async setMatchAmpStats(matchId){
+
+        await this.items.updateMatchAmpKills(matchId, this.ampKills);
     }
     
 }

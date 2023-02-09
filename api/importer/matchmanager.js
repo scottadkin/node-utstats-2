@@ -278,7 +278,7 @@ class MatchManager{
                 this.weaponsManager = new WeaponsManager();
             }
 
-            this.itemsManager = new ItemsManager(this.itemLines, this.playerManager, this.killManager);
+            this.itemsManager = new ItemsManager(this.itemLines, this.playerManager, this.killManager, this.gameInfo.totalTeams);
           
             await this.itemsManager.updateTotals(this.serverInfo.date);
 
@@ -292,6 +292,7 @@ class MatchManager{
             new Message(`Updated item totals.`,'pass');
             await this.itemsManager.insertMatchData(this.matchId, this.serverInfo.date);
             new Message(`Updated item match data.`,'pass');
+            await this.itemsManager.setMatchAmpStats(this.matchId);
 
             await this.playerManager.insertConnectionData(this.matchId);
             new Message(`Updated played connection data.`,'pass');
@@ -617,7 +618,6 @@ class MatchManager{
             const currentType = typeResult[1].toLowerCase();
 
             if(gameTypes.indexOf(currentType) !== -1){
-                console.log(line, currentType);
 
                 if(currentType === "game_start") this.bFoundMatchStart = true;
 

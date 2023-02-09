@@ -783,6 +783,29 @@ class Items{
 
         return unique;
     }
+
+
+    async updateMatchAmpKills(matchId, ampKills){
+
+        const query = `UPDATE nstats_matches SET 
+        amp_kills=?,
+        amp_kills_team_0=?,
+        amp_kills_team_1=?,
+        amp_kills_team_2=?,
+        amp_kills_team_3=? 
+        WHERE id=?`;
+
+        const vars = [
+            ampKills.total,
+            ampKills.red,
+            ampKills.blue,
+            ampKills.green,
+            ampKills.yellow,
+            matchId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
 }
 
 module.exports = Items;
