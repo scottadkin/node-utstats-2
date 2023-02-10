@@ -33,6 +33,12 @@ class ItemsManager{
             "total": 0
         };
 
+
+        //kill on players that had the amp powerup
+        this.ampPlayerKills = [];
+        this.ampUserKills = {};
+        this.ampUserSuicides = {};
+
         this.parseData();
     }
 
@@ -278,6 +284,51 @@ class ItemsManager{
         return null;
     }
 
+    updateAmpDeaths(death){
+
+        const type = death.type;
+
+        if(type !== "kill" && type !== "suicide") return;
+
+        const data = (type === "kill") ? this.ampUserKills : this.ampUserSuicides;
+
+        let killerId = death.killerId;
+
+        if(type === "kill"){
+            this.ampPlayerKills.push({
+                "killerId": death.killerId,
+                "timestamp": death.timestamp
+            });
+        }
+        
+        if(data[killerId] === undefined){
+            data[killerId] = 0;
+        }
+
+        data[killerId]++;
+    }
+
+    getItemEnd(startTimestamp, item, playerId){
+
+        const closestDeativate = this.getDeactiveDataTimestamp(startTimestamp, item, playerId);
+
+        const closestDeath = this.killsManager.getPlayerNextDeath(playerId, startTimestamp);
+
+        if(closestDeativate === null && closestDeath === null){
+            return null;
+        }
+
+        if(closestDeativate !== null && closestDeath !== null){
+
+            if(closestDeativate < closestDeath.timestamp) return closestDeativate;
+            return closestDeath;
+        }
+
+        if(closestDeath !== null && closestDeativate === null) return closestDeath;
+        if(closestDeath === null && closestDeativate !== null) return closestDeativate;
+
+    }
+
     setPlayerPickupTimes(matchEnd){
 
 
@@ -285,20 +336,33 @@ class ItemsManager{
 
             const e = this.events[i];
 
+            const item = e.item.replace(/\s/ig, "").toLowerCase();
+
+            //console.log(item);
+
+            if(item !== "damageamplifier" && item !== "invisibility") continue;
+
             if(e.bDeactivate) continue;
 
-            let endTimestamp = this.getDeactiveDataTimestamp(e.timestamp, e.item, e.player);
+            const endInfo = this.getItemEnd(e.timestamp, e.item, e.player);
 
-            if(endTimestamp === null){
+            let endTimestamp = matchEnd;
 
-                const nextDeath = this.killsManager.getPlayerNextDeath(e.player, e.timestamp);
+            if(endInfo !== null){
 
-                if(nextDeath === null){
-                    endTimestamp = matchEnd;
+                if(item === "damageamplifier" && endInfo.timestamp !== undefined){
+                    this.updateAmpDeaths(endInfo);
+                }
+
+                if(endInfo.timestamp !== undefined){
+                    endTimestamp = endInfo.timestamp;
                 }else{
-                    endTimestamp = nextDeath.timestamp;
+                    endTimestamp = endInfo;
                 }
             }
+
+
+
 
             const totalKills = this.killsManager.getKillsBetween(e.timestamp, endTimestamp, e.player, true);
 
@@ -308,17 +372,17 @@ class ItemsManager{
 
             const playerTeam = this.playerManager.getPlayerTeamAt(e.player, e.timestamp);
 
-            this.updateAmpTeamKills(playerTeam, totalKills);
+            if(item === "damageamplifier"){
+                this.updateAmpTeamKills(playerTeam, totalKills);
+            }
         }
     }
 
     updateAmpTeamKills(team, kills){
 
-        
         this.ampKills.total += kills;
 
         if(team === -1 || this.totalTeams < 2) return;
-
             
         if(team === 0) this.ampKills.red += kills;
         if(team === 1) this.ampKills.blue += kills;
@@ -332,7 +396,7 @@ class ItemsManager{
         let totalTime = 0;
         let totalKills = 0;
         let bestKills = 0;
-        
+
         for(let i = 0; i < this.events.length; i++){
 
             const e = this.events[i];
@@ -360,22 +424,67 @@ class ItemsManager{
         return {"totalTime": totalTime, "totalKills": totalKills, "bestKills": bestKills};
     }
 
+    //kills on a udamage player
+    getPlayerAmpPlayerKillStats(playerId){
+
+        let totalKills = 0;
+        let bestKills = 0;
+        let currentLife = 0;
+
+        let previousTimestamp = 0;
+
+        for(let i = 0; i < this.ampPlayerKills.length; i++){
+
+            const {killerId, timestamp} = this.ampPlayerKills[i];
+
+            if(killerId !== playerId) continue;
+
+            const totalDeaths = this.killsManager.getDeathsBetween(previousTimestamp, timestamp, killerId);
+
+            if(totalDeaths > 0) currentLife = 0;
+
+            totalKills++;
+            currentLife++;
+
+            if(currentLife > bestKills) bestKills = currentLife;
+            previousTimestamp = timestamp;
+        }
+
+
+        return {"totalKills": totalKills, "bestKills": bestKills}
+
+    }
+
+    getPlayerAmpSuicides(playerId){
+
+        if(this.ampUserSuicides[playerId] !== undefined){
+            return this.ampUserSuicides[playerId];
+        }
+
+        return 0;
+    }
+
 
     async setPlayerMatchPickups(matchId){
 
         try{
 
 
-            for(const [playerId, value] of Object.entries(this.playerPickups)){
+            for(const [pId, value] of Object.entries(this.playerPickups)){
 
-                const ampStats = this.getPlayerItemStats(parseInt(playerId), "amp");
-                const invisStats = this.getPlayerItemStats(parseInt(playerId), "invis");
+                const playerId = parseInt(pId);
+
+                const ampStats = this.getPlayerItemStats(playerId, "amp");
+                const invisStats = this.getPlayerItemStats(playerId, "invis");
                
                 value.ampStats = ampStats;
                 value.invisStats = invisStats;
 
-                await this.items.setPlayerMatchPickups(matchId, parseInt(playerId), value);
-                await this.items.updatePlayerBasicPickupData(parseInt(playerId), value);
+                value.ampStats.ampPlayerKills = this.getPlayerAmpPlayerKillStats(playerId);
+                value.ampStats.suicides = this.getPlayerAmpSuicides(playerId);
+
+                await this.items.setPlayerMatchPickups(matchId, playerId, value);
+                await this.items.updatePlayerBasicPickupData(playerId, value);
                
             }
 

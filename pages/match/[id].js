@@ -38,6 +38,7 @@ import MatchCTFCarryTime from '../../components/MatchCTFCarryTime';
 import MatchCTFReturns from '../../components/MatchCTFReturns';
 import Loading from '../../components/Loading';
 import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
+import MatchPowerUpKills from '../../components/MatchPowerupKills';
 
 
 const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, 
@@ -433,7 +434,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
 
-             
+                    <MatchPowerUpKills />
 
                     {renderTitleElem()}
 
@@ -450,26 +451,6 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
 
 /*
-function Match({navSettings, pageSettings, pageOrder, session, host, matchId, info, server, gametype,
-    map, image, playerData, weaponData, domControlPointNames, 
-    assaultData,  teams, faces, rankingChanges, currentRankings,
-    rankingPositions, bMonsterHunt, error}){
-
-
-    const parsedInfo = JSON.parse(info);
-    const parsedPlayerData = JSON.parse(playerData);
-    const parsedSession = JSON.parse(session);
-
-    pageSettings = JSON.parse(pageSettings);
-    pageOrder = JSON.parse(pageOrder);
-
-    let {playerNames, justPlayerNames, nonSpectators} = createBasicPlayerData(parsedPlayerData);
-
-    const basicPlayersObject = createBasicPlayersObject(playerNames);
-
-    playerNames = JSON.stringify(playerNames);
-
-    const elems = [];
 
     if(parsedInfo.mh){
 
@@ -478,14 +459,6 @@ function Match({navSettings, pageSettings, pageOrder, session, host, matchId, in
             playerData={JSON.parse(playerData)} 
             matchId={parsedInfo.id}
         />;
-    }
-
-    if(pageSettings["Display Combogib Stats"] === "true"){
-
-        elems[pageOrder["Display Combogib Stats"]] = <CombogibMatchStats key={"combo-stats"} matchId={parsedInfo.id} 
-            players={basicPlayersObject} totalTeams={parsedInfo.total_teams}
-        />;
-
     }
 
 */

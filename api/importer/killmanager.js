@@ -460,7 +460,6 @@ class KillManager{
     getDeathsBetween(start, end, victim, bMonsterHunt){
 
         let found = 0;
-
         let currentVictim = 0;
 
         for(let i = 0; i < this.kills.length; i++){
@@ -468,20 +467,31 @@ class KillManager{
             const k = this.kills[i];
             
             if(k.timestamp > end) break;
+            if(k.timestamp < start) continue;
 
-            if(k.type === 'kill'){
+            if(k.type === "kill"){
 
-                if(k.timestamp >= start){
+                currentVictim = this.playerManager.getPlayerByMasterId(k.victimId);
 
-                    currentVictim = this.playerManager.getPlayerByMasterId(k.victimId);
+                if(currentVictim !== null){
 
-                    if(currentVictim !== null){
+                    if(currentVictim.masterId === victim) found++;
 
-                        if(currentVictim.masterId === victim) found++;
+                }else{
+                    new Message(`KillManager.getDeathsBetween() currentVictim is null`,'warning');
+                }
+            }
 
-                    }else{
-                        new Message(`KillManager.getDeathsBetween() currentVictim is null`,'warning');
-                    }
+            if(k.type === "suicide" && bMonsterHunt === undefined){
+
+                currentVictim = this.playerManager.getPlayerByMasterId(k.killerId);
+
+                if(currentVictim !== null){
+
+                    if(currentVictim.masterId === victim) found++;
+
+                }else{
+                    new Message(`KillManager.getDeathsBetween() currentVictim is null (suicide)`,'warning');
                 }
             }
 
