@@ -1437,7 +1437,27 @@ const queries = [
       flag_self_cover_fail INT(11) NOT NULL,
       flag_self_cover_fail_best INT(11) NOT NULL,
       best_single_self_cover INT(11) NOT NULL,
-      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+
+      `CREATE TABLE IF NOT EXISTS nstats_powerups (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        name varchar(100) NOT NULL,
+        display_name varchar(100) NOT NULL,
+        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+      `CREATE TABLE nstats_powerups_carry_times (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        match_id int(11) NOT NULL,
+        match_date int(11) NOT NULL,
+        player_id int(11) NOT NULL,
+        powerup_id int(11) NOT NULL,
+        start_timestamp float NOT NULL,
+        end_timestamp float NOT NULL,
+        carry_time float NOT NULL,
+        kills int(11) NOT NULL,
+        end_reason int(1) NOT NULL,
+        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
 
 ];
 

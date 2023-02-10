@@ -1,5 +1,6 @@
 const Message = require("../message");
 const Items = require("../items");
+const PowerUpManager = require("./powerupmanager");
 
 class ItemsManager{
 
@@ -11,6 +12,9 @@ class ItemsManager{
         this.totalTeams = totalTeams;
 
         this.items = new Items();
+        this.powerUpManager = new PowerUpManager();
+
+        this.powerUpNames = new Set();
 
         this.data = [];
 
@@ -51,6 +55,8 @@ class ItemsManager{
         const item = result[2];
         const playerId = parseInt(result[3]);
 
+        this.powerUpManager.addName(item);
+
         const player = this.playerManager.getPlayerById(playerId);
 
         if(player === null){
@@ -74,6 +80,7 @@ class ItemsManager{
         const reg = /^(\d+?\.\d+?)\titem_get\t(.+?)\t(.+)$/i;
  
         let currentItems = 0;
+        
 
         for(let i = 0; i < this.lines.length; i++){
 
@@ -340,7 +347,7 @@ class ItemsManager{
 
             //console.log(item);
 
-            if(item !== "damageamplifier" && item !== "invisibility") continue;
+            //if(item !== "damageamplifier" && item !== "invisibility") continue;
 
             if(e.bDeactivate) continue;
 
@@ -355,11 +362,23 @@ class ItemsManager{
                 }
 
                 if(endInfo.timestamp !== undefined){
+
+                    if(endInfo.type === "kill"){
+                        e.endReason = 1;
+                    }else if(endInfo.type === "suicide"){
+                        e.endReason = 2;
+                    }
                     endTimestamp = endInfo.timestamp;
                 }else{
+                    e.endReason = 0;
                     endTimestamp = endInfo;
                 }
+            }else{
+
+                e.endReason = -1;
             }
+
+            e.endTimestamp = endTimestamp;
 
 
 
@@ -497,6 +516,16 @@ class ItemsManager{
     async setMatchAmpStats(matchId){
 
         await this.items.updateMatchAmpKills(matchId, this.ampKills);
+
+        
+    }
+
+
+    async updatePowerUps(matchId, matchDate){
+
+        await this.powerUpManager.createIdsToNames();
+        this.powerUpManager.addEvents(this.events);
+        await this.powerUpManager.insertMatchData(matchId, matchDate);
     }
     
 }
