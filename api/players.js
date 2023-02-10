@@ -544,8 +544,8 @@ class Players{
                 ?,?,?,?,?, 
                 ?,?,?,?,?, 
                 ?,?,?,?,?,?, 
-                ?,?,?,?,?,?,
-                ?,?,?,?,?,?
+                ?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?
             )`;
 
             const d = data;
@@ -571,7 +571,8 @@ class Players{
                 d.flag_kill, d.flag_save, d.flag_carry_time, d.assault_objectives, d.dom_caps,
                 d.dom_caps_best, d.dom_caps_best_life, d.accuracy, d.k_distance_normal, d.k_distance_long,
                 d.k_distance_uber, d.headshots, d.shield_belt, d.amp, d.amp_time, d.amp_kills, 
-                d.amp_kills_best, d.amp_kills_best_life,
+                d.amp_kills_best, d.amp_kills_best_life, d.amp_player_kills, d.amp_player_kills_best, d.amp_player_kills_single_life,
+                d.amp_suicides,d.amp_suicides_best,
                 d.invisibility, d.invisibility_time, d.invisibility_kills, d.invisibility_kills_best, d.invisibility_kills_best_life,
                 d.pads, d.armor, d.boots, d.super_health,
                 d.mh_kills, d.mh_kills_best_life, d.mh_kills_best, d.views, d.mh_deaths, d.mh_deaths_worst
