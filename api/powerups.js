@@ -27,14 +27,38 @@ class PowerUps{
 
 
     //end reasons : -1 match ended, 0 power up ended, 1 killed, 2 suicide
-    async insertPlayerMatchData(matchId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason){
+    async insertPlayerCarryTimes(matchId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason){
 
         const query = `INSERT INTO nstats_powerups_carry_times VALUES(NULL,?,?,?,?,?,?,?,?,?)`;
         const vars = [matchId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason];
 
         return await mysql.simpleQuery(query, vars);
+    }
 
+    async insertPlayerMatchData(matchId, matchDate, playerId, powerUpId, stats){
+
+        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [
+            matchId,
+            matchDate, 
+            playerId,
+            powerUpId,
+            stats.timesUsed,
+            stats.carryTime,
+            stats.bestCarryTime,
+            stats.totalKills,
+            stats.bestKills,
+            stats.totalDeaths,
+            stats.totalSuicides,
+            stats.totalTimeouts,
+            stats.matchEnds
+        ];
+
+        return await mysql.simpleQuery(query, vars);
     }
 }
+
+
 
 module.exports = PowerUps;
