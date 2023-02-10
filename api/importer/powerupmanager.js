@@ -2,8 +2,9 @@ const PowerUps = require("../powerups");
 
 class PowerUpManager{
 
-    constructor(){
+    constructor(playerManager){
 
+        this.playerManager = playerManager;
         this.powerUps = new PowerUps();
         this.names = [];
         this.namesToIds = {};
@@ -116,7 +117,21 @@ class PowerUpManager{
 
             for(const [powerUpId, stats] of Object.entries(playerStats)){
 
-                await this.powerUps.insertPlayerMatchData(matchId, matchDate, playerId, powerUpId, stats)
+                await this.powerUps.insertPlayerMatchData(matchId, matchDate, playerId, powerUpId, stats);
+
+                //const playerPlaytime = this.playerManager.getTotalPlaytime();
+
+                const player = this.playerManager.getPlayerByMasterId(playerId);
+
+                let playtime = 0;
+
+                if(player !== null){
+                    playtime = player.getTotalPlaytime(this.totalTeams);
+                }
+
+                await this.powerUps.updatePlayerTotals(playerId, powerUpId, stats, playtime);
+
+                //await this.powerUps.bPlayerTotalExist(playerId, powerUpId, playtime);
             }
         }
     }

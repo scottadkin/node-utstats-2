@@ -12,7 +12,7 @@ class ItemsManager{
         this.totalTeams = totalTeams;
 
         this.items = new Items();
-        this.powerUpManager = new PowerUpManager();
+        this.powerUpManager = new PowerUpManager(playerManager);
 
         this.powerUpNames = new Set();
 
@@ -521,7 +521,9 @@ class ItemsManager{
     }
 
 
-    async updatePowerUps(matchId, matchDate){
+    async updatePowerUps(matchId, matchDate, totalTeams){
+
+        this.powerUpManager.totalTeams = totalTeams;
 
         await this.powerUpManager.createIdsToNames();
         this.powerUpManager.addEvents(this.events);

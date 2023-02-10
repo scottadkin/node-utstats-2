@@ -1474,7 +1474,26 @@ const queries = [
           end_suicides int NOT NULL,
           end_timeouts int NOT NULL,
           end_match_end int NOT NULL,
-          PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+          PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+          `CREATE TABLE nstats_powerups_player_totals (
+            id int NOT NULL AUTO_INCREMENT,
+            player_id int NOT NULL,
+            total_matches int NOT NULL,
+            total_playtime float NOT NULL,
+            powerup_id int NOT NULL,
+            times_used int NOT NULL,
+            times_used_best int NOT NULL,
+            carry_time float NOT NULL,
+            carry_time_best float NOT NULL,
+            total_kills int NOT NULL,
+            best_kills int NOT NULL,
+            best_kills_single_use int NOT NULL,
+            end_deaths int NOT NULL,
+            end_suicides int NOT NULL,
+            end_timeouts int NOT NULL,
+            end_match_end int NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
 
 ];
 
