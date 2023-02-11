@@ -141,6 +141,52 @@ class PowerUps{
 
         return await mysql.simpleQuery(query, vars);
     }
+
+
+    async getMatchPlayerData(matchId){
+
+        const query = `SELECT player_id,powerup_id,	times_used,carry_time,carry_time_best,
+        total_kills,best_kills,end_deaths,end_suicides,end_timeouts,end_match_end
+        FROM nstats_powerups_player_match WHERE match_id=?`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
+    getUniquePowerupIds(playerMatchData){
+
+        const found = new Set();
+
+        for(let i = 0; i < playerMatchData.length; i++){
+
+            const p = playerMatchData[i];
+
+            found.add(p.powerup_id);
+        }
+
+        return [...found];
+    }
+
+    async getItemNames(ids){
+
+        console.log("FARARARARARARARAARRRARARA");
+        console.log(ids);
+
+        if(ids.length === 0) return {};
+
+        const query = `SELECT id,name FROM nstats_powerups WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [ids]);
+
+        const found = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            found[r.id] = r.name;
+        }
+
+        return found;
+    }
 }
 
 

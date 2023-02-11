@@ -14,7 +14,7 @@ import MatchCTFSummary from '../../components/MatchCTFSummary/';
 import TeamsSummary from '../../components/TeamsSummary/';
 import Screenshot from '../../components/Screenshot/';
 import Functions from '../../api/functions';
-import MatchPowerUpControl from '../../components/MatchPowerUpControl/';
+import MatchItemsSummary from '../../components/MatchItemsSummary/';
 import MatchServerSettings from '../../components/MatchServerSettings/';
 import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
@@ -38,7 +38,7 @@ import MatchCTFCarryTime from '../../components/MatchCTFCarryTime';
 import MatchCTFReturns from '../../components/MatchCTFReturns';
 import Loading from '../../components/Loading';
 import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
-import MatchPowerUpKills from '../../components/MatchPowerupKills';
+import MatchPowerupSummary from '../../components/MatchPowerupSummary';
 
 
 const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, 
@@ -312,9 +312,9 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         }
 
 
-        if(pageSettings["Display Powerup Control"] === "true"){
+        if(pageSettings["Display Items Summary"] === "true"){
 
-            elems[pageOrder["Display Powerup Control"]] = <MatchPowerUpControl 
+            elems[pageOrder["Display Items Summary"]] = <MatchItemsSummary
                 host={imageHost} key={`match-power-control`}        
                 totalTeams={info.total_teams}
                 matchId={matchId}
@@ -434,7 +434,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
 
-                    <MatchPowerUpKills />
+                    <MatchPowerupSummary matchId={matchId} totalTeams={info.total_teams} players={players.basicPlayers}/>
 
                     {renderTitleElem()}
 

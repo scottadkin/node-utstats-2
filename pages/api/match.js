@@ -10,6 +10,7 @@ import Assault from "../../api/assault";
 import Rankings from "../../api/rankings";
 import Teams from "../../api/teams";
 import Items from "../../api/items";
+import PowerUps from "../../api/powerups";
 
 export default async function handler(req, res){
 
@@ -350,6 +351,24 @@ export default async function handler(req, res){
             const itemNames = await itemManager.getNamesByIds(itemIds, true);
 
             res.status(200).json({"uses": uses, "itemNames": itemNames});
+            return;
+        }
+
+        if(mode === "powerups"){
+
+            const powerupManager = new PowerUps();
+
+            const playerData = await powerupManager.getMatchPlayerData(matchId);
+
+            const uniqueIds = powerupManager.getUniquePowerupIds(playerData);
+
+            const names = await powerupManager.getItemNames(uniqueIds);
+
+            //console.log(playerData);
+            //console.log(uniqueIds);
+            console.log(names);
+
+            res.status(200).json({"names": names, "playerData": playerData});
             return;
         }
 
