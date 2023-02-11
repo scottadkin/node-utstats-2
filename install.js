@@ -1316,7 +1316,7 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Ammo Control","true",19)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Health/Armour Control","true",20)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapons Control","true",21)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Powerup Control","true",22)`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Items Summary","true",22)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Pickup Summary","true",23)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Kills Match Up","true",24)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Weapon Statistics","true",25)`,

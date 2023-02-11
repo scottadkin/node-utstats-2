@@ -4,7 +4,7 @@ import BarChart from '../BarChart';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
 
-const renderTeamTabs = (totalTeams, dispatch) =>{
+const renderTeamTabs = (totalTeams, dispatch, state) =>{
 
     if(totalTeams < 2) return null;
 
@@ -20,7 +20,7 @@ const renderTeamTabs = (totalTeams, dispatch) =>{
     </div>
 }
 
-const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
+const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
 
     const reducer = (state, action) =>{
 
@@ -59,6 +59,7 @@ const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
                     "itemTotals": action.payload.itemTotals
                 };
             }
+            default: return state
         }
     }
 
@@ -213,16 +214,16 @@ const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
     
 
 
-    if(state.error !== null) return <ErrorMessage title="Powerup Control" text={state.error}/>
+    if(state.error !== null) return <ErrorMessage title="Items Summary" text={state.error}/>
     if(state.bLoading) return <Loading />;
 
     if(state.itemNames.length === 0) return null;
 
     return <div>
-        <div className="default-header">Powerup Control</div>
+        <div className="default-header">Items Summary</div>
 
 
-        {renderTeamTabs(totalTeams, dispatch)}
+        {renderTeamTabs(totalTeams, dispatch, state)}
 
         <div className="tabs">
             <div className={`tab ${(state.mode === 1) ? "tab-selected" : ""}`} 
@@ -253,4 +254,4 @@ const MatchPowerUpControl = ({matchId, players, totalTeams}) =>{
 }
 
 
-export default MatchPowerUpControl;
+export default MatchItemsSummary;
