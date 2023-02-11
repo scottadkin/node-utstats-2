@@ -42,7 +42,8 @@ const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
         "bestKills": {"title": "Best Kills", "detailedTitle": "Best Kills Single Use", "content": "The most amount of kills a player got in a single use."},
         "deaths": {"title": "Deaths", "detailedTitle": "Deaths Carrying Powerup", "content": "Total deaths the player had while carrying the item."},
         "suicides": {"title": "Suicides", "detailedTitle": "Suicides Carrying Powerup", "content": "Total suicides the player had while carrying the item."},
-        "carrierKills": {"title": "Carrier Kills", "content": "Kills on players carrying this item."}
+        "carrierKills": {"title": "Carrier Kills", "content": "Kills on players carrying this item."},
+        "bestCarrierKills": {"title": "Best Carrier Kills", "content": "Most kills on players carrying this item in a single life."},
         
     };
 
@@ -120,6 +121,10 @@ const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
             "carrierKills": {
                 "value": stats.carrier_kills,
                 "displayValue": Functions.ignore0(stats.carrier_kills)
+            },
+            "bestCarrierKills": {
+                "value": stats.carrier_kills_best,
+                "displayValue": Functions.ignore0(stats.carrier_kills_best)
             }
         };
     });

@@ -185,7 +185,7 @@ class PowerUpManager{
                 }
 
                 current++;
-                
+
                 lastKillTimestamp = e.timestamp;
             }
 
@@ -201,11 +201,20 @@ class PowerUpManager{
 
         for(const [playerId, powerupStats] of Object.entries(this.carrierKills)){
 
+            const player = this.playerManager.getPlayerByMasterId(playerId);
+
+            let playtime = -1;
+
+            if(player !== null){
+                playtime = player.getTotalPlaytime(this.totalTeams);
+            }
+
             for(const [powerUpId, totalKills] of Object.entries(powerupStats)){
 
                 const bestKills = this.getBestCarrierKills(playerId, powerUpId);
    
                 await this.powerUps.updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills, bestKills);
+                await this.powerUps.updatePlayerTotalCarrierKills(playerId, powerUpId, playtime, totalKills, bestKills);
             }
         }
     }
