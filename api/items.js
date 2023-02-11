@@ -257,9 +257,8 @@ class Items{
     async setPlayerMatchPickups(matchId, player, data){
 
         const query = `UPDATE nstats_player_matches SET 
-            shield_belt=?,amp=?,amp_time=?,amp_kills=?,amp_kills_single_life=?,amp_player_kills=?,amp_player_kills_single_life=?,
-            amp_suicides=?,
-            invisibility=?,invisibility_time=?,invisibility_kills=?,invisibility_kills_single_life=?,
+            shield_belt=?,amp=?,amp_time=?,
+            invisibility=?,invisibility_time=?,
             pads=?,armor=?,boots=?,super_health=?
             WHERE match_id=? AND player_id=?`;
 
@@ -267,15 +266,8 @@ class Items{
             data.belt,
             data.amp,
             data.ampStats.totalTime,
-            data.ampStats.totalKills,
-            data.ampStats.bestKills,
-            data.ampStats.ampPlayerKills.totalKills,
-            data.ampStats.ampPlayerKills.bestKills,
-            data.ampStats.suicides,
             data.invis,
             data.invisStats.totalTime,
-            data.invisStats.totalKills,
-            data.invisStats.bestKills,
             data.pads,
             data.armor,
             data.boots,
