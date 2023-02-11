@@ -286,22 +286,9 @@ class Items{
             shield_belt=shield_belt+?,
             amp=amp+?,
             amp_time=amp_time+?,
-            amp_kills=amp_kills+?,
-            amp_kills_best = IF(amp_kills_best < ?, ?, amp_kills_best),
-            amp_kills_best_life = IF(amp_kills_best_life < ?, ?, amp_kills_best_life),
-
-            amp_player_kills = amp_player_kills+?,
-            amp_player_kills_best = IF(amp_player_kills_best < ?, ?, amp_player_kills_best),
-            amp_player_kills_single_life = IF(amp_player_kills_single_life < ?, ?, amp_player_kills_single_life),
-
-            amp_suicides=amp_suicides+?,
-            amp_suicides_best = IF(amp_suicides_best < ?, ?, amp_suicides_best),
 
             invisibility=invisibility+?,
             invisibility_time=invisibility_time+?,
-            invisibility_kills=invisibility_kills+?,
-            invisibility_kills_best = IF(invisibility_kills_best < ?, ?, invisibility_kills_best),
-            invisibility_kills_best_life = IF(invisibility_kills_best_life < ?, ?, invisibility_kills_best_life),
             pads=pads+?,armor=armor+?,boots=boots+?,super_health=super_health+? WHERE id=?`;
 
         
@@ -312,31 +299,8 @@ class Items{
             data.belt,
             data.amp,
             data.ampStats.totalTime,
-            data.ampStats.totalKills,
-            data.ampStats.totalKills,
-            data.ampStats.totalKills,
-            data.ampStats.bestKills,
-            data.ampStats.bestKills,
-
-            data.ampStats.ampPlayerKills.totalKills,
-            data.ampStats.ampPlayerKills.totalKills,
-            data.ampStats.ampPlayerKills.totalKills,
-            data.ampStats.ampPlayerKills.bestKills,
-            data.ampStats.ampPlayerKills.bestKills,
-
-            data.ampStats.suicides,
-            data.ampStats.suicides,
-            data.ampStats.suicides,
- 
-
-
             data.invis,
             data.invisStats.totalTime,
-            data.invisStats.totalKills,
-            data.invisStats.totalKills,
-            data.invisStats.totalKills,
-            data.invisStats.bestKills,
-            data.invisStats.bestKills,
             data.pads,
             data.armor,
             data.boots,

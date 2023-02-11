@@ -25,6 +25,7 @@ class Player{
 
     async createMasterId(playerName){
 
+        //67 + id
         const query = `INSERT INTO nstats_player_totals VALUES(
             NULL,?,0,0,0,0,"",0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -32,7 +33,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [playerName]);
 
@@ -56,6 +57,7 @@ class Player{
 
     async createGametypeId(playerName, playerMasterId, gametypeId){
 
+        //67 + id
         const query = `INSERT INTO nstats_player_totals VALUES(
             NULL,?,?,0,0,0,"",0,0,?,
             0,0,0,0,0,0,0,0,0,0,
@@ -63,8 +65,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [playerName, playerMasterId, gametypeId]);
 
