@@ -12,6 +12,9 @@ class PowerUpManager{
 
         this.playerTotals = {};
 
+        //kills a player gets on a player that is holding an item
+        this.carrierKills = {};
+
     }
 
     addName(name){
@@ -59,22 +62,38 @@ class PowerUpManager{
         if(event.endReason === 2) item.totalSuicides++;
     }
 
+    updateCarrierKills(playerId, itemId){
+
+        if(this.carrierKills[playerId] === undefined){
+            this.carrierKills[playerId] = {};
+        }
+
+        const kills = this.carrierKills[playerId];
+
+        if(kills[itemId] === undefined){
+            kills[itemId] = 0;
+        }
+
+        kills[itemId]++;
+    }
+
     addEvents(events){
 
-        //this.events = events;
-
-        //console.log(this.events);
 
         this.powerUpHistory = [];
-
 
         for(let i = 0; i < events.length; i++){
 
             const e = events[i];
 
             if(e.endTimestamp === undefined) continue;
-           // console.log(e);
+
             e.powerUpId = this.namesToIds[e.item];
+
+            if(e.killerId !== undefined){
+                this.updateCarrierKills(e.killerId, e.powerUpId)
+            }
+
             this.powerUpHistory.push(e);
 
             this.updatePlayerTotal(e);
@@ -136,11 +155,30 @@ class PowerUpManager{
         }
     }
 
+
+    async insertCarrierKills(matchId, matchDate){
+
+        //updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills)
+
+        for(const [playerId, powerupStats] of Object.entries(this.carrierKills)){
+
+            for(const [powerUpId, totalKills] of Object.entries(powerupStats)){
+
+                console.log(playerId, powerUpId, totalKills);
+                await this.powerUps.updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills);
+            }
+        }
+    }
+
     async insertMatchData(matchId, matchDate){
 
         await this.insertCarryTimes(matchId, matchDate);
         await this.insertPlayerMatchData(matchId, matchDate);
+
+        await this.insertCarrierKills(matchId, matchDate);
+        //console.log(this.powerUpHistory);
         
+        console.log(this.carrierKills);
 
     }
 }

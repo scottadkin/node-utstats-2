@@ -28,14 +28,6 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const getPowerupName = (powerups, id) =>{
-
-    if(powerups[id] !== undefined) return powerups[id];
-
-    return "Not Found";
-}
-
-
 
 const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
 
@@ -50,6 +42,7 @@ const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
         "bestKills": {"title": "Best Kills", "detailedTitle": "Best Kills Single Use", "content": "The most amount of kills a player got in a single use."},
         "deaths": {"title": "Deaths", "detailedTitle": "Deaths Carrying Powerup", "content": "Total deaths the player had while carrying the item."},
         "suicides": {"title": "Suicides", "detailedTitle": "Suicides Carrying Powerup", "content": "Total suicides the player had while carrying the item."},
+        "carrierKills": {"title": "Carrier Kills", "content": "Kills on players carrying this item."}
         
     };
 
@@ -123,6 +116,10 @@ const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
             "deaths": {
                 "value": stats.end_deaths,
                 "displayValue": Functions.ignore0(stats.end_deaths)
+            },
+            "carrierKills": {
+                "value": stats.carrier_kills,
+                "displayValue": Functions.ignore0(stats.carrier_kills)
             }
         };
     });

@@ -345,10 +345,6 @@ class ItemsManager{
 
             const item = e.item.replace(/\s/ig, "").toLowerCase();
 
-            //console.log(item);
-
-            //if(item !== "damageamplifier" && item !== "invisibility") continue;
-
             if(e.bDeactivate) continue;
 
             const endInfo = this.getItemEnd(e.timestamp, e.item, e.player);
@@ -364,7 +360,10 @@ class ItemsManager{
                 if(endInfo.timestamp !== undefined){
 
                     if(endInfo.type === "kill"){
+                        
                         e.endReason = 1;
+                        e.killerId = endInfo.killerId;
+
                     }else if(endInfo.type === "suicide"){
                         e.endReason = 2;
                     }
