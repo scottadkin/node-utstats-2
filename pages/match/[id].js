@@ -380,8 +380,18 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
             elems[pageOrder["Display Combogib Stats"]] = <CombogibMatchStats key={"combo-stats"} matchId={matchId} 
                 players={players.basicPlayers} totalTeams={info.total_teams}
             />
-
         }
+
+        if(pageSettings["Display Powerup Control"] === "true"){
+
+            elems[pageOrder["Display Powerup Control"]] = <MatchPowerupSummary 
+                key={"m-pp-c"} 
+                matchId={matchId} 
+                totalTeams={info.total_teams} 
+                players={players.basicPlayers}
+            />;
+        }
+
 
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={players.basicPlayers} mapId={info.map}
@@ -434,7 +444,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
 
-                    <MatchPowerupSummary matchId={matchId} totalTeams={info.total_teams} players={players.basicPlayers}/>
+                    
 
                     {renderTitleElem()}
 
