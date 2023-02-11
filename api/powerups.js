@@ -37,7 +37,7 @@ class PowerUps{
 
     async insertPlayerMatchData(matchId, matchDate, playerId, powerUpId, stats){
 
-        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,0)`;
+        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0)`;
 
         const vars = [
             matchId,
@@ -168,9 +168,6 @@ class PowerUps{
 
     async getItemNames(ids){
 
-        console.log("FARARARARARARARAARRRARARA");
-        console.log(ids);
-
         if(ids.length === 0) return {};
 
         const query = `SELECT id,name FROM nstats_powerups WHERE id IN(?)`;
@@ -201,34 +198,32 @@ class PowerUps{
         return false;
     }
 
-    async insertPlayerMatchDataKillsOnly(matchId, matchDate, playerId, powerUpId, totalKills){
+    async insertPlayerMatchDataKillsOnly(matchId, matchDate, playerId, powerUpId, totalKills, bestKills){
 
-        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,0,0,0,0,0,0,0,0,0,?)`;
+        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,0,0,0,0,0,0,0,0,0,?,?)`;
 
         const vars = [
             matchId,
             matchDate, 
             playerId,
             powerUpId,
-            totalKills
+            totalKills,
+            bestKills
         ];
 
         return await mysql.simpleQuery(query, vars);
     }
 
-    async updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills){
+    async updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills, bestKills){
         
         if(!await this.bPlayerMatchPowerupExists(playerId, matchId, powerUpId)){
 
-            console.log("NE NO EXIAISJGFOIJADSGFIASGASOIGOIAJGSKAHGSOIGNAO)IgnOIBGNASOIB GNS");
-
-            return await this.insertPlayerMatchDataKillsOnly(matchId, matchDate, playerId, powerUpId, totalKills);
-         
+            return await this.insertPlayerMatchDataKillsOnly(matchId, matchDate, playerId, powerUpId, totalKills, bestKills);  
         }
 
-        const query = `UPDATE nstats_powerups_player_match SET carrier_kills=? WHERE player_id=? AND match_id=? AND powerup_id=?`;
-
-        return await mysql.simpleQuery(query, [totalKills, playerId, matchId, powerUpId]);
+        const query = `UPDATE nstats_powerups_player_match SET carrier_kills=?,carrier_kills_best=? WHERE player_id=? AND match_id=? AND powerup_id=?`;
+        
+        return await mysql.simpleQuery(query, [totalKills, bestKills, playerId, matchId, powerUpId]);
     }
 }
 

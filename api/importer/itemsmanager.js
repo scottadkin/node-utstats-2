@@ -12,7 +12,7 @@ class ItemsManager{
         this.totalTeams = totalTeams;
 
         this.items = new Items();
-        this.powerUpManager = new PowerUpManager(playerManager);
+        this.powerUpManager = new PowerUpManager(playerManager, killsManager);
 
         this.powerUpNames = new Set();
 
@@ -360,7 +360,7 @@ class ItemsManager{
                 if(endInfo.timestamp !== undefined){
 
                     if(endInfo.type === "kill"){
-                        
+
                         e.endReason = 1;
                         e.killerId = endInfo.killerId;
 

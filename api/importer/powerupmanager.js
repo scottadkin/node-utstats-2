@@ -2,9 +2,10 @@ const PowerUps = require("../powerups");
 
 class PowerUpManager{
 
-    constructor(playerManager){
+    constructor(playerManager, killsManager){
 
         this.playerManager = playerManager;
+        this.killsManager = killsManager;
         this.powerUps = new PowerUps();
         this.names = [];
         this.namesToIds = {};
@@ -98,6 +99,8 @@ class PowerUpManager{
 
             this.updatePlayerTotal(e);
         }
+
+        this.events = events;
     }
 
     async createIdsToNames(){
@@ -156,6 +159,42 @@ class PowerUpManager{
     }
 
 
+    //get the most amount of kills of players carrying an item in a single life
+    getBestCarrierKills(playerId, powerUpId){
+
+        powerUpId = parseInt(powerUpId);
+        playerId = parseInt(playerId);
+
+        let best = 0;
+        let current = 0;
+
+        let lastKillTimestamp = 0;
+
+        for(let i = 0; i < this.events.length; i++){
+
+            const e = this.events[i];
+
+            if(e.killerId === undefined) continue;
+
+            if(e.killerId === playerId && e.powerUpId === powerUpId){
+
+                const totalDeaths = this.killsManager.getDeathsBetween(lastKillTimestamp, e.timestamp, e.killerId);
+                
+                if(totalDeaths > 0){
+                    current = 0;
+                }
+
+                current++;
+                
+                lastKillTimestamp = e.timestamp;
+            }
+
+            if(current > best) best = current;
+        }
+
+        return best;
+    }
+
     async insertCarrierKills(matchId, matchDate){
 
         //updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills)
@@ -164,8 +203,9 @@ class PowerUpManager{
 
             for(const [powerUpId, totalKills] of Object.entries(powerupStats)){
 
-                console.log(playerId, powerUpId, totalKills);
-                await this.powerUps.updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills);
+                const bestKills = this.getBestCarrierKills(playerId, powerUpId);
+   
+                await this.powerUps.updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills, bestKills);
             }
         }
     }
