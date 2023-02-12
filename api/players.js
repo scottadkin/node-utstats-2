@@ -1944,7 +1944,7 @@ class Players{
             {"type": "multi_best", "display": "Best Multi Kill"},
             {"type": "efficiency", "display": "Efficiency"},
         
-            {"type": "flag_assist", "display": "CTF Flag Assists"},
+            /*{"type": "flag_assist", "display": "CTF Flag Assists"},
             {"type": "flag_return", "display": "CTF Flag Returns"},
             {"type": "flag_taken", "display": "CTF Flag Grabs"},
             {"type": "flag_dropped", "display": "CTF Flag Drops"},
@@ -1960,7 +1960,7 @@ class Players{
             {"type": "flag_spree_cover", "display": "CTF Cover Sprees"},
         
             {"type": "flag_cover_best", "display": "CTF Most Cover Kills"},
-            {"type": "flag_self_cover_best", "display": "CTF Most Kills With Flag"}
+            {"type": "flag_self_cover_best", "display": "CTF Most Kills With Flag"}*/
         ];
     
         const totalTypes =  [

@@ -1464,6 +1464,7 @@ const queries = [
           `CREATE TABLE nstats_powerups_player_totals (
             id int NOT NULL AUTO_INCREMENT,
             player_id int NOT NULL,
+            gametype_id int NOT NULL,
             total_matches int NOT NULL,
             total_playtime float NOT NULL,
             powerup_id int NOT NULL,

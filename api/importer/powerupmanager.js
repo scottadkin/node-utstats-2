@@ -133,7 +133,7 @@ class PowerUpManager{
     }
 
 
-    async insertPlayerMatchData(matchId, matchDate){
+    async insertPlayerMatchData(matchId, matchDate, gametypeId){
 
         for(const [playerId, playerStats] of Object.entries(this.playerTotals)){
 
@@ -151,7 +151,7 @@ class PowerUpManager{
                     playtime = player.getTotalPlaytime(this.totalTeams);
                 }
 
-                await this.powerUps.updatePlayerTotals(playerId, powerUpId, stats, playtime);
+                await this.powerUps.updatePlayerTotals(playerId, gametypeId, powerUpId, stats, playtime);
 
                 //await this.powerUps.bPlayerTotalExist(playerId, powerUpId, playtime);
             }
@@ -195,7 +195,7 @@ class PowerUpManager{
         return best;
     }
 
-    async insertCarrierKills(matchId, matchDate){
+    async insertCarrierKills(matchId, matchDate, gametypeId){
 
         //updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills)
 
@@ -214,17 +214,21 @@ class PowerUpManager{
                 const bestKills = this.getBestCarrierKills(playerId, powerUpId);
    
                 await this.powerUps.updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills, bestKills);
-                await this.powerUps.updatePlayerTotalCarrierKills(playerId, powerUpId, playtime, totalKills, bestKills);
+
+                //combined totals
+                await this.powerUps.updatePlayerTotalCarrierKills(playerId, 0, powerUpId, playtime, totalKills, bestKills);
+                //gametype totals
+                await this.powerUps.updatePlayerTotalCarrierKills(playerId, gametypeId, powerUpId, playtime, totalKills, bestKills);
             }
         }
     }
 
-    async insertMatchData(matchId, matchDate){
+    async insertMatchData(matchId, matchDate, gametypeId){
 
         await this.insertCarryTimes(matchId, matchDate);
-        await this.insertPlayerMatchData(matchId, matchDate);
+        await this.insertPlayerMatchData(matchId, matchDate, gametypeId);
 
-        await this.insertCarrierKills(matchId, matchDate);
+        await this.insertCarrierKills(matchId, matchDate, gametypeId);
         //console.log(this.powerUpHistory);
         
         console.log(this.carrierKills);

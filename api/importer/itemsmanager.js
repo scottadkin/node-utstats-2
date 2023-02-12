@@ -520,13 +520,13 @@ class ItemsManager{
     }
 
 
-    async updatePowerUps(matchId, matchDate, totalTeams){
+    async updatePowerUps(matchId, matchDate, totalTeams, gametypeId){
 
         this.powerUpManager.totalTeams = totalTeams;
 
         await this.powerUpManager.createIdsToNames();
         this.powerUpManager.addEvents(this.events);
-        await this.powerUpManager.insertMatchData(matchId, matchDate);
+        await this.powerUpManager.insertMatchData(matchId, matchDate, gametypeId);
     }
     
 }
