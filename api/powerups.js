@@ -35,13 +35,15 @@ class PowerUps{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertPlayerMatchData(matchId, matchDate, playerId, powerUpId, stats){
+    async insertPlayerMatchData(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, stats){
 
-        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0)`;
+        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0)`;
 
         const vars = [
             matchId,
             matchDate, 
+            mapId,
+            gametypeId,
             playerId,
             powerUpId,
             stats.timesUsed,
@@ -202,13 +204,15 @@ class PowerUps{
     }
 
     
-    async insertPlayerMatchDataKillsOnly(matchId, matchDate, playerId, powerUpId, totalKills, bestKills){
+    async insertPlayerMatchDataKillsOnly(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, totalKills, bestKills){
 
-        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,0,0,0,0,0,0,0,0,0,?,?)`;
+        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,?,?)`;
 
         const vars = [
             matchId,
             matchDate, 
+            mapId,
+            gametypeId,
             playerId,
             powerUpId,
             totalKills,
@@ -219,11 +223,11 @@ class PowerUps{
     }
 
 
-    async updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills, bestKills){
+    async updatePlayerMatchCarrierKills(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, totalKills, bestKills){
         
         if(!await this.bPlayerMatchPowerupExists(playerId, matchId, powerUpId)){
 
-            return await this.insertPlayerMatchDataKillsOnly(matchId, matchDate, playerId, powerUpId, totalKills, bestKills);  
+            return await this.insertPlayerMatchDataKillsOnly(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, totalKills, bestKills);  
         }
 
         const query = `UPDATE nstats_powerups_player_match SET carrier_kills=?,carrier_kills_best=? WHERE player_id=? AND match_id=? AND powerup_id=?`;

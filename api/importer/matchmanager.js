@@ -294,7 +294,13 @@ class MatchManager{
             new Message(`Updated item match data.`,'pass');
             await this.itemsManager.setMatchAmpStats(this.matchId);
 
-            await this.itemsManager.updatePowerUps(this.matchId, this.serverInfo.date, this.gameInfo.totalTeams, this.gametype.currentMatchGametype);
+            await this.itemsManager.updatePowerUps(
+                this.matchId, 
+                this.serverInfo.date, 
+                this.gameInfo.totalTeams, 
+                this.mapInfo.mapId,
+                this.gametype.currentMatchGametype
+            );
 
             await this.playerManager.insertConnectionData(this.matchId);
             new Message(`Updated played connection data.`,'pass');
