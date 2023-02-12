@@ -10,67 +10,99 @@ class CTF{
         this.data = data;
     }
 
+    async bPlayerTotalsExist(playerId, gametypeId){
 
-    updatePlayerTotals(masterId, gametypeId, data){
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_totals WHERE player_id=? AND gametype_id=?`;
 
-        return new Promise((resolve, reject) =>{
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
 
-            const query = `UPDATE nstats_player_totals SET
-            flag_assist=flag_assist+?,
-            flag_return=flag_return+?,
-            flag_taken=flag_taken+?,
-            flag_dropped=flag_dropped+?,
-            flag_capture=flag_capture+?,
-            flag_pickup=flag_pickup+?,
-            flag_seal=flag_seal+?,
-            flag_cover=flag_cover+?,
-            flag_cover_pass=flag_cover_pass+?,
-            flag_cover_fail=flag_cover_fail+?,
-            flag_self_cover=flag_self_cover+?,
-            flag_self_cover_pass=flag_self_cover_pass+?,
-            flag_self_cover_fail=flag_self_cover_fail+?,
-            flag_multi_cover=flag_multi_cover+?,
-            flag_spree_cover=flag_spree_cover+?,
-            flag_cover_best= IF(? > flag_cover_best, ?, flag_cover_best),
-            flag_kill=flag_kill+?,
-            flag_save=flag_save+?,
-            flag_carry_time=flag_carry_time+?,
-            flag_self_cover_best = IF(? > flag_self_cover_best, ?, flag_self_cover_best)
-            WHERE id IN(?,?)`;
+        if(result[0].total_matches > 0) return true;
 
-            const vars = [
-                data.assist,
-                data.return,
-                data.taken,
-                data.dropped,
-                data.capture,
-                data.pickup,
-                data.seal,
-                data.cover,
-                data.coverPass,
-                data.coverFail,
-                data.selfCover,
-                data.selfCoverPass,
-                data.selfCoverFail,
-                data.multiCover,
-                data.spreeCover,
-                data.bestCover,
-                data.bestCover,
-                data.kill,
-                data.save,
-                data.carryTime,
-                data.bestSelfCover,
-                data.bestSelfCover,
-                masterId, gametypeId
-            ];
+        return false;
+    }
 
-            mysql.query(query, vars, (err) =>{
+    async createPlayerTotals(playerId, gametypeId){
 
-                if(err) reject(err);
+        const query = `INSERT INTO nstats_player_ctf_totals VALUES(NULL,?,?,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0)`;
 
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+    async updatePlayerTotals(playerId, gametypeId, playtime, stats){
+
+        if(!await this.bPlayerTotalsExist(playerId, gametypeId)){
+            await this.createPlayerTotals(playerId, gametypeId);
+        }
+
+        const query = `UPDATE nstats_player_ctf_totals SET
+        total_matches=total_matches+1,
+        playtime=playtime+?,
+        flag_assist=flag_assist+?,
+        flag_return=flag_return+?,
+        flag_return_base=flag_return_base+?,
+        flag_return_mid=flag_return_mid+?,
+        flag_return_enemy_base=flag_return_enemy_base+?,
+        flag_return_save=flag_return_save+?,
+        flag_dropped=flag_dropped+?,
+        flag_kill=flag_kill+?,
+        flag_suicide=flag_suicide+?,
+        flag_seal=flag_seal+?,
+        flag_seal_pass=flag_seal_pass+?,
+        flag_seal_fail=flag_seal_fail+?,
+        best_single_seal = IF(best_single_seal < ?, ?, best_single_seal),
+        flag_cover=flag_cover+?,
+        flag_cover_pass=flag_cover_pass+?,
+        flag_cover_fail=flag_cover_fail+?,
+        flag_cover_multi=flag_cover_multi+?,
+        flag_cover_spree=flag_cover_spree+?,
+        best_single_cover = IF(best_single_cover < ?, ?, best_single_cover),
+        flag_capture=flag_capture+?,
+        flag_carry_time=flag_carry_time+?,
+        flag_taken=flag_taken+?,
+        flag_pickup=flag_pickup+?,
+        flag_self_cover=flag_self_cover+?,
+        flag_self_cover_pass=flag_self_cover_pass+?,
+        flag_self_cover_fail=flag_self_cover_fail+?,
+        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover)
+        WHERE player_id=? AND gametype_id=?`;
+
+        const vars = [
+            playtime,
+            stats.assist.total,
+            stats.return.total,
+            stats.returnBase.total,
+            stats.returnMid.total,
+            stats.returnEnemyBase.total,
+            stats.returnSave.total,
+            stats.dropped.total,
+            stats.kill.total,
+            stats.suicide.total,
+            stats.seal.total,
+            stats.sealPass.total,
+            stats.sealFail.total,
+            stats.bestSingleSeal, stats.bestSingleSeal,
+            stats.cover.total,
+            stats.coverPass.total,
+            stats.coverFail.total,
+            stats.coverMulti.total,
+            stats.coverSpree.total,
+            stats.bestSingleCover, stats.bestSingleCover,
+            stats.capture.total,
+            stats.carryTime.total,
+            stats.taken.total,
+            stats.pickup.total,
+            stats.selfCover.total,
+            stats.selfCoverPass.total,
+            stats.selfCoverFail.total,
+            stats.bestSingleSelfCover, stats.bestSingleSelfCover,
+
+            playerId, gametypeId
+        ];
+
+        await mysql.simpleQuery(query, vars);
     }
 
     async updatePlayerMatchStats(playerId, matchId, stats){

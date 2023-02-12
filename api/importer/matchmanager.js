@@ -154,7 +154,7 @@ class MatchManager{
             //this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
 
 
-            this.playerManager.setPlayerPlaytime(this.gameInfo.totalTeams, this.gameInfo.hardcore);
+            this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
             new Message(`Updated player team changes`,'pass');
             //process.exit();
 
@@ -386,6 +386,7 @@ class MatchManager{
                 
 
                 await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
+                await this.CTFManager.updatePlayerTotals(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
 
                 
                 /*if(this.CTFManager.bHasData()){

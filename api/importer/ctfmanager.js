@@ -869,12 +869,8 @@ class CTFManager{
 
             const player = this.playerManager.players[i];
 
-            console.log(player.masterId, this.matchId);
-
-            //if(player.bDuplicate === undefined){
-                
-                await this.ctf.updatePlayerMatchStats(player.masterId, this.matchId, player.stats.ctf);
-            //}
+            await this.ctf.updatePlayerMatchStats(player.masterId, this.matchId, player.stats.ctf);
+            
         }
     }
 
@@ -886,15 +882,9 @@ class CTFManager{
 
             const p = this.playerManager.players[i];
 
-            if(p.bDuplicate !== undefined){
-                new Message(`${p.name} is a duplicate not inserting data.`, "note");
-                continue;   
-            }
-
             await this.ctf.insertPlayerMatchData(p.masterId, this.matchId, mapId, gametypeId, serverId, this.matchDate, p);
 
         }
-        //insertPlayerMatchData(playerId, this.matchId, mapId, gametypeId, serverId, matchDate, playtime)
     }
 
     //determine if a flag cover was capped or returned
@@ -1028,6 +1018,28 @@ class CTFManager{
             if(player.stats.ctfNew.bestSingleSeal < totalSeals){
                 player.stats.ctfNew.bestSingleSeal = totalSeals;
             }
+        }
+    }
+
+
+    async updatePlayerTotals(serverId, mapId, gametypeId){
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+
+            const playtime = p.getTotalPlaytime(this.totalTeams);
+            console.log(playtime);
+
+            const stats = p.stats.ctfNew;
+
+            //combined totals
+            await this.ctf.updatePlayerTotals(p.masterId, 0, playtime, stats);
+            //gametype totals
+            await this.ctf.updatePlayerTotals(p.masterId, gametypeId, playtime, stats);
+
+            //console.log(p.stats.ctfNew);
+
         }
     }
     

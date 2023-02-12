@@ -1712,9 +1712,7 @@ class PlayerManager{
         return timestamp;
     }
 
-    setPlayerPlaytime(totalTeams, bHardcore){
-
-        //if(totalTeams < 2) return;
+    setPlayerPlaytime(bHardcore){
 
         const matchTimings = this.matchTimings;
 
