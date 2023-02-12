@@ -74,7 +74,7 @@ class PowerUps{
 
     async insertPlayerTotal(playerId, powerUpId, stats, playerPlaytime){
 
-        const query = `INSERT INTO nstats_powerups_player_totals VALUES(NULL,?,1,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0)`;
+        const query = `INSERT INTO nstats_powerups_player_totals VALUES(NULL,?,1,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0)`;
 
         const vars = [
             playerId,
@@ -118,9 +118,8 @@ class PowerUps{
             end_timeouts=end_timeouts+?,
             end_match_end=end_match_end+?
             WHERE player_id=?
-            AND powerup_id=?
-            
-        `;
+            AND powerup_id=?`;
+
 
         const vars = [
             playerPlaytime,
@@ -244,12 +243,13 @@ class PowerUps{
 
     async insertPlayerTotalCarrierKillsOnly(playerId, powerUpId, playerPlaytime, carrierKills, bestCarrierKills){
 
-        const query = `INSERT INTO nstats_powerups_player_totals VALUES(NULL,?,1,?,?,0,0,0,0,0,0,0,0,0,0,0,?,?)`;
+        const query = `INSERT INTO nstats_powerups_player_totals VALUES(NULL,?,1,?,?,0,0,0,0,0,0,0,0,0,0,0,?,?,?)`;
 
         const vars = [
             playerId,
             playerPlaytime,
             powerUpId,     
+            carrierKills,
             carrierKills,
             bestCarrierKills
         ];
@@ -265,12 +265,15 @@ class PowerUps{
         }
 
         const query = `UPDATE nstats_powerups_player_totals SET 
-        carrier_kills=carrier_kills+?,
+        total_carrier_kills=total_carrier_kills+?,
         carrier_kills_best = IF(carrier_kills_best < ?, ?, carrier_kills_best),
+        carrier_kills_single_life = IF(carrier_kills_single_life < ?, ?, carrier_kills_single_life),
         total_playtime=total_playtime+?
         WHERE player_id=? AND powerup_id=?`;
 
-        return await mysql.simpleQuery(query, [totalKills, bestKills, bestKills, playerPlaytime, playerId, powerUpId]);
+        const vars = [totalKills, totalKills, totalKills, bestKills, bestKills, playerPlaytime, playerId, powerUpId];
+
+        return await mysql.simpleQuery(query, vars);
     }
 }
 
