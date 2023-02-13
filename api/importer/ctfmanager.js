@@ -1029,8 +1029,6 @@ class CTFManager{
             const p = this.playerManager.players[i];
 
             const playtime = p.getTotalPlaytime(this.totalTeams);
-            console.log(playtime);
-
             const stats = p.stats.ctfNew;
 
             //combined totals
@@ -1039,7 +1037,18 @@ class CTFManager{
             await this.ctf.updatePlayerTotals(p.masterId, gametypeId, playtime, stats);
 
             //console.log(p.stats.ctfNew);
+        }
+    }
 
+    async updatePlayerBestValues(gametypeId){
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+            //combined totals
+            await this.ctf.updatePlayerBestValues(p.masterId, 0, p.stats.ctfNew);
+            //gametype totals
+            await this.ctf.updatePlayerBestValues(p.masterId, gametypeId, p.stats.ctfNew);
         }
     }
     

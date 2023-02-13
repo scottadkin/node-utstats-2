@@ -2268,7 +2268,98 @@ class CTF{
         }
 
         return {"kills": killsByTimestamp, "suicides": suicidesByTimestamp};
+    }
 
+    async bPlayerBestValuesExist(playerId, gametypeId){
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result[0].total_matches > 0) return true;
+
+        return false;
+    }
+
+    async createPlayerBestValues(playerId, gametypeId){
+
+        const query = `INSERT INTO nstats_player_ctf_best VALUES(NULL,?,?,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0)`;
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+    async updatePlayerBestValues(playerId, gametypeId, stats){
+
+        if(!await this.bPlayerBestValuesExist(playerId, gametypeId)){
+
+            await this.createPlayerBestValues(playerId, gametypeId);
+        }
+
+        const query = `UPDATE nstats_player_ctf_best SET
+        flag_assist = IF(flag_assist < ?, ?, flag_assist),
+        flag_return = IF(flag_return < ?, ?, flag_return),
+        flag_return_base = IF(flag_return_base < ?, ?, flag_return_base),
+        flag_return_mid = IF(flag_return_mid < ?, ?, flag_return_mid),
+        flag_return_enemy_base = IF(flag_return_enemy_base < ?, ?, flag_return_enemy_base),
+        flag_return_save = IF(flag_return_save < ?, ?, flag_return_save),
+        flag_dropped = IF(flag_dropped < ?, ?, flag_dropped),
+        flag_kill = IF(flag_kill < ?, ?, flag_kill),
+        flag_suicide = IF(flag_suicide < ?, ?, flag_suicide),
+        flag_seal = IF(flag_seal < ?, ?, flag_seal),
+        flag_seal_pass = IF(flag_seal_pass < ?, ?, flag_seal_pass),
+        flag_seal_fail = IF(flag_seal_fail < ?, ?, flag_seal_fail),
+        best_single_seal = IF(best_single_seal < ?, ?, best_single_seal),
+        flag_cover = IF(flag_cover < ?, ?, flag_cover),
+        flag_cover_pass = IF(flag_cover_pass < ?, ?, flag_cover_pass),
+        flag_cover_fail = IF(flag_cover_fail < ?, ?, flag_cover_fail),
+        flag_cover_multi = IF(flag_cover_multi < ?, ?, flag_cover_multi),
+        flag_cover_spree = IF(flag_cover_spree < ?, ?, flag_cover_spree),
+        best_single_cover = IF(best_single_cover < ?, ?, best_single_cover),
+        flag_capture = IF(flag_capture < ?, ?, flag_capture),
+        flag_carry_time = IF(flag_carry_time < ?, ?, flag_carry_time),
+        flag_taken = IF(flag_taken < ?, ?, flag_taken),
+        flag_pickup = IF(flag_pickup < ?, ?, flag_pickup),
+        flag_self_cover = IF(flag_self_cover < ?, ?, flag_self_cover),
+        flag_self_cover_pass = IF(flag_self_cover_pass < ?, ?, flag_self_cover_pass),
+        flag_self_cover_fail = IF(flag_self_cover_fail < ?, ?, flag_self_cover_fail),
+        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover)
+        WHERE player_id=? AND gametype_id=?`;
+
+        const vars = [
+            stats.assist.total, stats.assist.total,
+            stats.return.total, stats.return.total,
+            stats.returnBase.total, stats.returnBase.total,
+            stats.returnMid.total, stats.returnMid.total,
+            stats.returnEnemyBase.total, stats.returnEnemyBase.total,
+            stats.returnSave.total, stats.returnSave.total,
+            stats.dropped.total, stats.dropped.total,
+            stats.kill.total, stats.kill.total,
+            stats.suicide.total, stats.suicide.total,
+            stats.seal.total, stats.seal.total,
+            stats.sealPass.total, stats.sealPass.total,
+            stats.sealFail.total, stats.sealFail.total,
+            stats.bestSingleSeal, stats.bestSingleSeal,
+            stats.cover.total, stats.cover.total,
+            stats.coverPass.total, stats.coverPass.total,
+            stats.coverFail.total, stats.coverFail.total,
+            stats.coverMulti.total, stats.coverMulti.total,
+            stats.coverSpree.total, stats.coverSpree.total,
+            stats.bestSingleCover, stats.bestSingleCover,
+            stats.capture.total, stats.capture.total,
+            stats.carryTime.total, stats.carryTime.total,
+            stats.taken.total, stats.taken.total,
+            stats.pickup.total, stats.pickup.total,
+            stats.selfCover.total, stats.selfCover.total,
+            stats.selfCoverPass.total, stats.selfCoverPass.total,
+            stats.selfCoverFail.total, stats.selfCoverFail.total,
+            stats.bestSingleSelfCover, stats.bestSingleSelfCover,
+            playerId, gametypeId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
     }
 
 }
