@@ -172,7 +172,7 @@ class Gametypes{
 
         const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
 
-        const result = await mysql.simpleFetch(query, [ids]);
+        const result = await mysql.simpleQuery(query, [ids]);
 
         const data = {"0": "All"};
 

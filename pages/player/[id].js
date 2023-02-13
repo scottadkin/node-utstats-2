@@ -132,10 +132,10 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 		/>;
     }
 
-	if(pageSettings["Display Capture The Flag Summary"] === "true"){
+	/*if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
 		elems[pageOrder["Display Capture The Flag Summary"]] = <PlayerCTFSummary key={3} session={session} data={summary} />;
-    }
+    }*/
 
 	if(pageSettings["Display Capture The Flag Cap Records"] === "true"){
 
@@ -257,6 +257,8 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 					<Nav settings={navSettings} session={session}/>
 					<div id="content">
 						<div className="default">
+
+							<PlayerCTFSummary key={"p-ctf-s"} playerId={playerId} />
 						
 							<div className="default-header">
 									{titleName} Career Profile
