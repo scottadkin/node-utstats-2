@@ -104,9 +104,12 @@ class FTPImporter{
             this.client.list(`${this.targetDir}Logs/`,async (err, files) =>{
 
                 try{
+
+                    new Message(`Found ${files.length} files in "${this.targetDir}Logs/" (ftp://${this.host}:${this.port})`,`note`);
     
                     if(err){
                         reject(err);
+                        return;
                     }else{
                         await this.sortFiles(files);
                         await this.downloadLogFiles();

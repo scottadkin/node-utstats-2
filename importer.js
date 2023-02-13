@@ -157,10 +157,10 @@ async function main(){
 
     if(config.importInterval > 0){
 
-        setInterval(() =>{
+        setInterval(async () =>{
     
             if(bCurrentImportFinished){
-                main();
+                await main();
             }else{
                 new Message("Previous import has not finished, skipping until next check interval.", "note");
             }
