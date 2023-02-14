@@ -1,9 +1,9 @@
 import InteractiveTable from "../InteractiveTable";
 import Functions from "../../api/functions";
 
-const renderData = (gametypeNames, totals, best, bestLife, selectedTab) =>{
+const renderData = (gametypeNames, data, selectedTab) =>{
 
-    let headers = {   
+    const headers = {   
         "grabs": "Grab",
         "pickups": "Pickup",
         "drops": "Dropped",
@@ -26,12 +26,6 @@ const renderData = (gametypeNames, totals, best, bestLife, selectedTab) =>{
     }
 
     const rows = [];
-
-    let data = [];
-
-    if(selectedTab < 2) data = totals;
-    if(selectedTab === 2) data = best;
-    if(selectedTab === 3) data = bestLife;
     
     for(let i = 0; i < data.length; i++){
 
@@ -65,10 +59,10 @@ const renderData = (gametypeNames, totals, best, bestLife, selectedTab) =>{
     </>;
 }
 
-const PlayerCTFSummaryGeneral = ({gametypeNames, totals, best, bestLife, recordType}) =>{
+const PlayerCTFSummaryGeneral = ({gametypeNames, data, recordType}) =>{
 
     return <div>   
-        {renderData(gametypeNames, totals, best, bestLife, recordType)}
+        {renderData(gametypeNames, data, recordType)}
     </div>
 }
 

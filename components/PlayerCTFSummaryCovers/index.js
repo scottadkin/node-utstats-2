@@ -1,19 +1,20 @@
 import InteractiveTable from "../InteractiveTable";
 import Functions from "../../api/functions";
 
-const renderData = (gametypeNames, totals, best, bestLife, selectedTab) =>{
+const renderData = (gametypeNames, data, selectedTab) =>{
 
-    let headers = {   
+    const headers = {   
         "cover": "Cover",
         "multi": {"title": "Multi Cover", "detailedTitle": "Flag Multi Cover", "content": "Player covered the flag carrier 3 times when the flag was taken."},
         "spree": {"title": "Cover Spree", "detailedTitle": "Flag Cover Spree", "content": "Player covered the flag carrier 4 or more times when the flag was taken."},
         "bestCover": {"title": "Best Cover", "detailedTitle": "Best Single Cover", "content": "The most covers the player got when the flag was taken."},
-        "goodCovers": {"title": "Good Covers", "detailedTitle": "Good Flag Covers", "content": "Covers where the flag was captured."},
-        "badCovers": {"title": "Bad Covers", "detailedTitle": "Bad Flag Covers", "content": "Covers where the flag was returned."},
+        "goodCovers": {"title": "Good Covers", "detailedTitle": "Good Flag Covers", "content": "Covers were the flag was captured."},
+        "badCovers": {"title": "Bad Covers", "detailedTitle": "Bad Flag Covers", "content": "Covers were the flag was returned."},
+        "coversEff": {"title": "Covers Efficiency", "content": "What percentage of covers were successful."},
         "seal": {"title": "Seals", "detailedTitle": "Flag Seals", "content": "Player sealed off their base when their team had the enemy flag."},
         "bestSeal": {"title": "Best Seals", "detailedTitle": "Best Single Flag Seal", "content": "The most seals the player got in a single go."},
-        "goodSeal": {"title": "Good Seals", "detailedTitle": "Good Flag Seals", "content": "Flag seals where the player's team capped the flag."},
-        "badSeal": {"title": "Bad Seals", "detailedTitle": "Bad Flag Seals", "content": "Flag seals where the flag was returned by the enemy team."},
+        "goodSeal": {"title": "Good Seals", "detailedTitle": "Good Flag Seals", "content": "Flag seals were the player's team capped the flag."},
+        "badSeal": {"title": "Bad Seals", "detailedTitle": "Bad Flag Seals", "content": "Flag seals were the flag was returned by the enemy team."},
 
     };
 
@@ -23,19 +24,21 @@ const renderData = (gametypeNames, totals, best, bestLife, selectedTab) =>{
     }
 
     const rows = [];
-
-    let data = [];
-
-    if(selectedTab < 2) data = totals;
-    if(selectedTab === 2) data = best;
-    if(selectedTab === 3) data = bestLife;
-
     
     for(let i = 0; i < data.length; i++){
 
         const d = data[i];
         
         const gametypeName = gametypeNames[d.gametype_id] ?? "Not Found";
+
+        let coverEff = 0;
+
+        if(d.flag_cover > 0){
+
+            if(d.flag_cover_pass > 0){
+                coverEff = (d.flag_cover_pass / d.flag_cover) * 100;
+            }
+        }
 
         const current = {
             "gametype": {"value": gametypeName.toLowerCase(), "displayValue": gametypeName, "className": "text-left"},
@@ -49,6 +52,7 @@ const renderData = (gametypeNames, totals, best, bestLife, selectedTab) =>{
             "bestSeal": {"value": d.best_single_seal, "displayValue": Functions.ignore0(d.best_single_seal)},
             "goodSeal": {"value": d.flag_seal_pass, "displayValue": Functions.ignore0(d.flag_seal_pass)},
             "badSeal": {"value": d.flag_seal_fail, "displayValue": Functions.ignore0(d.flag_seal_fail)},
+            "coversEff": {"value": coverEff, "displayValue": `${coverEff.toFixed(2)}%`},
         };
 
         if(d.gametype_id !== 0){
@@ -62,10 +66,10 @@ const renderData = (gametypeNames, totals, best, bestLife, selectedTab) =>{
     </>;
 }
 
-const PlayerCTFSummaryCovers = ({gametypeNames, totals, best, bestLife, recordType}) =>{
+const PlayerCTFSummaryCovers = ({gametypeNames, data, recordType}) =>{
 
     return <div>   
-        {renderData(gametypeNames, totals, best, bestLife, recordType)}
+        {renderData(gametypeNames, data, recordType)}
     </div>
 }
 

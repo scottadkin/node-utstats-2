@@ -4,12 +4,14 @@ import ErrorMessage from "../ErrorMessage";
 import Tabs from "../Tabs";
 import PlayerCTFSummaryGeneral from "../PlayerCTFSummaryGeneral";
 import PlayerCTFSummaryCovers from "../PlayerCTFSummaryCovers";
+import PlayerCTFSummaryCarry from "../PlayerCTFSummaryCarry";
 
 const getTabs = () =>{
 
     const tabs = [
         {"name": "General", "value": 0},
         {"name": "Covers", "value": 1},
+        {"name": "Flag Carry Stats", "value": 2},
     ];
 
     return tabs;
@@ -40,18 +42,18 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const renderGeneral = (selectedTab, recordType, gametypeNames, totals, best, bestLife) =>{
+const renderGeneral = (selectedTab, recordType, gametypeNames, data) =>{
 
     if(selectedTab !== 0) return null;
 
-    return <PlayerCTFSummaryGeneral gametypeNames={gametypeNames} totals={totals} best={best} bestLife={bestLife} recordType={recordType}/>
+    return <PlayerCTFSummaryGeneral gametypeNames={gametypeNames} data={data} recordType={recordType}/>
 }
 
-const renderCovers = (selectedTab, recordType, gametypeNames, totals, best, bestLife) =>{
+const renderCovers = (selectedTab, recordType, gametypeNames, data) =>{
 
     if(selectedTab !== 1) return null;
 
-    return <PlayerCTFSummaryCovers gametypeNames={gametypeNames} totals={totals} best={best} bestLife={bestLife} recordType={recordType}/>;
+    return <PlayerCTFSummaryCovers gametypeNames={gametypeNames} data={data} recordType={recordType}/>;
 }
 
 
@@ -116,11 +118,19 @@ const PlayerCTFSummary = ({playerId}) =>{
         {"name": "Life Records", "value": 3}
     ];
 
+    let data = [];
+
+    if(recordType < 2) data = state.totals;
+    if(recordType === 2) data = state.best;
+    if(recordType === 3) data = state.bestLife;
+
+
     return <div>
         <div className="default-header">Capture The Flag Summary</div>
         <Tabs selectedValue={selectedMode} options={getTabs()} changeSelected={setSelectedMode}/>
         <Tabs options={options} selectedValue={recordType} changeSelected={setRecordType}/> 
         
+        <PlayerCTFSummaryCarry gametypeNames={state.gametypeNames} data={data} recordType={recordType}/>
     
         {renderGeneral(selectedMode, recordType, state.gametypeNames, state.totals, state.best, state.bestLife)}
         {renderCovers(selectedMode, recordType, state.gametypeNames, state.totals, state.best, state.bestLife)}
