@@ -21,6 +21,7 @@ export default async function handler(req, res){
 
             const totals = await ctfManager.getPlayerTotals(playerId);
             const best = await ctfManager.getPlayerBestValues(playerId);
+            const bestLife = await ctfManager.getPlayerBestSingleLifeValues(playerId);
 
             for(let i = 0; i < totals.length; i++){
                 gametypeIds.add(totals[i].gametype_id);
@@ -30,9 +31,13 @@ export default async function handler(req, res){
                 gametypeIds.add(best[i].gametype_id);
             }
 
+            for(let i = 0; i < bestLife.length; i++){
+                gametypeIds.add(bestLife[i].gametype_id);
+            }
+
             const gametypeNames = await gametypeManager.getNames([...gametypeIds]);
 
-            res.status(200).json({"totals": totals, "best": best, "gametypeNames": gametypeNames});
+            res.status(200).json({"totals": totals, "best": best, "bestLife": bestLife, "gametypeNames": gametypeNames});
             return;
 
         }

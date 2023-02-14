@@ -857,6 +857,7 @@ class CTFManager{
                 //player.stats.ctf.dropped++;
                 player.setCTFNewValue("dropped", timestamp, totalDeaths);
 
+
                 this.flagDrops.push({"timestamp": timestamp, "playerId": player.masterId,  "flagTeam": flag.team});
             }
         }

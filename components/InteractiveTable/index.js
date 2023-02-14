@@ -194,9 +194,16 @@ const InteractiveTable = (props) =>{
                 }else{
                     value = lastRow[key].value;
                 }
+
+
+                const className = (lastRow[key].className !== undefined) ? lastRow[key].className : "";
                 
 
-                columns.push(<td className={styles.totals} key={`last-${key}`}>{value}</td>);
+                columns.push(<td 
+                    className={`${styles.totals} ${className}`} 
+                    key={`last-${key}`}>
+                        {value}
+                </td>);
                     
             }
 
@@ -254,8 +261,6 @@ const InteractiveTable = (props) =>{
     if(props.title !== undefined){
         tableTitle = <TableHeader width={props.width}>{props.title}</TableHeader>
     }
-    
-    console.log("render interactive table");
 
     return <div className={styles.wrapper}>
         {tableTitle}

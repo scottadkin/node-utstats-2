@@ -2363,18 +2363,6 @@ class CTF{
     }
 
 
-    async getPlayerTotals(playerId){
-
-        const query = `SELECT * FROM nstats_player_ctf_totals WHERE player_id=? ORDER BY playtime DESC`;
-        return await mysql.simpleQuery(query, [playerId]);
-    }
-
-    async getPlayerBestValues(playerId){
-
-        const query = `SELECT * FROM nstats_player_ctf_best WHERE player_id=?`;
-        return await mysql.simpleQuery(query, [playerId]);
-    }
-
     async bPlayerBestValuesSingleLifeExist(playerId, gametypeId){
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best_life WHERE player_id=? AND gametype_id=?`;
@@ -2463,6 +2451,25 @@ class CTF{
         ];
 
         return await mysql.simpleQuery(query, vars);
+    }
+
+
+    async getPlayerTotals(playerId){
+
+        const query = `SELECT * FROM nstats_player_ctf_totals WHERE player_id=? ORDER BY playtime DESC`;
+        return await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async getPlayerBestValues(playerId){
+
+        const query = `SELECT * FROM nstats_player_ctf_best WHERE player_id=?`;
+        return await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async getPlayerBestSingleLifeValues(playerId){
+
+        const query = `SELECT * FROM nstats_player_ctf_best_life WHERE player_id=?`;
+        return await mysql.simpleQuery(query, [playerId]);
     }
 }
 

@@ -2,14 +2,14 @@ import styles from "./PlayerMatchProfile.module.css";
 import Link from 'next/link';
 import Image from "next/image";
 
-const PlayerMatchProfile = ({host, data, matchId}) =>{
+const PlayerMatchProfile = ({host, data, matchId, playerId}) =>{
 
     console.log(data);
 
     if(data.country === "") data.country = "xx";
 
     return <div>
-        <Link href={`/player/${data.player_id}`}>
+        <Link href={`/player/${playerId}`}>
             <a>
                 <div className={`${styles.wrapper} center m-bottom-10`}>
             

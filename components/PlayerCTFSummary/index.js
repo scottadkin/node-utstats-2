@@ -1,7 +1,9 @@
-import {useEffect, useReducer, useState} from 'react';
-import Loading from '../Loading';
-import ErrorMessage from '../ErrorMessage';
-import Tabs from '../Tabs';
+import {useEffect, useReducer, useState} from "react";
+import Loading from "../Loading";
+import ErrorMessage from "../ErrorMessage";
+import Tabs from "../Tabs";
+import PlayerCTFSummaryGeneral from "../PlayerCTFSummaryGeneral";
+import PlayerCTFSummaryCovers from "../PlayerCTFSummaryCovers";
 
 const getTabs = () =>{
 
@@ -23,6 +25,7 @@ const reducer = (state, action) =>{
                 "error": null,
                 "totals": action.totals,
                 "best": action.best,
+                "bestLife": action.bestLife,
                 "gametypeNames": action.gametypeNames
             };
         }
@@ -37,14 +40,34 @@ const reducer = (state, action) =>{
     return state;
 }
 
+const renderGeneral = (selectedTab, recordType, gametypeNames, totals, best, bestLife) =>{
+
+    if(selectedTab !== 0) return null;
+
+    return <PlayerCTFSummaryGeneral gametypeNames={gametypeNames} totals={totals} best={best} bestLife={bestLife} recordType={recordType}/>
+}
+
+const renderCovers = (selectedTab, recordType, gametypeNames, totals, best, bestLife) =>{
+
+    if(selectedTab !== 1) return null;
+
+    return <PlayerCTFSummaryCovers gametypeNames={gametypeNames} totals={totals} best={best} bestLife={bestLife} recordType={recordType}/>;
+}
+
+
 const PlayerCTFSummary = ({playerId}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "error": null
+        "error": null,
+        "totals": [],
+        "best": [],
+        "bestLife": [],
+        "gametypeNames": {}
     });
 
-    const [selectedTab, setSelectedTab] = useState(0);
+    const [selectedMode, setSelectedMode] = useState(0);
+    const [recordType, setRecordType] = useState(0);
 
     useEffect(() =>{
         
@@ -64,10 +87,15 @@ const PlayerCTFSummary = ({playerId}) =>{
             if(res.error !== undefined){
                 dispatch({"type": "error", "errorMessage": res.error});
             }else{
-                dispatch({"type": "loaded", "totals": res.totals, "best": res.best, "gametypeNames": res.gametypeNames});
+                dispatch({
+                    "type": "loaded", 
+                    "totals": res.totals, 
+                    "best": res.best, 
+                    "bestLife": res.bestLife,
+                    "gametypeNames": res.gametypeNames
+                });
             }
 
-            console.log(res);
         }
 
         loadData();
@@ -81,9 +109,21 @@ const PlayerCTFSummary = ({playerId}) =>{
     if(state.bLoading) return <Loading />;
     if(state.error !== null) return <ErrorMessage title="Capture The Flag Summary" text={state.error}/>
 
+    const options = [
+        {"name": "Totals", "value": 0},
+        {"name": "Gametypes", "value": 1},
+        {"name": "Match Records", "value": 2},
+        {"name": "Life Records", "value": 3}
+    ];
+
     return <div>
         <div className="default-header">Capture The Flag Summary</div>
-        <Tabs selectedValue={selectedTab} options={getTabs()} changeSelected={setSelectedTab}/>
+        <Tabs selectedValue={selectedMode} options={getTabs()} changeSelected={setSelectedMode}/>
+        <Tabs options={options} selectedValue={recordType} changeSelected={setRecordType}/> 
+        
+    
+        {renderGeneral(selectedMode, recordType, state.gametypeNames, state.totals, state.best, state.bestLife)}
+        {renderCovers(selectedMode, recordType, state.gametypeNames, state.totals, state.best, state.bestLife)}
     </div>
 }
 

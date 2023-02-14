@@ -261,6 +261,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                         host={imageHost} 
                         data={playerInfo} 
                         matchId={matchId}
+                        playerId={playerId}
                     />
                    
                     
