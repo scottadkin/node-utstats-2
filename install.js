@@ -1555,6 +1555,38 @@ const queries = [
                 best_single_self_cover INT(11) NOT NULL,
                 PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
+                `CREATE TABLE IF NOT EXISTS nstats_player_ctf_best_life (
+                  id int NOT NULL AUTO_INCREMENT,
+                  player_id int NOT NULL,
+                  gametype_id int NOT NULL,
+                  flag_assist INT(11) NOT NULL,
+                  flag_return INT(11) NOT NULL, 
+                  flag_return_base INT(11) NOT NULL, 
+                  flag_return_mid INT(11) NOT NULL, 
+                  flag_return_enemy_base INT(11) NOT NULL, 
+                  flag_return_save INT(11) NOT NULL, 
+                  flag_dropped INT(11) NOT NULL, 
+                  flag_kill INT(11) NOT NULL, 
+                  flag_seal INT(11) NOT NULL, 
+                  flag_seal_pass INT(11) NOT NULL, 
+                  flag_seal_fail INT(11) NOT NULL, 
+                  best_single_seal INT(11) NOT NULL, 
+                  flag_cover INT(11) NOT NULL, 
+                  flag_cover_pass INT(11) NOT NULL, 
+                  flag_cover_fail INT(11) NOT NULL, 
+                  flag_cover_multi INT(11) NOT NULL,
+                  flag_cover_spree INT(11) NOT NULL,
+                  best_single_cover INT(11) NOT NULL,
+                  flag_capture INT(11) NOT NULL, 
+                  flag_carry_time float NOT NULL, 
+                  flag_taken INT(11) NOT NULL,
+                  flag_pickup INT(11) NOT NULL,
+                  flag_self_cover INT(11) NOT NULL,
+                  flag_self_cover_pass INT(11) NOT NULL,
+                  flag_self_cover_fail INT(11) NOT NULL,
+                  best_single_self_cover INT(11) NOT NULL,
+                  PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
 ];
 
 

@@ -2375,6 +2375,95 @@ class CTF{
         return await mysql.simpleQuery(query, [playerId]);
     }
 
+    async bPlayerBestValuesSingleLifeExist(playerId, gametypeId){
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best_life WHERE player_id=? AND gametype_id=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result[0].total_matches > 0) return true;
+
+        return false;
+    }
+
+    async createPlayerBestValuesSingleLife(playerId, gametypeId){
+
+        const query = `INSERT INTO nstats_player_ctf_best_life VALUES(NULL,?,?,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0)`;
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+    async updatePlayerBestValuesSingleLife(playerId, gametypeId, stats){
+
+        if(!await this.bPlayerBestValuesSingleLifeExist(playerId, gametypeId)){
+
+            await this.createPlayerBestValuesSingleLife(playerId, gametypeId);
+        }
+
+        const query = `UPDATE nstats_player_ctf_best_life SET
+        flag_assist = IF(flag_assist < ?, ?, flag_assist),
+        flag_return = IF(flag_return < ?, ?, flag_return),
+        flag_return_base = IF(flag_return_base < ?, ?, flag_return_base),
+        flag_return_mid = IF(flag_return_mid < ?, ?, flag_return_mid),
+        flag_return_enemy_base = IF(flag_return_enemy_base < ?, ?, flag_return_enemy_base),
+        flag_return_save = IF(flag_return_save < ?, ?, flag_return_save),
+        flag_dropped = IF(flag_dropped < ?, ?, flag_dropped),
+        flag_kill = IF(flag_kill < ?, ?, flag_kill),
+        flag_seal = IF(flag_seal < ?, ?, flag_seal),
+        flag_seal_pass = IF(flag_seal_pass < ?, ?, flag_seal_pass),
+        flag_seal_fail = IF(flag_seal_fail < ?, ?, flag_seal_fail),
+        best_single_seal = IF(best_single_seal < ?, ?, best_single_seal),
+        flag_cover = IF(flag_cover < ?, ?, flag_cover),
+        flag_cover_pass = IF(flag_cover_pass < ?, ?, flag_cover_pass),
+        flag_cover_fail = IF(flag_cover_fail < ?, ?, flag_cover_fail),
+        flag_cover_multi = IF(flag_cover_multi < ?, ?, flag_cover_multi),
+        flag_cover_spree = IF(flag_cover_spree < ?, ?, flag_cover_spree),
+        best_single_cover = IF(best_single_cover < ?, ?, best_single_cover),
+        flag_capture = IF(flag_capture < ?, ?, flag_capture),
+        flag_carry_time = IF(flag_carry_time < ?, ?, flag_carry_time),
+        flag_taken = IF(flag_taken < ?, ?, flag_taken),
+        flag_pickup = IF(flag_pickup < ?, ?, flag_pickup),
+        flag_self_cover = IF(flag_self_cover < ?, ?, flag_self_cover),
+        flag_self_cover_pass = IF(flag_self_cover_pass < ?, ?, flag_self_cover_pass),
+        flag_self_cover_fail = IF(flag_self_cover_fail < ?, ?, flag_self_cover_fail),
+        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover)
+        WHERE player_id=? AND gametype_id=?`;
+
+        const vars = [
+            stats.assist.bestLife, stats.assist.bestLife,
+            stats.return.bestLife, stats.return.bestLife,
+            stats.returnBase.bestLife, stats.returnBase.bestLife,
+            stats.returnMid.bestLife, stats.returnMid.bestLife,
+            stats.returnEnemyBase.bestLife, stats.returnEnemyBase.bestLife,
+            stats.returnSave.bestLife, stats.returnSave.bestLife,
+            stats.dropped.bestLife, stats.dropped.bestLife,
+            stats.kill.bestLife, stats.kill.bestLife,
+            stats.seal.bestLife, stats.seal.bestLife,
+            stats.sealPass.bestLife, stats.sealPass.bestLife,
+            stats.sealFail.bestLife, stats.sealFail.bestLife,
+            stats.bestSingleSeal, stats.bestSingleSeal,
+            stats.cover.bestLife, stats.cover.bestLife,
+            stats.coverPass.bestLife, stats.coverPass.bestLife,
+            stats.coverFail.bestLife, stats.coverFail.bestLife,
+            stats.coverMulti.bestLife, stats.coverMulti.bestLife,
+            stats.coverSpree.bestLife, stats.coverSpree.bestLife,
+            stats.bestSingleCover, stats.bestSingleCover,
+            stats.capture.bestLife, stats.capture.bestLife,
+            stats.carryTime.bestLife, stats.carryTime.bestLife,
+            stats.taken.bestLife, stats.taken.bestLife,
+            stats.pickup.bestLife, stats.pickup.bestLife,
+            stats.selfCover.bestLife, stats.selfCover.bestLife,
+            stats.selfCoverPass.bestLife, stats.selfCoverPass.bestLife,
+            stats.selfCoverFail.bestLife, stats.selfCoverFail.bestLife,
+            stats.bestSingleSelfCover, stats.bestSingleSelfCover,
+            playerId, gametypeId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
 }
 
 
