@@ -9,12 +9,12 @@ const renderData = (gametypeNames, data, selectedTab) =>{
         "spree": {"title": "Cover Spree", "detailedTitle": "Flag Cover Spree", "content": "Player covered the flag carrier 4 or more times when the flag was taken."},
         "bestCover": {"title": "Best Cover", "detailedTitle": "Best Single Cover", "content": "The most covers the player got when the flag was taken."},
         "goodCovers": {"title": "Good Covers", "detailedTitle": "Good Flag Covers", "content": "Covers were the flag was captured."},
-        "badCovers": {"title": "Bad Covers", "detailedTitle": "Bad Flag Covers", "content": "Covers were the flag was returned."},
+        "badCovers": {"title": "Failed Covers", "detailedTitle": "Failed Flag Covers", "content": "Covers were the flag was returned."},
         "coversEff": {"title": "Covers Efficiency", "content": "What percentage of covers were successful."},
         "seal": {"title": "Seals", "detailedTitle": "Flag Seals", "content": "Player sealed off their base when their team had the enemy flag."},
         "bestSeal": {"title": "Best Seals", "detailedTitle": "Best Single Flag Seal", "content": "The most seals the player got in a single go."},
         "goodSeal": {"title": "Good Seals", "detailedTitle": "Good Flag Seals", "content": "Flag seals were the player's team capped the flag."},
-        "badSeal": {"title": "Bad Seals", "detailedTitle": "Bad Flag Seals", "content": "Flag seals were the flag was returned by the enemy team."},
+        "badSeal": {"title": "Failed Seals", "detailedTitle": "Failed Flag Seals", "content": "Flag seals were the flag was returned by the enemy team."},
 
     };
 
@@ -28,6 +28,12 @@ const renderData = (gametypeNames, data, selectedTab) =>{
     for(let i = 0; i < data.length; i++){
 
         const d = data[i];
+
+        if(selectedTab === 0){
+            if(d.gametype_id !== 0) continue;
+        }else{
+            if(d.gametype_id === 0) continue;
+        }
         
         const gametypeName = gametypeNames[d.gametype_id] ?? "Not Found";
 
@@ -55,9 +61,8 @@ const renderData = (gametypeNames, data, selectedTab) =>{
             "coversEff": {"value": coverEff, "displayValue": `${coverEff.toFixed(2)}%`},
         };
 
-        if(d.gametype_id !== 0){
-            rows.push(current);
-        }
+        rows.push(current);
+        
     }
 
     

@@ -261,7 +261,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 							<PlayerCTFSummary key={"p-ctf-s"} playerId={playerId} />
 						
 							<div className="default-header">
-									{titleName} Career Profile
+								{titleName} Career Profile
 							</div>
 
 							{elems}

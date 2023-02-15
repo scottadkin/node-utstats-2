@@ -7,9 +7,9 @@ const renderData = (gametypeNames, data, selectedTab) =>{
         "time": "Carry Time",
         "kills": "Kills With Flag",
         "bestKills": "Most Kills With Flag",
-        "bad": {"title": "Bad Kills With Flag", "content": "Kills the player got while carrying the flag, but the flag was returned by the enemy team."},
         "good": {"title": "Good Kills With Flag", "content": "Kills the player got while carrying the flag, and the flag was captured."},
-        "eff": {"title": "Kills Efficiency", "content": "What percentage of kills while carrying the flag that were successful."}
+        "bad": {"title": "Failed Kills With Flag", "content": "Kills the player got while carrying the flag, but the flag was returned by the enemy team."},
+        "eff": {"title": "Kills Efficiency", "content": "What percentage of the player's kills while carrying the flag were the flag was captured."}
     };
 
     if(selectedTab !== 0){
@@ -21,6 +21,12 @@ const renderData = (gametypeNames, data, selectedTab) =>{
     for(let i = 0; i < data.length; i++){
 
         const d = data[i];
+
+        if(selectedTab === 0){
+            if(d.gametype_id !== 0) continue;
+        }else{
+            if(d.gametype_id === 0) continue;
+        }
         
         const gametypeName = gametypeNames[d.gametype_id] ?? "Not Found";
 
@@ -44,9 +50,8 @@ const renderData = (gametypeNames, data, selectedTab) =>{
 
         };
 
-        if(d.gametype_id !== 0){
-            rows.push(current);
-        }
+        rows.push(current);
+        
     }
 
     

@@ -56,6 +56,12 @@ const renderCovers = (selectedTab, recordType, gametypeNames, data) =>{
     return <PlayerCTFSummaryCovers gametypeNames={gametypeNames} data={data} recordType={recordType}/>;
 }
 
+const renderCarry = (selectedTab, recordType, gametypeNames, data) =>{
+
+    if(selectedTab !== 2) return null;
+
+    return <PlayerCTFSummaryCarry gametypeNames={gametypeNames} data={data} recordType={recordType}/>
+}
 
 const PlayerCTFSummary = ({playerId}) =>{
 
@@ -129,11 +135,11 @@ const PlayerCTFSummary = ({playerId}) =>{
         <div className="default-header">Capture The Flag Summary</div>
         <Tabs selectedValue={selectedMode} options={getTabs()} changeSelected={setSelectedMode}/>
         <Tabs options={options} selectedValue={recordType} changeSelected={setRecordType}/> 
-        
-        <PlayerCTFSummaryCarry gametypeNames={state.gametypeNames} data={data} recordType={recordType}/>
     
-        {renderGeneral(selectedMode, recordType, state.gametypeNames, state.totals, state.best, state.bestLife)}
-        {renderCovers(selectedMode, recordType, state.gametypeNames, state.totals, state.best, state.bestLife)}
+    
+        {renderGeneral(selectedMode, recordType, state.gametypeNames, data)}
+        {renderCovers(selectedMode, recordType, state.gametypeNames, data)}
+        {renderCarry(selectedMode, recordType, state.gametypeNames, data)}
     </div>
 }
 
