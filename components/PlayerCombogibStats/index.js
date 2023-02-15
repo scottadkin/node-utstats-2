@@ -82,6 +82,7 @@ class PlayerCombogibStats extends React.Component{
 
         if(this.state.tab !== 3) return null;
 
+        console.log(d);
 
         return <Table2 width={1} header="Kills Per Minute">
             <tr>
@@ -91,10 +92,10 @@ class PlayerCombogibStats extends React.Component{
                 <th>Instagib Kills</th>
             </tr>
             <tr>
-                <td>{Functions.ignore0(d.combo_kpm).toFixed(2)}</td>
-                <td>{Functions.ignore0(d.insane_kpm).toFixed(2)}</td>
-                <td>{Functions.ignore0(d.shockball_kpm).toFixed(2)}</td>
-                <td>{Functions.ignore0(d.primary_kpm).toFixed(2)}</td>
+                <td>{Functions.ignore0(d.combo_kpm)}</td>
+                <td>{Functions.ignore0(d.insane_kpm)}</td>
+                <td>{Functions.ignore0(d.shockball_kpm)}</td>
+                <td>{Functions.ignore0(d.primary_kpm)}</td>
             </tr>
         </Table2>
     }
