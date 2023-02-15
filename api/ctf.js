@@ -26,7 +26,7 @@ class CTF{
         const query = `INSERT INTO nstats_player_ctf_totals VALUES(NULL,?,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0)`;
 
         return await mysql.simpleQuery(query, [playerId, gametypeId]);
     }
@@ -66,7 +66,8 @@ class CTF{
         flag_self_cover=flag_self_cover+?,
         flag_self_cover_pass=flag_self_cover_pass+?,
         flag_self_cover_fail=flag_self_cover_fail+?,
-        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover)
+        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover),
+        flag_solo_capture=flag_solo_capture+?
         WHERE player_id=? AND gametype_id=?`;
 
         const vars = [
@@ -97,6 +98,7 @@ class CTF{
             stats.selfCover.total,
             stats.selfCoverPass.total,
             stats.selfCoverFail.total,
+            stats.soloCapture.total,
             stats.bestSingleSelfCover, stats.bestSingleSelfCover,
 
             playerId, gametypeId
@@ -105,7 +107,7 @@ class CTF{
         await mysql.simpleQuery(query, vars);
     }
 
-    async updatePlayerMatchStats(playerId, matchId, stats){
+    /*async updatePlayerMatchStats(playerId, matchId, stats){
 
         const query = `UPDATE nstats_player_matches SET
             flag_assist = ?,
@@ -156,7 +158,7 @@ class CTF{
             ];
 
         return await mysql.simpleQuery(query, vars);
-    }
+    }*/
 
     calculateTimeDropped(dropTimes, pickupTimes){
 
@@ -2088,7 +2090,7 @@ class CTF{
     async insertPlayerMatchData(playerId, matchId, mapId, gametypeId, serverId, matchDate, player){
 
         const query = `INSERT INTO nstats_player_ctf_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [
             playerId,
@@ -2152,7 +2154,9 @@ class CTF{
             player.stats.ctfNew.selfCoverPass.bestLife,
             player.stats.ctfNew.selfCoverFail.total,
             player.stats.ctfNew.selfCoverFail.bestLife,
-            player.stats.ctfNew.bestSingleSelfCover
+            player.stats.ctfNew.bestSingleSelfCover,
+            player.stats.ctfNew.soloCapture.total,
+            player.stats.ctfNew.soloCapture.bestLife,
         ];
 
         return await mysql.simpleQuery(query, vars);
@@ -2286,7 +2290,7 @@ class CTF{
         const query = `INSERT INTO nstats_player_ctf_best VALUES(NULL,?,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0)`;
 
         return await mysql.simpleQuery(query, [playerId, gametypeId]);
     }
@@ -2325,7 +2329,8 @@ class CTF{
         flag_self_cover = IF(flag_self_cover < ?, ?, flag_self_cover),
         flag_self_cover_pass = IF(flag_self_cover_pass < ?, ?, flag_self_cover_pass),
         flag_self_cover_fail = IF(flag_self_cover_fail < ?, ?, flag_self_cover_fail),
-        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover)
+        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover),
+        flag_solo_capture = IF(flag_solo_capture < ?, ?, flag_solo_capture)
         WHERE player_id=? AND gametype_id=?`;
 
         const vars = [
@@ -2356,6 +2361,7 @@ class CTF{
             stats.selfCoverPass.total, stats.selfCoverPass.total,
             stats.selfCoverFail.total, stats.selfCoverFail.total,
             stats.bestSingleSelfCover, stats.bestSingleSelfCover,
+            stats.soloCapture.total, stats.soloCapture.total,
             playerId, gametypeId
         ];
 
@@ -2379,7 +2385,7 @@ class CTF{
         const query = `INSERT INTO nstats_player_ctf_best_life VALUES(NULL,?,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0)`;
 
         return await mysql.simpleQuery(query, [playerId, gametypeId]);
     }
@@ -2417,7 +2423,8 @@ class CTF{
         flag_self_cover = IF(flag_self_cover < ?, ?, flag_self_cover),
         flag_self_cover_pass = IF(flag_self_cover_pass < ?, ?, flag_self_cover_pass),
         flag_self_cover_fail = IF(flag_self_cover_fail < ?, ?, flag_self_cover_fail),
-        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover)
+        best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover),
+        flag_solo_capture = IF(flag_solo_capture < ?, ?, flag_solo_capture)
         WHERE player_id=? AND gametype_id=?`;
 
         const vars = [
@@ -2447,6 +2454,7 @@ class CTF{
             stats.selfCoverPass.bestLife, stats.selfCoverPass.bestLife,
             stats.selfCoverFail.bestLife, stats.selfCoverFail.bestLife,
             stats.bestSingleSelfCover, stats.bestSingleSelfCover,
+            stats.soloCapture.bestLife, stats.soloCapture.bestLife,
             playerId, gametypeId
         ];
 

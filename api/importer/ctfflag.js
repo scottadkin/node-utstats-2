@@ -545,6 +545,8 @@ class CTFFlag{
         }
         
         await this.reset(false, capId);
+
+        return [...assistIds].length;
     }
 
     async insertSeals(capId){

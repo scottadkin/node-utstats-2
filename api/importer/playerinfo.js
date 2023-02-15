@@ -167,6 +167,12 @@ class PlayerInfo{
                     "currentLife": 0,
                     "lastTimestamp": 0
                 },
+                "soloCapture":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
                 "assist":{
                     "total": 0,
                     "bestLife": 0,

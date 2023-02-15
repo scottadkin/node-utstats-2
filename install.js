@@ -1420,6 +1420,8 @@ const queries = [
       flag_self_cover_fail INT(11) NOT NULL,
       flag_self_cover_fail_best INT(11) NOT NULL,
       best_single_self_cover INT(11) NOT NULL,
+      flag_solo_capture INT(11) NOT NULL,
+      flag_solo_capture_best INT(11) NOT NULL,
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 
@@ -1520,6 +1522,7 @@ const queries = [
               flag_self_cover_pass INT(11) NOT NULL,
               flag_self_cover_fail INT(11) NOT NULL,
               best_single_self_cover INT(11) NOT NULL,
+              flag_solo_capture INT(11) NOT NULL,
               PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
               `CREATE TABLE IF NOT EXISTS nstats_player_ctf_best (
@@ -1553,6 +1556,7 @@ const queries = [
                 flag_self_cover_pass INT(11) NOT NULL,
                 flag_self_cover_fail INT(11) NOT NULL,
                 best_single_self_cover INT(11) NOT NULL,
+                flag_solo_capture INT(11) NOT NULL,
                 PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
                 `CREATE TABLE IF NOT EXISTS nstats_player_ctf_best_life (
@@ -1585,6 +1589,7 @@ const queries = [
                   flag_self_cover_pass INT(11) NOT NULL,
                   flag_self_cover_fail INT(11) NOT NULL,
                   best_single_self_cover INT(11) NOT NULL,
+                  flag_solo_capture INT(11) NOT NULL,
                   PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 ];
