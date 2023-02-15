@@ -5,13 +5,15 @@ import Tabs from "../Tabs";
 import PlayerCTFSummaryGeneral from "../PlayerCTFSummaryGeneral";
 import PlayerCTFSummaryCovers from "../PlayerCTFSummaryCovers";
 import PlayerCTFSummaryCarry from "../PlayerCTFSummaryCarry";
+import PlayerCTFSummaryReturns from "../PlayerCTFSummaryReturns";
 
 const getTabs = () =>{
 
     const tabs = [
         {"name": "General", "value": 0},
         {"name": "Covers", "value": 1},
-        {"name": "Flag Carry Stats", "value": 2},
+        {"name": "Carry Stats", "value": 2},
+        {"name": "Returns", "value": 3}
     ];
 
     return tabs;
@@ -61,6 +63,13 @@ const renderCarry = (selectedTab, recordType, gametypeNames, data) =>{
     if(selectedTab !== 2) return null;
 
     return <PlayerCTFSummaryCarry gametypeNames={gametypeNames} data={data} recordType={recordType}/>
+}
+
+const renderReturns = (selectedTab, recordType, gametypeNames, data) =>{
+
+    if(selectedTab !== 3) return null;
+
+    return <PlayerCTFSummaryReturns gametypeNames={gametypeNames} data={data} recordType={recordType}/>;
 }
 
 const PlayerCTFSummary = ({playerId}) =>{
@@ -136,10 +145,12 @@ const PlayerCTFSummary = ({playerId}) =>{
         <Tabs selectedValue={selectedMode} options={getTabs()} changeSelected={setSelectedMode}/>
         <Tabs options={options} selectedValue={recordType} changeSelected={setRecordType}/> 
     
+        
     
         {renderGeneral(selectedMode, recordType, state.gametypeNames, data)}
         {renderCovers(selectedMode, recordType, state.gametypeNames, data)}
         {renderCarry(selectedMode, recordType, state.gametypeNames, data)}
+        {renderReturns(selectedMode, recordType, state.gametypeNames, data)}
     </div>
 }
 
