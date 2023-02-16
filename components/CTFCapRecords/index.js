@@ -1,7 +1,7 @@
 import {useEffect, useState, useReducer} from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
-import Tabs from "../Tabs";
+import TabsLinks from "../TabsLinks";
 import InteractiveTable from "../InteractiveTable";
 import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
@@ -34,14 +34,15 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const renderTabs = (selectedTab, setSelectedTab) =>{
+const renderTabs = (selectedTab) =>{
 
     const options = [
         {"name": "Solo Caps", "value": 0},
         {"name": "Assisted Caps", "value": 1}
     ];
 
-    return <Tabs selectedValue={selectedTab} changeSelected={setSelectedTab} options={options} />
+    return <TabsLinks selectedValue={selectedTab} options={options} url={`/records/?mode=2&ct=`}/>
+    //return <Tabs selectedValue={selectedTab} changeSelected={setSelectedTab} options={options} />
 }
 
 
@@ -195,7 +196,7 @@ const renderAssistedCaps = (state, selectedTab) =>{
                 </Link>
             },
             "assistedBy": {
-                "value": assistDetails.length, 
+                "value": assistPlayers.length, 
                 "displayValue": assistPlayers
             }
         }
@@ -205,8 +206,10 @@ const renderAssistedCaps = (state, selectedTab) =>{
     return <InteractiveTable width={1} headers={headers} data={rows} />
 }
 
-const CTFCapRecords = ({}) =>{
+const CTFCapRecords = ({selectedMode}) =>{
 
+
+    selectedMode = parseInt(selectedMode);
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -219,9 +222,6 @@ const CTFCapRecords = ({}) =>{
         "playerNames": {},
         "assistData": {}
     });
-
-    const [selectedMode, setSelectedMode] = useState(0);
-    const [selectedGametype, setSelectedGametype] = useState(0);
 
     useEffect(() =>{
      
@@ -251,7 +251,7 @@ const CTFCapRecords = ({}) =>{
 
             return controller.abort();
         }
-    }, []);
+    }, [selectedMode]);
 
 
     if(state.bLoading) return <Loading/>;
@@ -259,7 +259,7 @@ const CTFCapRecords = ({}) =>{
 
     return <div>
         <div className="default-header">CTF Map Cap Records</div>
-        {renderTabs(selectedMode, setSelectedMode)}
+        {renderTabs(selectedMode)}
         {renderSoloCaps(state, selectedMode)}
         {renderAssistedCaps(state, selectedMode)}
     </div>
