@@ -48,23 +48,19 @@ const renderTabs = (selectedTab, setSelectedTab) =>{
 const getCapDetails = (state, capId) =>{
 
     if(state.detailedCaps[capId] !== undefined) return state.detailedCaps[capId];
+    return {"capPlayer": -1, "grabPlayer": -1, "matchDate": -1};
+}
 
-    return {"capPlayer": -1, "grabPlayer": -1};
+const getAssistDetails = (state, capId) =>{
+
+    if(state.assistData[capId] !== undefined) return state.assistData[capId];
+    return [];
 }
 
 
-const renderData = (state, selectedTab) =>{
+const filterData = (state, selectedTab) => {
 
-    const headers = {
-        "map": "Map",
-        "drop": "Time Dropped",
-        "carry": "Carry Time",
-        "capPlayer": "Capped By",
-        "cap": "Travel Time",
-    };
-
-
-    let data = (selectedTab === 0) ? state.soloCaps : state.assistCaps;
+    const data = (selectedTab === 0) ? state.soloCaps : state.assistCaps;
 
     data = data.filter((cap) =>{
         if(cap.gametype_id === 0 && cap.cap_type === selectedTab) return true;
@@ -80,21 +76,37 @@ const renderData = (state, selectedTab) =>{
         return 0;
     });
 
-    console.log(state.playerNames);
+    return data;
+}
+
+
+const renderSoloCaps = (state, selectedTab) =>{
+
+    if(selectedTab !== 0) return null;
+
+    const headers = {
+        "map": "Map",
+        "date": "Date",
+        "drop": "Time Dropped",
+        "carry": "Carry Time",
+        "capPlayer": "Capped By",
+        "cap": "Travel Time",
+    };
+
+
+    const data = filterData(state, selectedTab);
 
     const rows = data.map((cap) =>{
 
         const mapName = (state.mapNames[cap.map_id] !== undefined) ?  state.mapNames[cap.map_id] : "NOT Found";
 
-        //const test = getCapDetails(state, cap.cap_id);
-
         const capDetails = getCapDetails(state, cap.cap_id);
-        console.log(capDetails);
 
         const capPlayer = Functions.getPlayer(state.playerNames, capDetails.cap_player, true);
 
         return {
-            "map": {"value": mapName.toLowerCase(), "displayValue": mapName, "className": "text-left"},
+            "map": {"value": mapName.toLowerCase(), "displayValue": <Link href={`/map/${cap.map_id}`}><a>{mapName}</a></Link>, "className": "text-left"},
+            "date": {"value": capDetails.match_date, "displayValue": Functions.convertTimestamp(capDetails.match_date, true), "className": "small-font grey"},
             "drop": {"value": cap.drop_time, "displayValue": Functions.toPlaytime(cap.drop_time, true), "className": "playtime"},
             "carry": {"value": cap.carry_time, "displayValue": Functions.toPlaytime(cap.carry_time, true), "className": "playtime"},
             "cap": {"value": cap.travel_time, "displayValue": Functions.toPlaytime(cap.travel_time, true), "className": "playtime"},
@@ -105,6 +117,86 @@ const renderData = (state, selectedTab) =>{
                         <CountryFlag country={capPlayer.country}/>{capPlayer.name}
                     </a>
                 </Link>
+            }
+        }
+    });
+    
+
+    return <InteractiveTable width={1} headers={headers} data={rows} />
+}
+
+
+const renderAssistedCaps = (state, selectedTab) =>{
+
+    if(selectedTab !== 1) return null;
+
+    const headers = {
+        "map": "Map",
+        "date": "Date",
+        "grabPlayer": "Grabbed By",
+        "assistedBy": "Assisted By",
+        "drop": "Time Dropped",
+        "carry": "Carry Time",
+        "capPlayer": "Capped By",
+        "cap": "Travel Time",
+    };
+
+
+    const data = filterData(state, selectedTab);
+
+    const rows = data.map((cap) =>{
+
+        const mapName = (state.mapNames[cap.map_id] !== undefined) ?  state.mapNames[cap.map_id] : "NOT Found";
+
+        const capDetails = getCapDetails(state, cap.cap_id);
+        const assistDetails = getAssistDetails(state, cap.cap_id);
+        const grabPlayer = Functions.getPlayer(state.playerNames, capDetails.grab_player, true);
+        const capPlayer = Functions.getPlayer(state.playerNames, capDetails.cap_player, true);
+
+        //dont want the player who capped/grabbed the flag to also be included in the assist list to save space
+        const ignoredPlayers = [grabPlayer.id, capPlayer.id];
+
+        const assistPlayers = [];
+
+        for(let i = 0; i < assistDetails.length; i++){
+
+            if(ignoredPlayers.indexOf(assistDetails[i]) !== -1) continue;
+
+            const player = Functions.getPlayer(state.playerNames, assistDetails[i], true);
+
+            assistPlayers.push(<Link key={i} href={`/player/${assistDetails[i]}`}>
+                <a className="small-font grey">
+                    <CountryFlag country={grabPlayer.country}/>
+                    {player.name}&nbsp;
+                </a>
+            </Link>);
+        }
+
+        return {
+            "map": {"value": mapName.toLowerCase(), "displayValue": <Link href={`/map/${cap.map_id}`}><a>{mapName}</a></Link>, "className": "text-left"},
+            "date": {"value": capDetails.match_date, "displayValue": Functions.convertTimestamp(capDetails.match_date, true), "className": "small-font grey"},
+            "drop": {"value": cap.drop_time, "displayValue": Functions.toPlaytime(cap.drop_time, true), "className": "playtime"},
+            "carry": {"value": cap.carry_time, "displayValue": Functions.toPlaytime(cap.carry_time, true), "className": "playtime"},
+            "cap": {"value": cap.travel_time, "displayValue": Functions.toPlaytime(cap.travel_time, true), "className": "playtime"},
+            "capPlayer": {
+                "value": capPlayer.name.toLowerCase(), 
+                "displayValue": <Link href={`/player/${capPlayer.id}`}>
+                    <a>
+                        <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                    </a>
+                </Link>
+            },
+            "grabPlayer": {
+                "value": grabPlayer.name.toLowerCase(), 
+                "displayValue": <Link href={`/player/${grabPlayer.id}`}>
+                    <a>
+                        <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
+                    </a>
+                </Link>
+            },
+            "assistedBy": {
+                "value": assistDetails.length, 
+                "displayValue": assistPlayers
             }
         }
     });
@@ -151,8 +243,6 @@ const CTFCapRecords = ({}) =>{
             }else{
                 dispatch({"type": "loaded", "payload": res});
             }
-
-            console.log(res);
         }
 
         loadData();
@@ -170,7 +260,8 @@ const CTFCapRecords = ({}) =>{
     return <div>
         <div className="default-header">CTF Map Cap Records</div>
         {renderTabs(selectedMode, setSelectedMode)}
-        {renderData(state, selectedMode)}
+        {renderSoloCaps(state, selectedMode)}
+        {renderAssistedCaps(state, selectedMode)}
     </div>
 }
 
