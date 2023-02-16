@@ -1073,6 +1073,88 @@ class CTFManager{
         }
     }
     
+
+    getFlagFastestCap(flag){
+
+        let solo = null;
+        let assist = null;
+
+        flag.basicCapsInfo.sort((a, b) =>{
+
+            a = a.travelTime;
+            b = b.travelTime;
+
+            if(a < b) return -1;
+            if(a > b) return 1;
+            return 0;
+        });
+
+
+        for(let i = 0; i < flag.basicCapsInfo.length; i++){
+
+            const cap = flag.basicCapsInfo[i];
+
+            if(solo === null && cap.type === 0){
+                solo = cap;
+            }
+
+            if(assist === null && cap.type === 1){
+                assist = cap;
+            }
+
+            if(assist !== null && cap !== null) break;
+            
+        }
+
+
+        return {"solo": solo, "assist": assist};
+
+    }
+
+    async updateMapCapRecord(mapId, gametypeId){
+
+        let bestSoloCap = null;
+        let bestAssistCap = null;
+
+        for(let i = 0; i < this.flags.length; i++){
+
+            const flag = this.flags[i];
+
+            const {solo, assist} = this.getFlagFastestCap(flag);
+
+            if(solo !== null){
+
+                if(bestSoloCap === null){
+                    bestSoloCap = solo;
+                }else{
+
+                    if(bestSoloCap.travelTime > solo.travelTime){
+                        bestSoloCap = solo;
+                    }
+                }
+            }
+
+            if(assist !== null){
+
+                if(bestAssistCap === null){
+                    bestAssistCap = assist;
+                }else{
+
+                    if(bestAssistCap.travelTime > assist.travelTime){
+                        bestAssistCap = assist;
+                    }
+                }
+            }
+        }
+
+        if(bestSoloCap !== null){
+            await this.ctf.updateMapCapRecord(bestSoloCap.id, mapId, this.matchId, gametypeId, 0, bestSoloCap.travelTime, bestSoloCap.carryTime, bestSoloCap.dropTime);
+        }
+
+        if(bestAssistCap !== null){
+            await this.ctf.updateMapCapRecord(bestAssistCap.id, mapId, this.matchId, gametypeId, 1, bestAssistCap.travelTime, bestAssistCap.carryTime, bestAssistCap.dropTime);
+        }
+    }
 }
 
 module.exports = CTFManager;

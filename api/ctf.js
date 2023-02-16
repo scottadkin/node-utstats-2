@@ -459,71 +459,9 @@ class CTF{
 
     }*/
 
-    async bMapHaveRecord(mapId, type){
-
-        if(type === undefined) type = 0;
-
-        let query = `SELECT COUNT(*) as total_results FROM nstats_ctf_cap_records WHERE map_id=? AND type=?`;
-
-        const result = await mysql.simpleQuery(query, [mapId, type]);
-
-        if(result.length === 0) return false;
-
-        if(result[0].total_results > 0){
-            return true;
-        }
-
-        return false;
-    }
-
-    async getMapRecord(mapId, type){
-
-        const query = "SELECT travel_time FROM nstats_ctf_cap_records WHERE map_id=? AND type=?";
-
-        const result = await mysql.simpleQuery(query, [mapId, type]);
-
-        if(result.length > 0){
-            return result[0].travel_time;
-        }
-
-        return -1;
-
-    }
-
-    async updateCapRecord(matchId, mapId, type, cap, date){
-
-        if(cap === null) return;
-
-        const bMapHaveRecord = await this.bMapHaveRecord(mapId, type);
-
-        if(!bMapHaveRecord){
-            await this.insertCapRecord(matchId, mapId, type, cap, date);
-        }else{
-
-            const currentRecord = await this.getMapRecord(mapId, type);
-
-                if(currentRecord < 0 || currentRecord > cap.travelTime){
-                
-                const query = `UPDATE nstats_ctf_cap_records SET match_id=?,match_date=?,team=?,grab=?,assists=?,cap=?,travel_time=? WHERE map_id=? AND type=?`;
-                const vars = [matchId, date, cap.team, cap.grab, cap.assists.toString(), cap.cap, cap.travelTime, mapId, type];
-                await mysql.simpleQuery(query, vars);
-
-            }else{
-                new Message(`Current Record is less than 0`,"warning");
-            }
-
-        }
-    }
 
 
-    async insertCapRecord(matchId, mapId, type, cap, date){
 
-        const query = "INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?,?)";
-
-        const vars = [matchId, date, mapId, cap.team, cap.grab, cap.assists.toString(), cap.cap, cap.travelTime ?? cap.travel_time, type];
-        //console.log(vars);
-        await mysql.simpleQuery(query, vars);
-    }
 
     async getMatchCaps(matchId){
 
@@ -1691,31 +1629,6 @@ class CTF{
         return result;
     }
 
-    async getMapFastestSoloCap(mapId){
-
-        const query = "SELECT match_id,cap,travel_time FROM nstats_ctf_cap_records WHERE map_id=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
-
-        const data = await mysql.simpleQuery(query, [mapId]);
-
-        if(data.length > 0) return data[0];
-
-        return null;
-    }
-
-    async getMapFastestAssistCap(mapId){
-
-        const query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_cap_records WHERE map_id=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
-
-        const data = await mysql.simpleQuery(query, [mapId]);
-
-        if(data.length > 0){
-            data[0].assists = data[0].assists.split(",");
-            return data[0];
-        }
-
-        return null;
-
-    }
 
     async getFastestMapCaps(mapId, playerManager){
 
@@ -1825,123 +1738,6 @@ class CTF{
         return maps;
     }
 
-    async getMapAssistedCapRecord(mapId){
-
-        const query = "SELECT * FROM nstats_ctf_cap_records WHERE map_id=? AND assists!='' ORDER BY travel_time DESC LIMIT 1";
-
-        const result = await mysql.simpleQuery(query, [mapId]);
-
-        if(result.length > 0){
-
-            const data = result[0];
-            const assistIds = data.assists.split(",").map(value => parseInt(value));
-
-            data.assists = assistIds;
-            return data;
-        }
-
-        return null;
-    }
-
-    async getMapSoloCapRecord(mapId){
-
-        const query = "SELECT * FROM nstats_ctf_cap_records WHERE map_id=? AND assists='' ORDER BY travel_time DESC LIMIT 1";
-
-        const result = await mysql.simpleQuery(query, [mapId]);
-
-        if(result.length > 0) return result[0];
-
-        return null;
-
-    }
-
-    async getMapCapRecords(id){
-
-        return {
-            "solo": await this.getMapSoloCapRecord(id),
-            "assisted": await this.getMapAssistedCapRecord(id)
-        };
-    }
-
-
-    /**
-     * Fastest solo cap from ctf_caps not ctf_cap_records
-     */
-    async getMapFastestSoloCapALT(id){
-
-        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time ASC LIMIT 1";
-
-        const result = await mysql.simpleQuery(query, [id]);
-        
-        if(result.length > 0){
-            return result[0];
-        }
-
-        return null;
-    }
-
-    /**
-     * Fastest assist cap from ctf_caps not ctf_cap_records
-     */
-     async getMapFastestAssistCapALT(id){
-
-        const query = "SELECT * FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time ASC LIMIT 1";
-
-        const result = await mysql.simpleQuery(query, [id]);
-        
-        if(result.length > 0){
-            return result[0];
-        }
-
-        return null;
-    }
-
-    /**
-     * Get fastest times from ctf_caps instead ctf_cap_records
-     * used for getMapCapRecords.js
-     */
-    async getMapFastestCaps(id){
-
-        return {"solo": await this.getMapFastestSoloCapALT(id), "assisted": await this.getMapFastestAssistCapALT(id)};
-    }
-
-    /**
-     * Get fastest times from ctf_caps instead ctf_cap_records
-     * used for getMapCapRecords.js
-     */
-    async getAllMapFastestCaps(mapIds){
-
-        const records = {};
-
-        for(let i = 0; i < mapIds.length; i++){
-
-            const m = mapIds[i];
-
-            records[m] = await this.getMapFastestCaps(m);
-        }
-
-        return records;
-    }
-
-    async getMapsCapRecords(mapIds){
-
-        if(mapIds.length === 0) return {};
-
-        if(mapIds === "*"){
-
-            mapIds = await this.getAllMapsWithCaps();
-        }
-
-        const records = {};
-
-        for(let i = 0; i < mapIds.length; i++){
-
-            const m = mapIds[i];
-            records[m] = await this.getMapCapRecords(m);
-        }
-
-        return records;
-    }
 
 
     async clearRecords(){
@@ -1951,140 +1747,6 @@ class CTF{
     }
 
 
-    async getCapRecords(){
-
-        const mapIds = await this.getAllMapsWithCaps();
-       // console.log(mapIds);
-        
-    }
-
-
-    async getPlayerTotalSoloCapRecords(minCaps, maxResults){
-
-        const query = `SELECT cap,COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE type=0
-        GROUP BY cap 
-        ORDER BY total_records DESC LIMIT ?`;
-
-        const result = await mysql.simpleQuery(query, [maxResults]);
-
-        const data = [];
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            if(r.total_records >= minCaps){
-                data.push({"player": r.cap, "caps": r.total_records});
-            }
-
-        }
-
-        return data;
-
-    }
-
-
-    async getPlayerTotalAssistCapRecords(minCaps, maxResults){
-
-        const query = "SELECT cap,assists,grab FROM nstats_ctf_cap_records WHERE type=1";
-
-        const result = await mysql.simpleQuery(query);
-
-        const caps = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            const currentPlayers = [];
-
-            const assists = r.assists.split(",");
-
-            currentPlayers.push(r.grab);
-            
-            for(let x = 0; x < assists.length; x++){
-
-                const a = parseInt(assists[x]);
-
-                if(currentPlayers.indexOf(a) === -1){
-                    currentPlayers.push(a);
-                }
-            }
-
-            if(currentPlayers.indexOf(r.cap) === -1){
-                currentPlayers.push(r.cap);
-            }
-
-
-            for(let x = 0; x < currentPlayers.length; x++){
-
-                const p = currentPlayers[x];
-
-                if(caps[p] === undefined) caps[p] = 0;
-
-                caps[p]++;
-            }
-        }
-
-        let returnData = [];
-
-        for(const [playerId, totalCaps] of Object.entries(caps)){
-
-            if(totalCaps < minCaps) continue;
-
-            returnData.push({"player": parseInt(playerId), "caps": totalCaps});
-        }
-
-        returnData.sort((a,b) =>{
-
-            a = a.caps;
-            b = b.caps;
-
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
-            }
-
-            return 0;
-        });
-
-        returnData = returnData.slice(0, maxResults);
-
-        return returnData;
-    }
-
-
-    async getPlayerSoloCapRecords(playerId){
-
-        const query = "SELECT match_id,match_date,map_id,travel_time FROM nstats_ctf_cap_records WHERE cap=? AND type=0";
-        return await mysql.simpleQuery(query, [playerId]);
-
-    }
-
-    async getPlayerAssistCapRecords(playerId){
-
-
-        /*const query = `SELECT match_id,match_date,map_id,cap,grab,assists FROM nstats_ctf_cap_records WHERE 
-        assists=? || 
-        assists LIKE ? || 
-        assists LIKE ?`;*/
-
-        const query = `SELECT match_id,match_date,map_id,travel_time FROM nstats_ctf_cap_records WHERE 
-        assists=? || 
-        assists LIKE ? || 
-        assists LIKE ?`;
-
-        return await mysql.simpleQuery(query, [playerId, `%${playerId},%`, `%,${playerId}%`]);
-
-    }
-
-    async getPlayerCapRecords(playerId){
-
-        const soloRecords = await this.getPlayerSoloCapRecords(playerId);
-
-        const assistedRecords = await this.getPlayerAssistCapRecords(playerId);
-
-        return {"soloCaps": soloRecords, "assistedCaps": assistedRecords};
-    }
 
 
     async insertPlayerMatchData(playerId, matchId, mapId, gametypeId, serverId, matchDate, player){
@@ -2478,6 +2140,85 @@ class CTF{
 
         const query = `SELECT * FROM nstats_player_ctf_best_life WHERE player_id=?`;
         return await mysql.simpleQuery(query, [playerId]);
+    }
+
+
+    async bMapHaveRecord(mapId, gametypeId, capType){
+
+        const query = `SELECT COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=?`;
+
+        const result = await mysql.simpleQuery(query, [mapId, gametypeId, capType]);
+
+        if(result[0].total_records > 0) return true;
+
+        return false;
+    }
+
+    async insertNewCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime){
+
+        const query = `INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?)`;
+
+        return await mysql.simpleQuery(query, [capId, mapId, gametypeId, matchId, travelTime, carryTime, dropTime, capType]);
+    }
+
+    async getMapCurrentRecordTime(mapId, gametypeId, capType){
+
+        const query = `SELECT travel_time FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=?`;
+
+        const result = await mysql.simpleQuery(query, [mapId, gametypeId, capType]);
+
+        if(result.length > 0){
+            return result[0].travel_time;
+        }
+
+        return null;
+    }
+
+    async updateCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime){
+
+        const query = `UPDATE nstats_ctf_cap_records SET cap_id=?, match_id=?, travel_time=?, carry_time=?, drop_time=?
+        WHERE map_id=? AND gametype_id=? AND cap_type=?`;
+
+        const vars = [
+            capId, 
+            matchId, 
+            travelTime, 
+            carryTime, 
+            dropTime,
+            mapId,
+            gametypeId,
+            capType
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async updateMapCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime){
+
+        if(!await this.bMapHaveRecord(mapId, gametypeId, capType)){
+            await this.insertNewCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime);
+        }
+
+
+        const currentCapRecord = await this.getMapCurrentRecordTime(mapId, gametypeId, capType);
+
+        
+        if(currentCapRecord === null){
+
+            new Message("CTF.updateMapCapRecord() currentCapRecord is null","error");
+            return;
+        }
+
+        if(travelTime < currentCapRecord){
+            new Message(`New cap record for map ${mapId} type ${capType} travelTime ${travelTime}`,"note");
+            await this.updateCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime);
+        }
+
+
+        //all time record no matter what gametype
+        if(gametypeId !== 0){
+            return this.updateMapCapRecord(capId, mapId, matchId, 0, capType, travelTime, carryTime, dropTime);
+        }
     }
 }
 

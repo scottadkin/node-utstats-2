@@ -43,6 +43,9 @@ class CTFFlag{
 
         this.lastReturnTimestamp = null;
 
+
+        this.basicCapsInfo = [];
+
     }
 
 
@@ -425,6 +428,7 @@ class CTFFlag{
             "yellow": yellowSuicides
         };
     }
+    
 
     async captured(timestamp, playerId){
 
@@ -539,6 +543,13 @@ class CTFFlag{
             await this.insertCapReturnEvents(this.takenTimestamp, timestamp, capId, true);
 
 
+            this.basicCapsInfo.push({
+                "id": capId,
+                "travelTime": travelTime, 
+                "carryTime": totalCarryTime, 
+                "dropTime": timeDropped, 
+                "type": ([...assistIds].length === 0) ? 0 : 1
+            });
 
         }else{
             new Message(`capPlayer is null`,"warning");

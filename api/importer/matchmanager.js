@@ -389,6 +389,7 @@ class MatchManager{
                 await this.CTFManager.updatePlayerTotals(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
                 await this.CTFManager.updatePlayerBestValues(this.gametype.currentMatchGametype);
                 await this.CTFManager.updatePlayerBestValuesSingleLife(this.gametype.currentMatchGametype);
+                await this.CTFManager.updateMapCapRecord(this.mapInfo.mapId, this.gametype.currentMatchGametype);
 
                 
                 /*if(this.CTFManager.bHasData()){

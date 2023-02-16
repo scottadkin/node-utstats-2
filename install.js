@@ -1175,19 +1175,6 @@ const queries = [
          'Reduce the player\\'s score to a percentage of it\\'s original value',
           0.05)`,
 
-          `CREATE TABLE IF NOT EXISTS nstats_ctf_cap_records(
-            id int(11) NOT NULL AUTO_INCREMENT,
-            match_id INT(11) NOT NULL,
-            match_date INT(11) NOT NULL,
-            map_id INT(11) NOT NULL,
-            team INT(1) NOT NULL,
-            grab INT(11) NOT NULL,
-            assists VARCHAR(500) NOT NULL,
-            cap INT(11) NOT NULL,
-            travel_time DECIMAL(10,2) NOT NULL,
-            type INT(1) NOT NULL,
-    PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-
 
     `INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',0,0,0,0,0,0,0,0,0,0,0,0)`,
     
@@ -1591,6 +1578,19 @@ const queries = [
                   best_single_self_cover INT(11) NOT NULL,
                   flag_solo_capture INT(11) NOT NULL,
                   PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+
+                  `CREATE TABLE IF NOT EXISTS nstats_ctf_cap_records(
+                    id int(11) NOT NULL AUTO_INCREMENT,
+                    match_id INT(11) NOT NULL,
+                    map_id INT(11) NOT NULL,
+                    gametype_id INT(11) NOT NULL,
+                    match_id INT(11) NOT NULL,
+                    travel_time float NOT NULL,
+                    carry_time float NOT NULL,
+                    drop_time float NOT NULL,
+                    cap_type INT(1) NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
 ];
 
