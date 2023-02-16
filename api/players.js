@@ -2030,6 +2030,24 @@ class Players{
 
         return [...found];
     }
+
+
+    async getBasicInfo(playerIds){
+
+        if(playerIds.length === 0) return {};
+
+        const query = `SELECT name,id,country FROM nstats_player_totals WHERE id IN(?)`;
+        const result = await mysql.simpleQuery(query, [playerIds]);
+        const found = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            found[r.id] = {"id": r.id,"name": r.name, "country": r.country};
+        }
+
+        return found;
+    }
     
 }
 

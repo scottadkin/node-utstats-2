@@ -736,11 +736,13 @@ class Functions{
     }
 
 
-    static toPlaytime(seconds){
+    static toPlaytime(seconds, bIncludeMilliSeconds){
 
         if(seconds === 0) return "None";
 
-        const miliSeconds = seconds % 1;
+        const milliSeconds = seconds % 1;
+
+        if(bIncludeMilliSeconds === undefined) bIncludeMilliSeconds = false;
 
         const rSeconds = Math.floor(seconds % 60);
         const secondString = Functions.plural(rSeconds, "Second");
@@ -781,10 +783,15 @@ class Functions{
             }else{
 
                 if(rSeconds > 0){
+
+                    if(bIncludeMilliSeconds){
+                        return `${rSeconds}.${Math.floor(milliSeconds * 100)} ${secondString}`;
+                    }
+
                     return `${rSeconds} ${secondString}`;
                 }
 
-                return `${Math.floor(miliSeconds * 1000)} ms`;
+                return `${Math.floor(milliSeconds * 1000)} ms`;
             }
         }
     }

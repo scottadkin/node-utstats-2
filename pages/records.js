@@ -334,7 +334,7 @@ class Records extends React.Component{
 
         if(this.props.mode !== 2) return null;
 
-        return <CTFCapRecords mode={this.props.capMode} />;
+        return <CTFCapRecords  />;
     }
 
     renderCombogibRecords(){

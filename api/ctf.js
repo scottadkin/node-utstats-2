@@ -2199,10 +2199,8 @@ class CTF{
             await this.insertNewCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime);
         }
 
-
         const currentCapRecord = await this.getMapCurrentRecordTime(mapId, gametypeId, capType);
-
-        
+  
         if(currentCapRecord === null){
 
             new Message("CTF.updateMapCapRecord() currentCapRecord is null","error");
@@ -2220,6 +2218,93 @@ class CTF{
             return this.updateMapCapRecord(capId, mapId, matchId, 0, capType, travelTime, carryTime, dropTime);
         }
     }
+
+
+    async getAllMapRecords(){
+
+        const query = `SELECT * FROM nstats_ctf_cap_records`;
+
+        const result = await mysql.simpleQuery(query);
+
+        const soloCaps = [];
+        const assistCaps = [];
+        const mapIds = new Set();
+        const gametypeIds = new Set();
+        const matchIds = new Set();
+        const capIds = new Set();
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            mapIds.add(r.map_id);
+            gametypeIds.add(r.gametype_id);
+            matchIds.add(r.match_id);
+            capIds.add(r.cap_id);
+            
+
+            if(r.cap_type === 0) soloCaps.push(r);
+            if(r.cap_type === 1) assistCaps.push(r);
+        }
+
+        return {
+            "soloCaps": soloCaps, 
+            "assistCaps": assistCaps, 
+            "mapIds": [...mapIds], 
+            "gametypeIds": [...gametypeIds],
+            "matchIds": [...matchIds],
+            "capIds": [...capIds]
+        }
+    }
+
+
+    async getCaps(capIds){
+
+        if(capIds.length === 0) return {};
+
+        const query = `SELECT * FROM nstats_ctf_caps WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [capIds]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data[r.id] = r;
+            delete data[r.id].id;
+        }
+
+        return data;
+    }
+
+    async getAssistedPlayers(capIds){
+
+        if(capIds.length === 0) return {};
+
+        const query = `SELECT cap_id,player_id FROM nstats_ctf_assists WHERE cap_id IN(?)`;
+        const result = await mysql.simpleQuery(query, [capIds]);
+
+        const found = {};
+
+        const uniquePlayers = new Set();
+        
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(found[r.cap_id] === undefined) found[r.cap_id] = [];
+            found[r.cap_id].push(r.player_id);
+
+            uniquePlayers.add(r.player_id);
+        }
+        
+
+
+        return {"assists": found, "uniquePlayers": [...uniquePlayers]};
+    }
+
 }
 
 

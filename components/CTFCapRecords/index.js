@@ -1,267 +1,177 @@
-import React from "react";
-import Option2Alt from "../Option2Alt";
-import Table2 from "../Table2";
+import {useEffect, useState, useReducer} from "react";
+import Loading from "../Loading";
+import ErrorMessage from "../ErrorMessage";
+import Tabs from "../Tabs";
+import InteractiveTable from "../InteractiveTable";
 import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
-import Loading from "../Loading";
-import ErrorMessage from "../ErrorMessage";
 
-class CTFCapRecords extends React.Component{
+const reducer = (state, action) =>{
 
-    constructor(props){
-
-        super(props);
-
-        this.state = { "loaded": false, "error": null, "data": null, "players": null};
-       
-    }
-
-    async loadData(){
-
-        const req = await fetch("/api/ctf", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"mode": "maprecords", "mapIds": "*"})
-        });
-
-        const res = await req.json();
-
-        if(res.error !== undefined){
-
-            this.setState({"loaded": true, "error": res.error});
-
-        }else{
-
-            this.setState({
-                "loaded": true, 
-                "data": res.data, 
-                "players": res.playerNames
-            });
-        }
-        
-    }
-
-    async componentDidMount(){
-
-        await this.loadData();
-    }
-
-
-
-    toArrayData(){
-
-        const arrayData = [];
-
-        for(const data of Object.values(this.state.data)){
-
-            arrayData.push({"name": data.name, "data": data});
-        }
-
-
-        arrayData.sort((a, b) =>{
-
-            a = a.name.toLowerCase();
-            b = b.name.toLowerCase();
-
-            if(a < b) return -1;
-            if(a > b) return 1;
-
-            return 0;
-        });
-
-        return arrayData;
-    }
-    
-
-    renderSoloCaps(){
-
-        const rows = [];
-
-        if(!this.state.loaded || this.props.mode === 1) return null;
-
-        const arrayData = this.toArrayData();
-
-        for(let i = 0; i < arrayData.length; i++){
-
-            const d = arrayData[i].data;
-
-            if(d.solo === null) break;
-
-            const player = Functions.getPlayer(this.state.players, d.solo.cap, true);
-
-            rows.push(<tr key={i}>
-                <td className="text-left">
-                    <Link href={`/map/${d.solo.map_id}`}>
-                        <a>
-                            {arrayData[i].name}
-                        </a>
-                    </Link>
-                </td>
-                <td className="small-font grey">
-                    <Link href={`/match/${d.solo.match_id}`}>
-                        <a>
-                            {Functions.convertTimestamp(d.solo.match_date, true, false)}
-                        </a>
-                    </Link>
-                </td>
-                <td>
-                    <Link href={`/pmatch/${d.solo.match_id}/?player=${player.id}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>{player.name}
-                        </a>
-                    </Link>
-                </td>
-                <td className="purple">{Functions.MMSS(d.solo.travel_time)}</td>
-            </tr>);
-        }
-
-
-        return <Table2 width={1} header="Solo Cap Records">
-            <tr>
-                <th>Map</th>
-                <th>Date of Record</th>
-                <th>Player</th>
-                <th>Record Time</th>
-            </tr>
-            {rows}
-        </Table2>
-    }
-
-    createAssistedPlayers(matchId, capPlayer, grabPlayer, assistedIds){
-
-        const elems = [];
-        const usedIds = [];
-
-        usedIds.push(grabPlayer.id, capPlayer.id);
-
-        for(let i = 0; i < assistedIds.length; i++){
-
-            const id = assistedIds[i];
-
-            if(usedIds.indexOf(id) === -1){
-
-                const player = Functions.getPlayer(this.state.players, id, true);
-
-                elems.push(
-                    <Link key={`${id}-${i}`} href={`/pmatch/${matchId}/?player=${id}`}>
-                        <a className="small-font grey">
-                            <CountryFlag country={player.country}/>{player.name}&nbsp;
-                        </a>
-                    </Link>
-                );
-
-                usedIds.push(id);
+    switch(action.type){
+        case "loaded": {
+            return {
+                "bLoading": false,
+                "error": null,
+                "soloCaps": action.payload.soloCaps,
+                "assistCaps": action.payload.assistCaps,
+                "gametypeNames": action.payload.gametypeNames,
+                "mapNames": action.payload.mapNames,
+                "detailedCaps": action.payload.detailedCaps,
+                "playerNames": action.payload.playerNames,
+                "assistData": action.payload.assistData
             }
         }
-
-        return elems;
+        case "error": {
+            return {
+                "bLoading": false,
+                "error": action.errorMessage
+            }
+        }
     }
 
-    renderAssistedCaps(){
+    return state;
+}
 
-        const rows = [];
+const renderTabs = (selectedTab, setSelectedTab) =>{
 
-        if(!this.state.loaded || this.props.mode === 0) return null;
+    const options = [
+        {"name": "Solo Caps", "value": 0},
+        {"name": "Assisted Caps", "value": 1}
+    ];
 
-        const arrayData = this.toArrayData();
-
-        for(let i = 0; i < arrayData.length; i++){
-
-            const d = arrayData[i].data;
-
-            if(d.assisted === null) break;
-
-            const capPlayer = Functions.getPlayer(this.state.players, d.assisted.cap, true);
-            const grabPlayer = Functions.getPlayer(this.state.players, d.assisted.grab, true);
-
-            const assistedPlayerIds = d.assisted.assists;
-
-            const assistedPlayersElems = this.createAssistedPlayers(d.assisted.match_id, capPlayer, grabPlayer, assistedPlayerIds);
+    return <Tabs selectedValue={selectedTab} changeSelected={setSelectedTab} options={options} />
+}
 
 
-            rows.push(<tr key={i}>
-                <td className="text-left">
-                    <Link href={`/map/${d.assisted.map_id}`}>
-                        <a>
-                            {arrayData[i].name}
-                        </a>
-                    </Link>
-                </td>
-                <td className="small-font grey">
-                    <Link href={`/match/${d.assisted.match_id}`}>
-                        <a>
-                            {Functions.convertTimestamp(d.assisted.match_date, true, false)}
-                        </a>
-                    </Link>
-                </td>
-                <td>
-                    <Link href={`/pmatch/${d.assisted.match_id}/?player=${grabPlayer.id}`}>
-                        <a>
-                            <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
-                        </a>
-                    </Link>
-                </td>
-                <td>
-                    {assistedPlayersElems}
-                </td>
-                <td>
-                    <Link href={`/pmatch/${d.assisted.match_id}/?player=${capPlayer.id}`}>
-                        <a>
-                            <CountryFlag country={capPlayer.country}/>{capPlayer.name}
-                        </a>
-                    </Link>
-                </td>
-                <td className="purple">{Functions.MMSS(d.assisted.travel_time)}</td>
-            </tr>);
+const getCapDetails = (state, capId) =>{
+
+    if(state.detailedCaps[capId] !== undefined) return state.detailedCaps[capId];
+
+    return {"capPlayer": -1, "grabPlayer": -1};
+}
+
+
+const renderData = (state, selectedTab) =>{
+
+    const headers = {
+        "map": "Map",
+        "drop": "Time Dropped",
+        "carry": "Carry Time",
+        "capPlayer": "Capped By",
+        "cap": "Travel Time",
+    };
+
+
+    let data = (selectedTab === 0) ? state.soloCaps : state.assistCaps;
+
+    data = data.filter((cap) =>{
+        if(cap.gametype_id === 0 && cap.cap_type === selectedTab) return true;
+    });
+
+    data.sort((a, b) =>{
+
+        a = a.travel_time;
+        b = b.travel_time;
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+
+    console.log(state.playerNames);
+
+    const rows = data.map((cap) =>{
+
+        const mapName = (state.mapNames[cap.map_id] !== undefined) ?  state.mapNames[cap.map_id] : "NOT Found";
+
+        //const test = getCapDetails(state, cap.cap_id);
+
+        const capDetails = getCapDetails(state, cap.cap_id);
+        console.log(capDetails);
+
+        const capPlayer = Functions.getPlayer(state.playerNames, capDetails.cap_player, true);
+
+        return {
+            "map": {"value": mapName.toLowerCase(), "displayValue": mapName, "className": "text-left"},
+            "drop": {"value": cap.drop_time, "displayValue": Functions.toPlaytime(cap.drop_time, true), "className": "playtime"},
+            "carry": {"value": cap.carry_time, "displayValue": Functions.toPlaytime(cap.carry_time, true), "className": "playtime"},
+            "cap": {"value": cap.travel_time, "displayValue": Functions.toPlaytime(cap.travel_time, true), "className": "playtime"},
+            "capPlayer": {
+                "value": capPlayer.name.toLowerCase(), 
+                "displayValue": <Link href={`/player/${capPlayer.id}`}>
+                    <a>
+                        <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                    </a>
+                </Link>
+            }
+        }
+    });
+    
+
+    return <InteractiveTable width={1} headers={headers} data={rows} />
+}
+
+const CTFCapRecords = ({}) =>{
+
+
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null,
+        "soloCaps": [],
+        "assistCaps": [],
+        "gametypeNames": {},
+        "mapNames": {},
+        "detailedCaps": {},
+        "playerNames": {},
+        "assistData": {}
+    });
+
+    const [selectedMode, setSelectedMode] = useState(0);
+    const [selectedGametype, setSelectedGametype] = useState(0);
+
+    useEffect(() =>{
+     
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+            const req = await fetch("/api/ctf", {
+                "signal": controller.signal,
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "map-cap-records"})
+            });
+
+            const res = await req.json();
+
+            if(res.error !== undefined){
+                dispatch({"type": "error", "errorMessage": res.error});
+            }else{
+                dispatch({"type": "loaded", "payload": res});
+            }
+
+            console.log(res);
         }
 
+        loadData();
 
-        return <Table2 width={1} header="Assisted Cap Records">
-            <tr>
-                <th>Map</th>
-                <th>Date of Record</th>
-                <th>Grabbed By</th>
-                <th>Assisted</th>
-                <th>Capped By</th>
-                <th>Record Time</th>
-            </tr>
-            {rows}
-        </Table2>
-    }
+        return () =>{
+
+            return controller.abort();
+        }
+    }, []);
 
 
-    renderError(){
+    if(state.bLoading) return <Loading/>;
+    if(state.error !== null) return <ErrorMessage title="Capture The Flag Cap Records" text={state.error}/>
 
-        if(this.state.error === null) return null;
-
-        return <ErrorMessage title="CTFCapRecords" text={this.state.error}/>
-    }
-
-    render(){
-
-        return <div>
-            <div className="default-sub-header">Select Record Type</div>
-            <div className="form">
-                <div className="select-row">
-                    <div className="select-label">
-                        Capture Type
-                    </div>
-                    <Option2Alt 
-                        title1="Solo Caps" url1={`/records/?mode=2&cm=0`} 
-                        title2="Assisted Caps" url2={`/records/?mode=2&cm=1`} 
-                        value={this.props.mode}
-                    />
-                </div>
-            </div>
-            <div className="m-top-25">
-                <Loading value={this.state.loaded}/>
-                {this.renderError()}
-                {this.renderSoloCaps()}
-                {this.renderAssistedCaps()}
-            </div>
-        </div>
-    }
+    return <div>
+        <div className="default-header">CTF Map Cap Records</div>
+        {renderTabs(selectedMode, setSelectedMode)}
+        {renderData(state, selectedMode)}
+    </div>
 }
 
 export default CTFCapRecords;

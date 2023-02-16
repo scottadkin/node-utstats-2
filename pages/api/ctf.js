@@ -4,6 +4,7 @@ import Matches from '../../api/matches';
 import Functions from '../../api/functions';
 import Maps from '../../api/maps';
 import Kills from "../../api/kills";
+import Gametypes from '../../api/gametypes';
 
 function getUniquePlayers(data){
 
@@ -220,8 +221,6 @@ export default async function handler(req, res){
     return new Promise(async (resolve, reject) =>{
 
         try{
-
-            
 
             const ctfManager = new CTF();
             const playerManager = new Players();
@@ -445,6 +444,49 @@ export default async function handler(req, res){
                 const data = await ctfManager.getPlayerMatchCaps(matchId, playerId);
 
                 res.status(200).json({"data": data});
+                return;
+            }
+
+
+            if(mode === "map-cap-records"){
+
+                const gametypeManager = new Gametypes();
+                const mapManager = new Maps();
+
+                const data = await ctfManager.getAllMapRecords();
+
+                const gametypeNames = await gametypeManager.getNames(data.gametypeIds);
+                const mapNames = await mapManager.getNames(data.mapIds);
+
+                const capsData = await ctfManager.getCaps(data.capIds);
+
+                const assistData = await ctfManager.getAssistedPlayers(data.capIds);
+
+                const playerIds = new Set();
+
+                for(const cap of Object.values(capsData)){
+
+                    playerIds.add(cap.grab_player);
+                    playerIds.add(cap.cap_player);
+                }
+
+
+                for(let i = 0; i < assistData.uniquePlayers.length; i++){
+                    playerIds.add(assistData.uniquePlayers[i]);
+                }
+
+
+                const playerNames = await playerManager.getBasicInfo([...playerIds]);
+
+                res.status(200).json({
+                    "soloCaps": data.soloCaps,
+                    "assistCaps": data.assistCaps,
+                    "mapNames": mapNames,
+                    "gametypeNames": gametypeNames,
+                    "detailedCaps": capsData,
+                    "playerNames": playerNames,
+                    "assistData": assistData.assists
+                });
                 return;
             }
 
