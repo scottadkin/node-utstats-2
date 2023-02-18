@@ -16,15 +16,6 @@
     "importedLogsFolder": "Logs",
     "multiKillTimeLimit": 3,
     "spawnKillTimeLimit": 2,
-    "classic": {
-        "mysql": {
-            "host": "192.168.0.12",
-            "user": "Scott",
-            "password": "password",
-            "database": "utstats",
-            "port": 3306
-        }
-    },
     "ace": {
         "logDir": "Logs",
         "playerJoinLogPrefix": "ACE_JOIN",
