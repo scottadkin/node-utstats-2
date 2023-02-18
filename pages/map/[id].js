@@ -108,7 +108,7 @@ class Map extends React.Component{
             />;
         }
 
-        if(pageSettings["Display CTF Caps"] === "true"){
+        /*if(pageSettings["Display CTF Caps"] === "true"){
 
             elems[pageOrder["Display CTF Caps"]] = <MapCTFCaps
                 key={pageOrder["Display CTF Caps"]}
@@ -118,7 +118,7 @@ class Map extends React.Component{
                 perPage={10} 
                 host={Functions.getImageHostAndPort(this.props.host)}
             />;
-        }
+        }*/
 
         if(pageSettings["Display Control Points (Domination)"] === "true"){
 
@@ -197,7 +197,14 @@ class Map extends React.Component{
 
                 <div className="default">
 
-                
+                <MapCTFCaps
+                    key={pageOrder["Display CTF Caps"]}
+                    mapId={basic.id} 
+                    page={this.props.capPage} 
+                    mode={this.props.capMode}
+                    perPage={10} 
+                    host={Functions.getImageHostAndPort(this.props.host)}
+                />
 
                     <div className="default-header">
                         {Functions.removeUnr(basic.name)}

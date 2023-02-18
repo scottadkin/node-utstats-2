@@ -130,7 +130,7 @@ const PlayerCTFSummary = ({playerId}) =>{
         {"name": "Totals", "value": 0},
         {"name": "Gametypes", "value": 1},
         {"name": "Match Records", "value": 2},
-        {"name": "Life Records", "value": 3}
+        {"name": "Single Life Records", "value": 3}
     ];
 
     let data = [];

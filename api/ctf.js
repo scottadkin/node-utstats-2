@@ -1630,116 +1630,6 @@ class CTF{
     }
 
 
-    async getFastestMapCaps(mapId, playerManager){
-
-        const soloCap = await this.getMapFastestSoloCap(mapId);
-        const assistCap = await this.getMapFastestAssistCap(mapId);
-
-        const playerIds = [];
-
-        if(soloCap !== null) playerIds.push(soloCap.cap);
-
-        if(assistCap !== null){
-
-            if(playerIds.indexOf(assistCap.cap) === -1){
-                playerIds.push(assistCap.cap);
-            }
-
-            const assistIds = assistCap.assists;
-
-            for(let i = 0; i < assistIds.length; i++){
-
-                const a = parseInt(assistIds[i]);
-
-                if(a === a){
-
-                    if(playerIds.indexOf(a) === -1){
-                        playerIds.push(a);
-                    }       
-                }
-            }
-        }
-
-        const playerNames = await playerManager.getNamesByIds(playerIds);
-
-        return {"solo": soloCap, "assist": assistCap, "playerNames": playerNames};
-    }
-
-
-    async getMapCaps(mapId, page, perPage, type){
-
-        let start = perPage * page;
-
-        if(start === start){
-
-            if(start < 0) start = 0;
-
-            let query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? ORDER BY travel_time ASC LIMIT ?, ?";
-
-            if(type === "solo"){
-                query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? AND assists='' ORDER BY travel_time ASC LIMIT ?, ?";
-            }else if(type === "assists"){
-                query = "SELECT match_id,cap,travel_time,assists FROM nstats_ctf_caps WHERE map=? AND assists!='' ORDER BY travel_time ASC LIMIT ?, ?";
-            }
-
-            const vars = [mapId, start, perPage];
-
-            const result = await mysql.simpleQuery(query, vars);
-
-            for(let i = 0; i < result.length; i++){
-
-                if(result[i].assists !== ""){
-
-                    result[i].assists = result[i].assists.split(",").map(id => parseInt(id));
-                }
-            }
-
-            return result;
-
-
-        }else{
-            console.log(`Start is NaN`);
-        }
-
-        return [];
-    }
-
-    async getMapTotalCaps(mapId, type){
-
-        if(type === undefined) type = "";
-
-        let query = "SELECT COUNT(*) as total_caps FROM nstats_ctf_caps WHERE map=?";
-
-        if(type === "solo"){
-            query = "SELECT COUNT(*) as total_caps FROM nstats_ctf_caps WHERE map=? AND assists=''";
-        }else if(type === "assists"){
-            query = "SELECT COUNT(*) as total_caps FROM nstats_ctf_caps WHERE map=? AND assists!=''";
-        }
-
-        const result = await mysql.simpleQuery(query, [mapId]);
-
-        if(result.length > 0) return result[0].total_caps;
-
-        return -1;
-    }
-
-
-    async getAllMapsWithCaps(){
-
-        const query = "SELECT DISTINCT map FROM nstats_ctf_caps";
-
-        const result = await mysql.simpleQuery(query);
-
-        const maps = [];
-
-        for(let i = 0; i < result.length; i++){
-            maps.push(result[i].map);
-        }
-        return maps;
-    }
-
-
-
     async clearRecords(){
 
         const query = "DELETE FROM nstats_ctf_cap_records";
@@ -2300,9 +2190,49 @@ class CTF{
             uniquePlayers.add(r.player_id);
         }
         
-
-
         return {"assists": found, "uniquePlayers": [...uniquePlayers]};
+    }
+
+
+
+    async getMapSoloCaps(mapId, page, perPage){
+
+        const query = `SELECT id,cap_team,flag_team,cap_player,travel_time,carry_time,drop_time 
+        FROM nstats_ctf_caps WHERE map_id=? AND total_assists=0 ORDER BY travel_time ASC LIMIT ?, ?`;
+
+        const start = page * perPage;
+        const vars = [mapId, start, perPage];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async getMapAssistedCaps(mapId, page, perPage){
+
+        const query = `SELECT id,cap_team,flag_team,grab_player,cap_player,travel_time,carry_time,drop_time 
+        FROM nstats_ctf_caps WHERE map_id=? AND total_assists>0 ORDER BY travel_time ASC LIMIT ?, ?`;
+
+        const start = page * perPage;
+        const vars = [mapId, start, perPage];
+
+        return await mysql.simpleQuery(query, vars);
+
+    }
+
+    async getMapCaps(mapId, mode, page, perPage){
+
+        page = page - 1;
+        if(page < 0) page = 0;
+        if(perPage < 5 || perPage > 100) perPage = 10;
+
+        if(mode === "solo"){
+            return this.getMapSoloCaps(mapId, page, perPage);
+        }
+
+        const caps = await this.getMapAssistedCaps(mapId, page, perPage);
+        //get assisted players
+
+        console.log("caps");
+        console.log(caps);
     }
 
 }

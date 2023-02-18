@@ -237,6 +237,7 @@ export default async function handler(req, res){
 
             const setDetails = req.body.setDetails ?? false;
             const matchId = (req.body.matchId !== undefined) ? parseInt(req.body.matchId) : -1;
+            const capType = (req.body.capType !== undefined) ? req.body.capType.toLowerCase() : "";
 
             if(mode === "b-match-ctf"){
 
@@ -488,6 +489,19 @@ export default async function handler(req, res){
                     "assistData": assistData.assists
                 });
                 return;
+            }
+
+            if(mode === "map-caps"){
+
+                console.log(mapId, capType, page, perPage);
+
+                const data = await ctfManager.getMapCaps(mapId, capType, page, perPage);
+
+                console.log(data);
+
+                res.status(200).json({"caps": data});
+                return;
+
             }
 
 
