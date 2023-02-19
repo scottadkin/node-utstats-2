@@ -8,7 +8,7 @@ import MouseOver from "../MouseOver";
 
 const InteractiveTable = (props) =>{
 
-    const [orderBy, setOrderBy] = useState(null);
+    const [orderBy, setOrderBy] = useState((props.defaultOrder !== undefined) ? props.defaultOrder : null);
     const [bAsc, setbAsc] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
     //const [totalPages, setTotalPages] = useState(0);

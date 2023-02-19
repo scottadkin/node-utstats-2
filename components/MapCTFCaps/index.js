@@ -2,15 +2,30 @@ import {useEffect, useReducer} from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import TabsLinks from "../TabsLinks";
+import InteractiveTable from "../InteractiveTable";
+import Functions from "../../api/functions";
+import Link from "next/link";
+import CountryFlag from "../CountryFlag";
+import Pagination from "../Pagination";
 
 const reducer = (state, action) =>{
 
     switch(action.type){
-
+        case "loading": {
+            return {
+                "bLoading": true,
+                "caps": null,
+                "players": null,
+                "totalCaps": 0
+            }
+        }
         case "loaded": {
             return {
                 "bLoading": false,
-                "error": null
+                "error": null,
+                "caps": action.caps,
+                "players": action.players,
+                "totalCaps": action.totalCaps
             };
         }
         case "error": {
@@ -24,14 +39,140 @@ const reducer = (state, action) =>{
     return state;
 }
 
+
+const createAssistedPlayers = (assists, players, ignorePlayers, matchId, capId) =>{
+
+    console.log(assists);
+
+    if(assists[capId] === undefined) return null;
+
+    //return null;
+    const playerList = [];
+
+    for(let i = 0; i < assists[capId].length; i++){
+
+        const playerId = assists[capId][i];
+
+        if(ignorePlayers.indexOf(playerId) !== -1) continue;
+        const player = Functions.getPlayer(players, playerId, true);
+
+        playerList.push(player);
+    }
+
+
+    const elems = [];
+
+    for(let i = 0; i < playerList.length; i++){
+
+        const p = playerList[i];
+
+        elems.push(<Link key={p.id} href={`/pmatch/${matchId}/?player=${p.id}`}>
+            <a className="small-font grey">
+                <CountryFlag country={p.country}/>{p.name}{(i < playerList.length - 1) ? ", " : ""}
+            </a>
+        </Link>);
+    }
+
+    return elems;
+
+}
+
+const renderAssisted = (currentMode, caps, players, mapId, totalCaps, perPage, currentPage) =>{
+
+    console.log(`perPage = ${perPage}`);
+
+    if(currentMode !== 1 || caps === null) return null;
+
+    const headers = {
+        "date": "Date",
+        "grab": "Grabbed By",
+        "assists": "Assisted By",
+        "cap": "Capped By",
+        "carry": "Carry Time",
+        "drop": "Time Dropped",
+        "travel": "Travel Time"
+    };
+
+    const data = [];
+
+    if(caps.assistData === undefined) return null;
+
+
+
+    for(const [capId, capData] of Object.entries(caps.caps)){
+
+
+        const grabPlayer = Functions.getPlayer(players, capData.grab_player, true);
+        const capPlayer = Functions.getPlayer(players, capData.cap_player, true);
+
+        const ignorePlayers = [capData.grab_player, capData.cap_player];
+
+        const assistElems = createAssistedPlayers(caps.assistData, players, ignorePlayers, capData.match_id, capId);  
+
+        data.push({
+            "date": {
+                "value": capData.match_date, 
+                "displayValue": <Link href={`/match/${capData.match_id}`}>
+                    <a>
+                        {Functions.convertTimestamp(capData.match_date, true)}
+                    </a>
+                </Link>,
+                "className": "playtime"
+            },
+            "grab": {
+                "value": grabPlayer.name.toLowerCase(),
+                "displayValue": <Link href={`/pmatch/${capData.match_id}/?player=${capData.grab_player}`}>
+                    <a>
+                        <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
+                    </a>
+                </Link>
+            },
+            "assists": {
+                "value": assistElems.length,
+                "displayValue": assistElems
+            },
+            "cap": {
+                "value": capPlayer.name.toLowerCase(),
+                "displayValue": <Link href={`/pmatch/${capData.match_id}/?player=${capData.cap_player}`}>
+                    <a>
+                        <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                    </a>
+                </Link>
+            },
+            "carry": {"value": capData.carry_time, "displayValue": Functions.toPlaytime(capData.carry_time, true), "className": "playtime"},
+            "drop": {"value": capData.drop_time, "displayValue": Functions.toPlaytime(capData.drop_time, true), "className": "playtime"},
+            "travel": {"value": capData.travel_time, "displayValue": Functions.toPlaytime(capData.travel_time, true), "className": "playtime"}
+        });
+    }
+
+    return <>
+        <InteractiveTable width={1} headers={headers} data={data} defaultOrder={"travel"}/>
+        <Pagination url={`/map/${mapId}/?capMode=${currentMode}&capPage=`} results={totalCaps} currentPage={currentPage} perPage={perPage} anchor={"#caps"}/>
+    </>
+}
+
+const renderElems = (mode, state, mapId, page, perPage) =>{
+
+    if(state.bLoading) return <Loading />;
+    if(state.error !== null) return <ErrorMessage title="Capture The Flag Cap Records" text={state.error} />
+
+    return renderAssisted(mode, state.caps, state.players, mapId, state.totalCaps, perPage, page);
+}
+
 const MapCTFCaps = ({mapId, mode, perPage, page}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "error": null
+        "error": null,
+        "caps": null,
+        "players": null,
+        "totalCaps": 0
     });
 
     useEffect(() =>{
+
+
+        dispatch({"type": "loading"});
 
         const controller = new AbortController();
 
@@ -48,7 +189,7 @@ const MapCTFCaps = ({mapId, mode, perPage, page}) =>{
                     "mapId": mapId, 
                     "perPage": perPage, 
                     "page": page,
-                    "capType": capMode
+                    "capType": capMode,
                 })
             });
 
@@ -59,7 +200,7 @@ const MapCTFCaps = ({mapId, mode, perPage, page}) =>{
                 return;
             }
             
-            dispatch({"type": "loaded"});
+            dispatch({"type": "loaded", "caps": res.caps, "players": res.players, "totalCaps": res.totalCaps});
             
         }
 
@@ -71,17 +212,16 @@ const MapCTFCaps = ({mapId, mode, perPage, page}) =>{
 
     }, [mapId, page, perPage, mode]);
 
-    if(state.bLoading) return <Loading />;
-    if(state.error !== null) return <ErrorMessage title="Capture The Flag Cap Records" text={state.error} />;
-
     const tabsOptions = [
         {"value": 0, "name": "Solo Caps"},
         {"value": 1, "name": "Assisted Caps"},
     ];
 
-    return <div>
+    return <div id="caps">
         <div className="default-header">Capture The Flag Cap Records</div>
-        <TabsLinks options={tabsOptions} selectedValue={mode} url={`/map/${mapId}?page=${page}&perPage=${perPage}&capMode=`}/>
+        <TabsLinks options={tabsOptions} selectedValue={mode} url={`/map/${mapId}?capPage=1&perPage=${perPage}&capMode=`} anchor={"#caps"}/>
+    
+        {renderElems(mode, state, mapId, page, perPage)}
     </div>
 }
 

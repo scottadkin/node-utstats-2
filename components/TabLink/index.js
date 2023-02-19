@@ -1,11 +1,15 @@
 import Link from "next/link";
 
-const TabLink = ({name, value, selectedValue, url}) =>{
+const TabLink = ({name, value, selectedValue, url, anchor}) =>{
 
-    console.log(value, selectedValue);
+    let link = `${url}${value}`;
+
+    if(anchor !== undefined){
+        link = `${link}${anchor}`;
+    }
 
     const className = (value === selectedValue) ? "tab tab-selected" : "tab";
-    return <Link href={`${url}${value}`}><a><div className={className}>
+    return <Link href={link}><a><div className={className}>
         {name}
     </div></a></Link>
 }

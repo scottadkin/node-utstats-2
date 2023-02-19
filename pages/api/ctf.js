@@ -493,13 +493,15 @@ export default async function handler(req, res){
 
             if(mode === "map-caps"){
 
-                console.log(mapId, capType, page, perPage);
 
                 const data = await ctfManager.getMapCaps(mapId, capType, page, perPage);
 
-                console.log(data);
+                const players = await playerManager.getBasicInfo([...data.playerIds]);
+                const totalCaps = await ctfManager.getMapTotalCaps(mapId, capType);
 
-                res.status(200).json({"caps": data});
+                delete data.playerIds;
+
+                res.status(200).json({"caps": data, "players": players, "totalCaps": totalCaps});
                 return;
 
             }

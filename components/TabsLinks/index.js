@@ -1,6 +1,6 @@
 import TabLink from "../TabLink";
 
-const TabsLinks = ({options, selectedValue, url}) =>{
+const TabsLinks = ({options, selectedValue, url, anchor}) =>{
 
     const elems = [];
 
@@ -15,6 +15,7 @@ const TabsLinks = ({options, selectedValue, url}) =>{
                     value={o.value} 
                     selectedValue={selectedValue}
                     url={url}
+                    anchor={anchor}
                 />
         );
     }
