@@ -42,9 +42,10 @@ const reducer = (state, action) =>{
 
 const createAssistedPlayers = (assists, players, ignorePlayers, matchId, capId) =>{
 
-    console.log(assists);
 
-    if(assists[capId] === undefined) return null;
+    if(assists === undefined) return [];
+
+    if(assists[capId] === undefined) return [];
 
     //return null;
     const playerList = [];
@@ -74,30 +75,38 @@ const createAssistedPlayers = (assists, players, ignorePlayers, matchId, capId) 
     }
 
     return elems;
-
 }
 
-const renderAssisted = (currentMode, caps, players, mapId, totalCaps, perPage, currentPage) =>{
+const getHeaders = (mode) =>{
 
-    console.log(`perPage = ${perPage}`);
+    if(mode === 1){
+        return {
+            "date": "Date",
+            "grab": "Grabbed By",
+            "assists": "Assisted By",
+            "cap": "Capped By",
+            "carry": "Carry Time",
+            "drop": "Time Dropped",
+            "travel": "Travel Time"
+        };
+    }
 
-    if(currentMode !== 1 || caps === null) return null;
-
-    const headers = {
+    return {
         "date": "Date",
-        "grab": "Grabbed By",
-        "assists": "Assisted By",
         "cap": "Capped By",
         "carry": "Carry Time",
         "drop": "Time Dropped",
         "travel": "Travel Time"
     };
+}
+
+const renderCaps = (currentMode, caps, players, mapId, totalCaps, perPage, currentPage) =>{
+
+    if(caps === null) return null;
+
+    const headers = getHeaders(currentMode);
 
     const data = [];
-
-    if(caps.assistData === undefined) return null;
-
-
 
     for(const [capId, capData] of Object.entries(caps.caps)){
 
@@ -107,9 +116,13 @@ const renderAssisted = (currentMode, caps, players, mapId, totalCaps, perPage, c
 
         const ignorePlayers = [capData.grab_player, capData.cap_player];
 
-        const assistElems = createAssistedPlayers(caps.assistData, players, ignorePlayers, capData.match_id, capId);  
+        let assistElems = [];
 
-        data.push({
+        if(currentMode === 1){
+            assistElems = createAssistedPlayers(caps.assistData, players, ignorePlayers, capData.match_id, capId);  
+        }
+
+        const current = {
             "date": {
                 "value": capData.match_date, 
                 "displayValue": <Link href={`/match/${capData.match_id}`}>
@@ -118,18 +131,6 @@ const renderAssisted = (currentMode, caps, players, mapId, totalCaps, perPage, c
                     </a>
                 </Link>,
                 "className": "playtime"
-            },
-            "grab": {
-                "value": grabPlayer.name.toLowerCase(),
-                "displayValue": <Link href={`/pmatch/${capData.match_id}/?player=${capData.grab_player}`}>
-                    <a>
-                        <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
-                    </a>
-                </Link>
-            },
-            "assists": {
-                "value": assistElems.length,
-                "displayValue": assistElems
             },
             "cap": {
                 "value": capPlayer.name.toLowerCase(),
@@ -142,11 +143,29 @@ const renderAssisted = (currentMode, caps, players, mapId, totalCaps, perPage, c
             "carry": {"value": capData.carry_time, "displayValue": Functions.toPlaytime(capData.carry_time, true), "className": "playtime"},
             "drop": {"value": capData.drop_time, "displayValue": Functions.toPlaytime(capData.drop_time, true), "className": "playtime"},
             "travel": {"value": capData.travel_time, "displayValue": Functions.toPlaytime(capData.travel_time, true), "className": "playtime"}
-        });
+        }
+
+        if(currentMode === 1){
+
+            current.grab = {
+                "value": grabPlayer.name.toLowerCase(),
+                "displayValue": <Link href={`/pmatch/${capData.match_id}/?player=${capData.grab_player}`}>
+                    <a>
+                        <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
+                    </a>
+                </Link>
+            };
+            current.assists = {
+                "value": assistElems.length,
+                "displayValue": assistElems
+            }
+        }
+
+        data.push(current);
     }
 
     return <>
-        <InteractiveTable width={1} headers={headers} data={data} defaultOrder={"travel"}/>
+        <InteractiveTable width={1} headers={headers} data={data} defaultOrder={"travel"} bDisableSorting={true}/>
         <Pagination url={`/map/${mapId}/?capMode=${currentMode}&capPage=`} results={totalCaps} currentPage={currentPage} perPage={perPage} anchor={"#caps"}/>
     </>
 }
@@ -156,7 +175,8 @@ const renderElems = (mode, state, mapId, page, perPage) =>{
     if(state.bLoading) return <Loading />;
     if(state.error !== null) return <ErrorMessage title="Capture The Flag Cap Records" text={state.error} />
 
-    return renderAssisted(mode, state.caps, state.players, mapId, state.totalCaps, perPage, page);
+
+    return renderCaps(mode, state.caps, state.players, mapId, state.totalCaps, perPage, page);
 }
 
 const MapCTFCaps = ({mapId, mode, perPage, page}) =>{

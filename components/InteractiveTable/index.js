@@ -25,6 +25,11 @@ const InteractiveTable = (props) =>{
 
     const changeOrder = (newOrderBy) =>{
         
+        if(props.bDisableSorting !== undefined){
+
+            if(props.bDisableSorting) return;
+        }
+
         if(orderBy === newOrderBy){
             setbAsc((bAsc) => {return !bAsc});
         }else{
