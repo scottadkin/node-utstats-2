@@ -2320,6 +2320,52 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
+
+    async recalculatePlayerBestAllTime(playerId){
+
+        const query = `SELECT
+        MAX(flag_assist) as flag_assist,
+        MAX(flag_return) as flag_return,
+        MAX(flag_return_base) as flag_return_base,
+        MAX(flag_return_mid) as flag_return_mid,
+        MAX(flag_return_enemy_base) as flag_return_enemy_base,
+        MAX(flag_return_save) as flag_return_save,
+        MAX(flag_dropped) as flag_dropped,
+        MAX(flag_kill) as flag_kill,
+        MAX(flag_suicide) as flag_suicide,
+        MAX(flag_seal) as flag_seal,
+        MAX(flag_seal_pass) as flag_seal_pass,
+        MAX(flag_seal_fail) as flag_seal_fail,
+        MAX(best_single_seal) as best_single_seal,
+        MAX(flag_cover) as flag_cover,
+        MAX(flag_cover_pass) as flag_cover_pass,
+        MAX(flag_cover_fail) as flag_cover_fail,
+        MAX(flag_cover_multi) as flag_cover_multi,
+        MAX(flag_cover_spree) as flag_cover_spree,
+        MAX(best_single_cover) as best_single_cover,
+        MAX(flag_capture) as flag_capture,
+        MAX(flag_carry_time) as flag_carry_time,
+        MAX(flag_taken) as flag_taken,
+        MAX(flag_pickup) as flag_pickup,
+        MAX(flag_self_cover) as flag_self_cover,
+        MAX(flag_self_cover_pass) as flag_self_cover_pass,
+        MAX(flag_self_cover_fail) as flag_self_cover_fail,
+        MAX(best_single_self_cover) as best_single_self_cover,
+        MAX(flag_solo_capture) as flag_solo_capture
+        FROM nstats_player_ctf_match
+        WHERE player_id=?`;
+
+        const allTimeBest = await mysql.simpleQuery(query, [playerId]);
+
+        if(allTimeBest.length > 0){
+            console.log(`Insert new best for player ${playerId} for gametype 0`);
+            allTimeBest[0].gametype_id = 0;
+            await this.insertNewPlayerBest(playerId, allTimeBest[0]);
+        }else{
+            console.log(`Insert new best for player ${playerId} for gametype 0 FAILED`);
+        }
+    }
+
     async recalculatePlayerBest(playerId){
 
         const query = `SELECT
@@ -2353,24 +2399,16 @@ class CTF{
         MAX(flag_solo_capture) as flag_solo_capture,
         gametype_id
         FROM nstats_player_ctf_match
-        WHERE player_id=?`;
+        WHERE player_id=? GROUP BY gametype_id`;
 
-        const gametypeBit = " GROUP BY gametype_id";
-
-        const result = await mysql.simpleQuery(`${query}${gametypeBit}`, [playerId]);
+        const result = await mysql.simpleQuery(query, [playerId]);
 
         for(let i = 0; i < result.length; i++){
             console.log(`isnert new best for player ${playerId} for gametype ${result[i].gametype_id}`);
             await this.insertNewPlayerBest(playerId, result[i]);
         }
 
-        const allTimeBest = await mysql.simpleQuery(query, [playerId]);
-
-        if(allTimeBest.length > 0){
-            await this.insertNewPlayerBest(playerId, allTimeBest[0]);
-        }else{
-            console.log("Hmmm...");
-        }
+        await this.recalculatePlayerBestAllTime(playerId);
     }
 
     async mergePlayerBest(oldId, newId){
@@ -2401,6 +2439,52 @@ class CTF{
         ];
 
         return await mysql.simpleQuery(query, vars);
+    }
+
+
+    async recalculatePlayerBestLifeAllTime(playerId){
+
+        const query = `SELECT
+        MAX(flag_assist_best) as flag_assist,
+        MAX(flag_return_best) as flag_return,
+        MAX(flag_return_base_best) as flag_return_base,
+        MAX(flag_return_mid_best) as flag_return_mid,
+        MAX(flag_return_enemy_base_best) as flag_return_enemy_base,
+        MAX(flag_return_save_best) as flag_return_save,
+        MAX(flag_dropped_best) as flag_dropped,
+        MAX(flag_kill_best) as flag_kill,
+        MAX(flag_seal_best) as flag_seal,
+        MAX(flag_seal_pass_best) as flag_seal_pass,
+        MAX(flag_seal_fail_best) as flag_seal_fail,
+        MAX(best_single_seal) as best_single_seal,
+        MAX(flag_cover_best) as flag_cover,
+        MAX(flag_cover_pass_best) as flag_cover_pass,
+        MAX(flag_cover_fail_best) as flag_cover_fail,
+        MAX(flag_cover_multi_best) as flag_cover_multi,
+        MAX(flag_cover_spree_best) as flag_cover_spree,
+        MAX(best_single_cover) as best_single_cover,
+        MAX(flag_capture_best) as flag_capture,
+        MAX(flag_carry_time_best) as flag_carry_time,
+        MAX(flag_taken_best) as flag_taken,
+        MAX(flag_pickup_best) as flag_pickup,
+        MAX(flag_self_cover_best) as flag_self_cover,
+        MAX(flag_self_cover_pass_best) as flag_self_cover_pass,
+        MAX(flag_self_cover_fail_best) as flag_self_cover_fail,
+        MAX(best_single_self_cover) as best_single_self_cover,
+        MAX(flag_solo_capture_best) as flag_solo_capture
+        FROM nstats_player_ctf_match
+        WHERE player_id=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        if(result.length > 0){
+            console.log(`Insert new best single life for player ${playerId} for gametype 0`);
+            result[0].gametype_id = 0;
+            await this.insertNewPlayerBestSingleLife(playerId, result[0]);
+        }else{
+            console.log(`Insert new best single life for player ${playerId} for gametype 0 FAILED`);
+        }
+
     }
 
     async recalculatePlayerBestLife(playerId){
@@ -2435,20 +2519,16 @@ class CTF{
         MAX(flag_solo_capture_best) as flag_solo_capture,
         gametype_id
         FROM nstats_player_ctf_match
-        WHERE player_id=?`;
+        WHERE player_id=? GROUP BY gametype_id`;
 
-        const gametypeBit = " GROUP BY gametype_id";
-
-        const result = await mysql.simpleQuery(`${query}${gametypeBit}`, [playerId]);
+        const result = await mysql.simpleQuery(query, [playerId]);
 
         for(let i = 0; i < result.length; i++){
             console.log(`isnert new best single life for player ${playerId} for gametype ${result[i].gametype_id}`);
             await this.insertNewPlayerBestSingleLife(playerId, result[i]);
         }
 
-        const allTimeBest = await mysql.simpleQuery(query, [playerId]);
-
-        await this.insertNewPlayerBestSingleLife(playerId, allTimeBest[0]);
+        await this.recalculatePlayerBestLifeAllTime(playerId);
 
     }
     
@@ -2461,24 +2541,160 @@ class CTF{
         await this.recalculatePlayerBestLife(newId);
     }
 
+
+    async insertNewPlayerTotal(playerId, data, gametypeId){
+
+        const query = `INSERT INTO nstats_player_ctf_totals VALUES(NULL,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?)`;
+
+        const d = data;
+
+        const vars = [
+            playerId, gametypeId, d.total_matches,
+            d.playtime, d.flag_assist, d.flag_return, d.flag_return_base, d.flag_return_mid,
+            d.flag_return_enemy_base, d.flag_return_save, d.flag_dropped, d.flag_kill, d.flag_suicide,
+            d.flag_seal, d.flag_seal_pass, d.flag_seal_fail, d.best_single_seal,
+            d.flag_cover, d.flag_cover_pass, d.flag_cover_fail, d.flag_cover_multi, d.flag_cover_spree,
+            d.best_single_cover, d.flag_capture, d.flag_carry_time, d.flag_taken, d.flag_pickup,
+            d.flag_self_cover, d.flag_self_cover_pass, d.flag_self_cover_fail, d.best_single_self_cover,
+            d.flag_solo_capture
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async recalculatePlayerTotalsAllTime(newId){
+
+        const query = `SELECT
+        COUNT(*) as total_matches,
+        SUM(playtime) as playtime,
+        SUM(flag_assist) as flag_assist,
+        SUM(flag_return) as flag_return,
+        SUM(flag_return_base) as flag_return_base,
+        SUM(flag_return_mid) as flag_return_mid,
+        SUM(flag_return_enemy_base) as flag_return_enemy_base,
+        SUM(flag_return_save) as flag_return_save,
+        SUM(flag_dropped) as flag_dropped,
+        SUM(flag_kill) as flag_kill,
+        SUM(flag_suicide) as flag_suicide,
+        SUM(flag_seal) as flag_seal,
+        SUM(flag_seal_pass) as flag_seal_pass,
+        SUM(flag_seal_fail) as flag_seal_fail,
+        MAX(best_single_seal) as best_single_seal,
+        SUM(flag_cover) as flag_cover,
+        SUM(flag_cover_pass) as flag_cover_pass,
+        SUM(flag_cover_fail) as flag_cover_fail,
+        SUM(flag_cover_multi) as flag_cover_multi,
+        SUM(flag_cover_spree) as flag_cover_spree,
+        MAX(best_single_cover) as best_single_cover,
+        SUM(flag_capture) as flag_capture,
+        SUM(flag_carry_time) as flag_carry_time,
+        SUM(flag_taken) as flag_taken,
+        SUM(flag_pickup) as flag_pickup,
+        SUM(flag_self_cover) as flag_self_cover,
+        SUM(flag_self_cover_pass) as flag_self_cover_pass,
+        SUM(flag_self_cover_fail) as flag_self_cover_fail,
+        MAX(best_single_self_cover) as best_single_self_cover,
+        SUM(flag_solo_capture) as flag_solo_capture
+        FROM nstats_player_ctf_match
+        WHERE player_id=?`
+
+        const result = await mysql.simpleQuery(query, [newId]);
+
+        if(result.length > 0){
+            console.log(`Inserting new playe rtotal for player ${newId} for gametype ${0}`);
+            await this.insertNewPlayerTotal(newId, result[0], 0);
+        }else{
+            console.log("You should not see this.");
+        }
+    }
+
+    async recalculatePlayerTotals(oldId, newId){
+
+        const deleteQuery = `DELETE FROM nstats_player_ctf_totals WHERE player_id IN (?)`;
+
+        await mysql.simpleQuery(deleteQuery, [[oldId, newId]]);
+
+
+        const query = `SELECT
+        COUNT(*) as total_matches,
+        SUM(playtime) as playtime,
+        SUM(flag_assist) as flag_assist,
+        SUM(flag_return) as flag_return,
+        SUM(flag_return_base) as flag_return_base,
+        SUM(flag_return_mid) as flag_return_mid,
+        SUM(flag_return_enemy_base) as flag_return_enemy_base,
+        SUM(flag_return_save) as flag_return_save,
+        SUM(flag_dropped) as flag_dropped,
+        SUM(flag_kill) as flag_kill,
+        SUM(flag_suicide) as flag_suicide,
+        SUM(flag_seal) as flag_seal,
+        SUM(flag_seal_pass) as flag_seal_pass,
+        SUM(flag_seal_fail) as flag_seal_fail,
+        MAX(best_single_seal) as best_single_seal,
+        SUM(flag_cover) as flag_cover,
+        SUM(flag_cover_pass) as flag_cover_pass,
+        SUM(flag_cover_fail) as flag_cover_fail,
+        SUM(flag_cover_multi) as flag_cover_multi,
+        SUM(flag_cover_spree) as flag_cover_spree,
+        MAX(best_single_cover) as best_single_cover,
+        SUM(flag_capture) as flag_capture,
+        SUM(flag_carry_time) as flag_carry_time,
+        SUM(flag_taken) as flag_taken,
+        SUM(flag_pickup) as flag_pickup,
+        SUM(flag_self_cover) as flag_self_cover,
+        SUM(flag_self_cover_pass) as flag_self_cover_pass,
+        SUM(flag_self_cover_fail) as flag_self_cover_fail,
+        MAX(best_single_self_cover) as best_single_self_cover,
+        SUM(flag_solo_capture) as flag_solo_capture,
+        gametype_id
+        FROM nstats_player_ctf_match
+        WHERE player_id=? GROUP BY gametype_id`
+
+
+        const result = await mysql.simpleQuery(query, [newId]);
+
+        for(let i = 0; i < result.length; i++){
+
+            console.log(`Inserting new playe rtotal for player ${newId} for gametype ${result[i].gametype_id}`);
+            await this.insertNewPlayerTotal(newId, result[i], result[i].gametype_id);
+        }
+
+        await this.recalculatePlayerTotalsAllTime(newId);
+    }
+
     async mergePlayers(oldId, newId){
 
-        const changedAssists = await this.changeAssistPlayerIds(oldId, newId);
-        const changedCaps = await this.changeCapPlayerIds(oldId, newId);
-        const changedCarry = await this.changeCarryPlayerIds(oldId, newId);
-        const changedCovers = await this.changeCoverPlayerIds(oldId, newId);
-        const changedCapReturnKills = await this.changeCapReturnKillPlayerIds(oldId, newId);
-        const changedEvents = await this.changeEventPlayerIds(oldId, newId);
-        const changedFlagDeaths = await this.changeFlagDeathPlayerIds(oldId, newId);
-        const changedFlagDrops = await this.changeFlagDropPlayerIds(oldId, newId);
-        const changedFlagPickups = await this.changeFlagDeathPlayerIds(oldId, newId);
-        const changedReturns = await this.changeReturnPlayerIds(oldId, newId);
-        const changedSeals = await this.changeFlagSealsPlayerIds(oldId, newId);
-        const changedSelfCovers = await this.changeFlagSelfCoversPlayerIds(oldId, newId);
+        try{
+
+            const changedAssists = await this.changeAssistPlayerIds(oldId, newId);
+            const changedCaps = await this.changeCapPlayerIds(oldId, newId);
+            const changedCarry = await this.changeCarryPlayerIds(oldId, newId);
+            const changedCovers = await this.changeCoverPlayerIds(oldId, newId);
+            const changedCapReturnKills = await this.changeCapReturnKillPlayerIds(oldId, newId);
+            const changedEvents = await this.changeEventPlayerIds(oldId, newId);
+            const changedFlagDeaths = await this.changeFlagDeathPlayerIds(oldId, newId);
+            const changedFlagDrops = await this.changeFlagDropPlayerIds(oldId, newId);
+            const changedFlagPickups = await this.changeFlagDeathPlayerIds(oldId, newId);
+            const changedReturns = await this.changeReturnPlayerIds(oldId, newId);
+            const changedSeals = await this.changeFlagSealsPlayerIds(oldId, newId);
+            const changedSelfCovers = await this.changeFlagSelfCoversPlayerIds(oldId, newId);
 
 
-        await this.mergePlayerBest(oldId, newId);
-        await this.mergePlayerBestLife(oldId, newId);
+            //need to merge player match data here
+
+            await this.mergePlayerBest(oldId, newId);
+            await this.mergePlayerBestLife(oldId, newId);
+
+            await this.recalculatePlayerTotals(oldId, newId);
+        }catch(err){
+            console.trace(err);
+        }
     }
 
 }
