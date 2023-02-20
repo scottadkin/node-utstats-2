@@ -164,6 +164,8 @@ const renderCaps = (currentMode, caps, players, mapId, totalCaps, perPage, curre
         data.push(current);
     }
 
+    if(data.length === 0) return <div className="no-data">No Data Found</div>;
+
     return <>
         <InteractiveTable width={1} headers={headers} data={data} defaultOrder={"travel"} bDisableSorting={true}/>
         <Pagination url={`/map/${mapId}/?capMode=${currentMode}&capPage=`} results={totalCaps} currentPage={currentPage} perPage={perPage} anchor={"#caps"}/>

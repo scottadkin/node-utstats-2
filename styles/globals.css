@@ -763,3 +763,10 @@ input[type="range"]{
 	color:yellow;
 	letter-spacing: 1px;
 }
+
+.no-data{
+	background-color:var(--color-8);
+	display:inline-block;
+	font-size:14px;
+	padding:10px;
+}
