@@ -872,15 +872,12 @@ class Matches{
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
+            ?,?,?,
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?
-        )`;
+            ?,?,?,?,?,?,?)`;//62
 
-
+//77
         const vars = [
             data.match_id,
             data.match_date,
@@ -891,84 +888,57 @@ class Matches{
             data.played,
             data.ip,
             data.country,
-
             data.face,
             data.voice,
             data.gametype,
             data.winner,
             data.draw,
             data.playtime,
-
+            data.team_0_playtime,
+            data.team_1_playtime,
+            data.team_2_playtime,
+            data.team_3_playtime,
+            data.spec_playtime,
             data.team,
             data.first_blood,
             data.frags,
             data.score,
             data.kills,
             data.deaths,
-
             data.suicides,
             data.team_kills,
             data.spawn_kills,
             data.efficiency,
             data.multi_1,
             data.multi_2,
-
             data.multi_3,
             data.multi_4,
             data.multi_5,
             data.multi_6,
             data.multi_7,
             data.multi_best,
-
             data.spree_1,   
             data.spree_2,
             data.spree_3,
             data.spree_4,
             data.spree_5,
             data.spree_6,
-
             data.spree_7,
             data.spree_best,
             data.best_spawn_kill_spree,
-            data.flag_assist,
-            data.flag_return,
-            data.flag_taken,
-
-            data.flag_dropped,
-            data.flag_capture,
-            data.flag_pickup,
-            data.flag_seal,
-            data.flag_cover,
-            data.flag_cover_pass,
-
-            data.flag_cover_fail,
-            data.flag_self_cover,
-            data.flag_self_cover_pass,
-            data.flag_self_cover_fail,
-            data.flag_multi_cover,
-            data.flag_spree_cover,
-
-            data.flag_cover_best,
-            data.flag_self_cover_best,
-            data.flag_kill,
-            data.flag_save,
-            data.flag_carry_time,
             data.assault_objectives,
-
             data.dom_caps,
             data.dom_caps_best_life,
             data.ping_min,
             data.ping_average,
             data.ping_max,
             data.accuracy,
-
             data.shortest_kill_distance,
             data.average_kill_distance,
             data.longest_kill_distance,
             data.k_distance_normal,
             data.k_distance_long,
             data.k_distance_uber,
-
             data.headshots,
             data.shield_belt,
             data.amp,
@@ -979,7 +949,6 @@ class Matches{
             data.invisibility_time,
             data.invisibility_kills,
             data.invisibility_single_life,
-
             data.pads,
             data.armor,
             data.boots,
@@ -988,10 +957,9 @@ class Matches{
             data.mh_kills_best_life,
             data.views,
             data.mh_deaths
-
         ];
 
-        await mysql.simpleInsert(query, vars);
+        await mysql.simpleQuery(query, vars);
     }
 
     async changePlayerMatchesCount(playerName, gametype, amount, playtime){
@@ -1091,178 +1059,6 @@ class Matches{
 
     async mergePlayerMatches(oldId, newId, newName){
 
-        try{
-
-            const matches = await this.getPlayerMatches([oldId, newId]);
-
-            const newData = {};
-
-            const mergeTypes = [
-               // 'playtime',                                
-                'frags',                 'score',                  'kills',
-                'deaths',                'suicides',               'team_kills',
-                'spawn_kills',                                     'multi_1',
-                'multi_2',               'multi_3',                'multi_4',
-                'multi_5',               'multi_6',                'multi_7',
-                'multi_best',            'spree_1',                'spree_2',
-                'spree_3',               'spree_4',                'spree_5',
-                'spree_6',               'spree_7',                /*'spree_best',*/
-                                         'flag_assist',            'flag_return',
-                'flag_taken',            'flag_dropped',           'flag_capture',
-                'flag_pickup',           'flag_seal',              'flag_cover',
-                'flag_cover_pass',       'flag_cover_fail',        'flag_self_cover',
-                'flag_self_cover_pass',  'flag_self_cover_fail',   'flag_multi_cover',
-                'flag_spree_cover',      
-                'flag_kill',             'flag_save',              'flag_carry_time',
-                'assault_objectives',    'dom_caps',               
-                
-                                         /*'shortest_kill_distance',*/ /*'average_kill_distance'*/
-                /*'longest_kill_distance',*/ 'k_distance_normal',      'k_distance_long',
-                'k_distance_uber',       'headshots',              'shield_belt',
-                'amp',                   'amp_time',               'invisibility',
-                'invisibility_time',     'pads',                   'armor',
-                'boots',                 'super_health', 'mh_kills', 'views'
-
-            ];
-
-            const higherTypes = [
-                "best_spawn_kill_spree",
-                "flag_cover_best",
-                "flag_self_cover_best",
-                "dom_caps_best_life",
-                "ping_min",
-                "ping_average",
-                "ping_max",
-                "spree_best",
-                "mh_kills_best_life"
-            ];
-
-
-            //merged played gametypes
-            const playedGametypes = {
-                "0": 0
-            };
-
-            const gametypesPlaytime = {
-                "0": 0
-            }
-
-            //ids for player match data not the actual match_id
-            const matchIds = [];
-            const matchIdsWithMerge = [];
-
-            let m = 0;
-
-            let combinedAverageDistance = 0;
-            let addedPlaytime = 0;
-
-
-            
-
-    
-
-            for(let i = 0; i < matches.length; i++){
-
-                m = matches[i];
-
-                matchIds.push(m.id);
-
-                if(newData[m.match_id] === undefined){
-
-                    newData[m.match_id] = Object.assign(this.createMatchDummyObject(), m);
-
-
-                    newData[m.match_id].player_id = newId;
-
-                }else{
-
-                    gametypesPlaytime["0"] += m.playtime;
-
-                    playedGametypes["0"]++;
-
-                    if(playedGametypes[m.gametype] === undefined){
-                        playedGametypes[m.gametype] = 1;
-                        gametypesPlaytime[m.gametype] = m.playtime;
-                    }else{
-                        playedGametypes[m.gametype]++;
-                        gametypesPlaytime[m.gametype] += m.playtime;
-                    }
-
-                    matchIdsWithMerge.push(m.match_id);
-
-                    newData[m.match_id].playtime += m.playtime;
-                    newData[m.match_id].winner = m.winner;
-                    newData[m.match_id].draw = m.draw;
-                    newData[m.match_id].team = m.team;
-
-                    if(newData[m.match_id].shortest_kill_distance > m.shortest_kill_distance){
-                        newData[m.match_id].shortest_kill_distance = m.shortest_kill_distance;
-                    }
-
-                    if(newData[m.match_id].longest_kill_distance < m.longest_kill_distance){
-                        newData[m.match_id].longest_kill_distance = m.longest_kill_distance;
-                    }
-
-
-                    combinedAverageDistance = newData[m.match_id].average_kill_distance + m.average_kill_distance;
-
-                    if(combinedAverageDistance !== 0){
-                        newData[m.match_id].average_kill_distance = combinedAverageDistance * 0.5;
-                    }
-
-                    for(let x = 0; x < higherTypes.length; x++){
-
-                        if(m[higherTypes[x]] > newData[m.match_id][higherTypes[x]]){
-                            newData[m.match_id][higherTypes[x]] = m[higherTypes[x]];
-                        }
-                    }
-                    
-
-                    if(newData[m.match_id].first_blood || m.first_blood) newData[m.match_id].first_blood = 1;
-
-                    for(let x = 0; x < mergeTypes.length; x++){
-                        newData[m.match_id][mergeTypes[x]] += m[mergeTypes[x]];
-                    }
-
-                    newData[m.match_id].efficiency = 0;
-
-                    if(newData[m.match_id].kills > 0){
-
-                        if(newData[m.match_id].deaths === 0){
-                            newData[m.match_id].efficiency = 100;
-                        }else{
-                            newData[m.match_id].efficiency = (newData[m.match_id].kills / (newData[m.match_id].kills + newData[m.match_id].deaths)) * 100;
-                        }
-                    }
-                }
-            }
-
-            await this.deletePlayerMatchesData(matchIds);
-
-            for(let i = 0; i < matchIdsWithMerge.length; i++){
-                await this.reducePlayerCount(matchIdsWithMerge[i], 1);
-            }
-
-            for(const [key, value] of Object.entries(newData)){
-
-                await this.insertMergedPlayerData(value);
-            }
-
-            /*
-            //update player match totals, reduce for removed add for new master account
-
-            for(const [key, value] of Object.entries(playedGametypes)){
-
-                //await this.changePlayerMatchesCount(oldName, key, -value);
-                await this.changePlayerMatchesCount(newName, key, value, gametypesPlaytime[key]);
-
-            }*/
-
-            
-
-        }catch(err){
-            console.trace(err);
-        }
     }
 
 

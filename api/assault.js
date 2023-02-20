@@ -306,8 +306,8 @@ class Assault{
 
     async changeCapDataPlayerId(oldId, newId){
 
-
-        await mysql.simpleUpdate("UPDATE nstats_assault_match_objectives SET player=? WHERE player=?", [newId, oldId]);
+        const query = "UPDATE nstats_assault_match_objectives SET player=? WHERE player=?"
+        return await mysql.simpleUpdate(query, [newId, oldId]);
     }
 
 

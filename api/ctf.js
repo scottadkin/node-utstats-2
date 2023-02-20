@@ -1384,91 +1384,7 @@ class CTF{
 
         return await mysql.simpleUpdate(query, vars);
     }
-
-    async changeCapEventPlayerIds(oldId, newId, matchIds){
-
-        try{
-
-            const data = await this.getCapDataByMatchIds(matchIds);
-
-            const replaceIds = (array, find, replace) =>{
-
-                for(let i = 0; i < array.length; i++){
-
-                    if(array[i] === find) array[i] = replace;
-                }
-            }
-
-            let d = 0;
-
-            let currentDrops = [];
-            let currentPickups = [];
-            let currentCovers = [];
-            let currentAssists = [];
-            let currentCarryIds = [];
-
-            let bCurrentNeedsUpdating = false;
-
-            for(let i = 0; i < data.length; i++){
-
-                d = data[i];
-
-                bCurrentNeedsUpdating = false;
-                currentDrops = Functions.stringToIntArray(d.drops);
-                currentPickups = Functions.stringToIntArray(d.pickups);
-                currentCovers = Functions.stringToIntArray(d.covers);
-                currentAssists = Functions.stringToIntArray(d.assists);
-                currentCarryIds = Functions.stringToIntArray(d.assist_carry_ids);
-                
-                if(d.grab === oldId){
-
-                    d.grab = newId;
-                    bCurrentNeedsUpdating = true;
-
-                }
-
-                if(d.cap === oldId){
-
-                    d.cap = newId;
-                    bCurrentNeedsUpdating = true;
-                }
-
-                if(currentDrops.length > 0 || currentPickups.length > 0 || currentCovers.length > 0 || currentAssists.length > 0 || currentCarryIds.length > 0){
-
-                    bCurrentNeedsUpdating = true;
-                    
-                    replaceIds(currentDrops, oldId, newId);
-                    replaceIds(currentPickups, oldId, newId);
-                    replaceIds(currentCovers, oldId, newId);
-                    replaceIds(currentAssists, oldId, newId);
-                    replaceIds(currentCarryIds, oldId, newId);
-
-                }
-
-                d.drops = currentDrops;
-                d.pickups = currentPickups;
-                d.covers = currentCovers;
-                d.assists = currentAssists;
-                d.assist_carry_ids = currentCarryIds;
- 
-
-                if(bCurrentNeedsUpdating){
-
-                    await this.updateCapEvent(d);
-                }
-                
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async changeEventPlayerId(oldId, newId){
-
-        return await mysql.simpleUpdate("UPDATE nstats_ctf_events SET player=? WHERE player=?", [newId, oldId]);
-        
-    }
+    
 
     
     async deletePlayerEvents(playerId){
@@ -2276,6 +2192,293 @@ class CTF{
         delete assistDetails.uniquePlayers;
 
         return {"caps": caps, "assistData": assistDetails.assists, "playerIds": playerIds};
+    }
+
+
+
+    async changeAssistPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_assists SET player_id=? WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async changeCapPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_caps SET
+        grab_player = IF(grab_player = ?, ?, grab_player),
+        cap_player = IF(cap_player = ?, ?, cap_player)`;
+
+        const vars = [
+            oldId, newId,
+            oldId, newId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async changeCarryPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_carry_times SET
+        player_id = IF(player_id = ?, ?, player_id)`;
+
+        return await mysql.simpleQuery(query, [oldId, newId]);
+    }
+
+    async changeCoverPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_covers SET
+        killer_id = IF(killer_id = ?, ?, killer_id),
+        victim_id = IF(victim_id = ?, ?, victim_id)`;
+
+        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+    }
+
+    async changeCapReturnKillPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_cr_kills SET player_id = IF(player_id = ?, ?, player_id)`;
+
+        return await mysql.simpleQuery(query, [oldId, newId]);
+    }
+
+    async changeEventPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_events SET player = IF(player = ?, ?, player)`;
+        return await mysql.simpleQuery(query, [oldId, newId]);
+    }
+
+    async changeFlagDeathPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_flag_deaths SET
+        killer_id = IF(killer_id = ?, ?, killer_id),
+        victim_id = IF(victim_id = ?, ?, victim_id)`;
+
+        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+    }
+
+    async changeFlagDropPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_flag_drops SET
+        player_id = IF(player_id = ?, ?, player_id)`;
+
+        return await mysql.simpleQuery(query, [oldId, newId]);
+    }
+
+    async changeFlagPickupsPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_flag_pickups SET player_id = IF(player_id = ?, ?, player_id)`;
+        return await mysql.simpleQuery(query, [oldId, newId]);
+    }
+
+    async changeReturnPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_returns SET
+        grab_player = IF(grab_player = ?, ?, grab_player),
+        return_player = IF(return_player = ?, ?, return_player)`;
+
+        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+    }
+
+    async changeFlagSealsPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_seals SET
+        killer_id = IF(killer_id = ?, ?, killer_id),
+        victim_id = IF(victim_id = ?, ?, victim_id)`;
+
+        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+    }
+
+    async changeFlagSelfCoversPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_self_covers SET
+        killer_id = IF(killer_id = ?, ?, killer_id),
+        victim_id = IF(victim_id = ?, ?, victim_id)`;
+
+        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+    }
+    
+
+    async insertNewPlayerBest(playerId, data){
+
+        const query = `INSERT INTO nstats_player_ctf_best VALUES(NULL,?,?,
+            ?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,
+            ?,?,?,?,?,?,
+            ?,?,?)`;
+
+        const d = data;
+
+        const vars = [playerId, d.gametype_id,
+            d.flag_assist, d.flag_return, d.flag_return_base, d.flag_return_mid, d.flag_return_enemy_base, d.flag_return_save,
+            d.flag_dropped, d.flag_kill, d.flag_suicide, d.flag_seal, d.flag_seal_pass, d.flag_seal_fail, d.best_single_seal,
+            d.flag_cover, d.flag_cover_pass, d.flag_cover_fail, d.flag_cover_multi, d.flag_cover_spree, d.best_single_cover,
+            d.flag_capture, d.flag_carry_time, d.flag_taken, d.flag_pickup, d.flag_self_cover, d.flag_self_cover_pass,
+            d.flag_self_cover_fail, d.best_single_self_cover, d.flag_solo_capture,
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async recalculatePlayerBest(playerId){
+
+        const query = `SELECT
+        MAX(flag_assist) as flag_assist,
+        MAX(flag_return) as flag_return,
+        MAX(flag_return_base) as flag_return_base,
+        MAX(flag_return_mid) as flag_return_mid,
+        MAX(flag_return_enemy_base) as flag_return_enemy_base,
+        MAX(flag_return_save) as flag_return_save,
+        MAX(flag_dropped) as flag_dropped,
+        MAX(flag_kill) as flag_kill,
+        MAX(flag_suicide) as flag_suicide,
+        MAX(flag_seal) as flag_seal,
+        MAX(flag_seal_pass) as flag_seal_pass,
+        MAX(flag_seal_fail) as flag_seal_fail,
+        MAX(best_single_seal) as best_single_seal,
+        MAX(flag_cover) as flag_cover,
+        MAX(flag_cover_pass) as flag_cover_pass,
+        MAX(flag_cover_fail) as flag_cover_fail,
+        MAX(flag_cover_multi) as flag_cover_multi,
+        MAX(flag_cover_spree) as flag_cover_spree,
+        MAX(best_single_cover) as best_single_cover,
+        MAX(flag_capture) as flag_capture,
+        MAX(flag_carry_time) as flag_carry_time,
+        MAX(flag_taken) as flag_taken,
+        MAX(flag_pickup) as flag_pickup,
+        MAX(flag_self_cover) as flag_self_cover,
+        MAX(flag_self_cover_pass) as flag_self_cover_pass,
+        MAX(flag_self_cover_fail) as flag_self_cover_fail,
+        MAX(best_single_self_cover) as best_single_self_cover,
+        MAX(flag_solo_capture) as flag_solo_capture,
+        gametype_id
+        FROM nstats_player_ctf_match
+        WHERE player_id=?`;
+
+        const gametypeBit = " GROUP BY gametype_id";
+
+        const result = await mysql.simpleQuery(`${query}${gametypeBit}`, [playerId]);
+
+        for(let i = 0; i < result.length; i++){
+            console.log(`isnert new best for player ${playerId} for gametype ${result[i].gametype_id}`);
+            await this.insertNewPlayerBest(playerId, result[i]);
+        }
+
+        const allTimeBest = await mysql.simpleQuery(query, [playerId]);
+
+        if(allTimeBest.length > 0){
+            await this.insertNewPlayerBest(playerId, allTimeBest[0]);
+        }else{
+            console.log("Hmmm...");
+        }
+    }
+
+    async mergePlayerBest(oldId, newId){
+
+        const query = "DELETE FROM nstats_player_ctf_best WHERE player_id IN (?)";
+        await mysql.simpleQuery(query, [newId, oldId]);
+
+        await this.recalculatePlayerBest(newId);
+    }
+
+    async insertNewPlayerBestSingleLife(playerId, data){
+
+        const query = `INSERT INTO nstats_player_ctf_best_life VALUES(NULL,?,?,
+            ?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,?,
+            ?,?,?)`;
+
+        const d = data;
+
+        const vars = [playerId, d.gametype_id,
+            d.flag_assist, d.flag_return, d.flag_return_base, d.flag_return_mid, d.flag_return_enemy_base, d.flag_return_save,
+            d.flag_dropped, d.flag_kill, d.flag_seal, d.flag_seal_pass, d.flag_seal_fail, d.best_single_seal,
+            d.flag_cover, d.flag_cover_pass, d.flag_cover_fail, d.flag_cover_multi, d.flag_cover_spree, d.best_single_cover,
+            d.flag_capture, d.flag_carry_time, d.flag_taken, d.flag_pickup, d.flag_self_cover, d.flag_self_cover_pass,
+            d.flag_self_cover_fail, d.best_single_self_cover, d.flag_solo_capture,
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async recalculatePlayerBestLife(playerId){
+
+        const query = `SELECT
+        MAX(flag_assist_best) as flag_assist,
+        MAX(flag_return_best) as flag_return,
+        MAX(flag_return_base_best) as flag_return_base,
+        MAX(flag_return_mid_best) as flag_return_mid,
+        MAX(flag_return_enemy_base_best) as flag_return_enemy_base,
+        MAX(flag_return_save_best) as flag_return_save,
+        MAX(flag_dropped_best) as flag_dropped,
+        MAX(flag_kill_best) as flag_kill,
+        MAX(flag_seal_best) as flag_seal,
+        MAX(flag_seal_pass_best) as flag_seal_pass,
+        MAX(flag_seal_fail_best) as flag_seal_fail,
+        MAX(best_single_seal) as best_single_seal,
+        MAX(flag_cover_best) as flag_cover,
+        MAX(flag_cover_pass_best) as flag_cover_pass,
+        MAX(flag_cover_fail_best) as flag_cover_fail,
+        MAX(flag_cover_multi_best) as flag_cover_multi,
+        MAX(flag_cover_spree_best) as flag_cover_spree,
+        MAX(best_single_cover) as best_single_cover,
+        MAX(flag_capture_best) as flag_capture,
+        MAX(flag_carry_time_best) as flag_carry_time,
+        MAX(flag_taken_best) as flag_taken,
+        MAX(flag_pickup_best) as flag_pickup,
+        MAX(flag_self_cover_best) as flag_self_cover,
+        MAX(flag_self_cover_pass_best) as flag_self_cover_pass,
+        MAX(flag_self_cover_fail_best) as flag_self_cover_fail,
+        MAX(best_single_self_cover) as best_single_self_cover,
+        MAX(flag_solo_capture_best) as flag_solo_capture,
+        gametype_id
+        FROM nstats_player_ctf_match
+        WHERE player_id=?`;
+
+        const gametypeBit = " GROUP BY gametype_id";
+
+        const result = await mysql.simpleQuery(`${query}${gametypeBit}`, [playerId]);
+
+        for(let i = 0; i < result.length; i++){
+            console.log(`isnert new best single life for player ${playerId} for gametype ${result[i].gametype_id}`);
+            await this.insertNewPlayerBestSingleLife(playerId, result[i]);
+        }
+
+        const allTimeBest = await mysql.simpleQuery(query, [playerId]);
+
+        await this.insertNewPlayerBestSingleLife(playerId, allTimeBest[0]);
+
+    }
+    
+
+    async mergePlayerBestLife(oldId, newId){
+
+        const query = "DELETE FROM nstats_player_ctf_best_life WHERE player_id IN (?)";
+        await mysql.simpleQuery(query, [newId, oldId]);
+
+        await this.recalculatePlayerBestLife(newId);
+    }
+
+    async mergePlayers(oldId, newId){
+
+        const changedAssists = await this.changeAssistPlayerIds(oldId, newId);
+        const changedCaps = await this.changeCapPlayerIds(oldId, newId);
+        const changedCarry = await this.changeCarryPlayerIds(oldId, newId);
+        const changedCovers = await this.changeCoverPlayerIds(oldId, newId);
+        const changedCapReturnKills = await this.changeCapReturnKillPlayerIds(oldId, newId);
+        const changedEvents = await this.changeEventPlayerIds(oldId, newId);
+        const changedFlagDeaths = await this.changeFlagDeathPlayerIds(oldId, newId);
+        const changedFlagDrops = await this.changeFlagDropPlayerIds(oldId, newId);
+        const changedFlagPickups = await this.changeFlagDeathPlayerIds(oldId, newId);
+        const changedReturns = await this.changeReturnPlayerIds(oldId, newId);
+        const changedSeals = await this.changeFlagSealsPlayerIds(oldId, newId);
+        const changedSelfCovers = await this.changeFlagSelfCoversPlayerIds(oldId, newId);
+
+
+        await this.mergePlayerBest(oldId, newId);
+        await this.mergePlayerBestLife(oldId, newId);
     }
 
 }

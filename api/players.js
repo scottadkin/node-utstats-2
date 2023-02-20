@@ -592,181 +592,32 @@ class Players{
     }
     
 
-    async recalculatePlayerTotalsAfterMerge(playerId, playerName, gametypeTotals, allTotals){
-
-        gametypeTotals["0"] = allTotals;
-
-
-        const query = `UPDATE nstats_player_totals SET 
-        matches=?, draws=?, wins=?, losses=?, winrate=?,
-        playtime=?, first_bloods=?, frags=?, score=?, kills=?, deaths=?, suicides=?, team_kills=?, spawn_kills=?,
-        efficiency=?, multi_1=?, multi_2=?, multi_3=?, multi_4=?, multi_5=?, multi_6=?, multi_7=?, multi_best=?,
-        spree_1=?, spree_2=?, spree_3=?, spree_4=?, spree_5=?, spree_6=?, spree_7=?, spree_best=?,
-        best_spawn_kill_spree=?, flag_assist=?, flag_return=?, flag_taken=?, flag_dropped=?, flag_capture=?,
-        flag_pickup=?, flag_seal=?, flag_cover=?, flag_cover_pass=?, flag_cover_fail=?, flag_self_cover=?,
-        flag_self_cover_pass=?, flag_self_cover_fail=?, flag_multi_cover=?, flag_spree_cover=?, flag_cover_best=?,
-        flag_self_cover_best=?, flag_kill=?, flag_save=?, flag_carry_time=?, assault_objectives=?, dom_caps=?,
-        dom_caps_best=?, dom_caps_best_life=?, accuracy=?, k_distance_normal=?, k_distance_long=?, k_distance_uber=?,
-        headshots=?, shield_belt=?, amp=?, amp_time=?, invisibility=?, invisibility_time=?, pads=?, armor=?,
-        boots=?, super_health=?, mh_kills=?, mh_kills_best_life=?, mh_kills_best=?, mh_deaths=?, mh_deaths_worst=?
-        WHERE gametype=? AND player_id=?`;
-
-        for(const [gametype, d] of Object.entries(gametypeTotals)){
-
-            const losses = d.total_matches - d.wins - d.draws;
-
-    
-            let winRate = 0;
-
-            if(d.total_matches > 0){
-                if(d.wins > 0){
-                    winRate = (d.wins / d.total_matches) * 100;
-                }
-            }
-
-            let eff = 0;
-
-            if(d.kills > 0){
-
-                if(d.deaths === 0){
-                    eff = 100;
-                }else{
-
-                    eff = (d.kills / (d.kills + d.deaths)) * 100;
-                }
-
-            }
-
-
-            d.views = 0;
-            d.player_id = playerId;
-            d.ip = "-1";
-            d.country = "xx";
-            d.face = 0;
-            d.voice = 0;
-            d.matches = d.total_matches;
-            d.losses = losses;
-            d.winrate = winRate;
-            d.efficiency = eff;
-            d.fastest_kill = 0;
-            d.slowest_kill = 0;
-
-
-            const vars = [
-                d.total_matches,
-                d.draws,
-                d.wins,
-                losses,
-                winRate,
-                d.playtime, d.first_bloods, d.frags, d.score, d.kills, d.deaths, d.suicides, d.team_kills, d.spawn_kills,
-                eff, d.multi_1, d.multi_2, d.multi_3, d.multi_4, d.multi_5, d.multi_6, d.multi_7, d.multi_best,
-                d.spree_1, d.spree_2, d.spree_3, d.spree_4, d.spree_5, d.spree_6, d.spree_7, d.spree_best, 
-                d.best_spawn_kill_spree, d.flag_assist, d.flag_return, d.flag_taken, d.flag_dropped, d.flag_capture,
-                d.flag_pickup, d.flag_seal, d.flag_cover, d.flag_cover_pass, d.flag_cover_fail, d.flag_self_cover,
-                d.flag_self_cover_pass, d.flag_self_cover_fail, d.flag_multi_cover, d.flag_spree_cover, d.flag_cover_best,
-                d.flag_self_cover_best, d.flag_kill, d.flag_save, d.flag_carry_time, d.assault_objectives, d.dom_caps,
-                d.dom_caps_best, d.dom_caps_best_life, d.accuracy, d.k_distance_normal, d.k_distance_long, d.k_distance_uber,
-                d.headshots, d.shield_belt, d.amp, d.amp_time, d.invisibility, d.invisibility_time, d.pads, d.armor,
-                d.boots, d.super_health, d.mh_kills, d.mh_kills_best_life, d.mh_kills_best, d.mh_deaths, d.mh_deaths_worst,
-
-                gametype, playerId
-            ];
-
-            const updateRows = await mysql.updateReturnAffectedRows(query, vars);
-
-            if(updateRows === 0){
-                await this.insertNewTotalsFromMerge(playerName, gametype, d);
-            }
-        }
-    }
-    
-    async getPlayerTotalsByMatches(playerId){
-
-        const query = `SELECT gametype, COUNT(*) as total_matches,
-        SUM(winner) as wins, SUM(draw) as draws, SUM(playtime) as playtime, SUM(first_blood) as first_bloods,
-        SUM(frags) as frags, SUM(score) as score, SUM(kills) as kills, SUM(deaths) as deaths, SUM(suicides) as suicides,
-        SUM(team_kills) as team_kills, SUM(spawn_kills) as spawn_kills, AVG(efficiency) as efficiency,
-        MIN(match_date) as first, MAX(match_date) as last,
-        SUM(multi_1) as multi_1, SUM(multi_2) as multi_2, SUM(multi_3) as multi_3, SUM(multi_4) as multi_4, SUM(multi_5) as multi_5, 
-        SUM(multi_6) as multi_6, SUM(multi_7) as multi_7, MAX(multi_best) as multi_best,
-        SUM(spree_1) as spree_1, SUM(spree_2) as spree_2, SUM(spree_3) as spree_3, SUM(spree_4) as spree_4, SUM(spree_5) as spree_5,
-        SUM(spree_6) as spree_6, SUM(spree_7) as spree_7, MAX(spree_best) as spree_best,
-        MAX(best_spawn_kill_spree) as best_spawn_kill_spree, SUM(flag_assist) as flag_assist,
-        SUM(flag_return) as flag_return, SUM(flag_taken) as flag_taken, SUM(flag_dropped) as flag_dropped, SUM(flag_capture) as flag_capture, 
-        SUM(flag_pickup) as flag_pickup, SUM(flag_seal) as flag_seal, SUM(flag_cover) as flag_cover, SUM(flag_cover_pass) as flag_cover_pass, 
-        SUM(flag_cover_fail) as flag_cover_fail, SUM(flag_self_cover) as flag_self_cover, SUM(flag_self_cover_pass) as flag_self_cover_pass, 
-        SUM(flag_self_cover_fail) as flag_self_cover_fail, SUM(flag_multi_cover) as flag_multi_cover, SUM(flag_spree_cover) as flag_spree_cover,
-        MAX(flag_cover_best) as flag_cover_best, MAX(flag_self_cover_best) as flag_self_cover_best,
-        SUM(flag_kill) as flag_kill, SUM(flag_save) as flag_save, SUM(flag_carry_time) as flag_carry_time,
-        SUM(assault_objectives) as assault_objectives, SUM(dom_caps) as dom_caps, MAX(dom_caps) as dom_caps_best, MAX(dom_caps_best_life) as dom_caps_best_life,
-        MIN(ping_min) as ping_min, AVG(ping_average) as ping_average, MAX(ping_max) as ping_max, AVG(accuracy) as accuracy,
-        MIN(shortest_kill_distance) as shortest_kill_distance, AVG(average_kill_distance) as average_kill_distance,
-        MAX(longest_kill_distance) as longest_kill_distance, SUM(k_distance_normal) as k_distance_normal, SUM(k_distance_long) as k_distance_long,
-        SUM(k_distance_uber) as k_distance_uber, SUM(headshots) as headshots, SUM(shield_belt) as shield_belt, SUM(amp) as amp,
-        SUM(amp_time) as amp_time, SUM(invisibility) as invisibility, SUM(invisibility_time) as invisibility_time,
-        SUM(pads) as pads, SUM(armor) as armor, SUM(boots) as boots, SUM(super_health) as super_health, SUM(mh_kills) as mh_kills,
-        MAX(mh_kills) as mh_kills_best,
-        MAX(mh_kills_best_life) as mh_kills_best_life,
-        SUM(mh_deaths) as mh_deaths,
-        MAX(mh_deaths) as mh_deaths_worst
-        FROM nstats_player_matches WHERE player_id=? GROUP BY(gametype)`;
-
-        const result = await mysql.simpleQuery(query, playerId);
-
-        if(result.length > 0) return result[0];
-
-        return null;
-
-    }
-
-    async getPlayerTotalsPerGametypeByMatches(playerId){
-
-        const query = `SELECT gametype, COUNT(*) as total_matches,
-        SUM(winner) as wins, SUM(draw) as draws, SUM(playtime) as playtime, SUM(first_blood) as first_bloods,
-        SUM(frags) as frags, SUM(score) as score, SUM(kills) as kills, SUM(deaths) as deaths, SUM(suicides) as suicides,
-        SUM(team_kills) as team_kills, SUM(spawn_kills) as spawn_kills, AVG(efficiency) as efficiency,
-        MIN(match_date) as first, MAX(match_date) as last,
-        SUM(multi_1) as multi_1, SUM(multi_2) as multi_2, SUM(multi_3) as multi_3, SUM(multi_4) as multi_4, SUM(multi_5) as multi_5, 
-        SUM(multi_6) as multi_6, SUM(multi_7) as multi_7, MAX(multi_best) as multi_best,
-        SUM(spree_1) as spree_1, SUM(spree_2) as spree_2, SUM(spree_3) as spree_3, SUM(spree_4) as spree_4, SUM(spree_5) as spree_5,
-        SUM(spree_6) as spree_6, SUM(spree_7) as spree_7, MAX(spree_best) as spree_best,
-        MAX(best_spawn_kill_spree) as best_spawn_kill_spree, SUM(flag_assist) as flag_assist,
-        SUM(flag_return) as flag_return, SUM(flag_taken) as flag_taken, SUM(flag_dropped) as flag_dropped, SUM(flag_capture) as flag_capture, 
-        SUM(flag_pickup) as flag_pickup, SUM(flag_seal) as flag_seal, SUM(flag_cover) as flag_cover, SUM(flag_cover_pass) as flag_cover_pass, 
-        SUM(flag_cover_fail) as flag_cover_fail, SUM(flag_self_cover) as flag_self_cover, SUM(flag_self_cover_pass) as flag_self_cover_pass, 
-        SUM(flag_self_cover_fail) as flag_self_cover_fail, SUM(flag_multi_cover) as flag_multi_cover, SUM(flag_spree_cover) as flag_spree_cover,
-        MAX(flag_cover_best) as flag_cover_best, MAX(flag_self_cover_best) as flag_self_cover_best,
-        SUM(flag_kill) as flag_kill, SUM(flag_save) as flag_save, SUM(flag_carry_time) as flag_carry_time,
-        SUM(assault_objectives) as assault_objectives, SUM(dom_caps) as dom_caps, MAX(dom_caps) as dom_caps_best, MAX(dom_caps_best_life) as dom_caps_best_life,
-        MIN(ping_min) as ping_min, AVG(ping_average) as ping_average, MAX(ping_max) as ping_max, AVG(accuracy) as accuracy,
-        MIN(shortest_kill_distance) as shortest_kill_distance, AVG(average_kill_distance) as average_kill_distance,
-        MAX(longest_kill_distance) as longest_kill_distance, SUM(k_distance_normal) as k_distance_normal, SUM(k_distance_long) as k_distance_long,
-        SUM(k_distance_uber) as k_distance_uber, SUM(headshots) as headshots, SUM(shield_belt) as shield_belt, SUM(amp) as amp,
-        SUM(amp_time) as amp_time, SUM(invisibility) as invisibility, SUM(invisibility_time) as invisibility_time,
-        SUM(pads) as pads, SUM(armor) as armor, SUM(boots) as boots, SUM(super_health) as super_health, SUM(mh_kills) as mh_kills,
-        MAX(mh_kills) as mh_kills_best,
-        MAX(mh_kills_best_life) as mh_kills_best_life,
-        SUM(mh_deaths) as mh_deaths,
-        MAX(mh_deaths) as mh_deaths_worst
-        FROM nstats_player_matches WHERE player_id=? GROUP BY (gametype)`;
-
-        const result = await mysql.simpleQuery(query, playerId);
-        const data = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            data[r.gametype] = r;
-
-        }
-
-        return data;
-    }
-
     //first player gets merged into second
     async mergePlayers(first, second, matchManager, combogibManager){
 
-        try{    
+        first = parseInt(first);
+        second = parseInt(second);
+
+        if(first !== first || second !== second){
+            return false;
+        }
+
+        if(first === second) return false;
+
+        const names = await this.getNamesByIds([first, second]);
+
+        const assaultManager = new Assault();
+        const changedAssaultInfo = await assaultManager.changeCapDataPlayerId(first, second);
+
+        const ctfManager = new CTF();
+
+        const changedCTFInfo = await ctfManager.mergePlayers(first, second);
+
+        console.log(names);
+
+        return true;
+
+        /*try{    
 
 
             const names = await this.getNamesByIds([first, second]);
@@ -887,7 +738,7 @@ class Players{
         }catch(err){
             console.trace(err);
             return false;
-        }
+        }*/
     }
 
     async deletePlayerTotals(id){
