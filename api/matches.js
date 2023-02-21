@@ -835,17 +835,6 @@ class Matches{
         }
     }
 
-    async changePlayerScoreHistoryIds(oldId, newId){
-
-        await mysql.simpleUpdate("UPDATE nstats_match_player_score SET player=? WHERE player=?", [newId, oldId]);
-    }
-
-    async changeTeamChangesPlayerIds(oldId, newId){
-
-        await mysql.simpleUpdate("UPDATE nstats_match_team_changes SET player=? WHERE player=?", [newId, oldId]);
-    }
-
-
     async getPlayerMatches(playerIds){
 
         if(playerIds.length === 0) return;
@@ -962,103 +951,308 @@ class Matches{
         await mysql.simpleQuery(query, vars);
     }
 
-    async changePlayerMatchesCount(playerName, gametype, amount, playtime){
+    async changePlayerIds(oldId, newId){
 
-        await mysql.simpleUpdate("UPDATE nstats_player_totals SET matches=matches+?, playtime=playtime+? WHERE name=? AND gametype=?", 
-            [amount, playtime, playerName, gametype]);
+        const query = `UPDATE nstats_player_matches SET player_id=? WHERE player_id=?`;
+        return await mysql.simpleQuery(query, [newId, oldId]);
     }
 
-    createMatchDummyObject(){
+    async getDuplicatePlayerEntries(targetPlayer){
 
-        return {
-            id: 0,
-            match_id: 0,
-            match_date: 0,
-            map_id: 0,
-            player_id: 0,
-            ip: 0,
-            country: 0,
-            face: 0,
-            voice: 0,
-            gametype: 0,
-            winner: 0,
-            draw: 0,
-            playtime: 0,
-            team: 0,
-            first_blood: 0,
-            frags: 0,
-            score: 0,
-            kills: 0,
-            deaths: 0,
-            suicides: 0,
-            team_kills: 0,
-            spawn_kills: 0,
-            efficiency: 0,
-            multi_1: 0,
-            multi_2: 0,
-            multi_3: 0,
-            multi_4: 0,
-            multi_5: 0,
-            multi_6: 0,
-            multi_7: 0,
-            multi_best: 0,
-            spree_1: 0,
-            spree_2: 0,
-            spree_3: 0,
-            spree_4: 0,
-            spree_5: 0,
-            spree_6: 0,
-            spree_7: 0,
-            spree_best: 0,
-            best_spawn_kill_spree: 0,
-            flag_assist: 0,
-            flag_return: 0,
-            flag_taken: 0,
-            flag_dropped: 0,
-            flag_capture: 0,
-            flag_pickup: 0,
-            flag_seal: 0,
-            flag_cover: 0,
-            flag_cover_pass: 0,
-            flag_cover_fail: 0,
-            flag_self_cover: 0,
-            flag_self_cover_pass: 0,
-            flag_self_cover_fail: 0,
-            flag_multi_cover: 0,
-            flag_spree_cover: 0,
-            flag_cover_best: 0,
-            flag_self_cover_best: 0,
-            flag_kill: 0,
-            flag_save: 0,
-            flag_carry_time: 0,
-            assault_objectives: 0,
-            dom_caps: 0,
-            dom_caps_best_life: 0,
-            ping_min: 0,
-            ping_average: 0,
-            ping_max: 0,
-            accuracy: 0,
-            shortest_kill_distance: 0,
-            average_kill_distance: 0,
-            longest_kill_distance: 0,
-            k_distance_normal: 0,
-            k_distance_long: 0,
-            k_distance_uber: 0,
-            headshots: 0,
-            shield_belt: 0,
-            amp: 0,
-            amp_time: 0,
-            invisibility: 0,
-            invisibility_time: 0,
-            pads: 0,
-            armor: 0,
-            boots: 0,
-            super_health: 0
-          };
+        const query = `SELECT COUNT(*) as total_entries, match_id FROM nstats_player_matches WHERE player_id=? GROUP BY match_id ORDER BY total_entries DESC`;
+
+        const result = await mysql.simpleQuery(query, [targetPlayer]);
+
+        const matchIds = [];
+
+        for(let i = 0; i < result.length; i++){
+            matchIds.push(result[i].match_id);
+        }
+
+        return matchIds;
     }
 
-    async mergePlayerMatches(oldId, newId, newName){
+    async mergePlayerMatchData(matchId, playerId){
 
+        const query = `SELECT * FROM nstats_player_matches WHERE match_id=? AND player_id=?`;
+
+        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+
+        const totals = Object.assign({}, result[0]);
+
+        const higherBetter = [
+            "multi_best", 
+            "spree_best", 
+            "best_spawn_kill_spree", 
+            "dom_caps_best_life", 
+            "longest_kill_distance", 
+            "mh_kills_best_life"
+        ];
+
+        const mergeTypes = [
+            "frags",
+            "score",
+            "kills",
+            "deaths",
+            "suicides",
+            "team_kills",
+            "spawn_kills",
+            "assault_objectives",
+            "dom_caps", 
+            "k_distance_normal",
+            "k_distance_long", 
+            "k_distance_uber",
+            "headshots",
+            "shield_belt",
+            "amp",
+            "amp_time",
+            "invisibility",
+            "invisibility_time",
+            "pads",
+            "armor",
+            "boots",
+            "super_health",
+            "mh_kills",
+            "mh_deaths",
+            "team_0_playtime",
+            "team_1_playtime",
+            "team_2_playtime",
+            "team_3_playtime",
+            "spec_playtime",
+        ];
+
+        let totalAccuracy = 0;
+        let totalAverageKillDistance = 0;
+
+
+        const rowsToDelete = [];
+
+        for(let i = 1; i < result.length; i++){
+
+            const r = result[i];
+
+            rowsToDelete.push(r.id);
+
+            if(r.bot) totals.bot = 1;
+            if(r.spectator) totals.spectator = 1;
+            if(r.winner) totals.winner = 1;
+            if(r.draw) totals.draw = 1;
+            totals.team = r.team;
+            if(r.first_blood) totals.first_blood = 1;
+
+            for(let x = 1; x < 8; x++){
+                totals[`spree_${x}`] += r[`spree_${x}`] ;
+                totals[`multi_${x}`] += r[`multi_${x}`] ;
+            }
+
+            for(let x = 0; x < mergeTypes.length; x++){
+                totals[mergeTypes[x]] += r[mergeTypes[x]];
+            }
+
+            for(let x = 0; x < higherBetter.length; x++){
+
+                if(r[higherBetter[x]] > totals[higherBetter[x]]){
+                    totals[higherBetter[x]] = r[higherBetter[x]];
+                }
+            }
+
+
+
+            totalAccuracy += r.accuracy;
+            totalAverageKillDistance += r.average_kill_distance;
+
+        }
+
+        totals.efficiency = 0;
+
+        if(totals.kills > 0){
+
+            if(totals.deaths > 0){
+
+                totals.efficiency = (totals.kills / (totals.kills + totals.deaths)) * 100;
+            }else{
+                totals.efficiency = 100;
+            }
+        }
+
+
+        if(totalAccuracy > 0){
+            totals.accuracy = totalAccuracy / result.length;
+        }
+
+        if(totalAverageKillDistance > 0){
+            totals.average_kill_distance = totalAverageKillDistance / result.length;
+        }
+
+        await this.updatePlayerMatchDataFromMerge(totals);
+        //delete other ids
+
+        return rowsToDelete;
+
+    }
+
+    async updatePlayerMatchDataFromMerge(data){
+
+        const query = `UPDATE nstats_player_matches SET
+        bot=?,
+        spectator=?,
+        played=?,
+        winner=?,
+        draw=?,
+        playtime=?,
+        team_0_playtime=?,
+        team_1_playtime=?,
+        team_2_playtime=?,
+        team_3_playtime=?,
+        spec_playtime=?,
+        team=?,
+        first_blood=?,
+        frags=?,
+        score=?,
+        kills=?,
+        deaths=?,
+        suicides=?,
+        team_kills=?,
+        spawn_kills=?,
+        efficiency=?,
+        multi_1=?,
+        multi_2=?,
+        multi_3=?,
+        multi_4=?,
+        multi_5=?,
+        multi_6=?,
+        multi_7=?,
+        multi_best=?,
+        spree_1=?,
+        spree_2=?,
+        spree_3=?,
+        spree_4=?,
+        spree_5=?,
+        spree_6=?,
+        spree_7=?,
+        spree_best=?,
+        best_spawn_kill_spree=?,
+        assault_objectives=?,
+        dom_caps=?,
+        dom_caps_best_life=?,
+        accuracy=?,
+        shortest_kill_distance=?,
+        average_kill_distance=?,
+        longest_kill_distance=?,
+        k_distance_normal=?,
+        k_distance_long=?,
+        k_distance_uber=?,
+        headshots=?,
+        shield_belt=?,
+        amp=?,
+        amp_time=?,
+        invisibility=?,
+        invisibility_time=?,
+        pads=?,
+        armor=?,
+        boots=?,
+        super_health=?,
+        mh_kills=?,
+        mh_kills_best_life=?,
+        mh_deaths=?
+        WHERE id=?`;
+
+       
+
+        const d = data;
+        const vars = [
+            d.bot,
+            d.spectator,
+            d.played,
+            d.winner,
+            d.draw,
+            d.playtime,
+            d.team_0_playtime,
+            d.team_1_playtime,
+            d.team_2_playtime,
+            d.team_3_playtime,
+            d.spec_playtime,
+            d.team,
+            d.first_blood,
+            d.frags,
+            d.score,
+            d.kills,
+            d.deaths,
+            d.suicides,
+            d.team_kills,
+            d.spawn_kills,
+            d.efficiency,
+            d.multi_1,
+            d.multi_2,
+            d.multi_3,
+            d.multi_4,
+            d.multi_5,
+            d.multi_6,
+            d.multi_7,
+            d.multi_best,
+            d.spree_1,
+            d.spree_2,
+            d.spree_3,
+            d.spree_4,
+            d.spree_5,
+            d.spree_6,
+            d.spree_7,
+            d.spree_best,
+
+            d.best_spawn_kill_spree,
+            d.assault_objectives,
+            d.dom_caps,
+            d.dom_caps_best_life,
+            d.accuracy,
+
+            d.shortest_kill_distance,
+            d.average_kill_distance,
+            d.longest_kill_distance,
+            d.k_distance_normal,
+            d.k_distance_long,
+            d.k_distance_uber,
+            d.headshots,
+            d.shield_belt,
+            d.amp,
+            d.amp_time,
+            d.invisibility,
+            d.invisibility_time,
+            d.pads,
+            d.armor,
+            d.boots,
+            d.super_health,
+            d.mh_kills,
+            d.mh_kills_best_life,
+            d.mh_deaths,
+            d.id
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async deletePlayerMatchRows(rowIds){
+
+        if(rowIds.length === 0) return;
+
+        const query = `DELETE FROM nstats_player_matches WHERE id IN(?)`;
+
+        return await mysql.simpleQuery(query, [rowIds]);
+    }
+
+    async mergePlayerMatches(oldId, newId){
+
+        await this.changePlayerIds(oldId, newId);
+        const duplicateMatchData = await this.getDuplicatePlayerEntries(newId);
+
+        console.log(duplicateMatchData);
+
+        for(let i = 0; i < duplicateMatchData.length; i++){
+
+            const matchId = duplicateMatchData[i];
+
+            const rowsToDelete = await this.mergePlayerMatchData(matchId, newId);
+            await this.deletePlayerMatchRows(rowsToDelete);
+        }
     }
 
 

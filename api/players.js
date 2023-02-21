@@ -595,55 +595,42 @@ class Players{
     //first player gets merged into second
     async mergePlayers(first, second, matchManager, combogibManager){
 
-        first = parseInt(first);
-        second = parseInt(second);
+        try{
 
-        if(first !== first || second !== second){
+            first = parseInt(first);
+            second = parseInt(second);
+
+            if(first !== first || second !== second){
+                return false;
+            }
+
+            if(first === second) return false;
+
+            const names = await this.getNamesByIds([first, second]);
+
+            await matchManager.mergePlayerMatches(first, second);
+
+            const assaultManager = new Assault();
+            await assaultManager.changeCapDataPlayerId(first, second);
+
+            const ctfManager = new CTF();
+            await ctfManager.mergePlayers(first, second);
+
+            console.log(names);
+
+            return true;
+        }catch(err){
+            console.trace(err.toString());
             return false;
         }
-
-        if(first === second) return false;
-
-        const names = await this.getNamesByIds([first, second]);
-
-        const assaultManager = new Assault();
-        const changedAssaultInfo = await assaultManager.changeCapDataPlayerId(first, second);
-
-        const ctfManager = new CTF();
-
-        const changedCTFInfo = await ctfManager.mergePlayers(first, second);
-
-        console.log(names);
-
-        return true;
 
         /*try{    
 
 
-            const names = await this.getNamesByIds([first, second]);
-
-
             if(names.length > 1){
 
-                for(let i = 0; i < names.length; i++){
-
-                    if(names[i].id === first) first = names[i];
-                    if(names[i].id === second)  second = names[i];
-                    
-                }
-
-
+    
                 const matchIds = await matchManager.getAllPlayerMatchIds(first.id);
-
-                const assaultManager = new Assault();
-
-                await assaultManager.changeCapDataPlayerId(first.id, second.id);
-
-                const ctfManager = new CTF();
-
-                await ctfManager.changeCapEventPlayerIds(first.id, second.id, matchIds);
-
-                await ctfManager.changeEventPlayerId(first.id, second.id);
 
                 const domManager = new Domination();
 

@@ -2324,34 +2324,34 @@ class CTF{
     async recalculatePlayerBestAllTime(playerId){
 
         const query = `SELECT
-        MAX(flag_assist) as flag_assist,
-        MAX(flag_return) as flag_return,
-        MAX(flag_return_base) as flag_return_base,
-        MAX(flag_return_mid) as flag_return_mid,
-        MAX(flag_return_enemy_base) as flag_return_enemy_base,
-        MAX(flag_return_save) as flag_return_save,
-        MAX(flag_dropped) as flag_dropped,
-        MAX(flag_kill) as flag_kill,
-        MAX(flag_suicide) as flag_suicide,
-        MAX(flag_seal) as flag_seal,
-        MAX(flag_seal_pass) as flag_seal_pass,
-        MAX(flag_seal_fail) as flag_seal_fail,
-        MAX(best_single_seal) as best_single_seal,
-        MAX(flag_cover) as flag_cover,
-        MAX(flag_cover_pass) as flag_cover_pass,
-        MAX(flag_cover_fail) as flag_cover_fail,
-        MAX(flag_cover_multi) as flag_cover_multi,
-        MAX(flag_cover_spree) as flag_cover_spree,
-        MAX(best_single_cover) as best_single_cover,
-        MAX(flag_capture) as flag_capture,
-        MAX(flag_carry_time) as flag_carry_time,
-        MAX(flag_taken) as flag_taken,
-        MAX(flag_pickup) as flag_pickup,
-        MAX(flag_self_cover) as flag_self_cover,
-        MAX(flag_self_cover_pass) as flag_self_cover_pass,
-        MAX(flag_self_cover_fail) as flag_self_cover_fail,
-        MAX(best_single_self_cover) as best_single_self_cover,
-        MAX(flag_solo_capture) as flag_solo_capture
+        IFNULL(MAX(flag_assist), 0) as flag_assist,
+        IFNULL(MAX(flag_return), 0) as flag_return,
+        IFNULL(MAX(flag_return_base), 0) as flag_return_base,
+        IFNULL(MAX(flag_return_mid), 0) as flag_return_mid,
+        IFNULL(MAX(flag_return_enemy_base), 0) as flag_return_enemy_base,
+        IFNULL(MAX(flag_return_save), 0) as flag_return_save,
+        IFNULL(MAX(flag_dropped), 0) as flag_dropped,
+        IFNULL(MAX(flag_kill), 0) as flag_kill,
+        IFNULL(MAX(flag_suicide), 0) as flag_suicide,
+        IFNULL(MAX(flag_seal), 0) as flag_seal,
+        IFNULL(MAX(flag_seal_pass), 0) as flag_seal_pass,
+        IFNULL(MAX(flag_seal_fail), 0) as flag_seal_fail,
+        IFNULL(MAX(best_single_seal), 0) as best_single_seal,
+        IFNULL(MAX(flag_cover), 0) as flag_cover,
+        IFNULL(MAX(flag_cover_pass), 0) as flag_cover_pass,
+        IFNULL(MAX(flag_cover_fail), 0) as flag_cover_fail,
+        IFNULL(MAX(flag_cover_multi), 0) as flag_cover_multi,
+        IFNULL(MAX(flag_cover_spree), 0) as flag_cover_spree,
+        IFNULL(MAX(best_single_cover), 0) as best_single_cover,
+        IFNULL(MAX(flag_capture), 0) as flag_capture,
+        IFNULL(MAX(flag_carry_time), 0) as flag_carry_time,
+        IFNULL(MAX(flag_taken), 0) as flag_taken,
+        IFNULL(MAX(flag_pickup), 0) as flag_pickup,
+        IFNULL(MAX(flag_self_cover), 0) as flag_self_cover,
+        IFNULL(MAX(flag_self_cover_pass), 0) as flag_self_cover_pass,
+        IFNULL(MAX(flag_self_cover_fail), 0) as flag_self_cover_fail,
+        IFNULL(MAX(best_single_self_cover), 0) as best_single_self_cover,
+        IFNULL(MAX(flag_solo_capture), 0) as flag_solo_capture
         FROM nstats_player_ctf_match
         WHERE player_id=?`;
 
@@ -2369,34 +2369,34 @@ class CTF{
     async recalculatePlayerBest(playerId){
 
         const query = `SELECT
-        MAX(flag_assist) as flag_assist,
-        MAX(flag_return) as flag_return,
-        MAX(flag_return_base) as flag_return_base,
-        MAX(flag_return_mid) as flag_return_mid,
-        MAX(flag_return_enemy_base) as flag_return_enemy_base,
-        MAX(flag_return_save) as flag_return_save,
-        MAX(flag_dropped) as flag_dropped,
-        MAX(flag_kill) as flag_kill,
-        MAX(flag_suicide) as flag_suicide,
-        MAX(flag_seal) as flag_seal,
-        MAX(flag_seal_pass) as flag_seal_pass,
-        MAX(flag_seal_fail) as flag_seal_fail,
-        MAX(best_single_seal) as best_single_seal,
-        MAX(flag_cover) as flag_cover,
-        MAX(flag_cover_pass) as flag_cover_pass,
-        MAX(flag_cover_fail) as flag_cover_fail,
-        MAX(flag_cover_multi) as flag_cover_multi,
-        MAX(flag_cover_spree) as flag_cover_spree,
-        MAX(best_single_cover) as best_single_cover,
-        MAX(flag_capture) as flag_capture,
-        MAX(flag_carry_time) as flag_carry_time,
-        MAX(flag_taken) as flag_taken,
-        MAX(flag_pickup) as flag_pickup,
-        MAX(flag_self_cover) as flag_self_cover,
-        MAX(flag_self_cover_pass) as flag_self_cover_pass,
-        MAX(flag_self_cover_fail) as flag_self_cover_fail,
-        MAX(best_single_self_cover) as best_single_self_cover,
-        MAX(flag_solo_capture) as flag_solo_capture,
+        IFNULL(MAX(flag_assist), 0) as flag_assist,
+        IFNULL(MAX(flag_return), 0) as flag_return,
+        IFNULL(MAX(flag_return_base), 0) as flag_return_base,
+        IFNULL(MAX(flag_return_mid), 0) as flag_return_mid,
+        IFNULL(MAX(flag_return_enemy_base), 0) as flag_return_enemy_base,
+        IFNULL(MAX(flag_return_save), 0) as flag_return_save,
+        IFNULL(MAX(flag_dropped), 0) as flag_dropped,
+        IFNULL(MAX(flag_kill), 0) as flag_kill,
+        IFNULL(MAX(flag_suicide), 0) as flag_suicide,
+        IFNULL(MAX(flag_seal), 0) as flag_seal,
+        IFNULL(MAX(flag_seal_pass), 0) as flag_seal_pass,
+        IFNULL(MAX(flag_seal_fail), 0) as flag_seal_fail,
+        IFNULL(MAX(best_single_seal), 0) as best_single_seal,
+        IFNULL(MAX(flag_cover), 0) as flag_cover,
+        IFNULL(MAX(flag_cover_pass), 0) as flag_cover_pass,
+        IFNULL(MAX(flag_cover_fail), 0) as flag_cover_fail,
+        IFNULL(MAX(flag_cover_multi), 0) as flag_cover_multi,
+        IFNULL(MAX(flag_cover_spree), 0) as flag_cover_spree,
+        IFNULL(MAX(best_single_cover), 0) as best_single_cover,
+        IFNULL(MAX(flag_capture), 0) as flag_capture,
+        IFNULL(MAX(flag_carry_time), 0) as flag_carry_time,
+        IFNULL(MAX(flag_taken), 0) as flag_taken,
+        IFNULL(MAX(flag_pickup), 0) as flag_pickup,
+        IFNULL(MAX(flag_self_cover), 0) as flag_self_cover,
+        IFNULL(MAX(flag_self_cover_pass), 0) as flag_self_cover_pass,
+        IFNULL(MAX(flag_self_cover_fail), 0) as flag_self_cover_fail,
+        IFNULL(MAX(best_single_self_cover), 0) as best_single_self_cover,
+        IFNULL(MAX(flag_solo_capture), 0) as flag_solo_capture,
         gametype_id
         FROM nstats_player_ctf_match
         WHERE player_id=? GROUP BY gametype_id`;
@@ -2445,33 +2445,33 @@ class CTF{
     async recalculatePlayerBestLifeAllTime(playerId){
 
         const query = `SELECT
-        MAX(flag_assist_best) as flag_assist,
-        MAX(flag_return_best) as flag_return,
-        MAX(flag_return_base_best) as flag_return_base,
-        MAX(flag_return_mid_best) as flag_return_mid,
-        MAX(flag_return_enemy_base_best) as flag_return_enemy_base,
-        MAX(flag_return_save_best) as flag_return_save,
-        MAX(flag_dropped_best) as flag_dropped,
-        MAX(flag_kill_best) as flag_kill,
-        MAX(flag_seal_best) as flag_seal,
-        MAX(flag_seal_pass_best) as flag_seal_pass,
-        MAX(flag_seal_fail_best) as flag_seal_fail,
-        MAX(best_single_seal) as best_single_seal,
-        MAX(flag_cover_best) as flag_cover,
-        MAX(flag_cover_pass_best) as flag_cover_pass,
-        MAX(flag_cover_fail_best) as flag_cover_fail,
-        MAX(flag_cover_multi_best) as flag_cover_multi,
-        MAX(flag_cover_spree_best) as flag_cover_spree,
-        MAX(best_single_cover) as best_single_cover,
-        MAX(flag_capture_best) as flag_capture,
-        MAX(flag_carry_time_best) as flag_carry_time,
-        MAX(flag_taken_best) as flag_taken,
-        MAX(flag_pickup_best) as flag_pickup,
-        MAX(flag_self_cover_best) as flag_self_cover,
-        MAX(flag_self_cover_pass_best) as flag_self_cover_pass,
-        MAX(flag_self_cover_fail_best) as flag_self_cover_fail,
-        MAX(best_single_self_cover) as best_single_self_cover,
-        MAX(flag_solo_capture_best) as flag_solo_capture
+        IFNULL(MAX(flag_assist_best), 0) as flag_assist,
+        IFNULL(MAX(flag_return_best), 0) as flag_return,
+        IFNULL(MAX(flag_return_base_best), 0) as flag_return_base,
+        IFNULL(MAX(flag_return_mid_best), 0) as flag_return_mid,
+        IFNULL(MAX(flag_return_enemy_base_best), 0) as flag_return_enemy_base,
+        IFNULL(MAX(flag_return_save_best), 0) as flag_return_save,
+        IFNULL(MAX(flag_dropped_best), 0) as flag_dropped,
+        IFNULL(MAX(flag_kill_best), 0) as flag_kill,
+        IFNULL(MAX(flag_seal_best), 0) as flag_seal,
+        IFNULL(MAX(flag_seal_pass_best), 0) as flag_seal_pass,
+        IFNULL(MAX(flag_seal_fail_best), 0) as flag_seal_fail,
+        IFNULL(MAX(best_single_seal), 0) as best_single_seal,
+        IFNULL(MAX(flag_cover_best), 0) as flag_cover,
+        IFNULL(MAX(flag_cover_pass_best), 0) as flag_cover_pass,
+        IFNULL(MAX(flag_cover_fail_best), 0) as flag_cover_fail,
+        IFNULL(MAX(flag_cover_multi_best), 0) as flag_cover_multi,
+        IFNULL(MAX(flag_cover_spree_best), 0) as flag_cover_spree,
+        IFNULL(MAX(best_single_cover), 0) as best_single_cover,
+        IFNULL(MAX(flag_capture_best), 0) as flag_capture,
+        IFNULL(MAX(flag_carry_time_best), 0) as flag_carry_time,
+        IFNULL(MAX(flag_taken_best), 0) as flag_taken,
+        IFNULL(MAX(flag_pickup_best), 0) as flag_pickup,
+        IFNULL(MAX(flag_self_cover_best), 0) as flag_self_cover,
+        IFNULL(MAX(flag_self_cover_pass_best), 0) as flag_self_cover_pass,
+        IFNULL(MAX(flag_self_cover_fail_best), 0) as flag_self_cover_fail,
+        IFNULL(MAX(best_single_self_cover), 0) as best_single_self_cover,
+        IFNULL(MAX(flag_solo_capture_best), 0) as flag_solo_capture
         FROM nstats_player_ctf_match
         WHERE player_id=?`;
 
@@ -2490,33 +2490,33 @@ class CTF{
     async recalculatePlayerBestLife(playerId){
 
         const query = `SELECT
-        MAX(flag_assist_best) as flag_assist,
-        MAX(flag_return_best) as flag_return,
-        MAX(flag_return_base_best) as flag_return_base,
-        MAX(flag_return_mid_best) as flag_return_mid,
-        MAX(flag_return_enemy_base_best) as flag_return_enemy_base,
-        MAX(flag_return_save_best) as flag_return_save,
-        MAX(flag_dropped_best) as flag_dropped,
-        MAX(flag_kill_best) as flag_kill,
-        MAX(flag_seal_best) as flag_seal,
-        MAX(flag_seal_pass_best) as flag_seal_pass,
-        MAX(flag_seal_fail_best) as flag_seal_fail,
-        MAX(best_single_seal) as best_single_seal,
-        MAX(flag_cover_best) as flag_cover,
-        MAX(flag_cover_pass_best) as flag_cover_pass,
-        MAX(flag_cover_fail_best) as flag_cover_fail,
-        MAX(flag_cover_multi_best) as flag_cover_multi,
-        MAX(flag_cover_spree_best) as flag_cover_spree,
-        MAX(best_single_cover) as best_single_cover,
-        MAX(flag_capture_best) as flag_capture,
-        MAX(flag_carry_time_best) as flag_carry_time,
-        MAX(flag_taken_best) as flag_taken,
-        MAX(flag_pickup_best) as flag_pickup,
-        MAX(flag_self_cover_best) as flag_self_cover,
-        MAX(flag_self_cover_pass_best) as flag_self_cover_pass,
-        MAX(flag_self_cover_fail_best) as flag_self_cover_fail,
-        MAX(best_single_self_cover) as best_single_self_cover,
-        MAX(flag_solo_capture_best) as flag_solo_capture,
+        IFNULL(MAX(flag_assist_best), 0) as flag_assist,
+        IFNULL(MAX(flag_return_best), 0) as flag_return,
+        IFNULL(MAX(flag_return_base_best), 0) as flag_return_base,
+        IFNULL(MAX(flag_return_mid_best), 0) as flag_return_mid,
+        IFNULL(MAX(flag_return_enemy_base_best), 0) as flag_return_enemy_base,
+        IFNULL(MAX(flag_return_save_best), 0) as flag_return_save,
+        IFNULL(MAX(flag_dropped_best), 0) as flag_dropped,
+        IFNULL(MAX(flag_kill_best), 0) as flag_kill,
+        IFNULL(MAX(flag_seal_best), 0) as flag_seal,
+        IFNULL(MAX(flag_seal_pass_best), 0) as flag_seal_pass,
+        IFNULL(MAX(flag_seal_fail_best), 0) as flag_seal_fail,
+        IFNULL(MAX(best_single_seal), 0) as best_single_seal,
+        IFNULL(MAX(flag_cover_best), 0) as flag_cover,
+        IFNULL(MAX(flag_cover_pass_best), 0) as flag_cover_pass,
+        IFNULL(MAX(flag_cover_fail_best), 0) as flag_cover_fail,
+        IFNULL(MAX(flag_cover_multi_best), 0) as flag_cover_multi,
+        IFNULL(MAX(flag_cover_spree_best), 0) as flag_cover_spree,
+        IFNULL(MAX(best_single_cover), 0) as best_single_cover,
+        IFNULL(MAX(flag_capture_best), 0) as flag_capture,
+        IFNULL(MAX(flag_carry_time_best), 0) as flag_carry_time,
+        IFNULL(MAX(flag_taken_best), 0) as flag_taken,
+        IFNULL(MAX(flag_pickup_best), 0) as flag_pickup,
+        IFNULL(MAX(flag_self_cover_best), 0) as flag_self_cover,
+        IFNULL(MAX(flag_self_cover_pass_best), 0) as flag_self_cover_pass,
+        IFNULL(MAX(flag_self_cover_fail_best), 0) as flag_self_cover_fail,
+        IFNULL(MAX(best_single_self_cover), 0) as best_single_self_cover,
+        IFNULL(MAX(flag_solo_capture_best), 0) as flag_solo_capture,
         gametype_id
         FROM nstats_player_ctf_match
         WHERE player_id=? GROUP BY gametype_id`;
@@ -2572,35 +2572,35 @@ class CTF{
 
         const query = `SELECT
         COUNT(*) as total_matches,
-        SUM(playtime) as playtime,
-        SUM(flag_assist) as flag_assist,
-        SUM(flag_return) as flag_return,
-        SUM(flag_return_base) as flag_return_base,
-        SUM(flag_return_mid) as flag_return_mid,
-        SUM(flag_return_enemy_base) as flag_return_enemy_base,
-        SUM(flag_return_save) as flag_return_save,
-        SUM(flag_dropped) as flag_dropped,
-        SUM(flag_kill) as flag_kill,
-        SUM(flag_suicide) as flag_suicide,
-        SUM(flag_seal) as flag_seal,
-        SUM(flag_seal_pass) as flag_seal_pass,
-        SUM(flag_seal_fail) as flag_seal_fail,
-        MAX(best_single_seal) as best_single_seal,
-        SUM(flag_cover) as flag_cover,
-        SUM(flag_cover_pass) as flag_cover_pass,
-        SUM(flag_cover_fail) as flag_cover_fail,
-        SUM(flag_cover_multi) as flag_cover_multi,
-        SUM(flag_cover_spree) as flag_cover_spree,
-        MAX(best_single_cover) as best_single_cover,
-        SUM(flag_capture) as flag_capture,
-        SUM(flag_carry_time) as flag_carry_time,
-        SUM(flag_taken) as flag_taken,
-        SUM(flag_pickup) as flag_pickup,
-        SUM(flag_self_cover) as flag_self_cover,
-        SUM(flag_self_cover_pass) as flag_self_cover_pass,
-        SUM(flag_self_cover_fail) as flag_self_cover_fail,
-        MAX(best_single_self_cover) as best_single_self_cover,
-        SUM(flag_solo_capture) as flag_solo_capture
+        IFNULL(SUM(playtime), 0) as playtime,
+        IFNULL(SUM(flag_assist), 0) as flag_assist,
+        IFNULL(SUM(flag_return), 0) as flag_return,
+        IFNULL(SUM(flag_return_base), 0) as flag_return_base,
+        IFNULL(SUM(flag_return_mid), 0) as flag_return_mid,
+        IFNULL(SUM(flag_return_enemy_base), 0) as flag_return_enemy_base,
+        IFNULL(SUM(flag_return_save), 0) as flag_return_save,
+        IFNULL(SUM(flag_dropped), 0) as flag_dropped,
+        IFNULL(SUM(flag_kill), 0) as flag_kill,
+        IFNULL(SUM(flag_suicide), 0) as flag_suicide,
+        IFNULL(SUM(flag_seal), 0) as flag_seal,
+        IFNULL(SUM(flag_seal_pass), 0) as flag_seal_pass,
+        IFNULL(SUM(flag_seal_fail), 0) as flag_seal_fail,
+        IFNULL(MAX(best_single_seal), 0) as best_single_seal,
+        IFNULL(SUM(flag_cover), 0) as flag_cover,
+        IFNULL(SUM(flag_cover_pass), 0) as flag_cover_pass,
+        IFNULL(SUM(flag_cover_fail), 0) as flag_cover_fail,
+        IFNULL(SUM(flag_cover_multi), 0) as flag_cover_multi,
+        IFNULL(SUM(flag_cover_spree), 0) as flag_cover_spree,
+        IFNULL(MAX(best_single_cover), 0) as best_single_cover,
+        IFNULL(SUM(flag_capture), 0) as flag_capture,
+        IFNULL(SUM(flag_carry_time), 0) as flag_carry_time,
+        IFNULL(SUM(flag_taken), 0) as flag_taken,
+        IFNULL(SUM(flag_pickup), 0) as flag_pickup,
+        IFNULL(SUM(flag_self_cover), 0) as flag_self_cover,
+        IFNULL(SUM(flag_self_cover_pass), 0) as flag_self_cover_pass,
+        IFNULL(SUM(flag_self_cover_fail), 0) as flag_self_cover_fail,
+        IFNULL(MAX(best_single_self_cover), 0) as best_single_self_cover,
+        IFNULL(SUM(flag_solo_capture), 0) as flag_solo_capture
         FROM nstats_player_ctf_match
         WHERE player_id=?`
 
@@ -2668,33 +2668,177 @@ class CTF{
         await this.recalculatePlayerTotalsAllTime(newId);
     }
 
+
+    async getDuplicatePlayerMatchIds(playerId){
+
+        const query = `SELECT COUNT(*) as total_entries, match_id FROM nstats_player_ctf_match WHERE player_id=? GROUP BY match_id ORDER BY total_entries DESC`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        const duplicateIds = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            if(r.total_entries < 2) break;
+            
+            duplicateIds.push(r.match_id);
+        }
+
+        return duplicateIds;
+    }
+
+    async getPlayerMatchDataDuplicate(matchId, playerId){
+
+        const query = `SELECT match_id,gametype_id,server_id,map_id,match_date,
+        SUM(playtime) as playtime,
+        SUM(flag_assist) as flag_assist,
+        MAX(flag_assist_best) as flag_assist_best,
+        SUM(flag_return) as flag_return,
+        MAX(flag_return_best) as flag_return_best,
+        SUM(flag_return_base) as flag_return_base,
+        MAX(flag_return_base_best) as flag_return_base_best,
+        SUM(flag_return_mid) as flag_return_mid,
+        MAX(flag_return_mid_best) as flag_return_mid_best,
+        SUM(flag_return_enemy_base) as flag_return_enemy_base,
+        MAX(flag_return_enemy_base_best) as flag_return_enemy_base_best,
+        SUM(flag_return_save) as flag_return_save,
+        MAX(flag_return_save_best) as flag_return_save_best,
+        SUM(flag_dropped) as flag_dropped,
+        MAX(flag_dropped_best) as flag_dropped_best,
+        SUM(flag_kill) as flag_kill,
+        MAX(flag_kill_best) as flag_kill_best,
+        SUM(flag_suicide) as flag_suicide,
+        SUM(flag_seal) as flag_seal,
+        MAX(flag_seal_best) as flag_seal_best,
+        SUM(flag_seal_pass) as flag_seal_pass,
+        MAX(flag_seal_pass_best) as flag_seal_pass_best,
+        SUM(flag_seal_fail) as flag_seal_fail,
+        MAX(flag_seal_fail_best) as flag_seal_fail_best,
+        MAX(best_single_seal) as best_single_seal,
+        SUM(flag_cover) as flag_cover,
+        MAX(flag_cover_best) as flag_cover_best,
+        SUM(flag_cover_pass) as flag_cover_pass,
+        MAX(flag_cover_pass_best) as flag_cover_pass_best,
+        SUM(flag_cover_fail) as flag_cover_fail,
+        MAX(flag_cover_fail_best) as flag_cover_fail_best,
+        SUM(flag_cover_multi) as flag_cover_multi,
+        MAX(flag_cover_multi_best) as flag_cover_multi_best,
+        SUM(flag_cover_spree) as flag_cover_spree,
+        MAX(flag_cover_spree_best) as flag_cover_spree_best,
+        MAX(best_single_cover) as best_single_cover,
+        SUM(flag_capture) as flag_capture,
+        MAX(flag_capture_best) as flag_capture_best,
+        SUM(flag_carry_time) as flag_carry_time,
+        MAX(flag_carry_time_best) as flag_carry_time_best,
+        SUM(flag_taken) as flag_taken,
+        MAX(flag_taken_best) as flag_taken_best,
+        SUM(flag_pickup) as flag_pickup,
+        MAX(flag_pickup_best) as flag_pickup_best,
+        SUM(flag_self_cover) as flag_self_cover,
+        MAX(flag_self_cover_best) as flag_self_cover_best,
+        SUM(flag_self_cover_pass) as flag_self_cover_pass,
+        MAX(flag_self_cover_pass_best) as flag_self_cover_pass_best,
+        SUM(flag_self_cover_fail) as flag_self_cover_fail,
+        MAX(flag_self_cover_fail_best) as flag_self_cover_fail_best,
+        MAX(best_single_self_cover) as best_single_self_cover,
+        SUM(flag_solo_capture) as flag_solo_capture,
+        MAX(flag_solo_capture_best) as flag_solo_capture_best
+        FROM nstats_player_ctf_match
+        WHERE player_id=? AND match_id=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
+
+    async deletePlayerMatchData(matchId, playerId){
+
+        const query = `DELETE FROM nstats_player_ctf_match WHERE match_id=? AND player_id=?`;
+
+        return await mysql.simpleQuery(query, [matchId, playerId]);
+    }
+
+    async insertPlayerMatchDataFromMerge(matchId, playerId, data){
+
+        const query = `INSERT INTO nstats_player_ctf_match VALUES(NULL,?,?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,
+            ?,?,?,?)`;
+
+        const d = data;
+
+        const vars = [
+            playerId, matchId, d.gametype_id, d.server_id, d.map_id, d.match_date,
+            d.playtime, d.flag_assist, d.flag_assist_best, d.flag_return, d.flag_return_best,
+            d.flag_return_base, d.flag_return_base_best, d.flag_return_mid, d.flag_return_mid_best,
+            d.flag_return_enemy_base, d.flag_return_enemy_base_best, d.flag_return_save, d.flag_return_save_best,
+            d.flag_dropped, d.flag_dropped_best, d.flag_kill, d.flag_kill_best, d.flag_suicide,
+            d.flag_seal, d.flag_seal_best, d.flag_seal_pass, d.flag_seal_pass_best,
+            d.flag_seal_fail, d.flag_seal_fail_best, d.best_single_seal,
+            d.flag_cover, d.flag_cover_best, d.flag_cover_pass, d.flag_cover_pass_best,
+            d.flag_cover_fail, d.flag_cover_fail_best,  d.flag_cover_multi, d.flag_cover_multi_best,
+            d.flag_cover_spree, d.flag_cover_spree_best, d.best_single_cover,
+            d.flag_capture, d.flag_capture_best, d.flag_carry_time, d.flag_carry_time_best,
+            d.flag_taken, d.flag_taken_best, d.flag_pickup, d.flag_pickup_best, d.flag_self_cover,
+            d.flag_self_cover_best, d.flag_self_cover_pass, d.flag_self_cover_pass_best,
+            d.flag_self_cover_fail, d.flag_self_cover_fail_best, d.best_single_self_cover,
+            d.flag_solo_capture, d.flag_solo_capture_best
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async mergePlayerMatchData(oldId, newId){
+
+        const query = `UPDATE nstats_player_ctf_match SET player_id=? WHERE player_id=?`;
+        await mysql.simpleQuery(query, [newId, oldId]);
+
+        const duplicateMatchIds = await this.getDuplicatePlayerMatchIds(newId);
+
+        for(let i = 0; i < duplicateMatchIds.length; i++){
+
+            const d = duplicateMatchIds[i];
+
+            const mergedData = await this.getPlayerMatchDataDuplicate(d, newId);
+
+            await this.deletePlayerMatchData(d, newId);
+            await this.insertPlayerMatchDataFromMerge(d, newId, mergedData);
+        }
+    }
+
+
     async mergePlayers(oldId, newId){
 
-        try{
+        await this.changeAssistPlayerIds(oldId, newId);
+        await this.changeCapPlayerIds(oldId, newId);
+        await this.changeCarryPlayerIds(oldId, newId);
+        await this.changeCoverPlayerIds(oldId, newId);
+        await this.changeCapReturnKillPlayerIds(oldId, newId);
+        await this.changeEventPlayerIds(oldId, newId);
+        await this.changeFlagDeathPlayerIds(oldId, newId);
+        await this.changeFlagDropPlayerIds(oldId, newId);
+        await this.changeFlagDeathPlayerIds(oldId, newId);
+        await this.changeReturnPlayerIds(oldId, newId);
+        await this.changeFlagSealsPlayerIds(oldId, newId);
+        await this.changeFlagSelfCoversPlayerIds(oldId, newId);
+        await this.mergePlayerMatchData(oldId, newId);
+        await this.mergePlayerBest(oldId, newId);
+        await this.mergePlayerBestLife(oldId, newId);
+        await this.recalculatePlayerTotals(oldId, newId);
 
-            const changedAssists = await this.changeAssistPlayerIds(oldId, newId);
-            const changedCaps = await this.changeCapPlayerIds(oldId, newId);
-            const changedCarry = await this.changeCarryPlayerIds(oldId, newId);
-            const changedCovers = await this.changeCoverPlayerIds(oldId, newId);
-            const changedCapReturnKills = await this.changeCapReturnKillPlayerIds(oldId, newId);
-            const changedEvents = await this.changeEventPlayerIds(oldId, newId);
-            const changedFlagDeaths = await this.changeFlagDeathPlayerIds(oldId, newId);
-            const changedFlagDrops = await this.changeFlagDropPlayerIds(oldId, newId);
-            const changedFlagPickups = await this.changeFlagDeathPlayerIds(oldId, newId);
-            const changedReturns = await this.changeReturnPlayerIds(oldId, newId);
-            const changedSeals = await this.changeFlagSealsPlayerIds(oldId, newId);
-            const changedSelfCovers = await this.changeFlagSelfCoversPlayerIds(oldId, newId);
-
-
-            //need to merge player match data here
-
-            await this.mergePlayerBest(oldId, newId);
-            await this.mergePlayerBestLife(oldId, newId);
-
-            await this.recalculatePlayerTotals(oldId, newId);
-        }catch(err){
-            console.trace(err);
-        }
     }
 
 }
