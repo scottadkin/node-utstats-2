@@ -322,7 +322,7 @@ function setPlayerHWID(int PlayerIndex, string HWID){
 
 	local int PlayerId;
 
-	if(nPlayers[PlayerIndex].HWID == ""){
+	if(nPlayers[PlayerIndex].HWID == "" && HWID != ""){
 	
 		nPlayers[PlayerIndex].HWID = HWID;	
 		PlayerId = nPlayers[PlayerIndex].id; 	
@@ -332,15 +332,40 @@ function setPlayerHWID(int PlayerIndex, string HWID){
 }
 
 
-function checkPlayerHWID(){
+function checkPlayerHWID(int TargetPlayerIndex){
 	
-	local Actor test;
+	local Actor ACEActor;
 	local string HWID;
 	local int PlayerId;
-	local int TargetPlayerIndex;	
+	//local int TargetPlayerIndex;	
+	local nPlayer TargetPlayer;
 	
 	
-	foreach AllActors(class'Actor', test){
+	//TargetPlayerIndex = getPlayerIndexById(PlayerId);
+	
+	if(TargetPlayerIndex == -1) return;
+	
+	TargetPlayer = nPlayers[TargetPlayerIndex];
+	
+	//HWID already set
+	if(TargetPlayer.HWID != "") return;
+	
+	foreach AllActors(class'Actor', ACEActor){
+	
+		if(ACEActor.IsA('IACECheck')){
+		
+			PlayerId = int(ACEActor.GetPropertyText("PlayerId"));
+			if(TargetPlayer.id == PlayerId){
+				
+				HWID = ACEActor.GetPropertyText("HWHash");
+				
+				setPlayerHWID(PlayerId, HWID);
+			}
+		}
+	}
+	
+	
+	/*foreach AllActors(class'Actor', test){
 	
 		if(test.IsA('IACECheck')){
 		
@@ -350,14 +375,14 @@ function checkPlayerHWID(){
 				PlayerId = int(test.GetPropertyText("PlayerId"));								TargetPlayerIndex = getPlayerIndexById(PlayerId);								if(TargetPlayerIndex != -1){									setPlayerHWID(TargetPlayerIndex, HWID);				}
 			}
 		}
-	}
+	}*/
 }
 
 
 
 function Timer(){
 
-	if(bLogACEPlayerHWID){
+	/*if(bLogACEPlayerHWID){
 		checkPlayerHWID();
 	}
 	
@@ -366,7 +391,9 @@ function Timer(){
 		TicksSinceLastScoreLog = 0;
 	}
 	
-	TicksSinceLastScoreLog++;
+	TicksSinceLastScoreLog++;*/
+	
+	LogPlayerScores();
 	
 }
 
@@ -414,7 +441,7 @@ function PostBeginPlay(){
 		nPlayers[i].lastSpawnTime = -1;
 	}
 	
-	setTimer(1.0, True);
+	setTimer(15.0, True);
 		
 }
 
@@ -610,7 +637,11 @@ function ModifyPlayer(Pawn Other){
 		}	
 	
 		if(currentPID != -1){
+		
 			updateSpawnInfo(currentPID);
+			
+			if(bLogACEPlayerHWID){
+				checkPlayerHWID(currentPID);			}
 		}
 	}
 
