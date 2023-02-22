@@ -348,15 +348,13 @@ class PlayerManager{
 
             let result = reg.exec(d);
             
-            //console.log(result);
-
             if(result !== null){
 
                 const timestamp = parseFloat(result[1]);
                 const type = result[2].toLowerCase();
                 
 
-                if(type === 'face' || type === 'voice' || type === 'netspeed'){
+                if(type === 'face' || type === 'voice' || type === 'netspeed' || type === "hwid"){
                     this.setPlayerFeature(d);
                 }else{
 
@@ -364,6 +362,7 @@ class PlayerManager{
 
 
                     if(result !== null){
+                        
 
                         if(type !== 'spawn_loc' && type !== 'spawn_point' && type !== 'p_s'){
 
@@ -512,7 +511,7 @@ class PlayerManager{
 
     setPlayerFeature(string){
 
-        let reg = /^\d+\.\d+\tnstats\t(.+?)\t(.+?)\t(.+)$/i;
+        const reg = /^\d+\.\d+\tnstats\t(.+?)\t(.+?)\t(.+)$/i;
 
         const result = reg.exec(string);
 
@@ -524,19 +523,19 @@ class PlayerManager{
 
             const value = result[3].toLowerCase();
 
-            if(player !== null){
-
-                if(type === 'face'){
-                    player.setFace(value);
-                }else if(type === 'voice'){
-                    player.setVoice(value);
-                }else if(type === 'netspeed'){
-                    player.setNetspeed(value);
-                }
-
-
-            }else{
+            if(player === null){
                 new Message(`Player with the id of ${result[2]} does not exist(setFace).`,'warning');
+                return;
+            }
+
+            if(type === 'face'){
+                player.setFace(value);
+            }else if(type === 'voice'){
+                player.setVoice(value);
+            }else if(type === 'netspeed'){
+                player.setNetspeed(value);
+            }else if(type === "hwid"){
+                player.setHWID(value);
             }
         }
     }

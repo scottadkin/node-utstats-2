@@ -244,7 +244,7 @@ class Player{
 
         const query = `INSERT INTO nstats_player_matches VALUES(
             NULL,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,0,0,0,
@@ -262,6 +262,7 @@ class Player{
             matchDate,
             mapId,
             player.masterId,
+            player.HWID,
             player.bBot,
             (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
             (player.stats.time_on_server === 0) ? 0 : 1,//player.bPlayedInMatch,

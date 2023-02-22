@@ -15,6 +15,7 @@ class PlayerInfo{
         this.bSpectator = (bSpectator === undefined) ? false : bSpectator;
         this.face = 0;
         this.faceId = 0;
+        this.HWID = "";
 
         this.bPlayedInMatch = !this.bSpectator;
 
@@ -342,6 +343,10 @@ class PlayerInfo{
                 "id": id
             });
         }
+    }
+
+    setHWID(HWID){
+        this.HWID = HWID;
     }
 
     setAsBot(){

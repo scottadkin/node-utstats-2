@@ -419,7 +419,6 @@ class MatchManager{
             new Message("Updating player rankings.","note");
             await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
 
-
             await Logs.setMatchId(logId, this.matchId);
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
@@ -599,7 +598,8 @@ class MatchManager{
             "first_blood",
             "spawn_loc",
             "spawn_point",
-            "p_s"
+            "p_s",
+            "hwid"
         ];
 
         const assaultTypes = [

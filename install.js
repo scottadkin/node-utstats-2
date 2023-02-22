@@ -555,6 +555,7 @@ const queries = [
         match_date int(11) NOT NULL,
         map_id int(11) NOT NULL,
         player_id int(11) NOT NULL,
+        hwid varchar(32) NOT NULL,
         bot tinyint(1) NOT NULL,
         spectator tinyint(1) NOT NULL,
         played tinyint(1) NOT NULL,
