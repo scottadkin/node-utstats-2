@@ -345,13 +345,9 @@ function checkPlayerHWID(){
 		if(test.IsA('IACECheck')){
 		
 			HWID = test.GetPropertyText("HWHash");
-			PlayerId = int(test.GetPropertyText("PlayerId"));
 			
-			TargetPlayerIndex = getPlayerIndexById(PlayerId);
-			
-			if(TargetPlayerIndex != -1){
-			
-				setPlayerHWID(TargetPlayerIndex, HWID);
+			if(HWID != ""){
+				PlayerId = int(test.GetPropertyText("PlayerId"));								TargetPlayerIndex = getPlayerIndexById(PlayerId);								if(TargetPlayerIndex != -1){									setPlayerHWID(TargetPlayerIndex, HWID);				}
 			}
 		}
 	}
