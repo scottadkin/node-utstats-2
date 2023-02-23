@@ -19,21 +19,18 @@ class WeaponsManager{
 
         const nameReg = /^\d+\.\d+\tweap_.+?\t(.+?)\t.+$/i;
 
-        let d = 0;
-        let result = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
             if(nameReg.test(d)){
 
-                result = nameReg.exec(d);
+                const result = nameReg.exec(d);
 
                 if(this.names.indexOf(result[1]) === -1){
                     this.names.push(result[1]);
                 }
-
             }
         }
     }
@@ -57,6 +54,7 @@ class WeaponsManager{
             for(let i = 0; i < playerManager.players.length; i++){
 
                 const p = playerManager.players[i];
+                
 
                 for(const [key, value] of p.weaponStats.entries()){
    

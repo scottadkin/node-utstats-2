@@ -40,29 +40,59 @@ class WeaponStats{
         this.updateEfficiency();
     }
 
+    updateAccuracy(){
+
+        const shots = this.shots;
+        const hits = this.hits;
+
+        if(hits > 0 && shots === 0){
+            this.accuracy = 100;
+            return;
+        }
+
+        if(shots > 0){
+
+            if(hits > 0){
+                this.accuracy = (this.hits / (this.shots)) * 100;
+                return;
+            }
+        }
+
+        this.accuracy = 0;
+    }
+
     setValue(type, value){
 
         type = type.toLowerCase();
 
         if(type === 'accuracy'){
+
             value = parseFloat(value);
+
         }else if(type === 'shotcount'){
+
             type = 'shots';
             value = parseInt(value);
+            this[type] += value;
+
         }else if(type === 'hitcount'){
+
             type = 'hits';
             value = parseInt(value);
+            this[type] += value;
+
         }else if(type === 'damagegiven'){
+
             type = 'damage';
             value = parseInt(value);
+            this[type] += value;
         }
 
-        this[type] = value;
+
+        if(type === "shots" || type === "hits"){
+            this.updateAccuracy();
+        }
     }
-
-
-
-
 }
 
 module.exports = WeaponStats;

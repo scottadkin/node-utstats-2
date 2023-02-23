@@ -151,7 +151,7 @@ class PlayerManager{
         oldName = oldName.toLowerCase();
         newName = newName.toLowerCase();
 
-        console.log(`ranem player ${oldName} to ${newName} **************************`);
+        new Message(`Rename player ${oldName} to ${newName} `,"note");
 
         for(const [playerId, playerName] of Object.entries(this.idsToNames)){
 
@@ -166,7 +166,7 @@ class PlayerManager{
 
         const hwid = this.HWIDS[playerId] ?? "";
 
-        console.log(`playerId = ${playerId}, hwid = ${hwid} name = ${playerName}`);
+        //console.log(`playerId = ${playerId}, hwid = ${hwid} name = ${playerName}`);
 
         if(this.bUsePlayerACEHWID && hwid !== ""){
 
@@ -178,7 +178,6 @@ class PlayerManager{
                 testPlayer.name = playerName;
                 testPlayer.connect(timestamp, false);
 
-                new Message(`Player already added`,"error");
                 return testPlayer;
             }
         }
@@ -892,18 +891,22 @@ class PlayerManager{
 
             if(result !== null){
 
-                const player = this.getPlayerById(parseInt(result[4]));
+                const timestamp = parseFloat(result[1]);
+                const statType = result[2];
+                const weaponName = result[3];
+                const playerId = parseInt(result[4]);
+                const value = result[5];
+
+                const player = this.getPlayerById(playerId);
 
                 if(player !== null){
 
-                    if(this.bIgnoreBots){
-                        if(player.bBot) continue;
-                    }
+                    if(this.bIgnoreBots && player.bBot) continue;
 
-                    player.setWeaponStat(result[3], result[2], result[5]);
+                    player.setWeaponStat(weaponName, statType, value);
 
                 }else{
-                    new Message(`Player with id ${result[4]} does not exist.`,'warning');
+                    new Message(`Player with id ${playerId} does not exist.`,'warning');
                 }
 
                 //console.log(result);
@@ -935,8 +938,6 @@ class PlayerManager{
                 }
 
                 const playtime = p.getTotalPlaytime(totalTeams);
-
-                console.log(`updateFrags ${p.name}, ${p.masterId} ${p.gametypeId}`);
 
                 //update combined gametypes totals
                 await Player.updateFrags(

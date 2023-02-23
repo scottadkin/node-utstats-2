@@ -578,15 +578,22 @@ class PlayerInfo{
     }
 
     setWeaponStat(weapon, type, value){
+        
+        const floats = ["accuracy", "efficiency"];
 
+        if(floats.indexOf(type) !== -1){
+            value = parseFloat(value);
+        }else{
+            value = parseInt(value);
+        }
 
         if(this.weaponStats.has(weapon)){
 
             const stats = this.weaponStats.get(weapon);
-
             stats.setValue(type, value);
 
         }else{
+     
 
             this.weaponStats.set(weapon, new WeaponStats(weapon));
             const stats = this.weaponStats.get(weapon);

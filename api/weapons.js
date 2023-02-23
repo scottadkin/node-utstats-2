@@ -331,7 +331,7 @@ class Weapons{
             if(weaponIds.length > 0){
                 weaponNames = await this.getNamesByIds(weaponIds);
             }
-
+            
             return {
                 "names": weaponNames,
                 "playerData": playerData

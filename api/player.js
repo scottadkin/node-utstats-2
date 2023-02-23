@@ -95,14 +95,22 @@ class Player{
         return {"masterId": masterId, "gametypeId": gametypeMasterId};
     }
 
+    async updatePlayerNameHWID(hwid, playerName){
 
-    async getHWIDMasterId(hwid){
+        const query = "UPDATE nstats_player_totals SET name=? WHERE hwid=?";
+        return await mysql.simpleQuery(query, [playerName, hwid]);
+    }
+
+
+    async getHWIDMasterId(hwid, playerName){
 
         const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=0`;
 
         const result = await mysql.simpleQuery(query, [hwid]);
 
         if(result.length === 0) return null;
+
+        await this.updatePlayerNameHWID(hwid, playerName);
 
         return result[0].id;
     }
@@ -122,7 +130,7 @@ class Player{
 
         gametypeId = parseInt(gametypeId);
 
-        let masterId = await this.getHWIDMasterId(hwid);
+        let masterId = await this.getHWIDMasterId(hwid, playerName);
 
         if(masterId === null){
             masterId = await this.createMasterId(playerName, hwid);
