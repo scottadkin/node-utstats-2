@@ -370,14 +370,18 @@ class PlayerInfo{
         this.country = country;
     }
 
-    setStatsValue(key, value, bInt){
+    setStatsValue(key, value){
 
-        if(bInt === undefined){
-            this.stats[key] = value;
+        const floats = ["accuracy", "time_on_server", "ttl", "efficiency"];
+
+        if(floats.indexOf(key)){
+
+            this.stats[key] += parseFloat(value);
             return;
         }
 
-        this.stats[key] = parseFloat(value);
+        this.stats[key] += parseInt(value);
+
 
     }
 

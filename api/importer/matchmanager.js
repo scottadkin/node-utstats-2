@@ -88,7 +88,7 @@ class MatchManager{
             }
 
             this.spawnManager = new SpawnManager();
-            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip);
+            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip, config.bUsePlayerACEHWID);
 
             await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
             this.playerManager.init();

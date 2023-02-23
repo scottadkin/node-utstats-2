@@ -629,6 +629,7 @@ const queries = [
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_player_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
+        hwid varchar(32) NOT NULL,
         name varchar(30) NOT NULL,
         player_id int(11) NOT NULL,
         first int(11) NOT NULL,

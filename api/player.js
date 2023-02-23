@@ -23,11 +23,12 @@ class Player{
 
     constructor(){}
 
-    async createMasterId(playerName){
+    async createMasterId(playerName, hwid){
 
-        //67 + id
+        if(hwid === undefined) hwid = "";
+
         const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,0,0,0,0,"",0,0,0,0,0,0,
+            NULL,?,?,0,0,0,0,"",0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -35,7 +36,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0)`;
 
-        const result = await mysql.simpleQuery(query, [playerName]);
+        const result = await mysql.simpleQuery(query, [hwid, playerName]);
 
             //55
         return result.insertId;
@@ -55,11 +56,12 @@ class Player{
         return result[0].id;
     }
 
-    async createGametypeId(playerName, playerMasterId, gametypeId){
+    async createGametypeId(playerName, playerMasterId, gametypeId, hwid){
 
-        //67 + id
+        if(hwid === undefined) hwid = "";
+
         const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,?,0,0,0,"",0,0,?,
+            NULL,?,?,?,0,0,0,"",0,0,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -67,7 +69,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0)`;
 
-        const result = await mysql.simpleQuery(query, [playerName, playerMasterId, gametypeId]);
+        const result = await mysql.simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId]);
 
         return result.insertId;
     }
@@ -89,6 +91,48 @@ class Player{
 
         const masterId = await this.getMasterId(playerName, 0);
         const gametypeMasterId = await this.getGametypeId(playerName, masterId, gametypeId);
+
+        return {"masterId": masterId, "gametypeId": gametypeMasterId};
+    }
+
+
+    async getHWIDMasterId(hwid){
+
+        const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=0`;
+
+        const result = await mysql.simpleQuery(query, [hwid]);
+
+        if(result.length === 0) return null;
+
+        return result[0].id;
+    }
+
+    async getHWIDGametypeId(hwid, gametypeId){
+
+        const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=?`;
+
+        const result = await mysql.simpleQuery(query, [hwid, gametypeId]);
+
+        if(result.length === 0) return null;
+
+        return result[0].id;
+    }
+
+    async getMasterIdsByHWID(hwid, playerName, gametypeId){
+
+        gametypeId = parseInt(gametypeId);
+
+        let masterId = await this.getHWIDMasterId(hwid);
+
+        if(masterId === null){
+            masterId = await this.createMasterId(playerName, hwid);
+        }
+
+        let gametypeMasterId = await this.getHWIDGametypeId(hwid, gametypeId);
+
+        if(gametypeMasterId === null){
+            gametypeMasterId = await this.createGametypeId(playerName, masterId, gametypeId, hwid);
+        }
 
         return {"masterId": masterId, "gametypeId": gametypeMasterId};
     }
@@ -118,7 +162,7 @@ class Player{
             
         return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_player_totals SET matches=matches+1, 
+            const query = `UPDATE nstats_player_totals SET 
             first = IF(first = 0 OR first > ?, ?, first), 
             last = IF(last < ?,?,last), 
             playtime=playtime+?, 
@@ -205,40 +249,39 @@ class Player{
         });
     }
 
+    /**
+     * 
+     * @param {*} playerId The player's masterId or GametypeId
+     */
+    async incrementMatchesPlayed(playerId){
 
-    updateWinStats(id, win, drew, gametype){
+        const query = `UPDATE nstats_player_totals SET matches=matches+1 WHERE id=?`;
 
-        return new Promise((resolve, reject) =>{
-
-            if(gametype === undefined) gametype = 0;
-
-            const winRateString = `winrate = IF(wins > 0 && matches > 0, (wins/matches) * 100, 0)`;
-
-            let query = `UPDATE nstats_player_totals SET 
-                wins=wins+1, 
-                ${winRateString}
-                 WHERE id=? AND gametype=?`;
-
-            if(!win){
-                if(!drew){
-                    query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=?`;
-                }else{
-                    query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=?`;
-                }
-            }
-
-            mysql.query(query, [id, gametype], (err) =>{
-
-                if(err){
-                    console.trace(err);
-                    reject(err);
-                }
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, [playerId]);
     }
 
+
+    async updateWinStats(id, win, drew, gametype){
+
+        if(gametype === undefined) gametype = 0;
+
+        const winRateString = `winrate = IF(wins > 0 && matches > 0, (wins/matches) * 100, 0)`;
+
+        let query = `UPDATE nstats_player_totals SET wins=wins+1, ${winRateString} WHERE id=? AND gametype=?`;
+
+        if(!win){
+            if(!drew){
+                query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=?`;
+            }else{
+                query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=?`;
+            }
+        }
+
+        return await mysql.simpleQuery(query, [id, gametype]);
+
+    }
+
+  
 
     async insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping, totalTeams){
 
