@@ -15,6 +15,8 @@ var config bool bLogACEPlayerHWID;
 var int TicksSinceLastScoreLog;
 var (NodeUTStats) string faces[39];
 
+
+
 struct nPlayer{
 	var PlayerReplicationInfo p;
 	var Pawn pawn;
@@ -23,6 +25,7 @@ struct nPlayer{
 	var int id;
 	var int previousScore;
 	var string HWID;
+	var bool bBot;
 };
 
 
@@ -99,6 +102,9 @@ function int insertNewPlayer(Pawn p){
 			nPlayers[i].p = p.PlayerReplicationInfo;
 			nPlayers[i].id = p.PlayerReplicationInfo.PlayerID;
 			nPlayers[i].HWID = "";
+			nPlayers[i].bBot = p.PlayerReplicationInfo.bIsABot;
+			
+			
 
 			if(nPlayers[i].p.TalkTexture != None){
 				printLog("nstats"$Chr(9)$"Face"$Chr(9)$nPlayers[i].p.PlayerID$Chr(9)$nPlayers[i].p.TalkTexture);
@@ -318,6 +324,7 @@ function int getPlayerIndexById(int TargetId){
 }
 
 
+
 function setPlayerHWID(int PlayerIndex, string HWID){
 
 	local int PlayerId;
@@ -326,9 +333,10 @@ function setPlayerHWID(int PlayerIndex, string HWID){
 	
 		nPlayers[PlayerIndex].HWID = HWID;	
 		PlayerId = nPlayers[PlayerIndex].id; 	
-		printLog("nstats" $Chr(9)$ "HWID" $Chr(9) $ PlayerId $Chr(9)$ HWID);
-		
+		printLog("nstats" $Chr(9)$ "HWID" $Chr(9) $ PlayerId $Chr(9)$ HWID);	
+		return;
 	}
+	
 }
 
 
@@ -347,54 +355,52 @@ function checkPlayerHWID(int TargetPlayerIndex){
 	
 	TargetPlayer = nPlayers[TargetPlayerIndex];
 	
+	if(TargetPlayer.bBot) return;
 	//HWID already set
 	if(TargetPlayer.HWID != "") return;
+	
 	
 	foreach AllActors(class'Actor', ACEActor){
 	
 		if(ACEActor.IsA('IACECheck')){
 		
 			PlayerId = int(ACEActor.GetPropertyText("PlayerId"));
+			
 			if(TargetPlayer.id == PlayerId){
 				
 				HWID = ACEActor.GetPropertyText("HWHash");
 				
 				setPlayerHWID(PlayerId, HWID);
+				return;
 			}
 		}
 	}
-	
-	
-	/*foreach AllActors(class'Actor', test){
-	
-		if(test.IsA('IACECheck')){
-		
-			HWID = test.GetPropertyText("HWHash");
-			
-			if(HWID != ""){
-				PlayerId = int(test.GetPropertyText("PlayerId"));								TargetPlayerIndex = getPlayerIndexById(PlayerId);								if(TargetPlayerIndex != -1){									setPlayerHWID(TargetPlayerIndex, HWID);				}
-			}
-		}
-	}*/
 }
 
 
+function backupCheckPlayerHWID(){
+
+	local int i;
+	local nPlayer currentPlayer;
+	
+	if(!bLogACEPlayerHWID) return;
+	
+	for(i = 0; i < 64; i++){
+	
+		currentPlayer = nPlayers[i];
+		
+		if(currentPlayer.id == -1) return;
+		if(currentPlayer.bBot) continue;
+		if(currentPlayer.HWID != "") continue;
+		checkPlayerHWID(i);	
+	}
+}
+
 
 function Timer(){
-
-	/*if(bLogACEPlayerHWID){
-		checkPlayerHWID();
-	}
-	
-	if(TicksSinceLastScoreLog >= 15){
-		LogPlayerScores();
-		TicksSinceLastScoreLog = 0;
-	}
-	
-	TicksSinceLastScoreLog++;*/
 	
 	LogPlayerScores();
-	
+	backupCheckPlayerHWID();
 }
 
 function PostBeginPlay(){
@@ -441,7 +447,7 @@ function PostBeginPlay(){
 		nPlayers[i].lastSpawnTime = -1;
 	}
 	
-	setTimer(15.0, True);
+	setTimer(10.0, True);
 		
 }
 
@@ -640,7 +646,7 @@ function ModifyPlayer(Pawn Other){
 		
 			updateSpawnInfo(currentPID);
 			
-			if(bLogACEPlayerHWID){
+			if(bLogACEPlayerHWID && !Other.PlayerReplicationInfo.bIsABot){
 				checkPlayerHWID(currentPID);			}
 		}
 	}
