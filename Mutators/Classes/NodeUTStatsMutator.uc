@@ -370,7 +370,7 @@ function checkPlayerHWID(int TargetPlayerIndex){
 				
 				HWID = ACEActor.GetPropertyText("HWHash");
 				
-				setPlayerHWID(PlayerId, HWID);
+				setPlayerHWID(TargetPlayerIndex, HWID);
 				return;
 			}
 		}
