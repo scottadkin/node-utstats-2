@@ -5,7 +5,6 @@ const P = require('../player');
 const Player = new P();
 const Faces = require('../faces');
 const Voices = require('../voices');
-const WeaponStats = require('./weaponstats');
 const ConnectionsManager = require('./connectionsmanager');
 const PingManager = require('./pingmanager');
 const TeamsManager = require('./teamsmanager');
@@ -87,6 +86,7 @@ class PlayerManager{
 
     async createPlayers(gametypeId){
 
+
         this.parseHWIDS();
 
         console.log(this.HWIDS);
@@ -96,26 +96,26 @@ class PlayerManager{
         for(let i = 0; i < this.data.length; i++){
 
             const d = this.data[i];
-            const result = reg.exec(d);           
+            const result = reg.exec(d);      
+            
+            if(result === null) continue;
 
-            if(result !== null){
+            const type = result[2].toLowerCase();
+            const timestamp = parseFloat(result[1]);
+            const subString = result[3];
 
-                const type = result[2].toLowerCase();
-                const timestamp = parseFloat(result[1]);
-                const subString = result[3];
-
-                   
-                if(type === 'connect'){
-                    await this.connectPlayer(timestamp, subString, gametypeId);
-                }else if(type === 'disconnect'){
-                     this.disconnectPlayer(subString, timestamp, gametypeId);
-                }else if(type === 'rename'){
-                    await this.renamePlayer(timestamp, subString, gametypeId);
-                }
+                
+            if(type === 'connect'){
+                await this.connectPlayer(timestamp, subString, gametypeId);
+            }else if(type === 'disconnect'){
+                this.disconnectPlayer(timestamp, subString);
+            }else if(type === 'rename'){
+                await this.renamePlayer(timestamp, subString, gametypeId);
             }
-        }    
+        
+        }
 
-        console.log(`**********************************************`);
+        /*console.log(`**********************************************`);
         console.log(`this.idsToNames`);
         console.log(this.idsToNames);
         console.log(`**********************************************`);
@@ -128,7 +128,7 @@ class PlayerManager{
         console.log(`**********************************************`);
         console.log(`this.HWIDSToNames`);
         console.log(this.HWIDSToNames);
-        console.log(`**********************************************`);
+        console.log(`**********************************************`);*/
 
     }
 
@@ -166,19 +166,17 @@ class PlayerManager{
 
         const hwid = this.HWIDS[playerId] ?? "";
 
-        //console.log(`playerId = ${playerId}, hwid = ${hwid} name = ${playerName}`);
-
         if(this.bUsePlayerACEHWID && hwid !== ""){
 
-            const testPlayer = this.getPlayerByHWID(hwid);
+            const newPlayer = this.getPlayerByHWID(hwid);
 
-            if(testPlayer !== null){
+            if(newPlayer !== null){
 
-                this.renamePlayerByIds(testPlayer.name, playerName);
-                testPlayer.name = playerName;
-                testPlayer.connect(timestamp, false);
+                this.renamePlayerByIds(newPlayer.name, playerName);
+                newPlayer.name = playerName;
+                newPlayer.connect(timestamp, false);
 
-                return testPlayer;
+                return newPlayer;
             }
         }
 
@@ -188,15 +186,15 @@ class PlayerManager{
         let masterIds = null;
 
         if(!this.bUsePlayerACEHWID || hwid === ""){
+
             new Message(`Player.getMasterIds(${playerName}, ${gametypeId})`,"note");
             masterIds = await Player.getMasterIds(playerName, gametypeId);
+
         }else{
-            //getMasterIdsByHWID(hwid, playerName, gametypeId)
+
             new Message(`Player.getMasterIdsByHWID(${hwid}, ${playerName}, ${gametypeId})`,"note");
             masterIds = await Player.getMasterIdsByHWID(hwid, playerName, gametypeId);
-
             player.setHWID(hwid);
-
             this.HWIDSToNames[hwid] = playerName;
         }
 
@@ -224,9 +222,7 @@ class PlayerManager{
         let player = this.getPlayerByName(result[1]);
 
         if(player === null){
-
             player = await this.createPlayer(playerId, result[1], gametypeId, timestamp, false);
-
         }else{
 
             player.connect(timestamp);
@@ -268,14 +264,14 @@ class PlayerManager{
 
     }
 
-    disconnectPlayer(id, timeStamp){
+    disconnectPlayer(timestamp, id){
         
         id = parseInt(id);
 
         const player = this.getPlayerById(id);
 
         if(player !== null){
-            player.disconnect(timeStamp);
+            player.disconnect(timestamp);
         }else{
             new Message(`Player with the id of ${id} does not exist(disconnectPlayer).`,'warning');
         }
