@@ -4,18 +4,20 @@ const Message = require("../message");
 
 class PlayerInfo{
 
-    constructor(id, name, timestamp, bSpectator){
+    constructor(id, name, masterId, gametypeId, HWID, bSpectator){
 
         this.id = id;
         this.name = name;
-        this.connects = [timestamp];
+        this.masterId = masterId;
+        this.gametypeId = gametypeId;
+        this.connects = [];
         this.disconnects = [];
         this.teams = [];
         this.bBot = false;
-        this.bSpectator = (bSpectator === undefined) ? false : bSpectator;
+        this.bSpectator = bSpectator;
         this.face = 0;
         this.faceId = 0;
-        this.HWID = "";
+        this.HWID = HWID;
 
         this.bPlayedInMatch = !this.bSpectator;
 
@@ -277,8 +279,8 @@ class PlayerInfo{
         };
 
         this.lastDeath = -999;
-        this.lastKill = timestamp;
-        this.lastSpawn = timestamp;
+        this.lastKill = 0;
+        this.lastSpawn = 0;
         this.timeAlive = 0;
 
         this.spawns = [];

@@ -142,6 +142,8 @@ class Player{
             gametypeMasterId = await this.createGametypeId(playerName, masterId, gametypeId, hwid);
         }
 
+        console.log(playerName, masterId, gametypeMasterId);
+
         return {"masterId": masterId, "gametypeId": gametypeMasterId};
     }
  
