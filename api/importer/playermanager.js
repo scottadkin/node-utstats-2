@@ -38,7 +38,7 @@ class PlayerManager{
         this.faces = new Faces();
         this.voices = new Voices();
         this.spawnManager = spawnManager;
-        this.connectionsManager = new ConnectionsManager();
+        this.connectionsManager = new ConnectionsManager(this);
         this.teamsManager = new TeamsManager();
 
         this.scoreHistory = [];
@@ -111,6 +111,8 @@ class PlayerManager{
 
         this.idsToNames[playerId] = playerName.toLowerCase();
 
+        //connect(timestamp, bSpectator)
+
         if(HWID !== ""){
 
             this.HWIDSToNames[HWID] = playerName.toLowerCase();
@@ -180,14 +182,12 @@ class PlayerManager{
 
             if(p.name === name || p.id === id){
                 p.bSpectator = bSpectator;
-                console.log(`MATCH BY NAME OR ID`);
                 return;
             }
             
             if(p.hwid !== "" && hwid !== ""){
 
                 if(p.hwid === hwid){
-                    console.log(`MATCH BY HWID`);
                     p.bSpectator = bSpectator;
                     return;
                 }
@@ -253,6 +253,10 @@ class PlayerManager{
             const timestamp = parseFloat(result[1]);
             const subString = result[3];
 
+            if(type === "connect" || type === "rename" || type === "disconnect"){
+                console.log(subString);
+            }
+
             if(type === "connect" || type === "rename"){
 
                 //console.log(subString);
@@ -265,8 +269,9 @@ class PlayerManager{
             }
         
         }
-
     }
+
+
 
     async createPlayers(gametypeId){
 
@@ -296,8 +301,6 @@ class PlayerManager{
                 //player.setHWID(p.hwid);
             }
 
-            console.log(masterIds);
-
             this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 
             const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, p.hwid);
@@ -311,12 +314,6 @@ class PlayerManager{
         console.log(this.masterIdsToNames);
         console.table(this.preliminaryPlayers);
 
-        for(let i = 0; i < this.players.length; i++){
-
-            const p = this.players[i];
-
-            console.log(p.name, p.masterId, p.gametypeId, p.HWID);
-        }
 
         //process.exit();
         /*console.log(`**********************************************`);
@@ -456,6 +453,8 @@ class PlayerManager{
                     this.connectionsManager.lines.push(d);
                 }else if(type == 'disconnect'){
                     this.connectionsManager.lines.push(d);
+                }else if(type === "rename"){
+                    this.connectionsManager.lines.push(d);          
                 }else if(type === 'teamchange'){
                     this.setTeam(result[3], result[1]);
                     this.teamsManager.lines.push(d);
@@ -1326,12 +1325,12 @@ class PlayerManager{
 
         try{
 
-            this.connectionsManager.parseData(this);
+            this.connectionsManager.parseData();
 
             await this.connectionsManager.insertData(matchId);
 
         }catch(err){
-            new Message(`PlayerManager.inserConnectionData ${err}`,'error');
+            new Message(`PlayerManager.insertConnectionData ${err}`,'error');
         }
     }
 

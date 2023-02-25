@@ -421,6 +421,13 @@ class MatchManager{
 
             await Logs.setMatchId(logId, this.matchId);
 
+            for(let i = 0; i < this.playerManager.players.length; i++){
+
+                const p = this.playerManager.players[i];
+    
+                console.log(p.name, p.masterId, p.gametypeId, p.HWID, p.bConnectedToServer);
+            }
+
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
             return {

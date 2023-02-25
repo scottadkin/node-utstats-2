@@ -19,6 +19,8 @@ class PlayerInfo{
         this.faceId = 0;
         this.HWID = HWID;
 
+        this.bConnectedToServer = false;
+
         this.bPlayedInMatch = !this.bSpectator;
 
         this.bWinner = false;
@@ -298,6 +300,8 @@ class PlayerInfo{
 
         this.connects.push(timestamp);
 
+        this.bConnectedToServer = true;
+
         if(bSpectator !== undefined){
             this.bSpectator = true;
         }else{
@@ -311,6 +315,8 @@ class PlayerInfo{
     disconnect(timestamp){
 
         this.disconnects.push(timestamp);
+
+        this.bConnectedToServer = false;
 
         this.teamChangeEvents.push({"timestamp": timestamp, "type": "disconnect"});
 

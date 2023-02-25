@@ -3,58 +3,104 @@ const Connections = require('../connections');
 
 class ConnectionsManager{
 
-    constructor(){
+    constructor(playerManager){
 
+        this.playerManager = playerManager;
         this.lines = [];
         this.data = [];
         this.connections = new Connections();
+        
+    }
+
+    connect(line, reg){
+
+        const result = reg.exec(line);
+
+        const playerId = parseInt(result[2]);
+    
+        const currentPlayer = this.playerManager.getPlayerById(playerId);
+
+        if(currentPlayer === null){
+
+            new Message(`ConnectionsManager.connect currentPlayer is null`,'warning');
+            return;
+        }
+ 
+        if(this.playerManager.bIgnoreBots && currentPlayer.bBot) return;
+
+        const timestamp = parseFloat(result[1]);
+
+        //to prevent duplicate entries, rename is always logged first,
+        //if there is also a connect event the player is a player, otherwise a spectator
+        if(currentPlayer.bConnectedToServer){
+            currentPlayer.bSpectator = false;
+        }else{
+            currentPlayer.connect(timestamp, false);
+        }
+    
+        this.data.push({"type": 0, "player": currentPlayer.masterId, "timestamp": timestamp});
+        
     }
 
 
-    parseData(playerManager){
+    disconnect(line, reg){
+
+        const result = reg.exec(line);
+
+        const currentPlayer = this.playerManager.getPlayerById(result[2]);
+
+        if(currentPlayer === null){
+            new Message(`ConnectionsManager.disconnect currentPlayer is null`,'warning');
+            return;
+        }
+
+        if(this.playerManager.bIgnoreBots && currentPlayer.bBot) return;
+
+        const timestamp = parseFloat(result[1]);
+
+        currentPlayer.disconnect(timestamp);
+
+        this.data.push({"type": 1, "player": currentPlayer.masterId, "timestamp": timestamp});
+    }
+
+    rename(line, reg){
+
+        const result = reg.exec(line);
+
+        const timestamp = parseFloat(result[1]);
+        const playerName = result[2];
+        const playerId = result[3];
+
+        const player = this.playerManager.getPlayerById(playerId);
+
+        //set player to spectator, if there is also a connect event they will later be set to player
+        if(!player.bConnectedToServer){
+            player.connect(timestamp, true);
+        }
+
+    }
+
+    parseData(){
 
         const connectReg = /^(\d+?\.\d+?)\tplayer\tconnect\t.+?\t(.+?)\t.+$/i;
         const disconnectReg = /^(\d+?\.\d+?)\tplayer\tdisconnect\t(.+)$/i;
-
-        let result = 0;
-        let currentPlayer = 0;
+        const renameReg = /^(\d+?\.\d+?)\tplayer\trename\t(.+?)\t(.+)$/i;
 
         for(let i = 0; i < this.lines.length; i++){
 
-            if(connectReg.test(this.lines[i])){
+            const line = this.lines[i];
 
-                result = connectReg.exec(this.lines[i]);
-      
-                currentPlayer = playerManager.getPlayerById(result[2]);
-                
-                if(currentPlayer !== null){
+            if(connectReg.test(line)){
 
-                    if(playerManager.bIgnoreBots){
-                        if(currentPlayer.bBot) continue;
-                    }
+                this.connect(line, connectReg);
 
-                    this.data.push({"type": 0, "player": currentPlayer.masterId, "timestamp": parseFloat(result[1])});
-                }else{
-                    new Message(`ConnectionsManager.parseData currentPlayer is null (connect)`,'warning');
-                }
+            }else if(disconnectReg.test(line)){
 
-            }else if(disconnectReg.test(this.lines[i])){
+                this.disconnect(line, disconnectReg);
 
-                result = disconnectReg.exec(this.lines[i]);
-
-                currentPlayer = playerManager.getPlayerById(result[2]);
-
-                if(currentPlayer !== null){
-
-                    if(playerManager.bIgnoreBots){
-                        if(currentPlayer.bBot) continue;
-                    }
-
-                    this.data.push({"type": 1, "player": currentPlayer.masterId, "timestamp": parseFloat(result[1])});
-                }else{
-                    new Message(`ConnectionsManager.parseData currentPlayer is null (disconnect)`,'warning');
-                }
-            }
+            }else if(renameReg.test(line)){
+                this.rename(line, renameReg);
+            }   
         }
     }
 
@@ -65,7 +111,10 @@ class ConnectionsManager{
             for(let i = 0; i < this.data.length; i++){
 
                 const d = this.data[i];
-                await this.connections.insert(matchId, d.timestamp, d.type, d.player);
+
+                if(d.type < 2){
+                    await this.connections.insert(matchId, d.timestamp, d.type, d.player);
+                }
             }
 
         }catch(err){
