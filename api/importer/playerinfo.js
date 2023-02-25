@@ -339,7 +339,7 @@ class PlayerInfo{
     }
 
     setTeam(timestamp, id){
-
+        
         timestamp = parseFloat(timestamp);
         id = parseInt(id);
 
@@ -785,6 +785,9 @@ class PlayerInfo{
 
         for(const [key, value] of Object.entries(this.stats.teamPlaytime)){
             //dont count time as spectator as playtime
+
+            //disconnect from server
+            if(key === "-1") continue;
 
             if(totalTeams > 1 && key !== "255"){
                 totalPlaytime += value;

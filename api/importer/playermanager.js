@@ -253,10 +253,6 @@ class PlayerManager{
             const timestamp = parseFloat(result[1]);
             const subString = result[3];
 
-            if(type === "connect" || type === "rename" || type === "disconnect"){
-                console.log(subString);
-            }
-
             if(type === "connect" || type === "rename"){
 
                 //console.log(subString);
@@ -313,23 +309,6 @@ class PlayerManager{
         console.log(this.HWIDSToNames);
         console.log(this.masterIdsToNames);
         console.table(this.preliminaryPlayers);
-
-
-        //process.exit();
-        /*console.log(`**********************************************`);
-        console.log(`this.idsToNames`);
-        console.log(this.idsToNames);
-        console.log(`**********************************************`);
-
-        console.log(`**********************************************`);
-        console.log(`this.masterIdsToNames`);
-        console.log(this.masterIdsToNames);
-        console.log(`**********************************************`);
-
-        console.log(`**********************************************`);
-        console.log(`this.HWIDSToNames`);
-        console.log(this.HWIDSToNames);
-        console.log(`**********************************************`);*/
 
     }
 
@@ -452,11 +431,12 @@ class PlayerManager{
                 }else if(type == 'connect'){
                     this.connectionsManager.lines.push(d);
                 }else if(type == 'disconnect'){
+                    this.setTeam(result[3], result[1], true);
                     this.connectionsManager.lines.push(d);
                 }else if(type === "rename"){
                     this.connectionsManager.lines.push(d);          
                 }else if(type === 'teamchange'){
-                    this.setTeam(result[3], result[1]);
+                    this.setTeam(result[3], result[1], false);
                     this.teamsManager.lines.push(d);
                 }else if(type === 'ping'){
                     this.pingManager.lines.push(d);
@@ -640,7 +620,24 @@ class PlayerManager{
 
     
 
-    setTeam(subString, timeStamp){
+    setTeam(subString, timestamp, bDisconnect){
+
+
+        if(bDisconnect){
+
+            const id = parseInt(subString);
+            const player = this.getPlayerById(id);
+
+            if(player !== null){
+                player.setTeam(timestamp, -1);
+            }else{
+                new Message(`PlayerManager.setTeam() player is null id = ${id}`,"error");
+            }
+
+            return;
+        }
+           
+        
 
         const reg = /^(.+?)\t(.+)$/i;
 
@@ -653,7 +650,7 @@ class PlayerManager{
             const player = this.getPlayerById(id);
 
             if(player !== null){
-                player.setTeam(timeStamp, team);      
+                player.setTeam(timestamp, team);      
             }else{
                 new Message(`Player with the id of ${id} does not exist(setTeam).`,'warning');
             }
@@ -1181,7 +1178,6 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                console.log(p.name, p.bWinner, p.bDrew, gametypeId);
 
                 if(!p.bPlayedInMatch) continue;
                 if(this.bIgnoreBots && p.bBot) continue;
@@ -1749,7 +1745,6 @@ class PlayerManager{
 
 
                 const diff = this.ignoreWarmpup(currentEvent.timestamp) - previousTimestamp;
- 
 
                 if(currentEvent.type === "disconnect"){
                     bLastDisconnect = true;
