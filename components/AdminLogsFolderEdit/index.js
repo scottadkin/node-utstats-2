@@ -57,6 +57,10 @@ class AdminLogsFolderEdit extends React.Component{
                 <div className="select-label">Import ACE</div>
                 <FormCheckBox inputName={"bImportAce"} valueName="import_ace" value={d.import_ace} updateValue={this.updateValue}/>
             </div>
+            <div className="select-row">
+                <div className="select-label">Merge Players by ACE HWID</div>
+                <FormCheckBox inputName={"bUseACEPlayerHWID"} valueName="use_ace_player_hwid" value={d.use_ace_player_hwid} updateValue={this.updateValue}/>
+            </div>
             <input type="submit" className="search-button" value="Save Changes" />
         </form>
 

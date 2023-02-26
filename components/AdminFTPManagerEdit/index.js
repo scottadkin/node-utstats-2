@@ -195,9 +195,15 @@ class AdminFTPManagerEdit extends React.Component{
                     }}/>
                 </div>
             </div>
-            
 
-            <input type="submit" className="search-button" value="Save Changes"/>
+            <div className="select-row">
+                <div className="select-label">Merge Players by ACE HWID</div>
+                <div>
+                    <FormCheckBox inputName={"useACEHWID"} valueName="use_ace_player_hwid" updateValue={this.updateValue} 
+                    value={data.use_ace_player_hwid}/>
+                </div>
+            </div>
+            
         </>;
 
     }

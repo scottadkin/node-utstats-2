@@ -293,7 +293,8 @@ const queries = [
         total_ace_kick_logs INT(1) NOT NULL,
         total_ace_join_logs INT(1) NOT NULL,
         total_ace_screenshots INT(1) NOT NULL,
-        enabled INT(1) NOT NULL
+        enabled INT(1) NOT NULL,
+        use_ace_player_hwid INT(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
       `CREATE TABLE IF NOT EXISTS nstats_logs_folder (
@@ -310,7 +311,8 @@ const queries = [
         import_ace INT(1) NOT NULL,
         total_ace_kick_logs INT(1) NOT NULL,
         total_ace_join_logs INT(1) NOT NULL,
-        total_ace_screenshots INT(1) NOT NULL
+        total_ace_screenshots INT(1) NOT NULL,
+        use_ace_player_hwid INT(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
     `CREATE TABLE IF NOT EXISTS nstats_gametypes (
@@ -1178,7 +1180,7 @@ const queries = [
           0.05)`,
 
 
-    `INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',0,0,0,0,0,0,0,0,0,0,0,0)`,
+    `INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',0,0,0,0,0,0,0,0,0,0,0,0,0)`,
     
     
     "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_hour_multiplier','Sub 1 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.2)",
@@ -1207,8 +1209,8 @@ const queries = [
     `INSERT INTO nstats_items VALUES(NULL,"RelicStrengthInventory","Relic Strength",0,0,0,0,5)`,
     `INSERT INTO nstats_items VALUES(NULL,"Ripper","Ripper",0,0,0,0,1)`,
     `INSERT INTO nstats_items VALUES(NULL,"Rocket Launcher","Rocket Launcher",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Shield Belt","Shield Belt",0,0,0,0,3)`,
-    `INSERT INTO nstats_items VALUES(NULL,"ShieldBelt","Shield Belt",0,0,0,0,3)`,
+    `INSERT INTO nstats_items VALUES(NULL,"Shield Belt","Shield Belt",0,0,0,0,4)`,
+    `INSERT INTO nstats_items VALUES(NULL,"ShieldBelt","Shield Belt",0,0,0,0,4)`,
     `INSERT INTO nstats_items VALUES(NULL,"Shock Rifle","Shock Rifle",0,0,0,0,1)`,
     `INSERT INTO nstats_items VALUES(NULL,"Sniper Rifle","Sniper Rifle",0,0,0,0,1)`,
     `INSERT INTO nstats_items VALUES(NULL,"Super Health Pack","Super Health Pack",0,0,0,0,4)`,

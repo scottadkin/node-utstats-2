@@ -48,7 +48,8 @@ class AdminFTPManager extends React.Component{
                 "bIgnoreBots": this.state.logsFolder.ignore_bots,
                 "minPlayers": this.state.logsFolder.min_players,
                 "minPlaytime": this.state.logsFolder.min_playtime,
-                "bImportAce": this.state.logsFolder.import_ace
+                "bImportAce": this.state.logsFolder.import_ace,
+                "bUseACEPlayerHWID": this.state.logsFolder.use_ace_player_hwid
             })
         });
 
@@ -303,7 +304,8 @@ class AdminFTPManager extends React.Component{
                 "importAce": data.import_ace,
                 "deleteAceLogs": data.delete_ace_logs,
                 "deleteAceScreenshots": data.delete_ace_screenshots,
-                "enabled": data.enabled
+                "enabled": data.enabled,
+                "bUseACEPlayerHWID": data.use_ace_player_hwid
             })
         });
 
