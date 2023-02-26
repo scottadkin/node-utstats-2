@@ -25,7 +25,7 @@ const geoip = require('geoip-lite');
 
 class MatchManager{
 
-    constructor(data, fileName, bIgnoreBots, minPlayers, minPlaytime){
+    constructor(data, fileName, bIgnoreBots, minPlayers, minPlaytime, bUsePlayerACEHWID){
 
         this.data = data;
         this.fileName = fileName;
@@ -41,7 +41,10 @@ class MatchManager{
         this.bFoundMatchStart = false;
         this.bFoundRealMatchStart = false;
 
-        new Message(`Starting import of log file ${fileName}`,'note');
+        this.bUsePlayerACEHWID = bUsePlayerACEHWID;
+
+        new Message(`Starting import of log file ${fileName}`,"note");
+        new Message(`Auto merge players by HWID is set to ${Boolean(this.bUsePlayerACEHWID)}`, "note");
 
         this.convertFileToLines();
 
@@ -88,7 +91,7 @@ class MatchManager{
             }
 
             this.spawnManager = new SpawnManager();
-            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip, config.bUsePlayerACEHWID);
+            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip, this.bUsePlayerACEHWID);
 
             await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
             this.playerManager.init();

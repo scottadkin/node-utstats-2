@@ -14,9 +14,10 @@ class Importer{
 
     constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, 
         bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bImportAce,
-        bDeleteAceLogs, bDeleteAceScreenshots, bSkipFTP){
+        bDeleteAceLogs, bDeleteAceScreenshots, bUseACEPlayerHWID, bSkipFTP){
 
         bSkipFTP = bSkipFTP ?? false;
+
 
         if(!bSkipFTP){
 
@@ -49,6 +50,7 @@ class Importer{
         this.bSFTP = bSFTP;
         this.bSkipFTP = bSkipFTP;
         this.bLogsFolderImport = bSkipFTP;
+        this.bUseACEPlayerHWID = bUseACEPlayerHWID;
 
         if(this.bLogsFolderImport){
             this.ace = new ACE();
@@ -151,7 +153,7 @@ class Importer{
                 
                 const logData = await this.openLog(`${config.importedLogsFolder}/${f}`);
 
-                const log = new MatchManager(logData, f, this.bIgnoreBots, this.minPlayers, this.minPlaytime);
+                const log = new MatchManager(logData, f, this.bIgnoreBots, this.minPlayers, this.minPlaytime, this.bUseACEPlayerHWID);
 
                 if(!log.bLinesNull){
 

@@ -132,6 +132,7 @@ class PlayerManager{
 
     renameIdsToName(oldName, newName){
 
+
         oldName = oldName.toLowerCase();
         newName = newName.toLowerCase();
 
@@ -143,7 +144,7 @@ class PlayerManager{
         }
     }
 
-    renameByHWID(HWID, newName){
+    renamePreliminaryByHWID(HWID, newName){
 
         if(HWID === "") return;
 
@@ -152,6 +153,19 @@ class PlayerManager{
             const p = this.preliminaryPlayers[i];
 
             if(p.hwid === HWID){
+                this.renameIdsToName(p.name, newName);
+                p.name = newName;
+            }
+        }
+    }
+
+    renamePreliminaryByPlayerId(id, newName){
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            if(p.id === id){
                 this.renameIdsToName(p.name, newName);
                 p.name = newName;
             }
@@ -214,11 +228,16 @@ class PlayerManager{
 
         if(HWID !== "") this.HWIDSToNames[HWID] = playerName.toLowerCase();
         this.idsToNames[playerId] = playerName.toLowerCase();
+
+        if(HWID === ""){
+
+            this.renamePreliminaryByPlayerId(playerId, playerName);
+        }
         
 
         if(HWID === "") return;
 
-        this.renameByHWID(HWID, playerName);
+        this.renamePreliminaryByHWID(HWID, playerName);
     }
 
     updatePreliminaryPlayers(subString, type){
@@ -263,8 +282,9 @@ class PlayerManager{
             }else if(type === "disconnect"){
                 //this.disconnectPlayer(timestamp, subString);
             }
-        
         }
+
+        console.log(this.preliminaryPlayers);
     }
 
 
@@ -296,6 +316,8 @@ class PlayerManager{
                 masterIds = await Player.getMasterIdsByHWID(p.hwid, p.name, gametypeId);
                 //player.setHWID(p.hwid);
             }
+
+            console.log(p.name, masterIds);
 
             this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 
@@ -330,6 +352,8 @@ class PlayerManager{
         id = parseInt(id);
 
         const name = this.idsToNames[id];
+
+        //console.log(`getPlayerById(${id}) name = ${name}`);
 
         if(name === undefined){
 

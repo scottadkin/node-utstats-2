@@ -31,7 +31,7 @@ async function setFTPSettings(){
 
 async function getLogsFolderSettings(){
 
-    const query = "SELECT ignore_duplicates,ignore_bots,min_players,min_playtime,import_ace FROM nstats_logs_folder ORDER BY id DESC LIMIT 1";
+    const query = "SELECT ignore_duplicates,ignore_bots,min_players,min_playtime,import_ace,use_ace_player_hwid FROM nstats_logs_folder ORDER BY id DESC LIMIT 1";
 
     const result = await mysql.simpleQuery(query);
 
@@ -70,7 +70,8 @@ async function startNewImport(ftpServer){
             f.sftp,
             f.import_ace,
             f.delete_ace_logs,
-            f.delete_ace_screenshots
+            f.delete_ace_screenshots,
+            f.use_ace_player_hwid
         );
 
         return await importer.import();
@@ -95,6 +96,7 @@ async function startNewImport(ftpServer){
             false, 
             false, 
             false, 
+            logsSettings.use_ace_player_hwid,
             true
         );
 
