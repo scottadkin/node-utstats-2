@@ -440,7 +440,7 @@ const queries = [
         players int(11) NOT NULL,
         time_limit int(11) NOT NULL,
         target_score int(11) NOT NULL,
-        dm_winner varchar(50) NOT NULL,
+        dm_winner int(11) NOT NULL,
         dm_score int(11) NOT NULL,
         team_score_0 float NOT NULL,
         team_score_1 float NOT NULL,

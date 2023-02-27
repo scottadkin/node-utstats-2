@@ -223,7 +223,7 @@ class MatchManager{
                 if(winner !== null){
 
                     winner.bWinner = true;
-                    await this.match.setDMWinner(this.matchId, LMSWinner.name, LMSWinner.score);
+                    await this.match.setDMWinner(this.matchId, LMSWinner.masterId, LMSWinner.score);
 
                     new Message(`Last man standing stats update complete.`,'pass');
 
@@ -791,7 +791,7 @@ class MatchManager{
                     }
                 }
 
-                this.setDmWinner(this.playerManager.players[0].name, this.playerManager.players[0].stats.score);
+                this.setDmWinner(this.playerManager.players[0].masterId, this.playerManager.players[0].stats.score);
             }
         }
 
@@ -799,9 +799,9 @@ class MatchManager{
     }
 
 
-    async setDmWinner(name, score){
+    async setDmWinner(playerId, score){
 
-        await this.match.setDMWinner(this.matchId, name, score);
+        await this.match.setDMWinner(this.matchId, playerId, score);
     }
 
 
