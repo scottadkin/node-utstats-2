@@ -1,4 +1,5 @@
 import styles from './MatchResult.module.css';
+import CountryFlag from '../CountryFlag';
 
 const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenScore, yellowScore, bMonsterHunt, endReason}) =>{
 
@@ -23,11 +24,11 @@ const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenS
             if(dmScore === null){
 
                 elems.push(<div key="dm">
-                    <span className="yellow">{dmWinner}</span> Won the Match
+                    <span className="yellow"><CountryFlag bNoHover={true} country={dmWinner.country}/>{dmWinner.name}</span> Won the Match
                 </div>);
             }else{
                 elems.push(<div key="dm">
-                    <span className="yellow">{dmWinner}</span> won with <span className="yellow">{dmScore}</span> Points
+                    <span className="yellow"><CountryFlag bNoHover={true} country={dmWinner.country}/>{dmWinner.name}</span> won with <span className="yellow">{dmScore}</span> Points
                 </div>);
             }
 

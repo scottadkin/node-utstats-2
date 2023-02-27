@@ -93,6 +93,7 @@ class PlayerRecentMatches extends React.Component{
         for(let i = 0; i < matches.length; i++){
 
             const m = matches[i];
+
             const currentScore = getMatchScores(scores, m.match_id);
             let currentWinnerClass = "";
             let currentResultString = "";
@@ -154,7 +155,7 @@ class PlayerRecentMatches extends React.Component{
                     playtime={m.playtime}
                     players={m.players}>
 
-                    <MatchResult dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
+                    <MatchResult dmWinner={m.dmWinner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
                         redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} 
                         yellowScore={currentScore.team_score_3} 
                         bMonsterHunt={currentScore.mh} endReason={currentScore.end_type}
@@ -170,7 +171,7 @@ class PlayerRecentMatches extends React.Component{
                     <td><Link href={`/match/${m.match_id}`}><a>{m.players}</a></Link></td>
                     <td className="playtime"><Link href={`/match/${m.match_id}`}><a><Playtime timestamp={m.playtime}/></a></Link></td>
                     <td className={"padding-0 relative"}><Link href={`/match/${m.match_id}`}><a>
-                        <MatchResultSmall dmWinner={currentScore.dm_winner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
+                        <MatchResultSmall dmWinner={m.dmWinner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
                         redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}
                         bMonsterHunt={currentScore.mh} endReason={currentScore.end_type}/>
                     </a></Link></td>

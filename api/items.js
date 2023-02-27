@@ -481,12 +481,12 @@ class Items{
 
     async changePlayerIdsMatch(oldId, newId){
 
-        await mysql.simpleUpdate("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
+        await mysql.simpleQuery("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
     }
 
     async deletePlayerTotals(id){
 
-        await mysql.simpleDelete("DELETE FROM nstats_items_player WHERE player=?", [id]);
+        await mysql.simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [id]);
     }
 
     async createNewPlayerTotalFromMerge(player, item, first, last, uses, matches){
@@ -494,7 +494,7 @@ class Items{
         const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,?)";
         const vars = [player, item, first, last, uses, matches];
 
-        await mysql.simpleUpdate(query, vars);
+        await mysql.simpleQuery(query, vars);
     }
 
     async mergePlayerTotals(oldId, newId){
@@ -506,13 +506,11 @@ class Items{
 
             const mergedData = {};
 
-            let d = 0;
-
             const merge = (array) =>{
 
                 for(let i = 0; i < array.length; i++){
 
-                    d = array[i];
+                    const d = array[i];
     
                     if(mergedData[d.item] === undefined){
                         mergedData[d.item] = d;

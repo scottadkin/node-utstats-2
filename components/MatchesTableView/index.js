@@ -81,7 +81,7 @@ class MatchesTableView extends React.Component{
                 <td className="playtime"><Link href={url}><a><Playtime timestamp={m.playtime} /></a></Link></td>
                 <td className="padding-0"><MatchResultSmall 
                     totalTeams={m.total_teams} 
-                    dmWinner={m.dm_winner} 
+                    dmWinner={m.dmWinner} 
                     dmScore={m.dm_score} 
                     redScore={Math.floor(m.team_score_0)}
                     blueScore={Math.floor(m.team_score_1)}

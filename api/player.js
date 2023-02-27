@@ -485,7 +485,15 @@ class Player{
         const vars = [id, validMatchIds, settings["Minimum Playtime"], start, amount];
         const result = await mysql.simpleFetch(query, vars);
 
-        Functions.removeIps(result);
+        const uniqueDMWinners = new Set();
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            delete r.ip;
+            delete r.hwid;
+
+        }
 
         return result;
 

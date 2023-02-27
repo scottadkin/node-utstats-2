@@ -439,7 +439,23 @@ export async function getServerSideProps({req, query}) {
 	if(pageSettings["Display Recent Matches"] === "true"){
 		recentMatches = await playerManager.getRecentMatches(query.id, matchesPerPage, matchPage, matchManager);
 	}
-	
+
+	const recentMatchIds = recentMatches.map((matchResult) =>{
+		return matchResult.match_id;
+	});
+
+	const dmWinners = await matchManager.getDmWinners(recentMatchIds);
+
+	for(let i = 0; i < recentMatches.length; i++){
+
+		const r = recentMatches[i];
+
+		if(dmWinners.matchWinners[r.match_id] !== undefined){
+
+			r.dmWinner = dmWinners.players[dmWinners.matchWinners[r.match_id]];
+		}
+	}
+
 	const matchPages = Math.ceil(totalMatches / matchesPerPage);
 
 	const uniqueMaps = Functions.getUniqueValues(recentMatches, 'map_id');

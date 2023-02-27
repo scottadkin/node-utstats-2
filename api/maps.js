@@ -474,7 +474,7 @@ class Maps{
     }
 
 
-    async getRecent(id, page, perPage){
+    async getRecent(id, page, perPage, playerManager){
 
         const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC LIMIT ?, ?";
 
@@ -490,8 +490,23 @@ class Maps{
         const start = page * perPage;
 
         const vars = [id, settings.minPlaytime, settings.minPlayers, start, perPage];
+        
+        const result = await mysql.simpleQuery(query, vars);
 
-        return await mysql.simpleFetch(query, vars);
+        const dmWinners = new Set(result.map(r => r.dm_winner));
+
+        const playersInfo = await playerManager.getNamesByIds([...dmWinners], true);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(r.dm_winner !== 0){
+                r.dmWinner = playersInfo[r.dm_winner];
+            }
+        }
+
+        return result;
 
     }
 

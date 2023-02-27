@@ -2,6 +2,7 @@ import Matches from "../../api/matches";
 import Servers from "../../api/servers";
 import Maps from "../../api/maps";
 import Gametypes from "../../api/gametypes";
+import Players from "../../api/players";
 
 
 const sortByName = (a, b) =>{
@@ -42,6 +43,7 @@ export default async function handler(req, res){
         const mapManager = new Maps();
         const gametypeManager = new Gametypes();
         const matchManager = new Matches();
+        const playerManager = new Players();
 
         if(mode === "full-list"){
             
@@ -91,14 +93,23 @@ export default async function handler(req, res){
     
             const data = await matchManager.searchMatches(serverId, gametypeId, mapId, page - 1, perPage);
 
+
             const uniqueMaps = new Set();
             const uniqueGametypes = new Set();
+            const dmWinners = new Set();
 
             for(let i = 0; i < data.length; i++){
 
                 uniqueMaps.add(data[i].map);
                 uniqueGametypes.add(data[i].gametype);
+
+                if(data[i].dm_winner !== 0){
+                    dmWinners.add(data[i].dm_winner);
+                }
             }
+
+            const dmWinnerPlayers = await playerManager.getNamesByIds([...dmWinners], true);
+
 
             const mapNames = await mapManager.getNames(Array.from(uniqueMaps));
             const gametypeNames = await gametypeManager.getNames(Array.from(uniqueGametypes));
@@ -112,6 +123,15 @@ export default async function handler(req, res){
                 d.mapName = mapNames[d.map] ?? "Not Found";
                 d.gametypeName = gametypeNames[d.gametype] ?? "Not Found"; 
                 d.serverName = serverNames[d.server] ?? "Not Found";
+
+                if(d.dm_winner !== 0){
+                    
+                    if(dmWinnerPlayers[d.dm_winner] !== undefined){
+                        d.dmWinner = dmWinnerPlayers[d.dm_winner];
+                    }else{
+                        d.dmWinner = {"name": "Not Found", "country": "xx"};
+                    }
+                }
             }
 
 

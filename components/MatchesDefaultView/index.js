@@ -48,7 +48,7 @@ class MatchesDefaultView extends React.Component{
                 gametypeName={m.gametypeName}
             >
                 <MatchResult 
-                    dmWinner={m.dm_winner}
+                    dmWinner={m.dmWinner}
                     dmScore={m.dm_score}
                     totalTeams={m.total_teams}
                     redScore={m.team_score_0}

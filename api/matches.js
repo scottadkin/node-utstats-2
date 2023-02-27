@@ -20,6 +20,7 @@ const Functions = require('./functions');
 const Logs = require('./logs');
 const MonsterHunt = require('./monsterhunt');
 const SiteSettings = require('./sitesettings');
+const Players = require("./players");
 
 class Matches{
 
@@ -773,7 +774,6 @@ class Matches{
     async getDmWinner(matchId){
 
         const query = "SELECT dm_winner FROM nstats_matches WHERE id=?";
-
         const result = await mysql.simpleFetch(query, [matchId]);
 
         if(result.length > 0){
@@ -781,6 +781,38 @@ class Matches{
         }
 
         return "";
+    }
+
+
+    async getDmWinners(matchIds){
+
+        if(matchIds.length === 0) return {};
+
+        const query = `SELECT id,dm_winner FROM nstats_matches WHERE dm_winner!=0 AND id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+
+        const uniquePlayers = new Set();
+
+        for(let i = 0; i < result.length; i++){
+
+            uniquePlayers.add(result[i].dm_winner);
+        }
+
+        const playerManager = new Players();
+
+        const playersInfo = await playerManager.getNamesByIds([...uniquePlayers], true);
+
+        const matches = {};
+
+
+        for(let i = 0; i < result.length; i++){
+            const r = result[i];
+            matches[r.id] = r.dm_winner;
+        }
+
+        return {"matchWinners": matches, "players": playersInfo};
+
     }
 
     async getPlayerMatchTopScore(matchId){
@@ -1243,8 +1275,6 @@ class Matches{
 
         await this.changePlayerIds(oldId, newId);
         const duplicateMatchData = await this.getDuplicatePlayerEntries(newId);
-
-        console.log(duplicateMatchData);
 
         for(let i = 0; i < duplicateMatchData.length; i++){
 

@@ -122,7 +122,7 @@ export default async function handler (req, res){
                 const player1 = req.body.player1 ?? null;
                 const player2 = req.body.player2 ?? null;
 
-                if(await playerManager.mergePlayers(player1, player2, matchManager, combogibManager)){
+                if(await playerManager.mergePlayersById(player1, player2, matchManager, combogibManager)){
 
                     res.status(200).json({"message": "Merged players successfully"});
                     return;

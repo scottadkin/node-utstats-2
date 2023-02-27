@@ -176,6 +176,27 @@ class Players{
     }
 
 
+    createNotFoundPlayers(foundStatus, bObject){
+
+        const players = (bObject) ? {} : [];
+
+        for(const [playerId, status] of Object.entries(foundStatus)){
+
+            if(status) continue;
+
+            const current = {"id": parseInt(playerId), "name": "Not Found", "country": "xx"};
+
+            if(bObject){
+                players[playerId] = current;
+            }else{
+                players.push(current);
+            }
+        }
+
+
+        return players;
+    }
+
     async getNamesByIds(ids, bReturnObject){
 
         if(ids === undefined) return [];
@@ -185,6 +206,20 @@ class Players{
         const query = "SELECT id,name,country,face FROM nstats_player_totals WHERE id IN (?)";
 
         const data = await mysql.simpleQuery(query, [ids]);
+
+        const foundStatus = {};
+
+        for(let i = 0; i < ids.length; i++){
+            foundStatus[ids[i]] = false;
+        }
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+            foundStatus[d.id] = true;
+        }
+
+        const missingPlayers = this.createNotFoundPlayers(foundStatus, bReturnObject);
 
         if(bReturnObject){
 
@@ -202,10 +237,9 @@ class Players{
                 }
             }
 
-            return obj;
-
+            return {...obj, ...missingPlayers};
         }else{
-            return data;
+            return [...data, ...missingPlayers];
         }
     }
 
@@ -593,7 +627,7 @@ class Players{
     
 
     //first player gets merged into second
-    async mergePlayers(first, second, matchManager, combogibManager){
+    async mergePlayersById(first, second, matchManager, combogibManager){
 
         try{
 
@@ -616,6 +650,26 @@ class Players{
             const ctfManager = new CTF();
             await ctfManager.mergePlayers(first, second);
 
+
+            const domManager = new Domination();
+
+            await domManager.changeCapPlayerId(first, second);
+            await domManager.changeScoreHistoryPlayerId(first, second);
+
+            const headshotManager = new Headshots();
+            await headshotManager.changePlayerIds(first, second);
+
+            const itemsManager = new Items();
+
+            await itemsManager.changePlayerIdsMatch(first, second);
+            await itemsManager.mergePlayerTotals(first, second);
+
+            const connectionsManager = new Connections();
+            await connectionsManager.changePlayerIds(first, second);
+
+            const pingManager = new Pings();
+            await pingManager.changePlayerIds(first, second);
+
             console.log(names);
 
             return true;
@@ -632,25 +686,9 @@ class Players{
     
                 const matchIds = await matchManager.getAllPlayerMatchIds(first.id);
 
-                const domManager = new Domination();
-
-                await domManager.changeCapPlayerId(first.id, second.id);
-                await domManager.changeScoreHistoryPlayerId(first.id, second.id);
-
-
                 const monsterHuntManager = new MonsterHunt();
 
                 await monsterHuntManager.mergePlayers(first.id, second.id);
-
-                const headshotManager = new Headshots();
-
-                await headshotManager.changePlayerIds(first.id, second.id);
-
-                const itemsManager = new Items();
-
-                await itemsManager.changePlayerIdsMatch(first.id, second.id);
-
-                await itemsManager.mergePlayerTotals(first.id, second.id);
 
                 const killsManager = new Kills();
 
@@ -658,14 +696,6 @@ class Players{
 
                 await matchManager.renameDmWinner(first.name, second.name);
 
-
-                const connectionsManager = new Connections();
-
-                await connectionsManager.changePlayerIds(first.id, second.id);
-
-                const pingManager = new Pings();
-
-                await pingManager.changePlayerIds(first.id, second.id);
 
                 await matchManager.changePlayerScoreHistoryIds(first.id, second.id);
                 await matchManager.changeTeamChangesPlayerIds(first.id, second.id);
@@ -1139,6 +1169,7 @@ class Players{
 
         for(let i = 0; i < players.length; i++){
             delete players[i].ip;
+            delete players[i].hwid;
         }
 
         const ctf = new CTF();

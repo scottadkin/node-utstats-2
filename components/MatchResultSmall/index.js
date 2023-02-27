@@ -6,10 +6,10 @@ const MatchResultSmall = ({totalTeams, dmWinner, dmScore, redScore, blueScore, g
     blueScore = Math.floor(blueScore);
     greenScore = Math.floor(greenScore);
     yellowScore = Math.floor(yellowScore);
-
+    
     if(!bMonsterHunt){
-        if(dmWinner !== ''){
-            return (<div className={`${styles.wrapper} solo`}><div className="team-none">{dmWinner} <span className="yellow">({dmScore})</span></div></div>);
+        if(dmWinner !== undefined && dmWinner !== 0){
+            return (<div className={`${styles.wrapper} solo`}><div className="team-none">{dmWinner.name} <span className="yellow">({dmScore})</span></div></div>);
         }
 
         let wrapperClass = "solo";
