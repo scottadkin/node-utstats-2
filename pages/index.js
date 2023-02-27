@@ -270,7 +270,7 @@ export async function getServerSideProps({req, query}) {
 	let matchesData = [];
 
 	if(pageSettings["Display Recent Matches"] === "true"){
-		matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"]);
+		matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"], 0, playerManager);
 	}
 
 	let mostPlayedMaps = [];

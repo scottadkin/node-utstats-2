@@ -144,7 +144,7 @@ class Matches{
     }
 
 
-    async getRecent(page, perPage, gametype){
+    async getRecent(page, perPage, gametype, playerManager){
 
         page = parseInt(page);
         perPage = parseInt(perPage);
@@ -164,20 +164,27 @@ class Matches{
         const settings = await SiteSettings.getSettings("Matches Page");
 
         const vars = [settings["Minimum Playtime"], settings["Minimum Players"], start, perPage];
-        let query = "";
 
-        if(gametype === 0){
-            
-            query = defaultQuery;
 
-        }else{
+        const query = (gametype === 0) ? defaultQuery : gametypeQuery
 
-            vars.unshift(gametype);
-            query = gametypeQuery;
+        if(gametype !== 0) vars.unshift(gametype);
+
+        const result = await mysql.simpleQuery(query, vars);
+        
+        const dmWinners = new Set(result.map(r => r.dm_winner));
+
+        const players = await playerManager.getNamesByIds([...dmWinners], true);
+
+        for(let i = 0; i < result.length; i++){
+            const r = result[i];
+
+            if(r.dm_winner !== 0){
+                r.dmWinner = players[r.dm_winner];
+            }
         }
 
-        return await mysql.simpleFetch(query, vars);
-
+        return result;
     }
 
 
