@@ -804,9 +804,6 @@ class PlayerInfo{
 
     getLastPlayedTeam(){
 
-        //console.log(this.teams);
-
-
         if(this.teams.length === 0) return 255;
 
         for(let i = this.teams.length - 1; i >= 0; i--){

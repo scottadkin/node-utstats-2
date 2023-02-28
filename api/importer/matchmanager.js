@@ -161,6 +161,11 @@ class MatchManager{
             new Message(`Updated player team changes`,'pass');
             //process.exit();
 
+            const bLMS = this.bLastManStanding();
+            if(!bLMS){
+                this.setMatchWinners();
+            }
+
             await this.playerManager.insertMatchData(
                 this.gametype.currentMatchGametype, 
                 this.matchId, this.mapInfo.mapId, 
@@ -173,7 +178,7 @@ class MatchManager{
 
             
 
-            const bLMS = this.bLastManStanding();
+            
 
             //this.playerManager.mergeDuplicates(bLMS);
             
@@ -234,10 +239,6 @@ class MatchManager{
 
             
             
-
-            if(!bLMS){
-                this.setMatchWinners();
-            }
 
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date, this.gameInfo.totalTeams);
 
@@ -423,13 +424,6 @@ class MatchManager{
             await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
 
             await Logs.setMatchId(logId, this.matchId);
-
-            for(let i = 0; i < this.playerManager.players.length; i++){
-
-                const p = this.playerManager.players[i];
-    
-                console.log(p.name, p.masterId, p.gametypeId, p.HWID, p.bConnectedToServer);
-            }
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
@@ -743,20 +737,22 @@ class MatchManager{
 
             const winningTeams = this.gameInfo.getWinningTeam();
 
-            let p = 0;
 
             for(let i = 0; i < this.playerManager.players.length; i++){
 
-                p = this.playerManager.players[i];
+                const p = this.playerManager.players[i];
 
-                if(winningTeams.indexOf(p.getTeam()) !== -1){
+                const playerTeam = p.getLastPlayedTeam();
 
-                    if(winningTeams.length === 1){
-                        p.bWinner = true;
-                    }else{
-                        p.bDrew = true;
-                    }
+                if(winningTeams.indexOf(playerTeam) === -1) continue;
+
+
+                if(winningTeams.length === 1){
+                    p.bWinner = true;
+                }else{
+                    p.bDrew = true;
                 }
+                
             }
 
         }else{
@@ -765,17 +761,17 @@ class MatchManager{
 
             
             if(this.playerManager.players.length > 0){
+
                 this.playerManager.sortByScore();
+
                 const winnerScore =  this.playerManager.players[0].stats.score;
                 const winnerDeaths =  this.playerManager.players[0].stats.deaths;
-
-                let p = 0;
 
                 let totalWinningPlayers = 0;
 
                 for(let i = 0; i < this.playerManager.players.length; i++){
 
-                    p = this.playerManager.players[i];
+                    const p = this.playerManager.players[i];
 
                     if(p.stats.score === winnerScore && p.stats.deaths === winnerDeaths){
                         totalWinningPlayers++;

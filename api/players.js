@@ -1063,11 +1063,9 @@ class Players{
 
             const totals = {};
 
-            let p = 0;
-
             for(let i = 0; i < playersData.length; i++){
 
-                p = playersData[i];
+                const p = playersData[i];
 
                 if(totals[p.player_id] === undefined){
 

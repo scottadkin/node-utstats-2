@@ -1202,7 +1202,6 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-
                 if(!p.bPlayedInMatch) continue;
                 if(this.bIgnoreBots && p.bBot) continue;
        
