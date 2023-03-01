@@ -768,9 +768,10 @@ class Matches{
     }
 
 
-    async renameDmWinner(oldName, newName){
+    async changeDMWinner(oldPlayerId, newPlayerId){
 
-        return await mysql.simpleUpdate("UPDATE nstats_matches SET dm_winner=? WHERE dm_winner=?", [newName, oldName]);
+        const query = `UPDATE nstats_matches SET dm_winner=? WHERE dm_winner=?`;
+        return await mysql.simpleQuery(query, [newPlayerId, oldPlayerId]);
     }
 
     async renameMatchDmWinner(matchId, name, score){
@@ -1295,7 +1296,7 @@ class Matches{
 
     async getAllPlayerMatches(player){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE player_id=? ORDER BY id ASC", [player]);
+        return await mysql.simpleQuery("SELECT * FROM nstats_player_matches WHERE player_id=? ORDER BY id ASC", [player]);
     }
 
     async getAllPlayerMatchIds(playerId){
@@ -1651,6 +1652,21 @@ class Matches{
         const {query, vars} = this.createSearchQuery(false, serverId, gametypeId, mapId, perPage, page);
 
         return await mysql.simpleQuery(query, vars); 
+    }
+
+
+    async changePlayerScoreHistoryIds(oldPlayerId, newPlayerId){
+
+        const query = `UPDATE nstats_match_player_score SET player=? WHERE player=?`;
+
+        return await mysql.simpleQuery(query, [newPlayerId, oldPlayerId]);
+    }
+
+    async changeTeamChangesPlayerIds(oldPlayerId, newPlayerId){
+
+        const query = `UPDATE nstats_match_team_changes SET player=? WHERE player=?`;
+
+        return await mysql.simpleQuery(query, [newPlayerId, oldPlayerId]);
     }
 
 }

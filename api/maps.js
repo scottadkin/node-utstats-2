@@ -807,13 +807,13 @@ class Maps{
 
         const query = "SELECT id,match_date,map_id,playtime FROM nstats_player_matches WHERE player_id=?";
 
-        return await mysql.simpleFetch(query, [playerId]);
+        return await mysql.simpleQuery(query, [playerId]);
     }
 
 
     async deletePlayer(playerId){
 
-        return await mysql.simpleDelete("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
+        return await mysql.simpleQuery("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
     }
 
 
@@ -845,12 +845,9 @@ class Maps{
             
             const totals = {};
 
-            let p = 0;
-            let current = 0;
-
             for(let i = 0; i < playtimeData.length; i++){
 
-                p = playtimeData[i];
+                const p = playtimeData[i];
 
                 if(totals[p.map_id] === undefined){
 
@@ -866,7 +863,7 @@ class Maps{
                     };
                 }
 
-                current = totals[p.map_id];
+                const current = totals[p.map_id];
 
                 current.matches++;
 
