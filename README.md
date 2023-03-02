@@ -1,6 +1,9 @@
 # Node UTStats 2
 Unreal Tournament stats tracking website using node.js and mysql.
 
+# Important Change
+- From Version 2.8.0 and onwards Node UTStats 2 is not compatible with previous versions, running **node upgrade** will not work. 
+
 # Current Features
 - Match reports
 - Player Match reports
@@ -13,6 +16,7 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images.
 - ACE support.
 - SFTP Support.
+- Automatic player merging by ACE HWID, if enabled players with the same HWID will take the latest name using said HWID.
 
 # Current Supported Gametypes
 - Deathmatch
@@ -37,7 +41,6 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Open command prompt in the folder.
 - Run the command **npm install** to install all the dependencies.
 - Open config.json, and change the mysql settings to match your mysql setup.
-- If you wish to use classic mode you must also fill in the **classic.mysql** variables to connect to your utstats database.
 - Also in config.json you will see the variable called **importInterval**, this will tell the importer how long to wait(in seconds) between looking for new logs to import. IF you set this to 0 the import will run once only.
 ![alt text](https://i.imgur.com/qcVGOvd.png "config.json image")
 - Now run the command **node install** this will create the database and all the tables needed by node utstats 2.
