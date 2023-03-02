@@ -501,6 +501,7 @@ class ItemsManager{
                 value.ampStats.ampPlayerKills = this.getPlayerAmpPlayerKillStats(playerId);
                 value.ampStats.suicides = this.getPlayerAmpSuicides(playerId);
 
+
                 await this.items.setPlayerMatchPickups(matchId, playerId, value);
                 await this.items.updatePlayerBasicPickupData(playerId, value);
                

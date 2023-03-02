@@ -262,19 +262,21 @@ class Items{
             pads=?,armor=?,boots=?,super_health=?
             WHERE match_id=? AND player_id=?`;
 
+
         const vars = [
-            data.belt,
-            data.amp,
+            data.belt ?? 0,
+            data.amp ?? 0,
             data.ampStats.totalTime,
-            data.invis,
+            data.invis ?? 0,
             data.invisStats.totalTime,
-            data.pads,
-            data.armor,
-            data.boots,
-            data.super,
+            data.pads ?? 0,
+            data.armor ?? 0,
+            data.boots ?? 0,
+            data.super ?? 0,
             matchId,
             player
         ];
+
 
         return await mysql.simpleQuery(query, vars)
 
