@@ -278,6 +278,7 @@ class Records extends React.Component{
 
             let playerURL = "";
 
+            
             if(this.props.mode === 0){
                 playerURL = `/player/${d.player_id}`;
             }else if(this.props.mode === 1){

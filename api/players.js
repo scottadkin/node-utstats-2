@@ -297,7 +297,7 @@ class Players{
 
         if(typeIndex === -1) return [];
 
-        const query = `SELECT player_id,name,country,matches,last,playtime,${validTypes[typeIndex]} as value 
+        const query = `SELECT id as player_id,name,country,matches,last,playtime,${validTypes[typeIndex]} as value 
         FROM nstats_player_totals WHERE gametype=? ORDER BY ${validTypes[typeIndex]} DESC LIMIT ?, ?`;
 
         return await mysql.simpleQuery(query, [gametype, start, limit]);
