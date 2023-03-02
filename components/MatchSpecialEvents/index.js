@@ -1,480 +1,377 @@
-import TipHeader from '../TipHeader/';
 import CountryFlag from '../CountryFlag/';
 import styles from './MatchSpecialEvents.module.css';
-import React from 'react';
+import {React, useState} from 'react';
 import Functions from '../../api/functions';
 import Link from 'next/link';
-import Table2 from '../Table2';
+import InteractiveTable from '../InteractiveTable';
+
+const MatchSpecialEvents = ({matchId, bTeamGame, players, bSingle, targetPlayerId}) =>{
 
 
-class MatchSpecialEvents extends React.Component{
+    const [killMode, setKillMode] = useState(0);
 
-    constructor(props){
+    const getSpreeHeaders = () =>{
 
-        super(props);
+        if(killMode === 0){
 
-        //this.players = JSON.parse(props.players);
-        this.bTeamGame = props.bTeamGame;
-
-        this.state = {"mode": 0};
-
-        this.changeMode = this.changeMode.bind(this);
-
-    }
-
-
-    changeMode(value){
-
-        this.setState({"mode": value});
-    }
-
-    bAnyData(player, type){
-
-
-        for(let i = 1; i < 8; i++){
-
-            if(type === 'multi'){
-
-                if(player[`multi_${i}`] > 0){
-                    return true;
-                }
-
-            }else if(type === 'spree'){
-
-                if(player[`spree_${i}`] > 0){
-                    return true;
-                }
-            }
+            return {
+                "player": "Player",
+                "spree": {"title": "Killing Spree", "content": "Player killed 5 to 9 players in a single life."},
+                "rampage": {"title": "Rampage", "content": "Player killed 10 to 14 players in a single life."},
+                "dominating": {"title": "Dominating", "content": "Player killed 15 to 19 players in a single life."},
+                "unstoppable": {"title": "Unstoppable", "content": "Player killed 20 to 24 players in a single life."},
+                "godlike": {"title": "Godlike", "content": "Player killed at least 25 players in a single life."},
+                "best": {"title": "Best Spree", "content": "Most Kills the player got in a single life."},
+            };
         }
 
-        return false;
-    }
+        if(killMode === 1){
 
-
-    displayValue(input){
-
-        if(input > 0) return input;
-
-        return '';
-    }
-
-    createMultiElems(){
-
-        let elems = [];
-
-        let bgColor = "team-none";
-
-        let p = 0;
-
-        let countryFlag = 0;
-        let playerName = 0;
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            p = this.props.players[i];      
-
-            if(this.bAnyData(p, 'multi')){
-
-                countryFlag = <CountryFlag host={this.props.host} country={p.country}/>;
-                playerName = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a>{p.name}</a></Link>
-
-                if(this.bTeamGame){
-                    bgColor = Functions.getTeamColor(p.team);
-                }else{
-                    bgColor = null;
-                }
-
-                if(this.props.single !== undefined){
-                    bgColor = null;
-                }
-
-                if(this.state.mode === 2){
-
-                    elems.push(<tr key={`multi-2-${i}`}>
-                        {(this.props.single) ? null :<td className={bgColor}>{countryFlag}{playerName}</td>}
-                        <td>{this.displayValue(p.multi_1)}</td>
-                        <td>{this.displayValue(p.multi_2)}</td>
-                        <td>{this.displayValue(p.multi_3)}</td>
-                        <td>{this.displayValue(p.multi_4)}</td>
-                        <td>{this.displayValue(p.multi_5)}</td>
-                        <td>{this.displayValue(p.multi_6)}</td>
-                        <td>{this.displayValue(p.multi_7)}</td>
-                        <td>{p.multi_best}</td>
-                    </tr>);
-
-                }else if(this.state.mode === 0){
-
-                    elems.push(<tr key={`multi-0-${i}`}>
-                        {(this.props.single) ? null :<td className={bgColor}>{countryFlag}{playerName}</td>}
-                        <td>{this.displayValue(p.multi_1)}</td>
-                        <td>{this.displayValue(p.multi_2)}</td>
-                        <td>{this.displayValue(p.multi_3)}</td>
-                        <td>{this.displayValue(p.multi_4 + p.multi_5 + p.multi_6 + p.multi_7)}</td>
-                        <td>{p.multi_best}</td>
-                    </tr>);
-
-                }else if(this.state.mode === 3){
-
-                    elems.push(<tr key={`multi-3-${i}`} >
-                        {(this.props.single) ? null :<td className={bgColor}>{countryFlag}{playerName}</td>}
-                        <td>{this.displayValue(p.multi_1)}</td>
-                        <td>{this.displayValue(p.multi_2)}</td>
-                        <td>{this.displayValue(p.multi_3)}</td>
-                        <td>{this.displayValue(p.multi_4) }</td>
-                        <td>{this.displayValue(p.multi_5 + p.multi_6 + p.multi_7)}</td>
-                        <td>{p.multi_best}</td>
-                    </tr>);
-
-                }else if(this.state.mode === 1){
-
-                    elems.push(<tr key={`multi-1-${i}`} className={bgColor}>
-                        {(this.props.single) ? null :<td className={bgColor}>{countryFlag}{playerName}</td>}
-                        <td>{this.displayValue(p.multi_1)}</td>
-                        <td>{this.displayValue(p.multi_2)}</td>
-                        <td>{this.displayValue(p.multi_3)}</td>
-                        <td>{this.displayValue(p.multi_4) }</td>
-                        <td>{this.displayValue(p.multi_5)}</td>
-                        <td>{this.displayValue(p.multi_6 + p.multi_7)}</td>
-                        <td>{p.multi_best}</td>
-                    </tr>);
-                }
-            }
-        
-        }
-
-        if(elems.length > 0){
-
-            if(this.state.mode === 2){
-
-                elems.unshift(<tr key={`multi-2-h`}>
-                    {(this.props.single) ? null : <th>Player</th>}
-                    <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Mega Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Ultra Kill"} content="Player Killed 5 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Monster Kill"} content="Player Killed 6 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Ludicrous Kill"} content="Player Killed 7 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Holy Shit"} content="Player Killed 8 or more Players in a short amount of time without dying."/>
-                    <TipHeader title={"Best"} content="Most players killed in a short amount of time without dying."/>
-                </tr>);
-
-            }else if(this.state.mode === 0){
-
-                elems.unshift(<tr key={`multi-0-h`}>
-                     {(this.props.single) ? null :<th>Player</th>}
-                    <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Ultra Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Monster Kill"} content="Player Killed 5 or more Players in a short amount of time without dying."/>
-                    <TipHeader title={"Best"} content="Most players killed in a short amount of time without dying."/>
-                </tr>);
-
-            }else if(this.state.mode === 3){
-
-                elems.unshift(<tr key={`multi-3-h`}>
-                     {(this.props.single) ? null :<th>Player</th>}
-                    <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Multi Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Mega Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Ultra Kill"} content="Player Killed 5 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Monster Kill"} content="Player Killed 6 or more Players in a short amount of time without dying."/>
-                    <TipHeader title={"Best"} content="Most players killed in a short amount of time without dying."/>
-                </tr>);
-
-            }else if(this.state.mode === 1){
-
-                elems.unshift(<tr key={`multi-1-h`}>
-                     {(this.props.single) ? null :<th>Player</th>}
-                    <TipHeader title={"Double Kill"} content="Player Killed 2 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Triple Kill"} content="Player Killed 3 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Multi Kill"} content="Player Killed 4 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Mega Kill"} content="Player Killed 5 Players in a short amount of time without dying."/>
-                    <TipHeader title={"Ultra Kill"} content="Player Killed 6 or more Players in a short amount of time without dying."/>
-                    <TipHeader title={"Monster Kill"} content="Player Killed 7 or more Players in a short amount of time without dying."/>
-                    <TipHeader title={"Best"} content="Most players killed in a short amount of time without dying."/>
-                </tr>);
-            }
-        }
-
-        if(elems.length > 0){
-            return <div>
-                
-                <Table2 width={1} players={(this.props.single) ? false : true}>
-                    {elems}
-                </Table2>
-            </div>
-
-        }else{
-            return null;
-        }
-
-    }
-
-
-    bAnyTypeData(type){
-
-
-        let p = 0;
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            p = this.props.players[i];
-
-            for(let x = 1; x <= 7; x++){
-
-                if(p[`${type}_${x}`] !== 0){
-                    return true;
-                }
-            }
-
-        }
-
-        return false;
-    }
-
-    createSpreeElems(){
-
-        const elems = [];
-
-        let playerName = 0;
-        let flag = 0;
-        let color = "team-none";
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            const p = this.props.players[i];
-
+            return {
+                "player": "Player",
+                "spree": {"title": "Killing Spree", "content": "Player killed 5 to 9 players in a single life."},
+                "rampage": {"title": "Rampage", "content": "Player killed 10 to 14 players in a single life."},
+                "dominating": {"title": "Dominating", "content": "Player killed 15 to 19 players in a single life."},
+                "unstoppable": {"title": "Unstoppable", "content": "Player killed 20 to 24 players in a single life."},
+                "godlike": {"title": "Godlike", "content": "Player killed 25 to 29 players in a single life."},
+                "easy": {"title": "Too Easy", "content": "Player killed 30 to 34 players in a single life."},
+                "brutalizing": {"title": "Brutalizing", "content": "Player killed at least 35 players in a single life."},
+                "best": {"title": "Best Spree", "content": "Most Kills the player got in a single life."},
+            };
             
-            if(this.bAnyData(p, 'spree')){
-
-                playerName = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}><a>{p.name}</a></Link>
-                flag = <CountryFlag host={this.props.host} country={p.country}/>
-
-                if(this.bTeamGame){
-                    color = Functions.getTeamColor(p.team);
-                }else{
-                    color = null;
-                }
-
-                if(this.props.single !== undefined){
-                    color = null;
-                }
-
-                if(this.state.mode === 0){
-
-                    elems.push(<tr key={`spree-0-${i}`}>
-                        {(this.props.single) ? null :<td className={color}>{flag}{playerName}</td>}
-                        <td>{this.displayValue(p.spree_1)}</td>
-                        <td>{this.displayValue(p.spree_2)}</td>
-                        <td>{this.displayValue(p.spree_3)}</td>
-                        <td>{this.displayValue(p.spree_4)}</td>
-                        <td>{this.displayValue(p.spree_5 + p.spree_6 + p.spree_7)}</td>
-                        <td>{p.spree_best}</td>
-                    </tr>);    
-
-                }else if(this.state.mode === 1){
-
-                    elems.push(<tr  key={`spree-1-${i}`} >
-                        {(this.props.single) ? null :<td className={color}>{flag}{playerName}</td>}
-                        <td>{this.displayValue(p.spree_1)}</td>
-                        <td>{this.displayValue(p.spree_2)}</td>
-                        <td>{this.displayValue(p.spree_3)}</td>
-                        <td>{this.displayValue(p.spree_4)}</td>
-                        <td>{this.displayValue(p.spree_5)}</td>
-                        <td>{this.displayValue(p.spree_6)}</td>
-                        <td>{this.displayValue(p.spree_7)}</td>
-                        <td>{p.spree_best}</td>
-                    </tr>);
-
-                }else if(this.state.mode === 2){
-
-                    elems.push(<tr  key={`spree-2-${i}`} className={color}>
-                        {(this.props.single) ? null :<td className={color}>{flag}{playerName}</td>}
-                        <td>{this.displayValue(p.spree_1)}</td>
-                        <td>{this.displayValue(p.spree_2)}</td>
-                        <td>{this.displayValue(p.spree_3)}</td>
-                        <td>{this.displayValue(p.spree_4)}</td>
-                        <td>{this.displayValue(p.spree_5)}</td>
-                        <td>{this.displayValue(p.spree_6 + p.spree_7)}</td>
-                        <td>{p.spree_best}</td>
-                    </tr>);
-
-                }else if(this.state.mode === 3){
-
-                    elems.push(<tr  key={`spree-3-${i}`} className={color}>
-                        {(this.props.single) ? null :<td className={color}>{flag}{playerName}</td>}
-                        <td>{this.displayValue(p.spree_1)}</td>
-                        <td>{this.displayValue(p.spree_2)}</td>
-                        <td>{this.displayValue(p.spree_3)}</td>
-                        <td>{this.displayValue(p.spree_4)}</td>
-                        <td>{this.displayValue(p.spree_5)}</td>
-                        <td>{this.displayValue(p.spree_6 + p.spree_7)}</td>
-                        <td>{p.spree_best}</td>
-                    </tr>);
-                }
-            }
-
         }
 
+        if(killMode === 2){
 
-        if(elems.length > 0){
-
-            if(this.state.mode === 0){
-
-                elems.unshift(
-                    <tr key={`spree-0-h`}>
-                         {(this.props.single) ? null :<th>Player</th>}
-                        <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
-                        <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
-                        <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
-                        <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
-                        <TipHeader title="Godlike" content="Player killed 25 or more players in a life."/>
-                        <TipHeader title="Best" content="Most kills player had in a life."/>
-                    </tr>
-                );
-
-            }else if(this.state.mode === 1){
-
-                elems.unshift(
-                    <tr key={`spree-1-h`}>
-                         {(this.props.single) ? null :<th>Player</th>}
-                        <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
-                        <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
-                        <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
-                        <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
-                        <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
-                        <TipHeader title="Too Easy" content="Player killed 30 to 34 players in a life."/>
-                        <TipHeader title="Brutalizing" content="Player killed 35 or more players in a life."/>
-                        <TipHeader title="Best" content="Most kills player had in a life."/>
-                    </tr>
-                );
-
-            }else if(this.state.mode === 2){
-
-                elems.unshift(
-                    <tr key={`spree-2-h`}>
-                         {(this.props.single) ? null :<th>Player</th>}
-                        <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
-                        <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
-                        <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
-                        <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
-                        <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
-                        <TipHeader title="Whicked Sick" content="Player killed 30 or more players in a life."/>
-                        <TipHeader title="Best" content="Most kills player had in a life."/>
-                    </tr>
-                );
-
-            }else if(this.state.mode === 3){
-
-                elems.unshift(
-                    <tr key={`spree-3-h`}>
-                         {(this.props.single) ? null :<th>Player</th>}
-                        <TipHeader title="Killing Spree" content="Player killed 5 to 9 players in a life."/>
-                        <TipHeader title="Rampage" content="Player killed 10 to 14 players in a life."/>
-                        <TipHeader title="Dominating" content="Player killed 15 to 19 players in a life."/>
-                        <TipHeader title="Unstoppable" content="Player killed 20 to 24 players in a life."/>
-                        <TipHeader title="Godlike" content="Player killed 25 to 29 players in a life."/>
-                        <TipHeader title="Massacre" content="Player killed 30 or more players in a life."/>
-                        <TipHeader title="Best" content="Most kills player had in a life."/>
-                    </tr>
-                );
-            }
-
-            return <div>
-            <Table2 width={1} players={(this.props.single) ? false : true}>
-                {elems}
-            </Table2>
-            </div>
+            return {
+                "player": "Player",
+                "spree": {"title": "Killing Spree", "content": "Player killed 5 to 9 players in a single life."},
+                "rampage": {"title": "Rampage", "content": "Player killed 10 to 14 players in a single life."},
+                "dominating": {"title": "Dominating", "content": "Player killed 15 to 19 players in a single life."},
+                "unstoppable": {"title": "Unstoppable", "content": "Player killed 20 to 24 players in a single life."},
+                "godlike": {"title": "Godlike", "content": "Player killed 25 to 29 players in a single life."},
+                "sick": {"title": "Wicked Sick", "content": "Player killed at least 30 players in a single life."},
+                "best": {"title": "Best Spree", "content": "Most Kills the player got in a single life."},
+            };
+            
+            
         }
 
-        return null;
+        if(killMode === 3){
+            
+            return {
+                "player": "Player",
+                "spree": {"title": "Killing Spree", "content": "Player killed 5 to 9 players in a single life."},
+                "rampage": {"title": "Rampage", "content": "Player killed 10 to 14 players in a single life."},
+                "dominating": {"title": "Dominating", "content": "Player killed 15 to 19 players in a single life."},
+                "unstoppable": {"title": "Unstoppable", "content": "Player killed 20 to 24 players in a single life."},
+                "godlike": {"title": "Godlike", "content": "Player killed 25 to 29 players in a single life."},
+                "massacre": {"title": "Massacre", "content": "Player killed at least 30 players in a single life."},
+                "best": {"title": "Best Spree", "content": "Most Kills the player got in a single life."},
+            };
+        }
     }
 
+    const getMultiHeaders = () =>{
 
-    firetBloodElem(){
+        if(killMode === 0){
 
-        let p = 0;
-
-        let bgColor = "team-none";
-
-        if(this.props.single){
-
-            p = this.props.players[0];
-
-            if(p.first_blood){
-                return <div className={styles.first}>
-                    <div>First Blood</div>
-                    <div className={bgColor}>Yes</div>
-                </div>
-            }
-
-            return null;
+            return {
+                "player": "Player",
+                "double": {"title": "Double Kill",  "content": "Player Killed 2 Players in a short amount of time without dying."},
+                "multi": {"title": "Multi Kill",  "content": "Player Killed 3 Players in a short amount of time without dying."},
+                "ultra": {"title": "Ultra Kill",  "content": "Player Killed 4 Players in a short amount of time without dying."},
+                "monster": {"title": "Monster Kill", "content": "Player Killed 5 or more Players in a short amount of time without dying."},
+                "best": {"title": "Best Multi Kill", "content": "Most players killed in a short amount of time without dying."},
+            };
         }
 
+        if(killMode === 1){
 
-        for(let i = 0; i < this.props.players.length; i++){
-
-            p = this.props.players[i];
-
-            if(this.props.bTeamGame){
-                bgColor = Functions.getTeamColor(p.team);
-            }
-
-            if(p.first_blood){
-                return <div className={styles.first}>
-                    <div>First Blood</div>
-                    <div className={bgColor}><CountryFlag host={this.props.host} country={p.country}/><Link href={`/player/${p.player_id}`}><a>{p.name}</a></Link></div>
-                </div>
-            }
+            return {
+                "player": "Player",
+                "double": {"title": "Double Kill",  "content": "Player Killed 2 Players in a short amount of time without dying."},
+                "triple": {"title": "Triple Kill",  "content": "Player Killed 3 Players in a short amount of time without dying."},
+                "multi": {"title": "Multi Kill",  "content": "Player Killed 4 Players in a short amount of time without dying."},
+                "mega": {"title": "Mega Kill",  "content": "Player Killed 5 Players in a short amount of time without dying."},
+                "ultra": {"title": "Ultra Kill",  "content": "Player Killed 6 Players in a short amount of time without dying."},
+                "monster": {"title": "Monster Kill", "content": "Player Killed 7 or more Players in a short amount of time without dying."},
+                "best": {"title": "Best Multi Kill", "content": "Most players killed in a short amount of time without dying."},
+            };
         }
 
-        return null;
+        if(killMode === 2){
+
+            return {
+                "player": "Player",
+                "double": {"title": "Double Kill",  "content": "Player Killed 2 Players in a short amount of time without dying."},
+                "multi": {"title": "Multi Kill",  "content": "Player Killed 3 Players in a short amount of time without dying."},
+                "mega": {"title": "Mega Kill",  "content": "Player Killed 4 Players in a short amount of time without dying."},
+                "ultra": {"title": "Ultra Kill",  "content": "Player Killed 5 Players in a short amount of time without dying."},
+                "monster": {"title": "Monster Kill",  "content": "Player Killed 6 Players in a short amount of time without dying."},
+                "ludicrous": {"title": "Ludicrous Kill",  "content": "Player Killed 7 Players in a short amount of time without dying."},
+                "shit": {"title": "Holy Shit", "content": "Player Killed 8 or more Players in a short amount of time without dying."},
+                "best": {"title": "Best Multi Kill", "content": "Most players killed in a short amount of time without dying."},
+            };
+        }
+
+        if(killMode === 3){
+
+            return {
+                "player": "Player",
+                "double": {"title": "Double Kill",  "content": "Player Killed 2 Players in a short amount of time without dying."},
+                "multi": {"title": "Multi Kill",  "content": "Player Killed 3 Players in a short amount of time without dying."},
+                "mega": {"title": "Mega Kill",  "content": "Player Killed 4 Players in a short amount of time without dying."},
+                "ultra": {"title": "Ultra Kill",  "content": "Player Killed 5 Players in a short amount of time without dying."},
+                "monster": {"title": "Monster Kill", "content": "Player Killed 6 or more Players in a short amount of time without dying."},
+                "best": {"title": "Best Multi Kill", "content": "Most players killed in a short amount of time without dying."},
+            };
+        }
     }
 
-    render(){
+    const bPlayerAnyMultis = (player) =>{
 
+        for(let i = 1; i <= 7; i++){
 
-        const multiElems = this.createMultiElems();
-        const spreeElems = this.createSpreeElems();
-
-        const firstBloodElem = this.firetBloodElem();
-
-        if(multiElems === null && spreeElems === null && firstBloodElem === null){
-            return null;
+            if(player[`multi_${i}`] > 0) return true;
         }
 
-        return (<div><div className={styles.special}>
+        return false;
+    }
 
-            <div className="default-header">Special Events</div>
+    const bPlayerAnySprees = (player) =>{
 
-            {
-                (multiElems != null || spreeElems != null) ?
-                <div className="tabs">
-                    <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : '' }`} onClick={(() =>{
-                        this.changeMode(0)
-                    })}>Classic</div>
-                    <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : '' }`} onClick={(() =>{
-                        this.changeMode(1)
-                    })}>SmartCTF/DM</div>
-                    <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : '' }`} onClick={(() =>{
-                        this.changeMode(2)
-                    })}>UT2K4</div>
-                    <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : '' }`} onClick={(() =>{
-                        this.changeMode(3)
-                    })}>UT3</div>
-                </div>
-                :
-                null
+        for(let i = 1; i <= 7; i++){
+
+            if(player[`spree_${i}`] > 0) return true;
+        }
+
+        return false;
+    }
+
+    const getMultiData = () =>{
+
+        const data = [];
+
+        for(let i = 0; i < players.length; i++){
+
+            const p = players[i];
+
+            if(bSingle){
+                if(p.player_id !== targetPlayerId) continue;
             }
 
-            {multiElems}
+            if(!bPlayerAnyMultis(p)) continue;
 
-            {spreeElems}
+            const teamColor = (bTeamGame) ? Functions.getTeamColor(p.team) : "";
 
-            {firstBloodElem}
+            const current = {
+                "player": {
+                    "value": p.name.toLowerCase(), 
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${p.player_id}`}>
+                        <a>
+                            <CountryFlag country={p.country}/>{p.name}
+                        </a>
+                    </Link>,
+                    "className": `player ${teamColor}`
+                },
+                "double": {"value": p.multi_1, "displayValue": Functions.ignore0(p.multi_1)}
+            };
 
-        </div></div>);
+            if(killMode === 0){
+
+                const monsterKills = p.multi_4 + p.multi_5 + p.multi_6 + p.multi_7;
+                current["multi"] = {"value": p.multi_2, "displayValue": Functions.ignore0(p.multi_2)};
+                current["ultra"] = {"value": p.multi_3, "displayValue": Functions.ignore0(p.multi_3)};
+                current["monster"] = {"value": monsterKills, "displayValue": Functions.ignore0(monsterKills)};
+                
+            }
+
+            if(killMode === 1){
+
+                const monsterKills = p.multi_6 + p.multi_7;
+
+                current["triple"] = {"value": p.multi_2, "displayValue": Functions.ignore0(p.multi_2)};
+                current["multi"] = {"value": p.multi_3, "displayValue": Functions.ignore0(p.multi_3)};
+                current["mega"] = {"value": p.multi_4, "displayValue": Functions.ignore0(p.multi_4)};
+                current["ultra"] = {"value": p.multi_5, "displayValue": Functions.ignore0(p.multi_5)};
+                current["monster"] = {"value": monsterKills, "displayValue": Functions.ignore0(monsterKills)};
+            }
+
+            if(killMode === 2){
+
+                current["multi"] = {"value": p.multi_2, "displayValue": Functions.ignore0(p.multi_2)};
+                current["mega"] = {"value": p.multi_3, "displayValue": Functions.ignore0(p.multi_3)};
+                current["ultra"] = {"value": p.multi_4, "displayValue": Functions.ignore0(p.multi_4)};
+                current["monster"] = {"value": p.multi_5, "displayValue": Functions.ignore0(p.multi_5)};
+                current["ludicrous"] = {"value": p.multi_6, "displayValue": Functions.ignore0(p.multi_6)};
+                current["shit"] = {"value": p.multi_7, "displayValue": Functions.ignore0(p.multi_7)};
+                
+            }
+
+
+
+            if(killMode === 3){
+
+                const monsterKills = p.multi_5 + p.multi_6 + p.multi_7;
+
+                current["multi"] = {"value": p.multi_2, "displayValue": Functions.ignore0(p.multi_2)};
+                current["mega"] = {"value": p.multi_3, "displayValue": Functions.ignore0(p.multi_3)};
+                current["ultra"] = {"value": p.multi_4, "displayValue": Functions.ignore0(p.multi_4)};
+                current["monster"] = {"value": monsterKills, "displayValue": Functions.ignore0(monsterKills)};
+                
+            }
+
+            current["best"] = {"value": p.multi_best, "displayValue": Functions.ignore0(p.multi_best)};
+
+            data.push(current);
+
+        }
+
+        return data;
     }
+
+    const getSpreeData = () =>{
+
+        const data = [];
+
+        for(let i = 0; i < players.length; i++){
+
+            if(!bPlayerAnySprees(players[i])) continue;
+
+            const p = players[i];
+
+            if(bSingle){
+                if(p.player_id !== targetPlayerId) continue;
+            }
+
+            const teamColor = (bTeamGame) ? Functions.getTeamColor(p.team) : "";
+
+            const current = {
+                "player": {
+                    "value": p.name.toLowerCase(), 
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${p.player_id}`}>
+                        <a>
+                            <CountryFlag country={p.country}/>{p.name}
+                        </a>
+                    </Link>,
+                    "className": `player ${teamColor}`
+                },
+                "spree": {"value": p.spree_1, "displayValue": Functions.ignore0(p.spree_1)},
+                "rampage": {"value": p.spree_2, "displayValue": Functions.ignore0(p.spree_2)},
+                "dominating": {"value": p.spree_3, "displayValue": Functions.ignore0(p.spree_3)},
+                "unstoppable": {"value": p.spree_4, "displayValue": Functions.ignore0(p.spree_4)},
+            };
+
+            if(killMode === 0){
+
+                const godlikes = p.spree_5 + p.spree_6 + p.spree_7;
+                current["godlike"] = {"value": godlikes, "displayValue": Functions.ignore0(godlikes)};
+            }
+
+            if(killMode === 1){
+
+                current["godlike"] = {"value": p.spree_5, "displayValue": Functions.ignore0(p.spree_5)};
+                current["easy"] = {"value": p.spree_6, "displayValue": Functions.ignore0(p.spree_6)};
+                current["brutalizing"] = {"value": p.spree_7, "displayValue": Functions.ignore0(p.spree_7)};
+            }
+
+            if(killMode === 2){
+
+                current["godlike"] = {"value": p.spree_5, "displayValue": Functions.ignore0(p.spree_5)};
+                current["sick"] = {"value": p.spree_6 + p.spree_7, "displayValue": Functions.ignore0(p.spree_6 + p.spree_7)};
+            }
+
+            if(killMode === 3){
+
+                current["godlike"] = {"value": p.spree_5, "displayValue": Functions.ignore0(p.spree_5)};
+                current["massacre"] = {"value": p.spree_6 + p.spree_7, "displayValue": Functions.ignore0(p.spree_6 + p.spree_7)};
+            }
+
+            current["best"] = {"value": p.spree_best, "displayValue": Functions.ignore0(p.spree_best)}
+
+            data.push(current);
+        }
+
+        return data;
+    }
+
+    const bAnyMultiKills = () =>{
+
+        for(let i = 0; i < players.length; i++){
+
+            if(!bSingle){
+                if(bPlayerAnyMultis(players[i])) return true;
+            }else{
+
+                if(players[i].player_id === targetPlayerId){
+                    return bPlayerAnyMultis(players[i]);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    const bAnySprees = () =>{
+
+        for(let i = 0; i < players.length; i++){
+
+            if(!bSingle){
+                if(bPlayerAnySprees(players[i])) return true;
+            }else{
+
+                if(players[i].player_id === targetPlayerId){
+                    return bPlayerAnySprees(players[i]);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    const renderMultiKills = () =>{
+
+        if(!bAnyMultiKills()) return null;
+
+        const headers = getMultiHeaders();
+
+        const data = getMultiData();
+
+        return <InteractiveTable width={1} headers={headers} data={data} />
+    }
+
+    const renderSprees = () =>{
+
+        if(!bAnySprees()) return null;
+
+        const headers = getSpreeHeaders();
+        const data = getSpreeData();
+
+        return <InteractiveTable width={1} headers={headers} data={data} />;
+    }
+
+    if(!bAnySprees() && !bAnyMultiKills()) return null;
+
+    return <div>
+        <div className="default-header">Special Events</div>
+        <div className="tabs">
+            <div className={`tab ${(killMode === 0) ? "tab-selected" : '' }`} onClick={(() =>
+                setKillMode(0)
+            )}>Classic</div>
+            <div className={`tab ${(killMode === 1) ? "tab-selected" : '' }`}  onClick={(() =>
+                setKillMode(1)
+            )}>SmartCTF/DM</div>
+            <div className={`tab ${(killMode === 2) ? "tab-selected" : '' }`} onClick={(() =>
+                setKillMode(2)
+            )}>UT2K4</div>
+            <div className={`tab ${(killMode === 3) ? "tab-selected" : '' }`} onClick={(() =>
+                setKillMode(3)
+            )}>UT3</div>
+        </div>
+        {renderMultiKills()}
+        {renderSprees()}
+    </div>
 }
 
 export default MatchSpecialEvents;

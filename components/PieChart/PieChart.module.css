@@ -1,0 +1,7 @@
+.wrapper{
+    user-select: none;
+}
+
+.wrapper canvas{
+    border:1px solid var(--border-color-3);
+}

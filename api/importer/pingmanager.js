@@ -9,7 +9,7 @@ class PingManager{
         this.data = [];
         this.pings = new Pings();
 
-        this.playerValues = [];
+        this.playerValues = {};
         
     }
 
@@ -27,71 +27,73 @@ class PingManager{
 
                 const timestamp = parseFloat(result[1]);
 
-                if(timestamp < playerManager.matchTimings.start){
+                /*if(timestamp < playerManager.matchTimings.start){
                     new Message(`Ping event before match, ignoring.`,"note");
-                }
+                }*/
 
-                if(parseInt(result[3]) != 0){
+                const playerId = parseInt(result[2]);
+                const currentPing = parseInt(result[3]);
 
-                    const currentPlayer = playerManager.getOriginalConnectionById(result[2]);
+     
 
-                    const currentPing = parseInt(result[3]);
+                if(currentPing != 0){
+
+                    const currentPlayer = playerManager.getPlayerById(playerId);
+
+                    //const currentPing = parseInt(result[3]);
 
                     if(currentPlayer !== null){
 
-                        if(currentPlayer.bDuplicate === undefined){
-                            //don't want to save bot ping data as it's pointless
-                            if(!currentPlayer.bBot){
+                        //don't want to save bot ping data as it's pointless
+                        if(!currentPlayer.bBot){
 
-                                const masterId = currentPlayer.masterId;
+                            const masterId = currentPlayer.masterId;
 
-                                if(masterId === undefined){
-                                    new Message(`parsePings() masterId is undefined.`, "Warning");
-                                    continue;
-                                }
-
-                                //valueIndex = this.playerValues.indexOf(masterId);
-
-                                if(this.playerValues[masterId] !== undefined){
-
-                                    this.playerValues[masterId].totalData++;
-
-                                    if(currentPing < this.playerValues[masterId].min){
-                                        this.playerValues[masterId].min = currentPing;
-                                    }
-
-                                    if(currentPing > this.playerValues[masterId].max){
-                                        this.playerValues[masterId].max = currentPing;
-                                    }
-
-                                    this.playerValues[masterId].total += currentPing;
-
-                                    if(this.playerValues[masterId].total > 0){
-                                        this.playerValues[masterId].average = this.playerValues[masterId].total / this.playerValues[masterId].totalData;
-                                    }
-                                   
-
-                                }else{
-
-                                    this.playerValues[masterId] = {
-                                        "min": currentPing,
-                                        "max": currentPing,
-                                        "average": currentPing,
-                                        "totalData": 1,
-                                        "total": currentPing
-                                    };
-                                }
-
-                                this.data.push({
-                                    "timestamp": parseInt(timestamp), //no need to save decimals with how far between ping events are
-                                    "player": currentPlayer.masterId,
-                                    "ping": currentPing
-                                });
+                            if(masterId === undefined){
+                                new Message(`parsePings() masterId is undefined.`, "Warning");
+                                continue;
                             }
+
+                            if(this.playerValues[masterId] !== undefined){
+
+                                this.playerValues[masterId].totalData++;
+
+                                if(currentPing < this.playerValues[masterId].min){
+                                    this.playerValues[masterId].min = currentPing;
+                                }
+
+                                if(currentPing > this.playerValues[masterId].max){
+                                    this.playerValues[masterId].max = currentPing;
+                                }
+
+                                this.playerValues[masterId].total += currentPing;
+
+                                if(this.playerValues[masterId].total > 0){
+                                    this.playerValues[masterId].average = this.playerValues[masterId].total / this.playerValues[masterId].totalData;
+                                }
+                                
+
+                            }else{
+
+                                this.playerValues[masterId] = {
+                                    "min": currentPing,
+                                    "max": currentPing,
+                                    "average": currentPing,
+                                    "totalData": 1,
+                                    "total": currentPing
+                                };
+                            }
+
+                            this.data.push({
+                                "timestamp": parseInt(timestamp), //no need to save decimals with how far between ping events are
+                                "player": currentPlayer.masterId,
+                                "ping": currentPing
+                            });
                         }
+                        
 
                     }else{
-                        new Message(`Pings.parsePings() There is no player with the id ${result[2]}`,'warning');
+                        new Message(`Pings.parsePings() There is no player with the id ${playerId}`,'warning');
                     }
                 }
             }

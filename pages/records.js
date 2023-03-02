@@ -216,6 +216,8 @@ class Records extends React.Component{
 
     getTypeTitle(){
 
+        const capType = parseInt(this.props.capType);
+
         let types = [];
 
         if(this.props.mode === 0){
@@ -228,9 +230,9 @@ class Records extends React.Component{
 
         }else if(this.props.mode === 2){
 
-            if(this.props.capMode === 0){
+            if(capType === 0){
                 return "Solo Cap Records";
-            }else if(this.props.capMode === 1){
+            }else if(capType === 1){
                 return "Assisted Cap Records";
             }
 
@@ -276,6 +278,7 @@ class Records extends React.Component{
 
             let playerURL = "";
 
+            
             if(this.props.mode === 0){
                 playerURL = `/player/${d.player_id}`;
             }else if(this.props.mode === 1){
@@ -334,7 +337,7 @@ class Records extends React.Component{
 
         if(this.props.mode !== 2) return null;
 
-        return <CTFCapRecords mode={this.props.capMode} />;
+        return <CTFCapRecords  selectedMode={this.props.capType}/>;
     }
 
     renderCombogibRecords(){
@@ -483,6 +486,9 @@ export async function getServerSideProps({req, query}){
     let page = parseInt(query.page) ?? 1;
     if(page !== page) page = 1;
 
+
+    const capType = (query.ct !== undefined) ? query.ct.toLowerCase() : 0;
+
     let type = query.type ?? "kills";
 
     //also used as combo mode
@@ -534,7 +540,8 @@ export async function getServerSideProps({req, query}){
             "validComboTypes": validComboTypes,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "pageSettings": pageSettings
+            "pageSettings": pageSettings,
+            "capType": capType
         }
     }
 }

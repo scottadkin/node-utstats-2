@@ -29,30 +29,50 @@ function getExt(string){
 
 function uploadImage(currentLocation, currentName, targetName){
 
+
     return new Promise(async (resolve, reject) =>{
 
-        fs.rename(`${currentLocation}/${currentName}`, `${FULLSIZE_DIR}/${targetName}`, async (err) =>{
+        const fileName = `${FULLSIZE_DIR}${targetName}`;
 
-            if(err){
-                reject(err);
-                return;
-            }
+        const tempFile = `${currentLocation}${currentName}`;
 
-            const fileName = `${FULLSIZE_DIR}/${targetName}`;
-            const iconName = `${THUMBS_DIR}/${targetName}`;
+        const fileReg = /^(.+)\..+$/i;
+        const fileResult = fileReg.exec(targetName);
 
-            await Jimp.read(fileName).then((file) =>{
+        let newName = "";
 
-                return file.resize(480, 270).write(iconName);
+        if(fileResult !== null){
+            newName = fileResult[1];
+        }else{
+            newName = targetName;
+        }
 
-            }).catch((err) =>{
-                console.trace(err);
-            })
 
-            resolve();
+        await Jimp.read(tempFile).then((file) =>{
+
+            return file.write(`${FULLSIZE_DIR}${newName}.jpg`);
         });
+
+        //thumbs
+        await Jimp.read(tempFile).then((file) =>{
+
+            return file.resize(480, 270).write(`${THUMBS_DIR}${newName}.jpg`);
+
+        }).catch((err) =>{
+            console.trace(err);
+        })
+
+        try{
+            fs.unlinkSync(tempFile);
+        }catch(err){
+            console.trace(err);
+            reject(err);
+            return;
+        }
+
+        resolve();    
     });
-    
+   
 }
 
 export default async function handler(req, res){
@@ -93,10 +113,13 @@ export default async function handler(req, res){
 
                         if(VALID_FILE_TYPES.indexOf(ext) !== -1){
 
+                         
                             await uploadImage(`./uploads/`, file.newFilename, `${formName}`);
-                            console.log("ok");
+                         
+             
                             res.status(200).json({"message": "upload complete."});
                             resolve();
+                            return;
 
                         }else{
                             errors.push(`${ext} is not a valid file extension`);
@@ -127,5 +150,6 @@ export default async function handler(req, res){
         }
 
     });
+    
     
 }

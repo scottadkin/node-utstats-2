@@ -2,165 +2,219 @@ import styles from './Screenshot.module.css'
 import {useEffect, useRef} from "react";
 import Functions from '../../api/functions';
 
-//fix screenshot not loading on page back
-
 class MatchScreenshot{
 
-    constructor(canvas, download, downloadJPG, downloadBMP, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host){
+    constructor(canvas, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host, abortController){
         
         try{
-        this.canvas = canvas;
-        this.context = this.canvas.getContext("2d");
-        this.download = download;
-        this.downloadJPG = downloadJPG;
-        this.downloadBMP = downloadBMP;
-
-        this.host = host;
-
-        this.bHome = bHome;
-
-        this.bClassic = false;
-
-        if(bClassic !== undefined){
-            this.bClassic = bClassic;
-        }
-
-        this.map = map;
-        this.players = JSON.parse(players);
-
-        this.teams = parseInt(teams);
-
-        this.matchData = JSON.parse(matchData);
-        this.serverName = serverName;
-        this.gametype = gametype;
-        this.faces = JSON.parse(faces);
-
-        this.highlight = highlight;
-
-        this.players.sort((a,b) =>{
-
-            a = a.score;
-            b = b.score;
-
-            if(a < b){
-                return 1;
-            }else if(a > b){
-                return -1;
+            
+            this.canvas = canvas;
+            this.context = this.canvas.getContext("2d");
+            this.host = host;
+            this.bHome = bHome;
+            this.bClassic = false;
+            if(bClassic !== undefined){
+                this.bClassic = bClassic;
             }
-            return 0;
-        });
 
-        this.image = new Image();
-        this.image.src = image;
+            this.abortController = abortController;
+
+            this.map = map;
+            
+            if(typeof players === "string"){
+                players = JSON.parse(players);
+            }
+
+            this.players = players;
+
+            this.teams = parseInt(teams);
+
+            if(typeof matchData === "string"){
+                matchData = JSON.parse(matchData);
+            }
+
+            this.matchData = matchData;
+
+            this.serverName = serverName;
+            this.gametype = gametype;
+
+            if(typeof faces === "string"){
+                faces = JSON.parse(faces);
+            }
+
+            this.faces = faces;
+
+            this.highlight = highlight;
+
+            this.players.sort((a,b) =>{
+
+                a = a.score;
+                b = b.score;
+
+                if(a < b){
+                    return 1;
+                }else if(a > b){
+                    return -1;
+                }
+                return 0;
+            });
+
+            this.imageSrc = image;
 
 
-        this.colors = {
-            "red": "rgb(226,0,0)",
-            "blue": "rgb(62,144,194)",
-            "green": "rgb(0,181,0)",
-            "yellow": "rgb(255,255,0)",
-            "yellowPlayer": "rgb(255,255,198)",
-            "greenFooter": "rgb(0,255,0)",
-            "dmName": "rgb(45,174,241)",
-            "dmScore": "rgb(181,255,255)"
-        };
 
-        this.teamPlayerCount = [0,0,0,0];
+            this.colors = {
+                "red": "rgb(226,0,0)",
+                "blue": "rgb(62,144,194)",
+                "green": "rgb(0,181,0)",
+                "yellow": "rgb(255,255,0)",
+                "yellowPlayer": "rgb(255,255,198)",
+                "greenFooter": "rgb(0,255,0)",
+                "dmName": "rgb(45,174,241)",
+                "dmScore": "rgb(181,255,255)"
+            };
 
-        //this.scaleImage();
+            this.teamPlayerCount = [0,0,0,0];
 
-        this.flags = {};
-        this.flagWidth = this.x(1.4);
-        this.flagHeight = this.y(1.3);
+            this.flags = {};
+            this.flagWidth = this.x(1.4);
+            this.flagHeight = this.y(1.3);
 
-        this.createFullscreenEvents();
+            this.createFullscreenEvents();
 
-        this.bDisplayLoading = true;
-
-        
-        this.renderLoading();
-
-        this.image.onload = async () =>{
- 
-            await this.loadPlayerFlags();
-            await this.loadPlayerIcons();
-            await this.loadIcons();
-
-            this.bDisplayLoading = false;
-
-        }   
+            this.init();
+            
+             
         }catch(err){
             console.trace(err);
         }
     
     }
 
-    renderLoading(){
+    loadImage(url){
 
 
-        const minValue = 0;
-        const maxValue = 50;
-        let currentValue = minValue;
-        let bReverse = false;
+        return new Promise((resolve, reject) =>{
 
-        let textOffsetX = 50;
-        
+            const image = new Image();
 
-        const tick = () =>{
-
-
-            if(!bReverse){
-                currentValue++;
-                if(currentValue >= maxValue){
-                    bReverse = true;
-                }
-            }else{
-                currentValue--;
-                if(currentValue <= minValue){
-                    bReverse = false;
-                }
+            image.onload = () =>{
+                resolve(image);
             }
 
-  
-            const c = this.context;
-
-            c.fillStyle = `rgb(${currentValue},${currentValue},${currentValue})`;
-            c.fillRect(0,0,this.canvas.width,this.canvas.height);
-
-            c.fillStyle = "white";
-
-            c.textAlign = "center";
-            c.font = `${this.y(5)}px Arial`;
-
-            const textWidth = this.xPercent(c.measureText("Loading Please Wait...").width);
-
-            textOffsetX+=1;
-
-            if(textOffsetX > 100 + (textWidth * 0.5)){
-                textOffsetX = -textWidth * 0.5;
+            image.onerror = () =>{
+                reject(`Failed to load image ${url}`);
             }
 
-            c.textBaseline = "top";
+            image.src = url;
+        });
+    }
 
-            for(let i = 0; i < 20; i++){
-                c.fillText("Loading Please Wait...", this.x(textOffsetX), this.y((i * 5)));
-            }
+    async init(){
 
-            c.textAlign = "left";
 
-            if(!this.bDisplayLoading){
+        const flagUrls = this.getFlagUrls();
+        const playerIconUrls = this.getPlayerIconUrls();
+        const generalIconUrls = this.getIconUrls();
 
-                clearInterval(loading);
-              
+        const fileList = [this.imageSrc, ...flagUrls, ...playerIconUrls, ...generalIconUrls];
+
+        const promiseList = [];
+
+        for(let i = 0; i < fileList.length; i++){
+            promiseList.push(this.loadImage(fileList[i]));
+        }
+
+        try{
+
+            await Promise.all(promiseList).then((result) =>{
+
+                this.image = result[0];
                 this.render();
-                this.setupDownload();
+            });
+ 
             
-            }
+
+        }catch(err){
+
+            console.trace(err);
+        }
+
+    }
+
+    getFlagUrls(){
+
+        const flags = new Set();
+        flags.add("xx");
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+            flags.add(p.country);
+        }
+
+        this.flags = {};
+
+        const flagsArray = [...flags]
+
+        for(let i = 0; i < flagsArray.length; i++){
+
+            const flag = flagsArray[i]
+
+            this.flags[flag] = new Image();
+            this.flags[flag].src = `/images/flags/${flag.toLowerCase()}.svg`;
 
         }
 
-        const loading = setInterval(tick, 33);
+        return flagsArray.map((flag) =>{
+            return `/images/flags/${flag.toLowerCase()}.svg`;
+        });
+    }
 
+    getPlayerIconUrls(){
+
+        const faces = new Set();
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+            faces.add(p.face);
+        }
+
+        this.playerIcons = {};
+
+        const facesArray = [...faces];
+
+        for(let i = 0; i < facesArray.length; i++){
+
+            const face = facesArray[i];
+
+            this.playerIcons[face] = new Image();
+            this.playerIcons[face].src = `/images/faces/${this.getPlayerIconName(face)}.png`
+        }
+
+        return facesArray.map((faceId) =>{  
+            return `/images/faces/${this.getPlayerIconName(faceId)}.png`;
+        });
+    }
+
+    getIconUrls(){
+        
+        const files = ["red", "blue", "green", "yellow", "smartctfbg"];
+
+        this.icons = {};
+
+        for(let i = 0; i < files.length; i++){
+
+            const f = files[i];
+
+            this.icons[f] = new Image();
+            this.icons[f].src = `/images/${f}.png`;
+        }
+
+        return files.map((file) =>{
+            return `/images/${file}.png`;
+        });
     }
 
 
@@ -171,33 +225,7 @@ class MatchScreenshot{
             this.canvas.requestFullscreen().catch((err) =>{
                 console.trace(err);
             });
-        });
-    }
-
-    setupDownload(){
-
-        return;
-
-        if(this.bHome) return;
-
-        const imagePNG = this.canvas.toDataURL("image/png");
-        const imageJPG = this.canvas.toDataURL("image/jpeg");
-        const imageBMP = this.canvas.toDataURL("image/bmp");
-        //console.log(image);
-
-        const map = this.map.replace(/\W/i,'');
-        const gametype = this.gametype.replace(/\W/i,'');
-        const date = this.matchData.date;
-
-
-        const fileName = `sshot${map}-${gametype}-${date}.`;
-
-        this.download.href = imagePNG;
-        this.download.download = `${fileName}png`;
-        this.downloadJPG.href = imageJPG;
-        this.downloadJPG.download = `${fileName}jpeg`;
-        this.downloadBMP.href = imageBMP;
-        this.downloadBMP.download = `${fileName}bmp`;
+        }, {"signal": this.abortController.signal});
     }
 
     getPlayerIconName(id){
@@ -206,148 +234,15 @@ class MatchScreenshot{
             
             if(this.faces[id] !== null){
                
-                return this.faces[id].name;
-                   
+                return this.faces[id].name;           
             }
         }
 
         return 'faceless';
     }
 
-    loadPlayerIcons(){
+    
 
-        return new Promise((resolve, reject) =>{
-
-            const uniqueIcons = [];
-
-            this.playerIcons = {};
-
-            if(!this.bClassic){
-
-                let p = 0;
-
-                for(let i = 0; i < this.players.length; i++){
-
-                    p = this.players[i];
-
-                    if(uniqueIcons.indexOf(p.face) === -1){
-                        uniqueIcons.push(p.face);
-                    }
-                }
-
-                this.playerIconsToLoad = uniqueIcons.length;
-                this.playerIconsLoaded = 0;
-
-                for(let i = 0; i < uniqueIcons.length; i++){
-
-                    this.playerIcons[uniqueIcons[i]] = new Image();
-
-                    this.playerIcons[uniqueIcons[i]].src = `/images/faces/${this.getPlayerIconName(uniqueIcons[i])}.png`;
-
-                    this.playerIcons[uniqueIcons[i]].onload = () =>{
-
-                        this.playerIconsLoaded++;
-
-                        if(this.playerIconsLoaded >= this.playerIconsToLoad){
-                            resolve();
-                        }
-                    }
-                }
-
-            }else{
-
-                this.playerIcons = [];
-
-                this.playerIconsToLoad = this.faces.length;
-                this.playerIconsLoaded = 0;
-
-                for(let i = 0; i < this.faces.length; i++){
-
-                    this.playerIcons.push(new Image());
-
-                    this.playerIcons[i].src = `/images/faces/${this.faces[i]}`;
-
-                    this.playerIcons[i].onload = () =>{
-
-                        this.playerIconsLoaded++;
-
-                        if(this.playerIconsLoaded >= this.playerIconsToLoad){
-                            resolve();
-                        }
-
-                    }
-                }
-            }
-        });     
-    }
-
-    loadPlayerFlags(){
-
-        return new Promise((resolve, reject) =>{
-
-            let p = 0;
-
-            let uniqueFlags = ["XX"];
-
-            this.loadedFlags = 0;
-
-            for(let i = 0; i < this.players.length; i++){
-
-                p = this.players[i];
-
-                if(uniqueFlags.indexOf(p.country.toUpperCase()) === -1 && p.country !== ""){
-                    uniqueFlags.push(p.country.toUpperCase());
-                }
-            }
-
-            this.flagsToLoad = uniqueFlags.length;
-
-            for(let i = 0; i < this.flagsToLoad; i++){
-
-                this.flags[uniqueFlags[i]] = new Image();
-                this.flags[uniqueFlags[i]].src = `/images/flags/${uniqueFlags[i].toLowerCase()}.svg`;
-
-                this.flags[uniqueFlags[i]].onload = () =>{
-                    this.loadedFlags++;
-                    if(this.loadedFlags >= this.flagsToLoad){
-                        //console.log(`Loaded flag ${this.loadedFlags} out of ${this.flagsToLoad}`);
-                        //this.loadIcons();
-                        resolve();
-                    }
-                }
-            }
-
-        });
-        
-    }
-
-    loadIcons(){
-
-        return new Promise((resolve, reject) =>{
-
-            const files = ["red", "blue", "green", "yellow", "smartctfbg"];
-
-            this.iconsToLoad = files.length;
-            this.iconsLoaded = 0;
-
-            this.icons = {};
-
-            for(let i = 0; i < files.length; i++){
-
-                this.icons[files[i]] = new Image();
-                this.icons[files[i]].src = `/images/${files[i]}.png`;
-                this.icons[files[i]].onload = () =>{
-
-                    this.iconsLoaded++;
-
-                    if(this.iconsLoaded >= this.iconsToLoad){
-        
-                        resolve();
-                    }
-                }
-            }
-        });    
-    }
 
     x(input){
         return (this.canvas.width * 0.01) * input;
@@ -424,7 +319,7 @@ class MatchScreenshot{
 
     getFlag(code){
 
-        code = code.toUpperCase();
+        code = code.toLowerCase();
 
         for(const [key, value] of Object.entries(this.flags)){
       
@@ -433,7 +328,7 @@ class MatchScreenshot{
             }
         }
 
-        return this.getFlag("XX");
+        return this.getFlag("xx");
     }
 
     getTeamColor(team){
@@ -583,7 +478,7 @@ class MatchScreenshot{
     getSoloWinner(){
 
         if(!this.bClassic){
-            return `${this.matchData.dm_winner} Wins the match!`;
+            return `${this.matchData.dmWinner.name} Wins the match!`;
         }else{
 
             if(this.players.length > 0){
@@ -744,11 +639,9 @@ class MatchScreenshot{
 
         c.textAlign = "left";
 
-        let p = 0;
-
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
             //console.log(p);
             if(!this.bClassic){
                 this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score, p.playtime, Math.floor(p.ping_average), p.country);
@@ -885,7 +778,9 @@ class MatchScreenshot{
 
 
     renderSmartCTFPlayer(c, team, x, y, width, height, player){
-
+    
+        if(player.ctfData === undefined) return;
+        
         //const height = this.y(6);
         c.fillStyle = "rgba(0,0,0,0.5)";
         c.fillRect(x, y, width, height);
@@ -992,12 +887,12 @@ class MatchScreenshot{
 
         c.textAlign = "right";
 
-        c.fillText(player.flag_capture, x + valueOffset + col1Offset, y + row1Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row1Offset, "caps", player.flag_capture);
-        c.fillText(player.flag_taken, x + valueOffset + col1Offset, y + row2Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row2Offset, "grabs", player.flag_taken);
-        c.fillText(player.flag_assist, x + valueOffset + col1Offset, y + row3Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row3Offset, "assists", player.flag_assist);
+        c.fillText(player.ctfData.flag_capture, x + valueOffset + col1Offset, y + row1Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row1Offset, "caps", player.ctfData.flag_capture);
+        c.fillText(player.ctfData.flag_taken, x + valueOffset + col1Offset, y + row2Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row2Offset, "grabs", player.ctfData.flag_taken);
+        c.fillText(player.ctfData.flag_assist, x + valueOffset + col1Offset, y + row3Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row3Offset, "assists", player.ctfData.flag_assist);
 
 
         c.textAlign = "left";
@@ -1008,12 +903,12 @@ class MatchScreenshot{
 
         c.textAlign = "right";
 
-        c.fillText(player.flag_cover, x + valueOffset + col2Offset, y + row1Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row1Offset, "covers", player.flag_cover);
-        c.fillText(player.flag_seal, x + valueOffset + col2Offset, y + row2Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "seals", player.flag_seal);
-        c.fillText(player.flag_kill, x + valueOffset + col2Offset, y + row3Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.flag_kill);
+        c.fillText(player.ctfData.flag_cover, x + valueOffset + col2Offset, y + row1Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row1Offset, "covers", player.ctfData.flag_cover);
+        c.fillText(player.ctfData.flag_seal, x + valueOffset + col2Offset, y + row2Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "seals", player.ctfData.flag_seal);
+        c.fillText(player.ctfData.flag_kill, x + valueOffset + col2Offset, y + row3Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.ctfData.flag_kill);
 
         c.textAlign = "left";
     }
@@ -1200,8 +1095,6 @@ class MatchScreenshot{
 
     setMaxCTFValues(){
 
-        let p = 0;
-
         this.maxCTF = {
             "grabs": 0,
             "caps": 0,
@@ -1224,43 +1117,45 @@ class MatchScreenshot{
 
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
 
-            if(p.flag_taken > this.maxCTF.grabs){
-                this.maxCTF.grabs = p.flag_taken;
+            if(p.ctfData === undefined) continue;
+
+            if(p.ctfData.flag_taken > this.maxCTF.grabs){
+                this.maxCTF.grabs = p.ctfData.flag_taken;
             }
 
-            if(p.flag_capture > this.maxCTF.caps){
-                this.maxCTF.caps = p.flag_capture;
+            if(p.ctfData.flag_capture > this.maxCTF.caps){
+                this.maxCTF.caps = p.ctfData.flag_capture;
             }
 
-            if(p.flag_assist > this.maxCTF.assists){
-                this.maxCTF.assists = p.flag_assist;
+            if(p.ctfData.flag_assist > this.maxCTF.assists){
+                this.maxCTF.assists = p.ctfData.flag_assist;
             }
 
-            if(p.flag_cover > this.maxCTF.covers){
-                this.maxCTF.covers = p.flag_cover;
+            if(p.ctfData.flag_cover > this.maxCTF.covers){
+                this.maxCTF.covers = p.ctfData.flag_cover;
             }
 
             if(p.deaths > this.maxCTF.deaths){
                 this.maxCTF.deaths = p.deaths;
             }
 
-            if(p.flag_kill > this.maxCTF.flagKills){
-                this.maxCTF.flagKills = p.flag_kill;
+            if(p.ctfData.flag_kill > this.maxCTF.flagKills){
+                this.maxCTF.flagKills = p.ctfData.flag_kill;
             }
 
-            if(p.flag_seal > this.maxCTF.seals){
-                this.maxCTF.seals = p.flag_seal;
+            if(p.ctfData.flag_seal > this.maxCTF.seals){
+                this.maxCTF.seals = p.ctfData.flag_seal;
             }
 
-            this.totalCTF.grabs += p.flag_taken;
-            this.totalCTF.caps += p.flag_capture;
-            this.totalCTF.assists += p.flag_assist;
-            this.totalCTF.covers += p.flag_cover;
+            this.totalCTF.grabs += p.ctfData.flag_taken;
+            this.totalCTF.caps += p.ctfData.flag_capture;
+            this.totalCTF.assists += p.ctfData.flag_assist;
+            this.totalCTF.covers += p.ctfData.flag_cover;
             this.totalCTF.deaths += p.deaths;
-            this.totalCTF.flagKills += p.flag_kill;
-            this.totalCTF.seals += p.flag_seal;
+            this.totalCTF.flagKills += p.ctfData.flag_kill;
+            this.totalCTF.seals += p.ctfData.flag_seal;
         }
     }
 
@@ -1475,19 +1370,15 @@ class MatchScreenshot{
 const Screenshot = ({host, map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome, bClassic}) =>{
 
     const sshot = useRef(null);
-    const sshotDownload = useRef(null);
-    const sshotDownload2 = useRef(null);
-    const sshotDownload3 = useRef(null);
 
     bHome = (bHome !== undefined) ? bHome : false;
 
+    const controller = new AbortController();
 
     useEffect(() =>{
+        
         new MatchScreenshot(
-            sshot.current, 
-            sshotDownload.current, 
-            sshotDownload2.current, 
-            sshotDownload3.current, 
+            sshot.current,
             image, 
             map, 
             players,
@@ -1499,9 +1390,17 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
             highlight,
             bHome,
             bClassic,
-            host
+            host,
+            controller
         );
+
+
+
+        return () =>{
+            controller.abort();
+        }
     });
+    
 
 
     return (<div className={`${styles.wrapper} center`}>
@@ -1510,11 +1409,6 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
         </div>
         <div className={`${styles.content} center`}>
             <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-10" 
-                data-match-data={matchData} 
-                data-map={map} 
-                data-image={image}
-                data-teams={totalTeams} 
-                data-players={players} 
                 width="1920" height="1080">
             </canvas>
         </div>

@@ -1,247 +1,217 @@
-import React from 'react';
+import {React, useReducer, useEffect, useState} from 'react';
 import Graph from '../Graph';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
-import Table2 from '../Table2';
+import Loading from '../Loading';
+import InteractiveTable from '../InteractiveTable';
 
-class MatchDominationSummaryNew extends React.Component{
+const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
 
-    constructor(props){
+    const reducer = (state, action) =>{
 
-        super(props);
-        this.state = {"playerTotals": [], "pointsGraphData": [], "playerCaps": [], "finishedLoading": false};
+        switch(action.type){
+
+            case "load": return {
+                "playerCaps": action.payload.playerCaps,
+                "playerTotals": action.payload.playerTotals,
+                "pointNames": action.payload.pointNames,
+                "pointGraph": action.payload.pointGraph,
+                "bLoading": false
+            }
+        }
     }
 
-    async loadData(){
+    const [state, dispatch] = useReducer(reducer, {
+        "playerCaps": {},
+        "playerTotals": [],
+        "pointNames": [],
+        "pointGraph": [],
+        "bLoading": true
+    });
 
-        try{
+    const [separateTeams, setSeparateTeams] = useState(true);
 
-            const req = await fetch("/api/match", {
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+            const req = await fetch("/api/match",{
+                "signal": controller.signal,
                 "headers": {"Content-type": "application/json"},
                 "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "playerdomcaps", 
-                    "matchId": this.props.matchId, 
-                    "pointNames": this.props.pointNames,
-                    "players": this.props.playerNames
-                })
+                "body": JSON.stringify({"mode": "playerdomcaps", "matchId": matchId, "mapId": mapId})
             });
 
             const res = await req.json();
 
-            if(res.error === undefined){
-
-                this.setState({
-                    "playerTotals": res.playerTotals, 
-                    "pointsGraphData": res.pointsGraph,
+            dispatch({
+                "type": "load",
+                "payload": {
+                    "playerTotals": res.playerTotals,
                     "playerCaps": res.playerCaps,
-                    "finishedLoading": true
-                });
-
-
-            }else{
-
-                throw new Error(res.error);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async componentDidMount(){
-
-        await this.loadData();
-    }
-
-
-    playersToTeams(){
-
-        const players = {
-            "red": [],
-            "blue": [],
-            "green": [],
-            "yellow": []
-        };
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            const p = this.props.players[i];
-
-            switch(p.team){
-                case 0: {   players.red.push(p.id); } break;
-                case 1: {   players.blue.push(p.id); } break;
-                case 2: {   players.green.push(p.id); } break;
-                case 3: {   players.yellow.push(p.id); } break;
-            }
-        }
-
-        return players;
-    }
-
-    getPlayerPointCaps(playerId, pointId){
-
-        for(let i = 0; i < this.state.playerTotals.length; i++){
-
-            const p = this.state.playerTotals[i];
-
-            if(p.player === playerId){
-                if(p.point === pointId){
-                    return p.total_caps;
+                    "pointNames": res.pointNames,
+                    "pointsGraph": res.pointGraph
                 }
+            });
+        }
+
+        loadData();
+
+    }, [matchId, mapId]);
+
+
+    const renderGraph = () =>{
+        
+        if(state.bLoading) return null;
+
+        const data = [];
+        const titles = [];
+
+        for(const values of Object.values(state.pointNames)){
+
+            titles.push(values.name);
+        }
+
+        for(const [point, pointInfo] of Object.entries(state.pointNames)){
+
+            const current = [];
+
+            for(const [player, capData] of Object.entries(state.playerCaps)){
+
+                const currentPlayer = Functions.getPlayer(playerData, player, true);
+
+                current.push({"name": currentPlayer.name, "data": [...capData[pointInfo.id]]});
+            }
+
+            data.push(current);
+        }
+        
+        return <Graph title={titles} data={data}/>
+    }
+
+    const getPlayerPointCapCount = (playerId, pointId) =>{
+
+        for(let i = 0; i < state.playerTotals.length; i++){
+
+            const p = state.playerTotals[i];
+
+            if(p.player === playerId && p.point === pointId){
+                return p.total_caps;
             }
         }
 
         return 0;
     }
-    
 
-    renderTeamTable(players, teamId){
 
-        const rows = [];
-        const pointHeaders = [];
-        const pointTotals = [];
+    const renderTable = (headers, teamId) =>{
 
-        const teamColor = Functions.getTeamColor(teamId);
-
-        for(let i = 0; i < this.props.pointNames.length; i++){
-
-            const p = this.props.pointNames[i];
-
-            pointHeaders.push(<th key={i}>{p.name}</th>);
-            pointTotals.push(0);
-        }
-
-        pointHeaders.push(<th key="totals">Total</th>);
-
-        let combinedTotal = 0;
-
-        for(let i = 0; i < players.length; i++){
-
-            const p = players[i];
-            const columns = [];
-            let playerTotal = 0;
-
-            for(let x = 0; x < this.props.pointNames.length; x++){
-
-                const point = this.props.pointNames[x];
-
-                const totalCaps = this.getPlayerPointCaps(p, point.id)
-    
-                columns.push(<td key={x}>{Functions.ignore0(totalCaps)}</td>);
-
-                pointTotals[x] += totalCaps;
-                playerTotal += totalCaps;
-                combinedTotal += totalCaps;
-            }
-
-            columns.push(<td key={`${i} totals`}>
-                {Functions.ignore0(playerTotal)}
-            </td>);
-
-            const currentPlayer = Functions.getPlayer(this.props.players, p);
-
-            rows.push(<tr key={i}>
-                <td className={`${teamColor}`}>
-                    <Link href={`/pmatch/${this.props.matchId}?player=${currentPlayer.id}`}>
-                        <a>
-                            <CountryFlag host={this.props.host} country={currentPlayer.country}/>
-                            
-                            {currentPlayer.name}
-                        </a>
-                    </Link>
-                </td>
-                {columns}
-            </tr>);
-        }
-
-        if(rows.length > 0){
-
-            const totalsColumns = [];
-
-            for(let i = 0; i < pointTotals.length; i++){
-
-                totalsColumns.push(<td key={i}>{Functions.ignore0(pointTotals[i])}</td>);
-            }
-
-            totalsColumns.push(<td key="allTotals">{Functions.ignore0(combinedTotal)}</td>);
-
-            rows.push(<tr key={`totals-${teamId}`}>
-                <td>Totals</td>
-                {totalsColumns}
-            </tr>);
-        }
-
-        return <Table2 width={1} players={true} key={teamId}>
-            <tr>
-                <th>Player</th>
-                {pointHeaders}
-            </tr>
-            {rows}
-        </Table2>
-      
-    }
-
-    renderPlayerCapsGraph(){
 
         const data = [];
-        const titles = [];
 
-        for(let i = 0; i < this.state.playerCaps.length; i++){
+        const totals = {};
 
-            const p = this.state.playerCaps[i];
+        for(const key of Object.keys(headers)){
 
-            const current = [];
+            totals[key] = 0;
+        }
 
-            for(let x = 0; x < p.data.length; x++){
-        
-                current.push({"name": p.data[x].name, "data": p.data[x].data});
+        for(const player of Object.values(playerData)){
+
+            if(player.team !== teamId && teamId !== -1) continue;
+
+            const current = {
+                "player": {
+                    "value": player.name.toLowerCase(), 
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
+                        <a><CountryFlag country={player.country}/>{player.name}</a>
+                    </Link>,
+                    "className": `player ${Functions.getTeamColor(player.team)}`
+                }
+            }
+
+            for(let i = 1; i < state.pointNames.length; i++){
+
+                const point = state.pointNames[i];
+
+                const totalCaps = getPlayerPointCapCount(player.id, point.id);
+
+                totals[point.name] += totalCaps;
+
+                current[point.name] = {
+                    "value": totalCaps,
+                    "displayValue": Functions.ignore0(totalCaps)
+                }
             }
 
             data.push(current);
-
-            if(p.point !== ""){
-                titles.push(`"${p.point}" Point Captrues`);
-            }else{
-                titles.push("All Caps");
-            }
         }
 
-        return <Graph title={titles} data={JSON.stringify(data)}/>
+        if(data.length > 0){
+
+            const current ={
+                "bAlwaysLast": true,
+                "player": {"value": "Totals"}
+            };
+
+            for(let i = 1; i < state.pointNames.length; i++){
+
+                const point = state.pointNames[i];
+
+                current[point.name] = {
+                    "value": totals[point.name],
+                    "displayValue": Functions.ignore0(totals[point.name])
+                }
+            }
+
+            data.push(current);
+        }
+
+
+        return <InteractiveTable key={teamId} width={2} headers={headers} data={data}/>
     }
 
-    renderCapsTable(){
+    const renderTables = () =>{
 
+        const headers = {
+            "player": "Player"
+        };
 
-        const playersByTeam = this.playersToTeams();
+        //0 is always all
+        for(let i = 1; i < state.pointNames.length; i++){
+
+            const {id, name} = state.pointNames[i];
+            headers[name] = name;
+        }
 
         const tables = [];
 
-        const names = ["red", "blue", "green", "yellow"];
+        if(separateTeams){
 
-        //this.renderTeamTable(playersByTeam.red, 0)
-        for(let i = 0; i < this.props.totalTeams; i++){
+            for(let i = 0; i < totalTeams; i++){
+                tables.push(renderTable(headers, i));
+            }
 
-            tables.push(this.renderTeamTable(playersByTeam[names[i]], i));
+        }else{
+            return renderTable(headers, -1);
         }
 
-        return <div>
-           {tables}
-        </div>
+        return tables;
     }
 
-    render(){
-
-        if(!this.state.finishedLoading) return null;
-
-        return <div>
-            <div className="default-header">Domination Summary</div>
-            {this.renderCapsTable()}
-            {this.renderPlayerCapsGraph()}
-            <Graph title="Control Point Caps" data={JSON.stringify([this.state.pointsGraphData])}/>
+    return <div>
+        <div className="default-header">Domination Summary</div>
+        <Loading value={!state.bLoading}/>
+        <div className="tabs">
+            <div className={`tab ${(separateTeams) ? "tab-selected" : ""}`} onClick={() => setSeparateTeams(true)}>Seperate Teams</div>
+            <div className={`tab ${(!separateTeams) ? "tab-selected" : ""}`} onClick={() => setSeparateTeams(false)}>Display All</div>
         </div>
-    }
+        {renderTables()}
+        {renderGraph()}
+    </div>
 }
 
 export default MatchDominationSummaryNew;

@@ -87,8 +87,7 @@ class Rankings{
 
     async updatePlayerRankings(playerManager, playerId, gametypeId, matchId){
 
-
-        const playerMatchData = await playerManager.getMatchData(playerId, matchId);
+        const playerMatchData = await playerManager.getMatchData(playerId, matchId);;
 
         if(playerMatchData === null){
             new Message(`Rankings.updatePlayerRankings() playerMatchData is null!`, "error");
@@ -153,9 +152,19 @@ class Rankings{
 
     calculateRanking(data){
 
+        if(data === null){
+            new Message(`Rankings.calculateRanking() data is null`,"error");
+            return 0;
+        }
+
         const playtime = data.playtime ?? 0;
 
         let score = 0;
+
+
+        //remove this after table is finished
+        const ctfIgnore = ["id", "player_id", "match_id", "gametype_id", "server_id", "map_id", "match_date","playtime"];
+        
 
         for(const [type, value] of Object.entries(this.settings)){
 
@@ -165,7 +174,20 @@ class Rankings{
                 continue;
             }
 
-            score += data[type] * value;
+            if(data[type] !== undefined){
+                score += data[type] * value;
+            }else{
+
+                if(data.ctfData !== undefined){
+
+                    if(data.ctfData[type] !== undefined){
+                        
+                        if(ctfIgnore.indexOf(type) === -1){
+                            score += data.ctfData[type] * value;
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -273,6 +295,21 @@ class Rankings{
     }
 
 
+    async getPlayerMatchRankingChange(matchId, playerId){
+
+        const query = `SELECT ranking,match_ranking,ranking_change,match_ranking_change 
+        FROM nstats_ranking_player_history WHERE match_id=? AND player_id=?`;
+
+        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return {"ranking": 0, "match_ranking": 0, "ranking_change": 0, "match_ranking_change": 0};
+    }
+
+
     async getCurrentPlayersRanking(players, gametype){
 
         if(players.length === 0) return [];
@@ -280,6 +317,19 @@ class Rankings{
         const query = "SELECT player_id,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id IN(?) AND gametype=?";
 
         return await mysql.simpleQuery(query, [players, gametype]);
+    }
+
+    async getCurrentRanking(playerId, gametype){
+
+        const query = "SELECT ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
+
+        const result = await mysql.simpleQuery(query, [playerId, gametype]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return {"ranking": 0, "ranking_change": 0};
     }
 
     async getPlayerMatchHistory(playerId, matchId){

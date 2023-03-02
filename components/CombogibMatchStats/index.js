@@ -330,6 +330,8 @@ class CombogibMatchStats extends React.Component{
 
             }else{
 
+                if(currentPlayer.team === -1) continue;
+
                 if(currentPlayer.team === 255){
 
                     if(this.props.totalTeams >= 2){

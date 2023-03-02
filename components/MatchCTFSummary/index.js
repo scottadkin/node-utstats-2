@@ -1,105 +1,59 @@
-import MatchCTFSummaryDefault from '../MatchCTFSummaryDefault/';
-import MatchCTFSummaryCovers from '../MatchCTFSummaryCovers/';
-import React from 'react';
-import Functions from '../../api/functions';
+import MatchCTFSummaryDefault from "../MatchCTFSummaryDefault/";
+import MatchCTFSummaryCovers from "../MatchCTFSummaryCovers/";
+import MatchCTFSummarySeals from "../MatchCTFSummarySeals/";
+import MatchCTFSummaryReturns from "../MatchCTFSummaryReturns/";
+import {React, useState} from "react";
+
+const MatchCTFSummary = ({matchId, playerData, single}) =>{
 
 
-class MatchCTFSummary extends React.Component{
+    const [mode, setMode] = useState(0);
 
-    constructor(props){
+    const renderDefault = () =>{
 
-        super(props);
-
-        this.state = {"mode": 0};
-
-        this.changeMode = this.changeMode.bind(this);
+        if(mode !== 0) return null;
+        return <MatchCTFSummaryDefault matchId={matchId} playerData={playerData} single={single}/>;
     }
 
-    bAnyCTFData(){
+    const renderCovers = () =>{
 
-
-        const reg = /flag/i;
-   
-        for(let i = 0; i < this.props.players.length; i++){
-
-            const p = this.props.players[i];
-
-            for(const [key, value] of Object.entries(p)){
-      
-                if(reg.test(key)){
-                    if(value !== 0) return true;
-                }
-            }
-        }
-
-
-        return false;
+        if(mode !== 1) return null;
+        return <MatchCTFSummaryCovers matchId={matchId} playerData={playerData} single={single}/>;
     }
 
-    componentDidMount(){
+    const renderSeals = () =>{
 
-        const settings = this.props.session;
-
-        if(settings["matchPageCtfMode"] !== undefined){
-            this.setState({"mode": parseInt(settings["matchPageCtfMode"])});
-        }
+        if(mode !== 2) return null;
+        return <MatchCTFSummarySeals matchId={matchId}  playerData={playerData}single={single} />;
     }
 
-    changeMode(id){
+    const renderReturns = () =>{
 
-        this.setState({"mode": id});
-        Functions.setCookie("matchPageCtfMode", id);
+        if(mode !== 3) return null;
+        return <MatchCTFSummaryReturns matchId={matchId}  playerData={playerData} single={single}/>;
     }
+    
 
-    getTeamPlayers(team){
-
-        const found = [];
-
-        let p = 0;
-
-        for(let i = 0; i < this.props.players.length; i++){
-
-            p = this.props.players[i];
-
-            if(p.team === team) found.push(p);
-        }
-
-        return found;
-
-    }
-
-
-    render(){
-
-
-        if(!this.bAnyCTFData()) return null;
-
-        const teams = [];
-        let teamPlayers = [];
-
-        for(let i = 0; i < this.props.totalTeams; i++){
-
-            teamPlayers = this.getTeamPlayers(i);
-
-            if(this.state.mode === 0){
-                teams.push(<MatchCTFSummaryDefault host={this.props.host} team={i} key={i} players={teamPlayers} matchId={this.props.matchId}/>);
-            }else if(this.state.mode === 1){
-                teams.push(<MatchCTFSummaryCovers host={this.props.host} team={i} key={i} players={teamPlayers} matchId={this.props.matchId}/>);
-            }
-        }
-
-
-        return <div>
-            <div className="default-header">Capture The Flag Summary</div>
-            <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "" }`} onClick={(() =>{ this.changeMode(0)})}>General</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "" }`} onClick={(() =>{ this.changeMode(1)})}>Covers</div>
-            </div>
-
-            {teams}
-
+    return <div>
+        <div className="default-header">Capture The Flag Summary</div>
+        <div className="tabs">
+            <div className={`tab ${(mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
+                setMode(0);
+            })}>General</div>
+            <div className={`tab ${(mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
+                setMode(1);
+            })}>Covers</div>
+            <div className={`tab ${(mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
+                setMode(2);
+            })}>Seals</div>
+            <div className={`tab ${(mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
+                setMode(3);
+            })}>Returns</div>
         </div>
-    }
+        {renderDefault()}
+        {renderCovers()}
+        {renderSeals()}
+        {renderReturns()}
+    </div>
 }
-
 export default MatchCTFSummary;

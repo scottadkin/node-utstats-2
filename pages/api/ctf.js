@@ -3,6 +3,8 @@ import Players from '../../api/players';
 import Matches from '../../api/matches';
 import Functions from '../../api/functions';
 import Maps from '../../api/maps';
+import Kills from "../../api/kills";
+import Gametypes from '../../api/gametypes';
 
 function getUniquePlayers(data){
 
@@ -218,162 +220,301 @@ export default async function handler(req, res){
 
     return new Promise(async (resolve, reject) =>{
 
-        const ctfManager = new CTF();
-        const playerManager = new Players();
-        const matchManager = new Matches();
+        try{
 
-        const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
+            const ctfManager = new CTF();
+            const playerManager = new Players();
+            const matchManager = new Matches();
+            const killManager = new Kills();
 
-        const mapId = (req.body.mapId !== undefined) ? parseInt(req.body.mapId) : -1;
-        let perPage = (req.body.perPage !== undefined) ? parseInt(req.body.perPage) : 5;
-        let page = (req.body.page !== undefined) ? parseInt(req.body.page) : 0;
-        const type = (req.body.type !== undefined) ? req.body.type : "";
-        const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
+            const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
 
-        const setDetails = req.body.setDetails ?? false;
+            const mapId = (req.body.mapId !== undefined) ? parseInt(req.body.mapId) : -1;
+            let perPage = (req.body.perPage !== undefined) ? parseInt(req.body.perPage) : 5;
+            let page = (req.body.page !== undefined) ? parseInt(req.body.page) : 0;
+            const type = (req.body.type !== undefined) ? req.body.type : "";
+            const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
 
-        if(mode === "fastestcaps"){
+            const setDetails = req.body.setDetails ?? false;
+            const matchId = (req.body.matchId !== undefined) ? parseInt(req.body.matchId) : -1;
+            const capType = (req.body.capType !== undefined) ? req.body.capType.toLowerCase() : "";
+
+            if(mode === "b-match-ctf"){
+
+                const bCTF = await ctfManager.bMatchCTF(matchId);
+
+                res.status(200).json({"bCTF": bCTF});
+                resolve();
+                return;
+                
+            }
+            
+            if(mode === "fastestcaps"){
 
 
-            if(page !== page) page = 0;
-            if(perPage !== perPage) perPage = 5;
+                if(page !== page) page = 0;
+                if(perPage !== perPage) perPage = 5;
 
-            if(mapId === mapId){
+                if(mapId === mapId){
 
-                if(mapId > 0){
+                    if(mapId > 0){
 
-                    const data = await ctfManager.getMapCaps(mapId, page, perPage, type);
+                        const data = await ctfManager.getMapCaps(mapId, page, perPage, type);
 
-                    const playerIds = getUniquePlayers(data);
-                    const playerNames = await playerManager.getNamesByIds(playerIds, true);
-                    const matchIds = getUniqueMatchIds(data, false);
-                    const matchDates = await matchManager.getDates(matchIds);
-                    const totalCaps = await ctfManager.getMapTotalCaps(mapId, type);
-                    const records = await ctfManager.getFastestMapCaps(mapId, playerManager);
-    
-                    if(setDetails){
+                        const playerIds = getUniquePlayers(data);
+                        const playerNames = await playerManager.getNamesByIds(playerIds, true);
+                        const matchIds = getUniqueMatchIds(data, false);
+                        const matchDates = await matchManager.getDates(matchIds);
+                        const totalCaps = await ctfManager.getMapTotalCaps(mapId, type);
+                        const records = await ctfManager.getFastestMapCaps(mapId, playerManager);
+        
+                        if(setDetails){
 
-                        setCapDetails(data, playerNames, matchDates, records);
+                            setCapDetails(data, playerNames, matchDates, records);
+                        }
+
+
+                        res.status(200).json({
+                            "data": data, 
+                            "players": playerNames, 
+                            "records": records, 
+                            "matchDates": matchDates,
+                            "totalCaps": totalCaps
+                        });
+                        resolve();
+                        return;
+
+                    }else{
+
+                        res.status(200).json({"error": "MapId must be a positive integer"});
+                        resolve();
+                        return;
                     }
+                }
 
+            }
+            
+            if(mode === "maprecords"){
 
-                    res.status(200).json({
-                        "data": data, 
-                        "players": playerNames, 
-                        "records": records, 
-                        "matchDates": matchDates,
-                        "totalCaps": totalCaps
-                    });
-                    resolve();
-                    return;
+                const mapIds = req.body.mapIds ?? "*";
 
-                }else{
+                const data = await ctfManager.getMapsCapRecords(mapIds);
 
-                    res.status(200).json({"error": "MapId must be a positive integer"});
+                const playerIds = getUniquePlayersAlt(data);
+
+                const playerNames = await playerManager.getNamesByIds(playerIds, true);
+
+                const mapManager = new Maps();
+            
+                const mapNames = await mapManager.getNames(Object.keys(data));
+
+                for(const [mapId, mapData] of Object.entries(data)){
+                    mapData.name = mapNames[mapId] ?? "Not Found";
+                }
+
+                res.status(200).json({"data": data, "playerNames": playerNames, "mapNames": mapNames});
+                resolve();
+                return;
+
+            }
+            if(mode === "totalcaps"){
+
+                if(mapId === -1){
+                    res.status(200).json({"error": "MapId Must be a positive integer"});
                     resolve();
                     return;
                 }
-            }
 
-        }else if(mode === "maprecords"){
+                const totalSoloCaps = await ctfManager.getMapTotalCaps(mapId, "solo");
+                const totalAssistedCaps = await ctfManager.getMapTotalCaps(mapId, "assists");
 
-            const mapIds = req.body.mapIds ?? "*";
-
-            const data = await ctfManager.getMapsCapRecords(mapIds);
-
-            const playerIds = getUniquePlayersAlt(data);
-
-            const playerNames = await playerManager.getNamesByIds(playerIds, true);
-
-            const mapManager = new Maps();
-           
-            const mapNames = await mapManager.getNames(Object.keys(data));
-
-            for(const [mapId, mapData] of Object.entries(data)){
-                mapData.name = mapNames[mapId] ?? "Not Found";
-            }
-
-            res.status(200).json({"data": data, "playerNames": playerNames, "mapNames": mapNames});
-            resolve();
-            return;
-
-        }else if(mode === "totalcaps"){
-
-            if(mapId === -1){
-                res.status(200).json({"error": "MapId Must be a positive integer"});
+                res.status(200).json({
+                    "data": {
+                        "solo": totalSoloCaps,
+                        "assisted": totalAssistedCaps,
+                        "total": totalSoloCaps + totalAssistedCaps
+                    }
+                });
                 resolve();
+                return;
+
+            }
+            
+            if(mode === "caprecordsplayers"){
+
+                const minSolo = (req.body.minSoloCaps !== undefined) ? parseInt(req.body.minSoloCaps) : 1;
+                const minAssisted = (req.body.minAssistCaps !== undefined) ? parseInt(req.body.minAssistCaps) : 1;
+                const maxSoloCaps = (req.body.maxSoloCaps !== undefined) ? parseInt(req.body.maxSoloCaps) : 50;
+                const maxAssistCaps = (req.body.maxAssistCaps !== undefined) ? parseInt(req.body.maxAssistCaps) : 50;
+
+                const soloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords(minSolo, maxSoloCaps);
+                const assistCapRecords = await ctfManager.getPlayerTotalAssistCapRecords(minAssisted, maxAssistCaps);
+
+                let playerIds = [...getPlayerIds(soloCapRecords), ...getPlayerIds(assistCapRecords)];
+
+                playerIds = playerIds.filter((element, index, array) =>{
+                    return array.indexOf(element) === index
+                })
+
+                const playerNames = await playerManager.getNamesByIds(playerIds);
+
+                setPlayerRecordNames(soloCapRecords, playerNames);
+                setPlayerRecordNames(assistCapRecords, playerNames);
+
+                res.status(200).json({"soloCaps": soloCapRecords, "assistCaps": assistCapRecords});
+
+                resolve();
+                return;
+
+            }
+            
+            if(mode === "singleplayercaprecords"){
+
+                const mapManager = new Maps();
+                const data = await ctfManager.getPlayerCapRecords(playerId);
+
+                const mapNames = await getUniqueMapIds(data, mapManager);
+
+                for(let i = 0; i < data.soloCaps.length; i++){
+
+                    const d = data.soloCaps[i];
+                    setMapName(d, mapNames);
+                }
+
+                for(let i = 0; i < data.assistedCaps.length; i++){
+
+                    const d = data.assistedCaps[i];
+                    setMapName(d, mapNames);
+
+                }
+
+                res.status(200).json({"data": data});
+                resolve();
+                return;
+            
+            }
+            
+            if(mode === "carrytime"){
+
+
+                const data = await ctfManager.getCarryTimes(matchId);
+
+                res.status(200).json({"data": data});
+                resolve();
+                return;
+
+            }
+            
+            if(mode === "match-caps"){
+
+                const data = await ctfManager.getMatchDetailedCaps(matchId);
+
+                res.status(200).json(data);
+
+                resolve();
+                return;
+
+            }
+            
+            if(mode === "match-returns"){
+
+                const data = await ctfManager.getMatchDetailedReturns(matchId);
+
+                res.status(200).json({
+                    "data": data
+                });
+
+                return;
+            }
+            
+            if(mode === "match-returns-player"){
+
+                const data = await ctfManager.getPlayerMatchReturns(matchId, playerId);
+
+                res.status(200).json({
+                    "data": data
+                });
+                
+                return;
+
+            }
+
+
+            if(mode === "player-match-caps"){
+
+                const data = await ctfManager.getPlayerMatchCaps(matchId, playerId);
+
+                res.status(200).json({"data": data});
                 return;
             }
 
-            const totalSoloCaps = await ctfManager.getMapTotalCaps(mapId, "solo");
-            const totalAssistedCaps = await ctfManager.getMapTotalCaps(mapId, "assists");
 
-            res.status(200).json({
-                "data": {
-                    "solo": totalSoloCaps,
-                    "assisted": totalAssistedCaps,
-                    "total": totalSoloCaps + totalAssistedCaps
+            if(mode === "map-cap-records"){
+
+                const gametypeManager = new Gametypes();
+                const mapManager = new Maps();
+
+                const data = await ctfManager.getAllMapRecords();
+
+                const gametypeNames = await gametypeManager.getNames(data.gametypeIds);
+                const mapNames = await mapManager.getNames(data.mapIds);
+
+                const capsData = await ctfManager.getCaps(data.capIds);
+
+                const assistData = await ctfManager.getAssistedPlayers(data.capIds);
+
+                const playerIds = new Set();
+
+                for(const cap of Object.values(capsData)){
+
+                    playerIds.add(cap.grab_player);
+                    playerIds.add(cap.cap_player);
                 }
-            });
-            resolve();
-            return;
 
-        }else if(mode === "caprecordsplayers"){
 
-            const minSolo = (req.body.minSoloCaps !== undefined) ? parseInt(req.body.minSoloCaps) : 1;
-            const minAssisted = (req.body.minAssistCaps !== undefined) ? parseInt(req.body.minAssistCaps) : 1;
-            const maxSoloCaps = (req.body.maxSoloCaps !== undefined) ? parseInt(req.body.maxSoloCaps) : 50;
-            const maxAssistCaps = (req.body.maxAssistCaps !== undefined) ? parseInt(req.body.maxAssistCaps) : 50;
+                for(let i = 0; i < assistData.uniquePlayers.length; i++){
+                    playerIds.add(assistData.uniquePlayers[i]);
+                }
 
-            const soloCapRecords = await ctfManager.getPlayerTotalSoloCapRecords(minSolo, maxSoloCaps);
-            const assistCapRecords = await ctfManager.getPlayerTotalAssistCapRecords(minAssisted, maxAssistCaps);
 
-            let playerIds = [...getPlayerIds(soloCapRecords), ...getPlayerIds(assistCapRecords)];
+                const playerNames = await playerManager.getBasicInfo([...playerIds]);
 
-            playerIds = playerIds.filter((element, index, array) =>{
-                return array.indexOf(element) === index
-            })
-
-            const playerNames = await playerManager.getNamesByIds(playerIds);
-
-            setPlayerRecordNames(soloCapRecords, playerNames);
-            setPlayerRecordNames(assistCapRecords, playerNames);
-
-            res.status(200).json({"soloCaps": soloCapRecords, "assistCaps": assistCapRecords});
-
-            resolve();
-            return;
-
-        }else if(mode === "singleplayercaprecords"){
-
-            const mapManager = new Maps();
-            const data = await ctfManager.getPlayerCapRecords(playerId);
-
-            const mapNames = await getUniqueMapIds(data, mapManager);
-
-            for(let i = 0; i < data.soloCaps.length; i++){
-
-                const d = data.soloCaps[i];
-                setMapName(d, mapNames);
+                res.status(200).json({
+                    "soloCaps": data.soloCaps,
+                    "assistCaps": data.assistCaps,
+                    "mapNames": mapNames,
+                    "gametypeNames": gametypeNames,
+                    "detailedCaps": capsData,
+                    "playerNames": playerNames,
+                    "assistData": assistData.assists
+                });
+                return;
             }
 
-            for(let i = 0; i < data.assistedCaps.length; i++){
+            if(mode === "map-caps"){
 
-                const d = data.assistedCaps[i];
-                setMapName(d, mapNames);
+
+                const data = await ctfManager.getMapCaps(mapId, capType, page, perPage);
+
+                const players = await playerManager.getBasicInfo([...data.playerIds]);
+                const totalCaps = await ctfManager.getMapTotalCaps(mapId, capType);
+
+                delete data.playerIds;
+
+                res.status(200).json({"caps": data, "players": players, "totalCaps": totalCaps});
+                return;
 
             }
 
-            res.status(200).json({"data": data});
+
+            res.status(200).json({"error": "Unknown Command"});
+
             resolve();
-            return;
-          
+
+        }catch(err){
+            res.status(200).json({"error": err.toString()});
+            resolve();
         }
-
-
-        res.status(200).json({"error": "Unknown Command"});
-
-        resolve();
 
     });
 }

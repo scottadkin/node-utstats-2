@@ -1,0 +1,64 @@
+.wrapper{
+    background-color:var(--color-1);
+    max-width:var(--max-width-3);
+    margin-bottom:10px;
+}
+
+.title{
+    padding:10px;
+}
+
+.bar-title{
+    padding:5px;
+    font-size:14px;
+}
+
+.bar-wrapper{
+    background-color:var(--color-3);
+    height:20px;
+    text-align:left;
+}
+
+.inner-bar{
+    height:20px;
+    max-height:20px;
+    overflow:hidden;
+    display:inline-block;
+}
+
+.inner-bar:hover{
+    cursor: pointer;
+}
+
+.solo{
+    background-color:gold;
+}
+
+.carry{
+    background-color:green;
+}
+
+.dropped{
+    background-color: red;
+}
+
+.team-score{
+    display:inline-block;
+    padding:5px;
+}
+
+.info{
+    padding:5px;
+    font-size:14px;
+}
+
+.covers{
+    padding:5px;
+    font-size:14px;
+}
+
+.cover{
+    color:orange;
+    display:inline-block;
+    padding-right:5px;
+}

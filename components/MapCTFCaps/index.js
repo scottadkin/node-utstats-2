@@ -1,214 +1,250 @@
-import React from 'react';
-import Table2 from '../Table2';
-import CountryFlag from '../CountryFlag';
-import Functions from '../../api/functions';
-import Link from 'next/link';
-import SimplePagiationLinks from '../SimplePaginationLinks';
+import {useEffect, useReducer} from "react";
+import Loading from "../Loading";
+import ErrorMessage from "../ErrorMessage";
+import TabsLinks from "../TabsLinks";
+import InteractiveTable from "../InteractiveTable";
+import Functions from "../../api/functions";
+import Link from "next/link";
+import CountryFlag from "../CountryFlag";
+import Pagination from "../Pagination";
 
-class MapCTFCaps extends React.Component{
+const reducer = (state, action) =>{
 
-    constructor(props){
-
-        super(props);
-        this.state = {"data": [], "totals": {}, "finishedLoading": false};
-
-    }
-
-    async loadCaps(){
-
-        const req = await fetch("/api/ctf", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({
-                "mode": "fastestcaps", 
-                "mapId": this.props.mapId,
-                "page": this.props.page - 1,
-                "perPage": 10,
-                "setDetails": true,
-                "type": (this.props.mode === 0) ? "solo" : "assists"
-            })
-        });
-
-        const res = await req.json();
-
-        if(res.error === undefined){
-
-            this.setState({"data": res});
-        }
-
-    }
-
-    async loadTotals(){
-
-        const req = await fetch("/api/ctf", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"mode": "totalcaps", "mapId": this.props.mapId})
-        });
-
-        const res = await req.json();
-
-        if(res.error === undefined){
-
-            this.setState({"totals": res.data});
-        }
-    }
-
-    async loadData(){
-
-        try{
-
-            await this.loadTotals();
-            await this.loadCaps();
-
-            this.setState({"finishedLoading": true});
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async componentDidUpdate(prevProps){
-
-
-        if(prevProps.mapId !== this.props.mapId || prevProps.page !== this.props.page || prevProps.mode !== this.props.mode){
-
-            await this.loadTotals();
-            await this.loadCaps();
-
-        }
-    }
-
-    async componentDidMount(){
-
-        await this.loadData();
-    }
-
-    renderData(){
-
-        if(!this.state.finishedLoading) return null;
-
-        const rows = [];
-
-        for(let i = 0; i < this.state.data.data.length; i++){
-
-            const cap = this.state.data.data[i];
-
-            let offsetElem = null;
-
-            if(cap.offset === 0){
-                offsetElem = <td className="purple">Map Record</td>
-            }else{
-                offsetElem = <td className="team-red">+{Functions.capTime(cap.offset)}</td>;
+    switch(action.type){
+        case "loading": {
+            return {
+                "bLoading": true,
+                "caps": null,
+                "players": null,
+                "totalCaps": 0
             }
-
-            const place = i + 1 + ((this.props.page - 1) * this.props.perPage);
-
-            let assistElem = null;
-
-            if(this.props.mode === 1){
-
-                const elems = [];
-
-                for(let x = 0; x < cap.assistPlayers.length; x++){
-
-                    const player = cap.assistPlayers[x];
-
-                    elems.push(<span key={x}>
-                        <Link href={`/player/${player.id}`}>
-                            <a>
-                            <CountryFlag host={this.props.host} country={player.country}/>   
-                            {player.name}{(x < cap.assistPlayers.length - 1) ? ", " : ""}
-                            </a>
-                        </Link>
-                    </span>);
-                }
-
-                assistElem = <td>
-                    {elems}
-                </td>;
+        }
+        case "loaded": {
+            return {
+                "bLoading": false,
+                "error": null,
+                "caps": action.caps,
+                "players": action.players,
+                "totalCaps": action.totalCaps
+            };
+        }
+        case "error": {
+            return {
+                "bLoading": false,
+                "error": action.errorMessage
             }
-
-            rows.push(<tr key={i}>
-                <td className="place">
-                    {place}{Functions.getOrdinal(place)}
-                </td>
-                <td>{Functions.convertTimestamp(cap.matchDate, true)}</td>
-                <td>
-                    <Link href={`/player/${cap.cap}`}>
-                        <a>
-                            <CountryFlag host={this.props.host} country={cap.capPlayer.country}/>{cap.capPlayer.name}
-                        </a>
-                    </Link>
-                </td>
-                {assistElem}
-                <td>{Functions.capTime(cap.travel_time)}</td>
-                {offsetElem}
-            </tr>);
         }
-
-        let totalRecords = 0;
-        let totalPages = 1;
-
-        if(this.props.mode === 0){
-
-            totalRecords = this.state.totals.solo;
-
-        }else{
-
-            totalRecords = this.state.totals.assisted;
-        }
-
-        if(totalRecords > 0){
-
-            totalPages = Math.ceil(totalRecords / this.props.perPage);
-        }
-
-        return <>
-            <SimplePagiationLinks 
-                url={`/map/${this.props.mapId}?capMode=${this.props.mode}&capPage=`}
-                anchor="ctf-caps" page={this.props.page} 
-                perPage={this.props.perPage}
-                totalResults={totalRecords}
-                totalPages={totalPages}
-            />
-            <Table2 width={1}>
-                <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Capped By</th>
-                    {(this.props.mode === 1) ? <th>Assisted By</th> : null}
-                    <th>Time</th>
-                    <th>Offset</th>
-                </tr>
-                {rows}
-            </Table2>
-        </>
     }
 
-    render(){
+    return state;
+}
 
-        if(!this.state.finishedLoading) return null;
 
-        if(this.state.data.records.solo === null && this.state.data.records.assist === null) return null;
+const createAssistedPlayers = (assists, players, ignorePlayers, matchId, capId) =>{
 
-        return <>
-            <div className="default-header" id="ctf-caps">Fastest CTF Caps</div>
-            <div className="tabs">
-                <Link href={`/map/${this.props.mapId}?capMode=0&capPage=${this.props.page}#ctf-caps`}>
+
+    if(assists === undefined) return [];
+
+    if(assists[capId] === undefined) return [];
+
+    //return null;
+    const playerList = [];
+
+    for(let i = 0; i < assists[capId].length; i++){
+
+        const playerId = assists[capId][i];
+
+        if(ignorePlayers.indexOf(playerId) !== -1) continue;
+        const player = Functions.getPlayer(players, playerId, true);
+
+        playerList.push(player);
+    }
+
+
+    const elems = [];
+
+    for(let i = 0; i < playerList.length; i++){
+
+        const p = playerList[i];
+
+        elems.push(<Link key={p.id} href={`/pmatch/${matchId}/?player=${p.id}`}>
+            <a className="small-font grey">
+                <CountryFlag country={p.country}/>{p.name}{(i < playerList.length - 1) ? ", " : ""}
+            </a>
+        </Link>);
+    }
+
+    return elems;
+}
+
+const getHeaders = (mode) =>{
+
+    if(mode === 1){
+        return {
+            "date": "Date",
+            "grab": "Grabbed By",
+            "assists": "Assisted By",
+            "cap": "Capped By",
+            "carry": "Carry Time",
+            "drop": "Time Dropped",
+            "travel": "Travel Time"
+        };
+    }
+
+    return {
+        "date": "Date",
+        "cap": "Capped By",
+        "carry": "Carry Time",
+        "drop": "Time Dropped",
+        "travel": "Travel Time"
+    };
+}
+
+const renderCaps = (currentMode, caps, players, mapId, totalCaps, perPage, currentPage) =>{
+
+    if(caps === null) return null;
+
+    const headers = getHeaders(currentMode);
+
+    const data = [];
+
+    for(const [capId, capData] of Object.entries(caps.caps)){
+
+
+        const grabPlayer = Functions.getPlayer(players, capData.grab_player, true);
+        const capPlayer = Functions.getPlayer(players, capData.cap_player, true);
+
+        const ignorePlayers = [capData.grab_player, capData.cap_player];
+
+        let assistElems = [];
+
+        if(currentMode === 1){
+            assistElems = createAssistedPlayers(caps.assistData, players, ignorePlayers, capData.match_id, capId);  
+        }
+
+        const current = {
+            "date": {
+                "value": capData.match_date, 
+                "displayValue": <Link href={`/match/${capData.match_id}`}>
                     <a>
-                        <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : "" }`}>Solo Caps</div>
+                        {Functions.convertTimestamp(capData.match_date, true)}
+                    </a>
+                </Link>,
+                "className": "playtime"
+            },
+            "cap": {
+                "value": capPlayer.name.toLowerCase(),
+                "displayValue": <Link href={`/pmatch/${capData.match_id}/?player=${capData.cap_player}`}>
+                    <a>
+                        <CountryFlag country={capPlayer.country}/>{capPlayer.name}
                     </a>
                 </Link>
-                <Link href={`/map/${this.props.mapId}?capMode=1&capPage=${this.props.page}#ctf-caps`}>
+            },
+            "carry": {"value": capData.carry_time, "displayValue": Functions.toPlaytime(capData.carry_time, true), "className": "playtime"},
+            "drop": {"value": capData.drop_time, "displayValue": Functions.toPlaytime(capData.drop_time, true), "className": "playtime"},
+            "travel": {"value": capData.travel_time, "displayValue": Functions.toPlaytime(capData.travel_time, true), "className": "playtime"}
+        }
+
+        if(currentMode === 1){
+
+            current.grab = {
+                "value": grabPlayer.name.toLowerCase(),
+                "displayValue": <Link href={`/pmatch/${capData.match_id}/?player=${capData.grab_player}`}>
                     <a>
-                        <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : "" }`}>Assisted Caps</div>
+                        <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
                     </a>
                 </Link>
-            </div>
-            {this.renderData()}
-        </>;
+            };
+            current.assists = {
+                "value": assistElems.length,
+                "displayValue": assistElems
+            }
+        }
+
+        data.push(current);
     }
+
+    if(data.length === 0) return <div className="no-data">No Data Found</div>;
+
+    return <>
+        <InteractiveTable width={1} headers={headers} data={data} defaultOrder={"travel"} bDisableSorting={true}/>
+        <Pagination url={`/map/${mapId}/?capMode=${currentMode}&capPage=`} results={totalCaps} currentPage={currentPage} perPage={perPage} anchor={"#caps"}/>
+    </>
+}
+
+const renderElems = (mode, state, mapId, page, perPage) =>{
+
+    if(state.bLoading) return <Loading />;
+    if(state.error !== null) return <ErrorMessage title="Capture The Flag Cap Records" text={state.error} />
+
+
+    return renderCaps(mode, state.caps, state.players, mapId, state.totalCaps, perPage, page);
+}
+
+const MapCTFCaps = ({mapId, mode, perPage, page}) =>{
+
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null,
+        "caps": null,
+        "players": null,
+        "totalCaps": 0
+    });
+
+    useEffect(() =>{
+
+
+        dispatch({"type": "loading"});
+
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+            const capMode = (mode === 0) ? "solo" : "assist";
+
+            const req = await fetch("/api/ctf", {
+                "signal": controller.signal,
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({
+                    "mode": "map-caps", 
+                    "mapId": mapId, 
+                    "perPage": perPage, 
+                    "page": page,
+                    "capType": capMode,
+                })
+            });
+
+            const res = await req.json();
+
+            if(res.error !== undefined){
+                dispatch({"type": "error", "errorMessage": res.error});
+                return;
+            }
+            
+            dispatch({"type": "loaded", "caps": res.caps, "players": res.players, "totalCaps": res.totalCaps});
+            
+        }
+
+        loadData();
+
+        return () =>{
+            controller.abort();
+        }
+
+    }, [mapId, page, perPage, mode]);
+
+    const tabsOptions = [
+        {"value": 0, "name": "Solo Caps"},
+        {"value": 1, "name": "Assisted Caps"},
+    ];
+
+    return <div id="caps">
+        <div className="default-header">Capture The Flag Cap Records</div>
+        <TabsLinks options={tabsOptions} selectedValue={mode} url={`/map/${mapId}?capPage=1&perPage=${perPage}&capMode=`} anchor={"#caps"}/>
+    
+        {renderElems(mode, state, mapId, page, perPage)}
+    </div>
 }
 
 export default MapCTFCaps;

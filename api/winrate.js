@@ -596,8 +596,8 @@ class WinRate{
     }
 
     async deletePlayer(playerId){
-        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE player=?", [playerId]);
-        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE player=?", [playerId]);
+        await mysql.simpleQuery("DELETE FROM nstats_winrates WHERE player=?", [playerId]);
+        await mysql.simpleQuery("DELETE FROM nstats_winrates_latest WHERE player=?", [playerId]);
     }
 
     async insertLatestAfterMerge(gametype, data){
@@ -703,12 +703,9 @@ class WinRate{
                 if(current.current_lose_streak > current.max_lose_streak) current.max_lose_streak = current.current_lose_streak;
             }
 
-
-            let m = 0;
-
             for(let i = 0; i < matches.length; i++){
 
-                m = matches[i];
+                const m = matches[i];
 
                 updateTotal(m, 0);
                 updateTotal(m, m.gametype);

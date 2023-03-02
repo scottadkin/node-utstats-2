@@ -1,18 +1,27 @@
 const Message = require("../message");
 const Items = require("../items");
+const PowerUpManager = require("./powerupmanager");
 
 class ItemsManager{
 
-    constructor(lines){
+    constructor(lines, playerManager, killsManager, totalTeams){
 
         this.lines = lines;
+        this.playerManager = playerManager;
+        this.killsManager = killsManager;
+        this.totalTeams = totalTeams;
 
         this.items = new Items();
+        this.powerUpManager = new PowerUpManager(playerManager, killsManager);
+
+        this.powerUpNames = new Set();
 
         this.data = [];
 
-        this.activeData = [];
-        this.deactiveData = [];
+        this.events = [];
+
+        this.activeReg = /^(\d+?\.\d+?)\titem_activate\t(.+?)\t(.+)$/i
+        this.deactiveReg = /^(\d+?\.\d+?)\titem_deactivate\t(.+?)\t(.+)$/i
 
         this.pickupCount = new Map();
 
@@ -20,25 +29,64 @@ class ItemsManager{
 
         this.itemNames = [];
 
+        this.ampKills = {
+            "red": 0,
+            "blue": 0,
+            "green": 0,
+            "yellow": 0,
+            "total": 0
+        };
+
+
+        //kill on players that had the amp powerup
+        this.ampPlayerKills = [];
+        this.ampUserKills = {};
+        this.ampUserSuicides = {};
+
         this.parseData();
     }
+
+    parseActivate(line, bDeactivate){
+
+        const reg = (bDeactivate) ? this.deactiveReg : this.activeReg;
+
+        const result = reg.exec(line);
+        const timestamp = parseFloat(result[1]);
+        const item = result[2];
+        const playerId = parseInt(result[3]);
+
+        this.powerUpManager.addName(item);
+
+        const player = this.playerManager.getPlayerById(playerId);
+
+        if(player === null){
+            new Message(`ItemsManager.parseActive() player is null.`,"warning");
+            return;
+        }
+
+        this.events.push(
+            {
+                "timestamp": timestamp,
+                "item": item,
+                "player": player.masterId,
+                "bDeactivate": bDeactivate 
+            }
+        );
+    }
+
 
     parseData(){
 
         const reg = /^(\d+?\.\d+?)\titem_get\t(.+?)\t(.+)$/i;
-
-        const activeReg = /^(\d+?\.\d+?)\titem_activate\t(.+?)\t(.+)$/i
-        const deactiveReg = /^(\d+?\.\d+?)\titem_deactivate\t(.+?)\t(.+)$/i
-
-        let result = '';
-
-        let currentPickup = 0;
-        let currentPlayerPickup = 0;
+ 
         let currentItems = 0;
+        
 
         for(let i = 0; i < this.lines.length; i++){
 
-            result = reg.exec(this.lines[i]);
+            const line = this.lines[i];
+
+            const result = reg.exec(line);
 
             if(result !== null){
 
@@ -46,7 +94,7 @@ class ItemsManager{
                     this.itemNames.push(result[2]);
                 }
 
-                currentPickup = this.pickupCount.get(result[2]);
+                const currentPickup = this.pickupCount.get(result[2]);
 
                 if(currentPickup === undefined){
                     this.pickupCount.set(result[2], 1);
@@ -56,7 +104,7 @@ class ItemsManager{
 
                 //match pickups
 
-                currentPlayerPickup = this.matchData.get(parseInt(result[3]));
+                const currentPlayerPickup = this.matchData.get(parseInt(result[3]));
 
                 if(currentPlayerPickup !== undefined){
 
@@ -85,32 +133,15 @@ class ItemsManager{
                     "player": parseInt(result[3])
                 });
 
-            }else if(activeReg.test(this.lines[i])){
+            }else if(this.activeReg.test(line)){
 
-                result = activeReg.exec(this.lines[i]);
+                this.parseActivate(line, false);
 
-                this.activeData.push(
-                    {
-                        "timestamp": parseFloat(result[1]),
-                        "item": result[2],
-                        "player": parseInt(result[3])
-                    }
-                );
+            }else if(this.deactiveReg.test(line)){
 
-            }else if(deactiveReg.test(this.lines[i])){
-
-                result = deactiveReg.exec(this.lines[i]);
-
-                this.deactiveData.push(
-                    {
-                        "timestamp": parseFloat(result[1]),
-                        "item": result[2],
-                        "player": parseInt(result[3])
-                    }
-                );
+                this.parseActivate(line, true);
             }
         }
-
     }
 
     async updateTotals(date){
@@ -129,11 +160,9 @@ class ItemsManager{
 
     getSavedItemId(name){
 
-        let d = 0;
-
         for(let i = 0; i < this.itemIds.length; i++){
 
-            d = this.itemIds[i];
+            const d = this.itemIds[i];
 
             if(d.name === name){
                 return d.id;
@@ -151,18 +180,15 @@ class ItemsManager{
                 this.itemIds = await this.items.getIdsByNames(this.itemNames);
             }
 
-            let currentId = 0;
-            let currentPlayer = 0;
-
             for(const [key, value] of this.matchData){
 
-                currentPlayer = this.playerManager.getOriginalConnectionById(key);
+                const currentPlayer = this.playerManager.getPlayerById(key);
 
                 if(currentPlayer !== null){
                     
                     for(const [subKey, subValue] of Object.entries(value.items)){
 
-                        currentId = this.getSavedItemId(subKey);
+                        const currentId = this.getSavedItemId(subKey);
 
                         if(currentId !== null){
       
@@ -203,162 +229,304 @@ class ItemsManager{
 
     setPlayerPickups(){
 
-        let d = 0;
-
-        let currentName = "";
-
         this.playerPickups = {};
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
-            currentName = d.item.replace(/\s/ig, "").toLowerCase();
+            const currentName = d.item.replace(/\s/ig, "").toLowerCase();
+
+            const player = this.playerManager.getPlayerById(d.player);
+
+            if(player === null){
+                new Message(`ItemsManager.setPlayerPickups() player is null`, "warning");
+                continue;
+            }
+
+            const playerId = player.masterId;
 
             if(currentName === "damageamplifier"){
              
-
-                this.updateUsedPickups(d.player, "amp");
+                this.updateUsedPickups(playerId, "amp");
 
             }else if(currentName === "shieldbelt"){
                 
-                this.updateUsedPickups(d.player, "belt");
+                this.updateUsedPickups(playerId, "belt");
 
             }else if(currentName === "invisibility"){
-                this.updateUsedPickups(d.player, "invis");
+                this.updateUsedPickups(playerId, "invis");
 
             }else if(currentName === "bodyarmor"){
 
-                this.updateUsedPickups(d.player, "armor");
+                this.updateUsedPickups(playerId, "armor");
 
             }else if(currentName === "antigravboots"){
 
-                this.updateUsedPickups(d.player, "boots");
+                this.updateUsedPickups(playerId, "boots");
 
             }else if(currentName === "thighpads"){
-                this.updateUsedPickups(d.player, "pads");
+                this.updateUsedPickups(playerId, "pads");
 
             }else if(currentName === "superhealthpack"){
-                this.updateUsedPickups(d.player, "super");
+                this.updateUsedPickups(playerId, "super");
             }
         }
-
     }
 
+    getDeactiveDataTimestamp(activateTimestamp, item, player){
 
-    getDeactiveDataTimestamp(activeTimestamp, item, player){
+        for(let i = 0; i < this.events.length; i++){
 
-        let d = 0;
+            const e = this.events[i];
 
-        for(let i = 0; i < this.deactiveData.length; i++){
+            if(e.timestamp < activateTimestamp) continue;
+            if(!e.bDeactivate) continue;
 
-            d = this.deactiveData[i];
-
-            if(d.timestamp >= activeTimestamp){
-
-                if(d.item === item && d.player === player){
-                    return d.timestamp;
-                }
-            }
+            if(e.player !== player) continue;
+            if(e.item === item) return e.timestamp;
+            
         }
 
         return null;
     }
 
+    updateAmpDeaths(death){
+
+        const type = death.type;
+
+        if(type !== "kill" && type !== "suicide") return;
+
+        const data = (type === "kill") ? this.ampUserKills : this.ampUserSuicides;
+
+        let killerId = death.killerId;
+
+        if(type === "kill"){
+            this.ampPlayerKills.push({
+                "killerId": death.killerId,
+                "timestamp": death.timestamp
+            });
+        }
+        
+        if(data[killerId] === undefined){
+            data[killerId] = 0;
+        }
+
+        data[killerId]++;
+    }
+
+    getItemEnd(startTimestamp, item, playerId){
+
+        const closestDeativate = this.getDeactiveDataTimestamp(startTimestamp, item, playerId);
+
+        const closestDeath = this.killsManager.getPlayerNextDeath(playerId, startTimestamp);
+
+        if(closestDeativate === null && closestDeath === null){
+            return null;
+        }
+
+        if(closestDeativate !== null && closestDeath !== null){
+
+            if(closestDeativate < closestDeath.timestamp) return closestDeativate;
+            return closestDeath;
+        }
+
+        if(closestDeath !== null && closestDeativate === null) return closestDeath;
+        if(closestDeath === null && closestDeativate !== null) return closestDeativate;
+
+    }
+
     setPlayerPickupTimes(matchEnd){
 
-        //if there is no deactivate data use the match end time
 
+        for(let i = 0; i < this.events.length; i++){
 
-        let a = 0;
+            const e = this.events[i];
 
-        let endTimestamp = 0;
-        let currentDiff = 0;
+            const item = e.item.replace(/\s/ig, "").toLowerCase();
 
-        for(let i = 0; i < this.activeData.length; i++){
+            if(e.bDeactivate) continue;
 
-            a = this.activeData[i];
+            const endInfo = this.getItemEnd(e.timestamp, e.item, e.player);
 
-            endTimestamp = this.getDeactiveDataTimestamp(a.timestamp, a.item, a.player);
-            //console.log(this.getDeactiveDataTimestamp(a.timestamp, a.item, a.player));
+            let endTimestamp = matchEnd;
 
-            if(endTimestamp === null){
-                endTimestamp = matchEnd;
-            }
+            if(endInfo !== null){
 
-            currentDiff = endTimestamp - a.timestamp;
-
-            a.carryTime = currentDiff;
-
-        }
-
-    }
-
-    getPlayerTotalItemCarryTime(player, item){
-
-        let total = 0;
-
-        let a = 0;
-
-        let fixedItemName = "";
-
-        
-
-        for(let i = 0; i < this.activeData.length; i++){
-
-            a = this.activeData[i];
-
-            fixedItemName = a.item.replace(/\s/ig,"").toLowerCase();
-
-            //console.log(fixedItemName);
-
-            if(a.player === player){
-
-                if(fixedItemName === "damageamplifier" && item === "amp"){
-                    total += a.carryTime;
-                }else if(fixedItemName === "invisibility" && item === "invis"){
-                    total += a.carryTime;
+                if(item === "damageamplifier" && endInfo.timestamp !== undefined){
+                    this.updateAmpDeaths(endInfo);
                 }
+
+                if(endInfo.timestamp !== undefined){
+
+                    if(endInfo.type === "kill"){
+
+                        e.endReason = 1;
+                        e.killerId = endInfo.killerId;
+
+                    }else if(endInfo.type === "suicide"){
+                        e.endReason = 2;
+                    }
+                    endTimestamp = endInfo.timestamp;
+                }else{
+                    e.endReason = 0;
+                    endTimestamp = endInfo;
+                }
+            }else{
+
+                e.endReason = -1;
+            }
+
+            e.endTimestamp = endTimestamp;
+
+
+
+
+            const totalKills = this.killsManager.getKillsBetween(e.timestamp, endTimestamp, e.player, true);
+
+            const currentCarryTime = endTimestamp - e.timestamp;
+            e.carryTime = currentCarryTime;
+            e.totalKills = totalKills;
+
+            const playerTeam = this.playerManager.getPlayerTeamAt(e.player, e.timestamp);
+
+            if(item === "damageamplifier"){
+                this.updateAmpTeamKills(playerTeam, totalKills);
             }
         }
-
-        return total;
     }
+
+    updateAmpTeamKills(team, kills){
+
+        this.ampKills.total += kills;
+
+        if(team === -1 || this.totalTeams < 2) return;
+            
+        if(team === 0) this.ampKills.red += kills;
+        if(team === 1) this.ampKills.blue += kills;
+        if(team === 2) this.ampKills.green += kills;
+        if(team === 3) this.ampKills.yellow += kills;
+        
+    }
+
+    getPlayerItemStats(player, item){
+
+        let totalTime = 0;
+        let totalKills = 0;
+        let bestKills = 0;
+
+        for(let i = 0; i < this.events.length; i++){
+
+            const e = this.events[i];
+
+            if(e.player !== player) continue;
+            if(e.bDeactivate) continue;
+
+            const fixedItemName = e.item.replace(/\s/ig,"").toLowerCase();
+
+            if(fixedItemName === "damageamplifier" && item === "amp"){
+
+                totalTime += e.carryTime;
+                totalKills += e.totalKills;
+                if(e.totalKills > bestKills) bestKills = e.totalKills;
+
+            }else if(fixedItemName === "invisibility" && item === "invis"){
+
+                totalTime += e.carryTime;
+                totalKills += e.totalKills;
+                if(e.totalKills > bestKills) bestKills = e.totalKills;
+
+            }      
+        }
+
+        return {"totalTime": totalTime, "totalKills": totalKills, "bestKills": bestKills};
+    }
+
+    //kills on a udamage player
+    getPlayerAmpPlayerKillStats(playerId){
+
+        let totalKills = 0;
+        let bestKills = 0;
+        let currentLife = 0;
+
+        let previousTimestamp = 0;
+
+        for(let i = 0; i < this.ampPlayerKills.length; i++){
+
+            const {killerId, timestamp} = this.ampPlayerKills[i];
+
+            if(killerId !== playerId) continue;
+
+            const totalDeaths = this.killsManager.getDeathsBetween(previousTimestamp, timestamp, killerId);
+
+            if(totalDeaths > 0) currentLife = 0;
+
+            totalKills++;
+            currentLife++;
+
+            if(currentLife > bestKills) bestKills = currentLife;
+            previousTimestamp = timestamp;
+        }
+
+
+        return {"totalKills": totalKills, "bestKills": bestKills}
+
+    }
+
+    getPlayerAmpSuicides(playerId){
+
+        if(this.ampUserSuicides[playerId] !== undefined){
+            return this.ampUserSuicides[playerId];
+        }
+
+        return 0;
+    }
+
 
     async setPlayerMatchPickups(matchId){
 
         try{
 
-            let player = 0;
 
-            let currentAmpTime = 0;
-            let currentInvisTime = 0;
+            for(const [pId, value] of Object.entries(this.playerPickups)){
 
+                const playerId = parseInt(pId);
 
-            for(const [key, value] of Object.entries(this.playerPickups)){
-
-                //console.log(key, value);
-
-                currentAmpTime = this.getPlayerTotalItemCarryTime(parseInt(key), "amp");;
-                currentInvisTime = this.getPlayerTotalItemCarryTime(parseInt(key), "invis");;
-
+                const ampStats = this.getPlayerItemStats(playerId, "amp");
+                const invisStats = this.getPlayerItemStats(playerId, "invis");
                
-                value.ampTime = currentAmpTime;
-                value.invisTime = currentInvisTime;
+                value.ampStats = ampStats;
+                value.invisStats = invisStats;
 
-                player = this.playerManager.getOriginalConnectionById(parseInt(key));
+                value.ampStats.ampPlayerKills = this.getPlayerAmpPlayerKillStats(playerId);
+                value.ampStats.suicides = this.getPlayerAmpSuicides(playerId);
 
-                if(player !== null){
-                    await this.items.setPlayerMatchPickups(matchId, player.masterId, value);
-                    await this.items.updatePlayerBasicPickupData(player.masterId, value);
-                }else{
-                    new Message("ItemsManager.setPlayerMatchPickups() player is null","warning");
-                }
+                await this.items.setPlayerMatchPickups(matchId, playerId, value);
+                await this.items.updatePlayerBasicPickupData(playerId, value);
+               
             }
 
         }catch(err){
             new Message(`ItemsManager.setPlayerMatchPickups() ${err}`,"error");
         }
+    }
+
+
+    async setMatchAmpStats(matchId){
+
+        await this.items.updateMatchAmpKills(matchId, this.ampKills);
+
+        
+    }
+
+
+    async updatePowerUps(matchId, matchDate, totalTeams, mapId, gametypeId){
+
+        this.powerUpManager.totalTeams = totalTeams;
+
+        await this.powerUpManager.createIdsToNames();
+        this.powerUpManager.addEvents(this.events);
+        await this.powerUpManager.insertMatchData(matchId, matchDate, mapId, gametypeId);
     }
     
 }

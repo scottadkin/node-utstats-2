@@ -134,7 +134,7 @@ class ServersPage extends React.Component{
     }
 
     render(){
-
+     
         return <div>
 		<DefaultHead host={this.props.host} title={"Servers"} description="View information about our servers" keywords="server"/>	
 		<main>

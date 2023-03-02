@@ -5,17 +5,16 @@ const P = require('../player');
 const Player = new P();
 const Faces = require('../faces');
 const Voices = require('../voices');
-const WeaponStats = require('./weaponstats');
 const ConnectionsManager = require('./connectionsmanager');
 const PingManager = require('./pingmanager');
 const TeamsManager = require('./teamsmanager');
 const WinRateManager = require('../winrate');
-const Sprees = require('../sprees');
+const SpreeManager = require("./spreemanager");
+const Functions = require("../functions");
 
 class PlayerManager{
 
-
-    constructor(data, spawnManager, bIgnoreBots, matchTimings, geoip){
+    constructor(data, spawnManager, bIgnoreBots, matchTimings, geoip, bUsePlayerACEHWID){
 
         this.data = data;
 
@@ -23,16 +22,23 @@ class PlayerManager{
         this.matchTimings = matchTimings;
 
         this.geoip = geoip;
+        this.bUsePlayerACEHWID = bUsePlayerACEHWID;
+
 
         this.players = [];
         this.uniqueNames = [];
         this.duplicateNames = [];
-        this.orginalIds = new Map();
-    
+
+        this.HWIDS = {};
+
+        this.HWIDSToNames = {};
+        this.idsToNames = {};
+        this.masterIdsToNames = {};
+
         this.faces = new Faces();
         this.voices = new Voices();
         this.spawnManager = spawnManager;
-        this.connectionsManager = new ConnectionsManager();
+        this.connectionsManager = new ConnectionsManager(this);
         this.teamsManager = new TeamsManager();
 
         this.scoreHistory = [];
@@ -42,25 +48,360 @@ class PlayerManager{
         this.pingManager = new PingManager();
         this.winRateManager = new WinRateManager();
 
-        this.sprees = new Sprees();
+        this.spreeManager = new SpreeManager(matchTimings.start);
 
-        this.createPlayers();
+    }
+
+    init(){
+
         this.setNStatsValues();
         this.setPlayerSpawns();
         this.parsePlayerStrings();
         this.setWeaponStats();
 
+        
+    }
+
+    parseHWIDS(){
+
+
+        if(!this.bUsePlayerACEHWID) return;
+
+        const reg = /^\d+?\.\d+?\tnstats\thwid\t(.+?)\t(.+)$/i;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            const d = this.data[i];
+
+            const result = reg.exec(d);
+
+            if(result === null) continue;
+
+            const playerId = parseInt(result[1]);
+            const HWID = result[2];
+
+            this.HWIDS[playerId] = HWID;
+        }
+    }
+
+
+    getPreliminaryPlayerByHWID(HWID){
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            if(p.hwid === HWID) p;
+        }
+
+        return null;
+    }
+
+    connectPlayer(subString){
+
+        const reg = /^(.+?)\t(\d+?)\t.+$/i;
+
+        const result = reg.exec(subString);
+        //console.log(result);
+        if(result === null) return;
+
+        const playerName = result[1];
+        const playerId = parseInt(result[2]);
+        const HWID = this.HWIDS[playerId] ?? "";
+
+        this.idsToNames[playerId] = playerName.toLowerCase();
+
+        //connect(timestamp, bSpectator)
+
+        if(HWID !== ""){
+
+            this.HWIDSToNames[HWID] = playerName.toLowerCase();
+
+            if(this.bPreliminaryPlayerExits(playerId, HWID)){
+
+                const player = this.getPreliminaryPlayerByHWID(HWID);
+                if(player !== null) player.bSpectator = false;
+                return;
+            }
+        }
+
+        this.createPreliminaryPlayer(playerName, playerId, HWID, false);
+
+        //this.preliminaryPlayers.push({"name": playerName, "id": playerId, "hwid": HWID ?? "", "bSpectator": false});
+    }
+
+    renameIdsToName(oldName, newName){
+
+
+        oldName = oldName.toLowerCase();
+        newName = newName.toLowerCase();
+
+        for(const [playerId, playerName] of Object.entries(this.idsToNames)){
+
+            if(playerName.toLowerCase() === oldName){
+                this.idsToNames[playerId] = newName;
+            } 
+        }
+    }
+
+    renamePreliminaryByHWID(HWID, newName){
+
+        if(HWID === "") return;
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            if(p.hwid === HWID){
+                this.renameIdsToName(p.name, newName);
+                p.name = newName;
+            }
+        }
+    }
+
+    renamePreliminaryByPlayerId(id, newName){
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            if(p.id === id){
+                this.renameIdsToName(p.name, newName);
+                p.name = newName;
+            }
+        }
+    }
+
+
+    bPreliminaryPlayerExits(playerId, HWID){
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            if(HWID !== "" && p.hwid === HWID) return true;
+            if(p.id === playerId) return true;
+
+        }
+
+        return false;
+    }
+
+
+    createPreliminaryPlayer(name, id, hwid, bSpectator){
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            if(p.name === name || p.id === id){
+                p.bSpectator = bSpectator;
+                return;
+            }
+            
+            if(p.hwid !== "" && hwid !== ""){
+
+                if(p.hwid === hwid){
+                    p.bSpectator = bSpectator;
+                    return;
+                }
+            }
+        }
+
+        this.preliminaryPlayers.push({"name": name, "id": id, "hwid": hwid ?? "", "bSpectator": bSpectator});
+    }
+
+    renamePlayer(subString){
+
+        const reg = /^(.+?)\t(\d+)$/i;
+
+        const result = reg.exec(subString);
+
+        if(result === null) return;
+
+        const playerName = result[1];
+        const playerId = parseInt(result[2]);
+
+        const HWID = this.HWIDS[playerId] ?? "";
+
+        this.createPreliminaryPlayer(playerName, playerId, HWID, true);
+
+        if(HWID !== "") this.HWIDSToNames[HWID] = playerName.toLowerCase();
+        this.idsToNames[playerId] = playerName.toLowerCase();
+
+        if(HWID === ""){
+
+            this.renamePreliminaryByPlayerId(playerId, playerName);
+        }
+        
+
+        if(HWID === "") return;
+
+        this.renamePreliminaryByHWID(HWID, playerName);
+    }
+
+    updatePreliminaryPlayers(subString, type){
+
+        
+        if(type === "connect"){
+            this.connectPlayer(subString);
+            return;
+        }
+
+        if(type === "rename"){
+            this.renamePlayer(subString);
+            return;
+        }
+
+    }
+
+    createPreliminaryPlayers(){
+
+        this.preliminaryPlayers = [];
+
+        const reg = /^(\d+\.\d+)\tplayer\t(.+?)\t(.+)$/i;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            const d = this.data[i];
+            const result = reg.exec(d);      
+            
+            if(result === null) continue;
+
+            const type = result[2].toLowerCase();
+            const timestamp = parseFloat(result[1]);
+            const subString = result[3];
+
+            if(type === "connect" || type === "rename"){
+
+                //console.log(subString);
+
+                this.updatePreliminaryPlayers(subString, type)
+
+                //await this.connectPlayer(timestamp, subString, gametypeId);
+            }else if(type === "disconnect"){
+                //this.disconnectPlayer(timestamp, subString);
+            }
+        }
+
+        console.log(this.preliminaryPlayers);
+    }
+
+
+
+    async createPlayers(gametypeId){
+
+
+        this.parseHWIDS();
+
+        console.log(this.HWIDS);
+
+        this.createPreliminaryPlayers();
+
+        
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            let masterIds = null;
+
+            if(!this.bUsePlayerACEHWID || p.hwid === ""){
+
+                new Message(`Player.getMasterIds(${p.name}, ${gametypeId})`,"note");
+                masterIds = await Player.getMasterIds(p.name, gametypeId);
+
+            }else{
+
+                new Message(`Player.getMasterIdsByHWID(${p.hwid}, ${p.name}, ${gametypeId})`,"note");
+                masterIds = await Player.getMasterIdsByHWID(p.hwid, p.name, gametypeId);
+                //player.setHWID(p.hwid);
+            }
+
+            console.log(p.name, masterIds);
+
+            this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
+
+            const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, p.hwid);
+
+            this.players.push(player);
+
+        }
+
+        console.log(this.idsToNames);
+        console.log(this.HWIDSToNames);
+        console.log(this.masterIdsToNames);
+        console.table(this.preliminaryPlayers);
+
+    }
+
+
+    getPlayerByHWID(hwid){
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            if(p.HWID === hwid) return p;
+        }
+
+        return null;
+    }
+
+    getPlayerById(id){
+        
+        id = parseInt(id);
+
+        const name = this.idsToNames[id];
+
+        //console.log(`getPlayerById(${id}) name = ${name}`);
+
+        if(name === undefined){
+
+            new Message(`getPlayerById(${id}) Name is undefined`,"error");
+            return null;
+        }
+
+        return this.getPlayerByName(name);
+    }
+
+    getPlayerByMasterId(id){
+
+        id = parseInt(id);
+
+        const name = this.masterIdsToNames[id];
+
+        if(name === undefined){
+            
+            new Message(`getPlayerByMasterId(${id}) Name is undefined`,"error");
+            return null;
+        }
+
+        return this.getPlayerByName(name);
+    }
+
+    getPlayerByName(name){
+
+        name = name.toLowerCase();
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            if(p.name.toLowerCase() === name){
+                return p;
+            }
+        }
+
+        return null;
     }
 
     getTotalPlayers(){
 
         let found = 0;
 
-        let p = 0;
-
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
             
             if(p.bDuplicate === undefined && p.bPlayedInMatch && p.stats.time_on_server > 0){
 
@@ -84,65 +425,8 @@ class PlayerManager{
         });
     }
 
-    getPlayerById(id){
-
-        id = parseInt(id);
-
-
-        for(let i = 0; i < this.players.length; i++){
-
-            if(this.players[i].id === id){
-                return this.players[i];
-            }
-        }
-
-        return null;
-
-    }
-
-    getPlayerByName(name){
-
-        for(let i = 0; i < this.players.length; i++){
-
-            const p = this.players[i];
-
-            if(p.name == name) return p;
-        }
-
-        return null;
-    }
-
-    getPlayerByMasterId(id){
-
-        id = parseInt(id);
-
-        for(let i = 0; i < this.players.length; i++){
-
-            if(this.players[i].masterId === id){
-                return this.players[i];
-            }
-        }
-
-        return null;
-    }
-
-    getPlayerNameById(id){
-
-        id = parseInt(id);
-
-        for(let i = 0; i < this.players.length; i++){
-
-            if(this.players[i].id === id){
-                return this.players[i].name;
-            }
-        }
-
-        return null;
-    }
-
     parsePlayerStrings(){
 
-        let d = 0;
         let result = 0;
         let type = 0;
         let player = 0;
@@ -155,7 +439,7 @@ class PlayerManager{
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
             if(reg.test(d)){
 
@@ -163,7 +447,7 @@ class PlayerManager{
                 type = result[2].toLowerCase();
 
                 if(type === 'team'){
-                    this.setTeam(result[3], result[1]);
+                    //this.setTeam(result[3], result[1]);
                 }else if(type == 'isabot'){
                     this.setBotStatus(result[3]);
                 }else if(type == 'ip'){
@@ -171,9 +455,12 @@ class PlayerManager{
                 }else if(type == 'connect'){
                     this.connectionsManager.lines.push(d);
                 }else if(type == 'disconnect'){
+                    this.setTeam(result[3], result[1], true);
                     this.connectionsManager.lines.push(d);
+                }else if(type === "rename"){
+                    this.connectionsManager.lines.push(d);          
                 }else if(type === 'teamchange'){
-                    this.setTeam(result[3], result[1]);
+                    this.setTeam(result[3], result[1], false);
                     this.teamsManager.lines.push(d);
                 }else if(type === 'ping'){
                     this.pingManager.lines.push(d);
@@ -207,7 +494,7 @@ class PlayerManager{
 
                 if(player !== null){
 
-                    player.setStatsValue(result[1], result[3], true);
+                    player.setStatsValue(result[1], result[3]);
 
                 }else{
                     new Message(`There is no player with the id ${result[2]}(parsePlayerStrings).`,'warning');
@@ -222,41 +509,6 @@ class PlayerManager{
                     player.stats.firstBlood = 1;
                 }
 
-            }
-        }
-    }
-
-    createPlayers(){
-
-        let d = 0;
-
-        const reg = /^(\d+\.\d+)\tplayer\t(.+?)\t(.+)$/i;
-        
-        let result = 0;
-        let type = 0;
-        let timestamp = 0;
-        let subString = 0;
-
-        for(let i = 0; i < this.data.length; i++){
-
-            d = this.data[i];
-
-            result = reg.exec(d);
-
-            if(result !== null){
-
-                type = result[2].toLowerCase();
-                timestamp = parseFloat(result[1]);
-                subString = result[3];
-                
-          
-                if(type === 'connect'){
-                    this.connectPlayer(timestamp, subString);
-                }else if(type === 'disconnect'){
-                     this.disconnectPlayer(subString, timestamp);
-                }else if(type === 'rename'){
-                    this.connectPlayer(timestamp, subString);
-                }
             }
         }
     }
@@ -278,15 +530,13 @@ class PlayerManager{
 
             let result = reg.exec(d);
             
-            //console.log(result);
-
             if(result !== null){
 
                 const timestamp = parseFloat(result[1]);
                 const type = result[2].toLowerCase();
                 
 
-                if(type === 'face' || type === 'voice' || type === 'netspeed'){
+                if(type === 'face' || type === 'voice' || type === 'netspeed' || type === "hwid"){
                     this.setPlayerFeature(d);
                 }else{
 
@@ -294,14 +544,16 @@ class PlayerManager{
 
 
                     if(result !== null){
+                        
 
                         if(type !== 'spawn_loc' && type !== 'spawn_point' && type !== 'p_s'){
 
                             player = this.getPlayerById(result[1]);
 
+
                             if(player !== null){
 
-                                player.setStatsValue(type, result[2], true);
+                                player.setStatsValue(type, result[2]);
                             }
 
                         }else if(type === 'p_s'){
@@ -324,15 +576,33 @@ class PlayerManager{
 
                             if(legacySpawnReg.test(result[2])){
 
+                                const playerId = parseInt(result[1]);
+
+                                const player = this.getPlayerById(playerId);
+                                player.spawned(timestamp);
+
                                 this.spawnManager.playerSpawnedLegacy(
                                     timestamp,
-                                    parseInt(result[1]),
+                                    player.masterId,
                                     result[2].split(',')
                                 );
 
                             }else{
 
-                                this.spawnManager.playerSpawned(timestamp, result[1], result[2]);
+                                const playerId = parseInt(result[1]);
+
+                                const player = this.getPlayerById(playerId);
+                                
+
+                                if(player === null){
+                                    new Message(`PlayerManager.setNStatsValues() player is null, playerID =${playerId}`,"warning");
+                                    this.spawnManager.playerSpawned(timestamp, -1, result[2]);
+                                    continue;
+                                }
+
+                                player.spawned(timestamp);
+
+                                this.spawnManager.playerSpawned(timestamp, player.masterId, result[2]);
                             }
 
                         }else if(type === 'spawn_point'){
@@ -372,71 +642,26 @@ class PlayerManager{
         }
     }
 
-    connectPlayer(timestamp, string){
+    
+
+    setTeam(subString, timestamp, bDisconnect){
 
 
-        const connectReg = /^(.+?)\t(.+?)\t(.+?)$/i
-        const renameReg = /^(.+)\t(.+)$/i;
+        if(bDisconnect){
 
-        let result = connectReg.exec(string);  
+            const id = parseInt(subString);
+            const player = this.getPlayerById(id);
 
-        let player = [];
-
-        if(result !== null){
-
-            player = this.getPlayerById(result[2]);
-
-            this.updateDuplicateNames(result[1]);
-
-            if(player === null){
-   
-                this.players.push(new PlayerInfo(parseInt(result[2]), result[1], timestamp));        
-
+            if(player !== null){
+                player.setTeam(timestamp, -1);
             }else{
-     
-                player.connect(timestamp);
-              
+                new Message(`PlayerManager.setTeam() player is null id = ${id}`,"error");
             }
 
-        }else{
-
-            result = renameReg.exec(string);
-            
-            if(result !== null){
-
-                const id = parseInt(result[2]);
-
-                player = this.getPlayerById(id);
-
-                this.updateDuplicateNames(result[1]);
-
-                if(player === null){
-                    this.players.push(new PlayerInfo(id, result[1], timestamp, true));   
-                }else{
-                    player.connect(timestamp, true);
-                }
-
-            }else{
-                new Message(`ConnectPlayer & renamePlayer Reg did not match for ${string}.`,'warning');
-            }
-            
+            return;
         }
-    }
-
-    disconnectPlayer(id, timeStamp){
+           
         
-        id = parseInt(id);
-
-        const player = this.getPlayerById(id);
-
-        if(player !== null){
-            player.disconnect(timeStamp);
-        }else{
-            new Message(`Player with the id of ${id} does not exist(disconnectPlayer).`,'warning');
-        }
-    }
-
-    setTeam(subString, timeStamp){
 
         const reg = /^(.+?)\t(.+)$/i;
 
@@ -449,7 +674,7 @@ class PlayerManager{
             const player = this.getPlayerById(id);
 
             if(player !== null){
-                player.setTeam(timeStamp, team);      
+                player.setTeam(timestamp, team);      
             }else{
                 new Message(`Player with the id of ${id} does not exist(setTeam).`,'warning');
             }
@@ -485,7 +710,7 @@ class PlayerManager{
 
     setPlayerFeature(string){
 
-        let reg = /^\d+\.\d+\tnstats\t(.+?)\t(.+?)\t(.+)$/i;
+        const reg = /^\d+\.\d+\tnstats\t(.+?)\t(.+?)\t(.+)$/i;
 
         const result = reg.exec(string);
 
@@ -497,43 +722,37 @@ class PlayerManager{
 
             const value = result[3].toLowerCase();
 
-            if(player !== null){
-
-                if(type === 'face'){
-                    player.setFace(value);
-                }else if(type === 'voice'){
-                    player.setVoice(value);
-                }else if(type === 'netspeed'){
-                    player.setNetspeed(value);
-                }
-
-
-            }else{
+            if(player === null){
                 new Message(`Player with the id of ${result[2]} does not exist(setFace).`,'warning');
+                return;
             }
+
+            if(type === 'face'){
+                player.setFace(value);
+            }else if(type === 'voice'){
+                player.setVoice(value);
+            }else if(type === 'netspeed'){
+                player.setNetspeed(value);
+            }/*else if(type === "hwid"){
+                player.setHWID(value);
+            }*/
         }
     }
 
 
     setKills(kills){
 
-
         let killer = 0;
         let victim = 0;
-
-        //console.log(kills);
 
         for(let i = 0; i < kills.length; i++){
 
             const k = kills[i];
 
-            //console.log(k);
-
-
             if(k.type === 'kill'){
 
-                killer = this.getPlayerById(k.killerId);
-                victim = this.getPlayerById(k.victimId);
+                killer = this.getPlayerByMasterId(k.killerId);
+                victim = this.getPlayerByMasterId(k.victimId);
 
                 if(killer !== null){
 
@@ -563,14 +782,13 @@ class PlayerManager{
                             killer = {"id": -1}
                         }
 
-                        this.sprees.addToList(
-                            victim.id, 
+                        this.spreeManager.add(
+                            victim.masterId, 
                             victim.getCurrentSpree(), 
-                            killer.id,
+                            killer.masterId,
                             victim.getPreviousSpawn(k.timestamp),
                             k.timestamp
                         );
-
                     }
 
                    if(victim.died(k.timestamp, k.killerWeapon)){
@@ -584,19 +802,26 @@ class PlayerManager{
             }else if(k.type === 'suicide'){
                
 
-                victim = this.getPlayerById(k.killerId);
+                victim = this.getPlayerByMasterId(k.killerId);
 
                 if(victim !== null){
 
                     if(victim.onASpree()){
 
-                        this.sprees.addToList(
-                            victim.id, 
+                        this.spreeManager.add(
+                            victim.masterId, 
                             victim.getCurrentSpree(), 
-                            victim.id,
+                            killer.masterId,
                             victim.getPreviousSpawn(k.timestamp),
                             k.timestamp
                         );
+                        /*this.sprees.addToList(
+                            victim.masterId, 
+                            victim.getCurrentSpree(), 
+                            victim.masterId,
+                            victim.getPreviousSpawn(k.timestamp),
+                            k.timestamp
+                        );*/
                         
                     }
 
@@ -612,21 +837,26 @@ class PlayerManager{
 
     matchEnded(endTimestamp){
 
-        let p = 0;
-
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
 
             if(p.onASpree()){
 
-                this.sprees.addToList(
-                    p.id, 
+                this.spreeManager.add(
+                    p.masterId, 
                     p.getCurrentSpree(), 
                     -1,
                     p.getPreviousSpawn(endTimestamp),
                     endTimestamp
                 );
+                /*this.sprees.addToList(
+                    p.masterId, 
+                    p.getCurrentSpree(), 
+                    -1,
+                    p.getPreviousSpawn(endTimestamp),
+                    endTimestamp
+                );*/
                 
             }
 
@@ -636,15 +866,11 @@ class PlayerManager{
 
     setHeadshots(data){
 
-        let killer = 0;
-
-        let d = 0;
-
         for(let i = 0; i < data.length; i++){
 
-            d = data[i];
+            const d = data[i];
 
-            killer = this.getPlayerById(d.killer);
+            const killer = this.getPlayerByMasterId(d.killer);
 
             if(killer !== null){
 
@@ -653,8 +879,7 @@ class PlayerManager{
             }else{
                 new Message(`PlayerManager.setHeadshots() killer is null`,'warning');
             }
-        }
-        
+        }    
     }
 
     setIp(string){    
@@ -664,14 +889,15 @@ class PlayerManager{
         const result = reg.exec(string);
 
         if(result !== null){
+
             const player = this.getPlayerById(result[1]);
 
             if(player !== null){
 
                 const geo = this.geoip.lookup(result[2]);
 
-                //console.log(geo);
-                let country = 'xx';
+                let country = "xx";
+
                 if(geo !== null){
                     country = geo.country.toLowerCase();
                 }
@@ -693,234 +919,10 @@ class PlayerManager{
     }
 
 
-    getOriginalConnection(name){
-
-        name = name.toLowerCase();
-
-        for(let i = 0; i < this.players.length; i++){
-
-            if(this.players[i].name.toLowerCase() === name){
-                return this.players[i];
-            }
-        }
-
-
-        return null;
-    }
-
-
-    getOriginalConnectionById(id){
-
-        id = parseInt(id);
-        
-        const name = this.getPlayerNameById(id);
-
-        if(name !== null){
-
-            return this.getOriginalConnection(name);
-        }
-
-        return null;
-
-    }
-
-    getOriginalConnectionMasterId(id){
-        
-        const player = this.getOriginalConnectionById(id);
-
-        if(player !== null){
-            return player.masterId;
-        }
-
-        return -1;
-    }
-
-    displayDebugDuplicates(){
-
-        const names = [];
-
-        this.players.forEach((player, key) =>{
-
-            //console.log(`${value} ${key} `);
-
-            if(names.indexOf(player.name) === -1){
-                names.push(player.name);
-            }else{
-                new Message(`Found duplicate for player ${player.name}`,'note');
-            }
-
-        });
-    }
-
-
     mergePlayer(master, duplicate){
 
-        //bPlayedInMatch
-       
-        if(master.bPlayedInMatch || duplicate.bPlayedInMatch){
-            master.bPlayedInMatch = true;
-        }
-
-        master.connects.push(...duplicate.connects);
-        master.disconnects.push(...duplicate.disconnects);
-        master.teams.push(...duplicate.teams);
-        // master.weaponStats.push(...duplicate.weaponStats);
-
-        for(const c in master.stats.sprees){
-            master.stats.sprees[c] += duplicate.stats.sprees[c];
-        }
-
-        const totalAccuracy = master.stats.accuracy + duplicate.stats.accuracy;
-
-        if(totalAccuracy > 0){
-            master.stats.accuracy = totalAccuracy / 2;
-        }
-
-        for(const c in master.stats.multis){
-            master.stats.multis[c] += duplicate.stats.multis[c];
-        }
-
-        for(const c in master.stats.ctf){
-
-            master.stats.ctf[c] += duplicate.stats.ctf[c];
-        }
-
-        master.stats.monsterHunt.kills += duplicate.stats.monsterHunt.kills;
-        master.stats.monsterHunt.deaths += duplicate.stats.monsterHunt.deaths;
-
-        if(master.stats.monsterHunt.bestKillsInLife < duplicate.stats.monsterHunt.bestKillsInLife){
-            master.stats.monsterHunt.bestKillsInLife = duplicate.stats.monsterHunt.bestKillsInLife;
-        }
-
-        master.stats.dom.caps += duplicate.stats.dom.caps;
-        master.stats.dom.mostCapsLife = (master.stats.dom.mostCapsLife > duplicate.stats.dom.mostCapsLife) 
-        ? master.stats.dom.mostCapsLife 
-        : duplicate.stats.dom.mostCapsLife;
-
-        /*for(const c in master.stats.dom){
-            master.stats.dom[c] += duplicate.stats.dom[c];
-        }*/
-
-        const higherBetter = [
-            'bestSpree',
-            'bestMulti',
-            'bestspawnkillspree',
-            'longesttimebetweenkills',
-        ];
-
-        const lowerBetter = [
-            'shortesttimebetweenkills'
-        ];
-
-        const combine = [
-            'spawnKills',
-            'score',
-            'frags',
-            'kills',
-            'deaths',
-            'suicides',
-            'teamkills',
-            'time_on_server',
-            'headshots'
-        ];
-
-        for(const c in master.stats){
-           // console.log(c);
-
-            if(c !== 'sprees' && c !== 'multis'){
-
-                if(higherBetter.indexOf(c) !== -1){
-
-                    if(duplicate.stats[c] > master.stats[c]){
-                        master.stats[c] = duplicate.stats[c];
-                    }
-
-                }else if(lowerBetter.indexOf(c) !== -1){
-
-                    if(duplicate.stats[c] < master.stats[c]){
-                        master.stats[c] = duplicate.stats[c];
-                    }
-
-                }else if(combine.indexOf(c) !== -1){
-
-                    if(this.bLastManStanding && c === 'score'){      
-                        //dont want players that left the match or started late to win
-                       // master.stats[c].score = 0;
-                        //master.stats[c].frags = 0;           
-                        new Message(`Skipping score merge for LMS game for player ${master.name}.`, 'note');
-                        //continue;
-                    }else{
-                        master.stats[c] += duplicate.stats[c];
-                    }
-
-                }
-            }
-        }
-
-        if(master.stats.firstBlood === 1 || duplicate.stats.firstBlood === 1){
-            master.stats.firstBlood = 1;
-        }
-
-
-        //weapon stats
-
-        //console.log(master);
-
-        let currentWeapon = 0;
-
-        //console.log(master.weaponStats);
-
-        let mergedStats = 0;
-
-        for(const [key, value] of duplicate.weaponStats){
-
-            //console.log(key,value);
-
-            if(master.weaponStats.has(key)){
-
-                currentWeapon = master.weaponStats.get(key);
-
-
-                mergedStats = new WeaponStats(key);
-
-                mergedStats.kills = currentWeapon.kills + value.kills;
-                mergedStats.deaths = currentWeapon.deaths + value.deaths;
-                mergedStats.shots = currentWeapon.shots + value.shots;
-                mergedStats.hits = currentWeapon.hits + value.hits;
-                mergedStats.damage = currentWeapon.damage + value.damage;
-
-                if(mergedStats.hits > 0 && mergedStats.shots > 0){
-                    mergedStats.accuracy = mergedStats.hits / mergedStats.shots;
-                }else{
-
-                    if(mergedStats.hits === 0){
-                        mergedStats.accuracy = 0;
-                    }else if(mergedStats.hits > 0){
-                        mergedStats.accuracy = 1;
-                    }
-                }
-
-                mergedStats.accuracy *= 100;
-
-                master.weaponStats.set(key, mergedStats);
- 
-            }else{
-                currentWeapon = new WeaponStats(key);
-                currentWeapon.kills = value.kills;
-                currentWeapon.deaths = value.deaths;
-                currentWeapon.accuracy = value.accuracy;
-                currentWeapon.shots = value.shots;
-                currentWeapon.hits = value.hits;
-                currentWeapon.damage = value.damage;
-                master.weaponStats.set(key, currentWeapon);
-            }
-
-        }
-
-        
-       // console.log(duplicate.weaponStats);
-
-       // console.log(master.weaponStats);
+        new Message(`PlayerManager.mergePlayer() is deprecated`,"error");
+        return;
 
     }
 
@@ -969,31 +971,30 @@ class PlayerManager{
 
         const reg = /^(\d+\.\d+)\tweap_(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
 
-        let d = 0;
-
-        let result = 0;
-        let player = 0;
-
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
-            result = reg.exec(d);
+            const result = reg.exec(d);
 
             if(result !== null){
 
-                player = this.getPlayerById(parseInt(result[4]));
+                const timestamp = parseFloat(result[1]);
+                const statType = result[2];
+                const weaponName = result[3];
+                const playerId = parseInt(result[4]);
+                const value = result[5];
+
+                const player = this.getPlayerById(playerId);
 
                 if(player !== null){
 
-                    if(this.bIgnoreBots){
-                        if(player.bBot) continue;
-                    }
+                    if(this.bIgnoreBots && player.bBot) continue;
 
-                    player.setWeaponStat(result[3], result[2], result[5]);
+                    player.setWeaponStat(weaponName, statType, value);
 
                 }else{
-                    new Message(`Player with id ${result[4]} does not exist.`,'warning');
+                    new Message(`Player with id ${playerId} does not exist.`,'warning');
                 }
 
                 //console.log(result);
@@ -1004,32 +1005,13 @@ class PlayerManager{
     }
 
 
-    async setPlayerIds(gametypeId){
+    async updateFragPerformance(gametypeId, date, totalTeams){
 
         try{
 
-            for(let i = 0; i < this.players.length; i++){
 
-                const currentId = await Player.getNameId(this.players[i].name, gametypeId, true);
-
-                this.players[i].masterId = currentId.totalId;
-                this.players[i].gametypeId = currentId.gametypeId;
-
-            }
-
-
-        }catch(err){
-            console.trace(err);
-            new Message(`Problem setting player id ${err}`,'error');
-        }
-
-    }
-
-
-    async updateFragPerformance(gametypeId, date){
-
-        try{
-
+            const updatedMasterIds = [];
+            const updatedGametypeIds = [];
    
             //get current gametype id here
 
@@ -1042,69 +1024,77 @@ class PlayerManager{
                 if(this.bIgnoreBots){
                     if(p.bBot) continue;
                 }
-                 
-                if(p.bDuplicate === undefined){
 
-                    let playtime = p.stats.time_on_server;
+                const playtime = p.getTotalPlaytime(totalTeams);
 
+                //update combined gametypes totals
+                await Player.updateFrags(
+                    p.masterId, 
+                    date,
+                    playtime, 
+                    p.stats.frags,
+                    p.stats.score,  
+                    p.stats.kills, 
+                    p.stats.deaths, 
+                    p.stats.suicides, 
+                    p.stats.teamkills,
+                    p.stats.spawnKills,
+                    p.stats.multis,
+                    p.stats.bestMulti,
+                    p.stats.sprees,
+                    p.stats.bestSpree,
+                    p.stats.fastestKill,
+                    p.stats.slowestKill,
+                    p.stats.bestspawnkillspree,
+                    p.stats.firstBlood,
+                    p.stats.accuracy,
+                    p.stats.killsNormalRange,
+                    p.stats.killsLongRange,
+                    p.stats.killsUberRange,
+                    p.stats.headshots,
+                    0
+                );
 
-                    //update combined gametypes totals
-                    await Player.updateFrags(
-                        p.masterId, 
-                        date,
-                        playtime, 
-                        p.stats.frags,
-                        p.stats.score,  
-                        p.stats.kills, 
-                        p.stats.deaths, 
-                        p.stats.suicides, 
-                        p.stats.teamkills,
-                        p.stats.spawnKills,
-                        p.stats.multis,
-                        p.stats.bestMulti,
-                        p.stats.sprees,
-                        p.stats.bestSpree,
-                        p.stats.fastestKill,
-                        p.stats.slowestKill,
-                        p.stats.bestspawnkillspree,
-                        p.stats.firstBlood,
-                        p.stats.accuracy,
-                        p.stats.killsNormalRange,
-                        p.stats.killsLongRange,
-                        p.stats.killsUberRange,
-                        p.stats.headshots,
-                        0
-                    );
+                //update gametype specific totals
+                await Player.updateFrags(
+                    p.gametypeId, 
+                    date,
+                    playtime, 
+                    p.stats.frags,
+                    p.stats.score, 
+                    p.stats.kills, 
+                    p.stats.deaths, 
+                    p.stats.suicides, 
+                    p.stats.teamkills,
+                    p.stats.spawnKills,
+                    p.stats.multis,
+                    p.stats.bestMulti,
+                    p.stats.sprees,
+                    p.stats.bestSpree,
+                    p.stats.fastestKill,
+                    p.stats.slowestKill,
+                    p.stats.bestspawnkillspree,
+                    p.stats.firstBlood,
+                    p.stats.accuracy,
+                    p.stats.killsNormalRange,
+                    p.stats.killsLongRange,
+                    p.stats.killsUberRange,
+                    p.stats.headshots,
+                    gametypeId
+                );
 
-                    //update gametype specific totals
-                    await Player.updateFrags(
-                        p.gametypeId, 
-                        date,
-                        playtime, 
-                        p.stats.frags,
-                        p.stats.score, 
-                        p.stats.kills, 
-                        p.stats.deaths, 
-                        p.stats.suicides, 
-                        p.stats.teamkills,
-                        p.stats.spawnKills,
-                        p.stats.multis,
-                        p.stats.bestMulti,
-                        p.stats.sprees,
-                        p.stats.bestSpree,
-                        p.stats.fastestKill,
-                        p.stats.slowestKill,
-                        p.stats.bestspawnkillspree,
-                        p.stats.firstBlood,
-                        p.stats.accuracy,
-                        p.stats.killsNormalRange,
-                        p.stats.killsLongRange,
-                        p.stats.killsUberRange,
-                        p.stats.headshots,
-                        gametypeId
-                    );
+                //to prevent players that used multiple names during a match to update matches played by more than 1
+                if(updatedMasterIds.indexOf(p.masterId) === -1){
+                    await Player.incrementMatchesPlayed(p.masterId);
+                    updatedMasterIds.push(p.masterId);
+                }
+
+                if(updatedGametypeIds.indexOf(p.gametypeId) === -1){
+                    await Player.incrementMatchesPlayed(p.gametypeId);
+                    updatedGametypeIds.push(p.gametypeId);
                 }
             }
+
 
         }catch(err){
             console.trace(err);
@@ -1164,15 +1154,14 @@ class PlayerManager{
 
         try{
 
-            let p = 0;
 
             for(let i = 0; i < this.players.length; i++){
 
-                p = this.players[i];
+                const p = this.players[i];
 
-                if(!p.bBot){
-                    await this.updateIpCountry(p.masterId, p.ip, p.country);
-                }
+                if(p.bBot) continue;
+                await this.updateIpCountry(p.masterId, p.ip, p.country);
+                
             }
 
         }catch(err){
@@ -1209,22 +1198,17 @@ class PlayerManager{
 
         try{     
 
-            let p = 0;
-
             for(let i = 0; i < this.players.length; i++){
 
-                p = this.players[i];
+                const p = this.players[i];
 
-                if(p.bDuplicate === undefined && p.bPlayedInMatch){
-
-                    if(this.bIgnoreBots){
-                        if(p.bBot) continue;
-                    }
-
-                    await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
-                    await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
-                }
+                if(!p.bPlayedInMatch) continue;
+                if(this.bIgnoreBots && p.bBot) continue;
+       
+                await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
+                await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
             }
+            
 
         }catch(err){
             console.log(err);
@@ -1233,11 +1217,9 @@ class PlayerManager{
 
     setPlayerSpawns(){
 
-        let p = 0;
-
         for(let i = 0; i < this.players.length; i++){
 
-            p = this.players[i];
+            const p = this.players[i];
             p.spawns = this.spawnManager.getPlayerSpawns(p.id);
         }
     }
@@ -1279,13 +1261,11 @@ class PlayerManager{
 
         try{
 
-            let p = 0;
-
             const data = {};
 
             for(let i = 0; i < this.players.length; i++){
                 
-                p = this.players[i];
+                const p = this.players[i];
 
                 if(p.bDuplicate === undefined && p.bPlayedInMatch){
 
@@ -1315,7 +1295,7 @@ class PlayerManager{
     }
 
 
-    async insertMatchData(gametypeId, matchId, mapId, matchDate){
+    async insertMatchData(gametypeId, matchId, mapId, matchDate, totalTeams){
 
         try{
 
@@ -1343,7 +1323,7 @@ class PlayerManager{
                       
                     }
 
-                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData);
+                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData, totalTeams);
 
                     
                     
@@ -1364,12 +1344,12 @@ class PlayerManager{
 
         try{
 
-            this.connectionsManager.parseData(this);
+            this.connectionsManager.parseData();
 
             await this.connectionsManager.insertData(matchId);
 
         }catch(err){
-            new Message(`PlayerManager.inserConnectionData ${err}`,'error');
+            new Message(`PlayerManager.insertConnectionData ${err}`,'error');
         }
     }
 
@@ -1377,11 +1357,11 @@ class PlayerManager{
     getPlayerTeamAt(id, timestamp){
 
         id = parseInt(id);
-        timestamp = parseFloat(timestamp);
+        timestamp = parseFloat(timestamp)
 
         for(let i = 0; i < this.players.length; i++){
 
-            if(this.players[i].id === id){
+            if(this.players[i].masterId === id){
                 return this.players[i].getTeamAt(timestamp);
             }
         }
@@ -1389,19 +1369,15 @@ class PlayerManager{
         return -1;
     }
 
-
     async insertScoreHistory(matchId){
 
         try{
 
-            let currentPlayer = 0;
-            let s = 0;
-
             for(let i = 0; i < this.scoreHistory.length; i++){
 
-                s = this.scoreHistory[i];
+                const s = this.scoreHistory[i];
 
-                currentPlayer = this.getOriginalConnectionById(s.player);
+                const currentPlayer = this.getPlayerById(s.player);
 
                 if(currentPlayer !== null){
 
@@ -1508,7 +1484,7 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+                if(p.bPlayedInMatch){
 
                     if(this.bIgnoreBots){
                         if(p.bBot) continue;
@@ -1518,6 +1494,7 @@ class PlayerManager{
                 }
             }
 
+
             const data = await this.winRateManager.getCurrentPlayersData(playerIds, [0, gametypeId]);
 
             const currentResult = {};
@@ -1526,16 +1503,13 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                if(p.bDuplicate === undefined){
-
-                    if(p.bWinner){
-                        currentResult[p.masterId] = 1;
-                    }else if(!p.bWinner && !p.bDrew){
-                        currentResult[p.masterId] = 0;
-                    }else if(p.bDrew){
-                        currentResult[p.masterId] = 2;
-                    }  
-                }
+                if(p.bWinner){
+                    currentResult[p.masterId] = 1;
+                }else if(!p.bWinner && !p.bDrew){
+                    currentResult[p.masterId] = 0;
+                }else if(p.bDrew){
+                    currentResult[p.masterId] = 2;
+                }         
             }
 
             this.updateCurrentWinRates(data, currentResult);
@@ -1566,27 +1540,6 @@ class PlayerManager{
             new Message(`PlayerManager.updateWinRates() ${err}`,'error');
         }
     }
-
-
-
-    getAllNonDuplicateMasterIds(){
-
-        const found = [];
-
-        let p = 0;
-
-        for(let i = 0; i < this.players.length; i++){
-
-            p = this.players[i];
-
-            if(p.bDuplicate === undefined){
-                found.push(p.masterId);
-            }
-        }
-
-        return found;
-    }
-
 
     async getPlayerTotals(gametype){
 
@@ -1627,30 +1580,14 @@ class PlayerManager{
     }
 
 
-
-    setSpreeMasterIds(){
-
-        for(let i = 0; i < this.sprees.currentSprees.length; i++){
-
-            const s = this.sprees.currentSprees[i];
-
-            s.player = this.getOriginalConnectionMasterId(s.player);
-
-            if(s.killedBy !== -1){
-
-                s.killedBy = this.getOriginalConnectionMasterId(s.killedBy);
-            }
-        }
-    }
-
     async insertSprees(matchId){
 
         try{
 
-            if(this.sprees.currentSprees !== undefined){
-                this.setSpreeMasterIds();
+            await this.spreeManager.insertSprees(matchId);
+            /*if(this.sprees.currentSprees !== undefined){
                 await this.sprees.insertCurrentSprees(matchId);
-            }
+            }*/
 
         }catch(err){
             
@@ -1728,19 +1665,19 @@ class PlayerManager{
 
     getPlayerPlaytime(masterId){
 
-        for(let i = 0; i < this.players.length; i++){
+        const player = this.getPlayerByMasterId(masterId);
 
-            const p = this.players[i];
+        if(player === null){
 
-            if(p.masterId === masterId){
-                return p.stats.time_on_server;
-            }
+            new Message(`failed to getPlayerPlaytime(${masterId})`,"error");
+            return null;
         }
 
-        return null;
+        return player.stats.time_on_server;
+        
     }
 
-    fixPlaytime(bHardcore, matchLength){
+    /*fixPlaytime(bHardcore, matchLength){
 
 
         for(let i = 0; i < this.players.length; i++){
@@ -1763,7 +1700,7 @@ class PlayerManager{
             p.stats.time_on_server = playtime;
 
         }
-    }
+    }*/
 
     async updateRankings(rankingsManager, gametypeId, matchId){
 
@@ -1776,15 +1713,113 @@ class PlayerManager{
             }
 
             if(p.stats.time_on_server > 0){
-
-                if(p.bDuplicate === undefined){
-                    await rankingsManager.updatePlayerRankings(Player, p.masterId, gametypeId, matchId);
-                }else{
-                    new Message(`Duplicate player detected, ignoring ranking update for ${p.name}.`,"note");
-                }
+                await rankingsManager.updatePlayerRankings(Player, p.masterId, gametypeId, matchId);    
             }
         }
     }
+
+    ignoreWarmpup(timestamp){
+
+        if(timestamp < this.matchTimings.start){
+            return this.matchTimings.start;
+        }
+
+        return timestamp;
+    }
+
+    setPlayerPlaytime(bHardcore){
+
+        const matchTimings = this.matchTimings;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            const events = [...p.teamChangeEvents];
+
+            events.sort((a, b) =>{
+
+                a = a.timestamp;
+                b = b.timestamp;
+
+                if(a < b) return -1;
+                if(a > b) return 1;
+                return 0;
+            });
+
+            let previousTimestamp = 0;
+            let bLastDisconnect = false;
+            let previousTeam = 255;
+
+            for(let x = 0; x < events.length; x++){
+
+                const currentEvent = events[x];
+
+                if(x === 0){
+
+                    previousTimestamp = this.ignoreWarmpup(currentEvent.timestamp);
+
+                    if(currentEvent.type === "change"){
+                        previousTeam = currentEvent.newTeam;
+                    }
+
+                    continue;
+                }
+
+
+                const diff = this.ignoreWarmpup(currentEvent.timestamp) - previousTimestamp;
+
+                if(currentEvent.type === "disconnect"){
+                    bLastDisconnect = true;
+                    p.stats.teamPlaytime[previousTeam] += diff;
+                }else{
+                    bLastDisconnect = false;
+                    p.stats.teamPlaytime[previousTeam] += diff;
+                    previousTeam = currentEvent.newTeam;             
+                }
+
+                previousTimestamp = this.ignoreWarmpup(currentEvent.timestamp);
+                
+            }
+
+            if(!bLastDisconnect){
+                
+                const finalDiff = matchTimings.end - previousTimestamp;
+                p.stats.teamPlaytime[previousTeam] += finalDiff;
+            }
+        }
+
+
+        this.scalePlaytimes(bHardcore);
+        
+    }
+
+    
+    
+
+    scalePlaytimes(bHardcore){
+
+       /* if(bHardcore && playtime !== 0){
+            return playtime / 1.1;      
+        }
+
+        return playtime;*/
+
+        if(!bHardcore) return;
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            for(const [teamId, playtime] of Object.entries(p.stats.teamPlaytime)){
+
+                //console.log(`scaled ${p.stats.teamPlaytime[teamId]} to ${this.scalePlaytime(playtime, bHardcore)}`);
+                p.stats.teamPlaytime[teamId] = Functions.scalePlaytime(playtime, bHardcore);
+            }
+        }
+    }
+    
+    
 }
 
 module.exports = PlayerManager;

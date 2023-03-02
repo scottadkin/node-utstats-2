@@ -16,8 +16,6 @@ class AssaultManager{
 
     }
 
-    //LogEventString(GetTimeStamp()$Chr(9)$"assault_obj"$Chr(9)$string(zzPID)$Chr(9)$string(bFinalObj)$chr(9)$string(zzFortID));
-
     parseData(){
 
         const objNameReg = /^\d+\.\d+\tassault_objname\t(.+?)\t(.+?)$/i;
@@ -25,12 +23,11 @@ class AssaultManager{
         const attackerReg = /^\d+\.\d+\tassault_attacker\t(.+)$/;
         const defenderReg = /^\d+\.\d+\tassault_defender\t(.+)$/;
 
-        let d = 0;
         let result = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
             if(objNameReg.test(d)){
 
@@ -77,14 +74,9 @@ class AssaultManager{
 
         try{
 
-            let o = 0;
-
-            //console.log(this.objectives);
-
             for(let i = 0; i < this.objectives.length; i++){
 
-                o = this.objectives[i];
-
+                const o = this.objectives[i];
                 await this.assault.updateMapObjective(this.mapId, o.name, o.id);
             }
         }catch(err){
@@ -96,25 +88,22 @@ class AssaultManager{
 
         try{
 
-            let o = 0;
-
-            let currentPlayerName = 0;
-            let originalConnection = 0;
-
-            //console.log(this.takenObjectives);
-
             for(let i = 0; i < this.takenObjectives.length; i++){
 
-                o = this.takenObjectives[i];
+                const o = this.takenObjectives[i];
 
-                currentPlayerName = this.playerManager.getPlayerNameById(o.player);
-                originalConnection = this.playerManager.getOriginalConnection(currentPlayerName);
+                const player = this.playerManager.getPlayerById(o.player);
 
-                o.masterPlayerId = originalConnection.masterId;
-                o.gametypePlayerId = originalConnection.gametypeId;
-                o.playerName = originalConnection.name;
+                if(player === null){
+                    new Message(`assaultManager.insertCapturedMapObjectives() player is null.`,"warning");
+                    continue;
+                }
 
-                await this.assault.insertObjectiveCapture(this.matchId, this.mapId, o.timestamp, o.objId, originalConnection.masterId, o.bFinal);
+                o.masterPlayerId = player.masterId;
+                o.gametypePlayerId = player.gametypeId;
+                o.playerName = player.name;
+
+                await this.assault.insertObjectiveCapture(this.matchId, this.mapId, o.timestamp, o.objId, player.masterId, o.bFinal);
             }
 
         }catch(err){
@@ -128,11 +117,9 @@ class AssaultManager{
             
             const totals = {};
 
-            let o = 0;
-
             for(let i = 0; i < this.takenObjectives.length; i++){
 
-                o = this.takenObjectives[i];
+                const o = this.takenObjectives[i];
 
                 if(totals[o.playerName] !== undefined){
                     totals[o.playerName].taken++;
@@ -146,20 +133,16 @@ class AssaultManager{
                 }
             }
 
-            let currentPlayer = 0;
+            for(const playerData of Object.values(totals)){
 
-            for(const player in totals){
+                await this.assault.updatePlayerCaptureTotals(playerData.taken, playerData.masterId, playerData.gametypeId);
+                const player = this.playerManager.getPlayerByMasterId(playerData.masterId);
 
-                await this.assault.updatePlayerCaptureTotals(totals[player].taken, totals[player].masterId, totals[player].gametypeId);
-
-                currentPlayer = this.playerManager.getOriginalConnection(totals[player].name);
-
-                if(currentPlayer !== null){
-                    currentPlayer.stats.assault.caps = totals[player].taken;   
+                if(player !== null){
+                    player.stats.assault.caps = playerData.taken;   
                 }else{
                     new Message(`updatePlayerCaptureTotals: currentPlayer is null`,'warning');
                 }
-
             }
 
         }catch(err){
@@ -171,11 +154,9 @@ class AssaultManager{
 
         try{
 
-            let o = 0;
-
             for(let i = 0; i < this.takenObjectives.length; i++){
 
-                o = this.takenObjectives[i];
+                const o = this.takenObjectives[i];
 
                 await this.assault.updateMapCaptureTotals(this.mapId, o.objId, 1);
             }
@@ -215,17 +196,14 @@ class AssaultManager{
 
             const players = this.playerManager.players;
 
-            let p = 0;
-
             for(let i = 0; i < players.length; i++){
 
-                p = players[i];
+                const p = players[i];
 
-                if(p.bDuplicate === undefined){
-                    if(p.stats.assault.caps > 0){
-                        await this.assault.updatePlayerMatchCaps(p.matchId, p.stats.assault.caps);
-                    }
+                if(p.stats.assault.caps > 0){
+                    await this.assault.updatePlayerMatchCaps(p.matchId, p.stats.assault.caps);
                 }
+            
             }
 
         }catch(err){

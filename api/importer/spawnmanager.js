@@ -1,6 +1,4 @@
 const Message = require('../message');
-const Promise = require('promise');
-const Maps = require('../maps');
 const Spawns = require('../spawns');
 
 class SpawnManager{
@@ -53,6 +51,7 @@ class SpawnManager{
             this.updateSpawnCount(spawnId);
         }
 
+
         this.data.push(
             {
                 "timestamp": timestamp,
@@ -69,15 +68,13 @@ class SpawnManager{
 
     playerSpawned(timestamp, playerId, spawnId){
 
-        let s = 0;
-
         timestamp = parseFloat(timestamp);
         playerId = parseInt(playerId);
         spawnId = parseInt(spawnId);
 
         for(let i = 0; i < this.spawnPoints.length; i++){
 
-            s = this.spawnPoints[i];
+            const s = this.spawnPoints[i];
 
             if(s.id === spawnId){
 
@@ -104,11 +101,9 @@ class SpawnManager{
 
     getMatchingSpawn(x,y,z){
 
-        let s = 0;
-
         for(let i = 0; i < this.spawnPoints.length; i++){
 
-            s = this.spawnPoints[i];
+            const s = this.spawnPoints[i];
 
             if(s.position.x === x && s.position.y === y && s.position.z === z){
                 return s.id;

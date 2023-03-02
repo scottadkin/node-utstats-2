@@ -3,59 +3,23 @@ const mysql = require('./database');
 
 class Sprees{
 
-    constructor(){
-    
-    }
+    constructor(){}
 
-    // if killedBy is -1 it means match ending ended the spree
-    addToList(player, kills, killedBy, start, end){
+    async insertSpree(matchId, playerId, totalKills, startTimestamp, endTimestamp, totalTime, killerId){
 
-        if(this.currentSprees === undefined){
+        const query = `INSERT INTO nstats_sprees VALUES(NULL,?,?,?,?,?,?,?)`;
 
-            this.currentSprees = [];
-        }
+        const vars = [matchId, playerId, totalKills, startTimestamp, endTimestamp, totalTime, killerId];
 
-        this.currentSprees.push({
+        return await mysql.simpleQuery(query, vars);
 
-            "player": player,
-            "kills": kills,
-            "killedBy": killedBy,
-            "start": start,
-            "end": end,
-            "totalTime": end - start
-        });
-    }
-
-    async insertCurrentSprees(matchId){
-
-        let s = 0;
-
-        const query = "INSERT INTO nstats_sprees VALUES(NULL,?,?,?,?,?,?,?)";
-        let vars = [];
-
-        for(let i = 0; i < this.currentSprees.length; i++){
-
-            s = this.currentSprees[i];
-
-            vars = [
-                matchId,
-                s.player,
-                s.kills,
-                (s.start === null) ? 0 : s.start,
-                (s.end === null) ? 0 : s.end,
-                s.totalTime,
-                s.killedBy
-            ];
-
-            await mysql.simpleInsert(query, vars);
-        }
     }
 
     async getMatchData(id){
 
         const query = "SELECT player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=?";
         const vars = [id];
-        return await mysql.simpleFetch(query, vars);
+        return await mysql.simpleQuery(query, vars);
 
     }
 
@@ -63,7 +27,7 @@ class Sprees{
 
         const query = "SELECT player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=? AND (player=? || killer=?)";
         const vars = [matchId, playerId, playerId];
-        return await mysql.simpleFetch(query, vars);
+        return await mysql.simpleQuery(query, vars);
 
     }
 
@@ -71,14 +35,14 @@ class Sprees{
 
         const query = "DELETE FROM nstats_sprees WHERE match_id=? AND player=?";
 
-        await mysql.simpleDelete(query, [matchId, playerId]);
+        await mysql.simpleQuery(query, [matchId, playerId]);
     }
 
     async deletePlayer(playerId){
 
         const query = "DELETE FROM nstats_sprees WHERE player=?";
 
-        await mysql.simpleDelete(query, [playerId]);
+        await mysql.simpleQuery(query, [playerId]);
     }
 
     async changePlayerIds(oldId, newId){
@@ -86,8 +50,8 @@ class Sprees{
         const query = `UPDATE nstats_sprees SET player=? WHERE player=?`;
         const query2 = `UPDATE nstats_sprees SET killer=? WHERE killer=?`;
 
-        await mysql.simpleUpdate(query, [newId, oldId]);
-        await mysql.simpleUpdate(query2, [newId, oldId]);
+        await mysql.simpleQuery(query, [newId, oldId]);
+        await mysql.simpleQuery(query2, [newId, oldId]);
         
     }
 }

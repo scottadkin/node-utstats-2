@@ -1,84 +1,211 @@
-import styles from './TeamsSummary.module.css';
 import Functions from '../../api/functions';
-import MMSS from '../MMSS/';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
-import Table2 from '../Table2';
+import Loading from '../Loading';
+import {React, useEffect, useReducer, useState} from "react";
+import ErrorMessage from '../ErrorMessage';
+import InteractiveTable from '../InteractiveTable';
 
 
-function getPreviousTeam(data, timestamp, player){
+const TeamsSummary = ({matchId, matchStart, players, playerData, totalTeams}) =>{
 
 
-    let d = 0;
-    let previous = -1;
-    let previousTime = 0;
+    const [displayMode, setDisplayMode] = useState(0);
 
-    for(let i = 0; i < data.length; i++){
+    const reducer = (state, action) =>{
 
-        d = data[i];
-
-        if(d.player === player){
-
-            if(d.timestamp < timestamp){
-                previous = d.team;
-                previousTime = d.timestamp;
+        switch(action.type){
+            case "loaded": {
+                return {
+                    "bLoading": false,
+                    "error": null,
+                    "teamsData": action.teamsData
+                }
             }
+            case "error":{
+                return {
+                    "bLoading": false,
+                    "error": action.errorMessage
+                }
+            }
+            default: return {...state}
         }
     }
 
-    let playtime = 0;
-
-    if(previousTime !== 0){
-        playtime = timestamp - previousTime;
-    }
-
-    return {"team": previous, "playtime": playtime};
-}
-
-const TeamsSummary = ({host, data, playerNames, matchId}) =>{
-
-    data = JSON.parse(data);
-    playerNames = JSON.parse(playerNames);
-
-    const elems = [];
-
-    for(let i = 0; i < data.length; i++){
-
-        const currentPlayer = Functions.getPlayer(playerNames, data[i].player);
-        const previousTeam = getPreviousTeam(data, data[i].timestamp, data[i].player);
-
-        const previousTeamString = (previousTeam.team === -1) ? "Joined Server" : (previousTeam.team === 255) ? "Spectator" : Functions.getTeamName(previousTeam.team)
-        const currentTeamString = (data[i].team === 255) ? "Spectator" : Functions.getTeamName(data[i].team);
-
-        elems.push(<tr key={`team-change-${i}`}>
-            <td><MMSS timestamp={data[i].timestamp} /></td>
-            <td><Link href={`/pmatch/${matchId}?player=${data[i].player}`}><a><CountryFlag host={host} country={currentPlayer.country}/> {currentPlayer.name} </a></Link></td>
-            <td className={Functions.getTeamColor(previousTeam.team)}>
-                {previousTeamString}
-            </td>
-            <td className={Functions.getTeamColor(data[i].team)}>
-                <b>{currentTeamString}</b> 
-            </td>
-        </tr>);
-    }
-
-
-    return (<div className={`center`}>
-        <div className="default-header">
-            Team Changes Summary
-        </div>
-        <Table2 width={1}>
-            <tr>
-                <th>Timestamp</th>
-                <th>Player</th>
-                <th>Old Team</th>
-                <th>New Team</th>
-            </tr>
-            {elems}
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null
+    });
     
-        </Table2>
-    </div>);
-}
 
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+            const req = await fetch("/api/match", {
+                "singal": controller.signal,
+                "headers":{
+                    "Content-type": "application/json"
+                },
+                "method": "POST",
+                "body": JSON.stringify({"mode": "teams", "matchId": matchId})
+            });
+
+            const res = await req.json();
+
+            if(res.error !== undefined){
+                dispatch({"type": "error", "errorMessage": res.error});
+            }else{
+                dispatch({"type": "loaded", "teamsData": res.data});
+            }
+        }
+
+        loadData();
+
+        return () =>{
+            controller.abort();
+        }
+
+    }, [matchId]);
+
+    const createTeamChangeString = (teamId) =>{
+
+        if(totalTeams >= 2 && teamId !== 255){
+
+            return <>Joined the <b>{Functions.getTeamName(teamId)}</b>.</>;
+        }
+
+        if(totalTeams >= 2 && teamId === 255){
+            return <>Joined the server as a spectator.</>;
+        }
+
+        return <>Joined the Server.</>
+        
+    }
+
+    const renderTeamChanges = () =>{
+
+        if(displayMode !== 0) return null;
+
+        const headers = {
+            "time": "Timestamp",
+            "player": "Player",
+            "info": "Info"
+        };
+
+
+        const data = state.teamsData.map((teamChange) =>{
+
+            const player = Functions.getPlayer(players, teamChange.player, true);
+    
+            const teamColor = Functions.getTeamColor(teamChange.team);
+
+            return {
+                "time": {
+                    "value": teamChange.timestamp,
+                    "displayValue": Functions.MMSS(teamChange.timestamp - matchStart)
+                },
+                "player": {
+                    "value": player.name.toLowerCase(),
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
+                        <a>
+                            <CountryFlag country={player.country}/>{player.name}
+                        </a>
+                    </Link>,
+                    "className": `player ${teamColor}`
+                },
+                "info": {
+                    "value": teamChange.team,
+                    "displayValue": createTeamChangeString(teamChange.team),
+                }
+            };
+        });
+
+
+        return <InteractiveTable width={4} headers={headers} data={data}/>
+
+    }
+
+
+    const renderPlaytimeInfo = () =>{
+
+        if(displayMode !== 1) return null;
+
+        const headers = {
+            "player": "Player",
+            "totalPlaytime": "Playtime"
+        };
+
+        for(let i = 0; i < totalTeams; i++){
+
+            headers[`team_${i}_playtime`] = `${Functions.getTeamName(i, true)} Playtime`;
+        }
+
+        headers[`spec_playtime`] = `Spectator Time`;
+
+        const data = playerData.map((player) =>{
+
+            const currentData = {
+                "player": {
+                    "value": player.name.toLowerCase(), 
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.player_id}`}>
+                        <a>
+                            <CountryFlag country={player.country}/>{player.name}
+                        </a>
+                    </Link>,
+                    "className": `player`
+                },
+                "totalPlaytime": {
+                    "value": player.playtime,
+                    "displayValue": Functions.toPlaytime(player.playtime),
+                    "className": "playtime"
+                }
+            }
+
+            for(let i = 0; i < totalTeams; i++){
+
+                currentData[`team_${i}_playtime`] = {
+                    "value": player[`team_${i}_playtime`],
+                    "displayValue": Functions.toPlaytime(player[`team_${i}_playtime`]),
+                    "className": "playtime"
+                }
+            }
+
+            currentData[`spec_playtime`] = {
+                "value": player[`spec_playtime`],
+                "displayValue": Functions.toPlaytime(player[`spec_playtime`]),
+                "className": "playtime"
+            }
+
+            return currentData;
+        });
+
+        return <InteractiveTable width={1} headers={headers} data={data}/>
+
+    }
+
+    const renderTabs = () =>{
+
+        if(totalTeams < 2) return null;
+
+        return <div className="tabs">
+            <div className={`tab ${(displayMode === 0) ? "tab-selected" : "" }`} onClick={() => setDisplayMode(0)}>Team Changes</div>
+            <div className={`tab ${(displayMode === 1) ? "tab-selected" : "" }`} onClick={() => setDisplayMode(1)}>Team Playtime</div>
+        </div>
+    }
+
+
+    if(state.bLoading) return <Loading />;
+    if(state.error !== null) return <ErrorMessage title="Teams Summary" text={state.error}/>
+
+    return <div>
+        <div className="default-header">Teams Summary</div>
+        {renderTabs()}
+        {renderTeamChanges()}
+        {renderPlaytimeInfo()}
+    </div>
+}
 
 export default TeamsSummary;

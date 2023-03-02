@@ -1,7 +1,7 @@
 import DefaultHead from "../components/defaulthead";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
-import React from "react";
+import {React, useEffect, useReducer} from "react";
 import Session from "../api/session";
 import SiteSettings from "../api/sitesettings";
 import Analytics from "../api/analytics";
@@ -19,350 +19,200 @@ import Servers from "../api/servers"
 import Gametypes from "../api/gametypes";
 import Maps from "../api/maps";
 
-class Matches extends React.Component{
+const reducer = (state, action) =>{
 
-    constructor(props){
+    switch(action.type){
 
-        super(props);
-
-        this.state = {
-            "bLoadedInitial": false, 
-            "error": null, 
-            "serverNames": null, 
-            "selectedServer": this.props.server, 
-            "selectedGametype": this.props.gametype,
-            "selectedMap": this.props.map,
-            "perPage": this.props.perPage,
-            "page": this.props.page,
-            "matches": null,
-            "totalMatches": 0,
-            "images": [],
-            "displayMode": this.props.displayMode
-        };
-
-        this.changeSelected = this.changeSelected.bind(this);
-    }
-
-    async componentDidUpdate(prevProps, prevState){
-
-        const checks = ["page", "gametype", "server", "map", "perPage"];
-
-        for(let i = 0; i < checks.length; i++){
-
-            const c = checks[i];
-
-            if(prevProps[c] !== this.props[c]){
-
-                await this.loadData();
-                return;
+        case "namesLoaded": {
+            return {
+                ...state,
+                "serverNames": action.serverNames,
+                "gametypeNames": action.gametypeNames,
+                "mapNames": action.mapNames,
+                "bNamesLoading": false
             }
         }
+        case "loaded": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": null,
+                "totalMatches": action.totalMatches,
+                "images": action.images,
+                "data": action.data,
+                
+            }
+        }
+        case "serverChanged": {
+            return {
+                ...state,
+                "selectedServer": action.serverId
+            }
+        }
+        case "gametypeChanged": {
+            return {
+                ...state,
+                "selectedGametype": action.gametypeId
+            }
+        }
+        case "mapChanged": {
+            return {
+                ...state,
+                "selectedMap": action.mapId
+            }
+        }
+        case "displayModeChanged": {
+            return {
+                ...state,
+                "displayMode": action.displayMode
+            }
+        }
+        case "perPageChanged": {
+            return {
+                ...state,
+                "perPage": action.perPage
+            }
+        }
+        case "error": {
+            return {
+                ...state,
+                "error": action.errorMessage,
+                "bLoading": false,
+                "bNamesLoading": false
+            }
+        }
+        default:{
+            return state;
+        }
     }
+}
 
-    async changeSelected(type, value){
+const Matches = ({host, pageError, metaData, session, navSettings, pageSettings, server, gametype, map, page, perPage}) =>{
 
-        const obj = {};
 
-        obj[type] = value;
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "bNamesLoading": true,
+        "selectedServer": server,
+        "selectedGametype": gametype,
+        "selectedMap": map,
+        "perPage": perPage,
+        "images": {},
+        "totalMatches": 0,
+        "data": [],
+        "mapNames": [],
+        "serverNames": [],
+        "gametypeNames": [],
+        "displayMode": 0
+    });
 
-        this.setState(obj);
-    }
 
-    async loadTotalMatches(){
+    const imageHost = Functions.getImageHostAndPort(host);
 
-        const req = await fetch("/api/matchsearch", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({
-                "mode": "search-count",
-                "serverId": this.state.selectedServer,
-                "gametypeId": this.state.selectedGametype,
-                "mapId": this.state.selectedMap
-            })
-        });
+    useEffect(() =>{
 
-        const res = await req.json();
+        const controller = new AbortController();
 
-        if(res.error !== undefined){
 
-            this.setState({"error": res.error});
+        const loadNames = async () =>{
 
-        }else{
-
-            this.setState({
-                "totalMatches": res.totalMatches
+            const req = await fetch("/api/matchsearch", {
+                "signal": controller.signal,
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "full-list"})
             });
-        }
-    }
-
-    sortByDisplayValue(a, b){
-
-        a = a.displayValue.toLowerCase();
-        b = b.displayValue.toLowerCase();
-
-        if(a < b) return -1;
-        if(a > b) return 1;
-        return 0;
-    }
-
-    async loadNames(){
-
-        const req = await fetch("/api/matchsearch", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"mode": "full-list"})
-        });
-
-        const res = await req.json();
-
-        if(res.error !== undefined){
-
-            this.setState({"error": res.error});
-
-        }else{
-
-
-            const mapNames = [];
-
-            for(const [mapId, mapName] of Object.entries(res.mapNames)){
-                mapNames.push({"value": mapId, "displayValue": mapName});
-            }
-
-            mapNames.sort(this.sortByDisplayValue);
-
-            const serverNames = [];
-
-            for(const [serverId, serverName] of Object.entries(res.serverNames)){
-                serverNames.push({"value": serverId, "displayValue": serverName});
-            }
-
-            serverNames.sort(this.sortByDisplayValue);
-
-            const gametypeNames = [];
-
-            for(const [gametypeId, gametypeName] of Object.entries(res.gametypeNames)){
-                gametypeNames.push({"value": gametypeId, "displayValue": gametypeName});
-            }
-
-            gametypeNames.sort(this.sortByDisplayValue);
-
-            this.setState({
-                "serverNames": serverNames,
-                "gametypeNames": gametypeNames, 
-                "mapNames": mapNames,
-                "bLoadedInitial": true
-            });
-        }
-    }
-
-    async loadData(){
-
-
-        await this.loadTotalMatches();
-
-
-        const req = await fetch("/api/matchsearch", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({
-                "mode": "search",
-                "serverId": this.state.selectedServer,
-                "gametypeId": this.state.selectedGametype,
-                "mapId": this.state.selectedMap,
-                "perPage": this.state.perPage,
-                "page": this.props.page
-
-            })
-        });
-
-        const res = await req.json();
-
-        if(res.error !== undefined){
-
-            this.setState({"error": res.error});
-        }else{
-            this.setState({"matches": res.data, "images": res.images});
-        }
-    }
-
-    async componentDidMount(){
-
-        await this.loadNames();
-        await this.loadData();
-    }
-
-    getPerPageData(){
-
-        return [
-            {"value": "5", "displayValue": 5},
-            {"value": "10", "displayValue": 10},
-            {"value": "25", "displayValue": 25},
-            {"value": "50", "displayValue": 50},
-            {"value": "75", "displayValue": 75},
-            {"value": "100", "displayValue": 100}
-        ];
-
-    }
-
-
-    getDisplayModeData(){
-
-        return [
-            {"value": "0", "displayValue": "Default View"},
-            {"value": "1", "displayValue": "Table View"},
-        ];
-
-    }
-
-    renderSearchForm(){
-
-        const s = this.state.selectedServer;
-        const g = this.state.selectedGametype;
-        const m = this.state.selectedMap;
-        const d = this.state.displayMode;
-
-        const url = `/matches?server=${s}&gametype=${g}&map=${m}&display=${d}&page=1&pp=${this.state.perPage}`;
-
-        return <div className="form m-bottom-25">
-            <DropDown 
-                dName="Server" 
-                fName="selectedServer" 
-                originalValue={s.toString()} 
-                data={this.state.serverNames} 
-                changeSelected={this.changeSelected}
-            />
-            <DropDown 
-                dName="Gametype" 
-                fName="selectedGametype" 
-                originalValue={g.toString()} 
-                data={this.state.gametypeNames} 
-                changeSelected={this.changeSelected}
-            />
-            <DropDown 
-                dName="Map" 
-                fName="selectedMap" 
-                originalValue={m.toString()} 
-                data={this.state.mapNames} 
-                changeSelected={this.changeSelected}
-            />
-            <DropDown 
-                dName="Results Per Page" 
-                fName="perPage" 
-                originalValue={this.state.perPage.toString()} 
-                data={this.getPerPageData()} 
-                changeSelected={this.changeSelected}
-            />
-            <DropDown 
-                dName="Display Style" 
-                fName="displayMode" 
-                originalValue={this.state.displayMode.toString()} 
-                data={this.getDisplayModeData()} 
-                changeSelected={this.changeSelected}
-            />
-            <Link href={url}>
-                <a>
-                    <div className="search-button">Search</div>
-                </a>
-            </Link>
-        </div>
-    }
-
-    createSearchTitle(){
-
-       
-
-        if(this.props.server === 0 && this.props.gametype === 0 && this.props.map === 0){
-            return null;
-        }
-        
-        const terms = {};
-
-        if(this.props.server !== 0){
-
-            const serverName = this.state.serverNames[this.props.server] ?? "Not Found";
-
-            terms["Server"] = serverName;
-        }
-
-        if(this.props.gametype !== 0){
-
-            const gametypeName = this.state.gametypeNames[this.props.gametype] ?? "Not Found";
-
-            terms["Gametype"] = gametypeName;
-        }
-
-        if(this.props.map !== 0){
-
-            const mapName = this.state.mapNames[this.props.map] ?? "Not Found";
-
-            terms["Map"] = mapName;
-        }
     
-        return <div>
-            <div className="default-header">Search Results</div>
-            <SearchTerms data={terms}/>
-        </div>
-    }
+            const res = await req.json();
+    
+            if(res.error !== undefined){
+    
+                dispatch({"type": "error", "errorMessage": res.error});
+                //this.setState({"error": res.error});
+    
+            }else{
+    
 
-    renderMatches(){
+                console.log(res);
 
-        if(this.state.matches === null) return null;
-
-        const url = `/matches/?server=${this.props.server}&gametype=${this.props.gametype}&map=${this.props.map}&display=${this.props.displayMode}&pp=${this.props.perPage}&page=`;
-
-        const pagination = <Pagination url={url} currentPage={this.props.page} perPage={this.state.perPage} results={this.state.totalMatches}/>;
-
-        const imageHost = Functions.getImageHostAndPort(this.props.host);
-
-        const displayMode = parseInt(this.state.displayMode);
-
-        let matches = null;
-
-        if(displayMode === 0){
-            matches = <div className="center" style={{"width": "var(--width-1)"}}>
-                <MatchesDefaultView data={this.state.matches} images={this.state.images} host={imageHost}/>
-            </div>;
-        }else{
-            matches = <MatchesTableView data={this.state.matches}/>;
+                dispatch({
+                    "type": "namesLoaded", 
+                    "serverNames": res.serverNames, 
+                    "gametypeNames": res.gametypeNames, 
+                    "mapNames": res.mapNames
+                });
+            }
         }
 
-        return <div>
-            {this.createSearchTitle()}
-            {pagination}
-            {matches}
-            {pagination}
-        </div>
-    }
 
-    renderElems(){
+        loadNames();
 
-        if(this.state.error !== null){
-            return <ErrorMessage title="Recent Matches" text={this.state.error}/>
+        return () =>{
+            controller.abort();
         }
 
-        if(!this.state.bLoadedInitial){
-            return <Loading />;
+    }, []);
+
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+
+            //await this.loadTotalMatches();
+    
+    
+            const req = await fetch("/api/matchsearch", {
+                "signal": controller.signal,
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({
+                    "mode": "search",
+                    "serverId": state.selectedServer,
+                    "gametypeId": state.selectedGametype,
+                    "mapId": state.selectedMap,
+                    "perPage": state.perPage,
+                    "page": page
+    
+                })
+            });
+    
+            const res = await req.json();
+    
+            if(res.error !== undefined){
+      
+                dispatch({"type": "error", "errorMessage": res.error});
+                //this.setState({"error": res.error});
+            }else{
+    
+                console.log(res);
+
+                dispatch({
+                    "type": "loaded", 
+                    "totalMatches": res.totalMatches, 
+                    "images": res.images,
+                    "data": res.data
+                });
+                
+               // this.setState({"matches": res.data, "images": JSON.stringify(res.images)});
+            }
         }
 
-        return <div>
-            {this.renderSearchForm()}
-            <div>
-                {this.renderMatches()}
-            </div>
-        </div>
+        loadData();
 
-    }
-
-    render(){
-
-        if(this.props.pageError !== undefined){
-
-            return <ErrorPage>{this.props.pageError}</ErrorPage>
+        return () =>{
+            controller.abort();
         }
 
-        const serverString = this.props.metaServerName;
-        const gametypeString = this.props.metaGametypeName;
-        const mapString = this.props.metaMapName;
+    }, [state.selectedServer, state.selectedGametype, state.selectedMap, page, state.perPage]);
+
+    const getMetaData = () =>{
+
+        const serverString = metaData.serverName;
+        const gametypeString = metaData.gametypeName;
+        const mapString = metaData.mapName;
 
         const keywords = [];
 
@@ -429,33 +279,259 @@ class Matches extends React.Component{
         if(keywords.length === 0){
             keywords.push("recent");
         }
-        
 
 
-        return (<div>
-            <DefaultHead 
-                host={this.props.host} 
-                title={title} 
-                description={description} 
-                keywords={`search,match,matches,history,${keywords.toString()}`}
-            />
-            <main>
-                <Nav settings={this.props.navSettings} session={this.props.session}/>
-                <div id="content">
-
-                    <div className="default">
-                        <div className="default-header">
-                            Matches
-                        </div>
-                        {this.renderElems()}
-                    </div>
-                </div>
-                <Footer session={this.props.session}/>
-            </main>
-        </div>);
+        return {"keywords": keywords, "title": title, "description": description}
     }
-}
 
+    const renderMatches = () =>{
+
+        if(state.data.length === 0){
+            return <div key="matches">
+                No matches found.
+            </div>
+        }
+
+        let matches = null;
+
+
+
+        if(state.displayMode === 0){
+            matches = <div className="center" style={{"width": "var(--width-1)"}}>
+                <MatchesDefaultView data={state.data} images={state.images} host={imageHost}/>
+            </div>;
+        }else{
+            matches = <MatchesTableView data={state.data}/>;
+        }
+
+        return <div key="matches">    
+            {matches}
+        </div>
+    }
+
+    const getName = (type, id) =>{
+
+        id = parseInt(id);
+
+        let names = [];
+
+        if(type === "server") names = state.serverNames;
+        if(type === "gametype") names = state.gametypeNames;
+        if(type === "map") names = state.mapNames;
+
+
+        for(let i = 0; i < names.length; i++){
+
+            const n = names[i];
+
+            if(parseInt(n.id) === id) return n.name;
+        }
+
+        return "Not Found";
+    }
+
+    const renderSearchTitle = () =>{
+
+
+        if(state.selectedServer === 0 && state.selectedGametype === 0 && 
+            state.selectedMap === 0){
+            return null;
+        }
+        
+        const terms = {};
+
+        if(state.selectedServer !== 0){
+            terms["Server"] = getName("server", state.selectedServer);
+        }
+
+        if(state.selectedGametype !== 0){
+            terms["Gametype"] = getName("gametype", state.selectedGametype);
+        }
+
+        if(state.selectedMap !== 0){
+            terms["Map"] = getName("map", state.selectedMap);
+        }
+    
+        return <div key="search-title">
+            <div className="default-header">Search Results</div>
+            <SearchTerms data={terms}/>
+        </div>
+    }
+
+
+    const changeSelected = (name, value) =>{
+
+
+        name = name.toLowerCase();
+
+        if(name === "selectedserver"){
+            dispatch({"type": "serverChanged", "serverId": value});
+        }
+
+        if(name === "selectedgametype"){
+            dispatch({"type": "gametypeChanged", "gametypeId": value});
+        }
+
+        if(name === "selectedmap"){
+            dispatch({"type": "mapChanged", "mapId": value});
+        }
+
+        if(name === "displaymode"){
+            dispatch({"type": "displayModeChanged", "displayMode": parseInt(value)});
+        }
+
+        if(name === "perpage"){
+            dispatch({"type": "perPageChanged", "perPage": parseInt(value)});
+        }
+        //dispatch({});
+    }
+
+    const getPerPageData = () =>{
+
+        return [
+            {"value": "5", "displayValue": 5},
+            {"value": "10", "displayValue": 10},
+            {"value": "25", "displayValue": 25},
+            {"value": "50", "displayValue": 50},
+            {"value": "75", "displayValue": 75},
+            {"value": "100", "displayValue": 100}
+        ];
+
+    }
+
+    const getDisplayModeData = () =>{
+
+        return [
+            {"value": "0", "displayValue": "Default View"},
+            {"value": "1", "displayValue": "Table View"},
+        ];
+    }
+
+    const getDropDownList = (type) =>{
+
+        const found = [];
+
+        let data = [];
+
+        if(type === "servers") data = state.serverNames;
+        if(type === "gametypes") data = state.gametypeNames;
+        if(type === "maps") data = state.mapNames;
+
+        for(let i = 0; i < data.length; i++){
+
+            const {id, name} = data[i];
+
+            found.push({"value": id, "displayValue": name});
+        }
+
+        return found;
+    }
+
+    const renderSearchForm = () =>{
+
+        const s = state.selectedServer;
+        const g = state.selectedGametype;
+        const m = state.selectedMap;
+        const d = state.displayMode;
+
+        const url = `/matches?server=${s}&gametype=${g}&map=${m}&display=${d}&page=1&pp=${state.perPage}`;
+
+        return <div key="s-f" className="form m-bottom-25">
+            <DropDown 
+                dName="Server" 
+                fName="selectedServer" 
+                originalValue={s.toString()} 
+                data={getDropDownList("servers")} 
+                changeSelected={changeSelected}
+            />
+            <DropDown 
+                dName="Gametype" 
+                fName="selectedGametype" 
+                originalValue={g.toString()} 
+                data={getDropDownList("gametypes")} 
+                changeSelected={changeSelected}
+            />
+            <DropDown 
+                dName="Map" 
+                fName="selectedMap" 
+                originalValue={m.toString()} 
+                data={getDropDownList("maps")} 
+                changeSelected={changeSelected}
+            />
+            <DropDown 
+                dName="Results Per Page" 
+                fName="perPage" 
+                originalValue={state.perPage.toString()} 
+                data={getPerPageData()} 
+                changeSelected={changeSelected}
+            />
+            <DropDown 
+                dName="Display Style" 
+                fName="displayMode" 
+                originalValue={state.displayMode.toString()} 
+                data={getDisplayModeData()} 
+                changeSelected={changeSelected}
+            />
+  
+        </div>
+    }
+
+    const renderElems = () =>{
+
+        const elems = [];
+
+        if(state.bLoading) return <Loading />;
+        if(state.error !== null) return <ErrorMessage title="Match Search" text={state.error}/>
+
+        elems.push(renderSearchForm());
+        elems.push(renderSearchTitle());
+        elems.push(renderPagination(0));
+        elems.push(renderMatches());
+        elems.push(renderPagination(1));
+
+        return elems;
+    }
+
+    const renderPagination = (key) =>{
+
+        const url = `/matches/?server=${state.selectedServer}&gametype=${state.selectedGametype}&map=${state.selectedMap}&display=${0}&pp=${state.perPage}&page=`;
+
+        return <Pagination key={key} url={url} currentPage={page} perPage={state.perPage} results={state.totalMatches}/>;
+    }
+    
+
+    if(pageError !== undefined){
+        return <ErrorPage>{pageError}</ErrorPage>
+    }
+
+    const {title, keywords, description} = getMetaData();
+    const elems = renderElems();
+
+    
+
+    return (<div>
+        <DefaultHead 
+            host={host} 
+            title={title} 
+            description={description} 
+            keywords={`search,match,matches,history,${keywords.toString()}`}
+        />
+        <main>
+            <Nav settings={navSettings} session={session}/>
+            <div id="content">
+
+                <div className="default">
+                    <div className="default-header">
+                        Matches
+                    </div>
+                    
+                    {elems}
+                </div>
+            </div>
+            <Footer session={session}/>
+        </main>
+    </div>);
+}
 
 export async function getServerSideProps({req, query}){
 
@@ -553,23 +629,27 @@ export async function getServerSideProps({req, query}){
             metaMapName = await mapManager.getName(map);
         }
 
+        const metaData = {
+            "mapName": metaMapName,
+            "serverName": metaServerName,
+            "gametypeName": metaGametypeName
+        };
+
         return {
             "props": {
                 "host": req.headers.host,
                 "page": page,
                 "perPage": perPage,
                 "displayType": displayType,
-                "session": JSON.stringify(session.settings),
-                "navSettings": JSON.stringify(navSettings),
-                "pageSettings": JSON.stringify(pageSettings),
+                "session": session.settings,
+                "navSettings": navSettings,
+                "pageSettings": pageSettings,
                 "perPage": perPage,
                 "gametype": gametype,
                 "server": server,
                 "map": map,
                 "displayMode": displayMode,
-                "metaServerName": metaServerName,
-                "metaGametypeName": metaGametypeName,
-                "metaMapName": metaMapName
+                "metaData": metaData
             }
         };
 
@@ -582,6 +662,5 @@ export async function getServerSideProps({req, query}){
         }
     }
 }
-
 
 export default Matches;

@@ -16,17 +16,15 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
 
         const m = maps[i];
 
-        let currentImage = 0;
+        let currentImage = "default";
 
         const last = (m.last !== undefined) ? m.last : Functions.utDate(m.last_match);
         const matches = (m.matches !== undefined) ? m.matches : m.total_matches ;
 
-        const currentImageIndex = images.indexOf(Functions.cleanMapName(m.name).toLowerCase());
+        const imageName = Functions.cleanMapName(m.name).toLowerCase();
 
-        if(currentImageIndex === -1){
-            currentImage = "default";
-        }else{
-            currentImage = images[currentImageIndex];
+        if(images[imageName] !== undefined){
+            currentImage = images[imageName];
         }
 
         const id = (m.id !== undefined) ? m.id : Functions.removeUnr(m.name);

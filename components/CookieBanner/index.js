@@ -1,56 +1,37 @@
 import styles from './CookieBanner.module.css';
-import React from 'react';
+import {React, useState, useEffect} from 'react';
 
 
+const CookieBanner = ({session}) =>{
 
-class CookieBanner extends React.Component{
+    const [bShow, setbShow] = useState(false);
 
-    constructor(props){
+    useEffect(() =>{
 
-        super(props);
-
-        this.state = {"bShow": false, "session": JSON.parse(this.props.session)};
-
-        this.hide = this.hide.bind(this);
-    }
-
-    componentDidMount(){
-
-    
-        if(this.state.session.hideCookieBanner === undefined){
-            this.setState({"bShow": true});
+        if(session.hideCookieBanner === undefined){
+            setbShow(true);
         }
 
-    }
+    }, [session]);
 
-    hide(){
+    if(!bShow) return null;
 
-        this.setState({"bShow": false});
+    return <div className={styles.wrapper}>
+        <div className={styles.header}>Cookies</div>
 
-        const year = ((60 * 60) * 24) * 365;
-      
-        document.cookie = `hideCookieBanner=true; max-age=${year}`;
-        
-    }
-
-    render(){
-
-        if(!this.state.bShow) return null;
-
-        return <div className={styles.wrapper}>
-            <div className={styles.header}>Cookies</div>
-
-            <div className={styles.info}>
-                This site uses cookies to enhance your user experience, by using this site you are agreeing to their use.
-            </div>
-
-            <div className={styles.hide} onClick={this.hide}>
-                Got it!
-            </div>
+        <div className={styles.info}>
+            This site uses cookies to enhance your user experience, by using this site you are agreeing to their use.
         </div>
-    }
+
+        <div className={styles.hide} onClick={() => {
+            const year = ((60 * 60) * 24) * 365;
+      
+            document.cookie = `hideCookieBanner=true; max-age=${year}`;
+            setbShow(false)
+        }}>
+            Got it!
+        </div>
+    </div>
 }
-
-
 
 export default CookieBanner;

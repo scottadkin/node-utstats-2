@@ -9,39 +9,19 @@ class Assault{
 
     }
 
-    exists(map, name, objId){
+    async exists(map, name, objId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_objs FROM nstats_assault_objects WHERE map=? AND name=? and obj_id=?";
+        const result = await mysql.simpleQuery(query, [map, name, objId]);
 
-            const query = "SELECT COUNT(*) as total_objs FROM nstats_assault_objects WHERE map=? AND name=? and obj_id=?";
-
-            mysql.query(query, [map, name, objId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result[0].total_objs > 0){
-                    resolve(true);
-                }
-
-                resolve(false);
-            });
-
-        });
+        if(result[0].total_objs > 0) return true;
+        return false;
     }
 
-    createMapObjective(map, name, objId){
+    async createMapObjective(map, name, objId){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "INSERT INTO nstats_assault_objects VALUES(NULL,?,0,?,?,0,0)";
-
-            mysql.query(query, [map, name, objId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "INSERT INTO nstats_assault_objects VALUES(NULL,?,0,?,?,0,0)";
+        return await mysql.simpleQuery(query, [map, name, objId]);
     }
 
 
@@ -113,87 +93,35 @@ class Assault{
     }
 
 
-    setAttackingTeam(matchId, team){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_matches SET attacking_team=? WHERE id=?";
-
-            mysql.query(query, [team, matchId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+    async setAttackingTeam(matchId, team){
+        
+        const query = "UPDATE nstats_matches SET attacking_team=? WHERE id=?";
+        return await mysql.simpleQuery(query, [team, matchId]);
     }
 
-    setMatchAssaultCaps(matchId, caps){
+    async setMatchAssaultCaps(matchId, caps){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_matches SET assault_caps=? WHERE id=?";
-
-            mysql.query(query, [caps, matchId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "UPDATE nstats_matches SET assault_caps=? WHERE id=?";
+        return await mysql.simpleQuery(query, [caps, matchId]);
     }
 
-    updatePlayerMatchCaps(rowId, caps){
+    async updatePlayerMatchCaps(rowId, caps){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_player_matches SET assault_objectives=? WHERE id=?";
-
-            mysql.query(query, [caps, rowId], (err) =>{
-                
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "UPDATE nstats_player_matches SET assault_objectives=? WHERE id=?";
+        return await mysql.simpleQuery(query, [caps, rowId]);
     }
 
-    getMatchCaps(matchId){
+    async getMatchCaps(matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_assault_match_objectives WHERE match_id=?";
+        return await mysql.simpleQuery(query, [matchId]);
 
-            const query = "SELECT * FROM nstats_assault_match_objectives WHERE match_id=?";
-
-            mysql.query(query, [matchId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
-    getMapObjectives(mapId){
+    async getMapObjectives(mapId){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT map,obj_order,name,obj_id,matches,taken FROM nstats_assault_objects WHERE map=?";
-
-            mysql.query(query, [mapId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT map,obj_order,name,obj_id,matches,taken FROM nstats_assault_objects WHERE map=?";
+        return await mysql.simpleQuery(query, [mapId]);
     }
 
 
@@ -378,8 +306,8 @@ class Assault{
 
     async changeCapDataPlayerId(oldId, newId){
 
-
-        await mysql.simpleUpdate("UPDATE nstats_assault_match_objectives SET player=? WHERE player=?", [newId, oldId]);
+        const query = "UPDATE nstats_assault_match_objectives SET player=? WHERE player=?"
+        return await mysql.simpleUpdate(query, [newId, oldId]);
     }
 
 

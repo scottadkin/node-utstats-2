@@ -25,6 +25,7 @@ class TipHeader extends React.Component{
             <div className={styles.content}>{this.props.content}</div>
         </div>
     }
+    
 
     render(){
 
@@ -32,7 +33,11 @@ class TipHeader extends React.Component{
             this.changeDisplay(true);
         })} onMouseOut={(() =>{
             this.changeDisplay(false);
-        })}>
+        })} onClick={(() =>{
+            if(this.props.sortEvent !== undefined){
+               this.props.sortEvent()
+            }
+        })} className="pointer">
             {this.props.title}
             {this.renderMouseOver()}
         </th>;

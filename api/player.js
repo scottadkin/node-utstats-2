@@ -23,94 +23,130 @@ class Player{
 
     constructor(){}
 
+    async createMasterId(playerName, hwid){
 
+        if(hwid === undefined) hwid = "";
 
-    getNameIdQuery(name, gametypeId){
+        const query = `INSERT INTO nstats_player_totals VALUES(
+            NULL,?,?,0,0,0,0,"",0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0)`;
 
-        return new Promise((resolve, reject) =>{
+        const result = await mysql.simpleQuery(query, [hwid, playerName]);
 
-            const query = "SELECT id,gametype FROM nstats_player_totals WHERE name=? AND gametype=? LIMIT 1";
-
-            if(gametypeId === undefined){
-                gametypeId = 0;
-            }
-
-            mysql.query(query, [name, gametypeId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result[0] !== undefined){         
-                    resolve(result[0]);
-                    return;
-                }
-
-                resolve(null);
-            });
-        });
+            //55
+        return result.insertId;
     }
 
-    createNameIdQuery(name, gametype, masterPlayerId){
-        
 
-        return new Promise((resolve, reject) =>{
+    async getMasterId(playerName){
 
-            if(gametype === undefined){
-                gametype = 0;
-            }
+        const query = "SELECT id FROM nstats_player_totals WHERE name=? AND gametype=0";
 
-            if(masterPlayerId === undefined){
-                masterPlayerId = 0;
-            }
+        const result = await mysql.simpleQuery(query, [playerName]);
 
+        if(result.length === 0){
+            return await this.createMasterId(playerName);
+        }
 
-            const query = `INSERT INTO nstats_player_totals VALUES(NULL,?,?,0,0,0,"",0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-            ,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
-
-            mysql.query(query, [name, masterPlayerId, gametype], (err, result) =>{
-
-                if(err){
-                    reject(err);
-                }else{
-                    resolve({"id": result.insertId, "gametype": gametype});
-                }
-            });
-        });
+        return result[0].id;
     }
 
-    async setPlayerMasterId(name, gametype, id){
+    async createGametypeId(playerName, playerMasterId, gametypeId, hwid){
 
-        await mysql.simpleUpdate("UPDATE nstats_player_totals SET player_id=? WHERE name=? AND gametype=?", 
-            [id, name, gametype]
-        );
+        if(hwid === undefined) hwid = "";
+
+        const query = `INSERT INTO nstats_player_totals VALUES(
+            NULL,?,?,?,0,0,0,"",0,0,?,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0)`;
+
+        const result = await mysql.simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId]);
+
+        return result.insertId;
+    }
+    
+    async getGametypeId(playerName, playerMasterId, gametypeId){
+
+        const query = "SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=?";
+
+        const result = await mysql.simpleQuery(query, [playerMasterId, gametypeId]);
+
+        if(result.length === 0){
+            return await this.createGametypeId(playerName, playerMasterId, gametypeId);
+        }
+
+        return result[0].id;
+    }
+
+    async getMasterIds(playerName, gametypeId){
+
+        const masterId = await this.getMasterId(playerName, 0);
+        const gametypeMasterId = await this.getGametypeId(playerName, masterId, gametypeId);
+
+        return {"masterId": masterId, "gametypeId": gametypeMasterId};
+    }
+
+    async updatePlayerNameHWID(hwid, playerName){
+
+        const query = "UPDATE nstats_player_totals SET name=? WHERE hwid=?";
+        return await mysql.simpleQuery(query, [playerName, hwid]);
+    }
+
+
+    async getHWIDMasterId(hwid, playerName){
+
+        const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=0`;
+
+        const result = await mysql.simpleQuery(query, [hwid]);
+
+        if(result.length === 0) return null;
+
+        await this.updatePlayerNameHWID(hwid, playerName);
+
+        return result[0].id;
+    }
+
+    async getHWIDGametypeId(hwid, gametypeId){
+
+        const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=?`;
+
+        const result = await mysql.simpleQuery(query, [hwid, gametypeId]);
+
+        if(result.length === 0) return null;
+
+        return result[0].id;
+    }
+
+    async getMasterIdsByHWID(hwid, playerName, gametypeId){
+
+        gametypeId = parseInt(gametypeId);
+
+        let masterId = await this.getHWIDMasterId(hwid, playerName);
+
+        if(masterId === null){
+            masterId = await this.createMasterId(playerName, hwid);
+        }
+
+        let gametypeMasterId = await this.getHWIDGametypeId(hwid, gametypeId);
+
+        if(gametypeMasterId === null){
+            gametypeMasterId = await this.createGametypeId(playerName, masterId, gametypeId, hwid);
+        }
+
+
+        return {"masterId": masterId, "gametypeId": gametypeMasterId};
     }
  
-    async getNameId(name, gametype, bCreate){
-
-
-
-        let id = await this.getNameIdQuery(name, 0);
-        
-        
-        if(id === null){
-
-            id = await this.createNameIdQuery(name, 0);
-
-            //only need for gametype 0, otherwise player totals for gametype 0 is always 0
-            await this.setPlayerMasterId(name, 0, id.id);
-        }
-
-        let idGametype = await this.getNameIdQuery(name, gametype);
-
-        if(idGametype === null){
-            idGametype = await this.createNameIdQuery(name, gametype, id.id);
-        }
-
-
-        return {"totalId": id.id, "gametypeId": idGametype.id};
-
-    
-    }
+  
 
     updateEfficiency(id){
 
@@ -135,7 +171,7 @@ class Player{
             
         return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_player_totals SET matches=matches+1, 
+            const query = `UPDATE nstats_player_totals SET 
             first = IF(first = 0 OR first > ?, ?, first), 
             last = IF(last < ?,?,last), 
             playtime=playtime+?, 
@@ -222,129 +258,127 @@ class Player{
         });
     }
 
+    /**
+     * 
+     * @param {*} playerId The player's masterId or GametypeId
+     */
+    async incrementMatchesPlayed(playerId){
 
-    updateWinStats(id, win, drew, gametype){
+        const query = `UPDATE nstats_player_totals SET matches=matches+1 WHERE id=?`;
 
-        return new Promise((resolve, reject) =>{
+        return await mysql.simpleQuery(query, [playerId]);
+    }
 
-            if(gametype === undefined) gametype = 0;
 
-            const winRateString = `winrate = IF(wins > 0 && matches > 0, (wins/matches) * 100, 0)`;
+    async updateWinStats(id, win, drew, gametype){
 
-            let query = `UPDATE nstats_player_totals SET 
-                wins=wins+1, 
-                ${winRateString}
-                 WHERE id=? AND gametype=?`;
+        if(gametype === undefined) gametype = 0;
 
-            if(!win){
-                if(!drew){
-                    query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=?`;
-                }else{
-                    query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=?`;
-                }
+        const winRateString = `winrate = IF(wins > 0 && matches > 0, (wins/matches) * 100, 0)`;
+
+        let query = `UPDATE nstats_player_totals SET wins=wins+1, ${winRateString} WHERE id=? AND gametype=?`;
+
+        if(!win){
+            if(!drew){
+                query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=?`;
+            }else{
+                query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=?`;
             }
+        }
 
-            mysql.query(query, [id, gametype], (err) =>{
+        return await mysql.simpleQuery(query, [id, gametype]);
 
-                if(err){
-                    console.trace(err);
-                    reject(err);
-                }
-
-                resolve();
-            });
-        });
     }
 
+  
 
+    async insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping, totalTeams){
 
-    insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping){
+        const query = `INSERT INTO nstats_player_matches VALUES(
+            NULL,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,0,0,0,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,0,0,0,0,0,0,0,0,0,
+            0,0,0,0)`;
 
-        return new Promise((resolve, reject) =>{
+            //53
+       // const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
 
-           // console.log(player);
+        const lastTeam = player.getLastPlayedTeam();
+        
+        const playtime = player.getTotalPlaytime(totalTeams);
 
-            const query = `INSERT INTO nstats_player_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-                ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-                ?,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+        const vars = [
+            matchId,
+            matchDate,
+            mapId,
+            player.masterId,
+            player.HWID,
+            player.bBot,
+            (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
+            (player.stats.time_on_server === 0) ? 0 : 1,//player.bPlayedInMatch,
+            Functions.setValueIfUndefined(player.ip,""),
+            Functions.setValueIfUndefined(player.country,"xx"),
+            Functions.setValueIfUndefined(player.faceId),
+            Functions.setValueIfUndefined(player.voiceId),
+            gametypeId,
+            player.bWinner,
+            player.bDrew,
+            playtime,//Functions.setValueIfUndefined(player.stats.time_on_server),
+            player.stats.teamPlaytime[0],
+            player.stats.teamPlaytime[1],
+            player.stats.teamPlaytime[2],
+            player.stats.teamPlaytime[3],
+            player.stats.teamPlaytime[255],
+            lastTeam,
+            player.stats.firstBlood,
+            player.stats.frags,
+            player.stats.score,
+            player.stats.kills,
+            player.stats.deaths + player.stats.suicides,
+            player.stats.suicides,
+            player.stats.teamkills,
+            player.stats.spawnKills,
+            Functions.calculateKillEfficiency(player.stats.kills, player.stats.deaths),
+            player.stats.multis.double,
+            player.stats.multis.multi,
+            player.stats.multis.mega,
+            player.stats.multis.ultra,
+            player.stats.multis.monster,
+            player.stats.multis.ludicrous,
+            player.stats.multis.holyshit,
+            player.stats.bestMulti,
+            player.stats.sprees.spree,
+            player.stats.sprees.rampage,
+            player.stats.sprees.dominating,
+            player.stats.sprees.unstoppable,
+            player.stats.sprees.godlike,
+            player.stats.sprees.massacre,
+            player.stats.sprees.brutalizing,
+            player.stats.bestSpree,
+            player.stats.bestspawnkillspree,
+            ping.min,
+            parseInt(ping.average),
+            ping.max,
+            player.stats.accuracy.toFixed(2),
+            (isNaN(player.stats.killMinDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killMinDistance),
+            (isNaN(player.stats.killAverageDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killAverageDistance),
+            player.stats.killMaxDistance,
+            player.stats.killsNormalRange,
+            player.stats.killsLongRange,
+            player.stats.killsUberRange,
+            player.stats.headshots
+        ];
 
-                //53
-            const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
+        const result = await mysql.simpleQuery(query, vars);
 
-            const vars = [
-                matchId,
-                matchDate,
-                mapId,
-                player.masterId,
-                player.bBot,
-                (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
-                (player.stats.time_on_server === 0) ? 0 : 1,//player.bPlayedInMatch,
-                Functions.setValueIfUndefined(player.ip,""),
-                Functions.setValueIfUndefined(player.country,"xx"),
-                Functions.setValueIfUndefined(player.faceId),
-                Functions.setValueIfUndefined(player.voiceId),
-                gametypeId,
-                player.bWinner,
-                player.bDrew,
-                Functions.setValueIfUndefined(player.stats.time_on_server),
-                lastTeam,
-                player.stats.firstBlood,
-                player.stats.frags,
-                player.stats.score,
-                player.stats.kills,
-                player.stats.deaths,
-                player.stats.suicides,
-                player.stats.teamkills,
-                player.stats.spawnKills,
-                Functions.calculateKillEfficiency(player.stats.kills, player.stats.deaths),
-                player.stats.multis.double,
-                player.stats.multis.multi,
-                player.stats.multis.mega,
-                player.stats.multis.ultra,
-                player.stats.multis.monster,
-                player.stats.multis.ludicrous,
-                player.stats.multis.holyshit,
-                player.stats.bestMulti,
-                player.stats.sprees.spree,
-                player.stats.sprees.rampage,
-                player.stats.sprees.dominating,
-                player.stats.sprees.unstoppable,
-                player.stats.sprees.godlike,
-                player.stats.sprees.massacre,
-                player.stats.sprees.brutalizing,
-                player.stats.bestSpree,
-                player.stats.bestspawnkillspree,
-                ping.min,
-                parseInt(ping.average),
-                ping.max,
-                player.stats.accuracy.toFixed(2),
-                (isNaN(player.stats.killMinDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killMinDistance),
-                (isNaN(player.stats.killAverageDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killAverageDistance),
-                player.stats.killMaxDistance,
-                player.stats.killsNormalRange,
-                player.stats.killsLongRange,
-                player.stats.killsUberRange,
-                player.stats.headshots
-            ];
+        return result.insertId;
 
-
-            mysql.query(query, vars, (err, result) =>{
-
-                if(err){
-                    console.trace(err);
-                    reject(err);
-                    console.log(vars);
-                    return;
-                }
-
-                //console.log(result);
-
-                resolve(result.insertId);
-            });
-        });
     }
+    
 
     getPlayerById(id){
 
@@ -450,7 +484,15 @@ class Player{
         const vars = [id, validMatchIds, settings["Minimum Playtime"], start, amount];
         const result = await mysql.simpleFetch(query, vars);
 
-        Functions.removeIps(result);
+        const uniqueDMWinners = new Set();
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            delete r.ip;
+            delete r.hwid;
+
+        }
 
         return result;
 
@@ -474,25 +516,6 @@ class Player{
 
     }
 
-
-    getAllInMatch(id){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    Functions.removeIps(result);
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
-    }
 
 
     getNames(ids){
@@ -705,12 +728,9 @@ class Player{
 
     async getGametypeTotals(player, gametype){
 
-        const query = `SELECT frags,deaths,suicides,team_kills,flag_taken,flag_pickup,flag_return,flag_capture,
-            flag_cover,flag_seal,flag_assist,flag_kill,dom_caps,assault_objectives,multi_1,multi_2,multi_3,multi_4,
-            multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,flag_assist,flag_return,
-            flag_taken,flag_dropped,flag_capture,flag_pickup,flag_seal,flag_cover,flag_cover_pass,flag_cover_fail,
-            flag_self_cover,flag_self_cover_pass,flag_self_cover_fail,flag_multi_cover,flag_spree_cover,flag_kill,
-            flag_save,dom_caps,assault_objectives,playtime,matches,mh_kills
+        const query = `SELECT frags,deaths,suicides,team_kills,dom_caps,assault_objectives,multi_1,multi_2,multi_3,multi_4,
+            multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,dom_caps,assault_objectives,playtime,
+            matches,mh_kills
             FROM nstats_player_totals WHERE gametype=? AND player_id=?
             `;
 
@@ -723,14 +743,32 @@ class Player{
         return null;
     }
 
+    async getCTFMatchData(playerId, matchId){
+
+        const query = "SELECT * FROM nstats_player_ctf_match WHERE player_id=? AND match_id=?";
+
+        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
 
     async getMatchData(playerId, matchId){
+
 
         const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id=? LIMIT 1";
 
         const result = await mysql.simpleQuery(query, [playerId, matchId]);
 
         if(result.length > 0){
+
+            const ctfData = await this.getCTFMatchData(playerId, matchId);
+
+            if(ctfData !== null){
+                result[0].ctfData = ctfData;          
+            }
+            
             return result[0];
         }
 
@@ -799,25 +837,6 @@ class Player{
             spree_5 = spree_5 - ?,
             spree_6 = spree_6 - ?,
             spree_7 = spree_7 - ?,
-
-            flag_assist = flag_assist - ?,
-            flag_return = flag_return - ?,
-            flag_taken = flag_taken - ?,
-            flag_dropped = flag_dropped - ?,
-            flag_capture = flag_capture - ?,
-            flag_pickup = flag_pickup - ?,
-            flag_seal = flag_seal - ?,
-            flag_cover = flag_cover - ?,
-            flag_cover_pass = flag_cover_pass - ?,
-            flag_cover_fail = flag_cover_fail - ?,
-            flag_self_cover = flag_self_cover - ?,
-            flag_self_cover_pass = flag_self_cover_pass - ?,
-            flag_self_cover_fail = flag_self_cover_fail - ?,
-            flag_multi_cover = flag_multi_cover - ?,
-            flag_spree_cover = flag_spree_cover - ?,
-            flag_kill = flag_kill - ?,
-            flag_save = flag_save - ?,
-            flag_carry_time = flag_carry_time - ?,
             assault_objectives = assault_objectives - ?,
             dom_caps = dom_caps - ?,
             k_distance_normal = k_distance_normal - ?,
@@ -871,7 +890,7 @@ class Player{
                 player.spree_6,
                 player.spree_7,
 
-                player.flag_assist,
+                /*player.flag_assist,
                 player.flag_return,
                 player.flag_taken,
                 player.flag_dropped,
@@ -888,7 +907,7 @@ class Player{
                 player.flag_spree_cover,
                 player.flag_kill,
                 player.flag_save,
-                player.flag_carry_time,
+                player.flag_carry_time,*/
                 player.assault_objectives,
                 player.dom_caps,
                 player.headshots,
@@ -924,7 +943,7 @@ class Player{
     }
     
 
-    async removeFromMatch(playerId, matchId, mapId, matchManager, rankingManager){
+    async removeFromMatch(playerId, matchId, mapId, matchManager){
 
         try{
 
@@ -1028,7 +1047,6 @@ class Player{
                 await comboManager.deletePlayerFromMatch(playerId, mapId, matchData.gametype, matchId);
                // await matchManager.renameSingleDMMatchWinner(matchId, oldName, matchData.name);
 
-               await rankingManager.deletePlayerFromMatch(this, playerId, matchId, gametypeId, true);
 
             }
 
@@ -1054,6 +1072,7 @@ class Player{
 
         return result[0].total_rows > 0;
     }
+    
 
     async getPlayerGametypeTotals(playerId, gametypeId){
 
@@ -1074,6 +1093,20 @@ class Player{
         const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND gametype=? ORDER BY match_date ASC";
 
         return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+
+    async getBasicInfo(playerId){
+
+        const query = `SELECT name,country FROM nstats_player_totals WHERE id=? AND gametype=0`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        if(result.length > 0){
+            return result[0];
+        }
+
+        return null;
     }
 }
 

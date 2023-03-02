@@ -1,0 +1,27 @@
+.mo{
+    position:absolute;
+    background-color:var(--color-8);
+    border:1px solid var(--border-color-3);
+    color:white;
+    z-index: 99999;
+    max-width:300px;
+    min-width:100px;
+    text-align:center;
+}
+
+.mt{
+    padding:5px;
+    color:white;
+    font-size:14px;
+}
+
+.mc{
+    font-size:12px;
+    padding:3px;
+}
+
+
+.mo td{
+    font-size:12px;
+    padding:4px;
+}

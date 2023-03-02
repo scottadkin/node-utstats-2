@@ -108,7 +108,9 @@ class Map extends React.Component{
             />;
         }
 
-        if(pageSettings["Display CTF Caps"] === "true"){
+        console.log(this.props.mapPrefix);
+
+        if(pageSettings["Display CTF Caps"] === "true" && this.props.mapPrefix === "ctf"){
 
             elems[pageOrder["Display CTF Caps"]] = <MapCTFCaps
                 key={pageOrder["Display CTF Caps"]}
@@ -376,9 +378,10 @@ export async function getServerSideProps({req, query}){
 
         let matches = [];
 
+        const playerManager = new Players();
         
         if(pageSettings["Display Recent Matches"] === "true"){
-            matches = await mapManager.getRecent(mapId, page, perPage);
+            matches = await mapManager.getRecent(mapId, page, perPage, playerManager);
         }
 
         let longestMatches = [];
@@ -439,7 +442,7 @@ export async function getServerSideProps({req, query}){
             addictedPlayers = await mapManager.getTopPlayersPlaytime(mapId, parseInt(pageSettings["Max Addicted Players"]));
         }
 
-        const playerManager = new Players();
+        
 
         const playerIds = Functions.getUniqueValues(addictedPlayers, "player");
         

@@ -134,7 +134,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	if(pageSettings["Display Capture The Flag Summary"] === "true"){
 
-		elems[pageOrder["Display Capture The Flag Summary"]] = <PlayerCTFSummary key={3} session={session} data={summary} />;
+		elems[pageOrder["Display Capture The Flag Summary"]] = <PlayerCTFSummary key={"p-ctf-s"} playerId={playerId} />;
     }
 
 	if(pageSettings["Display Capture The Flag Cap Records"] === "true"){
@@ -257,9 +257,11 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 					<Nav settings={navSettings} session={session}/>
 					<div id="content">
 						<div className="default">
+
+							
 						
 							<div className="default-header">
-									{titleName} Career Profile
+								{titleName} Career Profile
 							</div>
 
 							{elems}
@@ -437,7 +439,23 @@ export async function getServerSideProps({req, query}) {
 	if(pageSettings["Display Recent Matches"] === "true"){
 		recentMatches = await playerManager.getRecentMatches(query.id, matchesPerPage, matchPage, matchManager);
 	}
-	
+
+	const recentMatchIds = recentMatches.map((matchResult) =>{
+		return matchResult.match_id;
+	});
+
+	const dmWinners = await matchManager.getDmWinners(recentMatchIds);
+
+	for(let i = 0; i < recentMatches.length; i++){
+
+		const r = recentMatches[i];
+
+		if(dmWinners.matchWinners[r.match_id] !== undefined){
+
+			r.dmWinner = dmWinners.players[dmWinners.matchWinners[r.match_id]];
+		}
+	}
+
 	const matchPages = Math.ceil(totalMatches / matchesPerPage);
 
 	const uniqueMaps = Functions.getUniqueValues(recentMatches, 'map_id');

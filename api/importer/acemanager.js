@@ -15,6 +15,11 @@ class AceManager{
 
         const lines = data.match(/^.+$/img);
 
+        if(lines === null){
+            new Message(`Can't import ${fileName}, regular expression result is null.`,`error`);
+            return;
+        }
+
         if(mode === "join"){
             await this.importPlayerJoins(fileName, lines);
         }else if(mode === "kick"){

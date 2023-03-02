@@ -124,7 +124,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 		if(pageSettings["Display Latest Match"] === "true"){
 
 			const latestMatch = parsedMatchesData[0];
-
 			
 			elems[pageOrder["Display Latest Match"]] = <Screenshot 
 				key={"match-sshot"} map={latestMatch.mapName} totalTeams={latestMatch.total_teams} players={latestMatchPlayers} 
@@ -271,7 +270,7 @@ export async function getServerSideProps({req, query}) {
 	let matchesData = [];
 
 	if(pageSettings["Display Recent Matches"] === "true"){
-		matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"]);
+		matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"], 0, playerManager);
 	}
 
 	let mostPlayedMaps = [];
@@ -413,7 +412,7 @@ export async function getServerSideProps({req, query}) {
 
 			const latestMapName = Functions.cleanMapName(matchesData[0].mapName).toLowerCase();
 
-			if(mapImages.indexOf(latestMapName) !== -1){
+			if(mapImages[latestMapName] !== undefined){
 				latestMatchImage = latestMapName;
 			}
 		}

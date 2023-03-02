@@ -16,10 +16,10 @@ class MapDefaultBox extends React.Component{
         const fixedName = Functions.cleanMapName(this.props.data.name).toLowerCase();
         const images = JSON.parse(this.props.images);
 
-        const index = images.indexOf(fixedName);
+       // const index = images.indexOf(fixedName);
 
-        if(index !== -1){
-            return `${this.props.host}/images/maps/thumbs/${images[index]}.jpg`;
+        if(images[fixedName] !== undefined){
+            return `${this.props.host}/images/maps/thumbs/${images[fixedName]}.jpg`;
         }
 
         return `${this.props.host}/images/maps/thumbs/default.jpg`;

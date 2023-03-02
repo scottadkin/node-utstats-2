@@ -25,7 +25,7 @@ const geoip = require('geoip-lite');
 
 class MatchManager{
 
-    constructor(data, fileName, bIgnoreBots, minPlayers, minPlaytime){
+    constructor(data, fileName, bIgnoreBots, minPlayers, minPlaytime, bUsePlayerACEHWID){
 
         this.data = data;
         this.fileName = fileName;
@@ -38,7 +38,13 @@ class MatchManager{
 
         this.combogibLines = [];
 
-        new Message(`Starting import of log file ${fileName}`,'note');
+        this.bFoundMatchStart = false;
+        this.bFoundRealMatchStart = false;
+
+        this.bUsePlayerACEHWID = bUsePlayerACEHWID;
+
+        new Message(`Starting import of log file ${fileName}`,"note");
+        new Message(`Auto merge players by HWID is set to ${Boolean(this.bUsePlayerACEHWID)}`, "note");
 
         this.convertFileToLines();
 
@@ -57,6 +63,12 @@ class MatchManager{
                 }
             }
 
+            if(!this.bFoundRealMatchStart){
+
+                new Message(`There is no match realstart event, skipping import.`,"note");
+                return;
+            }
+
 
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
@@ -66,27 +78,6 @@ class MatchManager{
                 return null;
             }
 
-            this.spawnManager = new SpawnManager();
-            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip);
-
-            const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
-
-            if(playersWithPlaytime < this.minPlayers){
-                new Message(`Total players is less then the minimum specified, skipping.`, "note");
-                return null;
-            }
-
-            const logId = await Logs.insert(this.fileName);
-
-            new Message(`Log file id is ${logId}`,"note");
-
-            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
-
-            if(this.mapInfo.mapPrefix === "mh"){
-                this.gameInfo.totalTeams = 0;
-            }
- 
-            
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
 
             this.gametype = new Gametypes(this.gameInfo.gamename);
@@ -99,6 +90,36 @@ class MatchManager{
                 return null;
             }
 
+            this.spawnManager = new SpawnManager();
+            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip, this.bUsePlayerACEHWID);
+
+            await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
+            this.playerManager.init();
+
+
+            const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
+
+
+            if(playersWithPlaytime < this.minPlayers){
+                new Message(`Total players is less then the minimum specified, skipping.`, "note");
+                return null;
+            }
+
+            const logId = await Logs.insert(this.fileName);
+
+            new Message(`Log file id is ${logId}`,"note");
+
+    
+            if(this.mapInfo.mapPrefix === "mh"){
+                this.gameInfo.totalTeams = 0;
+            }
+ 
+            
+
+            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
+
+            const matchTimings = this.gameInfo.getMatchLength();
+
             this.playerManager.setKills(this.killManager.kills);
             this.playerManager.matchEnded(this.gameInfo.end);
             this.playerManager.setHeadshots(this.killManager.headshots);
@@ -110,7 +131,7 @@ class MatchManager{
             await this.serverInfo.updateServer(geoip);
             new Message(`Inserted server info into database.`, 'pass');
 
-            const matchTimings = this.gameInfo.getMatchLength();
+            
             await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
 
 
@@ -122,39 +143,46 @@ class MatchManager{
 
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
+
+            await this.playerManager.updateFaces(this.serverInfo.date);
+            await this.playerManager.updateVoices(this.serverInfo.date);
+            await this.playerManager.setIpCountry();
+
+            this.playerManager.pingManager.parsePings(this.playerManager);
+            await this.playerManager.pingManager.insertPingData(this.matchId);
+
+            this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
+            await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
+            // no longer needed with new way of calculating playtime includes hardcore check
+            //this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
+
+
+            this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
+            new Message(`Updated player team changes`,'pass');
+            //process.exit();
+
+            const bLMS = this.bLastManStanding();
+            if(!bLMS){
+                this.setMatchWinners();
+            }
+
+            await this.playerManager.insertMatchData(
+                this.gametype.currentMatchGametype, 
+                this.matchId, this.mapInfo.mapId, 
+                this.serverInfo.date, 
+                this.gameInfo.totalTeams
+            );
+            new Message(`Updated player match data.`,'pass');
             
             await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);
 
-            await this.playerManager.setPlayerIds(this.gametype.currentMatchGametype);
+            
 
-            this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
-
-            const bLMS = this.bLastManStanding();
+            
 
             //this.playerManager.mergeDuplicates(bLMS);
             
-            if(this.CTFManager !== undefined){
-
-                this.CTFManager.totalTeams = this.gameInfo.totalTeams;
-                this.CTFManager.playerManager = this.playerManager;
-                this.CTFManager.bIgnoreBots = this.bIgnoreBots;
-
-                if(this.CTFManager.bHasData()){
-                    new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
-                    // console.table(this.CTFManager.data);
-                    
-                    this.CTFManager.parseData(this.killManager, matchTimings.start);
-                    this.CTFManager.createCapData();
-                    this.CTFManager.setPlayerStats();
-                    await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
-                    await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
-                    await this.CTFManager.addCTF4Data();
-                    await this.CTFManager.updateMapCapRecords(this.mapInfo.mapId, this.matchId, this.serverInfo.date);
-                   
-
-                    new Message(`Capture The Flag stats update complete.`,'pass');
-                }
-            }           
+    
             
             if(this.assaultManager !== undefined){
 
@@ -189,7 +217,7 @@ class MatchManager{
 
             
 
-            this.playerManager.mergeDuplicates(bLMS);
+            //this.playerManager.mergeDuplicates(bLMS);
 
             if(bLMS){
                 
@@ -200,7 +228,7 @@ class MatchManager{
                 if(winner !== null){
 
                     winner.bWinner = true;
-                    await this.match.setDMWinner(this.matchId, LMSWinner.name, LMSWinner.score);
+                    await this.match.setDMWinner(this.matchId, LMSWinner.masterId, LMSWinner.score);
 
                     new Message(`Last man standing stats update complete.`,'pass');
 
@@ -209,26 +237,15 @@ class MatchManager{
                 }
             }
 
-            await this.playerManager.updateFaces(this.serverInfo.date);
-            await this.playerManager.updateVoices(this.serverInfo.date);
-            await this.playerManager.setIpCountry();
+            
             
 
-            if(!bLMS){
-                this.setMatchWinners();
-            }
-
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date, this.gameInfo.totalTeams);
 
             new Message(`Updated player frag performance.`,'pass');
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
             new Message(`Updated player winstats performance.`,'pass');
-            this.playerManager.pingManager.parsePings(this.playerManager);
-            await this.playerManager.pingManager.insertPingData(this.matchId);
-
-
-            await this.playerManager.insertMatchData(this.gametype.currentMatchGametype, this.matchId, this.mapInfo.mapId, this.serverInfo.date);
-            new Message(`Updated player match data.`,'pass');
+            
 
             if(this.domManager !== undefined){
                 this.domManager.setLifeCaps(this.killManager);
@@ -239,17 +256,6 @@ class MatchManager{
 
             if(this.assaultManager !== undefined){
                 await this.assaultManager.updatePlayersMatchStats();
-            }
-
-            if(this.CTFManager !== undefined){
-
-
-                this.CTFManager.setSelfCovers(this.killManager);
-                await this.CTFManager.updatePlayersMatchStats();
-                await this.CTFManager.updatePlayerTotals();
-                await this.CTFManager.insertEvents(this.matchId);
-                
-                
             }
 
             if(this.monsterHuntManager !== undefined){
@@ -276,8 +282,8 @@ class MatchManager{
                 this.weaponsManager = new WeaponsManager();
             }
 
-            this.itemsManager = new ItemsManager(this.itemLines);
-            this.itemsManager.playerManager = this.playerManager;
+            this.itemsManager = new ItemsManager(this.itemLines, this.playerManager, this.killManager, this.gameInfo.totalTeams);
+          
             await this.itemsManager.updateTotals(this.serverInfo.date);
 
             this.itemsManager.setPlayerPickupTimes(this.gameInfo.end);
@@ -290,13 +296,20 @@ class MatchManager{
             new Message(`Updated item totals.`,'pass');
             await this.itemsManager.insertMatchData(this.matchId, this.serverInfo.date);
             new Message(`Updated item match data.`,'pass');
+            await this.itemsManager.setMatchAmpStats(this.matchId);
+
+            await this.itemsManager.updatePowerUps(
+                this.matchId, 
+                this.serverInfo.date, 
+                this.gameInfo.totalTeams, 
+                this.mapInfo.mapId,
+                this.gametype.currentMatchGametype
+            );
 
             await this.playerManager.insertConnectionData(this.matchId);
             new Message(`Updated played connection data.`,'pass');
 
-            this.playerManager.teamsManager.parseTeamChanges(this.playerManager);
-            await this.playerManager.teamsManager.insertTeamChanges(this.matchId);
-            new Message(`Updated player team changes`,'pass');
+            
 
 
             this.countiresManager = new CountriesManager();
@@ -327,19 +340,6 @@ class MatchManager{
             //this.maps.updatePlayerHistory(this.playerManager.players[0].masterId, this.mapInfo.matchId);
 
 
-            this.rankingsManager = new Rankings();
-
-            await this.rankingsManager.init();
-
-            //await this.rankingsManager.setRankingSettings();
-
-            //new Message("Getting player totals for rankings calculation.","note");
-            //const playerRankingTotals = await this.playerManager.getPlayerTotals(this.gametype.currentMatchGametype);
-
-            //need to get player current totals then add them to the scores
-            new Message("Updating player rankings.","note");
-            //await this.rankingsManager.update(this.matchId, playerRankingTotals, this.gametype.currentMatchGametype, this.bIgnoreBots);
-            await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
 
             //if(this.combogibLines.length !== 0){
 
@@ -368,12 +368,67 @@ class MatchManager{
                 pingAverageData.max.average
             );
 
+
+
+           // this.killManager.createOriginalIdDeaths();
+
+
+            if(this.CTFManager !== undefined){
+
+                this.CTFManager.totalTeams = this.gameInfo.totalTeams;
+                this.CTFManager.playerManager = this.playerManager;
+                this.CTFManager.bIgnoreBots = this.bIgnoreBots;
+                this.CTFManager.matchId = this.matchId;
+                this.CTFManager.killManager = this.killManager;
+                this.CTFManager.matchDate = this.serverInfo.date;
+                this.CTFManager.mapId = this.mapInfo.mapId;
+                this.CTFManager.createFlags();
+
+                await this.CTFManager.parseData(matchTimings.start, matchTimings.end);
+                //await this.CTFManager.updatePlayerMatchStats();
+                
+                
+
+                await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
+                await this.CTFManager.updatePlayerTotals(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
+                await this.CTFManager.updatePlayerBestValues(this.gametype.currentMatchGametype);
+                await this.CTFManager.updatePlayerBestValuesSingleLife(this.gametype.currentMatchGametype);
+                await this.CTFManager.updateMapCapRecord(this.mapInfo.mapId, this.gametype.currentMatchGametype);
+
+                
+                /*if(this.CTFManager.bHasData()){
+                    new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
+                    // console.table(this.CTFManager.data);
+                    
+                    this.CTFManager.parseData(this.killManager, matchTimings.start);
+                    this.CTFManager.createCapData();
+                    this.CTFManager.setPlayerStats();
+                    await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
+                    await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
+                    await this.CTFManager.addCTF4Data();
+                    await this.CTFManager.updateMapCapRecords(this.mapInfo.mapId, this.matchId, this.serverInfo.date);
+                   
+
+                    new Message(`Capture The Flag stats update complete.`,'pass');
+                }*/
+            }       
+
+            
+
+            this.rankingsManager = new Rankings();
+
+            await this.rankingsManager.init();
+
+            //need to get player current totals then add them to the scores
+            new Message("Updating player rankings.","note");
+            await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
+
             await Logs.setMatchId(logId, this.matchId);
 
             new Message(`Finished import of log file ${this.fileName}.`, 'note');
 
             return {
-                "updatedPlayers": this.playerManager.getAllNonDuplicateMasterIds(), 
+                "updatedPlayers": this.playerManager.players.length, 
                 "updatedGametype": this.gametype.currentMatchGametype
             }
 
@@ -439,13 +494,75 @@ class MatchManager{
         }
     }
 
+    parseNStatsLine(line, playerTypes){
+
+        const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
+        const monsterReg = /monsterkill\t(\d+?)\t(.+)$/i
+        const monsterKilledPlayerReg = /mk\t(.+?)\t(.+)/;
+
+        const ctfTypes = [
+            "flag_location",
+            "flag_kill",
+            "fdl", //flag drop location,
+            "frl", //flag return location,
+            "ftor" //flag timeout return location
+        ];
+
+        const typeResult = nstatsReg.exec(line);
+
+        if(typeResult !== null){
+
+            const subType = typeResult[1].toLowerCase();
+
+            if(playerTypes.indexOf(subType) !== -1){
+
+                this.playerLines.push(line);
+
+            }else if(subType === 'kill_distance' || subType == 'kill_location'){
+
+                this.killLines.push(line);
+
+            }else if(subType === 'dom_point'){
+
+                if(this.domManager === undefined){
+                    this.domManager = new DOMManager();
+                }
+
+                this.domManager.data.push(line);
+
+            }else if(ctfTypes.indexOf(subType) !== -1){
+
+                if(this.CTFManager === undefined){
+
+                    this.CTFManager = new CTFManager();
+                }
+
+                this.CTFManager.bHaveNStatsData = true;
+
+                this.CTFManager.lines.push(line);
+
+            }else{
+
+                if(monsterReg.test(line) || monsterKilledPlayerReg.test(line)){
+
+                    if(this.monsterHuntManager === undefined){
+
+                        this.monsterHuntManager = new MonsterHuntManager();
+
+                    }
+
+                    this.monsterHuntManager.lines.push(line);
+                }      
+            }
+        }
+                 
+    }
+
     convertFileToLines(){
 
         const reg = /^(.+?)$/img;
         const typeReg = /^\d+\.\d+?\t(.+?)(\t.+|)$/i;
-        const nstatsReg = /^\d+\.\d+?\tnstats\t(.+?)\t.+$/i;
-        const monsterReg = /monsterkill\t(\d+?)\t(.+)$/i
-        const monsterKilledPlayerReg = /mk\t(.+?)\t(.+)/;
+        const realStartReg = /^\d+\.\d+\tgame\trealstart$/i;
         this.lines = this.data.match(reg);
 
 
@@ -463,8 +580,6 @@ class MatchManager{
         this.itemLines = [];
         this.headshotLines = [];
 
-        let typeResult = 0;
-        let currentType = 0;
 
         const gameTypes = [
             "game",
@@ -487,7 +602,8 @@ class MatchManager{
             "first_blood",
             "spawn_loc",
             "spawn_point",
-            "p_s"
+            "p_s",
+            "hwid"
         ];
 
         const assaultTypes = [
@@ -506,152 +622,93 @@ class MatchManager{
             "controlpoint_capture"
         ];
 
+        
 
         for(let i = 0; i < this.lines.length; i++){
 
-            typeResult = typeReg.exec(this.lines[i]);
+            const line = this.lines[i];
+            const typeResult = typeReg.exec(line);
 
+            if(typeResult === null) continue;
            
+            const currentType = typeResult[1].toLowerCase();
 
-            if(typeResult !== null){
+            if(gameTypes.indexOf(currentType) !== -1){
 
-                currentType = typeResult[1].toLowerCase();
+                if(currentType === "game_start") this.bFoundMatchStart = true;
 
-
-                if(gameTypes.indexOf(currentType) !== -1){
-
-                    this.gameLines.push(this.lines[i]);
-
+                if(realStartReg.test(line)){
+                    this.bFoundRealMatchStart = true;
                 }
 
+                this.gameLines.push(line);
+            }
+            if(currentType == 'info') this.serverLines.push(line);   
+            if(currentType == 'map') this.mapLines.push(line);
 
-                if(currentType == 'info'){
-
-                    this.serverLines.push(this.lines[i]);
-                }
-                
-                if(currentType == 'map'){
-
-                    this.mapLines.push(this.lines[i]);
-
-                }
-                
-                if(playerTypes.indexOf(currentType) !== -1 || currentType.startsWith('weap_')){
-
-                    this.playerLines.push(this.lines[i]);
-
-                    if(currentType.startsWith('weap_')){
-
-                        if(this.weaponsManager === undefined) this.weaponsManager = new WeaponsManager();
-
-                        this.weaponsManager.data.push(this.lines[i]);
-                    }
-
-                }
-                
-                if(currentType === 'nstats'){
-
-                    typeResult = nstatsReg.exec(this.lines[i]);
-
-                    if(typeResult !== null){
-
-                        currentType = typeResult[1].toLowerCase();
-
-                        if(playerTypes.indexOf(currentType) !== -1){
-
-                            this.playerLines.push(this.lines[i]);
-
-                        }else if(currentType === 'kill_distance' || currentType == 'kill_location'){
-
-                            this.killLines.push(this.lines[i]);
-
-                        }else if(currentType === 'dom_point'){
-
-                            if(this.domManager === undefined){
-                                this.domManager = new DOMManager();
-                            }
-
-                            this.domManager.data.push(this.lines[i]);
-
-                        }else if(currentType === 'flag_location' || currentType === "flag_kill"){
-
-                            if(this.CTFManager === undefined){
-                                this.CTFManager = new CTFManager();
-                                this.CTFManager.bHaveNStatsData = true;
-                            }
-                            this.CTFManager.flagLines.push(this.lines[i]);
-
-                        }else{
-
-                            if(monsterReg.test(this.lines[i]) || monsterKilledPlayerReg.test(this.lines[i])){
-
-                                if(this.monsterHuntManager === undefined){
-
-                                    this.monsterHuntManager = new MonsterHuntManager();
-
-                                }
-
-                                this.monsterHuntManager.lines.push(this.lines[i]);
-                            }      
-                        }
-                    }
-
-                }
-                
-                if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide' || currentType === 'headshot'){
             
-                    this.killLines.push(this.lines[i]);
+            if(playerTypes.indexOf(currentType) !== -1 || currentType.startsWith('weap_')){
 
+                this.playerLines.push(line);
+
+                if(currentType.startsWith('weap_')){
+
+                    if(this.weaponsManager === undefined) this.weaponsManager = new WeaponsManager();
+
+                    this.weaponsManager.data.push(line);
                 }
+            }
+            
+            if(currentType === 'nstats'){
+
+                this.parseNStatsLine(line, playerTypes);
+            }
+            
+            if(currentType === 'kill' || currentType === 'teamkill' || currentType === 'suicide' || currentType === 'headshot'){
+        
+                this.killLines.push(line);
+
+            }
+            
+            if(assaultTypes.indexOf(currentType) !== -1){
+
+                if(this.assaultManager === undefined){
+                    this.assaultManager = new AssaultManager();
+                }
+
+                this.assaultManager.data.push(line);
+
                 
-                if(assaultTypes.indexOf(currentType) !== -1){
+            }
+            
+            if(domTypes.indexOf(currentType) !== -1){
 
-                    if(this.assaultManager === undefined){
-                        this.assaultManager = new AssaultManager();
-                    }
-
-                    this.assaultManager.data.push(this.lines[i]);
-
-                    
-                }
-                
-                if(domTypes.indexOf(currentType) !== -1){
-
-                    //console.log(currentType);
-
-                    if(this.domManager === undefined){
-                        this.domManager = new DOMManager();
-                    }
-
-                    this.domManager.data.push(this.lines[i]);
-
-                }
-                
-                if(currentType === 'item_get' || currentType === "item_activate" || currentType === "item_deactivate"){
-
-                    this.itemLines.push(this.lines[i]);
-
-                }
-                
-                if(currentType === "combo_kill" || currentType === "combo_insane"){
-
-                    this.combogibLines.push(this.lines[i]);
-                    
-                    //this.combogibManager.addComboEvent(this.lines[i]);
-                    
+                if(this.domManager === undefined){
+                    this.domManager = new DOMManager();
                 }
 
-                if(currentType.toLowerCase().startsWith("flag_")){
-                    //console.log(`WOFOWOFWOFOWOFW`);
+                this.domManager.data.push(line);
+            }
+            
+            if(currentType === 'item_get' || currentType === "item_activate" || currentType === "item_deactivate"){
 
-                    if(this.CTFManager === undefined){
-                        this.CTFManager = new CTFManager();
-                    }
+                this.itemLines.push(line);
+            }
+            
+            if(currentType === "combo_kill" || currentType === "combo_insane"){
 
-                    this.CTFManager.data.push(this.lines[i]);
-                    // this.ctfData.push(this.lines[i]);
+                this.combogibLines.push(line);            
+                //this.combogibManager.addComboEvent(this.lines[i]);
+            }
+
+            if(currentType.toLowerCase().startsWith("flag_")){
+
+                if(this.CTFManager === undefined){
+                    this.CTFManager = new CTFManager();
                 }
-                
+
+                this.CTFManager.lines.push(line);
+                // this.ctfData.push(this.lines[i]);
             }
         }
     }
@@ -662,11 +719,9 @@ class MatchManager{
         
         if(this.gameInfo.endReason.toLowerCase() === "hunt successfull!"){
 
-            let p = 0;
-
             for(let i = 0; i < this.playerManager.players.length; i++){
 
-                p = this.playerManager.players[i];
+                const p = this.playerManager.players[i];
 
                 if(p.bPlayedInMatch && !p.bSpectator){
                     p.bWinner = true;
@@ -682,20 +737,22 @@ class MatchManager{
 
             const winningTeams = this.gameInfo.getWinningTeam();
 
-            let p = 0;
 
             for(let i = 0; i < this.playerManager.players.length; i++){
 
-                p = this.playerManager.players[i];
+                const p = this.playerManager.players[i];
 
-                if(winningTeams.indexOf(p.getTeam()) !== -1){
+                const playerTeam = p.getLastPlayedTeam();
 
-                    if(winningTeams.length === 1){
-                        p.bWinner = true;
-                    }else{
-                        p.bDrew = true;
-                    }
+                if(winningTeams.indexOf(playerTeam) === -1) continue;
+
+
+                if(winningTeams.length === 1){
+                    p.bWinner = true;
+                }else{
+                    p.bDrew = true;
                 }
+                
             }
 
         }else{
@@ -704,17 +761,17 @@ class MatchManager{
 
             
             if(this.playerManager.players.length > 0){
+
                 this.playerManager.sortByScore();
+
                 const winnerScore =  this.playerManager.players[0].stats.score;
                 const winnerDeaths =  this.playerManager.players[0].stats.deaths;
-
-                let p = 0;
 
                 let totalWinningPlayers = 0;
 
                 for(let i = 0; i < this.playerManager.players.length; i++){
 
-                    p = this.playerManager.players[i];
+                    const p = this.playerManager.players[i];
 
                     if(p.stats.score === winnerScore && p.stats.deaths === winnerDeaths){
                         totalWinningPlayers++;
@@ -730,7 +787,7 @@ class MatchManager{
                     }
                 }
 
-                this.setDmWinner(this.playerManager.players[0].name, this.playerManager.players[0].stats.score);
+                this.setDmWinner(this.playerManager.players[0].masterId, this.playerManager.players[0].stats.score);
             }
         }
 
@@ -738,9 +795,9 @@ class MatchManager{
     }
 
 
-    async setDmWinner(name, score){
+    async setDmWinner(playerId, score){
 
-        await this.match.setDMWinner(this.matchId, name, score);
+        await this.match.setDMWinner(this.matchId, playerId, score);
     }
 
 

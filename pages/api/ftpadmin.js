@@ -30,13 +30,14 @@ export default async function handler(req, res){
             return;
             
         }else if(mode === "savelogsfolder"){
-            
+
             await admin.updateLogsFolderSettings(
                 body.bIgnoreDuplicates, 
                 body.bIgnoreBots, 
                 body.minPlayers, 
                 body.minPlaytime, 
-                body.bImportAce
+                body.bImportAce,
+                body.bUseACEPlayerHWID
             );
             res.status(200).json({"message": "passed"});
             return;
@@ -91,7 +92,8 @@ export default async function handler(req, res){
                     body.importAce,
                     body.deleteAceLogs,
                     body.deleteAceScreenshots,
-                    body.enabled
+                    body.bUseACEPlayerHWID,
+                    true
                 );
 
                 res.status(200).json({"message": "Passed", "id": result});
@@ -116,7 +118,7 @@ export default async function handler(req, res){
 
             const result = await admin.updateFTPServer(body.id, body.server, body.ip, body.port, body.user, body.password, body.folder, body.deleteLogs, 
                 body.deleteTmp, body.ignoreBots, body.ignoreDuplicates, body.minPlayers, body.minPlaytime, body.bSecure, body.importAce,
-                 body.deleteAceLogs, body.deleteAceScreenshots, body.enabled);
+                 body.deleteAceLogs, body.deleteAceScreenshots, body.bUseACEPlayerHWID, body.enabled);
             
             if(result > 0){
 

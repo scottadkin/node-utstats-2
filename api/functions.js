@@ -35,7 +35,9 @@ class Functions{
     }
     
 
-    static getPlayer = (players, id, bObject) =>{
+    static getPlayer(players, id, bObject){
+
+        id = parseInt(id);
 
         bObject = bObject ?? false;
 
@@ -478,8 +480,6 @@ class Functions{
             if(data[0] === "") return [];
         }
 
-        let d = 0;
-
         for(let i = 0; i < data.length; i++){
 
             data[i] = parseInt(data[i]);
@@ -556,11 +556,12 @@ class Functions{
     static apostrophe(name){
 
         name = name.toLowerCase();
-        if(name[name.length - 1] === 's'){
-            return '\'';
+        
+        if(name[name.length - 1] === "s"){
+            return "'";
         }
 
-        return '\'s';
+        return "'s";
     }
 
 
@@ -634,7 +635,7 @@ class Functions{
                 outputData[x].data.push(inputData[x].data[Math.ceil(increment * i)]);
 
                 if(i === max - 1){
-                    outputData[x].data.push(inputData[x].lastValue);
+                   // outputData[x].data.push(inputData[x].lastValue);
                 }
             }
         }
@@ -735,9 +736,13 @@ class Functions{
     }
 
 
-    static toPlaytime(seconds){
+    static toPlaytime(seconds, bIncludeMilliSeconds){
 
         if(seconds === 0) return "None";
+
+        const milliSeconds = seconds % 1;
+
+        if(bIncludeMilliSeconds === undefined) bIncludeMilliSeconds = false;
 
         const rSeconds = Math.floor(seconds % 60);
         const secondString = Functions.plural(rSeconds, "Second");
@@ -777,12 +782,71 @@ class Functions{
 
             }else{
 
-                return `${rSeconds} ${secondString}`;
+                if(rSeconds > 0){
+
+                    if(bIncludeMilliSeconds){
+                        return `${rSeconds}.${Math.floor(milliSeconds * 100)} ${secondString}`;
+                    }
+
+                    return `${rSeconds} ${secondString}`;
+                }
+
+                return `${Math.floor(milliSeconds * 1000)} ms`;
             }
         }
+    }
 
-        return ":thinking:";
-        //return `${hours}horus (${rMinutes}), ${rSeconds} secs`
+    static bAnyCTFData(playerData){
+
+        if(playerData.length > 0){
+            if(playerData[0].ctfData !== undefined) return true;
+        }
+    
+        return false;
+    }
+
+
+    static bAnyDomData(playerData){
+
+        for(let i = 0; i < playerData.length; i++){
+
+            if(playerData[i].dom_caps > 0) return true;
+        }
+
+        return false;
+    }
+
+    static getSmartCTFReturnString(string){
+
+        const reg = /^return_(.+)$/i;
+
+        const result = reg.exec(string);
+
+        if(result === null) return string;
+
+        const remaining = result[1];
+
+        if(remaining === "closesave"){
+            return "Close Save";
+        }else if(remaining === "mid"){
+            return "Middle";
+        }else if(remaining === "base"){
+            return "Home Base";
+        }else if(remaining === "enemybase"){
+            return "Enemy Base";
+        }
+
+        return string;
+    }
+
+
+    static scalePlaytime(playtime, bHardcore){
+
+        if(bHardcore && playtime !== 0){
+            return playtime / 1.1;      
+        }
+
+        return playtime;
     }
 
 }

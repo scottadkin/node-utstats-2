@@ -9,70 +9,35 @@ class Domination{
 
     }
 
-    updateTeamScores(matchId, red, blue, green, yellow){
+    async updateTeamScores(matchId, red, blue, green, yellow){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_matches SET team_score_0=?,team_score_1=?,team_score_2=?,team_score_3=? WHERE id=?";
+        const vars = [red, blue, green, yellow, matchId];
 
-            const query = "UPDATE nstats_matches SET team_score_0=?,team_score_1=?,team_score_2=?,team_score_3=? WHERE id=?";
-
-            mysql.query(query, [red, blue, green, yellow, matchId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, vars);
     }
 
-    controlPointExists(mapId, name){
+    async controlPointExists(mapId, name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_points FROM nstats_dom_control_points WHERE map=? AND name=?";
+        const result = await mysql.simpleQuery(query, [mapId, name]);
 
-            const query = "SELECT COUNT(*) as total_points FROM nstats_dom_control_points WHERE map=? AND name=?";
-
-            mysql.query(query, [mapId, name], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result[0].total_points > 0){
-                        resolve(true);
-                    }
-                }
-
-                resolve(false);
-            });
-        });
+        if(result[0].total_points > 0) return true;
+        return false;
     }
 
-    createControlPoint(mapId, name, points, position){
+    async createControlPoint(mapId, name, points, position){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_dom_control_points VALUES(NULL,?,?,?,1,?,?,?);";
+        const vars = [mapId, name, points, position.x, position.y, position.z];
 
-            const query = "INSERT INTO nstats_dom_control_points VALUES(NULL,?,?,?,1,?,?,?);";
-
-            mysql.query(query, [mapId, name, points, position.x, position.y, position.z], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, vars);
     }
 
-    updateControlPointStats(mapId, name, points){
+    async updateControlPointStats(mapId, name, points){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_dom_control_points SET matches=matches+1, captured=captured+? WHERE map=? AND name=?";
-
-            mysql.query(query, [points, mapId, name], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "UPDATE nstats_dom_control_points SET matches=matches+1, captured=captured+? WHERE map=? AND name=?";
+        return await mysql.simpleQuery(query, [points, mapId, name]);
     }
 
     async updateMapControlPoint(mapId, name, points, position){
@@ -142,58 +107,27 @@ class Domination{
         });
     }
 
-    updatePlayerMatchStats(rowId, caps){
+    async updatePlayerMatchStats(rowId, caps){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_player_matches SET dom_caps=? WHERE id=?";
-
-            mysql.query(query, [caps, rowId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "UPDATE nstats_player_matches SET dom_caps=? WHERE id=?";
+        return await mysql.simpleQuery(query, [caps, rowId]);
     }
 
 
-    getMatchDomPoints(matchId){
+    async getMatchDomPoints(matchId){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT * FROM nstats_dom_match_control_points WHERE match_id=?";
-
-            mysql.query(query, [matchId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT * FROM nstats_dom_match_control_points WHERE match_id=?";
+        return await mysql.simpleQuery(query, [matchId]);
     }
 
-    getControlPointNames(mapId){
+    async getControlPointNames(mapId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
+        const result = await mysql.simpleQuery(query, [mapId]);
 
-            const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
+        result.unshift({"id": 0, "name": "All"});
 
-            mysql.query(query, [mapId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-                
-                resolve([]);
-            });
-        });
+        return result;
     }
 
     getMapControlPoints(map){
@@ -550,6 +484,22 @@ class Domination{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    async getMatchSinglePlayerTotalCaps(matchId, playerId){
+
+        const query = "SELECT point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? AND player=? GROUP BY point";
+        const result =  await mysql.simpleQuery(query, [matchId, playerId]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            data[r.point] = r.total_caps;
+        }
+        
+        return data;
+    }
+
 
     createPointGraphData(inputData, pointNames){
 
@@ -573,7 +523,7 @@ class Domination{
 
                 if(pointIndexes[i] !== ignore){
 
-                    points[i].data.push(points[i].lastValue);
+                    p.data.push(p.lastValue);
                 }
             }
         }
@@ -598,129 +548,79 @@ class Domination{
 
 
 
-    createSinglePointGraphData(inputData, pointId, playerIndexes){
 
-        const data = [];
+    updateOtherGraphData(data, pointId, ignore){
 
-        for(let i = 0; i < playerIndexes.length; i++){
+        ignore = parseInt(ignore);
 
-            const p = playerIndexes[i];
+        for(const [playerId, pointData] of Object.entries(data)){
 
-            data.push({"name": p, "data": [0], "lastValue": 0});
+            if(parseInt(playerId) === ignore) continue;
+
+            const currentValue = pointData[pointId][pointData[pointId].length - 1];
+
+            pointData[pointId].push(currentValue);
+
         }
+    }
 
-        const updateOthers = (ignore) =>{
+    createPlayerGraphData(inputData, pointNames/*, playerNames*/){
 
-            for(let i = 0; i < playerIndexes.length; i++){
 
-                if(playerIndexes[i] !== ignore){
+        const playerData = {};
 
-                    data[i].data.push(data[i].lastValue);
-                }
+        const uniquePlayers = new Set();
+
+        for(let i = 0; i < inputData.length; i++){
+            uniquePlayers.add(inputData[i].player);
+        }
+        
+        const playerList = [...uniquePlayers];
+
+        for(let i = 0; i < playerList.length; i++){
+
+            //0 is all points combined
+            const current = {
+                "0": [0]
+            };
+
+            for(let x = 0; x < pointNames.length; x++){
+                current[pointNames[x].id] = [0];
             }
+
+            playerData[playerList[i]] = current;    
         }
-      
+
+        
 
         for(let i = 0; i < inputData.length; i++){
 
-            const d = inputData[i];
+            const {player, point} = inputData[i];
 
-            if(d.point === pointId || pointId === -9){
+            const currentPlayer = playerData[player];
+            const currentValue = currentPlayer[point][currentPlayer[point].length - 1];
 
-                const playerIndex = playerIndexes.indexOf(d.player);
+            const currentValueAll = currentPlayer[0][currentPlayer[0].length - 1];
 
-                if(playerIndex !== -1){
+            currentPlayer[point].push(currentValue + 1);
+            currentPlayer[0].push(currentValueAll + 1);
 
-                    data[playerIndex].lastValue++;
-                    data[playerIndex].data.push(data[playerIndex].lastValue);
-
-                    updateOthers(d.player);
-                }
-            }
+            this.updateOtherGraphData(playerData, point, player);  
+            this.updateOtherGraphData(playerData, 0, player);  
         }
 
-
-        data.sort((a, b) =>{
-
-            a = a.lastValue;
-            b = b.lastValue;
-
-            if(a < b){
-                return 1;
-            }else if(a > b){
-                return -1;
-            }
-            return 0;
-        });
-        
-
-        return Functions.reduceGraphDataPoints(data, 50);
-
+        return playerData;
+   
     }
 
-    createPlayerGraphData(inputData, pointNames, playerNames){
-
-    
-        const data = [];
-        const playerIndexes = [];
-
-        for(const [key] of Object.entries(playerNames)){
-
-            playerIndexes.push(parseInt(key));
-        }
-
-
-        for(let i = 0; i <= pointNames.length; i++){
-
-            let p = pointNames[i];
-
-            if(p === undefined){
-                p = {"id": -9};
-            }
-
-            const current =  this.createSinglePointGraphData(inputData, p.id, playerIndexes);
-
-            for(let x = 0; x < current.length; x++){
-
-                current[x].name = playerNames[current[x].name];
-            }
-
-            if(i < pointNames.length){
-
-                data.push(
-                    {
-                        "point": p.name, 
-                        "data": current
-                    }
-                );
-
-            }else{
-
-                data.unshift(
-                    {
-                        "point": "", 
-                        "data": current
-                    }
-                );
-            }
-
-        }
-
-        return data;
-
-        
-    }
-
-    async getPlayerCapsGraphData(matchId, pointNames, playerNames){
+    async getPlayerCapsGraphData(matchId, pointNames){
 
 
         const query = "SELECT player, point FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
 
         const result = await mysql.simpleQuery(query, [matchId]);
 
-
-        
-        return this.createPlayerGraphData(result, pointNames, playerNames);
+        return this.createPlayerGraphData(result, pointNames);
         
 
     }

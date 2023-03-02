@@ -1,19 +1,25 @@
 const config = require('../../config.json');
 const WeaponStats = require('./weaponstats');
+const Message = require("../message");
 
 class PlayerInfo{
 
-    constructor(id, name, timeStamp, bSpectator){
+    constructor(id, name, masterId, gametypeId, HWID, bSpectator){
 
         this.id = id;
         this.name = name;
-        this.connects = [timeStamp];
+        this.masterId = masterId;
+        this.gametypeId = gametypeId;
+        this.connects = [];
         this.disconnects = [];
         this.teams = [];
         this.bBot = false;
-        this.bSpectator = (bSpectator === undefined) ? false : bSpectator;
+        this.bSpectator = bSpectator;
         this.face = 0;
         this.faceId = 0;
+        this.HWID = HWID;
+
+        this.bConnectedToServer = false;
 
         this.bPlayedInMatch = !this.bSpectator;
 
@@ -66,9 +72,166 @@ class PlayerInfo{
             "bestspawnkillspree":0,
             "spawnKills": 0,
             "accuracy": 0,
+            "ctfNew":{
+                "return":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "returnMid":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "returnBase":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "returnEnemyBase":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "returnSave":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "dropped":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "kill":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "suicide":{"total": 0},
+                "seal":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "sealPass":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "sealFail":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "bestSingleSeal": 0,
+                "cover":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "coverMulti":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "coverSpree":{
+                    "total": 0,
+                    "currentLife": 0,
+                    "bestLife": 0,
+                    "lastTimestamp": 0
+                },
+                "bestSingleCover": 0,
+                "coverPass":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "coverFail":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "capture":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "soloCapture":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "assist":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "carryTime":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "taken":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "pickup":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "selfCover":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "selfCoverPass":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "selfCoverFail":{
+                    "total": 0,
+                    "bestLife": 0,
+                    "currentLife": 0,
+                    "lastTimestamp": 0
+                },
+                "bestSingleSelfCover": 0
+                
+            },
             "ctf": {
                 "assist": 0,
                 "return": 0,
+                "returnBest": 0,//most flag returns in one life
+                "currentReturns": 0,
+                "returnMid": 0,
+                "returnBase": 0,
+                "returnEnemyBase": 0,
+                "save": 0,
                 "taken": 0,
                 "dropped": 0,
                 "capture": 0,
@@ -85,9 +248,9 @@ class PlayerInfo{
                 "bestCover": 0, //most covers during one flag
                 "bestSelfCover": 0, //most self covers during one flag
                 "kill": 0,
-                "save": 0,
                 "carryTime": 0,
-                "pickupTime": 0
+                "pickupTime": 0,
+                "suicide": 0 //suicide while carrying flag
             },
             "dom": {
                 "caps": 0,
@@ -106,23 +269,38 @@ class PlayerInfo{
                 "lastKill": 0,
                 "deaths": 0
             },
-            "time_on_server": 0
+            "time_on_server": 0,
+            "teamPlaytime": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "255": 0,
+            }
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };
 
         this.lastDeath = -999;
-        this.lastKill = timeStamp;
-        this.lastSpawn = timeStamp;
+        this.lastKill = 0;
+        this.lastSpawn = 0;
         this.timeAlive = 0;
 
         this.spawns = [];
+
+
+        this.teamChangeEvents = [];
+
+
+        this.spawnTimestamps = [];
         //console.log(this);
 
     }
 
-    connect(timeStamp, bSpectator){
+    connect(timestamp, bSpectator){
 
-        this.connects.push(timeStamp);
+        this.connects.push(timestamp);
+
+        this.bConnectedToServer = true;
 
         if(bSpectator !== undefined){
             this.bSpectator = true;
@@ -130,10 +308,18 @@ class PlayerInfo{
             this.bSpectator = false;
             this.bPlayedInMatch = true;
         }
+
+        //this.teamChangeEvents.push({"timestamp": timestamp, "type": "connect"});
     }
 
-    disconnect(timeStamp){
-        this.disconnects.push(timeStamp);
+    disconnect(timestamp){
+
+        this.disconnects.push(timestamp);
+
+        this.bConnectedToServer = false;
+
+        this.teamChangeEvents.push({"timestamp": timestamp, "type": "disconnect"});
+
     }
 
     bDuplicateTeamData(timestamp, id){
@@ -153,9 +339,11 @@ class PlayerInfo{
     }
 
     setTeam(timestamp, id){
-
+        
         timestamp = parseFloat(timestamp);
         id = parseInt(id);
+
+        this.teamChangeEvents.push({"timestamp": timestamp, "type": "change", "newTeam": id});
 
         if(!this.bDuplicateTeamData(timestamp, id)){
             this.teams.push({
@@ -163,6 +351,10 @@ class PlayerInfo{
                 "id": id
             });
         }
+    }
+
+    setHWID(HWID){
+        this.HWID = HWID;
     }
 
     setAsBot(){
@@ -186,14 +378,18 @@ class PlayerInfo{
         this.country = country;
     }
 
-    setStatsValue(key, value, bInt){
+    setStatsValue(key, value){
 
-        if(bInt === undefined){
-            this.stats[key] = value;
+        const floats = ["accuracy", "time_on_server", "ttl", "efficiency"];
+
+        if(floats.indexOf(key)){
+
+            this.stats[key] += parseFloat(value);
             return;
         }
 
-        this.stats[key] = parseFloat(value);
+        this.stats[key] += parseInt(value);
+
 
     }
 
@@ -214,7 +410,9 @@ class PlayerInfo{
 
         this.updateMonsterHuntSprees();
 
-        this.lastDeath = parseFloat(timestamp);
+        const deathTimestamp = parseFloat(timestamp);
+
+        this.lastDeath = deathTimestamp
 
         this.updateSprees();
         this.updateMultis();
@@ -388,15 +586,22 @@ class PlayerInfo{
     }
 
     setWeaponStat(weapon, type, value){
+        
+        const floats = ["accuracy", "efficiency"];
 
+        if(floats.indexOf(type) !== -1){
+            value = parseFloat(value);
+        }else{
+            value = parseInt(value);
+        }
 
         if(this.weaponStats.has(weapon)){
 
             const stats = this.weaponStats.get(weapon);
-
             stats.setValue(type, value);
 
         }else{
+     
 
             this.weaponStats.set(weapon, new WeaponStats(weapon));
             const stats = this.weaponStats.get(weapon);
@@ -434,13 +639,12 @@ class PlayerInfo{
         return currentTeam;
     }
 
-    getPreviousSpawn(timestamp){
+    /*getPreviousSpawn(timestamp){
 
-        let s = 0;
 
         for(let i = this.spawns.length - 1; i >= 0; i--){
 
-            s = this.spawns[i];
+            const s = this.spawns[i];
 
             if(s.timestamp < timestamp){
                 return s.timestamp;
@@ -449,7 +653,7 @@ class PlayerInfo{
 
         return null;
 
-    }
+    }*/
 
     updateMonsterHuntSprees(){
 
@@ -492,6 +696,124 @@ class PlayerInfo{
     diedToMonster(){
         this.stats.monsterHunt.deaths++;
     }   
+
+
+    setCTFNewValue(type, timestamp, totalDeaths, value){
+
+        if(timestamp === null){
+            this.stats.ctfNew[type].total++;
+            return;
+        }
+
+        if(value === undefined) value = 1;
+
+        if(totalDeaths > 0){
+            this.stats.ctfNew[type].currentLife = 0;
+        }
+
+
+        this.stats.ctfNew[type].total += value;
+        this.stats.ctfNew[type].lastTimestamp = timestamp;
+        this.stats.ctfNew[type].currentLife += value;
+
+        const bestLife = this.stats.ctfNew[type].bestLife;
+        const currentLife = this.stats.ctfNew[type].currentLife;
+
+        if(bestLife < currentLife){
+            this.stats.ctfNew[type].bestLife = currentLife;
+        }
+    }
+
+    getCTFNewLastTimestamp(type){
+
+
+        if(type === "return_closesave"){
+            type = "returnSave";
+        }else if(type === "return_enemybase"){
+           type = "returnEnemyBase";
+        }else if(type === "return_mid"){
+            type = "returnMid"
+        }else if(type === "return_base"){
+            type = "returnBase";
+        }else if(type === "returned"){
+            type = "return";
+        }
+
+        return this.stats.ctfNew[type].lastTimestamp;
+    }
+
+    setCTFNewCovers(coverType, totalCovers, bestCovers, currentCovers, timestamp){
+
+        const data = this.stats.ctfNew[coverType];
+
+        data.total += totalCovers;
+
+        if(data.bestLife < bestCovers){
+            data.bestLife = bestCovers;
+        }
+
+
+        data.currentLife = currentCovers;
+        data.lastTimestamp = timestamp;
+    }
+
+
+    spawned(timestamp){
+        this.spawnTimestamps.push(timestamp);
+    }
+
+    getPreviousSpawn(timestamp){
+
+        let closest = 0;
+
+        for(let i = 0; i < this.spawnTimestamps.length; i++){
+
+            const s = this.spawnTimestamps[i];
+
+            if(s > timestamp) break;
+            closest = s;
+
+        }
+
+        return closest;
+    }
+
+
+    getTotalPlaytime(totalTeams){
+
+        let totalPlaytime = 0;
+
+        for(const [key, value] of Object.entries(this.stats.teamPlaytime)){
+            //dont count time as spectator as playtime
+
+            //disconnect from server
+            if(key === "-1") continue;
+
+            if(totalTeams > 1 && key !== "255"){
+                totalPlaytime += value;
+            }
+
+            if(totalTeams < 2){
+                totalPlaytime += value;
+            }
+        }
+
+        return totalPlaytime;
+    }
+
+
+    getLastPlayedTeam(){
+
+        if(this.teams.length === 0) return 255;
+
+        for(let i = this.teams.length - 1; i >= 0; i--){
+
+            const current = this.teams[i];
+            if(current.id !== -1) return current.id;
+        }
+
+        return 255;
+    }
 }
 
 

@@ -14,7 +14,6 @@ import Players from '../api/players';
 import AdminGametypeManager from '../components/AdminGametypeManager/';
 import Gametypes from '../api/gametypes'
 import AdminRankingManager from '../components/AdminRankingManager/';
-import Rankings from '../api/rankings';
 import AdminPickupsManager from '../components/AdminPickupsManager/';
 import Items from '../api/items';
 import AdminWeaponImageUploader from '../components/AdminWeaponImageUploader/';
@@ -27,6 +26,7 @@ import Analytics from '../api/analytics';
 import SiteAnalytics from '../components/SiteAnalytics';
 import AdminMapManager from '../components/AdminMapManager';
 import AdminSiteSettings from '../components/AdminSiteSettings';
+import AdminServersManager from '../components/AdminServersManager';
 
 class Admin extends React.Component{
 
@@ -35,7 +35,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 0, 
+            "mode": 5, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "itemList": JSON.parse(this.props.itemList),
@@ -240,6 +240,13 @@ class Admin extends React.Component{
         return <AdminMapManager />
     }
 
+    displayServersManager(){
+
+        if(this.state.mode !== 14) return null;
+
+        return <AdminServersManager />;
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -266,10 +273,13 @@ class Admin extends React.Component{
                             })}>Site Analytics</div>
                             <div className={`big-tab ${(this.state.mode === 10) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(10);
-                            })}>Importer Manager</div>
+                            })}>Logs Importer Manager</div>
                             <div className={`big-tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(2);
                             })}>Manage User Accounts</div>
+                            <div className={`big-tab ${(this.state.mode === 14) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(14);
+                            })}>Manage Servers</div>
                             <div className={`big-tab ${(this.state.mode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(4);
                             })}>Manage Matches</div>
@@ -317,6 +327,7 @@ class Admin extends React.Component{
                         {this.displayMonsterHunt()}
                         {this.displayAnalytics()}
                         {this.displayMapManager()}
+                        {this.displayServersManager()}
                     </div>   
                 </div>
 

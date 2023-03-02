@@ -10,8 +10,12 @@ var config bool bLogDomLocations;
 var config bool bLogKillDistances;
 var config bool bLogFlagKills;
 var config bool bLogMonsterKills;
+var config bool bLogACEPlayerHWID;
 
+var int TicksSinceLastScoreLog;
 var (NodeUTStats) string faces[39];
+
+
 
 struct nPlayer{
 	var PlayerReplicationInfo p;
@@ -19,9 +23,9 @@ struct nPlayer{
 	var int spawns;
 	var float lastSpawnTime;
 	var int id;
-	var int monsterKills;
 	var int previousScore;
-	var int headshots;
+	var string HWID;
+	var bool bBot;
 };
 
 
@@ -49,6 +53,11 @@ struct spawnInfo{
 
 
 var spawnInfo nSpawns[255]; 
+
+event PreBeginPlay()
+{
+	Spawn(class'NodeUTStats2Spectator');
+}
 
 
 function printLog(string s){
@@ -92,6 +101,10 @@ function int insertNewPlayer(Pawn p){
 
 			nPlayers[i].p = p.PlayerReplicationInfo;
 			nPlayers[i].id = p.PlayerReplicationInfo.PlayerID;
+			nPlayers[i].HWID = "";
+			nPlayers[i].bBot = p.PlayerReplicationInfo.bIsABot;
+			
+			
 
 			if(nPlayers[i].p.TalkTexture != None){
 				printLog("nstats"$Chr(9)$"Face"$Chr(9)$nPlayers[i].p.PlayerID$Chr(9)$nPlayers[i].p.TalkTexture);
@@ -293,14 +306,101 @@ function LogPlayerScores(){
 			}
 		}
 	}
-
-
 }
+
+
+function int getPlayerIndexById(int TargetId){
+
+	local int i;
+	local nPlayer currentPlayer;
+	
+	for(i = 0; i < 64; i++){	
+		if(nPlayers[i].id == -1) return -1;
+		
+		if(nPlayers[i].id == TargetId) return i;
+			}
+	
+	return -1;
+}
+
+
+
+function setPlayerHWID(int PlayerIndex, string HWID){
+
+	local int PlayerId;
+
+	if(nPlayers[PlayerIndex].HWID == "" && HWID != ""){
+	
+		nPlayers[PlayerIndex].HWID = HWID;	
+		PlayerId = nPlayers[PlayerIndex].id; 	
+		printLog("nstats" $Chr(9)$ "HWID" $Chr(9) $ PlayerId $Chr(9)$ HWID);	
+		return;
+	}
+	
+}
+
+
+function checkPlayerHWID(int TargetPlayerIndex){
+	
+	local Actor ACEActor;
+	local string HWID;
+	local int PlayerId;
+	//local int TargetPlayerIndex;	
+	local nPlayer TargetPlayer;
+	
+	
+	//TargetPlayerIndex = getPlayerIndexById(PlayerId);
+	
+	if(TargetPlayerIndex == -1) return;
+	
+	TargetPlayer = nPlayers[TargetPlayerIndex];
+	
+	if(TargetPlayer.bBot) return;
+	//HWID already set
+	if(TargetPlayer.HWID != "") return;
+	
+	
+	foreach AllActors(class'Actor', ACEActor){
+	
+		if(ACEActor.IsA('IACECheck')){
+		
+			PlayerId = int(ACEActor.GetPropertyText("PlayerId"));
+			
+			if(TargetPlayer.id == PlayerId){
+				
+				HWID = ACEActor.GetPropertyText("HWHash");
+				
+				setPlayerHWID(TargetPlayerIndex, HWID);
+				return;
+			}
+		}
+	}
+}
+
+
+function backupCheckPlayerHWID(){
+
+	local int i;
+	local nPlayer currentPlayer;
+	
+	if(!bLogACEPlayerHWID) return;
+	
+	for(i = 0; i < 64; i++){
+	
+		currentPlayer = nPlayers[i];
+		
+		if(currentPlayer.id == -1) return;
+		if(currentPlayer.bBot) continue;
+		if(currentPlayer.HWID != "") continue;
+		checkPlayerHWID(i);	
+	}
+}
+
 
 function Timer(){
 	
 	LogPlayerScores();
-	
+	backupCheckPlayerHWID();
 }
 
 function PostBeginPlay(){
@@ -347,7 +447,7 @@ function PostBeginPlay(){
 		nPlayers[i].lastSpawnTime = -1;
 	}
 	
-	setTimer(15.0, True);
+	setTimer(10.0, True);
 		
 }
 
@@ -543,7 +643,11 @@ function ModifyPlayer(Pawn Other){
 		}	
 	
 		if(currentPID != -1){
+		
 			updateSpawnInfo(currentPID);
+			
+			if(bLogACEPlayerHWID && !Other.PlayerReplicationInfo.bIsABot){
+				checkPlayerHWID(currentPID);			}
 		}
 	}
 
@@ -583,376 +687,54 @@ function bool PreventDeath(Pawn Killed, Pawn Killer, name damageType, vector Hit
 
 defaultproperties
 {
-      bLogSpawnPoints=True
-      bLogWeaponLocations=True
-      bLogAmmoLocations=True
-      bLogHealthLocations=True
-      bLogPickupLocations=True
-      bLogFlagLocations=True
-      bLogDomLocations=True
-      bLogKillDistances=True
-      bLogFlagKills=True
-      bLogMonsterKills=True
-      Faces(0)="soldierskins.hkil5vector"
-      Faces(1)="soldierskins.blkt5malcom"
-      Faces(2)="commandoskins.goth5grail"
-      Faces(3)="soldierskins.sldr5johnson"
-      Faces(4)="fcommandoskins.daco5jayce"
-      Faces(5)="fcommandoskins.goth5visse"
-      Faces(6)="commandoskins.daco5graves"
-      Faces(7)="sgirlskins.venm5sarena"
-      Faces(8)="soldierskins.raws5kregore"
-      Faces(9)="sgirlskins.army5sara"
-      Faces(10)="sgirlskins.garf5vixen"
-      Faces(11)="commandoskins.daco5boris"
-      Faces(12)="commandoskins.daco5luthor"
-      Faces(13)="commandoskins.cmdo5blake"
-      Faces(14)="commandoskins.daco5ramirez"
-      Faces(15)="fcommandoskins.daco5kyla"
-      Faces(16)="soldierskins.sldr5brock"
-      Faces(17)="commandoskins.goth5kragoth"
-      Faces(18)="sgirlskins.venm5cilia"
-      Faces(19)="fcommandoskins.goth5freylis"
-      Faces(20)="sgirlskins.garf5isis"
-      Faces(21)="fcommandoskins.daco5tanya"
-      Faces(22)="sgirlskins.army5lauren"
-      Faces(23)="soldierskins.blkt5riker"
-      Faces(24)="soldierskins.sldr5rankin"
-      Faces(25)="soldierskins.blkt5othello"
-      Faces(26)="fcommandoskins.goth5cryss"
-      Faces(27)="fcommandoskins.daco5mariana"
-      Faces(28)="soldierskins.raws5arkon"
-      Faces(29)="commandoskins.cmdo5gorn"
-      Faces(30)="fcommandoskins.goth5malise"
-      Faces(31)="sgirlskins.fbth5annaka"
-      Faces(32)="tcowmeshskins.warcowface"
-      Faces(33)="bossskins.boss5xan"
-      Faces(34)="sgirlskins.fwar5cathode"
-      Faces(35)="soldierskins.hkil5matrix"
-      Faces(36)="tskmskins.meks5disconnect"
-      Faces(37)="fcommandoskins.aphe5indina"
-      Faces(38)="soldierskins.hkil5tensor"
-      nPlayers(0)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(1)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(2)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(3)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(4)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(5)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(6)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(7)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(8)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(9)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(10)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(11)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(12)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(13)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(14)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(15)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(16)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(17)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(18)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(19)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(20)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(21)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(22)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(23)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(24)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(25)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(26)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(27)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(28)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(29)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(30)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(31)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(32)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(33)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(34)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(35)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(36)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(37)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(38)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(39)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(40)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(41)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(42)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(43)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(44)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(45)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(46)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(47)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(48)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(49)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(50)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(51)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(52)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(53)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(54)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(55)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(56)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(57)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(58)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(59)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(60)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(61)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(62)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nPlayers(63)=(P=None,Pawn=None,spawns=0,lastSpawnTime=0.000000,Id=0,monsterKills=0,previousScore=0,headshots=0)
-      nFlags(0)=(X=0.000000,Y=0.000000,Z=0.000000,Team=0)
-      nFlags(1)=(X=0.000000,Y=0.000000,Z=0.000000,Team=0)
-      nFlags(2)=(X=0.000000,Y=0.000000,Z=0.000000,Team=0)
-      nFlags(3)=(X=0.000000,Y=0.000000,Z=0.000000,Team=0)
-      nSpawns(0)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(1)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(2)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(3)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(4)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(5)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(6)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(7)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(8)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(9)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(10)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(11)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(12)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(13)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(14)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(15)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(16)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(17)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(18)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(19)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(20)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(21)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(22)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(23)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(24)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(25)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(26)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(27)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(28)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(29)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(30)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(31)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(32)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(33)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(34)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(35)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(36)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(37)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(38)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(39)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(40)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(41)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(42)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(43)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(44)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(45)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(46)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(47)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(48)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(49)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(50)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(51)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(52)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(53)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(54)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(55)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(56)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(57)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(58)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(59)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(60)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(61)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(62)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(63)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(64)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(65)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(66)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(67)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(68)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(69)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(70)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(71)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(72)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(73)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(74)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(75)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(76)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(77)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(78)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(79)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(80)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(81)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(82)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(83)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(84)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(85)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(86)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(87)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(88)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(89)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(90)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(91)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(92)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(93)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(94)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(95)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(96)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(97)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(98)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(99)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(100)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(101)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(102)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(103)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(104)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(105)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(106)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(107)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(108)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(109)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(110)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(111)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(112)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(113)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(114)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(115)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(116)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(117)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(118)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(119)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(120)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(121)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(122)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(123)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(124)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(125)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(126)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(127)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(128)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(129)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(130)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(131)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(132)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(133)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(134)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(135)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(136)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(137)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(138)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(139)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(140)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(141)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(142)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(143)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(144)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(145)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(146)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(147)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(148)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(149)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(150)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(151)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(152)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(153)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(154)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(155)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(156)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(157)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(158)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(159)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(160)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(161)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(162)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(163)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(164)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(165)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(166)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(167)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(168)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(169)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(170)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(171)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(172)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(173)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(174)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(175)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(176)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(177)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(178)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(179)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(180)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(181)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(182)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(183)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(184)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(185)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(186)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(187)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(188)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(189)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(190)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(191)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(192)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(193)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(194)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(195)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(196)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(197)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(198)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(199)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(200)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(201)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(202)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(203)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(204)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(205)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(206)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(207)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(208)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(209)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(210)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(211)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(212)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(213)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(214)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(215)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(216)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(217)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(218)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(219)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(220)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(221)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(222)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(223)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(224)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(225)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(226)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(227)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(228)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(229)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(230)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(231)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(232)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(233)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(234)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(235)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(236)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(237)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(238)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(239)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(240)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(241)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(242)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(243)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(244)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(245)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(246)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(247)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(248)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(249)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(250)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(251)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(252)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(253)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
-      nSpawns(254)=(X=0.000000,Y=0.000000,Z=0.000000,bUsed=False)
+	bLogSpawnPoints=True
+	bLogWeaponLocations=True
+	bLogAmmoLocations=True
+	bLogHealthLocations=True
+	bLogPickupLocations=True
+	bLogFlagLocations=True
+	bLogDomLocations=True
+	bLogKillDistances=True
+	bLogFlagKills=True
+	bLogMonsterKills=True
+	bLogACEPlayerHWID=True
+	Faces(0)="soldierskins.hkil5vector"
+	Faces(1)="soldierskins.blkt5malcom"
+	Faces(2)="commandoskins.goth5grail"
+	Faces(3)="soldierskins.sldr5johnson"
+	Faces(4)="fcommandoskins.daco5jayce"
+	Faces(5)="fcommandoskins.goth5visse"
+	Faces(6)="commandoskins.daco5graves"
+	Faces(7)="sgirlskins.venm5sarena"
+	Faces(8)="soldierskins.raws5kregore"
+	Faces(9)="sgirlskins.army5sara"
+	Faces(10)="sgirlskins.garf5vixen"
+	Faces(11)="commandoskins.daco5boris"
+	Faces(12)="commandoskins.daco5luthor"
+	Faces(13)="commandoskins.cmdo5blake"
+	Faces(14)="commandoskins.daco5ramirez"
+	Faces(15)="fcommandoskins.daco5kyla"
+	Faces(16)="soldierskins.sldr5brock"
+	Faces(17)="commandoskins.goth5kragoth"
+	Faces(18)="sgirlskins.venm5cilia"
+	Faces(19)="fcommandoskins.goth5freylis"
+	Faces(20)="sgirlskins.garf5isis"
+	Faces(21)="fcommandoskins.daco5tanya"
+	Faces(22)="sgirlskins.army5lauren"
+	Faces(23)="soldierskins.blkt5riker"
+	Faces(24)="soldierskins.sldr5rankin"
+	Faces(25)="soldierskins.blkt5othello"
+	Faces(26)="fcommandoskins.goth5cryss"
+	Faces(27)="fcommandoskins.daco5mariana"
+	Faces(28)="soldierskins.raws5arkon"
+	Faces(29)="commandoskins.cmdo5gorn"
+	Faces(30)="fcommandoskins.goth5malise"
+	Faces(31)="sgirlskins.fbth5annaka"
+	Faces(32)="tcowmeshskins.warcowface"
+	Faces(33)="bossskins.boss5xan"
+	Faces(34)="sgirlskins.fwar5cathode"
+	Faces(35)="soldierskins.hkil5matrix"
+	Faces(36)="tskmskins.meks5disconnect"
+	Faces(37)="fcommandoskins.aphe5indina"
+	Faces(38)="soldierskins.hkil5tensor"
 }

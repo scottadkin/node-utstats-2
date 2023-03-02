@@ -125,18 +125,18 @@ class CombogibManager{
         const timestamp = parseFloat(result[1]);
         const killerId = parseInt(result[2]);
 
-        const player = this.playerManager.getOriginalConnectionMasterId(killerId);
+        const player = this.playerManager.getPlayerById(killerId);
 
-        this.insaneComboEvents.push({"timestamp": timestamp, "killer": player});
+        this.insaneComboEvents.push({"timestamp": timestamp, "killer": player.masterId});
 
-        const matchingComboEvent = this.getComboEvent(timestamp, player);
+        const matchingComboEvent = this.getComboEvent(timestamp, player.masterId);
 
         if(matchingComboEvent !== null){
 
             const killer = this.getPlayerStats(matchingComboEvent.killer);
             const victim = this.getPlayerStats(matchingComboEvent.victim);
 
-            const totalKillsWithSingle = this.getTotalInsaneComboKillsWithTimestamp(timestamp, player);
+            const totalKillsWithSingle = this.getTotalInsaneComboKillsWithTimestamp(timestamp, player.masterId);
 
             if(killer.singleInsaneCombo < totalKillsWithSingle){
                 killer.singleInsaneCombo = totalKillsWithSingle;
@@ -147,7 +147,8 @@ class CombogibManager{
             victim.deaths.insane++;
 
         }else{
-            new Message(`matchingComboEvent is null`,"warn");
+
+            new Message(`matchingComboEvent is null`,"warning");
         }
    
     }
@@ -185,11 +186,11 @@ class CombogibManager{
         const killerMatchId = parseInt(result[2]);
         const victimMatchId = parseInt(result[3]);
 
-        const killerId = this.playerManager.getOriginalConnectionMasterId(killerMatchId);
-        const victimId = this.playerManager.getOriginalConnectionMasterId(victimMatchId);
+        const killerInfo = this.playerManager.getPlayerById(killerMatchId);
+        const victimInfo = this.playerManager.getPlayerById(victimMatchId);
 
-        const killer = this.getPlayerStats(killerId);
-        const victim = this.getPlayerStats(victimId);
+        const killer = this.getPlayerStats(killerInfo.masterId);
+        const victim = this.getPlayerStats(victimInfo.masterId);
 
         killer.kills.combo++;
         victim.deaths.combo++;
@@ -197,8 +198,8 @@ class CombogibManager{
 
         this.comboEvents.push({
             "timestamp": timestamp,
-            "killer": killerId,
-            "victim": victimId,
+            "killer": killerInfo.masterId,
+            "victim": victimInfo.masterId,
         });
 
     }
@@ -443,10 +444,11 @@ class CombogibManager{
 
             if(deathType !== "shockball" && deathType !== "jolted" && deathType !== "combo" && deathType !== "shockcombo") continue;
 
+
             const currentKill = {
                 "timestamp": k.timestamp,
-                "player": this.playerManager.getOriginalConnectionMasterId(k.killerId),
-                "victim": this.playerManager.getOriginalConnectionMasterId(k.victimId)
+                "player": k.killerId,
+                "victim": k.victimId
             };
 
             if(deathType === "shockball"){
@@ -814,6 +816,8 @@ class CombogibManager{
                 throw new Error("This.detailedStats is undefined");
             }
 
+            //console.log(this.detailedStats);
+
             for(const [key,value] of Object.entries(this.detailedStats)){
 
                 if(this.playerManager.bPlayerBot(key) && this.bIgnoreBots){
@@ -821,6 +825,7 @@ class CombogibManager{
                 }
 
                 const {combos, insane, shockBalls, primary, playtime} = value;
+
                 await this.combogib.insertPlayerMatchData(key, this.gametypeId, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
 
                 await this.combogib.updatePlayerTotals(key, this.gametypeId, this.mapId, this.matchId, playtime, combos, insane, shockBalls, primary);

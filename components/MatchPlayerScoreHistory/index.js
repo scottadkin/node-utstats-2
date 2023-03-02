@@ -1,66 +1,63 @@
-import React from 'react';
+import {React, useState, useEffect} from 'react';
 import Graph from '../Graph';
+import Loading from '../Loading';
+import ErrorMessage from '../ErrorMessage';
 
-class MatchPlayerScoreHistory extends React.Component{
 
-    constructor(props){
+const MatchPlayerScoreHistory = ({matchId, players}) =>{
 
-        super(props);
+    const [bLoading, setbLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [graphData, setGraphData] = useState([]);
 
-        this.state = {"data": [], "finishedLoading": false};
-    }
+    useEffect(() =>{
 
-    async loadData(){
+        const controller = new AbortController();
 
-        try{
+        const loadData = async () =>{
 
-            const req = await fetch("/api/match", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "scorehistory", "matchId": this.props.matchId, "players": this.props.players})
-            });
+            try{
+                const req = await fetch("/api/match", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "scorehistory", "matchId": matchId, "players": players})
+                });
 
-            const res = await req.json();
+                const res = await req.json();
 
-            if(res.error === undefined){
-                this.setState({"data": res.data, "finishedLoading": true});
-            }else{
+                if(res.error !== undefined){
+                    setError(res.error);
+                }else{
+                    setGraphData(res.data);
+                }
 
-                throw new Error(res.error);
+                setbLoading(false);
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    setError(err.toString())
+                    console.trace(err);
+                } 
             }
-            
-        }catch(err){
-            console.trace(err);
-        }   
-    }
 
-    async componentDidMount(){
+        }
 
-        await this.loadData();
+        loadData();
 
-    }
+        return () =>{
+            controller.abort();
+        }
+    }, [matchId, players]);
 
-    render(){
+    if(bLoading) return <Loading />;
+    if(error !== null) return <ErrorMessage title="Player Score Graph" text={error}/>
 
-        if(!this.state.finishedLoading) return null;
-
-        const data = [...this.state.data];
-
-        data.sort((a, b) =>{
-
-            a = a.name;
-            b = b.name;
-
-            if(a < b) return -1;
-            if(b > a) return 1;
-            return 0;
-        });
-
-        return <div>
-            <div className="default-header">Player Score History</div>
-            <Graph title="Score History" data={JSON.stringify(data)}/>
-        </div>
-    }
+    return <div>
+        <div className="default-header">Player Score Graph</div>
+        <Graph title="Score History" data={graphData}/>
+    </div>
 }
 
 export default MatchPlayerScoreHistory;

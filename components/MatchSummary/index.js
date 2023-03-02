@@ -13,8 +13,6 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
         </div>);
     }
 
-    info = JSON.parse(info);
-
     if(info.email === '') info.email = 'Not specified';
 
     let mutatorsElem = null;
@@ -45,7 +43,7 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
         <div className={`${styles.wrapper} center`}>
             <div className={styles.map}>
 
-                <MatchResult teamGame={info.team_game} dmWinner={info.dm_winner} dmScore={info.dm_score} totalTeams={info.total_teams}
+                <MatchResult teamGame={info.team_game} dmWinner={info.dmWinner} dmScore={info.dm_score} totalTeams={info.total_teams}
                 redScore={Math.floor(info.team_score_0)} blueScore={Math.floor(info.team_score_1)} greenScore={Math.floor(info.team_score_2)} 
                 yellowScore={Math.floor(info.team_score_3)} bMonsterHunt={bMonsterHunt} endReason={info.end_type}/>
                 <span className="white">{gametype}</span> {(info.insta) ? '(Instagib)' : ''} on <span className="white">{map}</span><br/>

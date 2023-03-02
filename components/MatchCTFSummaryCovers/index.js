@@ -1,140 +1,188 @@
-import TipHeader from '../TipHeader/';
+import React from 'react';
 import Functions from '../../api/functions';
-import CountryFlag from '../CountryFlag/';
+import InteractiveTable from '../InteractiveTable';
 import Link from 'next/link';
-import Table2 from '../Table2';
-
-const bAnyData = (player) =>{
-
-    const types = [
-        "flag_cover",
-        "flag_cover_fail",
-        "flag_multi_cover",
-        "flag_spree_cover",
-        "flag_cover_best",
-        "flag_self_cover",
-        "flag_self_cover_pass",
-        "flag_self_cover_fail"
-    ];
+import CountryFlag from '../CountryFlag';
 
 
-    for(let i = 0; i < types.length; i++){
+class MatchCTFSummaryCovers extends React.Component{
 
-        if(player[types[i]] !== 0)  return true;
+    constructor(props){
+
+        super(props);
+
     }
 
-    return false;
-}
+    renderTeam(teamId){
 
-const MatchCTFSummaryCovers = ({host, players, team, matchId}) =>{
+        const headers = {
+            "player": "Player",
+            "flag_cover": {
+                "title": "Cover", 
+                "detailedTitle": "Flag Cover", 
+                "content": "Player killed an enemy close to their flag carrier."
+            },
+            "flag_cover_pass": {
+                "title": "Cover Pass", 
+                "detailedTitle": "Flag Cover Pass", 
+                "content": "Player killed an enemy close to their flag carrier, where the team later capped the flag."
+            },
+            "flag_cover_fail": {
+                "title": "Cover Fail", 
+                "detailedTitle": "Flag Cover Fail", 
+                "content": "Player killed an enemy close to their flag carrier, where the enemy team returned the flag."
+            },
+            "flag_cover_multi": {
+                "title": "Multi Cover", 
+                "detailedTitle": "Multi Flag Cover", 
+                "content": "Player covered the flag carrier 3 times in a single cap."
+            },
+            "flag_cover_spree": {
+                "title": "Cover Spree", 
+                "detailedTitle": "Flag Cover Spree", 
+                "content": "Player covered the flag carrier at least 4 times in a single cap."
+            },
+            "best_single_cover": {
+                "title": "Best Cover", 
+                "detailedTitle": "Best Flag Cover", 
+                "content": "The most covers the player got in a single cap."
+            },
+            "flag_self_cover": {
+                "title": "Self Cover", 
+                "detailedTitle": "Flag Self Cover", 
+                "content": "The player killed an enemy while carrying the flag."
+            },
+            "flag_self_cover_pass": {
+                "title": "Self Cover Pass", 
+                "detailedTitle": "Flag Self Cover Pass", 
+                "content": "The player killed an enemy while carrying the flag, and the team capped the flag."
+            },
+            "flag_self_cover_fail": {
+                "title": "Self Cover Fail", 
+                "detailedTitle": "Flag Self Cover Fail", 
+                "content": "The player killed an enemy while carrying the flag, but the flag was returned."
+            },
+        };
 
+        const data = [];
 
-    const elems = [];
-    let p = 0;
-    let coverEff = 0;
+        const totalKeys = [
+            "flag_cover",
+            "flag_cover_pass",
+            "flag_cover_fail",
+            "flag_cover_multi",
+            "flag_cover_spree",
+            "flag_self_cover",
+            "flag_self_cover_pass",
+            "flag_self_cover_fail",
+        ];
 
-    const totals = {
-        "cover": 0,
-        "coverPass": 0,
-        "coverFail": 0,
-        "multiCover": 0,
-        "spreeCover": 0,
-        "coverBest": 0,
-        "selfCover": 0,
-        "selfCoverPass": 0,
-        "selfCoverFail": 0,
-    };
+        const totals = {
+            "best_single_cover":  0,
+        };
 
-    for(let i = 0; i < players.length; i++){
+        for(let i = 0; i < this.props.playerData.length; i++){
 
-        p = players[i];
+            const p = this.props.playerData[i];
 
-        if(!bAnyData(p)) continue;
+            if(p.team !== teamId) continue;
 
-        if(p.flag_cover_pass != 0){
+            const ctf = p.ctfData;
 
-            if(p.flag_cover_fail === 0){
-                coverEff = 100;
-            }else{
-                coverEff = ((p.flag_cover_pass / p.flag_cover) * 100).toFixed(2);
+            const playerElem = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}>
+                <a>
+                    <CountryFlag country={p.country}/>
+                    {p.name}
+                </a>
+            </Link>;
+
+            for(let k = 0; k < totalKeys.length; k++){
+
+                if(totals[totalKeys[k]] === undefined){
+                    totals[totalKeys[k]] = 0;
+                }
+
+                totals[totalKeys[k]] += ctf[totalKeys[k]];
             }
-        }else{
-            coverEff = 0;
+
+            if(ctf.best_single_cover > totals.best_single_cover){
+                totals.best_single_cover = ctf.best_single_cover;
+            }
+          
+
+            let bestCoverString = "";
+
+            if(ctf.best_single_cover > 0){
+                bestCoverString = `${ctf.best_single_cover} ${Functions.plural(ctf.best_single_cover, "Kill")}`;
+            }
+
+            data.push({
+                "player": {
+                    "value": p.name.toLowerCase(), 
+                    "displayValue": playerElem,
+                    "className": `player ${Functions.getTeamColor(p.team)}`
+                },
+                "flag_cover":  {"value": ctf.flag_cover , "displayValue": Functions.ignore0(ctf.flag_cover)},
+                "flag_cover_pass":  {"value": ctf.flag_cover_pass , "displayValue": Functions.ignore0(ctf.flag_cover_pass)},
+                "flag_cover_fail":  {"value": ctf.flag_cover_fail , "displayValue": Functions.ignore0(ctf.flag_cover_fail)},
+                "flag_cover_multi":  {"value": ctf.flag_cover_multi , "displayValue": Functions.ignore0(ctf.flag_cover_multi)},
+                "flag_cover_spree":  {"value": ctf.flag_cover_spree , "displayValue": Functions.ignore0(ctf.flag_cover_spree)},
+                "best_single_cover":  {"value": ctf.best_single_cover , "displayValue": bestCoverString},
+                "flag_self_cover":  {"value": ctf.flag_self_cover , "displayValue": Functions.ignore0(ctf.flag_self_cover)},
+                "flag_self_cover_pass":  {"value": ctf.flag_self_cover_pass , "displayValue": Functions.ignore0(ctf.flag_self_cover_pass)},
+                "flag_self_cover_fail":  {"value": ctf.flag_self_cover_fail , "displayValue": Functions.ignore0(ctf.flag_self_cover_fail)},
+
+            });
         }
 
+        if(data.length === 0) return null;
 
-        totals.cover += p.flag_cover;
-        totals.coverPass += p.flag_cover_pass;
-        totals.coverFail += p.flag_cover_fail;
-        totals.multiCover += p.flag_multi_cover;
-        totals.spreeCover += p.flag_spree_cover;
-        totals.selfCover += p.flag_self_cover;
-        totals.selfCoverPass += p.flag_self_cover_pass;
-        totals.selfCoverFail += p.flag_self_cover_fail;
+        if(!this.props.single){
+            data.push({
+                "bAlwaysLast": true,
+                "player": {
+                    "value": "Totals", 
+                },
+                "flag_cover":  {"value": Functions.ignore0(totals.flag_cover) },
+                "flag_cover_pass":  {"value": Functions.ignore0(totals.flag_cover_pass) },
+                "flag_cover_fail":  {"value": Functions.ignore0(totals.flag_cover_fail) },
+                "flag_cover_multi":  {"value": Functions.ignore0(totals.flag_cover_multi) },
+                "flag_cover_spree":  {"value": Functions.ignore0(totals.flag_cover_spree)},
+                "best_single_cover":  {"value": `${totals.best_single_cover} ${Functions.plural(totals.best_single_cover, "Kill")}`},
+                "flag_self_cover":  {"value": Functions.ignore0(totals.flag_self_cover)},
+                "flag_self_cover_pass":  {"value": Functions.ignore0(totals.flag_self_cover_pass)},
+                "flag_self_cover_fail":  {"value": Functions.ignore0(totals.flag_self_cover_fail)},
 
-        if(p.flag_cover_best > totals.coverBest) totals.coverBest = p.flag_cover_best
+            });
+        }
 
-        elems.push(<tr key={i}>
-            <td className={`text-left name-td ${Functions.getTeamColor(team)}`}>
-                <CountryFlag host={host} country={p.country} /><Link href={`/pmatch/${matchId}?player=${p.player_id}`}><a>{p.name}</a></Link></td>
-            <td>{Functions.ignore0(p.flag_cover)}</td>
-            <td>{Functions.ignore0(p.flag_cover_pass)}</td>
-            <td>{Functions.ignore0(p.flag_cover_fail)}</td>
-            <td>{coverEff}%</td>
-            <td>{Functions.ignore0(p.flag_multi_cover)}</td>
-            <td>{Functions.ignore0(p.flag_spree_cover)}</td>
-            <td>{Functions.ignore0(p.flag_cover_best)}</td>
-            <td>{Functions.ignore0(p.flag_self_cover)}</td>
-            <td>{Functions.ignore0(p.flag_self_cover_pass)}</td>
-            <td>{Functions.ignore0(p.flag_self_cover_fail)}</td>
-        </tr>);
+        return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
     }
 
 
-    coverEff = 0;
+    render(){
 
-    if(totals.coverPass !== 0){
 
-        if(totals.coverFail === 0){
-            coverEff = 100;
-        }else{
-            coverEff = ((totals.coverPass / totals.cover) * 100).toFixed(2);
+        const tables = [];
+
+        let bAnyData = false;
+
+        for(let i = 0; i < 4; i++){
+
+            const table = this.renderTeam(i)
+
+            if(table !== null) bAnyData = true;
+
+            tables.push(table);
         }
+
+        if(!bAnyData) return null;
+
+        return <div>
+            {tables}
+        </div>
     }
-
-    if(elems.length === 0) return <div></div>
-
-    elems.push(<tr key="total">
-            <td className="text-left">Totals</td>
-            <td>{Functions.ignore0(totals.cover)}</td>
-            <td>{Functions.ignore0(totals.coverPass)}</td>
-            <td>{Functions.ignore0(totals.coverFail)}</td>
-            <td>{coverEff}%</td>
-            <td>{Functions.ignore0(totals.multiCover)}</td>
-            <td>{Functions.ignore0(totals.spreeCover)}</td>
-            <td>{Functions.ignore0(totals.coverBest)}</td>
-            <td>{Functions.ignore0(totals.selfCover)}</td>
-            <td>{Functions.ignore0(totals.selfCoverPass)}</td>
-            <td>{Functions.ignore0(totals.selfCoverFail)}</td>
-        </tr>);
-
-
-    return <Table2 width={1} players={true}>
-                <tr>
-                <th>Player</th>
-                <TipHeader title="Cover" content="Player killed an enemy close to their flag carrier."/>
-                <TipHeader title="Cover Pass" content="Player killed an enemy close to their flag carrier, where the team later capped the flag."/>
-                <TipHeader title="Cover Fail" content="Player killed an enemy close to their flag carrier, where the enemy team returned the flag."/>
-                <TipHeader title="Cover Efficiency" content="The efficiency of the player's covers."/>
-                <TipHeader title="Multi Cover" content="Player covered 3 people while their team had the enemy flag."/>
-                <TipHeader title="Cover Spree" content="Player covered 4 or more people while their team had the enemy flag."/>
-                <TipHeader title="Best Covers" content="The most people the player covered while their team had the enemy flag."/>
-                <TipHeader title="Self Covers" content="How many people the player killed while carrying the flag."/>
-                <TipHeader title="Self Covers Pass" content="How many people the player killed while carrying the flag, where the team capped the flag."/>
-                <TipHeader title="Self Covers Fail" content="How many people the player killed while carrying the flag, where the enemy team returned the flag."/>
-            </tr>
-        {elems}
-    </Table2>
 }
 
 export default MatchCTFSummaryCovers;
+

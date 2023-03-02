@@ -1,1088 +1,1164 @@
-const Message = require('../message');
-const CTF = require('../ctf');
+const CTF = require("../ctf");
+const Message = require("../message");
+const CTFFlag = require("./ctfflag");
 
 class CTFManager{
 
     constructor(){
 
-        this.data = [];
-
-        this.events = [];
-        this.capData = [];
-        this.flagLines = [];
         this.bHaveNStatsData = false;
 
-        this.carryTimeFrames = []; 
-
-        this.currentFlagHolders = [null, null, null, null];
-
-        this.ctf4Data = {};
+        this.lines = [];
 
         this.flagKills = [];
+        this.flagReturns = [];
+        this.flagTaken = [];
+
+        this.flagDrops = [];
+
+        this.flagDropLocations = [];
+        this.flagReturnLocations = [];
+        this.smartCTFReturnInfo = [];
+
+        this.flags = [];
+
+        this.returnTypes = [
+            "flag_returned", 
+            "flag_return_mid",
+            "flag_return_base",
+            "flag_return_enemybase",
+            "flag_return_closesave",
+            "flag_returned_timeout"
+        ];
 
         this.ctf = new CTF();
     }
 
-    bHasData(){
-        return this.data.length !== 0;
+
+    createFlags(){
+
+        for(let i = 0; i < this.totalTeams; i++){
+
+            this.flags.push(new CTFFlag(
+                this.ctf, 
+                this.playerManager, 
+                this.killManager, 
+                this.matchId, 
+                this.matchDate, 
+                this.mapId, 
+                i,
+                this.totalTeams
+            ));
+        }   
+    }
+
+    getLineTimestamp(line){
+
+        const timestampReg = /^(\d+?\.\d+?)\t.+$/i;
+
+        const timestampResult = timestampReg.exec(line);
+
+        if(timestampResult === null){
+
+            new Message(`Timestamp regular expression failed.`,"error");
+            return null;
+        }
+
+        return parseFloat(timestampResult[1]);
+    }
+
+    getLineType(line){
+
+        const typeReg = /\d+?\.\d+?\t(.+?)\t.+/i;
+
+        const result = typeReg.exec(line);
+
+        if(result === null){
+
+            new Message(`Event type regular expression failed.`,"error");
+            return null;
+        }
+
+        return result[1];
     }
 
 
-    getLatestTimeframe(player, timestamp/*, flagTeam*/){
+    getLineNstatsType(line){
 
+        const reg = /\d+?\.\d+?\tnstats\t(.+?)\t.+/i;
 
-        for(let i = this.carryTimeFrames.length - 1; i >= 0; i--){
+        const result = reg.exec(line);
 
-            const c = this.carryTimeFrames[i];
+        if(result === null) return null;
 
-            if(c.start < timestamp && c.player === player && c.end === null /*&& c.flagTeam === flagTeam*/){
-                return c;
-            }
-        }
-
-        return null;
+        return result[1];
     }
 
-    resetCurrentFlags(playerId){
 
-        const affected = [];
+    getFlagsCarriedBy(playerId){
 
-        for(let i = 0; i < this.currentFlagHolders.length; i++){
+        const carrying = [];
 
-            const current = this.currentFlagHolders[i];
+        for(let i = 0; i < this.flags.length; i++){
 
-            if(current === playerId){
-                affected.push(i);
-                this.currentFlagHolders[i] = null;
+            const f = this.flags[i];
+
+            if(f.carriedBy === playerId){
+                carrying.push(f.team);
             }
         }
 
-        return affected;
-       // console.log(this.currentFlagHolders);
+        return carrying;
     }
-    
-    /*dropCurrentFlags(playerId){
 
-        for(let i = 0; i < this.currentFlagHolders.length; i++){
+    async createNstatsFlagKill(timestamp, data){
 
-            const current = this.currentFlagHolders[i];
+        const killerId = parseInt(data[1]);
+        const victimId = parseInt(data[2]);
 
-            if(current === playerId){
-                this.currentFlagHolders[i] = null;
-            }
-        }
+        const killDistance = parseFloat(data[3]);
+        const distanceToEnemyBase = parseFloat(data[4]);
+        const distanceToCap = parseFloat(data[5]);
 
-       //console.log(this.currentFlagHolders);
-    }*/
-
-    parseData(killManager, matchStartTimestamp){
-
-        const reg = /^(\d+?\.\d+?)\tflag_(.+?)\t(\d+?)(|\t(\d+?)|\t(\d+?)\t(\d+?))$/i;
-
-        const returnReg = /return/i;
-
-        this.killManager = killManager;
-
-        const testReg = /flag_kill/i;
-        const test2Reg = /nstats/i;
-        const test = [];
-        const test3Reg = /nstats\tflag_kill/i;
-        const test2 = [];
-
-        //361.87	nstats	flag_kill	0	11	6938.494141	450.293762	7157.908691
-        const backupReg = /^(\d+?\.\d+?)\tnstats\tflag_kill\t(\d+?)\t(\d+?)\t.+$/i;
-        const backupFlagKills = [];
-
-        for(let i = 0; i < this.data.length; i++){
-
-            const d = this.data[i];
-            const result = reg.exec(d);
-
-            if(testReg.test(d) && !test2Reg.test(d)){
-                test.push(d);
-            }
-
-            if(test3Reg.test(d)){
-                test2.push(d);
-            }
-
-            if(result !== null){
-                
-                const timestamp = parseFloat(result[1]);
-                let type = result[2].toLowerCase();
-                
-                const playerId = parseInt(result[3]);
-
-                if(type === "returned" || type === "return_closesave" || type === "taken" || type === "pickedup" ||
-                    type === "captured" || type === "assist" || type === "dropped"){
-                    
-                    if(type === "return_closesave"){
-                        type = "save";
-                    }
-
-                    if(type === "taken" || type === "pickedup"){
-
-                        this.currentFlagHolders[parseInt(result[5])] = playerId;
-
-                        this.carryTimeFrames.push(
-                            {
-                                "start": timestamp,
-                                "player": playerId,
-                                "bFail": true,
-                                "end": null,
-                                "flagTeam": parseInt(result[5])
-                            }
-                        );
-
-                    }else if(type === "captured" || type === "dropped"){
-
-                        const currentTimeFrame = this.getLatestTimeframe(playerId, timestamp, /*parseInt(result[5])*/);
-
-                        if(currentTimeFrame !== null){
-
-                            currentTimeFrame.end = timestamp;      
-                            if(type === "captured") currentTimeFrame.bFail = false;
-
-                        }else{
-                            new Message(`CTFManager.parseData() currentTimeframe is null`,'warning');
-                        }
+        const killer = this.playerManager.getPlayerById(killerId);
+        const victim = this.playerManager.getPlayerById(victimId);
 
 
-                        //if(type === "captured"){
+        //
 
-                        const affectedFlags = this.resetCurrentFlags(playerId);
+        if(killer !== null && victim !== null){
 
-                        
+            if(killer.masterId === victim.masterId){     
 
-                        if(type === "capture"){
+                //new Message("flag suicide", "note");
 
-                            for(let x = 0; x < affectedFlags.length; x++){
+                killer.stats.ctf.suicide++;
+                killer.setCTFNewValue("suicide", null);
 
-                                //dont cap the one that will be processed below twice
-                                if(x !== parseInt(result[5])){
-                        
-                                    this.events.push(
-                                        {
-                                            "timestamp": timestamp,
-                                            "type": type,
-                                            "playerId":playerId,
-                                            "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
-                                            "flagTeam": x,
-                                            "player": this.playerManager.getOriginalConnectionById(playerId)
-                                        }
-                                    );
-                                }
-                            }
-                        }              
-                    }
+                const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
 
-                   // if(type === "dropped"){
-                        this.events.push(
-                            {
-                                "timestamp": timestamp,
-                                "type": type,
-                                "playerId":playerId,
-                                "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
-                                "flagTeam": parseInt(result[5]),
-                                "player": this.playerManager.getOriginalConnectionById(playerId)
-                            }
-                        );
-                    //}
+                const flagsInPossession = this.getFlagsCarriedBy(killer.masterId);
+
+                for(let i = 0; i < flagsInPossession.length; i++){
+
+       
+                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "suicide", killerTeam);
                     
 
-                }else if(type === "cover"){
-
-                    //"flag_cover", KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team 
-                   // console.log(result);
-
-                    this.events.push(
-                        {
-                            "timestamp": timestamp,
-                            "type": type,
-                            "playerId":playerId,
-                            "playerTeam": parseInt(result[7]),
-                            "player": this.playerManager.getOriginalConnectionById(playerId)
-                        }
+                    await this.flags[flagsInPossession[i]].killed(
+                        timestamp, 
+                        killer.masterId, 
+                        killerTeam, 
+                        -1, 
+                        killerTeam, 
+                        0, 
+                        distanceToCap, 
+                        distanceToEnemyBase
                     );
+                }
+     
 
-                }else if(type === "kill"){
-
-                    //"flag_kill", KillerPRI.PlayerID
-                    if(!this.bHaveNStatsData){
-                        this.events.push(
-                            {
-                                "timestamp": timestamp,
-                                "type": type,
-                                "playerId": playerId,
-                                "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
-                                "player": this.playerManager.getOriginalConnectionById(playerId),
-                                "bSuicide": false
-                            }
-                        );
-                    }
-
-                }else if(type === "seal"){
-
-                   // console.log(result);
-
-                    //"flag_seal", KillerPRI.PlayerID, VictimPRI.PlayerID, KillerPRI.Team
-
-                    this.events.push({
-                        "timestamp": timestamp,
-                        "type": type,
-                        "playerId": playerId,
-                        "playerTeam": this.playerManager.getPlayerTeamAt(parseInt(result[3]), timestamp),
-                        //"team": parseInt(result[7]),
-                        "player": this.playerManager.getOriginalConnectionById(playerId)
-                    });
-                }     
             }else{
 
-                const result = backupReg.exec(d);
-                //console.log(result);
+                killer.stats.ctf.kill++;
 
-                if(result !== null){
+                const lastTimestamp = killer.getCTFNewLastTimestamp("kill");
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, killer.masterId, false)
 
-                    const timestamp = parseFloat(result[1]);
-                    const killerId = parseInt(result[2]);
-                    const victimId = parseInt(result[3]);
+                killer.setCTFNewValue("kill", timestamp, totalDeaths);
 
-                    if(timestamp <= matchStartTimestamp){
-                        new Message(`CTF event happened before match start. (Warmup mode)`,"note");
-                    }else{
+                //const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
 
-                        this.events.push(
-                            {
-                                "timestamp": timestamp,
-                                "type": "kill",
-                                "playerId": killerId,
-                                "playerTeam": this.playerManager.getPlayerTeamAt(killerId, timestamp),
-                                "player": this.playerManager.getOriginalConnectionById(killerId),
-                                "bSuicide": killerId === victimId
-                            }
-                        )
-                    }
+                //await this.flags[killerTeam].killed(timestamp, killer.masterId);
+
+                const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
+                const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
+
+                const flagsInPossession = this.getFlagsCarriedBy(victim.masterId);
+
+                for(let i = 0; i < flagsInPossession.length; i++){
+
+ 
+                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "kill", killerTeam);
+                    
+
+                    await this.flags[flagsInPossession[i]].killed(
+                        timestamp, 
+                        killer.masterId, 
+                        killerTeam, 
+                        victim.masterId, 
+                        victimTeam, 
+                        killDistance, 
+                        distanceToCap, 
+                        distanceToEnemyBase
+                    );
                 }
-                /*
-                this.events.push(
-                    {
-                        "timestamp": timestamp,
-                        "type": type,
-                        "playerId": playerId,
-                        "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
-                        "player": this.playerManager.getOriginalConnectionById(playerId)
-                    }
-                );*/
+            }
+        }
+    }
+
+
+    async createFlagKill(timestamp, line){
+
+        const smartCTFReg = /^\d+?\.\d+?\tflag_kill\t(\d+)$/i;
+        const nstatsCTFReg = /^\d+?\.\d+?\tnstats\tflag_kill\t(\d+?)\t(\d+?)\t(.+?)\t(.+?)\t(.+?)$/i;
+
+        //Work around a bug where sometimes the flag_kill is not saved to log by UTStats, so use nstats one instead.
+        if(!this.bHaveNStatsData){
+
+            if(smartCTFReg.test(line)){
+
+
+                const result = smartCTFReg.exec(line);          
+
+                const playerId = parseInt(result[1]);
+
+                const killer = this.playerManager.getPlayerById(playerId);
+
+                if(killer === null){
+                    new Message(`CreateFlagKill killer is null`,"error");
+                    return;
+                }
+
+                const lastTimestamp = killer.getCTFNewLastTimestamp("kill");
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, killer.masterId, false);
+                //await this.ctf.insertEvent(this.matchId, timestamp, killerId, "kill", this.team));
+                killer.setCTFNewValue("kill", timestamp, totalDeaths);
+
+
+                const killInfo = this.killManager.getMatchingKillNoVictim(timestamp, killer.masterId);
+
+
+                if(killInfo === null){
+                    new Message(`CTFManager.createFlagKIll() killInfo is null.`,"warning");
+                    return;
+                }
+
+                const victim = this.playerManager.getPlayerByMasterId(killInfo.victimId);
+
+                if(victim === null){
+                    new Message(`CreateFlagKill victim is null`,"error");
+                    return;
+                }
+
+                //console.log(killInfo);
+
+                const killerTeam = this.playerManager.getPlayerTeamAt(killer.masterId, timestamp);
+                const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
+
+                const droppedFlags = this.getDroppedFlags(timestamp, killInfo.victimId);
+         
+                if(droppedFlags.length === 0){
+                    new Message(`CTFManager.createFlagKill() droppedFlags.length is 0`,"warning");
+                }
+
+                for(let i = 0; i < droppedFlags.length; i++){
+
+                    const d = droppedFlags[i];
+
+                    //await this.ctf.insertEvent(this.matchId, d.timestamp, killer.masterId, "kill", killerTeam);
+
+           
+                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "kill",  d.flagTeam);
+                    
+
+                    await this.flags[d.flagTeam].killed(
+                        timestamp, 
+                        killer.masterId, 
+                        killerTeam, 
+                        victim.masterId, 
+                        victimTeam, 
+                        -1,//killDistance, 
+                        -1, 
+                        -1
+                    );
+                }
             }
         }
 
-        const locationReg = /^\d+?\.\d+?\tnstats\tflag_location\t(.+?)\t(.+?)\t(.+?)\t(.+)$/i;
+        if(nstatsCTFReg.test(line)){
 
-        this.flagLocations = [];
+            const result = nstatsCTFReg.exec(line);
 
-        for(let i = 0; i < this.flagLines.length; i++){
+            if(result !== null){
+                await this.createNstatsFlagKill(timestamp, result);
+            }
+        }  
+    }
 
-            const result = locationReg.exec(this.flagLines[i]);
+    async createFlagTaken(timestamp, line){
+
+        const reg = /^.+?\tflag_taken\t(\d+?)\t(\d+)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`Flag Taken regular expression failed`,"error");
+            return null;
+        }
+
+        const playerId = parseInt(result[1]);
+        const flagTeam = parseInt(result[2]);
+
+        const player = this.playerManager.getPlayerById(playerId);
+
+        if(player === null){
+            new Message(`createFlagTaken player is null.`,"error");
+            return;
+        }
+
+
+        const previousTimestamp = player.getCTFNewLastTimestamp("taken");
+        const totalDeaths = this.killManager.getDeathsBetween(previousTimestamp, timestamp, player.masterId);
+
+        player.setCTFNewValue("taken", timestamp, totalDeaths);
+
+        await this.flags[flagTeam].taken(timestamp, player.masterId);
+
+    }
+
+
+
+    async timedOutReturn(timestamp, timeoutResult){
+
+        const flagTeam = parseInt(timeoutResult[1]);
+
+        this.processFlagCovers(flagTeam, true);
+        this.processFlagSeals(flagTeam, true);
+
+        await this.flags[flagTeam].timedOutReturn(timestamp);
+
+    }
+
+    async createFlagReturned(timestamp, line){
+
+        const reg = /^.+?\tflag_(.+?)\t(\d+?)\t(\d+)$/i;
+
+        //57.86	flag_returned_timeout	1
+        const timeoutReg = /^.+?\tflag_returned_timeout\t(\d+)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+
+            const timeoutResult = timeoutReg.exec(line);
+
+            if(timeoutResult !== null){
+                await this.timedOutReturn(timestamp, timeoutResult);
+                return;
+            }
+
+            new Message(`createFlagReturned regular expressions failed.`, "warning");
+            return;
+        }
+
+        const type = result[1].toLowerCase();
+
+        const playerId = parseInt(result[2]);
+        const flagTeam = parseInt(result[3]);
+
+        const player = this.playerManager.getPlayerById(playerId);
+
+        if(player === null){
+            new Message(`createFlagReturned player is null`,"error");
+            return;
+        }
+
+        const lastEventTimestamp = player.getCTFNewLastTimestamp(type);
+        
+        const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
+
+        if(type === "returned"){
+            player.setCTFNewValue("return", timestamp, totalDeaths);
+            //dont want to process returns more than once as the other return_<type> are always logged at same time
+            this.processFlagCovers(flagTeam, true);
+            this.processFlagSeals(flagTeam, true);
+
+            const smartCTFInfo = this.getSmartCTFReturnString(timestamp, flagTeam);
+
+            await this.flags[flagTeam].returned(timestamp, player.masterId, smartCTFInfo);
+        }
+
+        if(type === "return_closesave"){
+            player.setCTFNewValue("returnSave", timestamp, totalDeaths);
+        }
+
+        if(type === "return_enemybase"){
+            player.setCTFNewValue("returnEnemyBase", timestamp, totalDeaths);
+        }
+
+        if(type === "return_mid"){
+            player.setCTFNewValue("returnMid", timestamp, totalDeaths);
+        }
+
+        if(type === "return_base"){
+            player.setCTFNewValue("returnBase", timestamp, totalDeaths);
+        }
+
+    }
+
+    async createFlagDropped(timestamp, line){
+
+        const reg = /^.+?\tflag_dropped\t(\d+?)\t(\d+)$/;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`createFlagDropped regular expression failed.`);
+            return;
+        }
+
+        const playerId = parseInt(result[1]);
+
+        const player = this.playerManager.getPlayerById(playerId);
+
+        if(player === null){
+            new Message(`createFlagDropped player is null`,"error");
+            return;
+        }
+
+        //await this.flags[flagTeam].dropped(timestamp);
+
+        //for 4 way CTF
+        await this.dropAllFlags(player, timestamp);
+
+    }
+
+    async createFlagCover(timestamp, line){
+
+        const reg = /^\d+?\.\d+?\tflag_cover\t(\d+?)\t(\d+?)\t(\d+)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`createFlagCover regular expression failed.`);
+            return;
+        }
+
+        const killerId = parseInt(result[1]);
+        const victimId = parseInt(result[2]);
+        const killerTeam = parseInt(result[3]);
+
+        const killer = this.playerManager.getPlayerById(killerId);
+
+        if(killer === null){
+            new Message(`createFlagCover killer is null`,"error");
+            return;
+        }
+
+        const victim = this.playerManager.getPlayerById(victimId);
+
+        if(victim === null){
+            new Message(`createFlagCover victim is null`,"error");
+            return;
+        }
+
+        const lastTimestamp = killer.getCTFNewLastTimestamp("cover");
+        const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, killer.masterId, false);
+
+        killer.setCTFNewValue("cover", timestamp, totalDeaths);
+
+        const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
+
+        if(this.flags[victimTeam] === undefined){
+            new Message(`CTFManager.createFlagCover() this.flags[${victimTeam}] is undefined`,"error");
+        }
+
+        await this.flags[victimTeam].cover(timestamp, killer.masterId, victim.masterId);
+
+    }
+
+    async createFlagPickedUp(timestamp, line){
+
+        const reg = /^\d+?\.\d+?\tflag_pickedup\t(\d+?)\t(\d+)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`createFlagPickedup regular expression failed.`);
+            return;
+        }
+
+        const playerId = parseInt(result[1]);
+        const flagTeam = parseInt(result[2]);
+
+
+        const holder = this.playerManager.getPlayerById(playerId);
+
+        if(holder === null){
+            new Message(`createFlagPickedUp flag holder is null`,"error");
+            return;
+        }
+
+        //holder.stats.ctf.pickup++;
+
+        const lastTimestamp = holder.getCTFNewLastTimestamp("pickup");
+        const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, holder.masterId);
+
+        holder.setCTFNewValue("pickup", timestamp, totalDeaths);
+
+        const holderTeam = this.playerManager.getPlayerTeamAt(holder.masterId, timestamp);
+
+        await this.flags[flagTeam].pickedUp(timestamp, holder.masterId, holderTeam);
+    }
+
+    async createFlagSeal(timestamp, line){
+
+        const reg = /^\d+?\.\d+?\tflag_seal\t(\d+?)\t(\d+?)\t(\d+)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`createFlagSeal regular expression failed.`);
+            return;
+        }
+
+        const killerId = parseInt(result[1]);
+        const victimId = parseInt(result[2]);
+        const killerTeam = parseInt(result[3]);
+
+        const killer = this.playerManager.getPlayerById(killerId);
+
+        if(killer === null){
+            new Message(`CreateFlagSeal killer is null`,"error");
+            return;
+        }
+
+        const victim = this.playerManager.getPlayerById(victimId);
+
+        if(victim === null){
+            new Message(`CreateFlagSeal victim is null`,"error");
+            return;
+        }
+
+        const lastEventTimestamp = killer.getCTFNewLastTimestamp("seal"); 
+        const totalDeaths = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, killer.masterId, false);
+
+        killer.setCTFNewValue("seal", timestamp, totalDeaths);
+
+        await this.flags[killerTeam].seal(timestamp, killer.masterId, victim.masterId);
+    }
+
+    //need because flag drops logs before flag kills(when no nstats are present)
+    getDroppedFlags(timestamp, droppedPlayerId){
+
+        const found = [];
+
+        for(let i = 0; i < this.flagDrops.length; i++){
+
+            const f = this.flagDrops[i];
+
+            if(f.timestamp < timestamp) continue;
+            if(f.timestamp > timestamp ) break;
+            
+            if(f.playerId === droppedPlayerId){
+                found.push(f);
+            }
+        }
+
+        return found;
+    }
+
+    async createFlagCaptured(timestamp, line){
+
+        const reg = /^\d+?\.\d+?\tflag_captured\t(\d+?)\t(\d+)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null){
+            new Message(`createFlagCaptured result is null.`,"error");
+            return;
+        }
+
+        const playerId = parseInt(result[1]);
+        const flagTeam = parseInt(result[2]);
+
+        const player = this.playerManager.getPlayerById(playerId);
+
+        if(player === null){
+            new Message(`createFlagCaptrued player is null`, "error");
+            return;
+        }
+
+       
+        const lastEventTimestamp = player.getCTFNewLastTimestamp("capture"); 
+
+        const totalDeathsCaps = this.killManager.getDeathsBetween(lastEventTimestamp, timestamp, player.masterId, false);
+    
+        //console.log(`${timestamp} player ${player.masterId} capped the ${flagTeam} flag, previous cap was ${lastEventTimestamp} deaths since${totalDeaths}`);
+
+        this.processFlagSeals(flagTeam, false);
+        this.processFlagCovers(flagTeam, false);
+
+        const totalAssists = await this.flags[flagTeam].captured(timestamp, player.masterId, totalDeathsCaps);
+
+        player.setCTFNewValue("capture", timestamp, totalDeathsCaps);
+
+        if(totalAssists === 0){
+
+            const lastSoloCap = player.getCTFNewLastTimestamp("soloCapture");
+            const totalDeathsSoloCaps = this.killManager.getDeathsBetween(lastSoloCap, timestamp, player.masterId, false);
+
+            player.setCTFNewValue("soloCapture", timestamp, totalDeathsSoloCaps);
+        }
+
+        
+
+        //console.log(result);
+    }
+
+    parseLocations(){
+
+        const reg = /^(\d+?\.\d+)\tnstats\t(fdl|frl|ftor)\t(\d+?)\t(.+?)\,(.+?)\,(.+)$/i;
+        const flagLocationReg = /^(\d+?\.\d+)\tnstats\tflag_location\t(\d+?)\t(.+?)\t(.+?)\t(.+)$/i;
+
+        for(let i = 0; i < this.lines.length; i++){
+
+            const line = this.lines[i];
+ 
+            if(reg.test(line)){
+
+                const result = reg.exec(line);
+
+                const timestamp = parseFloat(result[1]);
+                const event = result[2];
+                const flagTeam = parseInt(result[3]);
+
+                const location = {
+                    "x": parseFloat(result[4]),
+                    "y": parseFloat(result[5]),
+                    "z": parseFloat(result[6]),
+                };
+
+                /*if(event === "frl"){
+
+                    this.flagReturnLocations.push({
+                        "timestamp": timestamp,
+                        "flagTeam": flagTeam,
+                        "location": location,
+                        "bTimedOut": false
+                    });
+
+                }else if(event === "ftor"){
+                    
+                    this.flagReturnLocations.push({
+                        "timestamp": timestamp,
+                        "flagTeam": flagTeam,
+                        "location": location,
+                        "bTimedOut": true
+                    });
+                    
+                }else*/
+                if(event === "fdl"){
+
+                    this.flagDropLocations.push({
+                        "timestamp": timestamp,
+                        "flagTeam": flagTeam,
+                        "location": location
+                    });
+                }
+            }
+
+            if(flagLocationReg.test(line)){
+
+                const result = flagLocationReg.exec(line);
+
+                const flagTeam = parseInt(result[2]);
+
+                if(this.flags[flagTeam] !== undefined){
+
+                    const location = {
+                        "x": parseFloat(result[3]),
+                        "y": parseFloat(result[4]),
+                        "z": parseFloat(result[5])
+                    };
+
+                    this.flags[flagTeam].setFlagStandLocation(location);
+                }
+            }
+        }
+
+    }
+
+    getSmartCTFReturnString(timestamp, flagTeam){
+
+        for(let i = 0; i < this.smartCTFReturnInfo.length; i++){
+
+            const info = this.smartCTFReturnInfo[i];
+
+            if(info.timestamp > timestamp) break;
+
+            if(info.timestamp === timestamp && info.flagTeam === flagTeam){
+                return info.string;
+            }
+        }
+
+        return "N/A";
+    }
+
+    parseSmartCTFReturns(){
+
+        const reg = /^(\d+?\.\d+?)\tflag_(return.+?)\t\d+?\t(\d+)$/i
+
+        for(let i = 0; i < this.lines.length; i++){
+
+            const line = this.lines[i];
+
+            const result = reg.exec(line);
 
             if(result !== null){
 
-                this.flagLocations.push({
-                    "team": parseInt(result[1]),
-                    "position": {
-                        "x": parseFloat(result[2]),
-                        "y": parseFloat(result[3]),
-                        "z": parseFloat(result[4]),
-                    }
+                //always gets logged with smartCTF returns
+                if(result[2] === "returned") continue;
+
+                const timestamp = parseFloat(result[1]);
+                const flagTeam = parseInt(result[3]);
+                const locationString = result[2];
+
+                this.smartCTFReturnInfo.push({
+                    "timestamp": timestamp,
+                    "flagTeam": flagTeam,
+                    "string": locationString
                 });
             }
         }
-
-        this.setSelfCovers(killManager);
-        
     }
 
-
-
-    getSelfCovers(start, end){
-
-        const selfCovers = {};
-
-        for(let i = 0; i < this.carryTimeFrames.length; i++){
-
-            const c = this.carryTimeFrames[i];
-
-            if(c.end > end) break;
-
-            //if(!c.bFail){
-
-                if(c.start >= start && c.end <= end){    
-
-                    const current = this.killManager.getKillsBetween(c.start, c.end, c.player, true);
-                     
-                    if(current > 0){
-                        selfCovers[c.player] = current;
-                    }
-                }
-            //}
-        }
-
-        return selfCovers;
-
-    }
-
-    getSelfCoversBetween(playerId, start, end){
-
-        const kills = this.killManager.getKillsBetween(start, end, playerId);
-
-        const timestamps = [];
-
-        for(let i = 0; i < kills.length; i++){
-
-            const k = kills[i];
-
-            timestamps.push(k.timestamp);
-            
-        }
-
-        return timestamps
-
-    }
-
-    resetCurrentCapData(){
-        return {
-            "dropped": false,
-            "taken": false,
-            "takenTimestamp": null,
-            "grab": null,
-            "cap": null,
-            "capTimestamp": null,
-            "capTeam": null,
-            "carriedBy": null,
-            "carryTeam": null,
-            "travelTime": -1,
-            "assists": [],
-            "assistTimes": [],
-            "pickups": [],
-            "pickupTimes": [],
-            "pickupIds": [],
-            "selfCovers": [],
-            "selfCoverTimes": [],
-            "covers": [],
-            "coverTimes": [],
-            "dropTimes": [],
-            "dropIds": [],
-            "seals": [],
-            "sealTimes": []
-        };
-    }
-
-    dropFlags(playerId, timestamp, flags){
-
-        let totalDropped = 0;
-
-        for(let i = 0; i < flags.length; i++){
-
-            const f = flags[i];
-
-            if(f.carriedBy === playerId){
-                
-                f.dropTimes.push(timestamp);
-                f.dropIds.push(playerId);
-                f.dropped = true;
-                f.carriedBy = null;
-                f.carryTeam = null;
-
-                let pickupTime = 0;
-
-                if(f.pickupTimes.length === 0){
-                    pickupTime = f.takenTimestamp;
-                }else{
-                    pickupTime = f.pickupTimes[f.pickupTimes.length - 1];
-                }
-
-                const carryTime = (timestamp - pickupTime).toFixed(2);
-
-                const selfCoverTimes = this.getSelfCoversBetween(playerId, pickupTime, timestamp);
-
-                for(let i = 0; i < selfCoverTimes.length; i++){
-                    f.selfCovers.push(playerId);
-                }
-
-                f.selfCoverTimes.push(...selfCoverTimes);
-
-                f.assistTimes.push(parseFloat(carryTime.toString(2)));
-
-                totalDropped++;
-
-            }
-        }
-
-        /*if(totalDropped > 1){
-
-            this.updateCTF4Data(playerId, "drops", totalDropped - 1);
-        }*/
-
-    }
-
-    updateCTF4Data(playerId, type, value){
-
-        if(this.ctf4Data[playerId] === undefined){
-
-            this.ctf4Data[playerId] = {
-                "caps": 0,
-                "assists": 0,
-                "drops": 0
-            };
-        }
-
-        this.ctf4Data[playerId][type] += value;
-
-    }
-
-
-    eventExists(timestamp, type, playerId, flagTeam){
-
-        for(let i = 0; i < this.events.length; i++){
-
-            const e = this.events[i];
-
-            if(e.timestamp > timestamp) return false;
-
-            if(e.type === type){
-                
-                if(e.flagTeam === flagTeam && e.playerId === playerId){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    capFlags(playerId, timestamp, flags){
-
-        let totalCapped = 0;
-
-        for(let i = 0; i < flags.length; i++){
-
-            const f = flags[i];
-
-            if(f.carriedBy === playerId){
-
-                const playerTeam = this.playerManager.getPlayerTeamAt(playerId, timestamp);
-
-                f.capTimestamp = timestamp;
-                f.cap = playerId;
-
-                let travelTime = 0;
-
-                if(f.takenTimestamp !== null){    
-                    travelTime = timestamp - f.takenTimestamp;
-                }
-
-               // console.log(travelTime);
-                if(travelTime < 0){
-                   // console.log(f);
-                }
-
-                let pickupTime = f.takenTimestamp;
-
-                if(f.pickupTimes.length > 0){
-
-                    pickupTime = f.pickupTimes[f.pickupTimes.length - 1];
-                }
-
-                const selfCoverTimes = this.getSelfCoversBetween(playerId, pickupTime, timestamp);
-
-                for(let x = 0; x < selfCoverTimes.length; x++){
-
-                    f.selfCovers.push(playerId);
-                }
-
-                f.selfCoverTimes.push(...selfCoverTimes);
-
-                //Don't duplicate data for normal ctf as assist events are logged correctly
-                if(this.totalTeams > 2){
-
-                    //count multiple assists
-                    for(let x = 0; x < f.dropIds.length; x++){
-
-                        if(f.dropIds[x] !== f.cap){
-
-                            const player = this.playerManager.getOriginalConnectionById(f.dropIds[x]);
-
-                            if(player !== null){
-
-                                this.updateCTF4Data(f.dropIds[x], "assists", 1);
-
-                                ////add missing assist events
-                                /*this.events.push(
-                                    {
-                                        "timestamp": timestamp,
-                                        "type": "assist",
-                                        "playerId": playerId,
-                                        "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
-                                        "flagTeam": i,
-                                        "player": this.playerManager.getOriginalConnectionById(playerId)
-                                    }
-                                );*/
-                            }
-                        }
-                    }
-
-                    //add missing cap events
-
-                    /*if(!this.eventExists(timestamp, "captured", playerId, i)){
-
-                        this.events.push(
-                            {
-                                "timestamp": timestamp,
-                                "type": "captured",
-                                "playerId": playerId,
-                                "playerTeam": this.playerManager.getPlayerTeamAt(playerId, timestamp),
-                                "flagTeam": i,
-                                "player": this.playerManager.getOriginalConnectionById(playerId)
-                            }
-                        );
-                    }*/
-                }
-
-
-
-                this.capData.push({
-                    "team": playerTeam,
-                    "flagTeam": i,
-                    "grabTime": f.takenTimestamp,
-                    "grab": f.grab,
-                    "covers": f.covers,
-                    "coverTimes": f.coverTimes,
-                    "assists": f.dropIds,
-                    "assistTimes": f.assistTimes,
-                    "pickupIds": f.pickupIds,
-                    "pickupTimes": f.pickupTimes,
-                    "dropTimes": f.dropTimes,
-                    "dropIds": f.dropIds,
-                    "selfCovers": f.selfCovers,
-                    "selfCoverTimes": f.selfCoverTimes,
-                    "cap": playerId,
-                    "capTime": timestamp,
-                    "travelTime": parseFloat(travelTime.toFixed(3)),
-                    "seals": f.seals,
-                    "sealTimes": f.sealTimes
-
-                });
-
-                flags[i] = this.resetCurrentCapData();
-                totalCapped++;
-            }
-        }
+    async parseData(matchStartTimestamp){
 
         
-        if(totalCapped > 1){
+        this.parseSmartCTFReturns();
+        this.parseLocations();
 
-            this.updateCTF4Data(playerId, "caps", totalCapped - 1)
+        this.matchStartTimestamp = matchStartTimestamp;
 
-        }
+   
+        for(let i = 0; i < this.lines.length; i++){
 
-    }
+            const line = this.lines[i];
 
+            const timestamp = this.getLineTimestamp(line);
 
-    coverFlag(playerId, playerTeam, timestamp, flags, bSeal){
+            if(timestamp === null) continue;
 
-        for(let i = 0; i < flags.length; i++){
+            if(timestamp < matchStartTimestamp){
 
-            const f = flags[i];
-
-            if(f.carryTeam === playerTeam){
-
-                
-                if(!bSeal){
-                    //console.log(`${timestamp} player ${playerId} covered the ${i} flag`);
-                    f.covers.push(playerId);
-                    f.coverTimes.push(timestamp);
-                }else{
-                    //console.log(`${timestamp} player ${playerId} sealed for the ${i} flag`);
-                    f.seals.push(playerId);
-                    f.sealTimes.push(timestamp);
-                }
-            }
-        }
-    }
-
-    createCapData(){
-
-        const flags = [
-            this.resetCurrentCapData(),
-            this.resetCurrentCapData(),
-            this.resetCurrentCapData(),
-            this.resetCurrentCapData()
-        ];
-
-        for(let i = 0; i < this.events.length; i++){
-
-            const e = this.events[i];
-
-            const type = e.type;
-            const timestamp = e.timestamp;
-
-            //console.log(e);
-
-            if(e.flagTeam !== e.flagTeam){
-                new Message("this.events[id].flagTeam is NaN, skipping event.(FlagDomination?) (CTFManager.createCapData())","warning");
+                //new Message(`CTF event happened before match start timestamp(Warmup)`,"warning");
                 continue;
             }
 
-            if(type === "taken" || type === "pickedup"){
+            const eventType = this.getLineType(line);
 
-                const flag = flags[e.flagTeam];
+            if(eventType === null) continue;
 
-                if(type === "taken"){
+            if(eventType === "nstats"){
 
-                    flag.grab = e.playerId;
-                    flag.takenTimestamp = timestamp;
+                const nstatsType = this.getLineNstatsType(line);
 
-                }else{
+                if(nstatsType === null) continue;
 
-                    flag.pickupTimes.push(timestamp);
-                    flag.pickupIds.push(e.playerId);
+                if(nstatsType === "flag_kill"){
+                    await this.createFlagKill(timestamp, line);
                 }
+            }
 
-                flag.taken = true;
-                flag.dropped = false;
-                flag.carriedBy = e.playerId;
+            if(eventType === "flag_kill"){
+          
+                await this.createFlagKill(timestamp, line);         
+            }
 
-                flag.carryTeam = e.playerTeam;
-                
-            }else if(type === "dropped"){
+            if(eventType === "flag_taken"){
 
-                this.dropFlags(e.playerId, timestamp, flags, e.player.name);
+                await this.createFlagTaken(timestamp, line);
+            }
 
-            }else if(type === "captured"){
+            if(this.returnTypes.indexOf(eventType) !== -1){
+                await this.createFlagReturned(timestamp, line);
+            }
 
-                this.capFlags(e.playerId, timestamp, flags);
+            if(eventType === "flag_dropped"){
+                await this.createFlagDropped(timestamp, line);
+            }
 
-            }else if(type === "return" || type === "save"){
+            if(eventType === "flag_cover"){
+                await this.createFlagCover(timestamp, line);
+            }
 
-                flags[e.flagTeam] = this.resetCurrentCapData();
+            if(eventType === "flag_pickedup"){
+                await this.createFlagPickedUp(timestamp, line);
+            }
 
-            }else if(type === "cover"){
+            if(eventType === "flag_seal"){
+                await this.createFlagSeal(timestamp, line);
+            }
 
-                this.coverFlag(e.playerId, e.playerTeam, timestamp, flags, false);
+            if(eventType === "flag_captured"){
+                await this.createFlagCaptured(timestamp, line);
+            }
+            //console.log(line);
+        }
 
-            }else if(type === "seal"){
+        this.debugDisplayAllPlayers();
+    }
 
-                this.coverFlag(e.playerId, e.playerTeam, timestamp, flags, true);
+    debugDisplayAllPlayers(){
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+
+            //console.log(p.name);
+            //console.log(p.stats.ctfNew);
+        }
+    }
+
+    getDropLocation(timestamp, flagTeam){
+
+        for(let i = 0; i < this.flagDropLocations.length; i++){
+
+            const d = this.flagDropLocations[i];
+
+            if(d.timestamp > timestamp) break;
+
+            if(d.flagTeam === flagTeam && d.timestamp === timestamp){
+                return d.location;
             }
         }
 
-        //console.log(flags);
-        //console.log(flags.length);
-        //console.log(this.capData);
-        //console.log(this.capData.length);        
+       // new Message(`CTFManager.getDropLocation() Didnt find drop location`,"warning");
+
+        return {"x": 0, "y": 0, "z": 0};
     }
 
-    getMatchingPickupId(pickups, player, timestamp){
+    getDistanceToCapping(playerTeam, targetLocation){
 
-        for(let i = pickups.length -1; i >= 0; i--){
+        if(this.flags[playerTeam] === undefined) return null;
 
-            if(pickups[i].player === player && pickups[i].timestamp <= timestamp){
-                return pickups[i];
+        const flag = this.flags[playerTeam];
+
+        if(flag.flagStand === null) return -1;
+
+        const distanceX = flag.flagStand.x - targetLocation.x;
+        const distanceY = flag.flagStand.y - targetLocation.y;
+        const distanceZ = flag.flagStand.z - targetLocation.z;
+
+        return Math.hypot(distanceX, distanceY, distanceZ);
+    }
+
+    async dropAllFlags(player, timestamp){
+
+        const currentTeam = this.playerManager.getPlayerTeamAt(player.masterId, timestamp);
+
+        for(let i = 0; i < this.flags.length; i++){
+
+            const flag = this.flags[i];           
+
+            if(flag.carriedBy === player.masterId){
+
+                const dropLocation = this.getDropLocation(timestamp, i);
+
+                let distanceToCap = 0;
+
+                distanceToCap = this.getDistanceToCapping(currentTeam, dropLocation);
+               
+                await flag.dropped(timestamp, dropLocation, distanceToCap, currentTeam);
+
+                const lastTimestamp = player.getCTFNewLastTimestamp("dropped");
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamp, player.masterId, false);
+
+                //player.stats.ctf.dropped++;
+                player.setCTFNewValue("dropped", timestamp, totalDeaths);
+
+
+                this.flagDrops.push({"timestamp": timestamp, "playerId": player.masterId,  "flagTeam": flag.team});
             }
         }
-        
-
-        return null;
     }
 
-    updateCarryTime(timestamp, player){
 
-        player.stats.ctf.carryTime += timestamp - player.stats.ctf.pickupTime;
-        player.stats.ctf.carryTime = parseFloat(parseFloat(player.stats.ctf.carryTime).toFixed(2));
-    }
+    async updatePlayerMatchStats(){
 
-    setPlayerStats(){
-        
-        for(let i = 0; i < this.events.length; i++){
+        for(let i = 0; i < this.playerManager.players.length; i++){
 
-            const {type, player, timestamp} = this.events[i];
+            const player = this.playerManager.players[i];
 
-            if(player !== null){
-
-                if(type !== "captured" && type !== "returned" && type !== "pickedup"){
-
-                    if(type === "taken"){
-                        player.stats.ctf.pickupTime = timestamp;
-                    }else if(type === "dropped"){
-                        this.updateCarryTime(timestamp, player);
-                    }
-
-                    if(type !== "kill"){
-                        player.stats.ctf[type]++;
-                    }else{
-
-                        if(!this.events[i].bSuicide){
-                            player.stats.ctf[type]++;
-                        }
-                    }
-
-                }else{
-
-                    if(type === "captured"){
-                        player.stats.ctf.capture++
-                        this.updateCarryTime(timestamp, player);
-                    }else if(type === "returned"){
-                        player.stats.ctf.return++;
-                    }else if(type === "pickedup"){
-                        player.stats.ctf.pickup++;
-                        player.stats.ctf.pickupTime = timestamp;
-                    }
-                }
-
-            }else{
-                new Message(`CTFManager.setPlayerStats() Player is null`,"warning");
-            }
+            await this.ctf.updatePlayerMatchStats(player.masterId, this.matchId, player.stats.ctf);
             
         }
     }
 
+    async insertPlayerMatchData(serverId, mapId, gametypeId){
 
-    async updatePlayerTotals(){
+        new Message("CTFManager.insertPlayerMatchData()", "note");
 
-        try{
+        for(let i = 0; i < this.playerManager.players.length; i++){
 
-            if(this.playerManager !== undefined){
+            const p = this.playerManager.players[i];
 
-                const players = this.playerManager.players;
+            await this.ctf.insertPlayerMatchData(p.masterId, this.matchId, mapId, gametypeId, serverId, this.matchDate, p);
+
+        }
+    }
+
+    //determine if a flag cover was capped or returned
+    processFlagCovers(flagTeam, bFailed){
+
+        const flag = this.flags[flagTeam];
+  
+        const coverType = (bFailed) ? "coverFail" : "coverPass";
+
+        const playerCovers = {};
+
+        for(let i = 0; i < flag.covers.length; i++){
+
+            const {killerId, timestamp} = flag.covers[i];
+
+            if(playerCovers[killerId] === undefined){
+                playerCovers[killerId] = [];
+            }
+
+            playerCovers[killerId].push(timestamp);
+
+        }
+
+        for(const [playerId, timestamps] of Object.entries(playerCovers)){
+
+            const player = this.playerManager.getPlayerByMasterId(playerId);
+
+            if(player === null){
+                new Message(`CTFManager.processFlagCovers() player is null, playerId was ${playerId}`,"error");
+                continue;
+            }
+
+            let currentCovers = player.stats.ctfNew[coverType].currentLife;
+            let bestCovers = 0;
+            let lastTimestamp = player.stats.ctfNew[coverType].lastTimestamp;
+
+            let currentFlagCovers = 0;
+
+            for(let i = 0; i < timestamps.length; i++){
+
+                const totalDeaths = this.killManager.getDeathsBetween(lastTimestamp, timestamps[i], playerId, false)
+
+                if(totalDeaths > 0){
+                    currentCovers = 1;
+                }else{
+                    currentCovers++;
+                }
+
+                lastTimestamp = timestamps[i];
+              
+                if(currentCovers > bestCovers){
+                    bestCovers = currentCovers;
+                }
+
+                currentFlagCovers++;
+            }
+
+            if(currentFlagCovers === 3){
+
+                const previousMultiTimestamp = player.getCTFNewLastTimestamp("coverMulti");
+                const totalMultiDeaths = this.killManager.getDeathsBetween(previousMultiTimestamp, lastTimestamp, playerId, false);
+                //console.log(`Deaths since last multi cover ${totalMultiDeaths}`);
+                player.setCTFNewValue("coverMulti", lastTimestamp, totalMultiDeaths);
+                //player.stats.ctfNew.coverMulti.lastTimestamp = lastTimestamp;
+            }else if(currentFlagCovers > 3){
+
+                const previousSpreeTimestamp = player.getCTFNewLastTimestamp("coverSpree");
+                const totalSpreeDeaths = this.killManager.getDeathsBetween(previousSpreeTimestamp, lastTimestamp, playerId, false);
+                //console.log(`Deaths since last spree cover ${totalSpreeDeaths}`);
+                player.setCTFNewValue("coverSpree", lastTimestamp, totalSpreeDeaths);
+
+            }
+
+            if(currentFlagCovers > player.stats.ctfNew.bestSingleCover){
+                player.stats.ctfNew.bestSingleCover = currentCovers;
+            }
+
+            player.setCTFNewCovers(coverType, timestamps.length, bestCovers, currentCovers, lastTimestamp);
+        }
+    }
+
+    //determine if a flag seal was capped or returned
+    processFlagSeals(flagTeam, bFailed){
+
+        const flag = this.flags[flagTeam];
+
+        const seals = flag.seals;
+
+        let currentFlagSeals = {};
+
+        for(let i = 0; i < seals.length; i++){
+
+            const {timestamp, playerId} = seals[i];
+
+            const player = this.playerManager.getPlayerByMasterId(playerId);
+
+            if(player === null){
+                new Message(`CTFManager.processFlagSeals() player is null.`,"warning");
+                continue;
+            }
+
+            if(currentFlagSeals[playerId] === undefined){
+                currentFlagSeals[playerId] = 0;
+            }   
+
+            currentFlagSeals[playerId]++;
+
+            if(bFailed){
+
+                const lastTimestampFail = player.getCTFNewLastTimestamp("sealFail");
+                const totalDeathsFail = this.killManager.getDeathsBetween(lastTimestampFail, timestamp, playerId, false);
+                player.setCTFNewValue("sealFail", timestamp, totalDeathsFail);
+
+            }else{
                 
-                for(let i = 0; i < players.length; i++){
-
-                    if(players[i].bDuplicate === undefined){
-
-                        await this.ctf.updatePlayerTotals(players[i].masterId, players[i].gametypeId, players[i].stats.ctf);
-                    }
-                }
-                new Message(`Updated Player CTF totals.`,'pass');
-            }else{
-
-                new Message(`ctfmanager.updatePlayerTotals() playermanager.players is undefined`,'error');
+                const lastTimestampPass = player.getCTFNewLastTimestamp("sealPass");
+                const totalDeathsPass = this.killManager.getDeathsBetween(lastTimestampPass, timestamp, playerId, false);
+                player.setCTFNewValue("sealPass", timestamp, totalDeathsPass);
             }
-
-            
-
-        }catch(err){
-            console.trace(err);
         }
-    }
 
-    async updatePlayersMatchStats(){
+        for(const [playerId, totalSeals] of Object.entries(currentFlagSeals)){
 
-        try{
+            const player = this.playerManager.getPlayerByMasterId(playerId);
 
-            if(this.playerManager !== undefined){
-
-                const players = this.playerManager.players;
-
-                for(let i = 0; i < players.length; i++){
-
-                    if(players[i].bDuplicate === undefined){
-                        await this.ctf.updatePlayerMatchStats(players[i].matchId, players[i].stats.ctf);
-                    }
-                }
-
-            }else{
-                new Message(`CTFManager.updatePlayerMatchStats() playerManager is undefined`,'warning');
+            if(player === null){
+                new Message(`CTFManager.processFlagSeals() currentFlagSeals player is null`, "warning");
+                continue;
             }
 
-        }catch(err){
-            new Message(`updatePlayersMatchStats ${err}`,'error');
+            if(player.stats.ctfNew.bestSingleSeal < totalSeals){
+                player.stats.ctfNew.bestSingleSeal = totalSeals;
+            }
         }
     }
 
 
+    async updatePlayerTotals(serverId, mapId, gametypeId){
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+
+            const playtime = p.getTotalPlaytime(this.totalTeams);
+            const stats = p.stats.ctfNew;
+
+            //combined totals
+            await this.ctf.updatePlayerTotals(p.masterId, 0, playtime, stats);
+            //gametype totals
+            await this.ctf.updatePlayerTotals(p.masterId, gametypeId, playtime, stats);
+
+            //console.log(p.stats.ctfNew);
+        }
+    }
+
+    async updatePlayerBestValues(gametypeId){
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+            //combined totals
+            await this.ctf.updatePlayerBestValues(p.masterId, 0, p.stats.ctfNew);
+            //gametype totals
+            await this.ctf.updatePlayerBestValues(p.masterId, gametypeId, p.stats.ctfNew);
+        }
+    }
+
+    async updatePlayerBestValuesSingleLife(gametypeId){
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+            //combined totals
+            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, 0, p.stats.ctfNew);
+            //gametype totals
+            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, gametypeId, p.stats.ctfNew);
+        }
+    }
     
 
-    async insertCaps(matchId, mapId, matchDate){
+    getFlagFastestCap(flag){
 
-        try{
+        let solo = null;
+        let assist = null;
 
-            for(let i = 0; i < this.capData.length; i++){
-
-                const c = this.capData[i];
-
-                let {team, flagTeam, grab, grabTime, cap, capTime} = c;
-
-                if(grabTime === null){
-                    new Message(`ctfManager.insertCaps() grabTime is null`,"warning");
-                    grabTime = -1;
-                }
-                if(grab === null){
-                    new Message(`ctfManager.insertCaps() grab is null`,"warning");
-                    grab = -1;
-                }
-
-                const grabPlayer = this.playerManager.getOriginalConnectionMasterId(grab);
-                const capPlayer = this.playerManager.getOriginalConnectionMasterId(cap);
-
-
-                const dropIds = this.playerManager.toMasterIds(c.dropIds);
-                const assistIds = this.playerManager.toMasterIds(c.assists);
-                const coverIds = this.playerManager.toMasterIds(c.covers);
-                const pickupIds = this.playerManager.toMasterIds(c.pickupIds);
-                const sealIds = this.playerManager.toMasterIds(c.seals);
-                const travelTime = c.travelTime.toFixed(2);
-
-                const selfCovers = this.playerManager.toMasterIds(c.selfCovers);
-                
-                //console.log(c);
-
-                const uniqueAssistIds = [];
-
-                for(let x = 0; x < assistIds.length; x++){
-
-                    const a = assistIds[x];
-
-                    if(uniqueAssistIds.indexOf(a) === -1){
-                        uniqueAssistIds.push(a);
-                    }
-                }
-
-                await this.ctf.insertCap(matchId, matchDate, mapId, c.team, flagTeam, grabTime, grabPlayer, dropIds, c.dropTimes, pickupIds,
-                c.pickupTimes, coverIds, c.coverTimes, uniqueAssistIds, c.assistTimes, assistIds, capPlayer, 
-                capTime, travelTime, selfCovers, c.selfCoverTimes, sealIds, c.sealTimes);
-
-            }
-
-        }catch(err){
-            console.trace(err);
-            new Message(`inserCaps ${err}`,'error');
-        }
-    }
-
-
-    async insertEvents(matchId){
-
-        try{
-
-            for(let i = 0; i < this.events.length; i++){
-
-                const e = this.events[i];
-
-                const currentPlayer = e.player;
-
-                if(currentPlayer !== null){
-
-                    if(this.bIgnoreBots){
-                        if(currentPlayer.bBot) continue;
-                    }
-
-                    await this.ctf.insertEvent(matchId, e.timestamp, currentPlayer.masterId, e.type, e.playerTeam);
-                   
-                }else{
-                    new Message(`CTFManager.insertEvent() currentPlayer is null`,'warning');
-                }
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
-    setSelfCovers(killManager){
-
-
-        for(let i = 0; i < this.carryTimeFrames.length; i++){
-
-            const c = this.carryTimeFrames[i];
-            const currentKills = killManager.getKillsBetween(c.start, c.end, c.player, true);
-            const currentPlayer = this.playerManager.getOriginalConnectionById(c.player);
-
-            if(currentPlayer !== null){
-
-                currentPlayer.stats.ctf.selfCover += currentKills;
-
-                if(c.bFail){
-                    currentPlayer.stats.ctf.selfCoverFail += currentKills;
-                }else{
-                    currentPlayer.stats.ctf.selfCoverPass += currentKills;
-                }
-
-                //self covers
-
-                if(currentKills > currentPlayer.stats.ctf.bestSelfCover){
-                    currentPlayer.stats.ctf.bestSelfCover = currentKills;
-                }
-            }
-        }
-    }
-
-    setCoverSprees(covers){
-
-        const playerCovers = new Map();
-
-        let currentCovers = 0;
-        let c = 0;
-
-        if(covers === undefined) return;
-        if(covers.length === 0) return;
-
-        for(let i = 0; i < covers.length; i++){
-
-            c = covers[i];
-
-            currentCovers = playerCovers.get(c);
-
-            if(currentCovers === undefined){
-                playerCovers.set(c, 1);
-            }else{
-                currentCovers++;
-                playerCovers.set(c, currentCovers);
-            }
-        }
-
-
-        let currentPlayer = 0;
-
-        for(const [key, value] of playerCovers){
-
-            currentPlayer = this.playerManager.getOriginalConnectionById(key);
-
-
-            if(currentPlayer !== null){
-            
-                if(value === 3){
-                    currentPlayer.stats.ctf.multiCover++;
-                }else if(value >= 4){
-                    currentPlayer.stats.ctf.spreeCover++;
-                }
-
-                if(value > currentPlayer.stats.ctf.bestCover){
-                    currentPlayer.stats.ctf.bestCover = value;
-                }
-            }
-            
-
-        }    
-    }
-
-    async insertFlagLocations(mapId){
-
-        try{
-            
-            let f = 0;
-
-            for(let i = 0; i < this.flagLocations.length; i++){
-
-                f = this.flagLocations[i];
-                await this.ctf.insertFlagLocation(mapId, f.team, f.position);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
-    async addCTF4Data(){
-
-        try{
-
-
-            for(const [playerId, data] of Object.entries(this.ctf4Data)){
-
-                const player = this.playerManager.getOriginalConnectionById(playerId);
-
-                //console.log(player);
-
-                if(player !== null){
-
-                    player.stats.ctf.capture += data.caps;
-                    player.stats.ctf.assist += data.assists;
-                    //player.stats.ctf.dropped += data.drops;
-
-
-                }else{
-                    new Message("Player is null CTFManager.addCTF4Data()", "warning");
-                }
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    sortCapDataByTravelTime(){
-
-        this.capData.sort((a, b) =>{
+        flag.basicCapsInfo.sort((a, b) =>{
 
             a = a.travelTime;
             b = b.travelTime;
 
-            if(a < b){
-                return -1;
-            }else if(a > b){
-                return 1;
-            }
-
+            if(a < b) return -1;
+            if(a > b) return 1;
             return 0;
         });
 
+
+        for(let i = 0; i < flag.basicCapsInfo.length; i++){
+
+            const cap = flag.basicCapsInfo[i];
+
+            if(solo === null && cap.type === 0){
+                solo = cap;
+            }
+
+            if(assist === null && cap.type === 1){
+                assist = cap;
+            }
+
+            if(assist !== null && cap !== null) break;
+            
+        }
+
+
+        return {"solo": solo, "assist": assist};
+
     }
 
-    async updateMapCapRecords(mapId, matchId, date){
-
-        //console.log(this.capData);
-
-        this.sortCapDataByTravelTime();
+    async updateMapCapRecord(mapId, gametypeId){
 
         let bestSoloCap = null;
         let bestAssistCap = null;
 
-        for(let i = 0; i < this.capData.length; i++){
+        for(let i = 0; i < this.flags.length; i++){
 
-            const c = this.capData[i];
+            const flag = this.flags[i];
 
-            if(c.assists.length === 0){
+            const {solo, assist} = this.getFlagFastestCap(flag);
 
-                if(bestSoloCap === null || bestSoloCap.travelTime > c.travelTime){
+            if(solo !== null){
 
-                    bestSoloCap = c;
+                if(bestSoloCap === null){
+                    bestSoloCap = solo;
+                }else{
+
+                    if(bestSoloCap.travelTime > solo.travelTime){
+                        bestSoloCap = solo;
+                    }
                 }
+            }
 
-            }else{
+            if(assist !== null){
 
-                if(bestAssistCap === null || bestAssistCap.travelTime > c.travelTime){
-                    bestAssistCap = c;
+                if(bestAssistCap === null){
+                    bestAssistCap = assist;
+                }else{
+
+                    if(bestAssistCap.travelTime > assist.travelTime){
+                        bestAssistCap = assist;
+                    }
                 }
             }
         }
 
         if(bestSoloCap !== null){
-
-            const capPlayer = this.playerManager.toMasterIds([bestSoloCap.cap]);
-            const grabPlayer = this.playerManager.toMasterIds([bestSoloCap.grab]);
-        
-            bestSoloCap.cap = capPlayer[0];
-            bestSoloCap.grab = grabPlayer[0];
-            
-            await this.ctf.updateCapRecord(matchId, mapId, 0, bestSoloCap, date);
-            
+            await this.ctf.updateMapCapRecord(bestSoloCap.id, mapId, this.matchId, gametypeId, 0, bestSoloCap.travelTime, bestSoloCap.carryTime, bestSoloCap.dropTime);
         }
 
         if(bestAssistCap !== null){
-
-            const capPlayer = this.playerManager.toMasterIds([bestAssistCap.cap]);
-            const grabPlayer = this.playerManager.toMasterIds([bestAssistCap.grab]);
-            const assistPlayers = this.playerManager.toMasterIds(bestAssistCap.assists);
-        
-            bestAssistCap.cap = capPlayer[0];
-            bestAssistCap.grab = grabPlayer[0];
-            bestAssistCap.assists = assistPlayers;
-            
-            await this.ctf.updateCapRecord(matchId, mapId, 1, bestAssistCap, date);
+            await this.ctf.updateMapCapRecord(bestAssistCap.id, mapId, this.matchId, gametypeId, 1, bestAssistCap.travelTime, bestAssistCap.carryTime, bestAssistCap.dropTime);
         }
     }
 }
-
 
 module.exports = CTFManager;

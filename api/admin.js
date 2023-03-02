@@ -139,7 +139,9 @@ class Admin{
     }
 
     async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, ignoreBots, ignoreDuplicates,
-        minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots, enable){
+        minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots, bUseACEPlayerHWID, enable){
+
+            console.log(arguments);
 
         const query = `UPDATE nstats_ftp SET
             name=?,
@@ -158,7 +160,8 @@ class Admin{
             import_ace=?,
             delete_ace_logs=?,
             delete_ace_screenshots=?,
-            enabled=?
+            enabled=?,
+            use_ace_player_hwid=?
             WHERE id=?`;
         
         bSecureFTP = bSecureFTP ?? 0;
@@ -181,6 +184,7 @@ class Admin{
             deleteAceLogs,
             deleteAceScreenshots,
             enable,
+            bUseACEPlayerHWID,
             id
         ];
 
@@ -191,23 +195,24 @@ class Admin{
 
     async addFTPServer(name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, 
         ignoreBots, ignoreDuplicates, minPlayers, minPlaytime, bSecureFTP, importAce, deleteAceLogs, deleteAceScreenshots,
-        enable){
+        bUseACEPlayerHWID, enable){
 
         
         bSecureFTP = bSecureFTP ?? 0;
 
-        deleteAfterImport = (deleteAfterImport === "true") ? 1 : 0 ;
-        deleteTmpFiles = (deleteTmpFiles === "true") ? 1 : 0 ;
-        ignoreBots = (ignoreBots === "true") ? 1 : 0 ;
-        ignoreDuplicates = (ignoreDuplicates === "true") ? 1 : 0 ;
-        bSecureFTP = (bSecureFTP === "true") ? 1 : 0 ;
-        importAce = (importAce === "true") ? 1 : 0 ;
-        deleteAceLogs = (deleteAceLogs === "true") ? 1 : 0 ;
-        deleteAceScreenshots = (deleteAceScreenshots === "true") ? 1 : 0 ;
+        deleteAfterImport = (deleteAfterImport === "true") ? 1 : 0;
+        deleteTmpFiles = (deleteTmpFiles === "true") ? 1 : 0;
+        ignoreBots = (ignoreBots === "true") ? 1 : 0;
+        ignoreDuplicates = (ignoreDuplicates === "true") ? 1 : 0;
+        bSecureFTP = (bSecureFTP === "true") ? 1 : 0;
+        importAce = (importAce === "true") ? 1 : 0;
+        deleteAceLogs = (deleteAceLogs === "true") ? 1 : 0;
+        deleteAceScreenshots = (deleteAceScreenshots === "true") ? 1 : 0;
         enable = (enable === "true") ? 1 : 0 ;
+        bUseACEPlayerHWID = (bUseACEPlayerHWID === "true")  ? 1 : 0;
 
       
-        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?,?,0,0,0,?)";
+        const query = "INSERT INTO nstats_ftp VALUES(NULL,?,?,?,?,?,?,?,0,0,0,?,0,?,?,?,?,?,?,?,?,0,0,0,?,?)";
 
         const vars = [
             name, 
@@ -226,7 +231,8 @@ class Admin{
             importAce,
             deleteAceLogs,
             deleteAceScreenshots,
-            enable
+            enable,
+            bUseACEPlayerHWID
         ];
 
         return await mysql.insertReturnInsertId(query, vars);
@@ -248,11 +254,18 @@ class Admin{
     }
 
 
-    async updateLogsFolderSettings(bIgnoreDuplicates, bIgnoreBots, minPlayers, minPlaytime, bImportAce){
+    async updateLogsFolderSettings(bIgnoreDuplicates, bIgnoreBots, minPlayers, minPlaytime, bImportAce, bUseACEPlayerHWID){
 
-        const query = "UPDATE nstats_logs_folder SET ignore_bots=?, ignore_duplicates=?, min_players=?, min_playtime=?, import_ace=? WHERE id > -1";
+        const query = `UPDATE nstats_logs_folder SET 
+        ignore_bots=?, 
+        ignore_duplicates=?, 
+        min_players=?, 
+        min_playtime=?, 
+        import_ace=?, 
+        use_ace_player_hwid=? 
+        WHERE id > -1`;
 
-        await mysql.simpleQuery(query, [bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bImportAce]);
+        await mysql.simpleQuery(query, [bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bImportAce, bUseACEPlayerHWID]);
     }
 }
 

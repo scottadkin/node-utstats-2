@@ -1,102 +1,106 @@
-import React from 'react';
-import Table2 from '../Table2';
+import {useEffect, useReducer} from "react";
+import Loading from "../Loading";
+import ErrorMessage from "../ErrorMessage";
+import InteractiveTable from "../InteractiveTable";
 
+const reducer = (state, action) =>{
 
-class PlayerMatchPickups extends React.Component{
-
-    constructor(props){
-
-        super(props);
-    }
-
-
-    getItemDetails(id){
-
-        let n = 0;
-
-        for(let i = 0; i < this.props.names.length; i++){
-
-            n = this.props.names[i];
-
-            if(n.id === id){
-                return n;
+    switch(action.type){
+        case "loaded": {
+            return {
+                "bLoading": false,
+                "error": null,
+                "itemNames": action.itemNames,
+                "itemUses": action.itemUses
             }
         }
-
-        return {"name": "Not Found", "type": 0};
-    }
-
-    getTypeName(id){
-
-        if(id === 1) return "Weapons";
-        if(id === 2) return "Ammo";
-        if(id === 3) return "Health";
-        if(id === 4) return "Powerups";
-        if(id === 5) return "Special";
-
-
-        return "Unsorted";
-    }
-
-    createRows(){
-
-        const rows = [];
-
-        let data = this.props.data;
-
-        data.sort((a, b) =>{
-
-            a = a.uses;
-            b = b.uses;
-
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
+        case "error": {
+            return {
+                "bLoading": false,
+                "error": action.errorMessage
             }
+        }
+        default: return state;
+    }   
+}
 
-            return 0;
+const renderData = (itemNames, uses) =>{
+
+    const headers = {
+        "item": "Item",
+        "uses": "Total Pickups"
+    };
+
+    const data = [];
+
+    for(const [itemId, totalUses] of Object.entries(uses)){
+
+        let currentName = "Not Found";
+
+        if(itemNames[itemId] !== undefined){
+            currentName = itemNames[itemId].displayName;
+        }
+
+        data.push({
+            "item": {
+                "value": currentName,
+                "className": "text-left"
+            },
+            "uses": {
+                "value": totalUses
+            }
         });
+    }
+
+    return <InteractiveTable width={2} headers={headers} data={data} />
+}
+
+const PlayerMatchPickups = ({playerId, matchId}) =>{
 
 
-        let currentItem = 0;
-        let d = 0;
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null,
+        "itemNames": {},
+        "itemUses": {}
+    });
 
-        for(let i = 0; i < data.length; i++){
+    useEffect(() =>{
 
-            d = data[i];
+        const cotnroller = new AbortController();
 
-            currentItem = this.getItemDetails(d.item);
+        const loadData = async () =>{
 
-            rows.push(<tr key={i}>
-                <td>{currentItem.display_name}</td>
-                <td>{this.getTypeName(currentItem.type)}</td>
-                <td>{d.uses}</td>
-            </tr>);
+            const req = await fetch("/api/match",{
+                "signal": cotnroller.signal,
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "player-items", "playerId": playerId, "matchId": matchId})
+            });
+
+            const res = await req.json();
+
+            if(res.error !== undefined){
+                dispatch({"type": "error", "errorMessage": res.error})
+            }else{
+                dispatch({"type": "loaded", "itemNames": res.itemNames, "itemUses": res.uses});
+            }
         }
 
-        return rows;
-    }
+        loadData();
 
-    render(){
+        return () =>{
+            cotnroller.abort();
+        }
+    },[matchId, playerId]);
 
-        const rows = this.createRows();
+    if(state.bLoading) return <Loading />;
+    if(state.error !== null) return <ErrorMessage title="Pickups Summary" text={state.error}/>
 
-
-        if(rows.length === 0) return null;
-
-        return <div className="m-bottom-25">
-            <div className="default-header">Pickups Summary</div>
-            <Table2 width={2}>
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Uses</th>
-                </tr>
-                {rows}
-            </Table2>
-        </div>
-    }
+    return <div>
+        <div className="default-header">Pickups Summary</div>
+        {renderData(state.itemNames, state.itemUses)}
+    </div>
 }
 
 export default PlayerMatchPickups;

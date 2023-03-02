@@ -1,395 +1,413 @@
-import React from 'react';
-import CountryFlag from '../CountryFlag/';
-import MMSS from '../MMSS/';
-import styles from './MatchCTFCaps.module.css';
-import Link from 'next/link';
+import {React, useState, useEffect} from 'react';
 import Functions from '../../api/functions';
-import MouseHoverBox from '../MouseHoverBox/';
-import BasicPageSelect from '../BasicPageSelect';
-
-class MatchCTFCaps extends React.Component{
-
-    constructor(props){
-
-        super(props);
-        this.state = {"page": 0, "perPage": 25, "results": JSON.parse(props.caps).length};
-
-        const twat = JSON.parse(props.caps).length;
-        console.log(`I have ${twat} total data`);
-        console.log(`total pages should be ${twat / this.state.perPage}`);
+import Loading from '../Loading';
+import ErrorMessage from '../ErrorMessage';
+import InteractiveTable from '../InteractiveTable';
+import Link from 'next/link';
+import CountryFlag from '../CountryFlag';
+import MouseOver from "../MouseOver";
 
 
-        this.changePage = this.changePage.bind(this);
-    }
+const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
-    changePage(page){
+    const [data, setData] = useState({});
+    const [bLoading, setbLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [displayMode, setDisplayMode] = useState(0);
 
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+            try{
+                
+                const req = await fetch("/api/ctf",{
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "match-caps", "matchId": matchId})
+                });
         
-        if(page < 0) page = 0;
+                const res = await req.json();
 
-        const max = Math.ceil(this.state.results / this.state.perPage) - 1;
+                if(res.error !== undefined){
+                    setError(res.error.toString());
+                }else{
+                    setData(res);
+                }
 
-        if(page > max){
-            page = max;
-        }
+                setbLoading(false);
 
-        this.setState({"page": page});
+            }catch(err){
 
-    }
-
-
-    createPlayerMap = (players) =>{
-
-        const data = new Map();
-    
-        let p = 0;
-    
-        for(let i = 0; i < players.length; i++){
-    
-            p = players[i];
-    
-            data.set(p.player_id, {"name": p.name, "country": p.country});
-        }
-    
-        return data;
-    }
-
-    getPlayer = (players, id) =>{
-
-        id = parseInt(id);
-    
-        const current = players.get(id);
-    
-        if(current !== undefined){
-            return {"name": current.name, "country": current.country};
-        }
-    
-        return null;
-    }
-    
-
-    createCovers(covers, coverTimes){
-
-        const data = new Map();
-    
-        covers = covers.split(',');
-        coverTimes = coverTimes.split(',');
-    
-        let total = 0;
-        let player = 0;
-        let current = 0;
-        
-    
-        for(let i = 0; i < covers.length; i++){
-    
-            if(covers[i] === ''){
-                continue;
-            }
-    
-            total++;
-    
-            player = parseInt(covers[i]);
-            current = data.get(player);
-    
-    
-            if(current === undefined){
-                data.set(player, {"total": 1, "times": [coverTimes[i]]});
-            }else{
-    
-                current.times.push(coverTimes[i]);
-                current.total++;
-    
-                if(current.times !== undefined){
-                    data.set(player, {"total": current.total, "times": current.times})
+                if(err.name !== "AbortError"){
+                    setError(err.toString());
                 }
             }
         }
-    
-        let ordered = [];
-    
-        for(const [key, value] of data){
-            ordered.push({"key": key, "value": value.total, "times": value.times});
+
+        loadData();
+
+        return () =>{
+            controller.abort();
         }
-    
-        ordered.sort((a, b) =>{
-    
-            a = a.value;
-            b = b.value;
-    
-            if(a > b){
-                return -1;
-            }else if(a < b){
-                return 1;
+        
+    }, [matchId]);
+
+
+
+    if(error !== null){
+        return <ErrorMessage title="Match CTF Caps" text={error}/>;
+    }
+
+    if(bLoading){
+        return <Loading />;
+    }
+
+    const teamScores = [];
+
+
+    const updateTeamScores = (teamId) =>{
+
+        if(teamScores.length === 0){
+
+            for(let i = 0; i < totalTeams; i++){
+                teamScores.push(0);
             }
-    
+        }
+
+        teamScores[teamId]++;
+    }
+
+    const createTeamScoresString = () =>{
+
+        let string = "";
+
+        for(let i = 0; i < teamScores.length; i++){
+
+            string += `${teamScores[i]}`;
+
+            if(i < teamScores.length - 1){
+                string += " - ";
+            }
+        }
+
+        return string;
+    }
+
+    const createKillHoverData = (kills, teamId) =>{
+
+        kills.sort((a, b) =>{
+
+            a = a.total_events;
+            b = b.total_events;
+
+            if(a < b) return 1;
+            if(a > b) return -1;
             return 0;
         });
-    
-        data.clear();
-    
-        for(let i = 0; i < ordered.length; i++){
-    
-            data.set(ordered[i].key, {"value": ordered[i].value, "times": ordered[i].times});
-        }
-    
-        return {"data": data, "total": total};
-    }
 
-    createAssists(carryTimes, carryIds){
 
-        carryTimes = carryTimes.split(',');
-        carryIds = carryIds.split(',');
-    
-    
-    
-        const players = [];
-    
-        if(carryTimes.length > 1){
-    
-            for(let i = 0; i < carryTimes.length; i++){
-    
-                if(i < carryTimes.length - 1){
-                    players.push({
-                        "player": parseInt(carryIds[i]),
-                        "time": parseFloat(carryTimes[i])
-                    });
-                }
+        const found = kills.filter((kill) =>{
+            if(kill.player_team === teamId) return true;
+        });
+
+        const elems = found.map((kill, index) =>{
+
+            const player = Functions.getPlayer(playerData, kill.player_id, true);
+
+            let end = null;
+
+            if(index < found.length - 1){
+                end = ", ";
             }
-        }
-    
-        return players;
+
+            return <span key={kill.player_id}>
+                <CountryFlag country={player.country}/>{player.name} <b>{kill.total_events}</b>{end}
+            </span>
+            
+        });
+
+
+        if(elems.length === 0) return null;
+
+        return <div>
+            {elems}
+        </div>;
     }
 
-    calcDropTime(data){
 
-        let totalCarryTime = 0;
-    
-        data.assist_carry_times = data.assist_carry_times.split(',');
-    
-        for(let i = 0; i < data.assist_carry_times.length; i++){
-    
-            if(data.assist_carry_times[i] !== ''){
-                totalCarryTime += parseFloat(data.assist_carry_times[i]);
+
+    const createTotalsHoverData = (data, targetKey, invalidTargetKeyValue, alternativeKey) =>{
+
+        const totals = {};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            let current = null;
+
+            if(d[targetKey] === invalidTargetKeyValue){
+                current = d[alternativeKey];
+            }else{
+                current = d[targetKey];
             }
+
+            if(totals[current] === undefined){
+                totals[current] = 0;
+            }
+
+            totals[current]++;
         }
-       
-    
-        return parseFloat(data.travel_time - totalCarryTime).toFixed(2);
-    }
 
-    render(){
+        const finalData = Object.entries(totals);
 
-        let players = JSON.parse(this.props.players);
-        let caps = JSON.parse(this.props.caps);
-        let matchStart = parseFloat(this.props.matchStart)
+        finalData.sort((a, b) =>{
+            a = a[1];
+            b = b[1];
 
-        const playerNames = this.createPlayerMap(players);
+            if(a < b) return 1;
+            if(a > b) return -1;
+            return 0;
+        });
 
-        if(caps.length === 0) return null;
-
-        let currentCovers = 0;
-        let currentAssists = 0;
-        let grabPlayer = 0;
-        let capPlayer = 0;
-        let bgColor = 0;
-        let currentCoverPlayer = 0;
-        let currentAssistPlayer = 0;
-        let totalDropTime = 0;
-
-    
         const elems = [];
-        let coverElems = [];
-        let assistElems = [];
-        let coverNames = [];
 
-        let c = 0;
+        for(let i = 0; i < finalData.length; i++){
 
-        let grabElem = [];
-        let capElem = [];
-        
+            const d = finalData[i];
 
-        let start = this.state.page * this.state.perPage;
-        let end = start + this.state.perPage;
+            const player = Functions.getPlayer(playerData, d[0], true);
 
-        if(end > this.state.results) end = caps.length;
+            let end = "";
 
-        for(let i = start; i < end; i++){
-
-            c = caps[i];
-
-
-            coverNames = "";
-            currentCovers = this.createCovers(c.covers, c.cover_times);
-            //currentAssists = createAssists(c.assists, c.assist_carry_times);
-            currentAssists = this.createAssists(c.assist_carry_times, c.assist_carry_ids);
-            totalDropTime = this.calcDropTime(c);
-
-            grabPlayer = this.getPlayer(playerNames, c.grab);
-            capPlayer = this.getPlayer(playerNames, c.cap);
-
-            coverElems = [];
-            assistElems = [];
-            let currentContent = [];
-
-            
-            //<CountryFlag country={currentCoverPlayer.country}/><Link href={`/player/${key}`}><a>{currentCoverPlayer.name}</a></Link> 
-            let coverTimes = [];
-            for(const [key, value] of currentCovers.data){
-
-                currentCoverPlayer = this.getPlayer(playerNames, key);
-
-                if(currentCoverPlayer !== null){
-
-                    //console.log(value);
-                    coverTimes = [];
-
-                    for(let x = 0; x < value.times.length; x++){
-
-                        coverTimes.push([Functions.MMSS(value.times[x] - matchStart), x + 1]);
-                    }
-
-                    currentContent = [
-                        {
-                        
-                            "headers": ["Timestamp", "Cover"],
-                            "content": coverTimes }
-                    ]
-
-                    coverElems.push(<span key={`cap-${i}-cover-${key}`} className={styles.cover}>
-                        <CountryFlag country={currentCoverPlayer.country}/>
-                        <Link href={`/pmatch/${this.props.matchId}?player=${key}`}><a>
-                        <MouseHoverBox title={`${currentCoverPlayer.name} covered the flag carrier ${value.value} ${(value.value === 1) ? "time" : "times"}`} 
-                            content={currentContent} 
-                            display={currentCoverPlayer.name}/>
-                        </a></Link> 
-                    </span>);
-                }
+            if(i < finalData.length - 1){
+                end = ", ";
             }
 
-            
-
-            let currentCarryPercent = 0;
-            let grabTimestamp = 0;
-            let dropTimestamp = 0;
-            let currentDropTimes = [];
-            let currentGrabTimes = [];
-            let currentCarryTime = [];
-
-            const reducer = (accumulator, currentValue) => accumulator + parseFloat(currentValue);
-
-            for(let x = 0; x < currentAssists.length; x++){
-
-                currentAssistPlayer = this.getPlayer(playerNames, currentAssists[x].player);
-
-                if(currentAssistPlayer !== null){
-                    currentGrabTimes = c.pickup_times.split(',');
-
-                    if(x === 0){
-                        grabTimestamp = Functions.MMSS(c.grab_time - matchStart);
-                    }else{
-                        grabTimestamp = Functions.MMSS(parseFloat(currentGrabTimes[x - 1]) - matchStart);
-                    }
-
-                    currentDropTimes = c.drop_times.split(',');
-                    
-
-                    dropTimestamp = Functions.MMSS(parseFloat(currentDropTimes[x]) - matchStart);
-
-                    currentCarryTime = c.assist_carry_times.reduce(reducer, 0);
-
-                    currentContent = [
-                        {"headers": ["Grab timestamp", "Drop timestamp", "Carry Time (Seconds)", "Carry Percent"], 
-                        "content": [grabTimestamp, dropTimestamp, `${currentAssists[x].time.toFixed(2)}`, `${((currentAssists[x].time / currentCarryTime) * 100).toFixed(2)}%`]}
-                    ];
-
-                    
-
-                    assistElems.push(<span key={`cap-${i}-assist-${x}`} className={styles.cover}>
-                        <CountryFlag country={currentAssistPlayer.country}/>
-                        <Link href={`/pmatch/${this.props.matchId}/?player=${currentAssists[x].player}`}><a><MouseHoverBox title={"Assist"} display={currentAssistPlayer.name} 
-                        content={currentContent}/></a></Link>
-                    </span>);
-                }
-            }
-
-            bgColor = Functions.getTeamColor(c.team);
-
-        
-            currentCarryTime = parseInt(currentCarryTime);
-            if(currentCarryTime !== currentCarryTime) currentCarryTime = c.travel_time; 
-
-            if(grabPlayer === null){
-
-                grabElem = <td className="deleted">
-                    Deleted
-                </td>
-
-            }else{
-            
-                grabElem = <td className={bgColor}>
-                    <span className={styles.time}><MMSS timestamp={c.grab_time - matchStart}/></span>
-                    <CountryFlag country={grabPlayer.country}/><Link href={`/pmatch/${this.props.matchId}/?player=${c.grab}`}><a>{grabPlayer.name}</a></Link>
-                </td>;
-            }
-
-            if(capPlayer === null){
-                capElem = <td className="deleted">
-                    Deleted
-                </td>
-            }else{
-                capElem = <td className={bgColor}>
-                        <span className={styles.time}><MMSS timestamp={c.cap_time - matchStart}/></span>
-                        <CountryFlag country={capPlayer.country}/><Link href={`/pmatch/${this.props.matchId}/?player=${c.cap}`}>
-                        <a>
-                            <MouseHoverBox title={`${capPlayer.name} Captured the Flag`} display={capPlayer.name} content={
-                                [{
-                                    "headers": ["Carry Time", "Carry Percent"],
-                                    "content": [`${parseFloat(c.assist_carry_times[c.assist_carry_times.length - 1]).toFixed(2)}`,
-                                    `${((c.assist_carry_times[c.assist_carry_times.length - 1] / currentCarryTime) * 100).toFixed(2)}%`]
-                                }]
-                            }/>
-                        </a>
-                        </Link>
-                    </td>
-            }
-            
-
-
-            elems.push(<tr key={`cover-${i}`} className={"team-none"}>
-                {grabElem}
-                <td>{coverElems}</td>
-                <td>{assistElems}</td>
-                {capElem}
-                <td><span className={styles.time}>{(currentCarryTime != 0) ? <MMSS timestamp={currentCarryTime}/> : ''}</span></td>
-                <td><span className={styles.time}><MMSS timestamp={c.travel_time}/></span></td>     
-                <td className={styles.time}>{(totalDropTime > 0) ? `${totalDropTime} Seconds` : ''}</td>
-            </tr>);
+            elems.push(<span key={d[0]}>
+                <CountryFlag country={player.country}/>{player.name} <b>{d[1]}</b>{end}
+            </span>);
         }
 
-        return (<div className="m-bottom-25">
-            <div className="default-header">Flag Caps</div> 
-            <BasicPageSelect page={this.state.page} results={this.state.results} changePage={this.changePage}/>
-            <table className={`${styles.table} t-width-1`}>
-                <tbody>
-                    <tr>
-                        <th>Grabbed</th>
-                        <th>Covers</th>
-                        <th>Assists</th>
-                        <th>Capped</th>
-                        <th>Carry Time</th>
-                        <th>Travel Time</th>       
-                        <th>Time Dropped</th>
-                    </tr>
-                    {elems}
-                </tbody>
-            </table>       
-        </div>);
-
-       /* return <div>
-            <div className="default-header">Capture The Flag Caps</div>
-            
-        </div>*/
+        return <div>{elems}</div>
     }
+
+
+    const createAssistHoverData = (assists) =>{
+
+        const elems = assists.map((assist, index) =>{
+
+            let end = "";
+
+            if(index < assists.length - 1){
+                end = `, `;
+            }
+            const player = Functions.getPlayer(playerData, assist.player_id, true);
+            return <span key={assist.id}><CountryFlag country={player.country}/>{player.name} <b>{assist.carry_time} Secs</b>{end}</span>
+        });
+
+        return <div>{elems}</div>
+    }
+
+
+    const createTableData = () =>{
+
+        if(data === undefined) return [];
+
+        const rows = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            updateTeamScores(d.cap_team);
+
+            //const grabPlayer = Functions.getPlayer(playerData, d.grab_player);
+            const capPlayer = Functions.getPlayer(playerData, d.cap_player, true);
+
+            const suicideElem = (d.total_suicides === 0) ? null : 
+            <span className="grey small-font">
+                &nbsp;({d.total_suicides} {Functions.plural(d.total_suicides, "Suicide")})
+            </span>
+
+            const deathsElem = <>
+                {Functions.ignore0(d.total_deaths)}
+                {suicideElem}
+            </>
+
+            const currentRow = {
+                "score": {
+                    "value": i, 
+                    "displayValue": createTeamScoresString(),
+                    "className": Functions.getTeamColor(d.cap_team)
+                },
+                "cap": {
+                    "value": d.cap_time,
+                    "displayValue": Functions.MMSS(d.cap_time - matchStart)
+                }
+                
+            };
+
+            if(displayMode === 0){
+                
+                currentRow["cap_player"] = {
+                    "value": capPlayer.name.toLowerCase(),
+                    "displayValue": <>
+                        <Link href={`/pmatch/${matchId}/?player=${capPlayer.id}`}>
+                            <a>
+                                <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                            </a>
+                        </Link>
+                    </>,
+                    "className": Functions.getTeamColor(d.cap_team)
+                };
+
+                currentRow["travel_time"] = {
+                    "value": d.travel_time,
+                    "displayValue": Functions.toPlaytime(d.travel_time),
+                    "className": "playtime"
+                };
+
+                currentRow["carry_time"] = {
+                    "value": d.carry_time,
+                    "displayValue": Functions.toPlaytime(d.carry_time),
+                    "className": "playtime"
+                };
+
+                currentRow["time_dropped"] = {
+                    "value": d.drop_time,
+                    "displayValue": Functions.toPlaytime(d.drop_time),
+                    "className": "playtime"
+                };
+
+                currentRow["drops"] = {
+                    "value": d.total_drops,
+                    "displayValue": <MouseOver title="Flag Drops" display={createTotalsHoverData(d.flagDrops, "player_id", null, "")}>
+                        {Functions.ignore0(d.total_drops)}
+                    </MouseOver>
+                };
+
+                currentRow["covers"] = {
+                    "value": d.total_covers,
+                    "displayValue": <MouseOver title="Covers" display={createTotalsHoverData(d.coverData, "killer_id", null, "")}>
+                        {Functions.ignore0(d.total_covers)}
+                    </MouseOver>
+                };
+
+                currentRow["self_covers"] = {
+                    "value": d.total_self_covers,
+                    "displayValue": <MouseOver title="Self Covers" display={createTotalsHoverData(d.selfCoverData, "killer_id", null, "")}>
+                        {Functions.ignore0(d.total_self_covers)}
+                    </MouseOver>
+                };
+
+                currentRow["seals"] = {
+                    "value": d.total_seals,
+                    "displayValue": <MouseOver 
+                        title="Seals" 
+                        display={createTotalsHoverData(d.flagSeals, "killer_id", null, "")}>{Functions.ignore0(d.total_seals)}
+                    </MouseOver>
+                };
+
+                currentRow["assists"] = {
+                    "value": d.total_assists,
+                    "displayValue": <MouseOver title="Flag Assists" display={createAssistHoverData(d.flagAssists)}>
+                        {Functions.ignore0(d.total_assists)}
+                    </MouseOver>
+                };
+
+                currentRow["deaths"] = {
+                    "value": d.total_deaths,
+                    "displayValue": <MouseOver 
+                        title="Flag Deaths" 
+                        display={createTotalsHoverData(d.flagDeaths, "victim_id", -1, "killer_id")}>{deathsElem}
+                    </MouseOver>
+                };
+            }
+
+            if(displayMode === 1){
+
+                for(let x = 0; x < totalTeams; x++){
+
+                    currentRow[`team_${x}_kills`] = {
+                        "value": d[`team_${x}_kills`],
+                        "displayValue": 
+                        <MouseOver title="Kills" display={createKillHoverData(d.capKills, x)}>
+                            {Functions.ignore0(d[`team_${x}_kills`])}
+                        </MouseOver>
+                    };
+
+                    currentRow[`team_${x}_suicides`] = {
+                        "value": d[`team_${x}_suicides`],
+                        "displayValue": <MouseOver title="Suicides" display={createKillHoverData(d.capSuicides, x)}>
+                        {Functions.ignore0(d[`team_${x}_suicides`])}
+                    </MouseOver>
+                    };
+                }
+            }
+
+            rows.push(currentRow);
+        }
+
+        return rows;
+    }
+
+
+    const headers = {
+        "score": "Score",
+    };
+
+    let tableWidth = 1;
+
+    if(displayMode === 0){
+
+       // headers["taken"] = "Taken";
+        //headers["taken_player"] = "Grab Player";
+        headers["cap"] = "Capped";
+        
+        headers["cap_player"] = "Cap Player";
+        headers["travel_time"] =  "Travel Time";
+        headers["carry_time"] = "Carry Time";
+        headers["time_dropped"] = "Time Dropped";
+        headers["drops"] = "Drops";
+        headers["deaths"] = "Deaths";
+        headers["covers"] = "Covers";
+        headers["self_covers"] = "Self Covers";
+        headers["seals"] = "Seals";
+        headers["assists"] = "Assists"; 
+
+    }else if(displayMode === 1){
+
+        headers["cap"] = "Capped";
+
+        for(let i = 0; i < totalTeams; i++){
+
+            headers[`team_${i}_kills`] = `${Functions.getTeamName(i, true)} Kills`;
+            headers[`team_${i}_suicides`] = `${Functions.getTeamName(i, true)} Suicides`;
+        }
+
+        tableWidth = 2;
+    }
+
+    return <div>
+        <div className="default-header">Capture The Flag Caps</div>
+        <div className="tabs">
+            <div className={`tab ${(displayMode === 0) ? "tab-selected" : ""}`} 
+            onClick={() =>{ setDisplayMode(0)}}>
+                General
+            </div>
+            <div className={`tab ${(displayMode === 1) ? "tab-selected" : ""}`} 
+            onClick={() =>{ setDisplayMode(1)}}>
+                Team Frags
+            </div>
+        </div>
+        <InteractiveTable width={tableWidth} data={createTableData()} headers={headers}/>
+    </div>
+
 }
 
 export default MatchCTFCaps;

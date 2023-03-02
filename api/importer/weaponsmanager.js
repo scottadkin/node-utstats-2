@@ -19,21 +19,18 @@ class WeaponsManager{
 
         const nameReg = /^\d+\.\d+\tweap_.+?\t(.+?)\t.+$/i;
 
-        let d = 0;
-        let result = 0;
 
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
             if(nameReg.test(d)){
 
-                result = nameReg.exec(d);
+                const result = nameReg.exec(d);
 
                 if(this.names.indexOf(result[1]) === -1){
                     this.names.push(result[1]);
                 }
-
             }
         }
     }
@@ -53,46 +50,37 @@ class WeaponsManager{
         try{
 
             await this.weapons.getIdsByName(this.names);
-
-            let p = 0;
-
-            let currentWeaponId = 0;
-            
-            let currentWeapon = 0;
-
             
             for(let i = 0; i < playerManager.players.length; i++){
 
-                p = playerManager.players[i];
+                const p = playerManager.players[i];
+                
 
                 for(const [key, value] of p.weaponStats.entries()){
-
+   
+                    const currentWeaponId = this.weapons.getSavedWeaponByName(key);
                     
-                    currentWeaponId = this.weapons.getSavedWeaponByName(key);
-                    
-                    if(currentWeaponId !== null){
+                    if(currentWeaponId !== null){      
 
-                        if(p.bDuplicate === undefined){
+                        await this.weapons.insertPlayerMatchStats(matchId, p.masterId, currentWeaponId, value);
+                        await this.weapons.updatePlayerTotalStats(gametypeId, p.masterId, currentWeaponId, value);
 
-                            await this.weapons.insertPlayerMatchStats(matchId, p.masterId, currentWeaponId, value);
-                            await this.weapons.updatePlayerTotalStats(gametypeId, p.masterId, currentWeaponId, value);
+                        if(this.currentWeapons.has(currentWeaponId)){
 
-                            if(this.currentWeapons.has(currentWeaponId)){
+                            const currentWeapon = this.currentWeapons.get(currentWeaponId);
+    
+                            currentWeapon.kills += value.kills;
+                            currentWeapon.deaths += value.deaths;
+                            currentWeapon.shots += value.shots;
+                            currentWeapon.hits += value.hits;
+                            currentWeapon.damage += Math.abs(value.damage);
 
-                                currentWeapon = this.currentWeapons.get(currentWeaponId);
-        
-                                currentWeapon.kills += value.kills;
-                                currentWeapon.deaths += value.deaths;
-                                currentWeapon.shots += value.shots;
-                                currentWeapon.hits += value.hits;
-                                currentWeapon.damage += Math.abs(value.damage);
-
-                                this.currentWeapons.set(currentWeaponId, currentWeapon);
-        
-                            }else{
-                                this.currentWeapons.set(currentWeaponId, value);
-                            }
+                            this.currentWeapons.set(currentWeaponId, currentWeapon);
+    
+                        }else{
+                            this.currentWeapons.set(currentWeaponId, value);
                         }
+                    
 
                     }else{
                         new Message(`currentWeaponId is null for ${key}`,'warning');

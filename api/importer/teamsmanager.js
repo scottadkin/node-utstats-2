@@ -1,6 +1,4 @@
-const mysql = require('../database');
 const Message = require('../message');
-const Promise = require('promise');
 const Teams = require('../teams');
 
 class TeamsManager{
@@ -24,7 +22,7 @@ class TeamsManager{
 
             if(result !== null){
 
-                const currentPlayer = playerManager.getOriginalConnectionById(parseInt(result[2]));
+                const currentPlayer = playerManager.getPlayerById(result[2]);
 
                 if(currentPlayer !== null){
 
@@ -50,21 +48,34 @@ class TeamsManager{
 
         try{
 
-            let t = 0;
-
             new Message(`Starting to insert player team changes.`,'note');
 
             for(let i = 0; i < this.data.length; i++){
 
-                t = this.data[i];
+                const d = this.data[i];
 
-                await this.teams.insertTeamChange(matchId, t.timestamp, t.player, t.team);
+                await this.teams.insertTeamChange(matchId, d.timestamp, d.player, d.team);
             }
 
             new Message(`Inserted all player team changes.`,'pass');
 
         }catch(err){
             new Message(`PlayerManager.insertTeamChanges() ${err}`,'error');
+        }
+    }
+
+    //set team joins to match the start time of the game if they are below match start time
+    setTimestampsToMatchStart(matchTimings){
+
+        for(let i = 0; i < this.data.length; i++){
+
+            const d = this.data[i];
+
+            if(d.timestamp < matchTimings.start){
+                d.timestamp = matchTimings.start;
+            }else{
+                return;
+            }
         }
     }
 }

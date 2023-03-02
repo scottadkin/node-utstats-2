@@ -254,65 +254,61 @@ class Items{
     }
 
 
-    setPlayerMatchPickups(matchId, player, data){
+    async setPlayerMatchPickups(matchId, player, data){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_player_matches SET 
-            shield_belt=?,amp=?,amp_time=?,invisibility=?,invisibility_time=?,pads=?,armor=?,boots=?,super_health=?
+        const query = `UPDATE nstats_player_matches SET 
+            shield_belt=?,amp=?,amp_time=?,
+            invisibility=?,invisibility_time=?,
+            pads=?,armor=?,boots=?,super_health=?
             WHERE match_id=? AND player_id=?`;
 
-            const vars = [
-                (data.belt !== undefined) ? data.belt : 0,
-                (data.amp !== undefined) ? data.amp : 0,
-                (data.ampTime !== undefined) ? data.ampTime : 0,
-                (data.invis !== undefined) ? data.invis : 0,
-                (data.invisTime !== undefined) ? data.invisTime : 0,
-                (data.pads !== undefined) ? data.pads : 0,
-                (data.armor !== undefined) ? data.armor : 0,
-                (data.boots !== undefined) ? data.boots : 0,
-                (data.super !== undefined) ? data.super : 0,
-                matchId,
-                player
-            ];
+        const vars = [
+            data.belt,
+            data.amp,
+            data.ampStats.totalTime,
+            data.invis,
+            data.invisStats.totalTime,
+            data.pads,
+            data.armor,
+            data.boots,
+            data.super,
+            matchId,
+            player
+        ];
 
-            mysql.query(query, vars, (err) =>{
+        return await mysql.simpleQuery(query, vars)
 
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
-    updatePlayerBasicPickupData(player, data){
+    async updatePlayerBasicPickupData(player, data){
 
-        return new Promise((resolve, reject) =>{
+        const query = `UPDATE nstats_player_totals SET 
+            shield_belt=shield_belt+?,
+            amp=amp+?,
+            amp_time=amp_time+?,
 
-            const query = `UPDATE nstats_player_totals SET 
-            shield_belt=shield_belt+?,amp=amp+?,amp_time=amp_time+?,invisibility=invisibility+?,invisibility_time=invisibility_time+?,
+            invisibility=invisibility+?,
+            invisibility_time=invisibility_time+?,
             pads=pads+?,armor=armor+?,boots=boots+?,super_health=super_health+? WHERE id=?`;
 
-            const vars = [
-                (data.belt !== undefined) ? data.belt : 0,
-                (data.amp !== undefined) ? data.amp : 0,
-                (data.ampTime !== undefined) ? data.ampTime : 0,
-                (data.invis !== undefined) ? data.invis : 0,
-                (data.invisTime !== undefined) ? data.invisTime : 0,
-                (data.pads !== undefined) ? data.pads : 0,
-                (data.armor !== undefined) ? data.armor : 0,
-                (data.boots !== undefined) ? data.boots : 0,
-                (data.super !== undefined) ? data.super : 0,
-                player
-            ];
+        
 
-            mysql.query(query, vars, (err) =>{
 
-                if(err) reject(err);
+        
+        const vars = [
+            data.belt,
+            data.amp,
+            data.ampStats.totalTime,
+            data.invis,
+            data.invisStats.totalTime,
+            data.pads,
+            data.armor,
+            data.boots,
+            data.super,
+            player
+        ];
 
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, vars);
     }
 
 
@@ -382,12 +378,10 @@ class Items{
             const matchData = await this.getMatchData(id);
 
             const uses = {};
-
-            let m = 0;
-
+            
             for(let i = 0; i < matchData.length; i++){
 
-                m = matchData[i];
+                const m = matchData[i];
 
                 if(uses[m.item] !== undefined){
                     uses[m.item] += m.uses;
@@ -487,12 +481,12 @@ class Items{
 
     async changePlayerIdsMatch(oldId, newId){
 
-        await mysql.simpleUpdate("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
+        await mysql.simpleQuery("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
     }
 
     async deletePlayerTotals(id){
 
-        await mysql.simpleDelete("DELETE FROM nstats_items_player WHERE player=?", [id]);
+        await mysql.simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [id]);
     }
 
     async createNewPlayerTotalFromMerge(player, item, first, last, uses, matches){
@@ -500,7 +494,7 @@ class Items{
         const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,?)";
         const vars = [player, item, first, last, uses, matches];
 
-        await mysql.simpleUpdate(query, vars);
+        await mysql.simpleQuery(query, vars);
     }
 
     async mergePlayerTotals(oldId, newId){
@@ -512,13 +506,11 @@ class Items{
 
             const mergedData = {};
 
-            let d = 0;
-
             const merge = (array) =>{
 
                 for(let i = 0; i < array.length; i++){
 
-                    d = array[i];
+                    const d = array[i];
     
                     if(mergedData[d.item] === undefined){
                         mergedData[d.item] = d;
@@ -720,7 +712,39 @@ class Items{
     async getPlayerMatchData(matchId, playerId){
 
         const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
-        return await mysql.simpleFetch(query, [matchId, playerId]);
+
+        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data[r.item] = r.uses;
+        }
+
+        return data;
+    }
+
+    createPlayerItemUses(data){
+
+        const players = {};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(players[d.player_id] === undefined){
+                players[d.player_id] = {};
+            }
+
+            const p = players[d.player_id];
+
+            p[d.item] = d.uses;
+        }
+
+        return players;
     }
 
     returnUniqueIds(data){
@@ -737,6 +761,29 @@ class Items{
         }
 
         return unique;
+    }
+
+
+    async updateMatchAmpKills(matchId, ampKills){
+
+        const query = `UPDATE nstats_matches SET 
+        amp_kills=?,
+        amp_kills_team_0=?,
+        amp_kills_team_1=?,
+        amp_kills_team_2=?,
+        amp_kills_team_3=? 
+        WHERE id=?`;
+
+        const vars = [
+            ampKills.total,
+            ampKills.red,
+            ampKills.blue,
+            ampKills.green,
+            ampKills.yellow,
+            matchId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
     }
 }
 

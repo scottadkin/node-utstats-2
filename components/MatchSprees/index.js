@@ -1,152 +1,128 @@
-import React from 'react';
+import {React, useEffect, useState} from 'react';
 import Functions from '../../api/functions';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
-import BasicPageSelect from '../BasicPageSelect';
-import Table2 from '../Table2';
+import Loading from '../Loading';
+import ErrorMessage from '../ErrorMessage';
+import InteractiveTable from '../InteractiveTable';
 
-class MatchSprees extends React.Component{
+const MatchSprees = ({matchId, players, matchStart}) =>{
 
-    constructor(props){
 
-        super(props);
-        this.state = {"page": 0, "perPage": 10, "data": []};
+    const [bLoading, setbLoading] = useState(true);
+    const [sprees, setSprees] = useState(null);
+    const [error, setError] = useState(null);
 
-        this.changePage = this.changePage.bind(this);
-    }
+    useEffect(() =>{
 
-    async loadData(){
+        const controller = new AbortController();
 
-        try{
+        const loadData = async () =>{
 
-            const playerId = (this.props.playerId !== undefined) ? this.props.playerId : -1;
-
-            const req = await fetch("/api/match", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "sprees", "matchId": this.props.matchId, "playerId": playerId})
+            const req = await fetch("/api/match",{
+                "signal": controller.signal,
+                "headers": {
+                    "Content-type": "application/json",
+                },
+                "method": "post",
+                "body": JSON.stringify({
+                    "mode": "sprees",
+                    "matchId": matchId
+                })
             });
 
             const res = await req.json();
 
-            if(res.error === undefined){
-                this.setState({"data": res.data});
+            if(res.error !== undefined){
+                setError(res.error);
             }else{
-
-                throw new Error(res.error);
+                setSprees(res.data);
             }
 
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async componentDidMount(){
-
-        await this.loadData();
-    }
-
-    changePage(page){
-
-        if(page < 0) page = 0;
-
-        const maxPage = Math.ceil(this.state.data.length / this.state.perPage) - 1;
-
-        if(page > maxPage){
-            page = maxPage;
+            setbLoading(false);
         }
 
-        this.setState({"page": page});
-    }
+        loadData();
 
-    renderTable(){
+        return () =>{
+            controller.abort();
+        }
 
-        const rows = [];
+    },[matchId]);
 
-        const start = this.state.page * this.state.perPage;
 
-        const end = (start + this.state.perPage > this.state.data.length) ? this.state.data.length : start + this.state.perPage;
+    const renderTable = () =>{
 
-        for(let i = start; i < end; i++){
+        const headers = {
+            "player": "Player",
+            "started": "Started",
+            "ended": "Ended",
+            "spreeTime": "Spree Lifetime",
+            "reason": "End Reason",
+            "kills": "Total Kills"
+       
+        };
+        const data =[];
 
-            const d = this.state.data[i];
+        for(let i = 0; i < sprees.length; i++){
 
-            const player = Functions.getPlayer(this.props.players, d.player);
-            const killer = (d.killer !== -1) ? Functions.getPlayer(this.props.players, d.killer) : null;
+            const s = sprees[i];
 
-            let killerElem = null;
+            const player = Functions.getPlayer(players, s.player, true);
 
-            if(killer !== null){
+            let endReason = null;
 
-                if(player.id !== killer.id){
-
-                    killerElem = <td className="red">
-                        Killed by <Link href={`/pmatch/${this.props.matchId}?player=${killer.id}`}>
-                            <a><CountryFlag host={this.props.host} country={killer.country}/><span className="yellow">{killer.name}</span></a>
-                        </Link>
-                    </td>
-
-                }else{
-
-                    killerElem = <td className="red">
-                        Killed their own dumb self.
-                    </td>
-                }
-            }else{
-
-                killerElem = <td>Match Ended!</td>;
+            if(s.killer === -1){
+                endReason = <div>Match ended!</div>;
             }
 
+            if(s.killer !== -1 && s.player !== s.killer){
 
-            rows.push(<tr key={i}>
-                <td>
-                    <Link href={`/pmatch/${this.props.matchId}?player=${player.id}`}>
+                const killer = Functions.getPlayer(players, s.killer, true);
+                endReason = <div><span className="red">Killed by</span> <CountryFlag country={killer.country}/>{killer.name}</div>
+            }
+
+            if(s.killer === s.player){
+                endReason = <div className="red">Committed Suicide</div>
+            }
+
+            data.push({
+                "player": {
+                    "value": player.name.toLowerCase(), 
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
                         <a>
-                            <CountryFlag host={this.props.host} country={player.country}/>{player.name}
+                            <CountryFlag country={player.country}/>{player.name}
                         </a>
-                    </Link>
-                </td>
-                <td>
-                    {Functions.MMSS(d.start_timestamp)}
-                </td>
-                <td>
-                    {Functions.MMSS(d.end_timestamp)}
-                </td>
-                <td>
-                    {Functions.MMSS(d.total_time)}
-                </td>
-                {killerElem}
-                <td>
-                    {d.kills}
-                </td>
-            </tr>);
+                    </Link>,
+                    "className": `player ${Functions.getTeamColor(player.team)}`
+                },
+                "started": {"value": s.start_timestamp, "displayValue": Functions.MMSS(s.start_timestamp - matchStart)},
+                "ended": {"value": s.end_timestamp, "displayValue": Functions.MMSS(s.end_timestamp - matchStart)},
+                "spreeTime": {
+                    "value": s.total_time,
+                    "displayValue": Functions.toPlaytime(s.total_time),
+                    "className": "playtime"
+                },
+                "reason": {"value": s.killer, "displayValue": endReason},
+                "kills": {"value": s.kills}
+            });
         }
 
-        return <div>
-            <Table2 width={1} players={true}>
-                <tr>
-                    <th>Player</th>
-                    <th>Started</th>
-                    <th>Ended</th>
-                    <th>Spree Lifetime</th>
-                    <th>End Reason</th>
-                    <th>Total Kills</th>
-                </tr>
-                {rows}
-            </Table2>
-        </div>
+        return <InteractiveTable width={1} headers={headers} data={data}/>;
     }
 
-    render(){
 
-        if(this.state.data.length === 0) return null;
-        
-        return <div className="m-bottom-25">
-            <div className="default-header">Extended Sprees Information</div>
-            <BasicPageSelect page={this.state.page} perPage={this.state.perPage} results={this.state.data.length} changePage={this.changePage}/>
-            {this.renderTable()}
-        </div>
+    if(bLoading) return <Loading />;
+    if(error !== null) return <ErrorMessage title="Extended Spree Summary" text={error}/>;
+
+    if(sprees !== null){
+        if(sprees.length === 0) return null;
     }
+
+    return <div>
+        <div className="default-header">Extended Spree Summary</div>
+        {renderTable()}
+    </div>
 }
 
 export default MatchSprees;

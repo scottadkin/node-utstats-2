@@ -31,7 +31,7 @@ async function setFTPSettings(){
 
 async function getLogsFolderSettings(){
 
-    const query = "SELECT ignore_duplicates,ignore_bots,min_players,min_playtime,import_ace FROM nstats_logs_folder ORDER BY id DESC LIMIT 1";
+    const query = "SELECT ignore_duplicates,ignore_bots,min_players,min_playtime,import_ace,use_ace_player_hwid FROM nstats_logs_folder ORDER BY id DESC LIMIT 1";
 
     const result = await mysql.simpleQuery(query);
 
@@ -43,79 +43,66 @@ async function getLogsFolderSettings(){
 
 }
 
-function startNewImport(ftpServer){
 
-    return new Promise(async (resolve, reject) =>{
+async function startNewImport(ftpServer){
 
+    if(ftpServer !== null){
 
-        let I = 0;
+        const f = ftpServer;
 
-
-        if(ftpServer !== null){
-
-            const f = ftpServer;
-
-            if(f.enabled == 0){
-                new Message(`${f.host}:${f.port} has been disabled, skipping import.`,"note");
-                resolve();
-                return;
-            }
-
-            I = new Importer(
-                f.host, 
-                f.port, 
-                f.user, 
-                f.password, 
-                f.target_folder, 
-                f.delete_after_import, 
-                f.delete_tmp_files, 
-                f.ignore_bots, 
-                f.ignore_duplicates, 
-                f.min_players, 
-                f.min_playtime, 
-                f.sftp,
-                f.import_ace,
-                f.delete_ace_logs,
-                f.delete_ace_screenshots
-            );
-
-        }else{
-
-            const logsSettings = await getLogsFolderSettings();
-
-            I = new Importer(
-                null, 
-                null, 
-                null, 
-                null, 
-                null, 
-                null, 
-                null, 
-                logsSettings.ignore_bots, 
-                logsSettings.ignore_duplicates, 
-                logsSettings.min_players, 
-                logsSettings.min_playtime, 
-                false, 
-                false, 
-                false, 
-                false, 
-                true);
+        if(f.enabled == 0){
+            new Message(`${f.host}:${f.port} has been disabled, skipping import.`,"note");
+            return true;
         }
 
-        I.myEmitter.on("passed", () =>{
+        const importer = new Importer(
+            f.host, 
+            f.port, 
+            f.user, 
+            f.password, 
+            f.target_folder, 
+            f.delete_after_import, 
+            f.delete_tmp_files, 
+            f.ignore_bots, 
+            f.ignore_duplicates, 
+            f.min_players, 
+            f.min_playtime, 
+            f.sftp,
+            f.import_ace,
+            f.delete_ace_logs,
+            f.delete_ace_screenshots,
+            f.use_ace_player_hwid
+        );
 
-            resolve();
-        });
+        return await importer.import();
 
-        I.myEmitter.on("error", (err) =>{
+    }else{
 
-            //console.log(`Oops...${err}`);
-            reject(err);
-        })
+        const logsSettings = await getLogsFolderSettings();
 
-    });
+        const importer = new Importer(
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            logsSettings.ignore_bots, 
+            logsSettings.ignore_duplicates, 
+            logsSettings.min_players, 
+            logsSettings.min_playtime, 
+            false, 
+            false, 
+            false, 
+            false, 
+            logsSettings.use_ace_player_hwid,
+            true
+        );
 
-       
+        return await importer.import();
+    }
+    
 }
 
 
@@ -172,10 +159,10 @@ async function main(){
 
     if(config.importInterval > 0){
 
-        setInterval(() =>{
+        setInterval(async () =>{
     
             if(bCurrentImportFinished){
-                main();
+                await main();
             }else{
                 new Message("Previous import has not finished, skipping until next check interval.", "note");
             }

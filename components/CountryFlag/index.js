@@ -16,6 +16,8 @@ class CountryFlag extends React.Component{
 
     show(){
 
+        if(this.props.bNoHover !== undefined && this.props.bNoHover) return;
+
         this.setState({"show": true});
     }
 

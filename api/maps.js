@@ -283,16 +283,40 @@ class Maps{
         return name;
     }
 
+
+    getSimilarImage(targetName, fileList){
+
+        for(let i = 0; i < fileList.length; i++){
+
+            const file = fileList[i];
+
+            const cleanNameResult = /^(.+?)\.jpg$/i.exec(file);
+
+            if(cleanNameResult === null) continue;
+
+            const currentName = cleanNameResult[1].toLowerCase();
+            if(targetName.includes(currentName)) return cleanNameResult[1];     
+        }
+
+        return null;
+    }
+
     async getImage(name){
 
         name = Functions.cleanMapName(name);
-        name = name.toLowerCase()+'.jpg';
+
+        const justName = name.toLowerCase();
+        name = justName+'.jpg';
 
         const files = fs.readdirSync('public/images/maps/');
 
         if(files.indexOf(name) !== -1){
             return `/images/maps/${name}`;
         }
+
+        const similarImage = this.getSimilarImage(justName, files);
+
+        if(similarImage !== null) return `/images/maps/${similarImage}.jpg`;
 
         return `/images/maps/default.jpg`;
     }
@@ -301,19 +325,26 @@ class Maps{
 
         const files = fs.readdirSync('public/images/maps/');
 
-        const exists = [];
-
-        let currentName = "";
+        const exists = {};
 
         for(let i = 0; i < names.length; i++){
             
-            currentName = Functions.cleanMapName(names[i]).toLowerCase();
+            const currentName = Functions.cleanMapName(names[i]).toLowerCase();
 
             if(files.indexOf(`${currentName}.jpg`) !== -1){
-                exists.push(currentName);
+
+                exists[currentName] = currentName;
+            }else{
+
+                const similarImage = this.getSimilarImage(currentName, files);
+
+                if(similarImage !== null){
+                    console.log(`Found similar image ${similarImage}`);
+                    exists[currentName] = similarImage
+                }
+
             }
         }
-
 
         return exists;
     }
@@ -443,7 +474,7 @@ class Maps{
     }
 
 
-    async getRecent(id, page, perPage){
+    async getRecent(id, page, perPage, playerManager){
 
         const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC LIMIT ?, ?";
 
@@ -459,8 +490,23 @@ class Maps{
         const start = page * perPage;
 
         const vars = [id, settings.minPlaytime, settings.minPlayers, start, perPage];
+        
+        const result = await mysql.simpleQuery(query, vars);
 
-        return await mysql.simpleFetch(query, vars);
+        const dmWinners = new Set(result.map(r => r.dm_winner));
+
+        const playersInfo = await playerManager.getNamesByIds([...dmWinners], true);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(r.dm_winner !== 0){
+                r.dmWinner = playersInfo[r.dm_winner];
+            }
+        }
+
+        return result;
 
     }
 
@@ -761,13 +807,13 @@ class Maps{
 
         const query = "SELECT id,match_date,map_id,playtime FROM nstats_player_matches WHERE player_id=?";
 
-        return await mysql.simpleFetch(query, [playerId]);
+        return await mysql.simpleQuery(query, [playerId]);
     }
 
 
     async deletePlayer(playerId){
 
-        return await mysql.simpleDelete("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
+        return await mysql.simpleQuery("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
     }
 
 
@@ -799,12 +845,9 @@ class Maps{
             
             const totals = {};
 
-            let p = 0;
-            let current = 0;
-
             for(let i = 0; i < playtimeData.length; i++){
 
-                p = playtimeData[i];
+                const p = playtimeData[i];
 
                 if(totals[p.map_id] === undefined){
 
@@ -820,7 +863,7 @@ class Maps{
                     };
                 }
 
-                current = totals[p.map_id];
+                const current = totals[p.map_id];
 
                 current.matches++;
 

@@ -1,190 +1,111 @@
-import React from 'react';
+import {React, useState} from 'react';
 import styles from './AdminMatchControl.module.css';
 import CountryFlag from '../CountryFlag/';
+import Table2 from '../Table2';
+import Functions from '../../api/functions';
+import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 
 
-class AdminMatchControl extends React.Component{
+const AdminMatchControl = ({players, matchId, mapId, gametypeId}) =>{
 
-    constructor(props){
+    const [deletedPlayers, setDeletedPlayers] = useState([]);
+    const [error, setError] = useState(null);
+    const [bLoading, setbLoading] = useState(false);
 
-        super(props);
 
-        this.deleteMatch = this.deleteMatch.bind(this);
-        this.deletePlayer = this.deletePlayer.bind(this);
+    const deletePlayer = async (playerId) =>{
 
-        this.state = {"players": JSON.parse(this.props.players),"matchDeleteMessage": "", "playerDeleteMessages": []};
+        setbLoading(true);
+
+        const req = await fetch("/api/matchadmin", {
+            "headers": {"Content-Type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "type": "deletePlayer", 
+                "matchId": matchId,
+                "playerId": playerId,
+                "mapId": mapId,
+                "gametypeId": gametypeId
+            })
+        });
+
+        const res = await req.json();
+
+        if(res.message === "passed"){
+            setDeletedPlayers([...deletedPlayers, playerId]);
+        }
+        
+        if(res.error !== undefined){
+            setError(res.error);
+        }
+
+        setbLoading(false);
+
     }
 
-    async deleteMatch(){
+    const deleteMatch = async () =>{
 
-        try{
+        setbLoading(true);
 
-            const req = await fetch("/api/adminmatches", {
-                "headers": {"Content-Type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "delete", "id": this.props.matchId})
-            });
+        const req = await fetch("/api/adminmatches", {
+            "headers": {"Content-Type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete", "id": matchId})
+        });
 
-            const result = await req.json();
+        const result = await req.json();
 
-            this.setState({"matchDeleteMessage": result.message});
+        if(result.message === "passed"){
 
             setTimeout(() =>{
                 window.location = "/";
-            }, 2000);
-            
-
-        }catch(err){
-            console.trace(err);
-        }   
-    }
-
-    displayMatchDeletedMessage(){
-
-        if(this.state.matchDeleteMessage === "") return null;
-
-        let string = this.state.matchDeleteMessage;
-
-        if(string === "passed"){
-            string = "Match Deleted successfully. Redirecting in 2 seconds.";
+            }, 2000);     
         }
 
-        return <div className={`team-green ${styles.box} center m-bottom-25`}>
-            {string}
-        </div>
+        
     }
 
-
-    async deletePlayer(playerId){
-
-        try{
-
-            console.log(playerId);
-
-            const req = await fetch("/api/matchadmin", {
-                "headers": {"Content-Type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "type": "deletePlayer", 
-                    "matchId": this.props.matchId,
-                    "playerId": playerId,
-                    "mapId": this.props.mapId})
-            });
-
-            const result = await req.json();
-
-            if(result.message === "passed"){
-
-                this.updatePlayerList(playerId);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    updatePlayerList(id){
-
-        let p = 0;
-
-        const newPlayers = [];
-
-        for(let i = 0; i < this.state.players.length; i++){
-
-            p = this.state.players[i];
-
-            if(p.id !== id){
-                newPlayers.push(p);
-            }else{
-
-                const messages = this.state.playerDeleteMessages;
-
-                messages.push(`Player ${p.name} was deleted successfully.`);
-
-                this.setState({"playerDeleteMessages": messages});
-            }
-        }
-
-        this.setState({"players": newPlayers});
-    }
-
-    displayPlayerOptions(){
-
-        const players = this.state.players;
+    const renderPlayerList = () =>{
 
         const rows = [];
 
-        let p = 0;
+        for(const [playerId, playerData] of Object.entries(players)){
 
-        const createButton = (id) =>{
-            return <div className={`${styles.button} team-red`} onClick={(() =>{
-                this.deletePlayer(id);
-            })}>Remove From Match</div>
-        }
+            if(deletedPlayers.indexOf(playerId) !== -1) continue;
 
-        for(let i = 0; i < players.length; i++){
-
-            p = players[i];
-
-            rows.push(<tr key={i}>
-                <td><CountryFlag host={this.props.host} country={p.country}/>{p.name}</td>
+            rows.push(<tr key={playerId}>
+                <td className={`player ${Functions.getTeamColor(playerData.team)}`}>
+                    <CountryFlag country={playerData.country}/>{playerData.name}
+                </td>
                 <td>
-                    {createButton(p.id)}
+                    <div className={`${styles.button} team-red`} onClick={(() =>{
+                        deletePlayer(playerId);
+                    })}>Remove From Match
+                    </div>
                 </td>
             </tr>);
         }
 
-        const messages = [];
-
-        let m = 0;
-
-        for(let i = 0; i < this.state.playerDeleteMessages.length; i++){
-
-            m = this.state.playerDeleteMessages[i];
-
-            messages.push(<div key={i}>{m}</div>);
-        }
-
-        let messagesElems = null;
-
-        if(messages.length > 0){
-
-            messagesElems = <div className="team-green m-top-25 p-top-25 p-bottom-25">
-                {messages}
-            </div>
-        }
-
-        return <div>
-            <table className="t-width-2 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Player</th>
-                        <th>Action</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
-            {messagesElems}
-        </div>
+        return <Table2 width={2}>
+            <tr>
+                <th>Player</th>
+                <th>Delete From Match</th>
+            </tr>
+            {rows}
+        </Table2>
     }
 
-    render(){
-
-        return <div>
-            <div className="default-header">Admin</div>
-
-                <div className="form">
-
-                    <div className="default-header">Player Options</div>
-                    {this.displayPlayerOptions()}
-
-                    <div className="default-header">Delete Match</div>
-                    {this.displayMatchDeletedMessage()}
-                    <div className={`${styles.button} team-red`} onClick={this.deleteMatch}>Delete Match</div>
-                </div>
-               
-        </div>
-    }
+    return <div>
+        <div className="default-header">Admin Match Control</div>
+        <div className="default-header">Manage Players</div>
+        {renderPlayerList()}
+        <div className="default-header">Delete Match</div>
+        <div className={`${styles.button} team-red`} onClick={() => deleteMatch()}>Delete Match</div>
+        <Loading value={!bLoading}/>
+        <ErrorMessage title="Admin Match Controll" text={error}/>
+    </div>
 }
 
 export default AdminMatchControl;
+

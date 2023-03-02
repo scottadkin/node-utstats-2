@@ -26,7 +26,8 @@ class AdminFTPManagerCreate extends React.Component{
             "minPlaytime": 0,
             "bSecure": false,
             "errors": null,
-            "bSaved": false
+            "bSaved": false,
+            "bUseACEPlayerHWID": false
         };
 
         this.updateValue = this.updateValue.bind(this);
@@ -60,6 +61,7 @@ class AdminFTPManagerCreate extends React.Component{
         const bIgnoreDuplicates = e.target[13].value;
         const minPlayers = e.target[14].value;
         const minPlaytime = e.target[15].value;
+        const bUseACEPlayerHWID = e.target[16].value;
 
         const data = {
             "mode": "create",
@@ -79,6 +81,7 @@ class AdminFTPManagerCreate extends React.Component{
             "importAce": bImportAce,
             "deleteAceLogs": bDeleteAceLogs,
             "deleteAceScreenshots": bDeleteAceScreenshots,
+            "bUseACEPlayerHWID": bUseACEPlayerHWID
         };
 
         const req = await fetch("/api/ftpadmin", {
@@ -262,6 +265,16 @@ class AdminFTPManagerCreate extends React.Component{
                         }}/>
                     </div>
                 </div>
+
+                <div className="select-row">
+                    <div className="select-label">Merge Players by ACE HWID</div>
+                    <div>
+                        <FormCheckBox inputName={"useACEHWID"} valueName="useACEHWID" updateValue={this.updateValue} 
+                        value={this.state.bUseACEPlayerHWID}/>
+                    </div>
+                </div>
+
+
                 <input type="submit" className="search-button" value="Add FTP Server"/>
             </form>
             {this.renderNotification()}

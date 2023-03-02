@@ -1,5 +1,6 @@
 const mysql = require("./database");
 const Message = require("./message");
+const Players = require("./players");
 
 
 class Match{
@@ -49,7 +50,17 @@ class Match{
 
         const result = await mysql.simpleQuery(query, [id]);
 
-        if(result.length > 0) return result[0];
+        if(result.length > 0){
+
+            if(result[0].dm_winner !== 0){
+                const playerManager = new Players();
+                const dmWinnerInfo = await playerManager.getNamesByIds([result[0].dm_winner], false);
+
+                result[0].dmWinner = dmWinnerInfo[0];
+            }
+
+            return result[0];
+        }
 
         return {};
     }

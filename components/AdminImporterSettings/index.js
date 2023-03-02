@@ -40,6 +40,7 @@ class AdminImporterSettings extends React.Component{
                 <th>Ignore Duplicates</th>
                 <th>Ignore Bots</th>
                 <th>Import ACE</th>
+                <th>Merge Players by ACE HWID</th>
             </tr>
             <tr>
                 <td>{d.total_imports}</td>
@@ -49,6 +50,7 @@ class AdminImporterSettings extends React.Component{
                 <TrueFalse bTable={true} value={d.ignore_duplicates}/>
                 <TrueFalse bTable={true} value={d.ignore_bots}/>
                 <TrueFalse bTable={true} value={d.import_ace}/>
+                <TrueFalse bTable={true} value={d.use_ace_player_hwid}/>
             </tr>
         </Table2>
 

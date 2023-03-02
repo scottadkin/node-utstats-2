@@ -144,21 +144,17 @@ class Weapons{
         return null;
     }
 
-    insertPlayerMatchStats(matchId, playerId, weaponId, stats){
+    async insertPlayerMatchStats(matchId, playerId, weaponId, stats){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
 
-            const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?)";
+        const vars = [
+            matchId, playerId, weaponId, stats.kills, stats.deaths, 
+            stats.accuracy, stats.shots, stats.hits, Math.abs(stats.damage), stats.efficiency
+        ];
 
-            const vars = [matchId, playerId, weaponId, stats.kills, stats.deaths, stats.accuracy, stats.shots, stats.hits, Math.abs(stats.damage)];
+        return await mysql.simpleQuery(query, vars);
 
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
 
@@ -266,24 +262,28 @@ class Weapons{
         return await mysql.simpleFetch(query);
     }
 
-    getNamesByIds(ids){
+    async getNamesByIds(ids, bReturnObject){
 
-        if(ids.length === 0) return [];
+        if(bReturnObject === undefined) bReturnObject = false;
 
-        return new Promise((resolve, reject) =>{
+        if(ids.length === 0){
+            return (bReturnObject) ? {} : [];
+        }
 
-            const query = "SELECT id,name FROM nstats_weapons WHERE id IN(?)";
+        const query = "SELECT id,name FROM nstats_weapons WHERE id IN(?)";
+        const result =  await mysql.simpleQuery(query, [ids]);
 
-            mysql.query(query, [ids], (err, result) =>{
+        if(!bReturnObject) return result;
 
-                if(err) reject(err);
+        const data = {};
 
-                if(result !== undefined){
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            data[r.id] = r.name;
+        }
+
+        return data;
     }
 
 
@@ -301,23 +301,13 @@ class Weapons{
     }
 
 
-    getMatchPlayerData(id){
+    async getMatchPlayerData(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT player_id,weapon_id,kills,deaths,accuracy,shots,hits,damage,efficiency 
+        FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC`;
 
-            const query = "SELECT player_id,weapon_id,kills,deaths,accuracy,shots,hits,damage FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC";
+        return await mysql.simpleQuery(query, [id]);
 
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
     async getMatchData(id){
@@ -341,7 +331,7 @@ class Weapons{
             if(weaponIds.length > 0){
                 weaponNames = await this.getNamesByIds(weaponIds);
             }
-
+            
             return {
                 "names": weaponNames,
                 "playerData": playerData
@@ -805,8 +795,19 @@ class Weapons{
 
     async insertMatchRow(matchId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage){
 
-        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?)";
-        return await mysql.simpleQuery(query, [matchId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage]);
+        let efficiency = 0;
+
+        if(kills > 0){
+            
+            if(deaths > 0){
+                efficiency = (kills / (deaths + kills)) * 100;
+            }else{
+                efficiency = 100;
+            }
+        }
+
+        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
+        return await mysql.simpleQuery(query, [matchId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage, efficiency]);
     }
 
     async mergePlayerMatchData(newId){

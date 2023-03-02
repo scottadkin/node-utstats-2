@@ -33,7 +33,7 @@ class Pings{
         for(const [key, value] of Object.entries(players)){
 
             playerIndexes.push(parseInt(key));
-            data.push({"name": value, "data": [0], "lastValue": 0, "total": 0, "average": 0});
+            data.push({"name": value, "data": [], "lastValue": 0, "total": 0, "average": 0});
         }
 
         const updateOthers = (ignore) =>{
@@ -103,7 +103,6 @@ class Pings{
             return 0;
         });
 
-
         return Functions.reduceGraphDataPoints(data, 50);
         
     }
@@ -169,20 +168,68 @@ class Pings{
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_match_pings WHERE match_id IN (?)", [ids]);
+        await mysql.simpleQuery("DELETE FROM nstats_match_pings WHERE match_id IN (?)", [ids]);
     }
 
     async getPlayerMatchData(matchId, playerId){
 
         const query = "SELECT timestamp,ping FROM nstats_match_pings WHERE match_id=? AND player=? ORDER BY timestamp ASC";
 
-        const data = await mysql.simpleFetch(query, [matchId, playerId]);
+        const data = await mysql.simpleQuery(query, [matchId, playerId]);
 
         if(data.length === 0){
             return [];
         }
 
         return data;
+    }
+
+    createPlayerMatchGraphData(data){
+
+        const pingData = [];
+        const pingText = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            pingData.push(d.ping);
+            pingText.push(Functions.MMSS(d.timestamp));
+        }
+
+        return {"graphData": [{"name": "Ping", "data": pingData}], "graphText": pingText};
+    }
+
+    createPlayerMatchBasicInfo(data){
+
+        let min = 0;
+        let max = 0;
+        let total = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            const {ping} = data[i];
+
+            total += ping;
+
+            if(i === 0){
+                min = max = ping;
+                continue;
+            }
+
+            if(ping < min) min = ping;
+            if(ping > max) max = ping;
+
+        }
+
+
+        let average = 0;
+
+        if(total !== 0 && data.length > 0){
+            average = parseFloat((total / data.length).toFixed(2));
+        }
+
+        return {"min": min, "average": average, "max": max};
     }
 }
 

@@ -1,109 +1,214 @@
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag/';
 import Functions from '../../api/functions';
-import MouseHoverBox from '../../components/MouseHoverBox';
-import Table2 from '../Table2';
-import Image from 'next/image';
+import {React, useEffect, useReducer} from "react";
+import Loading from '../Loading';
+import ErrorMessage from '../ErrorMessage';
+import InteractiveTable from '../InteractiveTable';
+import MouseOver from '../MouseOver';
 
-function getCurrentRankings(rankings, player){
+const MatchRankingChanges = ({matchId, players, gametype}) =>{
 
-    let r = 0;
+    const reducer = (state, action) =>{
 
-    for(let i = 0; i < rankings.length; i++){
-
-        r = rankings[i];
-
-        if(r.player_id === player){
-            return r;
+        switch(action.type){
+            case "loaded": {
+                return {
+                    "bLoading": false,
+                    "error": null,
+                    "matchChanges": action.matchChanges,
+                    "currentPositions": action.currentPositions,
+                    "currentRankings": action.currentRankings
+                }
+            }
+            case "loadError": {
+                return {
+                    "bLoading": false,
+                    "error": action.errorMessage
+                }
+            }
+            default: return {...state}
         }
     }
 
-    return {"player_id": -1, "ranking": 0, "ranking_change": 0};
-}
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null,
+        "currentPositions": [],
+        "currentRankings": [],
+        "matchChanges": []
+    });
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        const loadData = async () =>{
+
+            const req = await fetch("/api/match",{
+                "signal": controller.signal,
+                "headers": {
+                    "Content-type": "application/json"
+                },
+                "method": "POST",
+                "body": JSON.stringify({
+                    "mode": "ranking", 
+                    "matchId": matchId,
+                    "gametypeId": gametype,
+                    "playerIds": Object.keys(players)
+                })
+            });
+
+            const res = await req.json();
+            if(res.error !== undefined){
+                dispatch({"type": "loadError", "errorMessage": res.error.toString()});
+            }else{
+                dispatch({
+                    "type": "loaded", 
+                    "matchChanges": res.matchChanges, 
+                    "currentPositions": res.currentPositions,
+                    "currentRankings": res.currentRankings
+                });
+            }
+        }
+
+        loadData();
+
+        return () =>{
+            controller.abort();
+        }
+
+    },[matchId, gametype, players]);
 
 
-function getIcon(value){
+    const getIcon = (value) =>{
 
-    if(value > 0){
-        return "/images/up.png";
-    }else if(value < 0){
-        return "/images/down.png";
-    }else{
+        if(value > 0){
+            return "/images/up.png";
+        }else if(value < 0){
+            return "/images/down.png";
+        }
+
         return "/images/nochange.png";
+        
     }
-}
 
-const MatchRankingChanges = ({host, changes, currentRankings, playerNames, positions, matchId}) =>{
+    const getPlayerPosition = (playerId) =>{
 
-    changes = JSON.parse(changes);
-    playerNames = JSON.parse(playerNames);
+        if(state.currentPositions[playerId] !== undefined){
 
-    currentRankings = JSON.parse(currentRankings);
-    positions = JSON.parse(positions);
-
-    const rows = [];
-
-    let c = 0;
-
-    let player = "";
-
-    let previousRanking = 0;
-    let currentRanking = 0;
-
-    let icon1 = "";
-    let icon2 = "";
-    let icon3 = "";
-
-    let rankingString = "";
-
-    for(let i = 0; i < changes.length; i++){
-
-        c = changes[i];
-
-        player = Functions.getPlayer(playerNames, c.player_id);
-
-        previousRanking = c.ranking - c.ranking_change;
-        currentRanking = getCurrentRankings(currentRankings, c.player_id);
-
-        icon2 = getIcon(currentRanking.ranking_change);
-        icon3 = getIcon(c.ranking_change);
-
-
-        if(currentRanking.ranking_change > 0){
-
-            rankingString = `Gained ${currentRanking.ranking_change.toFixed(2)} in the previous match.`;
-
-        }else if(currentRanking.ranking_change < 0){
-            rankingString = `Lost ${currentRanking.ranking_change.toFixed(2)} in the previous match.`;
-        }else{
-            rankingString = `No change in the previous match.`;
+            const pos = state.currentPositions[playerId];
+            return `${pos}${Functions.getOrdinal(pos)}`
         }
 
-        rows.push(<tr key={i}>
-            <td><Link href={`/pmatch/${matchId}?player=${c.player_id}`}><a><CountryFlag host={host} country={player.country}/>{player.name}</a></Link></td>
-            <td>{previousRanking.toFixed(2)}</td>
-            <td><Image width={14} height={14} className="ranking-icon" src={icon3} alt="icon"/> {c.ranking.toFixed(2)}</td>
-            <td><Image width={14} height={14} className="ranking-icon" src={icon3} alt="icon"/> {c.ranking_change.toFixed(2)}</td>
-            <td>{c.match_ranking.toFixed(2)}</td>
-            <td><span className="ranking-position">({positions[c.player_id]}{Functions.getOrdinal(positions[c.player_id])})</span><Image width={14} height={14} className="ranking-icon" src={icon2} alt="icon"/> <MouseHoverBox title="Ranking Change" content={rankingString} display={currentRanking.ranking.toFixed(2)}/></td>
-        </tr>);
+        return -1;
     }
 
-    return <div className="m-bottom-25">
-        <div className="default-header">
-            Match Ranking Changes
-        </div>
-        <Table2 width={1} players={true}>
-            <tr>
-                <th>Player</th>
-                <th>Previous Ranking</th>
-                <th>Ranking After Match</th>
-                <th>Ranking Change</th>
-                <th>Match Ranking</th>
-                <th>Current Ranking</th>
-            </tr>
-            {rows}
-        </Table2>
+    const getPlayerMatchChanges = (playerId) =>{
+
+        for(let i = 0; i < state.matchChanges.length; i++){
+
+            const m = state.matchChanges[i];
+
+            if(m.player_id === playerId) return m;
+        }
+
+        return null;
+    }
+
+    const getRankingChangeString = (value) =>{
+
+        if(value > 0){
+            return <>Player gained <b>{value.toFixed(2)}</b> ranking points.</>
+        }
+
+        if(value < 0){
+            return <>Player lost <b>{Math.abs(value).toFixed(2)}</b> ranking points.</>
+        }
+
+        return <>There was no change to the player&apos;s rankings score.</>;
+    }
+
+    const renderRankings = () =>{
+
+        const headers = {
+            "player": "Player",
+            "previous": "Previous Ranking",
+            "after": "Ranking After Match",
+            "match": "Match Ranking",
+            "current": "Current Ranking"
+        };
+
+        const data = [];
+
+        for(let i = 0; i < state.currentRankings.length; i++){
+
+            const c = state.currentRankings[i];
+
+            const player = Functions.getPlayer(players, c.player_id, true);
+
+            const currentIcon = getIcon(c.ranking_change);
+
+            const matchChange = getPlayerMatchChanges(c.player_id);
+
+            if(matchChange === null){
+                console.log(`MatchChange data is null.`);
+                continue;
+            }
+
+            const diff = matchChange.ranking - matchChange.ranking_change;
+
+            const previousRanking = matchChange.ranking - diff;
+
+            const diffIcon = getIcon(diff);
+            const previousIcon = getIcon(previousRanking - matchChange.ranking);
+            
+            data.push({
+                "player": {
+                    "value": player.name.toLowerCase(),
+                    "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
+                        <a>
+                            <CountryFlag country={player.country}/>{player.name}
+                        </a>
+                    </Link>,
+                    "className": `player ${Functions.getTeamColor(player.team)}`
+                },
+                "previous": {
+                    "value": previousRanking,
+                    "displayValue": <><img className="ranking-icon" src={previousIcon} alt="image"/>{previousRanking.toFixed(2)}</>
+                },
+                "after": {
+                    "value": matchChange.ranking, 
+                    "displayValue": <MouseOver title="Player Latest Ranking Change" display={getRankingChangeString(diff)}>
+                        <img className="ranking-icon" src={diffIcon} alt="image"/>
+                        {matchChange.ranking.toFixed(2)}
+                    </MouseOver>
+                },
+                "match": {
+                    "value": matchChange.match_ranking, 
+                    "displayValue": matchChange.match_ranking.toFixed(2)
+                },
+                "current": {
+                    "value": c.ranking, 
+                    "displayValue": <MouseOver title="Player Latest Ranking Change" display={getRankingChangeString(c.ranking_change)}>
+                        <span className="ranking-position">{getPlayerPosition(c.player_id)}</span>
+                        <img className="ranking-icon" src={currentIcon} alt="image"/>
+                        {c.ranking.toFixed(2)}
+                    </MouseOver>
+                }
+            });
+        }
+
+        return <InteractiveTable width={1} headers={headers} data={data}/>
+    }
+
+
+    if(state.bLoading) return <Loading />;
+    if(state.error !== null) return <ErrorMessage title="Match Ranking Changes" text={state.error}/>
+
+    return <div>
+        <div className="default-header">Match Ranking Changes</div>
+        {renderRankings()}
     </div>
 }
 
