@@ -19,8 +19,8 @@ const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenS
         }
 
 
-        if(totalTeams < 2){
-
+        if(totalTeams < 2 && dmWinner !== undefined){
+            
             if(dmScore === null){
 
                 elems.push(<div key="dm">

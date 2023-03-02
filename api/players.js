@@ -696,7 +696,30 @@ class Players{
             const updatedPlayerMatches = await matchManager.getAllPlayerMatches(second);
             await this.recalculatePlayerTotalsAfterMerge(second, names[0]);
 
-            console.log(potatoes);
+            const weaponsManager = new Weapons();
+            await weaponsManager.mergePlayers(first, second, matchManager);
+
+
+            const winrateManager = new Winrate();
+
+            await winrateManager.deletePlayer(first);
+            await winrateManager.deletePlayer(second);
+            await winrateManager.recalculatePlayerHistoryAfterMerge(second, updatedPlayerMatches);
+
+
+            const spreeManager = new Sprees();
+            await spreeManager.changePlayerIds(first, second);
+
+            await combogibManager.mergePlayers(first, second);
+
+
+            const rankingsManager = new Rankings();
+            await rankingsManager.init();
+
+            await rankingsManager.deletePlayer(first);
+            await rankingsManager.deletePlayer(second);
+            await rankingsManager.fullPlayerRecalculate(this, second);
+
 
             return true;
         }catch(err){
@@ -714,42 +737,6 @@ class Players{
 
                 const monsterHuntManager = new MonsterHunt();
                 await monsterHuntManager.mergePlayers(first.id, second.id);
-
-
-                const updatedPlayerMatches = await matchManager.getAllPlayerMatches(second.id);
-
-                const playerGametypeTotals = await this.getPlayerTotalsPerGametypeByMatches(second.id);
-                const playerTotals = await this.getPlayerTotalsByMatches(second.id);
-
-                await this.recalculatePlayerTotalsAfterMerge(second.id, second.name, playerGametypeTotals, playerTotals);
-
-                const weaponsManager = new Weapons();
-
-                await weaponsManager.mergePlayers(first.id, second.id, matchManager);
-
-                const winrateManager = new Winrate();
-
-                await winrateManager.deletePlayer(first.id);
-                
-                await winrateManager.deletePlayer(first.id);
-                await winrateManager.deletePlayer(second.id);
-                await winrateManager.recalculatePlayerHistoryAfterMerge(second.id, updatedPlayerMatches);
-                //await winrateManager.recalculatePlayerHistory(updatedPlayerMatches, second.id, );
-
-                const spreeManager = new Sprees();
-
-                await spreeManager.changePlayerIds(first.id, second.id);
-
-                await combogibManager.mergePlayers(first.id, second.id);
-
-
-                const rankingsManager = new Rankings();
-                await rankingsManager.init();
-
-                await rankingsManager.deletePlayer(first.id);
-                await rankingsManager.deletePlayer(second.id);
-     
-                await rankingsManager.fullPlayerRecalculate(this, second.id);
 
                 return true;
             }else{
@@ -1053,7 +1040,10 @@ class Players{
 
     async deletePlayerTotals(id){
         await mysql.simpleQuery("DELETE FROM nstats_player_totals WHERE player_id=?", [id]);
+        await mysql.simpleQuery("DELETE FROM nstats_player_totals WHERE id=?", [id]);
+
     }
+
 
     async getPlayerName(player){
 
