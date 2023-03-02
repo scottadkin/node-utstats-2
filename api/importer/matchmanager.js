@@ -433,7 +433,6 @@ class MatchManager{
             }
 
         }catch(err){
-
             console.trace(err);
         }
     }
@@ -441,57 +440,49 @@ class MatchManager{
 
     async insertMatch(){
 
-        try{
+    
+        const motd = this.serverInfo.getMotd();
 
-            //date, server, version, admin, region, motd, playtime, endType, start, end
+        this.matchId = await this.matches.insertMatch(
+            this.serverInfo.date, 
+            this.serverId, 
+            this.gametype.currentMatchGametype,
+            this.mapInfo.mapId,
+            this.gameInfo.gameversion, 
+            this.gameInfo.minnetversion, 
+            this.serverInfo.server_adminname,
+            this.serverInfo.server_adminemail,
+            this.serverInfo.server_region,
+            motd,
+            this.gameInfo.mutators,
+            this.gameInfo.matchLength,
+            this.gameInfo.endReason,
+            this.gameInfo.start,
+            this.gameInfo.end,
+            this.gameInfo.insta, 
+            this.gameInfo.teamgame,
+            this.gameInfo.gamespeed,
+            this.gameInfo.hardcore,
+            this.gameInfo.tournamentmode,
+            this.gameInfo.aircontrol,
+            this.gameInfo.usetranslocator,
+            this.gameInfo.friendlyfirescale,
+            this.gameInfo.netmode,
+            this.gameInfo.maxspectators,
+            this.gameInfo.maxplayers,
+            this.gameInfo.totalTeams,
+            this.playerManager.getTotalPlayers(),
+            this.gameInfo.timelimit,
+            this.gameInfo.targetScore,
+            0,
+            0,
+            this.gameInfo.teamScores[0],
+            this.gameInfo.teamScores[1],
+            this.gameInfo.teamScores[2],
+            this.gameInfo.teamScores[3],
+            (this.mapInfo.mapPrefix === "mh") ? true : false
+        );
 
-
-            const motd = this.serverInfo.getMotd();
-
-            this.matchId = await this.matches.insertMatch(
-                this.serverInfo.date, 
-                this.serverId, 
-                this.gametype.currentMatchGametype,
-                this.mapInfo.mapId,
-                this.gameInfo.gameversion, 
-                this.gameInfo.minnetversion, 
-                this.serverInfo.server_adminname,
-                this.serverInfo.server_adminemail,
-                this.serverInfo.server_region,
-                motd,
-                this.gameInfo.mutators,
-                this.gameInfo.matchLength,
-                this.gameInfo.endReason,
-                this.gameInfo.start,
-                this.gameInfo.end,
-                this.gameInfo.insta, 
-                this.gameInfo.teamgame,
-                this.gameInfo.gamespeed,
-                this.gameInfo.hardcore,
-                this.gameInfo.tournamentmode,
-                this.gameInfo.aircontrol,
-                this.gameInfo.usetranslocator,
-                this.gameInfo.friendlyfirescale,
-                this.gameInfo.netmode,
-                this.gameInfo.maxspectators,
-                this.gameInfo.maxplayers,
-                this.gameInfo.totalTeams,
-                this.playerManager.getTotalPlayers(),
-                this.gameInfo.timelimit,
-                this.gameInfo.targetScore,
-                '',
-                0,
-                this.gameInfo.teamScores[0],
-                this.gameInfo.teamScores[1],
-                this.gameInfo.teamScores[2],
-                this.gameInfo.teamScores[3],
-                (this.mapInfo.mapPrefix === "mh") ? true : false
-            );
-
-
-        }catch(err){
-            if(err) console.log(err);
-        }
     }
 
     parseNStatsLine(line, playerTypes){
