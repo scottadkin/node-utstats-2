@@ -110,7 +110,7 @@ class MatchesTableView extends React.Component{
         //}
 
         if(rows.length === 0){
-            rows.push(<tr><td colSpan={7}>No Data</td></tr>);
+            rows.push(<tr key="000"><td colSpan={7}>No Data</td></tr>);
         }
 
 
