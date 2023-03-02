@@ -1586,7 +1586,7 @@ const queries = [
 
                   `CREATE TABLE IF NOT EXISTS nstats_ctf_cap_records(
                     id int(11) NOT NULL AUTO_INCREMENT,
-                    match_id INT(11) NOT NULL,
+                    cap_id INT(11) NOT NULL,
                     map_id INT(11) NOT NULL,
                     gametype_id INT(11) NOT NULL,
                     match_id INT(11) NOT NULL,
