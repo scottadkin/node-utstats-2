@@ -44,7 +44,6 @@ class Servers{
 
         try{
 
-
             date = parseInt(date);
             playtime = parseFloat(playtime);
 

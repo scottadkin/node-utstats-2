@@ -1,5 +1,3 @@
-
-
 const Servers = require('../servers');
 const Message = require('../message');
 
@@ -10,6 +8,8 @@ class ServerInfo{
         this.matchTimings = matchTimings;
         this.data = data;
 
+        this.ip = null;
+
         this.parseData();
         this.convertDate();
         
@@ -19,30 +19,23 @@ class ServerInfo{
 
     async updateServer(geoip){
 
-        try{
+        const geo = geoip.lookup(this.ip);
 
-            const ip = this.true_server_ip ?? this.server_ip;
+        let country = 'xx';
 
-            const geo = geoip.lookup(ip);
-
-            //console.log(geo);
-            let country = 'xx';
-            if(geo !== null){
-                country = geo.country.toLowerCase();
-            }
-           
-            await this.servers.updateServer(
-                this.true_server_ip ?? this.server_ip, 
-                this.server_port, 
-                this.server_servername, 
-                this.date, 
-                this.matchTimings.length,
-                country
-            );
-
-        }catch(err){
-            console.trace(err);
+        if(geo !== null){
+            country = geo.country.toLowerCase();
         }
+        
+        await this.servers.updateServer(
+            this.ip, 
+            this.server_port, 
+            this.server_servername, 
+            this.date, 
+            this.matchTimings.length,
+            country
+        );
+
     }
 
     getMatchingType(type){
@@ -59,23 +52,38 @@ class ServerInfo{
         return null;
     }
 
+
+    setIp(ipType, value){
+
+        if(ipType === "true_server_ip"){
+            this.ip = value;
+            return;
+        }
+
+        if(this.ip === null) this.ip = value;
+    }
+
     parseData(){
 
         const reg = /^\d+\.\d+\tinfo\t(.+?)\t(.*?)$/i;
 
-        let currentResult = 0;
-        let d = 0;
-
-
         for(let i = 0; i < this.data.length; i++){
 
-            d = this.data[i];
+            const d = this.data[i];
 
-            if(reg.test(d)){
+            const result = reg.exec(d);
+            if(result === null) continue;
 
-                currentResult = reg.exec(d);
-                this[currentResult[1].toLowerCase()] = currentResult[2];          
+            const type = result[1].toLowerCase();
+            const value = result[2];
+
+            if(type === "server_ip" || type === "true_server_ip"){
+
+                this.setIp(type, value);
+                continue;
             }
+
+            this[type] = value;                
         }
     }
 
@@ -105,7 +113,7 @@ class ServerInfo{
 
         try{
 
-            const id = await this.servers.getServerId(this.true_server_ip ?? this.server_ip, this.server_port);
+            const id = await this.servers.getServerId(this.ip, this.server_port);
       
             if(id !== null){
                 return id;

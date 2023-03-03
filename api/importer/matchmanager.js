@@ -79,6 +79,8 @@ class MatchManager{
             }
 
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
+            await this.serverInfo.updateServer(geoip);
+            new Message(`Inserted server info into database.`, 'pass');
 
             this.gametype = new Gametypes(this.gameInfo.gamename);
 
@@ -128,8 +130,7 @@ class MatchManager{
             this.matches = new Matches();
             this.maps = new Maps();
 
-            await this.serverInfo.updateServer(geoip);
-            new Message(`Inserted server info into database.`, 'pass');
+            
 
             
             await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
