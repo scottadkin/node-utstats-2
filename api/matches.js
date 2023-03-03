@@ -20,7 +20,6 @@ const Functions = require('./functions');
 const Logs = require('./logs');
 const MonsterHunt = require('./monsterhunt');
 const SiteSettings = require('./sitesettings');
-const Players = require("./players");
 
 class Matches{
 
@@ -792,7 +791,7 @@ class Matches{
     }
 
 
-    async getDmWinners(matchIds){
+    async getDmWinners(matchIds, playerManager){
 
         if(matchIds.length === 0) return {};
 
@@ -806,8 +805,6 @@ class Matches{
 
             uniquePlayers.add(result[i].dm_winner);
         }
-
-        const playerManager = new Players();
 
         const playersInfo = await playerManager.getNamesByIds([...uniquePlayers], true);
 

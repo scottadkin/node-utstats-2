@@ -293,20 +293,17 @@ class Items{
             invisibility_time=invisibility_time+?,
             pads=pads+?,armor=armor+?,boots=boots+?,super_health=super_health+? WHERE id=?`;
 
-        
-
-
-        
+           
         const vars = [
-            data.belt,
-            data.amp,
+            data.belt ?? 0,
+            data.amp ?? 0,
             data.ampStats.totalTime,
-            data.invis,
+            data.invis ?? 0,
             data.invisStats.totalTime,
-            data.pads,
-            data.armor,
-            data.boots,
-            data.super,
+            data.pads ?? 0,
+            data.armor ?? 0,
+            data.boots ?? 0,
+            data.super ?? 0,
             player
         ];
 

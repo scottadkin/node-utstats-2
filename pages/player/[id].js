@@ -2,6 +2,7 @@ import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/';
 import Footer from '../../components/Footer/';
 import Player from '../../api/player';
+import Players from '../../api/players';
 import Countires from '../../api/countries';
 import Gametypes from '../../api/gametypes';
 import Maps from '../../api/maps';
@@ -444,7 +445,7 @@ export async function getServerSideProps({req, query}) {
 		return matchResult.match_id;
 	});
 
-	const dmWinners = await matchManager.getDmWinners(recentMatchIds);
+	const dmWinners = await matchManager.getDmWinners(recentMatchIds, new Players());
 
 	for(let i = 0; i < recentMatches.length; i++){
 
