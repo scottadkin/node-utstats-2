@@ -9,7 +9,6 @@ import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
 import ErrorPage from "./ErrorPage";
 import DropDown from "../components/DropDown";
-import Link from "next/link";
 import MatchesTableView from "../components/MatchesTableView";
 import MatchesDefaultView from "../components/MatchesDefaultView";
 import Pagination from "../components/Pagination";
@@ -87,7 +86,7 @@ const reducer = (state, action) =>{
     }
 }
 
-const Matches = ({host, pageError, metaData, session, navSettings, pageSettings, server, gametype, map, page, perPage}) =>{
+const Matches = ({host, pageError, metaData, session, navSettings, pageSettings, server, gametype, map, page, perPage, displayMode}) =>{
 
 
     const [state, dispatch] = useReducer(reducer, {
@@ -103,7 +102,7 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
         "mapNames": [],
         "serverNames": [],
         "gametypeNames": [],
-        "displayMode": 0
+        "displayMode": displayMode
     });
 
 
@@ -294,9 +293,7 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
 
         let matches = null;
 
-
-
-        if(state.displayMode === 0){
+        if(parseInt(state.displayMode) === 0){
             matches = <div className="center" style={{"width": "var(--width-1)"}}>
                 <MatchesDefaultView data={state.data} images={state.images} host={imageHost}/>
             </div>;
