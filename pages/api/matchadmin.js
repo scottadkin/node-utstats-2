@@ -43,7 +43,9 @@ export default async function handler(req, res){
 
                 const playersManager = new Players();
 
-                await rankingManager.deletePlayerFromMatch(playersManager, playerId, matchId, gametypeId, true);
+                await rankingManager.recalculatePlayerGametype(playersManager, playerId, gametypeId);
+                await playersManager.reduceTotals(playerId, gametypeId);
+               // await rankingManager.deletePlayerFromMatch(playersManager, playerId, matchId, gametypeId, true);
                     
                 res.status(200).json({"message": "passed"});
                 return;

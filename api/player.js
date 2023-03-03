@@ -883,7 +883,8 @@ class Player{
 
                 await this.reduceMapTotals(playerId, mapId, matchData.playtime);
 
-                await this.reduceTotals(matchData, matchData.gametype);
+                //now called in matchadmin.js after this function
+                //await this.reduceTotals(matchData, matchData.gametype);
 
                 const weaponManager = new Weapons();
 
