@@ -582,6 +582,14 @@ class Rankings{
 
         return {"history": historyResult.affectedRows, "current": currentResult.affectedRows};
     }
+
+
+    async deleteMatchRankings(matchId){
+
+        const query = `DELETE FROM nstats_ranking_player_history WHERE match_id=?`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
 }
 
 module.exports = Rankings;

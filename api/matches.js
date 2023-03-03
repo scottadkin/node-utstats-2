@@ -651,7 +651,7 @@ class Matches{
             
             if(matchData === undefined) return;
 
-            const playersData = await players.player.getAllInMatch(id);
+            const playersData = await players.getAllInMatch(id);
 
             //console.log(playersData);
      
@@ -727,19 +727,17 @@ class Matches{
             await winrateManager.deleteMatchData(id);
 
             //await players.deleteMatchData(id);
-            const playerIds = [];
 
-            for(let i = 0; i < playersData.length; i++){
 
-                playerIds.push(playersData[i].player_id);
-            }
-
+            const playerIds = [...new Set(playersData.map((player) => player.player_id))];
+   
             const playerNames = await players.getJustNamesByIds(playerIds);
 
             Functions.setIdNames(playersData, playerNames, "player_id", "name");
 
-            await players.reduceTotals(playersData, matchData.gametype);
+            
             await players.deleteMatchData(id);
+            await players.reduceTotals(playerIds, matchData.gametype);
 
             await this.deleteMatchQuery(matchData.id);
 
