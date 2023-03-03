@@ -639,7 +639,7 @@ class Matches{
         });
     }
 
-    async deleteMatch(id, players){
+    async deleteMatch(id, playerManager){
 
         try{
 
@@ -651,7 +651,7 @@ class Matches{
             
             if(matchData === undefined) return;
 
-            const playersData = await players.getAllInMatch(id);
+            const playersData = await playerManager.getAllInMatch(id);
 
             //console.log(playersData);
      
@@ -713,7 +713,7 @@ class Matches{
             await weaponsManager.deleteMatchData(id);
 
             const rankingManager = new Rankings();
-
+            await rankingManager.init();
             await rankingManager.deleteMatchRankings(id);
 
             const serverManager = new Servers();
@@ -731,13 +731,18 @@ class Matches{
 
             const playerIds = [...new Set(playersData.map((player) => player.player_id))];
    
-            const playerNames = await players.getJustNamesByIds(playerIds);
+            const playerNames = await playerManager.getJustNamesByIds(playerIds);
 
             Functions.setIdNames(playersData, playerNames, "player_id", "name");
 
             
-            await players.deleteMatchData(id);
-            await players.reduceTotals(playerIds, matchData.gametype);
+            await playerManager.deleteMatchData(id);
+            await playerManager.reduceTotals(playerIds, matchData.gametype);
+
+            for(let i = 0; i < playerIds.length; i++){
+                //playerManager, playerId, gametypeId
+                await rankingManager.recalculatePlayerGametype(playerManager, playerIds[i], matchData.gametype);
+            }
 
             await this.deleteMatchQuery(matchData.id);
 

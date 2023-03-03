@@ -433,6 +433,7 @@ class Rankings{
 
             const playerTotalData = this.updateCurrentPlayerTotal(currentTotals, d);
             const totalScore = this.calculateRanking(playerTotalData);
+            
 
             const rankingChange = totalScore - playerTotalData.previousScore;
 
@@ -542,6 +543,7 @@ class Rankings{
 
         const totals = {};
 
+
         for(let i = 0; i < matchHistory.length; i++){
 
             const m = matchHistory[i];
@@ -550,8 +552,10 @@ class Rankings{
 
             const matchScore = this.calculateRanking(m);
 
+
             const totalData = this.updateCurrentPlayerTotal(totals, m);
             const totalScore = this.calculateRanking(totalData);
+
             const rankingChange = totalScore - totalData.previousScore;
 
             await this.insertPlayerHistory(matchId, playerId, gametypeId, totalScore, matchScore, rankingChange);
@@ -566,7 +570,8 @@ class Rankings{
         for(const [playerId, data] of Object.entries(totals)){
             await this.insertPlayerCurrent(playerId, gametypeId, data.matches, data.playtime, data.previousScore, data.rankingChange);
             //await this.updatePlayerCurrentCustom(playerId, gametypeId, data.playtime, data.matches, data.previousScore, data.rankingChange);
-        }      
+        }     
+        
         
     }  
 
