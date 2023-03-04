@@ -1316,16 +1316,13 @@ class Matches{
 
         if(ids.length === 0) return {};
 
-        const data = await mysql.simpleFetch("SELECT id,gametype FROM nstats_matches WHERE id IN (?)", [ids]);
+        const data = await mysql.simpleQuery("SELECT id,gametype FROM nstats_matches WHERE id IN (?)", [ids]);
         
         const obj = {};
 
-        let d = 0;
-
         for(let i = 0; i < data.length; i++){
 
-            d = data[i];
-
+            const d = data[i];
             obj[d.id] = d.gametype;
         }
 
@@ -1667,6 +1664,32 @@ class Matches{
         const query = `UPDATE nstats_match_team_changes SET player=? WHERE player=?`;
 
         return await mysql.simpleQuery(query, [newPlayerId, oldPlayerId]);
+    }
+
+
+    /**
+     * 
+     * @param {*} matchIds 
+     * @returns serverId, mapId, gametypeId, date
+     */
+    async getMatchBasicInfo(matchIds){
+
+        if(matchIds.length === 0) return {};
+
+        const query = `SELECT id,server,map,gametype,date FROM nstats_matches WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+
+        const obj = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            obj[r.id] = r;
+        }
+
+        return obj;
     }
 
 }

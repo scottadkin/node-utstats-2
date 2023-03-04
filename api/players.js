@@ -821,7 +821,7 @@ class Players{
             await assaultManager.changeCapDataPlayerId(first, second);
 
             const ctfManager = new CTF();
-            await ctfManager.mergePlayers(first, second);
+            await ctfManager.mergePlayers(first, second, matchManager);
 
 
             const domManager = new Domination();
@@ -924,7 +924,6 @@ class Players{
 
         let query = `SELECT ${(bAllTotals) ? "" : "gametype,"}
         COUNT(*) as total_matches,
-        ip, country, face, voice,
         SUM(winner) as wins,
         SUM(draw) as draws,
         SUM(playtime) as playtime,
@@ -1141,6 +1140,7 @@ class Players{
 
             const g = gametypes[i];
 
+
             g.winRate = 0;
             g.efficiency = 0;
 
@@ -1192,7 +1192,7 @@ class Players{
 
         const vars = [
             "", data.name, playerId, data.first, data.last,  
-            data.ip, data.country, data.face, data.voice, gametypeId, 
+            "", "", 0, 0, gametypeId, 
             data.total_matches, data.wins, data.losses, data.draws, data.winRate, 
             data.playtime, data.first_bloods, data.frags, data.score, data.kills, 
             data.deaths, data.suicides, data.team_kills, data.spawn_kills, data.efficiency, 

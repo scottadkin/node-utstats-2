@@ -1,4 +1,3 @@
-const Promise = require('promise');
 const mysql = require('./database');
 const Message = require('./message');
 const Functions = require('./functions');
@@ -2690,7 +2689,7 @@ class CTF{
 
     async getPlayerMatchDataDuplicate(matchId, playerId){
 
-        const query = `SELECT match_id,gametype_id,server_id,map_id,match_date,
+        const query = `SELECT
         SUM(playtime) as playtime,
         SUM(flag_assist) as flag_assist,
         MAX(flag_assist_best) as flag_assist_best,
@@ -2801,26 +2800,43 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async mergePlayerMatchData(oldId, newId){
+    async mergePlayerMatchData(oldId, newId, matchManager){
 
         const query = `UPDATE nstats_player_ctf_match SET player_id=? WHERE player_id=?`;
         await mysql.simpleQuery(query, [newId, oldId]);
 
         const duplicateMatchIds = await this.getDuplicatePlayerMatchIds(newId);
 
+        const basicMatchInfo = await matchManager.getMatchBasicInfo(duplicateMatchIds);
+
         for(let i = 0; i < duplicateMatchIds.length; i++){
 
             const d = duplicateMatchIds[i];
 
             const mergedData = await this.getPlayerMatchDataDuplicate(d, newId);
+            //const gametypeId = await this.
 
             await this.deletePlayerMatchData(d, newId);
+
+            if(basicMatchInfo[d] !== undefined){
+
+                mergedData.gametype_id = basicMatchInfo[d].gametype ?? -1 //;basicMatchInfo[d].gametype ?? -1;
+                mergedData.map_id = basicMatchInfo[d].map ?? -1;
+                mergedData.match_date = basicMatchInfo[d].date ?? -1;
+                mergedData.server_id = basicMatchInfo[d].server ?? -1;
+            }else{
+                mergedData.gametype_id = -1;
+                mergedData.map_id = -1;
+                mergedData.match_date = -1;
+                mergedData.server_id = -1;
+            }
+
             await this.insertPlayerMatchDataFromMerge(d, newId, mergedData);
         }
     }
 
 
-    async mergePlayers(oldId, newId){
+    async mergePlayers(oldId, newId, matchManager){
 
         await this.changeAssistPlayerIds(oldId, newId);
         await this.changeCapPlayerIds(oldId, newId);
@@ -2834,11 +2850,10 @@ class CTF{
         await this.changeReturnPlayerIds(oldId, newId);
         await this.changeFlagSealsPlayerIds(oldId, newId);
         await this.changeFlagSelfCoversPlayerIds(oldId, newId);
-        await this.mergePlayerMatchData(oldId, newId);
+        await this.mergePlayerMatchData(oldId, newId, matchManager);
         await this.mergePlayerBest(oldId, newId);
         await this.mergePlayerBestLife(oldId, newId);
         await this.recalculatePlayerTotals(oldId, newId);
-
     }
 
 }
