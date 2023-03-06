@@ -315,6 +315,14 @@ class Servers{
 
         return await mysql.simpleQuery(query, [serverId, limit]);
     }
+
+
+    async adminGetServerList(){
+
+        const query = "SELECT * FROM nstats_servers ORDER BY name ASC";
+
+        return await mysql.simpleQuery(query);
+    }
 }
 
 module.exports = Servers;

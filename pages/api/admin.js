@@ -1,7 +1,7 @@
 import Session from '../../api/session';
-import Admin from '../../api/admin';
 import SiteSettings from '../../api/sitesettings';
 import NexgenStatsViewer from '../../api/nexgenstatsviewer';
+import Servers from "../../api/servers";
 
 export default async function handler(req, res){
 
@@ -22,6 +22,16 @@ export default async function handler(req, res){
             "nexgencreate",
             "nexgendelete"
         ];
+
+        if(mode === "server-list"){
+
+            const serverManager = new Servers();
+
+            const serverList = await serverManager.adminGetServerList();
+
+            res.status(200).json({"servers": serverList});
+            return;
+        }
 
         if(mode === "settingCategories"){
 

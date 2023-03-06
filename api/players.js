@@ -1294,9 +1294,9 @@ class Players{
             await killsManager.deletePlayer(playerId);
 
 
-            const name = await this.getPlayerName(playerId);
+            //const name = await this.getPlayerName(playerId);
 
-            await matchManager.renameDmWinner(name, "Deleted Player");
+            await matchManager.recalculateDmWinners(matchIds);
             
 
             const connectionManager = new Connections();

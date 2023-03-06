@@ -770,3 +770,7 @@ input[type="range"]{
 	font-size:14px;
 	padding:10px;
 }
+
+.admin-selected{
+	background-color:yellow;
+}

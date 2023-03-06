@@ -781,6 +781,31 @@ class Matches{
         return await mysql.simpleUpdate("UPDATE nstats_matches SET dm_winner=?,dm_score=? WHERE id=?", [name, score, matchId]);
     }
 
+    async getValidDMMatches(matchIds){
+
+        if(matchIds.length) return [];
+
+
+        const query = `SELECT id FROM nstats_matches WHERE dm_winner!=0 AND id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+
+        console.log(result);
+
+        return result.map((r) => r.id);
+
+    }
+
+    async recalculateDmWinners(matchIds){
+
+        console.log("recalculateDmWinners");
+        console.log(matchIds);
+
+        const dmMatches = await this.getValidDMMatches(matchIds);
+
+        console.log(dmMatches);
+    }
+
     async getDmWinner(matchId){
 
         const query = "SELECT dm_winner FROM nstats_matches WHERE id=?";
