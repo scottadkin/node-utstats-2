@@ -33,6 +33,31 @@ export default async function handler(req, res){
             return;
         }
 
+        if(mode === "save-server-change"){
+
+            try{
+                const serverId = req.body.serverId ?? -1;
+                const serverName = req.body.serverName ?? "";
+                const serverIP = req.body.serverIP ?? "";
+                const serverPort = req.body.serverPort ?? 0;
+                const serverPassword = req.body.serverPassword ?? "";
+                const serverManager = new Servers();
+                const updateResult = await serverManager.adminUpdateServer(serverId, serverName, serverIP, serverPort, serverPassword);
+
+                if(!updateResult){
+                    res.status(200).json({"error": "No entries have been updated."});
+                    return;
+                }
+
+                res.status(200).json({"message": "passed"});
+       
+            }catch(err){
+                res.status(200).json({"error": err.toString()})
+                console.trace(err);
+            }
+            return;
+        }
+
         if(mode === "settingCategories"){
 
             const data = await siteSettingsManager.getCategoryNames();

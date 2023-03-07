@@ -11,8 +11,9 @@ const reducer = (state, action) =>{
         case "loaded": {
             return {...state, "bLoading": false, "error": null, "serverList": action.serverList};
         }
+   
         case "error": {
-            return {"bLoading": false, "error": action.errorMessage};
+            return { "bLoading": false, "error": action.errorMessage};
         }
         case "updateName": {
             return {...state, "editName": action.value};
@@ -36,6 +37,22 @@ const reducer = (state, action) =>{
                 "editPassword": action.password
             };
         }
+        case "saveChanges": {
+            return {...state, "bSaveInProgress": true, }
+        }
+
+        case "savePass": {
+            return {
+                ...state, 
+                "bSaveInProgress": false, 
+                "saveError": null,
+                "serverList": action.serverList
+            }
+        }
+
+        case "saveError": {
+            return {...state, "bSaveInProgress": false, "saveError": action.errorMessage};
+        }
         
     }
 
@@ -53,7 +70,7 @@ const renderServerList = (state, dispatch) =>{
         "first": "First Match",
         "last": "Latest Match",
         "matches": "Total Matches",
-        "playtime": "Playtime",
+        "password": "Password",
         "action": "Action"
     };
 
@@ -68,7 +85,7 @@ const renderServerList = (state, dispatch) =>{
             "first": {"value": server.first, "displayValue": Functions.convertTimestamp(server.first, true), "className": className},
             "last": {"value": server.last, "displayValue": Functions.convertTimestamp(server.last, true), "className": className},
             "matches": {"value": server.matches, "className": className},
-            "playtime": {"value": server.playtime, "displayValue": `${Functions.toHours(server.playtime)} Hours`,"className": className},
+            "password": {"value": server.password, "displayValue": server.password},
             "action": {"value": 0, "displayValue": <div onClick={() => {
                 dispatch({"type": "changeSelected", "selectedId": server.id, "name": server.name, "ip": server.ip, "port": server.port, "password": server.password})
 
@@ -80,17 +97,70 @@ const renderServerList = (state, dispatch) =>{
     return <InteractiveTable headers={headers} data={data}/>
 }
 
-const saveChanges = (state, dispatch) =>{
-    console.log("SAVE");
+const updateServerList = (state, dispatch) =>{
 
-    console.log(state.editName, state.editIP, state.editPort, state.editIp);
+    const newServerList = [];
+
+    for(let i = 0; i < state.serverList.length; i++){
+
+        const server = state.serverList[i];
+
+        if(server.id !== state.selectedId){
+            newServerList.push(server);
+        }else{
+
+            const current = {
+                ...server
+            };
+
+            current.name = state.editName;
+            current.ip = state.editIP;
+            current.port = state.editPort;
+            current.password = state.editPassword;
+
+            newServerList.push(current);
+        }
+    }
+
+    dispatch({"type": "savePass", "serverList": newServerList});
+
+}
+
+const saveChanges = async (state, dispatch) =>{
+
+    const req = await fetch("/api/admin", {
+        "headers": {"Content-type": "application/json"},
+        "method": "POST",
+        "body": JSON.stringify({
+            "mode": "save-server-change",
+            "serverId": state.selectedId,
+            "serverName": state.editName,
+            "serverIP": state.editIP,
+            "serverPort": state.editPort,
+            "serverPassword": state.editPassword,
+        })
+    });
+
+    const res = await req.json();
+
+    console.log(res);
+    if(res.error !== undefined){
+        dispatch({"type": "saveError", "errorMessage": res.error});
+        return;
+    }else{
+        updateServerList(state, dispatch);        
+    }
+
+    
 }
 
 const renderSaveButton = (state, dispatch) =>{
 
     if(!bUnsavedData(state)) return null;
 
-    return <div className="search-button" onClick={() => saveChanges(state, dispatch)}>Save Changes</div>
+    return <div className="search-button" onClick={async () => {
+        await saveChanges(state, dispatch);
+    }}>Save Changes</div>
 }
 
 
@@ -126,9 +196,17 @@ const renderEditForm = (state, dispatch) =>{
             </div>
         </div>
         {renderSaveButton(state, dispatch)}
+        {renderSaveError(state)}
         {renderUnsavedData(state)}
         
     </div>
+}
+
+const renderSaveError = (state) =>{
+
+    if(state.saveError === null) return null;
+
+    return <NotificationSmall type="error">There was a problem saving your changes: <b>{state.saveError}</b></NotificationSmall>
 }
 
 const bUnsavedData = (state) =>{
@@ -168,7 +246,9 @@ const AdminServersManager = ({}) =>{
         "editIP": "",
         "editPort": 0,
         "editPassword": "",
-        "selectedId": -1
+        "selectedId": -1,
+        "bSaveInProgress": false,
+        "saveError": null
     });
 
 
@@ -205,6 +285,8 @@ const AdminServersManager = ({}) =>{
 
     if(state.bLoading) return <Loading />;
     if(state.error !== null) return <ErrorMessage title="Servers Manager" text={state.error}/>
+
+    if(state.bSaveInProgress) return <NotificationSmall type="warning">Saving in progress...</NotificationSmall>
 
     return <div>
         <div className="default-header">Servers Manager</div>

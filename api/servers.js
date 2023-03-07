@@ -323,6 +323,39 @@ class Servers{
 
         return await mysql.simpleQuery(query);
     }
+
+
+    async bServerIDExist(serverId){
+
+        serverId = parseInt(serverId);
+
+        if(serverId !== serverId) throw new Error("ServerID must be a valid integer.");
+
+        const query = "SELECT COUNT(*) as total_servers FROM nstats_servers WHERE id=?";
+
+        const result = await mysql.simpleQuery(query, [serverId]);
+
+        if(result[0].total_servers > 0) return true;
+
+        return false;
+    }
+
+
+    async adminUpdateServer(serverId, serverName, serverIP, serverPort, serverPassword){  
+
+        if(!await this.bServerIDExist(serverId)) throw new Error(`There are no servers with the id of ${serverId}`);
+
+        const query = `UPDATE nstats_servers SET name=?,ip=?,port=?,password=? WHERE id=?`;
+
+        serverPort = parseInt(serverPort);
+        if(serverPort !== serverPort) throw new Error("ServerPort must be a valid integer.");
+
+        const result = await mysql.simpleQuery(query, [serverName, serverIP, serverPort, serverPassword, serverId]);
+
+        if(result.affectedRows !== 0) return true;
+
+        return false;
+    }
 }
 
 module.exports = Servers;
