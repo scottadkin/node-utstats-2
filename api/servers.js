@@ -343,6 +343,7 @@ class Servers{
 
     async adminUpdateServer(serverId, serverName, serverIP, serverPort, serverPassword){  
 
+
         if(!await this.bServerIDExist(serverId)) throw new Error(`There are no servers with the id of ${serverId}`);
 
         const query = `UPDATE nstats_servers SET name=?,ip=?,port=?,password=? WHERE id=?`;
@@ -355,6 +356,18 @@ class Servers{
         if(result.affectedRows !== 0) return true;
 
         return false;
+    }
+
+
+    async adminDeleteServerById(serverId){
+
+        serverId = parseInt(serverId);
+
+        if(serverId !== serverId) throw new Error("Server ID must be a valid integer.");
+
+        const query = `DELETE FROM nstats_servers WHERE id=?`;
+
+        return await mysql.simpleQuery(query, [serverId]);
     }
 }
 

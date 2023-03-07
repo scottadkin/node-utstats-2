@@ -50,10 +50,39 @@ const reducer = (state, action) =>{
             }
         }
 
+        case "deletePass": {
+            return {
+                ...state, 
+                "bDeleteInProgress": false, 
+                "deleteError": null,
+                "serverList": action.serverList,
+                "selectedId": -1,
+                "editName": "", 
+                "editIP": "", 
+                "editPort": 0, 
+                "editPassword": ""
+            }
+        }
+
         case "saveError": {
             return {...state, "bSaveInProgress": false, "saveError": action.errorMessage};
         }
         
+        case "deleteServer": {
+            return {
+                ...state,
+                "bDeleteInProgress": true, 
+                "deleteError": null,
+            }
+        }
+
+        case "deleteError": {
+            return {
+                ...state,
+                "bDeleteInProgress": false,
+                "deleteError": action.errorMessage
+            }
+        }
     }
 
     return state;
@@ -85,7 +114,7 @@ const renderServerList = (state, dispatch) =>{
             "first": {"value": server.first, "displayValue": Functions.convertTimestamp(server.first, true), "className": className},
             "last": {"value": server.last, "displayValue": Functions.convertTimestamp(server.last, true), "className": className},
             "matches": {"value": server.matches, "className": className},
-            "password": {"value": server.password, "displayValue": server.password},
+            "password": {"value": server.password, "displayValue": server.password, "className": className},
             "action": {"value": 0, "displayValue": <div onClick={() => {
                 dispatch({"type": "changeSelected", "selectedId": server.id, "name": server.name, "ip": server.ip, "port": server.port, "password": server.password})
 
@@ -97,7 +126,7 @@ const renderServerList = (state, dispatch) =>{
     return <InteractiveTable headers={headers} data={data}/>
 }
 
-const updateServerList = (state, dispatch) =>{
+const updateServerList = (state, dispatch, bDeleteServer) =>{
 
     const newServerList = [];
 
@@ -108,6 +137,8 @@ const updateServerList = (state, dispatch) =>{
         if(server.id !== state.selectedId){
             newServerList.push(server);
         }else{
+
+            if(bDeleteServer) continue;
 
             const current = {
                 ...server
@@ -122,7 +153,7 @@ const updateServerList = (state, dispatch) =>{
         }
     }
 
-    dispatch({"type": "savePass", "serverList": newServerList});
+    dispatch({"type": (bDeleteServer) ? "deletePass" : "savePass", "serverList": newServerList});
 
 }
 
@@ -143,12 +174,11 @@ const saveChanges = async (state, dispatch) =>{
 
     const res = await req.json();
 
-    console.log(res);
     if(res.error !== undefined){
         dispatch({"type": "saveError", "errorMessage": res.error});
         return;
     }else{
-        updateServerList(state, dispatch);        
+        updateServerList(state, dispatch, false);        
     }
 
     
@@ -161,6 +191,36 @@ const renderSaveButton = (state, dispatch) =>{
     return <div className="search-button" onClick={async () => {
         await saveChanges(state, dispatch);
     }}>Save Changes</div>
+}
+
+
+const deleteServer = async (state, dispatch) =>{
+
+    if(state.selectedId === -1) return;
+
+    dispatch({"type": "deleteServer"});
+
+    const req = await fetch("/api/admin", {
+        "headers": {"Content-type": "application/json"},
+        "method": "POST",
+        "body": JSON.stringify({"mode": "delete-server", "serverId": state.selectedId})
+    });
+
+    const res = await req.json();
+
+    if(res.error !== undefined){
+
+        dispatch({"type": "deleteError", "errorMessage": res.error.toString()})
+        return;
+    }
+
+    updateServerList(state, dispatch, true);  
+}
+
+const renderDeleteButton = (state, dispatch) =>{
+
+    if(state.selectedId < 1) return null;
+    return <div className="red-button" onClick={() => deleteServer(state, dispatch)}>Delete Server</div>
 }
 
 
@@ -190,10 +250,12 @@ const renderEditForm = (state, dispatch) =>{
             </div>
             <div className="select-row">
                 <div className="select-label">Password</div>
-                <input type="textbox" className="default-textbox" placeholder="Password..."  value={state.editPassword} onChange={(e) => {
+                <input type="textbox" className="default-textbox" placeholder="Password..." value={state.editPassword} onChange={(e) => {
                     dispatch({"type": "updatePassword", "value": e.target.value})
                 }}/>
             </div>
+            {renderDeleteError(state)}
+            {renderDeleteButton(state, dispatch)}
         </div>
         {renderSaveButton(state, dispatch)}
         {renderSaveError(state)}
@@ -207,6 +269,13 @@ const renderSaveError = (state) =>{
     if(state.saveError === null) return null;
 
     return <NotificationSmall type="error">There was a problem saving your changes: <b>{state.saveError}</b></NotificationSmall>
+}
+
+const renderDeleteError = (state) =>{
+
+    if(state.deleteError === null) return null;
+
+    return <NotificationSmall type="error">There was a problem deleteing the server: <b>{state.deleteError}</b></NotificationSmall>
 }
 
 const bUnsavedData = (state) =>{
@@ -248,7 +317,9 @@ const AdminServersManager = ({}) =>{
         "editPassword": "",
         "selectedId": -1,
         "bSaveInProgress": false,
-        "saveError": null
+        "saveError": null,
+        "deleteError": null,
+        "bDeleteInProgress": false
     });
 
 
@@ -287,6 +358,7 @@ const AdminServersManager = ({}) =>{
     if(state.error !== null) return <ErrorMessage title="Servers Manager" text={state.error}/>
 
     if(state.bSaveInProgress) return <NotificationSmall type="warning">Saving in progress...</NotificationSmall>
+    if(state.bDeleteInProgress) return <NotificationSmall type="warning">Delete in progress...</NotificationSmall>
 
     return <div>
         <div className="default-header">Servers Manager</div>

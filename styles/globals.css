@@ -29,6 +29,9 @@
 	--max-width-1:1400px;
 	--max-width-2:500px;
 	--max-width-3:750px;
+	--red-1:rgb(200,40,40);
+	--red-2:rgba(89,0,0,0.75);
+	--red-3:rgba(69,0,0,0.75);
 }
 
 .color3{
@@ -252,7 +255,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .red{
-	color:rgb(200,40,40);
+	color:var(--red-1);
 }
 
 .orange{
@@ -271,7 +274,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 
 
 .duo div:nth-child(1), .trio div:nth-child(1), .quad div:nth-child(1), .team-red{
-	background-color:rgba(89,0,0,0.75);
+	background-color:var(--red-2);
 }
 
 
@@ -481,8 +484,25 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .search-button, .bigger-button{
 	display:block;
 	width:290px;
+	color:white;
 	background-color:var(--color-3);
 	background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
+	border:1px solid var(--border-color-3);
+	padding:5px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-bottom:10px;
+	font-size:14px;
+	line-height:24px;
+	transition:all 0.5s;
+	user-select:none;
+}
+
+
+.red-button{
+	display:block;
+	width:290px;
+	background-color:var(--red-2);
 	color:white;
 	border:1px solid var(--border-color-3);
 	padding:5px;
@@ -500,11 +520,14 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	cursor:pointer;
 }
 
+.red-button:hover{
+	background-color:var(--red-3);
+	cursor:pointer;
+}
+
 .bigger-button{
 	width:400px;
 }
-
-
 
 .default-radios{
 	font-size:12px;
