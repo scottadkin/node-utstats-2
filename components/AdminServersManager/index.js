@@ -3,6 +3,7 @@ import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import InteractiveTable from "../InteractiveTable";
 import Functions from "../../api/functions";
+import NotificationSmall from "../NotificationSmall";
 
 const reducer = (state, action) =>{
 
@@ -26,7 +27,14 @@ const reducer = (state, action) =>{
             return {...state, "editPassword": action.value};
         }
         case "changeSelected": {
-            return {...state, "selectedId": action.selectedId, "editName": action.name, "editIP": action.ip, "editPort": action.port, "editPassword": action.password};
+            return {
+                ...state, 
+                "selectedId": action.selectedId, 
+                "editName": action.name, 
+                "editIP": action.ip, 
+                "editPort": action.port, 
+                "editPassword": action.password
+            };
         }
         
     }
@@ -72,6 +80,18 @@ const renderServerList = (state, dispatch) =>{
     return <InteractiveTable headers={headers} data={data}/>
 }
 
+const saveChanges = (state, dispatch) =>{
+    console.log("SAVE");
+
+    console.log(state.editName, state.editIP, state.editPort, state.editIp);
+}
+
+const renderSaveButton = (state, dispatch) =>{
+
+    if(!bUnsavedData(state)) return null;
+
+    return <div className="search-button" onClick={() => saveChanges(state, dispatch)}>Save Changes</div>
+}
 
 
 const renderEditForm = (state, dispatch) =>{
@@ -82,29 +102,32 @@ const renderEditForm = (state, dispatch) =>{
             <div className="select-row">
                 <div className="select-label">Server Name</div>
                 <input type="textbox" className="default-textbox" placeholder="Server Name" value={state.editName} onChange={(e) => {
-                    dispatch({"type": "updateName", "value": e.value})
+          
+                    dispatch({"type": "updateName", "value": e.target.value})
                 }}/>
             </div>
             <div className="select-row">
                 <div className="select-label">IP</div>
-                <input type="textbox" className="default-textbox" placeholder="IP" value={state.editIP}  onChange={(e) => {
-                    dispatch({"type": "updateIp", "value": e.value})
+                <input type="textbox" className="default-textbox" placeholder="IP" value={state.editIP} onChange={(e) => {
+                    dispatch({"type": "updateIp", "value": e.target.value})
                 }}/>
             </div>
             <div className="select-row">
                 <div className="select-label">PORT</div>
-                <input type="number" className="default-textbox" placeholder="Port" min="0" value={state.editPort}  onChange={(e) => {
-                    dispatch({"type": "updatePort", "value": e.value})
+                <input type="number" className="default-textbox" placeholder="Port" min="0" value={state.editPort} onChange={(e) => {
+                    dispatch({"type": "updatePort", "value": e.target.value})
                 }}/>
             </div>
             <div className="select-row">
                 <div className="select-label">Password</div>
-                <input type="textbox" className="default-textbox" placeholder="Password..."  value={state.editPassword}  onChange={(e) => {
-                    dispatch({"type": "updatePassword", "value": e.value})
+                <input type="textbox" className="default-textbox" placeholder="Password..."  value={state.editPassword} onChange={(e) => {
+                    dispatch({"type": "updatePassword", "value": e.target.value})
                 }}/>
             </div>
         </div>
+        {renderSaveButton(state, dispatch)}
         {renderUnsavedData(state)}
+        
     </div>
 }
 
@@ -132,9 +155,7 @@ const renderUnsavedData = (state) =>{
 
     if(!bUnsavedData(state)) return null;
 
-    return <div className="red">
-        Unsaved changes
-    </div>
+    return <NotificationSmall type="warning">You have unsaved changes!</NotificationSmall>
 }
 
 const AdminServersManager = ({}) =>{
