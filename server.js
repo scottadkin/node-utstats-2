@@ -1,7 +1,15 @@
-const { createServer } = require("http")
+//const { createServer } = require("https");
+const http = require("http");
+const https = require("https");
 const { parse } = require("url");
 const next = require("next");
-const {websitePort, imageServerPort, bUseSeperateImageServer} = require("./config.json");
+const {websitePort, imageServerPort, bUseSeperateImageServer, bUseHTTPS, ssl} = require("./config.json");
+const fs = require("fs");
+
+const options = {
+    cert: fs.readFileSync(ssl.cert),
+    key: fs.readFileSync(ssl.key),
+};
 
 
 if(bUseSeperateImageServer){
@@ -15,19 +23,22 @@ if(bUseSeperateImageServer){
 const dev = process.argv.indexOf("production") === -1;
 
 
+
 //const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = process.env.PORT ?? websitePort;
 
 
-console.log(`port = ${port}`);
-
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
+
 app.prepare().then(() => {
-  createServer(async (req, res) => {
+
+  const server = (bUseHTTPS) ? https : http;
+
+  server.createServer(options, async (req, res) => {
     try {
       // Be sure to pass `true` as the second argument to `url.parse`.
       // This tells it to parse the query portion of the URL.

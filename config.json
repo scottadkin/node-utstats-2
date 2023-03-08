@@ -1,4 +1,9 @@
 {
+    "bUseHTTPS": false,
+    "ssl": {
+        "cert": "cert.pem",
+        "key": "key.pem"
+    },
     "importInterval": 30,
     "bUseSeperateImageServer": false,
     "imageServerPort": 3001,
