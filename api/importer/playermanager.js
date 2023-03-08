@@ -1025,13 +1025,20 @@ class PlayerManager{
                     if(p.bBot) continue;
                 }
 
-                const playtime = p.getTotalPlaytime(totalTeams);
+                const totalPlaytime = p.getTotalPlaytime(totalTeams);
+
+                const teamPlaytime = p.getPlaytimeByTeam(totalTeams);
 
                 //update combined gametypes totals
                 await Player.updateFrags(
                     p.masterId, 
                     date,
-                    playtime, 
+                    totalPlaytime, 
+                    teamPlaytime.red,
+                    teamPlaytime.blue,
+                    teamPlaytime.green,
+                    teamPlaytime.yellow,
+                    teamPlaytime.spec,
                     p.stats.frags,
                     p.stats.score,  
                     p.stats.kills, 
@@ -1059,7 +1066,12 @@ class PlayerManager{
                 await Player.updateFrags(
                     p.gametypeId, 
                     date,
-                    playtime, 
+                    totalPlaytime, 
+                    teamPlaytime.red,
+                    teamPlaytime.blue,
+                    teamPlaytime.green,
+                    teamPlaytime.yellow,
+                    teamPlaytime.spec,
                     p.stats.frags,
                     p.stats.score, 
                     p.stats.kills, 

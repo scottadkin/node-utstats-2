@@ -801,6 +801,20 @@ class PlayerInfo{
         return totalPlaytime;
     }
 
+    getPlaytimeByTeam(){
+
+        const playtime = {
+            "red": this.stats.teamPlaytime[0],
+            "blue": this.stats.teamPlaytime[1],
+            "green": this.stats.teamPlaytime[2],
+            "yellow": this.stats.teamPlaytime[3],
+            "spec": this.stats.teamPlaytime[255]
+        };
+
+
+        return playtime;
+    }
+
 
     getLastPlayedTeam(){
 

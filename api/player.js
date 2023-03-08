@@ -34,7 +34,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [hwid, playerName]);
 
@@ -67,7 +67,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId]);
 
@@ -165,7 +165,8 @@ class Player{
         });
     }
 
-    updateFrags(id, date, playtime, frags, score, kills, deaths, suicides, teamKills, spawnKills,
+    updateFrags(id, date, playtime, redPlaytime, bluePlaytime, greenPlaytime, yellowPlaytime, specPlaytime,
+         frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
         firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype){
             
@@ -175,6 +176,11 @@ class Player{
             first = IF(first = 0 OR first > ?, ?, first), 
             last = IF(last < ?,?,last), 
             playtime=playtime+?, 
+            team_0_playtime=team_0_playtime+?,
+            team_1_playtime=team_1_playtime+?,
+            team_2_playtime=team_2_playtime+?,
+            team_3_playtime=team_3_playtime+?,
+            spec_playtime=spec_playtime+?,
             frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
             team_kills=team_kills+?, spawn_kills=spawn_kills+?,
             multi_1 = multi_1+?, multi_2 = multi_2+?, multi_3 = multi_3+?, multi_4 = multi_4+?,
@@ -197,6 +203,11 @@ class Player{
                 date,
                 date,
                 playtime, 
+                redPlaytime,
+                bluePlaytime,
+                greenPlaytime,
+                yellowPlaytime,
+                specPlaytime,
                 frags, 
                 score, 
                 kills, 

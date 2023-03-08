@@ -20,9 +20,11 @@ async function columnExists(table, column){
     return false;
 }
 
-async function alterTable(table, column, datatype){
+async function alterTable(table, column, datatype, after){
+    
+    if(after === undefined) after = "";
 
-    const query = `ALTER TABLE ${table} ADD COLUMN ${column} ${datatype}`;
+    const query = `ALTER TABLE ${table} ADD COLUMN ${column} ${datatype} ${after}`;
 
     await mysql.simpleQuery(query);
     new Message(query, "pass");
@@ -45,6 +47,12 @@ async function changeColumnName(table, oldName, newName){
         new Message("Node UTStats 2 Upgrade", "note");
         new Message("There is no upgrading from the previous version(2.6 & 2.7.X)","warning");
         new Message("You have to do a fresh install.", "warning");
+
+        await alterTable("nstats_player_totals", "team_0_playtime", "float NOT NULL", "AFTER playtime");
+        await alterTable("nstats_player_totals", "team_1_playtime", "float NOT NULL", "AFTER team_0_playtime");
+        await alterTable("nstats_player_totals", "team_2_playtime", "float NOT NULL", "AFTER team_1_playtime");
+        await alterTable("nstats_player_totals", "team_3_playtime", "float NOT NULL", "AFTER team_2_playtime");
+        await alterTable("nstats_player_totals", "spec_playtime", "float NOT NULL", "AFTER team_3_playtime");
 
         process.exit(0);
 
