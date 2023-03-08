@@ -5,6 +5,7 @@ import Tabs from "../Tabs";
 import InteractiveTable from "../InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
+import DropDown from "../DropDown";
 
 const reducer = (state, action) =>{
 
@@ -13,7 +14,8 @@ const reducer = (state, action) =>{
             return {
                 "bLoading": false,
                 "loadError": null,
-                "playersList": action.players
+                "playersList": action.players,
+                "hwidList": action.hwids
             }
         }
         case "loadError": {
@@ -21,6 +23,18 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": false,
                 "loadError": action.errorMessage
+            }
+        }
+        case "changeSelectedHWID": {
+            return {
+                ...state,
+                "selectedHWID": action.hwid
+            }
+        }
+        case "setSelectedPlayerIds": {
+            return {
+                ...state,
+                "selectedPlayerIds": action.selectedPlayerIds
             }
         }
     }
@@ -42,7 +56,8 @@ const renderPlayers = (state, dispatch) =>{
         return {
             "name": {
                 "value": player.name.toLowerCase(),
-                "displayValue": <><CountryFlag country={player.country}/>{player.name}</>
+                "displayValue": <><CountryFlag country={player.country}/>{player.name}</>,
+                "className": "text-left"
             },
             "hwid": {
                 "value": player.hwid
@@ -58,10 +73,34 @@ const renderPlayers = (state, dispatch) =>{
         }
     });
 
-    
-
 
     return <InteractiveTable width={1} headers={headers} data={data}/>
+}
+
+const createPlayerDropDown = (state) =>{
+
+    return state.hwidList.map((player) =>{
+        return {"value": player.hwid, "displayValue": <><CountryFlag country={player.country}/>{player.name} - <b>{player.hwid}</b></>};
+    });
+}
+
+const renderForm = (state, dispatch) =>{
+
+    return <div className="form m-bottom-10">
+        <div className="default-sub-header">Set Player HWIDs</div>
+        <DropDown 
+            dName="HWID" 
+            fName="selectedHWID" 
+            originalValue={-1} 
+            data={createPlayerDropDown(state)} 
+            changeSelected={(name, value) =>{
+                dispatch({"type": "changeSelectedHWID", "hwid": value});
+            }}
+        />
+        <div className="form-info">
+            Click on a player&apos;s name below, to add to a list of players you would like to use the HWID specified above.
+        </div>
+    </div>
 }
 
 const AdminPlayerHWIDMerge = ({}) =>{
@@ -70,7 +109,9 @@ const AdminPlayerHWIDMerge = ({}) =>{
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
         "loadError": null,
-        "playersList": []
+        "playersList": [],
+        "hwidsList": [],
+        "selectedHWID": -1
     });
 
 
@@ -94,7 +135,7 @@ const AdminPlayerHWIDMerge = ({}) =>{
                 return;
             }
 
-            dispatch({"type": "loaded", "players": res.players});
+            dispatch({"type": "loaded", "players": res.players, "hwids": res.hwidList});
         }
 
         loadData();
@@ -107,6 +148,7 @@ const AdminPlayerHWIDMerge = ({}) =>{
     
     return <div>
         <div className="default-header">Merge Player By HWID</div>
+        {renderForm(state, dispatch)}
         {renderPlayers(state, dispatch)}
     </div>
 }

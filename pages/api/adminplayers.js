@@ -31,10 +31,10 @@ export default async function handler (req, res){
 
             if(mode === "players-hwid-list"){
 
-                const playersList = await playerManager.adminGetPlayersWithHWIDS();
+                const playersHWIDList = await playerManager.adminGetPlayersWithHWIDS();
+                const playersList = await playerManager.adminGetPlayersBasic();
 
-
-                res.status(200).json({"players": playersList});
+                res.status(200).json({"players": playersList, "hwidList": playersHWIDList});
                 return;
             }
 

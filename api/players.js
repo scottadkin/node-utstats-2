@@ -2377,6 +2377,13 @@ class Players{
 
         return await mysql.simpleQuery(query);
     }
+
+    async adminGetPlayersBasic(){
+
+        const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC`;
+
+        return await mysql.simpleQuery(query);
+    }
     
 }
 
