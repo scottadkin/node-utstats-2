@@ -29,6 +29,15 @@ export default async function handler (req, res){
 
             //console.log(mode);
 
+            if(mode === "players-hwid-list"){
+
+                const playersList = await playerManager.adminGetPlayersWithHWIDS();
+
+
+                res.status(200).json({"players": playersList});
+                return;
+            }
+
             if(mode === "general"){
 
                 const totalPlayers = await playerManager.getTotalPlayers();

@@ -5,6 +5,7 @@ import AdminDeletePlayer from '../AdminDeletePlayer';
 import BasicUIBox from '../BasicUIBox';
 import AdminPlayerMerge from '../AdminPlayerMerge';
 import AdminPlayerSearch from '../AdminPlayerSearch';
+import AdminPlayerHWIDMerge from '../AdminPlayerHWIDMerge';
 
 class AdminPlayersManager extends React.Component{
 
@@ -12,7 +13,7 @@ class AdminPlayersManager extends React.Component{
 
         super(props);
         this.state = {
-            "mode": 1, 
+            "mode": 5, 
             "players": [], 
             "names": [],
             "bFinishedLoadingGeneral": false, 
@@ -112,6 +113,13 @@ class AdminPlayersManager extends React.Component{
         return <AdminPlayerSearch />;
     }
 
+    renderHWIDMerge(){
+
+        if(this.state.mode !== 5) return null;
+
+        return <AdminPlayerHWIDMerge />;
+    }
+
     render(){
 
         return <div>
@@ -128,7 +136,10 @@ class AdminPlayersManager extends React.Component{
                 })}>Rename Player</div>
                 <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(3);  
-                })}>Merge Players</div>
+                })}>Merge Players<span className="yellow">(By Name)</span></div>
+                <div className={`tab ${(this.state.mode === 5) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(5);  
+                })}>Merge Players<span className="yellow">(By HWID)</span></div>
                 <div className={`tab ${(this.state.mode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(4);  
                 })}>Delete Player</div>
@@ -138,6 +149,7 @@ class AdminPlayersManager extends React.Component{
             {this.renderRename()}
             {this.renderMerge()}
             {this.renderDelete()}
+            {this.renderHWIDMerge()}
         </div>
     }
 }

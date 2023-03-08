@@ -2369,8 +2369,17 @@ class Players{
 
         return found;
     }
+
+
+    async adminGetPlayersWithHWIDS(){
+
+        const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND hwid!="" ORDER BY name ASC`;
+
+        return await mysql.simpleQuery(query);
+    }
     
 }
+
 
 
 module.exports = Players;
