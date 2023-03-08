@@ -30,7 +30,7 @@ class AdminFTPManagerList extends React.Component{
                 <TrueFalse bTable={true} value={d.sftp}/>
                 <td>{d.name}</td>
                 <td>{d.host}:{d.port}</td>
-                <td>{d.total_logs_imports}</td>
+                <td>{d.total_logs_imported}</td>
                 <td>{(d.first === 0) ? "N/A" : Functions.convertTimestamp(d.first, true)}</td>
                 <td>{(d.last === 0) ? "N/A" : Functions.convertTimestamp(d.last, true)}</td>
                 <td>
