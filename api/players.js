@@ -2384,6 +2384,34 @@ class Players{
 
         return await mysql.simpleQuery(query);
     }
+
+
+    async adminGetPlayerByHWID(hwid){
+
+        const query = `SELECT id,name,country FROM nstats_player_totals WHERE hwid=? AND gametype=0`;
+
+        const result = await mysql.simpleQuery(query, [hwid]);
+
+        if(result.length === 0) return null;
+        return result[0];
+    }
+
+    async adminAssignPlayerHWID(playerIds, targetHWID){
+
+        console.log(playerIds, targetHWID);
+
+        const hwidPlayer = await this.adminGetPlayerByHWID(targetHWID);
+
+        console.log(`hwidPlayer`);
+        console.log(hwidPlayer);
+
+        if(hwidPlayer === null){
+            throw new Error(`There are no players with the HWID of ${targetHWID}`);
+        }
+
+        //set all playerIds to the hwidPlayer
+        //merge player data
+    }
     
 }
 

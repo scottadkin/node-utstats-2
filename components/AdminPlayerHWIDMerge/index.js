@@ -48,10 +48,7 @@ const addPlayer = (state, dispatch, playerId) =>{
     playerId = parseInt(playerId);
 
     if(state.selectedPlayerIds.indexOf(playerId) !== -1){
-        const a = new Audio();
-        a.src = "/denied.ogg";
-        a.volume = 0.25;
-        a.play();
+        removePlayer(state, dispatch, playerId);
         return;
     }
 
@@ -122,9 +119,13 @@ const renderPlayers = (state, dispatch) =>{
 
 const createPlayerDropDown = (state) =>{
 
-    return state.hwidList.map((player) =>{
+    const players = state.hwidList.map((player) =>{
         return {"value": player.hwid, "displayValue": <><CountryFlag country={player.country}/>{player.name} - <b>{player.hwid}</b></>};
     });
+
+    players.unshift({"value": -1, "displayValue": "Please select a HWID"});
+
+    return players;
 }
 
 const getPlayer = (state, playerId) =>{
@@ -163,8 +164,6 @@ const renderSelectedPlayers = (state, dispatch) =>{
         return 0;
     });
 
-
-
     for(let i = 0; i < players.length; i++){
 
         const p = players[i];
@@ -184,12 +183,31 @@ const renderSelectedPlayers = (state, dispatch) =>{
     </div>
 }
 
+const setPlayersHWID = async (state, dispatch) =>{
+
+    const req = await fetch("/api/adminplayers",{
+        "headers": {"Content-type": "application/json"},
+        "method": "POST",
+        "body": JSON.stringify({"mode": "assign-hwid", "hwid": state.selectedHWID, "playerIds": state.selectedPlayerIds})
+    });
+
+    const res = await req.json();
+
+    console.log(res);
+}   
+
 const renderForm = (state, dispatch) =>{
+
+
+    const button = <div className="search-button m-top-10" onClick={() => setPlayersHWID(state, dispatch)}>Set Players HWID</div>;
+    const formInfo2 = <div className="form-info">
+        The players above will all be assigned the HWID of <b>{state.selectedHWID}</b>, and then merged into a single player using the last know name.
+    </div>;
 
     return <div className="form m-bottom-10">
         <div className="default-sub-header">Set Player HWIDs</div>
         <DropDown 
-            dName="HWID" 
+            dName="Target HWID" 
             fName="changeSelectedHWID" 
             originalValue={-1} 
             data={createPlayerDropDown(state)} 
@@ -198,11 +216,12 @@ const renderForm = (state, dispatch) =>{
             }}
         />
         <div className="form-info">
-            Click on a player&apos;s name below, to add to a list of players you would like to use the HWID specified above.
+            Click on a player&apos;s name below, to add it to a list of players you would like to assign the HWID selected above.
         </div>
         {renderSelectedPlayers(state, dispatch)}
-
-        <div className="search-button m-top-10" onClick={() => alert("KK")}>Set Players HWID</div>
+        
+        {(state.selectedPlayerIds.length > 0) ? formInfo2 : null}
+        {(state.selectedPlayerIds.length > 0) ? button : null}
     </div>
 }
 

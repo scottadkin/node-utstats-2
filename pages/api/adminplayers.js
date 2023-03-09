@@ -29,6 +29,17 @@ export default async function handler (req, res){
 
             //console.log(mode);
 
+            if(mode === "assign-hwid"){
+
+                const selectedPlayerIds = req.body.playerIds;
+                const selectedHWID = req.body.hwid;
+
+                await playerManager.adminAssignPlayerHWID(selectedPlayerIds, selectedHWID);
+
+                res.status(200).json({})
+                return;
+            }
+
             if(mode === "players-hwid-list"){
 
                 const playersHWIDList = await playerManager.adminGetPlayersWithHWIDS();
@@ -252,6 +263,6 @@ export default async function handler (req, res){
 
     }catch(err){
 
-        res.status(200).json({"error": err});
+        res.status(200).json({"error": err.toString()});
     }
 }
