@@ -46,6 +46,15 @@ const reducer = (state, action) =>{
 const addPlayer = (state, dispatch, playerId) =>{
 
     playerId = parseInt(playerId);
+
+    if(state.selectedPlayerIds.indexOf(playerId) !== -1){
+        const a = new Audio();
+        a.src = "/denied.ogg";
+        a.volume = 0.25;
+        a.play();
+        return;
+    }
+
     const previous = new Set([...state.selectedPlayerIds]);
 
     previous.add(playerId);
@@ -80,22 +89,29 @@ const renderPlayers = (state, dispatch) =>{
 
     const data = state.playersList.map((player) =>{
 
+        const selectedIndex = state.selectedPlayerIds.indexOf(player.id);
+
+        const className = (selectedIndex === -1) ? "" : styles.selected;
+
         return {
             "name": {
                 "value": player.name.toLowerCase(),
                 "displayValue": <div onClick={() => addPlayer(state, dispatch, player.id)}><CountryFlag country={player.country}/>{player.name}</div>,
-                "className": "text-left hover"
+                "className": `text-left hover no-select ${className}`
             },
             "hwid": {
-                "value": player.hwid
+                "value": player.hwid,
+                "className": className
             },
             "matches": {
-                "value": player.matches
+                "value": player.matches,
+                "className": className
             },
             "last": {
                 "value": player.last,
-                "displayValue": Functions.convertTimestamp(player.last, true)
-            },
+                "displayValue": Functions.convertTimestamp(player.last, true),
+                "className": className
+            }
             
         }
     });
@@ -129,17 +145,33 @@ const getPlayer = (state, playerId) =>{
 const renderSelectedPlayers = (state, dispatch) =>{
 
     const elems = [];
-
+    const players = [];
 
     for(let i = 0; i < state.selectedPlayerIds.length; i++){
 
         const s = state.selectedPlayerIds[i];
+        players.push(getPlayer(state, s));
+    }
 
-        const player = getPlayer(state, s);
+    players.sort((a, b) =>{
 
-        elems.push(<div className={styles.tag} key={player.id}>
-            <img className={`${styles.x} hover`} src={"/images/controlpoint.png"} alt="image" onClick={() => removePlayer(state, dispatch, player.id)}/>
-            <CountryFlag country={player.country}/>{player.name}
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+
+
+
+    for(let i = 0; i < players.length; i++){
+
+        const p = players[i];
+
+        elems.push(<div className={styles.tag} key={p.id}>
+            <img className={`${styles.x} hover`} src={"/images/controlpoint.png"} alt="image" onClick={() => removePlayer(state, dispatch, p.id)}/>
+            <CountryFlag country={p.country}/>{p.name}
         </div>);
     }
 
@@ -158,17 +190,19 @@ const renderForm = (state, dispatch) =>{
         <div className="default-sub-header">Set Player HWIDs</div>
         <DropDown 
             dName="HWID" 
-            fName="selectedHWID" 
+            fName="changeSelectedHWID" 
             originalValue={-1} 
             data={createPlayerDropDown(state)} 
             changeSelected={(name, value) =>{
-                dispatch({"type": "changeSelectedHWID", "hwid": value});
+                dispatch({"type": name, "hwid": value});
             }}
         />
         <div className="form-info">
             Click on a player&apos;s name below, to add to a list of players you would like to use the HWID specified above.
         </div>
         {renderSelectedPlayers(state, dispatch)}
+
+        <div className="search-button m-top-10" onClick={() => alert("KK")}>Set Players HWID</div>
     </div>
 }
 

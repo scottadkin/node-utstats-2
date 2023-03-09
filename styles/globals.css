@@ -32,6 +32,8 @@
 	--red-1:rgb(200,40,40);
 	--red-2:rgba(89,0,0,0.75);
 	--red-3:rgba(69,0,0,0.75);
+	--yellow-1:"yellow";
+	--yellow-2:rgba(95,95,0, 0.75);
 }
 
 .color3{
@@ -247,7 +249,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .yellow{
-	color:yellow;
+	color:var(--yellow-1)
 }
 
 .green{
@@ -290,7 +292,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 
 
 .duo div:nth-child(4), .trio div:nth-child(4), .quad div:nth-child(4), .team-yellow{
-	background-color:rgba(91,91,0, 0.75);
+	background-color:var(--yellow-2)
 }
 
 
