@@ -1,17 +1,18 @@
 import { useEffect, useReducer } from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
-import Tabs from "../Tabs";
 import InteractiveTable from "../InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
 import DropDown from "../DropDown";
+import styles from "./AdminPlayerHWIDMerge.module.css";
 
 const reducer = (state, action) =>{
 
     switch(action.type){
         case "loaded": {
             return {
+                ...state,
                 "bLoading": false,
                 "loadError": null,
                 "playersList": action.players,
@@ -42,6 +43,32 @@ const reducer = (state, action) =>{
     return state;
 }
 
+const addPlayer = (state, dispatch, playerId) =>{
+
+    playerId = parseInt(playerId);
+    const previous = new Set([...state.selectedPlayerIds]);
+
+    previous.add(playerId);
+
+    dispatch({"type": "setSelectedPlayerIds", "selectedPlayerIds": [...previous]});
+}
+
+const removePlayer = (state, dispatch, playerId) =>{
+
+    playerId = parseInt(playerId);
+
+    const players = [];
+
+    for(let i = 0; i < state.selectedPlayerIds.length; i++){
+
+        const p = state.selectedPlayerIds[i];
+
+        if(p !== playerId) players.push(p);
+    }
+
+    dispatch({"type": "setSelectedPlayerIds", "selectedPlayerIds": [...players]});
+}
+
 const renderPlayers = (state, dispatch) =>{
 
     const headers = {
@@ -56,8 +83,8 @@ const renderPlayers = (state, dispatch) =>{
         return {
             "name": {
                 "value": player.name.toLowerCase(),
-                "displayValue": <><CountryFlag country={player.country}/>{player.name}</>,
-                "className": "text-left"
+                "displayValue": <div onClick={() => addPlayer(state, dispatch, player.id)}><CountryFlag country={player.country}/>{player.name}</div>,
+                "className": "text-left hover"
             },
             "hwid": {
                 "value": player.hwid
@@ -84,6 +111,47 @@ const createPlayerDropDown = (state) =>{
     });
 }
 
+const getPlayer = (state, playerId) =>{
+
+    playerId = parseInt(playerId);
+
+    for(let i = 0; i < state.playersList.length; i++){
+
+        const p = state.playersList[i];
+
+        if(p.id === playerId) return {"id": p.id, "name": p.name, "country": p.country};
+
+    }
+
+    return {"id": -1, "name": "Not Found", "country": "xx"};
+}
+
+const renderSelectedPlayers = (state, dispatch) =>{
+
+    const elems = [];
+
+
+    for(let i = 0; i < state.selectedPlayerIds.length; i++){
+
+        const s = state.selectedPlayerIds[i];
+
+        const player = getPlayer(state, s);
+
+        elems.push(<div className={styles.tag} key={player.id}>
+            <img className={`${styles.x} hover`} src={"/images/controlpoint.png"} alt="image" onClick={() => removePlayer(state, dispatch, player.id)}/>
+            <CountryFlag country={player.country}/>{player.name}
+        </div>);
+    }
+
+
+    if(elems.length === 0) return null;
+
+    return <div>
+        <div className="default-sub-header">Selected Players</div>
+        {elems}
+    </div>
+}
+
 const renderForm = (state, dispatch) =>{
 
     return <div className="form m-bottom-10">
@@ -100,6 +168,7 @@ const renderForm = (state, dispatch) =>{
         <div className="form-info">
             Click on a player&apos;s name below, to add to a list of players you would like to use the HWID specified above.
         </div>
+        {renderSelectedPlayers(state, dispatch)}
     </div>
 }
 
@@ -111,7 +180,8 @@ const AdminPlayerHWIDMerge = ({}) =>{
         "loadError": null,
         "playersList": [],
         "hwidsList": [],
-        "selectedHWID": -1
+        "selectedHWID": -1,
+        "selectedPlayerIds": []
     });
 
 
