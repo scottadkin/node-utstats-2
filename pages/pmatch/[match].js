@@ -104,7 +104,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             host={imageHost}
             map={map} 
             totalTeams={info.total_teams} 
-            players={players.playerData} 
+            players={players.playedPlayersData} 
             image={mapImage} 
             matchData={info} 
             serverName={server} 
@@ -192,14 +192,14 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             key={`mse`} 
             host={imageHost} 
             bTeamGame={info.team_game} 
-            players={players.playerData} 
+            players={players.playedPlayersData} 
             matchId={matchId}
             bSingle={true}
             targetPlayerId={playerId}
         />
     }
 
-    if(Functions.bAnyDomData(players.playerData)){
+    if(Functions.bAnyDomData(players.playedPlayersData)){
 
         if(pageSettings["Display Domination Summary"] === "true"){
 
