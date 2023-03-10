@@ -37,9 +37,9 @@ export default async function handler (req, res){
                 const matchManager = new Matches();
                 const combogibManager = new Combogib();
 
-                await playerManager.adminAssignPlayerHWID(selectedPlayerIds, selectedHWID, matchManager, combogibManager);
+                const removedPlayerIds = await playerManager.adminAssignPlayerHWID(selectedPlayerIds, selectedHWID, matchManager, combogibManager);
 
-                res.status(200).json({"message": "passed"})
+                res.status(200).json({"message": "passed", "removedPlayerIds": removedPlayerIds})
                 return;
             }
 

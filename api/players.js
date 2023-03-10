@@ -2472,10 +2472,12 @@ class Players{
             throw new Error(`There are no players with the HWID of ${targetHWID}`);
         }
 
+        const removedPlayerIds = [];
 
         for(let i = 0; i < playerIds.length; i++){
 
             const id = playerIds[i];
+            removedPlayerIds.push(id);
             await this.adminSetPlayerHWID(id, targetHWID);
         }
 
@@ -2483,6 +2485,9 @@ class Players{
 
         //set all playerIds to the hwidPlayer
         //merge player data
+
+
+        return removedPlayerIds;
     }
     
 }

@@ -54,7 +54,8 @@ const reducer = (state, action) =>{
                 "bMergeInProgress": false,
                 "mergeError": null,
                 "selectedPlayerIds": [],
-                "selectedHWID": -1
+                "selectedHWID": -1,
+                "playersList": action.playersList
             }
         }
         case "merge-fail": {
@@ -222,14 +223,25 @@ const setPlayersHWID = async (state, dispatch) =>{
     const res = await req.json();
 
     if(res.error !== undefined){
-        console.log(res);
         dispatch({"type": "merge-fail", "errorMessage": res.error});
         return;
     }
 
-    dispatch({"type": "merge-pass"});
+    const removedPlayers = res.removedPlayerIds;
 
-    console.log(res);
+    const remainingPlayers = [];
+
+    for(let i = 0; i < state.playersList.length; i++){
+
+        const p = state.playersList[i];
+
+        if(removedPlayers.indexOf(p.id) === -1){
+            remainingPlayers.push(p);
+        }
+    }
+
+    dispatch({"type": "merge-pass", "playersList": remainingPlayers});
+    
 }   
 
 const renderForm = (state, dispatch) =>{
