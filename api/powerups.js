@@ -456,6 +456,14 @@ class PowerUps{
         }
     }
 
+    async changeCarryTimePlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_powerups_carry_times SET player_id=? WHERE player_id=?`;
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+
+
     async mergePlayers(oldId, newId){
 
         await this.changeMatchPowerupsPlayerIds(oldId, newId);
@@ -467,7 +475,7 @@ class PowerUps{
         await this.mergeDuplicatePlayerTotals(newId);
 
         //same for carry times
-
+        await this.changeCarryTimePlayerIds(oldId, newId);
 
     }
 }

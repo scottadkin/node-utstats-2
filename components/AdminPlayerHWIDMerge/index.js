@@ -6,6 +6,7 @@ import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
 import DropDown from "../DropDown";
 import styles from "./AdminPlayerHWIDMerge.module.css";
+import NotificationSmall from "../NotificationSmall";
 
 const reducer = (state, action) =>{
 
@@ -16,7 +17,9 @@ const reducer = (state, action) =>{
                 "bLoading": false,
                 "loadError": null,
                 "playersList": action.players,
-                "hwidList": action.hwids
+                "hwidList": action.hwids,
+                "bMergeInProgress": false,
+                "mergeError": null
             }
         }
         case "loadError": {
@@ -36,6 +39,29 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "selectedPlayerIds": action.selectedPlayerIds
+            }
+        }
+        case "start-merge": {
+            return {
+                ...state,
+                "bMergeInProgress": true,
+                "mergeError": null
+            }
+        }
+        case "merge-pass": {
+            return {
+                ...state,
+                "bMergeInProgress": false,
+                "mergeError": null,
+                "selectedPlayerIds": [],
+                "selectedHWID": -1
+            }
+        }
+        case "merge-fail": {
+            return {
+                ...state,
+                "bMergeInProgress": false,
+                "mergeError": action.errorMessage
             }
         }
     }
@@ -185,6 +211,8 @@ const renderSelectedPlayers = (state, dispatch) =>{
 
 const setPlayersHWID = async (state, dispatch) =>{
 
+    dispatch({"type": "start-merge"});
+
     const req = await fetch("/api/adminplayers",{
         "headers": {"Content-type": "application/json"},
         "method": "POST",
@@ -192,6 +220,14 @@ const setPlayersHWID = async (state, dispatch) =>{
     });
 
     const res = await req.json();
+
+    if(res.error !== undefined){
+        console.log(res);
+        dispatch({"type": "merge-fail", "errorMessage": res.error});
+        return;
+    }
+
+    dispatch({"type": "merge-pass"});
 
     console.log(res);
 }   
@@ -203,6 +239,16 @@ const renderForm = (state, dispatch) =>{
     const formInfo2 = <div className="form-info">
         The players above will all be assigned the HWID of <b>{state.selectedHWID}</b>, and then merged into a single player using the last know name.
     </div>;
+
+    if(state.bMergeInProgress){
+
+        return <div className="form m-bottom-10">
+            <div className="default-sub-header">Set Player HWIDs</div>
+            <Loading>
+                Merging players, please wait.
+            </Loading>
+        </div>
+    }
 
     return <div className="form m-bottom-10">
         <div className="default-sub-header">Set Player HWIDs</div>
@@ -216,12 +262,12 @@ const renderForm = (state, dispatch) =>{
             }}
         />
         <div className="form-info">
-            Click on a player&apos;s name below, to add it to a list of players you would like to assign the HWID selected above.
+            Click on a player&apos;s name below to add it to a list of players you would like to assign the HWID selected above.
         </div>
         {renderSelectedPlayers(state, dispatch)}
-        
-        {(state.selectedPlayerIds.length > 0) ? formInfo2 : null}
-        {(state.selectedPlayerIds.length > 0) ? button : null}
+        {(state.selectedPlayerIds.length > 0 && state.selectedHWID !== -1) ? formInfo2 : null}
+        {(state.mergeError !== null) ? <NotificationSmall type="error">{state.mergeError}</NotificationSmall> : null }
+        {(state.selectedPlayerIds.length > 0 && state.selectedHWID !== -1) ? button : null}
     </div>
 }
 
@@ -234,7 +280,9 @@ const AdminPlayerHWIDMerge = ({}) =>{
         "playersList": [],
         "hwidsList": [],
         "selectedHWID": -1,
-        "selectedPlayerIds": []
+        "selectedPlayerIds": [],
+        "bMergeInProgress": false,
+        "mergeError": null
     });
 
 
