@@ -388,6 +388,74 @@ class PowerUps{
         }
     }
 
+    async changeTotalsPowerupsPlayerIds(oldId, newId){
+
+        const query = `UPDATE nstats_powerups_player_totals SET player_id=? WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async deletePlayerTotalsData(playerId){
+
+        const query = `DELETE FROM nstats_powerups_player_totals WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async insertPlayerTotalMerge(playerId, data){
+
+        const query = `INSERT INTO nstats_powerups_player_totals VALUES(
+            NULL,?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?)`;
+
+        const vars = [
+            playerId, data.gametype_id, data.total_matches, data.total_playtime,
+            data.powerup_id, data.times_used, data.times_used_best, data.carry_time,
+            data.carry_time_best, data.total_kills, data.best_kills, data.best_kills_single_use, 
+            data.end_deaths, data.end_suicides, data.end_timeouts, data.end_match_end, 
+            data.total_carrier_kills, data.carrier_kills_best, data.carrier_kills_single_life
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async mergeDuplicatePlayerTotals(playerId){
+
+        const query = `SELECT 
+        gametype_id,
+        SUM(total_matches) as total_matches,
+        SUM(total_playtime) as total_playtime,
+        powerup_id,
+        SUM(times_used) as times_used,
+        MAX(times_used_best) as times_used_best,
+        SUM(carry_time) as carry_time,
+        MAX(carry_time_best) as carry_time_best,
+        SUM(total_kills) as total_kills,
+        MAX(best_kills) as best_kills,
+        MAX(best_kills_single_use) as best_kills_single_use,
+        SUM(end_deaths) as end_deaths,
+        SUM(end_suicides) as end_suicides,
+        SUM(end_timeouts) as end_timeouts,
+        SUM(end_match_end) as end_match_end,
+        SUM(total_carrier_kills) as total_carrier_kills,
+        MAX(carrier_kills_best) as carrier_kills_best,
+        MAX(carrier_kills_single_life) as carrier_kills_single_life
+        FROM nstats_powerups_player_totals
+        WHERE player_id=?
+        GROUP BY gametype_id, powerup_id`;
+
+        const totals = await mysql.simpleQuery(query, [playerId]);
+        await this.deletePlayerTotalsData(playerId);
+
+        for(let i = 0; i < totals.length; i++){
+
+            await this.insertPlayerTotalMerge(playerId, totals[i]);
+        }
+    }
+
     async mergePlayers(oldId, newId){
 
         await this.changeMatchPowerupsPlayerIds(oldId, newId);
@@ -395,6 +463,8 @@ class PowerUps{
         await this.mergeDuplicateMatchPlayerData(newId);
 
         //same for player totals
+        await this.changeTotalsPowerupsPlayerIds(oldId, newId);
+        await this.mergeDuplicatePlayerTotals(newId);
 
         //same for carry times
 
