@@ -283,6 +283,123 @@ class PowerUps{
 
         return await mysql.simpleQuery(query, vars);
     }
+
+    async changeMatchPowerupsPlayerIds(oldId, newId){
+
+        const query = "UPDATE nstats_powerups_player_match SET player_id=? WHERE player_id=?";
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async getPlayerMatchData(playerId, matchId){
+
+
+        const query = `SELECT
+        powerup_id,
+        match_date,
+        map_id,
+        gametype_id,
+        SUM(times_used) as times_used,
+        SUM(carry_time) as carry_time,
+        MAX(carry_time_best) as carry_time_best,
+        SUM(total_kills) as total_kills,
+        MAX(best_kills) as best_kills,
+        SUM(end_deaths) as end_deaths,
+        SUM(end_suicides) as end_suicides,
+        SUM(end_timeouts) as end_timeouts,
+        SUM(end_match_end) as end_match_end,
+        SUM(carrier_kills) as carrier_kills,
+        MAX(carrier_kills_best) as carrier_kills_best 
+        FROM nstats_powerups_player_match
+        WHERE match_id=? AND player_id=?
+        GROUP BY powerup_id,match_date,map_id,gametype_id`;
+
+        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+
+        if(result.length > 0) return result;
+
+        return null;
+    }
+
+    async deletePlayerMatchData(playerId, matchId){
+
+        const query = "DELETE FROM nstats_powerups_player_match WHERE player_id=? AND match_id=?";
+        return await mysql.simpleQuery(query, [playerId, matchId]);
+    }
+
+    async insertPlayerMatchDataMerge(playerId, matchId, data){
+
+        const query = `INSERT INTO nstats_powerups_player_match VALUES(NULL,
+            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        
+        const vars = [
+            matchId, 
+            data.match_date,
+            data.map_id,
+            data.gametype_id,
+            playerId,
+            data.powerup_id,
+            data.times_used,
+            data.carry_time,
+            data.carry_time_best,
+            data.total_kills,
+            data.best_kills,
+            data.end_deaths,
+            data.end_suicides,
+            data.end_timeouts,
+            data.end_match_end,
+            data.carrier_kills,
+            data.carrier_kills_best
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async mergePlayerMatchData(playerId, matchId){
+
+        const totals = await this.getPlayerMatchData(playerId, matchId);
+
+        if(totals === null) throw new Error(`Powerups.mergePlayerMatchData(${playerId}, ${matchId}) totals is null.`);
+
+        await this.deletePlayerMatchData(playerId, matchId);
+
+        for(let i = 0; i < totals.length; i++){
+
+            const t = totals[i];
+
+            await this.insertPlayerMatchDataMerge(playerId, matchId, t);
+        }
+
+    }
+
+    async mergeDuplicateMatchPlayerData(playerId){
+
+        const query = `SELECT COUNT(*) as total_matches, match_id FROM nstats_powerups_player_match WHERE player_id=? GROUP BY match_id`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            console.log(`matchId = ${r.match_id} has ${r.total_matches} duplicate entries for player ${playerId}`);
+
+            await this.mergePlayerMatchData(playerId, r.match_id);
+        }
+    }
+
+    async mergePlayers(oldId, newId){
+
+        await this.changeMatchPowerupsPlayerIds(oldId, newId);
+        //merge duplicate entries for player
+        await this.mergeDuplicateMatchPlayerData(newId);
+
+        //same for player totals
+
+        //same for carry times
+
+
+    }
 }
 
 

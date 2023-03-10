@@ -21,6 +21,7 @@ const Voices = require("./voices");
 const Sprees = require("./sprees");
 const MonsterHunt = require("./monsterhunt");
 const Combogib = require("./combogib");
+const PowerUps = require("./powerups");
 
 class Players{
 
@@ -893,6 +894,11 @@ class Players{
             await rankingsManager.deletePlayer(first);
             await rankingsManager.deletePlayer(second);
             await rankingsManager.fullPlayerRecalculate(this, second);
+
+
+            const powerupManager = new PowerUps();
+
+            await powerupManager.mergePlayers(first, second);
 
 
             return true;
