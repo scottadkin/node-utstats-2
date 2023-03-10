@@ -187,7 +187,7 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
 
         
 
-        return <InteractiveTable key={teamId} width={1} headers={headers} data={data}/>
+        return <InteractiveTable key={teamId} width={1} headers={headers} data={data} defaultOrder={"score"}/>
     }
 
     const tables = [];

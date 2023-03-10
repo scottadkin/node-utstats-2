@@ -4,7 +4,8 @@ const createPlayerObjects = (data, optionalTargetPlayer) =>{
 
     const basicPlayers = {};
     const justPlayerNames = {};
-    const playedPlayers = {};
+    const playedPlayersIds = {};
+    const playedPlayersData = [];
     const targetPlayer = [];
 
     for(let i = 0; i < data.playerData.length; i++){
@@ -28,15 +29,18 @@ const createPlayerObjects = (data, optionalTargetPlayer) =>{
         justPlayerNames[data.playerData[i].player_id] = data.playerData[i].name;
 
         if(p.playtime > 0 || !p.spectator){
-            playedPlayers[data.playerData[i].player_id] = data.playerData[i].name;
+            playedPlayersIds[data.playerData[i].player_id] = data.playerData[i].name;
+            playedPlayersData.push(p);
         }
     }
+
 
     return {
         "playerData": data.playerData,
         "faces": data.playerFaces,
         "basicPlayers": basicPlayers,
-        "nonSpectators": playedPlayers,
+        "nonSpectators": playedPlayersIds,
+        "playedPlayersData": playedPlayersData,
         "bLoadingPlayers": false,
         "targetPlayer": targetPlayer
     }
@@ -47,7 +51,15 @@ const useMatchPlayersLoader = (matchId, optionalTargetPlayer) =>{
 
     if(optionalTargetPlayer === undefined) optionalTargetPlayer = -1;
 
-    const [data, setData] = useState({"playerData": [], "faces": {}, "basicPlayers": {}, "nonSpectators": {}, "bLoadingPlayers": true, "targetPlayer": []});
+    const [data, setData] = useState({
+        "playerData": [], 
+        "faces": {}, 
+        "basicPlayers": {}, 
+        "nonSpectators": {}, 
+        "playedPlayersData": [],
+        "bLoadingPlayers": true, 
+        "targetPlayer": []
+    });
 
     useEffect(() =>{
 
@@ -66,7 +78,8 @@ const useMatchPlayersLoader = (matchId, optionalTargetPlayer) =>{
 
             const res = await req.json();
         
-            setData(createPlayerObjects(res, optionalTargetPlayer))
+            setData(createPlayerObjects(res, optionalTargetPlayer));
+  
         }
 
         loadPlayerData();

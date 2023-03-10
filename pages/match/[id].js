@@ -157,7 +157,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 elems[pageOrder["Display Frag Summary"]] = <MatchFragSummary key={`match_3`} 
                     host={imageHost} 
                     totalTeams={info.total_teams} 
-                    playerData={players.playerData} 
+                    playerData={players.playedPlayersData} 
                     matchStart={info.start}
                     matchId={info.id}
                 />
@@ -167,7 +167,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     
                 elems[pageOrder["Display Frag Summary"]] = <MatchMonsterHuntFragSummary key={`mh-frags`} 
                     host={imageHost} 
-                    playerData={players.playerData} 
+                    playerData={players.playedPlayersData} 
                     matchStart={info.start} 
                     matchId={info.id
                 }/>
@@ -182,7 +182,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 elems[pageOrder["Display Capture The Flag Summary"]] = <MatchCTFSummary 
                     key="ctf-s" 
                     matchId={matchId} 
-                    playerData={players.playerData} 
+                    playerData={players.playedPlayersData} 
                     single={false}
                 />
             }
@@ -277,7 +277,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 key={`mse`} 
                 host={imageHost} 
                 bTeamGame={info.team_game} 
-                players={players.playerData} 
+                players={players.playedPlayersData} 
                 matchId={matchId}
                 bSingle={false}
             />;
@@ -342,7 +342,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 playerIds={players.nonSpectators} 
                 players={players.basicPlayers}
                 matchId={matchId}
-                playerData={players.playerData.map((player) =>{
+                playerData={players.playedPlayersData.map((player) =>{
                     return {"playerId": player.player_id, "min": player.ping_min, "average": player.ping_average, "max": player.ping_max}
                 })}
             />;
@@ -364,7 +364,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                         key={`teams-data`} 
                         host={imageHost} 
                         players={players.basicPlayers}
-                        playerData={players.playerData} 
+                        playerData={players.playedPlayersData} 
                         matchId={matchId}
                         matchStart={info.start}
                         totalTeams={info.total_teams}
