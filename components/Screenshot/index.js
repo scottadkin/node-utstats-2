@@ -642,7 +642,9 @@ class MatchScreenshot{
         for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
-            //console.log(p);
+
+            if(!p.played || p.playtime === 0) continue;
+
             if(!this.bClassic){
                 this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score, p.playtime, Math.floor(p.ping_average), p.country);
             }else{
@@ -741,7 +743,7 @@ class MatchScreenshot{
             c.font = this.y(2)+"px Arial";
 
             if(!p.played || p.playtime === 0) continue;
-
+            
             if(!this.bClassic){
                 this.renderStandardPlayer(c, playerIndex, p.name, p.score, p.deaths, p.ping_average, p.playtime, p.country);
             }else{
