@@ -34,7 +34,10 @@ export default async function handler (req, res){
                 const selectedPlayerIds = req.body.playerIds;
                 const selectedHWID = req.body.hwid;
 
-                await playerManager.adminAssignPlayerHWID(selectedPlayerIds, selectedHWID);
+                const matchManager = new Matches();
+                const combogibManager = new Combogib();
+
+                await playerManager.adminAssignPlayerHWID(selectedPlayerIds, selectedHWID, matchManager, combogibManager);
 
                 res.status(200).json({})
                 return;

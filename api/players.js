@@ -802,6 +802,9 @@ class Players{
 
         try{
 
+
+            console.log(`Merge ${first} into ${second}`);
+
             first = parseInt(first);
             second = parseInt(second);
 
@@ -1181,6 +1184,7 @@ class Players{
         ?,?,?,?,?,
         ?,?,?,?,?,
         ?,?,?,?,?,
+        ?,?,?,?,?,
         ?,?,?,?,?,?,?,?,
         ?,?,?,?,?,?,?,?, 
         ?,?, 
@@ -1194,7 +1198,9 @@ class Players{
             "", data.name, playerId, data.first, data.last,  
             "", "", 0, 0, gametypeId, 
             data.total_matches, data.wins, data.losses, data.draws, data.winRate, 
-            data.playtime, data.first_bloods, data.frags, data.score, data.kills, 
+            data.playtime, 
+            data.team_0_playtime, data.team_1_playtime, data.team_2_playtime, data.team_3_playtime, data.spec_playtime,
+            data.first_bloods, data.frags, data.score, data.kills, 
             data.deaths, data.suicides, data.team_kills, data.spawn_kills, data.efficiency, 
             data.multi_1, data.multi_2, data.multi_3, data.multi_4, data.multi_5, data.multi_6, data.multi_7, data.multi_best, 
             data.spree_1, data.spree_2, data.spree_3, data.spree_4, data.spree_5, data.spree_6, data.spree_7, data.spree_best, 
@@ -2388,7 +2394,7 @@ class Players{
 
     async adminGetPlayerByHWID(hwid){
 
-        const query = `SELECT id,name,country FROM nstats_player_totals WHERE hwid=? AND gametype=0`;
+        const query = `SELECT id,name,country FROM nstats_player_totals WHERE hwid=? AND gametype=0 LIMIT 1`;
 
         const result = await mysql.simpleQuery(query, [hwid]);
 
@@ -2396,7 +2402,58 @@ class Players{
         return result[0];
     }
 
-    async adminAssignPlayerHWID(playerIds, targetHWID){
+
+    async adminSetPlayerHWID(playerId, hwid){
+
+        const query = `UPDATE nstats_player_totals SET hwid=?,player_id=? WHERE (player_id=? || id=?)`;
+        return await mysql.simpleQuery(query, [hwid, playerId, playerId, playerId]);
+    }
+
+
+    async adminGetMostRecentPlayerTotalByHWID(hwid){
+
+        const query = `SELECT id,name,country,face FROM nstats_player_totals WHERE hwid=? AND gametype=0 ORDER BY last DESC LIMIT 1`;
+
+        const result = await mysql.simpleQuery(query, [hwid]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
+
+
+    //delete left over data from merging players by HWID
+    async adminDeleteOutdatedPlayerHWID(hwid, ){
+
+    }
+
+
+    async adminFixPlayersHWID(hwid, affectedPlayerIds, matchManager, combogibManager){
+
+        const mostRecentPlayerInfo = await this.adminGetMostRecentPlayerTotalByHWID(hwid);
+
+        if(mostRecentPlayerInfo === null){
+            throw new Error(`There was a problem getting the most recent player total usage of HWID ${hwid}`);
+        }
+
+        console.log(`mostRecentPlayerInfo that used ${hwid}`);
+        console.log(mostRecentPlayerInfo);
+
+        for(let i = 0; i < affectedPlayerIds.length; i++){
+
+            const playerId = affectedPlayerIds[i];
+
+            console.log(mostRecentPlayerInfo.id, playerId);
+
+            if(playerId === mostRecentPlayerInfo.id) continue;
+
+            await this.mergePlayersById(playerId, mostRecentPlayerInfo.id, matchManager, combogibManager);
+            console.log(playerId);
+        }
+
+    }
+
+    async adminAssignPlayerHWID(playerIds, targetHWID, matchManager, combogibManager){
 
         console.log(playerIds, targetHWID);
 
@@ -2408,6 +2465,15 @@ class Players{
         if(hwidPlayer === null){
             throw new Error(`There are no players with the HWID of ${targetHWID}`);
         }
+
+
+        for(let i = 0; i < playerIds.length; i++){
+
+            const id = playerIds[i];
+            await this.adminSetPlayerHWID(id, targetHWID);
+        }
+
+        await this.adminFixPlayersHWID(targetHWID, playerIds, matchManager, combogibManager);
 
         //set all playerIds to the hwidPlayer
         //merge player data
