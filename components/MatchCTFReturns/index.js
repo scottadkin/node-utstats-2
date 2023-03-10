@@ -142,6 +142,16 @@ const MatchCTFReturns = (props) =>{
             const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player, true);
             const returnPlayer = Functions.getPlayer(props.playerData, r.return_player, true);
 
+            let returnPlayerElem = <div>Timed Out Return</div>
+
+            if(r.return_player !== -1){
+                returnPlayerElem = <Link href={`/pmatch/${props.matchId}/?player=${returnPlayer.id}`}>
+                    <a>
+                        <CountryFlag country={returnPlayer.country}/>{returnPlayer.name}
+                    </a>
+                </Link>
+            }
+
             let smartCTFString = Functions.getSmartCTFReturnString(r.return_string);
 
             let suicideElem = null;
@@ -174,12 +184,8 @@ const MatchCTFReturns = (props) =>{
                 },
                 "return_player": {
                     "value": returnPlayer.name.toLowerCase(), 
-                    "displayValue": <Link href={`/pmatch/${props.matchId}/?player=${returnPlayer.id}`}>
-                        <a>
-                            <CountryFlag country={returnPlayer.country}/>{returnPlayer.name}
-                        </a>
-                    </Link>,
-                    "className": Functions.getTeamColor(returnPlayer.team)
+                    "displayValue": returnPlayerElem,
+                    "className": (r.return_player === -1) ? "black" : Functions.getTeamColor(returnPlayer.team)
                 },
                 "distance_to_cap": {
                     "value": r.distance_to_cap,
