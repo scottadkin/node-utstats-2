@@ -48,11 +48,25 @@ async function changeColumnName(table, oldName, newName){
         new Message("There is no upgrading from the previous version(2.6 & 2.7.X)","warning");
         new Message("You have to do a fresh install.", "warning");
 
-        await alterTable("nstats_player_totals", "team_0_playtime", "float NOT NULL", "AFTER playtime");
-        await alterTable("nstats_player_totals", "team_1_playtime", "float NOT NULL", "AFTER team_0_playtime");
-        await alterTable("nstats_player_totals", "team_2_playtime", "float NOT NULL", "AFTER team_1_playtime");
-        await alterTable("nstats_player_totals", "team_3_playtime", "float NOT NULL", "AFTER team_2_playtime");
-        await alterTable("nstats_player_totals", "spec_playtime", "float NOT NULL", "AFTER team_3_playtime");
+        if(!columnExists("nstats_player_totals", "team_0_playtime")){
+            await alterTable("nstats_player_totals", "team_0_playtime", "float NOT NULL", "AFTER playtime");
+        }
+
+        if(!columnExists("nstats_player_totals", "team_1_playtime")){
+            await alterTable("nstats_player_totals", "team_1_playtime", "float NOT NULL", "AFTER team_0_playtime");
+        }
+
+        if(!columnExists("nstats_player_totals", "team_2_playtime")){
+            await alterTable("nstats_player_totals", "team_2_playtime", "float NOT NULL", "AFTER team_1_playtime");
+        }
+
+        if(!columnExists("nstats_player_totals", "team_3_playtime")){
+            await alterTable("nstats_player_totals", "team_3_playtime", "float NOT NULL", "AFTER team_2_playtime");
+        }
+        
+        if(!columnExists("nstats_player_totals", "spec_playtime")){
+            await alterTable("nstats_player_totals", "spec_playtime", "float NOT NULL", "AFTER team_3_playtime");
+        }
 
         process.exit(0);
 
