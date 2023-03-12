@@ -9,7 +9,7 @@ async function columnExists(table, column){
     WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=?`;
 
     const vars = [config.mysql.database, table, column];
-    
+
     const result = await mysql.simpleQuery(query, vars);
 
     if(result.length > 0){
@@ -48,24 +48,34 @@ async function changeColumnName(table, oldName, newName){
         new Message("There is no upgrading from the previous version(2.6 & 2.7.X)","warning");
         new Message("You have to do a fresh install.", "warning");
 
-        if(!columnExists("nstats_player_totals", "team_0_playtime")){
+        if(!await columnExists("nstats_player_totals", "team_0_playtime")){
             await alterTable("nstats_player_totals", "team_0_playtime", "float NOT NULL", "AFTER playtime");
+        }else{
+            new Message("nstats_player_totals alreadt has team_0_playtime","note");
         }
 
-        if(!columnExists("nstats_player_totals", "team_1_playtime")){
+        if(!await columnExists("nstats_player_totals", "team_1_playtime")){
             await alterTable("nstats_player_totals", "team_1_playtime", "float NOT NULL", "AFTER team_0_playtime");
+        }else{
+            new Message("nstats_player_totals already has team_1_playtime","note");
         }
 
-        if(!columnExists("nstats_player_totals", "team_2_playtime")){
+        if(!await columnExists("nstats_player_totals", "team_2_playtime")){
             await alterTable("nstats_player_totals", "team_2_playtime", "float NOT NULL", "AFTER team_1_playtime");
+        }else{
+            new Message("nstats_player_totals already has team_2_playtime","note");
         }
 
-        if(!columnExists("nstats_player_totals", "team_3_playtime")){
+        if(!await columnExists("nstats_player_totals", "team_3_playtime")){
             await alterTable("nstats_player_totals", "team_3_playtime", "float NOT NULL", "AFTER team_2_playtime");
+        }else{
+            new Message("nstats_player_totals already has team_3_playtime","note");
         }
         
-        if(!columnExists("nstats_player_totals", "spec_playtime")){
+        if(!await columnExists("nstats_player_totals", "spec_playtime")){
             await alterTable("nstats_player_totals", "spec_playtime", "float NOT NULL", "AFTER team_3_playtime");
+        }else{
+            new Message("nstats_player_totals already has spec_playtime","note");
         }
 
         process.exit(0);
