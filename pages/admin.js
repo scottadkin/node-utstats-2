@@ -27,6 +27,7 @@ import SiteAnalytics from '../components/SiteAnalytics';
 import AdminMapManager from '../components/AdminMapManager';
 import AdminSiteSettings from '../components/AdminSiteSettings';
 import AdminServersManager from '../components/AdminServersManager';
+import AdminBackupManager from "../components/AdminBackupManager";
 
 class Admin extends React.Component{
 
@@ -35,7 +36,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 5, 
+            "mode": 15, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "itemList": JSON.parse(this.props.itemList),
@@ -247,6 +248,13 @@ class Admin extends React.Component{
         return <AdminServersManager />;
     }
 
+    displayBackupManager(){
+
+        if(this.state.mode !== 15) return null;
+
+        return <AdminBackupManager />;
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -310,6 +318,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 12) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(12);
                             })}>MonsterHunt</div>
+                            <div className={`big-tab ${(this.state.mode === 15) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(15);
+                            })}>Backup Manager</div>
 
                             
                         </div>
@@ -328,6 +339,7 @@ class Admin extends React.Component{
                         {this.displayAnalytics()}
                         {this.displayMapManager()}
                         {this.displayServersManager()}
+                        {this.displayBackupManager()}
                     </div>   
                 </div>
 
