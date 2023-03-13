@@ -1,5 +1,9 @@
 const mysql = require("./database");
 const fs = require("fs");
+const archiver = require('archiver');
+
+
+
 
 
 class Backup{
@@ -89,8 +93,60 @@ class Backup{
             "nstats_winrates",
             "nstats_winrates_latest"
         ];
+
+        this.createArchive();
     }
 
+    createArchive(){
+
+        const now = new Date(Date.now());
+
+        const dayOfMonth = now.getDate();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+
+        const fileName = `DBBACKUP-${dayOfMonth}-${month}-${year}-${hours}${minutes}`;
+
+        // create a file to stream archive data to.
+        this.output = fs.createWriteStream(`./backups/${fileName}.zip`);
+        this.archive = archiver('zip', {
+            zlib: { level: 9 } // Sets the compression level.
+        });
+
+        // listen for all archive data to be written
+        // 'close' event is fired only when a file descriptor is involved
+        this.output.on('close', () => {
+            console.log(this.archive.pointer() + ' total bytes');
+            console.log('archiver has been finalized and the output file descriptor has closed.');
+            //process.exit();
+        });
+
+        // This event is fired when the data source is drained no matter what was the data source.
+        // It is not part of this library but rather from the NodeJS Stream API.
+        // @see: https://nodejs.org/api/stream.html#stream_event_end
+        this.output.on('end', function() {
+            console.log('Data has been drained');
+        });
+
+        // good practice to catch warnings (ie stat failures and other non-blocking errors)
+        this.archive.on('warning', function(err) {
+            if (err.code === 'ENOENT') {
+                // log warning
+            } else {
+                // throw error
+                throw err;
+            }
+        });
+
+        // good practice to catch this error explicitly
+        this.archive.on('error', function(err) {
+            throw err;
+        });
+
+
+    }
 
     async test(){
 
@@ -114,6 +170,7 @@ class Backup{
         console.log(data);
         console.log(JSON.parse(data));
     }
+
 
     async dumpTableToJSON(table, dir){
 
@@ -143,8 +200,10 @@ class Backup{
         }
 
         //console.log(data);
-
-        fs.writeFileSync(`${dir}/${table}.json`, JSON.stringify(data));
+        // append a file from string
+       // console.log(data);
+        this.archive.append(JSON.stringify(data), { name: `${table}.json` });
+        //fs.writeFileSync(`${dir}/${table}.json`, JSON.stringify(data));
 
     }
 
@@ -170,25 +229,29 @@ class Backup{
 
     async dumpAllTablesToJSON(){
 
-        const now = new Date(Date.now());
 
-        const dayOfMonth = now.getDate();
-        const month = now.getMonth() + 1;
-        const year = now.getFullYear();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
 
-        const dir = `./backups/${dayOfMonth}-${month}-${year}-${hours}${minutes}/`;
+        //const dir = `./backups/${dayOfMonth}-${month}-${year}-${hours}${minutes}/`;
 
-        fs.mkdirSync(dir);
+        //fs.mkdirSync(dir);
 
         for(let i = 0; i < this.validTables.length; i++){
 
             const table = this.validTables[i];
 
-            await this.dumpTableToJSON(table, dir);
+            console.log(`Dumping ${table}`);
+
+            await this.dumpTableToJSON(table);
         }
+
+        // pipe archive data to the file
+        this.archive.pipe(this.output);
+        this.archive.finalize();
+        
     }
+
+
+
 }
 
 module.exports = Backup;
