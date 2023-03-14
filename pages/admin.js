@@ -28,6 +28,7 @@ import AdminMapManager from '../components/AdminMapManager';
 import AdminSiteSettings from '../components/AdminSiteSettings';
 import AdminServersManager from '../components/AdminServersManager';
 import AdminBackupManager from "../components/AdminBackupManager";
+import AdminClearDatabase from '../components/AdminClearDatabase';
 
 class Admin extends React.Component{
 
@@ -36,7 +37,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 15, 
+            "mode": 16, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "itemList": JSON.parse(this.props.itemList),
@@ -255,6 +256,13 @@ class Admin extends React.Component{
         return <AdminBackupManager />;
     }
 
+    displayClearDatabase(){
+
+        if(this.state.mode !== 16) return null;
+
+        return <AdminClearDatabase />;
+    }
+
     render(){
 
         if(!this.props.bUserAdmin){
@@ -321,6 +329,9 @@ class Admin extends React.Component{
                             <div className={`big-tab ${(this.state.mode === 15) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(15);
                             })}>Backup Manager</div>
+                            <div className={`big-tab ${(this.state.mode === 16) ? "tab-selected" : ""}`} onClick={(() =>{
+                                this.changeMode(16);
+                            })}>Clear Database</div>
 
                             
                         </div>
@@ -340,6 +351,7 @@ class Admin extends React.Component{
                         {this.displayMapManager()}
                         {this.displayServersManager()}
                         {this.displayBackupManager()}
+                        {this.displayClearDatabase()}
                     </div>   
                 </div>
 

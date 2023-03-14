@@ -1,0 +1,14 @@
+.wrapper{
+    display:inline-block;
+    user-select: none;
+    height:32px;
+    width:32px;
+    border:1px solid var(--border-color-2);
+    font-size:32px;
+    line-height:32px;
+}
+
+.wrapper:hover{
+    cursor: pointer;
+}
+
