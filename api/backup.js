@@ -107,10 +107,12 @@ class Backup{
         const hours = now.getHours();
         const minutes = now.getMinutes();
 
-        const fileName = `DBBACKUP-${dayOfMonth}-${month}-${year}-${hours}${minutes}`;
+        this.fileName = `DBBACKUP-${dayOfMonth}-${month}-${year}-${hours}${minutes}`;
+
+
 
         // create a file to stream archive data to.
-        this.output = fs.createWriteStream(`./backups/${fileName}.zip`);
+        this.output = fs.createWriteStream(`./backups/${this.fileName}.zip`);
         this.archive = archiver('zip', {
             zlib: { level: 9 } // Sets the compression level.
         });
@@ -228,8 +230,6 @@ class Backup{
     }
 
     async dumpAllTablesToJSON(){
-
-
 
         //const dir = `./backups/${dayOfMonth}-${month}-${year}-${hours}${minutes}/`;
 

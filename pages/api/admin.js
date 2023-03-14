@@ -32,7 +32,7 @@ export default async function handler(req, res){
 
                 await backupManager.dumpAllTablesToJSON();
 
-                res.status(200).json({"message": "passed"})
+                res.status(200).json({"message": "passed", "fileName": backupManager.fileName})
                 return;
             }
 
