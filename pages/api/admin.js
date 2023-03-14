@@ -3,7 +3,7 @@ import SiteSettings from '../../api/sitesettings';
 import NexgenStatsViewer from '../../api/nexgenstatsviewer';
 import Servers from "../../api/servers";
 import Backup from '../../api/backup';
-import fs from "fs";
+import Admin from '../../api/admin';
 
 export default async function handler(req, res){
 
@@ -27,13 +27,21 @@ export default async function handler(req, res){
                 "nexgendelete"
             ];
 
+            if(mode === "clear-tables"){
+
+                const adminManager = new Admin();
+
+                await adminManager.clearTables();
+
+                res.status(200).json({"message": "passed"});
+                return;
+            }
+
             if(mode === "create-backup"){
 
                 const backupManager = new Backup();
 
                 await backupManager.dumpAllTablesToJSON();
-
-                
 
                 res.status(200).json({"message": "passed", "fileName": backupManager.fileName})
                 return;

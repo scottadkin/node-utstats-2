@@ -1,6 +1,7 @@
 import Checkbox from "../Checkbox";
 import Loading from "../Loading";
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
+import NotificationSmall from "../NotificationSmall";
 
 const reducer = (state, action) =>{
 
@@ -26,7 +27,24 @@ const reducer = (state, action) =>{
         case "clear-tables":{
             return {
                 ...state,
-                "bLoading": true
+                "bLoading": true,
+                "error": null,
+                "bCleared": false
+            }
+        }
+        case "clear-fail": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": action.errorMessage
+            }
+        }
+        case "clear-pass": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": null,
+                "bCleared": true
             }
         }
     }
@@ -34,21 +52,80 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const renderButton = (state, dispatch) =>{
+const renderButton = (state, dispatch, controller) =>{
 
     if(!state["check-1"] || !state["check-2"] || !state["check-3"]) return null;
 
     if(state.bLoading) return <Loading />;
 
     return <div>
-        <div className="search-button" onClick={() => dispatch({"type": "clear-tables"})}>Clear Tables</div>
+        <div className="search-button" onClick={() => clearTables(dispatch, controller)}>Clear Tables</div>
     </div>
+}
+
+const clearTables = async (dispatch, controller) =>{
+
+    dispatch({"type": "clear-tables"})
+
+    const req = await fetch("/api/admin", {
+        "signal": controller.signal,
+        "headers": {"Content-type": "application/json"},
+        "method": "POST",
+        "body": JSON.stringify({"mode": "clear-tables"})
+    });
+
+    const res = await req.json();
+
+
+    if(res.error !== undefined){
+        dispatch({"type": "clear-fail", "errorMessage": res.error});
+        return;
+    }
+
+    dispatch({"type": "clear-pass"})
+
+}
+
+const renderError = (state) =>{
+
+    if(state.error === null) return null;
+
+    return <NotificationSmall type="error">
+        {state.error}
+    </NotificationSmall>
+}
+
+const renderPass = (state) =>{
+
+    if(state.error !== null || !state.bCleared) return null;
+
+    return <NotificationSmall type="pass">
+        All tables cleared successfully.
+    </NotificationSmall>
 }
 
 
 const AdminClearDatabase = () =>{
 
-    const [state, dispatch] = useReducer(reducer, {"check-1": false, "check-2": false, "check-3": false, "bLoading": false});
+    const [state, dispatch] = useReducer(reducer, {
+        "check-1": false, 
+        "check-2": false, 
+        "check-3": false, 
+        "bLoading": false,
+        "error": null,
+        "bCleared": false
+    });
+
+    const controller = new AbortController();
+
+
+    useEffect(() =>{
+
+        return () =>{
+            controller.abort();
+        }
+
+    },[]);
 
     return <div>
         <div className="default-header">Clear Database</div>
@@ -73,8 +150,9 @@ const AdminClearDatabase = () =>{
                 <div className="select-label">Are you though?</div>
                 <Checkbox name="check-3" checked={state["check-3"]} setChecked={(name) => { dispatch({"type": name})}}/>
             </div>
-
-            {renderButton(state, dispatch)}
+            {renderError(state)}
+            {renderPass(state)}
+            {renderButton(state, dispatch, controller)}
         </div>
     </div>
 }
