@@ -148,6 +148,8 @@ const changePosition = (state, dispatch, settingName, bDown) =>{
 
     let currentIndex = 0;
 
+    let bAdded = false;
+
     for(let i = 0; i < currentBlock.length; i++){
 
         const c = currentBlock[i];
@@ -158,7 +160,7 @@ const changePosition = (state, dispatch, settingName, bDown) =>{
 
             targetSetting.page_order = currentIndex;
             newBlock.push(targetSetting);
-
+            bAdded = true;
             currentIndex++;
 
         }
@@ -168,9 +170,15 @@ const changePosition = (state, dispatch, settingName, bDown) =>{
         }
 
         currentIndex++;
-
         newBlock.push(c);
+
+        if(i === currentBlock.length - 1 && !bAdded){
+
+            targetSetting.page_order = currentIndex;
+            newBlock.push(targetSetting); 
+        }
     }
+
 
     settings[state.selectedTab].settings = newBlock;
 
