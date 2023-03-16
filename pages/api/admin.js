@@ -90,7 +90,19 @@ export default async function handler(req, res){
                 return;
             }
 
-            if(mode === "settingCategories"){
+            if(mode === "get-current-settings"){
+
+                const data = await siteSettingsManager.getAllSettings();
+
+                res.status(200).json({"settings": data});
+                return;
+
+                //const data = await siteSettingsManager.getCategory(catName);
+                
+                //const validSettings = await siteSettingsManager.getValidSettings(catName);
+            }
+
+            /*if(mode === "settings-categories"){
 
                 const data = await siteSettingsManager.getCategoryNames();
 
@@ -107,7 +119,7 @@ export default async function handler(req, res){
                 res.status(200).json({"data": data, "valid": validSettings});
                 return;
 
-            }else if(mode === "changeSetting"){
+            }else*/ if(mode === "changeSetting"){
 
                 const settingType = req.body.settingType ?? "";
 

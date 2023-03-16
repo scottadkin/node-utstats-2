@@ -22,7 +22,7 @@ import SiteSettings from "../api/sitesettings";
 import MatchesTableView from "../components/MatchesTableView/";
 import Screenshot from "../components/Screenshot";
 import Analytics from "../api/analytics";
-import HomeWelcomeMessage from "../components/HomeWelcomeMessage";
+import NotificationSmall from "../components/NotificationSmall";
 
 function createDatesGraphData(data){
 
@@ -87,24 +87,25 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 
 	if(query.loggedin !== undefined){
 
-		message = <div className="pass">
+		message = <NotificationSmall type="pass">
 			Successfully Logged In.
-		</div>;
+		</NotificationSmall>;
 	}
 
 	if(query.loggedout !== undefined){
 
-		message = <div className="pass">
+		message = <NotificationSmall type="pass">
 			Successfully Logged Out.
-		</div>;
+		</NotificationSmall>;
 	}
 
 	if(query.registered !== undefined){
 
-		message = <div className="pass">
+		<NotificationSmall type="pass">
 			Successfully created account.<br/>
 			You will have to wait until an admin activates your account before you can login.
-		</div>;
+		</NotificationSmall>;
+
 	}	
 
 

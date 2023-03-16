@@ -428,7 +428,26 @@ class SiteSettings{
         }
 
         return dataObject;
+    }
 
+    async getAllSettings(){
+
+        const names = await this.getCategoryNames();
+
+        const settings = {};
+
+        for(let i = 0; i < names.length; i++){
+            
+            const name = names[i];
+
+            const current = {};
+            
+            current.settings = await this.getCategory(name);      
+            current.validSettings = await this.getValidSettings(name);
+            settings[name] = current;
+        }
+
+        return settings;
     }
 }
 

@@ -1,11 +1,336 @@
-import React from 'react';
-import Table2 from '../Table2';
-import Notification from '../Notification';
+import {useEffect, useReducer} from 'react';
 import styles from './AdminSiteSettings.module.css';
-import Image from 'next/image';
+import Tabs from "../Tabs";
+import Loading from '../Loading';
+import NotificationSmall from '../NotificationSmall';
+import Table2 from '../Table2';
+
+const reducer = (state, action) =>{
+
+    switch(action.type){
+
+        case "loaded": {
+
+            let selectedTab = 0;
+            const keys = Object.keys(action.settings)
+
+            if(keys.length > 0){
+                selectedTab = keys[0];
+            }
+
+            return {
+                ...state,
+                "bLoading": false,
+                "settings": action.settings,
+                "lastSavedSettings": action.settings,
+                "error": null,
+                "selectedTab": selectedTab
+            }
+        }
+
+        case "changeSettings": {
+            return {
+                ...state,
+                "settings": {...action.settings}
+            }
+        }
+
+        case "error": {
+            return {
+                ...state,
+                "bLoading": false,
+                "settings": {},
+                "lastSavedSettings": {},
+                "error": action.errorMessage
+            }
+        }
+
+        case "changeTab": {
+            return {
+                ...state,
+                "selectedTab": action.selectedTab
+            }
+        }
+    }
+
+    return state;
+}
+
+const renderTabs = (state, dispatch) =>{
+
+    if(state.bLoading) return null;
+
+    const keys = Object.keys(state.settings);
+
+    const options = keys.map((key) =>{
+        return {"name": key, "value": key}
+    });
+
+    return <Tabs options={options} 
+        selectedValue={state.selectedTab} 
+        changeSelected={(selectedTab) => dispatch({"type": "changeTab", "selectedTab": selectedTab})}
+    />
+}
+
+const loadSettings = async (dispatch, signal) =>{
+
+    const req = await fetch("/api/admin", {
+        "signal": signal,
+        "headers": {"Content-type": "application/json"},
+        "method": "POST",
+        "body": JSON.stringify({"mode": "get-current-settings"})
+    });
+
+    const res = await req.json();
+
+    if(res.error !== undefined){
+        dispatch({"type": "error", "errorMessage": res.error});
+        return;
+    }
+
+    dispatch({"type": "loaded", "settings": res.settings});
+}
+
+const renderError = (state) =>{
+
+    if(state.bLoading || state.error === null) return null;
+
+    return <NotificationSmall type="error">{state.error}</NotificationSmall>
+}
+
+const getCategorySettings = (state) =>{
+ 
+    if(state.settings[state.selectedTab] !== undefined){
+        return state.settings[state.selectedTab];
+    }
+
+    return null;
+}
+
+const changePosition = (state, dispatch, settingName, bDown) =>{
+
+    const settings = {...state.settings};
+    
+    const currentBlock = settings[state.selectedTab].settings;
+
+    let newIndex = null;
+    let targetSetting = null;
+
+    for(let i = 0; i < currentBlock.length; i++){
+
+        const c = currentBlock[i];
+
+        if(c.name === settingName){
+
+            if(c.page_order === 0 && !bDown){
+                return;
+            }
+
+            if(bDown){
+
+                if(i + 1 >= currentBlock.length) return;
+                
+                if(currentBlock[i + 1].page_order === 999999) return;
+            }
+
+            if(bDown){
+                newIndex = i + 1;
+            }else{
+                newIndex = i - 1;
+            }
+
+            targetSetting = c;
+            break;
+        }
+    }
+
+    const newBlock = [];
+
+    let currentIndex = 0;
+
+    for(let i = 0; i < currentBlock.length; i++){
+
+        const c = currentBlock[i];
+
+        if(c.name === targetSetting.name) continue;
+
+        if(currentIndex === newIndex){
+
+            targetSetting.page_order = currentIndex;
+            newBlock.push(targetSetting);
+
+            currentIndex++;
+
+        }
+
+        if(c.page_order !== 999999){
+            c.page_order = currentIndex;
+        }
+
+        currentIndex++;
+
+        newBlock.push(c);
+    }
+
+    settings[state.selectedTab].settings = newBlock;
+
+    dispatch({"type": "changeSettings", "settings": settings});  
+}
+
+const renderEdit = (state, dispatch) =>{
+
+    if(state.bLoading || state.error !== null) return null;
+
+    const data = getCategorySettings(state);
+
+    const rows = [];
+
+    const settings = data.settings;
+
+    settings.sort((a, b) =>{
+
+        a = a.page_order;
+        b = b.page_order;
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+
+        return 0;
+    });
 
 
-class AdminSiteSettings extends React.Component{
+    if(data !== null){
+
+        for(let i = 0; i < settings.length; i++){
+
+            const s = settings[i];
+
+            let value = <td>{s.value}</td>;
+
+            if(s.value === "false" || s.value === "true"){
+
+                const bValue = Boolean(s.value);
+                value = <td className={`team-${(bValue) ? "green" : "red"} hover no-select`}>
+                    {s.value}
+                </td>;
+            }
+
+
+            let actions = null;
+
+            if(s.page_order !== 999999){
+
+                actions = <>
+                    <span className={styles.button} onClick={() => changePosition(state, dispatch, s.name, false)}>
+                        Move Up
+                    </span>
+                    <span className={styles.button} onClick={() => changePosition(state, dispatch, s.name, true)}>
+                        Move Down
+                    </span>
+                </>;
+
+            }else{
+
+                actions = <>&nbsp;</>;
+            }
+
+
+            rows.push(<tr key={s.id}>
+                <td className="text-left">{s.name}</td>
+                {value}
+                <td>
+                    {actions}
+                </td>
+            </tr>);
+        }
+    }
+
+    return <>
+        <div className="form m-top-25">
+            <div className="default-sub-header">Edit {state.selectedTab} Settings</div>
+            
+        </div>
+        <Table2 width={1}>
+            <tr>
+                <th>Setting</th>
+                <th>Current Value</th>
+                <th>Change Page Position</th>
+            </tr>
+            {rows}
+        </Table2>
+    </>
+}
+
+const renderUnsavedSettings = (state, dispatch) =>{
+
+    const currentSettings = state.settings;
+    const lastSavedSettings = state.lastSavedSettings;
+
+    const changes = [];
+ 
+    const keys = Object.keys(currentSettings);
+
+    for(let i = 0; i < keys.length; i++){
+
+        const settings = currentSettings[keys[i]].settings;
+        const savedSettings = lastSavedSettings[keys[i]].settings;
+
+        console.log(keys[i]);
+
+        for(let x = 0; x < settings.length; x++){
+
+            console.log(settings[x].name, settings[x].page_order, savedSettings[x].name, savedSettings[x].page_order);
+            if(settings[x].name !== savedSettings[x].name){
+
+                changes.push(<div>fart</div>);
+            }
+        }
+
+    }
+
+    console.log(currentSettings);
+
+
+    return <NotificationSmall type="error">
+        You have unsaved changes!
+        {changes}
+    </NotificationSmall>
+
+
+}
+
+const AdminSiteSettings = () =>{
+
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true, 
+        "settings": {}, 
+        "selectedTab": null,
+        "lastSavedSettings": {}
+    });
+
+    useEffect(() =>{
+
+
+        const controller = new AbortController();
+
+        loadSettings(dispatch, controller.signal);
+
+        return () =>{ controller.abort();}
+
+    }, []);
+
+    return <div>
+        <div className="default-header">Site Settings</div>
+        {renderTabs(state, dispatch)}
+        {renderEdit(state, dispatch)}
+        {renderUnsavedSettings(state, dispatch)}
+        {renderError(state)}
+        <Loading value={!state.bLoading}/>
+    </div>
+}
+
+
+/*class AdminSiteSettings extends React.Component{
 
     constructor(props){
 
@@ -255,27 +580,10 @@ class AdminSiteSettings extends React.Component{
 
     async changeHomeTitle(e){
 
-        //const oldSetting = this.state.settings[]
-
-        console.log(this.state.settings);
-        console.log(e.target.value);
-
         const newValue = e.target.value;
 
         await this.updateCurrentSettings("Welcome Message Title", newValue, false);
 
-        /*for(let i = 0; i < this.state.settings.length; i++){
-
-            const s = this.state.settings[i];
-
-            if(s.name === "Welcome Message Title"){
-                //oldValue = s.value;
-
-                if(newValue !== s.value){
-                    console.log(`Value changed`);
-                }
-            }
-        }*/
 
     }
 
@@ -539,6 +847,6 @@ class AdminSiteSettings extends React.Component{
             {this.renderNotification()}
         </div>
     }
-}
+}*/
 
 export default AdminSiteSettings;

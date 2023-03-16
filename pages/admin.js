@@ -37,7 +37,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 16, 
+            "mode": 0, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "itemList": JSON.parse(this.props.itemList),
@@ -140,8 +140,6 @@ class Admin extends React.Component{
         if(this.state.mode !== 0) return null;
 
         return <AdminSiteSettings />;
-      
-
     }
     
 
