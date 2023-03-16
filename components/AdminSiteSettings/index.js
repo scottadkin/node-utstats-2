@@ -211,6 +211,33 @@ const changePosition = (state, dispatch, settingName, bDown) =>{
     dispatch({"type": "changeSettings", "settings": settings});  
 }
 
+const renderChangePositionButtons = (state, dispatch, setting, bLastMoveable) =>{
+    
+    if(setting.page_order === 999999) return null;
+
+    let moveUp = null;
+
+    if(setting.page_order > 0){
+        moveUp = <span className={styles.button} onClick={() => changePosition(state, dispatch, setting.name, false)}>
+            Move Up
+        </span>;
+    }
+
+    let moveDown = null;
+
+    if(!bLastMoveable){
+
+        moveDown = <span className={styles.button} onClick={() => changePosition(state, dispatch, setting.name, true)}>
+            Move Down
+        </span>;
+    }
+
+    return <>
+        {moveUp}
+        {moveDown}
+    </>
+}
+
 const renderEdit = (state, dispatch) =>{
 
     if(state.bLoading || state.error !== null) return null;
@@ -249,25 +276,14 @@ const renderEdit = (state, dispatch) =>{
                 </td>;
             }
 
-
-            let actions = null;
+            let bLastMoveable = false;
 
             if(s.page_order !== 999999){
 
-                actions = <>
-                    <span className={styles.button} onClick={() => changePosition(state, dispatch, s.name, false)}>
-                        Move Up
-                    </span>
-                    <span className={styles.button} onClick={() => changePosition(state, dispatch, s.name, true)}>
-                        Move Down
-                    </span>
-                </>;
-
-            }else{
-
-                actions = <>&nbsp;</>;
+                if(i + 1 >= settings.length || settings[i + 1].page_order === 999999) bLastMoveable = true;
             }
 
+            const actions = renderChangePositionButtons(state, dispatch, s, bLastMoveable);
 
             rows.push(<tr key={s.id}>
                 <td className="text-left">{s.name}</td>
