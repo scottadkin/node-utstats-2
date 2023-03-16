@@ -31,7 +31,33 @@ const reducer = (state, action) =>{
         case "changeSettings": {
             return {
                 ...state,
-                "settings": {...action.settings}
+                "settings": action.settings
+            }
+        }
+
+        case "startSave": {
+            return {
+                ...state,
+                "bSaving": true,
+                "saveError": null
+            }
+        }
+
+        case "savePass": {
+            return {
+                ...state,
+                "settings": action.settings,
+                "lastSavedSettings": action.settings,
+                "bSaving": false,
+                "saveError": null
+            }
+        }
+
+        case "saveError": {
+            return {
+                ...state,
+                "bSaving": false,
+                "saveError": action.errorMessage
             }
         }
 
@@ -109,7 +135,7 @@ const getCategorySettings = (state) =>{
 
 const changePosition = (state, dispatch, settingName, bDown) =>{
 
-    const settings = {...state.settings};
+    const settings = JSON.parse(JSON.stringify(state.settings));
     
     const currentBlock = settings[state.selectedTab].settings;
 
@@ -195,13 +221,13 @@ const renderEdit = (state, dispatch) =>{
 
     const settings = data.settings;
 
-    settings.sort((a, b) =>{
+    settings.sort((a, bLoading) =>{
 
         a = a.page_order;
-        b = b.page_order;
+        bLoading = bLoading.page_order;
 
-        if(a < b) return -1;
-        if(a > b) return 1;
+        if(a < bLoading) return -1;
+        if(a > bLoading) return 1;
 
         return 0;
     });
@@ -269,40 +295,98 @@ const renderEdit = (state, dispatch) =>{
     </>
 }
 
-const renderUnsavedSettings = (state, dispatch) =>{
+const getChangedSettings = (state) =>{
 
-    const currentSettings = state.settings;
-    const lastSavedSettings = state.lastSavedSettings;
+    const current = state.settings;
+    const lastSaved = state.lastSavedSettings;
 
-    const changes = [];
- 
-    const keys = Object.keys(currentSettings);
+    let found = [];
+
+    const keys = Object.keys(state.settings);
 
     for(let i = 0; i < keys.length; i++){
 
-        const settings = currentSettings[keys[i]].settings;
-        const savedSettings = lastSavedSettings[keys[i]].settings;
+        const key = keys[i];
 
-        console.log(keys[i]);
+        for(let x = 0; x < current[key].settings.length; x++){
 
-        for(let x = 0; x < settings.length; x++){
+            const currentSetting = current[key].settings[x];
+            const lastSavedSetting = lastSaved[key].settings[x];
 
-            console.log(settings[x].name, settings[x].page_order, savedSettings[x].name, savedSettings[x].page_order);
-            if(settings[x].name !== savedSettings[x].name){
-
-                changes.push(<div>fart</div>);
+            if(currentSetting.value !== lastSavedSetting.value || currentSetting.page_order !== lastSavedSetting.page_order ||
+                currentSetting.name !== lastSavedSetting.name){
+                found.push(currentSetting);
             }
         }
-
     }
 
-    console.log(currentSettings);
+    return found;
+}
 
+const saveChanges = async (state, dispatch, signal) =>{
 
-    return <NotificationSmall type="error">
-        You have unsaved changes!
-        {changes}
+    const settings = state.settings;
+    dispatch({"type": "startSave"});
+
+    const changes = getChangedSettings(state);
+
+    const req = await fetch("/api/admin", {
+        "signal": signal,
+        "headers": {"Content-type": "application/json"},
+        "method": "POST",
+        "body": JSON.stringify({"mode": "save-changes", "changes": changes})
+    });
+
+    const res = await req.json();
+
+    if(res.error !== undefined){
+
+        dispatch({"type": "saveError", "errorMessage": res.error});
+        return;
+    }
+    console.log(res);
+
+    //dispatch({"type": "saveChanges", "settings": settings});
+}
+
+const renderSaveError = (state) =>{
+
+    if(state.saveError === null) return null;
+
+    return <NotificationSmall type="error" title="There was a problem saving your changes">
+        {state.saveError}
     </NotificationSmall>
+}
+
+const renderUnsavedSettings = (state, dispatch, signal) =>{
+
+    if(state.bLoading) return null;
+
+    if(state.bSaving){
+
+        return <NotificationSmall type="warning">     
+            <Loading>
+                Saving in progress please wait.
+            </Loading>
+        </NotificationSmall>
+    }
+
+    const changes = getChangedSettings(state);
+
+    if(changes.length === 0) return null;
+
+    const elems = changes.map((change) =>{
+        return <div key={change.id}><b>{change.name}</b> has been changed.</div>
+    });
+
+
+    return <>
+        {renderSaveError(state)}
+        <NotificationSmall type="error" title="You have unsaved changes!">
+            <div className="search-button" onClick={() => saveChanges(state, dispatch, signal)}>Save Changes</div>
+            {elems}
+        </NotificationSmall>
+    </>
 
 
 }
@@ -313,13 +397,14 @@ const AdminSiteSettings = () =>{
         "bLoading": true, 
         "settings": {}, 
         "selectedTab": null,
-        "lastSavedSettings": {}
+        "lastSavedSettings": {},
+        "bSaving": false,
+        "saveError": null
     });
 
+    const controller = new AbortController();
+
     useEffect(() =>{
-
-
-        const controller = new AbortController();
 
         loadSettings(dispatch, controller.signal);
 
@@ -331,7 +416,7 @@ const AdminSiteSettings = () =>{
         <div className="default-header">Site Settings</div>
         {renderTabs(state, dispatch)}
         {renderEdit(state, dispatch)}
-        {renderUnsavedSettings(state, dispatch)}
+        {renderUnsavedSettings(state, dispatch, controller.signal)}
         {renderError(state)}
         <Loading value={!state.bLoading}/>
     </div>
