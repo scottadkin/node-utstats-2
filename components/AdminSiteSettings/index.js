@@ -285,6 +285,52 @@ const renderEnableDisableButton = (state, dispatch, name, value) =>{
     </td>
 }
 
+const getValidSettings = (state, type) =>{
+
+    if(state.settings[state.selectedTab] === undefined) return null;
+    const settings = state.settings[state.selectedTab].validSettings;
+
+    if(settings[type] !== undefined) return settings[type];
+
+    return null;
+}
+
+const getCurrentSetting = (state, type) =>{
+
+    if(state.settings[state.selectedTab] === undefined) return null;
+    const settings = state.settings[state.selectedTab].settings;
+
+    for(let i = 0; i < settings.length; i++){
+
+        const s = settings[i];
+        if(s.name === type) return s.value;
+    }
+
+    return null;
+
+}
+
+const renderDropDown = (state, dispatch, type) =>{
+
+    const validSettings = getValidSettings(state, type);
+
+    if(validSettings === null){
+        return <>Oops</>;
+    }
+
+    const options = validSettings.map((setting) =>{
+        return <option key={setting.value} value={setting.value}>{setting.name}</option>
+    });
+
+    return <select className="default-select" value={getCurrentSetting(state, type)}
+        onChange={(e) =>{
+            changeValue(state, dispatch, type, e.target.value);
+        }}
+    >
+        {options}
+    </select>
+}
+
 const renderEdit = (state, dispatch) =>{
 
     if(state.bLoading || state.error !== null) return null;
@@ -317,6 +363,8 @@ const renderEdit = (state, dispatch) =>{
 
             if(s.value === "false" || s.value === "true"){
                 value = renderEnableDisableButton(state, dispatch, s.name, s.value);
+            }else{
+                value = <td>{renderDropDown(state, dispatch, s.name)}</td>
             }
 
             let bLastMoveable = false;
@@ -435,7 +483,7 @@ const renderUnsavedSettings = (state, dispatch, signal) =>{
     if(changes.length === 0) return null;
 
     const elems = changes.map((change) =>{
-        return <div key={change.id}><b>{change.name}</b> has been changed.</div>
+        return <div key={change.id}><b className="yellow">{change.category}</b> -&gt; <b>{change.name}</b> has been changed.</div>
     });
 
 
