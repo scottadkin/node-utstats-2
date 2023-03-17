@@ -5,6 +5,7 @@
     user-select: none;
     background-color:var(--color-3);
     margin-right:5px;
+    display:inline-block;
 }
 
 .button:hover{

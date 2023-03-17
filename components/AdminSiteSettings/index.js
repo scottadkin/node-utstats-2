@@ -218,24 +218,71 @@ const renderChangePositionButtons = (state, dispatch, setting, bLastMoveable) =>
     let moveUp = null;
 
     if(setting.page_order > 0){
-        moveUp = <span className={styles.button} onClick={() => changePosition(state, dispatch, setting.name, false)}>
+        moveUp = <div className={styles.button} onClick={() => changePosition(state, dispatch, setting.name, false)}>
             Move Up
-        </span>;
+        </div>;
     }
 
     let moveDown = null;
 
     if(!bLastMoveable){
 
-        moveDown = <span className={styles.button} onClick={() => changePosition(state, dispatch, setting.name, true)}>
+        moveDown = <div className={styles.button} onClick={() => changePosition(state, dispatch, setting.name, true)}>
             Move Down
-        </span>;
+        </div>;
     }
 
     return <>
         {moveUp}
         {moveDown}
     </>
+}
+
+const changeValue = (state, dispatch, name, value) =>{
+
+    const category = state.selectedTab;
+
+    const newSettings = JSON.parse(JSON.stringify(state.settings));
+
+    const keys = Object.keys(newSettings);
+
+    for(let i = 0; i < keys.length; i++){
+
+        const k = keys[i];
+
+        if(k === category){
+
+            for(let x = 0; x < newSettings[k].settings.length; x++){
+
+                const s = newSettings[k].settings[x];
+
+                if(s.name === name){
+
+                    if(typeof value === "boolean"){
+                        value = value.toString();
+                    }
+
+                    s.value = value;
+
+                    dispatch({"type": "changeSettings", "settings": newSettings})
+                    
+                    return;
+                }
+            }
+        }
+    }   
+}
+
+const renderEnableDisableButton = (state, dispatch, name, value) =>{
+
+    value = (value === "true");
+
+    const elem = (value) ? "Enabled" : "Disabled";
+
+    return <td className={`team-${(value) ? "green" : "red"} hover no-select`} 
+        onClick={() => changeValue(state, dispatch, name, !value)}>
+        {elem}
+    </td>
 }
 
 const renderEdit = (state, dispatch) =>{
@@ -269,11 +316,7 @@ const renderEdit = (state, dispatch) =>{
             let value = <td>{s.value}</td>;
 
             if(s.value === "false" || s.value === "true"){
-
-                const bValue = Boolean(s.value);
-                value = <td className={`team-${(bValue) ? "green" : "red"} hover no-select`}>
-                    {s.value}
-                </td>;
+                value = renderEnableDisableButton(state, dispatch, s.name, s.value);
             }
 
             let bLastMoveable = false;
