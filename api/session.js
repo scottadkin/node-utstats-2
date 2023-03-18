@@ -61,13 +61,13 @@ class Session{
 
             const bLoggedIn = await this.user.bLoggedIn(this.rawCookies, this.userIp);
 
-            new Message(`Session.load() bLoggedIn = ${bLoggedIn}`, "note");
+            //new Message(`Session.load() bLoggedIn = ${bLoggedIn}`, "note");
 
             this.settings.bLoggedIn = bLoggedIn;
 
             this.settings.bAdmin = await this.bUserAdmin();
 
-            new Message(`Session bAdmin = ${this.settings.bAdmin}`, "note");
+            //new Message(`Session bAdmin = ${this.settings.bAdmin}`, "note");
 
 
         }catch(err){

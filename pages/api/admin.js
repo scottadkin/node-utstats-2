@@ -96,103 +96,21 @@ export default async function handler(req, res){
 
                 res.status(200).json({"settings": data});
                 return;
-
-                //const data = await siteSettingsManager.getCategory(catName);
-                
-                //const validSettings = await siteSettingsManager.getValidSettings(catName);
             }
 
-            /*if(mode === "settings-categories"){
+            if(mode === "save-setting-changes"){
 
-                const data = await siteSettingsManager.getCategoryNames();
+                const changes = req.body.changes ?? null;
 
-                res.status(200).json({"data": data});
+                if(changes === null) throw new Error(`There was no changes to apply.`);
+
+                await siteSettingsManager.updateSettings(changes);
+
+                res.status(200).json({"message": "passed"});
                 return;
-
-            }else if(mode === "loadSettingsCategory"){
-
-                const catName = req.body.cat ?? "";
-                const data = await siteSettingsManager.getCategory(catName);
-                
-                const validSettings = await siteSettingsManager.getValidSettings(catName);
-
-                res.status(200).json({"data": data, "valid": validSettings});
-                return;
-
-            }else*/ if(mode === "changeSetting"){
-
-                const settingType = req.body.settingType ?? "";
-
-                if(settingType === ""){
-
-                    res.status(200).json({"error": "Setting supplied was blank"});
-                    return;
-                }
-
-                const settingValue = req.body.value ?? "";
-
-                if(settingValue === ""){
-
-                    res.status(200).json({"error": "Setting Value supplied was blank"});
-                    return;
-                }
-
-                const settingCategory = req.body.settingCategory ?? "";
-
-                if(settingCategory === ""){
-
-                    res.status(200).json({"error": "Setting Category supplied was blank"});
-                    return;
-                }
-
-                
-                
-                if(await siteSettingsManager.updateSetting(settingCategory, settingType, settingValue)){
-
-                    res.status(200).json({"message": "passed"});
-                    return;
-                }else{
-                    res.status(200).json({"error": "No rows in the database where changed."});
-                    return;
-                }
-
-
-            }else if(mode === "settingsUpdateOrder"){
-
-                const newIds = req.body.data ?? [];
-
-                if(newIds.length !== 0){
-
-                    const result = await siteSettingsManager.updateSettingsOrder(newIds);
-
-                    if(result.length === 0){
-
-                        res.status(200).json({"message": "Site settings category order updated successfully."});
-                        return;
-
-                    }else{
-
-                        let resultString = "";
-
-                        for(let i = 0; i < result.length; i++){
-
-                            resultString += ` ${result[i]}`;
-
-                            if(i < result.length - 1) resultString += `,`;
-
-                        }
-
-                        res.status(200).json({"error": `Some rows did not update. Rows with Ids ${resultString} failed to update.`});
-                        return;
-                    }
-                    
-                }else{
-                    
-                    res.status(200).json({"error": "There where no rows to update."});
-                    return;
-                }
-
-            }else if(nexgenTypes.indexOf(mode) !== -1){
+            }
+            
+            if(nexgenTypes.indexOf(mode) !== -1){
 
                 const nexgen = new NexgenStatsViewer();
 

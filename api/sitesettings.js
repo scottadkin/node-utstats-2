@@ -276,7 +276,7 @@ class SiteSettings{
 
         const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
 
-        const result = await mysql.simpleFetch(query, [cat]);
+        const result = await mysql.simpleQuery(query, [cat]);
 
         const settings = {};
 
@@ -372,7 +372,7 @@ class SiteSettings{
     }
 
 
-    async updateSetting(category, type, newValue){
+    /*async updateSetting(category, type, newValue){
 
 
         const query = "UPDATE nstats_site_settings SET value=? WHERE category=? AND name=?";
@@ -408,7 +408,7 @@ class SiteSettings{
         }
 
         return errors;
-    }
+    }*/
 
     async getCategoryOrder(categoryName){
 
@@ -448,6 +448,27 @@ class SiteSettings{
         }
 
         return settings;
+    }
+
+    async updateSetting(category, name, value, pageOrder){
+
+        const query = `UPDATE nstats_site_settings SET value=?,page_order=? WHERE category=? AND name=?`;
+
+        const vars = [value, pageOrder, category, name];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async updateSettings(settings){
+
+        //console.log(settings);
+
+        for(let i = 0; i < settings.length; i++){
+
+            const s = settings[i];
+            console.log(s);
+            await this.updateSetting(s.category, s.name, s.value, s.page_order);
+        }
     }
 }
 

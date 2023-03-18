@@ -31,7 +31,8 @@ const reducer = (state, action) =>{
         case "changeSettings": {
             return {
                 ...state,
-                "settings": action.settings
+                "settings": action.settings,
+                "bSavePass": false
             }
         }
 
@@ -39,7 +40,8 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "bSaving": true,
-                "saveError": null
+                "saveError": null,
+                "bSavePass": false
             }
         }
 
@@ -49,7 +51,8 @@ const reducer = (state, action) =>{
                 "settings": action.settings,
                 "lastSavedSettings": action.settings,
                 "bSaving": false,
-                "saveError": null
+                "saveError": null,
+                "bSavePass": true
             }
         }
 
@@ -57,7 +60,8 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "bSaving": false,
-                "saveError": action.errorMessage
+                "saveError": action.errorMessage,
+                "bSavePass": false
             }
         }
 
@@ -441,7 +445,7 @@ const saveChanges = async (state, dispatch, signal) =>{
         "signal": signal,
         "headers": {"Content-type": "application/json"},
         "method": "POST",
-        "body": JSON.stringify({"mode": "save-changes", "changes": changes})
+        "body": JSON.stringify({"mode": "save-setting-changes", "changes": changes})
     });
 
     const res = await req.json();
@@ -452,6 +456,8 @@ const saveChanges = async (state, dispatch, signal) =>{
         return;
     }
     console.log(res);
+
+    dispatch({"type": "savePass", "settings": settings});
 
     //dispatch({"type": "saveChanges", "settings": settings});
 }
@@ -494,8 +500,15 @@ const renderUnsavedSettings = (state, dispatch, signal) =>{
             {elems}
         </NotificationSmall>
     </>
+}
 
+const renderPass = (state) =>{
 
+    if(!state.bSavePass) return null;
+
+    return <NotificationSmall type="pass">
+        Changes Saved.
+    </NotificationSmall>
 }
 
 const AdminSiteSettings = () =>{
@@ -506,7 +519,8 @@ const AdminSiteSettings = () =>{
         "selectedTab": null,
         "lastSavedSettings": {},
         "bSaving": false,
-        "saveError": null
+        "saveError": null,
+        "bSavePass": false
     });
 
     const controller = new AbortController();
@@ -525,528 +539,9 @@ const AdminSiteSettings = () =>{
         {renderEdit(state, dispatch)}
         {renderUnsavedSettings(state, dispatch, controller.signal)}
         {renderError(state)}
+        {renderPass(state)}
         <Loading value={!state.bLoading}/>
     </div>
 }
-
-
-/*class AdminSiteSettings extends React.Component{
-
-    constructor(props){
-
-        super(props);
-        this.state = {
-            "categories": null, 
-            "mode": 0, 
-            "settings": null, 
-            "validSettings": null, 
-            "bUpdateInProgress": false, 
-            "error": null,
-            "message": null,
-            "messageMode": null,
-            "displayUntil": 0
-        };
-
-        this.changeMode = this.changeMode.bind(this);
-        this.changeTrueFalse = this.changeTrueFalse.bind(this);
-        this.changeDropDownValue = this.changeDropDownValue.bind(this);
-        this.changePosition = this.changePosition.bind(this);
-        this.changeHomeTitle = this.changeHomeTitle.bind(this);
-
-    }
-
-    async changeOrder(newOrder){
-
-        try{
-
-            this.setState({
-                "bUpdateInProgress": true, 
-                "messageMode": "warning", 
-                "message": "Updating settings order please wait...",
-                "displayUntil": Math.floor(Date.now() * 0.001) + 50
-            });
-
-            const idOrder = [];
-
-            for(let i = 0; i < newOrder.length; i++){
-
-                const n = newOrder[i];
-                idOrder.push({"id": n.id, "order": n.page_order});
-            }
-
-            const req = await fetch("/api/admin", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "settingsUpdateOrder", "data": idOrder})
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-
-                this.setState({
-                    "bUpdateInProgress": false, 
-                    "messageMode": "pass", 
-                    "message": res.message,
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 3
-                });
-
-            }else{
-                this.setState({
-                    "bUpdateInProgress": false, 
-                    "messageMode": "error", 
-                    "message": res.error,
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 3
-                });
-            }
-
-        }catch(err){
-            console.trace(err);
-        }   
-    }
-
-    async changePosition(bUp, name){
-
-        const current = JSON.parse(JSON.stringify(this.state.settings));
-
-        let currentPosition = null;
-        let target = null;
-        let totalOptions = 0;
-
-
-        for(let i = 0; i < current.length; i++){
-
-            const c = current[i];
-
-            if(c.value === "true" || c.value === "false"){
-                totalOptions++;
-            }
-
-            if(c.name === name){
-                currentPosition = i;
-                target = c;
-            }
-        }
-
-        let newPosition = 0;
-
-        if(bUp){
-
-            newPosition = currentPosition - 1;
-            //cant be lower than 0
-            if(newPosition < 0) return;
-
-        }else{
-
-            newPosition = currentPosition + 1;
-           if(newPosition > totalOptions) newPosition = totalOptions -1;
-        }
-    
-        const newOrder = [];
-
-        for(let i = 0; i < current.length; i++){
-
-            const c = current[i];
-
-            if(c.name === target.name) continue;
-
-            if(!bUp){
-                newOrder.push(c);
-            }
-
-            if(i === newPosition){
-                newOrder.push(target);
-            }
-
-            if(bUp){
-                newOrder.push(c);
-            }
-        
-        }
-
-        for(let i = 0; i < newOrder.length; i++){
-
-            const n = newOrder[i];
-            
-            //if(n.value === "true" || n.value === "false"){
-                n.page_order = i;
-            //}else{
-            //    n.page_order = 99999;
-           // }
-
-        }
-
-        this.setState({"settings": newOrder});
-        await this.changeOrder(newOrder);
-
-    }
-
-    async changeDropDownValue(e){
-
-        const name = e.target.name;
-        const value = e.target.value;
-
-        await this.updateCurrentSettings(name, value);
-    }
-
-    async updateSetting(type, newValue){
-
-        try{
-
-            this.setState({
-                "bUpdateInProgress": true, 
-                "error": null, 
-                "messageMode": "warning", 
-                "message": "Updating setting...",
-                "displayUntil": Math.floor(Date.now() * 0.001) + 50
-            });
-
-            const req = await fetch("/api/admin", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "changeSetting",
-                    "settingCategory": this.state.categories[this.state.mode],
-                    "settingType": type, 
-                    "value": newValue
-                })
-            });
-
-            const res = await req.json();
-
-            
-            if(res.error === undefined){
-
-                if(res.message === "passed"){
-                    this.setState({"messageMode": "pass", "message": "Setting updated successfully","displayUntil": Math.floor(Date.now() * 0.001) + 3});
-                    return true;
-                }
-
-            }else{
-                this.setState({"error": res.error, "messageMode": "error", "message": res.error,"displayUntil": Math.floor(Date.now() * 0.001) + 3});
-            }
-
-            this.setState({"bUpdateInProgress": false});
-
-        }catch(err){
-            console.trace(err);
-        }
-
-        return false;
-    }
-
-    async updateCurrentSettings(toEdit, newValue, bSaveChanges){
-
-        if(bSaveChanges === undefined) bSaveChanges = true;
-
-        const oldSettings = JSON.parse(JSON.stringify(this.state.settings));
-
-        const newSettings = [];
-
-        for(let i = 0; i < oldSettings.length; i++){
-
-            const o = oldSettings[i];
-
-            if(o.name === toEdit){
-
-                o.value = newValue;
-                newSettings.push(o);
-
-            }else{
-                newSettings.push(o);
-            }
-        }
-
-        if(bSaveChanges){
-            await this.updateSetting(toEdit, newValue);
-        
-        }
-
-        this.setState({"settings": newSettings});
-
-        
-    }
-
-    async changeTrueFalse(type, value){
-
-        if(value === "true"){
-            value = "false";
-        }else{
-            value = "true";
-        }
-
-        await this.updateCurrentSettings(type, value);
-    }
-
-    async changeHomeTitle(e){
-
-        const newValue = e.target.value;
-
-        await this.updateCurrentSettings("Welcome Message Title", newValue, false);
-
-
-    }
-
-    async changeMode(id){
-
-        this.setState({"mode": id, "displayUntil": 0, "message": null});
-    }
-
-    async loadCategoryNames(){
-
-        try{
-
-            const req = await fetch("/api/admin",{
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "settingCategories"})
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-                this.setState({"categories": res.data});
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async loadData(){
-
-        try{
-
-            const req = await fetch("/api/admin",{
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "loadSettingsCategory", "cat": this.state.categories[this.state.mode]})
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-                this.setState({"settings": res.data, "validSettings": res.valid});
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async componentDidMount(){
-
-        await this.loadCategoryNames();
-        await this.loadData();
-    }
-
-    async componentDidUpdate(prevProps, prevState){
-
-        if(this.state.mode !== prevState.mode){
-            await this.loadData();
-        }
-    }
-
-    renderTabs(){
-
-        if(this.state.categories === null) return null;
-
-        const tabs = [];
-
-        for(let i = 0; i < this.state.categories.length; i++){
-
-            const c = this.state.categories[i];
-
-            tabs.push(<div key={i} 
-                className={`tab ${(this.state.mode === i) ? "tab-selected" : ""}`}
-                onClick={(() =>{
-                    this.changeMode(i);
-                })}>
-                {c}
-            </div>);
-        }
-
-        return <div className="tabs">
-            {tabs}
-        </div>
-    }
-
-    getCurrentValue(name){
-
-        for(let i = 0; i < this.state.settings.length; i++){
-
-            const s = this.state.settings[i];
-
-            if(s.name === name){
-                return s.value;
-            }
-        }
-
-        return "";
-    }
-
-    renderDropDown(name){
-
-        const options = [];
-
-        if(this.state.validSettings[name] !== undefined){
-
-            for(let i = 0; i < this.state.validSettings[name].length; i++){
-
-                const setting = this.state.validSettings[name][i];
-
-                options.push(<option key={i} value={setting.value}>{setting.name}</option>);
-            }
-        }
-
-        const currentSetting = this.getCurrentValue(name);
-        
-        return <select className="default-select" name={name} value={currentSetting} onChange={this.changeDropDownValue}>
-            {options}
-        </select>
-    }
-
-    renderHomeMessageSettings(catName){
-
-        if(catName !== "Home") return null;
-
-        let title = null;
-        let textContent = null;
-        
-        for(let i = 0; i < this.state.settings.length; i++){
-
-            const s = this.state.settings[i];
-
-            if(s.name === "Welcome Message Content"){
-                textContent = s.value;
-            }else if(s.name === "Welcome Message Title"){
-                title = s.value;
-            }
-        }
-
-        return <div className="form">
-            <div className="default-sub-header-alt">Welcome Message Title</div>
-            <div>
-                <input type="text" className="default-textbox t-width-1" value={title} onChange={this.changeHomeTitle}/>
-            </div>
-            <div className="default-sub-header-alt m-top-25">Welcome Message Content</div>
-            <textarea className="default-textarea t-width-1" value={textContent}></textarea>
-        </div>
-    }
-
-    renderSettings(){
-
-        if(this.state.settings === null) return null;
-
-        const rows = [];
-
-        const dropDownRows = [];
-
-        let ignoreOrder = [];
-
-        const catName = this.state.categories[this.state.mode];
-
-        if(catName === "Match Pages"){
-
-            ignoreOrder = ["Display Match Report Title", "Display Mutators", "Display Target Score", "Display Time Limit"];
-        }else if(catName === "Home"){
-            ignoreOrder = ["Display Welcome Message"];
-        }
-
-        const special = ["Welcome Message Title", "Welcome Message Content"];
-
-        for(let i = 0; i < this.state.settings.length; i++){
-
-            const s = this.state.settings[i];
-
-            let valueElem = null;
-            let bDropDown = false;
-
-            if(catName === "Home"){
-
-                if(special.indexOf(s.name) !== -1){
-
-                    continue;
-                }        
-            }
-
-            if(s.value === "true" || s.value === "false"){
-
-                let valueText = "";
-                let colorClass = "";
-
-                if(s.value === "true"){
-                    valueText = "Enabled";
-                    colorClass = "team-green";
-                }else{
-                    valueText = "Disabled";
-                    colorClass = "team-red";
-                }
-
-                valueElem = <td className={`${colorClass} no-select hover-cursor`} onClick={(async () =>{
-                    await this.changeTrueFalse(s.name, s.value);
-                })}>
-                    {valueText}
-                </td>
-
-            }else{
-                bDropDown = true;
-                valueElem = <td>{this.renderDropDown(s.name)}</td>
-            }
-
-            const elems = (bDropDown || ignoreOrder.indexOf(s.name) !== -1) ? dropDownRows : rows;
-
-            elems.push(<tr key={i}>
-                <td className="text-left">{s.name}</td>
-                {valueElem}
-                <td>
-                    {(bDropDown || ignoreOrder.indexOf(s.name) !== -1) ? <span className="small-font grey">N/A</span> :
-                        <>
-                            <Image src="/images/up.png" width={16} height={16} className={styles.button} alt="up" onClick={(() =>{
-                                this.changePosition(true, s.name);
-                            })}/>
-                            <Image src="/images/down.png" width={16} height={16} className={styles.button} alt="down" onClick={(() =>{
-                                this.changePosition(false, s.name);
-                            })}/>
-                        </>
-                    }
-                </td>
-            </tr>);
-        }
-
-        return <div className="m-top-25">
-            <Table2 width={4} header={catName}>
-                <tr>
-                    <th>Setting</th>
-                    <th>Value</th>
-                    <th>Change Position</th>
-                </tr>
-                {dropDownRows}
-                {rows}
-                
-            </Table2>
-
-            {this.renderHomeMessageSettings(catName)}
-        </div>
-    }
-
-    renderNotification(){
-        if(this.state.messageMode === null) return null;
-
-        return <Notification type={this.state.messageMode} displayUntil={this.state.displayUntil}>
-            {this.state.message}
-        </Notification>;
-    }
-
-    render(){
-
-        return <div>
-            <div className="default-header">Site Settings</div>
-            {this.renderTabs()}
-            {this.renderSettings()}
-            {this.renderNotification()}
-        </div>
-    }
-}*/
 
 export default AdminSiteSettings;
