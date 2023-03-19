@@ -45,7 +45,7 @@ class WeaponsManager{
         }
     }
 
-    async update(matchId, gametypeId, playerManager){
+    async update(playerManager){
 
         try{
 
@@ -62,8 +62,8 @@ class WeaponsManager{
                     
                     if(currentWeaponId !== null){      
 
-                        await this.weapons.insertPlayerMatchStats(matchId, p.masterId, currentWeaponId, value);
-                        await this.weapons.updatePlayerTotalStats(gametypeId, p.masterId, currentWeaponId, value);
+                        await this.weapons.insertPlayerMatchStats(this.matchId, this.mapId, this.gametypeId, p.masterId, currentWeaponId, value);
+                        await this.weapons.updatePlayerTotalStats(this.gametypeId, p.masterId, currentWeaponId, value);
 
                         if(this.currentWeapons.has(currentWeaponId)){
 

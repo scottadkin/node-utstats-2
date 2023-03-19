@@ -273,10 +273,14 @@ class MatchManager{
 
 
             if(this.weaponsManager !== undefined){
+
+                this.weaponsManager.matchId = this.matchId;
+                this.weaponsManager.mapId = this.mapInfo.mapId;
+                this.weaponsManager.gametypeId = this.gametype.currentMatchGametype;
                 
                 this.weaponsManager.parseData();
                 this.weaponsManager.addKillNames(this.killManager.killNames);
-                await this.weaponsManager.update(this.matchId, this.gametype.currentMatchGametype, this.playerManager);
+                await this.weaponsManager.update(this.playerManager);
                 new Message(`Updated player weapon stats.`,'pass');
 
             }else{
