@@ -146,10 +146,11 @@ class Weapons{
 
     async insertPlayerMatchStats(matchId, playerId, weaponId, stats){
 
-        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         const vars = [
-            matchId, playerId, weaponId, stats.kills, stats.deaths, 
+            matchId, playerId, weaponId, stats.kills, stats.bestKills, stats.deaths, stats.suicides,
+            stats.teamKills, stats.bestTeamKills,
             stats.accuracy, stats.shots, stats.hits, Math.abs(stats.damage), stats.efficiency
         ];
 

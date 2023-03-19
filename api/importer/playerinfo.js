@@ -394,7 +394,7 @@ class PlayerInfo{
     }
 
     //return true if player was spawnkilled, false if not
-    died(timestamp, weapon){
+    died(timestamp, weapon, bSuicide){
 
 
         this.lastSpawn = this.getPreviousSpawn(timestamp);
@@ -405,7 +405,7 @@ class PlayerInfo{
 
         //console.log(`I died to ${weapon}`);
         if(weapon !== undefined){
-            this.updateWeaponStats('death', weapon);
+            this.updateWeaponStats('death', weapon, bSuicide);
         }
 
         this.updateMonsterHuntSprees();
@@ -518,7 +518,7 @@ class PlayerInfo{
 
         this.updateKillDistances(distance);
 
-        this.updateWeaponStats('kill', weapon);
+        this.updateWeaponStats('kill', weapon, false);
 
         this.stats.currentSpree++;
 
@@ -558,30 +558,19 @@ class PlayerInfo{
         this.lastKill = timestamp;
     }
 
-    updateWeaponStats(type, weapon){
+    updateWeaponStats(type, weapon, bSuicide, bTeamKill){
 
-        if(this.weaponStats.has(weapon)){
+        if(!this.weaponStats.has(weapon)){
 
-            const stats = this.weaponStats.get(weapon);
+            this.weaponStats.set(weapon, new WeaponStats(weapon));       
+        }
 
-            if(type === 'kill'){
-                stats.killedPlayer();
-            }else if(type === 'death'){
-                stats.died();
-            }
+        const stats = this.weaponStats.get(weapon);
 
-        }else{
-
-            this.weaponStats.set(weapon, new WeaponStats(weapon));
-            const stats = this.weaponStats.get(weapon);
-
-            if(type === 'kill'){
-                stats.killedPlayer();
-            }else if(type === 'death'){
-                stats.died();
-            }
-
-            //console.log(this.weaponStats);
+        if(type === 'kill'){
+            stats.killedPlayer(bTeamKill);
+        }else if(type === 'death'){
+            stats.died(bSuicide);
         }
     }
 

@@ -740,7 +740,7 @@ class PlayerManager{
     }
 
 
-    setKills(kills){
+    setKills(kills, totalTeams){
 
         let killer = 0;
         let victim = 0;
@@ -754,23 +754,26 @@ class PlayerManager{
                 killer = this.getPlayerByMasterId(k.killerId);
                 victim = this.getPlayerByMasterId(k.victimId);
 
-                if(killer !== null){
+       
+                if(killer !== null && this.bIgnoreBots && killer.bBot) continue;
+                if(victim !== null && this.bIgnoreBots && victim.bBot) continue;
+               
+                let bTeamKill = false;
 
-                    if(this.bIgnoreBots){
-                        if(killer.bBot) continue;
-                    }
+                if(totalTeams >= 2){
+                    //console.log(k);
+
+                    const victimTeam = this.getPlayerTeamAt(k.victimId, k.timestamp);
+                    const killerTeam = this.getPlayerTeamAt(k.killerId, k.timestamp);
+
+                    bTeamKill = killerTeam === victimTeam;
+
+                    if(bTeamKill) new Message(`TEAM KILL`,"error");
+
                 }
-
-                if(victim !== null){
-
-                    if(this.bIgnoreBots){
-                        if(victim.bBot) continue;
-                    }
-                }
-                
 
                 if(killer !== null){   
-                    killer.killedPlayer(k.timestamp, k.killerWeapon, k.killDistance);
+                    killer.killedPlayer(k.timestamp, k.killerWeapon, k.killDistance, bTeamKill);
                 }
 
               
@@ -791,7 +794,7 @@ class PlayerManager{
                         );
                     }
 
-                   if(victim.died(k.timestamp, k.killerWeapon)){
+                   if(victim.died(k.timestamp, k.killerWeapon, false)){
                        
                        if(killer !== null){
                             killer.stats.spawnKills++;
@@ -825,7 +828,7 @@ class PlayerManager{
                         
                     }
 
-                    victim.died(k.timestamp, k.killerWeapon);
+                    victim.died(k.timestamp, k.killerWeapon, true);
                 }
             }
         }

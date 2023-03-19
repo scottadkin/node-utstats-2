@@ -45,13 +45,31 @@ async function changeColumnName(table, oldName, newName){
 
 async function updatePlayerTotals(){
 
-    new Message(`Starting update of nstats_player_totals.`,"note");
-    await alterTable("nstats_player_totals", "team_0_playtime", "float NOT NULL", "AFTER playtime");
-    await alterTable("nstats_player_totals", "team_1_playtime", "float NOT NULL", "AFTER team_0_playtime");
-    await alterTable("nstats_player_totals", "team_2_playtime", "float NOT NULL", "AFTER team_1_playtime");
-    await alterTable("nstats_player_totals", "team_3_playtime", "float NOT NULL", "AFTER team_2_playtime");
-    await alterTable("nstats_player_totals", "spec_playtime", "float NOT NULL", "AFTER team_3_playtime");
-    new Message(`Updated table nstats_player_totals.`,"pass");
+    const table = "nstats_player_totals";
+
+    new Message(`Starting update of ${table}.`,"note");
+
+    await alterTable(table, "team_0_playtime", "float NOT NULL", "AFTER playtime");
+    await alterTable(table, "team_1_playtime", "float NOT NULL", "AFTER team_0_playtime");
+    await alterTable(table, "team_2_playtime", "float NOT NULL", "AFTER team_1_playtime");
+    await alterTable(table, "team_3_playtime", "float NOT NULL", "AFTER team_2_playtime");
+    await alterTable(table, "spec_playtime", "float NOT NULL", "AFTER team_3_playtime");
+
+    new Message(`Updated table ${table}.`,"pass");
+}
+
+async function updateWeapons(){
+
+    const table = "nstats_player_weapon_match";
+
+    new Message(`Starting update of ${table}.`,"note");
+
+    await alterTable(table, "best_kills", "INT NOT NULL", "AFTER kills");
+    await alterTable(table, "suicides", "INT NOT NULL", "AFTER deaths");
+    await alterTable(table, "team_kills", "INT NOT NULL", "AFTER suicides");
+    await alterTable(table, "best_team_kills", "INT NOT NULL", "AFTER suicides");
+
+    new Message(`Updated table ${table}.`,"pass");
 }
 
 (async () =>{
@@ -63,6 +81,8 @@ async function updatePlayerTotals(){
         new Message("You have to do a fresh install.", "warning");
 
         await updatePlayerTotals();
+        
+        await updateWeapons();
         
 
         process.exit(0);

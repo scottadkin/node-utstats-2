@@ -122,7 +122,7 @@ class MatchManager{
 
             const matchTimings = this.gameInfo.getMatchLength();
 
-            this.playerManager.setKills(this.killManager.kills);
+            this.playerManager.setKills(this.killManager.kills, this.gameInfo.totalTeams);
             this.playerManager.matchEnded(this.gameInfo.end);
             this.playerManager.setHeadshots(this.killManager.headshots);
 
