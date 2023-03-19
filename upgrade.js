@@ -58,7 +58,7 @@ async function updatePlayerTotals(){
     new Message(`Updated table ${table}.`,"pass");
 }
 
-async function updateWeapons(){
+async function updatePlayerWeaponsMatch(){
 
     const table = "nstats_player_weapon_match";
 
@@ -74,6 +74,19 @@ async function updateWeapons(){
     new Message(`Updated table ${table}.`,"pass");
 }
 
+async function updatePlayerWeaponsTotals(){
+
+    const table = "nstats_player_weapon_totals";
+
+    new Message(`Starting update of ${table}.`,"note");
+
+    await alterTable(table, "map_id", "INT NOT NULL", "AFTER player_id");
+    await alterTable(table, "team_kills", "INT NOT NULL", "AFTER kills");
+    await alterTable(table, "suicides", "INT NOT NULL", "AFTER deaths");
+
+    new Message(`Updated table ${table}.`,"pass");
+}
+
 (async () =>{
 
     try{
@@ -84,7 +97,8 @@ async function updateWeapons(){
 
         await updatePlayerTotals();
         
-        await updateWeapons();
+        await updatePlayerWeaponsMatch();
+        await updatePlayerWeaponsTotals();
         
 
         process.exit(0);

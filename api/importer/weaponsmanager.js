@@ -63,7 +63,7 @@ class WeaponsManager{
                     if(currentWeaponId !== null){      
 
                         await this.weapons.insertPlayerMatchStats(this.matchId, this.mapId, this.gametypeId, p.masterId, currentWeaponId, value);
-                        await this.weapons.updatePlayerTotalStats(this.gametypeId, p.masterId, currentWeaponId, value);
+                        await this.weapons.updatePlayerTotalStats(this.mapId, this.gametypeId, p.masterId, currentWeaponId, value);
 
                         if(this.currentWeapons.has(currentWeaponId)){
 
@@ -74,6 +74,8 @@ class WeaponsManager{
                             currentWeapon.shots += value.shots;
                             currentWeapon.hits += value.hits;
                             currentWeapon.damage += Math.abs(value.damage);
+                            currentWeapon.teamKills += value.teamKills;
+                            currentWeapon.suicides += value.suicides;
 
                             this.currentWeapons.set(currentWeaponId, currentWeapon);
     
