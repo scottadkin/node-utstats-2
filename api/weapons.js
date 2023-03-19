@@ -1164,6 +1164,97 @@ class Weapons{
 
         await mysql.simpleUpdate(query, vars);
     }
+
+    async bPlayerBestExist(playerId, mapId, gametypeId, weaponId){
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_weapon_best WHERE player_id=? AND map_id=? AND gametype_id=? AND weapon_id=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId, mapId, gametypeId, weaponId]);
+
+        if(result[0].total_matches > 0) return true;
+
+        return false;
+    }
+
+    async createPlayerBest(playerId, mapId, gametypeId, weaponId, stats){
+
+        const query = `INSERT INTO nstats_player_weapon_best VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [playerId, mapId, gametypeId, weaponId,
+            stats.kills,
+            stats.bestKills,
+            stats.teamKills,
+            stats.bestTeamKills,
+            stats.deaths,
+            stats.suicides,
+            stats.efficiency,
+            stats.accuracy,
+            stats.shots,
+            stats.hits,
+            stats.damage
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async updatePlayerBest(playerId, mapId, gametypeId, weaponId, stats){
+
+        const query = `UPDATE nstats_player_weapon_best SET
+        kills = IF(kills < ?, ?, kills),
+        kills_best_life = IF(kills_best_life < ?, ?, kills_best_life),
+        team_kills = IF(team_kills < ?, ?, team_kills),
+        team_kills_best_life = IF(team_kills_best_life < ?, ?, team_kills_best_life),
+        deaths = IF(deaths < ?, ?, deaths),
+        suicides = IF(suicides < ?, ?, suicides),
+        efficiency = IF(efficiency < ?, ?, efficiency),
+        accuracy = IF(accuracy < ?, ?, accuracy),
+        shots = IF(shots < ?, ?, shots),
+        hits = IF(hits < ?, ?, hits),
+        damage = IF(damage < ?, ?, damage)
+        WHERE player_id=? AND map_id=? AND gametype_id=? AND weapon_id=?`;
+
+        const vars = [
+            stats.kills, stats.kills,
+            stats.bestKills, stats.bestKills,
+            stats.teamKills, stats.teamKills,
+            stats.bestTeamKills, stats.bestTeamKills,
+            stats.deaths, stats.deaths,
+            stats.suicides, stats.suicide,
+            stats.efficiency, stats.efficiency,
+            stats.accuracy, stats.accuracy,
+            stats.shots, stats.shots,
+            stats.hits, stats.hits,
+            stats.damage, stats.damage,
+            playerId, mapId, gametypeId, weaponId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async updatePlayerBest(playerId, mapId, gametypeId, weaponId, stats){
+
+        //map totals
+        if(!await this.bPlayerBestExist(playerId, mapId, gametypeId, weaponId)){
+            await this.createPlayerBest(playerId, mapId, gametypeId, weaponId, stats);
+        }else{
+            await this.updatePlayerBest(playerId, mapId, gametypeId, weaponId, stats);
+        }
+
+        //gametype totals
+        if(!await this.bPlayerBestExist(playerId, 0, gametypeId, weaponId)){
+            await this.createPlayerBest(playerId, 0, gametypeId, weaponId, stats);
+        }else{
+            await this.updatePlayerBest(playerId, 0, gametypeId, weaponId, stats);
+        }
+
+        //all totals
+        if(!await this.bPlayerBestExist(playerId, 0, 0, weaponId)){
+            await this.createPlayerBest(playerId, 0, 0, weaponId, stats);
+        }else{
+            await this.updatePlayerBest(playerId, 0, 0, weaponId, stats);
+        }
+        
+    }
 }
 
 

@@ -87,6 +87,32 @@ async function updatePlayerWeaponsTotals(){
     new Message(`Updated table ${table}.`,"pass");
 }
 
+async function createPlayerWeaponBest(){
+
+    new Message(`Creating table nstats_player_weapon_best.`,"note");
+
+    const query = `CREATE TABLE IF NOT EXISTS nstats_player_weapon_best (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        player_id int(11) NOT NULL,
+        map_id int(11) NOT NULL,
+        gametype_id int(11) NOT NULL,
+        weapon_id int(11) NOT NULL,
+        kills int(11) NOT NULL,
+        kills_best_life int(11) NOT NULL,
+        team_kills int(11) NOT NULL,
+        team_kills_best_life int(11) NOT NULL,
+        deaths int(11) NOT NULL,
+        suicides int(11) NOT NULL,
+        efficiency int(11) NOT NULL,
+        accuracy float NOT NULL,
+        shots int(11) NOT NULL,
+        hits int(11) NOT NULL,
+        damage bigint NOT NULL,
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+
+    return await mysql.simpleQuery(query);
+}
+
 (async () =>{
 
     try{
@@ -99,6 +125,7 @@ async function updatePlayerWeaponsTotals(){
         
         await updatePlayerWeaponsMatch();
         await updatePlayerWeaponsTotals();
+        await createPlayerWeaponBest();
         
 
         process.exit(0);

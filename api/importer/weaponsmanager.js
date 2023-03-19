@@ -64,6 +64,7 @@ class WeaponsManager{
 
                         await this.weapons.insertPlayerMatchStats(this.matchId, this.mapId, this.gametypeId, p.masterId, currentWeaponId, value);
                         await this.weapons.updatePlayerTotalStats(this.mapId, this.gametypeId, p.masterId, currentWeaponId, value);
+                        await this.weapons.updatePlayerBest(p.masterId, this.mapId, this.gametypeId, currentWeaponId, value);
 
                         if(this.currentWeapons.has(currentWeaponId)){
 
