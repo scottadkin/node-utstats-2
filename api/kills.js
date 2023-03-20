@@ -163,10 +163,12 @@ class Kills{
         let killsData = [];
         let deathsData = [];
         let suicidesData = [];
+        let teammateKillsData = [];
 
         let teamsKillsData = [];
         let teamsDeathsData = [];
         let teamsSuicidesData = [];
+        let teamsTeammateKillsData = [];
 
         for(const [key, value] of Object.entries(players)){
 
@@ -175,6 +177,7 @@ class Kills{
             killsData.push({"name": value, "data": [0], "lastValue": 0});
             deathsData.push({"name": value, "data": [0], "lastValue": 0});
             suicidesData.push({"name": value, "data": [0], "lastValue": 0});
+            teammateKillsData.push({"name": value, "data": [0], "lastValue": 0});
         }
 
         for(let i = 0; i < teams; i++){
@@ -182,6 +185,7 @@ class Kills{
             teamsKillsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
             teamsDeathsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
             teamsSuicidesData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
+            teamsTeammateKillsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
         }
 
 
@@ -200,20 +204,42 @@ class Kills{
                 
                 if(victimTeam !== -1){
 
-                    teamsKillsData[killerTeam].lastValue++;
-                    teamsKillsData[killerTeam].data.push(teamsKillsData[killerTeam].lastValue);
+                    if(killerTeam !== victimTeam){
+                        //kills
+                        teamsKillsData[killerTeam].lastValue++;
+                        teamsKillsData[killerTeam].data.push(teamsKillsData[killerTeam].lastValue);
 
-                    teamsDeathsData[victimTeam].lastValue++;
-                    teamsDeathsData[victimTeam].data.push(teamsDeathsData[victimTeam].lastValue);
+                        teamsDeathsData[victimTeam].lastValue++;
+                        teamsDeathsData[victimTeam].data.push(teamsDeathsData[victimTeam].lastValue);
 
-                    for(let x = 0; x < teams; x++){
+                        for(let x = 0; x < teams; x++){
 
-                        if(x !== killerTeam){
-                            teamsKillsData[x].data.push(teamsKillsData[x].lastValue);
+                            if(x !== killerTeam){
+                                teamsKillsData[x].data.push(teamsKillsData[x].lastValue);
+                            }
+
+                            if(x !== victimTeam){
+                                teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
+                            }
                         }
 
-                        if(x !== victimTeam){
-                            teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
+                    }else{
+                        //team kills
+                        teamsTeammateKillsData[killerTeam].lastValue++;
+                        teamsTeammateKillsData[killerTeam].data.push(teamsTeammateKillsData[killerTeam].lastValue);
+
+                        teamsDeathsData[victimTeam].lastValue++;
+                        teamsDeathsData[victimTeam].data.push(teamsDeathsData[victimTeam].lastValue);
+
+                        for(let x = 0; x < teams; x++){
+
+                            if(x !== killerTeam){
+                                teamsTeammateKillsData[x].data.push(teamsTeammateKillsData[x].lastValue);
+                            }
+
+                            if(x !== victimTeam){
+                                teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
+                            }
                         }
                     }
 
@@ -252,9 +278,9 @@ class Kills{
                 }
 
             }else{
-
+                
                 if(killerTeam !== victimTeam){
-
+                    //kills
                     killsData[killerIndex].lastValue++;
                     killsData[killerIndex].data.push(killsData[killerIndex].lastValue);
 
@@ -265,6 +291,17 @@ class Kills{
                         }
                     }
 
+                }else{
+                    //team kills
+                    teammateKillsData[killerIndex].lastValue++;
+                    teammateKillsData[killerIndex].data.push(teammateKillsData[killerIndex].lastValue);
+
+                    for(let x = 0; x < playerIndexes.length; x++){
+
+                        if(x !== killerIndex){
+                            teammateKillsData[x].data.push(teammateKillsData[x].lastValue);
+                        }
+                    }
                 }
 
                 deathsData[victimIndex].lastValue++;
@@ -284,11 +321,13 @@ class Kills{
         deathsData = Functions.reduceGraphDataPoints(deathsData, max);
         suicidesData = Functions.reduceGraphDataPoints(suicidesData, max);
         killsData = Functions.reduceGraphDataPoints(killsData, max);
+        teammateKillsData = Functions.reduceGraphDataPoints(teammateKillsData, max);
 
         if(teams > 1){
             teamsDeathsData = Functions.reduceGraphDataPoints(teamsDeathsData, max);
             teamsSuicidesData = Functions.reduceGraphDataPoints(teamsSuicidesData, max);
             teamsKillsData = Functions.reduceGraphDataPoints(teamsKillsData, max);
+            teamsTeammateKillsData = Functions.reduceGraphDataPoints(teamsTeammateKillsData, max);
         }
 
         const sortByLastValue = (a, b) =>{
@@ -312,7 +351,9 @@ class Kills{
             "kills": killsData, 
             "teamDeaths": teamsDeathsData, 
             "teamKills": teamsKillsData, 
-            "teamSuicides": teamsSuicidesData
+            "teamSuicides": teamsSuicidesData,
+            "teammateKills": teammateKillsData,
+            "teamsTeammateKills": teamsTeammateKillsData,
         };
     }
 
