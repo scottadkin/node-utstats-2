@@ -137,6 +137,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
             "hits": "Hits",
             "accuracy": "Accuracy",
             "kills": "Kills",
+            "bestKills": {"title": "Best Spree", "content": "Most kills with a weapon in a single life."},
             "teamKills": "Team Kills",
             "deaths": "Deaths",  
             "suicides": "Suicides",
@@ -173,6 +174,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
                 "deaths": {"value": d.deaths, "displayValue": Functions.ignore0(d.deaths)},
                 "suicides": {"value": d.suicides, "displayValue": Functions.ignore0(d.suicides)},
                 "kills": {"value": d.kills, "displayValue": Functions.ignore0(d.kills)},
+                "bestKills": {"value": d.best_kills, "displayValue": Functions.ignore0(d.best_kills)},
                 "teamKills": {"value": d.team_kills, "displayValue": Functions.ignore0(d.team_kills)},
                 "damage": {"value": d.damage, "displayValue": Functions.ignore0(d.damage)},
                 "eff": {"value": d.efficiency, "displayValue": `${d.efficiency.toFixed(2)}%`}
