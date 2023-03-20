@@ -69,7 +69,7 @@ async function updatePlayerWeaponsMatch(){
     await alterTable(table, "best_kills", "INT NOT NULL", "AFTER kills");
     await alterTable(table, "suicides", "INT NOT NULL", "AFTER deaths");
     await alterTable(table, "team_kills", "INT NOT NULL", "AFTER suicides");
-    await alterTable(table, "best_team_kills", "INT NOT NULL", "AFTER suicides");
+    await alterTable(table, "best_team_kills", "INT NOT NULL", "AFTER team_kills");
 
     new Message(`Updated table ${table}.`,"pass");
 }

@@ -39,14 +39,17 @@ class KillManager{
             this.killNames.push(result[4]);
         }
 
-
         const killerId = parseInt(result[3]);
         const killer = this.playerManager.getPlayerById(killerId);
 
         const victimId = parseInt(result[5]);
         const victim = this.playerManager.getPlayerById(victimId);
 
-        const kill = new Kill(result[1], result[2], killer.masterId ?? -1, result[4], victim.masterId ?? -1, result[6], result[7]);
+        let type = result[2];
+
+        if(type === "teamkill") type = "kill";
+
+        const kill = new Kill(result[1], type, killer.masterId ?? -1, result[4], victim.masterId ?? -1, result[6], result[7]);
         
         this.kills.push(kill);     
     }

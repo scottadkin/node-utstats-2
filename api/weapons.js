@@ -305,7 +305,8 @@ class Weapons{
 
     async getMatchPlayerData(id){
 
-        const query = `SELECT player_id,weapon_id,kills,deaths,accuracy,shots,hits,damage,efficiency 
+        const query = `SELECT player_id,weapon_id,kills,best_kills,team_kills,best_team_kills,
+        deaths,suicides,accuracy,shots,hits,damage,efficiency 
         FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC`;
 
         return await mysql.simpleQuery(query, [id]);

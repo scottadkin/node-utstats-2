@@ -1740,7 +1740,7 @@ class Players{
             }
 
             if(playerScores[player] === undefined){
-                console.log(`Players.createPlayerScoreHistory(${player}) player is null`);
+                //console.log(`Players.createPlayerScoreHistory(${player}) player is null`);
                 continue;
             }
 

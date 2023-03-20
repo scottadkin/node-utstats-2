@@ -510,7 +510,7 @@ class PlayerInfo{
     }
 
 
-    killedPlayer(timestamp, weapon, distance){
+    killedPlayer(timestamp, weapon, distance, bTeamKill){
 
         timestamp = parseFloat(timestamp);
 
@@ -518,7 +518,7 @@ class PlayerInfo{
 
         this.updateKillDistances(distance);
 
-        this.updateWeaponStats('kill', weapon, false);
+        this.updateWeaponStats('kill', weapon, false, bTeamKill);
 
         this.stats.currentSpree++;
 

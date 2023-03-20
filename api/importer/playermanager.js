@@ -748,27 +748,23 @@ class PlayerManager{
         for(let i = 0; i < kills.length; i++){
 
             const k = kills[i];
-
+            
             if(k.type === 'kill'){
 
                 killer = this.getPlayerByMasterId(k.killerId);
                 victim = this.getPlayerByMasterId(k.victimId);
 
-       
                 if(killer !== null && this.bIgnoreBots && killer.bBot) continue;
                 if(victim !== null && this.bIgnoreBots && victim.bBot) continue;
-               
+
                 let bTeamKill = false;
 
                 if(totalTeams >= 2){
-                    //console.log(k);
-
+       
                     const victimTeam = this.getPlayerTeamAt(k.victimId, k.timestamp);
                     const killerTeam = this.getPlayerTeamAt(k.killerId, k.timestamp);
 
                     bTeamKill = killerTeam === victimTeam;
-
-                    if(bTeamKill) new Message(`TEAM KILL`,"error");
 
                 }
 

@@ -626,7 +626,8 @@ class MatchManager{
             const typeResult = typeReg.exec(line);
 
             if(typeResult === null) continue;
-           
+            
+
             const currentType = typeResult[1].toLowerCase();
 
             if(gameTypes.indexOf(currentType) !== -1){
@@ -639,6 +640,7 @@ class MatchManager{
 
                 this.gameLines.push(line);
             }
+
             if(currentType == 'info') this.serverLines.push(line);   
             if(currentType == 'map') this.mapLines.push(line);
 

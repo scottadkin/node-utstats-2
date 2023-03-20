@@ -9,6 +9,7 @@ class WeaponStats{
         this.currentKills = 0;
         this.bestKills = 0;
         this.teamKills = 0;
+        this.currentTeamKills = 0;
         this.bestTeamKills = 0;
         this.accuracy = 0;
         this.shots = 0;
@@ -37,9 +38,13 @@ class WeaponStats{
     killedPlayer(bTeamKill){
 
         if(bTeamKill){
+
             this.teamKills++;
             this.currentTeamKills++;
-            if(this.currentTeamKills > this.bestTeamKills) this.bestTeamKills = this.currentTeamKills;
+
+            if(this.currentTeamKills > this.bestTeamKills){
+                this.bestTeamKills = this.currentTeamKills;
+            }
         }
 
         this.kills++;
