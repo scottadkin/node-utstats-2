@@ -250,29 +250,36 @@ class Kills{
             const killerTeam = d.killer_team;
             const victimTeam = d.victim_team;
 
-            //suicides
-            if(victimTeam === -1){
+          
+            if(killer === victim){
                 
                 this.updateGraphData(suicides, killerIndex, "++");
-                this.updateGraphData(teamTotalSuicides, killerTeam, "++");
                 this.updateGraphData(deaths, killerIndex, "++");
-                this.updateGraphData(teamTotalDeaths, killerTeam, "++");
 
-            }else if(killer !== victim && killerTeam !== victimTeam){
+                if(totalTeams > 1){
+                    this.updateGraphData(teamTotalSuicides, killerTeam, "++");
+                    this.updateGraphData(teamTotalDeaths, killerTeam, "++");
+                }
+
+            }else if(killerTeam !== victimTeam || totalTeams < 2){
 
                 this.updateGraphData(kills, killerIndex, "++");
-                this.updateGraphData(teamTotalKills, killerTeam, "++");
-
                 this.updateGraphData(deaths, victimIndex, "++");
-                this.updateGraphData(teamTotalDeaths, victimTeam, "++");
 
-            }else if(killerTeam === victimTeam){
+                if(totalTeams > 1){
+                    this.updateGraphData(teamTotalKills, killerTeam, "++");
+                    this.updateGraphData(teamTotalDeaths, victimTeam, "++");
+                }
+
+            }else if(killerTeam === victimTeam && totalTeams > 1){
 
                 this.updateGraphData(teamKills, killerIndex, "++");
-                this.updateGraphData(teamTotalTeamKills, killerTeam, "++");
-
                 this.updateGraphData(deaths, victimIndex, "++");
-                this.updateGraphData(teamTotalDeaths, victimTeam, "++");
+
+                if(totalTeams > 1){
+                    this.updateGraphData(teamTotalTeamKills, killerTeam, "++");
+                    this.updateGraphData(teamTotalDeaths, victimTeam, "++");
+                }
             }
 
             const killerKills = this.getCurrentGraphDataValue(kills, killerIndex);
@@ -280,15 +287,18 @@ class Kills{
             const killerEfficiency = this.calculateEfficiency(killerKills, killerDeaths);
             this.updateGraphData(efficiency, killerIndex, killerEfficiency, true);
 
-            const killerTeamKills = this.getCurrentGraphDataValue(teamTotalKills, killerTeam);
-            const killerTeamDeaths = this.getCurrentGraphDataValue(teamTotalDeaths, killerTeam);
-            const killerTeamEfficiency = this.calculateEfficiency(killerTeamKills, killerTeamDeaths);
-            this.updateGraphData(teamEfficiency, killerTeam, killerTeamEfficiency, killerTeam !== victimTeam);
+            if(totalTeams > 1){
+                const killerTeamKills = this.getCurrentGraphDataValue(teamTotalKills, killerTeam);
+                const killerTeamDeaths = this.getCurrentGraphDataValue(teamTotalDeaths, killerTeam);
+                const killerTeamEfficiency = this.calculateEfficiency(killerTeamKills, killerTeamDeaths);
+                this.updateGraphData(teamEfficiency, killerTeam, killerTeamEfficiency, killerTeam !== victimTeam);
+            }
 
             const ignoreEfficiencyIndexes = [killerIndex];
             const ignoreTeamEfficiencyIndexes = [killerTeam];
 
-            if(victimTeam !== -1){
+
+            if(victim !== killer){
 
                 const victimKills = this.getCurrentGraphDataValue(kills, victimIndex);
                 const victimDeaths = this.getCurrentGraphDataValue(deaths, victimIndex);
@@ -296,20 +306,24 @@ class Kills{
                 const victimEfficiency = this.calculateEfficiency(victimKills, victimDeaths);
                 this.updateGraphData(efficiency, victimIndex, victimEfficiency, true);
 
-                const victimTeamKills = this.getCurrentGraphDataValue(teamTotalKills, victimTeam);
-                const victimTeamDeaths = this.getCurrentGraphDataValue(teamTotalDeaths, victimTeam);
-                const victimTeamEfficiency = this.calculateEfficiency(victimTeamKills, victimTeamDeaths);
-                this.updateGraphData(teamEfficiency, victimTeam, victimTeamEfficiency, true);
+                if(totalTeams > 1){
+                    const victimTeamKills = this.getCurrentGraphDataValue(teamTotalKills, victimTeam);
+                    const victimTeamDeaths = this.getCurrentGraphDataValue(teamTotalDeaths, victimTeam);
+                    const victimTeamEfficiency = this.calculateEfficiency(victimTeamKills, victimTeamDeaths);
+                    this.updateGraphData(teamEfficiency, victimTeam, victimTeamEfficiency, true);
+                }
 
                 ignoreEfficiencyIndexes.push(victimIndex);
                 ignoreTeamEfficiencyIndexes.push(victimTeam);
                 
             }
 
-            this.updateOthersGraphData(efficiency, ignoreEfficiencyIndexes);
-            this.updateOthersGraphData(teamEfficiency, ignoreTeamEfficiencyIndexes);
-        }
 
+            this.updateOthersGraphData(efficiency, ignoreEfficiencyIndexes);
+            if(totalTeams > 1){
+                this.updateOthersGraphData(teamEfficiency, ignoreTeamEfficiencyIndexes);
+            }
+        }
 
         const maxDataPoints = 50;
 
