@@ -132,8 +132,6 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
             }else{
     
 
-                console.log(res);
-
                 dispatch({
                     "type": "namesLoaded", 
                     "serverNames": res.serverNames, 
@@ -186,8 +184,6 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
                 //this.setState({"error": res.error});
             }else{
     
-                console.log(res);
-
                 dispatch({
                     "type": "loaded", 
                     "totalMatches": res.totalMatches, 

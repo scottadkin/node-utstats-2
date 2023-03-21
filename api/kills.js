@@ -155,11 +155,13 @@ class Kills{
         return data;
     }
 
+    createGraphDataType(indexes, names){
 
-    reduceTotalDataPoints(data, players, teams){
+        const data = [];
 
-        const playerIndexes = [];
+        for(let i = 0; i < indexes.length; i++){
 
+<<<<<<< Updated upstream
         let killsData = [];
         let deathsData = [];
         let suicidesData = [];
@@ -178,27 +180,81 @@ class Kills{
             deathsData.push({"name": value, "data": [0], "lastValue": 0});
             suicidesData.push({"name": value, "data": [0], "lastValue": 0});
             teammateKillsData.push({"name": value, "data": [0], "lastValue": 0});
+=======
+            const index = indexes[i];
+            data.push({"name": names[index], "data": [0]});
+>>>>>>> Stashed changes
         }
 
-        for(let i = 0; i < teams; i++){
+        return data;  
+    }
 
+<<<<<<< Updated upstream
             teamsKillsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
             teamsDeathsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
             teamsSuicidesData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
             teamsTeammateKillsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
+=======
+    updateOthersGraphData(data, ignoreIndex){
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(i === ignoreIndex) continue;
+
+            const previousValue = d.data[d.data.length - 1];
+            d.data.push(previousValue);
+>>>>>>> Stashed changes
         }
+
+        return data;
+    }
+
+    updateGraphData(data, index, newValue){
+
+        if(typeof newValue !== "string"){
+
+            data[index].data.push(newValue);
+
+        }else{
+
+            const previousValue = data[index].data[data[index].data.length - 1];
+            data[index].data.push(previousValue + 1);
+        }
+
+        this.updateOthersGraphData(data, index);
+    }
+
+    createGraphData(data, players, totalTeams){
+
+        console.log(data);
+
+        const playerIndexes = Object.keys(players).map((playerId) => parseInt(playerId));
+        const teams = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
+        const teamIndexes = [0,1,2,3];
+
+        const kills = this.createGraphDataType(playerIndexes, players);
+        const deaths = this.createGraphDataType(playerIndexes, players);
+        const suicides = this.createGraphDataType(playerIndexes, players);
+        const teamKills = this.createGraphDataType(playerIndexes, players);
+        const teamTotalKills = this.createGraphDataType(teamIndexes, teams);
+        const teamTotalDeaths = this.createGraphDataType(teamIndexes, teams);
+        const teamTotalSuicides = this.createGraphDataType(teamIndexes, teams);
+        const teamTotalTeamKills = this.createGraphDataType(teamIndexes, teams);
 
 
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
 
+            const {killer, victim} = d;
             const killerIndex = playerIndexes.indexOf(d.killer);
             const victimIndex = playerIndexes.indexOf(d.victim);
-
             const killerTeam = d.killer_team;
             const victimTeam = d.victim_team;
 
+<<<<<<< Updated upstream
 
             if(teams > 1){
                 
@@ -261,9 +317,17 @@ class Kills{
             }
 
 
+=======
+>>>>>>> Stashed changes
             //suicides
             if(victimTeam === -1){
+                
+                this.updateGraphData(suicides, killerIndex, "++");
+                this.updateGraphData(teamTotalSuicides, killerTeam, "++");
+                this.updateGraphData(deaths, killerIndex, "++");
+                this.updateGraphData(teamTotalDeaths, killerTeam, "++");
 
+<<<<<<< Updated upstream
                 suicidesData[killerIndex].lastValue++;
                 deathsData[killerIndex].lastValue++;
                 suicidesData[killerIndex].data.push(suicidesData[killerIndex].lastValue);
@@ -313,9 +377,34 @@ class Kills{
                         deathsData[x].data.push(deathsData[x].lastValue);
                     }
                 }
+=======
+                continue;
+>>>>>>> Stashed changes
             }
+
+            if(killer !== victim && killerTeam !== victimTeam){
+
+                this.updateGraphData(kills, killerIndex, "++");
+                this.updateGraphData(teamTotalKills, killerTeam, "++");
+
+                this.updateGraphData(deaths, victimIndex, "++");
+                this.updateGraphData(teamTotalDeaths, victimTeam, "++");
+
+                continue;
+            }
+
+            if(killerTeam === victimTeam){
+
+                this.updateGraphData(teamKills, killerIndex, "++");
+                this.updateGraphData(teamTotalTeamKills, killerTeam, "++");
+
+                this.updateGraphData(deaths, victimIndex, "++");
+                this.updateGraphData(teamTotalDeaths, victimTeam, "++");
+            }
+
         }
 
+<<<<<<< Updated upstream
         const max = 50;
 
         deathsData = Functions.reduceGraphDataPoints(deathsData, max);
@@ -354,6 +443,17 @@ class Kills{
             "teamSuicides": teamsSuicidesData,
             "teammateKills": teammateKillsData,
             "teamsTeammateKills": teamsTeammateKillsData,
+=======
+        return {
+            "deaths": deaths, 
+            "suicides": suicides, 
+            "kills": kills, 
+            "teamDeaths": teamTotalDeaths, 
+            "teamKills": teamTotalKills, 
+            "teamSuicides": teamTotalSuicides,
+            "teammateKills": teamKills,
+            "teamsTeammateKills": teamTotalTeamKills
+>>>>>>> Stashed changes
         };
     }
 
@@ -363,7 +463,7 @@ class Kills{
         
         const result =  await mysql.simpleQuery(query, [matchId]);
 
-        return this.reduceTotalDataPoints(result, players, totalTeams);
+        return this.createGraphData(result, players, totalTeams);
     }
 
 

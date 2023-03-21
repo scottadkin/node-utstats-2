@@ -539,7 +539,6 @@ export async function getServerSideProps({req, query}){
             "keywords": keywords
         };
 
-        console.log(matchInfo);
 
 
         return {
