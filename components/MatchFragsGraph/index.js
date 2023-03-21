@@ -55,12 +55,26 @@ class MatchFragsGraph extends React.Component{
 
         if(this.state.data === null) return null;
 
-        const graphTitles = ["Kills", "Deaths", "Suicides", "TeamKills"];
-        const graphData = [this.state.data.kills, this.state.data.deaths, this.state.data.suicides, this.state.data.teammateKills];
+        const graphTitles = ["Kills", "Deaths", "Suicides", "TeamKills", "Efficiency"];
+
+        const graphData = [
+            this.state.data.kills, 
+            this.state.data.deaths, 
+            this.state.data.suicides, 
+            this.state.data.teammateKills, 
+            this.state.data.efficiency
+        ];
 
         if(this.props.teams > 1){
-            const teamsTitles = ["Team Total Kills", "Team Total Deaths", "Team Total Suicides", "Team Total TeamKills"];
-            const teamsData = [this.state.data.teamKills, this.state.data.teamDeaths, this.state.data.teamSuicides, this.state.data.teamsTeammateKills];
+
+            const teamsTitles = ["Team Total Kills", "Team Total Deaths", "Team Total Suicides", "Team Total TeamKills", "Team Efficiency"];
+            const teamsData = [
+                this.state.data.teamKills, 
+                this.state.data.teamDeaths, 
+                this.state.data.teamSuicides, 
+                this.state.data.teamsTeammateKills,
+                this.state.data.teamEfficiency
+            ];
 
         
 

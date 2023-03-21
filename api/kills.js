@@ -168,13 +168,13 @@ class Kills{
         return data;  
     }
 
-    updateOthersGraphData(data, ignoreIndex){
+    updateOthersGraphData(data, ignoreIndexes){
 
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
 
-            if(i === ignoreIndex) continue;
+            if(ignoreIndexes.indexOf(i) !== -1) continue;
 
             const previousValue = d.data[d.data.length - 1];
             d.data.push(previousValue);
@@ -183,7 +183,9 @@ class Kills{
         return data;
     }
 
-    updateGraphData(data, index, newValue){
+    updateGraphData(data, index, newValue, bSkipUpdatedOthers){
+
+        if(bSkipUpdatedOthers === undefined) bSkipUpdatedOthers = false;
 
         if(typeof newValue !== "string"){
 
@@ -195,7 +197,28 @@ class Kills{
             data[index].data.push(previousValue + 1);
         }
 
-        this.updateOthersGraphData(data, index);
+        if(!bSkipUpdatedOthers){
+            this.updateOthersGraphData(data, [index]);
+        }
+    }
+
+    getCurrentGraphDataValue(data, index){
+        
+        return data[index].data[data[index].data.length - 1];
+    }
+
+    calculateEfficiency(kills, deaths){
+
+        if(kills > 0){
+
+            if(deaths > 0){
+                return parseFloat(((kills / (deaths + kills)) * 100).toFixed(2));
+            }
+
+            return 100;
+        }
+
+        return 0;
     }
 
     createGraphData(data, players, totalTeams){
@@ -208,10 +231,13 @@ class Kills{
         const deaths = this.createGraphDataType(playerIndexes, players);
         const suicides = this.createGraphDataType(playerIndexes, players);
         const teamKills = this.createGraphDataType(playerIndexes, players);
+        const efficiency = this.createGraphDataType(playerIndexes, players);
+
         const teamTotalKills = this.createGraphDataType(teamIndexes, teams);
         const teamTotalDeaths = this.createGraphDataType(teamIndexes, teams);
         const teamTotalSuicides = this.createGraphDataType(teamIndexes, teams);
         const teamTotalTeamKills = this.createGraphDataType(teamIndexes, teams);
+        const teamEfficiency = this.createGraphDataType(teamIndexes, teams);
 
 
         for(let i = 0; i < data.length; i++){
@@ -232,10 +258,7 @@ class Kills{
                 this.updateGraphData(deaths, killerIndex, "++");
                 this.updateGraphData(teamTotalDeaths, killerTeam, "++");
 
-                continue;
-            }
-
-            if(killer !== victim && killerTeam !== victimTeam){
+            }else if(killer !== victim && killerTeam !== victimTeam){
 
                 this.updateGraphData(kills, killerIndex, "++");
                 this.updateGraphData(teamTotalKills, killerTeam, "++");
@@ -243,10 +266,7 @@ class Kills{
                 this.updateGraphData(deaths, victimIndex, "++");
                 this.updateGraphData(teamTotalDeaths, victimTeam, "++");
 
-                continue;
-            }
-
-            if(killerTeam === victimTeam){
+            }else if(killerTeam === victimTeam){
 
                 this.updateGraphData(teamKills, killerIndex, "++");
                 this.updateGraphData(teamTotalTeamKills, killerTeam, "++");
@@ -255,17 +275,55 @@ class Kills{
                 this.updateGraphData(teamTotalDeaths, victimTeam, "++");
             }
 
+            const killerKills = this.getCurrentGraphDataValue(kills, killerIndex);
+            const killerDeaths = this.getCurrentGraphDataValue(deaths, killerIndex);
+            const killerEfficiency = this.calculateEfficiency(killerKills, killerDeaths);
+            this.updateGraphData(efficiency, killerIndex, killerEfficiency, true);
+
+            const killerTeamKills = this.getCurrentGraphDataValue(teamTotalKills, killerTeam);
+            const killerTeamDeaths = this.getCurrentGraphDataValue(teamTotalDeaths, killerTeam);
+            const killerTeamEfficiency = this.calculateEfficiency(killerTeamKills, killerTeamDeaths);
+            this.updateGraphData(teamEfficiency, killerTeam, killerTeamEfficiency, killerTeam !== victimTeam);
+
+            const ignoreEfficiencyIndexes = [killerIndex];
+            const ignoreTeamEfficiencyIndexes = [killerTeam];
+
+            if(victimTeam !== -1){
+
+                const victimKills = this.getCurrentGraphDataValue(kills, victimIndex);
+                const victimDeaths = this.getCurrentGraphDataValue(deaths, victimIndex);
+
+                const victimEfficiency = this.calculateEfficiency(victimKills, victimDeaths);
+                this.updateGraphData(efficiency, victimIndex, victimEfficiency, true);
+
+                const victimTeamKills = this.getCurrentGraphDataValue(teamTotalKills, victimTeam);
+                const victimTeamDeaths = this.getCurrentGraphDataValue(teamTotalDeaths, victimTeam);
+                const victimTeamEfficiency = this.calculateEfficiency(victimTeamKills, victimTeamDeaths);
+                this.updateGraphData(teamEfficiency, victimTeam, victimTeamEfficiency, true);
+
+                ignoreEfficiencyIndexes.push(victimIndex);
+                ignoreTeamEfficiencyIndexes.push(victimTeam);
+                
+            }
+
+            this.updateOthersGraphData(efficiency, ignoreEfficiencyIndexes);
+            this.updateOthersGraphData(teamEfficiency, ignoreTeamEfficiencyIndexes);
         }
 
+
+        const maxDataPoints = 50;
+
         return {
-            "deaths": deaths, 
-            "suicides": suicides, 
-            "kills": kills, 
-            "teamDeaths": teamTotalDeaths, 
-            "teamKills": teamTotalKills, 
-            "teamSuicides": teamTotalSuicides,
-            "teammateKills": teamKills,
-            "teamsTeammateKills": teamTotalTeamKills
+            "deaths": Functions.reduceGraphDataPoints(deaths, maxDataPoints), 
+            "suicides": Functions.reduceGraphDataPoints(suicides, maxDataPoints),
+            "kills": Functions.reduceGraphDataPoints(kills, maxDataPoints),
+            "teamDeaths": Functions.reduceGraphDataPoints(teamTotalDeaths, maxDataPoints),
+            "teamKills": Functions.reduceGraphDataPoints(teamTotalKills, maxDataPoints),
+            "teamSuicides": Functions.reduceGraphDataPoints(teamTotalSuicides,maxDataPoints),
+            "teammateKills": Functions.reduceGraphDataPoints(teamKills,maxDataPoints),
+            "teamsTeammateKills": Functions.reduceGraphDataPoints(teamTotalTeamKills,maxDataPoints),
+            "efficiency": Functions.reduceGraphDataPoints(efficiency, maxDataPoints),
+            "teamEfficiency": Functions.reduceGraphDataPoints(teamEfficiency, maxDataPoints)
         };
     }
 
