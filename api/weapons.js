@@ -183,9 +183,10 @@ class Weapons{
         const query = `UPDATE nstats_player_weapon_totals SET kills=kills+?, deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
              accuracy=IF(hits > 0 && shots > 0, (hits/shots) * 100, IF(hits > 0, 100, 0)), 
              efficiency=IF(kills > 0 && deaths > 0, (kills/(kills + deaths)) * 100, IF(kills > 0, 100, 0)),
-             matches=matches+1 WHERE player_id=? AND weapon=? AND map_id=? AND gametype=?`;
+             matches=matches+1, team_kills=team_kills+?
+             WHERE player_id=? AND weapon=? AND map_id=? AND gametype=?`;
 
-        const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, Math.abs(stats.damage), playerId, weaponId, mapId, gametypeId];
+        const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, Math.abs(stats.damage), stats.teamKills, playerId, weaponId, mapId, gametypeId];
 
         return await mysql.simpleQuery(query, vars);
 
@@ -233,23 +234,23 @@ class Weapons{
     }
     
 
-    getPlayerTotals(id){
+    async getPlayerTotals(playerId){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT weapon,kills,team_kills,deaths,suicides,efficiency,accuracy,shots,hits,damage,matches
+        FROM nstats_player_weapon_totals
+        WHERE player_id=? AND map_id=0 AND gametype=0`;
 
-            const query = "SELECT * FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=0";
+        return await mysql.simpleQuery(query, [playerId]);
+    }
 
-            mysql.query(query, [id], (err, result) =>{
+    async getPlayerBest(playerId){
 
-                if(err) reject(err);
+        const query = `SELECT weapon_id,kills,kills_best_life,team_kills,team_kills_best_life,deaths,suicides,efficiency,accuracy,shots,hits,damage
+        FROM nstats_player_weapon_best
+        WHERE player_id=? AND gametype_id=0 AND map_id=0`;
 
-                if(result !== undefined){
-                    resolve(result);
-                }
+        return await mysql.simpleQuery(query, [playerId]);
 
-                resolve([]);
-            });
-        });
     }
 
     async getAllPlayerTotals(id){

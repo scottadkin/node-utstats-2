@@ -39,7 +39,7 @@ import PlayerCombogibStats from '../../components/PlayerCombogibStats';
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
+	matchPages, matchPage, matchesPerPage, weaponStats, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
 	rankingsData, rankingPositions, capRecordsMode}) {
 
@@ -190,8 +190,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	if(pageSettings["Display Weapon Stats"] === "true"){
 
-		elems[pageOrder["Display Weapon Stats"]] = <PlayerWeapons key={"pw"} session={parsedSession} pageSettings={pageSettings} 
-			weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />;
+		elems[pageOrder["Display Weapon Stats"]] = <PlayerWeapons key={"pw"} session={parsedSession} pageSettings={pageSettings} playerId={playerId}/>;
 
 	}
 
@@ -406,7 +405,6 @@ export async function getServerSideProps({req, query}) {
 	const gametypes = new Gametypes();
 	const maps = new Maps();
 	const matchManager = new Matches();
-	const weaponsManager = new Weapons();
 	const serverManager = new Servers();
 
 	const session = new Session(req);
@@ -466,17 +464,6 @@ export async function getServerSideProps({req, query}) {
 	let matchScores = await matchManager.getWinners(matchIds);
 	let matchPlayerCount = await matchManager.getPlayerCount(matchIds);
 
-
-	let weaponStats = [];
-	let weaponNames = [];
-	let weaponImages = [];
-
-	if(pageSettings["Display Weapon Stats"] === "true"){
-		weaponStats = await weaponsManager.getPlayerTotals(playerId);
-		weaponNames = await weaponsManager.getAllNames();
-		weaponImages = await weaponsManager.getImageList();
-	}
-	
 
 
 	const justMapNames = [];
@@ -601,9 +588,6 @@ export async function getServerSideProps({req, query}) {
 			"matchPages": matchPages,
 			"matchPage": matchPage,
 			"matchesPerPage": matchesPerPage,
-			"weaponStats": JSON.stringify(weaponStats),
-			"weaponNames": JSON.stringify(weaponNames),
-			"weaponImages": JSON.stringify(weaponImages),
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames),
 			"latestWinRate": JSON.stringify(latestWinRate),
