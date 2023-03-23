@@ -1,30 +1,22 @@
 .wrapper{
     background-color:var(--color-1);
     display:inline-block;
-    height:336px;
-    width:250px;
+    width:300px;
     overflow:hidden;
     margin-bottom:5px;
     margin-right:5px;
 }
 
 .name{
-    padding:5px;
+    padding:10px;
     background-color:var(--color-3);
     font-size:14px;
     line-height:24px;
-    height:32px;
+    height:42px;
 }
 
 .image{
-    height:150px;
+    height:140px;
     position:relative;
     background-color:black;
-}
-
-
-
-.stats{
-    border-top:1px solid rgba(255,255,255,0.25);
-    height:200px;
 }

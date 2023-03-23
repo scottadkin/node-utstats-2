@@ -8,10 +8,10 @@ const PlayerWeapon = ({name, image, stats, maxValues}) =>{
     return <div className={styles.wrapper}>
         <div className={styles.name}>{name}</div>
         <div className={styles.image}>
-            <Image src={`/images/weapons/${image}`} width={250} height={150} alt="image" />
+            <Image src={`/images/weapons/${image}.png`} width={195} height={140} alt="image" />
         </div>
         <div className={styles.stats}>
-            <PlayerWeaponStat name="Matches" display={stats.matches} value={stats.matches} max={maxValues.matches}/>
+            {(stats.matches === undefined) ? null : <PlayerWeaponStat name="Matches" display={stats.matches} value={stats.matches} max={maxValues.matches}/>}
             <PlayerWeaponStat name="Kills" display={stats.kills} value={stats.kills} max={maxValues.kills}/>
             <PlayerWeaponStat name="Deaths" display={stats.deaths} value={stats.deaths} max={maxValues.deaths}/>
             <PlayerWeaponStat name="EFF" display={`${stats.efficiency}%`} value={stats.efficiency} max={maxValues.efficiency}/>

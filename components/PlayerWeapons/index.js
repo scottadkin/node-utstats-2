@@ -5,6 +5,7 @@ import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
 import InteractiveTable from '../InteractiveTable';
 import Tabs from "../Tabs";
+import PlayerWeapon from "../PlayerWeapon";
 
 const reducer = (state, action) =>{
 
@@ -17,7 +18,8 @@ const reducer = (state, action) =>{
                 "error": null,
                 "totals": action.totals,
                 "best": action.best,
-                "names": action.names
+                "names": action.names,
+                "images": action.images
             }
         }
         case "error": {
@@ -33,6 +35,12 @@ const reducer = (state, action) =>{
                 "selectedTab": action.value
             }    
         }
+        case "changeDisplay": {
+            return {
+                ...state,
+                "displayMode": action.value
+            }    
+        }
     }
 
     return state;
@@ -46,6 +54,35 @@ const getWeaponName = (state, weaponId) =>{
     }
 
     return {"name": "Not Found"};
+}
+
+const getMaxValues = (state, type) =>{
+
+    const max = {};
+
+    if(state[type].length === 0) return {};
+
+    const keys = Object.keys(state[type][0]);
+
+    for(let i = 0; i < state[type].length; i++){
+
+        const s = state[type][i];
+
+        for(let x = 0; x < keys.length; x++){
+
+            const k = keys[x];
+
+            if(max[k] === undefined){
+
+                max[k] = s[k];
+                continue;
+            }
+
+            if(max[k] < s[k]) max[k] = s[k];
+        }
+    }
+
+    return max;
 }
 
 const renderTotals = (state) =>{
@@ -65,9 +102,15 @@ const renderTotals = (state) =>{
     };
 
 
+    const maxValues = getMaxValues(state, "totals");
+
     const data = state.totals.map((stats) =>{
 
         const weaponName = getWeaponName(state, stats.weapon);
+
+        if(state.displayMode === 0){
+            return <PlayerWeapon key={stats.weapon} name={weaponName} image={state.images[stats.weapon]} stats={stats} maxValues={maxValues}/>;
+        }
 
         return {
             "name": {
@@ -117,7 +160,12 @@ const renderTotals = (state) =>{
         }
     });
 
-    return <InteractiveTable key="totals" width={1} headers={headers} data={data}/>
+    if(state.displayMode === 1){
+        return <InteractiveTable key="totals" width={1} headers={headers} data={data}/>
+    }
+
+    return <div key="totals" className="t-width-1 center">{data}</div>
+    
 }
 
 const renderBest = (state) =>{
@@ -136,10 +184,15 @@ const renderBest = (state) =>{
         "bestTeamKills": "Most Team Kills"
     };
 
+    const maxValues = getMaxValues(state, "best");
 
     const data = state.best.map((stats) =>{
 
         const weaponName = getWeaponName(state, stats.weapon_id);
+
+        if(state.displayMode === 0){
+            return <PlayerWeapon key={stats.weapon_id} name={weaponName} image={state.images[stats.weapon_id]} stats={stats} maxValues={maxValues}/>;
+        }
 
         return {
             "name": {
@@ -187,7 +240,13 @@ const renderBest = (state) =>{
         }
     });
 
-    return <InteractiveTable key="best" width={1} headers={headers} data={data}/>
+    if(state.displayMode === 1){
+        return <InteractiveTable key="best" width={1} headers={headers} data={data}/>
+    }
+
+    return <div key="best" className="t-width-1 center">
+        {data}
+    </div>
 
 }
 
@@ -200,13 +259,23 @@ const renderTabs = (state, dispatch) =>{
         {"name": "Best Stats", "value": 1},
     ];
 
-    return <Tabs options={options} selectedValue={selected} changeSelected={(value) =>{
+    const displayOptions = [
+        {"name": "Default View", "value": 0},
+        {"name": "Table View", "value": 1},
+    ];
 
-        dispatch({"type": "changeSelected", "value": value})
-    }}/>
+    return <>
+        <Tabs options={displayOptions} selectedValue={state.displayMode} changeSelected={(value) =>{
+            dispatch({"type": "changeDisplay", "value": value})
+        }}/>
+        <Tabs options={options} selectedValue={selected} changeSelected={(value) =>{
+            dispatch({"type": "changeSelected", "value": value})
+        }}/>  
+    </>
 }
 
-const PlayerWeapons = ({playerId}) =>{
+
+const PlayerWeapons = ({playerId, pageSettings}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -214,7 +283,9 @@ const PlayerWeapons = ({playerId}) =>{
         "totals": [],
         "best": [],
         "names": {},
-        "selectedTab": 0
+        "images": {},
+        "selectedTab": 0,
+        "displayMode": parseInt(pageSettings["Default Weapon Display"])
     });
 
     useEffect(() =>{
@@ -244,7 +315,8 @@ const PlayerWeapons = ({playerId}) =>{
                 "type": "loaded", 
                 "totals": res.totals, 
                 "best": res.best,
-                "names": res.names
+                "names": res.names,
+                "images": res.images
             });
         }
 

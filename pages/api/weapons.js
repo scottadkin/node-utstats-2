@@ -23,7 +23,9 @@ export default async function handler(req, res){
 
             const names = await weaponsManager.getNamesByIds(weaponIds, true);
 
-            res.status(200).json({"totals": totals, "best": best, "names": names});
+            const images = await weaponsManager.getImages(names);
+
+            res.status(200).json({"totals": totals, "best": best, "names": names, "images": images});
             return;
         }
 

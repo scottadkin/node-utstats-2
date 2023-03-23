@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const Message = require('./message');
 const fs = require('fs');
 
@@ -296,11 +295,52 @@ class Weapons{
 
             const files = fs.readdirSync('public/images/weapons/');
 
-            return files;
+            const images = [];
+
+            for(let i = 0; i < files.length; i++){
+
+                const f = files[i];
+
+                const result = /^(.+)\.png$/i.exec(f);
+
+                if(result === null){
+                    console.log(`Warning: weapons.getImageList() result is null for file ${f}`);
+                    continue;
+                }
+
+                images.push(result[1]);
+            }
+
+            return images;
 
         }catch(err){
             console.trace(err);
         }
+    }
+
+    async getImages(weaponNames){
+
+        if(weaponNames.length === 0) return {};
+
+        const imageList = await this.getImageList();
+
+        const weaponToImage = {};
+
+        for(const [weaponId, weaponName] of Object.entries(weaponNames)){
+
+            const cleanName = weaponName.replace(" ", "").toLowerCase();
+
+            const index = imageList.indexOf(cleanName);
+
+            if(index !== -1){
+                weaponToImage[weaponId] = cleanName;
+            }else{
+                weaponToImage[weaponId] = "default";
+            }
+        }
+
+
+        return weaponToImage;
     }
 
 
