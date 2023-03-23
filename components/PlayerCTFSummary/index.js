@@ -72,6 +72,19 @@ const renderReturns = (selectedTab, recordType, gametypeNames, data) =>{
     return <PlayerCTFSummaryReturns gametypeNames={gametypeNames} data={data} recordType={recordType}/>;
 }
 
+
+const bAnyData = (state) =>{
+
+    const keys = ["totals", "best", "bestLife"];
+
+    for(let i = 0; i < keys.length; i++){
+
+        if(state[keys[i]].length > 0) return true;
+    }
+
+    return false;
+}
+
 const PlayerCTFSummary = ({playerId}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
@@ -139,6 +152,8 @@ const PlayerCTFSummary = ({playerId}) =>{
     if(recordType === 2) data = state.best;
     if(recordType === 3) data = state.bestLife;
 
+
+    if(!bAnyData(state)) return null;
 
     return <div>
         <div className="default-header">Capture The Flag Summary</div>
