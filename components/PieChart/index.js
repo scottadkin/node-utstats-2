@@ -1,4 +1,5 @@
 import {useEffect, useState, useRef} from "react";
+import styles from "./PieChart.module.css";
 
 class CanvasPieChart{
 
@@ -7,6 +8,8 @@ class CanvasPieChart{
         this.canvas = ref.current;
         this.context = this.canvas.getContext("2d");
         this.controller = controller;
+
+        this.font = "Montserrat";
 
         this.tabsHeight = 10;
         this.selectedTab = 0;
@@ -106,14 +109,27 @@ class CanvasPieChart{
         }
     }
 
+    scaleMousePosition(x, y){
+
+        const bounds = this.canvas.getBoundingClientRect();
+
+        const scaleX = this.canvas.width / bounds.width;
+        const scaleY = this.canvas.height / bounds.height;
+ 
+        return {
+            "x": (x - bounds.left) * scaleX, 
+            "y": (y - bounds.top) * scaleY
+        }
+    }
+
     createEvents(){
         
         this.canvas.addEventListener("mousemove", (e) =>{
 
-            const bounds = this.canvas.getBoundingClientRect();
-
-            this.mouse.x = e.clientX - bounds.left;
-            this.mouse.y = e.clientY - bounds.top;
+            const {x, y} = this.scaleMousePosition(e.clientX, e.clientY);
+ 
+            this.mouse.x = x;
+            this.mouse.y = y;
 
             this.render();
 
@@ -121,39 +137,44 @@ class CanvasPieChart{
 
         this.canvas.addEventListener("mousedown", (e) =>{
 
-            const bounds = this.canvas.getBoundingClientRect();
-
-            const x = e.clientX - bounds.left;
-            const y = e.clientY - bounds.top;
+            const {x, y} = this.scaleMousePosition(e.clientX, e.clientY);
 
             this.handleClick(x, y);
 
         }, this.controller);
     }
 
-    renderTabs(){
+    renderTabs(c){
 
-        const c = this.context;
         const width = this.canvas.width / this.titles.length;
 
-        c.font = `${this.toPixels(this.tabsHeight * 0.7, true)}px Arial`;
+        c.font = `${this.toPixels(this.tabsHeight * 0.6, true)}px ${this.font}`;
 
         c.fillStyle = "red";
         c.textAlign = "center";
 
+        c.lineWidth = this.toPixels(0.2, true);
 
         for(let i = 0; i < this.titles.length; i++){
 
             const t = this.titles[i];
 
-            c.fillStyle = this.colors[i];
+            if(i !== this.selectedTab){
+                c.fillStyle = "rgb(28,28,28)";
+            }else{
+                c.fillStyle = "rgb(64,0,0)";
+            }
+            c.strokeStyle = "rgb(46,46,46)";
 
             const x = width * i;
 
             c.fillRect(x, 0, width, this.toPixels(this.tabsHeight, true));
+            c.strokeRect(x, 0, width, this.toPixels(this.tabsHeight, true));
 
             c.fillStyle = "white";
-            c.fillText(t, x + (width * 0.5), this.toPixels(this.tabsHeight * 0.15, true));
+
+            
+            c.fillText(t, x + (width * 0.5), this.toPixels(this.tabsHeight * 0.2, true));
         }
 
         c.textAlign = "left";
@@ -162,7 +183,7 @@ class CanvasPieChart{
 
     renderSlice(c, startAngle, angle, sliceNumber){
 
-        const x = this.toPixels(75, false);
+        const x = this.toPixels(80, false);
         const y = this.toPixels(60, true);
 
         c.beginPath();
@@ -194,6 +215,42 @@ class CanvasPieChart{
         }
     }
 
+    renderKeys(c){
+
+        let offsetY = 20;
+        const offsetX = 3.5;
+
+        const fontSize = this.toPixels(4.7, true);
+        const rowHeight = 7;
+
+        c.font = `${fontSize}px ${this.font}`;
+
+        for(let i = 0; i < this.data[this.selectedTab].data.length; i++){
+
+            const name = this.data[this.selectedTab].data[i].name;
+            const value = this.data[this.selectedTab].data[i].value;
+            const percent = this.data[this.selectedTab].data[i].value * this.data[this.selectedTab].percentValue;
+
+            c.fillStyle = this.colors[i];
+
+            const x = this.toPixels(offsetX, false);
+            const y = this.toPixels(offsetY + (rowHeight * i), true);
+
+            c.fillRect(this.toPixels(0.5, false), y, this.toPixels(2, false), fontSize);
+
+            c.font = `bold ${fontSize}px ${this.font}`;
+
+            const valueString = `${value} (${parseFloat(percent.toFixed(2))}%)`;
+
+            c.fillText(valueString, x, y);
+
+            const valueWidth = c.measureText(`${valueString} `).width;
+
+            c.font = `${fontSize}px ${this.font}`;
+            c.fillText(name, x + valueWidth, y);
+        }
+    }
+
     render(){
 
         const c = this.context;
@@ -207,16 +264,16 @@ class CanvasPieChart{
 
         c.fillRect(this.mouse.x, this.mouse.y, this.toPixels(1, false),this.toPixels(1, true));
 
-        this.renderTabs();
-
-
+        this.renderTabs(c);
         this.renderPie(c);
+        this.renderKeys(c);
     }
 }
 
 const PieChart = ({titles, data}) =>{
 
     const canvasRef = useRef(null);
+    
 
     useEffect(() =>{
 
@@ -227,9 +284,13 @@ const PieChart = ({titles, data}) =>{
         return () =>{
             controller.abort();
         }
-    },[titles, data]);
 
-    return <canvas ref={canvasRef} width={960} height={540}></canvas>
+    },[titles, data]);
+    
+
+    return <div className={styles.wrapper}>
+        <canvas ref={canvasRef} width={650} height={292}></canvas>
+    </div>
 }
 
 export default PieChart;
