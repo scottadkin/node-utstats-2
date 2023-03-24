@@ -6,6 +6,7 @@ import ErrorMessage from '../ErrorMessage';
 import InteractiveTable from '../InteractiveTable';
 import Tabs from "../Tabs";
 import PlayerWeapon from "../PlayerWeapon";
+import PieChart from '../PieChart';
 
 const reducer = (state, action) =>{
 
@@ -337,6 +338,19 @@ const PlayerWeapons = ({playerId, pageSettings}) =>{
 
     return <div>
         <div className="default-header">Weapon Stats</div>
+        <PieChart data={[
+            [
+                {"value": 32, "name": "poops"},
+                {"value": 50, "name": "Tuna"},
+                {"value": 18, "name": "Oinks"},
+            ],
+            [
+                {"value": 2312, "name": "aaaa"},
+                {"value": 44, "name": "bbbb"},
+                {"value": 1338, "name": "cccc"},
+                {"value": 355, "name": "Poooo"},
+            ]
+        ]} titles={["Farts", "Sharts"]}/>
         {renderTabs(state, dispatch)}
         {elems}
     </div>
