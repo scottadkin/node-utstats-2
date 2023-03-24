@@ -370,8 +370,23 @@ const PlayerWeapons = ({playerId, pageSettings}) =>{
                 {"value": 22, "name": "Why is this title really really reall long?"},
                 {"value": 33, "name": "Oops"},
                 {"value": 44, "name": "Damn :("},
+            ],
+            [
+                {"value": 32, "name": "poops"},
+                {"value": 50, "name": "Tuna"},
+                {"value": 18, "name": "Oinks"},
+            ],
+            [
+                {"value": 32, "name": "poops2"},
+                {"value": 50, "name": "Tuna2"},
+                {"value": 18, "name": "Oinks2"},
+            ],
+            [
+                {"value": 32, "name": "poops3"},
+                {"value": 50, "name": "Tuna3"},
+                {"value": 18, "name": "Oinks3"},
             ]
-        ]} titles={["Farts", "Sharts", "Longer Title Name", "cooooossos"]}/>
+        ]} titles={["Farts", "Sharts", "Longer Title Name", "cooooossos", "asfsafas", "95393ujjgjg", "884ujmjfjfjf"]}/>
         {renderTabs(state, dispatch)}
         {elems}
     </div>

@@ -12,6 +12,9 @@ class CanvasPieChart{
         this.font = "Montserrat";
 
         this.tabsHeight = 10;
+        this.altTabsWidth = 7.5;
+        this.maxTabsAtOnce = 3;
+        this.tabOffset = 0;
         this.selectedTab = 0;
 
         this.colors = [
@@ -94,13 +97,43 @@ class CanvasPieChart{
 
         const tabHeightPixels = this.toPixels(this.tabsHeight, true);
 
-        const tabWidth = this.toPixels(100 / this.titles.length, false);
+        const totalTabs = (this.titles.length <= this.maxTabsAtOnce) ? this.titles.length : this.maxTabsAtOnce;
+
+        const tabWidth = this.toPixels((100 - this.altTabsWidth * 2) / totalTabs, false);
 
         if(y <= tabHeightPixels){
 
             const previousTab = this.selectedTab;
 
-            this.selectedTab = Math.floor(x / tabWidth);
+            x = x - this.toPixels(this.altTabsWidth, false);
+
+            const selectedTabIndex = Math.floor(x / tabWidth);
+
+            const newTab = this.tabOffset + selectedTabIndex;
+
+            if(selectedTabIndex >= 0 && selectedTabIndex < totalTabs){
+
+                this.selectedTab = newTab;
+
+            }else{
+
+                if(selectedTabIndex < 0 && this.tabOffset > 0){
+
+                    this.tabOffset--;
+                    //move selected tab down if the selected tab goes off screen
+                    if(this.selectedTab >= this.tabOffset + totalTabs) this.selectedTab--;
+                }
+
+                if(selectedTabIndex >= totalTabs && this.tabOffset < this.titles.length - this.maxTabsAtOnce){
+                    this.tabOffset++;
+                    //move selected tab up if the selected tab goes off screen
+                    if(this.selectedTab < this.tabOffset) this.selectedTab++;
+                }
+
+
+                this.render();
+                return;
+            }
 
             if(this.selectedTab !== previousTab){
                 this.render();
@@ -146,17 +179,40 @@ class CanvasPieChart{
 
     renderTabs(c){
 
-        const width = this.canvas.width / this.titles.length;
+        const totalTabs = (this.titles.length <= this.maxTabsAtOnce) ? this.titles.length : this.maxTabsAtOnce;
+
+        let lastTab = 0;
+
+        if(this.tabOffset + totalTabs >= this.titles.length){
+            lastTab = this.titles.length;
+        }else{
+            lastTab = this.tabOffset + totalTabs;
+        }
+
+        const width = (this.canvas.width - this.toPixels(this.altTabsWidth * 2, false)) / totalTabs;
 
         c.font = `${this.toPixels(this.tabsHeight * 0.6, true)}px ${this.font}`;
 
-        c.fillStyle = "red";
+        const fontYOffset = this.toPixels(this.tabsHeight * 0.2, true)
+
+        c.fillStyle = "rgb(64,64,64)";
         c.textAlign = "center";
 
         c.lineWidth = this.toPixels(0.2, true);
 
-        for(let i = 0; i < this.titles.length; i++){
+        if(totalTabs < this.titles.length){
+            c.fillRect(0,0,this.toPixels(this.altTabsWidth, false), this.toPixels(this.tabsHeight, true));
+            c.fillRect(this.toPixels(100 - this.altTabsWidth, false),0,this.toPixels(this.altTabsWidth, false), this.toPixels(this.tabsHeight, true));
 
+            c.fillStyle = "white";
+            c.fillText("<<",this.toPixels(this.altTabsWidth * 0.5, false), fontYOffset);
+            c.fillText(">>",this.toPixels(100 - (this.altTabsWidth * 0.5), false), fontYOffset);
+        }
+
+        let index = 0;
+
+        for(let i = this.tabOffset; i < lastTab; i++){
+  
             const t = this.titles[i];
 
             if(i !== this.selectedTab){
@@ -164,17 +220,20 @@ class CanvasPieChart{
             }else{
                 c.fillStyle = "rgb(64,0,0)";
             }
-            c.strokeStyle = "rgb(46,46,46)";
 
-            const x = width * i;
+            c.strokeStyle = "rgb(46,46,46)";
+            
+
+            const x = this.toPixels(this.altTabsWidth, false) + width * index;
 
             c.fillRect(x, 0, width, this.toPixels(this.tabsHeight, true));
             c.strokeRect(x, 0, width, this.toPixels(this.tabsHeight, true));
 
             c.fillStyle = "white";
 
-            
-            c.fillText(t, x + (width * 0.5), this.toPixels(this.tabsHeight * 0.2, true));
+            c.fillText(t, x + (width * 0.5), fontYOffset);
+
+            index++;
         }
 
         c.textAlign = "left";
@@ -267,6 +326,7 @@ class CanvasPieChart{
         this.renderTabs(c);
         this.renderPie(c);
         this.renderKeys(c);
+
     }
 }
 
@@ -288,7 +348,7 @@ const PieChart = ({titles, data}) =>{
     },[titles, data]);
     
 
-    return <div className={styles.wrapper}>
+    return <div className={`${styles.wrapper} no-select`}>
         <canvas ref={canvasRef} width={650} height={292}></canvas>
     </div>
 }
