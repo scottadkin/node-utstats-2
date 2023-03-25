@@ -113,6 +113,20 @@ async function createPlayerWeaponBest(){
     return await mysql.simpleQuery(query);
 }
 
+async function addTeleFrags(){
+
+    const matchTable = "nstats_player_matches";
+
+    new Message(`Adding telefrag columns to ${matchTable}`,"note");
+
+    await alterTable(matchTable, "telefrag_kills", "INT NOT NULL", "AFTER mh_deaths");
+    await alterTable(matchTable, "telefrag_deaths", "INT NOT NULL", "AFTER telefrag_kills");
+    await alterTable(matchTable, "telefrag_best_spree", "INT NOT NULL", "AFTER telefrag_deaths");
+    await alterTable(matchTable, "telefrag_best_multi", "INT NOT NULL", "AFTER telefrag_best_spree");
+
+    new Message(`Updated table ${matchTable}.`,"pass");
+}
+
 (async () =>{
 
     try{
@@ -126,6 +140,7 @@ async function createPlayerWeaponBest(){
         await updatePlayerWeaponsMatch();
         await updatePlayerWeaponsTotals();
         await createPlayerWeaponBest();
+        await addTeleFrags();
         
 
         process.exit(0);

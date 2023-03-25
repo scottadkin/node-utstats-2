@@ -313,7 +313,7 @@ class Player{
             ?,?,?,?,?,?,?,?,0,0,0,
             ?,?,?,?,?,?,?,?,?,?,
             ?,0,0,0,0,0,0,0,0,0,
-            0,0,0,0)`;
+            0,0,0,0,?,?,?,?)`;
 
             //53
        // const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
@@ -381,7 +381,11 @@ class Player{
             player.stats.killsNormalRange,
             player.stats.killsLongRange,
             player.stats.killsUberRange,
-            player.stats.headshots
+            player.stats.headshots,
+            player.stats.teleFrags.total,
+            player.stats.teleFrags.deaths,
+            player.stats.teleFrags.bestSpree,
+            player.stats.teleFrags.bestMulti
         ];
 
         const result = await mysql.simpleQuery(query, vars);

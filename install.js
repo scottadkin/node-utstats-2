@@ -627,7 +627,11 @@ const queries = [
         mh_kills int(11) NOT NULL,
         mh_kills_best_life int(11) NOT NULL,
         views int(11) NOT NULL,
-        mh_deaths int(11) NOT NULL
+        mh_deaths int(11) NOT NULL,
+        telefrag_kills int(11) NOT NULL,
+        telefrag_deaths int(11) NOT NULL,
+        telefrag_best_spree int(11) NOT NULL,
+        telefrag_best_multi int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_player_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
