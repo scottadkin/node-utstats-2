@@ -284,7 +284,14 @@ class PlayerInfo{
                 "bestSpree": 0,
                 "deaths": 0,
                 "currentMulti": 0,
-                "bestMulti": 0
+                "bestMulti": 0,
+                "discKills": 0, //kills by damaging an enemy's disc.
+                "discKillsBestSpree": 0,
+                "discKillsCurrentSpree": 0,
+                "discKillsBestMulti": 0,
+                "discKillsCurrentMulti": 0,
+                "discDeaths": 0,
+                "discLastKillTime": -9
             }
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };
@@ -403,7 +410,7 @@ class PlayerInfo{
     }
 
     //return true if player was spawnkilled, false if not
-    died(timestamp, weapon, bSuicide){
+    died(timestamp, weapon, bSuicide, myWeapon, deathType){
 
         if(weapon.toLowerCase() === "translocator") this.teleFragDeath();
         
@@ -432,6 +439,16 @@ class PlayerInfo{
         this.stats.teleFrags.currentMulti = 0;
         this.stats.teleFrags.currentSpree = 0;
         this.stats.teleFrags.lastKillTime = -9;
+        this.stats.teleFrags.discKillsCurrentSpree = 0;
+        this.stats.teleFrags.discKillsCurrentMulti = 0;
+        this.stats.teleFrags.discLastKillTime = -9;
+
+        if(myWeapon !== undefined && deathType !== undefined){
+
+            if(myWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
+                this.teleDiscDeath();
+            }
+        }
 
         if(this.lastSpawn !== null){
 
@@ -553,7 +570,35 @@ class PlayerInfo{
         this.stats.teleFrags.deaths++;
     }
 
-    killedPlayer(timestamp, weapon, distance, bTeamKill){
+    teleDiscDeath(){
+
+        this.stats.teleFrags.discDeaths++;
+    }
+
+    teleDiscKill(timestamp){
+
+        const diff = timestamp - this.stats.teleFrags.discLastKillTime;
+
+        if(diff > config.multiKillTimeLimit) this.stats.teleFrags.discKillsBestMulti = 0;
+
+        this.stats.teleFrags.discKillsBestMulti++;
+
+        if(this.stats.teleFrags.discKillsCurrentMulti > this.stats.teleFrags.discKillsBestMulti){
+            this.stats.teleFrags.discKillsBestMulti = this.stats.teleFrags.discKillsCurrentMulti;
+        }
+
+        this.stats.teleFrags.discKillsBestSpree++;
+
+        if(this.stats.teleFrags.discKillsCurrentSpree > this.stats.teleFrags.discKillsBestSpree){
+            this.stats.teleFrags.discKillsBestSpree = this.stats.teleFrags.discKillsCurrentSpree;
+        }
+
+        this.stats.teleFrags.discKills++;
+
+
+    }
+
+    killedPlayer(timestamp, weapon, distance, bTeamKill, victimWeapon, deathType){
 
         timestamp = parseFloat(timestamp);
 
@@ -583,9 +628,7 @@ class PlayerInfo{
             this.stats.currentMulti++;
 
         }else{
-
-            this.updateMultis();
-            
+            this.updateMultis();      
         }
 
         if(distance <= 1536){
@@ -599,8 +642,11 @@ class PlayerInfo{
         }
 
         if(weapon.toLowerCase() === "translocator"){
-
             this.teleFragKill(timestamp);
+        }
+
+        if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
+            this.teleDiscKill(timestamp);
         }
 
         this.lastKill = timestamp;

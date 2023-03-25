@@ -765,11 +765,11 @@ class PlayerManager{
                     const killerTeam = this.getPlayerTeamAt(k.killerId, k.timestamp);
 
                     bTeamKill = killerTeam === victimTeam;
-
                 }
 
+
                 if(killer !== null){   
-                    killer.killedPlayer(k.timestamp, k.killerWeapon, k.killDistance, bTeamKill);
+                    killer.killedPlayer(k.timestamp, k.killerWeapon, k.killDistance, bTeamKill, k.victimWeapon, k.deathType);
                 }
 
               
@@ -790,7 +790,7 @@ class PlayerManager{
                         );
                     }
 
-                   if(victim.died(k.timestamp, k.killerWeapon, false)){
+                   if(victim.died(k.timestamp, k.killerWeapon, false, k.victimWeapon, k.deathType)){
                        
                        if(killer !== null){
                             killer.stats.spawnKills++;

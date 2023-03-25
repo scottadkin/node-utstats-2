@@ -123,6 +123,11 @@ async function addTeleFrags(){
     await alterTable(matchTable, "telefrag_deaths", "INT NOT NULL", "AFTER telefrag_kills");
     await alterTable(matchTable, "telefrag_best_spree", "INT NOT NULL", "AFTER telefrag_deaths");
     await alterTable(matchTable, "telefrag_best_multi", "INT NOT NULL", "AFTER telefrag_best_spree");
+    await alterTable(matchTable, "tele_disc_kills", "INT NOT NULL", "AFTER telefrag_best_multi");
+    await alterTable(matchTable, "tele_disc_deaths", "INT NOT NULL", "AFTER tele_disc_kills");
+    await alterTable(matchTable, "tele_disc_best_spree", "INT NOT NULL", "AFTER tele_disc_deaths");
+    await alterTable(matchTable, "tele_disc_best_multi", "INT NOT NULL", "AFTER tele_disc_best_spree");
+
 
     new Message(`Updated table ${matchTable}.`,"pass");
 }

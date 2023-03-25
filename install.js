@@ -631,7 +631,11 @@ const queries = [
         telefrag_kills int(11) NOT NULL,
         telefrag_deaths int(11) NOT NULL,
         telefrag_best_spree int(11) NOT NULL,
-        telefrag_best_multi int(11) NOT NULL
+        telefrag_best_multi int(11) NOT NULL,
+        tele_disc_kills int(11) NOT NULL,
+        tele_disc_deaths int(11) NOT NULL,
+        tele_disc_best_spree int(11) NOT NULL,
+        tele_disc_best_multi int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_player_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
