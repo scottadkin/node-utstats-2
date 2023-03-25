@@ -545,6 +545,8 @@ class PlayerInfo{
         }
 
         this.stats.teleFrags.lastKillTime = timestamp;
+
+        this.stats.teleFrags.total++;
     }
 
     teleFragDeath(){

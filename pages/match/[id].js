@@ -39,6 +39,7 @@ import MatchCTFReturns from '../../components/MatchCTFReturns';
 import Loading from '../../components/Loading';
 import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
 import MatchPowerupSummary from '../../components/MatchPowerupSummary';
+import MatchTeleFrags from '../../components/MatchTeleFrags';
 
 
 const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, 
@@ -48,7 +49,6 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     session = JSON.parse(session);
 
     const players = useMatchPlayersLoader(matchId);
-
 
     if(error !== undefined){
         return <ErrorPage>{error}</ErrorPage>
@@ -444,7 +444,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
 
-                    
+                    <MatchTeleFrags data={players.playedPlayersData} matchId={matchId}/>
 
                     {renderTitleElem()}
 
