@@ -1051,7 +1051,11 @@ class Matches{
             "best_spawn_kill_spree", 
             "dom_caps_best_life", 
             "longest_kill_distance", 
-            "mh_kills_best_life"
+            "mh_kills_best_life",
+            "telefrag_best_spree",
+            "telefrag_best_multi",
+            "tele_disc_best_spree",
+            "tele_disc_best_multi"
         ];
 
         const mergeTypes = [
@@ -1084,6 +1088,10 @@ class Matches{
             "team_2_playtime",
             "team_3_playtime",
             "spec_playtime",
+            "telefrag_kills",
+            "telefrag_deaths",
+            "tele_disc_kills",
+            "tele_disc_deaths"
         ];
 
         let totalAccuracy = 0;
