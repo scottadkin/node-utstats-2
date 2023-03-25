@@ -276,6 +276,15 @@ class PlayerInfo{
                 "2": 0,
                 "3": 0,
                 "255": 0,
+            },
+            "teleFrags":{
+                "total": 0,
+                "lastKillTime": -9,
+                "currentSpree": 0,
+                "bestSpree": 0,
+                "deaths": 0,
+                "currentMulti": 0,
+                "bestMulti": 0
             }
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };
@@ -396,7 +405,8 @@ class PlayerInfo{
     //return true if player was spawnkilled, false if not
     died(timestamp, weapon, bSuicide){
 
-
+        if(weapon.toLowerCase() === "translocator") this.teleFragDeath();
+        
         this.lastSpawn = this.getPreviousSpawn(timestamp);
 
         if(this.lastSpawn !== null){
@@ -418,6 +428,10 @@ class PlayerInfo{
         this.updateMultis();
         this.currentSpree = 0;
         this.currentMulti = 0;
+
+        this.stats.teleFrags.currentMulti = 0;
+        this.stats.teleFrags.currentSpree = 0;
+        this.stats.teleFrags.lastKillTime = -9;
 
         if(this.lastSpawn !== null){
 
@@ -506,9 +520,36 @@ class PlayerInfo{
         if(distance < this.stats.killMinDistance || this.stats.killMinDistance === null){
             this.stats.killMinDistance = distance;
         }
-
     }
 
+    teleFragKill(timestamp){
+
+        const difference = timestamp - this.stats.teleFrags.lastKillTime;
+
+        if(difference <= config.multiKillTimeLimit){
+
+            this.stats.teleFrags.currentMulti++;
+
+            if(this.stats.teleFrags.currentMulti > this.stats.teleFrags.bestMulti){
+                this.stats.teleFrags.bestMulti = this.stats.teleFrags.currentMulti;
+            }
+
+        }else{
+            this.stats.teleFrags.currentMulti = 1;
+        }
+
+        this.stats.teleFrags.currentSpree++;
+
+        if(this.stats.teleFrags.currentSpree > this.stats.teleFrags.bestSpree){
+            this.stats.teleFrags.bestSpree = this.stats.teleFrags.currentSpree;
+        }
+
+        this.stats.teleFrags.lastKillTime = timestamp;
+    }
+
+    teleFragDeath(){
+        this.stats.teleFrags.deaths++;
+    }
 
     killedPlayer(timestamp, weapon, distance, bTeamKill){
 
@@ -553,6 +594,11 @@ class PlayerInfo{
 
         }else if(distance > 3072){
             this.stats.killsUberRange++;
+        }
+
+        if(weapon.toLowerCase() === "translocator"){
+
+            this.teleFragKill(timestamp);
         }
 
         this.lastKill = timestamp;

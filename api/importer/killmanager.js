@@ -153,8 +153,6 @@ class KillManager{
             
                 this.parseHeadshot(headshotReg.exec(d));
 
-            }else{
-                console.log(d);
             }
         }
 
