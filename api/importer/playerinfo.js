@@ -545,15 +545,17 @@ class PlayerInfo{
 
         if(difference <= config.multiKillTimeLimit){
 
-            this.stats.teleFrags.currentMulti++;
-
-            if(this.stats.teleFrags.currentMulti > this.stats.teleFrags.bestMulti){
-                this.stats.teleFrags.bestMulti = this.stats.teleFrags.currentMulti;
-            }
-
-        }else{
-            this.stats.teleFrags.currentMulti = 1;
+            this.stats.teleFrags.currentMulti = 0;
         }
+
+        this.stats.teleFrags.currentMulti++;
+
+
+        if(this.stats.teleFrags.currentMulti > this.stats.teleFrags.bestMulti){
+            this.stats.teleFrags.bestMulti = this.stats.teleFrags.currentMulti;
+        }
+
+     
 
         this.stats.teleFrags.currentSpree++;
 
@@ -581,13 +583,13 @@ class PlayerInfo{
 
         if(diff > config.multiKillTimeLimit) this.stats.teleFrags.discKillsBestMulti = 0;
 
-        this.stats.teleFrags.discKillsBestMulti++;
+        this.stats.teleFrags.discKillsCurrentMulti++;
 
         if(this.stats.teleFrags.discKillsCurrentMulti > this.stats.teleFrags.discKillsBestMulti){
             this.stats.teleFrags.discKillsBestMulti = this.stats.teleFrags.discKillsCurrentMulti;
         }
 
-        this.stats.teleFrags.discKillsBestSpree++;
+        this.stats.teleFrags.discKillsCurrentSpree++;
 
         if(this.stats.teleFrags.discKillsCurrentSpree > this.stats.teleFrags.discKillsBestSpree){
             this.stats.teleFrags.discKillsBestSpree = this.stats.teleFrags.discKillsCurrentSpree;

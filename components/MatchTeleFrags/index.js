@@ -10,7 +10,11 @@ const MatchTeleFrags = ({data, matchId}) =>{
         "kills": "Kills",
         "deaths": "Deaths",
         "bestSpree": "Best Spree",
-        "bestMulti": "Best Multi Kill"
+        "bestMulti": "Best Multi Kill",
+        "discKills": "Disc Kills",
+        "discDeaths": "Disc Deaths",
+        "discSpree": "Disc Best Spree",
+        "discMulti": "Disc Best Multi Kill",
     };
 
     const columns = data.map((d) =>{
@@ -30,12 +34,16 @@ const MatchTeleFrags = ({data, matchId}) =>{
             "deaths": {"value": d.telefrag_deaths, "displayValue": Functions.ignore0(d.telefrag_deaths)},
             "bestSpree": {"value": d.telefrag_best_spree, "displayValue": Functions.ignore0(d.telefrag_best_spree)},
             "bestMulti": {"value": d.telefrag_best_multi, "displayValue": Functions.ignore0(d.telefrag_best_multi)},
+            "discKills": {"value": d.tele_disc_kills, "displayValue": Functions.ignore0(d.tele_disc_kills)},
+            "discDeaths": {"value": d.tele_disc_deaths, "displayValue": Functions.ignore0(d.tele_disc_deaths)},
+            "discSpree": {"value": d.tele_disc_best_spree, "displayValue": Functions.ignore0(d.tele_disc_best_spree)},
+            "discMulti": {"value": d.tele_disc_best_multi, "displayValue": Functions.ignore0(d.tele_disc_best_multi)},
         }
     });
 
     return <div>
         <div className="default-header">Telefrags Summary</div>
-        <InteractiveTable width={4} headers={headers} data={columns}/>
+        <InteractiveTable width={1} headers={headers} data={columns}/>
     </div>
 }
 
