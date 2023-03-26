@@ -34,7 +34,8 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [hwid, playerName]);
 
@@ -67,7 +68,8 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId]);
 
@@ -165,91 +167,122 @@ class Player{
         });
     }
 
-    updateFrags(id, date, playtime, redPlaytime, bluePlaytime, greenPlaytime, yellowPlaytime, specPlaytime,
+    async updateFrags(id, date, playtime, redPlaytime, bluePlaytime, greenPlaytime, yellowPlaytime, specPlaytime,
          frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
-        firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype){
+        firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype, teleFrags){
+
+        
+        const query = `UPDATE nstats_player_totals SET 
+        first = IF(first = 0 OR first > ?, ?, first), 
+        last = IF(last < ?,?,last), 
+        playtime=playtime+?, 
+        team_0_playtime=team_0_playtime+?,
+        team_1_playtime=team_1_playtime+?,
+        team_2_playtime=team_2_playtime+?,
+        team_3_playtime=team_3_playtime+?,
+        spec_playtime=spec_playtime+?,
+        frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
+        team_kills=team_kills+?, spawn_kills=spawn_kills+?,
+        multi_1 = multi_1+?, multi_2 = multi_2+?, multi_3 = multi_3+?, multi_4 = multi_4+?,
+        multi_5 = multi_5+?, multi_6 = multi_6+?, multi_7 = multi_7+?,
+        multi_best = IF(multi_best < ?, ?, multi_best),
+        spree_1 = spree_1+?, spree_2 = spree_2+?, spree_3 = spree_3+?, spree_4 = spree_4+?,
+        spree_5 = spree_5+?, spree_6 = spree_6+?, spree_7 = spree_7+?,
+        spree_best = IF(spree_best < ?, ?, spree_best),
+        fastest_kill = IF(fastest_kill > ? OR fastest_kill = 0 AND ? != 0, ?, fastest_kill),
+        slowest_kill = IF(slowest_kill < ? OR slowest_kill = 0 AND ? != 0, ?, slowest_kill),
+        best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
+        first_bloods=first_bloods+?,
+        accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?,
+        headshots=headshots+?,
+        telefrag_kills=telefrag_kills+?,
+        telefrag_kills_best = IF(telefrag_kills_best < ?, ?, telefrag_kills_best),
+        telefrag_deaths=telefrag_deaths+?,
+        telefrag_deaths_worst = IF(telefrag_deaths_worst < ?, ?, telefrag_deaths_worst),
+        telefrag_best_spree = IF(telefrag_best_spree < ?, ?, telefrag_best_spree),
+        telefrag_best_multi = IF(telefrag_best_multi < ?, ?, telefrag_best_multi),
+        tele_disc_kills = tele_disc_kills+?,
+        tele_disc_kills_best = IF(tele_disc_kills_best < ?, ?, tele_disc_kills_best),
+        tele_disc_deaths = tele_disc_deaths+?,
+        tele_disc_deaths_worst = IF(tele_disc_deaths_worst < ?, ?, tele_disc_deaths_worst),
+        tele_disc_best_spree = IF(tele_disc_best_spree < ?, ?, tele_disc_best_spree),
+        tele_disc_best_multi = IF(tele_disc_best_multi < ?, ?, tele_disc_best_multi)
+        WHERE id=? AND gametype=?`;
+
+        const vars = [
+            date,
+            date,
+            date,
+            date,
+            playtime, 
+            redPlaytime,
+            bluePlaytime,
+            greenPlaytime,
+            yellowPlaytime,
+            specPlaytime,
+            frags, 
+            score, 
+            kills, 
+            deaths, 
+            suicides, 
+            teamKills, 
+            spawnKills, 
+            multis.double,
+            multis.multi,
+            multis.mega,
+            multis.ultra,
+            multis.monster,
+            multis.ludicrous,
+            multis.holyshit,
+            bestMulti,
+            bestMulti,
+            sprees.spree,
+            sprees.rampage,
+            sprees.dominating,
+            sprees.unstoppable,
+            sprees.godlike,
+            sprees.massacre,
+            sprees.brutalizing,
+            bestSpree,
+            bestSpree,
+            fastestKill,
+            fastestKill,
+            fastestKill,
+            slowestKill,
+            slowestKill,
+            slowestKill,
+            bestSpawnKillSpree,
+            bestSpawnKillSpree,
+            firstBlood,
+            accuracy,
+            normalRangeKills,
+            longRangeKills,
+            uberRangeKills,
+            headshots,
+            teleFrags.total,
+            teleFrags.total, teleFrags.total,
+            teleFrags.deaths, 
+            teleFrags.deaths, teleFrags.deaths,
+            teleFrags.bestSpree, teleFrags.bestSpree,
+            teleFrags.bestMulti, teleFrags.bestMulti,
+            teleFrags.discKills,
+            teleFrags.discKills, teleFrags.discKills,
+            teleFrags.discDeaths,
+            teleFrags.discDeaths, teleFrags.discDeaths,
+            teleFrags.discKillsBestSpree, teleFrags.discKillsBestSpree,
+            teleFrags.discKillsBestMulti, teleFrags.discKillsBestMulti,
+            id,
+            gametype
+        ];
+
+        await mysql.simpleQuery(query, vars);
+
+        await this.updateEfficiency(id);
             
-        return new Promise((resolve, reject) =>{
+        /*return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_player_totals SET 
-            first = IF(first = 0 OR first > ?, ?, first), 
-            last = IF(last < ?,?,last), 
-            playtime=playtime+?, 
-            team_0_playtime=team_0_playtime+?,
-            team_1_playtime=team_1_playtime+?,
-            team_2_playtime=team_2_playtime+?,
-            team_3_playtime=team_3_playtime+?,
-            spec_playtime=spec_playtime+?,
-            frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
-            team_kills=team_kills+?, spawn_kills=spawn_kills+?,
-            multi_1 = multi_1+?, multi_2 = multi_2+?, multi_3 = multi_3+?, multi_4 = multi_4+?,
-            multi_5 = multi_5+?, multi_6 = multi_6+?, multi_7 = multi_7+?,
-            multi_best = IF(multi_best < ?, ?, multi_best),
-            spree_1 = spree_1+?, spree_2 = spree_2+?, spree_3 = spree_3+?, spree_4 = spree_4+?,
-            spree_5 = spree_5+?, spree_6 = spree_6+?, spree_7 = spree_7+?,
-            spree_best = IF(spree_best < ?, ?, spree_best),
-            fastest_kill = IF(fastest_kill > ? OR fastest_kill = 0 AND ? != 0, ?, fastest_kill),
-            slowest_kill = IF(slowest_kill < ? OR slowest_kill = 0 AND ? != 0, ?, slowest_kill),
-            best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
-            first_bloods=first_bloods+?,
-            accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?,
-            headshots=headshots+?
-            WHERE id=? AND gametype=?`;
-
-            const vars = [
-                date,
-                date,
-                date,
-                date,
-                playtime, 
-                redPlaytime,
-                bluePlaytime,
-                greenPlaytime,
-                yellowPlaytime,
-                specPlaytime,
-                frags, 
-                score, 
-                kills, 
-                deaths, 
-                suicides, 
-                teamKills, 
-                spawnKills, 
-                multis.double,
-                multis.multi,
-                multis.mega,
-                multis.ultra,
-                multis.monster,
-                multis.ludicrous,
-                multis.holyshit,
-                bestMulti,
-                bestMulti,
-                sprees.spree,
-                sprees.rampage,
-                sprees.dominating,
-                sprees.unstoppable,
-                sprees.godlike,
-                sprees.massacre,
-                sprees.brutalizing,
-                bestSpree,
-                bestSpree,
-                fastestKill,
-                fastestKill,
-                fastestKill,
-                slowestKill,
-                slowestKill,
-                slowestKill,
-                bestSpawnKillSpree,
-                bestSpawnKillSpree,
-                firstBlood,
-                accuracy,
-                normalRangeKills,
-                longRangeKills,
-                uberRangeKills,
-                headshots,
-                id,
-                gametype
-            ];
+            
 
             mysql.query(query, vars, async (err) =>{
 
@@ -266,7 +299,7 @@ class Player{
 
                 resolve();
             });
-        });
+        });*/
     }
 
     /**

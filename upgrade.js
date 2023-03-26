@@ -130,6 +130,25 @@ async function addTeleFrags(){
 
 
     new Message(`Updated table ${matchTable}.`,"pass");
+
+    const totalsTable = "nstats_player_totals";
+
+    new Message(`Adding telefrag columns to ${totalsTable}`,"note");
+
+    await alterTable(totalsTable, "telefrag_kills", "INT NOT NULL", "AFTER mh_deaths_worst");
+    await alterTable(totalsTable, "telefrag_kills_best", "INT NOT NULL", "AFTER telefrag_kills");
+    await alterTable(totalsTable, "telefrag_deaths", "INT NOT NULL", "AFTER telefrag_kills_best");
+    await alterTable(totalsTable, "telefrag_deaths_worst", "INT NOT NULL", "AFTER telefrag_deaths");
+    await alterTable(totalsTable, "telefrag_best_spree", "INT NOT NULL", "AFTER telefrag_deaths_worst");
+    await alterTable(totalsTable, "telefrag_best_multi", "INT NOT NULL", "AFTER telefrag_best_spree");
+    await alterTable(totalsTable, "tele_disc_kills", "INT NOT NULL", "AFTER telefrag_best_multi");
+    await alterTable(totalsTable, "tele_disc_kills_best", "INT NOT NULL", "AFTER tele_disc_kills");
+    await alterTable(totalsTable, "tele_disc_deaths", "INT NOT NULL", "AFTER tele_disc_kills_best");
+    await alterTable(totalsTable, "tele_disc_deaths_worst", "INT NOT NULL", "AFTER tele_disc_deaths");
+    await alterTable(totalsTable, "tele_disc_best_spree", "INT NOT NULL", "AFTER tele_disc_deaths_worst");
+    await alterTable(totalsTable, "tele_disc_best_multi", "INT NOT NULL", "AFTER tele_disc_best_spree");
+
+    new Message(`Updated table ${totalsTable}.`,"pass");
 }
 
 (async () =>{

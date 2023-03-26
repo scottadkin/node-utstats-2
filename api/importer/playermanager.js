@@ -1058,7 +1058,8 @@ class PlayerManager{
                     p.stats.killsLongRange,
                     p.stats.killsUberRange,
                     p.stats.headshots,
-                    0
+                    0,
+                    p.stats.teleFrags
                 );
 
                 //update gametype specific totals
@@ -1091,7 +1092,8 @@ class PlayerManager{
                     p.stats.killsLongRange,
                     p.stats.killsUberRange,
                     p.stats.headshots,
-                    gametypeId
+                    gametypeId,
+                    p.stats.teleFrags
                 );
 
                 //to prevent players that used multiple names during a match to update matches played by more than 1
