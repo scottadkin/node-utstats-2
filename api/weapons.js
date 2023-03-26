@@ -856,7 +856,7 @@ class Weapons{
 
         const vars = [
             matchId, mapId, gametypeId, playerId, weaponId, kills, 
-            bestKills, teamKills, bestTeamKills, deaths, suicides, 
+            bestKills ?? 0, teamKills, bestTeamKills ?? 0, deaths, suicides, 
             accuracy, shots, hits, damage, efficiency
         ];
 
