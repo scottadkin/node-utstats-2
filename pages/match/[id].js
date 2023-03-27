@@ -393,6 +393,11 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         }
 
 
+        if(pageSettings["Display Telefrag Stats"] === "true"){
+
+            elems[pageOrder["Display Telefrag Stats"]] = <MatchTeleFrags key="tele-frags" data={players.playedPlayersData} matchId={matchId}/>;
+        }
+
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={players.basicPlayers} mapId={info.map}
                 gametypeId={info.gametype}
@@ -444,7 +449,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     <div className="default">
 
 
-                    <MatchTeleFrags data={players.playedPlayersData} matchId={matchId}/>
+                    
 
                     {renderTitleElem()}
 

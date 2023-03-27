@@ -151,6 +151,12 @@ async function addTeleFrags(){
     new Message(`Updated table ${totalsTable}.`,"pass");
 }
 
+
+async function updateSiteSettings(){
+
+    const query = `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Telefrag Stats","true",18)`;
+}
+
 (async () =>{
 
     try{
