@@ -13,8 +13,8 @@ const MatchTeleFrags = ({data, matchId}) =>{
         "bestMulti": "Best Multi Kill",
         "discKills": "Disc Kills",
         "discDeaths": "Disc Deaths",
-        "discSpree": "Disc Best Spree",
-        "discMulti": "Disc Best Multi Kill",
+        "discSpree": "Disc Kills Best Spree",
+        "discMulti": "Disc Kills Best Multi",
     };
 
     const columns = data.map((d) =>{

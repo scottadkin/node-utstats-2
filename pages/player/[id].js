@@ -35,6 +35,7 @@ import Image from 'next/image';
 import PlayerMonsterHuntStats from '../../components/PlayerMonsterHuntStats';
 import PlayerMonsters from '../../components/PlayerMonsters';
 import PlayerCombogibStats from '../../components/PlayerCombogibStats';
+import PlayerTeleFrags from '../../components/PlayerTeleFrags';
 
 
 
@@ -49,26 +50,26 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	//console.log(`servers`);
 	if(summary === undefined){
 
-		return (<div>
-					<DefaultHead host={host} title={`Player Not Found`} 
-						description={`Player not found.`} 
-						keywords={`career,profile,not,found`}
-					/>
-			
-					<main>
-						<Nav settings={navSettings} session={session}/>
-						<div id="content">
-							<div className="default">
-								<div className="default-header">
-									There is no player with that id.
-								</div>
-								<Image src="/images/temp.jpg" width="512" height="512" alt="Horse"/>
-								<Image src="/images/temp2.jpg" width="512" height="512" alt="Another Horse"/>
+		return <div>
+				<DefaultHead host={host} title={`Player Not Found`} 
+					description={`Player not found.`} 
+					keywords={`career,profile,not,found`}
+				/>
+		
+				<main>
+					<Nav settings={navSettings} session={session}/>
+					<div id="content">
+						<div className="default">
+							<div className="default-header">
+								There is no player with that id.
 							</div>
+							<Image src="/images/temp.jpg" width="512" height="512" alt="Horse"/>
+							<Image src="/images/temp2.jpg" width="512" height="512" alt="Another Horse"/>
 						</div>
-						<Footer session={session}/>
-					</main>   
-			</div>);
+					</div>
+					<Footer session={session}/>
+				</main>   
+			</div>;
 	}
 
 	summary = JSON.parse(summary);
@@ -245,6 +246,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 		elems[pageOrder["Display Combogib Stats"]] = <PlayerCombogibStats key="player-combo-stats" playerId={playerId}/>;
 	}
 
+	console.log(parsedSummary);
 
 	return (
 			<div>
@@ -258,7 +260,28 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 					<div id="content">
 						<div className="default">
 
+							<PlayerTeleFrags 
+								teleFrags={{
+										"kills": parsedSummary.telefrag_kills,
+										"bestSpree": parsedSummary.telefrag_best_spree,
+										"bestMulti": parsedSummary.telefrag_best_multi,
+										"deaths": parsedSummary.telefrag_deaths,
+										"deathsWorst": parsedSummary.telefrag_deaths_worst,
+										"mostKills": parsedSummary.telefrag_kills_best
+									}
+								}
+
+								discKills={{
+										"kills": parsedSummary.tele_disc_kills,
+										"bestSpree": parsedSummary.tele_disc_best_spree,
+										"bestMulti": parsedSummary.tele_disc_best_multi,
+										"deaths": parsedSummary.tele_disc_deaths,
+										"deathsWorst": parsedSummary.tele_disc_deaths_worst,
+										"mostKills": parsedSummary.tele_disc_kills_best
+									}
+								}
 							
+							/>
 						
 							<div className="default-header">
 								{titleName} Career Profile
