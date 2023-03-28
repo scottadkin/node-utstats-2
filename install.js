@@ -1649,6 +1649,19 @@ const queries = [
                     drop_time float NOT NULL,
                     cap_type INT(1) NOT NULL,
             PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+    
+    `CREATE TABLE IF NOT EXISTS nstats_tele_frags(
+      id int(11) NOT NULL AUTO_INCREMENT,
+      match_id INT(11) NOT NULL,
+      map_id INT(11) NOT NULL,
+      gametype_id INT(11) NOT NULL,
+      timestamp float NOT NULL,
+      killer_id INT(11) NOT NULL,
+      killer_team INT(3) NOT NULL,
+      victim_id INT(11) NOT NULL,
+      victim_team INT(3) NOT NULL,
+      disc_kill TINYINT(1) NOT NULL,
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
 
 ];
 

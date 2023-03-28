@@ -43,6 +43,17 @@ async function changeColumnName(table, oldName, newName){
     await mysql.simpleQuery(query);
 }
 
+async function bSettingExist(category, name){
+
+    const query = `SELECT COUNT(*) as total_rows FROM nstats_site_settings WHERE category=? AND name=?`;
+
+    const result = await mysql.simpleQuery(query, [category, name]);
+
+    if(result[0].total_rows > 0) return true;
+
+    return false;
+}
+
 async function updatePlayerTotals(){
 
     const table = "nstats_player_totals";
@@ -152,9 +163,32 @@ async function addTeleFrags(){
 }
 
 
+async function createTeleFragTable(){
+
+    const query = `CREATE TABLE IF NOT EXISTS nstats_tele_frags(
+        id int(11) NOT NULL AUTO_INCREMENT,
+        match_id INT(11) NOT NULL,
+        map_id INT(11) NOT NULL,
+        gametype_id INT(11) NOT NULL,
+        timestamp float NOT NULL,
+        killer_id INT(11) NOT NULL,
+        killer_team INT(3) NOT NULL,
+        victim_id INT(11) NOT NULL,
+        victim_team INT(3) NOT NULL,
+        disc_kill TINYINT(1) NOT NULL,
+        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+
+    return await mysql.simpleQuery(query);
+}
+
 async function updateSiteSettings(){
 
     const query = `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Telefrag Stats","true",18)`;
+
+    if(!await bSettingExist("Match Pages", "Display Telefrag Stats")){
+
+        await mysql.simpleQuery(query);
+    }
 }
 
 (async () =>{
@@ -171,6 +205,8 @@ async function updateSiteSettings(){
         await updatePlayerWeaponsTotals();
         await createPlayerWeaponBest();
         await addTeleFrags();
+        await createTeleFragTable();
+        await updateSiteSettings();
         
 
         process.exit(0);
