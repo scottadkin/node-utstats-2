@@ -395,7 +395,13 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
 
         if(pageSettings["Display Telefrag Stats"] === "true"){
 
-            elems[pageOrder["Display Telefrag Stats"]] = <MatchTeleFrags key="tele-frags" data={players.playedPlayersData} matchId={matchId}/>;
+            elems[pageOrder["Display Telefrag Stats"]] = <MatchTeleFrags 
+                key="tele-frags" 
+                data={players.playedPlayersData} 
+                matchId={matchId} 
+                matchStart={info.start}
+                players={players.basicPlayers}
+            />;
         }
 
         if(session["bLoggedIn"]){
