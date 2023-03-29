@@ -120,9 +120,11 @@ class MatchManager{
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
 
+            this.playerManager.killManager = this.killManager;
+
             const matchTimings = this.gameInfo.getMatchLength();
 
-            this.playerManager.setKills(this.killManager.kills, this.gameInfo.totalTeams);
+            this.playerManager.setKills(this.killManager.kills, this.gameInfo.totalTeams, this.killManager);
             this.playerManager.matchEnded(this.gameInfo.end);
             this.playerManager.setHeadshots(this.killManager.headshots);
 
@@ -326,6 +328,9 @@ class MatchManager{
 
             await this.killManager.insertHeadshots(this.matchId);
             new Message(`Updated player headshots`,'pass');
+
+            await this.killManager.insertTeleFrags(this.matchId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
+            new Message(`Inserted telefrags.`,"pass");
 
             await this.playerManager.insertScoreHistory(this.matchId);
             new Message(`Inserted player score history`,'pass');

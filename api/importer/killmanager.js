@@ -19,6 +19,8 @@ class KillManager{
         this.killsManager = new KillsManager();
         this.headshotsManager = new Headshots();
 
+        this.teleFrags = [];
+
         this.killNames = [];
         this.parseData();
        // console.table(this.kills);
@@ -592,6 +594,23 @@ class KillManager{
         }
 
         return null;
+    }
+
+    addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, bDiscKill){
+
+        this.teleFrags.push({
+            "timestamp": timestamp,
+            "killerId": killerId,
+            "killerTeam": killerTeam,
+            "victimId": victimId,
+            "victimTeam": victimTeam,
+            "bDiscKill": bDiscKill
+        });
+    }
+
+    async insertTeleFrags(matchId, mapId, gametypeId){
+
+        await this.killsManager.insertTeleFrags(matchId, mapId, gametypeId, this.teleFrags);
     }
 }
 

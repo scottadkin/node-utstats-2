@@ -317,8 +317,6 @@ class PlayerManager{
                 //player.setHWID(p.hwid);
             }
 
-            console.log(p.name, masterIds);
-
             this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 
             const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, p.hwid);
@@ -750,13 +748,12 @@ class PlayerManager{
         if(killer !== null && this.bIgnoreBots && killer.bBot) return;
         if(victim !== null && this.bIgnoreBots && victim.bBot) return;
 
+        const victimTeam = this.getPlayerTeamAt(victimId, timestamp);
+        const killerTeam = this.getPlayerTeamAt(killerId, timestamp);
+
         let bTeamKill = false;
 
         if(bTeamGame){
-
-            const victimTeam = this.getPlayerTeamAt(victimId, timestamp);
-            const killerTeam = this.getPlayerTeamAt(killerId, timestamp);
-
             bTeamKill = killerTeam === victimTeam;
         }
 
@@ -766,11 +763,15 @@ class PlayerManager{
             killer.killedPlayer(timestamp, killerWeapon, killDistance, bTeamKill, victimWeapon, deathType);
 
             if(killerWeapon.toLowerCase() === "translocator"){
+
                 killer.teleFragKill(timestamp);
+                this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, false)
             }
     
             if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
+
                 killer.teleDiscKill(timestamp);
+                this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, true)
             }
         }
 
