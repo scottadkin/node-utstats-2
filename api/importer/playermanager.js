@@ -559,7 +559,7 @@ class PlayerManager{
                         }else if(type === 'p_s'){
 
                             if(timestamp < this.matchTimings.start){
-                                new Message(`Score update before match start, ignoring.`,"note");
+                                //new Message(`Score update before match start, ignoring.`,"note");
                                 continue;
                             }
 

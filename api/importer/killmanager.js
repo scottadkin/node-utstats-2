@@ -31,7 +31,7 @@ class KillManager{
         const timestamp = parseFloat(result[1]);
 
         if(timestamp < this.matchTimings.start){
-            new Message(`Kill happened before match start ignoring.(Warmpup)`,"note");
+            //new Message(`Kill happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
 
@@ -59,7 +59,7 @@ class KillManager{
         const timestamp = parseFloat(result[1]);
 
         if(timestamp < this.matchTimings.start){
-            new Message(`Kill(Distance) happened before match start ignoring.(Warmpup)`,"note");
+            //new Message(`Kill(Distance) happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
 
@@ -71,7 +71,7 @@ class KillManager{
         const timestamp = parseFloat(result[1]);
 
         if(timestamp < this.matchTimings.start){
-            new Message(`headshot happened before match start ignoring.(Warmpup)`,"note");
+            //new Message(`headshot happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
 
@@ -97,7 +97,7 @@ class KillManager{
         const timestamp = parseFloat(result[1]);
 
         if(timestamp < this.matchTimings.start){
-            new Message(`Kill(Location) happened before match start ignoring.(Warmpup)`,"note");
+            //new Message(`Kill(Location) happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
 
