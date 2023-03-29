@@ -87,6 +87,7 @@ class Kills{
     async deletePlayer(player){
 
         await mysql.simpleDelete("DELETE FROM nstats_kills WHERE (killer = ?) OR (victim = ?)", [player, player]);
+        await mysql.simpleDelete("DELETE FROM nstats_tele_frags WHERE (killer_id = ?) OR (victim_id = ?)", [player, player]);
     }
 
     async deleteMatches(ids){
