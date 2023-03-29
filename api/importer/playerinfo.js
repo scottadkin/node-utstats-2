@@ -340,11 +340,9 @@ class PlayerInfo{
 
     bDuplicateTeamData(timestamp, id){
 
-        let t = 0;
-
         for(let i = 0; i < this.teams.length; i++){
 
-            t = this.teams[i];
+            const t = this.teams[i];
 
             if(t.time === timestamp && t.id === id){
                 return true;
@@ -410,9 +408,9 @@ class PlayerInfo{
     }
 
     //return true if player was spawnkilled, false if not
-    died(timestamp, weapon, bSuicide, myWeapon, deathType){
+    died(timestamp, weapon, bSuicide, bTeleFrag){
 
-        if(weapon.toLowerCase() === "translocator") this.teleFragDeath();
+        if(bTeleFrag) this.teleFragDeath();
         
         this.lastSpawn = this.getPreviousSpawn(timestamp);
 
@@ -442,13 +440,6 @@ class PlayerInfo{
         this.stats.teleFrags.discKillsCurrentSpree = 0;
         this.stats.teleFrags.discKillsCurrentMulti = 0;
         this.stats.teleFrags.discLastKillTime = -9;
-
-        if(myWeapon !== undefined && deathType !== undefined){
-
-            if(myWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
-                this.teleDiscDeath();
-            }
-        }
 
         if(this.lastSpawn !== null){
 
@@ -643,14 +634,6 @@ class PlayerInfo{
             this.stats.killsUberRange++;
         }
 
-        if(weapon.toLowerCase() === "translocator"){
-            this.teleFragKill(timestamp);
-        }
-
-        if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
-            this.teleDiscKill(timestamp);
-        }
-
         this.lastKill = timestamp;
     }
 
@@ -723,22 +706,6 @@ class PlayerInfo{
 
         return currentTeam;
     }
-
-    /*getPreviousSpawn(timestamp){
-
-
-        for(let i = this.spawns.length - 1; i >= 0; i--){
-
-            const s = this.spawns[i];
-
-            if(s.timestamp < timestamp){
-                return s.timestamp;
-            }
-        }
-
-        return null;
-
-    }*/
 
     updateMonsterHuntSprees(){
 

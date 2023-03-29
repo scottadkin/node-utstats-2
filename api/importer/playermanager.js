@@ -740,10 +740,98 @@ class PlayerManager{
     }
 
 
+    kill(killInfo, bTeamGame){
+
+        const {killerId, victimId, timestamp, killDistance, deathType, killerWeapon, victimWeapon} = killInfo;
+
+        const killer = this.getPlayerByMasterId(killerId);
+        const victim = this.getPlayerByMasterId(victimId);
+
+        if(killer !== null && this.bIgnoreBots && killer.bBot) return;
+        if(victim !== null && this.bIgnoreBots && victim.bBot) return;
+
+        let bTeamKill = false;
+
+        if(bTeamGame){
+
+            const victimTeam = this.getPlayerTeamAt(victimId, timestamp);
+            const killerTeam = this.getPlayerTeamAt(killerId, timestamp);
+
+            bTeamKill = killerTeam === victimTeam;
+        }
+
+
+        if(killer !== null){   
+
+            killer.killedPlayer(timestamp, killerWeapon, killDistance, bTeamKill, victimWeapon, deathType);
+
+            if(killerWeapon.toLowerCase() === "translocator"){
+                killer.teleFragKill(timestamp);
+            }
+    
+            if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
+                killer.teleDiscKill(timestamp);
+            }
+        }
+
+        
+        if(victim !== null){
+
+            if(victim.onASpree()){
+
+                if(killer === null){
+                    killer = {"id": -1}
+                }
+
+                this.spreeManager.add(
+                    victim.masterId, 
+                    victim.getCurrentSpree(), 
+                    killer.masterId,
+                    victim.getPreviousSpawn(timestamp),
+                    timestamp
+                );
+            }
+
+            if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
+                victim.teleDiscDeath();
+            }
+
+            if(victim.died(timestamp, killerWeapon, false, killerWeapon.toLowerCase() === "translocator")){
+                
+                if(killer !== null){
+                    killer.stats.spawnKills++;
+                }
+            }
+        }
+    }
+
+    suicide(killInfo){
+
+        const {killerId, timestamp, killerWeapon} = killInfo;
+
+        const victim = this.getPlayerByMasterId(killerId);
+
+        if(victim !== null){
+
+            if(victim.onASpree()){
+
+                this.spreeManager.add(
+                    victim.masterId, 
+                    victim.getCurrentSpree(), 
+                    -1,
+                    victim.getPreviousSpawn(timestamp),
+                    timestamp
+                );
+                
+            }
+
+            victim.died(timestamp, killerWeapon, true, false);
+        }
+    }
+
     setKills(kills, totalTeams){
 
-        let killer = 0;
-        let victim = 0;
+        const bTeamGame = totalTeams >= 2;
 
         for(let i = 0; i < kills.length; i++){
 
@@ -751,81 +839,11 @@ class PlayerManager{
             
             if(k.type === 'kill'){
 
-                killer = this.getPlayerByMasterId(k.killerId);
-                victim = this.getPlayerByMasterId(k.victimId);
-
-                if(killer !== null && this.bIgnoreBots && killer.bBot) continue;
-                if(victim !== null && this.bIgnoreBots && victim.bBot) continue;
-
-                let bTeamKill = false;
-
-                if(totalTeams >= 2){
-       
-                    const victimTeam = this.getPlayerTeamAt(k.victimId, k.timestamp);
-                    const killerTeam = this.getPlayerTeamAt(k.killerId, k.timestamp);
-
-                    bTeamKill = killerTeam === victimTeam;
-                }
-
-
-                if(killer !== null){   
-                    killer.killedPlayer(k.timestamp, k.killerWeapon, k.killDistance, bTeamKill, k.victimWeapon, k.deathType);
-                }
-
-              
-                if(victim !== null){
-
-                    if(victim.onASpree()){
-
-                        if(killer === null){
-                            killer = {"id": -1}
-                        }
-
-                        this.spreeManager.add(
-                            victim.masterId, 
-                            victim.getCurrentSpree(), 
-                            killer.masterId,
-                            victim.getPreviousSpawn(k.timestamp),
-                            k.timestamp
-                        );
-                    }
-
-                   if(victim.died(k.timestamp, k.killerWeapon, false, k.victimWeapon, k.deathType)){
-                       
-                       if(killer !== null){
-                            killer.stats.spawnKills++;
-                       }
-                   }
-                }
+                this.kill(k, bTeamGame);
 
             }else if(k.type === 'suicide'){
                
-
-                victim = this.getPlayerByMasterId(k.killerId);
-
-                if(victim !== null){
-
-                    if(victim.onASpree()){
-
-                        this.spreeManager.add(
-                            victim.masterId, 
-                            victim.getCurrentSpree(), 
-                            killer.masterId,
-                            victim.getPreviousSpawn(k.timestamp),
-                            k.timestamp
-                        );
-                        /*this.sprees.addToList(
-                            victim.masterId, 
-                            victim.getCurrentSpree(), 
-                            victim.masterId,
-                            victim.getPreviousSpawn(k.timestamp),
-                            k.timestamp
-                        );*/
-                        
-                    }
-
-                    victim.died(k.timestamp, k.killerWeapon, true);
-                }
+                this.suicide(k);
             }
         }
     }
