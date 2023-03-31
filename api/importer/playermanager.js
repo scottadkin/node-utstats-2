@@ -766,9 +766,8 @@ class PlayerManager{
 
                 killer.teleFragKill(timestamp);
                 this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, false)
-            }
-    
-            if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
+
+            }else if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
 
                 killer.teleDiscKill(timestamp);
                 this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, true)

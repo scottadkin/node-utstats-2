@@ -5,6 +5,7 @@ import CountryFlag from "../CountryFlag";
 import {useEffect, useReducer} from "react";
 import Loading from "../Loading";
 import NotificationSmall from "../NotificationSmall";
+import Tabs from "../Tabs";
 
 const reducer = (state, action) =>{
 
@@ -24,6 +25,12 @@ const reducer = (state, action) =>{
                 "bLoading": false,
                 "error": action.errorMessage,
                 "data": null
+            }
+        }
+        case "changeTab": {
+            return {
+                ...state,
+                "selectedTab": action.tab
             }
         }
     }
@@ -52,11 +59,15 @@ const loadData = async (dispatch, matchId, signal) =>{
 
 const renderKills = (state, matchId, matchStart, players) =>{
 
+    if(state.selectedTab !== 1) return null;
+
     if(state.error !== null){
         return <NotificationSmall type="error">
         <b>Failed to display telefrag kills:</b> {state.error}
         </NotificationSmall>
     }
+
+
 
     if(state.bLoading) return <Loading />;
 
@@ -72,8 +83,6 @@ const renderKills = (state, matchId, matchStart, players) =>{
 
         const killer = Functions.getPlayer(players, kill.killer_id, true);
         const victim = Functions.getPlayer(players, kill.victim_id, true);
-
-        console.log(killer);
 
         let killType = "Telefrag";
 
@@ -105,24 +114,29 @@ const renderKills = (state, matchId, matchStart, players) =>{
         }
     });
 
-    return <InteractiveTable width={1} headers={headers} data={data}/>
+    return <div>
+        <InteractiveTable width={4} headers={headers} data={data} perPage={10}/>
+    </div>
 }
 
-const MatchTeleFrags = ({data, matchId, matchStart, players}) =>{
+const renderTabs = (state, dispatch) =>{
 
-    const [state, dispatch] = useReducer(reducer, {"bLoading": true, "error": null, "data": null});
+    const options = [
+        {"value": 0, "name": "General Stats"},
+        {"value": 1, "name": "Kills List"},
+    ];
 
-    useEffect(() =>{
+    return <Tabs 
+        options={options} 
+        selectedValue={state.selectedTab} 
+        changeSelected={(newTab) => dispatch({"type": "changeTab", "tab": newTab})}
+    />
+}
 
-        const controller = new AbortController();
 
-        loadData(dispatch, matchId, controller.signal);
+const renderGeneral = (state, matchId, data) =>{
 
-        return () =>{
-            controller.abort();
-        }
-
-    },[matchId]);
+    if(state.selectedTab !== 0) return null;
 
     const headers = {
         "player": "Player",
@@ -160,10 +174,31 @@ const MatchTeleFrags = ({data, matchId, matchStart, players}) =>{
         }
     });
 
+    return <InteractiveTable width={1} headers={headers} data={columns}/>
+}
+
+const MatchTeleFrags = ({data, matchId, matchStart, players}) =>{
+
+    const [state, dispatch] = useReducer(reducer, {"bLoading": true, "error": null, "data": null, "selectedTab": 0});
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        loadData(dispatch, matchId, controller.signal);
+
+        return () =>{
+            controller.abort();
+        }
+
+    },[matchId]);
+
+
+
     return <div>
         <div className="default-header">Telefrags Summary</div>
-        <InteractiveTable width={1} headers={headers} data={columns}/>
-        <h1>Fix importer duplicates and ignore suicides</h1>
+        {renderTabs(state, dispatch)}
+        {renderGeneral(state, matchId, data)}
         {renderKills(state, matchId, matchStart, players)}
     </div>
 }
