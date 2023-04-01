@@ -4,7 +4,7 @@ import Link from "next/link";
 import CountryFlag from "../CountryFlag";
 import {useEffect, useReducer} from "react";
 import Loading from "../Loading";
-import NotificationSmall from "../NotificationSmall";
+import ErrorMessage from "../ErrorMessage";
 import Tabs from "../Tabs";
 
 const reducer = (state, action) =>{
@@ -62,9 +62,9 @@ const renderKills = (state, matchId, matchStart, players) =>{
     if(state.selectedTab !== 1) return null;
 
     if(state.error !== null){
-        return <NotificationSmall type="error">
-        <b>Failed to display telefrag kills:</b> {state.error}
-        </NotificationSmall>
+        return <ErrorMessage type="error" text={`Failed to display telefrag kills: ${state.error}`}/>
+        
+        
     }
 
 

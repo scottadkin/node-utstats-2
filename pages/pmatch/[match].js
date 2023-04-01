@@ -1,4 +1,4 @@
-import {React, useEffect, useReducer} from "react";
+import {React} from "react";
 import DefaultHead from "../../components/defaulthead";
 import Nav from '../../components/Nav/';
 import Footer from "../../components/Footer/";
@@ -14,31 +14,21 @@ import Functions from '../../api/functions';
 import Screenshot from '../../components/Screenshot/';
 import MatchFragSummary from "../../components/MatchFragSummary";
 import MatchSpecialEvents from "../../components/MatchSpecialEvents";
-import MatchSprees from '../../components/MatchSprees';
-import PlayerMatchItems from "../../components/PlayerMatch/PlayerMatchItems";
 import PlayerMatchPickups from "../../components/PlayerMatchPickups";
 import PlayerMatchPing from "../../components/PlayerMatch/PlayerMatchPing";
-import PlayerMatchConnections from "../../components/PlayerMatchConnections";
-import PlayerMatchAssault from '../../components/PlayerMatchAssault';
-import MatchMonsterHuntFragSummary from "../../components/MatchMonsterHuntFragSummary";
 import Analytics from "../../api/analytics";
-import MatchMonsterHuntMonsterKills from "../../components/MatchMonsterHuntMonsterKills";
 import CombogibPlayerMatch from "../../components/CombogibPlayerMatch";
 import ErrorMessage from "../../components/ErrorMessage";
-import ErrorPage from "../ErrorPage";
-import Loading from "../../components/Loading";
 import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
-
 import PlayerMatchProfile from "../../components/PlayerMatch/PlayerMatchProfile";
 import MatchCTFSummary from "../../components/MatchCTFSummary";
 import PlayerMatchCTFReturns from "../../components/PlayerMatch/PlayerMatchCTFReturns";
 import PlayerMatchCTFCaps from "../../components/PlayerMatch/PlayerMatchCTFCaps";
-import MatchCTFCarryTime from "../../components/MatchCTFCarryTime";
-import MatchWeaponSummaryCharts from "../../components/MatchWeaponSummaryCharts";
 import PlayerMatchWeapons from "../../components/PlayerMatch/PlayerMatchWeapons";
 import PlayerMatchDomination from "../../components/PlayerMatch/PlayerMatchDomination";
 import PlayerMatchTeamChanges from "../../components/PlayerMatch/PlayerMatchTeamChanges";
 import PlayerMatchRankings from "../../components/PlayerMatch/PlayerMatchRankings";
+import PlayerMatchTeleFrags from "../../components/PlayerMatchTeleFrags";
 
 const renderError = (host, navSettings, session, pageError) =>{    
 
@@ -86,6 +76,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
 
     const players = useMatchPlayersLoader(matchId, playerId);
 
+    console.log(players.targetPlayer);
 
 
     if(pageError !== undefined) return renderError(host, navSettings, session, pageError);
@@ -256,6 +247,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
                     
+                    <PlayerMatchTeleFrags data={players.targetPlayer}/>
                     
                     <PlayerMatchProfile 
                         host={imageHost} 
