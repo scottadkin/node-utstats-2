@@ -1082,6 +1082,7 @@ class MatchScreenshot{
                 if(totalPlayers < maxPlayers){
                     this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers), teamWidth, playerHeight, p);
                 }
+                
                 totalPlayers++;
             }
         }

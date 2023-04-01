@@ -93,7 +93,14 @@ class MatchManager{
             }
 
             this.spawnManager = new SpawnManager();
-            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip, this.bUsePlayerACEHWID);
+            this.playerManager = new PlayerManager(
+                this.playerLines, 
+                this.spawnManager, 
+                this.bIgnoreBots, 
+                this.gameInfo.getMatchLength(), 
+                geoip, 
+                this.bUsePlayerACEHWID
+            );
 
             await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
             this.playerManager.init();
@@ -116,6 +123,7 @@ class MatchManager{
                 this.gameInfo.totalTeams = 0;
             }
  
+            this.playerManager.totalTeams = this.gameInfo.totalTeams;
             
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
@@ -124,9 +132,10 @@ class MatchManager{
 
             const matchTimings = this.gameInfo.getMatchLength();
 
-            this.playerManager.setKills(this.killManager.kills, this.gameInfo.totalTeams, this.killManager);
+            this.playerManager.setKills(this.killManager.kills);
             this.playerManager.matchEnded(this.gameInfo.end);
             this.playerManager.setHeadshots(this.killManager.headshots);
+            this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
 
             this.match = new Match();
             this.matches = new Matches();
@@ -160,7 +169,7 @@ class MatchManager{
             //this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
 
 
-            this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
+            
             new Message(`Updated player team changes`,'pass');
             //process.exit();
 
@@ -172,8 +181,7 @@ class MatchManager{
             await this.playerManager.insertMatchData(
                 this.gametype.currentMatchGametype, 
                 this.matchId, this.mapInfo.mapId, 
-                this.serverInfo.date, 
-                this.gameInfo.totalTeams
+                this.serverInfo.date
             );
             new Message(`Updated player match data.`,'pass');
             
@@ -243,7 +251,7 @@ class MatchManager{
             
             
 
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date, this.gameInfo.totalTeams);
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
 
             new Message(`Updated player frag performance.`,'pass');
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
