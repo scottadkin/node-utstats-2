@@ -1077,7 +1077,7 @@ class MatchScreenshot{
  
             const p = this.players[i];
 
-            if(p.team === team && p.playtime > 0 && p.played){
+            if(p.team === team && p.playtime > 0){
 
                 if(totalPlayers < maxPlayers){
                     this.renderSmartCTFPlayer(c, team, startX, headerHeight + startY + (playerHeight * totalPlayers), teamWidth, playerHeight, p);
@@ -1174,7 +1174,7 @@ class MatchScreenshot{
 
                 p = this.players[i];
                 
-                if(!p.played || p.playtime === 0){
+                if(p.playtime === 0){
                     spectators.push(p.name);
                 }
             }
