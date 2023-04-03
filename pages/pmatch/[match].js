@@ -233,6 +233,18 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
     }
     
 
+    if(pageSettings["Display Telefrag Stats"] === "true"){
+
+        elems[pageOrder["Display Telefrag Stats"]] = <PlayerMatchTeleFrags 
+            key="pmtf"
+            data={players.targetPlayer} 
+            matchId={matchId}
+            playerId={playerId}
+            matchStart={info.start}
+            players={players.basicPlayers} 
+        />
+    }
+
     return <div>
         <DefaultHead 
             host={host} 
@@ -247,7 +259,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 <div className="default">
                     <div className="default-header">{titleName} Match Report</div>
                     
-                    <PlayerMatchTeleFrags data={players.targetPlayer}/>
+                    
                     
                     <PlayerMatchProfile 
                         host={imageHost} 

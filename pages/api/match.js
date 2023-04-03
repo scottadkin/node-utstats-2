@@ -383,6 +383,16 @@ export default async function handler(req, res){
             return;
         }
 
+        if(mode === "player-match-telefrags"){
+
+            const teleFragManager = new Telefrags();
+
+            const kills = await teleFragManager.getPlayerMatchKills(matchId, playerId);
+
+            res.status(200).json({"kills": kills})
+            return;
+        }
+
         res.status(200).json({"error": "Unknown command"});
 
     }catch(err){
