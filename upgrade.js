@@ -186,8 +186,13 @@ async function updateSiteSettings(){
     const query = `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Telefrag Stats","true",18)`;
 
     if(!await bSettingExist("Match Pages", "Display Telefrag Stats")){
-
         await mysql.simpleQuery(query);
+    }
+
+    const query2 = `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Telefrag Stats","true",10)`;
+
+    if(!await bSettingExist("Player Pages", "Display Telefrag Stats")){
+        await mysql.simpleQuery(query2);
     }
 }
 
