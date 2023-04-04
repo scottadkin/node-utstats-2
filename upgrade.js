@@ -142,7 +142,7 @@ async function addTeleFrags(){
 
     new Message(`Updated table ${matchTable}.`,"pass");
 
-    const totalsTable = "nstats_player_totals";
+    /*const totalsTable = "nstats_player_totals";
 
     new Message(`Adding telefrag columns to ${totalsTable}`,"note");
 
@@ -159,7 +159,7 @@ async function addTeleFrags(){
     await alterTable(totalsTable, "tele_disc_best_spree", "INT NOT NULL", "AFTER tele_disc_deaths_worst");
     await alterTable(totalsTable, "tele_disc_best_multi", "INT NOT NULL", "AFTER tele_disc_best_spree");
 
-    new Message(`Updated table ${totalsTable}.`,"pass");
+    new Message(`Updated table ${totalsTable}.`,"pass");*/
 }
 
 

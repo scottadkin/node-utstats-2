@@ -34,8 +34,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [hwid, playerName]);
 
@@ -68,8 +67,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
         const result = await mysql.simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId]);
 
@@ -170,7 +168,7 @@ class Player{
     async updateFrags(id, date, playtime, redPlaytime, bluePlaytime, greenPlaytime, yellowPlaytime, specPlaytime,
          frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
-        firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype, teleFrags){
+        firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype){
 
         
         const query = `UPDATE nstats_player_totals SET 
@@ -195,19 +193,7 @@ class Player{
         best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
         first_bloods=first_bloods+?,
         accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?,
-        headshots=headshots+?,
-        telefrag_kills=telefrag_kills+?,
-        telefrag_kills_best = IF(telefrag_kills_best < ?, ?, telefrag_kills_best),
-        telefrag_deaths=telefrag_deaths+?,
-        telefrag_deaths_worst = IF(telefrag_deaths_worst < ?, ?, telefrag_deaths_worst),
-        telefrag_best_spree = IF(telefrag_best_spree < ?, ?, telefrag_best_spree),
-        telefrag_best_multi = IF(telefrag_best_multi < ?, ?, telefrag_best_multi),
-        tele_disc_kills = tele_disc_kills+?,
-        tele_disc_kills_best = IF(tele_disc_kills_best < ?, ?, tele_disc_kills_best),
-        tele_disc_deaths = tele_disc_deaths+?,
-        tele_disc_deaths_worst = IF(tele_disc_deaths_worst < ?, ?, tele_disc_deaths_worst),
-        tele_disc_best_spree = IF(tele_disc_best_spree < ?, ?, tele_disc_best_spree),
-        tele_disc_best_multi = IF(tele_disc_best_multi < ?, ?, tele_disc_best_multi)
+        headshots=headshots+?
         WHERE id=? AND gametype=?`;
 
         const vars = [
@@ -260,18 +246,6 @@ class Player{
             longRangeKills,
             uberRangeKills,
             headshots,
-            teleFrags.total,
-            teleFrags.total, teleFrags.total,
-            teleFrags.deaths, 
-            teleFrags.deaths, teleFrags.deaths,
-            teleFrags.bestSpree, teleFrags.bestSpree,
-            teleFrags.bestMulti, teleFrags.bestMulti,
-            teleFrags.discKills,
-            teleFrags.discKills, teleFrags.discKills,
-            teleFrags.discDeaths,
-            teleFrags.discDeaths, teleFrags.discDeaths,
-            teleFrags.discKillsBestSpree, teleFrags.discKillsBestSpree,
-            teleFrags.discKillsBestMulti, teleFrags.discKillsBestMulti,
             id,
             gametype
         ];
@@ -279,27 +253,6 @@ class Player{
         await mysql.simpleQuery(query, vars);
 
         await this.updateEfficiency(id);
-            
-        /*return new Promise((resolve, reject) =>{
-
-            
-
-            mysql.query(query, vars, async (err) =>{
-
-                if(err) reject(err);
-
-                try{
-
-                    await this.updateEfficiency(id);
-
-                }catch(err){
-                    console.trace(err);
-                    new Message(err, "warning");
-                }
-
-                resolve();
-            });
-        });*/
     }
 
     /**
