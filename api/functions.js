@@ -798,8 +798,18 @@ class Functions{
 
     static bAnyCTFData(playerData){
 
-        if(playerData.length > 0){
-            if(playerData[0].ctfData !== undefined) return true;
+        for(let i = 0; i < playerData.length; i++){
+
+            const p = playerData[i];
+
+            if(p.ctfData === undefined) return false;
+
+            for(const [key, value] of Object.entries(p.ctfData)){
+       
+                if(key.startsWith("flag_")){
+                    if(value > 0) return true;
+                }
+            }
         }
     
         return false;
