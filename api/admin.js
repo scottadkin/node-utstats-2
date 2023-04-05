@@ -345,6 +345,9 @@ class Admin{
             "weapons",
             "winrates",
             "winrates_latest",
+            "player_telefrags",
+            "player_weapon_totals",
+            "tele_frags"
         ];
 
         for(let i = 0; i < tables.length; i++){

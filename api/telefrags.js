@@ -66,7 +66,7 @@ class Telefrags{
             stats.deaths,
             stats.total, stats.total,
             stats.deaths, stats.deaths,
-            stats.bestMulti, stats.bestMutli,
+            stats.bestMulti, stats.bestMulti,
             stats.bestSpree, stats.bestSpree,
             stats.discKills,
             stats.discDeaths,
@@ -252,7 +252,13 @@ class Telefrags{
         await this.deletePlayer(newId);
         await this.changePlayerIds(oldId, newId);
         await this.recalculatePlayerTotals(newId);
+    }
 
+    async getPlayerTotals(playerId){
+
+        const query = `SELECT * FROM nstats_player_telefrags WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId]);
     }
 }
 

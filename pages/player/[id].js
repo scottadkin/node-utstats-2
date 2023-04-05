@@ -248,27 +248,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	if(pageSettings["Display Telefrag Stats"] === "true"){
 
-		elems[pageOrder["Display Telefrag Stats"]] = <PlayerTeleFrags key="tf"
-			teleFrags={{
-					"kills": parsedSummary.telefrag_kills,
-					"bestSpree": parsedSummary.telefrag_best_spree,
-					"bestMulti": parsedSummary.telefrag_best_multi,
-					"deaths": parsedSummary.telefrag_deaths,
-					"deathsWorst": parsedSummary.telefrag_deaths_worst,
-					"mostKills": parsedSummary.telefrag_kills_best
-				}
-			}
-
-			discKills={{
-					"kills": parsedSummary.tele_disc_kills,
-					"bestSpree": parsedSummary.tele_disc_best_spree,
-					"bestMulti": parsedSummary.tele_disc_best_multi,
-					"deaths": parsedSummary.tele_disc_deaths,
-					"deathsWorst": parsedSummary.tele_disc_deaths_worst,
-					"mostKills": parsedSummary.tele_disc_kills_best
-				}
-			}
-		/>
+		elems[pageOrder["Display Telefrag Stats"]] = <PlayerTeleFrags key="tf" playerId={playerId} />
 	}
 
 	return (
