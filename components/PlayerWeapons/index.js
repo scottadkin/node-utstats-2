@@ -6,7 +6,6 @@ import ErrorMessage from '../ErrorMessage';
 import InteractiveTable from '../InteractiveTable';
 import Tabs from "../Tabs";
 import PlayerWeapon from "../PlayerWeapon";
-import PieChart from '../PieChart';
 
 const reducer = (state, action) =>{
 
@@ -174,15 +173,15 @@ const renderBest = (state) =>{
     
     const headers = {
         "name": "Weapon",
-        "teamKills": "Team Kills",
-        "suicides": "Suicides",
         "deaths": "Deaths",
         "kills": "Kills",
+        "teamKills": "Team Kills",
+        "suicides": "Suicides",        
         "shots": "Shots",
         "hits": "Hits",
         "damage": "Damage",
         "bestSpree": "Best Spree",
-        "bestTeamKills": "Most Team Kills"
+        "bestTeamKills": "Best Team Kill Spree"
     };
 
     const maxValues = getMaxValues(state, "best");
@@ -338,55 +337,6 @@ const PlayerWeapons = ({playerId, pageSettings}) =>{
 
     return <div>
         <div className="default-header">Weapon Stats</div>
-        <PieChart data={[
-            [
-                {"value": 32, "name": "poops"},
-                {"value": 50, "name": "Tuna"},
-                {"value": 18, "name": "Oinks"},
-            ],
-            [
-                {"value": 2312, "name": "aaaa"},
-                {"value": 44, "name": "bbbb"},
-                {"value": 1338, "name": "cccc"},
-                {"value": 355, "name": "Poooo"},
-            ],
-
-            [
-                {"value": 11, "name": "What does this one do"},
-                {"value": 22, "name": "Why is this title really really reall long?"},
-                {"value": 33, "name": "Oops"},
-                {"value": 44, "name": "Damn :("},
-            ],
-            [
-                {"value": 11, "name": "What does this one do"},
-                {"value": 22, "name": "Why is this title really really reall long?"},
-                {"value": 33, "name": "Oops"},
-                {"value": 44, "name": "Damn :("},
-                {"value": 11, "name": "What does this one do"},
-                {"value": 22, "name": "Why is this title really really reall long?"},
-                {"value": 33, "name": "Oops"},
-                {"value": 44, "name": "Damn :("},
-                {"value": 11, "name": "What does this one do"},
-                {"value": 22, "name": "Why is this title really really reall long?"},
-                {"value": 33, "name": "Oops"},
-                {"value": 44, "name": "Damn :("},
-            ],
-            [
-                {"value": 32, "name": "poops"},
-                {"value": 50, "name": "Tuna"},
-                {"value": 18, "name": "Oinks"},
-            ],
-            [
-                {"value": 32, "name": "poops2"},
-                {"value": 50, "name": "Tuna2"},
-                {"value": 18, "name": "Oinks2"},
-            ],
-            [
-                {"value": 32, "name": "poops3"},
-                {"value": 50, "name": "Tuna3"},
-                {"value": 18, "name": "Oinks3"},
-            ]
-        ]} titles={["Farts", "Sharts", "Longer Title Name", "cooooossos", "asfsafas", "95393ujjgjg", "884ujmjfjfjf"]}/>
         {renderTabs(state, dispatch)}
         {elems}
     </div>
