@@ -22,6 +22,7 @@ const Sprees = require("./sprees");
 const MonsterHunt = require("./monsterhunt");
 const Combogib = require("./combogib");
 const PowerUps = require("./powerups");
+const Telefrags = require("./telefrags");
 
 class Players{
 
@@ -470,6 +471,7 @@ class Players{
 
     async getPlayerTotalsFromMatchesTable(playerId, gametypeId){
 
+        console.log(`getPlayerTotalsFromMatchesTable(${playerId},${gametypeId})`);
 
         const query = `SELECT
         COUNT(*) as total_matches,
@@ -900,6 +902,10 @@ class Players{
 
             await powerupManager.mergePlayers(first, second);
 
+            const teleFragManager = new Telefrags();
+
+            await teleFragManager.mergePlayers(first, second);
+
 
             return true;
         }catch(err){
@@ -930,6 +936,7 @@ class Players{
     }
 
     async getGametypeTotals(playerId, bAllTotals){
+
 
         let query = `SELECT ${(bAllTotals) ? "" : "gametype,"}
         COUNT(*) as total_matches,
@@ -996,7 +1003,7 @@ class Players{
         MAX(mh_kills_best_life) as mh_kills_best_life,
         SUM(mh_deaths) as mh_deaths,
         MAX(mh_deaths) as mh_deaths_worst,
-        SUM(accuracy) as accuracy,
+        SUM(accuracy) as accuracy
         FROM nstats_player_matches
         WHERE player_id=?`;
 
