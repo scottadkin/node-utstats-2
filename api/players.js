@@ -997,18 +997,6 @@ class Players{
         SUM(mh_deaths) as mh_deaths,
         MAX(mh_deaths) as mh_deaths_worst,
         SUM(accuracy) as accuracy,
-        SUM(telefrag_kills) as telefrag_kills,
-        MAX(telefrag_kills) as telefrag_kills_best,
-        SUM(telefrag_deaths) as telefrag_deaths,
-        MAX(telefrag_deaths) as telefrag_deaths_worst,
-        MAX(telefrag_best_spree) as telefrag_best_spree,
-        MAX(telefrag_best_multi) as telefrag_best_multi,
-        SUM(tele_disc_kills) as tele_disc_kills,
-        MAX(tele_disc_kills) as tele_disc_kills_best,
-        SUM(tele_disc_deaths) as tele_disc_deaths,
-        MAX(tele_disc_deaths) as tele_disc_deaths_worst,
-        MAX(tele_disc_best_spree) as tele_disc_best_spree,
-        MAX(tele_disc_best_multi) as tele_disc_best_multi
         FROM nstats_player_matches
         WHERE player_id=?`;
 
@@ -1076,15 +1064,7 @@ class Players{
         mh_kills_best_life=?,
         mh_kills_best=?,
         mh_deaths=?,
-        mh_deaths_worst=?,
-        telefrag_kills=?,
-        telefrag_deaths=?,
-        telefrag_best_spree=?,
-        telefrag_best_multi=?,
-        tele_disc_kills=?,
-        tele_disc_deaths=?,
-        tele_disc_best_spree=?,
-        tele_disc_best_multi=?
+        mh_deaths_worst=?
 
         WHERE ${(gametypeId === 0) ? "id" : "player_id" }=? AND gametype=?`;
 
@@ -1145,19 +1125,9 @@ class Players{
             data.super_health,
             data.mh_kills,
             data.mh_kills_best_life,
-
             data.mh_kills_best,
             data.mh_deaths,
             data.mh_deaths_worst,
-            data.telefrag_kills,
-            data.telefrag_deaths,
-            data.telefrag_best_spree,
-            data.telefrag_best_multi,
-            data.tele_disc_kills,
-            data.tele_disc_deaths,
-            data.tele_disc_best_spree,
-            data.tele_disc_best_multi,
-
             playerId, gametypeId
         ];
 
@@ -1226,9 +1196,7 @@ class Players{
         ?,?,?,?,?, 
         ?,?,?,?,?, 
         ?,?,?,?,?, 
-        ?,?,?,?,?,
-        
-        ?,?,?,?,?,?,?,?,?,?,?,?)`; 
+        ?,?,?,?,?)`; 
 
         const vars = [
             "", data.name, playerId, data.first, data.last,  
@@ -1248,19 +1216,7 @@ class Players{
             data.mh_kills_best_life, data.mh_kills_best, 0, data.mh_deaths, data.mh_deaths_worst,
             data.mh_kills_best,
             data.mh_deaths,
-            data.mh_deaths_worst,
-            data.telefrag_kills,
-            data.telefrag_kills_best,
-            data.telefrag_deaths,
-            data.telefrag_deaths_worst,
-            data.telefrag_best_spree,
-            data.telefrag_best_multi,
-            data.tele_disc_kills,
-            data.tele_disc_kills_best,
-            data.tele_disc_deaths,
-            data.tele_disc_deaths_worst,
-            data.tele_disc_best_spree,
-            data.tele_disc_best_multi,
+            data.mh_deaths_worst
         ];
 
         return await mysql.simpleQuery(query, vars);

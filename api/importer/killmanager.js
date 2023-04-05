@@ -2,6 +2,7 @@ const Kill =  require('./kill');
 const Message = require('../message');
 const KillsManager = require('../kills');
 const Headshots = require('../headshots');
+const Telefrags = require("../telefrags");
 
 class KillManager{
 
@@ -610,7 +611,19 @@ class KillManager{
 
     async insertTeleFrags(matchId, mapId, gametypeId){
 
+        const teleFragManager = new Telefrags();
+
         await this.killsManager.insertTeleFrags(matchId, mapId, gametypeId, this.teleFrags);
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+
+            const playtime = p.getTotalPlaytime(this.playerManager.totalTeams);
+
+            await teleFragManager.updatePlayerTotals(p.masterId, mapId, gametypeId, playtime, p.stats.teleFrags);
+        }
+        //updatePlayerTotals(playerId, mapId, gametypeId, playtime, stats)
     }
 }
 

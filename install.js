@@ -1649,7 +1649,28 @@ const queries = [
       victim_id INT(11) NOT NULL,
       victim_team INT(3) NOT NULL,
       disc_kill TINYINT(1) NOT NULL,
-      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+      `CREATE TABLE IF NOT EXISTS nstats_player_telefrags(
+        id int(11) NOT NULL AUTO_INCREMENT,
+        player_id INT(11) NOT NULL,
+        map_id INT(11) NOT NULL,
+        gametype_id INT(11) NOT NULL,
+        playtime FLOAT NOT NULL,
+        total_matches INT(11) NOT NULL,
+        tele_kills INT(11) NOT NULL,
+        tele_deaths INT(11) NOT NULL,
+        tele_efficiency FLOAT NOT NULL,
+        best_tele_kills INT(11) NOT NULL,
+        best_tele_multi INT(11) NOT NULL,
+        best_tele_spree INT(11) NOT NULL,
+        disc_kills INT(11) NOT NULL,
+        disc_deaths INT(11) NOT NULL,
+        disc_efficiency FLOAT NOT NULL,
+        best_disc_kills INT(11) NOT NULL,
+        best_disc_multi INT(11) NOT NULL,
+        best_disc_spree INT(11) NOT NULL,
+    PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
 
 ];
 
