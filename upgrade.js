@@ -91,6 +91,8 @@ async function updatePlayerWeaponsTotals(){
 
     new Message(`Starting update of ${table}.`,"note");
 
+    await alterTable(table, "total_matches", "INT NOT NULL", "AFTER gametype");
+    await alterTable(table, "playtime", "FLOAT NOT NULL", "AFTER total_matches");
     await alterTable(table, "map_id", "INT NOT NULL", "AFTER player_id");
     await alterTable(table, "team_kills", "INT NOT NULL", "AFTER kills");
     await alterTable(table, "suicides", "INT NOT NULL", "AFTER deaths");

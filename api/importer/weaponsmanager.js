@@ -55,6 +55,7 @@ class WeaponsManager{
 
                 const p = playerManager.players[i];
                 
+                const playtime = p.getTotalPlaytime(playerManager.totalTeams);
 
                 for(const [key, value] of p.weaponStats.entries()){
    
@@ -63,7 +64,7 @@ class WeaponsManager{
                     if(currentWeaponId !== null){      
 
                         await this.weapons.insertPlayerMatchStats(this.matchId, this.mapId, this.gametypeId, p.masterId, currentWeaponId, value);
-                        await this.weapons.updatePlayerTotalStats(this.mapId, this.gametypeId, p.masterId, currentWeaponId, value); 
+                        await this.weapons.updatePlayerTotalStats(this.mapId, this.gametypeId, p.masterId, playtime, currentWeaponId, value); 
                         await this.weapons.updatePlayerBest(p.masterId, this.mapId, this.gametypeId, currentWeaponId, value);
                      
 

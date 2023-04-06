@@ -168,63 +168,76 @@ class Weapons{
 
     }
 
-    async createPlayerTotal(mapId, gametypeId, playerId, weaponId, kills, teamKills, deaths, suicides, accuracy, shots, hits, damage){
+    async createPlayerTotal(mapId, gametypeId, playerId, weaponId, playtime, kills, teamKills, deaths, suicides, accuracy, shots, hits, damage){
 
-        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,0,?,?,?,?,1)";//13
-        const vars = [playerId, mapId, gametypeId, weaponId, kills, teamKills, deaths, suicides, accuracy, shots, hits, Math.abs(damage)];
-
-        return await mysql.simpleQuery(query, vars);
-
-    }
-
-    async updatePlayerTotals(mapId, gametypeId, playerId, weaponId, stats){
-
-        const query = `UPDATE nstats_player_weapon_totals SET kills=kills+?, deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
-             accuracy=IF(hits > 0 && shots > 0, (hits/shots) * 100, IF(hits > 0, 100, 0)), 
-             efficiency=IF(kills > 0 && deaths > 0, (kills/(kills + deaths)) * 100, IF(kills > 0, 100, 0)),
-             matches=matches+1, team_kills=team_kills+?
-             WHERE player_id=? AND weapon=? AND map_id=? AND gametype=?`;
-
-        const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, Math.abs(stats.damage), stats.teamKills, playerId, weaponId, mapId, gametypeId];
+        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,1,?,?,?,?,?,?,0,?,?,?,?,1)";//13
+        const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, accuracy, shots, hits, Math.abs(damage)];
 
         return await mysql.simpleQuery(query, vars);
 
     }
 
-    async updatePlayerTotalStats(mapId, gametypeId, playerId, weaponId, stats){
+    async updatePlayerTotals(mapId, gametypeId, playerId, weaponId, playtime, stats){
+
+        const query = `UPDATE nstats_player_weapon_totals SET playtime=playtime+?,total_matches=total_matches+1,kills=kills+?, 
+            deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
+            accuracy=IF(hits > 0 && shots > 0, (hits/shots) * 100, IF(hits > 0, 100, 0)), 
+            efficiency=IF(kills > 0 && deaths > 0, (kills/(kills + deaths)) * 100, IF(kills > 0, 100, 0)),
+            matches=matches+1, team_kills=team_kills+?
+            WHERE player_id=? AND weapon=? AND map_id=? AND gametype=?`;
+
+        const vars = [
+            playtime, 
+            stats.kills, 
+            stats.deaths, 
+            stats.shots, 
+            stats.hits, 
+            Math.abs(stats.damage), 
+            stats.teamKills, 
+            playerId, 
+            weaponId, 
+            mapId,
+            gametypeId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+
+    }
+
+    async updatePlayerTotalStats(mapId, gametypeId, playerId, playtime, weaponId, stats){
 
         try{
 
             //map totals
             if(!await this.bPlayerTotalExists(mapId, gametypeId, playerId, weaponId)){
 
-                await this.createPlayerTotal(mapId, gametypeId, playerId, weaponId, 
+                await this.createPlayerTotal(mapId, gametypeId, playerId, weaponId, playtime, 
                     stats.kills, stats.teamKills, stats.deaths, stats.suicides, stats.accuracy, 
                     stats.shots, stats.hits, stats.damage);
 
             }else{
-               await this.updatePlayerTotals(mapId, gametypeId, playerId, weaponId, stats);
+               await this.updatePlayerTotals(mapId, gametypeId, playerId, weaponId, playtime, stats);
             }
 
             //gametype totals
             if(!await this.bPlayerTotalExists(0, gametypeId, playerId, weaponId)){
 
-                await this.createPlayerTotal(0, gametypeId, playerId, weaponId, 
+                await this.createPlayerTotal(0, gametypeId, playerId, weaponId, playtime,
                     stats.kills, stats.teamKills, stats.deaths, stats.suicides, stats.accuracy, 
                     stats.shots, stats.hits, stats.damage);
 
             }else{
-               await this.updatePlayerTotals(0, gametypeId, playerId, weaponId, stats);
+               await this.updatePlayerTotals(0, gametypeId, playerId, weaponId, playtime, stats);
             }
 
             //all totals
             if(!await this.bPlayerTotalExists(0, 0, playerId, weaponId)){
 
-                await this.createPlayerTotal(0, 0, playerId, weaponId, 
+                await this.createPlayerTotal(0, 0, playerId, weaponId, playtime,
                     stats.kills, stats.teamKills, stats.deaths, stats.suicides, stats.accuracy, 
                     stats.shots, stats.hits, stats.damage);
             }else{
-                await this.updatePlayerTotals(0, 0, playerId, weaponId, stats);
+                await this.updatePlayerTotals(0, 0, playerId, weaponId, playtime, stats);
             }
 
         }catch(err){

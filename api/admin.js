@@ -347,6 +347,7 @@ class Admin{
             "winrates_latest",
             "player_telefrags",
             "player_weapon_totals",
+            "player_weapon_best",
             "tele_frags"
         ];
 

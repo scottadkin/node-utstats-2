@@ -737,6 +737,8 @@ const queries = [
         player_id int(11) NOT NULL,
         map_id int(11) NOT NULL,
         gametype int(11) NOT NULL,
+        total_matches int(11) NOT NULL,
+        playtime FLOAT NOT NULL,
         weapon int(11) NOT NULL,
         kills int(11) NOT NULL,
         team_kills int(11) NOT NULL,
