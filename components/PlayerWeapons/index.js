@@ -53,7 +53,7 @@ const getWeaponName = (state, weaponId) =>{
         return state.names[weaponId];
     }
 
-    return {"name": "Not Found"};
+    return "Not Found";
 }
 
 const getMaxValues = (state, type) =>{
@@ -86,6 +86,7 @@ const getMaxValues = (state, type) =>{
 }
 
 const renderTotals = (state) =>{
+
 
     const headers = {
         "name": "Weapon",
@@ -312,7 +313,7 @@ const PlayerWeapons = ({playerId, pageSettings}) =>{
             }
 
             dispatch({
-                "type": "loaded", 
+                "type": "loaded",
                 "totals": res.totals, 
                 "best": res.best,
                 "names": res.names,

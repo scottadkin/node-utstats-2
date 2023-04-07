@@ -170,7 +170,7 @@ class Weapons{
 
     async createPlayerTotal(mapId, gametypeId, playerId, weaponId, playtime, kills, teamKills, deaths, suicides, accuracy, shots, hits, damage){
 
-        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,1,?,?,?,?,?,?,0,?,?,?,?,1)";//13
+        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,0,?,?,?,?,1)";//13
         const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, accuracy, shots, hits, Math.abs(damage)];
 
         return await mysql.simpleQuery(query, vars);
@@ -179,7 +179,7 @@ class Weapons{
 
     async updatePlayerTotals(mapId, gametypeId, playerId, weaponId, playtime, stats){
 
-        const query = `UPDATE nstats_player_weapon_totals SET playtime=playtime+?,total_matches=total_matches+1,kills=kills+?, 
+        const query = `UPDATE nstats_player_weapon_totals SET playtime=playtime+?,kills=kills+?, 
             deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
             accuracy=IF(hits > 0 && shots > 0, (hits/shots) * 100, IF(hits > 0, 100, 0)), 
             efficiency=IF(kills > 0 && deaths > 0, (kills/(kills + deaths)) * 100, IF(kills > 0, 100, 0)),
@@ -945,7 +945,7 @@ class Weapons{
     async mergePlayerTotalData(newId){
 
         const query = `SELECT 
-        map_id,gametype,weapon,kills,team_kills,deaths,suicides,efficiency,accuracy,shots,hits,damage,matches 
+        map_id,gametype,weapon,playtime,kills,team_kills,deaths,suicides,efficiency,accuracy,shots,hits,damage,matches 
         FROM nstats_player_weapon_totals WHERE player_id=?`;
 
         const data = await mysql.simpleQuery(query, [newId]);
@@ -958,26 +958,27 @@ class Weapons{
 
             if(!await this.bPlayerTotalExists(d.map_id, d.gametype, newId, d.weapon)){
 
-                await this.createPlayerTotalCustom(newId, d.map_id, d.gametype, d.weapon, d.kills, d.team_kills, 
+                await this.createPlayerTotalCustom(newId, d.map_id, d.gametype, d.weapon, d.playtime, d.kills, d.team_kills, 
                     d.deaths, d.suicides, d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
             }else{
-                await this.updatePlayerTotalCustom(newId, d.map_id, d.gametype, d.weapon, d.kills, d.team_kills, d.deaths, d.suicides, 
+                await this.updatePlayerTotalCustom(newId, d.map_id, d.gametype, d.weapon, d.playtime, d.kills, d.team_kills, d.deaths, d.suicides, 
                     d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
             }
         }
 
     }
 
-    async createPlayerTotalCustom(playerId, mapId, gametypeId, weaponId, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches){
+    async createPlayerTotalCustom(playerId, mapId, gametypeId, weaponId, playtime, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches){
 
-        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        const vars = [playerId, mapId, gametypeId, weaponId, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches];
+        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches];
         return await mysql.simpleQuery(query, vars);
     }
 
-    async updatePlayerTotalCustom(playerId, mapId, gametypeId, weaponId, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches){
+    async updatePlayerTotalCustom(playerId, mapId, gametypeId, weaponId, playtime, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches){
 
         const query = `UPDATE nstats_player_weapon_totals SET 
+        playtime = playtime + ?,
         kills = kills + ?,
         team_kills = team_kills + ?,
         deaths = deaths + ?,
@@ -990,7 +991,7 @@ class Weapons{
         matches = matches + ?
         WHERE player_id=? AND map_id=? AND gametype=? AND weapon=?`;
 
-        const vars = [kills, teamKills, deaths, suicides, shots, hits, damage, matches, playerId, mapId, gametypeId, weaponId];
+        const vars = [playtime, kills, teamKills, deaths, suicides, shots, hits, damage, matches, playerId, mapId, gametypeId, weaponId];
         return await mysql.simpleQuery(query, vars);
     }
 
