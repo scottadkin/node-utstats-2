@@ -22,6 +22,7 @@ const Sprees = require("./sprees");
 const MonsterHunt = require("./monsterhunt");
 const Combogib = require("./combogib");
 const PowerUps = require("./powerups");
+const Telefrags = require("./telefrags");
 
 class Players{
 
@@ -470,6 +471,7 @@ class Players{
 
     async getPlayerTotalsFromMatchesTable(playerId, gametypeId){
 
+        console.log(`getPlayerTotalsFromMatchesTable(${playerId},${gametypeId})`);
 
         const query = `SELECT
         COUNT(*) as total_matches,
@@ -900,6 +902,10 @@ class Players{
 
             await powerupManager.mergePlayers(first, second);
 
+            const teleFragManager = new Telefrags();
+
+            await teleFragManager.mergePlayers(first, second);
+
 
             return true;
         }catch(err){
@@ -930,6 +936,7 @@ class Players{
     }
 
     async getGametypeTotals(playerId, bAllTotals){
+
 
         let query = `SELECT ${(bAllTotals) ? "" : "gametype,"}
         COUNT(*) as total_matches,
@@ -1125,11 +1132,9 @@ class Players{
             data.super_health,
             data.mh_kills,
             data.mh_kills_best_life,
-
             data.mh_kills_best,
             data.mh_deaths,
             data.mh_deaths_worst,
-
             playerId, gametypeId
         ];
 
@@ -1215,7 +1220,10 @@ class Players{
             data.accuracy, data.k_distance_normal, data.k_distance_long, data.k_distance_uber, data.headshots, 
             data.shield_belt, data.amp, data.amp_time, data.invisibility, data.invisibility_time,  
             data.pads, data.armor, data.boots, data.super_health, data.mh_kills, 
-            data.mh_kills_best_life, data.mh_kills_best, 0, data.mh_deaths, data.mh_deaths_worst
+            data.mh_kills_best_life, data.mh_kills_best, 0, data.mh_deaths, data.mh_deaths_worst,
+            data.mh_kills_best,
+            data.mh_deaths,
+            data.mh_deaths_worst
         ];
 
         return await mysql.simpleQuery(query, vars);
@@ -1740,7 +1748,7 @@ class Players{
             }
 
             if(playerScores[player] === undefined){
-                console.log(`Players.createPlayerScoreHistory(${player}) player is null`);
+                //console.log(`Players.createPlayerScoreHistory(${player}) player is null`);
                 continue;
             }
 

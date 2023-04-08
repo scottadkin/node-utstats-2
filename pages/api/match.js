@@ -11,6 +11,7 @@ import Rankings from "../../api/rankings";
 import Teams from "../../api/teams";
 import Items from "../../api/items";
 import PowerUps from "../../api/powerups";
+import Telefrags from "../../api/telefrags";
 
 export default async function handler(req, res){
 
@@ -366,9 +367,29 @@ export default async function handler(req, res){
 
             //console.log(playerData);
             //console.log(uniqueIds);
-            console.log(names);
+            //console.log(names);
 
             res.status(200).json({"names": names, "playerData": playerData});
+            return;
+        }
+
+        if(mode === "telefrags"){
+
+            const teleFragManager = new Telefrags();
+
+            const kills = await teleFragManager.getMatchData(matchId);
+
+            res.status(200).json({"data": kills})
+            return;
+        }
+
+        if(mode === "player-match-telefrags"){
+
+            const teleFragManager = new Telefrags();
+
+            const kills = await teleFragManager.getPlayerMatchKills(matchId, playerId);
+
+            res.status(200).json({"kills": kills})
             return;
         }
 

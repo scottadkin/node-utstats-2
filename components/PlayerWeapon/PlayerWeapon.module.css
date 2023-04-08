@@ -1,7 +1,6 @@
 .wrapper{
     background-color:var(--color-1);
     display:inline-block;
-    height:336px;
     width:250px;
     overflow:hidden;
     margin-bottom:5px;
@@ -17,14 +16,7 @@
 }
 
 .image{
-    height:150px;
+    height:140px;
     position:relative;
     background-color:black;
-}
-
-
-
-.stats{
-    border-top:1px solid rgba(255,255,255,0.25);
-    height:200px;
 }

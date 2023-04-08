@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const Message = require('./message');
 const fs = require('fs');
 
@@ -144,12 +143,13 @@ class Weapons{
         return null;
     }
 
-    async insertPlayerMatchStats(matchId, playerId, weaponId, stats){
+    async insertPlayerMatchStats(matchId, mapId, gametypeId, playerId, weaponId, stats){
 
-        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         const vars = [
-            matchId, playerId, weaponId, stats.kills, stats.deaths, 
+            matchId, mapId, gametypeId, playerId, weaponId, stats.kills, stats.bestKills, stats.deaths, stats.suicides,
+            stats.teamKills, stats.bestTeamKills,
             stats.accuracy, stats.shots, stats.hits, Math.abs(stats.damage), stats.efficiency
         ];
 
@@ -158,71 +158,86 @@ class Weapons{
     }
 
 
-    async bPlayerTotalExists(gametypeId, playerId, weaponId){
+    async bPlayerTotalExists(mapId, gametypeId, playerId, weaponId){
 
-        const query = "SELECT COUNT(*) as total_stats FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND weapon=?";
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId, weaponId]);
+        const query = "SELECT COUNT(*) as total_stats FROM nstats_player_weapon_totals WHERE player_id=? AND map_id=? AND gametype=? AND weapon=?";
+        const result = await mysql.simpleQuery(query, [playerId, mapId, gametypeId, weaponId]);
 
         if(result[0].total_stats > 0) return true;
         return false;
 
     }
 
-    createPlayerTotal(gametypeId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage){
+    async createPlayerTotal(mapId, gametypeId, playerId, weaponId, playtime, kills, teamKills, deaths, suicides, accuracy, shots, hits, damage){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,0,?,?,?,?,1)";//13
+        const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, accuracy, shots, hits, Math.abs(damage)];
 
-            const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,0,?,?,?,?,1)";
+        return await mysql.simpleQuery(query, vars);
 
-            mysql.query(query, [playerId, gametypeId, weaponId, kills, deaths, accuracy, shots, hits, Math.abs(damage)], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
-    updatePlayerTotals(gametypeId, playerId, weaponId, stats){
+    async updatePlayerTotals(mapId, gametypeId, playerId, weaponId, playtime, stats){
 
-        return new Promise((resolve, reject) =>{
+        const query = `UPDATE nstats_player_weapon_totals SET playtime=playtime+?,kills=kills+?, 
+            deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
+            accuracy=IF(hits > 0 && shots > 0, (hits/shots) * 100, IF(hits > 0, 100, 0)), 
+            efficiency=IF(kills > 0 && deaths > 0, (kills/(kills + deaths)) * 100, IF(kills > 0, 100, 0)),
+            matches=matches+1, team_kills=team_kills+?
+            WHERE player_id=? AND weapon=? AND map_id=? AND gametype=?`;
 
-            const query = `UPDATE nstats_player_weapon_totals SET kills=kills+?, deaths=deaths+?, shots=shots+?, hits=hits+?, damage=damage+?,
-             accuracy=IF(hits > 0 && shots > 0, (hits/shots) * 100, IF(hits > 0, 100, 0)), 
-             efficiency=IF(kills > 0 && deaths > 0, (kills/(kills + deaths)) * 100, IF(kills > 0, 100, 0)),
-             matches=matches+1 WHERE player_id=? AND weapon=? AND gametype=?`;
+        const vars = [
+            playtime, 
+            stats.kills, 
+            stats.deaths, 
+            stats.shots, 
+            stats.hits, 
+            Math.abs(stats.damage), 
+            stats.teamKills, 
+            playerId, 
+            weaponId, 
+            mapId,
+            gametypeId
+        ];
 
-             const vars = [stats.kills, stats.deaths, stats.shots, stats.hits, Math.abs(stats.damage), playerId, weaponId, gametypeId];
+        return await mysql.simpleQuery(query, vars);
 
-             mysql.query(query, vars, (err) =>{
-                if(err) reject(err);
-
-                resolve();
-             });
-        });
     }
 
-    async updatePlayerTotalStats(gametypeId, playerId, weaponId, stats){
+    async updatePlayerTotalStats(mapId, gametypeId, playerId, playtime, weaponId, stats){
 
         try{
 
-            //gametype totals
-            if(!await this.bPlayerTotalExists(gametypeId, playerId, weaponId)){
+            //map totals
+            if(!await this.bPlayerTotalExists(mapId, gametypeId, playerId, weaponId)){
 
-                await this.createPlayerTotal(gametypeId, playerId, weaponId, 
-                    stats.kills, stats.deaths, stats.accuracy, stats.shots, stats.hits, stats.damage);
+                await this.createPlayerTotal(mapId, gametypeId, playerId, weaponId, playtime, 
+                    stats.kills, stats.teamKills, stats.deaths, stats.suicides, stats.accuracy, 
+                    stats.shots, stats.hits, stats.damage);
 
             }else{
-               await this.updatePlayerTotals(gametypeId, playerId, weaponId, stats);
+               await this.updatePlayerTotals(mapId, gametypeId, playerId, weaponId, playtime, stats);
+            }
+
+            //gametype totals
+            if(!await this.bPlayerTotalExists(0, gametypeId, playerId, weaponId)){
+
+                await this.createPlayerTotal(0, gametypeId, playerId, weaponId, playtime,
+                    stats.kills, stats.teamKills, stats.deaths, stats.suicides, stats.accuracy, 
+                    stats.shots, stats.hits, stats.damage);
+
+            }else{
+               await this.updatePlayerTotals(0, gametypeId, playerId, weaponId, playtime, stats);
             }
 
             //all totals
-            if(!await this.bPlayerTotalExists(0, playerId, weaponId)){
+            if(!await this.bPlayerTotalExists(0, 0, playerId, weaponId)){
 
-                await this.createPlayerTotal(0, playerId, weaponId, 
-                    stats.kills, stats.deaths, stats.accuracy, stats.shots, stats.hits, stats.damage);
+                await this.createPlayerTotal(0, 0, playerId, weaponId, playtime,
+                    stats.kills, stats.teamKills, stats.deaths, stats.suicides, stats.accuracy, 
+                    stats.shots, stats.hits, stats.damage);
             }else{
-                await this.updatePlayerTotals(0, playerId, weaponId, stats);
+                await this.updatePlayerTotals(0, 0, playerId, weaponId, playtime, stats);
             }
 
         }catch(err){
@@ -231,23 +246,23 @@ class Weapons{
     }
     
 
-    getPlayerTotals(id){
+    async getPlayerTotals(playerId){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT weapon,kills,team_kills,deaths,suicides,efficiency,accuracy,shots,hits,damage,matches
+        FROM nstats_player_weapon_totals
+        WHERE player_id=? AND map_id=0 AND gametype=0`;
 
-            const query = "SELECT * FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=0";
+        return await mysql.simpleQuery(query, [playerId]);
+    }
 
-            mysql.query(query, [id], (err, result) =>{
+    async getPlayerBest(playerId){
 
-                if(err) reject(err);
+        const query = `SELECT weapon_id,kills,kills_best_life,team_kills,team_kills_best_life,deaths,suicides,efficiency,accuracy,shots,hits,damage
+        FROM nstats_player_weapon_best
+        WHERE player_id=? AND gametype_id=0 AND map_id=0`;
 
-                if(result !== undefined){
-                    resolve(result);
-                }
+        return await mysql.simpleQuery(query, [playerId]);
 
-                resolve([]);
-            });
-        });
     }
 
     async getAllPlayerTotals(id){
@@ -293,17 +308,59 @@ class Weapons{
 
             const files = fs.readdirSync('public/images/weapons/');
 
-            return files;
+            const images = [];
+
+            for(let i = 0; i < files.length; i++){
+
+                const f = files[i];
+
+                const result = /^(.+)\.png$/i.exec(f);
+
+                if(result === null){
+                    console.log(`Warning: weapons.getImageList() result is null for file ${f}`);
+                    continue;
+                }
+
+                images.push(result[1]);
+            }
+
+            return images;
 
         }catch(err){
             console.trace(err);
         }
     }
 
+    async getImages(weaponNames){
+
+        if(weaponNames.length === 0) return {};
+
+        const imageList = await this.getImageList();
+
+        const weaponToImage = {};
+
+        for(const [weaponId, weaponName] of Object.entries(weaponNames)){
+
+            const cleanName = weaponName.replace(" ", "").toLowerCase();
+
+            const index = imageList.indexOf(cleanName);
+
+            if(index !== -1){
+                weaponToImage[weaponId] = cleanName;
+            }else{
+                weaponToImage[weaponId] = "default";
+            }
+        }
+
+
+        return weaponToImage;
+    }
+
 
     async getMatchPlayerData(id){
 
-        const query = `SELECT player_id,weapon_id,kills,deaths,accuracy,shots,hits,damage,efficiency 
+        const query = `SELECT player_id,weapon_id,kills,best_kills,team_kills,best_team_kills,
+        deaths,suicides,accuracy,shots,hits,damage,efficiency 
         FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC`;
 
         return await mysql.simpleQuery(query, [id]);
@@ -771,7 +828,9 @@ class Weapons{
 
         const query = `SELECT 
             SUM(kills) as total_kills, 
+            SUM(team_kills) as total_team_kills,
             SUM(deaths) as total_deaths, 
+            SUM(suicides) as total_suicides,
             SUM(hits) as total_hits, 
             SUM(shots) as total_shots, 
             SUM(damage) as total_damage
@@ -793,7 +852,7 @@ class Weapons{
         return await mysql.simpleQuery(query, [matchId, playerId, weaponId]);
     }
 
-    async insertMatchRow(matchId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage){
+    async insertMatchRow(matchId, mapId, gametypeId, playerId, weaponId, kills, bestKills, teamKills, bestTeamKills, deaths, suicides, accuracy, shots, hits, damage){
 
         let efficiency = 0;
 
@@ -806,13 +865,20 @@ class Weapons{
             }
         }
 
-        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?)";
-        return await mysql.simpleQuery(query, [matchId, playerId, weaponId, kills, deaths, accuracy, shots, hits, damage, efficiency]);
+        const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+        const vars = [
+            matchId, mapId, gametypeId, playerId, weaponId, kills, 
+            bestKills ?? 0, teamKills, bestTeamKills ?? 0, deaths, suicides, 
+            accuracy, shots, hits, damage, efficiency
+        ];
+
+        return await mysql.simpleQuery(query, vars);
     }
 
     async mergePlayerMatchData(newId){
 
-        const query = "SELECT match_id,weapon_id,COUNT(*) as total_entries FROM nstats_player_weapon_match WHERE player_id=? GROUP BY match_id, weapon_id";
+        const query = "SELECT match_id,map_id,gametype_id,weapon_id,COUNT(*) as total_entries FROM nstats_player_weapon_match WHERE player_id=? GROUP BY match_id, map_id, gametype_id, weapon_id";
 
         const result = await mysql.simpleQuery(query, [newId]);
 
@@ -848,10 +914,16 @@ class Weapons{
 
                 await this.insertMatchRow(
                     n.match_id, 
+                    n.map_id,
+                    n.gametype_id,
                     newId, 
                     n.weapon_id, 
                     mergedData.total_kills,
+                    mergedData.best_kills,
+                    mergedData.total_team_kills,
+                    mergedData.best_total_team_kills,
                     mergedData.total_deaths, 
+                    mergedData.total_suicides, 
                     mergedData.accuracy, 
                     mergedData.total_shots, 
                     mergedData.total_hits, 
@@ -872,7 +944,9 @@ class Weapons{
 
     async mergePlayerTotalData(newId){
 
-        const query = "SELECT gametype,weapon,kills,deaths,efficiency,accuracy,shots,hits,damage,matches FROM nstats_player_weapon_totals WHERE player_id=?";
+        const query = `SELECT 
+        map_id,gametype,weapon,playtime,kills,team_kills,deaths,suicides,efficiency,accuracy,shots,hits,damage,matches 
+        FROM nstats_player_weapon_totals WHERE player_id=?`;
 
         const data = await mysql.simpleQuery(query, [newId]);
 
@@ -882,36 +956,42 @@ class Weapons{
 
             const d = data[i];
 
-            if(!await this.bPlayerTotalExists(d.gametype, newId, d.weapon)){
-                await this.createPlayerTotalCustom(newId, d.gametype, d.weapon, d.kills, d.deaths, d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
+            if(!await this.bPlayerTotalExists(d.map_id, d.gametype, newId, d.weapon)){
+
+                await this.createPlayerTotalCustom(newId, d.map_id, d.gametype, d.weapon, d.playtime, d.kills, d.team_kills, 
+                    d.deaths, d.suicides, d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
             }else{
-                await this.updatePlayerTotalCustom(newId, d.gametype, d.weapon, d.kills, d.deaths, d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
+                await this.updatePlayerTotalCustom(newId, d.map_id, d.gametype, d.weapon, d.playtime, d.kills, d.team_kills, d.deaths, d.suicides, 
+                    d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
             }
         }
 
     }
 
-    async createPlayerTotalCustom(playerId, gametypeId, weaponId, kills, deaths, efficiency, accuracy, shots, hits, damage, matches){
+    async createPlayerTotalCustom(playerId, mapId, gametypeId, weaponId, playtime, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches){
 
-        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)";
-        const vars = [playerId, gametypeId, weaponId, kills, deaths, efficiency, accuracy, shots, hits, damage, matches];
+        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches];
         return await mysql.simpleQuery(query, vars);
     }
 
-    async updatePlayerTotalCustom(playerId, gametypeId, weaponId, kills, deaths, efficiency, accuracy, shots, hits, damage, matches){
+    async updatePlayerTotalCustom(playerId, mapId, gametypeId, weaponId, playtime, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches){
 
         const query = `UPDATE nstats_player_weapon_totals SET 
+        playtime = playtime + ?,
         kills = kills + ?,
+        team_kills = team_kills + ?,
         deaths = deaths + ?,
+        suicides = suicides + ?,
         efficiency = IF(kills > 0, IF(deaths > 0, (kills / (kills + deaths)) * 100 ,100), 0),
         shots = shots + ?,
         hits = hits + ?,
         accuracy = IF(shots > 0, IF(hits > 0, (hits / shots) * 100, 0), 0),
         damage = damage + ?,
         matches = matches + ?
-        WHERE player_id=? AND gametype=? AND weapon=?`;
+        WHERE player_id=? AND map_id=? AND gametype=? AND weapon=?`;
 
-        const vars = [kills, deaths, shots, hits, damage, matches, playerId, gametypeId, weaponId];
+        const vars = [playtime, kills, teamKills, deaths, suicides, shots, hits, damage, matches, playerId, mapId, gametypeId, weaponId];
         return await mysql.simpleQuery(query, vars);
     }
 
@@ -919,9 +999,11 @@ class Weapons{
 
         await this.changePlayerIdMatches(oldId, newId);
         await this.changePlayerIdTotals(oldId, newId);
+        await this.changePlayerIdBest(oldId, newId);
 
         await this.mergePlayerMatchData(newId);
         await this.mergePlayerTotalData(newId);
+        await this.mergePlayerBestData(newId);
        
     }
 
@@ -1150,6 +1232,142 @@ class Weapons{
         ];
 
         await mysql.simpleUpdate(query, vars);
+    }
+
+    async bPlayerBestExist(playerId, mapId, gametypeId, weaponId){
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_weapon_best WHERE player_id=? AND map_id=? AND gametype_id=? AND weapon_id=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId, mapId, gametypeId, weaponId]);
+
+        if(result[0].total_matches > 0) return true;
+
+        return false;
+    }
+
+    async createPlayerBest(playerId, mapId, gametypeId, weaponId, stats){
+
+        const query = `INSERT INTO nstats_player_weapon_best VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [playerId, mapId, gametypeId, weaponId,
+            stats.kills,
+            stats.bestKills,
+            stats.teamKills,
+            stats.bestTeamKills,
+            stats.deaths,
+            stats.suicides,
+            stats.efficiency,
+            stats.accuracy,
+            stats.shots,
+            stats.hits,
+            stats.damage
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async updatePlayerBestQuery(playerId, mapId, gametypeId, weaponId, stats){
+
+        const query = `UPDATE nstats_player_weapon_best SET
+        kills = IF(kills < ?, ?, kills),
+        kills_best_life = IF(kills_best_life < ?, ?, kills_best_life),
+        team_kills = IF(team_kills < ?, ?, team_kills),
+        team_kills_best_life = IF(team_kills_best_life < ?, ?, team_kills_best_life),
+        deaths = IF(deaths < ?, ?, deaths),
+        suicides = IF(suicides < ?, ?, suicides),
+        efficiency = IF(efficiency < ?, ?, efficiency),
+        accuracy = IF(accuracy < ?, ?, accuracy),
+        shots = IF(shots < ?, ?, shots),
+        hits = IF(hits < ?, ?, hits),
+        damage = IF(damage < ?, ?, damage)
+        WHERE player_id=? AND map_id=? AND gametype_id=? AND weapon_id=?`;
+
+        const vars = [
+            stats.kills, stats.kills,
+            stats.bestKills, stats.bestKills,
+            stats.teamKills, stats.teamKills,
+            stats.bestTeamKills, stats.bestTeamKills,
+            stats.deaths, stats.deaths,
+            stats.suicides, stats.suicide,
+            stats.efficiency, stats.efficiency,
+            stats.accuracy, stats.accuracy,
+            stats.shots, stats.shots,
+            stats.hits, stats.hits,
+            stats.damage, stats.damage,
+            playerId, mapId, gametypeId, weaponId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async updatePlayerBest(playerId, mapId, gametypeId, weaponId, stats){
+
+        //map totals
+        if(!await this.bPlayerBestExist(playerId, mapId, gametypeId, weaponId)){
+            await this.createPlayerBest(playerId, mapId, gametypeId, weaponId, stats);
+        }else{
+            await this.updatePlayerBestQuery(playerId, mapId, gametypeId, weaponId, stats);
+        }
+
+        //gametype totals
+        if(!await this.bPlayerBestExist(playerId, 0, gametypeId, weaponId)){
+            await this.createPlayerBest(playerId, 0, gametypeId, weaponId, stats);
+        }else{
+            await this.updatePlayerBestQuery(playerId, 0, gametypeId, weaponId, stats);
+        }
+
+        //all totals
+        if(!await this.bPlayerBestExist(playerId, 0, 0, weaponId)){
+            await this.createPlayerBest(playerId, 0, 0, weaponId, stats);
+        }else{
+            await this.updatePlayerBestQuery(playerId, 0, 0, weaponId, stats);
+        }
+    }
+
+    async changePlayerIdBest(oldId, newId){
+
+        const query = `UPDATE nstats_player_weapon_best SET player_id=? WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+
+    async deletePlayerBest(playerId){
+
+        const query = `DELETE FROM nstats_player_weapon_best WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId])
+    }
+
+    async mergePlayerBestData(playerId){
+
+        const query = `SELECT player_id,map_id,gametype_id,weapon_id,
+        COUNT(*) as total_entries,
+        MAX(kills) as kills,
+        MAX(kills_best_life) as bestKills,
+        MAX(team_kills) as teamKills,
+        MAX(team_kills_best_life) as bestTeamKills,
+        MAX(deaths) as deaths,
+        MAX(suicides) as suicides,
+        MAX(efficiency) as efficiency,
+        MAX(accuracy) as accuracy,
+        MAX(shots) as shots,
+        MAX(hits) as hits,
+        MAX(damage) as damage
+        FROM nstats_player_weapon_best
+        WHERE player_id=?
+        GROUP BY player_id,map_id,gametype_id,weapon_id`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        await this.deletePlayerBest(playerId);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            await this.createPlayerBest(r.player_id, r.map_id, r.gametype_id, r.weapon_id, r);
+
+        }
     }
 }
 

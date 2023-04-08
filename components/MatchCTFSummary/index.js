@@ -6,7 +6,6 @@ import {React, useState} from "react";
 
 const MatchCTFSummary = ({matchId, playerData, single}) =>{
 
-
     const [mode, setMode] = useState(0);
 
     const renderDefault = () =>{
@@ -32,6 +31,7 @@ const MatchCTFSummary = ({matchId, playerData, single}) =>{
         if(mode !== 3) return null;
         return <MatchCTFSummaryReturns matchId={matchId}  playerData={playerData} single={single}/>;
     }
+    
     
 
     return <div>

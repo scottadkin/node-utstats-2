@@ -317,8 +317,6 @@ class PlayerManager{
                 //player.setHWID(p.hwid);
             }
 
-            console.log(p.name, masterIds);
-
             this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 
             const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, p.hwid);
@@ -402,15 +400,13 @@ class PlayerManager{
         for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
-            
-            if(p.bDuplicate === undefined && p.bPlayedInMatch && p.stats.time_on_server > 0){
 
-                if(this.bIgnoreBots){
-                    if(p.bBot) continue;
-                }
+            const playtime = p.getTotalPlaytime(this.totalTeams);
 
+            if(playtime > 0){
+
+                if(p.bBot && this.bIgnoreBots) continue;
                 found++;
-                
             }
         }
 
@@ -559,7 +555,7 @@ class PlayerManager{
                         }else if(type === 'p_s'){
 
                             if(timestamp < this.matchTimings.start){
-                                new Message(`Score update before match start, ignoring.`,"note");
+                                //new Message(`Score update before match start, ignoring.`,"note");
                                 continue;
                             }
 
@@ -740,93 +736,112 @@ class PlayerManager{
     }
 
 
+    kill(killInfo, bTeamGame){
+
+        const {killerId, victimId, timestamp, killDistance, deathType, killerWeapon, victimWeapon} = killInfo;
+
+        const killer = this.getPlayerByMasterId(killerId);
+        const victim = this.getPlayerByMasterId(victimId);
+
+        if(killer !== null && this.bIgnoreBots && killer.bBot) return;
+        if(victim !== null && this.bIgnoreBots && victim.bBot) return;
+
+        const victimTeam = this.getPlayerTeamAt(victimId, timestamp);
+        const killerTeam = this.getPlayerTeamAt(killerId, timestamp);
+
+        let bTeamKill = false;
+
+        if(bTeamGame){
+            bTeamKill = killerTeam === victimTeam;
+        }
+
+
+        if(killer !== null){   
+
+            killer.killedPlayer(timestamp, killerWeapon, killDistance, bTeamKill, victimWeapon, deathType);
+
+            if(killerWeapon.toLowerCase() === "translocator"){
+
+                killer.teleFragKill(timestamp);
+                this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, false)
+
+            }else if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
+
+                killer.teleDiscKill(timestamp);
+                this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, true)
+            }
+        }
+
+        
+        if(victim !== null){
+
+            if(victim.onASpree()){
+
+                if(killer === null){
+                    killer = {"id": -1}
+                }
+
+                this.spreeManager.add(
+                    victim.masterId, 
+                    victim.getCurrentSpree(), 
+                    killer.masterId,
+                    victim.getPreviousSpawn(timestamp),
+                    timestamp
+                );
+            }
+
+            if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
+                victim.teleDiscDeath();
+            }
+
+            if(victim.died(timestamp, killerWeapon, false, killerWeapon.toLowerCase() === "translocator")){
+                
+                if(killer !== null){
+                    killer.stats.spawnKills++;
+                }
+            }
+        }
+    }
+
+    suicide(killInfo){
+
+        const {killerId, timestamp, killerWeapon} = killInfo;
+
+        const victim = this.getPlayerByMasterId(killerId);
+
+        if(victim !== null){
+
+            if(victim.onASpree()){
+
+                this.spreeManager.add(
+                    victim.masterId, 
+                    victim.getCurrentSpree(), 
+                    -1,
+                    victim.getPreviousSpawn(timestamp),
+                    timestamp
+                );
+                
+            }
+
+            victim.died(timestamp, killerWeapon, true, false);
+        }
+    }
+
     setKills(kills){
 
-        let killer = 0;
-        let victim = 0;
+        const bTeamGame = this.totalTeams >= 2;
 
         for(let i = 0; i < kills.length; i++){
 
             const k = kills[i];
-
+            
             if(k.type === 'kill'){
 
-                killer = this.getPlayerByMasterId(k.killerId);
-                victim = this.getPlayerByMasterId(k.victimId);
-
-                if(killer !== null){
-
-                    if(this.bIgnoreBots){
-                        if(killer.bBot) continue;
-                    }
-                }
-
-                if(victim !== null){
-
-                    if(this.bIgnoreBots){
-                        if(victim.bBot) continue;
-                    }
-                }
-                
-
-                if(killer !== null){   
-                    killer.killedPlayer(k.timestamp, k.killerWeapon, k.killDistance);
-                }
-
-              
-                if(victim !== null){
-
-                    if(victim.onASpree()){
-
-                        if(killer === null){
-                            killer = {"id": -1}
-                        }
-
-                        this.spreeManager.add(
-                            victim.masterId, 
-                            victim.getCurrentSpree(), 
-                            killer.masterId,
-                            victim.getPreviousSpawn(k.timestamp),
-                            k.timestamp
-                        );
-                    }
-
-                   if(victim.died(k.timestamp, k.killerWeapon)){
-                       
-                       if(killer !== null){
-                            killer.stats.spawnKills++;
-                       }
-                   }
-                }
+                this.kill(k, bTeamGame);
 
             }else if(k.type === 'suicide'){
                
-
-                victim = this.getPlayerByMasterId(k.killerId);
-
-                if(victim !== null){
-
-                    if(victim.onASpree()){
-
-                        this.spreeManager.add(
-                            victim.masterId, 
-                            victim.getCurrentSpree(), 
-                            killer.masterId,
-                            victim.getPreviousSpawn(k.timestamp),
-                            k.timestamp
-                        );
-                        /*this.sprees.addToList(
-                            victim.masterId, 
-                            victim.getCurrentSpree(), 
-                            victim.masterId,
-                            victim.getPreviousSpawn(k.timestamp),
-                            k.timestamp
-                        );*/
-                        
-                    }
-
-                    victim.died(k.timestamp, k.killerWeapon);
-                }
+                this.suicide(k);
             }
         }
     }
@@ -1005,7 +1020,7 @@ class PlayerManager{
     }
 
 
-    async updateFragPerformance(gametypeId, date, totalTeams){
+    async updateFragPerformance(gametypeId, date){
 
         try{
 
@@ -1019,15 +1034,11 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                if(!p.bPlayedInMatch) continue;
+                if(this.bIgnoreBots && p.bBot) continue;
+                
+                const totalPlaytime = p.getTotalPlaytime(this.totalTeams);
 
-                if(this.bIgnoreBots){
-                    if(p.bBot) continue;
-                }
-
-                const totalPlaytime = p.getTotalPlaytime(totalTeams);
-
-                const teamPlaytime = p.getPlaytimeByTeam(totalTeams);
+                const teamPlaytime = p.getPlaytimeByTeam(this.totalTeams);
 
                 //update combined gametypes totals
                 await Player.updateFrags(
@@ -1059,7 +1070,8 @@ class PlayerManager{
                     p.stats.killsLongRange,
                     p.stats.killsUberRange,
                     p.stats.headshots,
-                    0
+                    0,
+                    p.stats.teleFrags
                 );
 
                 //update gametype specific totals
@@ -1092,7 +1104,8 @@ class PlayerManager{
                     p.stats.killsLongRange,
                     p.stats.killsUberRange,
                     p.stats.headshots,
-                    gametypeId
+                    gametypeId,
+                    p.stats.teleFrags
                 );
 
                 //to prevent players that used multiple names during a match to update matches played by more than 1
@@ -1123,17 +1136,14 @@ class PlayerManager{
             await this.faces.updateFaceStats(this.players, date);
             this.faces.setPlayerFaceIds(this.players);
 
-
             for(let i = 0; i < this.players.length; i++){
 
                 const p = this.players[i];
 
-                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+                const playtime = p.getTotalPlaytime(this.totalTeams);
 
-                    if(this.bIgnoreBots){
-                        if(p.bBot) continue;
-                    }
-
+                if(playtime > 0){
+                    if(this.bIgnoreBots && p.bBot) continue;
                     await this.faces.updatePlayerFace(p.masterId, p.faceId);
                 }
             }
@@ -1214,11 +1224,14 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                if(!p.bPlayedInMatch) continue;
+                const playtime = p.getTotalPlaytime(this.totalTeams);
+
                 if(this.bIgnoreBots && p.bBot) continue;
        
-                await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
-                await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
+                if(playtime > 0){
+                    await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
+                    await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
+                }
             }
             
 
@@ -1279,12 +1292,11 @@ class PlayerManager{
                 
                 const p = this.players[i];
 
-                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+                const playtime = p.getTotalPlaytime(this.totalTeams);
 
-                    if(this.bIgnoreBots){
-
-                        if(p.bBot) continue;
-                    }
+                if(this.bIgnoreBots && p.bBot) continue;
+                
+                if(playtime > 0){
 
                     if(data[p.voice] === undefined){
                         data[p.voice] = 1;
@@ -1307,7 +1319,7 @@ class PlayerManager{
     }
 
 
-    async insertMatchData(gametypeId, matchId, mapId, matchDate, totalTeams){
+    async insertMatchData(gametypeId, matchId, mapId, matchDate){
 
         try{
 
@@ -1335,7 +1347,7 @@ class PlayerManager{
                       
                     }
 
-                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData, totalTeams);
+                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData, this.totalTeams);
 
                     
                     
@@ -1391,19 +1403,21 @@ class PlayerManager{
 
                 const currentPlayer = this.getPlayerById(s.player);
 
-                if(currentPlayer !== null){
-
-                    if(currentPlayer.bPlayedInMatch){
-
-                        if(this.bIgnoreBots){
-                            if(currentPlayer.bBot) continue;
-                        }
-
-                        await Player.insertScoreHistory(matchId, s.timestamp, currentPlayer.masterId, s.score);
-                    }
-                }else{
+                if(currentPlayer === null){
                     new Message(`PlayerManager.insertSCoreHistory() currentPlayer is null`,'warning');
+                    continue;
                 }
+
+                if(this.bIgnoreBots && currentPlayer.bBot) continue;
+                
+
+                const playtime = currentPlayer.getTotalPlaytime(this.totalTeams);
+
+                if(playtime > 0){
+                    await Player.insertScoreHistory(matchId, s.timestamp, currentPlayer.masterId, s.score);
+                }
+
+                
             }
 
         }catch(err){
@@ -1496,12 +1510,11 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                if(p.bPlayedInMatch){
+                if(this.bIgnoreBots && p.bBot) continue;
+                
+                const playtime = p.getTotalPlaytime(this.totalTeams);
 
-                    if(this.bIgnoreBots){
-                        if(p.bBot) continue;
-                    }
-
+                if(playtime > 0){
                     playerIds.push(p.masterId);
                 }
             }
@@ -1559,28 +1572,23 @@ class PlayerManager{
 
             const data = {};
 
-            let p = 0;
-            let current = 0;
-
             for(let i = 0; i < this.players.length; i++){
 
+                const p = this.players[i];
 
-                p = this.players[i];
+                if(this.bIgnoreBots && p.bBot) continue;         
 
-                if(p.bDuplicate === undefined && p.bPlayedInMatch){
+                const playtime = p.getTotalPlaytime(this.totalTeams);
 
-                    if(this.bIgnoreBots){
-                        if(p.bBot) continue;
-                    }
+                if(playtime > 0){
 
-                    current = await Player.getGametypeTotals(p.masterId, gametype);
+                    const current = await Player.getGametypeTotals(p.masterId, gametype);
 
                     if(current !== null){
                         data[p.masterId] = current;
                     }
                 }
             }
-
 
             return data;
 

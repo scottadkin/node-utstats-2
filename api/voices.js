@@ -10,59 +10,35 @@ class Voices{
 
     }
 
-    exists(name){
+    async exists(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_voices FROM nstats_voices WHERE name=?";
 
-            const query = "SELECT COUNT(*) as total_voices FROM nstats_voices WHERE name=?";
+        const result = await mysql.simpleQuery(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result[0].total_voices > 0){
-                    resolve(true);
-                }
-
-                resolve(false);
-            });
-        });
+        return result[0].total_voices > 0;
     }
 
-    create(name, date, uses){
+    async create(name, date, uses){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_voices VALUES(NULL,?,?,?,?)";
 
-            const query = "INSERT INTO nstats_voices VALUES(NULL,?,?,?,?)";
-
-            mysql.query(query, [name, date, date, uses], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, [name, date, date, uses]);
     }
 
 
-    updateStats(name, date, uses){
+    async updateStats(name, date, uses){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_voices SET 
+        const query = `UPDATE nstats_voices SET 
             uses=uses+?,
             first = IF(first < ?, first, ?),
             last = IF(last > ?, last, ?)
             
             WHERE name=?`;
 
-            mysql.query(query, [uses, date, date, date, date, name], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const vars = [uses, date, date, date, date, name];
+        
+        return await mysql.simpleQuery(query, vars);
     }
 
     async updateStatsBulk(data, matchDate){
@@ -73,11 +49,11 @@ class Voices{
 
                 if(await this.exists(voice)){
 
-                    new Message(`Updating voice stats for "${voice}".`,'note');
+                    //new Message(`Updating voice stats for "${voice}".`,'note');
                     await this.updateStats(voice, matchDate, data[voice]);
 
                 }else{
-                    new Message(`There is no data for the voice "${voice}", creating now.`,'note');
+                    //new Message(`There is no data for the voice "${voice}", creating now.`,'note');
                     await this.create(voice, matchDate, data[voice]);
                 }
             }    
@@ -88,53 +64,26 @@ class Voices{
     }
 
 
-    updatePlayerVoice(playerId, voiceId){
+    async updatePlayerVoice(playerId, voiceId){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_player_totals SET voice=? WHERE id=?";
-
-            mysql.query(query, [voiceId, playerId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "UPDATE nstats_player_totals SET voice=? WHERE id=?";
+        return await mysql.simpleQuery(query, [voiceId, playerId]);
     }
 
-    getAllIds(){
+    async getAllIds(){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id,name FROM nstats_voices";
+        const result = await mysql.simpleQuery(query);
 
-            const query = "SELECT id,name FROM nstats_voices";
+        this.voices = {};
 
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    const data = {};
-
-                    for(let i = 0; i < result.length; i++){
-                        data[result[i].name] = result[i].id;
-
-                    }
-
-                    this.voices = data;
-
-                    resolve();
-                }
-
-                resolve();
-            });
-        });
+        for(let i = 0; i < result.length; i++){
+            this.voices[result[i].name] = result[i].id;
+        }
     }
 
 
     getIdFromVoices(name){
-
 
         for(const voice in this.voices){
 
@@ -151,15 +100,11 @@ class Voices{
 
         try{
 
-            let currentId = 0;
-
-            let p = 0;
-
             for(let i = 0; i < players.length; i++){
 
-                p = players[i];
+                const p = players[i];
 
-                currentId = this.getIdFromVoices(p.voice);
+                const currentId = this.getIdFromVoices(p.voice);
 
                 if(currentId !== null){
 
@@ -193,11 +138,9 @@ class Voices{
 
             const uses = {};
 
-            let m = 0;
-
             for(let i = 0; i < matches.length; i++){
 
-                m = matches[i];
+                const m = matches[i];
 
                 if(uses[m.voice] === undefined){
                     uses[m.voice] = 0;
@@ -223,11 +166,9 @@ class Voices{
 
             const uses = {};
 
-            let d = 0;
-
             for(let i = 0; i < data.length; i++){
 
-                d = data[i];
+                const d = data[i];
 
                 if(uses[d.voice] === undefined){
                     uses[d.voice] = 0;

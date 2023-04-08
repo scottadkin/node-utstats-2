@@ -276,6 +276,22 @@ class PlayerInfo{
                 "2": 0,
                 "3": 0,
                 "255": 0,
+            },
+            "teleFrags":{
+                "total": 0,
+                "lastKillTime": -9,
+                "currentSpree": 0,
+                "bestSpree": 0,
+                "deaths": 0,
+                "currentMulti": 0,
+                "bestMulti": 0,
+                "discKills": 0, //kills by damaging an enemy's disc.
+                "discKillsBestSpree": 0,
+                "discKillsCurrentSpree": 0,
+                "discKillsBestMulti": 0,
+                "discKillsCurrentMulti": 0,
+                "discDeaths": 0,
+                "discLastKillTime": -9
             }
             //type === 'assist' || type === 'returned' || type === 'taken' || type === 'dropped' || type === 'captured' || type === 'pickedup'
         };
@@ -324,11 +340,9 @@ class PlayerInfo{
 
     bDuplicateTeamData(timestamp, id){
 
-        let t = 0;
-
         for(let i = 0; i < this.teams.length; i++){
 
-            t = this.teams[i];
+            const t = this.teams[i];
 
             if(t.time === timestamp && t.id === id){
                 return true;
@@ -394,9 +408,10 @@ class PlayerInfo{
     }
 
     //return true if player was spawnkilled, false if not
-    died(timestamp, weapon){
+    died(timestamp, weapon, bSuicide, bTeleFrag){
 
-
+        if(bTeleFrag) this.teleFragDeath();
+        
         this.lastSpawn = this.getPreviousSpawn(timestamp);
 
         if(this.lastSpawn !== null){
@@ -405,7 +420,7 @@ class PlayerInfo{
 
         //console.log(`I died to ${weapon}`);
         if(weapon !== undefined){
-            this.updateWeaponStats('death', weapon);
+            this.updateWeaponStats('death', weapon, bSuicide);
         }
 
         this.updateMonsterHuntSprees();
@@ -418,6 +433,13 @@ class PlayerInfo{
         this.updateMultis();
         this.currentSpree = 0;
         this.currentMulti = 0;
+
+        this.stats.teleFrags.currentMulti = 0;
+        this.stats.teleFrags.currentSpree = 0;
+        this.stats.teleFrags.lastKillTime = -9;
+        this.stats.teleFrags.discKillsCurrentSpree = 0;
+        this.stats.teleFrags.discKillsCurrentMulti = 0;
+        this.stats.teleFrags.discLastKillTime = -9;
 
         if(this.lastSpawn !== null){
 
@@ -506,11 +528,70 @@ class PlayerInfo{
         if(distance < this.stats.killMinDistance || this.stats.killMinDistance === null){
             this.stats.killMinDistance = distance;
         }
+    }
+
+    teleFragKill(timestamp){
+
+        const difference = timestamp - this.stats.teleFrags.lastKillTime;
+
+        if(difference <= config.multiKillTimeLimit){
+
+            this.stats.teleFrags.currentMulti = 0;
+        }
+
+        this.stats.teleFrags.currentMulti++;
+
+
+        if(this.stats.teleFrags.currentMulti > this.stats.teleFrags.bestMulti){
+            this.stats.teleFrags.bestMulti = this.stats.teleFrags.currentMulti;
+        }
+
+     
+
+        this.stats.teleFrags.currentSpree++;
+
+        if(this.stats.teleFrags.currentSpree > this.stats.teleFrags.bestSpree){
+            this.stats.teleFrags.bestSpree = this.stats.teleFrags.currentSpree;
+        }
+
+        this.stats.teleFrags.lastKillTime = timestamp;
+
+        this.stats.teleFrags.total++;
+    }
+
+    teleFragDeath(){
+        this.stats.teleFrags.deaths++;
+    }
+
+    teleDiscDeath(){
+
+        this.stats.teleFrags.discDeaths++;
+    }
+
+    teleDiscKill(timestamp){
+
+        const diff = timestamp - this.stats.teleFrags.discLastKillTime;
+
+        if(diff > config.multiKillTimeLimit) this.stats.teleFrags.discKillsBestMulti = 0;
+
+        this.stats.teleFrags.discKillsCurrentMulti++;
+
+        if(this.stats.teleFrags.discKillsCurrentMulti > this.stats.teleFrags.discKillsBestMulti){
+            this.stats.teleFrags.discKillsBestMulti = this.stats.teleFrags.discKillsCurrentMulti;
+        }
+
+        this.stats.teleFrags.discKillsCurrentSpree++;
+
+        if(this.stats.teleFrags.discKillsCurrentSpree > this.stats.teleFrags.discKillsBestSpree){
+            this.stats.teleFrags.discKillsBestSpree = this.stats.teleFrags.discKillsCurrentSpree;
+        }
+
+        this.stats.teleFrags.discKills++;
+
 
     }
 
-
-    killedPlayer(timestamp, weapon, distance){
+    killedPlayer(timestamp, weapon, distance, bTeamKill, victimWeapon, deathType){
 
         timestamp = parseFloat(timestamp);
 
@@ -518,7 +599,7 @@ class PlayerInfo{
 
         this.updateKillDistances(distance);
 
-        this.updateWeaponStats('kill', weapon);
+        this.updateWeaponStats('kill', weapon, false, bTeamKill);
 
         this.stats.currentSpree++;
 
@@ -540,9 +621,7 @@ class PlayerInfo{
             this.stats.currentMulti++;
 
         }else{
-
-            this.updateMultis();
-            
+            this.updateMultis();      
         }
 
         if(distance <= 1536){
@@ -558,30 +637,19 @@ class PlayerInfo{
         this.lastKill = timestamp;
     }
 
-    updateWeaponStats(type, weapon){
+    updateWeaponStats(type, weapon, bSuicide, bTeamKill){
 
-        if(this.weaponStats.has(weapon)){
+        if(!this.weaponStats.has(weapon)){
 
-            const stats = this.weaponStats.get(weapon);
+            this.weaponStats.set(weapon, new WeaponStats(weapon));       
+        }
 
-            if(type === 'kill'){
-                stats.killedPlayer();
-            }else if(type === 'death'){
-                stats.died();
-            }
+        const stats = this.weaponStats.get(weapon);
 
-        }else{
-
-            this.weaponStats.set(weapon, new WeaponStats(weapon));
-            const stats = this.weaponStats.get(weapon);
-
-            if(type === 'kill'){
-                stats.killedPlayer();
-            }else if(type === 'death'){
-                stats.died();
-            }
-
-            //console.log(this.weaponStats);
+        if(type === 'kill'){
+            stats.killedPlayer(bTeamKill);
+        }else if(type === 'death'){
+            stats.died(bSuicide);
         }
     }
 
@@ -638,22 +706,6 @@ class PlayerInfo{
 
         return currentTeam;
     }
-
-    /*getPreviousSpawn(timestamp){
-
-
-        for(let i = this.spawns.length - 1; i >= 0; i--){
-
-            const s = this.spawns[i];
-
-            if(s.timestamp < timestamp){
-                return s.timestamp;
-            }
-        }
-
-        return null;
-
-    }*/
 
     updateMonsterHuntSprees(){
 

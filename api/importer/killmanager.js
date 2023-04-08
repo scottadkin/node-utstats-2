@@ -2,6 +2,7 @@ const Kill =  require('./kill');
 const Message = require('../message');
 const KillsManager = require('../kills');
 const Headshots = require('../headshots');
+const Telefrags = require("../telefrags");
 
 class KillManager{
 
@@ -19,6 +20,8 @@ class KillManager{
         this.killsManager = new KillsManager();
         this.headshotsManager = new Headshots();
 
+        this.teleFrags = [];
+
         this.killNames = [];
         this.parseData();
        // console.table(this.kills);
@@ -31,7 +34,7 @@ class KillManager{
         const timestamp = parseFloat(result[1]);
 
         if(timestamp < this.matchTimings.start){
-            new Message(`Kill happened before match start ignoring.(Warmpup)`,"note");
+            //new Message(`Kill happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
 
@@ -39,14 +42,17 @@ class KillManager{
             this.killNames.push(result[4]);
         }
 
-
         const killerId = parseInt(result[3]);
         const killer = this.playerManager.getPlayerById(killerId);
 
         const victimId = parseInt(result[5]);
         const victim = this.playerManager.getPlayerById(victimId);
 
-        const kill = new Kill(result[1], result[2], killer.masterId ?? -1, result[4], victim.masterId ?? -1, result[6], result[7]);
+        let type = result[2];
+
+        if(type === "teamkill") type = "kill";
+
+        const kill = new Kill(result[1], type, killer.masterId ?? -1, result[4], victim.masterId ?? -1, result[6], result[7]);
         
         this.kills.push(kill);     
     }
@@ -56,7 +62,7 @@ class KillManager{
         const timestamp = parseFloat(result[1]);
 
         if(timestamp < this.matchTimings.start){
-            new Message(`Kill(Distance) happened before match start ignoring.(Warmpup)`,"note");
+            //new Message(`Kill(Distance) happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
 
@@ -68,7 +74,7 @@ class KillManager{
         const timestamp = parseFloat(result[1]);
 
         if(timestamp < this.matchTimings.start){
-            new Message(`headshot happened before match start ignoring.(Warmpup)`,"note");
+            //new Message(`headshot happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
 
@@ -94,7 +100,7 @@ class KillManager{
         const timestamp = parseFloat(result[1]);
 
         if(timestamp < this.matchTimings.start){
-            new Message(`Kill(Location) happened before match start ignoring.(Warmpup)`,"note");
+            //new Message(`Kill(Location) happened before match start ignoring.(Warmpup)`,"note");
             return;
         }
 
@@ -150,8 +156,6 @@ class KillManager{
             
                 this.parseHeadshot(headshotReg.exec(d));
 
-            }else{
-                console.log(d);
             }
         }
 
@@ -591,6 +595,35 @@ class KillManager{
         }
 
         return null;
+    }
+
+    addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, bDiscKill){
+
+        this.teleFrags.push({
+            "timestamp": timestamp,
+            "killerId": killerId,
+            "killerTeam": killerTeam,
+            "victimId": victimId,
+            "victimTeam": victimTeam,
+            "bDiscKill": bDiscKill
+        });
+    }
+
+    async insertTeleFrags(matchId, mapId, gametypeId){
+
+        const teleFragManager = new Telefrags();
+
+        await this.killsManager.insertTeleFrags(matchId, mapId, gametypeId, this.teleFrags);
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+
+            const playtime = p.getTotalPlaytime(this.playerManager.totalTeams);
+
+            await teleFragManager.updatePlayerTotals(p.masterId, mapId, gametypeId, playtime, p.stats.teleFrags);
+        }
+        //updatePlayerTotals(playerId, mapId, gametypeId, playtime, stats)
     }
 }
 

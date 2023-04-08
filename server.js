@@ -6,10 +6,15 @@ const next = require("next");
 const {websitePort, imageServerPort, bUseSeperateImageServer, bUseHTTPS, ssl} = require("./config.json");
 const fs = require("fs");
 
-const options = {
-    cert: fs.readFileSync(ssl.cert),
-    key: fs.readFileSync(ssl.key),
-};
+
+let options = {};
+
+if(bUseHTTPS){
+  options = {
+      cert: fs.readFileSync(ssl.cert),
+      key: fs.readFileSync(ssl.key),
+  };
+}
 
 
 if(bUseSeperateImageServer){

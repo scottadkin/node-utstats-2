@@ -39,6 +39,7 @@ import MatchCTFReturns from '../../components/MatchCTFReturns';
 import Loading from '../../components/Loading';
 import useMatchPlayersLoader from '../../components/useMatchPlayersLoader';
 import MatchPowerupSummary from '../../components/MatchPowerupSummary';
+import MatchTeleFrags from '../../components/MatchTeleFrags';
 
 
 const Match = ({matchId, error, host, image, info, metaData, session, pageSettings, pageOrder, 
@@ -48,7 +49,6 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     session = JSON.parse(session);
 
     const players = useMatchPlayersLoader(matchId);
-
 
     if(error !== undefined){
         return <ErrorPage>{error}</ErrorPage>
@@ -393,6 +393,17 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
         }
 
 
+        if(pageSettings["Display Telefrag Stats"] === "true"){
+
+            elems[pageOrder["Display Telefrag Stats"]] = <MatchTeleFrags 
+                key="tele-frags" 
+                data={players.playedPlayersData} 
+                matchId={matchId} 
+                matchStart={info.start}
+                players={players.basicPlayers}
+            />;
+        }
+
         if(session["bLoggedIn"]){
             elems[999999] = <AdminMatchControl key={"a-c"} host={imageHost} matchId={matchId} players={players.basicPlayers} mapId={info.map}
                 gametypeId={info.gametype}
@@ -539,7 +550,6 @@ export async function getServerSideProps({req, query}){
             "keywords": keywords
         };
 
-        console.log(matchInfo);
 
 
         return {

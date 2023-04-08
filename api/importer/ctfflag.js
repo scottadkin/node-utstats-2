@@ -4,8 +4,6 @@ class CTFFlag{
 
     constructor(ctfManager, playerManager, killManager, matchId, matchDate, mapId, team, totalTeams){
 
-        console.log(`new CTFFlag with team of ${team}`);
-
         this.ctfManager = ctfManager;
         this.playerManager = playerManager;
         this.killManager = killManager;
@@ -103,10 +101,6 @@ class CTFFlag{
     }
 
     async timedOutReturn(timestamp){
-
-        new Message(`new TIMED OUT REIUTRFIUESGOISUDOIGUDSOIGUDSI`,"error");
-        //this.debugSeals("timedOutReturn");
-        //await this.processSelfCovers(false, -1);
 
         this.lastReturnTimestamp = timestamp;
 
@@ -494,7 +488,7 @@ class CTFFlag{
 
             const timeDropped = travelTime - totalCarryTime;
 
-            console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${totalCarryTime}, timeDropped ${timeDropped}`);
+            //console.log(`${capTeam} capped the ${this.team} flag. TravelTime ${travelTime}, carryTime ${totalCarryTime}, timeDropped ${timeDropped}`);
           
             const totalSelfCovers = this.getTotalSelfCovers();
 

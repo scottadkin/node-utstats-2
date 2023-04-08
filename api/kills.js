@@ -79,12 +79,15 @@ class Kills{
 
         await mysql.simpleQuery("UPDATE nstats_kills SET killer=? WHERE killer=?", [newId, oldId]);
         await mysql.simpleQuery("UPDATE nstats_kills SET victim=? WHERE victim=?", [newId, oldId]);
+        await mysql.simpleQuery("UPDATE nstats_tele_frags SET killer_id=? WHERE killer_id=?", [newId, oldId]);
+        await mysql.simpleQuery("UPDATE nstats_tele_frags SET victim_id=? WHERE victim_id=?", [newId, oldId]);
         
     }
 
     async deletePlayer(player){
 
         await mysql.simpleDelete("DELETE FROM nstats_kills WHERE (killer = ?) OR (victim = ?)", [player, player]);
+        await mysql.simpleDelete("DELETE FROM nstats_tele_frags WHERE (killer_id = ?) OR (victim_id = ?)", [player, player]);
     }
 
     async deleteMatches(ids){
@@ -155,164 +158,189 @@ class Kills{
         return data;
     }
 
+    createGraphDataType(indexes, names){
 
-    reduceTotalDataPoints(data, players, teams){
+        const data = [];
 
-        const playerIndexes = [];
+        for(let i = 0; i < indexes.length; i++){
 
-        let killsData = [];
-        let deathsData = [];
-        let suicidesData = [];
-
-        let teamsKillsData = [];
-        let teamsDeathsData = [];
-        let teamsSuicidesData = [];
-
-        for(const [key, value] of Object.entries(players)){
-
-            playerIndexes.push(parseInt(key));
-
-            killsData.push({"name": value, "data": [0], "lastValue": 0});
-            deathsData.push({"name": value, "data": [0], "lastValue": 0});
-            suicidesData.push({"name": value, "data": [0], "lastValue": 0});
+            const index = indexes[i];
+            data.push({"name": names[index], "data": [0]});
         }
 
-        for(let i = 0; i < teams; i++){
+        return data;  
+    }
 
-            teamsKillsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
-            teamsDeathsData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
-            teamsSuicidesData.push({"name": Functions.getTeamName(i), "data": [0], "lastValue": 0});
+    updateOthersGraphData(data, ignoreIndexes){
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(ignoreIndexes.indexOf(i) !== -1) continue;
+
+            const previousValue = d.data[d.data.length - 1];
+            d.data.push(previousValue);
         }
+
+        return data;
+    }
+
+    updateGraphData(data, index, newValue, bSkipUpdatedOthers){
+
+        if(bSkipUpdatedOthers === undefined) bSkipUpdatedOthers = false;
+
+        if(typeof newValue !== "string"){
+
+            data[index].data.push(newValue);
+
+        }else{
+
+            const previousValue = data[index].data[data[index].data.length - 1];
+            data[index].data.push(previousValue + 1);
+        }
+
+        if(!bSkipUpdatedOthers){
+            this.updateOthersGraphData(data, [index]);
+        }
+    }
+
+    getCurrentGraphDataValue(data, index){
+        
+        return data[index].data[data[index].data.length - 1];
+    }
+
+    calculateEfficiency(kills, deaths){
+
+        if(kills > 0){
+
+            if(deaths > 0){
+                return parseFloat(((kills / (deaths + kills)) * 100).toFixed(2));
+            }
+
+            return 100;
+        }
+
+        return 0;
+    }
+
+    createGraphData(data, players, totalTeams){
+
+        const playerIndexes = Object.keys(players).map((playerId) => parseInt(playerId));
+        const teams = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
+        const teamIndexes = [0,1,2,3];
+
+        const kills = this.createGraphDataType(playerIndexes, players);
+        const deaths = this.createGraphDataType(playerIndexes, players);
+        const suicides = this.createGraphDataType(playerIndexes, players);
+        const teamKills = this.createGraphDataType(playerIndexes, players);
+        const efficiency = this.createGraphDataType(playerIndexes, players);
+
+        const teamTotalKills = this.createGraphDataType(teamIndexes, teams);
+        const teamTotalDeaths = this.createGraphDataType(teamIndexes, teams);
+        const teamTotalSuicides = this.createGraphDataType(teamIndexes, teams);
+        const teamTotalTeamKills = this.createGraphDataType(teamIndexes, teams);
+        const teamEfficiency = this.createGraphDataType(teamIndexes, teams);
 
 
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
 
+            const {killer, victim} = d;
             const killerIndex = playerIndexes.indexOf(d.killer);
             const victimIndex = playerIndexes.indexOf(d.victim);
-
             const killerTeam = d.killer_team;
             const victimTeam = d.victim_team;
 
-
-            if(teams > 1){
+          
+            if(killer === victim){
                 
-                if(victimTeam !== -1){
+                this.updateGraphData(suicides, killerIndex, "++");
+                this.updateGraphData(deaths, killerIndex, "++");
 
-                    teamsKillsData[killerTeam].lastValue++;
-                    teamsKillsData[killerTeam].data.push(teamsKillsData[killerTeam].lastValue);
+                if(totalTeams > 1){
+                    this.updateGraphData(teamTotalSuicides, killerTeam, "++");
+                    this.updateGraphData(teamTotalDeaths, killerTeam, "++");
+                }
 
-                    teamsDeathsData[victimTeam].lastValue++;
-                    teamsDeathsData[victimTeam].data.push(teamsDeathsData[victimTeam].lastValue);
+            }else if(killerTeam !== victimTeam || totalTeams < 2){
 
-                    for(let x = 0; x < teams; x++){
+                this.updateGraphData(kills, killerIndex, "++");
+                this.updateGraphData(deaths, victimIndex, "++");
 
-                        if(x !== killerTeam){
-                            teamsKillsData[x].data.push(teamsKillsData[x].lastValue);
-                        }
+                if(totalTeams > 1){
+                    this.updateGraphData(teamTotalKills, killerTeam, "++");
+                    this.updateGraphData(teamTotalDeaths, victimTeam, "++");
+                }
 
-                        if(x !== victimTeam){
-                            teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
-                        }
-                    }
+            }else if(killerTeam === victimTeam && totalTeams > 1){
 
-                }else{
+                this.updateGraphData(teamKills, killerIndex, "++");
+                this.updateGraphData(deaths, victimIndex, "++");
 
-                    teamsSuicidesData[killerTeam].lastValue++;
-                    teamsSuicidesData[killerTeam].data.push(teamsSuicidesData[killerTeam].lastValue);
-                    teamsDeathsData[killerTeam].lastValue++;
-                    teamsDeathsData[killerTeam].data.push(teamsDeathsData[killerTeam].lastValue);
-
-                    for(let x = 0; x < teams; x++){
-
-                        if(x !== killerTeam){
-                            teamsSuicidesData[x].data.push(teamsSuicidesData[x].lastValue);
-                            teamsDeathsData[x].data.push(teamsDeathsData[x].lastValue);
-                        }
-                    }
+                if(totalTeams > 1){
+                    this.updateGraphData(teamTotalTeamKills, killerTeam, "++");
+                    this.updateGraphData(teamTotalDeaths, victimTeam, "++");
                 }
             }
 
+            const killerKills = this.getCurrentGraphDataValue(kills, killerIndex);
+            const killerDeaths = this.getCurrentGraphDataValue(deaths, killerIndex);
+            const killerEfficiency = this.calculateEfficiency(killerKills, killerDeaths);
+            this.updateGraphData(efficiency, killerIndex, killerEfficiency, true);
 
-            //suicides
-            if(victimTeam === -1){
+            if(totalTeams > 1){
+                const killerTeamKills = this.getCurrentGraphDataValue(teamTotalKills, killerTeam);
+                const killerTeamDeaths = this.getCurrentGraphDataValue(teamTotalDeaths, killerTeam);
+                const killerTeamEfficiency = this.calculateEfficiency(killerTeamKills, killerTeamDeaths);
+                this.updateGraphData(teamEfficiency, killerTeam, killerTeamEfficiency, killerTeam !== victimTeam);
+            }
 
-                suicidesData[killerIndex].lastValue++;
-                deathsData[killerIndex].lastValue++;
-                suicidesData[killerIndex].data.push(suicidesData[killerIndex].lastValue);
-                deathsData[killerIndex].data.push(deathsData[killerIndex].lastValue);
+            const ignoreEfficiencyIndexes = [killerIndex];
+            const ignoreTeamEfficiencyIndexes = [killerTeam];
 
-                for(let x = 0; x < playerIndexes.length; x++){
 
-                    if(x !== killerIndex){
-                        suicidesData[x].data.push(suicidesData[x].lastValue);
-                        deathsData[x].data.push(deathsData[x].lastValue);
-                    }
+            if(victim !== killer){
+
+                const victimKills = this.getCurrentGraphDataValue(kills, victimIndex);
+                const victimDeaths = this.getCurrentGraphDataValue(deaths, victimIndex);
+
+                const victimEfficiency = this.calculateEfficiency(victimKills, victimDeaths);
+                this.updateGraphData(efficiency, victimIndex, victimEfficiency, true);
+
+                if(totalTeams > 1){
+                    const victimTeamKills = this.getCurrentGraphDataValue(teamTotalKills, victimTeam);
+                    const victimTeamDeaths = this.getCurrentGraphDataValue(teamTotalDeaths, victimTeam);
+                    const victimTeamEfficiency = this.calculateEfficiency(victimTeamKills, victimTeamDeaths);
+                    this.updateGraphData(teamEfficiency, victimTeam, victimTeamEfficiency, true);
                 }
 
-            }else{
+                ignoreEfficiencyIndexes.push(victimIndex);
+                ignoreTeamEfficiencyIndexes.push(victimTeam);
+                
+            }
 
-                if(killerTeam !== victimTeam){
 
-                    killsData[killerIndex].lastValue++;
-                    killsData[killerIndex].data.push(killsData[killerIndex].lastValue);
-
-                    for(let x = 0; x < playerIndexes.length; x++){
-
-                        if(x !== killerIndex){
-                            killsData[x].data.push(killsData[x].lastValue);
-                        }
-                    }
-
-                }
-
-                deathsData[victimIndex].lastValue++;
-                deathsData[victimIndex].data.push(deathsData[victimIndex].lastValue);
-
-                for(let x = 0; x < playerIndexes.length; x++){
-
-                    if(x !== victimIndex){
-                        deathsData[x].data.push(deathsData[x].lastValue);
-                    }
-                }
+            this.updateOthersGraphData(efficiency, ignoreEfficiencyIndexes);
+            if(totalTeams > 1){
+                this.updateOthersGraphData(teamEfficiency, ignoreTeamEfficiencyIndexes);
             }
         }
 
-        const max = 50;
+        const maxDataPoints = 50;
 
-        deathsData = Functions.reduceGraphDataPoints(deathsData, max);
-        suicidesData = Functions.reduceGraphDataPoints(suicidesData, max);
-        killsData = Functions.reduceGraphDataPoints(killsData, max);
-
-        if(teams > 1){
-            teamsDeathsData = Functions.reduceGraphDataPoints(teamsDeathsData, max);
-            teamsSuicidesData = Functions.reduceGraphDataPoints(teamsSuicidesData, max);
-            teamsKillsData = Functions.reduceGraphDataPoints(teamsKillsData, max);
-        }
-
-        const sortByLastValue = (a, b) =>{
-
-            a = a.lastValue;
-            b = b.lastValue;
-
-            if(a < b) return 1;
-            if(a > b) return -1;
-            return 0;
-        }
-
-        killsData.sort(sortByLastValue);
-        deathsData.sort(sortByLastValue);
-        suicidesData.sort(sortByLastValue);
-
-        
         return {
-            "deaths": deathsData, 
-            "suicides": suicidesData, 
-            "kills": killsData, 
-            "teamDeaths": teamsDeathsData, 
-            "teamKills": teamsKillsData, 
-            "teamSuicides": teamsSuicidesData
+            "deaths": Functions.reduceGraphDataPoints(deaths, maxDataPoints), 
+            "suicides": Functions.reduceGraphDataPoints(suicides, maxDataPoints),
+            "kills": Functions.reduceGraphDataPoints(kills, maxDataPoints),
+            "teamDeaths": Functions.reduceGraphDataPoints(teamTotalDeaths, maxDataPoints),
+            "teamKills": Functions.reduceGraphDataPoints(teamTotalKills, maxDataPoints),
+            "teamSuicides": Functions.reduceGraphDataPoints(teamTotalSuicides,maxDataPoints),
+            "teammateKills": Functions.reduceGraphDataPoints(teamKills,maxDataPoints),
+            "teamsTeammateKills": Functions.reduceGraphDataPoints(teamTotalTeamKills,maxDataPoints),
+            "efficiency": Functions.reduceGraphDataPoints(efficiency, maxDataPoints),
+            "teamEfficiency": Functions.reduceGraphDataPoints(teamEfficiency, maxDataPoints)
         };
     }
 
@@ -322,7 +350,7 @@ class Kills{
         
         const result =  await mysql.simpleQuery(query, [matchId]);
 
-        return this.reduceTotalDataPoints(result, players, totalTeams);
+        return this.createGraphData(result, players, totalTeams);
     }
 
 
@@ -334,6 +362,36 @@ class Kills{
         GROUP BY killer`;
 
         return await mysql.simpleQuery(query, [matchId, start, end]);
+    }
+
+    async insertTeleFrag(matchId, mapId, gametypeId, data){
+
+        const query = `INSERT INTO nstats_tele_frags VALUES(NULL,?,?,?,?,?,?,?,?,?)`;
+
+        const vars = [
+            matchId,
+            mapId, 
+            gametypeId,
+            data.timestamp,
+            data.killerId,
+            data.killerTeam,
+            data.victimId,
+            data.victimTeam,
+            data.bDiscKill
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async insertTeleFrags(matchId, mapId, gametypeId, teleFrags){
+        
+
+        for(let i = 0; i < teleFrags.length; i++){
+
+            const t = teleFrags[i];
+
+            await this.insertTeleFrag(matchId, mapId, gametypeId, t);
+        }
     }
 }
 

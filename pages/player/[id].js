@@ -35,11 +35,12 @@ import Image from 'next/image';
 import PlayerMonsterHuntStats from '../../components/PlayerMonsterHuntStats';
 import PlayerMonsters from '../../components/PlayerMonsters';
 import PlayerCombogibStats from '../../components/PlayerCombogibStats';
+import PlayerTeleFrags from '../../components/PlayerTeleFrags';
 
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponNames, weaponImages, mapImages, serverNames, 
+	matchPages, matchPage, matchesPerPage, weaponStats, weaponImages, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
 	rankingsData, rankingPositions, capRecordsMode}) {
 
@@ -49,26 +50,26 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	//console.log(`servers`);
 	if(summary === undefined){
 
-		return (<div>
-					<DefaultHead host={host} title={`Player Not Found`} 
-						description={`Player not found.`} 
-						keywords={`career,profile,not,found`}
-					/>
-			
-					<main>
-						<Nav settings={navSettings} session={session}/>
-						<div id="content">
-							<div className="default">
-								<div className="default-header">
-									There is no player with that id.
-								</div>
-								<Image src="/images/temp.jpg" width="512" height="512" alt="Horse"/>
-								<Image src="/images/temp2.jpg" width="512" height="512" alt="Another Horse"/>
+		return <div>
+				<DefaultHead host={host} title={`Player Not Found`} 
+					description={`Player not found.`} 
+					keywords={`career,profile,not,found`}
+				/>
+		
+				<main>
+					<Nav settings={navSettings} session={session}/>
+					<div id="content">
+						<div className="default">
+							<div className="default-header">
+								There is no player with that id.
 							</div>
+							<Image src="/images/temp.jpg" width="512" height="512" alt="Horse"/>
+							<Image src="/images/temp2.jpg" width="512" height="512" alt="Another Horse"/>
 						</div>
-						<Footer session={session}/>
-					</main>   
-			</div>);
+					</div>
+					<Footer session={session}/>
+				</main>   
+			</div>;
 	}
 
 	summary = JSON.parse(summary);
@@ -190,8 +191,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	if(pageSettings["Display Weapon Stats"] === "true"){
 
-		elems[pageOrder["Display Weapon Stats"]] = <PlayerWeapons key={"pw"} session={parsedSession} pageSettings={pageSettings} 
-			weaponStats={weaponStats} weaponNames={weaponNames} weaponImages={weaponImages} />;
+		elems[pageOrder["Display Weapon Stats"]] = <PlayerWeapons key={"pw"} session={parsedSession} pageSettings={pageSettings} playerId={playerId}/>;
 
 	}
 
@@ -246,6 +246,10 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 		elems[pageOrder["Display Combogib Stats"]] = <PlayerCombogibStats key="player-combo-stats" playerId={playerId}/>;
 	}
 
+	if(pageSettings["Display Telefrag Stats"] === "true"){
+
+		elems[pageOrder["Display Telefrag Stats"]] = <PlayerTeleFrags key="tf" playerId={playerId} />
+	}
 
 	return (
 			<div>
@@ -406,7 +410,6 @@ export async function getServerSideProps({req, query}) {
 	const gametypes = new Gametypes();
 	const maps = new Maps();
 	const matchManager = new Matches();
-	const weaponsManager = new Weapons();
 	const serverManager = new Servers();
 
 	const session = new Session(req);
@@ -466,17 +469,6 @@ export async function getServerSideProps({req, query}) {
 	let matchScores = await matchManager.getWinners(matchIds);
 	let matchPlayerCount = await matchManager.getPlayerCount(matchIds);
 
-
-	let weaponStats = [];
-	let weaponNames = [];
-	let weaponImages = [];
-
-	if(pageSettings["Display Weapon Stats"] === "true"){
-		weaponStats = await weaponsManager.getPlayerTotals(playerId);
-		weaponNames = await weaponsManager.getAllNames();
-		weaponImages = await weaponsManager.getImageList();
-	}
-	
 
 
 	const justMapNames = [];
@@ -601,9 +593,6 @@ export async function getServerSideProps({req, query}) {
 			"matchPages": matchPages,
 			"matchPage": matchPage,
 			"matchesPerPage": matchesPerPage,
-			"weaponStats": JSON.stringify(weaponStats),
-			"weaponNames": JSON.stringify(weaponNames),
-			"weaponImages": JSON.stringify(weaponImages),
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames),
 			"latestWinRate": JSON.stringify(latestWinRate),

@@ -28,7 +28,7 @@ const createPlayerObjects = (data, optionalTargetPlayer) =>{
 
         justPlayerNames[data.playerData[i].player_id] = data.playerData[i].name;
 
-        if(p.playtime > 0 || !p.spectator){
+        if(p.playtime > 0){
             playedPlayersIds[data.playerData[i].player_id] = data.playerData[i].name;
             playedPlayersData.push(p);
         }

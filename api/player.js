@@ -165,108 +165,94 @@ class Player{
         });
     }
 
-    updateFrags(id, date, playtime, redPlaytime, bluePlaytime, greenPlaytime, yellowPlaytime, specPlaytime,
+    async updateFrags(id, date, playtime, redPlaytime, bluePlaytime, greenPlaytime, yellowPlaytime, specPlaytime,
          frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
         firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype){
-            
-        return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_player_totals SET 
-            first = IF(first = 0 OR first > ?, ?, first), 
-            last = IF(last < ?,?,last), 
-            playtime=playtime+?, 
-            team_0_playtime=team_0_playtime+?,
-            team_1_playtime=team_1_playtime+?,
-            team_2_playtime=team_2_playtime+?,
-            team_3_playtime=team_3_playtime+?,
-            spec_playtime=spec_playtime+?,
-            frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
-            team_kills=team_kills+?, spawn_kills=spawn_kills+?,
-            multi_1 = multi_1+?, multi_2 = multi_2+?, multi_3 = multi_3+?, multi_4 = multi_4+?,
-            multi_5 = multi_5+?, multi_6 = multi_6+?, multi_7 = multi_7+?,
-            multi_best = IF(multi_best < ?, ?, multi_best),
-            spree_1 = spree_1+?, spree_2 = spree_2+?, spree_3 = spree_3+?, spree_4 = spree_4+?,
-            spree_5 = spree_5+?, spree_6 = spree_6+?, spree_7 = spree_7+?,
-            spree_best = IF(spree_best < ?, ?, spree_best),
-            fastest_kill = IF(fastest_kill > ? OR fastest_kill = 0 AND ? != 0, ?, fastest_kill),
-            slowest_kill = IF(slowest_kill < ? OR slowest_kill = 0 AND ? != 0, ?, slowest_kill),
-            best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
-            first_bloods=first_bloods+?,
-            accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?,
-            headshots=headshots+?
-            WHERE id=? AND gametype=?`;
+        
+        const query = `UPDATE nstats_player_totals SET 
+        first = IF(first = 0 OR first > ?, ?, first), 
+        last = IF(last < ?,?,last), 
+        playtime=playtime+?, 
+        team_0_playtime=team_0_playtime+?,
+        team_1_playtime=team_1_playtime+?,
+        team_2_playtime=team_2_playtime+?,
+        team_3_playtime=team_3_playtime+?,
+        spec_playtime=spec_playtime+?,
+        frags=frags+?, score=score+?, kills=kills+?, deaths=deaths+?, suicides=suicides+?, 
+        team_kills=team_kills+?, spawn_kills=spawn_kills+?,
+        multi_1 = multi_1+?, multi_2 = multi_2+?, multi_3 = multi_3+?, multi_4 = multi_4+?,
+        multi_5 = multi_5+?, multi_6 = multi_6+?, multi_7 = multi_7+?,
+        multi_best = IF(multi_best < ?, ?, multi_best),
+        spree_1 = spree_1+?, spree_2 = spree_2+?, spree_3 = spree_3+?, spree_4 = spree_4+?,
+        spree_5 = spree_5+?, spree_6 = spree_6+?, spree_7 = spree_7+?,
+        spree_best = IF(spree_best < ?, ?, spree_best),
+        fastest_kill = IF(fastest_kill > ? OR fastest_kill = 0 AND ? != 0, ?, fastest_kill),
+        slowest_kill = IF(slowest_kill < ? OR slowest_kill = 0 AND ? != 0, ?, slowest_kill),
+        best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
+        first_bloods=first_bloods+?,
+        accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?,
+        headshots=headshots+?
+        WHERE id=? AND gametype=?`;
 
-            const vars = [
-                date,
-                date,
-                date,
-                date,
-                playtime, 
-                redPlaytime,
-                bluePlaytime,
-                greenPlaytime,
-                yellowPlaytime,
-                specPlaytime,
-                frags, 
-                score, 
-                kills, 
-                deaths, 
-                suicides, 
-                teamKills, 
-                spawnKills, 
-                multis.double,
-                multis.multi,
-                multis.mega,
-                multis.ultra,
-                multis.monster,
-                multis.ludicrous,
-                multis.holyshit,
-                bestMulti,
-                bestMulti,
-                sprees.spree,
-                sprees.rampage,
-                sprees.dominating,
-                sprees.unstoppable,
-                sprees.godlike,
-                sprees.massacre,
-                sprees.brutalizing,
-                bestSpree,
-                bestSpree,
-                fastestKill,
-                fastestKill,
-                fastestKill,
-                slowestKill,
-                slowestKill,
-                slowestKill,
-                bestSpawnKillSpree,
-                bestSpawnKillSpree,
-                firstBlood,
-                accuracy,
-                normalRangeKills,
-                longRangeKills,
-                uberRangeKills,
-                headshots,
-                id,
-                gametype
-            ];
+        const vars = [
+            date,
+            date,
+            date,
+            date,
+            playtime, 
+            redPlaytime,
+            bluePlaytime,
+            greenPlaytime,
+            yellowPlaytime,
+            specPlaytime,
+            frags, 
+            score, 
+            kills, 
+            deaths, 
+            suicides, 
+            teamKills, 
+            spawnKills, 
+            multis.double,
+            multis.multi,
+            multis.mega,
+            multis.ultra,
+            multis.monster,
+            multis.ludicrous,
+            multis.holyshit,
+            bestMulti,
+            bestMulti,
+            sprees.spree,
+            sprees.rampage,
+            sprees.dominating,
+            sprees.unstoppable,
+            sprees.godlike,
+            sprees.massacre,
+            sprees.brutalizing,
+            bestSpree,
+            bestSpree,
+            fastestKill,
+            fastestKill,
+            fastestKill,
+            slowestKill,
+            slowestKill,
+            slowestKill,
+            bestSpawnKillSpree,
+            bestSpawnKillSpree,
+            firstBlood,
+            accuracy,
+            normalRangeKills,
+            longRangeKills,
+            uberRangeKills,
+            headshots,
+            id,
+            gametype
+        ];
 
-            mysql.query(query, vars, async (err) =>{
+        await mysql.simpleQuery(query, vars);
 
-                if(err) reject(err);
-
-                try{
-
-                    await this.updateEfficiency(id);
-
-                }catch(err){
-                    console.trace(err);
-                    new Message(err, "warning");
-                }
-
-                resolve();
-            });
-        });
+        await this.updateEfficiency(id);
     }
 
     /**
@@ -313,7 +299,7 @@ class Player{
             ?,?,?,?,?,?,?,?,0,0,0,
             ?,?,?,?,?,?,?,?,?,?,
             ?,0,0,0,0,0,0,0,0,0,
-            0,0,0,0)`;
+            0,0,0,0,?,?,?,?,?,?,?,?)`;
 
             //53
        // const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
@@ -381,7 +367,15 @@ class Player{
             player.stats.killsNormalRange,
             player.stats.killsLongRange,
             player.stats.killsUberRange,
-            player.stats.headshots
+            player.stats.headshots,
+            player.stats.teleFrags.total,
+            player.stats.teleFrags.deaths,
+            player.stats.teleFrags.bestSpree,
+            player.stats.teleFrags.bestMulti,
+            player.stats.teleFrags.discKills,
+            player.stats.teleFrags.discDeaths,
+            player.stats.teleFrags.discKillsBestSpree,
+            player.stats.teleFrags.discKillsBestMulti,
         ];
 
         const result = await mysql.simpleQuery(query, vars);

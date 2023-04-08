@@ -1,6 +1,8 @@
 const Players = require("../../api/players");
 const CTF = require("../../api/ctf");
 const Gametypes = require("../../api/gametypes");
+const Telefrags = require("../../api/telefrags");
+const Maps = require("../../api/maps");
 
 export default async function handler(req, res){
 
@@ -40,6 +42,33 @@ export default async function handler(req, res){
             res.status(200).json({"totals": totals, "best": best, "bestLife": bestLife, "gametypeNames": gametypeNames});
             return;
 
+        }
+
+        if(mode === "telefrags"){
+
+            const teleFragManager = new Telefrags();
+
+            const data = await teleFragManager.getPlayerTotals(playerId);
+
+            
+
+            const gametypeIds = [...new Set(data.map((d) =>{
+                return d.gametype_id;
+            }))];
+
+            const mapIds = [...new Set(data.map((d) =>{
+                return d.map_id;
+            }))];
+
+
+            const gametypeManager = new Gametypes();
+            const gametypeNames = await gametypeManager.getNames(gametypeIds);
+
+            const mapManager = new Maps();
+            const mapNames = await mapManager.getNames(mapIds);
+            
+            res.status(200).json({"data": data, "gametypeNames": gametypeNames, "mapNames": mapNames});
+            return;
         }
 
         res.status(200).json({"error": "Unknown Command"});

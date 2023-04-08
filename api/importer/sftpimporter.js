@@ -42,6 +42,10 @@ class SFTPImporter{
                 "port": this.port,
                 "username": this.user,
                 "password": this.password,
+                "readyTimeout": 5000, // integer How long (in ms) to wait for the SSH handshake
+                "retries": 2, // integer. Number of times to retry connecting
+                "retry_factor": 2, // integer. Time factor used to calculate time between retries
+                "retry_minTimeout": 2000, // integer. Minimum timeout between attempts
             });
 
 
@@ -56,27 +60,33 @@ class SFTPImporter{
 
         }catch(err){
             console.trace(err);
+            return false;
         }
     }
 
     async import(){
 
-        await this.connect();
+        if(await this.connect()){
 
-        await this.downloadLogFiles();
-        await this.deleteTMPFiles();
+            await this.downloadLogFiles();
+            await this.deleteTMPFiles();
 
-        if(this.bImportAce){
-            await this.downloadAceLogs();
-            await this.downloadAceScreenshots();
+            if(this.bImportAce){
+                await this.downloadAceLogs();
+                await this.downloadAceScreenshots();
+            }else{
+                new Message(`ACE importing is disabled, skipping.`, "note");
+            }
+
+            await this.client.end();
+            new Message(`Disconnected from sftp server sftp://${this.host}:${this.port} successfully.`,"pass");
+
         }else{
-            new Message(`ACE importing is disabled, skipping.`, "note");
+
+            new Message(`Failed to import logs from ftp://${this.host}:${this.port}.`,"error");
         }
-
-        await this.client.end();
-        new Message(`Disconnected from sftp server sftp://${this.host}:${this.port} successfully.`,"pass");
-
         return;
+
     }
 
     async getAllLogFileNames(){

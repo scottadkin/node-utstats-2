@@ -208,6 +208,7 @@ const MatchPowerupSummary = ({matchId, players, totalTeams}) =>{
 
     if(state.bLoading) return <Loading />;
     if(state.error !== null) return <ErrorMessage title="Powerup Summary" text={state.error}/>
+    if(state.playerPowerupData.length === 0) return null;
 
     return <div>
         <div className="default-header">Powerup Summary</div>

@@ -5,7 +5,12 @@ class WeaponStats{
         this.name = name;  
         this.kills = 0;
         this.deaths = 0;
-
+        this.suicides = 0;
+        this.currentKills = 0;
+        this.bestKills = 0;
+        this.teamKills = 0;
+        this.currentTeamKills = 0;
+        this.bestTeamKills = 0;
         this.accuracy = 0;
         this.shots = 0;
         this.hits = 0;
@@ -30,13 +35,31 @@ class WeaponStats{
         this.efficiency = 0;
     }
 
-    killedPlayer(){
+    killedPlayer(bTeamKill){
+
+        if(bTeamKill){
+
+            this.teamKills++;
+            this.currentTeamKills++;
+
+            if(this.currentTeamKills > this.bestTeamKills){
+                this.bestTeamKills = this.currentTeamKills;
+            }
+        }
+
         this.kills++;
+        this.currentKills++;
+        if(this.currentKills > this.bestKills) this.bestKills = this.currentKills;
         this.updateEfficiency();
     }
 
-    died(){
+    died(bSuicide){
+
         this.deaths++;
+        if(bSuicide) this.suicides++;
+
+        this.currentKills = 0;
+        this.currentTeamKills = 0;
         this.updateEfficiency();
     }
 

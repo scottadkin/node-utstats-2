@@ -93,7 +93,14 @@ class MatchManager{
             }
 
             this.spawnManager = new SpawnManager();
-            this.playerManager = new PlayerManager(this.playerLines, this.spawnManager, this.bIgnoreBots, this.gameInfo.getMatchLength(), geoip, this.bUsePlayerACEHWID);
+            this.playerManager = new PlayerManager(
+                this.playerLines, 
+                this.spawnManager, 
+                this.bIgnoreBots, 
+                this.gameInfo.getMatchLength(), 
+                geoip, 
+                this.bUsePlayerACEHWID
+            );
 
             await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
             this.playerManager.init();
@@ -116,15 +123,19 @@ class MatchManager{
                 this.gameInfo.totalTeams = 0;
             }
  
+            this.playerManager.totalTeams = this.gameInfo.totalTeams;
             
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
+
+            this.playerManager.killManager = this.killManager;
 
             const matchTimings = this.gameInfo.getMatchLength();
 
             this.playerManager.setKills(this.killManager.kills);
             this.playerManager.matchEnded(this.gameInfo.end);
             this.playerManager.setHeadshots(this.killManager.headshots);
+            this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
 
             this.match = new Match();
             this.matches = new Matches();
@@ -158,7 +169,7 @@ class MatchManager{
             //this.playerManager.fixPlaytime(this.gameInfo.hardcore, this.gameInfo.matchLength);
 
 
-            this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
+            
             new Message(`Updated player team changes`,'pass');
             //process.exit();
 
@@ -170,8 +181,7 @@ class MatchManager{
             await this.playerManager.insertMatchData(
                 this.gametype.currentMatchGametype, 
                 this.matchId, this.mapInfo.mapId, 
-                this.serverInfo.date, 
-                this.gameInfo.totalTeams
+                this.serverInfo.date
             );
             new Message(`Updated player match data.`,'pass');
             
@@ -241,7 +251,7 @@ class MatchManager{
             
             
 
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date, this.gameInfo.totalTeams);
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
 
             new Message(`Updated player frag performance.`,'pass');
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
@@ -273,10 +283,14 @@ class MatchManager{
 
 
             if(this.weaponsManager !== undefined){
+
+                this.weaponsManager.matchId = this.matchId;
+                this.weaponsManager.mapId = this.mapInfo.mapId;
+                this.weaponsManager.gametypeId = this.gametype.currentMatchGametype;
                 
                 this.weaponsManager.parseData();
                 this.weaponsManager.addKillNames(this.killManager.killNames);
-                await this.weaponsManager.update(this.matchId, this.gametype.currentMatchGametype, this.playerManager);
+                await this.weaponsManager.update(this.playerManager);
                 new Message(`Updated player weapon stats.`,'pass');
 
             }else{
@@ -322,6 +336,9 @@ class MatchManager{
 
             await this.killManager.insertHeadshots(this.matchId);
             new Message(`Updated player headshots`,'pass');
+
+            await this.killManager.insertTeleFrags(this.matchId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
+            new Message(`Inserted telefrags.`,"pass");
 
             await this.playerManager.insertScoreHistory(this.matchId);
             new Message(`Inserted player score history`,'pass');
@@ -622,7 +639,8 @@ class MatchManager{
             const typeResult = typeReg.exec(line);
 
             if(typeResult === null) continue;
-           
+            
+
             const currentType = typeResult[1].toLowerCase();
 
             if(gameTypes.indexOf(currentType) !== -1){
@@ -635,6 +653,7 @@ class MatchManager{
 
                 this.gameLines.push(line);
             }
+
             if(currentType == 'info') this.serverLines.push(line);   
             if(currentType == 'map') this.mapLines.push(line);
 

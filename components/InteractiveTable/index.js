@@ -9,7 +9,7 @@ import MouseOver from "../MouseOver";
 const InteractiveTable = (props) =>{
 
     const [orderBy, setOrderBy] = useState((props.defaultOrder !== undefined) ? props.defaultOrder : null);
-    const [bAsc, setbAsc] = useState(true);
+    const [bAsc, setbAsc] = useState((props.bAsc !== undefined) ? props.bAsc : true);
     const [currentPage, setCurrentPage] = useState(0);
     //const [totalPages, setTotalPages] = useState(0);
     const [displayPerPage, setDisplayPerPage] = useState((props.perPage !== undefined) ? props.perPage : 50);
