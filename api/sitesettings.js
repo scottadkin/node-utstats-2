@@ -109,6 +109,8 @@ class SiteSettings{
 
         return {
             "Recent Matches Display Type": this.defaultDiplayTypes,
+            "Popular Countries Display Type": this.defaultDiplayTypes,
+            "Popular Countries Display Limit": this.genericNumberRange,
             "Recent Matches To Display": this.genericNumberRange
         };
     }

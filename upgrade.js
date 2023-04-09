@@ -224,6 +224,18 @@ async function updateSiteSettings(){
     if(!await bSettingExist("Player Pages", "Display Telefrag Stats")){
         await mysql.simpleQuery(query2);
     }
+
+    const query3 = `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Popular Countries Display Type",0,999999)`;
+
+    if(!await bSettingExist("Home", "Popular Countries Display Type")){
+        await mysql.simpleQuery(query3);
+    }
+
+    const query4 = `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Popular Countries Display Limit",5,999999)`;
+
+    if(!await bSettingExist("Home", "Popular Countries Display Limit")){
+        await mysql.simpleQuery(query4);
+    }
 }
 
 (async () =>{

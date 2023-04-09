@@ -6,13 +6,15 @@ class CountriesManager{
     constructor(){}
 
 
-    async getMostPopular(){
+    async getMostPopular(limit){
+
+        if(limit === undefined) limit = 5;
 
         const query = `SELECT COUNT(*) as total_uses, country, MIN(first) as first_match, MAX(last) as last_match
         FROM nstats_player_totals WHERE gametype=0 
-        GROUP BY(country) ORDER BY total_uses DESC LIMIT 5`;
+        GROUP BY(country) ORDER BY total_uses DESC LIMIT ?`;
 
-        const result = await mysql.simpleFetch(query);
+        const result = await mysql.simpleQuery(query, [limit]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -73,11 +75,9 @@ class CountriesManager{
 
         const uses = {};
 
-        let p = 0;
-
         for(let i = 0; i < playerMatchData.length; i++){
 
-            p = playerMatchData[i];
+            const p = playerMatchData[i];
 
             if(uses[p.country] === undefined){
                 uses[p.country] = 0;

@@ -8,7 +8,6 @@ import Maps from "../api/maps";
 import Gametypes from "../api/gametypes";
 import Servers from "../api/servers";
 import PopularCountries from "../components/PopularCountries/";
-import CountryManager from "../api/countriesmanager";
 import Players from "../api/players";
 import React from "react";
 import Graph from "../components/Graph/";
@@ -70,7 +69,7 @@ function createDatesGraphData(data){
 
 
 
-function Home({navSettings, pageSettings, pageOrder, session, host, matchesData, countriesData, mapImages, matchDates,
+function Home({navSettings, pageSettings, pageOrder, session, host, matchesData, mapImages, matchDates,
 	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query, gametypeImages, 
 	latestMatchPlayers, latestMatchImage, latestFaces, totalPlayers}) {
 
@@ -219,13 +218,11 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 	}
 
 
-	if(JSON.parse(countriesData).length > 0){
+	if(pageSettings["Display Most Popular Countries"] === "true"){
 
-		if(pageSettings["Display Most Popular Countries"] === "true"){
-
-			elems[pageOrder["Display Most Popular Countries"]] = <PopularCountries key={"countries"} data={countriesData} totalPlayers={totalPlayers}/>;
-		}
+		elems[pageOrder["Display Most Popular Countries"]] = <PopularCountries key={"countries"} totalPlayers={totalPlayers} settings={pageSettings}/>;
 	}
+	
 
 	return (
 		<div>
@@ -265,7 +262,6 @@ export async function getServerSideProps({req, query}) {
 	const mapManager = new Maps();
 	const gametypeManager = new Gametypes();
 	const serverManager = new Servers();
-	const countriesM = new CountryManager();
 	const playerManager = new Players();
 
 	let matchesData = [];
@@ -296,12 +292,7 @@ export async function getServerSideProps({req, query}) {
 	const gametypeNames = await gametypeManager.getNames(gametypeIds);
 	const serverNames = await serverManager.getNames(serverIds);
 
-	
-	let countryData = [];
 
-	if(pageSettings["Display Most Popular Countries"] === "true"){
-		countryData = await countriesM.getMostPopular();
-	}
 
 	Functions.setIdNames(matchesData, mapNames, "map", "mapName");
 	Functions.setIdNames(matchesData, gametypeNames, "gametype", "gametypeName");
@@ -428,7 +419,6 @@ export async function getServerSideProps({req, query}) {
 			"session": JSON.stringify(session.settings),
 			"host": req.headers.host,
 			"matchesData": JSON.stringify(matchesData),
-			"countriesData": JSON.stringify(countryData),
 			"totalMatches": totalMatches,
 			"firstMatch": firstMatch,
 			"lastMatch": lastMatch,

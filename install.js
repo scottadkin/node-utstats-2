@@ -1292,6 +1292,8 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Latest Match","true","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Recent Matches","true","2")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Display Recent Matches & Player Stats","true","3")`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Popular Countries Display Type",0,999999)`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Popular Countries Display Limit",5,999999)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Addicted Players","true","11")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Control Points (Domination)","true","8")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","Display Games Played","true","4")`,
