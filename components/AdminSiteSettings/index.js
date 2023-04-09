@@ -5,6 +5,8 @@ import Loading from '../Loading';
 import NotificationSmall from '../NotificationSmall';
 import Table2 from '../Table2';
 
+const controller = new AbortController();
+
 const reducer = (state, action) =>{
 
     switch(action.type){
@@ -522,8 +524,6 @@ const AdminSiteSettings = () =>{
         "saveError": null,
         "bSavePass": false
     });
-
-    const controller = new AbortController();
 
     useEffect(() =>{
 

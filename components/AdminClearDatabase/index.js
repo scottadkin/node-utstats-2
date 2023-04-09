@@ -3,6 +3,8 @@ import Loading from "../Loading";
 import { useReducer, useEffect } from "react";
 import NotificationSmall from "../NotificationSmall";
 
+const controller = new AbortController();
+
 const reducer = (state, action) =>{
 
     switch(action.type){
@@ -52,7 +54,7 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const renderButton = (state, dispatch, controller) =>{
+const renderButton = (state, dispatch) =>{
 
     if(!state["check-1"] || !state["check-2"] || !state["check-3"]) return null;
 
@@ -63,7 +65,7 @@ const renderButton = (state, dispatch, controller) =>{
     </div>
 }
 
-const clearTables = async (dispatch, controller) =>{
+const clearTables = async (dispatch) =>{
 
     dispatch({"type": "clear-tables"})
 
@@ -115,9 +117,6 @@ const AdminClearDatabase = () =>{
         "error": null,
         "bCleared": false
     });
-
-    const controller = new AbortController();
-
 
     useEffect(() =>{
 
