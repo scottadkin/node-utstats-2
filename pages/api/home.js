@@ -1,4 +1,5 @@
 import CountriesManager from "../../api/countriesmanager";
+import Matches from "../../api/matches";
 
 export default async function handler(req, res){
 
@@ -16,6 +17,19 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
 
+        }
+
+        if(mode === "match-count"){
+
+            const matchManager = new Matches();
+
+            const start = (req.body.start !== undefined) ? parseInt(req.body.start) : 0;
+            const end = (req.body.end !== undefined) ? parseInt(req.body.end) : 0;
+
+            const data = await matchManager.getMatchCountPerDay(start, end);
+
+            res.status(200).json({"data": data});
+            return;
         }
 
         res.status(200).json({"error": "Unknown Command"});

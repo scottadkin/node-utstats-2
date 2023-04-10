@@ -1,8 +1,9 @@
 .wrapper{
-    background-color:var(--color-3);
+    background-color:var(--color-9);
     margin-top:25px;
     margin-bottom:25px;
     padding:5px;
+    padding-bottom:25px;
 }
 
 .button{
@@ -10,7 +11,9 @@
     padding:5px;
     background-color:var(--color-2);
     display:inline-block;
-    margin:5px;
+    margin-right:5px;
+    font-size:14px;
+    margin-bottom:10px;
 }
 
 .button:hover{
@@ -24,18 +27,25 @@
 }
 
 .days{
-    width:250px;
+    width:300px;
+    text-align:left;
+    display:grid;
+    grid-template-columns: auto auto auto auto auto auto auto;
 }
 
 .day{
-    width:30px;
-    height:30px;
-    background-color:red;
-    margin:2px;
-    display:inline-block;
+    background-color:var(--color-5);
+    /*display:inline-block;*/
     font-size:14px;
     line-height:30px;
     user-select: none;
+    text-align:center;
+    border:1px solid var(--border-color-3);
+}
+
+.day:hover{
+    cursor: pointer;
+    background-color:var(--color-4);
 }
 
 .today{

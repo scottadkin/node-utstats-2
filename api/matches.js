@@ -1725,5 +1725,42 @@ class Matches{
         return obj;
     }
 
+    async getMatchCountPerDay(startTimestamp, endTimestamp){
+
+        const day = (60 * 60) * 24;
+
+        const query = `SELECT date FROM nstats_matches WHERE date>=? AND date<=?`;
+
+        const result = await mysql.simpleQuery(query, [startTimestamp, endTimestamp]);
+
+        const data = {};
+
+        let timestamp = startTimestamp;
+        let dayIndex = 0;
+
+        while(timestamp < endTimestamp){
+
+            data[dayIndex] = 0;
+
+            timestamp += day;
+            dayIndex++;
+        }
+
+        for(let i = 0; i < result.length; i++){
+
+            const d = result[i].date;
+
+            const diff = d - startTimestamp;
+
+            let currentDay = 0;
+
+            if(diff !== 0) currentDay = Math.floor(diff / day);
+
+            data[currentDay]++;
+        }
+
+        return data;
+    }
+
 }
 module.exports = Matches;
