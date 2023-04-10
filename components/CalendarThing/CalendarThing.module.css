@@ -35,4 +35,10 @@
     display:inline-block;
     font-size:14px;
     line-height:30px;
+    user-select: none;
+}
+
+.today{
+    background-color:yellow;
+    color:black;
 }

@@ -51,9 +51,17 @@ const CalendarThing = () =>{
 
     //console.log(test.getDate());
 
+    const currentDate = now.getDate();
+
     for(let i = 0; i < daysInMonth; i++){
 
-        elems.push(<div className={styles.day} key={i}>
+        let className = styles.day;
+
+        if(year === currentMonth.getFullYear() && month === currentMonth.getMonth() && i + 1 === currentDate){
+            className += ` ${styles.today}`;
+        }
+
+        elems.push(<div className={className} key={i}>
             {i + 1}
         </div>);
     }
