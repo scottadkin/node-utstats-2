@@ -379,22 +379,46 @@ class Functions{
     }
     
     
-    static getMonthName = (month) =>{
+    static getMonthName = (month, bFull) =>{
     
-        switch(month){
-            case 0: { return 'Jan'; } 
-            case 1: { return 'Feb'; } 
-            case 2: { return 'Mar'; } 
-            case 3: { return 'Apr'; } 
-            case 4: { return 'May'; } 
-            case 5: { return 'June'; } 
-            case 6: { return 'July'; } 
-            case 7: { return 'Aug'; } 
-            case 8: { return 'Sep'; } 
-            case 9: { return 'Oct'; } 
-            case 10: { return 'Nov'; } 
-            case 11: { return 'Dec'; } 
+        if(bFull === undefined){
+            bFull = false;
         }
+
+        const short = {
+            "0": "Jan",
+            "1": "Feb",
+            "2": "Mar",
+            "3": "Apr",
+            "4": "May",
+            "5": "June",
+            "6": "July",
+            "7": "Aug",
+            "8": "Sep",
+            "9": "Oct",
+            "10": "Nov",
+            "11": "Dec"
+        };
+
+
+        const long = {
+            "0": "January",
+            "1": "February",
+            "2": "March",
+            "3": "April",
+            "4": "May",
+            "5": "June",
+            "6": "July",
+            "7": "August",
+            "8": "September",
+            "9": "October",
+            "10": "November",
+            "11": "December"
+        };
+
+       
+        if(bFull) return long[month];
+        return short[month];
     }
     
     static convertTimestamp = (timestamp, noDayName, noTime) =>{

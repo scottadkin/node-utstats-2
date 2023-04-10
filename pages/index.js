@@ -22,6 +22,7 @@ import MatchesTableView from "../components/MatchesTableView/";
 import Screenshot from "../components/Screenshot";
 import Analytics from "../api/analytics";
 import NotificationSmall from "../components/NotificationSmall";
+import CalendarThing from "../components/CalendarThing";
 
 function createDatesGraphData(data){
 
@@ -231,6 +232,8 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 			<Nav settings={navSettings} session={session}/>
 			<div id="content">
 				<div className="default">
+
+				<CalendarThing />
 			
 				{message}
 				

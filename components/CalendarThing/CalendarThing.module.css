@@ -1,0 +1,38 @@
+.wrapper{
+    background-color:var(--color-3);
+    margin-top:25px;
+    margin-bottom:25px;
+    padding:5px;
+}
+
+.button{
+    user-select:none;
+    padding:5px;
+    background-color:var(--color-2);
+    display:inline-block;
+    margin:5px;
+}
+
+.button:hover{
+    cursor: pointer;
+}
+
+.date{
+    font-size:18px;
+    font-weight:bold;
+    padding:5px;
+}
+
+.days{
+    width:250px;
+}
+
+.day{
+    width:30px;
+    height:30px;
+    background-color:red;
+    margin:2px;
+    display:inline-block;
+    font-size:14px;
+    line-height:30px;
+}
