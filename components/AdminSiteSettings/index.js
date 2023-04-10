@@ -5,8 +5,6 @@ import Loading from '../Loading';
 import NotificationSmall from '../NotificationSmall';
 import Table2 from '../Table2';
 
-const controller = new AbortController();
-
 const reducer = (state, action) =>{
 
     switch(action.type){
@@ -515,6 +513,9 @@ const renderPass = (state) =>{
 
 const AdminSiteSettings = () =>{
 
+    const controller = new AbortController();
+
+
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true, 
         "settings": {}, 
@@ -527,9 +528,11 @@ const AdminSiteSettings = () =>{
 
     useEffect(() =>{
 
-        loadSettings(dispatch, controller.signal);
+        const test = new AbortController();
 
-        return () =>{ controller.abort();}
+        loadSettings(dispatch, test.signal);
+
+        return () =>{ test.abort();}
 
     }, []);
 
