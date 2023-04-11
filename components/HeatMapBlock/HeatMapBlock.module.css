@@ -4,7 +4,6 @@
     text-align:center;
     background-color:var(--color-5);
     font-size:14px;
-    line-height:30px;
     user-select: none;
     text-align:center;
     border:1px solid var(--border-color-2);
@@ -28,6 +27,7 @@
     border:1px solid var(--border-color-2);
     color:white;
     font-weight: normal;
+    opacity: 1;
 }
 
 .title{

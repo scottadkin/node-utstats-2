@@ -2497,6 +2497,28 @@ class Players{
 
         return removedPlayerIds;
     }
+
+
+    async getUniquePlayersByDay(start, end){
+
+        //getUniquePlayersBetween(start, end)
+        const day = (60 * 60) * 24;
+
+        let current = start;
+
+        const data = {};
+
+        let dayIndex = 0;
+
+        while(current < end){
+
+            data[dayIndex] = await this.getUniquePlayersBetween(current, current + day);
+            current += day;
+            dayIndex++;
+        }
+
+        return data;
+    }
     
 }
 

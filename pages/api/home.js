@@ -1,5 +1,6 @@
 import CountriesManager from "../../api/countriesmanager";
 import Matches from "../../api/matches";
+import Players from "../../api/players";
 
 export default async function handler(req, res){
 
@@ -19,7 +20,7 @@ export default async function handler(req, res){
 
         }
 
-        if(mode === "match-count"){
+        if(mode === "match-player-count"){
 
             const matchManager = new Matches();
 
@@ -28,7 +29,11 @@ export default async function handler(req, res){
 
             const data = await matchManager.getMatchCountPerDay(start, end);
 
-            res.status(200).json({"data": data});
+            const playerManager = new Players();
+
+            const playerData = await playerManager.getUniquePlayersByDay(start, end);
+
+            res.status(200).json({"data": data, "playerData": playerData});
             return;
         }
 

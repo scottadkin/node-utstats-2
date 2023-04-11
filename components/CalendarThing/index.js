@@ -34,12 +34,20 @@ const reducer = (state, action) =>{
             if(monthData[action.yearIndex] === undefined){
                 monthData[action.yearIndex] = {};
             }
-
             monthData[action.yearIndex][action.monthIndex] = action.data;
+
+            const playerMonthData = state.playerData;
+
+            if(playerMonthData[action.yearIndex] === undefined){
+                playerMonthData[action.yearIndex] = {};
+            }
+
+            playerMonthData[action.yearIndex][action.monthIndex] = action.playerData;
 
             return {
                 ...state,
                 "monthData": monthData,
+                "playerMonthData": playerMonthData,
                 "bLoading": false
             }
         }
@@ -63,38 +71,48 @@ const loadData = async (data, dispatch, signal, start, end, yearIndex, monthInde
         "signal": signal,
         "headers": {"Content-type": "application/json"},
         "method": "POST",
-        "body": JSON.stringify({"mode": "match-count", "start": start, "end": end})
+        "body": JSON.stringify({"mode": "match-player-count", "start": start, "end": end})
     });
 
     const res = await req.json();
+
+    console.log(res);
 
     if(res.error !== undefined){
 
         return;
     }
 
-    dispatch({"type": "set-data", "yearIndex": yearIndex, "monthIndex": monthIndex, "data": res.data});
+    dispatch({
+        "type": "set-data", 
+        "yearIndex": yearIndex, 
+        "monthIndex": monthIndex, 
+        "data": res.data,
+        "playerData": res.playerData
+    });
 }
 
-const getData = (state) =>{
+const getData = (state, type) =>{
 
     const date = new Date(state.year, state.month);
 
     const year = date.getFullYear();
     const month = date.getMonth();
 
-    if(state.data[year] !== undefined){
+    const data = (type === "matches") ? state.data : state.playerData;
 
-        if(state.data[year][month] !== undefined){
+    if(data[year] !== undefined){
 
-            return state.data[year][month];
+        if(data[year][month] !== undefined){
+
+            return data[year][month];
         }
     }
 
     return null;
 }
 
-const renderHeatMap = (state, year, month, currentMonth) =>{
+const renderHeatMap = (state, year, month, currentMonth, type) =>{
 
     if(state.bLoading) return <div className={`${styles.days} center`}><Loading /></div>;
 
@@ -107,7 +125,7 @@ const renderHeatMap = (state, year, month, currentMonth) =>{
     const monthName = Functions.getMonthName(currentMonth.getMonth(), true);
     const fullYear = currentMonth.getFullYear();
 
-    const data = getData(state);
+    const data = getData(state, type);
 
     let max = 0;
 
@@ -129,6 +147,14 @@ const renderHeatMap = (state, year, month, currentMonth) =>{
 
         const day = new Date(state.year, state.month, i + 1);
 
+        let mText = "";
+
+        if(type === "matches"){
+            mText = `${data[i]} match${(data[i] !== 1) ? "es" : ""} played.`
+        }else{
+            mText = `${data[i]} unique player${(data[i] === 1) ? "" : "s"}`;
+        }
+
         elems.push(
             <HeatMapBlock 
                 key={i} 
@@ -136,7 +162,7 @@ const renderHeatMap = (state, year, month, currentMonth) =>{
                 value={data[i]} 
                 maxValue={max} 
                 mTitle={`${Functions.getDayName(day.getDay())} ${i + 1}${ordinal} ${monthName} ${fullYear}`}
-                mText={`${data[i]} match${(data[i] !== 1) ? "es" : ""} played.`}
+                mText={mText}
             >
                 {i+1}
             </HeatMapBlock>
@@ -157,7 +183,8 @@ const CalendarThing = () =>{
     const [state, dispatch] = useReducer(reducer, {
         "year": year,
         "month": month,
-        "data": {}
+        "data": {},
+        "playerData": {}
     });
 
     useEffect(() =>{
@@ -203,7 +230,10 @@ const CalendarThing = () =>{
                     Next Month
                 </div>
             </div>
-            {renderHeatMap(state, year, month, currentMonth)}
+            <div className={styles.title}>Matches Played</div>
+            {renderHeatMap(state, year, month, currentMonth, "matches")}
+            <div className={styles.title}>Unique Players</div>
+            {renderHeatMap(state, year, month, currentMonth, "players")}
         </div>
         
     </>

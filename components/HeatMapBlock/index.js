@@ -21,18 +21,25 @@ const HeatMapBlock = ({value, maxValue, children, bHighlight, mTitle, mText}) =>
     let bit = 0;
 
     if(maxValue > 0){
-        bit = 255 / maxValue;
+        bit = 1 / maxValue;
     }
 
 
     let className = `${styles.wrapper}`;
     if(bHighlight) className += ` ${styles.highlight}`;
 
+    let style = {"backgroundColor": "var(--color-2)"};
+
+    if(bit * value > 0){
+        style = {"backgroundColor": `rgba(255,0,0,${bit * value})`};
+    }
+
     return <div 
             onMouseOver={() =>{ setbDisplay(true)}} 
             onMouseLeave={() =>{ setbDisplay(false)}}
             className={className} 
-            style={{"backgroundColor": `rgb(${bit * value},0,0)`}}
+            //style={{"opacity": bit * value}}
+            style={style}
         >
             
             {children}
