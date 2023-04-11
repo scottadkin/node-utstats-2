@@ -1,6 +1,8 @@
 import { useReducer, useEffect } from "react";
 import styles from "./CalendarThing.module.css";
 import Functions from "../../api/functions";
+import HeatMapBlock from "../HeatMapBlock";
+import Loading from "../Loading";
 
 const reducer = (state, action) =>{
 
@@ -21,9 +23,10 @@ const reducer = (state, action) =>{
         case "loadData": {
             return {
                 ...state,
-                "bLoading": false,
+                "bLoading": true,
             }
         }
+        
         case "set-data": {
             
             const monthData = state.data;
@@ -36,7 +39,8 @@ const reducer = (state, action) =>{
 
             return {
                 ...state,
-                "monthData": monthData
+                "monthData": monthData,
+                "bLoading": false
             }
         }
     }
@@ -52,6 +56,8 @@ const loadData = async (data, dispatch, signal, start, end, yearIndex, monthInde
             return;
         }
     }
+
+    dispatch({"type": "loadData"});
 
     const req = await fetch("/api/home", {
         "signal": signal,
@@ -90,11 +96,16 @@ const getData = (state) =>{
 
 const renderHeatMap = (state, year, month, currentMonth) =>{
 
+    if(state.bLoading) return <div className={`${styles.days} center`}><Loading /></div>;
+
     const elems = [];
 
     const now = new Date();
     const currentDate = now.getDate();
     const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
+    
+    const monthName = Functions.getMonthName(currentMonth.getMonth(), true);
+    const fullYear = currentMonth.getFullYear();
 
     const data = getData(state);
 
@@ -104,21 +115,32 @@ const renderHeatMap = (state, year, month, currentMonth) =>{
         max = Math.max(...Object.values(data));
     }
 
-    let colorPercent = (max > 0) ? 255 / max : 0;
-
     for(let i = 0; i < daysInMonth; i++){
 
         if(data === null) break;
 
-        let className = styles.day;
+        let bHighlight = false;
 
-        if(year === currentMonth.getFullYear() && month === currentMonth.getMonth() && i + 1 === currentDate){
-            className += ` ${styles.today}`;
+        if(year === fullYear && month === currentMonth.getMonth() && i + 1 === currentDate){
+            bHighlight = true; 
         }
 
-        elems.push(<div className={className} key={i} style={{"backgroundColor": `rgb(${data[i] * colorPercent},0,0)`}}>
-            {i + 1}
-        </div>);
+        const ordinal = Functions.getOrdinal(i + 1);
+
+        const day = new Date(state.year, state.month, i + 1);
+
+        elems.push(
+            <HeatMapBlock 
+                key={i} 
+                bHighlight={bHighlight} 
+                value={data[i]} 
+                maxValue={max} 
+                mTitle={`${Functions.getDayName(day.getDay())} ${i + 1}${ordinal} ${monthName} ${fullYear}`}
+                mText={`${data[i]} match${(data[i] !== 1) ? "es" : ""} played.`}
+            >
+                {i+1}
+            </HeatMapBlock>
+        );
     }
 
     return <div className={`${styles.days} center`}>
@@ -165,21 +187,26 @@ const CalendarThing = () =>{
     const currentMonth = new Date(state.year, state.month);
     
 
-    return <div className={styles.wrapper}>
+    return <>
         
-        <br/>
-        <div className={styles.date}>
-            {Functions.getMonthName(currentMonth.getMonth(), true)} {currentMonth.getFullYear()}
+        <div className="default-header">Activity Heatmap</div>
+
+            <div className={styles.wrapper}>
+            <div className={styles.date}>
+                {Functions.getMonthName(currentMonth.getMonth(), true)} {currentMonth.getFullYear()}
+            </div>
+            <div className={styles.buttons}>
+                <div className={styles.button} onClick={() => {dispatch({"type": "previousMonth"})}}>
+                    Previous Month
+                </div>
+                <div className={styles.button} onClick={() => {dispatch({"type": "nextMonth"})}}>
+                    Next Month
+                </div>
+            </div>
+            {renderHeatMap(state, year, month, currentMonth)}
         </div>
-        <div className={styles.button} onClick={() => {dispatch({"type": "previousMonth"})}}>
-            Previous Month
-        </div>
-        <div className={styles.button} onClick={() => {dispatch({"type": "nextMonth"})}}>
-            Next Month
-        </div>
-        {renderHeatMap(state, year, month, currentMonth)}
         
-    </div>
+    </>
 }
 
 export default CalendarThing;

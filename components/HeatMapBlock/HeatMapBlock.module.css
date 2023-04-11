@@ -1,0 +1,43 @@
+.wrapper{
+    display:inline-block;
+    padding:5px;
+    text-align:center;
+    background-color:var(--color-5);
+    font-size:14px;
+    line-height:30px;
+    user-select: none;
+    text-align:center;
+    border:1px solid var(--border-color-2);
+}
+
+.wrapper:hover{
+    cursor: pointer;
+    background-color:var(--color-4);
+}
+
+.highlight{
+    font-weight: bold;
+    color:yellow;
+    border:1px solid var(--border-color-2);
+}
+
+.mo{
+    position:absolute;
+    padding:3px;
+    background-color:var(--color-1);
+    border:1px solid var(--border-color-2);
+    color:white;
+    font-weight: normal;
+}
+
+.title{
+    font-size:14px;
+    padding:3px;
+    font-weight:500;
+}
+
+.text{
+    padding:3px;
+    color:white;
+    font-size:12px;
+}
