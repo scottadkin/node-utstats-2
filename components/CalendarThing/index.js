@@ -60,7 +60,7 @@ const loadData = async (data, dispatch, signal, start, end, yearIndex, monthInde
 
     if(data[yearIndex] !== undefined){
         if(data[yearIndex][monthIndex] !== undefined){
-            console.log(`data already exists`);
+            //console.log(`data already exists`);
             return;
         }
     }
@@ -75,8 +75,6 @@ const loadData = async (data, dispatch, signal, start, end, yearIndex, monthInde
     });
 
     const res = await req.json();
-
-    console.log(res);
 
     if(res.error !== undefined){
 
@@ -216,7 +214,7 @@ const CalendarThing = () =>{
 
     return <>
         
-        <div className="default-header">Activity Heatmap</div>
+        <div className="default-header">Recent Matches &amp; Player Stats</div>
 
             <div className={styles.wrapper}>
             <div className={styles.date}>

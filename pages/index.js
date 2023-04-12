@@ -10,7 +10,6 @@ import Servers from "../api/servers";
 import PopularCountries from "../components/PopularCountries/";
 import Players from "../api/players";
 import React from "react";
-import Graph from "../components/Graph/";
 import BasicPlayers from "../components/BasicPlayers/";
 import Faces from "../api/faces";
 import HomeTopMaps from "../components/HomeTopMaps/";
@@ -24,59 +23,10 @@ import Analytics from "../api/analytics";
 import NotificationSmall from "../components/NotificationSmall";
 import CalendarThing from "../components/CalendarThing";
 
-function createDatesGraphData(data){
 
-	const dayText = [];
-	const weekText = [];
-	const monthText = [];
-
-	const playersWeek = [0, 0, 0, 0, 0, 0];
-	const matchesWeek = [0, 0, 0, 0, 0, 0];
-
-	for(let i = 0; i < 7; i++){
-
-		playersWeek[i] = data.players.days[i];
-		matchesWeek[i] = data.matches.days[i];
-	}
-
-	for(let i = 0; i < 28; i++){
-
-		monthText.push(`Day ${i} to Day ${i+1}`);
-
-		if(i < 7){
-			weekText.push(`Day ${i} to Day ${i+1}`);
-		}
-
-		if(i < 24){
-			dayText.push(`Hour ${i} to Hour ${i+1}`);
-		}
-	}
-	
-	return {
-		"title": ["Stats Past 24 Hours", "Stats Past 7 Days", "Stats Past 28 Days"],
-		"data": [
-			[{"name": "Matches", "data": data.matches.hours}, {"name": "Players", "data": data.players.hours}],
-			[{"name": "Matches", "data": matchesWeek}, {"name": "Players", "data": playersWeek}],
-			[{"name": "Matches", "data": data.matches.days}, {"name": "Players", "data": data.players.days}],
-		],
-		"text": [
-			dayText,
-			weekText,
-			monthText
-		]
-	};
-
-}
-
-
-
-function Home({navSettings, pageSettings, pageOrder, session, host, matchesData, mapImages, matchDates,
+function Home({navSettings, pageSettings, pageOrder, session, host, matchesData, mapImages,
 	addictedPlayersData, recentPlayersData, faceFiles, mostPlayedMaps, gametypeStats, mostUsedFaces, query, gametypeImages, 
 	latestMatchPlayers, latestMatchImage, latestFaces, totalPlayers}) {
-
-	matchDates = JSON.parse(matchDates);
-
-	const graphData = createDatesGraphData(matchDates);
 
 	pageSettings = JSON.parse(pageSettings);
 	pageOrder = JSON.parse(pageOrder);
@@ -150,17 +100,10 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 	}
 
 
-	if(graphData !== null){
-
-		if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
-
-			elems[pageOrder["Display Recent Matches & Player Stats"]] = <div key={"matches-graph"}>
-				<div className="default-header">Recent Matches &amp; Player Stats</div>
-				<Graph title={graphData.title} data={JSON.stringify(graphData.data)} text={JSON.stringify(graphData.text)}/>
-			</div>;
-			
-		}
+	if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
+		elems[pageOrder["Display Recent Matches & Player Stats"]] = <CalendarThing key="player-match-heatmap"/>	
 	}
+	
 
 	
 	if(JSON.parse(gametypeStats).length > 0){
@@ -231,13 +174,8 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 		<main>
 			<Nav settings={navSettings} session={session}/>
 			<div id="content">
-				<div className="default">
-
-				<CalendarThing />
-			
+				<div className="default">	
 				{message}
-				
-
 				{elems}
 				
 			</div>
@@ -313,29 +251,6 @@ export async function getServerSideProps({req, query}) {
 	}
 
 	const mapImages = await mapManager.getImages(justMapNames);
-
-	let matchDates = {
-		"matches": {"hours": [], "days": []},
-		"players": {"hours": [], "days": []}
-	};
-
-	if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
-		//matchDates = await matchManager.getDatesPlayersInRecentDays(28);
-
-		const day = (60 * 60) * 24;
-
-		const playersLast24Hours = await playerManager.getUniquePlayersInRecentUnits(24, 60 * 60);
-		const playersLast28Days = await playerManager.getUniquePlayersInRecentUnits(28, day);
-
-
-		const matchesLast24Hours = await matchManager.getMatchesInRecentUnits(24, 60 * 60);
-		const matchesLast28Days = await matchManager.getMatchesInRecentUnits(28, day);
-		
-		matchDates = {
-			"matches": {"hours": matchesLast24Hours, "days": matchesLast28Days},
-			"players": {"hours": playersLast24Hours, "days": playersLast28Days}
-		};
-	}
 
 
 	let addictedPlayersData = [];
@@ -427,7 +342,6 @@ export async function getServerSideProps({req, query}) {
 			"lastMatch": lastMatch,
 			"totalPlayers": totalPlayers,
 			"mapImages": JSON.stringify(mapImages),
-			"matchDates": JSON.stringify(matchDates),
 			"addictedPlayersData": JSON.stringify(addictedPlayersData),
 			"recentPlayersData": JSON.stringify(recentPlayersData),
 			"faceFiles": JSON.stringify(faceFiles),
