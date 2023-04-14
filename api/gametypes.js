@@ -914,9 +914,6 @@ class Gametypes{
             });
         }
 
-        console.log(gametypeNames);
-        console.log(options);
-
         return options;
     }
 }

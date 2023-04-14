@@ -21,8 +21,6 @@ import DropDown from "../components/DropDown";
 import Gametypes from "../api/gametypes";
 import Records from "../api/records";
 
-const controller = new AbortController();
-
 const mainTitles = {
     "0": "Player Total Records",
     "1": "Player Match Records",
@@ -53,7 +51,14 @@ const reducer = (state, action) =>{
 
         case "loaded": {
             return {
-                ...state
+                ...state,
+                "bLoading": false
+            }
+        }
+        case "loadData": {
+            return {
+                ...state,
+                "bLoading": true
             }
         }
         case "changeMainTab": {
@@ -66,6 +71,12 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "playerTotalTab": action.tab
+            }
+        }
+        case "changePage": {
+            return {
+                ...state,
+                "page": action.page
             }
         }
         case "changePerPage": {
@@ -92,11 +103,17 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const loadData = async (state, dispatch) =>{
+const loadData = async (state, dispatch, controller) =>{
+
+    dispatch({"type": "loadData"});
 
 
+    let url = `/api/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}`;
+    url = `${url}&cat=${state.playerTotalTab}&page=${state.page}&perPage=${state.perPage}`
 
-    const req = await fetch(`/api/records/?mode=${state.mainTab}&cat=${state.playerTotalTab}&page=${state.page}&perPage=${state.perPage}`, {
+    console.log(url);
+
+    const req = await fetch(url, {
         "signal": controller.signal,
         "headers": {"Content-type": "application/json"},
         "method": "GET"
@@ -110,6 +127,8 @@ const loadData = async (state, dispatch) =>{
         dispatch({"type": "error", "errorMessage": res.error});
         return;
     }
+
+    dispatch({"type": "loaded"});
 }
 
 const renderError = (state) =>{
@@ -119,33 +138,56 @@ const renderError = (state) =>{
     return <ErrorMessage title="Records Data" text={state.error}/>
 }
 
+const renderPagination = (state, dispatch) =>{
+
+    const url = `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&type=${state.playerTotalTab}&page=`;
+
+    return <Pagination 
+        event={(page) => {
+            dispatch({"type": "changePage", "page": page})
+        }}
+        currentPage={state.page} 
+        results={state.totalResults} 
+        perPage={state.perPage} 
+        url={url}
+    />;
+}
+
+const renderData = (state) =>{
+
+    if(state.bLoading) return <Loading />;
+}
+
 const RecordsPage = ({
         host, session, pageSettings, navSettings, metaTags, 
-        perPageOptions, page, perPage, validTypes, mode,
+        perPageOptions, page, perPage, validTypes, mode, type,
         gametypesList, selectedGametype
     }) =>{
+        
 
     const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
         "mainTab": 0,
-        "playerTotalTab": "playtime",
+        "playerTotalTab": type,
         "perPage": perPage,
         "page": page,
         "error": null,
-        "selectedGametype": selectedGametype
+        "selectedGametype": selectedGametype,
+        "totalResults": 1337
         
     });
 
-    
-    
-
     useEffect(() =>{
 
-        loadData(state, dispatch);
+        const controller = new AbortController();
+
+
+        loadData(state, dispatch, controller);
 
         return () =>{
             controller.abort();
         }
-    }, [])
+    }, [page, perPage, type, selectedGametype])
 
     const title = (state.mainTab !== mode) ? mainTitles[state.mainTab] : metaTags.title;
 
@@ -179,6 +221,9 @@ const RecordsPage = ({
                     </div>
 
                     {renderError(state)}
+                    {renderPagination(state, dispatch)}
+                    {renderData(state)}
+                    {renderPagination(state, dispatch)}
                 </div>
             </div>
             <Footer session={session}/>
@@ -197,7 +242,7 @@ export async function getServerSideProps({req, query}){
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     if(page !== page) page = 1;
 
-    let type = query.type ?? "kills";
+    let type = query.type ?? "playtime";
 
     let gametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
     if(gametype !== gametype) gametype = 0;

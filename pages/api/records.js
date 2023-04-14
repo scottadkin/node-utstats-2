@@ -22,12 +22,26 @@ export default async function handler(req, res){
 
         const recordsManager = new Records();
 
-        const mode = query.mode.toLowerCase();
+        const mode = query.mode;
         const cat = query.cat ?? "";
-        const page = (query.page !== undefined) ? parseInt(query.page) : 1; 
+        let page = (query.page !== undefined) ? parseInt(query.page) : 1; 
+        if(page !== page) page = 1;
         const perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 25;
+        let gametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
+        if(gametype !== gametype) gametype = 0;
 
-        await recordsManager.getPlayerTotalRecords(cat, page, perPage)
+        
+
+        if(mode === "0"){
+
+            const {totalResults, data} = await recordsManager.getPlayerTotalRecords(cat, gametype, page, perPage);
+
+      
+            res.status(200).json({"data": data, "totalResults": totalResults});
+         
+
+            return;
+        }
 
         /*if(req.body.mode === undefined){
 

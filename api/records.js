@@ -124,7 +124,18 @@ class Records{
         return perPage;
     }
 
-    async getPlayerTotalRecords(type, page, perPage){
+    async getTotalCount(gametype){
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_totals WHERE gametype=?`;
+
+        const result = await mysql.simpleQuery(query, [gametype]);
+
+        return result[0].total_matches;
+    }
+
+    async getPlayerTotalRecords(type, gametype, page, perPage){
+
+        page = page - 1;
 
         type = type.toLowerCase();
 
@@ -136,19 +147,22 @@ class Records{
         if(page !== page) page = 0;
         if(page < 0) page = 0;
 
-        console.log(`getPlayerTotalRecords(${type}, ${perPage}, ${page})`);
-
-        console.log("ok");
-
         //need to do it differently for gametype records
-        const query = `SELECT id,name,country,matches,${type} as tvalue FROM nstats_player_totals WHERE gametype=0 ORDER BY ? DESC LIMIT ?, ?`;
+        const query = `SELECT id,name,country,matches,${type} as tvalue FROM nstats_player_totals WHERE gametype=? ORDER BY ? DESC LIMIT ?, ?`;
 
         let start = perPage * page;
         if(start < 0) start = 0;
 
-        const result = await mysql.simpleQuery(query, [type, start, perPage]);
+        const vars = [gametype, type, start, perPage];
 
-        console.log(result);
+        const result = await mysql.simpleQuery(query, vars);
+
+        const totalResults = await this.getTotalCount(gametype);
+
+        return {
+            "totalResults": totalResults,
+            "data": result
+        };
     }
 }
 
