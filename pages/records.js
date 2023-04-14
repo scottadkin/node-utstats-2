@@ -18,14 +18,18 @@ import CombogibRecords from "../components/CombogibRecords";
 import Combogib from "../api/combogib";
 import Tabs from "../components/Tabs";
 import DropDown from "../components/DropDown";
-
+import Gametypes from "../api/gametypes";
 import Records from "../api/records";
+
+const controller = new AbortController();
 
 const mainTitles = {
     "0": "Player Total Records",
     "1": "Player Match Records",
     "2": "Player Map Records",
 }
+
+
 
 
 const renderTabs = (state, dispatch) =>{
@@ -64,17 +68,84 @@ const reducer = (state, action) =>{
                 "playerTotalTab": action.tab
             }
         }
+        case "changePerPage": {
+            return {
+                ...state,
+                "perPage": action.perPage
+            }
+        }
+        case "changeGametype": {
+            return {
+                ...state,
+                "selectedGametype": action.gametype
+            }
+        }
+        case "error": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": action.errorMessage
+            }
+        }
     }
 
     return state;
 }
 
-const RecordsPage = ({host, session, pageSettings, navSettings, metaTags, validTypes, mode}) =>{
+const loadData = async (state, dispatch) =>{
+
+
+
+    const req = await fetch(`/api/records/?mode=${state.mainTab}&cat=${state.playerTotalTab}&page=${state.page}&perPage=${state.perPage}`, {
+        "signal": controller.signal,
+        "headers": {"Content-type": "application/json"},
+        "method": "GET"
+    });
+
+    const res = await req.json();
+
+    console.log(res);
+
+    if(res.error !== undefined){
+        dispatch({"type": "error", "errorMessage": res.error});
+        return;
+    }
+}
+
+const renderError = (state) =>{
+
+    if(state.error === null) return;
+
+    return <ErrorMessage title="Records Data" text={state.error}/>
+}
+
+const RecordsPage = ({
+        host, session, pageSettings, navSettings, metaTags, 
+        perPageOptions, page, perPage, validTypes, mode,
+        gametypesList, selectedGametype
+    }) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "mainTab": 0,
-        "playerTotalTab": 0
+        "playerTotalTab": "playtime",
+        "perPage": perPage,
+        "page": page,
+        "error": null,
+        "selectedGametype": selectedGametype
+        
     });
+
+    
+    
+
+    useEffect(() =>{
+
+        loadData(state, dispatch);
+
+        return () =>{
+            controller.abort();
+        }
+    }, [])
 
     const title = (state.mainTab !== mode) ? mainTitles[state.mainTab] : metaTags.title;
 
@@ -90,9 +161,24 @@ const RecordsPage = ({host, session, pageSettings, navSettings, metaTags, validT
                     <div className="default-header">Records</div>
                     {renderTabs(state, dispatch)}
 
-                    <DropDown originalValue={state.playerTotalTab} data={validTypes.playerTotals}
-                        changeSelected={(name, value) => { dispatch({"type": "changePlayerTotalTab", "tab": value})}}
-                    />
+                    <div className="default-sub-header">Player Total Records</div>
+                    <div className="form m-bottom-25">
+       
+                        <DropDown dName="Record Type" originalValue={state.playerTotalTab} data={validTypes.playerTotals}
+                            changeSelected={(name, value) => { dispatch({"type": "changePlayerTotalTab", "tab": value})}}
+                        />
+
+                        <DropDown dName="Gametype" originalValue={state.selectedGametype} data={gametypesList}
+                            changeSelected={(name, value) => { dispatch({"type": "changeGametype", "gametype": value})}}
+                        />
+
+
+                        <DropDown dName="Results Per Page" originalValue={state.perPage} data={perPageOptions}
+                            changeSelected={(name, value) => { dispatch({"type": "changePerPage", "perPage": value})}}
+                        />
+                    </div>
+
+                    {renderError(state)}
                 </div>
             </div>
             <Footer session={session}/>
@@ -105,13 +191,19 @@ export async function getServerSideProps({req, query}){
     const session = new Session(req);
 	await session.load();
 
-    let mode = parseInt(query.mode) ?? 0;
+    let mode = (query.mode !== undefined) ? parseInt(query.mode) : 0;
     if(mode !== mode) mode = 0;
 
-    let page = parseInt(query.page) ?? 1;
+    let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     if(page !== page) page = 1;
 
     let type = query.type ?? "kills";
+
+    let gametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
+    if(gametype !== gametype) gametype = 0;
+
+    console.log(`gametype = ${gametype}`);
+
 
     //also used as combo mode
     //let capMode = parseInt(query.cm) ?? 0;
@@ -120,7 +212,6 @@ export async function getServerSideProps({req, query}){
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
-
     const defaultPerPage = parseInt(pageSettings["Default Per Page"]);
 
     let perPage = query.pp ?? defaultPerPage ?? 25;
@@ -148,6 +239,14 @@ export async function getServerSideProps({req, query}){
 
     //console.log(await r.debugGetColumnNames());
 
+    const gm = new Gametypes();
+
+
+
+    const gametypeList = await gm.getDropDownOptions();
+
+
+
     return {
         "props": {
             "host": req.headers.host,
@@ -159,9 +258,12 @@ export async function getServerSideProps({req, query}){
             "navSettings": JSON.stringify(navSettings),
             "pageSettings": pageSettings,
             "metaTags": metaTags,
+            "perPageOptions": r.totalPerPageOptions,
             "validTypes": {
                 "playerTotals": r.validPlayerTotalTypes
-            }
+            },
+            "gametypesList": gametypeList,
+            "selectedGametype": gametype
         }
     }
 }

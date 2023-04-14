@@ -1,12 +1,35 @@
 import Players from "../../api/players";
 import Functions from "../../api/functions";
 import Maps from "../../api/maps";
+import Records from "../../api/records";
 
 export default async function handler(req, res){
 
     try{
 
-        if(req.body.mode === undefined){
+        //console.log(req);
+
+        const query = req.query;
+
+        console.log(query);
+
+
+
+        if(query.mode === undefined){
+            res.status(200).json({"error": "No query mode specified."});
+            return;
+        }
+
+        const recordsManager = new Records();
+
+        const mode = query.mode.toLowerCase();
+        const cat = query.cat ?? "";
+        const page = (query.page !== undefined) ? parseInt(query.page) : 1; 
+        const perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 25;
+
+        await recordsManager.getPlayerTotalRecords(cat, page, perPage)
+
+        /*if(req.body.mode === undefined){
 
             res.status(200).json({"error": "No mode was specified."});
             return;
@@ -89,7 +112,7 @@ export default async function handler(req, res){
                 return;
 
             }
-        }
+        }*/
 
         res.status(200).json({"error": "Unknown option."});
         return;

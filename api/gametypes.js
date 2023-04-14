@@ -898,6 +898,27 @@ class Gametypes{
 
         return await mysql.simpleQuery(query, [gametypeId]);
     }
+
+    async getDropDownOptions(){
+
+        const gametypeNames = await this.getAllNames();
+
+        const options = [
+            {"value": 0, "displayValue": "All Gametypes"}
+        ];
+
+        for(const [id, name] of Object.entries(gametypeNames)){
+
+            options.push({
+                "value": parseInt(id), "displayValue": name
+            });
+        }
+
+        console.log(gametypeNames);
+        console.log(options);
+
+        return options;
+    }
 }
 
 module.exports = Gametypes;
