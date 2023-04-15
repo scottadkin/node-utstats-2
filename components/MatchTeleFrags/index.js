@@ -95,18 +95,18 @@ const renderKills = (state, matchId, matchStart, players) =>{
             "killer": {
                 "value": killer.name.toLowerCase(), 
                 "displayValue": <Link href={`/pmatch/${matchId}/?player=${killer.player_id}`}>
-                    <a> 
+                    
                         <CountryFlag country={killer.country}/>{killer.name}
-                    </a>
+                    
                 </Link>,
                 "className": Functions.getTeamColor(killer.team)
             },
             "victim": {
                 "value": victim.name.toLowerCase(), 
                 "displayValue": <Link href={`/pmatch/${matchId}/?player=${victim.player_id}`}>
-                    <a> 
+                    
                         <CountryFlag country={victim.country}/>{victim.name}
-                    </a>
+                    
                 </Link>,
                 "className": Functions.getTeamColor(victim.team)
             },
@@ -156,10 +156,10 @@ const renderGeneral = (state, matchId, data) =>{
             "player": {
                 "value": d.name.toLowerCase(), 
                 "displayValue": <Link href={`/pmatch/${matchId}/?player=${d.player_id}`}>
-                    <a>
+                    
                         <CountryFlag country={d.country}/>
                         {d.name}
-                    </a>
+                    
                 </Link>,
                 "className": `text-left ${Functions.getTeamColor(d.team)}`
             },

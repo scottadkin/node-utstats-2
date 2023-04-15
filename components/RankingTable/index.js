@@ -43,7 +43,7 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
 
         rows.push(<tr key={i}>
             <td className="place">{position}{Functions.getOrdinal(position)}</td>
-            <td className="text-left"><Link href={`/player/${d.player_id}`}><a><CountryFlag country={d.country} host={host}/> {d.name}</a></Link></td>
+            <td className="text-left"><Link href={`/player/${d.player_id}`}><CountryFlag country={d.country} host={host}/> {d.name}</Link></td>
       
             <td className="playtime"><Playtime timestamp={d.playtime}/></td>
             <td><Image className={styles.icon} src={currentImage} width={12} height={12} alt="image"/> <MouseHoverBox title={`Previous Match Ranking Change`} 
@@ -74,9 +74,9 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
         </Table2>
         
         {(bDisplayPagination) ? <Pagination currentPage={page + 1} perPage={perPage} results={results} pages={pages} url={`/rankings/${gametypeId}?page=`}/> : 
-        <Link href={`/rankings/${gametypeId}`}><a><div className={`${styles.viewall} center`}>
+        <Link href={`/rankings/${gametypeId}`}><div className={`${styles.viewall} center`}>
             View all {results} players
-        </div></a></Link>
+        </div></Link>
         }
     </div>
 }

@@ -134,10 +134,8 @@ class CTFMapRecords extends React.Component{
                         const player = this.getPlayer(playerId);
 
                         assistElems.push(<React.Fragment key={x}>
-                            <Link href={`/player/${player.id}`}>
-                                <a target="_blank">
-                                    <CountryFlag host={this.props.host} country={player.country}/>{player.name}
-                                </a>
+                            <Link href={`/player/${player.id}`} target="_blank">
+                                <CountryFlag host={this.props.host} country={player.country}/>{player.name}         
                             </Link>
                         </React.Fragment>);
 
@@ -149,14 +147,14 @@ class CTFMapRecords extends React.Component{
             }
 
             rows.push(<tr key={i}>
-                <td className="text-left"><Link href={`/map/${data.map_id}`}><a>{m.name}</a></Link></td>
-                <td><Link href={`/match/${data.match_id}`}><a>{Functions.convertTimestamp(this.getDate(data.match_id), true)}</a></Link></td>
+                <td className="text-left"><Link href={`/map/${data.map_id}`}>{m.name}</Link></td>
+                <td><Link href={`/match/${data.match_id}`}>{Functions.convertTimestamp(this.getDate(data.match_id), true)}</Link></td>
                 {(this.state.mode === 1) ? <td>{assistElems}</td> : null }
                 <td>
                     <Link href={`/player/${capPlayer.id}`}>
-                        <a>
-                            <CountryFlag host={this.props.host} country={capPlayer.country}/>{capPlayer.name}
-                        </a>
+                        
+                        <CountryFlag host={this.props.host} country={capPlayer.country}/>{capPlayer.name}
+                        
                     </Link>
                 </td>
                 <td>{Functions.capTime(data.travel_time)}</td>

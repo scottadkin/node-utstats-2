@@ -90,9 +90,9 @@ const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData}) =>{
                 "player": {
                     "value": player.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${playerId}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>{player.name}
-                        </a>
+                      
+                        <CountryFlag country={player.country}/>{player.name}
+                        
                     </Link>,
                     "className": `player ${Functions.getTeamColor(player.team)}`
                 },

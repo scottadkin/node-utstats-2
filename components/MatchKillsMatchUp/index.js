@@ -94,10 +94,10 @@ const MatchKillsMatchUp = ({matchId, players}) =>{
 
             headers.push(<th key={player.id} className={`${styles.th} text-left ${Functions.getTeamColor(player.team)}`}>
                 <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
-                    <a>
+                    
                         <img className={styles.flag} src={`/images/flags/${player.country}.svg`} alt="flag"/>
                         &nbsp;&nbsp;{player.name}
-                    </a>
+                    
                 </Link>
             </th>);
 

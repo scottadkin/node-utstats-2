@@ -104,30 +104,42 @@ class PlayersList extends React.Component{
 
             if(displayType === 1 && i === 0){
                 elems.push(<tr key={-1}>
-                    <th><Link href={createOrderLink(searchTerms, "name", this.state.order)}><a onClick={(() =>{
+                    <th onClick={(() =>{
                         this.changeOrder("name");
-                    })}>Name</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "last", this.state.order)}><a onClick={(() =>{
+                    })}>
+                        <Link href={createOrderLink(searchTerms, "name", this.state.order)}>Name</Link>
+                    </th>
+                    <th  onClick={(() =>{
                         this.changeOrder("last");
-                    })}>Last</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "score", this.state.order)}><a onClick={(() =>{
+                    })}>
+                        <Link href={createOrderLink(searchTerms, "last", this.state.order)}>Last</Link>
+                    </th>
+                    <th  onClick={(() =>{
                         this.changeOrder("score");
-                    })}>Score</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "kills", this.state.order)}><a onClick={(() =>{
+                    })}>
+                        <Link href={createOrderLink(searchTerms, "score", this.state.order)}>Score</Link>
+                    </th>
+                    <th  onClick={(() =>{
                         this.changeOrder("kills");
-                    })}>Kills</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "deaths", this.state.order)}><a onClick={(() =>{
+                    })}>
+                        <Link href={createOrderLink(searchTerms, "kills", this.state.order)}>Kills</Link>
+                    </th>
+                    <th onClick={(() =>{
                         this.changeOrder("deaths");
-                    })}>Deaths</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "efficiency", this.state.order)}><a onClick={(() =>{
+                    })}>
+                        <Link href={createOrderLink(searchTerms, "deaths", this.state.order)}>Deaths</Link>
+                    </th>
+                    <th onClick={(() =>{
                         this.changeOrder("efficiency");
-                    })}>Efficiency</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "accuracy", this.state.order)}><a onClick={(() =>{
+                    })}>
+                        <Link href={createOrderLink(searchTerms, "efficiency", this.state.order)}>Efficiency</Link>
+                    </th>
+                    <th onClick={(() =>{
                         this.changeOrder("accuracy");
-                    })}>Accuracy</a></Link></th>
-                    <th><Link href={createOrderLink(searchTerms, "playtime", this.state.order)}><a onClick={(() =>{
+                    })}><Link href={createOrderLink(searchTerms, "accuracy", this.state.order)}>Accuracy</Link></th>
+                    <th  onClick={(() =>{
                         this.changeOrder("playtime");
-                    })}>Playtime</a></Link></th>
+                    })}><Link href={createOrderLink(searchTerms, "playtime", this.state.order)}>Playtime</Link></th>
                 </tr>);
             }
 
@@ -171,7 +183,7 @@ class PlayersList extends React.Component{
 
             }else{
                 elems.push(<tr key={i}>
-                    <td><CountryFlag country={p.country} host={this.props.host}/> <Link href={`/player/${p.id}`}><a>{p.name}</a></Link></td>
+                    <td><CountryFlag country={p.country} host={this.props.host}/> <Link href={`/player/${p.id}`}>{p.name}</Link></td>
                     <td>{Functions.convertTimestamp(p.last, true)}</td>
                     <td>{p.score}</td>
                     <td>{p.kills}</td>

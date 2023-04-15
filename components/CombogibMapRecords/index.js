@@ -145,10 +145,10 @@ class CombogibMapRecords extends React.Component{
                 <td><span className="place">{place}{Functions.getOrdinal(place)}</span></td>
                 <td className="text-left">
                     <Link href={`/player/${d.player_id}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>
-                            {player.name}
-                        </a>
+                        
+                        <CountryFlag country={player.country}/>
+                        {player.name}
+                        
                     </Link>
                 </td>
                 <td className="playtime"><Playtime timestamp={d.playtime}/></td>

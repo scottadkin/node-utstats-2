@@ -72,13 +72,13 @@ class ACEKickLogs extends React.Component{
             const d = this.state.logs[i];
 
             rows.push(<tr key={i}>
-                <td><Link href={`/ace?mode=players&name=${d.name}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.name}</a></Link></td>
+                <td><Link href={`/ace?mode=players&name=${d.name}`}><CountryFlag host={this.props.host} country={d.country}/>{d.name}</Link></td>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
-                <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a>{d.ip}</a></Link></td>
+                <td><Link href={`/ace?mode=players&ip=${d.ip}`}>{d.ip}</Link></td>
                 <td>
-                    <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span>{d.hwid}</a></Link><br/>
-                    <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span>{d.mac1}</a></Link><br/>
-                    <Link href={`/ace?mode=players&mac2=${d.mac1}`}><a><span className="yellow">MAC2: </span>{d.mac2}</a></Link>
+                    <Link href={`/ace?mode=players&hwid=${d.hwid}`}><span className="yellow">HWID: </span>{d.hwid}</Link><br/>
+                    <Link href={`/ace?mode=players&mac1=${d.mac1}`}><span className="yellow">MAC1: </span>{d.mac1}</Link><br/>
+                    <Link href={`/ace?mode=players&mac2=${d.mac1}`}><span className="yellow">MAC2: </span>{d.mac2}</Link>
                 </td>
                 <td>
                     <span className="yellow">Reason: </span>{d.kick_reason}<br/>
@@ -86,7 +86,7 @@ class ACEKickLogs extends React.Component{
                     <span className="yellow">Package Version: </span>{d.package_version}
                 </td>
                 <td>
-                    <Link href={`/ace?mode=kick&logId=${d.id}`}><a>View</a></Link>
+                    <Link href={`/ace?mode=kick&logId=${d.id}`}>View</Link>
                 </td>
             </tr>);
         }

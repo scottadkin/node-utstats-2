@@ -98,13 +98,13 @@ class MatchCTFCapTimes extends React.Component{
             const player = this.getPlayer(cap.cap);
 
             soloElem = <tr>
-                <td><Link href={`/match/${cap.match_id}#fastest-caps`}><a>Solo Cap</a></Link></td>
+                <td><Link href={`/match/${cap.match_id}#fastest-caps`}>Solo Cap</Link></td>
                 <td>
                     <Link href={`/player/${player.id}`}>
-                        <a>
+                        
                             <CountryFlag host={this.props.host} country={player.country}/>
                             {player.name}
-                        </a>
+                        
                     </Link>
                 </td>
                 <td className="purple">{cap.travel_time.toFixed(2)} Seconds</td>
@@ -138,13 +138,13 @@ class MatchCTFCapTimes extends React.Component{
                 const p = this.getPlayer(playerIds[i]);
 
                 playerElems.push(<React.Fragment key={i}>
-                    <Link href={`/player/${p.id}`}><a><CountryFlag host={this.props.host} country={p.country}/>{p.name}</a></Link>
+                    <Link href={`/player/${p.id}`}><CountryFlag host={this.props.host} country={p.country}/>{p.name}</Link>
                     {(i < playerIds.length - 1) ? ", " : ""}
                 </React.Fragment>);
             }
 
             assistElem = <tr>
-                <td><Link href={`/match/${cap.match_id}#fastest-caps`}><a>Assisted Cap</a></Link></td>
+                <td><Link href={`/match/${cap.match_id}#fastest-caps`}>Assisted Cap</Link></td>
                 <td>
                     {playerElems}
                 </td>
@@ -229,7 +229,7 @@ class MatchCTFCapTimes extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{Functions.MMSS(m.cap_time - this.props.matchStart)}</td>
-                <td><Link href={`/pmatch/${this.props.matchId}?player=${capPlayer.id}`}><a><CountryFlag host={this.props.host} country={capPlayer.country}/>{capPlayer.name}</a></Link></td>
+                <td><Link href={`/pmatch/${this.props.matchId}?player=${capPlayer.id}`}><CountryFlag host={this.props.host} country={capPlayer.country}/>{capPlayer.name}</Link></td>
                 {(this.state.mode === 2) ? <TrueFalse bTable={true} value={bSolo} tDisplay={"Solo"} fDisplay={"Assisted"}/> : null}
                 <td>{m.travel_time.toFixed(2)} Seconds</td>
                 <td className={deltaClass}>{delta}</td>

@@ -21,11 +21,11 @@ const PlayerAliases = ({host, data, faces, masterName}) =>{
             continue;
         }
 
-        elems.push(<Link key={i} href={`/player/${d.id}`}><a><div className={styles.player}>
+        elems.push(<Link key={i} href={`/player/${d.id}`}><div className={styles.player}>
             <Image className={styles.face} src={`/images/faces/${faces[d.face].name}.png`} alt="Image" width={64} height={64}/><br/>
             <div className={styles.name}><CountryFlag country={d.country} host={host}/>{d.name}</div>
         </div>
-        </a></Link>);
+        </Link>);
     }
 
     if(elems.length === 0) return null;

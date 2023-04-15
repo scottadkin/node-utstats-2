@@ -73,9 +73,9 @@ const MatchCTFCarryTime = ({matchId, players}) =>{
                 "player": {
                     "value": player.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>{player.name}
-                        </a>
+                        
+                        <CountryFlag country={player.country}/>{player.name}
+                        
                     </Link>,
                     "className": `text-left ${Functions.getTeamColor(player.team)}`
                 },

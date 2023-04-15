@@ -90,9 +90,9 @@ const MatchSprees = ({matchId, players, matchStart}) =>{
                 "player": {
                     "value": player.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
-                        <a>
+                        
                             <CountryFlag country={player.country}/>{player.name}
-                        </a>
+                        
                     </Link>,
                     "className": `player ${Functions.getTeamColor(player.team)}`
                 },

@@ -61,7 +61,7 @@ const getAssistDetails = (state, capId) =>{
 
 const filterData = (state, selectedTab) => {
 
-    const data = (selectedTab === 0) ? state.soloCaps : state.assistCaps;
+    let data = (selectedTab === 0) ? state.soloCaps : state.assistCaps;
 
     data = data.filter((cap) =>{
         if(cap.gametype_id === 0 && cap.cap_type === selectedTab) return true;
@@ -106,17 +106,15 @@ const renderSoloCaps = (state, selectedTab) =>{
         const capPlayer = Functions.getPlayer(state.playerNames, capDetails.cap_player, true);
 
         return {
-            "map": {"value": mapName.toLowerCase(), "displayValue": <Link href={`/map/${cap.map_id}`}><a>{mapName}</a></Link>, "className": "text-left"},
+            "map": {"value": mapName.toLowerCase(), "displayValue": <Link href={`/map/${cap.map_id}`}>{mapName}</Link>, "className": "text-left"},
             "date": {"value": capDetails.match_date, "displayValue": Functions.convertTimestamp(capDetails.match_date, true), "className": "small-font grey"},
             "drop": {"value": cap.drop_time, "displayValue": Functions.toPlaytime(cap.drop_time, true), "className": "playtime"},
             "carry": {"value": cap.carry_time, "displayValue": Functions.toPlaytime(cap.carry_time, true), "className": "playtime"},
             "cap": {"value": cap.travel_time, "displayValue": Functions.toPlaytime(cap.travel_time, true), "className": "playtime"},
             "capPlayer": {
                 "value": capPlayer.name.toLowerCase(), 
-                "displayValue": <Link href={`/player/${capPlayer.id}`}>
-                    <a>
-                        <CountryFlag country={capPlayer.country}/>{capPlayer.name}
-                    </a>
+                "displayValue": <Link href={`/player/${capPlayer.id}`}>   
+                    <CountryFlag country={capPlayer.country}/>{capPlayer.name}      
                 </Link>
             }
         }
@@ -166,15 +164,15 @@ const renderAssistedCaps = (state, selectedTab) =>{
             const player = Functions.getPlayer(state.playerNames, assistDetails[i], true);
 
             assistPlayers.push(<Link key={i} href={`/player/${assistDetails[i]}`}>
-                <a className="small-font grey">
+                <span className="small-font grey">
                     <CountryFlag country={grabPlayer.country}/>
                     {player.name}&nbsp;
-                </a>
+                </span>
             </Link>);
         }
 
         return {
-            "map": {"value": mapName.toLowerCase(), "displayValue": <Link href={`/map/${cap.map_id}`}><a>{mapName}</a></Link>, "className": "text-left"},
+            "map": {"value": mapName.toLowerCase(), "displayValue": <Link href={`/map/${cap.map_id}`}>{mapName}</Link>, "className": "text-left"},
             "date": {"value": capDetails.match_date, "displayValue": Functions.convertTimestamp(capDetails.match_date, true), "className": "small-font grey"},
             "drop": {"value": cap.drop_time, "displayValue": Functions.toPlaytime(cap.drop_time, true), "className": "playtime"},
             "carry": {"value": cap.carry_time, "displayValue": Functions.toPlaytime(cap.carry_time, true), "className": "playtime"},
@@ -182,17 +180,15 @@ const renderAssistedCaps = (state, selectedTab) =>{
             "capPlayer": {
                 "value": capPlayer.name.toLowerCase(), 
                 "displayValue": <Link href={`/player/${capPlayer.id}`}>
-                    <a>
-                        <CountryFlag country={capPlayer.country}/>{capPlayer.name}
-                    </a>
+                    <CountryFlag country={capPlayer.country}/>{capPlayer.name}      
                 </Link>
             },
             "grabPlayer": {
                 "value": grabPlayer.name.toLowerCase(), 
                 "displayValue": <Link href={`/player/${grabPlayer.id}`}>
-                    <a>
-                        <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
-                    </a>
+                    
+                    <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
+                    
                 </Link>
             },
             "assistedBy": {

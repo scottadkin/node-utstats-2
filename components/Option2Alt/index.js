@@ -14,14 +14,14 @@ class Option2Alt extends React.Component{
 
         return <div className={styles.wrapper}>
             <Link href={this.props.url1}>
-                <a className={(this.props.value === 0) ? styles.selected : null}>
+                <span className={(this.props.value === 0) ? styles.selected : null}>
                     {this.props.title1}
-                </a>
+                </span>
             </Link>
             <Link href={this.props.url2}>
-                <a className={(this.props.value === 1) ? styles.selected : null}>
+                <span className={(this.props.value === 1) ? styles.selected : null}>
                     {this.props.title2}
-                </a>
+                </span>
             </Link>
         </div>
     }

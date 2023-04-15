@@ -33,7 +33,7 @@ export default function ServerBox(props){
 
     return (
         <Link href={`server/${d.id}`} passHref>
-            <a>
+            
                 <div className={styles.default}>
                     <div className={styles.title}>
                         {d.name}
@@ -48,7 +48,7 @@ export default function ServerBox(props){
                         Last {removeDateJunk(new Date(d.last * 1000).toString())}<br/>
                     </div>
                 </div>
-            </a>
+            
         </Link>
     );
 }

@@ -123,8 +123,8 @@ const renderKills = (state, matchId, matchStart, players) =>{
         const killer = Functions.getPlayer(players, kill.killer_id, true);
         const victim = Functions.getPlayer(players, kill.victim_id, true);
 
-        const killerElem = <Link href={`/pmatch/${matchId}/?player=${killer.player_id}`}><a><CountryFlag country={killer.country}/>{killer.name}</a></Link>
-        const victimElem = <Link href={`/pmatch/${matchId}/?player=${victim.player_id}`}><a><CountryFlag country={victim.country}/>{victim.name}</a></Link>
+        const killerElem = <Link href={`/pmatch/${matchId}/?player=${killer.player_id}`}><CountryFlag country={killer.country}/>{killer.name}</Link>
+        const victimElem = <Link href={`/pmatch/${matchId}/?player=${victim.player_id}`}><CountryFlag country={victim.country}/>{victim.name}</Link>
 
         return {
             "timestamp": {"value": kill.timestamp, "displayValue": Functions.MMSS(kill.timestamp - matchStart)},

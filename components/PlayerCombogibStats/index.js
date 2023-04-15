@@ -115,30 +115,30 @@ class PlayerCombogibStats extends React.Component{
             <tr>
                 <td>
                     <Link href={`/pmatch/${d.max_combo_kills_match_id}/?player=${this.props.playerId}`}>
-                        <a>
+                        
                             {Functions.ignore0(d.max_combo_kills)}
-                        </a>
+                        
                     </Link>
                 </td>
                 <td>
                     <Link href={`/pmatch/${d.max_insane_kills_match_id}/?player=${this.props.playerId}`}>
-                        <a>
+                        
                             {Functions.ignore0(d.max_insane_kills)}
-                        </a>
+                        
                     </Link>
                 </td>
                 <td>
                     <Link href={`/pmatch/${d.max_shockball_kills_match_id}/?player=${this.props.playerId}`}>
-                        <a>
+                        
                             {Functions.ignore0(d.max_shockball_kills)}
-                        </a>
+                        
                     </Link>
                 </td>
                 <td>
                     <Link href={`/pmatch/${d.max_primary_kills_match_id}/?player=${this.props.playerId}`}>
-                        <a>
+                        
                             {Functions.ignore0(d.max_primary_kills)}
-                        </a>
+                        
                     </Link>
                 </td>
             </tr>
@@ -159,30 +159,30 @@ class PlayerCombogibStats extends React.Component{
             <tr>
                 <td>
                     <Link href={`/pmatch/${d.best_combo_spree_match_id}/?player=${this.props.playerId}`}>
-                        <a>
+                        
                             {Functions.ignore0(d.best_combo_spree)}
-                        </a>
+                        
                     </Link>     
                 </td>
                 <td>
                     <Link href={`/pmatch/${d.best_insane_spree_match_id}/?player=${this.props.playerId}`}>
-                        <a>
+                        
                             {Functions.ignore0(d.best_insane_spree)}
-                        </a>
+                        
                     </Link>     
                 </td>
                 <td>
                     <Link href={`/pmatch/${d.best_shockball_spree_match_id}/?player=${this.props.playerId}`}>
-                        <a>
+                        
                             {Functions.ignore0(d.best_shockball_spree)}
-                        </a>
+                        
                     </Link>     
                 </td>
                 <td>
                     <Link href={`/pmatch/${d.best_primary_spree_match_id}/?player=${this.props.playerId}`}>
-                        <a>
+                        
                             {Functions.ignore0(d.best_primary_spree)}
-                        </a>
+                        
                     </Link>     
                 </td>
             </tr>
@@ -195,25 +195,25 @@ class PlayerCombogibStats extends React.Component{
 
         const comboElem = <td>
             <Link href={`/pmatch/${d.best_single_combo_match_id}/?player=${this.props.playerId}`}>
-                <a>
+                
                     {Functions.ignore0(d.best_single_combo)} <span className="small-font grey">{Functions.plural(d.best_single_combo, "Kill")}</span>
-                </a>
+                
             </Link>
         </td>;
 
         const insaneElem = <td>
             <Link href={`/pmatch/${d.best_single_insane_match_id}/?player=${this.props.playerId}`}>
-                <a>
+                
                     {Functions.ignore0(d.best_single_insane)} <span className="small-font grey">{Functions.plural(d.best_single_insane, "Kill")}</span>
-                </a>
+                
             </Link>
         </td>;
 
         const shockElem = <td>
             <Link href={`/pmatch/${d.best_single_shockball_match_id}/?player=${this.props.playerId}`}>
-                <a>
+                
                     {Functions.ignore0(d.best_single_shockball)} <span className="small-font grey">{Functions.plural(d.best_single_shockball, "Kill")}</span>
-                </a>
+                
             </Link>
         </td>;
 

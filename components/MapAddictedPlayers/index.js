@@ -23,7 +23,7 @@ const MapAddictedPlayers = ({host, players, playerNames}) =>{
             currentPlayer = Functions.getPlayer(playerNames, p.player);
   
             elems.push(<tr key={i}>
-                <td className="text-left"><Link href={`/player/${currentPlayer.id}`}><a><CountryFlag host={host} country={currentPlayer.country}/>{currentPlayer.name}</a></Link></td>
+                <td className="text-left"><Link href={`/player/${currentPlayer.id}`}><CountryFlag host={host} country={currentPlayer.country}/>{currentPlayer.name}</Link></td>
                 <td>{Functions.convertTimestamp(p.first, false, false)}</td>
                 <td>{Functions.convertTimestamp(p.last, false, false)}</td>
                 <td>{p.matches}</td>

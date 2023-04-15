@@ -62,24 +62,24 @@ const ACEPage = ({error, session, host, navSettings, mode, recentKicks, recentPl
                     </div>
                     <div className="big-tabs">
                         <Link href="/ace">
-                            <a>
+                            
                                 <div className={`tab ${(mode === "") ? "tab-selected" : null}`}>Recent Events</div>
-                            </a>
+                            
                         </Link>
                         <Link href="/ace?mode=players">
-                            <a>
+                            
                                 <div className={`tab ${(mode === "players" || mode === "player") ? "tab-selected" : null}`}>Players</div>
-                            </a>
+                            
                         </Link>
                         <Link href="/ace?mode=kicks">
-                            <a>
+                        
                                 <div className={`tab ${(mode === "kicks" || mode === "kick") ? "tab-selected" : null}`}>Kick Logs</div>
-                            </a>
+                            
                         </Link>
                         <Link href="/ace?mode=screenshots">
-                            <a>
+                            
                                 <div className={`tab ${(mode === "screenshots" || mode === "screenshot") ? "tab-selected" : null}`}>Screenshot Requests</div>
-                            </a>
+                            
                         </Link>
                     </div>
 

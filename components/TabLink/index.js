@@ -9,9 +9,9 @@ const TabLink = ({name, value, selectedValue, url, anchor}) =>{
     }
 
     const className = (value === selectedValue) ? "tab tab-selected" : "tab";
-    return <Link href={link}><a><div className={className}>
+    return <Link href={link}><div className={className}>
         {name}
-    </div></a></Link>
+    </div></Link>
 }
 
 export default TabLink;

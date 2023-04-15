@@ -60,16 +60,16 @@ class ACEScreenshots extends React.Component{
             const d = this.state.data[i];
 
             rows.push(<tr key={i}>
-                <td><Link href={`/ace/?mode=players&name=${d.player}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.player}</a></Link></td>
-                <td><Link href={`/ace/?mode=players&ip=${d.ip}`}><a>{d.ip}</a></Link></td>
+                <td><Link href={`/ace/?mode=players&name=${d.player}`}><CountryFlag host={this.props.host} country={d.country}/>{d.player}</Link></td>
+                <td><Link href={`/ace/?mode=players&ip=${d.ip}`}>{d.ip}</Link></td>
                 <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
                 <td>
-                    <Link href={`/ace/?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span>{d.hwid}</a></Link><br/>
-                    <Link href={`/ace/?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span>{d.mac1}</a></Link><br/>
-                    <Link href={`/ace/?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2: </span>{d.mac2}</a></Link>
+                    <Link href={`/ace/?mode=players&hwid=${d.hwid}`}><span className="yellow">HWID: </span>{d.hwid}</Link><br/>
+                    <Link href={`/ace/?mode=players&mac1=${d.mac1}`}><span className="yellow">MAC1: </span>{d.mac1}</Link><br/>
+                    <Link href={`/ace/?mode=players&mac2=${d.mac2}`}><span className="yellow">MAC2: </span>{d.mac2}</Link>
                 </td>
                 <td>{d.admin_name}</td>
-                <td><Link href={`/ace/?mode=screenshot&logId=${d.id}`}><a>View</a></Link></td>
+                <td><Link href={`/ace/?mode=screenshot&logId=${d.id}`}>View</Link></td>
             </tr>);
         }
 

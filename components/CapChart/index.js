@@ -97,9 +97,9 @@ class CapChart extends React.Component{
 
         return <div className={styles.info}>
             Solo cap by <Link href={`/pmatch/${this.props.matchId}/?player=${capPlayer.id}`}>
-                <a>
-                    <CountryFlag country={capPlayer.country}/>{capPlayer.name}
-                </a>
+                
+                <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                
             </Link> Grabbed at <span className="playtime">{grabTime}</span> and capped at {capTime}
         </div>;
     }
@@ -123,17 +123,17 @@ class CapChart extends React.Component{
                 <td>{coverString}</td>
                 <td>
                     <Link href={`/pmatch/${this.props.matchId}/?player=${killer.id}`}>
-                        <a>
-                            <CountryFlag country={killer.country}/>{killer.name}
-                        </a>
+                        
+                        <CountryFlag country={killer.country}/>{killer.name}
+                        
                     </Link>
                 </td>
                 <td>Killed</td>
                 <td>
                     <Link href={`/pmatch/${this.props.matchId}/?player=${victim.id}`}>
-                        <a>
-                            <CountryFlag country={victim.country}/>{victim.name}
-                        </a>
+                        
+                        <CountryFlag country={victim.country}/>{victim.name}
+                        
                     </Link>
                 </td>
             </tr>);
@@ -169,17 +169,17 @@ class CapChart extends React.Component{
         
         const grabElement = <div className={styles.info}>
             Flag was taken by <Link href={`/pmatch/${this.props.matchId}/?player=${grabPlayer.id}`}>
-                <a>
-                    <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
-                </a>
+                
+                <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
+                
             </Link> at {Functions.MMSS(cap.grab_time - startTimestamp)} 
         </div>;
 
         const capElement = <div className={styles.info}>
             Flag was capped by <Link href={`/pmatch/${this.props.matchId}/?player=${capPlayer.id}`}>
-                <a>
-                    <CountryFlag country={capPlayer.country}/>{capPlayer.name}
-                </a>
+                
+                <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                
             </Link> at {Functions.MMSS(cap.cap_time - startTimestamp)} 
         </div>;
 

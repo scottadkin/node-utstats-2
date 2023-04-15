@@ -31,9 +31,9 @@ const PageButton = ({url, page, anchor, current, event}) =>{
 
     return (
         <Link href={`${url}${page}${anchor}`}>
-            <a>
-                {elem}
-            </a>
+            
+            {elem}
+            
         </Link>
     );
 }

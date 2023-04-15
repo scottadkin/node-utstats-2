@@ -162,10 +162,10 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
                     "value": player.name.toLowerCase(), 
                     "className": `text-left ${Functions.getTeamColor(player.team)}`,
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${d.player_id}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>
-                            {player.name} 
-                        </a>
+                        
+                        <CountryFlag country={player.country}/>
+                        {player.name} 
+                        
                     </Link>
                 },
                 "shots": {"value": d.shots, "displayValue": Functions.ignore0(d.shots)},

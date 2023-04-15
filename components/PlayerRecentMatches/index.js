@@ -165,18 +165,18 @@ class PlayerRecentMatches extends React.Component{
             }else{
 
                 elems.push(<tr key={i}>
-                    <td><Link href={`/match/${m.match_id}`}><a>{Functions.convertTimestamp(m.match_date, true)}</a></Link></td>   
-                    <td><Link href={`/match/${m.match_id}`}><a>{currentGametype}</a></Link></td>
-                    <td><Link href={`/match/${m.match_id}`}><a>{m.mapName}</a></Link></td>
-                    <td><Link href={`/match/${m.match_id}`}><a>{m.players}</a></Link></td>
-                    <td className="playtime"><Link href={`/match/${m.match_id}`}><a><Playtime timestamp={m.playtime}/></a></Link></td>
+                    <td><Link href={`/match/${m.match_id}`}>{Functions.convertTimestamp(m.match_date, true)}</Link></td>   
+                    <td><Link href={`/match/${m.match_id}`}>{currentGametype}</Link></td>
+                    <td><Link href={`/match/${m.match_id}`}>{m.mapName}</Link></td>
+                    <td><Link href={`/match/${m.match_id}`}>{m.players}</Link></td>
+                    <td className="playtime"><Link href={`/match/${m.match_id}`}><Playtime timestamp={m.playtime}/></Link></td>
                     <td className={"padding-0 relative"}><Link href={`/match/${m.match_id}`}><a>
                         <MatchResultSmall dmWinner={m.dmWinner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
                         redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}
                         bMonsterHunt={currentScore.mh} endReason={currentScore.end_type}/>
                     </a></Link></td>
                     <td className={`${styles.title} ${currentWinnerClass}`}>
-                        <Link href={`/match/${m.match_id}`}><a> {currentResultString}</a></Link>
+                        <Link href={`/match/${m.match_id}`}> {currentResultString}</Link>
                     </td>
                     
                     

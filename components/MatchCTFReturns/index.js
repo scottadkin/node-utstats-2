@@ -146,9 +146,9 @@ const MatchCTFReturns = (props) =>{
 
             if(r.return_player !== -1){
                 returnPlayerElem = <Link href={`/pmatch/${props.matchId}/?player=${returnPlayer.id}`}>
-                    <a>
-                        <CountryFlag country={returnPlayer.country}/>{returnPlayer.name}
-                    </a>
+                    
+                    <CountryFlag country={returnPlayer.country}/>{returnPlayer.name}
+                    
                 </Link>
             }
 
@@ -176,9 +176,9 @@ const MatchCTFReturns = (props) =>{
                 "grab_player": {
                     "value": grabPlayer.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${props.matchId}/?player=${grabPlayer.id}`}>
-                        <a>
+                        
                             <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
-                        </a>
+                        
                     </Link>,
                     "className": Functions.getTeamColor(grabPlayer.team)
                 },

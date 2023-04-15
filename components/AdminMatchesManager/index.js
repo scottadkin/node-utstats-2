@@ -319,7 +319,7 @@ class AdminMatchesManager extends React.Component{
             const playersClass = (m.players < this.state.settings["Minimum Players"]) ? "team-red" : "team-green";
 
             rows.push(<tr key={i}>
-                <td><Link href={`/match/${m.id}`}><a>{m.id}</a></Link></td>
+                <td><Link href={`/match/${m.id}`}>{m.id}</Link></td>
                 <td>{Functions.convertTimestamp(m.date, true)}</td>
                 <td>{m.server.slice(0,maxServerLength)}{(originalLength > maxServerLength) ? "..." : ""}</td>
                 <td>{m.map}</td>

@@ -191,9 +191,9 @@ class MapFastestCaps extends React.Component{
 
                 assistElems.push(<React.Fragment key={`${i}_${Math.floor(Math.random() * 999999)}`}>
                     <Link href={`/player/${currentPlayer.id}`}>
-                        <a>
-                            <CountryFlag host={this.props.host} country={currentPlayer.country}/>{currentPlayer.name}
-                        </a>
+                        
+                        <CountryFlag host={this.props.host} country={currentPlayer.country}/>{currentPlayer.name}
+                        
                     </Link>
                     {(x < assists.length - 1) ? ", " : ""}
                 </React.Fragment>);
@@ -210,13 +210,13 @@ class MapFastestCaps extends React.Component{
 
             rows.push(<tr key={i}>
                 <td>{place}{Functions.getOrdinal(place)}</td>
-                <td><Link href={`/match/${d.match_id}`}><a>{Functions.convertTimestamp(timestamp, true)}</a></Link></td>
+                <td><Link href={`/match/${d.match_id}`}>{Functions.convertTimestamp(timestamp, true)}</Link></td>
                 {(this.state.mode !== 1) ? <td>{assistElems}</td> : null}
                 <td>
                     <Link href={`/player/${d.cap}`}>
-                        <a>
-                            <CountryFlag host={this.props.host} country={player.country}/>{player.name}
-                        </a>
+                        
+                        <CountryFlag host={this.props.host} country={player.country}/>{player.name}
+                        
                     </Link>
                 </td>
                 <td>{d.travel_time.toFixed(2)}</td>
@@ -250,19 +250,19 @@ class MapFastestCaps extends React.Component{
             <div className="default-header">{this.props.mapName} Fastest Caps</div>
             <div className="tabs">
             <Link href={`/ctfcaps?map=${this.props.mapId}&submode=0`}>
-                <a>
+                
                     <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`} >All Caps</div>
-                </a>
+                
             </Link>
             <Link href={`/ctfcaps?map=${this.props.mapId}&submode=1`}>
-                <a>
+                
                     <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`} >Solo Caps</div>
-                </a>
+                
             </Link>
             <Link href={`/ctfcaps?map=${this.props.mapId}&submode=2`}>
-                <a>
+                
                     <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`} >Assisted Caps</div>
-                </a>
+                
             </Link>
             </div>
             <SimplePaginationLinks 

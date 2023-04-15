@@ -54,7 +54,7 @@ function PlayerListBox({
     
    
     return <Link href={`/player/${playerId}`}>
-        <a>
+        
             <div className={`${styles.wrapper} center`}>
                 <div className={styles.name}> 
                     <Image src={`/images/flags/${countryData.code.toLowerCase()}.svg`} height={20} width={32} alt="flag"/> 
@@ -80,7 +80,7 @@ function PlayerListBox({
                     </div>
                 </div>
             </div>
-        </a>
+        
     </Link>
     
 }
