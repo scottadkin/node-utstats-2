@@ -29,8 +29,6 @@ const mainTitles = {
 }
 
 
-
-
 const renderTabs = (state, dispatch) =>{
 
     const options = [
@@ -161,7 +159,19 @@ const renderPagination = (state, dispatch) =>{
     />;
 }
 
-const renderData = (state) =>{
+const getCategoryName = (value, options) =>{
+
+    for(let i = 0; i < options.length; i++){
+
+        const o = options[i];
+
+        if(o.value === value) return o.displayValue;
+    }
+
+    return "Not Found";
+}
+
+const renderData = (state, validTypes) =>{
 
     if(state.bLoading) return <Loading />;
 
@@ -169,13 +179,25 @@ const renderData = (state) =>{
         "place": "Place",
         "name": "Player",
         "last": "Last",
-        "playtime": "Playtime"
+        "matches": "Matches",
+        "playtime": "Playtime",
+        "value": getCategoryName(state.playerTotalTab, validTypes.playerTotals)
     };
 
     let index = state.perPage * (state.page - 1);
 
+    const playtimeTypes = ["playtime", "team_0_playtime", "team_1_playtime", "team_2_playtime", "team_3_playtime", "spec_playtime"];
+
     const data = state.data.map((d) =>{
+
         index++;
+
+        let value = d.tvalue;
+
+        if(playtimeTypes.indexOf(state.playerTotalTab) !== -1){
+            value = <span className="playtime">{Functions.toPlaytime(value)}</span>;
+        }
+
         return {
             "place": {
                 "value": index, 
@@ -192,10 +214,18 @@ const renderData = (state) =>{
                 "displayValue": Functions.convertTimestamp(d.last, true),
                 "className": "playtime"
             },
+            "matches": {
+                "value": d.matches
+            },
             "playtime": {
                 "value": d.playtime,
                 "displayValue": Functions.toPlaytime(d.playtime),
                 "className": "playtime"
+            },
+            "value": {
+                "value": d.tvalue,
+                "displayValue": value
+
             }
         }
     });
@@ -268,7 +298,7 @@ const RecordsPage = ({
 
                     {renderError(state)}
                     {renderPagination(state, dispatch)}
-                    {renderData(state)}
+                    {renderData(state, validTypes)}
                     {renderPagination(state, dispatch)}
                 </div>
             </div>
