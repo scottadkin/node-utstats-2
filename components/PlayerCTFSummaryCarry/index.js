@@ -3,7 +3,7 @@ import Functions from "../../api/functions";
 
 const renderData = (gametypeNames, data, selectedTab) =>{
 
-    const headers = {   
+    let headers = {   
         "time": "Carry Time",
         "kills": "Kills With Flag",
         "bestKills": "Most Kills With Flag",
