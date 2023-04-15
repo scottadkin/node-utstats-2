@@ -318,7 +318,7 @@ export async function getServerSideProps({req, query}){
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     if(page !== page) page = 1;
 
-    let type = query.type ?? "playtime";
+    let type = query.type ?? "frags";
 
     let gametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
     if(gametype !== gametype) gametype = 0;

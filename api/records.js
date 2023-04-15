@@ -1,4 +1,5 @@
 const mysql = require("./database");
+const Players = require("./players");
 
 class Records{
 
@@ -133,6 +134,42 @@ class Records{
         return result[0].total_matches;
     }
 
+    async getPlayerTotalAllGametypes(type, start, perPage){
+
+        const query = `SELECT id as player_id,name,country,matches,last,playtime,${type} as tvalue FROM nstats_player_totals WHERE gametype=0 ORDER BY ${type} DESC LIMIT ?, ?`;
+
+        const vars = [start, perPage];
+
+        return await mysql.simpleQuery(query, vars);
+
+    }
+
+    async getPlayerTotalSingleGametypes(gametype, type, start, perPage){
+
+        const query = `SELECT player_id,name,matches,last,playtime,${type} as tvalue FROM nstats_player_totals WHERE gametype=? ORDER BY ${type} DESC LIMIT ?, ?`;
+
+        const vars = [gametype, start, perPage];
+
+        const result = await mysql.simpleQuery(query, vars);
+
+        const playerIds = [...new Set(result.map((r) =>{
+            return r.player_id;
+        }))];
+
+        const pm = new Players();
+
+        const countries = await pm.getCountries(playerIds);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            r.country = countries[r.player_id] ?? "xx";
+        }
+
+        return result;
+    }
+
     async getPlayerTotalRecords(type, gametype, page, perPage){
 
         page = page - 1;
@@ -147,15 +184,17 @@ class Records{
         if(page !== page) page = 0;
         if(page < 0) page = 0;
 
-        //need to do it differently for gametype records
-        const query = `SELECT id as player_id,name,country,matches,last,playtime,${type} as tvalue FROM nstats_player_totals WHERE gametype=? ORDER BY ${type} DESC LIMIT ?, ?`;
-
         let start = perPage * page;
         if(start < 0) start = 0;
 
-        const vars = [gametype, start, perPage];
-
-        const result = await mysql.simpleQuery(query, vars);
+        let result = [];
+        
+        if(gametype === 0){
+            result = await this.getPlayerTotalAllGametypes(type, start, perPage)
+            
+        }else{
+           result =  await this.getPlayerTotalSingleGametypes(gametype, type, start, perPage);
+        }
 
         const totalResults = await this.getTotalCount(gametype);
 
