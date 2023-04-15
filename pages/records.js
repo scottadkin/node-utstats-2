@@ -20,6 +20,7 @@ import Tabs from "../components/Tabs";
 import DropDown from "../components/DropDown";
 import Gametypes from "../api/gametypes";
 import Records from "../api/records";
+import InteractiveTable from "../components/InteractiveTable";
 
 const mainTitles = {
     "0": "Player Total Records",
@@ -52,7 +53,9 @@ const reducer = (state, action) =>{
         case "loaded": {
             return {
                 ...state,
-                "bLoading": false
+                "bLoading": false,
+                "data": action.data,
+                "totalResults": action.totalResults
             }
         }
         case "loadData": {
@@ -103,32 +106,37 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const loadData = async (state, dispatch, controller) =>{
+const loadData = async (mainTab, selectedGametype, playerTotalTab, page, perPage, dispatch, controller) =>{
 
-    dispatch({"type": "loadData"});
+    try{
+
+        dispatch({"type": "loadData"});
+
+        let url = `/api/records/?mode=${mainTab}&gametype=${selectedGametype}`;
+        url = `${url}&cat=${playerTotalTab}&page=${page}&perPage=${perPage}`
 
 
-    let url = `/api/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}`;
-    url = `${url}&cat=${state.playerTotalTab}&page=${state.page}&perPage=${state.perPage}`
+        const req = await fetch(url, {
+            "signal": controller.signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "GET"
+        });
 
-    console.log(url);
+        const res = await req.json();
 
-    const req = await fetch(url, {
-        "signal": controller.signal,
-        "headers": {"Content-type": "application/json"},
-        "method": "GET"
-    });
+        if(res.error !== undefined){
+            dispatch({"type": "error", "errorMessage": res.error});
+            return;
+        }
 
-    const res = await req.json();
+        dispatch({"type": "loaded", "data": res.data, "totalResults": res.totalResults});
 
-    console.log(res);
+    }catch(err){
 
-    if(res.error !== undefined){
-        dispatch({"type": "error", "errorMessage": res.error});
-        return;
+        if(err.name.toLowerCase() !== "aborterror"){
+            console.trace(err);
+        }
     }
-
-    dispatch({"type": "loaded"});
 }
 
 const renderError = (state) =>{
@@ -156,6 +164,43 @@ const renderPagination = (state, dispatch) =>{
 const renderData = (state) =>{
 
     if(state.bLoading) return <Loading />;
+
+    const headers = {
+        "place": "Place",
+        "name": "Player",
+        "last": "Last",
+        "playtime": "Playtime"
+    };
+
+    let index = state.perPage * (state.page - 1);
+
+    const data = state.data.map((d) =>{
+        index++;
+        return {
+            "place": {
+                "value": index, 
+                "displayValue": `${index}${Functions.getOrdinal(index)}`, 
+                "className": "place"
+            },
+            "name": {
+                "value": d.name.toLowerCase(), 
+                "displayValue": <Link href={`/player/${d.player_id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
+                "className": "text-left"
+            },
+            "last": {
+                "value": d.last,
+                "displayValue": Functions.convertTimestamp(d.last, true),
+                "className": "playtime"
+            },
+            "playtime": {
+                "value": d.playtime,
+                "displayValue": Functions.toPlaytime(d.playtime),
+                "className": "playtime"
+            }
+        }
+    });
+
+    return <InteractiveTable width={1} headers={headers} data={data} perPage={100}/>;
 }
 
 const RecordsPage = ({
@@ -173,7 +218,8 @@ const RecordsPage = ({
         "page": page,
         "error": null,
         "selectedGametype": selectedGametype,
-        "totalResults": 1337
+        "totalResults": 0,
+        "data": []
         
     });
 
@@ -182,12 +228,12 @@ const RecordsPage = ({
         const controller = new AbortController();
 
 
-        loadData(state, dispatch, controller);
+        loadData(state.mainTab, state.selectedGametype, state.playerTotalTab, state.page, state.perPage, dispatch, controller);
 
         return () =>{
             controller.abort();
         }
-    }, [page, perPage, type, selectedGametype])
+    }, [page, perPage, type, selectedGametype, state.mainTab, state.playerTotalTab, state.page, state.perPage, state.selectedGametype])
 
     const title = (state.mainTab !== mode) ? mainTitles[state.mainTab] : metaTags.title;
 

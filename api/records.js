@@ -148,7 +148,7 @@ class Records{
         if(page < 0) page = 0;
 
         //need to do it differently for gametype records
-        const query = `SELECT id,name,country,matches,${type} as tvalue FROM nstats_player_totals WHERE gametype=? ORDER BY ? DESC LIMIT ?, ?`;
+        const query = `SELECT id as player_id,name,country,matches,last,playtime,${type} as tvalue FROM nstats_player_totals WHERE gametype=? ORDER BY ? DESC LIMIT ?, ?`;
 
         let start = perPage * page;
         if(start < 0) start = 0;
