@@ -170,11 +170,11 @@ class PlayerRecentMatches extends React.Component{
                     <td><Link href={`/match/${m.match_id}`}>{m.mapName}</Link></td>
                     <td><Link href={`/match/${m.match_id}`}>{m.players}</Link></td>
                     <td className="playtime"><Link href={`/match/${m.match_id}`}><Playtime timestamp={m.playtime}/></Link></td>
-                    <td className={"padding-0 relative"}><Link href={`/match/${m.match_id}`}><a>
+                    <td className={"padding-0 relative"}><Link href={`/match/${m.match_id}`}>
                         <MatchResultSmall dmWinner={m.dmWinner} dmScore={currentScore.dm_score} totalTeams={currentScore.total_teams} 
                         redScore={currentScore.team_score_0} blueScore={currentScore.team_score_1} greenScore={currentScore.team_score_2} yellowScore={currentScore.team_score_3}
                         bMonsterHunt={currentScore.mh} endReason={currentScore.end_type}/>
-                    </a></Link></td>
+                    </Link></td>
                     <td className={`${styles.title} ${currentWinnerClass}`}>
                         <Link href={`/match/${m.match_id}`}> {currentResultString}</Link>
                     </td>
