@@ -214,8 +214,8 @@ class Telefrags{
             await mysql.simpleQuery(query, vars);
 
             //all time total
-            await this.updatePlayerTotalCustom(playerId, 0,0, d);
-            await this.updatePlayerTotalCustom(playerId, d.map_id,0, d);
+            await this.updatePlayerTotalCustom(playerId, 0, 0, d);
+            await this.updatePlayerTotalCustom(playerId, d.map_id, 0, d);
             await this.updatePlayerTotalCustom(playerId, 0, d.gametype, d);
         }
 
@@ -242,7 +242,12 @@ class Telefrags{
         FROM nstats_player_matches WHERE player_id=? GROUP BY gametype, map_id`;
     
         const result = await mysql.simpleQuery(query, [playerId]);
-        await this.insertCustomTotal(playerId, result);
+
+        if(result.length > 0){
+            await this.insertCustomTotal(playerId, result);
+        }else{
+            console.log(`No data to create telefrag totals for playerId ${playerId}`);
+        }
 
     }
 
