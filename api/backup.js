@@ -251,6 +251,89 @@ class Backup{
     }
 
 
+    async emptyAllTables(){
+
+        for(let i = 0; i < this.validTables.length; i++){
+
+            const t = this.validTables[i];
+
+            const query = `TRUNCATE ${t}`;
+            console.log(`Starting query "${query}"`);
+            await mysql.simpleQuery(query);
+            console.log(`Query passed: "${query}"`);
+            
+        }
+    }
+
+    async restoreTable(dir, tableName){
+
+        try{
+
+            const file = fs.readFileSync(`${dir}${tableName}.json`);
+
+            //console.log(file);
+
+            const json = JSON.parse(file);
+
+            //console.log(json);
+
+            const {keys, data} = json;
+
+            //console.log(keys);
+
+            let valuesString = "";
+
+            for(let i = 0; i < keys.length; i++){
+
+                if(i > 0) valuesString += ",";
+                valuesString += "?" 
+            }
+
+
+            const query = `INSERT INTO ${tableName} VALUES(${valuesString})`;
+
+            for(let i = 0; i < data.length; i++){
+
+                const d = data[i];
+
+                await mysql.simpleQuery(query, d);
+            }
+
+            return true;
+
+        }catch(err){
+             
+
+            if(err.code.toLowerCase() === "enoent"){
+                console.log(`Failed ${tableName}.json not found, if table was empty no file will be created for restoring.`);
+                return true;
+            }else{
+                console.trace(err);
+            }
+
+            return false;
+        }
+    }
+
+    async restore(){
+
+        await this.emptyAllTables();
+
+        const dir = "./restore-from/";
+
+        for(let i = 0; i < this.validTables.length; i++){
+
+            const table = this.validTables[i];
+
+            console.log(`Attempting to restore table ${table} from ${dir}${table}.json`);
+            if(await this.restoreTable(dir, table)){
+                console.log(`Restored table ${table} from ${dir}${table}.json`);
+            }else{
+                console.log(`Failed to restored table ${table} from ${dir}${table}.json`);
+            }
+            
+        }
+    }
 
 }
 
