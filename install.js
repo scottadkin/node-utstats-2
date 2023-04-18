@@ -649,6 +649,7 @@ const queries = [
         face int(100) NOT NULL,
         voice int(11) NOT NULL,
         gametype int(11) NOT NULL,
+        map int(11) NOT NULL,
         matches int(11) NOT NULL,
         wins int(11) NOT NULL,
         losses int(11) NOT NULL,

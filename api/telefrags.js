@@ -84,9 +84,19 @@ class Telefrags{
 
         console.log(`updatePlayerTotalCustom(${playerId}, ${mapId}, ${gametypeId})`);
 
+
+
         if(!await this.bPlayerTotalExist(playerId, mapId, gametypeId)){
             console.log(`CREATE NEW player total custom ${playerId}, ${mapId}, ${gametypeId}`);
             await this.createPlayerTotal(playerId, mapId, gametypeId);
+        }
+
+        //possible fix for merging players with no playtime?
+        if(data.deaths === undefined){
+
+            console.log(`TEST-ERROR: data.deaths is undefined`);
+            console.log(data);
+            return;
         }
 
         const query = `UPDATE nstats_player_telefrags SET 

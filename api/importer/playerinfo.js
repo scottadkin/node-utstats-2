@@ -4,12 +4,18 @@ const Message = require("../message");
 
 class PlayerInfo{
 
-    constructor(id, name, masterId, gametypeId, HWID, bSpectator){
+    constructor(id, name, masterId, gametypeId, mapId, mapGametypeId, HWID, bSpectator){
 
         this.id = id;
         this.name = name;
+        //all time totals id
         this.masterId = masterId;
+        //gametype totals id
         this.gametypeId = gametypeId;
+        //map totals id
+        this.mapId = mapId;
+        //map + gametype totals id
+        this.mapGametypeId = mapGametypeId;
         this.connects = [];
         this.disconnects = [];
         this.teams = [];

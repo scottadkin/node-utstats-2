@@ -289,7 +289,7 @@ class PlayerManager{
 
 
 
-    async createPlayers(gametypeId){
+    async createPlayers(gametypeId, mapId){
 
 
         this.parseHWIDS();
@@ -307,19 +307,20 @@ class PlayerManager{
 
             if(!this.bUsePlayerACEHWID || p.hwid === ""){
 
-                new Message(`Player.getMasterIds(${p.name}, ${gametypeId})`,"note");
-                masterIds = await Player.getMasterIds(p.name, gametypeId);
+                new Message(`Player.getMasterIds(${p.name}, ${gametypeId}, ${mapId})`,"note");
+                masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
 
             }else{
 
-                new Message(`Player.getMasterIdsByHWID(${p.hwid}, ${p.name}, ${gametypeId})`,"note");
-                masterIds = await Player.getMasterIdsByHWID(p.hwid, p.name, gametypeId);
+                new Message(`Player.getMasterIdsByHWID(${p.hwid}, ${p.name}, ${gametypeId}, ${mapId})`,"note");
+                masterIds = await Player.getMasterIdsByHWID(p.hwid, p.name, gametypeId, mapId);
                 //player.setHWID(p.hwid);
             }
 
             this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 
-            const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, p.hwid);
+
+            const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, masterIds.mapId, masterIds.mapGametypeId, p.hwid);
 
             this.players.push(player);
 
@@ -1020,13 +1021,15 @@ class PlayerManager{
     }
 
 
-    async updateFragPerformance(gametypeId, date){
+    async updateFragPerformance(gametypeId, mapId, date){
 
         try{
 
 
             const updatedMasterIds = [];
             const updatedGametypeIds = [];
+            const updatedMapIds = [];
+            const updatedMapGametypeIds = [];
    
             //get current gametype id here
 
@@ -1071,7 +1074,7 @@ class PlayerManager{
                     p.stats.killsUberRange,
                     p.stats.headshots,
                     0,
-                    p.stats.teleFrags
+                    0
                 );
 
                 //update gametype specific totals
@@ -1105,7 +1108,75 @@ class PlayerManager{
                     p.stats.killsUberRange,
                     p.stats.headshots,
                     gametypeId,
-                    p.stats.teleFrags
+                    0
+                );
+
+                //update map specific totals
+                await Player.updateFrags(
+                    p.mapId, 
+                    date,
+                    totalPlaytime, 
+                    teamPlaytime.red,
+                    teamPlaytime.blue,
+                    teamPlaytime.green,
+                    teamPlaytime.yellow,
+                    teamPlaytime.spec,
+                    p.stats.frags,
+                    p.stats.score, 
+                    p.stats.kills, 
+                    p.stats.deaths, 
+                    p.stats.suicides, 
+                    p.stats.teamkills,
+                    p.stats.spawnKills,
+                    p.stats.multis,
+                    p.stats.bestMulti,
+                    p.stats.sprees,
+                    p.stats.bestSpree,
+                    p.stats.fastestKill,
+                    p.stats.slowestKill,
+                    p.stats.bestspawnkillspree,
+                    p.stats.firstBlood,
+                    p.stats.accuracy,
+                    p.stats.killsNormalRange,
+                    p.stats.killsLongRange,
+                    p.stats.killsUberRange,
+                    p.stats.headshots,
+                    0,
+                    mapId
+                );
+
+                //update map+gametype specific totals
+                await Player.updateFrags(
+                    p.mapGametypeId, 
+                    date,
+                    totalPlaytime, 
+                    teamPlaytime.red,
+                    teamPlaytime.blue,
+                    teamPlaytime.green,
+                    teamPlaytime.yellow,
+                    teamPlaytime.spec,
+                    p.stats.frags,
+                    p.stats.score, 
+                    p.stats.kills, 
+                    p.stats.deaths, 
+                    p.stats.suicides, 
+                    p.stats.teamkills,
+                    p.stats.spawnKills,
+                    p.stats.multis,
+                    p.stats.bestMulti,
+                    p.stats.sprees,
+                    p.stats.bestSpree,
+                    p.stats.fastestKill,
+                    p.stats.slowestKill,
+                    p.stats.bestspawnkillspree,
+                    p.stats.firstBlood,
+                    p.stats.accuracy,
+                    p.stats.killsNormalRange,
+                    p.stats.killsLongRange,
+                    p.stats.killsUberRange,
+                    p.stats.headshots,
+                    gametypeId,
+                    mapId
                 );
 
                 //to prevent players that used multiple names during a match to update matches played by more than 1
@@ -1118,6 +1189,17 @@ class PlayerManager{
                     await Player.incrementMatchesPlayed(p.gametypeId);
                     updatedGametypeIds.push(p.gametypeId);
                 }
+
+                if(updatedMapIds.indexOf(p.mapId) === -1){
+                    await Player.incrementMatchesPlayed(p.mapId);
+                    updatedMapIds.push(p.mapId);
+                }
+
+                if(updatedMapGametypeIds.indexOf(p.mapGametypeId) === -1){
+                    await Player.incrementMatchesPlayed(p.mapGametypeId);
+                    updatedMapGametypeIds.push(p.mapGametypeId);
+                }
+            
             }
 
 
@@ -1153,23 +1235,14 @@ class PlayerManager{
         }
     }
 
-    updateIpCountry(id, ip, country){
+    async updateIpCountry(id, ip, country){
 
-        return new Promise((resolve, reject) =>{
+        if(ip === undefined) ip = "";
+        if(country === undefined) country = "xx";
 
-            const query = "UPDATE nstats_player_totals SET ip=?,country=? WHERE id=?";
+        const query = "UPDATE nstats_player_totals SET ip=?,country=? WHERE id=?";
 
-            if(ip === undefined) ip = "";
-            if(country === undefined) country = "xx";
-
-            mysql.query(query, [ip, country, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-
-        });
+        return await mysql.simpleQuery(query, [ip, country, id]);
     }
 
     async setIpCountry(){
@@ -1216,7 +1289,7 @@ class PlayerManager{
        // console.table(this.players);
     }
 
-    async updateWinStats(gametypeId){
+    async updateWinStats(gametypeId, mapId){
 
         try{     
 
@@ -1229,8 +1302,14 @@ class PlayerManager{
                 if(this.bIgnoreBots && p.bBot) continue;
        
                 if(playtime > 0){
-                    await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew);
-                    await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId);
+                    //all time totals
+                    await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew, 0, 0);
+                    //gametype totals
+                    await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId, 0);
+                    //map totals
+                    await Player.updateWinStats(p.mapId, p.bWinner, p.bDrew, 0, mapId);
+                    //map + gametype totals
+                    await Player.updateWinStats(p.mapGametypeId, p.bWinner, p.bDrew, gametypeId, mapId);
                 }
             }
             

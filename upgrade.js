@@ -60,6 +60,7 @@ async function updatePlayerTotals(){
 
     new Message(`Starting update of ${table}.`,"note");
 
+    await alterTable(table, "map", "INT(11) NOT NULL", "AFTER gametype");
     await alterTable(table, "team_0_playtime", "float NOT NULL", "AFTER playtime");
     await alterTable(table, "team_1_playtime", "float NOT NULL", "AFTER team_0_playtime");
     await alterTable(table, "team_2_playtime", "float NOT NULL", "AFTER team_1_playtime");

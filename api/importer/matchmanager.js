@@ -102,7 +102,10 @@ class MatchManager{
                 this.bUsePlayerACEHWID
             );
 
-            await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
+            const matchTimings = this.gameInfo.getMatchLength();
+            await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
+
+            await this.playerManager.createPlayers(this.gametype.currentMatchGametype, this.mapInfo.mapId);
             this.playerManager.init();
 
 
@@ -126,11 +129,11 @@ class MatchManager{
             this.playerManager.totalTeams = this.gameInfo.totalTeams;
             
 
-            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
+            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, matchTimings);
 
             this.playerManager.killManager = this.killManager;
 
-            const matchTimings = this.gameInfo.getMatchLength();
+            
 
             this.playerManager.setKills(this.killManager.kills);
             this.playerManager.matchEnded(this.gameInfo.end);
@@ -144,7 +147,7 @@ class MatchManager{
             
 
             
-            await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
+            
 
 
             this.spawnManager.setMapId(this.mapInfo.mapId);
@@ -251,10 +254,10 @@ class MatchManager{
             
             
 
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.serverInfo.date);
 
             new Message(`Updated player frag performance.`,'pass');
-            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
+            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype, this.mapInfo.mapId);
             new Message(`Updated player winstats performance.`,'pass');
             
 
