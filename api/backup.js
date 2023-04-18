@@ -289,15 +289,31 @@ class Backup{
                 valuesString += "?" 
             }
 
+            const query = `INSERT INTO ${tableName} (${keys}) VALUES ?`;
 
-            const query = `INSERT INTO ${tableName} VALUES(${valuesString})`;
+            console.log(query);
+
+            await mysql.simpleQuery(query, [data]);
+
+            //const result = await mysql.simpleQuery(query, [data]);
+
+           /* mysql.query(query, [data], (err) =>{
+
+                if(err) console.log(err);
+            });*/
+
+
+
+            /*const query = `INSERT INTO ${tableName} VALUES(${valuesString})`;
 
             for(let i = 0; i < data.length; i++){
 
                 const d = data[i];
 
                 await mysql.simpleQuery(query, d);
-            }
+            }*/
+
+
 
             return true;
 
@@ -317,8 +333,11 @@ class Backup{
 
     async restore(){
 
+        const start = performance.now() * 0.001;
+
         await this.emptyAllTables();
 
+    
         const dir = "./restore-from/";
 
         for(let i = 0; i < this.validTables.length; i++){
@@ -330,9 +349,12 @@ class Backup{
                 console.log(`Restored table ${table} from ${dir}${table}.json`);
             }else{
                 console.log(`Failed to restored table ${table} from ${dir}${table}.json`);
-            }
-            
+            }  
         }
+
+        const end = performance.now() * 0.001;
+
+        console.log(`Took ${end - start} seconds to restore database.`);
     }
 
 }
