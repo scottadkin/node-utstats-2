@@ -33,9 +33,13 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
                 const res = await req.json();
 
+                console.log(res);
+
                 if(res.error !== undefined){
                     setError(res.error.toString());
                 }else{
+
+                    setError(null);
 
                     if(res.names.length > 0){
                         setSelectedWeaponId(res.names[0].id)
@@ -162,10 +166,10 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
                     "value": player.name.toLowerCase(), 
                     "className": `text-left ${Functions.getTeamColor(player.team)}`,
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${d.player_id}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>
-                            {player.name} 
-                        </a>
+                        
+                        <CountryFlag country={player.country}/>
+                        {player.name} 
+                        
                     </Link>
                 },
                 "shots": {"value": d.shots, "displayValue": Functions.ignore0(d.shots)},
