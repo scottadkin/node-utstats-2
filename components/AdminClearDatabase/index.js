@@ -3,7 +3,6 @@ import Loading from "../Loading";
 import { useReducer, useEffect } from "react";
 import NotificationSmall from "../NotificationSmall";
 
-const controller = new AbortController();
 
 const reducer = (state, action) =>{
 
@@ -61,7 +60,7 @@ const renderButton = (state, dispatch) =>{
     if(state.bLoading) return <Loading />;
 
     return <div>
-        <div className="search-button" onClick={() => clearTables(dispatch, controller)}>Clear Tables</div>
+        <div className="search-button" onClick={() => clearTables(dispatch)}>Clear Tables</div>
     </div>
 }
 
@@ -70,7 +69,6 @@ const clearTables = async (dispatch) =>{
     dispatch({"type": "clear-tables"})
 
     const req = await fetch("/api/admin", {
-        "signal": controller.signal,
         "headers": {"Content-type": "application/json"},
         "method": "POST",
         "body": JSON.stringify({"mode": "clear-tables"})
@@ -120,9 +118,6 @@ const AdminClearDatabase = () =>{
 
     useEffect(() =>{
 
-        return () =>{
-            controller.abort();
-        }
 
     },[]);
 
@@ -151,7 +146,7 @@ const AdminClearDatabase = () =>{
             </div>
             {renderError(state)}
             {renderPass(state)}
-            {renderButton(state, dispatch, controller)}
+            {renderButton(state, dispatch)}
         </div>
     </div>
 }
