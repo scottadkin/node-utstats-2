@@ -1065,8 +1065,8 @@ class Maps{
             a = a.displayValue.toLowerCase();
             b = b.displayValue.toLowerCase();
 
-            if(b < a) return 1;
-            if(a > b) return -1;
+            if(a < b) return -1;
+            if(a > b) return 1;
             return 0;
         });
 

@@ -103,7 +103,7 @@ const InteractiveTable = (props) =>{
         return 0;
     }
 
-    const renderData = () =>{
+    const renderData = (width, totalPages) =>{
 
         const rows = [];
 
@@ -217,10 +217,11 @@ const InteractiveTable = (props) =>{
             rows.push(<tr key={"last"}>{columns}</tr>);
         }
 
-        return <>
+        return <Table2 width={width} noBottomMargin={(totalPages > 1) ? true : false}>
+            
             {renderHeaders()}
             {rows}
-        </>   
+        </Table2>   
     }
 
     const changePage = (bNext) =>{
@@ -275,10 +276,9 @@ const InteractiveTable = (props) =>{
     return <div className={styles.wrapper}>
         {tableTitle}
         {renderPagination()}
-        <Table2 width={props.width} noBottomMargin={(totalPages > 1) ? true : false}>
-            
-            {renderData()}
-        </Table2>  
+        
+        {renderData(props.width, totalPages)}
+        
         {renderPagination()}
     </div>
 }

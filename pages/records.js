@@ -54,13 +54,16 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": false,
                 "data": action.data,
-                "totalResults": action.totalResults
+                "totalResults": action.totalResults,
+                "error": null
             }
         }
         case "loadData": {
             return {
                 ...state,
-                "bLoading": true
+                "bLoading": true,
+                "data": [],
+                "totalResults": 0
             }
         }
         case "changeMainTab": {
@@ -279,10 +282,6 @@ const RecordsPage = ({
             controller.abort();
         }
     }, [
-        page, 
-        perPage, 
-        type, 
-        selectedGametype, 
         state.mainTab, 
         state.playerTotalTab, 
         state.page, 
