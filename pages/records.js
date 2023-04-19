@@ -21,6 +21,7 @@ import DropDown from "../components/DropDown";
 import Gametypes from "../api/gametypes";
 import Records from "../api/records";
 import InteractiveTable from "../components/InteractiveTable";
+import Maps from "../api/maps";
 
 const mainTitles = {
     "0": "Player Total Records",
@@ -65,13 +66,15 @@ const reducer = (state, action) =>{
         case "changeMainTab": {
             return {
                 ...state,
-                "mainTab": action.tab
+                "mainTab": action.tab,
+                "page": 1
             }
         }
         case "changePlayerTotalTab": {
             return {
                 ...state,
-                "playerTotalTab": action.tab
+                "playerTotalTab": action.tab,
+                "page": 1
             }
         }
         case "changePage": {
@@ -83,13 +86,22 @@ const reducer = (state, action) =>{
         case "changePerPage": {
             return {
                 ...state,
-                "perPage": action.perPage
+                "perPage": action.perPage,
+                "page": 1
             }
         }
         case "changeGametype": {
             return {
                 ...state,
-                "selectedGametype": action.gametype
+                "selectedGametype": action.gametype,
+                "page": 1
+            }
+        }
+        case "changeMap": {
+            return {
+                ...state,
+                "selectedMap": action.map,
+                "page": 1
             }
         }
         case "error": {
@@ -104,13 +116,13 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const loadData = async (mainTab, selectedGametype, playerTotalTab, page, perPage, dispatch, controller) =>{
+const loadData = async (mainTab, selectedGametype, selectedMap, playerTotalTab, page, perPage, dispatch, controller) =>{
 
     try{
 
         dispatch({"type": "loadData"});
 
-        let url = `/api/records/?mode=${mainTab}&gametype=${selectedGametype}`;
+        let url = `/api/records/?mode=${mainTab}&gametype=${selectedGametype}&map=${selectedMap}`;
         url = `${url}&cat=${playerTotalTab}&page=${page}&perPage=${perPage}`
 
 
@@ -146,7 +158,7 @@ const renderError = (state) =>{
 
 const renderPagination = (state, dispatch) =>{
 
-    const url = `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&type=${state.playerTotalTab}&page=`;
+    const url = `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=`;
 
     return <Pagination 
         event={(page) => {
@@ -230,13 +242,15 @@ const renderData = (state, validTypes) =>{
         }
     });
 
-    return <InteractiveTable width={1} headers={headers} data={data} perPage={100}/>;
+
+
+    return <InteractiveTable width={1} headers={headers} data={data} perPage={100} bDisableSorting={true}/>;
 }
 
 const RecordsPage = ({
         host, session, pageSettings, navSettings, metaTags, 
         perPageOptions, page, perPage, validTypes, mode, type,
-        gametypesList, selectedGametype
+        gametypesList, selectedGametype, mapList, selectedMap
     }) =>{
         
 
@@ -248,6 +262,7 @@ const RecordsPage = ({
         "page": page,
         "error": null,
         "selectedGametype": selectedGametype,
+        "selectedMap": selectedMap,
         "totalResults": 0,
         "data": []
         
@@ -258,12 +273,23 @@ const RecordsPage = ({
         const controller = new AbortController();
 
 
-        loadData(state.mainTab, state.selectedGametype, state.playerTotalTab, state.page, state.perPage, dispatch, controller);
+        loadData(state.mainTab, state.selectedGametype, state.selectedMap, state.playerTotalTab, state.page, state.perPage, dispatch, controller);
 
         return () =>{
             controller.abort();
         }
-    }, [page, perPage, type, selectedGametype, state.mainTab, state.playerTotalTab, state.page, state.perPage, state.selectedGametype])
+    }, [
+        page, 
+        perPage, 
+        type, 
+        selectedGametype, 
+        state.mainTab, 
+        state.playerTotalTab, 
+        state.page, 
+        state.perPage, 
+        state.selectedGametype,
+        state.selectedMap
+    ])
 
     const title = (state.mainTab !== mode) ? mainTitles[state.mainTab] : metaTags.title;
 
@@ -288,6 +314,10 @@ const RecordsPage = ({
 
                         <DropDown dName="Gametype" originalValue={state.selectedGametype} data={gametypesList}
                             changeSelected={(name, value) => { dispatch({"type": "changeGametype", "gametype": value})}}
+                        />
+
+                        <DropDown dName="Map" originalValue={state.selectedMap} data={mapList}
+                            changeSelected={(name, value) => { dispatch({"type": "changeMap", "map": value})}}
                         />
 
 
@@ -322,6 +352,9 @@ export async function getServerSideProps({req, query}){
 
     let gametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
     if(gametype !== gametype) gametype = 0;
+
+    let map = (query.map !== undefined) ? parseInt(query.map) : 0;
+    if(map !== map) map = 0;
 
     console.log(`gametype = ${gametype}`);
 
@@ -361,13 +394,14 @@ export async function getServerSideProps({req, query}){
     //console.log(await r.debugGetColumnNames());
 
     const gm = new Gametypes();
-
-
-
     const gametypeList = await gm.getDropDownOptions();
 
+    const mapManager = new Maps();
 
+    const mapList = await mapManager.getAllDropDownOptions();
 
+    
+    mapList.unshift({"value": 0, "displayValue": "All Map"});
     return {
         "props": {
             "host": req.headers.host,
@@ -384,7 +418,9 @@ export async function getServerSideProps({req, query}){
                 "playerTotals": r.validPlayerTotalTypes
             },
             "gametypesList": gametypeList,
-            "selectedGametype": gametype
+            "selectedGametype": gametype,
+            "mapList": mapList,
+            "selectedMap": map
         }
     }
 }

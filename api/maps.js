@@ -1049,6 +1049,30 @@ class Maps{
         return data;
     }
 
+    async getAllDropDownOptions(){
+
+        const data = await this.getAllNameAndIds();
+
+        const options = [];
+
+        for(const [mapId, mapName] of Object.entries(data)){
+
+            options.push({"value": parseInt(mapId), "displayValue": mapName});
+        }
+
+        options.sort((a, b) =>{
+
+            a = a.displayValue.toLowerCase();
+            b = b.displayValue.toLowerCase();
+
+            if(b < a) return 1;
+            if(a > b) return -1;
+            return 0;
+        });
+
+        return options;
+    }
+
 }
 
 

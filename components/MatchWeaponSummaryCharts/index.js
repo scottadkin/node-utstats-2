@@ -33,9 +33,13 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
                 const res = await req.json();
 
+                console.log(res);
+
                 if(res.error !== undefined){
                     setError(res.error.toString());
                 }else{
+
+                    setError(null);
 
                     if(res.names.length > 0){
                         setSelectedWeaponId(res.names[0].id)

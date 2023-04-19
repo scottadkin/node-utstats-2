@@ -109,6 +109,8 @@ const InteractiveTable = (props) =>{
 
         const data = [...props.data];
 
+        if(data.length === 0) return <div className="small-font grey">No data found...</div>
+
         if(orderBy !== null){
 
             let bMissingKey = false;
@@ -215,7 +217,10 @@ const InteractiveTable = (props) =>{
             rows.push(<tr key={"last"}>{columns}</tr>);
         }
 
-        return rows;     
+        return <>
+            {renderHeaders()}
+            {rows}
+        </>   
     }
 
     const changePage = (bNext) =>{
@@ -271,7 +276,7 @@ const InteractiveTable = (props) =>{
         {tableTitle}
         {renderPagination()}
         <Table2 width={props.width} noBottomMargin={(totalPages > 1) ? true : false}>
-            {renderHeaders()}
+            
             {renderData()}
         </Table2>  
         {renderPagination()}

@@ -125,30 +125,54 @@ class Records{
         return perPage;
     }
 
-    async getTotalCount(gametype){
+    async getTotalCount(gametype, map){
 
-        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_totals WHERE gametype=?`;
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_totals WHERE gametype=? AND map=?`;
 
-        const result = await mysql.simpleQuery(query, [gametype]);
+        const result = await mysql.simpleQuery(query, [gametype, map]);
 
         return result[0].total_matches;
     }
 
-    async getPlayerTotalAllGametypes(type, start, perPage){
+    async getPlayerTotalAllGametypes(map, type, start, perPage){
 
-        const query = `SELECT id as player_id,name,country,matches,last,playtime,${type} as tvalue FROM nstats_player_totals WHERE gametype=0 ORDER BY ${type} DESC LIMIT ?, ?`;
+        const idBit = (map === 0) ? "id as player_id,country" : "player_id";
 
-        const vars = [start, perPage];
+        const query = `SELECT name,${idBit},matches,last,playtime,${type} as tvalue FROM nstats_player_totals WHERE gametype=0 AND map=? ORDER BY ${type} DESC LIMIT ?, ?`;
 
-        return await mysql.simpleQuery(query, vars);
+        const vars = [map, start, perPage];
+
+        const result = await mysql.simpleQuery(query, vars);
+
+
+        if(map !== 0){
+
+            const playerIds = [...new Set(result.map((p) =>{
+                return p.player_id;
+            }))];
+
+            const pm = new Players();
+            const countries = await pm.getCountries(playerIds);
+
+
+            for(let i = 0; i < result.length; i++){
+
+                const r = result[i];
+                r.country = countries[r.player_id] ?? "xx";
+            }
+
+        }
+
+        return result;
 
     }
 
-    async getPlayerTotalSingleGametypes(gametype, type, start, perPage){
+    async getPlayerTotalSingleGametypes(gametype, map, type, start, perPage){
 
-        const query = `SELECT player_id,name,matches,last,playtime,${type} as tvalue FROM nstats_player_totals WHERE gametype=? ORDER BY ${type} DESC LIMIT ?, ?`;
+ 
+        const query = `SELECT player_id,name,matches,last,playtime,${type} as tvalue FROM nstats_player_totals WHERE gametype=? AND map=? ORDER BY ${type} DESC LIMIT ?, ?`;
 
-        const vars = [gametype, start, perPage];
+        const vars = [gametype, map, start, perPage];
 
         const result = await mysql.simpleQuery(query, vars);
 
@@ -170,7 +194,7 @@ class Records{
         return result;
     }
 
-    async getPlayerTotalRecords(type, gametype, page, perPage){
+    async getPlayerTotalRecords(type, gametype, map, page, perPage){
 
         page = page - 1;
 
@@ -188,15 +212,17 @@ class Records{
         if(start < 0) start = 0;
 
         let result = [];
+
+        //need to get total maps played for gametmemgmemgemge
         
         if(gametype === 0){
-            result = await this.getPlayerTotalAllGametypes(type, start, perPage)
+            result = await this.getPlayerTotalAllGametypes(map, type, start, perPage);
             
         }else{
-           result =  await this.getPlayerTotalSingleGametypes(gametype, type, start, perPage);
+           result =  await this.getPlayerTotalSingleGametypes(gametype, map, type, start, perPage);
         }
 
-        const totalResults = await this.getTotalCount(gametype);
+        const totalResults = await this.getTotalCount(gametype, map);
 
         return {
             "totalResults": totalResults,

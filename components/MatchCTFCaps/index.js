@@ -258,9 +258,9 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                     "value": capPlayer.name.toLowerCase(),
                     "displayValue": <>
                         <Link href={`/pmatch/${matchId}/?player=${capPlayer.id}`}>
-                            <a>
-                                <CountryFlag country={capPlayer.country}/>{capPlayer.name}
-                            </a>
+                            
+                            <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                            
                         </Link>
                     </>,
                     "className": Functions.getTeamColor(d.cap_team)
