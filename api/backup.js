@@ -289,11 +289,25 @@ class Backup{
                 valuesString += "?" 
             }
 
+            const maxRowsPerQuery = 10000;
+
             const query = `INSERT INTO ${tableName} (${keys}) VALUES ?`;
 
             console.log(query);
 
-            await mysql.simpleQuery(query, [data]);
+        
+            let offset = 0;
+
+            while(offset < data.length){
+
+                console.log(`offset = ${offset}`);
+                let end = (data.length < offset + maxRowsPerQuery) ? data.length : offset + maxRowsPerQuery;
+                //console.log(data.slice(offset, end).length);
+
+                await mysql.simpleQuery(query, [data.slice(offset, end)]);
+
+                offset += maxRowsPerQuery;
+            }
 
             //const result = await mysql.simpleQuery(query, [data]);
 
@@ -320,7 +334,7 @@ class Backup{
         }catch(err){
              
 
-            if(err.code.toLowerCase() === "enoent"){
+            if(err.code !== undefined && err.code.toLowerCase() === "enoent"){
                 console.log(`Failed ${tableName}.json not found, if table was empty no file will be created for restoring.`);
                 return true;
             }else{
