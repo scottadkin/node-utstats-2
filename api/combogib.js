@@ -4,27 +4,21 @@ class Combogib{
 
     constructor(){}
 
-    async insertPlayerMatchData(playerId, gametypeId, matchId, mapId, playtime, combos, shockBalls, primary, insane){
+    async bulkInsertPlayerMatchData(vars){
 
-        const query = `INSERT INTO nstats_match_combogib VALUES(
-            NULL,?,?,?,?,?,
-            ?,?,?,?,
-            ?,?,?,?,
-            ?,?,?,?,
-            ?,?,?,?,
-            ?,?,?,
-            ?,?,?,?)`;
 
-        const vars = [playerId, gametypeId, matchId, mapId, playtime,
-            primary.kills, primary.deaths, primary.efficiency, primary.kpm,
-            shockBalls.kills, shockBalls.deaths, shockBalls.efficiency, shockBalls.kpm,
-            combos.kills, combos.deaths, combos.efficiency, combos.kpm,
-            insane.kills, insane.deaths, insane.efficiency, insane.kpm,
-            combos.bestSingle, shockBalls.bestSingle, insane.bestSingle,
-            primary.best, shockBalls.best, combos.best, insane.best
-        ];
-
-        await mysql.simpleQuery(query, vars);
+        const query = `INSERT INTO nstats_match_combogib (
+            player_id, gametype_id, match_id, map_id, playtime, 
+            primary_kills, primary_deaths, primary_efficiency, 
+            primary_kpm, shockball_kills, shockball_deaths, 
+            shockball_efficiency, shockball_kpm, combo_kills, 
+            combo_deaths, combo_efficiency, combo_kpm, insane_kills,
+            insane_deaths, insane_efficiency, insane_kpm, best_single_combo,
+            best_single_shockball, 
+            best_single_insane, best_primary_spree, best_shockball_spree, best_combo_spree, 
+            best_insane_spree) VALUES ?`;
+        
+        return await mysql.bulkInsert(query, vars);
     }
 
 

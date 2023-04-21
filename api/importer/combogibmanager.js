@@ -816,6 +816,8 @@ class CombogibManager{
                 throw new Error("This.detailedStats is undefined");
             }
 
+            const matchInsertVars = [];
+
             //console.log(this.detailedStats);
 
             for(const [key,value] of Object.entries(this.detailedStats)){
@@ -824,13 +826,22 @@ class CombogibManager{
                     break;
                 }
 
-                console.log(key);
                 const {combos, insane, shockBalls, primary, playtime} = value;
 
-                await this.combogib.insertPlayerMatchData(key, this.gametypeId, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
+                matchInsertVars.push([
+                    key, this.gametypeId, this.matchId, this.mapId, playtime,
+                    primary.kills, primary.deaths, primary.efficiency, primary.kpm,
+                    shockBalls.kills, shockBalls.deaths, shockBalls.efficiency, shockBalls.kpm,
+                    combos.kills, combos.deaths, combos.efficiency, combos.kpm,
+                    insane.kills, insane.deaths, insane.efficiency, insane.kpm,
+                    combos.bestSingle, shockBalls.bestSingle, insane.bestSingle,
+                    primary.best, shockBalls.best, combos.best, insane.best
+                ]);
 
                 await this.combogib.updatePlayerTotals(key, this.gametypeId, this.mapId, this.matchId, playtime, combos, insane, shockBalls, primary);
-            }            
+            }       
+            
+            await this.combogib.bulkInsertPlayerMatchData(matchInsertVars);
 
         }catch(err){
             console.trace(err);
