@@ -1476,6 +1476,8 @@ class PlayerManager{
 
         try{
 
+            const scoreInsertVars = [];
+
             for(let i = 0; i < this.scoreHistory.length; i++){
 
                 const s = this.scoreHistory[i];
@@ -1493,11 +1495,12 @@ class PlayerManager{
                 const playtime = currentPlayer.getTotalPlaytime(this.totalTeams);
 
                 if(playtime > 0){
-                    await Player.insertScoreHistory(matchId, s.timestamp, currentPlayer.masterId, s.score);
-                }
-
-                
+                    //await Player.insertScoreHistory(matchId, s.timestamp, currentPlayer.masterId, s.score);
+                    scoreInsertVars.push([matchId, s.timestamp, currentPlayer.masterId, s.score]);
+                }   
             }
+
+            await Player.bulkInsertScoreHistory(scoreInsertVars);
 
         }catch(err){
             new Message(`PlayerManager.insertScoreHistory ${err}`,'error');

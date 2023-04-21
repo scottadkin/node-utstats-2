@@ -351,6 +351,7 @@ class KillManager{
                 let killerTeam = 0;
                 let victimTeam = 0;
 
+                const headshotInsertVars = [];
 
                 for(let i = 0; i < this.headshots.length; i++){
 
@@ -389,12 +390,16 @@ class KillManager{
                     killerTeam = this.playerManager.getPlayerTeamAt(h.killer, h.timestamp);
                     victimTeam = this.playerManager.getPlayerTeamAt(h.victim, h.timestamp);
 
-                    await this.headshotsManager.insert(
+                    /*await this.headshotsManager.insert(
                         matchId, h.timestamp, currentKiller.masterId, currentVictim.masterId, 
                         currentKillInformation.killDistance, killerTeam, victimTeam
-                    );
+                    );*/
+                    headshotInsertVars.push([
+                        matchId, h.timestamp, currentKiller.masterId, currentVictim.masterId, 
+                        currentKillInformation.killDistance, killerTeam, victimTeam
+                    ]);
                 }
-
+                await this.headshotsManager.insertAllHeadshots(headshotInsertVars);
                 new Message(`Imported ${this.headshots.length} headshot data.`, 'pass');
 
             }else{

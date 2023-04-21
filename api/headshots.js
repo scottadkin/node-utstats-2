@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 
 class Headshots{
 
@@ -26,6 +25,13 @@ class Headshots{
         });
     }
 
+
+    async insertAllHeadshots(vars){
+
+        const query = "INSERT INTO nstats_headshots (match_id,timestamp,killer,victim,distance,killer_team,victim_team) VALUES ?";
+
+        return await mysql.bulkInsert(query, vars);
+    }
 
     getMatchData(match){
 

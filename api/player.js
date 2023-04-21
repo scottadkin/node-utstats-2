@@ -623,6 +623,13 @@ class Player{
         });
     }
 
+    async bulkInsertScoreHistory(vars){
+
+        const query = "INSERT INTO nstats_match_player_score (match_id,timestamp,player,score) VALUES ?";
+
+        return await mysql.bulkInsert(query, vars);
+    }
+
     getMatchDatesAfter(timestamp, player){
 
         return new Promise((resolve, reject) =>{
