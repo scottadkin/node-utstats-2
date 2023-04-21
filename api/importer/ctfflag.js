@@ -753,8 +753,7 @@ class CTFFlag{
 
             const currentTimeDropped = this.getTimeDropped(d.timestamp);
 
-            await this.ctfManager.insertDrop(
-                this.matchId,
+            this.ctfManager.addDrop(this.matchId,
                 this.matchDate,
                 this.mapId,
                 d.timestamp,
@@ -766,6 +765,19 @@ class CTFFlag{
                 d.dropLocation,
                 currentTimeDropped
             );
+            /*await this.ctfManager.insertDrop(
+                this.matchId,
+                this.matchDate,
+                this.mapId,
+                d.timestamp,
+                capId,
+                this.team,
+                d.playerId,
+                d.playerTeam,
+                d.distanceToCap,
+                d.dropLocation,
+                currentTimeDropped
+            );*/
         }
     }
 

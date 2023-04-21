@@ -417,6 +417,7 @@ class MatchManager{
                 await this.CTFManager.updateMapCapRecord(this.mapInfo.mapId, this.gametype.currentMatchGametype);
                 await this.CTFManager.insertEvents();
                 await this.CTFManager.insertCarryTimes();
+                await this.CTFManager.insertFlagDrops();
 
                 
                 /*if(this.CTFManager.bHasData()){

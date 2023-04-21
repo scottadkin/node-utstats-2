@@ -258,10 +258,8 @@ class CTFManager{
 
                     //await this.ctf.insertEvent(this.matchId, d.timestamp, killer.masterId, "kill", killerTeam);
 
-           
                     this.ctf.addEvent(this.matchId, timestamp, killer.masterId, "kill",  d.flagTeam);
                     
-
                     await this.flags[d.flagTeam].killed(
                         timestamp, 
                         killer.masterId, 
@@ -1174,6 +1172,11 @@ class CTFManager{
     async insertCapReturnKills(){
 
         await this.ctf.insertCRKills();
+    }
+
+    async insertFlagDrops(){
+
+        await this.ctf.bulkInsertFlagDrops();
     }
 }
 

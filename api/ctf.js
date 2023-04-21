@@ -12,6 +12,7 @@ class CTF{
         this.eventList = [];
         this.carryTimes = [];
         this.crKills = [];
+        this.flagDrops = [];
     }
 
     async bPlayerTotalsExist(playerId, gametypeId){
@@ -387,7 +388,37 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
+    addDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
+        timeDropped){
+
+            this.flagDrops.push([
+                matchId, 
+                matchDate, 
+                mapId, 
+                timestamp, 
+                capId, 
+                flagTeam, 
+                playerId, 
+                playerTeam, 
+                distanceToCap, 
+                location.x,
+                location.y,
+                location.z,
+                timeDropped
+            ]);
+    }
+
+    async bulkInsertFlagDrops(){
+
+        const query = `INSERT INTO nstats_ctf_flag_drops (
+            match_id,match_date,map_id,timestamp,cap_id,flag_team,player_id,
+            player_team,distance_to_cap,position_x,position_y,position_z,time_dropped) 
+        VALUES ?`;
+
+        return await mysql.bulkInsert(query, this.flagDrops);
+    }
+
+    /*async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
         timeDropped){
 
         const query = `INSERT INTO nstats_ctf_flag_drops VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
@@ -409,7 +440,7 @@ class CTF{
         ];
 
         return await mysql.simpleQuery(query, vars);
-    }
+    }*/
 
     async insertPickup(matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, flagTeam){
   
