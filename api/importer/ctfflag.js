@@ -583,7 +583,7 @@ class CTFFlag{
                 }
             }
 
-            await this.ctfManager.insertCarryTime(
+            this.ctfManager.addCarryTime(
                 this.matchId, 
                 this.matchDate, 
                 this.mapId, 

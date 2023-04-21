@@ -10,6 +10,7 @@ class CTF{
 
         //events waiting to be isnerted
         this.eventList = [];
+        this.carryTimes = [];
     }
 
     async bPlayerTotalsExist(playerId, gametypeId){
@@ -351,15 +352,16 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertCarryTime(matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent){
+    addCarryTime(matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent){
 
-        const query = `INSERT INTO nstats_ctf_carry_times VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)`;
-
-        const vars = [matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent];
-
-        return await mysql.simpleQuery(query, vars);
+        this.carryTimes.push([matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent]);
     }
 
+    async insertCarryTimes(){
+
+        const query = "INSERT INTO nstats_ctf_carry_times (match_id,match_date,map_id,cap_id,flag_team,player_id,player_team,start_time,end_time,carry_time,carry_percent) VALUES ?";
+        await mysql.bulkInsert(query, this.carryTimes);
+    }
 
     async insertFlagDeath(matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
         victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase){

@@ -1165,6 +1165,11 @@ class CTFManager{
 
         await this.ctf.insertEventList();
     }
+
+    async insertCarryTimes(){
+
+        await this.ctf.insertCarryTimes();
+    }
 }
 
 module.exports = CTFManager;
