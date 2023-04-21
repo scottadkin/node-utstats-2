@@ -824,6 +824,7 @@ class CombogibManager{
                     break;
                 }
 
+                console.log(key);
                 const {combos, insane, shockBalls, primary, playtime} = value;
 
                 await this.combogib.insertPlayerMatchData(key, this.gametypeId, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);

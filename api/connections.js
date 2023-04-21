@@ -22,6 +22,13 @@ class Connections{
         });
     }
 
+    async bulkInsert(vars){
+
+        const query = "INSERT INTO nstats_match_connections (match_id, timestamp, player, event) VALUES ?";
+
+        return await mysql.bulkInsert(query, vars);
+    }
+
     getMatchData(matchId){
 
         return new Promise((resolve, reject) =>{
