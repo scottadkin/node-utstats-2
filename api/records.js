@@ -81,6 +81,74 @@ class Records{
             {"value": 50, "displayValue": "50"},
             {"value": 100, "displayValue": "100"}     
         ];
+
+        this.validPlayerMatchOptions = [
+            {"value": "playtime", "displayValue": "Playtime"},
+            {"value": "team_0_playtime", "displayValue": "Red Team Playtime"},
+            {"value": "team_1_playtime", "displayValue": "Blue Team Playtime"},
+            {"value": "team_2_playtime", "displayValue": "Green Team Playtime"},
+            {"value": "team_3_playtime", "displayValue": "Yellow Team Playtime"},
+            {"value": "spec_playtime", "displayValue": "Spectator Playtime"},
+            {"value": "frags", "displayValue": "Frags"},
+            {"value": "score", "displayValue": "Score"},
+            {"value": "kills", "displayValue": "Kills"},
+            {"value": "deaths", "displayValue": "Deaths"},
+            {"value": "suicides", "displayValue": "Suicides"},
+            {"value": "team_kills", "displayValue": "Team Kills"},
+            {"value": "spawn_kills", "displayValue": "Spawn Kills"},
+            {"value": "efficiency", "displayValue": "Efficiency"},
+            {"value": "multi_1", "displayValue": "Double Kills"},
+            {"value": "multi_2", "displayValue": "Multi Kills"},
+            {"value": "multi_3", "displayValue": "Mega Kills"},
+            {"value": "multi_4", "displayValue": "Ultra Kills"},
+            {"value": "multi_5", "displayValue": "Monster Kills"},
+            {"value": "multi_6", "displayValue": "Ludicrous Kills"},
+            {"value": "multi_7", "displayValue": "Holy Shits"},
+            {"value": "multi_best", "displayValue": "Best Multi Kill"},
+            {"value": "spree_1", "displayValue": "Killing Sprees"},
+            {"value": "spree_2", "displayValue": "Rampage"},
+            {"value": "spree_3", "displayValue": "Dominating"},
+            {"value": "spree_4", "displayValue": "Unstoppable"},
+            {"value": "spree_5", "displayValue": "Godlike"},
+            {"value": "spree_6", "displayValue": "Too Easy(30 Kill Spree)"},
+            {"value": "spree_7", "displayValue": "Brutalizing(35+ Kill Spree)"},
+            {"value": "spree_best", "displayValue": "Best Spree"},
+            {"value": "best_spawn_kill_spree", "displayValue": "Best Spawn Kill Spree"},
+            {"value": "assault_objectives", "displayValue": "Assault Objectives"},
+            {"value": "dom_caps", "displayValue": "Domination Point Caps"},
+            {"value": "dom_caps_best_life", "displayValue": "BEst Domination Point Caps Single Life"},
+            {"value": "ping_min", "displayValue": "Minimum Ping"},
+            {"value": "ping_average", "displayValue": "Average Ping"},
+            {"value": "ping_max", "displayValue": "Maximum Ping"},
+            {"value": "accuracy", "displayValue": "Weapon Accuracy"},
+            {"value": "shortest_kill_distance", "displayValue": "Shortest Kill Distance"},
+            {"value": "average_kill_distance", "displayValue": "Average kill Distance"},
+            {"value": "longest_kill_distance", "displayValue": "Longest Kill Distance"},
+            {"value": "k_distance_normal", "displayValue": "Close Range Kills"},
+            {"value": "k_distance_long", "displayValue": "Long Range Kills"},
+            {"value": "k_distance_uber", "displayValue": "Uber Long Range Kills"},
+            {"value": "headshots", "displayValue": "Headshots"},
+            {"value": "shield_belt", "displayValue": "Shield Belts"},
+            {"value": "amp", "displayValue": "UDamage"},
+            {"value": "amp_time", "displayValue": "UDamage Time"},
+            {"value": "invisibility", "displayValue": "Invisibility"},
+            {"value": "invisibility_time", "displayValue": "Invisibility Time"},
+            {"value": "pads", "displayValue": "Armour Pads"},
+            {"value": "armor", "displayValue": "Body Armour"},
+            {"value": "boots", "displayValue": "Jump Boots"},
+            {"value": "super_health", "displayValue": "Super Health"},
+            {"value": "mh_kills", "displayValue": "Monsterhunt Kills"},
+            {"value": "mh_kills_best_life", "displayValue": "Monsterhunt Kills Best Life"},
+            {"value": "mh_deaths", "displayValue": "Monsterhunt Deaths"},
+            {"value": "telefrag_kills", "displayValue": "Telefrag Kills"},
+            {"value": "telefrag_deaths", "displayValue": "Telefrag Deaths"},
+            {"value": "telefrag_best_spree", "displayValue": "Telefrags Best Spree"},
+            {"value": "telefrag_best_multi", "displayValue": "Telefrags Best Multi Kill"},
+            {"value": "tele_disc_kills", "displayValue": "Translocator Disc Kills"},
+            {"value": "tele_disc_deaths", "displayValue": "Translocator Disc Deaths"},
+            {"value": "tele_disc_best_spree", "displayValue": "Translocator Discs Best Spree"},
+            {"value": "tele_disc_best_multi", "displayValue": "Translocator Discs Best Multi"},
+        ];
     }
 
 
@@ -93,7 +161,7 @@ class Records{
 
     async debugGetColumnNames(){
 
-        const query = `Show columns from nstats_player_totals`;
+        const query = `Show columns from nstats_player_matches`;
 
         const result = await mysql.simpleQuery(query);
 
@@ -228,6 +296,10 @@ class Records{
             "totalResults": totalResults,
             "data": result
         };
+    }
+
+    async getPlayerMatchRecords(page, perPage){
+
     }
 }
 

@@ -263,6 +263,8 @@ class KillManager{
             let currentKillerWeapon = 0;
             let currentVictimWeapon = 0;
 
+            const vars = [];
+
             for(let i = 0; i < this.kills.length; i++){
 
                 const k = this.kills[i];
@@ -310,20 +312,25 @@ class KillManager{
                     currentVictim = {"masterId": 0};
                 }
 
-                //console.log(currentKiller);
-                await this.killsManager.insert(
-                    matchId, 
-                    k.timestamp, 
-                    currentKiller.masterId, 
-                    currentKillerTeam, 
-                    currentVictim.masterId, 
-                    currentVictimTeam, 
-                    currentKillerWeapon, 
-                    currentVictimWeapon, 
-                    (k.killDistance != null) ? k.killDistance : 0
-                );
+         
 
+                vars.push(
+                    [
+                        matchId, 
+                        k.timestamp, 
+                        currentKiller.masterId, 
+                        currentKillerTeam, 
+                        currentVictim.masterId, 
+                        currentVictimTeam, 
+                        currentKillerWeapon, 
+                        currentVictimWeapon, 
+                        (k.killDistance != null) ? k.killDistance : 0
+                    ]
+                );
             }
+
+            await this.killsManager.insertMultipleKills(vars);
+
 
         }catch(err){
             console.trace(err);

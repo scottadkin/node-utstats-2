@@ -54,6 +54,8 @@ class MatchManager{
 
         try{
 
+            const start = performance.now() * 0.001;
+
             if(config.bIgnoreDuplicates){
 
                 if(await Logs.bExists(this.fileName)){
@@ -252,8 +254,6 @@ class MatchManager{
             }
 
             
-            
-
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.serverInfo.date);
 
             new Message(`Updated player frag performance.`,'pass');
@@ -446,7 +446,11 @@ class MatchManager{
 
             await Logs.setMatchId(logId, this.matchId);
 
-            new Message(`Finished import of log file ${this.fileName}.`, 'note');
+            new Message(`Finished import of log file ${this.fileName}.`, 'Progress');
+
+            const end = performance.now() * 0.001;
+
+            new Message(`Log imported in ${end - start} seconds.`,"Progress");
 
             return {
                 "updatedPlayers": this.playerManager.players.length, 

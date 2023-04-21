@@ -26,6 +26,13 @@ class Kills{
         });
     }
 
+    async insertMultipleKills(vars){
+
+        const query = "INSERT INTO nstats_kills (match_id,timestamp,killer,killer_team,victim,victim_team,killer_weapon,victim_weapon,distance) VALUES ?";
+
+        await mysql.bulkInsert(query, vars);
+    }
+
     getMatchData(id){
 
         return new Promise((resolve, reject) =>{

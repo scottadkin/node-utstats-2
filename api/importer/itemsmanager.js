@@ -180,6 +180,9 @@ class ItemsManager{
                 this.itemIds = await this.items.getIdsByNames(this.itemNames);
             }
 
+            const matchPlayerInsertVars = [];
+
+
             for(const [key, value] of this.matchData){
 
                 const currentPlayer = this.playerManager.getPlayerById(key);
@@ -192,9 +195,9 @@ class ItemsManager{
 
                         if(currentId !== null){
       
-                            await this.items.insertPlayerMatchItem(matchId, currentPlayer.masterId, currentId, subValue);         
-                            await this.items.updatePlayerTotal(currentPlayer.masterId, currentId, subValue, date);                     
-
+                            matchPlayerInsertVars.push([matchId, currentPlayer.masterId, currentId, subValue]);      
+                            await this.items.updatePlayerTotal(currentPlayer.masterId, currentId, subValue, date);          
+                           
                         }else{
 
                             new Message(`Failed to insert player item pickup, ${subKey} does not have an id.`,'warning');
@@ -204,8 +207,9 @@ class ItemsManager{
                 }else{
                     new Message(`Failed to insert player item pickup, currentPlayer is null.`,'warning');
                 }
-        
             }
+
+            await this.items.insertAllPlayerMatchItems(matchPlayerInsertVars);
 
         }catch(err){
             console.trace(err);

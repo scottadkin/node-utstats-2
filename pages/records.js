@@ -245,9 +245,44 @@ const renderData = (state, validTypes) =>{
         }
     });
 
-
-
     return <InteractiveTable width={1} headers={headers} data={data} perPage={100} bDisableSorting={true}/>;
+}
+
+const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
+
+
+    const titles = {
+        "0": "Player Total Records",
+        "1": "Player Match Records",
+        "2": "Player Map Records",
+    };
+
+    let validOptions = [];
+
+    if(state.mainTab === 0) validOptions = validTypes.playerTotals;
+    if(state.mainTab === 1) validOptions = validTypes.playerMatches;
+
+    return <>
+        <div className="default-sub-header">{titles[state.mainTab]}</div>
+        <div className="form m-bottom-25">
+
+            <DropDown dName="Record Type" originalValue={state.playerTotalTab} data={validOptions}
+                changeSelected={(name, value) => { dispatch({"type": "changePlayerTotalTab", "tab": value})}}
+            />
+
+            <DropDown dName="Gametype" originalValue={state.selectedGametype} data={gametypesList}
+                changeSelected={(name, value) => { dispatch({"type": "changeGametype", "gametype": value})}}
+            />
+
+            <DropDown dName="Map" originalValue={state.selectedMap} data={mapList}
+                changeSelected={(name, value) => { dispatch({"type": "changeMap", "map": value})}}
+            />
+
+            <DropDown dName="Results Per Page" originalValue={state.perPage} data={perPageOptions}
+                changeSelected={(name, value) => { dispatch({"type": "changePerPage", "perPage": value})}}
+            />
+        </div>
+     </>
 }
 
 const RecordsPage = ({
@@ -259,7 +294,7 @@ const RecordsPage = ({
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mainTab": 0,
+        "mainTab": 1,
         "playerTotalTab": type,
         "perPage": perPage,
         "page": page,
@@ -304,26 +339,7 @@ const RecordsPage = ({
                     <div className="default-header">Records</div>
                     {renderTabs(state, dispatch)}
 
-                    <div className="default-sub-header">Player Total Records</div>
-                    <div className="form m-bottom-25">
-       
-                        <DropDown dName="Record Type" originalValue={state.playerTotalTab} data={validTypes.playerTotals}
-                            changeSelected={(name, value) => { dispatch({"type": "changePlayerTotalTab", "tab": value})}}
-                        />
-
-                        <DropDown dName="Gametype" originalValue={state.selectedGametype} data={gametypesList}
-                            changeSelected={(name, value) => { dispatch({"type": "changeGametype", "gametype": value})}}
-                        />
-
-                        <DropDown dName="Map" originalValue={state.selectedMap} data={mapList}
-                            changeSelected={(name, value) => { dispatch({"type": "changeMap", "map": value})}}
-                        />
-
-
-                        <DropDown dName="Results Per Page" originalValue={state.perPage} data={perPageOptions}
-                            changeSelected={(name, value) => { dispatch({"type": "changePerPage", "perPage": value})}}
-                        />
-                    </div>
+                    {renderForm(state, dispatch, validTypes, gametypesList, mapList, perPageOptions)}
 
                     {renderError(state)}
                     {renderPagination(state, dispatch)}
@@ -400,7 +416,7 @@ export async function getServerSideProps({req, query}){
     const mapList = await mapManager.getAllDropDownOptions();
 
     
-    mapList.unshift({"value": 0, "displayValue": "All Map"});
+    mapList.unshift({"value": 0, "displayValue": "All Maps"});
     return {
         "props": {
             "host": req.headers.host,
@@ -414,7 +430,8 @@ export async function getServerSideProps({req, query}){
             "metaTags": metaTags,
             "perPageOptions": r.totalPerPageOptions,
             "validTypes": {
-                "playerTotals": r.validPlayerTotalTypes
+                "playerTotals": r.validPlayerTotalTypes,
+                "playerMatches": r.validPlayerMatchOptions
             },
             "gametypesList": gametypeList,
             "selectedGametype": gametype,

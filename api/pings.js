@@ -25,6 +25,13 @@ class Pings{
         });
     }
 
+    async bulkInsert(vars){
+
+        const query = `INSERT INTO nstats_match_pings (match_id,timestamp,player,ping) VALUES ?`;
+
+        return await mysql.bulkInsert(query, vars);
+    }
+
     createMatchGraphData(inputData, players){
 
         const playerIndexes = [];

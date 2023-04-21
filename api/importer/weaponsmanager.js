@@ -50,7 +50,7 @@ class WeaponsManager{
         try{
 
             await this.weapons.getIdsByName(this.names);
-            
+
             for(let i = 0; i < playerManager.players.length; i++){
 
                 const p = playerManager.players[i];

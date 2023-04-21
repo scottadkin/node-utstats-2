@@ -142,6 +142,13 @@ class Items{
         });
     }
 
+    async insertAllPlayerMatchItems(vars){
+
+        const query = "INSERT INTO nstats_items_match (match_id,player_id,item,uses) VALUES ?";
+
+        await mysql.bulkInsert(query, vars);
+    }
+
     playerTotalExists(playerId, item){
 
         return new Promise((resolve, reject) =>{
