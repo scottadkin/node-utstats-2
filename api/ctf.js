@@ -11,6 +11,7 @@ class CTF{
         //events waiting to be isnerted
         this.eventList = [];
         this.carryTimes = [];
+        this.crKills = [];
     }
 
     async bPlayerTotalsExist(playerId, gametypeId){
@@ -1699,15 +1700,28 @@ class CTF{
         }
     }
 
+    addCRKill(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
 
-    async insertCRKills(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
+        //insertCRKills
+
+        this.crKills.push([eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills]);
+    }
+
+    async insertCRKills(){
+
+        const query = "INSERT INTO nstats_ctf_cr_kills (match_id,match_date,map_id,cap_id,event_type,timestamp,player_id,player_team,total_events) VALUES ?";
+
+        await mysql.insertBulk(query, this.crKills);
+    }
+
+    /*async insertCRKills(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
 
         const query = `INSERT INTO nstats_ctf_cr_kills VALUES(NULL,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [matchId, matchDate, mapId, capId, eventType, timestamp, playerId, playerTeam, kills];
 
         return await mysql.simpleQuery(query, vars);
-    }
+    }*/
 
     async getCapFragEvents(matchId, option){
 

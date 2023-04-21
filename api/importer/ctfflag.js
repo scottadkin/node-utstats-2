@@ -636,7 +636,7 @@ class CTFFlag{
 
             const playerTeam = this.playerManager.getPlayerTeamAt(playerId, end);
 
-            await this.ctfManager.insertCRKills(
+            this.ctfManager.addCRKill(
                 (bSuicides) ? 1 : 0,
                 this.matchId, 
                 this.matchDate, 

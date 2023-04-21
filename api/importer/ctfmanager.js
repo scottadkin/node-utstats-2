@@ -1170,6 +1170,11 @@ class CTFManager{
 
         await this.ctf.insertCarryTimes();
     }
+
+    async insertCapReturnKills(){
+
+        await this.ctf.insertCRKills();
+    }
 }
 
 module.exports = CTFManager;
