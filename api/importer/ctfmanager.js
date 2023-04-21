@@ -142,7 +142,7 @@ class CTFManager{
                 for(let i = 0; i < flagsInPossession.length; i++){
 
        
-                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "suicide", killerTeam);
+                    this.ctf.addEvent(this.matchId, timestamp, killer.masterId, "suicide", killerTeam);
                     
 
                     await this.flags[flagsInPossession[i]].killed(
@@ -179,7 +179,7 @@ class CTFManager{
                 for(let i = 0; i < flagsInPossession.length; i++){
 
  
-                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "kill", killerTeam);
+                    this.ctf.addEvent(this.matchId, timestamp, killer.masterId, "kill", killerTeam);
                     
 
                     await this.flags[flagsInPossession[i]].killed(
@@ -259,7 +259,7 @@ class CTFManager{
                     //await this.ctf.insertEvent(this.matchId, d.timestamp, killer.masterId, "kill", killerTeam);
 
            
-                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "kill",  d.flagTeam);
+                    this.ctf.addEvent(this.matchId, timestamp, killer.masterId, "kill",  d.flagTeam);
                     
 
                     await this.flags[d.flagTeam].killed(
@@ -1158,6 +1158,12 @@ class CTFManager{
         if(bestAssistCap !== null){
             await this.ctf.updateMapCapRecord(bestAssistCap.id, mapId, this.matchId, gametypeId, 1, bestAssistCap.travelTime, bestAssistCap.carryTime, bestAssistCap.dropTime);
         }
+    }
+
+
+    async insertEvents(){
+
+        await this.ctf.insertEventList();
     }
 }
 

@@ -7,6 +7,9 @@ class CTF{
     constructor(data){
 
         this.data = data;
+
+        //events waiting to be isnerted
+        this.eventList = [];
     }
 
     async bPlayerTotalsExist(playerId, gametypeId){
@@ -764,13 +767,16 @@ class CTF{
         return caps;
     }
 
-    async insertEvent(match, timestamp, player, event, team){
+    addEvent(match, timestamp, player, event, team){
 
+        this.eventList.push([match, timestamp, player, event, team]);
+    }
 
-        const query = "INSERT INTO nstats_ctf_events VALUES(NULL,?,?,?,?,?)";
+    async insertEventList(){
 
-        return await mysql.simpleQuery(query, [match, timestamp, player, event, team]);
+        const query = "INSERT INTO nstats_ctf_events (match_id, timestamp, player, event, team) VALUES ?";
 
+        return await mysql.bulkInsert(query, this.eventList);
     }
 
     async getMatchEvents(id){
