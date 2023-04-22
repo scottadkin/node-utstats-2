@@ -43,7 +43,6 @@ class Weapons{
 
     }
 
-
     async getIdsByNamesQuery(names){
 
         const query = "SELECT * FROM nstats_weapons WHERE name IN (?)";
@@ -110,7 +109,7 @@ class Weapons{
         return null;
     }
 
-    async insertPlayerMatchStats(matchId, mapId, gametypeId, playerId, weaponId, stats){
+    /*async insertPlayerMatchStats(matchId, mapId, gametypeId, playerId, weaponId, stats){
 
         const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -122,6 +121,16 @@ class Weapons{
 
         return await mysql.simpleQuery(query, vars);
 
+    }*/
+
+    async bulkInsertPlayerMatchStats(data){
+
+        const query = `INSERT INTO nstats_player_weapon_match (
+            match_id,map_id,gametype_id,player_id,weapon_id,kills,best_kills,
+            deaths,suicides,team_kills,best_team_kills,accuracy,shots,hits,damage,efficiency
+        ) VALUES ?`;
+
+        return await mysql.bulkInsert(query, data);
     }
 
 
