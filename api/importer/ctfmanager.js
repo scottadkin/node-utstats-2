@@ -1178,6 +1178,16 @@ class CTFManager{
 
         await this.ctf.bulkInsertFlagDrops();
     }
+
+    async insertFlagDeaths(){
+
+        await this.ctf.bulkInsertFlagDeaths();
+    }
+
+    async insertFlagCovers(){
+
+        await this.ctf.bulkInsertFlagCovers();
+    }
 }
 
 module.exports = CTFManager;

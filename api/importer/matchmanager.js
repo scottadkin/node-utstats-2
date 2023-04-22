@@ -418,6 +418,8 @@ class MatchManager{
                 await this.CTFManager.insertEvents();
                 await this.CTFManager.insertCarryTimes();
                 await this.CTFManager.insertFlagDrops();
+                await this.CTFManager.insertFlagDeaths();
+                await this.CTFManager.insertFlagCovers();
 
                 
                 /*if(this.CTFManager.bHasData()){

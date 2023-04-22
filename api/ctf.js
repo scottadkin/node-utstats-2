@@ -13,6 +13,8 @@ class CTF{
         this.carryTimes = [];
         this.crKills = [];
         this.flagDrops = [];
+        this.flagDeaths = [];
+        this.covers = [];
     }
 
     async bPlayerTotalsExist(playerId, gametypeId){
@@ -327,13 +329,25 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
+    /*async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
 
         const query = "INSERT INTO nstats_ctf_covers VALUES(NULL,?,?,?,?,?,?,?,?)";
 
         const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId];
 
         return await mysql.simpleQuery(query, vars);
+    }*/
+
+    addCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
+
+        this.covers.push([matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId]);
+    }
+
+    async bulkInsertFlagCovers(){
+
+        const query = `INSERT INTO nstats_ctf_covers (match_id, match_date, map_id, cap_id, timestamp, killer_id, killer_team, victim_id) VALUES ?`;
+
+        return await mysql.bulkInsert(query, this.covers);
     }
 
     async insertSelfCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
@@ -365,27 +379,22 @@ class CTF{
         await mysql.bulkInsert(query, this.carryTimes);
     }
 
-    async insertFlagDeath(matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
+    addFlagDeath(matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
         victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase){
 
-        const query = `INSERT INTO nstats_ctf_flag_deaths VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        this.flagDeaths.push([matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
+            victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase]);
+    }
 
-        const vars = [
-            matchId, 
-            matchDate,
-            mapId, 
-            timestamp,
-            capId,
-            killerId, 
-            killerTeam, 
-            victimId, 
-            victimTeam, 
-            killDistance,
-            distanceToCap,
-            distanceToEnemyBase
-        ];
+    async bulkInsertFlagDeaths(){
 
-        return await mysql.simpleQuery(query, vars);
+        const query = `INSERT INTO nstats_ctf_flag_deaths (
+            match_id, match_date, map_id, timestamp, cap_id, killer_id, killer_team, victim_id, 
+            victim_team, kill_distance, distance_to_cap, distance_to_enemy_base
+            ) 
+        VALUES ?`;
+
+        await mysql.bulkInsert(query, this.flagDeaths);
     }
 
     addDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
