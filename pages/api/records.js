@@ -2,6 +2,7 @@ import Players from "../../api/players";
 import Functions from "../../api/functions";
 import Maps from "../../api/maps";
 import Records from "../../api/records";
+import Gametypes from "../../api/gametypes";
 
 export default async function handler(req, res){
 
@@ -53,12 +54,14 @@ export default async function handler(req, res){
             const data = await recordsManager.getPlayerMatchRecords(gametype, map, cat, page, perPage);
 
             const mapsManager = new Maps();
+            const mapNames = await mapsManager.getNamesByIds(data.mapIds, true);     
 
-            const mapNames = await mapsManager.getNamesByIds(data.mapIds, true);
+            const gametypesManager = new Gametypes();
+            const gametypeNames = await gametypesManager.getNames(data.gametypeIds);
 
             data.data.map((d) =>{
-
                 d.mapName = (mapNames[d.map_id] !== undefined) ? mapNames[d.map_id] : "Not Found";
+                d.gametypeName = (gametypeNames[d.gametype] !== undefined) ? gametypeNames[d.gametype] : "Not Found";
             });
 
             console.log(data);

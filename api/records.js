@@ -370,6 +370,10 @@ class Records{
             return r.map_id;
         }))];
 
+        result.gametypeIds = [...new Set(result.data.map((r) =>{
+            return r.gametype;
+        }))];
+
       
 
         return result;
