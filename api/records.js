@@ -116,7 +116,7 @@ class Records{
             {"value": "best_spawn_kill_spree", "displayValue": "Best Spawn Kill Spree"},
             {"value": "assault_objectives", "displayValue": "Assault Objectives"},
             {"value": "dom_caps", "displayValue": "Domination Point Caps"},
-            {"value": "dom_caps_best_life", "displayValue": "BEst Domination Point Caps Single Life"},
+            {"value": "dom_caps_best_life", "displayValue": "Best Domination Point Caps Single Life"},
             {"value": "ping_min", "displayValue": "Minimum Ping"},
             {"value": "ping_average", "displayValue": "Average Ping"},
             {"value": "ping_max", "displayValue": "Maximum Ping"},
@@ -174,6 +174,16 @@ class Records{
     bValidTotalType(value){
 
         for(const option of Object.values(this.validPlayerTotalTypes)){
+
+            if(option.value === value) return true;
+        }
+
+        return false;
+    }
+
+    bValidPlayerType(value){
+
+        for(const option of Object.values(this.validPlayerMatchOptions)){
 
             if(option.value === value) return true;
         }
@@ -298,8 +308,71 @@ class Records{
         };
     }
 
-    async getPlayerMatchRecords(page, perPage){
 
+    async getPlayerMatchRecordsAny(cat, start, perPage){
+
+        const query = `SELECT player_id,map_id,gametype,playtime,match_id,match_date,${cat} as tvalue FROM nstats_player_matches ORDER BY tvalue DESC LIMIT ?,?`;
+
+        const result = await mysql.simpleQuery(query, [start, perPage]);
+
+        const playerIds = [...new Set(result.map((r) =>{
+            return r.player_id;
+        }))];
+
+        return {"data": result, "playerIds": playerIds};
+    }
+
+
+    setPlayerInfo(data, playerInfo){
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const player = playerInfo[d.player_id] ?? {"name": "Not Found", "country": "xx"};
+
+            d.name = player.name;
+            d.country = player.country;
+
+        }
+      
+    }
+
+    async getPlayerMatchRecords(gametypeId, mapId, cat, page, perPage){
+
+        console.log(`
+        gametypeId = ${gametypeId}
+        mapId = ${mapId}
+        cat = ${cat}
+        page = ${page}
+        perPage = ${perPage}
+        `);
+
+
+        if(!this.bValidPlayerType(cat)) throw new Error(`${cat} is not a valid player record type.`);
+
+        page = page - 1;
+        if(page < 0) page = 0;
+
+        const start = page * perPage;
+        
+
+        let result = await this.getPlayerMatchRecordsAny(cat, start, perPage);
+
+
+        const pm = new Players();
+
+        const playersInfo = await pm.getBasicInfo(result.playerIds, true);
+        this.setPlayerInfo(result.data, playersInfo);
+
+
+        result.mapIds = [...new Set(result.data.map((r) =>{
+            return r.map_id;
+        }))];
+
+      
+
+        return result;
     }
 }
 

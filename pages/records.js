@@ -29,6 +29,8 @@ const mainTitles = {
     "2": "Player Map Records",
 }
 
+const playtimeTypes = ["playtime", "team_0_playtime", "team_1_playtime", "team_2_playtime", "team_3_playtime", "spec_playtime"];
+
 
 const renderTabs = (state, dispatch) =>{
 
@@ -186,7 +188,9 @@ const getCategoryName = (value, options) =>{
     return "Not Found";
 }
 
-const renderData = (state, validTypes) =>{
+const renderTotalData = (state, validTypes) =>{
+
+    if(state.mainTab !== 0) return null;
 
     if(state.bLoading) return <Loading />;
 
@@ -201,7 +205,6 @@ const renderData = (state, validTypes) =>{
 
     let index = state.perPage * (state.page - 1);
 
-    const playtimeTypes = ["playtime", "team_0_playtime", "team_1_playtime", "team_2_playtime", "team_3_playtime", "spec_playtime"];
 
     const data = state.data.map((d) =>{
 
@@ -243,6 +246,68 @@ const renderData = (state, validTypes) =>{
 
             }
         }
+    });
+
+    return <InteractiveTable width={1} headers={headers} data={data} perPage={100} bDisableSorting={true}/>;
+}
+
+
+const renderPlayerData = (state, validTypes) =>{
+
+    if(state.mainTab !== 1) return null;
+
+    if(state.bLoading) return <Loading />;
+
+    const headers = {
+        "place": "Place",
+        "name": "Player",
+        "date": "Date",
+        "map": "Map",
+        "playtime": "Playtime",
+        "value": getCategoryName(state.playerTotalTab, validTypes.playerMatches)
+    };
+
+    let i = 0;
+
+    const data = state.data.map((d) =>{
+
+        const place = ((state.page - 1) * state.perPage) + i + 1;
+
+        i++;
+
+        let value = d.tvalue;
+
+        if(playtimeTypes.indexOf(state.playerTotalTab) !== -1){
+            value = <span className="playtime">{Functions.toPlaytime(value)}</span>;
+        }
+
+        return {
+            "place": {
+                "value": place, 
+                "displayValue": <>{place}{Functions.getOrdinal(place)}</>,
+                "className": "place"
+            },
+            "name": {
+                "value": d.name.toLowerCase(), 
+                "displayValue": <Link href={`/player/${d.player_id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
+                "className": "text-left"
+            },
+            "date": {
+                "value": d.match_date, 
+                "displayValue": Functions.convertTimestamp(d.match_date,true),
+                "className": "playtime"
+            },
+            "map": {
+                "value": d.mapName.toLowerCase(), 
+                "displayValue": <><Link href={`/map/${d.map_id}`}>{d.mapName}</Link></>
+            },
+            "playtime": {
+                "value": d.playtime, 
+                "displayValue": Functions.toPlaytime(d.playtime),
+                "className": "playtime"
+            },
+            "value": {"value": d.tvalue, "displayValue": value},
+        };
     });
 
     return <InteractiveTable width={1} headers={headers} data={data} perPage={100} bDisableSorting={true}/>;
@@ -343,7 +408,8 @@ const RecordsPage = ({
 
                     {renderError(state)}
                     {renderPagination(state, dispatch)}
-                    {renderData(state, validTypes)}
+                    {renderTotalData(state, validTypes)}
+                    {renderPlayerData(state, validTypes)}
                     {renderPagination(state, dispatch)}
                 </div>
             </div>

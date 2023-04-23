@@ -2373,8 +2373,9 @@ class Players{
     }
 
 
-    async getBasicInfo(playerIds){
+    async getBasicInfo(playerIds, bIgnoreIdsInObject){
 
+        if(bIgnoreIdsInObject === undefined) bIgnoreIdsInObject = false;
         if(playerIds.length === 0) return {};
 
         const query = `SELECT name,id,country FROM nstats_player_totals WHERE id IN(?)`;
@@ -2384,7 +2385,11 @@ class Players{
         for(let i = 0; i < result.length; i++){
 
             const r = result[i];
-            found[r.id] = {"id": r.id,"name": r.name, "country": r.country};
+            const current = {"name": r.name, "country": r.country};
+
+            if(!bIgnoreIdsInObject) current.id = r.id;
+            
+            found[r.id] = current;
         }
 
         return found;

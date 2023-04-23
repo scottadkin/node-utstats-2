@@ -36,6 +36,8 @@ export default async function handler(req, res){
         let map = (query.map !== undefined) ? parseInt(query.map) : 0;
         if(map !== map) map = 0;
 
+        let playerId = (query.playerId !== undefined) ? parseInt(query.playerId) : 0;
+        if(playerId !== playerId) playerId = 0;
         
 
         if(mode === "0"){
@@ -48,7 +50,20 @@ export default async function handler(req, res){
 
         if(mode === "1"){
 
-         
+            const data = await recordsManager.getPlayerMatchRecords(gametype, map, cat, page, perPage);
+
+            const mapsManager = new Maps();
+
+            const mapNames = await mapsManager.getNamesByIds(data.mapIds, true);
+
+            data.data.map((d) =>{
+
+                d.mapName = (mapNames[d.map_id] !== undefined) ? mapNames[d.map_id] : "Not Found";
+            });
+
+            console.log(data);
+            res.status(200).json(data);
+            return;
         }
 
         /*if(req.body.mode === undefined){
