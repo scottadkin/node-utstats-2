@@ -73,6 +73,7 @@ class WeaponsManager{
                         ]);
 
                         await this.weapons.updatePlayerTotalStats(this.mapId, this.gametypeId, p.masterId, playtime, currentWeaponId, value); 
+
                         await this.weapons.updatePlayerBest(p.masterId, this.mapId, this.gametypeId, currentWeaponId, value);
                      
 

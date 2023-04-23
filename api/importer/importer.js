@@ -12,7 +12,7 @@ const ACE = require("../ace");
 
 class Importer{
 
-    constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, 
+    constructor(serverId, host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, 
         bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bImportAce,
         bDeleteAceLogs, bDeleteAceScreenshots, bUseACEPlayerHWID, bSkipFTP){
 
@@ -34,7 +34,7 @@ class Importer{
         
         this.updatedPlayers = [];
         this.updatedGametypes = [];
-
+        this.serverId = serverId;
         this.host = host;
         this.port = port;
         this.user = user;
@@ -322,7 +322,7 @@ class Importer{
 
         const now = Math.floor(Date.now() / 1000);
 
-        const ending = (this.bLogsFolderImport) ? "WHERE id > -1" : "WHERE host=? AND port=?";
+        const ending = (this.bLogsFolderImport) ? "WHERE id > -1" : "WHERE id=?";
 
         const query = `UPDATE ${(this.bLogsFolderImport) ? "nstats_logs_folder" : "nstats_ftp"} 
         SET total_logs_imported = total_logs_imported + 1,
@@ -330,7 +330,9 @@ class Importer{
         last = IF (last < ?, ?, last)
         ${ending}`;
 
-        await mysql.simpleInsert(query, [now, now, now, now, now, this.host, this.port]);
+        const vars = [now, now, now, now, now, this.serverId];
+
+        await mysql.simpleInsert(query, vars);
     }
 
     async updateTotalImports(){
@@ -338,12 +340,12 @@ class Importer{
         let query = "";
 
         if(!this.bLogsFolderImport){
-            query = `UPDATE nstats_ftp SET total_imports=total_imports+1 WHERE host=? AND port=?`;
+            query = `UPDATE nstats_ftp SET total_imports=total_imports+1 WHERE id=?`;
         }else{
             query = `UPDATE nstats_logs_folder SET total_imports=total_imports+1 WHERE id > -1`;
         }
 
-        await mysql.simpleQuery(query, [this.host, this.port]);
+        await mysql.simpleQuery(query, [this.serverId]);
     }
 
 }
