@@ -25,8 +25,7 @@ import Maps from "../api/maps";
 
 const mainTitles = {
     "0": "Player Total Records",
-    "1": "Player Match Records",
-    "2": "Player Map Records",
+    "1": "Player Match Records"
 }
 
 const playtimeTypes = ["playtime", "team_0_playtime", "team_1_playtime", "team_2_playtime", "team_3_playtime", "spec_playtime"];
@@ -62,6 +61,7 @@ const reducer = (state, action) =>{
     switch(action.type){
 
         case "loaded": {
+
             return {
                 ...state,
                 "bLoading": false,
@@ -74,7 +74,7 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "bLoading": true,
-                "data": [],
+                "data": null,
                 "totalResults": 0
             }
         }
@@ -138,7 +138,9 @@ const loadData = async (mainTab, selectedGametype, selectedMap, playerTotalTab, 
         dispatch({"type": "loadData"});
 
         let url = `/api/records/?mode=${mainTab}&gametype=${selectedGametype}&map=${selectedMap}`;
-        url = `${url}&cat=${playerTotalTab}&page=${page}&perPage=${perPage}`
+        url = `${url}&cat=${playerTotalTab}&page=${page}&perPage=${perPage}`;
+
+        //console.log(url);
 
 
         const req = await fetch(url, {
@@ -215,7 +217,6 @@ const renderTotalData = (state, validTypes) =>{
 
     let index = state.perPage * (state.page - 1);
 
-
     const data = state.data.map((d) =>{
 
         index++;
@@ -268,18 +269,6 @@ const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
 
     if(state.bLoading) return <Loading />;
 
-    console.log(state);
-
-    let mapName = null;
-    let gametypeName = null;
-
-    if(state.selectedMap !== 0){
-        mapName = getName(mapList, state.selectedMap);
-    }
-
-    if(state.selectedGametype !== 0){
-        gametypeName = getName(gametypeList, state.selectedGametype);
-    }
 
     const headers = {
         "place": "Place",
@@ -305,8 +294,8 @@ const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
             value = <span className="playtime">{Functions.toPlaytime(value)}</span>;
         }
 
-        const currentMapName = (mapName !== null) ? mapName : d.mapName;
-        const currentGametypeName = (gametypeName !== null) ? gametypeName : d.gametypeName;
+        const currentMapName = d.mapName ?? "";
+        const currentGametypeName = d.gametypeName ?? "";
 
         return {
             "place": {
@@ -347,11 +336,6 @@ const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
 const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
 
 
-    const titles = {
-        "0": "Player Total Records",
-        "1": "Player Match Records",
-        "2": "Player Map Records",
-    };
 
     let validOptions = [];
 
@@ -359,7 +343,7 @@ const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPage
     if(state.mainTab === 1) validOptions = validTypes.playerMatches;
 
     return <>
-        <div className="default-sub-header">{titles[state.mainTab]}</div>
+        <div className="default-sub-header">{mainTitles[state.mainTab]}</div>
         <div className="form m-bottom-25">
 
             <DropDown dName="Record Type" originalValue={state.playerTotalTab} data={validOptions}
@@ -390,7 +374,7 @@ const RecordsPage = ({
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mainTab": 1,
+        "mainTab": mode,
         "playerTotalTab": type,
         "perPage": perPage,
         "page": page,
@@ -398,7 +382,7 @@ const RecordsPage = ({
         "selectedGametype": selectedGametype,
         "selectedMap": selectedMap,
         "totalResults": 0,
-        "data": []
+        "data": null
         
     });
 
@@ -467,8 +451,6 @@ export async function getServerSideProps({req, query}){
 
     let map = (query.map !== undefined) ? parseInt(query.map) : 0;
     if(map !== map) map = 0;
-
-    console.log(`gametype = ${gametype}`);
 
 
     //also used as combo mode

@@ -278,7 +278,7 @@ class Records{
 
         type = type.toLowerCase();
 
-        if(!this.bValidTotalType(type)) return null;
+        if(!this.bValidTotalType(type)) throw new Error(`${type} is not a valid player total record type.`);
         perPage = this.cleanPerPage(perPage);
 
         page = parseInt(page);
@@ -325,9 +325,8 @@ class Records{
     async getPlayerMatchRecordsCustom(gametypeId, mapId, cat, start, perPage){
 
         let query = `SELECT player_id
-        ${(mapId === 0) ? ",map_id" : "" }
-        ${(gametypeId === 0) ? ",gametype" : ""}
-        ${(mapId !== 0 || gametypeId !== 0) ? "," : ""}
+        map_id,
+        gametype,
         playtime,match_id,match_date,${cat} as tvalue 
         FROM nstats_player_matches`;
 
@@ -366,6 +365,17 @@ class Records{
     }
 
 
+    async getTotalPlayerMatchRecords(gametypeId, mapId){
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_matches`;
+
+        const vars = [];
+
+        const result = await mysql.simpleQuery(query, vars);
+
+        return result[0].total_matches;
+    }
+
     setPlayerInfo(data, playerInfo){
 
         for(let i = 0; i < data.length; i++){
@@ -382,15 +392,6 @@ class Records{
     }
 
     async getPlayerMatchRecords(gametypeId, mapId, cat, page, perPage){
-
-        console.log(`
-        gametypeId = ${gametypeId}
-        mapId = ${mapId}
-        cat = ${cat}
-        page = ${page}
-        perPage = ${perPage}
-        `);
-
 
         if(!this.bValidPlayerType(cat)) throw new Error(`${cat} is not a valid player record type.`);
 
@@ -426,9 +427,11 @@ class Records{
             return r.gametype;
         }))];
 
+
+        const totalResults = await this.getTotalPlayerMatchRecords(gametypeId, mapId);
       
 
-        return result;
+        return {"data": result, "totalResults": totalResults };
     }
 }
 

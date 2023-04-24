@@ -12,7 +12,7 @@ export default async function handler(req, res){
 
         const query = req.query;
 
-        console.log(query);
+        //console.log(query);
 
 
 
@@ -45,13 +45,12 @@ export default async function handler(req, res){
 
             const {totalResults, data} = await recordsManager.getPlayerTotalRecords(cat, gametype, map, page, perPage);
             res.status(200).json({"data": data, "totalResults": totalResults});
-    
             return;
         }
 
         if(mode === "1"){
 
-            const data = await recordsManager.getPlayerMatchRecords(gametype, map, cat, page, perPage);
+            const {data, totalResults} = await recordsManager.getPlayerMatchRecords(gametype, map, cat, page, perPage);
 
             const mapsManager = new Maps();
             const mapNames = await mapsManager.getNamesByIds(data.mapIds, true);     
@@ -64,7 +63,7 @@ export default async function handler(req, res){
                 d.gametypeName = (gametypeNames[d.gametype] !== undefined) ? gametypeNames[d.gametype] : "Not Found";
             });
 
-            res.status(200).json(data);
+            res.status(200).json({"data": data.data, "totalResults": totalResults});
             return;
         }
 
