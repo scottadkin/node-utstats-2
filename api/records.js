@@ -322,6 +322,49 @@ class Records{
         return {"data": result, "playerIds": playerIds};
     }
 
+    async getPlayerMatchRecordsCustom(gametypeId, mapId, cat, start, perPage){
+
+        let query = `SELECT player_id
+        ${(mapId === 0) ? ",map_id" : "" }
+        ${(gametypeId === 0) ? ",gametype" : ""}
+        ${(mapId !== 0 || gametypeId !== 0) ? "," : ""}
+        playtime,match_id,match_date,${cat} as tvalue 
+        FROM nstats_player_matches`;
+
+        const vars = [];
+
+        let whereString = "";
+
+        if(gametypeId !== 0){
+            
+            whereString = " WHERE gametype=?";
+            vars.push(gametypeId);
+        }
+
+        if(mapId !== 0){
+
+            if(whereString === ""){
+                whereString = " WHERE map_id=?";
+            }else{
+                whereString = `${whereString} AND map_id=?`;
+            }
+
+            vars.push(mapId);
+        }
+
+        const orderByString = " ORDER BY tvalue DESC LIMIT ?,?";
+
+        query = `${query}${whereString}${orderByString}`
+
+        const result = await mysql.simpleQuery(query, [...vars, start, perPage]);
+
+        const playerIds = [...new Set(result.map((r) =>{
+            return r.player_id;
+        }))];
+
+        return {"data": result, "playerIds": playerIds};
+    }
+
 
     setPlayerInfo(data, playerInfo){
 
@@ -356,9 +399,18 @@ class Records{
 
         const start = page * perPage;
         
+        let result = null;
 
-        let result = await this.getPlayerMatchRecordsAny(cat, start, perPage);
+        if(gametypeId === 0 && mapId === 0){
+            result = await this.getPlayerMatchRecordsAny(cat, start, perPage);
+        }else{
+            result = await this.getPlayerMatchRecordsCustom(gametypeId, mapId, cat, start, perPage);
+        }
 
+
+
+
+        if(result === null) return null;
 
         const pm = new Players();
 

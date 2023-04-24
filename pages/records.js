@@ -31,6 +31,16 @@ const mainTitles = {
 
 const playtimeTypes = ["playtime", "team_0_playtime", "team_1_playtime", "team_2_playtime", "team_3_playtime", "spec_playtime"];
 
+const getName = (names, mapId) =>{
+
+    for(let i = 0; i < names.length; i++){
+
+        const {value, displayValue} = names[i];
+        if(value === mapId) return displayValue;
+    }
+
+    return "Not Found";
+}
 
 const renderTabs = (state, dispatch) =>{
 
@@ -252,17 +262,31 @@ const renderTotalData = (state, validTypes) =>{
 }
 
 
-const renderPlayerData = (state, validTypes) =>{
+const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
 
     if(state.mainTab !== 1) return null;
 
     if(state.bLoading) return <Loading />;
+
+    console.log(state);
+
+    let mapName = null;
+    let gametypeName = null;
+
+    if(state.selectedMap !== 0){
+        mapName = getName(mapList, state.selectedMap);
+    }
+
+    if(state.selectedGametype !== 0){
+        gametypeName = getName(gametypeList, state.selectedGametype);
+    }
 
     const headers = {
         "place": "Place",
         "name": "Player",
         "date": "Date",
         "map": "Map",
+        "gametype": "Gametype",
         "playtime": "Playtime",
         "value": getCategoryName(state.playerTotalTab, validTypes.playerMatches)
     };
@@ -281,6 +305,9 @@ const renderPlayerData = (state, validTypes) =>{
             value = <span className="playtime">{Functions.toPlaytime(value)}</span>;
         }
 
+        const currentMapName = (mapName !== null) ? mapName : d.mapName;
+        const currentGametypeName = (gametypeName !== null) ? gametypeName : d.gametypeName;
+
         return {
             "place": {
                 "value": place, 
@@ -289,7 +316,7 @@ const renderPlayerData = (state, validTypes) =>{
             },
             "name": {
                 "value": d.name.toLowerCase(), 
-                "displayValue": <Link href={`/player/${d.player_id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
+                "displayValue": <Link href={`/pmatch/${d.match_id}/?player=${d.player_id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
                 "className": "text-left"
             },
             "date": {
@@ -298,8 +325,12 @@ const renderPlayerData = (state, validTypes) =>{
                 "className": "playtime"
             },
             "map": {
-                "value": d.mapName.toLowerCase(), 
-                "displayValue": <><Link href={`/map/${d.map_id}`}>{d.mapName}</Link></>
+                "value": currentMapName.toLowerCase(), 
+                "displayValue": <><Link href={`/map/${d.map_id}`}>{currentMapName}</Link></>
+            },
+            "gametype": {
+                "value": currentGametypeName.toLowerCase(), 
+                "displayValue": currentGametypeName
             },
             "playtime": {
                 "value": d.playtime, 
@@ -409,7 +440,7 @@ const RecordsPage = ({
                     {renderError(state)}
                     {renderPagination(state, dispatch)}
                     {renderTotalData(state, validTypes)}
-                    {renderPlayerData(state, validTypes)}
+                    {renderPlayerData(state, validTypes, gametypesList, mapList)}
                     {renderPagination(state, dispatch)}
                 </div>
             </div>
