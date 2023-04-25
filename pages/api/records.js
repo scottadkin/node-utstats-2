@@ -58,10 +58,16 @@ export default async function handler(req, res){
             const gametypesManager = new Gametypes();
             const gametypeNames = await gametypesManager.getNames(data.gametypeIds);
 
+        
+
             data.data.map((d) =>{
                 d.mapName = (mapNames[d.map_id] !== undefined) ? mapNames[d.map_id] : "Not Found";
                 d.gametypeName = (gametypeNames[d.gametype] !== undefined) ? gametypeNames[d.gametype] : "Not Found";
             });
+
+            //console.log(data.data);
+
+            //console.log(mapNames);
 
             res.status(200).json({"data": data.data, "totalResults": totalResults});
             return;

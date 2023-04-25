@@ -324,11 +324,7 @@ class Records{
 
     async getPlayerMatchRecordsCustom(gametypeId, mapId, cat, start, perPage){
 
-        let query = `SELECT player_id
-        map_id,
-        gametype,
-        playtime,match_id,match_date,${cat} as tvalue 
-        FROM nstats_player_matches`;
+        let query = `SELECT player_id,map_id,gametype,playtime,match_id,match_date,${cat} as tvalue FROM nstats_player_matches`;
 
         const vars = [];
 
@@ -353,7 +349,7 @@ class Records{
 
         const orderByString = " ORDER BY tvalue DESC LIMIT ?,?";
 
-        query = `${query}${whereString}${orderByString}`
+        query = `${query}${whereString}${orderByString}`;
 
         const result = await mysql.simpleQuery(query, [...vars, start, perPage]);
 
@@ -409,6 +405,7 @@ class Records{
         }
 
 
+        
 
 
         if(result === null) return null;
@@ -418,10 +415,12 @@ class Records{
         const playersInfo = await pm.getBasicInfo(result.playerIds, true);
         this.setPlayerInfo(result.data, playersInfo);
 
+        
 
         result.mapIds = [...new Set(result.data.map((r) =>{
             return r.map_id;
         }))];
+
 
         result.gametypeIds = [...new Set(result.data.map((r) =>{
             return r.gametype;
@@ -429,6 +428,8 @@ class Records{
 
 
         const totalResults = await this.getTotalPlayerMatchRecords(gametypeId, mapId);
+
+        
       
 
         return {"data": result, "totalResults": totalResults };
