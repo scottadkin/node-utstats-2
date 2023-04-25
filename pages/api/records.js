@@ -65,10 +65,6 @@ export default async function handler(req, res){
                 d.gametypeName = (gametypeNames[d.gametype] !== undefined) ? gametypeNames[d.gametype] : "Not Found";
             });
 
-            //console.log(data.data);
-
-            //console.log(mapNames);
-
             res.status(200).json({"data": data.data, "totalResults": totalResults});
             return;
         }

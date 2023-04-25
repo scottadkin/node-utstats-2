@@ -363,10 +363,26 @@ class Records{
 
     async getTotalPlayerMatchRecords(gametypeId, mapId){
 
-        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_matches`;
-
+        let query = `SELECT COUNT(*) as total_matches FROM nstats_player_matches`;
         const vars = [];
 
+        if(gametypeId !== 0){
+            query += ` WHERE gametype=?`;
+            vars.push(gametypeId);
+        }
+
+        if(mapId !== 0){
+
+            if(vars.length === 0){
+                query += ` WHERE map_id=?`;
+            }else{
+                query += ` AND map_id=?`;
+            }
+
+            vars.push(mapId);
+        }
+
+        
         const result = await mysql.simpleQuery(query, vars);
 
         return result[0].total_matches;
