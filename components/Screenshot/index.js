@@ -1232,7 +1232,7 @@ class MatchScreenshot{
             c.fillText(`Spectators: ${spectatorString}`, this.x(50), this.y(91));
         }
         c.fillStyle = "yellow";
-        c.fillText("[SmartCTF 4E {PiN}Kev | {DnF2}SiNiSTeR | [es]Rush | adminthis & The_Cowboy & Sp0ngeb0b]", this.x(50), this.y(94));
+        c.fillText("[SmartCTF 4E {PiN}Kev | {DnF2}SiNiSTeR | [es]Rush | adminthis & The_Clownboy & Sp0ngeb0b]", this.x(50), this.y(94));
         c.fillStyle = "white";
         c.fillText(`${this.getDate()} | Elapsed Time: ${this.MMSS(this.matchData.playtime)}`, this.x(50), this.y(96));
         c.fillText(`Playing ${this.map} on ${this.serverName}`, this.x(50), this.y(98));

@@ -22,6 +22,7 @@ import Gametypes from "../api/gametypes";
 import Records from "../api/records";
 import InteractiveTable from "../components/InteractiveTable";
 import Maps from "../api/maps";
+import { useRouter } from "next/router";
 
 const mainTitles = {
     "0": "Player Total Records",
@@ -386,12 +387,15 @@ const RecordsPage = ({
         
     });
 
+    const router = useRouter();
+
     useEffect(() =>{
 
         const controller = new AbortController();
 
-
         loadData(state.mainTab, state.selectedGametype, state.selectedMap, state.playerTotalTab, state.page, state.perPage, dispatch, controller);
+
+        router.push(`/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=${state.page}`, undefined, { shallow: true })
 
         return () =>{
             controller.abort();
@@ -405,22 +409,46 @@ const RecordsPage = ({
         state.selectedMap
     ])
 
+    let validTypeList = [];
+
+    if(state.mainTab === 0){
+
+        validTypeList = validTypes.playerTotals;
+
+    }else if(state.mainTab === 1){
+        validTypeList = validTypes.playerMatches;
+    }
+
+    const metaTypeName = getName(validTypeList, state.playerTotalTab);
+
+    let metaGametypeName = ", with any gametype";
+
+    if(state.selectedGametype !== 0){
+        metaGametypeName = `, with the gametype ${getName(gametypesList, state.selectedGametype)}`;
+    }
+
+    
+    let metaMapName = ", on any map";
+
+    if(state.selectedMap !== 0){
+        metaMapName = `, on the map ${getName(mapList, state.selectedMap)}`;
+    }
+
     const title = (state.mainTab !== mode) ? mainTitles[state.mainTab] : metaTags.title;
+    //${metaGametypeName}${metaMapName} 
+
+    let description = `View all player ${metaTypeName} records${metaGametypeName}${metaMapName}.`;
+
 
     return <div>
-        <DefaultHead host={host} title={title} description="" keywords="records,players,ctf,combogib"/>	
+        <DefaultHead host={host} title={`${metaTypeName} - ${title}`} description={description} keywords="records,players,ctf,combogib"/>	
         <main>
             <Nav settings={navSettings} session={session}/>
             <div id="content">
                 <div className="default">	
-
-                    
-
                     <div className="default-header">Records</div>
                     {renderTabs(state, dispatch)}
-
                     {renderForm(state, dispatch, validTypes, gametypesList, mapList, perPageOptions)}
-
                     {renderError(state)}
                     {renderPagination(state, dispatch)}
                     {renderTotalData(state, validTypes)}
@@ -444,7 +472,7 @@ export async function getServerSideProps({req, query}){
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     if(page !== page) page = 1;
 
-    let type = query.type ?? "frags";
+    let type = (query.type !== undefined) ? query.type.toLowerCase() :  "frags";
 
     let gametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
     if(gametype !== gametype) gametype = 0;
@@ -468,7 +496,8 @@ export async function getServerSideProps({req, query}){
     if(perPage <= 0 || perPage > 100) perPage = defaultPerPage;
 
     const playerManager = new Players();
-    const validTypes = playerManager.getValidRecordTypes();
+    //const validTypes = playerManager.getValidRecordTypes();
+    
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
@@ -476,16 +505,10 @@ export async function getServerSideProps({req, query}){
 
     const validComboTypes = comboManager.getValidRecordTypes();
 
-    const metaTags = {
-        "title": (mainTitles[mode] !== undefined) ? `${mainTitles[mode]}` : "Records"
-    };
 
     
     const r = new Records();
 
-    //const validPlayerTotalTypes = r.validPlayerTotalTypes;
-
-    //console.log(await r.debugGetColumnNames());
 
     const gm = new Gametypes();
     const gametypeList = await gm.getDropDownOptions();
@@ -494,8 +517,15 @@ export async function getServerSideProps({req, query}){
 
     const mapList = await mapManager.getAllDropDownOptions();
 
-    
+    console.log(mapList);
+
+
+    const metaTags = {
+        "title": (mainTitles[mode] !== undefined) ? mainTitles[mode] : `Records`
+    };
+
     mapList.unshift({"value": 0, "displayValue": "All Maps"});
+
     return {
         "props": {
             "host": req.headers.host,
