@@ -42,7 +42,18 @@ const getName = (names, mapId) =>{
     return "Not Found";
 }
 
-const renderTabs = (state, dispatch) =>{
+const bValidType = (type, types) =>{
+
+    for(let i = 0; i < types.length; i++){
+
+        const value = types[i].value;
+        if(value === type) return true;
+    }
+
+    return false;
+}
+
+const renderTabs = (state, dispatch, validTypes) =>{
 
     const options = [
         {"value": 0, "name": mainTitles[0]},
@@ -53,7 +64,7 @@ const renderTabs = (state, dispatch) =>{
     return <Tabs 
         options={options} 
         selectedValue={state.mainTab} 
-        changeSelected={(newTab) => dispatch({"type": "changeMainTab", "tab": newTab})}
+        changeSelected={(newTab) => dispatch({"type": "changeMainTab", "tab": newTab, "validTypes": validTypes})}
     />
 }
 
@@ -80,13 +91,31 @@ const reducer = (state, action) =>{
             }
         }
         case "changeMainTab": {
+
+
+            let currentType = state.playerTotalTab;
+            let validTypes = [];
+
+            if(action.tab === 0){
+                validTypes = action.validTypes.playerTotals;
+            }else if(action.tab === 1){
+                validTypes = action.validTypes.playerMatches;
+            }
+
+            if(!bValidType(currentType, validTypes)){
+                currentType = "frags";
+            }
+            
+            
             return {
                 ...state,
                 "mainTab": action.tab,
+                "playerTotalTab": currentType,
                 "page": 1
             }
         }
         case "changePlayerTotalTab": {
+
             return {
                 ...state,
                 "playerTotalTab": action.tab,
@@ -206,6 +235,7 @@ const renderTotalData = (state, validTypes) =>{
     if(state.mainTab !== 0) return null;
 
     if(state.bLoading) return <Loading />;
+    if(state.error !== null) return null;
 
     const headers = {
         "place": "Place",
@@ -269,6 +299,8 @@ const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
     if(state.mainTab !== 1) return null;
 
     if(state.bLoading) return <Loading />;
+
+    if(state.error !== null) return null;
 
 
     const headers = {
@@ -335,7 +367,6 @@ const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
 }
 
 const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
-
 
 
     let validOptions = [];
@@ -447,7 +478,7 @@ const RecordsPage = ({
             <div id="content">
                 <div className="default">	
                     <div className="default-header">Records</div>
-                    {renderTabs(state, dispatch)}
+                    {renderTabs(state, dispatch, validTypes)}
                     {renderForm(state, dispatch, validTypes, gametypesList, mapList, perPageOptions)}
                     {renderError(state)}
                     {renderPagination(state, dispatch)}
@@ -481,10 +512,6 @@ export async function getServerSideProps({req, query}){
     if(map !== map) map = 0;
 
 
-    //also used as combo mode
-    //let capMode = parseInt(query.cm) ?? 0;
-    //if(capMode !== capMode) capMode = 0;
-
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
@@ -495,19 +522,30 @@ export async function getServerSideProps({req, query}){
     if(perPage !== perPage) perPage = 25;
     if(perPage <= 0 || perPage > 100) perPage = defaultPerPage;
 
-    const playerManager = new Players();
-    //const validTypes = playerManager.getValidRecordTypes();
-    
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
-    const comboManager = new Combogib();
-
-    const validComboTypes = comboManager.getValidRecordTypes();
-
-
     
     const r = new Records();
+
+    //bValidTotalType
+    //bValidPlayerType
+
+    const defaultType = "frags";
+
+
+    if(mode === 0){
+
+        if(!r.bValidTotalType(type)){
+            type = defaultType;
+        }
+
+    }else if(mode === 1){
+
+        if(!r.bValidPlayerType(type)){
+            type = defaultType;
+        }
+    }
 
 
     const gm = new Gametypes();
@@ -517,7 +555,7 @@ export async function getServerSideProps({req, query}){
 
     const mapList = await mapManager.getAllDropDownOptions();
 
-    console.log(mapList);
+   
 
 
     const metaTags = {
