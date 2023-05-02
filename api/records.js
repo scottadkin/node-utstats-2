@@ -311,20 +311,33 @@ class Records{
 
     async getPlayerMatchRecordsAny(cat, start, perPage){
 
-        const query = `SELECT player_id,map_id,gametype,playtime,match_id,match_date,${cat} as tvalue FROM nstats_player_matches ORDER BY tvalue DESC LIMIT ?,?`;
+        const where = (cat !== "spec_playtime") ? " AND playtime>0" : "";
 
-        const result = await mysql.simpleQuery(query, [start, perPage]);
+        const normalSelect = `SELECT player_id,map_id,gametype,playtime,match_id,match_date,${cat} as tvalue`;
+        const totalSelect = `SELECT COUNT(*) as total_results`;
+
+        const query = ` FROM nstats_player_matches WHERE ${cat}!=0 ${where}`;
+
+        const orderBy = ` ORDER BY tvalue DESC LIMIT ?,?`;
+
+        const vars = [start, perPage];
+
+        const totalResults = await mysql.simpleQuery(`${totalSelect}${query}`, vars);
+        const result = await mysql.simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
 
         const playerIds = [...new Set(result.map((r) =>{
             return r.player_id;
         }))];
 
-        return {"data": result, "playerIds": playerIds};
+        return {"data": result, "playerIds": playerIds, "totalResults": totalResults[0].total_results};
     }
 
     async getPlayerMatchRecordsCustom(gametypeId, mapId, cat, start, perPage){
 
-        let query = `SELECT player_id,map_id,gametype,playtime,match_id,match_date,${cat} as tvalue FROM nstats_player_matches`;
+        const normalSelect = `SELECT player_id,map_id,gametype,playtime,match_id,match_date,${cat} as tvalue`;
+        const totalSelect = `SELECT COUNT(*) as total_results`;
+
+        let query = ` FROM nstats_player_matches WHERE ${cat}!=0`;
 
         const vars = [];
 
@@ -332,60 +345,38 @@ class Records{
 
         if(gametypeId !== 0){
             
-            whereString = " WHERE gametype=?";
+            whereString = " AND gametype=?";
             vars.push(gametypeId);
         }
 
         if(mapId !== 0){
 
-            if(whereString === ""){
-                whereString = " WHERE map_id=?";
-            }else{
-                whereString = `${whereString} AND map_id=?`;
-            }
-
+            whereString = " AND map_id=?";
             vars.push(mapId);
+        }
+
+        if(cat !== "spec_playtime"){
+
+            if(whereString === ""){
+                whereString = " AND playtime>0";
+            }else{
+                whereString = `${whereString} AND playtime>0`;
+            }
         }
 
         const orderByString = " ORDER BY tvalue DESC LIMIT ?,?";
 
-        query = `${query}${whereString}${orderByString}`;
+        query = `${query}${whereString}`;
 
-        const result = await mysql.simpleQuery(query, [...vars, start, perPage]);
+        const totalResults = await mysql.simpleQuery(`${totalSelect}${query}`, [...vars, start, perPage]);
+
+        const result = await mysql.simpleQuery(`${normalSelect}${query}${orderByString}`, [...vars, start, perPage]);
 
         const playerIds = [...new Set(result.map((r) =>{
             return r.player_id;
         }))];
 
-        return {"data": result, "playerIds": playerIds};
-    }
-
-
-    async getTotalPlayerMatchRecords(gametypeId, mapId){
-
-        let query = `SELECT COUNT(*) as total_matches FROM nstats_player_matches`;
-        const vars = [];
-
-        if(gametypeId !== 0){
-            query += ` WHERE gametype=?`;
-            vars.push(gametypeId);
-        }
-
-        if(mapId !== 0){
-
-            if(vars.length === 0){
-                query += ` WHERE map_id=?`;
-            }else{
-                query += ` AND map_id=?`;
-            }
-
-            vars.push(mapId);
-        }
-
-        
-        const result = await mysql.simpleQuery(query, vars);
-
-        return result[0].total_matches;
+        return {"data": result, "playerIds": playerIds, "totalResults": totalResults[0].total_results};
     }
 
     setPlayerInfo(data, playerInfo){
@@ -420,10 +411,6 @@ class Records{
             result = await this.getPlayerMatchRecordsCustom(gametypeId, mapId, cat, start, perPage);
         }
 
-
-        
-
-
         if(result === null) return null;
 
         const pm = new Players();
@@ -432,7 +419,6 @@ class Records{
         this.setPlayerInfo(result.data, playersInfo);
 
         
-
         result.mapIds = [...new Set(result.data.map((r) =>{
             return r.map_id;
         }))];
@@ -442,13 +428,8 @@ class Records{
             return r.gametype;
         }))];
 
-
-        const totalResults = await this.getTotalPlayerMatchRecords(gametypeId, mapId);
-
+        return {"data": result, "totalResults": result.totalResults };
         
-      
-
-        return {"data": result, "totalResults": totalResults };
     }
 }
 
