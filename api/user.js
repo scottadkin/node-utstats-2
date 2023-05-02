@@ -390,7 +390,7 @@ class User{
                     }
 
                 }else{
-                    new Message(`bLoggedIn() session is null`,"warning");
+                    //new Message(`bLoggedIn() session is null`,"warning");
                 }
             }
 
