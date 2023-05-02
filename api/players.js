@@ -2545,6 +2545,110 @@ class Players{
 
         return obj;
     }
+
+    async getPlayerMapGametypeRecords(){
+
+        const query = `SELECT 
+        player_id,
+        map_id,
+        gametype,
+        hwid,
+        COUNT(*) as total_matches,
+        MIN(match_date) as first_match,
+        MAX(match_date) as last_match,
+        SUM(winner) as wins,
+        SUM(draw) as draws,
+        SUM(playtime) as playtime,
+        SUM(team_0_playtime) as team_0_playtime,
+        SUM(team_1_playtime) as team_1_playtime,
+        SUM(team_2_playtime) as team_2_playtime,
+        SUM(team_3_playtime) as team_3_playtime,
+        SUM(spec_playtime) as spec_playtime,
+        SUM(frags) as frags,
+        SUM(score) as score,
+        SUM(kills) as kills,
+        SUM(deaths) as deaths,
+        SUM(suicides) as suicides,
+        SUM(team_kills) as team_kills,
+        SUM(spawn_kills) as spawn_kills,
+        SUM(multi_1) as multi_1,
+        SUM(multi_2) as multi_2,
+        SUM(multi_3) as multi_3,
+        SUM(multi_4) as multi_4,
+        SUM(multi_5) as multi_5,
+        SUM(multi_6) as multi_6,
+        SUM(multi_7) as multi_7,
+        MAX(multi_best) as multi_best,
+        SUM(spree_1) as spree_1,
+        SUM(spree_2) as spree_2,
+        SUM(spree_3) as spree_3,
+        SUM(spree_4) as spree_4,
+        SUM(spree_5) as spree_5,
+        SUM(spree_6) as spree_6,
+        SUM(spree_7) as spree_7,
+        MAX(spree_best) as spree_best,
+        MAX(best_spawn_kill_spree) as best_spawn_kill_spree,
+        SUM(assault_objectives) as assault_objectives,
+        SUM(dom_caps) as dom_caps,
+        MAX(dom_caps) as dom_caps_best,
+        MAX(dom_caps_best_life) as dom_caps_best_life,
+        AVG(accuracy) as accuracy,
+        SUM(k_distance_normal) as k_distance_normal,
+        SUM(k_distance_long) as k_distance_long,
+        SUM(k_distance_uber) as k_distance_uber,
+        SUM(headshots) as headshots,
+        SUM(shield_belt) as shield_belt,
+        SUM(amp) as amp,
+        SUM(amp_time) as amp_time,
+        SUM(invisibility) as invisibility,
+        SUM(invisibility_time) as invisibility_time,
+        SUM(pads) as pads,
+        SUM(armor) as armor,
+        SUM(boots) as boots,
+        SUM(super_health) as super_health,
+        SUM(mh_kills) as mh_kills,
+        MAX(mh_kills_best_life) as mh_kills_best_life,
+        MAX(mh_kills) as mh_kills_best,
+        SUM(mh_deaths) as mh_deaths,
+        MAX(mh_deaths) as mh_deaths_worst
+        FROM nstats_player_matches GROUP BY player_id,map_id,gametype,hwid`;
+
+        return await mysql.simpleQuery(query);
+    }
+
+    /**
+     * Delete all player totals apart from gametype=0 and map=0(all time totals)
+    */   
+    async deleteAllPlayerGametypeMapTotals(){
+
+        const query = `DELETE FROM nstats_player_totals WHERE player_id!=0`;
+
+        return await mysql.simpleQuery(query);
+    }
+
+
+    async testInsertPlayerTotal(){
+
+    }
+
+    async recalculateAllPlayerMapGametypeRecords(){
+
+        const data = await this.getPlayerMapGametypeRecords();
+
+        const playerIds = [...new Set(data.map((d) =>{
+            return d.player_id;
+        }))];
+
+
+        const playerNames = await this.getNamesByIds(playerIds, true);
+
+
+        console.log(playerIds);
+        console.log(playerNames);
+
+        //update gametype = 0, map = 0, but delete everything else for player totals
+        await this.deleteAllPlayerGametypeMapTotals();
+    }
     
 }
 
