@@ -782,7 +782,7 @@ class Players{
                 d.mh_kills, d.mh_kills_best_life, d.mh_kills_best, d.views, d.mh_deaths, d.mh_deaths_worst
             ];
             
-            await mysql.simpleInsert(query, vars);
+            await mysql.simpleQuery(query, vars);
 
         }catch(err){
             console.trace(err);
@@ -2552,7 +2552,6 @@ class Players{
         player_id,
         map_id,
         gametype,
-        hwid,
         COUNT(*) as total_matches,
         MIN(match_date) as first_match,
         MAX(match_date) as last_match,
@@ -2610,8 +2609,21 @@ class Players{
         MAX(mh_kills_best_life) as mh_kills_best_life,
         MAX(mh_kills) as mh_kills_best,
         SUM(mh_deaths) as mh_deaths,
-        MAX(mh_deaths) as mh_deaths_worst
-        FROM nstats_player_matches GROUP BY player_id,map_id,gametype,hwid`;
+        MAX(mh_deaths) as mh_deaths_worst,
+        SUM(telefrag_kills) as telefrag_kills,
+        MAX(telefrag_kills) as telefrag_kills_best,
+        SUM(telefrag_deaths) as telefrag_deaths,
+        MAX(telefrag_deaths) as telefrag_deaths_worst,
+        MAX(telefrag_best_spree) as telefrag_best_spree,
+        MAX(telefrag_best_multi) as telefrag_best_multi,
+        SUM(tele_disc_kills) as tele_disc_kills,
+        MAX(tele_disc_kills) as tele_disc_kills_best,
+        SUM(tele_disc_deaths) as tele_disc_deaths,
+        MAX(tele_disc_deaths) as tele_disc_deaths_worst,
+        MAX(tele_disc_best_spree) as tele_disc_best_spree,
+        MAX(tele_disc_best_multi) as tele_disc_best_multi
+
+        FROM nstats_player_matches GROUP BY player_id,map_id,gametype`;
 
         return await mysql.simpleQuery(query);
     }
@@ -2631,6 +2643,85 @@ class Players{
 
     }
 
+
+    horseNoise(totals, playerId, gametypeId, mapId, data){
+
+        console.log(`update ${playerId}, ${mapId}, ${gametypeId}`);
+
+        if(totals[playerId][mapId][gametypeId] === undefined){
+            totals[playerId][mapId][gametypeId] = data;
+            return;
+        }
+
+        const t = totals[playerId][mapId][gametypeId];
+
+        console.log(`kills was ${t.kills}`);
+        console.log(`deaths was ${t.deaths}`);
+
+        t.kills += data.kills;
+        t.deaths += data.deaths;
+
+        console.log(`kills is now ${t.kills}`);
+        console.log(`deaths is now ${t.deaths}`);
+
+    }
+
+    updateRecalulatePlayerCurrent(totals, playerId, gametypeId, mapId, data){
+
+        if(totals[playerId] === undefined){
+            totals[playerId] = {};
+        }
+
+        if(totals[playerId][mapId] === undefined){
+            totals[playerId][mapId] = {};
+        }
+
+        this.horseNoise(totals, playerId, gametypeId, mapId, data);
+        this.horseNoise(totals, playerId, 0, mapId, data);
+
+       /* if(totals[playerId][mapId][0] === undefined){
+            
+            totals[playerId][mapId][0] = data;
+        }else{
+            //update map all totals(gametype 0)
+            this.horseNoise(totals, playerId, 0, mapId, data);
+        }
+
+
+        this.horseNoise(totals, gametypeId, mapId, data);
+
+        if(totals[mapId][gametypeId] === undefined){
+            
+            totals[mapId][gametypeId] = data;
+        }else{
+            //update gametypeid
+            this.horseNoise(totals, playerId, gametypeId, mapId, data);
+        }*/
+    }
+
+
+    async bGametypeMapStatsExist(playerId, gametypeId, mapId){
+
+        const query = `SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?`;
+
+        console.log(`SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE player_id=${playerId} AND gametype=${gametypeId} AND map=${mapId}`);
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+
+        console.log(result[0]);
+        if(result[0].total_players > 0) return true;
+
+        return false;
+    }
+
+    async createNewGametypeMapStats(playerName, playerId, gametypeId, mapId){
+
+
+        const query = `INSERT INTO nstats_player_totals (name, player_id, gametype, map) VALUES (?,?,?,?)`;
+
+        return await mysql.simpleQuery(query, [playerName, playerId, gametypeId, mapId]);
+    }
+
     async recalculateAllPlayerMapGametypeRecords(){
 
         const data = await this.getPlayerMapGametypeRecords();
@@ -2648,6 +2739,69 @@ class Players{
 
         //update gametype = 0, map = 0, but delete everything else for player totals
         await this.deleteAllPlayerGametypeMapTotals();
+
+        //console.log(data);
+
+        const currentTotals = {};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            console.log(d.player_id, d.gametype, d.map_id);
+
+            if(currentTotals[d.player_id] === undefined){
+                currentTotals[d.player_id] = {};
+            }
+
+            //const current = currentTotals[d.player_id];
+
+
+            this.updateRecalulatePlayerCurrent(currentTotals, d.player_id, d.gametype, d.map_id, d);
+            
+        }
+
+
+        
+        console.log(currentTotals);
+
+        for(const [player, map] of Object.entries(currentTotals)){
+
+            const currentPlayer= playerNames[player] ?? {"name": ""};
+
+            for(const [mapId, data] of Object.entries(map)){
+
+                console.log(mapId, "gametypeID = 0", data[0].total_matches);
+
+                for(const [gametypeId, gametypeData] of Object.entries(data)){
+
+                    //map all time totals
+                    if(!await this.bGametypeMapStatsExist(player, 0, mapId)){
+
+                        await this.createNewGametypeMapStats(currentPlayer.name, player, 0, mapId);
+                    }else{
+
+                        //update query goes here
+                    }
+
+                    //map and gametype totals
+                    if(!await this.bGametypeMapStatsExist(player, gametypeId, mapId)){
+
+                        await this.createNewGametypeMapStats(currentPlayer.name, player, gametypeId, mapId);
+                    }else{
+
+                        //update query goes here
+                    }
+                }
+
+                /*if(!await this.bGametypeMapStatsExist(player, 0, mapId)){
+
+
+                    await this.createNewGametypeMapStats(currentPlayer.name, player, 0, mapId);
+                }*/
+
+            }
+        }
     }
     
 }
