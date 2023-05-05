@@ -46,6 +46,7 @@ class CTFFlag{
 
         //bulk insert all at the end on the match
         this.pickupInsertVars = [];
+        this.selfCoverInsertVars = [];
 
     }
 
@@ -299,15 +300,14 @@ class CTFFlag{
 
                 const kill = s.kills[x];
 
-                await this.ctfManager.insertSelfCover(
-                    this.matchId, 
-                    this.matchDate, 
-                    this.mapId, 
-                    capId, 
-                    kill.timestamp, 
-                    kill.killerId, 
-                    s.killerTeam,
-                    kill.victimId
+                this.selfCoverInsertVars.push(
+                    [
+                        capId, 
+                        kill.timestamp, 
+                        kill.killerId, 
+                        s.killerTeam,
+                        kill.victimId
+                    ]
                 );
             }
 

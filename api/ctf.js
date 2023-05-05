@@ -2924,6 +2924,12 @@ class CTF{
 
         return await mysql.bulkInsert(query, vars);
     }
+
+    async bulkInsertSelfCovers(vars){
+
+        const query = `INSERT INTO nstats_ctf_self_covers (match_id, match_date, map_id, cap_id, timestamp, killer_id, killer_team, victim_id) VALUES ?`;
+        return await mysql.bulkInsert(query, vars);
+    }
 }
 
 

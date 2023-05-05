@@ -1212,6 +1212,32 @@ class CTFManager{
         return await this.ctf.bulkInsertFlagPickups(insertVars);
         //console.log(insertVars);
     }
+
+    async bulkInsertSelfCovers(){
+
+
+        const insertVars = [];
+
+        for(let i = 0; i < this.flags.length; i++){
+
+            const flag = this.flags[i];
+
+            for(let x = 0; x < flag.selfCoverInsertVars.length; x++){
+
+                const vars = flag.selfCoverInsertVars[x];
+
+                insertVars.push([
+                    this.matchId, 
+                    this.matchDate, 
+                    this.mapId,
+                    ...vars
+                ]);
+            }
+        }
+
+        return await this.ctf.bulkInsertSelfCovers(insertVars);
+
+    }
 }
 
 module.exports = CTFManager;
