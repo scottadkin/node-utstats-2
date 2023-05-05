@@ -43,6 +43,7 @@ class TeamsManager{
     }
 
     
+    
 
     async insertTeamChanges(matchId){
 
@@ -50,13 +51,8 @@ class TeamsManager{
 
             new Message(`Starting to insert player team changes.`,'note');
 
-            for(let i = 0; i < this.data.length; i++){
-
-                const d = this.data[i];
-
-                await this.teams.insertTeamChange(matchId, d.timestamp, d.player, d.team);
-            }
-
+            await this.teams.bulkInsertTeamChanges(matchId, this.data);
+            
             new Message(`Inserted all player team changes.`,'pass');
 
         }catch(err){
