@@ -2725,6 +2725,8 @@ class Players{
 
         const query = `UPDATE nstats_player_totals SET
         matches = matches + ?,
+        first = IF(first < ? || first = 0, ?, first),
+        last = IF(last > ? || last = 0, ?, last),
         wins = wins + ?,
         losses = losses + ?,
         draws = draws + ?,
@@ -2797,6 +2799,8 @@ class Players{
 
         const vars = [
             data.total_matches,
+            data.first_match, data.first_match,
+            data.last_match, data.last_match,
             data.wins,
             losses,
             data.draws,
