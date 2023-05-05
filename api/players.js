@@ -34,7 +34,7 @@ class Players{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT * FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC";
+            const query = "SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
 
             const players = [];
 
@@ -50,12 +50,12 @@ class Players{
 
     async getTotalPlayers(name){
 
-        let query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND playtime>0";
+        let query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0";
         let vars = [];
 
         if(name !== undefined){
 
-            query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND playtime>0 AND name LIKE(?) ";
+            query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 AND name LIKE(?) ";
             vars = [`%${name}%`];
         }
 
@@ -154,11 +154,11 @@ class Players{
                 order = "ASC";
             }
 
-            let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND playtime>0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+            let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
             let vars = [start, perPage];
 
             if(name !== ""){
-                query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND playtime>0 AND name LIKE(?) ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+                query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 AND name LIKE(?) ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
                 vars = [`%${name}%`, start, perPage];
             }
 
