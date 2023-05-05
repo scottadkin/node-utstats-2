@@ -2764,7 +2764,30 @@ class Players{
         slowest_kill = IF(slowest_kill < ?, ?, slowest_kill),
         best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
         assault_objectives = assault_objectives + ?,
-        dom_caps = dom_caps + ?
+        dom_caps = dom_caps + ?,
+        dom_caps_best = IF(dom_caps_best < ?, ?, dom_caps_best),
+        dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life),
+        accuracy = ?,
+        k_distance_normal = k_distance_normal + ?,
+        k_distance_long = k_distance_long + ?,
+        k_distance_uber = k_distance_uber + ?,
+        headshots = headshots + ?,
+        shield_belt = shield_belt + ?,
+        amp = amp + ?,
+        amp_time = amp_time + ?,
+        invisibility = invisibility + ?,
+        invisibility_time = invisibility_time + ?,
+        pads = pads + ?,
+        armor = armor + ?,
+        boots = boots + ?,
+        super_health = super_health + ?,
+        mh_kills = mh_kills + ?,
+        mh_kills_best_life = IF(mh_kills_best_life < ?, ?, mh_kills_best_life),
+        mh_kills_best = IF(mh_kills_best < ?, ?, mh_kills_best),
+        mh_deaths = mh_deaths + ?,
+        mh_deaths_worst = IF(mh_deaths_worst < ?, ?, mh_deaths_worst)
+
+
 
         WHERE player_id=? AND gametype=? AND map=?`;
 
@@ -2812,6 +2835,29 @@ class Players{
             data.best_spawn_kill_spree, data.best_spawn_kill_spree,
             data.assault_objectives,
             data.dom_caps,
+            data.dom_caps_best, data.dom_caps_best,
+            data.dom_caps_best_life, data.dom_caps_best_life,
+            data.accuracy,//probably need to do it differently,
+            data.k_distance_normal,
+            data.k_distance_long,
+            data.k_distance_uber,
+            data.headshots,
+            data.shield_belt,
+            data.amp,
+            data.amp_time,
+            data.invisibility,
+            data.invisibility_time,
+            data.pads,
+            data.armor,
+            data.boots,
+            data.super_health,
+            data.mh_kills,
+            data.mh_kills_best_life, data.mh_kills_best_life,
+            data.mh_kills_best, data.mh_kills_best,
+            data.mh_deaths,
+            data.mh_deaths_worst, data.mh_deaths_worst,
+
+
 
             playerId, gametypeId, mapId
         ];
