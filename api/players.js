@@ -2563,6 +2563,7 @@ class Players{
         SUM(team_2_playtime) as team_2_playtime,
         SUM(team_3_playtime) as team_3_playtime,
         SUM(spec_playtime) as spec_playtime,
+        SUM(first_blood) as first_bloods,
         SUM(frags) as frags,
         SUM(score) as score,
         SUM(kills) as kills,
@@ -2704,11 +2705,8 @@ class Players{
 
         const query = `SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?`;
 
-        console.log(`SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE player_id=${playerId} AND gametype=${gametypeId} AND map=${mapId}`);
-
         const result = await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
 
-        console.log(result[0]);
         if(result[0].total_players > 0) return true;
 
         return false;
@@ -2716,10 +2714,109 @@ class Players{
 
     async createNewGametypeMapStats(playerName, playerId, gametypeId, mapId){
 
-
         const query = `INSERT INTO nstats_player_totals (name, player_id, gametype, map) VALUES (?,?,?,?)`;
 
         return await mysql.simpleQuery(query, [playerName, playerId, gametypeId, mapId]);
+    }
+
+    async updateNewGametypeMapStats(playerId, gametypeId, mapId, data){
+
+        console.log(`update ${playerId}, ${gametypeId}, ${mapId}`);
+
+        const query = `UPDATE nstats_player_totals SET
+        matches = matches + ?,
+        wins = wins + ?,
+        losses = losses + ?,
+        draws = draws + ?,
+        winrate = IF(wins > 0 && losses > 0, (wins / losses) * 100 , IF(losses = 0 && draws = 0, 100, 0)),
+        playtime = playtime + ?,
+        team_0_playtime = team_0_playtime + ?,
+        team_1_playtime = team_1_playtime + ?,
+        team_2_playtime = team_2_playtime + ?,
+        team_3_playtime = team_3_playtime + ?,
+        spec_playtime = spec_playtime + ?,
+        first_bloods = first_bloods + ?,
+        frags = frags + ?,
+        score = score + ?,
+        kills = kills + ?,
+        deaths = deaths + ?,
+        suicides = suicides + ?,
+        team_kills = team_kills + ?,
+        spawn_kills = spawn_kills + ?,
+        efficiency = IF(kills > 0, if(deaths > 0, (kills / (kills + deaths)) * 100, 100), 0),
+        multi_1 = multi_1 + ?,
+        multi_2 = multi_2 + ?,
+        multi_3 = multi_3 + ?,
+        multi_4 = multi_4 + ?,
+        multi_5 = multi_5 + ?,
+        multi_6 = multi_6 + ?,
+        multi_7 = multi_7 + ?,
+        multi_best = IF(multi_best < ?, ?, multi_best),
+        spree_1 = spree_1 + ?,
+        spree_2 = spree_2 + ?,
+        spree_3 = spree_3 + ?,
+        spree_4 = spree_4 + ?,
+        spree_5 = spree_5 + ?,
+        spree_6 = spree_6 + ?,
+        spree_7 = spree_7 + ?,
+        spree_best = IF(spree_best < ?, ?, spree_best),
+        fastest_kill = IF(fastest_kill > ?, ?, fastest_kill),
+        slowest_kill = IF(slowest_kill < ?, ?, slowest_kill),
+        best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
+        assault_objectives = assault_objectives + ?,
+        dom_caps = dom_caps + ?
+
+        WHERE player_id=? AND gametype=? AND map=?`;
+
+        //console.log(data);
+
+        const losses = data.total_matches - data.draws - data.wins;
+
+        const vars = [
+            data.total_matches,
+            data.wins,
+            losses,
+            data.draws,
+            data.playtime,
+            data.team_0_playtime,
+            data.team_1_playtime,
+            data.team_2_playtime,
+            data.team_3_playtime,
+            data.spec_playtime,
+            data.first_bloods,
+            data.frags,
+            data.score,
+            data.kills,
+            data.deaths,
+            data.suicides,
+            data.team_kills,
+            data.spawn_kills,
+            data.multi_1,
+            data.multi_2,
+            data.multi_3,
+            data.multi_4,
+            data.multi_5,
+            data.multi_6,
+            data.multi_7,
+            data.multi_best, data.multi_best,
+            data.spree_1,
+            data.spree_2,
+            data.spree_3,
+            data.spree_4,
+            data.spree_5,
+            data.spree_6,
+            data.spree_7,
+            data.spree_best, data.spree_best,
+            data.fastest_kill, data.fastest_kill,
+            data.slowest_kill, data.slowest_kill,
+            data.best_spawn_kill_spree, data.best_spawn_kill_spree,
+            data.assault_objectives,
+            data.dom_caps,
+
+            playerId, gametypeId, mapId
+        ];
+
+        return await mysql.simpleQuery(query, vars);
     }
 
     async recalculateAllPlayerMapGametypeRecords(){
@@ -2767,11 +2864,11 @@ class Players{
 
         for(const [player, map] of Object.entries(currentTotals)){
 
-            const currentPlayer= playerNames[player] ?? {"name": ""};
+            const currentPlayer = playerNames[player] ?? {"name": ""};
 
             for(const [mapId, data] of Object.entries(map)){
 
-                console.log(mapId, "gametypeID = 0", data[0].total_matches);
+                //console.log(mapId, "gametypeID = 0", data[0].total_matches);
 
                 for(const [gametypeId, gametypeData] of Object.entries(data)){
 
@@ -2779,19 +2876,19 @@ class Players{
                     if(!await this.bGametypeMapStatsExist(player, 0, mapId)){
 
                         await this.createNewGametypeMapStats(currentPlayer.name, player, 0, mapId);
-                    }else{
-
-                        //update query goes here
                     }
+
+                    await this.updateNewGametypeMapStats(player, 0, mapId, gametypeData);
 
                     //map and gametype totals
                     if(!await this.bGametypeMapStatsExist(player, gametypeId, mapId)){
 
                         await this.createNewGametypeMapStats(currentPlayer.name, player, gametypeId, mapId);
-                    }else{
-
-                        //update query goes here
                     }
+
+                    await this.updateNewGametypeMapStats(player, gametypeId, mapId, gametypeData);
+                    
+                    
                 }
 
                 /*if(!await this.bGametypeMapStatsExist(player, 0, mapId)){
