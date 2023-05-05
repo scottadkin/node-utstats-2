@@ -2918,6 +2918,12 @@ class CTF{
         await this.recalculatePlayerTotals(oldId, newId);
     }
 
+    async bulkInsertFlagPickups(vars){
+
+        const query = `INSERT INTO nstats_ctf_flag_pickups (match_id, match_date, map_id, cap_id, timestamp, player_id, player_team, flag_team) VALUES ?`;
+
+        return await mysql.bulkInsert(query, vars);
+    }
 }
 
 

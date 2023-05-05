@@ -44,6 +44,9 @@ class CTFFlag{
 
         this.basicCapsInfo = [];
 
+        //bulk insert all at the end on the match
+        this.pickupInsertVars = [];
+
     }
 
 
@@ -58,7 +61,7 @@ class CTFFlag{
         //this.debugSeals("RESET");
 
         this.insertDeaths(capId);
-        await this.insertCovers(capId);
+        this.insertCovers(capId);
         await this.processSelfCovers(bFailed, capId);
         await this.insertSeals(capId);
         await this.insertCarryTimes(capId);
@@ -88,8 +91,6 @@ class CTFFlag{
     async returned(timestamp, playerId, smartCTFLocation){
 
         //this.debugSeals("RETURNED");
-
-        //await this.processSelfCovers(false, -1);
 
         this.lastReturnTimestamp = timestamp;
 
@@ -784,11 +785,20 @@ class CTFFlag{
 
     async insertPickups(capId){
 
+
         for(let i = 0; i < this.pickups.length; i++){
 
             const p = this.pickups[i];
 
-            await this.ctfManager.insertPickup(
+            this.pickupInsertVars.push([
+                capId,
+                p.timestamp,
+                p.playerId,
+                p.playerTeam,
+                this.team
+            ]);
+
+            /*await this.ctfManager.insertPickup(
                 this.matchId, 
                 this.matchDate, 
                 this.mapId,
@@ -797,7 +807,7 @@ class CTFFlag{
                 p.playerId,
                 p.playerTeam,
                 this.team
-            );
+            );*/
         }
     }
 }

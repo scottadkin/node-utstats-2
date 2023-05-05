@@ -420,6 +420,7 @@ class MatchManager{
                 await this.CTFManager.insertFlagDrops();
                 await this.CTFManager.insertFlagDeaths();
                 await this.CTFManager.insertFlagCovers();
+                await this.CTFManager.bulkInsertFlagPickups();
 
                 
                 /*if(this.CTFManager.bHasData()){

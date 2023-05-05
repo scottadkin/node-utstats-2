@@ -1188,6 +1188,30 @@ class CTFManager{
 
         await this.ctf.bulkInsertFlagCovers();
     }
+
+    async bulkInsertFlagPickups(){
+
+        const insertVars = [];
+
+        for(let i = 0; i < this.flags.length; i++){
+
+            const flag = this.flags[i];
+
+            for(let x = 0; x < flag.pickupInsertVars.length; x++){
+
+                const vars = flag.pickupInsertVars[x];
+                insertVars.push([
+                    this.matchId, 
+                    this.matchDate, 
+                    this.mapId,
+                    ...vars
+                ]);
+            }
+        }
+
+        return await this.ctf.bulkInsertFlagPickups(insertVars);
+        //console.log(insertVars);
+    }
 }
 
 module.exports = CTFManager;
