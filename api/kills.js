@@ -390,15 +390,31 @@ class Kills{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertTeleFrags(matchId, mapId, gametypeId, teleFrags){
-        
+    async bulkInsertTeleFrags(matchId, mapId, gametypeId, teleFrags){
+
+        const query = `INSERT INTO nstats_tele_frags (match_id, map_id, gametype_id, timestamp, killer_id, killer_team, victim_id, victim_team, disc_kill) VALUES ?`;
+        const insertVars = [];
 
         for(let i = 0; i < teleFrags.length; i++){
 
             const t = teleFrags[i];
 
-            await this.insertTeleFrag(matchId, mapId, gametypeId, t);
+            insertVars.push(
+                [
+                    matchId, mapId, gametypeId, 
+                    t.timestamp, t.killerId, t.killerTeam,
+                    t.victimId, t.victimTeam,
+                    t.bDiscKill
+                ]
+            );
         }
+
+        return await mysql.bulkInsert(query, insertVars);
+    }
+
+    async insertTeleFrags(matchId, mapId, gametypeId, teleFrags){
+        
+        await this.bulkInsertTeleFrags(matchId, mapId, gametypeId, teleFrags);
     }
 }
 
