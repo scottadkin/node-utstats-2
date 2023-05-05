@@ -2645,60 +2645,7 @@ class Players{
     }
 
 
-    horseNoise(totals, playerId, gametypeId, mapId, data){
-
-        console.log(`update ${playerId}, ${mapId}, ${gametypeId}`);
-
-        if(totals[playerId][mapId][gametypeId] === undefined){
-            totals[playerId][mapId][gametypeId] = data;
-            return;
-        }
-
-        const t = totals[playerId][mapId][gametypeId];
-
-        console.log(`kills was ${t.kills}`);
-        console.log(`deaths was ${t.deaths}`);
-
-        t.kills += data.kills;
-        t.deaths += data.deaths;
-
-        console.log(`kills is now ${t.kills}`);
-        console.log(`deaths is now ${t.deaths}`);
-
-    }
-
-    updateRecalulatePlayerCurrent(totals, playerId, gametypeId, mapId, data){
-
-        if(totals[playerId] === undefined){
-            totals[playerId] = {};
-        }
-
-        if(totals[playerId][mapId] === undefined){
-            totals[playerId][mapId] = {};
-        }
-
-        this.horseNoise(totals, playerId, gametypeId, mapId, data);
-        this.horseNoise(totals, playerId, 0, mapId, data);
-
-       /* if(totals[playerId][mapId][0] === undefined){
-            
-            totals[playerId][mapId][0] = data;
-        }else{
-            //update map all totals(gametype 0)
-            this.horseNoise(totals, playerId, 0, mapId, data);
-        }
-
-
-        this.horseNoise(totals, gametypeId, mapId, data);
-
-        if(totals[mapId][gametypeId] === undefined){
-            
-            totals[mapId][gametypeId] = data;
-        }else{
-            //update gametypeid
-            this.horseNoise(totals, playerId, gametypeId, mapId, data);
-        }*/
-    }
+    
 
 
     async bGametypeMapStatsExist(playerId, gametypeId, mapId){
@@ -2714,6 +2661,13 @@ class Players{
 
     async createNewGametypeMapStats(playerName, playerId, gametypeId, mapId){
 
+        gametypeId = parseInt(gametypeId);
+        mapId = parseInt(mapId);
+
+        //dont update all time totals
+        if(gametypeId === 0 && mapId === 0) return;
+        
+
         const query = `INSERT INTO nstats_player_totals (name, player_id, gametype, map) VALUES (?,?,?,?)`;
 
         return await mysql.simpleQuery(query, [playerName, playerId, gametypeId, mapId]);
@@ -2721,7 +2675,12 @@ class Players{
 
     async updateNewGametypeMapStats(playerId, gametypeId, mapId, data){
 
-        console.log(`update ${playerId}, ${gametypeId}, ${mapId}`);
+        gametypeId = parseInt(gametypeId);
+        mapId = parseInt(mapId);
+
+        //dont update all time totals
+        if(gametypeId === 0 && mapId === 0) return;
+        
 
         const query = `UPDATE nstats_player_totals SET
         matches = matches + ?,
@@ -2869,6 +2828,22 @@ class Players{
         return await mysql.simpleQuery(query, vars);
     }
 
+    updateRecalulatePlayerCurrent(totals, playerId, gametypeId, mapId, data){
+
+        if(totals[playerId] === undefined){
+            totals[playerId] = {};
+        }
+
+        if(totals[playerId][mapId] === undefined){
+            totals[playerId][mapId] = {};
+        }
+
+        if(totals[playerId][mapId][gametypeId] === undefined){
+            totals[playerId][mapId][gametypeId] = data;
+            return;
+        }
+    }
+
     async recalculateAllPlayerMapGametypeRecords(){
 
         const data = await this.getPlayerMapGametypeRecords();
@@ -2880,14 +2855,9 @@ class Players{
 
         const playerNames = await this.getNamesByIds(playerIds, true);
 
-
-        console.log(playerIds);
-        console.log(playerNames);
-
         //update gametype = 0, map = 0, but delete everything else for player totals
         await this.deleteAllPlayerGametypeMapTotals();
 
-        //console.log(data);
 
         const currentTotals = {};
 
@@ -2895,22 +2865,14 @@ class Players{
 
             const d = data[i];
 
-            console.log(d.player_id, d.gametype, d.map_id);
-
             if(currentTotals[d.player_id] === undefined){
                 currentTotals[d.player_id] = {};
             }
-
-            //const current = currentTotals[d.player_id];
-
 
             this.updateRecalulatePlayerCurrent(currentTotals, d.player_id, d.gametype, d.map_id, d);
             
         }
 
-
-        
-        console.log(currentTotals);
 
         for(const [player, map] of Object.entries(currentTotals)){
 
@@ -2932,21 +2894,19 @@ class Players{
 
                     //map and gametype totals
                     if(!await this.bGametypeMapStatsExist(player, gametypeId, mapId)){
-
                         await this.createNewGametypeMapStats(currentPlayer.name, player, gametypeId, mapId);
                     }
 
                     await this.updateNewGametypeMapStats(player, gametypeId, mapId, gametypeData);
                     
+                    // gametype totals
+                    if(!await this.bGametypeMapStatsExist(player, gametypeId, 0)){
+                        await this.createNewGametypeMapStats(currentPlayer.name, player, gametypeId, 0);
+                    }
+                    
+                    await this.updateNewGametypeMapStats(player, gametypeId, 0, gametypeData);
                     
                 }
-
-                /*if(!await this.bGametypeMapStatsExist(player, 0, mapId)){
-
-
-                    await this.createNewGametypeMapStats(currentPlayer.name, player, 0, mapId);
-                }*/
-
             }
         }
     }
