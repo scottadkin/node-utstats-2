@@ -376,8 +376,9 @@ class MatchManager{
                 this.combogibManager.createKillTypeData();
                 this.combogibManager.createPlayerEvents();
 
-                await this.combogibManager.insertPlayerMatchData();
-                await this.combogibManager.updateMapTotals();
+                await this.combogibManager.updateDatabase();
+
+                
                 
             //}
             

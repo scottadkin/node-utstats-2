@@ -812,6 +812,7 @@ class CombogibManager{
 
         try{
 
+
             if(this.detailedStats === undefined){
                 throw new Error("This.detailedStats is undefined");
             }
@@ -964,6 +965,31 @@ class CombogibManager{
 
         await this.combogib.updateMapTotals(this.mapId, this.gametypeId, this.matchId, this.matchLength, combos, shockBalls, primary, insane);
         
+    }
+
+    bAnyNonPrimaryKills(){
+
+        const types = ["combos", "insane", "shockBalls"];
+
+        for(const data of Object.values(this.detailedStats)){
+
+            for(let i = 0; i < types.length; i++){
+
+                const t = types[i];
+
+                if(data[t].kills > 0 || data[t].deaths > 0) return true;
+            }
+        }
+
+        return false;
+    }
+
+    async updateDatabase(){
+
+        if(!this.bAnyNonPrimaryKills()) return;
+
+        await this.insertPlayerMatchData();
+        await this.updateMapTotals();
     }
 
 }
