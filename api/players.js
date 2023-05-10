@@ -938,7 +938,7 @@ class Players{
     async getGametypeTotals(playerId, bAllTotals){
 
 
-        let query = `SELECT ${(bAllTotals) ? "" : "gametype,"}
+        let query = `SELECT ${(bAllTotals) ? "" : "gametype,map_id,"}
         COUNT(*) as total_matches,
         SUM(winner) as wins,
         SUM(draw) as draws,
@@ -1003,16 +1003,24 @@ class Players{
         MAX(mh_kills_best_life) as mh_kills_best_life,
         SUM(mh_deaths) as mh_deaths,
         MAX(mh_deaths) as mh_deaths_worst,
-        SUM(accuracy) as accuracy
+        SUM(accuracy) as accuracy,
+        SUM(telefrag_kills) as telefrag_kills,
+        SUM(telefrag_deaths) as telefrag_deaths,
+        MAX(telefrag_best_spree) as telefrag_best_spree,
+        MAX(telefrag_best_multi) as telefrag_best_multi,
+        SUM(tele_disc_kills) as tele_disc_kills,
+        SUM(tele_disc_deaths) as tele_disc_deaths,
+        MAX(tele_disc_best_spree) as tele_disc_best_spree,
+        MAX(tele_disc_best_multi) as tele_disc_best_multi
         FROM nstats_player_matches
         WHERE player_id=?`;
 
-        if(!bAllTotals) query += ` GROUP BY gametype`;
+        if(!bAllTotals) query += ` GROUP BY gametype, map_id`;
 
         return await mysql.simpleQuery(query, [playerId]);
     }
 
-    async updatePlayerTotal(playerId, gametypeId, data){
+    async updatePlayerTotal(playerId, gametypeId, mapId, data){
 
         const query = `UPDATE nstats_player_totals SET 
         first=?,
@@ -1073,7 +1081,7 @@ class Players{
         mh_deaths=?,
         mh_deaths_worst=?
 
-        WHERE ${(gametypeId === 0) ? "id" : "player_id" }=? AND gametype=?`;
+        WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=? AND gametype=? AND map=?`;
 
 
         const vars = [
@@ -1135,7 +1143,7 @@ class Players{
             data.mh_kills_best,
             data.mh_deaths,
             data.mh_deaths_worst,
-            playerId, gametypeId
+            playerId, gametypeId, mapId
         ];
 
         return await mysql.simpleQuery(query, vars);
@@ -1143,56 +1151,49 @@ class Players{
 
     async recalculatePlayerTotalsAfterMerge(playerId, playerName){
 
-        const gametypes = await this.getGametypeTotals(playerId, false);
-        const allTotals = await this.getGametypeTotals(playerId, true);
-        allTotals[0].gametype = 0;
+        const mapsData = await this.getGametypeTotals(playerId, false);
 
-        gametypes.push(allTotals[0]);
+        for(let i = 0; i < mapsData.length; i++){
 
+            const m = mapsData[i];
 
-        for(let i = 0; i < gametypes.length; i++){
+            m.winRate = 0;
+            m.efficiency = 0;
 
-            const g = gametypes[i];
-
-
-            g.winRate = 0;
-            g.efficiency = 0;
-
-            if(g.wins > 0 && g.total_matches > 0){
+            if(m.wins > 0 && m.total_matches > 0){
                 
-                g.winRate = g.wins / g.total_matches * 100;
+                m.winRate = m.wins / m.total_matches * 100;
             }
 
-            g.losses = g.total_matches - g.wins;
+            m.losses = m.total_matches - m.wins;
 
-            if(g.kills > 0){
+            if(m.kills > 0){
 
-                if(g.deaths > 0){
-                    g.efficiency = g.kills / (g.kills + g.deaths) * 100;
+                if(m.deaths > 0){
+                    m.efficiency = m.kills / (m.kills + m.deaths) * 100;
                 }else{
-                    g.efficiency = 100;
+                    m.efficiency = 100;
                 }
             }
 
-            if(g.accuracy > 0) g.accuracy = g.accuracy / g.total_matches;
+            if(m.accuracy > 0) m.accuracy = m.accuracy / m.total_matches;
 
-            g.name = playerName.name;
+            m.name = playerName.name;
 
-
-            const updateResult = await this.updatePlayerTotal(playerId, g.gametype, g);
+            const updateResult = await this.updatePlayerTotal(playerId, m.gametype, m.map_id, m);
 
             if(updateResult.affectedRows === 0){
-                await this.createTotalsFromMerge(playerId, g.gametype, g);
+                await this.createTotalsFromMerge(playerId, m.gametype, m.map_id, m);
             }
         }
     }
 
-    async createTotalsFromMerge(playerId, gametypeId, data){
+    async createTotalsFromMerge(playerId, gametypeId, mapId, data){
 
         const query = `INSERT INTO nstats_player_totals VALUES(NULL,
         ?,?,?,?,?,
         ?,?,?,?,?,
-        ?,?,?,?,?,
+        ?,?,?,?,?,?,
         ?,?,?,?,?,
         ?,?,?,?,?,
         ?,?,?,?,?,
@@ -1207,7 +1208,7 @@ class Players{
 
         const vars = [
             "", data.name, playerId, data.first, data.last,  
-            "", "", 0, 0, gametypeId, 
+            "", "", 0, 0, gametypeId, mapId,
             data.total_matches, data.wins, data.losses, data.draws, data.winRate, 
             data.playtime, 
             data.team_0_playtime, data.team_1_playtime, data.team_2_playtime, data.team_3_playtime, data.spec_playtime,
